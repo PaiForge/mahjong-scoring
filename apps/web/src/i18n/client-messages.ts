@@ -99,7 +99,20 @@ export const clientMessages: Messages = omitNamespaces(
   ]),
 );
 
+/**
+ * 管理画面と共有するクライアントコンポーネント（`app/_components/`）が引く名前空間
+ *
+ * 管理画面の Provider は辞書を置き換えるので、管理画面のシェルに置く共有部品
+ * （`BrandLogo` の `nav`）の名前空間もここで渡し直す。ルートの辞書からは外さない
+ * （ユーザー向けの画面でも同じ部品が引くため）。
+ */
+const ADMIN_SHARED_MESSAGE_NAMESPACES = [
+  "nav",
+] as const satisfies readonly MessageNamespace[];
+
 /** 管理画面の `NextIntlClientProvider` に渡す辞書 */
-export const adminClientMessages: Messages = {
-  admin: messages.admin,
-};
+export const adminClientMessages: Messages = Object.fromEntries(
+  [...ADMIN_MESSAGE_NAMESPACES, ...ADMIN_SHARED_MESSAGE_NAMESPACES].map(
+    (namespace) => [namespace, messages[namespace]],
+  ),
+);

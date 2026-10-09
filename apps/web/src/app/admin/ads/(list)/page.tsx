@@ -104,7 +104,7 @@ export default async function AdminAdsPage({
       </div>
 
       {/* 作成・編集から `#<スロット>` 付きで戻ったとき、本体が届いてから着地させる */}
-      <HashAnchorScroll key={platform} />
+      <HashAnchorScroll key={`anchor-${platform}`} />
 
       <AdminTabs
         label={t("platformTabs")}
@@ -117,7 +117,7 @@ export default async function AdminAdsPage({
 
       <TrackingIdForm
         // タブを切り替えたら入力中の値を捨てる（別の ID の欄になるため）
-        key={platform}
+        key={`tracking-id-${platform}`}
         platform={platform}
         trackingId={trackingIds[platform]}
         hiddenAsinCount={hiddenAsinCount}
