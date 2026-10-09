@@ -26,6 +26,7 @@ import {
   pickAgariHai,
   pickRonAgariHai,
 } from "../shared/hand-skeleton";
+import { orderByHandLayout } from "../shared/hand-layout";
 
 /** 面子と雀頭の符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
 const MENTSU_JANTOU_FU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
@@ -120,7 +121,10 @@ export function generateMentsuJantouFuQuestion(
   //    手牌は「昇順ソート済みの暗牌 → 副露（右側）」で表示されるため、
   //    暗牌側の面子・雀頭を牌の昇順で、続けて副露を tehai.exposed の順に並べる。
   //    これにより回答行が手牌の左から右の見た目と対応する。
-  const orderedItems = orderItemsByHandLayout(items);
+  const orderedItems = orderByHandLayout(items, (item) => ({
+    tiles: item.tiles,
+    isExposed: isExposedItem(item),
+  }));
 
   return {
     id: idGen(),
@@ -180,31 +184,4 @@ function isExposedItem(item: MentsuJantouFuItem): boolean {
   return (
     (item.isOpen || item.type === MentsuType.Kantsu) && !!item.originalMentsu
   );
-}
-
-/** ソート済みの牌配列同士を辞書順で比較する */
-function compareTilesAsc(
-  a: readonly HaiKindId[],
-  b: readonly HaiKindId[],
-): number {
-  const sa = [...a].sort((x, y) => x - y);
-  const sb = [...b].sort((x, y) => x - y);
-  const len = Math.min(sa.length, sb.length);
-  for (let i = 0; i < len; i++) {
-    if (sa[i] !== sb[i]) return sa[i] - sb[i];
-  }
-  return sa.length - sb.length;
-}
-
-/**
- * 回答行を手牌の表示順（暗牌を牌の昇順 → 副露を生成順）に並べ替える
- * 手牌レイアウト整列
- */
-function orderItemsByHandLayout(
-  items: readonly MentsuJantouFuItem[],
-): MentsuJantouFuItem[] {
-  const closedItems = items.filter((it) => !isExposedItem(it));
-  const exposedItems = items.filter((it) => isExposedItem(it));
-  closedItems.sort((a, b) => compareTilesAsc(a.tiles, b.tiles));
-  return [...closedItems, ...exposedItems];
 }
