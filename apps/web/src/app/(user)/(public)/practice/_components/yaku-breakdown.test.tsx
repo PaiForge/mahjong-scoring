@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent } from "@testing-library/react";
+// 牌を描くので TileImageProvider で包む render を使う
+import { render } from "@/test/tile-image-render";
 import { YakuBreakdown } from "./yaku-breakdown";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
