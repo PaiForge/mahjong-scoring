@@ -7,14 +7,10 @@
  * トランザクション内で `exp_events` に冪等 INSERT し、
  * 新規挿入の場合のみ `user_exp` を加算する。
  *
- * @see {@link @mahjong-scoring/core} 計算ロジック（calculateExp, getLevel）
+ * @see {@link @mahjong-scoring/core} 計算ロジック（calculateExp, buildExpInfo）
  * @see {@link ./save-challenge-result.ts} 呼び出し元のトランザクション
  */
-import {
-  calculateExp,
-  getLevel,
-  getLevelProgress,
-} from "@mahjong-scoring/core";
+import { buildExpInfo, calculateExp } from "@mahjong-scoring/core";
 import type { ExpInfo } from "@mahjong-scoring/core";
 import type { TransactionClient } from "./index";
 import { and, eq, sql } from "drizzle-orm";
@@ -200,23 +196,6 @@ function buildExpInfoFromRow(row: ExistingEventRow | undefined): ExpInfo {
   const totalExpAfter =
     typeof rawTotalAfter === "number" ? rawTotalAfter : row.amount;
   return buildExpInfo({ earned: row.amount, totalExpAfter });
-}
-
-function buildExpInfo(args: {
-  readonly earned: number;
-  readonly totalExpAfter: number;
-}): ExpInfo {
-  const { earned, totalExpAfter } = args;
-  const levelAfter = getLevel(totalExpAfter);
-  const levelBefore = getLevel(totalExpAfter - earned);
-  const progress = getLevelProgress(totalExpAfter);
-  return {
-    earnedExp: earned,
-    totalExp: totalExpAfter,
-    level: levelAfter,
-    levelUp: levelAfter > levelBefore,
-    progressPercent: Math.round(progress.progress * 100),
-  };
 }
 
 /**

@@ -182,7 +182,7 @@ export type { PaymentKind, Role, WinType } from "./core/roles";
 export { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "./challenge/constants";
 
 // === EXP ===
-export { calculateExp, getLevel, getLevelProgress } from "./exp";
+export { buildExpInfo, calculateExp, getLevel, getLevelProgress } from "./exp";
 export type { ExpInfo } from "./exp";
 
 // === Rules ===
