@@ -15,6 +15,7 @@ function render(params: Partial<UseScoreAnswerFormParams> = {}) {
       isTsumo: false,
       han: 1,
       kiriageMangan: false,
+      koTsumoInput: "combined",
       onSubmit,
       ...params,
     }),
@@ -30,8 +31,30 @@ describe("useScoreAnswerForm", () => {
     expect(result.current.showsSubmitButton).toBe(false);
   });
 
-  it("子ツモは 2 つとも選ぶまで送らない", () => {
+  it("子ツモのまとめた select は組を選んだ時点で送る", () => {
     const { result, onSubmit } = render({ isTsumo: true, autoSubmit: true });
+    expect(result.current.availableScores.type).toBe("koTsumoCombined");
+    act(() =>
+      result.current.selectKoTsumoPayment({
+        type: "koTsumo",
+        fromKo: 300,
+        fromOya: 500,
+      }),
+    );
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      type: "koTsumo",
+      fromKo: 300,
+      fromOya: 500,
+    });
+  });
+
+  it("子ツモの分割入力は 2 つとも選ぶまで送らない", () => {
+    const { result, onSubmit } = render({
+      isTsumo: true,
+      autoSubmit: true,
+      koTsumoInput: "split",
+    });
     act(() => result.current.selectFromKo(300));
     expect(onSubmit).not.toHaveBeenCalled();
     act(() => result.current.selectFromOya(500));

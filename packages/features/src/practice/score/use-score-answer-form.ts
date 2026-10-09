@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import { paymentKindOf } from "@mahjong-scoring/core";
-import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
+import type {
+  KoTsumoPayment,
+  ScoreTableUserAnswer,
+} from "@mahjong-scoring/core";
+import type { KoTsumoInputMode } from "../../settings/ko-tsumo-input";
 import { useTrainingMode } from "../use-training-mode";
 import {
   getAvailableScores,
   type AvailableScores,
   type ScoreOptionRange,
 } from "./get-available-scores";
+import {
+  resolveScoreSelection,
+  type ScoreInput,
+  type ScoreSelection,
+} from "./score-selection";
 
 export interface UseScoreAnswerFormParams {
   /** 親かどうか */
@@ -26,7 +35,8 @@ export interface UseScoreAnswerFormParams {
   readonly scoreRange?: ScoreOptionRange;
   /**
    * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）。
-   * 単一選択は値が選ばれた時点、子ツモは 2 つとも選ばれた時点で送信する。
+   * 単一選択・子ツモの組の select は値が選ばれた時点、子ツモの分割入力は
+   * 2 つとも選ばれた時点で送信する。
    */
   readonly autoSubmit?: boolean;
   /** 端末のルール設定の切り上げ満貫 */
@@ -43,6 +53,8 @@ export interface UseScoreAnswerFormParams {
    * true のとき `kiriageMangan` / `allowDoubleYakuman` は無視する。
    */
   readonly fixedRules?: boolean;
+  /** 子ツモの入力方式（端末の表示設定。アプリ側がストアから読んで渡す） */
+  readonly koTsumoInput: KoTsumoInputMode;
 }
 
 export interface UseScoreAnswerFormResult {
@@ -55,9 +67,12 @@ export interface UseScoreAnswerFormResult {
   readonly scoreFromKo: number | undefined;
   /** 子ツモの親からの点数 */
   readonly scoreFromOya: number | undefined;
+  /** 子ツモをまとめた select で選んだ組 */
+  readonly koTsumoPayment: KoTsumoPayment | undefined;
   readonly selectScore: (value: number) => void;
   readonly selectFromKo: (value: number) => void;
   readonly selectFromOya: (value: number) => void;
+  readonly selectKoTsumoPayment: (payment: KoTsumoPayment) => void;
   /**
    * 入力が揃ったか（子ツモは 2 つとも）。揃うまで「回答する」ボタンを押せなく
    * する — 押せるのに何も起きない状態を作らないため
@@ -77,6 +92,8 @@ export interface UseScoreAnswerFormResult {
  * 点数回答フォーム状態
  *
  * 選択肢の絞り込み・選んだ点数・自動送信・送信する回答の組み立てを持つ。
+ * 選んだ点数・「揃ったか」・送る回答は、どれも今の選択肢に存在する値だけを
+ * 見る（{@link resolveScoreSelection}）。
  * 問題が変わったときの入力リセットは、呼び出し元が `key` に出題番号を
  * 渡して再マウントさせることで行う。
  */
@@ -91,81 +108,73 @@ export function useScoreAnswerForm({
   kiriageMangan,
   allowDoubleYakuman = false,
   fixedRules = false,
+  koTsumoInput,
 }: UseScoreAnswerFormParams): UseScoreAnswerFormResult {
   const { isHolding } = useTrainingMode();
-  const [score, setScore] = useState<number | undefined>(undefined);
-  const [scoreFromKo, setScoreFromKo] = useState<number | undefined>(undefined);
-  const [scoreFromOya, setScoreFromOya] = useState<number | undefined>(
-    undefined,
-  );
+  const [input, setInput] = useState<ScoreInput>(EMPTY_INPUT);
 
   const isOyaTsumo = paymentKindOf(isOya, isTsumo) === "oyaTsumo";
-  const availableScores = getAvailableScores(
+  const availableScores = getAvailableScores({
     han,
     isOya,
     isTsumo,
     scoreRange,
-    fixedRules ? false : kiriageMangan,
-    fixedRules ? false : allowDoubleYakuman,
-  );
+    kiriageMangan: fixedRules ? false : kiriageMangan,
+    doubleYakuman: fixedRules ? false : allowDoubleYakuman,
+    koTsumoInput,
+  });
+  const selection = resolveScoreSelection(availableScores, input);
 
-  // 単一選択（ロン / 親ツモ）の値から回答を送信する
-  const submitSingle = (value: number) =>
-    onSubmit(
-      isOyaTsumo
-        ? { type: "oyaTsumo", all: value }
-        : { type: "ron", score: value },
-    );
-
-  // 子ツモの 2 値から回答を送信する
-  const submitKoTsumo = (fromKo: number, fromOya: number) =>
-    onSubmit({ type: "koTsumo", fromKo, fromOya });
-
-  const isComplete =
-    availableScores.type === "koTsumo"
-      ? scoreFromKo !== undefined && scoreFromOya !== undefined
-      : score !== undefined;
+  /** 揃った選択から送る回答を組み立てる（揃っていなければ undefined） */
+  const answerOf = (s: ScoreSelection): ScoreTableUserAnswer | undefined => {
+    if (!s.isComplete) return undefined;
+    if (s.scoreFromKo !== undefined && s.scoreFromOya !== undefined) {
+      return {
+        type: "koTsumo",
+        fromKo: s.scoreFromKo,
+        fromOya: s.scoreFromOya,
+      };
+    }
+    if (s.score === undefined) return undefined;
+    return isOyaTsumo
+      ? { type: "oyaTsumo", all: s.score }
+      : { type: "ron", score: s.score };
+  };
 
   const submit = () => {
-    if (availableScores.type === "koTsumo") {
-      if (scoreFromKo !== undefined && scoreFromOya !== undefined) {
-        submitKoTsumo(scoreFromKo, scoreFromOya);
-      }
-    } else if (score !== undefined) {
-      submitSingle(score);
-    }
+    const answer = answerOf(selection);
+    if (answer) onSubmit(answer);
   };
 
-  const selectScore = (value: number) => {
-    setScore(value);
-    if (autoSubmit && !disabled) submitSingle(value);
-  };
-
-  const selectFromKo = (value: number) => {
-    setScoreFromKo(value);
-    if (autoSubmit && !disabled && scoreFromOya !== undefined) {
-      submitKoTsumo(value, scoreFromOya);
-    }
-  };
-
-  const selectFromOya = (value: number) => {
-    setScoreFromOya(value);
-    if (autoSubmit && !disabled && scoreFromKo !== undefined) {
-      submitKoTsumo(scoreFromKo, value);
-    }
+  // 入力を書き換え、自動送信なら書き換えた後の選択が揃った時点で送る
+  const select = (patch: Partial<ScoreInput>) => {
+    const next = { ...input, ...patch };
+    setInput(next);
+    if (!autoSubmit || disabled) return;
+    const answer = answerOf(resolveScoreSelection(availableScores, next));
+    if (answer) onSubmit(answer);
   };
 
   return {
     availableScores,
     isOyaTsumo,
-    score,
-    scoreFromKo,
-    scoreFromOya,
-    selectScore,
-    selectFromKo,
-    selectFromOya,
-    isComplete,
+    score: selection.score,
+    scoreFromKo: selection.scoreFromKo,
+    scoreFromOya: selection.scoreFromOya,
+    koTsumoPayment: selection.koTsumoPayment,
+    selectScore: (score) => select({ score }),
+    selectFromKo: (scoreFromKo) => select({ scoreFromKo }),
+    selectFromOya: (scoreFromOya) => select({ scoreFromOya }),
+    selectKoTsumoPayment: ({ fromKo, fromOya }) =>
+      select({ scoreFromKo: fromKo, scoreFromOya: fromOya }),
+    isComplete: selection.isComplete,
     submit,
     showsSubmitButton: !autoSubmit && !isHolding,
   };
 }
+
+const EMPTY_INPUT: ScoreInput = {
+  score: undefined,
+  scoreFromKo: undefined,
+  scoreFromOya: undefined,
+};

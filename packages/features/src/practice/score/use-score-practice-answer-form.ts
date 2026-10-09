@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { paymentKindOf } from "@mahjong-scoring/core";
-import type { UserAnswer } from "@mahjong-scoring/core";
+import type { KoTsumoPayment, UserAnswer } from "@mahjong-scoring/core";
+import type { KoTsumoInputMode } from "../../settings/ko-tsumo-input";
 import {
   getAvailableScores,
   type AvailableScores,
 } from "./get-available-scores";
 import { MANGAN_MIN_HAN } from "./han-tiers";
+import { resolveScoreSelection } from "./score-selection";
 
 /** 入力欄の中身（prefill から起こすため 1 つの型にまとめる） */
 interface FormFields {
@@ -52,6 +54,8 @@ export interface UseScorePracticeAnswerFormParams {
   readonly kiriageMangan: boolean;
   /** ダブル役満を採用したルールか（翻数・点数の選択肢にダブル役満を足す） */
   readonly allowDoubleYakuman: boolean;
+  /** 子ツモの入力方式（端末の表示設定。アプリ側がストアから読んで渡す） */
+  readonly koTsumoInput: KoTsumoInputMode;
   /**
    * 入力欄の初期値。変わったら、まだ触っていない欄をその中身に合わせる
    * （聴牌形の点数計算で同じ答えのマスをまとめて選んだとき、共通の答えを入れておく）
@@ -66,6 +70,10 @@ export interface UseScorePracticeAnswerFormResult extends FormFields {
   readonly setScore: (score: number) => void;
   readonly setScoreFromKo: (score: number) => void;
   readonly setScoreFromOya: (score: number) => void;
+  /** 子ツモをまとめた select で組を選ぶ（子から・親からを同時に入れる） */
+  readonly setKoTsumoPayment: (payment: KoTsumoPayment) => void;
+  /** 子ツモをまとめた select で選ばれている組 */
+  readonly koTsumoPayment: KoTsumoPayment | undefined;
   /** 符を答えさせるか（満貫以上は符が点数に効かないので、設定が無ければ問わない） */
   readonly isFuRequired: boolean;
   readonly availableScores: AvailableScores;
@@ -86,6 +94,11 @@ export interface UseScorePracticeAnswerFormResult extends FormFields {
  *
  * 入力欄の値と prefill への追従、符を問うか、点数の選択肢、入力が揃ったか、
  * 送る回答の組み立てを持つ。和了形・聴牌形の点数計算の両方で使う。
+ *
+ * 返す点数（`score` / `scoreFromKo` / `scoreFromOya`）・`isComplete`・送る回答は、
+ * どれも今の選択肢に存在する値だけを見る（{@link resolveScoreSelection}）。
+ * 読み込んだ回答が分割入力で入れた実在しない組だったときや、翻数を変えて
+ * 選んでいた点数が選択肢から外れたときは未選択に見え、選び直すまで送れない。
  */
 export function useScorePracticeAnswerForm({
   onSubmit,
@@ -95,6 +108,7 @@ export function useScorePracticeAnswerForm({
   requireFuForMangan,
   kiriageMangan,
   allowDoubleYakuman,
+  koTsumoInput,
   prefill,
 }: UseScorePracticeAnswerFormParams): UseScorePracticeAnswerFormResult {
   const [fields, setFields] = useState(() => fieldsOf(prefill));
@@ -117,29 +131,29 @@ export function useScorePracticeAnswerForm({
       setFields((prev) => ({ ...prev, [key]: value }));
     };
 
-  const { han, fu, yakus, score, scoreFromKo, scoreFromOya } = fields;
+  const { han, fu, yakus } = fields;
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
   const isFuRequired = !isMangan || requireFuForMangan;
 
   const availableScores = useMemo(
     () =>
-      getAvailableScores(
+      getAvailableScores({
         han,
         isOya,
         isTsumo,
-        undefined,
         kiriageMangan,
-        allowDoubleYakuman,
-      ),
-    [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman],
+        doubleYakuman: allowDoubleYakuman,
+        koTsumoInput,
+      }),
+    [han, isOya, isTsumo, kiriageMangan, allowDoubleYakuman, koTsumoInput],
   );
+  const selection = resolveScoreSelection(availableScores, fields);
+  const { score, scoreFromKo, scoreFromOya } = selection;
 
   const isComplete =
     han !== undefined &&
     (!isFuRequired || fu !== undefined) &&
-    (availableScores.type === "koTsumo"
-      ? scoreFromKo !== undefined && scoreFromOya !== undefined
-      : score !== undefined);
+    selection.isComplete;
 
   const submit = () => {
     if (han === undefined) return;
@@ -148,7 +162,7 @@ export function useScorePracticeAnswerForm({
     const submitYakus = requireYaku ? [...yakus] : [];
     const submitFu = isFuRequired ? fu : isMangan ? undefined : fu;
 
-    if (availableScores.type === "koTsumo") {
+    if (availableScores.type !== "single") {
       if (scoreFromKo === undefined || scoreFromOya === undefined) return;
       onSubmit({
         han,
@@ -165,12 +179,24 @@ export function useScorePracticeAnswerForm({
 
   return {
     ...fields,
+    score,
+    scoreFromKo,
+    scoreFromOya,
+    koTsumoPayment: selection.koTsumoPayment,
     setHan: update("han"),
     setFu: update("fu"),
     setYakus: update("yakus"),
     setScore: update("score"),
     setScoreFromKo: update("scoreFromKo"),
     setScoreFromOya: update("scoreFromOya"),
+    setKoTsumoPayment: ({ fromKo, fromOya }) => {
+      setTouched(true);
+      setFields((prev) => ({
+        ...prev,
+        scoreFromKo: fromKo,
+        scoreFromOya: fromOya,
+      }));
+    },
     isFuRequired,
     availableScores,
     isOyaTsumo: paymentKindOf(isOya, isTsumo) === "oyaTsumo",
