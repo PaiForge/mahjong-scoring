@@ -160,6 +160,10 @@ async function recoverFromUnauthorized(
         ? refreshed.access_token
         : undefined;
     }
+    default: {
+      const exhaustive: never = recovery;
+      return exhaustive;
+    }
   }
 }
 

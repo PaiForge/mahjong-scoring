@@ -82,6 +82,10 @@ export function generateChallengeQuestion(
       );
     case "score_calculation":
       return generateValidScoreQuestion(score, 500);
+    default: {
+      const exhaustive: never = menu;
+      return exhaustive;
+    }
   }
 }
 

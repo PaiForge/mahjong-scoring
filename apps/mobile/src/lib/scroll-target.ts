@@ -45,5 +45,9 @@ export function scrollTargetY(
       }
       return undefined;
     }
+    default: {
+      const exhaustive: never = block;
+      return exhaustive;
+    }
   }
 }
