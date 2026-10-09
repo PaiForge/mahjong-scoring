@@ -4,6 +4,8 @@ import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 面子分解（features の共有フック）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 const { TryBoard } = await import("./try-board");

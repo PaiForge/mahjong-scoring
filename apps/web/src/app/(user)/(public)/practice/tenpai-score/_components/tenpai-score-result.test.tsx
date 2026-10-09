@@ -23,6 +23,8 @@ import {
 import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 面子分解（features の共有フック）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 vi.mock("@pai-forge/mahjong-react-ui", () => ({
   Hai: ({ hai }: { hai: number }) => <span data-testid="hai">{hai}</span>,
   Furo: () => <span data-testid="furo" />,

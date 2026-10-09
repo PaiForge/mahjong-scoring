@@ -11,6 +11,8 @@ import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 面子分解の状態と文言（features の共有フック）は use-intl から辞書を読む
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 // 牌画像そのものは検証対象ではないため、牌IDだけ持つスタブに差し替える。
 // グループ分け（4面子 + 1雀頭）と、和了牌の枠・副露の並べ方を

@@ -1,16 +1,12 @@
-import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { resolveMentsuBreakdowns } from "@mahjong-scoring/core";
 import type {
   HaiKindId,
   MentsuBreakdownCandidate,
   MentsuBreakdownContext,
-  MentsuBreakdownRow,
   Tehai,
 } from "@mahjong-scoring/core";
-import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 
 import { DataTable } from "../components/data-table";
 import { TilesIcon } from "../components/icons/icons";
@@ -20,10 +16,8 @@ import { useFuHanOrder } from "../hooks/use-display-settings-store";
 import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
-import {
-  hasRonMinkou,
-  mentsuBreakdownLabelKey,
-} from "@mahjong-scoring/features/board/mentsu-breakdown";
+import { hasRonMinkou } from "@mahjong-scoring/features/board/mentsu-breakdown";
+import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 
 function ClosedTiles({
   hais,
@@ -62,24 +56,20 @@ export function TehaiMentsuBreakdown({
   readonly context: MentsuBreakdownContext;
 }) {
   const t = useTranslations("common");
-  const fuHanOrder = useFuHanOrder();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
-  const candidates = useMemo(
-    () => resolveMentsuBreakdowns(tehai, context),
-    [tehai, context],
-  );
-  const selected =
-    candidates.find((c) => c.key === selectedKey) ?? candidates[0];
+  const {
+    candidates,
+    selected,
+    select,
+    isOpen,
+    open,
+    close,
+    mentsuLabel,
+    fuHanLabel,
+  } = useMentsuBreakdown(tehai, context, useFuHanOrder());
   if (selected === undefined) return undefined;
 
-  const mentsuLabel = (row: MentsuBreakdownRow): string =>
-    t(mentsuBreakdownLabelKey(row));
   const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
-    const fuHan = orderFuHan(fuHanOrder, {
-      fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
-      han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
-    }).join(" ");
+    const fuHan = fuHanLabel(candidate);
     const isSelected = candidate.key === selected.key;
     // 文字色はセグメントの選択状態に合わせ、バッジは枠と文字を同じ色にする
     const color = toggleLabelColor(isSelected);
@@ -106,11 +96,11 @@ export function TehaiMentsuBreakdown({
       <ReferenceLinkButton
         icon={<TilesIcon size={14} color={colors.mutedForeground} />}
         label={t("mentsuBreakdown")}
-        onPress={() => setIsOpen(true)}
+        onPress={open}
       />
       <InfoModal
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={close}
         title={t("mentsuBreakdown")}
         closeLabel={t("close")}
       >
@@ -124,7 +114,7 @@ export function TehaiMentsuBreakdown({
                 })),
               ]}
               selected={selected.key}
-              onSelect={setSelectedKey}
+              onSelect={select}
               accessibilityLabel={t("mentsuBreakdown")}
             />
           )}

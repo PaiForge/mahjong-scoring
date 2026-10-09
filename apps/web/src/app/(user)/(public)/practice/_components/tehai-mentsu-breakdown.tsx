@@ -1,13 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { resolveMentsuBreakdowns } from "@mahjong-scoring/core";
 import type {
   HaiKindId,
   MentsuBreakdownCandidate,
   MentsuBreakdownContext,
-  MentsuBreakdownRow,
   Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
@@ -21,11 +18,8 @@ import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
-import {
-  hasRonMinkou,
-  mentsuBreakdownLabelKey,
-} from "@mahjong-scoring/features/board/mentsu-breakdown";
+import { hasRonMinkou } from "@mahjong-scoring/features/board/mentsu-breakdown";
+import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 
 interface TehaiMentsuBreakdownProps {
   /** 分割する手牌（和了牌を含む14枚。純手牌 + 副露） */
@@ -147,27 +141,20 @@ export function TehaiMentsuBreakdown({
   context,
 }: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
-  const fuHanOrder = useFuHanOrder();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
-
-  const candidates = useMemo(
-    () => resolveMentsuBreakdowns(tehai, context),
-    [tehai, context],
-  );
-
-  const selected =
-    candidates.find((c) => c.key === selectedKey) ?? candidates[0];
+  const {
+    candidates,
+    selected,
+    select,
+    isOpen,
+    open,
+    close,
+    mentsuLabel,
+    fuHanLabel,
+  } = useMentsuBreakdown(tehai, context, useFuHanOrder());
   if (selected === undefined) return undefined;
 
-  const mentsuLabel = (row: MentsuBreakdownRow): string =>
-    t(mentsuBreakdownLabelKey(row));
-
   const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
-    const fuHan = orderFuHan(fuHanOrder, {
-      fu: t("mentsuBreakdownCandidateFu", { fu: candidate.fu }),
-      han: t("mentsuBreakdownCandidateHan", { han: candidate.han }),
-    }).join(" ");
+    const fuHan = fuHanLabel(candidate);
     if (!candidate.isBest) return fuHan;
     // バッジは枠と文字を currentColor で描き、選択中（緑地に白）と未選択
     // （淡い地に濃い文字）のどちらでも読めるようにする
@@ -191,11 +178,11 @@ export function TehaiMentsuBreakdown({
         hitArea="row"
         icon={<TilesIcon className="size-3.5 shrink-0" />}
         label={t("mentsuBreakdown")}
-        onClick={() => setIsOpen(true)}
+        onClick={open}
       />
       <InfoModal
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={close}
         title={t("mentsuBreakdown")}
         closeLabel={t("close")}
       >
@@ -218,7 +205,7 @@ export function TehaiMentsuBreakdown({
                   label: candidateLabel(c),
                 }))}
                 selected={selected.key}
-                onChange={setSelectedKey}
+                onChange={select}
               />
             </div>
           )}
