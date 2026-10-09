@@ -11,11 +11,12 @@ import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
 /**
- * ホームの記録の案内（web の練習の結果画面の登録 CTA `SignUpCta`）
+ * 記録の案内（web の練習の結果画面の登録 CTA `SignUpCta`）
  * 登録導線
  *
  * アプリはログインが任意で、ログイン・登録の入口は設定の奥にしか無い。
- * 記録が残る道があることをホームで知らせる。
+ * 記録が残る道があることをホームで知らせる。マイページも、記録が残らない
+ * 人には中身の代わりにこれを出す。
  *
  * - ゲスト — 「無料登録」と「ログイン」。文言は web の結果画面の CTA
  *   （`challenge.signUpCta`）をそのまま使い、得られるもの（スコアの記録・
@@ -30,15 +31,20 @@ import { colors } from "../lib/theme";
  * 表示だけのカードなので細枠に淡い緑の地（web の `bg-primary-50/60`）。
  * 押して始める面は中のボタンだけ。Pro・購入には触れない（アプリでは扱わない）。
  */
-export function RecordCtaCard() {
+export function RecordCtaCard({
+  testIDPrefix = "home",
+}: {
+  /** ボタンの `testID` の接頭辞（`<接頭辞>-sign-up-cta` 等）。置いた画面の名前 */
+  readonly testIDPrefix?: string;
+}) {
   const { status, account } = useAuth();
-  if (status === "signedOut") return <SignUpCta />;
+  if (status === "signedOut") return <SignUpCta testIDPrefix={testIDPrefix} />;
   if (status === "signedIn" && account?.profile === null)
-    return <UsernameCta />;
+    return <UsernameCta testIDPrefix={testIDPrefix} />;
   return undefined;
 }
 
-function SignUpCta() {
+function SignUpCta({ testIDPrefix }: { readonly testIDPrefix: string }) {
   const t = useTranslations("challenge.signUpCta");
   const router = useRouter();
   return (
@@ -50,7 +56,7 @@ function SignUpCta() {
       <Button
         size="lg"
         fullWidth
-        testID="home-sign-up-cta"
+        testID={`${testIDPrefix}-sign-up-cta`}
         onPress={() => router.push("/sign-up")}
       >
         {t("cta")}
@@ -62,7 +68,7 @@ function SignUpCta() {
   );
 }
 
-function UsernameCta() {
+function UsernameCta({ testIDPrefix }: { readonly testIDPrefix: string }) {
   const tTitle = useTranslations("challenge.signUpCta");
   const t = useTranslations("dashboard.usernameCta");
   const router = useRouter();
@@ -75,7 +81,7 @@ function UsernameCta() {
       <Button
         size="lg"
         fullWidth
-        testID="home-username-cta"
+        testID={`${testIDPrefix}-username-cta`}
         onPress={() => router.push("/mypage/setup-username")}
       >
         {t("cta")}

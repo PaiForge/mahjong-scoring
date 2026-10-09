@@ -23,11 +23,18 @@ const HEADER_HEIGHT = 48;
 /** ヘッダー左右の操作の幅。44pt 以上の当たり判定を確保する */
 const HEADER_SLOT_WIDTH = 48;
 
+/** ヘッダー右に操作を 2 つ並べるときの左右の幅（アイコン 24 × 2 + 間 16 + 余白） */
+const HEADER_WIDE_SLOT_WIDTH = 80;
+
 interface ScreenProps {
   /** 見出し（ヘッダー中央に出す）。省略するとヘッダーを出さない */
   readonly title?: string;
   /** ヘッダー右端に置く操作（ヘルプの「?」等） */
   readonly titleAction?: ReactNode;
+  /**
+   * ヘッダー右の操作が 2 つ並ぶ。左右の枠を同じだけ広げ、見出しを中央に保つ
+   */
+  readonly titleActionWide?: boolean;
   /** ヘッダー左端に戻るボタンを出す */
   readonly back?: boolean;
   /**
@@ -77,6 +84,7 @@ interface ScreenProps {
 export function Screen({
   title,
   titleAction,
+  titleActionWide = false,
   back = false,
   onBack,
   backIcon = "chevron",
@@ -120,7 +128,7 @@ export function Screen({
       {title !== undefined && (
         <View style={[styles.header, { paddingTop: insets.top }]}>
           <View style={styles.headerRow}>
-            <View style={styles.slot}>
+            <View style={[styles.slot, titleActionWide && styles.slotWide]}>
               {back && (
                 <Pressable
                   onPress={handleBack}
@@ -149,7 +157,15 @@ export function Screen({
             >
               {title}
             </Text>
-            <View style={[styles.slot, styles.slotEnd]}>{titleAction}</View>
+            <View
+              style={[
+                styles.slot,
+                titleActionWide && styles.slotWide,
+                styles.slotEnd,
+              ]}
+            >
+              {titleAction}
+            </View>
           </View>
         </View>
       )}
@@ -211,6 +227,9 @@ const styles = StyleSheet.create({
     height: HEADER_HEIGHT,
     alignItems: "flex-start",
     justifyContent: "center",
+  },
+  slotWide: {
+    width: HEADER_WIDE_SLOT_WIDTH,
   },
   slotEnd: {
     alignItems: "flex-end",
