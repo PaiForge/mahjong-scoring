@@ -8,7 +8,7 @@ import type { MobileUsernameErrorCode } from "@mahjong-scoring/features/account/
 import { registerUsernameForUser } from "../users/register-username";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
+import { parseMobileBody } from "./request";
 import { mobileJson } from "./response";
 
 /** 要求の 1 項目の長さの上限。本当の上限は検証側が持つので、ここでは型と桁だけを見る */
@@ -43,11 +43,8 @@ export async function handleRegisterUsername(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "username");
   if (!auth.ok) return auth.response;
-  const body = bodySchema.safeParse(
-    await readMobileJson(request, BODY_MAX_BYTES),
-  );
-  if (!body.success)
-    return mobileJson({ error: "invalidRequest" }, { status: 400 });
+  const body = await parseMobileBody(request, bodySchema, BODY_MAX_BYTES);
+  if (!body.ok) return body.response;
 
   const result = await registerUsernameForUser(
     auth.user.id,

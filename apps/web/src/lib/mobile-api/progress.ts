@@ -16,7 +16,7 @@ import {
 } from "../lessons/record-completions";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
+import { parseMobileBody } from "./request";
 import { mobileJson, mobileServerError } from "./response";
 
 const completeLessonsSchema = z.object({
@@ -65,11 +65,8 @@ export async function handleCompleteLessons(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "completeLessons");
   if (!auth.ok) return auth.response;
-  const body = completeLessonsSchema.safeParse(
-    await readMobileJson(request, 8 * 1024),
-  );
-  if (!body.success)
-    return mobileJson({ error: "invalidRequest" }, { status: 400 });
+  const body = await parseMobileBody(request, completeLessonsSchema, 8 * 1024);
+  if (!body.ok) return body.response;
   const { completed, rejected } = partitionLessonSlugs(body.data.slugs);
   try {
     if (!(await recordLessonCompletions(auth.user.id, completed)))

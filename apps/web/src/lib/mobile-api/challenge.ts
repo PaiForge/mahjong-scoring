@@ -26,7 +26,7 @@ import {
 } from "../challenge/attempts";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
+import { parseMobileBody } from "./request";
 import { mobileJson, mobileServerError } from "./response";
 
 /** 回答の本文の上限。回答は選んだ符・翻・点数や役の一覧で、数百バイトに収まる */
@@ -87,10 +87,12 @@ export async function handleBeginChallenge(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "beginChallenge");
   if (!auth.ok) return auth.response;
-  const body = beginSchema.safeParse(
-    await readMobileJson(request, SMALL_BODY_MAX_BYTES),
+  const body = await parseMobileBody(
+    request,
+    beginSchema,
+    SMALL_BODY_MAX_BYTES,
   );
-  if (!body.success) return challengeError("invalidRequest", 400);
+  if (!body.ok) return body.response;
   const { id, menuType, variant, settings } = body.data;
   if (!isPracticeMenuType(menuType) || isExamMenuType(menuType))
     return challengeError("invalidChallenge", 422);
@@ -131,10 +133,13 @@ export async function handleAnswerChallenge(
   const receivedAt = Date.now();
   const auth = await authorizeMobileRequest(request, "answerChallenge");
   if (!auth.ok) return auth.response;
-  const body = answerSchema.safeParse(
-    await readMobileJson(request, ANSWER_BODY_MAX_BYTES),
+  const body = await parseMobileBody(
+    request,
+    answerSchema,
+    ANSWER_BODY_MAX_BYTES,
   );
-  if (!body.success || !attemptIdSchema.safeParse(attemptId).success)
+  if (!body.ok) return body.response;
+  if (!attemptIdSchema.safeParse(attemptId).success)
     return challengeError("invalidRequest", 400);
   try {
     const result = await answerAttempt(
@@ -168,10 +173,13 @@ export async function handlePauseChallenge(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readChallenge");
   if (!auth.ok) return auth.response;
-  const body = pauseSchema.safeParse(
-    await readMobileJson(request, SMALL_BODY_MAX_BYTES),
+  const body = await parseMobileBody(
+    request,
+    pauseSchema,
+    SMALL_BODY_MAX_BYTES,
   );
-  if (!body.success || !attemptIdSchema.safeParse(attemptId).success)
+  if (!body.ok) return body.response;
+  if (!attemptIdSchema.safeParse(attemptId).success)
     return challengeError("invalidRequest", 400);
   try {
     if (await pauseAttempt(auth.user.id, attemptId, body.data.paused))

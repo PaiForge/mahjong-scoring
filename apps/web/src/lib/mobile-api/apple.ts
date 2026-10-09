@@ -13,7 +13,7 @@ import {
 } from "../apple/refresh-tokens";
 
 import { authorizeMobileRequest } from "./auth";
-import { readMobileJson } from "./request";
+import { parseMobileBody } from "./request";
 import { mobileJson, mobileServerError } from "./response";
 
 const BODY_MAX_BYTES = 2 * 1024;
@@ -46,10 +46,12 @@ export async function handleSaveAppleToken(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "saveAppleToken");
   if (!auth.ok) return auth.response;
-  const body = mobileAppleTokenRequestSchema.safeParse(
-    await readMobileJson(request, BODY_MAX_BYTES),
+  const body = await parseMobileBody(
+    request,
+    mobileAppleTokenRequestSchema,
+    BODY_MAX_BYTES,
   );
-  if (!body.success) return appleTokenError("invalidRequest");
+  if (!body.ok) return body.response;
   if (!auth.appleSubject) return appleTokenError("appleRejected");
 
   let stored: AppleCodeStoreResult;
