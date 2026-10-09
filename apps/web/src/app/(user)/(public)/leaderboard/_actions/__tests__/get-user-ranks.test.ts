@@ -23,7 +23,8 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 vi.mock("../../_lib/period-queries", () => ({
-  getQueriesForPeriod: vi.fn(() => ({
+  getQueriesForPeriod: vi.fn((period: string) => ({
+    cacheKey: `${period}:key`,
     getRanking: vi.fn(),
     getUserRankedRow: mockGetUserRankedRow,
   })),
@@ -105,6 +106,16 @@ describe("getUserRanks", () => {
     expect(await getUserRanks("monthly")).toEqual([
       { ...SECOND_BOARD, rank: 7 },
     ]);
+  });
+
+  it("キャッシュのキーに集計の範囲（月間なら年月）を含める", async () => {
+    await getUserRanks("monthly");
+
+    expect(mockUnstableCache).toHaveBeenCalledWith(
+      expect.any(Function),
+      ["user-rank", "user-1", "monthly:key", practiceBoardKey(FIRST_BOARD)],
+      expect.anything(),
+    );
   });
 
   it("失敗した土俵はキャッシュの中から投げる（「ランクなし」を保存しない）", async () => {

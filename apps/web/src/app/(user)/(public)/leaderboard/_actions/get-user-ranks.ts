@@ -39,7 +39,10 @@ export async function getUserRanks(
   }
 
   const userId = user.id;
-  const now = new Date();
+  const { getUserRankedRow, cacheKey } = getQueriesForPeriod(
+    period,
+    new Date(),
+  );
 
   const fetchRank = async (
     board: PracticeBoard,
@@ -47,7 +50,6 @@ export async function getUserRanks(
     try {
       const rank = await unstable_cache(
         async () => {
-          const { getUserRankedRow } = getQueriesForPeriod(period, now);
           const row = await getUserRankedRow(
             userId,
             board.menuType,
@@ -55,7 +57,7 @@ export async function getUserRanks(
           );
           return row?.rank;
         },
-        ["user-rank", userId, period, practiceBoardKey(board)],
+        ["user-rank", userId, cacheKey, practiceBoardKey(board)],
         { revalidate: REVALIDATE_SECONDS, tags: [LEADERBOARD_CACHE_TAG] },
       )();
       return rank === undefined ? undefined : { ...board, rank };
