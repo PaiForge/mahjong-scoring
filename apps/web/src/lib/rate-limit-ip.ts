@@ -138,6 +138,9 @@ export const IP_RATE_LIMITS = {
   readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
   // アプリがマイページを開くたび・前面に戻るたびに読む
   readMobileMypage: { maxRequests: 120, windowMs: 600_000 },
+  // アプリのマイレコード（ダッシュボードの選び直し・全履歴のページ送り）。
+  // 期間や土俵を切り替えるたびに飛ぶ
+  readMobileRecords: { maxRequests: 300, windowMs: 600_000 },
   // アプリのレッスン完了の記録（未送信分の送り直しを含む）
   completeLessons: { maxRequests: 60, windowMs: 600_000 },
   // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に

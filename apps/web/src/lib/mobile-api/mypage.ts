@@ -20,7 +20,14 @@ import { getUserRankSlugs } from "../db/rank-queries";
 import { authorizeMobileRequest } from "./auth";
 import { mobileJson, mobileServerError } from "./response";
 
-function usernameRequired(): NextResponse {
+/**
+ * ユーザー名を決める前の要求への応答（409 `usernameRequired`）
+ * ユーザー名未設定応答
+ *
+ * マイページ・マイレコードはユーザー名を決めた人のもの（web はこの段階で
+ * 開かせず、ユーザー名の設定へ送る）。
+ */
+export function usernameRequired(): NextResponse {
   return mobileJson<{ error: MobileMypageErrorCode }>(
     { error: "usernameRequired" },
     { status: 409 },
