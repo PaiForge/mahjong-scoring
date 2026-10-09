@@ -1,0 +1,29 @@
+# 部品: メールでログインする（ログイン画面を開くところから）
+#
+#   - runFlow:
+#       file: _sign-in.yaml
+#       env:
+#         EMAIL: bob@example.local
+#         PASSWORD: devpass1
+#
+# 終わると、ユーザー名を決めた人はログイン前の画面、決めていない人は
+# ユーザー名の設定へ送られている。
+appId: help.mahjong.score
+---
+- openLink: "mahjong-scoring://sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-submit"
+    timeout: 10000
+- tapOn:
+    id: "sign-in-email"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "sign-in-password"
+- inputText: ${PASSWORD}
+- tapOn:
+    id: "sign-in-submit"
+- extendedWaitUntil:
+    notVisible:
+      id: "sign-in-submit"
+    timeout: 15000

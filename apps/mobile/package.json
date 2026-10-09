@@ -9,6 +9,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
+    "sim:release": "scripts/sim-release.sh",
+    "maestro": "scripts/maestro.sh",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"

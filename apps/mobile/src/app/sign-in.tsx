@@ -75,6 +75,7 @@ export default function SignInScreen() {
           onChangeText={setEmail}
           placeholder={t("emailPlaceholder")}
           kind="email"
+          testID="sign-in-email"
         />
         <TextField
           label={t("passwordLabel")}
@@ -84,6 +85,7 @@ export default function SignInScreen() {
           kind="password"
           secure
           onSubmitEditing={() => void submit()}
+          testID="sign-in-password"
         />
         {error !== undefined && <FormMessage tone="error">{error}</FormMessage>}
         <Button
@@ -91,6 +93,7 @@ export default function SignInScreen() {
           disabled={submitting || !email || !password}
           fullWidth
           size="lg"
+          testID="sign-in-submit"
         >
           {submitting ? t("emailSignInLoading") : t("emailSignIn")}
         </Button>

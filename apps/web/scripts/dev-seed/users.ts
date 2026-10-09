@@ -32,8 +32,14 @@ import {
 
 export interface SeedUser {
   readonly email: string;
-  /** `validateUsername` を通る形式（英小文字始まり・ハイフン不可） */
-  readonly username: string;
+  /**
+   * `validateUsername` を通る形式（英小文字始まり・ハイフン不可）。
+   *
+   * `null` は登録の途中（`auth.users` だけで `profiles` が無い）。ログインは
+   * できるが、web は `/mypage/setup-username`、アプリは同じ画面へ送り、
+   * 記録はまだ残らない。成績・購入はユーザー名で結ぶため入れない
+   */
+  readonly username: string | null;
   readonly displayName: string;
   /**
    * `user_roles` に admin 行を入れる。
@@ -166,6 +172,13 @@ export const SEED_USERS: readonly SeedUser[] = [
     username: "seed_dave",
     displayName: "デイブ（シード）",
   },
+  // ユーザー名未設定（登録の途中）。ログイン直後のユーザー名の設定と、
+  // 「記録が残らない人」向けの案内（アプリのホームの CTA）を確かめる状態
+  {
+    email: "ivan@example.local",
+    username: null,
+    displayName: "アイヴァン（シード）",
+  },
   ...RANKING_FILLERS,
 ];
 
@@ -188,14 +201,21 @@ export async function ensureSeedUser(
 ): Promise<string> {
   const userId = await ensureAuthUser(admin, user);
 
-  await db
-    .insert(profiles)
-    .values({
-      id: userId,
-      username: user.username,
-      displayName: user.displayName,
-    })
-    .onConflictDoNothing();
+  if (user.username === null) {
+    // 登録の途中のまま保つ。シードユーザーで名前を決めて遊んだら、次の
+    // 投入で未設定へ戻す（段級位・完了と同じく宣言された状態が正）。
+    // profiles を参照する外部キーは無い（他のテーブルは auth.users を指す）
+    await db.delete(profiles).where(eq(profiles.id, userId));
+  } else {
+    await db
+      .insert(profiles)
+      .values({
+        id: userId,
+        username: user.username,
+        displayName: user.displayName,
+      })
+      .onConflictDoNothing();
+  }
 
   if (user.isAdmin) {
     await db

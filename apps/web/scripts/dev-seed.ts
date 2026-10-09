@@ -86,7 +86,9 @@ async function main() {
 
   for (const user of SEED_USERS) {
     const userId = await ensureSeedUser(admin, db, user);
-    scored.push({ userId, username: user.username });
+    // ユーザー名の無い（登録の途中の）ユーザーには成績・購入を結べない
+    if (user.username !== null)
+      scored.push({ userId, username: user.username });
 
     // ランキング要員は状態を持たず触ることもないので、1 人ずつは出さない。
     if (user.fillsRanking) continue;
@@ -94,9 +96,12 @@ async function main() {
     const notes = [
       user.isAdmin ? "admin ロール付与" : undefined,
       user.ranks?.length ? `段級位: ${user.ranks.join(", ")}` : undefined,
+      user.username === null ? "ユーザー名未設定" : undefined,
     ].filter((note) => note !== undefined);
     const suffix = notes.length > 0 ? ` (${notes.join(" / ")})` : "";
-    console.log(`  ${user.username.padEnd(12)} → ${userId}${suffix}`);
+    console.log(
+      `  ${(user.username ?? "(未設定)").padEnd(12)} → ${userId}${suffix}`,
+    );
     console.log(
       `  ${"".padEnd(12)}   ${user.email} / ${SEED_PASSWORD} でサインイン`,
     );
