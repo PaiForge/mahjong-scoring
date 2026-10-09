@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   mobileChallengeApiPath,
   parseMobileAnswerResponse,
+  parseMobileFinishResponse,
   parseMobileProgressResponse,
 } from "./mobile-api";
 
@@ -48,5 +49,36 @@ describe("mobileChallengeApiPath", () => {
     expect(mobileChallengeApiPath("a/b", "finish")).toBe(
       "/api/mobile/v1/challenges/a%2Fb/finish",
     );
+  });
+});
+
+describe("parseMobileFinishResponse", () => {
+  const exp = {
+    earnedExp: 12,
+    totalExp: 340,
+    level: 3,
+    levelUp: false,
+    progressPercent: 40,
+  };
+
+  it("経験値つきの応答を読む", () => {
+    expect(parseMobileFinishResponse({ challengeResultId: "r1", exp })).toEqual(
+      { challengeResultId: "r1", exp },
+    );
+  });
+
+  it("経験値の無い応答（対象外の練習・古いサーバー）も読む", () => {
+    expect(parseMobileFinishResponse({ challengeResultId: "r1" })).toEqual({
+      challengeResultId: "r1",
+    });
+  });
+
+  it("経験値の形が違えば応答ごと読まない", () => {
+    expect(
+      parseMobileFinishResponse({
+        challengeResultId: "r1",
+        exp: { ...exp, level: "3" },
+      }),
+    ).toBeUndefined();
   });
 });

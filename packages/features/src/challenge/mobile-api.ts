@@ -1,3 +1,4 @@
+import type { ExpInfo } from "@mahjong-scoring/core";
 import { z } from "zod";
 
 import type { BuildJourneyInput, PracticeAttempt } from "../journey/journey";
@@ -159,12 +160,15 @@ export type MobileUnansweredResponse =
   { readonly question: ChallengeQuestion } | { readonly remainingMs: number };
 
 /**
- * 確定の応答。記録した成績の ID
+ * 確定の応答。記録した成績の ID と、その成績で付いた経験値
  *
- * 確定済みのチャレンジへの再送にも、記録し直さずに同じ ID を返す。
+ * 確定済みのチャレンジへの再送にも、記録し直さずに同じ ID と同じ経験値を
+ * 返す。`exp` は経験値の対象にならない練習と、経験値を読めなかったときに
+ * 無い（成績の記録は済んでいる）。
  */
 export interface MobileFinishChallengeResponse {
   readonly challengeResultId: string;
+  readonly exp?: ExpInfo;
 }
 
 /**
@@ -278,7 +282,18 @@ export function parseMobileUnansweredResponse(
   return parsed.success ? parsed.data : undefined;
 }
 
-const finishSchema = z.object({ challengeResultId: z.string() });
+const expInfoSchema = z.object({
+  earnedExp: z.number(),
+  totalExp: z.number(),
+  level: z.number(),
+  levelUp: z.boolean(),
+  progressPercent: z.number(),
+});
+
+const finishSchema = z.object({
+  challengeResultId: z.string(),
+  exp: expInfoSchema.optional(),
+});
 
 /**
  * 確定の応答を検証する。形が違えば undefined

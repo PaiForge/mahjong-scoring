@@ -24,6 +24,8 @@ import {
   readAttemptStatus,
   revealExpiredAttempt,
 } from "../challenge/attempts";
+import { getExpInfoByChallengeResultId } from "../db/save-exp";
+import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
@@ -267,7 +269,8 @@ export async function handleReadUnanswered(
  * チャレンジ確定API（アプリ向け）
  *
  * 成績はサーバーの状態からだけ作る（web の `savePracticeResult` と同じ）。
- * 確定済みへの再送には同じ ID を返す。まだ終わっていなければ 409
+ * 確定済みへの再送には同じ ID を返す。付いた経験値も添える（web の結果
+ * ページと同じく、成績の ID から付与の記録を引く。再送でも同じ値になる）。まだ終わっていなければ 409
  * `notFinished`、1 問も答えずに終わった（記録が無い）なら 422。
  */
 export async function handleFinishChallenge(
@@ -280,10 +283,13 @@ export async function handleFinishChallenge(
     return challengeError("invalidRequest", 400);
   try {
     const result = await finishAttempt(auth.user.id, attemptId, false);
-    if (result && "challengeResultId" in result)
+    if (result && "challengeResultId" in result) {
+      const exp = await readExp(auth.user.id, result.challengeResultId);
       return mobileJson<MobileFinishChallengeResponse>({
         challengeResultId: result.challengeResultId,
+        ...(exp ? { exp } : {}),
       });
+    }
     const status = await readAttemptStatus(auth.user.id, attemptId);
     if (!status) return challengeError("invalidChallenge", 404);
     return status.finished
@@ -295,5 +301,24 @@ export async function handleFinishChallenge(
       "処理に失敗",
       error,
     );
+  }
+}
+
+/**
+ * 成績に付いた経験値を読む。読めなければ undefined
+ *
+ * 成績の記録はもう済んでいるので、ここで失敗しても確定を失敗にしない
+ * （500 を返すとアプリが記録できなかったと受け取り、送り直しを待たせる）。
+ */
+async function readExp(userId: string, challengeResultId: string) {
+  try {
+    return await getExpInfoByChallengeResultId(userId, challengeResultId);
+  } catch (error) {
+    logExternalError(
+      "POST /api/mobile/v1/challenges/[id]/finish",
+      "経験値の読み込みに失敗",
+      error,
+    );
+    return undefined;
   }
 }
