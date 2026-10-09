@@ -13,6 +13,7 @@
   "pointSuffix": "点",
   "fromKo": "子から",
   "fromOya": "親から",
+  "koTsumoScore": "点数（子から / 親から）",
   "all": "オール",
   "answer": "回答する",
   "questionLabel": "この条件の点数を回答してください",

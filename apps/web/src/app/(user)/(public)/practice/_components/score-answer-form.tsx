@@ -2,10 +2,17 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { koTsumoPaymentKey } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { useKoTsumoInput } from "@/app/_hooks/use-display-settings-store";
 import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import {
+  koTsumoPaymentOfKey,
+  koTsumoSelectOptions,
+  scoreSelectOptions,
+} from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
@@ -34,7 +41,8 @@ interface ScoreAnswerFormProps {
   readonly scoreRange?: ScoreOptionRange;
   /**
    * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）。
-   * 単一選択は値が選ばれた時点、子ツモは2つとも選ばれた時点で送信する。
+   * 単一選択・子ツモの組の select は値が選ばれた時点、子ツモの分割入力は
+   * 2つとも選ばれた時点で送信する。
    * 有効時は送信ボタンを表示しない。
    * 選択即送信
    *
@@ -43,8 +51,8 @@ interface ScoreAnswerFormProps {
    * 押す前に済むため、確定のボタンが「同じ答えをもう一度言う」だけの
    * 1 タップになる。制限時間の中ではその 1 タップがそのまま持ち時間を削り、
    * 画面によってボタンの有無が変わると同じ select の回答なのに作法が変わる。
-   * 子ツモは「子から / 親から」の 2 つが揃うまで送信しないので、1 つ目は
-   * 2 つ目を選ぶ前なら直せる。
+   * 子ツモの分割入力（表示設定）は「子から / 親から」の 2 つが揃うまで
+   * 送信しないので、1 つ目は 2 つ目を選ぶ前なら直せる。
    *
    * 想定する操作はスマホのタップと、デスクトップでもマウス・タッチパッド。
    * キーボード操作（Windows / Linux の Chrome では閉じた select に矢印キーを
@@ -79,6 +87,8 @@ interface ScoreAnswerFormProps {
  * 点数回答フォーム
  *
  * 点数のみを select で回答する。翻・符・親子・ツモロンの判定は呼び出し元が行う。
+ * 子ツモは表示設定（`koTsumoInput`）に従い、「300/500」のような組の 1 つの
+ * select か、「子から / 親から」の 2 つの select で答える。
  *
  * 回答直後は select 自身の枠と地の色で正誤を返す
  * （{@link import("../_lib/select-class").getSelectClass} 参照）。
@@ -108,18 +118,22 @@ export function ScoreAnswerForm({
   const t = useTranslations(translationNamespace);
   // ラベルと select を紐付ける id（読み上げで見出しを名前として得るため）
   const scoreId = useId();
+  const koTsumoId = useId();
   const fromKoId = useId();
   const fromOyaId = useId();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const koTsumoInput = useKoTsumoInput();
   const {
     availableScores,
     isOyaTsumo,
     score,
     scoreFromKo,
     scoreFromOya,
+    koTsumoPayment,
     selectScore,
     selectFromKo,
     selectFromOya,
+    selectKoTsumoPayment,
     isComplete,
     submit,
     showsSubmitButton,
@@ -134,8 +148,9 @@ export function ScoreAnswerForm({
     kiriageMangan,
     allowDoubleYakuman,
     fixedRules,
+    koTsumoInput,
   });
-  // 子ツモの2つの select は片方だけを染めない。正誤判定は
+  // 子ツモの分割入力の2つの select は片方だけを染めない。正誤判定は
   // 「子から / 親から」を合わせた1つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };
 
@@ -149,7 +164,7 @@ export function ScoreAnswerForm({
   // 送信ボタンが「次の問題へ」に入れ替わる瞬間にその差だけ下が動く
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {availableScores.type === "koTsumo" ? (
+      {availableScores.type === "koTsumoSplit" ? (
         <div>
           <div className="flex items-center gap-2">
             <div className="flex-1">
@@ -161,9 +176,9 @@ export function ScoreAnswerForm({
               </label>
               <ScoreOptionSelect
                 id={fromKoId}
-                value={scoreFromKo}
-                onChange={selectFromKo}
-                options={availableScores.koScores}
+                value={scoreFromKo?.toString()}
+                onChange={(v) => selectFromKo(Number(v))}
+                options={scoreSelectOptions(availableScores.koScores)}
                 placeholder={t("selectScore")}
                 disabled={disabled}
                 feedback={feedback}
@@ -179,15 +194,41 @@ export function ScoreAnswerForm({
               </label>
               <ScoreOptionSelect
                 id={fromOyaId}
-                value={scoreFromOya}
-                onChange={selectFromOya}
-                options={availableScores.oyaScores}
+                value={scoreFromOya?.toString()}
+                onChange={(v) => selectFromOya(Number(v))}
+                options={scoreSelectOptions(availableScores.oyaScores)}
                 placeholder={t("selectScore")}
                 disabled={disabled}
                 feedback={feedback}
               />
             </div>
           </div>
+        </div>
+      ) : availableScores.type === "koTsumoCombined" ? (
+        // 「300/500」だけでは並び順が分からない初学者のため、ラベルに
+        // 「子から / 親から」の順を添える
+        <div>
+          <label
+            htmlFor={koTsumoId}
+            className="mb-2 block text-sm font-bold text-surface-700"
+          >
+            {t("koTsumoScore")}
+          </label>
+          <ScoreOptionSelect
+            id={koTsumoId}
+            value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
+            onChange={(key) => {
+              const payment = koTsumoPaymentOfKey(
+                availableScores.payments,
+                key,
+              );
+              if (payment) selectKoTsumoPayment(payment);
+            }}
+            options={koTsumoSelectOptions(availableScores.payments)}
+            placeholder={t("selectScore")}
+            disabled={disabled}
+            feedback={feedback}
+          />
         </div>
       ) : (
         <div>
@@ -199,12 +240,14 @@ export function ScoreAnswerForm({
           </label>
           <ScoreOptionSelect
             id={scoreId}
-            value={score}
-            onChange={selectScore}
-            options={availableScores.scores}
+            value={score?.toString()}
+            onChange={(v) => selectScore(Number(v))}
+            options={scoreSelectOptions(
+              availableScores.scores,
+              isOyaTsumo ? t("all") : "",
+            )}
             placeholder={t("selectScore")}
             disabled={disabled}
-            optionSuffix={isOyaTsumo ? t("all") : ""}
             feedback={feedback}
           />
         </div>

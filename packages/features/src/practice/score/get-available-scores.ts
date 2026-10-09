@@ -1,6 +1,9 @@
-import type { ScoreRange } from "@mahjong-scoring/core";
+import type { KoTsumoPayment, ScoreRange } from "@mahjong-scoring/core";
 import {
   calculateTierScore,
+  compareNumbers,
+  koTsumoPaymentOptions,
+  LOWEST_MANGAN_REACHABLE_HAN,
   MANGAN_PLUS_TIERS,
   paymentKindOf,
   RON_SCORES_KO,
@@ -8,6 +11,10 @@ import {
   TSUMO_SCORES_KO_PART,
   TSUMO_SCORES_OYA_PART,
 } from "@mahjong-scoring/core";
+import {
+  DEFAULT_KO_TSUMO_INPUT,
+  type KoTsumoInputMode,
+} from "../../settings/ko-tsumo-input";
 import { MANGAN_MIN_HAN } from "./han-tiers";
 
 /**
@@ -22,49 +29,81 @@ import { MANGAN_MIN_HAN } from "./han-tiers";
 export type ScoreOptionRange = ScoreRange | "all";
 
 /**
+ * 点数の選択肢を絞る条件
+ * 点数選択肢の条件
+ */
+export interface AvailableScoresParams {
+  /** 選択された翻数（未選択の場合は undefined） */
+  readonly han: number | undefined;
+  /** 親かどうか */
+  readonly isOya: boolean;
+  /** ツモかどうか */
+  readonly isTsumo: boolean;
+  /** 指定すると、翻数にかかわらずその範囲の点数のみ返す */
+  readonly scoreRange?: ScoreOptionRange;
+  /**
+   * 切り上げ満貫を採用しているか。子ツモの組の集合だけが変わる
+   * （60符3翻・30符4翻の 2000/3900 が満貫の 2000/4000 に吸収される）
+   */
+  readonly kiriageMangan?: boolean;
+  /**
+   * ダブル役満を採用したルールでの出題か。採用時のみダブル役満の点数
+   * （子64000点等）を選択肢に足す。昇級試験は端末ローカル設定で選択肢が
+   * 変わってはならないため渡さない
+   */
+  readonly doubleYakuman?: boolean;
+  /** 子ツモの入力方式（既定 {@link DEFAULT_KO_TSUMO_INPUT}） */
+  readonly koTsumoInput?: KoTsumoInputMode;
+}
+
+/**
  * 利用可能な点数リストを取得する
  * 翻数・親子・ツモロンに応じてフィルタリングした点数候補を返す
  *
- * @param han - 選択された翻数（未選択の場合は undefined）
- * @param isOya - 親かどうか
- * @param isTsumo - ツモかどうか
- * @param scoreRange - 指定すると、翻数にかかわらずその範囲の点数のみ返す
- * @param kiriageMangan - 切り上げ満貫を採用しているか（3翻でも満貫がありうる）
- * @param doubleYakuman - ダブル役満を採用したルールでの出題か。採用時のみ
- *   ダブル役満の点数（子64000点等）を選択肢に足す。昇級試験は端末ローカル
- *   設定で選択肢が変わってはならないため渡さない
+ * どの絞り方でも、その条件で出題されうる正解は必ず選択肢に残す
+ * （`get-available-scores.test.ts` が全セル・全区分で検査する）。
  */
-export function getAvailableScores(
-  han: number | undefined,
-  isOya: boolean,
-  isTsumo: boolean,
-  scoreRange?: ScoreOptionRange,
-  kiriageMangan?: boolean,
-  doubleYakuman?: boolean,
-): AvailableScores {
+export function getAvailableScores({
+  han,
+  isOya,
+  isTsumo,
+  scoreRange,
+  kiriageMangan = false,
+  doubleYakuman = false,
+  koTsumoInput = DEFAULT_KO_TSUMO_INPUT,
+}: AvailableScoresParams): AvailableScores {
   const paymentKind = paymentKindOf(isOya, isTsumo);
+  const band = scoreBandOf(han, scoreRange);
   const scoresFor = (
     scores: readonly number[],
     category: ScoreCategory,
   ): readonly number[] =>
-    doubleYakuman ? [...scores, DOUBLE_YAKUMAN_SCORES[category]] : scores;
+    filterScores(
+      doubleYakuman ? [...scores, DOUBLE_YAKUMAN_SCORES[category]] : scores,
+      category,
+      band,
+    );
 
   if (paymentKind === "koTsumo") {
+    const payments = koTsumoPaymentOptions({
+      kiriageMangan,
+      doubleYakuman,
+    }).filter((payment) => inBand(isManganPlusPayment(payment), band));
+    if (koTsumoInput === "combined") {
+      return { type: "koTsumoCombined", payments };
+    }
+    // 2 つの select は互いに連動しないので、実在する組の片側を必ず残す。
+    // 2000/3900（切り上げ満貫なしの 60符3翻・30符4翻）は子の 2000 が満貫の
+    // しきい値に乗り、点数リストを値だけで絞ると満貫未満の側から落ちる
     return {
-      type: "koTsumo",
-      koScores: filterScores(
+      type: "koTsumoSplit",
+      koScores: mergeScores(
         scoresFor(TSUMO_SCORES_KO_PART, "tsumoKo"),
-        han,
-        "tsumoKo",
-        scoreRange,
-        kiriageMangan,
+        payments.map((p) => p.fromKo),
       ),
-      oyaScores: filterScores(
+      oyaScores: mergeScores(
         scoresFor(TSUMO_SCORES_OYA_PART, "tsumoOya"),
-        han,
-        "tsumoOya",
-        scoreRange,
-        kiriageMangan,
+        payments.map((p) => p.fromOya),
       ),
     };
   }
@@ -72,45 +111,26 @@ export function getAvailableScores(
   if (paymentKind === "oyaTsumo") {
     return {
       type: "single",
-      scores: filterScores(
-        scoresFor(TSUMO_SCORES_OYA_PART, "tsumoOyaAll"),
-        han,
-        "tsumoOyaAll",
-        scoreRange,
-        kiriageMangan,
-      ),
+      scores: scoresFor(TSUMO_SCORES_OYA_PART, "tsumoOyaAll"),
     };
   }
 
-  if (isOya) {
-    return {
-      type: "single",
-      scores: filterScores(
-        scoresFor(RON_SCORES_OYA, "ronOya"),
-        han,
-        "ronOya",
-        scoreRange,
-        kiriageMangan,
-      ),
-    };
-  }
-
-  return {
-    type: "single",
-    scores: filterScores(
-      scoresFor(RON_SCORES_KO, "ronKo"),
-      han,
-      "ronKo",
-      scoreRange,
-      kiriageMangan,
-    ),
-  };
+  return isOya
+    ? { type: "single", scores: scoresFor(RON_SCORES_OYA, "ronOya") }
+    : { type: "single", scores: scoresFor(RON_SCORES_KO, "ronKo") };
 }
 
-interface KoTsumoScores {
-  readonly type: "koTsumo";
+/** 子ツモを 2 つの select で答える選択肢 */
+interface KoTsumoSplitScores {
+  readonly type: "koTsumoSplit";
   readonly koScores: readonly number[];
   readonly oyaScores: readonly number[];
+}
+
+/** 子ツモを「子/親」の組の 1 つの select で答える選択肢 */
+interface KoTsumoCombinedScores {
+  readonly type: "koTsumoCombined";
+  readonly payments: readonly KoTsumoPayment[];
 }
 
 interface SingleScores {
@@ -119,7 +139,8 @@ interface SingleScores {
 }
 
 /** 利用可能な点数 */
-type AvailableScores = KoTsumoScores | SingleScores;
+type AvailableScores =
+  KoTsumoSplitScores | KoTsumoCombinedScores | SingleScores;
 export type { AvailableScores };
 
 type ScoreCategory =
@@ -158,38 +179,66 @@ const MANGAN_THRESHOLDS = tierScoresByCategory("mangan");
  */
 const DOUBLE_YAKUMAN_SCORES = tierScoresByCategory("doubleYakuman");
 
+/**
+ * 選択肢に残す点数帯
+ *
+ * `both` は満貫未満・満貫以上の両方を残す（翻数だけでは決まらないとき）。
+ */
+type ScoreBand = "nonMangan" | "manganPlus" | "both";
+
+/**
+ * 範囲と翻数から、選択肢に残す点数帯を決める
+ *
+ * 範囲が決まっている出題（昇級試験）は翻数を見ない。翻数で絞ると選択肢の
+ * 個数そのものが翻数のヒントになるうえ、端末ごとに選択肢が変わってしまう。
+ *
+ * 翻数で絞るときは、符によっては満貫に届く翻数（3・4翻）で両方を残す。
+ * 切り上げ満貫を採らなくても 70符3翻は満貫になるため、切り上げ満貫の
+ * 採否で境目は変わらない（{@link LOWEST_MANGAN_REACHABLE_HAN}）。
+ */
+function scoreBandOf(
+  han: number | undefined,
+  scoreRange: ScoreOptionRange | undefined,
+): ScoreBand {
+  if (scoreRange === "all") return "both";
+  if (scoreRange !== undefined) return scoreRange;
+  if (han === undefined) return "both";
+  if (han >= MANGAN_MIN_HAN) return "manganPlus";
+  if (han < LOWEST_MANGAN_REACHABLE_HAN) return "nonMangan";
+  return "both";
+}
+
+function inBand(isManganPlus: boolean, band: ScoreBand): boolean {
+  if (band === "both") return true;
+  return band === "manganPlus" ? isManganPlus : !isManganPlus;
+}
+
+/**
+ * 子ツモの組が満貫以上か
+ *
+ * 子・親の両方が満貫の支払いに届いているかで見る。子の値だけで見ると、
+ * 2000/3900（満貫未満）が満貫の 2000/4000 と同じ側に入る。
+ */
+function isManganPlusPayment(payment: KoTsumoPayment): boolean {
+  return (
+    payment.fromKo >= MANGAN_THRESHOLDS.tsumoKo &&
+    payment.fromOya >= MANGAN_THRESHOLDS.tsumoOya
+  );
+}
+
 function filterScores(
   scores: readonly number[],
-  han: number | undefined,
   category: ScoreCategory,
-  scoreRange?: ScoreOptionRange,
-  kiriageMangan?: boolean,
+  band: ScoreBand,
 ): readonly number[] {
   const threshold = MANGAN_THRESHOLDS[category];
+  return scores.filter((s) => inBand(s >= threshold, band));
+}
 
-  // 範囲が決まっている出題（昇級試験）は翻数を見ない。翻数で絞ると
-  // 選択肢の個数そのものが翻数のヒントになるうえ、切り上げ満貫の設定
-  // （下の `boundary`）で選択肢が端末ごとに変わってしまう
-  if (scoreRange === "all") {
-    return scores;
-  }
-  if (scoreRange === "manganPlus") {
-    return scores.filter((s) => s >= threshold);
-  }
-  if (scoreRange === "nonMangan") {
-    return scores.filter((s) => s < threshold);
-  }
-
-  if (han === undefined) return scores;
-
-  if (han >= MANGAN_MIN_HAN) {
-    return scores.filter((s) => s >= threshold);
-  }
-  // 満貫の1つ下の翻（4翻）は符次第で満貫にも満貫未満にもなるため絞り込まない。
-  // 切り上げ満貫ではさらに1つ下の翻（3翻）も60符で満貫になるため、絞らない範囲を広げる
-  const boundary = MANGAN_MIN_HAN - (kiriageMangan ? 2 : 1);
-  if (han < boundary) {
-    return scores.filter((s) => s < threshold);
-  }
-  return scores;
+/** 2 つの点数リストを重複なく昇順にまとめる */
+function mergeScores(
+  scores: readonly number[],
+  extra: readonly number[],
+): readonly number[] {
+  return [...new Set([...scores, ...extra])].sort(compareNumbers);
 }

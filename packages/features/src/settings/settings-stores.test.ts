@@ -2,6 +2,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { createDisplaySettingsStore } from "./use-display-settings-store";
 import { createRuleSettingsStore } from "./use-rule-settings-store";
 import { createScoreSettingsStore } from "./use-score-settings-store";
 import { createTrainingSettingsStore } from "./use-training-settings-store";
@@ -69,6 +70,41 @@ describe("設定ストアの保存先の注入", () => {
 
     const { result } = renderHook(() => useAutoAdvanceOnCorrect());
     expect(result.current).toBe(false);
+  });
+});
+
+describe("表示設定の子ツモの入力方式", () => {
+  it("項目が無い既存の保存値からは既定の組の select で復元する", () => {
+    // 項目を足す前に保存された値。浅いマージで欠けた項目が既定値で補われる
+    const { storage } = createMemoryStorage({
+      "mahjong-display-settings": JSON.stringify({
+        state: {
+          doraDisplay: "actual",
+          termLinks: true,
+          fuHanOrder: "fu-first",
+        },
+        version: 0,
+      }),
+    });
+    const { useDisplaySettingsStore } = createDisplaySettingsStore({
+      storage: () => storage,
+    });
+
+    expect(useDisplaySettingsStore.getState().koTsumoInput).toBe("combined");
+    expect(useDisplaySettingsStore.getState().doraDisplay).toBe("actual");
+  });
+
+  it("分割入力を保存すると次に作ったストアで復元される", () => {
+    const { data, storage } = createMemoryStorage();
+    const first = createDisplaySettingsStore({ storage: () => storage });
+    act(() =>
+      first.useDisplaySettingsStore.getState().setKoTsumoInput("split"),
+    );
+
+    const { storage: reloaded } = createMemoryStorage(Object.fromEntries(data));
+    const second = createDisplaySettingsStore({ storage: () => reloaded });
+    const { result } = renderHook(() => second.useKoTsumoInput());
+    expect(result.current).toBe("split");
   });
 });
 

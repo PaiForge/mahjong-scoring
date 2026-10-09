@@ -25,6 +25,8 @@
   "termLinksDescription": "レッスンの本文に出てくる麻雀用語を、リンクにせずそのままの文章で表示します。\n用語を覚えて、リンクが読む邪魔になったときにお使いください。\nオフのときは用語をタップして意味を確認できます。",
   "fuHanOrderTitle": "翻数を符より先に表示する",
   "fuHanOrderDescription": "点数表早引きなどで符と翻を「4翻 30符」の順で表示します。\nオフのときは点数表と同じ「30符 4翻」の順で表示します。",
+  "koTsumoInputTitle": "子のツモの点数を子・親に分けて選ぶ",
+  "koTsumoInputDescription": "子のツモの点数を「子から」「親から」の 2 つの欄で別々に選びます。\nオフのときは「300/500」のような組を 1 つの欄から選びます。",
   "privacySectionTitle": "プライバシー",
   "leaderboardVisibilityTitle": "ランキングに表示しない",
   "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",

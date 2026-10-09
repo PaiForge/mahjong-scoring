@@ -297,7 +297,7 @@ describe("TenpaiScoreBoard の回答欄", () => {
         ?.rowSpan,
     ).toBe(3);
     expect(hanSelect().value).toBe("4");
-    expect(visibleSelect("form.placeholders.fromKo").value).toBe("2000");
+    expect(visibleSelect("form.labels.koTsumoScore").value).toBe("2000/3900");
 
     // 入れ直さずに当てはめる → 3 マスが 1 枚の塊になる
     fireEvent.click(screen.getByRole("button", { name: "cells.assign" }));

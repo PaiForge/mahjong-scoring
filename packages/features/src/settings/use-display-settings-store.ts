@@ -7,6 +7,10 @@ import {
 } from "./dora-display";
 import { DEFAULT_FU_HAN_ORDER, type FuHanOrder } from "./fu-han-order";
 import {
+  DEFAULT_KO_TSUMO_INPUT,
+  type KoTsumoInputMode,
+} from "./ko-tsumo-input";
+import {
   passThroughHydration,
   type SettingsStoreOptions,
 } from "./settings-store-options";
@@ -22,6 +26,9 @@ export interface DisplaySettingsState {
   /** 符と翻を「30符 4翻」と「4翻 30符」のどちらの順で出すか */
   fuHanOrder: FuHanOrder;
   setFuHanOrder: (order: FuHanOrder) => void;
+  /** 子のツモの点数を組の 1 つの select で選ぶか、子から・親からの 2 つで選ぶか */
+  koTsumoInput: KoTsumoInputMode;
+  setKoTsumoInput: (mode: KoTsumoInputMode) => void;
 }
 
 /**
@@ -59,6 +66,8 @@ export function createDisplaySettingsStore({
         setTermLinks: (termLinks) => set({ termLinks }),
         fuHanOrder: DEFAULT_FU_HAN_ORDER,
         setFuHanOrder: (fuHanOrder) => set({ fuHanOrder }),
+        koTsumoInput: DEFAULT_KO_TSUMO_INPUT,
+        setKoTsumoInput: (koTsumoInput) => set({ koTsumoInput }),
       }),
       {
         // 既定の浅いマージ（永続値を初期state へ上書き）により、
@@ -104,10 +113,24 @@ export function createDisplaySettingsStore({
     return useHydrated(fuHanOrder, DEFAULT_FU_HAN_ORDER);
   }
 
+  /**
+   * 子ツモの点数の入力方式取得フック
+   * 子ツモ入力方式
+   *
+   * ハイドレーション完了までは既定値を返す（`useHydrated` を渡した場合）。
+   * web では分割入力を選んだ人も描画直後は 1 つの select で描き、
+   * ハイドレーション後に 2 つへ分かれる（select の高さは同じなので縦にはずれない）。
+   */
+  function useKoTsumoInput(): KoTsumoInputMode {
+    const koTsumoInput = useDisplaySettingsStore((s) => s.koTsumoInput);
+    return useHydrated(koTsumoInput, DEFAULT_KO_TSUMO_INPUT);
+  }
+
   return {
     useDisplaySettingsStore,
     useDoraDisplayMode,
     useTermLinksEnabled,
     useFuHanOrder,
+    useKoTsumoInput,
   };
 }

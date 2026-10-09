@@ -1,7 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
+import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
+
+afterEach(() => {
+  useDisplaySettingsStore.setState({ koTsumoInput: "combined" });
+});
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
@@ -58,7 +63,21 @@ describe("ScorePracticeAnswerForm", () => {
     expect(select("form.labels.fu").value).toBe("40");
   });
 
-  it("子ツモの2つの点数 select は「子」「親」で名付ける（ラベルは1つしかないため）", () => {
+  it("子ツモは組の select 1 つで、ラベルに「子から / 親から」の順を示す", () => {
+    renderForm({ isTsumo: true });
+
+    selectHan(3);
+
+    const options = Array.from(select("form.labels.koTsumoScore").options).map(
+      (o) => o.value,
+    );
+    expect(options).toContain("2000/3900");
+    // 切り上げ満貫なしでも 70符以上の 3 翻は満貫なので、3 翻で満貫も選べる
+    expect(options).toContain("2000/4000");
+  });
+
+  it("子ツモの分割入力の2つの点数 select は「子」「親」で名付ける（ラベルは1つしかないため）", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
     renderForm({ isTsumo: true });
 
     selectHan(3);
@@ -67,7 +86,7 @@ describe("ScorePracticeAnswerForm", () => {
     expect(select("form.placeholders.fromOya")).toBeDefined();
     // ラベルは 2 つの select をまとめる group の名前として使う
     expect(
-      screen.getByRole("group", { name: "form.labels.score" }),
+      screen.getByRole("group", { name: "form.labels.koTsumoScore" }),
     ).toBeDefined();
   });
 });
@@ -94,7 +113,25 @@ describe("ScorePracticeAnswerForm の回答ボタン", () => {
     expect(submitButton().hasAttribute("disabled")).toBe(false);
   });
 
-  it("子ツモは子・親の両方の点数が入るまで押せない", () => {
+  it("子ツモは組を選ぶまで押せない", () => {
+    renderForm({ isTsumo: true });
+    selectHan(1);
+    fireEvent.change(select("form.labels.fu"), { target: { value: "30" } });
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+
+    fireEvent.change(select("form.labels.koTsumoScore"), {
+      target: { value: "300/500" },
+    });
+    expect(submitButton().hasAttribute("disabled")).toBe(false);
+
+    // 翻数を変えて選んだ組が選択肢から外れたら、未選択に戻り押せなくなる
+    selectHan(MANGAN_MIN_HAN);
+    expect(select("form.labels.koTsumoScore").value).toBe("");
+    expect(submitButton().hasAttribute("disabled")).toBe(true);
+  });
+
+  it("子ツモの分割入力は子・親の両方の点数が入るまで押せない", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
     renderForm({ isTsumo: true });
     selectHan(3);
     fireEvent.change(select("form.labels.fu"), { target: { value: "30" } });

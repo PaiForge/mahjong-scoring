@@ -8,4 +8,5 @@ export const {
   useDoraDisplayMode,
   useTermLinksEnabled,
   useFuHanOrder,
+  useKoTsumoInput,
 } = createDisplaySettingsStore(MOBILE_SETTINGS_STORE_OPTIONS);

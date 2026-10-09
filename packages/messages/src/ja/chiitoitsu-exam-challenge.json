@@ -11,6 +11,7 @@
   "selectScore": "点数を選択",
   "fromKo": "子から",
   "fromOya": "親から",
+  "koTsumoScore": "点数（子から / 親から）",
   "all": "オール",
   "answer": "回答する",
   "revealedAnswer": "正解: <answer></answer>",

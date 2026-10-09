@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import type { ScoreSelectOption } from "@mahjong-scoring/features/practice/score/score-select-options";
 
 import { SelectField } from "../../components/select-field";
 import { feedbackFrameStyle } from "../feedback-styles";
@@ -16,16 +16,17 @@ export interface SelectFeedbackState {
 }
 
 interface ScoreOptionSelectProps {
-  /** 選択中の点数（未選択は undefined） */
-  readonly value: number | undefined;
-  readonly onChange: (value: number) => void;
-  /** 選択肢の点数リスト */
-  readonly options: readonly number[];
+  /** 選んだ選択肢の値（未選択・選択肢に無い値は undefined） */
+  readonly value: string | undefined;
+  readonly onChange: (value: string) => void;
+  /**
+   * 選択肢。点数は `scoreSelectOptions`、子ツモの組は `koTsumoSelectOptions`
+   * （どちらも features の `practice/score/score-select-options`）で作る
+   */
+  readonly options: readonly ScoreSelectOption[];
   /** 未選択時に表示するプレースホルダ */
   readonly placeholder: string;
   readonly disabled?: boolean;
-  /** 各選択肢の後置文字列（親ツモの「オール」など） */
-  readonly optionSuffix?: string;
   /** 読み上げ用の名前（子ツモの「子から」「親から」など） */
   readonly accessibilityLabel?: string;
   /**
@@ -41,7 +42,8 @@ interface ScoreOptionSelectProps {
  *
  * web の `ScoreOptionSelect` の移植。点数を選んで答える練習・試験では
  * 候補を 1 つずつ染め分けられないので、回答した欄自身の枠と地を正誤の
- * 色にする（選択肢ボタンと同じ配色・同じタイミング）。
+ * 色にする（選択肢ボタンと同じ配色・同じタイミング）。点数（`1000`）も
+ * 子ツモの組（`300/500`）も同じ部品で描く。
  */
 export function ScoreOptionSelect({
   value,
@@ -49,15 +51,10 @@ export function ScoreOptionSelect({
   options,
   placeholder,
   disabled = false,
-  optionSuffix = "",
   accessibilityLabel,
   feedback,
   testID,
 }: ScoreOptionSelectProps) {
-  const selectOptions = useMemo(
-    () => options.map((s) => ({ value: s, label: `${s}${optionSuffix}` })),
-    [options, optionSuffix],
-  );
   const showsFeedback =
     feedback !== undefined &&
     feedback.showFeedback &&
@@ -65,7 +62,7 @@ export function ScoreOptionSelect({
 
   return (
     <SelectField
-      options={selectOptions}
+      options={options}
       value={value}
       onChange={onChange}
       placeholder={placeholder}
