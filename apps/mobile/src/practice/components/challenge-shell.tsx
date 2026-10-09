@@ -297,9 +297,11 @@ const styles = StyleSheet.create({
   heart: {
     fontSize: 16,
   },
+  // 不透明にして盤面を隠す。透けると時計を止めたまま問題を考えられる
+  // （web は盤面をぼかす）
   pauseOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255,255,255,0.97)",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
