@@ -11,6 +11,7 @@ import {
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
+import type { PracticeMode } from "@mahjong-scoring/features/practice/practice-mode";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { NativeAdCard } from "../../ads/native-ad-card";
@@ -19,10 +20,7 @@ import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { FilterChips } from "../../components/filter-chips";
 import { ToggleGroup } from "../../components/toggle-group";
-import {
-  usePracticeModeStore,
-  type PracticeMode,
-} from "../../hooks/use-practice-mode-store";
+import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
 import { colors } from "../../lib/theme";
 import { PracticalPracticeCard } from "../../practice/components/practical-practice-card";
 import { PracticeCard } from "../../practice/components/practice-card";

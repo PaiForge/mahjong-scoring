@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-
-/** 練習一覧の表示（基礎練習 / 実戦練習） */
-export type PracticeMode = "basic" | "practical";
+import {
+  DEFAULT_PRACTICE_MODE,
+  type PracticeMode,
+} from "@mahjong-scoring/features/practice/practice-mode";
 
 interface PracticeModeState {
   mode: PracticeMode;
@@ -20,7 +21,7 @@ interface PracticeModeState {
 export const usePracticeModeStore = create<PracticeModeState>()(
   persist(
     (set) => ({
-      mode: "basic",
+      mode: DEFAULT_PRACTICE_MODE,
       setMode: (mode) => set({ mode }),
     }),
     {
