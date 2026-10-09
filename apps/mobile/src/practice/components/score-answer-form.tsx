@@ -1,11 +1,18 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { koTsumoPaymentKey } from "@mahjong-scoring/core";
 import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { type ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
 
 import { Button } from "../../components/button";
+import { useKoTsumoInput } from "../../hooks/use-display-settings-store";
 import { useRuleSettingsStore } from "../../hooks/use-rule-settings-store";
 import { colors } from "../../lib/theme";
+import {
+  koTsumoPaymentOfKey,
+  koTsumoSelectOptions,
+  scoreSelectOptions,
+} from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
@@ -36,7 +43,8 @@ interface ScoreAnswerFormProps {
    * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）
    * 選択即送信
    *
-   * 単一選択は値が選ばれた時点、子ツモは 2 つとも選ばれた時点で送信する。
+   * 単一選択・子ツモの組は値が選ばれた時点、子ツモの分割入力は 2 つとも
+   * 選ばれた時点で送信する。
    * 有効時は送信ボタンを表示しない。選択欄は 1 つの値しか持てず、選び直しも
    * 送信前に済むため、確定のボタンは「同じ答えをもう一度言う」だけの 1 タップに
    * なる（web の同名 prop と同じ理由。点数を選んで答える盤面はすべて有効）。
@@ -64,7 +72,8 @@ interface ScoreAnswerFormProps {
  * 点数回答フォーム
  *
  * web の `ScoreAnswerForm` の移植。点数のみを選択欄で回答する。翻・符・
- * 親子・ツモロンの判定は呼び出し元が行う。回答直後は選択欄自身の枠と地の
+ * 親子・ツモロンの判定は呼び出し元が行う。子ツモは表示設定に従い、
+ * 「300/500」のような組の 1 つの欄か、「子から / 親から」の 2 つの欄で答える。回答直後は選択欄自身の枠と地の
  * 色で正誤を返し、正解の点数は出さない（トレーニングでは
  * {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す）。
  *
@@ -88,15 +97,18 @@ export function ScoreAnswerForm({
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const koTsumoInput = useKoTsumoInput();
   const {
     availableScores,
     isOyaTsumo,
     score,
     scoreFromKo,
     scoreFromOya,
+    koTsumoPayment,
     selectScore,
     selectFromKo,
     selectFromOya,
+    selectKoTsumoPayment,
     isComplete,
     submit,
     showsSubmitButton,
@@ -111,21 +123,22 @@ export function ScoreAnswerForm({
     kiriageMangan,
     allowDoubleYakuman,
     fixedRules,
+    koTsumoInput,
   });
-  // 子ツモの 2 つの欄は片方だけを染めない。正誤判定は
+  // 子ツモの分割入力の 2 つの欄は片方だけを染めない。正誤判定は
   // 「子から / 親から」を合わせた 1 つの回答に対して下るため
   const feedback = { showFeedback, lastAnswerCorrect };
 
   return (
     <View style={styles.form}>
-      {availableScores.type === "koTsumo" ? (
+      {availableScores.type === "koTsumoSplit" ? (
         <View style={styles.koTsumoRow}>
           <View style={styles.koTsumoColumn}>
             <Text style={styles.label}>{t("fromKo")}</Text>
             <ScoreOptionSelect
-              value={scoreFromKo}
-              onChange={selectFromKo}
-              options={availableScores.koScores}
+              value={scoreFromKo?.toString()}
+              onChange={(v) => selectFromKo(Number(v))}
+              options={scoreSelectOptions(availableScores.koScores)}
               placeholder={t("selectScore")}
               accessibilityLabel={t("fromKo")}
               disabled={disabled}
@@ -137,9 +150,9 @@ export function ScoreAnswerForm({
           <View style={styles.koTsumoColumn}>
             <Text style={styles.label}>{t("fromOya")}</Text>
             <ScoreOptionSelect
-              value={scoreFromOya}
-              onChange={selectFromOya}
-              options={availableScores.oyaScores}
+              value={scoreFromOya?.toString()}
+              onChange={(v) => selectFromOya(Number(v))}
+              options={scoreSelectOptions(availableScores.oyaScores)}
               placeholder={t("selectScore")}
               accessibilityLabel={t("fromOya")}
               disabled={disabled}
@@ -148,16 +161,40 @@ export function ScoreAnswerForm({
             />
           </View>
         </View>
+      ) : availableScores.type === "koTsumoCombined" ? (
+        // 「300/500」だけでは並び順が分からない初学者のため、ラベルに
+        // 「子から / 親から」の順を添える
+        <View>
+          <Text style={styles.label}>{t("koTsumoScore")}</Text>
+          <ScoreOptionSelect
+            value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
+            onChange={(key) => {
+              const payment = koTsumoPaymentOfKey(
+                availableScores.payments,
+                key,
+              );
+              if (payment) selectKoTsumoPayment(payment);
+            }}
+            options={koTsumoSelectOptions(availableScores.payments)}
+            placeholder={t("selectScore")}
+            accessibilityLabel={t("koTsumoScore")}
+            disabled={disabled}
+            feedback={feedback}
+            testID="score-select-ko-tsumo"
+          />
+        </View>
       ) : (
         <View>
           <Text style={styles.label}>{t("selectScore")}</Text>
           <ScoreOptionSelect
-            value={score}
-            onChange={selectScore}
-            options={availableScores.scores}
+            value={score?.toString()}
+            onChange={(v) => selectScore(Number(v))}
+            options={scoreSelectOptions(
+              availableScores.scores,
+              isOyaTsumo ? t("all") : "",
+            )}
             placeholder={t("selectScore")}
             disabled={disabled}
-            optionSuffix={isOyaTsumo ? t("all") : ""}
             feedback={feedback}
             testID="score-select"
           />
