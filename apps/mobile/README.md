@@ -50,9 +50,9 @@ EAS の `production` 環境に入れる（`eas.json` の `production` プロフ�
 
 ```bash
 cd apps/mobile
-npx eas-cli env:create --environment production --visibility plaintext \
+npx eas-cli env:set --environment production --visibility plaintext \
   --name EXPO_PUBLIC_SUPABASE_URL --value https://<ref>.supabase.co
-npx eas-cli env:create --environment production --visibility plaintext \
+npx eas-cli env:set --environment production --visibility plaintext \
   --name EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY --value sb_publishable_…
 ```
 
