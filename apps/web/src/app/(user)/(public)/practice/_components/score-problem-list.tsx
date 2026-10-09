@@ -12,6 +12,7 @@ import {
 } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 import { AnswerComparison } from "./answer-comparison";
+import { FuBreakdown } from "./fu-breakdown";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { YakuBreakdown } from "./yaku-breakdown";
@@ -39,13 +40,16 @@ interface ScoreProblemListProps {
  * 各問をアコーディオン形式で表示し、正誤と正解・ユーザー回答の詳細を確認できる。
  * 出題スナップショットが保存されている場合は、出題時と同じ手牌表示も再現する。
  *
- * 詳細は「手牌 → 面子の内訳（符の根拠）→ 翻数の内訳（翻の根拠）→ 答え合わせ」の
- * 順に並べる。要約行は「子・ロン・70符・6翻」としか言わないので、間違えた人が
- * 数え直すには符と翻それぞれの根拠が要る。翻数の内訳は翻数即答練習の結果ページと
- * 同じ表（{@link YakuBreakdown}）を使う。
+ * 詳細は「手牌 → 面子分解 → 符の内訳（符の根拠）→ 翻数の内訳（翻の根拠）→
+ * 答え合わせ」の順に並べる。要約行は「子・ロン・40符・2翻」としか言わないので、
+ * 間違えた人が数え直すには符と翻それぞれの根拠が要る。面子分解は牌の分け方まで
+ * しか見せず、副底・門前加符・ツモ符・待ち符と 10 符単位の切り上げは符の内訳
+ * （{@link FuBreakdown}。合計符練習の結果ページと同じ表）が受け持つ。符の内訳は
+ * 満貫未満の問題だけが持つ（満貫以上は符が点数に効かず、要約行も符を省く）。
+ * 翻数の内訳は翻数即答練習の結果ページと同じ表（{@link YakuBreakdown}）を使う。
  *
- * 翻数の内訳は既定で閉じている（{@link YakuBreakdown} が常に閉じて始まる）。
- * ここで問われているのは点数であって翻ではなく、開いたままだと役の行数だけ
+ * 符と翻数の内訳は既定で閉じている（どちらも常に閉じて始まる）。ここで
+ * 問われているのは点数であって符や翻ではなく、開いたままだと行数だけ
  * 答え合わせが下へ流れる。
  */
 export function ScoreProblemList({
@@ -74,6 +78,15 @@ export function ScoreProblemList({
             {question && (
               <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
             )}
+            {/* 符の内訳。満貫以上の問題と保存を始める前の旧データには無い */}
+            {result.question?.fuDetails !== undefined &&
+              result.fu !== undefined && (
+                <FuBreakdown
+                  details={result.question.fuDetails}
+                  answer={result.fu}
+                  translationNamespace="challenge.fuBreakdown"
+                />
+              )}
             {/* 役の内訳。保存を始める前の旧データには無いため任意 */}
             {result.question?.yakuDetails !== undefined && (
               <YakuBreakdown

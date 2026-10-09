@@ -62,6 +62,12 @@
     "doubleYakuman": "ダブル役満",
     "cappedNote": "13翻以上は役満"
   },
+  "fuBreakdown": {
+    "breakdownTitle": "符の内訳",
+    "breakdownTotal": "合計",
+    "roundUp": "切り上げ",
+    "fuSuffix": "{value}符"
+  },
   "connectionError": "通信に失敗しました。もう一度開始してください。",
   "retryConnection": "もう一度開始する",
   "recording": {
