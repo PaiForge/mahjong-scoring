@@ -87,4 +87,30 @@ describe("getQueriesForPeriod", () => {
       );
     });
   });
+
+  // 期間名だけをキーにすると、月が替わっても revalidate までは前月の集計が返る
+  describe("cacheKey", () => {
+    it("全期間は境界を持たないので期間名だけ", () => {
+      expect(getQueriesForPeriod("all-time", NOW).cacheKey).toBe("all-time");
+    });
+
+    it("月間は JST の年月を含む", () => {
+      expect(getQueriesForPeriod("monthly", NOW).cacheKey).toBe(
+        "monthly:2026-08",
+      );
+    });
+
+    it("JST の月初 0 時で次の月のキーに替わる", () => {
+      expect(
+        getQueriesForPeriod(
+          "monthly",
+          new Date("2026-09-30T23:59:59.999+09:00"),
+        ).cacheKey,
+      ).toBe("monthly:2026-09");
+      expect(
+        getQueriesForPeriod("monthly", new Date("2026-10-01T00:00:00+09:00"))
+          .cacheKey,
+      ).toBe("monthly:2026-10");
+    });
+  });
 });

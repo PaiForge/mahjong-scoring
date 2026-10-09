@@ -22,7 +22,8 @@ vi.mock("next/cache", () => ({
 }));
 
 vi.mock("../../_lib/period-queries", () => ({
-  getQueriesForPeriod: vi.fn(() => ({
+  getQueriesForPeriod: vi.fn((period: string) => ({
+    cacheKey: `${period}:key`,
     getRanking: mockGetRanking,
     getUserRankedRow: mockGetUserRankedRow,
   })),
@@ -162,6 +163,18 @@ describe("getLeaderboard", () => {
       expect(result.rows).toHaveLength(2);
       expect(result.rows[0]).toMatchObject({ userId: "user-1", rank: 1 });
       expect(result.rows[1]).toMatchObject({ userId: "user-2", rank: 2 });
+    });
+
+    it("キャッシュのキーに集計の範囲（月間なら年月）を含める", async () => {
+      mockGetRanking.mockResolvedValue(buildPage());
+
+      await getLeaderboard(JANTOU_FU, "monthly", 1);
+
+      expect(mockUnstableCache).toHaveBeenCalledWith(
+        expect.any(Function),
+        expect.arrayContaining(["monthly:key"]),
+        expect.anything(),
+      );
     });
 
     it("returns totalCount from the query", async () => {

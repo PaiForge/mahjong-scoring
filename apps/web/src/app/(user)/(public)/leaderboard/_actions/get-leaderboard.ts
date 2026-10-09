@@ -24,16 +24,14 @@ function getCachedRanking(
   limit: number,
   now: Date,
 ) {
+  const { getRanking, cacheKey } = getQueriesForPeriod(period, now);
   return unstable_cache(
-    async () => {
-      const { getRanking } = getQueriesForPeriod(period, now);
-      return getRanking(board.menuType, board.variant, offset, limit);
-    },
+    async () => getRanking(board.menuType, board.variant, offset, limit),
     [
       "leaderboard-ranking",
       board.menuType,
       board.variant,
-      period,
+      cacheKey,
       String(offset),
       String(limit),
     ],
