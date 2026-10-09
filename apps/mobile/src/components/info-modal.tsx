@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { colors } from "../lib/theme";
-import { BottomSheet } from "./bottom-sheet";
+import { BottomSheet, SheetScrollView } from "./bottom-sheet";
 import { Button } from "./button";
 
 interface InfoModalProps {
@@ -37,13 +37,16 @@ export function InfoModal({
       title={title}
       closeLabel={closeLabel}
     >
-      <ScrollView style={styles.body} contentContainerStyle={styles.bodyInner}>
+      <SheetScrollView
+        style={styles.body}
+        contentContainerStyle={styles.bodyInner}
+      >
         {typeof children === "string" ? (
           <Text style={styles.text}>{children}</Text>
         ) : (
           children
         )}
-      </ScrollView>
+      </SheetScrollView>
       <View style={styles.actions}>
         <Button variant="neutral" fullWidth onPress={onClose}>
           {closeLabel}

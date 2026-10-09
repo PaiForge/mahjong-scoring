@@ -299,12 +299,16 @@ const styles = StyleSheet.create({
   },
   // 不透明にして盤面を隠す。透けると時計を止めたまま問題を考えられる
   // （web は盤面をぼかす）
+  // 盤面は画面端まで広がる（BoardBleedProvider。手牌の帯は -16 の余白で
+  // 本文の外へ出る）ので、覆いも同じだけ左右へ広げ、角も丸めない。枠の内側
+  // だけを覆うと、はみ出した帯が覆いの両脇に残る
   pauseOverlay: {
     ...StyleSheet.absoluteFill,
+    left: -16,
+    right: -16,
     backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 18,
   },
   resumeButton: {
     borderRadius: 9999,
