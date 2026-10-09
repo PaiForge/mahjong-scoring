@@ -2,8 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { generateValidScoreQuestion, isOya } from "@mahjong-scoring/core";
-import type { ScoreQuestion } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
@@ -14,7 +13,10 @@ import {
   HelpTourModal,
 } from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
-import { HELP_TOUR_ALL_CORRECT } from "@mahjong-scoring/features/practice/help-tour-sample";
+import {
+  generateAgariHelpSample,
+  HELP_TOUR_ALL_CORRECT,
+} from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
 /**
@@ -34,18 +36,12 @@ import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-t
 
 const noop = () => {};
 
-/** 副露・七対子なしの分かりやすいサンプル */
-function generateSample(): ScoreQuestion | undefined {
-  return generateValidScoreQuestion({
-    includeFuro: false,
-    includeChiitoi: false,
-  });
-}
-
 export function AgariScoreHelpTour() {
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const { isOpen, sample, open, close } = useHelpTourSample(generateSample);
+  const { isOpen, sample, open, close } = useHelpTourSample(
+    generateAgariHelpSample,
+  );
 
   const slides = useMemo((): readonly HelpTourSlide[] => {
     if (!sample) return [];
