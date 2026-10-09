@@ -1,15 +1,20 @@
+import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { highestRank } from "@mahjong-scoring/features/ranks/registry";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 import { Screen } from "../../components/screen";
 import { DojoHelp } from "../../dojo/dojo-help";
 import { SectionTitle } from "../../components/section-title";
+import { TextLink } from "../../components/text-link";
 import { RankJourneyCard } from "../../dojo/rank-journey-card";
 import { RankProgressBar } from "../../dojo/rank-progress-bar";
 import { useMobileJourney } from "../../dojo/use-mobile-journey";
+import { panelFrame } from "../../lib/panel-styles";
 import { colors } from "../../lib/theme";
+import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
 import { useAccountProgress } from "../../records/use-account-progress";
 
 /**
@@ -29,6 +34,9 @@ import { useAccountProgress } from "../../records/use-account-progress";
  * 「?」から道場の見方を開ける（web のツアーの代わりに 1 枚ずつ送るシート）。
  * 未ログインに添えるログインの案内は持たない。
  *
+ * 初段（黒帯）を取った人には、バーの下に実戦練習への案内を出す（web と同じ）。
+ * 練習一覧の表示はストアが持つので、実戦に切り替えてから練習のタブへ移る。
+ *
  * @flow
  * 1. 次の目標の級から、レッスン / 練習 / 試験（模試）へ進む
  * 2. 級名を押すと級の詳細へ
@@ -38,6 +46,8 @@ export default function DojoPage() {
   const journey = useMobileJourney();
   const { input, includesDeviceAttempts } = useAccountProgress();
   const current = highestRank(input.achievedRankSlugs);
+  const router = useRouter();
+  const setPracticeMode = usePracticeModeStore((state) => state.setMode);
 
   return (
     <Screen
@@ -48,6 +58,21 @@ export default function DojoPage() {
     >
       {/* 現在の段級位は節にせずバーで示す。ゲストは常に無級 */}
       <RankProgressBar currentSlug={current?.slug} />
+
+      {current?.slug === "dan-1" && (
+        <View style={[panelFrame, styles.practical]}>
+          <SectionTitle>{t("practicalTitle")}</SectionTitle>
+          <Text style={styles.body}>{t("practicalDescription")}</Text>
+          <TextLink
+            onPress={() => {
+              setPracticeMode("practical");
+              router.navigate(PRACTICE_PATH);
+            }}
+          >
+            {t("practicalCta")}
+          </TextLink>
+        </View>
+      )}
 
       {journey.current !== undefined && (
         // 見出しは置かない（web と同じ）。カードの中に「次の目標」の状態の印が
@@ -88,6 +113,11 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
+  },
+  practical: {
+    gap: 12,
+    padding: 20,
+    backgroundColor: colors.primary50,
   },
   note: {
     fontSize: 14,
