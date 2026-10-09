@@ -24,11 +24,10 @@ import {
   readAttemptStatus,
   revealExpiredAttempt,
 } from "../challenge/attempts";
-import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
 import { readMobileJson } from "./request";
-import { mobileJson } from "./response";
+import { mobileJson, mobileServerError } from "./response";
 
 /** 回答の本文の上限。回答は選んだ符・翻・点数や役の一覧で、数百バイトに収まる */
 const ANSWER_BODY_MAX_BYTES = 8 * 1024;
@@ -75,12 +74,6 @@ async function rejectionOf(
     : challengeError("invalidChallenge", 404);
 }
 
-/** DB 等の失敗。同じ要求を送り直してよい */
-function serverError(where: string, error: unknown): NextResponse {
-  logExternalError(where, "処理に失敗", error);
-  return mobileJson({ error: "serverError" }, { status: 500 });
-}
-
 /**
  * 記録付きのチャレンジを始める（アプリ向け）
  * チャレンジ開始API（アプリ向け）
@@ -115,7 +108,11 @@ export async function handleBeginChallenge(
       ? challengeError("conflict", 409)
       : challengeError("invalidChallenge", 422);
   } catch (error) {
-    return serverError("POST /api/mobile/v1/challenges", error);
+    return mobileServerError(
+      "POST /api/mobile/v1/challenges",
+      "処理に失敗",
+      error,
+    );
   }
 }
 
@@ -150,7 +147,11 @@ export async function handleAnswerChallenge(
     if (result) return mobileJson<MobileAnswerChallengeResponse>(result);
     return await rejectionOf(auth.user.id, attemptId, "conflict");
   } catch (error) {
-    return serverError("POST /api/mobile/v1/challenges/[id]/answers", error);
+    return mobileServerError(
+      "POST /api/mobile/v1/challenges/[id]/answers",
+      "処理に失敗",
+      error,
+    );
   }
 }
 
@@ -177,7 +178,11 @@ export async function handlePauseChallenge(
       return mobileJson({ success: true });
     return await rejectionOf(auth.user.id, attemptId, "conflict");
   } catch (error) {
-    return serverError("POST /api/mobile/v1/challenges/[id]/pause", error);
+    return mobileServerError(
+      "POST /api/mobile/v1/challenges/[id]/pause",
+      "処理に失敗",
+      error,
+    );
   }
 }
 
@@ -214,7 +219,11 @@ export async function handleReadChallenge(
       finished: status.finished,
     });
   } catch (error) {
-    return serverError("GET /api/mobile/v1/challenges/[id]", error);
+    return mobileServerError(
+      "GET /api/mobile/v1/challenges/[id]",
+      "処理に失敗",
+      error,
+    );
   }
 }
 
@@ -237,7 +246,11 @@ export async function handleReadUnanswered(
     if (result) return mobileJson<MobileUnansweredResponse>(result);
     return await rejectionOf(auth.user.id, attemptId, "conflict");
   } catch (error) {
-    return serverError("GET /api/mobile/v1/challenges/[id]/unanswered", error);
+    return mobileServerError(
+      "GET /api/mobile/v1/challenges/[id]/unanswered",
+      "処理に失敗",
+      error,
+    );
   }
 }
 
@@ -269,6 +282,10 @@ export async function handleFinishChallenge(
       ? challengeError("invalidChallenge", 422)
       : challengeError("notFinished", 409);
   } catch (error) {
-    return serverError("POST /api/mobile/v1/challenges/[id]/finish", error);
+    return mobileServerError(
+      "POST /api/mobile/v1/challenges/[id]/finish",
+      "処理に失敗",
+      error,
+    );
   }
 }

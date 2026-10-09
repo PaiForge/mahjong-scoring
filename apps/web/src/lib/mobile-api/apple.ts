@@ -11,11 +11,10 @@ import {
   storeAppleAuthorizationCode,
   type AppleCodeStoreResult,
 } from "../apple/refresh-tokens";
-import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
 import { readMobileJson } from "./request";
-import { mobileJson } from "./response";
+import { mobileJson, mobileServerError } from "./response";
 
 const BODY_MAX_BYTES = 2 * 1024;
 
@@ -61,8 +60,11 @@ export async function handleSaveAppleToken(
       body.data.authorizationCode,
     );
   } catch (error) {
-    logExternalError("POST /api/mobile/v1/apple/token", "保存に失敗", error);
-    return mobileJson({ error: "serverError" }, { status: 500 });
+    return mobileServerError(
+      "POST /api/mobile/v1/apple/token",
+      "保存に失敗",
+      error,
+    );
   }
   if (stored === "rejected") return appleTokenError("appleRejected");
   if (stored === "unavailable") return appleTokenError("appleUnavailable");
