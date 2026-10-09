@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { ExpInfo } from "@mahjong-scoring/core";
 import type { BuildJourneyInput } from "@mahjong-scoring/features/journey/journey";
 
 import { onAccountDeleted } from "../auth/api-client";
@@ -189,7 +190,11 @@ async function sendPendingFinish(
       : first;
   switch (decision) {
     case "recorded":
-      setFinishStatus(pending.attemptId, "recorded");
+      setFinishStatus(
+        pending.attemptId,
+        "recorded",
+        "value" in finished ? finished.value.exp : undefined,
+      );
       dropPending(userId, pending.attemptId);
       return true;
     case "drop":
@@ -247,11 +252,20 @@ export type FinishStatus = "sending" | "recorded" | "queued" | "notRecorded";
 
 const useFinishStatusStore = create<{
   readonly byAttempt: Readonly<Record<string, FinishStatus>>;
-}>(() => ({ byAttempt: {} }));
+  /** 記録できたチャレンジに付いた経験値（対象外の練習には無い） */
+  readonly expByAttempt: Readonly<Record<string, ExpInfo>>;
+}>(() => ({ byAttempt: {}, expByAttempt: {} }));
 
-function setFinishStatus(attemptId: string, status: FinishStatus): void {
+function setFinishStatus(
+  attemptId: string,
+  status: FinishStatus,
+  exp?: ExpInfo,
+): void {
   useFinishStatusStore.setState((state) => ({
     byAttempt: { ...state.byAttempt, [attemptId]: status },
+    ...(exp
+      ? { expByAttempt: { ...state.expByAttempt, [attemptId]: exp } }
+      : {}),
   }));
 }
 
@@ -264,6 +278,21 @@ export function useFinishStatus(
 ): FinishStatus | undefined {
   return useFinishStatusStore((state) =>
     attemptId === undefined ? undefined : state.byAttempt[attemptId],
+  );
+}
+
+/**
+ * 記録できたチャレンジに付いた経験値を読む
+ * 獲得経験値参照
+ *
+ * 確定の応答に載った値（web の結果ページと同じ `ExpInfo`）。まだ記録できて
+ * いない・経験値の対象外の練習・古いサーバーなら undefined。
+ */
+export function useFinishExp(
+  attemptId: string | undefined,
+): ExpInfo | undefined {
+  return useFinishStatusStore((state) =>
+    attemptId === undefined ? undefined : state.expByAttempt[attemptId],
   );
 }
 
@@ -292,7 +321,7 @@ export async function submitChallengeFinish(
     updateAccountRecords((records) =>
       dropPendingFinish(records, userId, challenge.attemptId),
     );
-    setFinishStatus(challenge.attemptId, "recorded");
+    setFinishStatus(challenge.attemptId, "recorded", result.value.exp);
     void refreshServerProgress(userId);
     return;
   }
