@@ -43,16 +43,6 @@ export type RecordsApiFailure =
 export type RecordsApiResult<T> =
   { readonly value: T } | { readonly error: RecordsApiFailure };
 
-/** 失敗のうち、通信や一時的な障害で、同じ要求を後で送り直せばよいもの */
-export function isRetryableFailure(error: RecordsApiFailure): boolean {
-  return (
-    error === "network" ||
-    error === "serverError" ||
-    error === "authUnavailable" ||
-    error === "rateLimited"
-  );
-}
-
 /** 要求を送り、成功なら応答を検証して返す */
 async function request<T>(
   path: string,

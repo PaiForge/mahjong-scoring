@@ -34,10 +34,10 @@ import {
   startChallenge,
 } from "../records/account-records";
 import { markAttemptLive } from "../records/account-sync";
+import { isRetryableFailure } from "../records/failure-policy";
 import {
   answerRecordedChallenge,
   beginRecordedChallenge,
-  isRetryableFailure,
   pauseRecordedChallenge,
   readRecordedChallenge,
   readUnansweredQuestion,
