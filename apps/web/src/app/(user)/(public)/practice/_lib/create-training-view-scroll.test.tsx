@@ -1,21 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
-vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
-vi.mock(
-  "../_actions/save-practice-result",
-  async () => await import("@/test/save-practice-result-mock"),
-);
-vi.mock(
-  "@/app/(user)/(public)/exam/_actions/submit-exam-result",
-  async () => await import("@/test/submit-exam-result-mock"),
-);
-// シェル末尾の受験ゲート（模試のみ描く）が認証コンテキストを静的に引く
-vi.mock(
-  "@/app/_contexts/auth-context",
-  async () => await import("@/test/auth-context-mock"),
-);
+import "@/test/training-view-mocks";
 
 import { useRegisterAdvance } from "@mahjong-scoring/features/practice/use-training-mode";
 import { createTrainingView } from "./create-challenge-views";
