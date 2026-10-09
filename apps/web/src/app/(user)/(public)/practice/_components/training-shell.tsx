@@ -6,7 +6,10 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import type {
+  MenuKind,
+  PracticeMenuSlug,
+} from "@mahjong-scoring/features/practice-menu-types";
 import { useScrollToElement } from "../_hooks/use-scroll-to-element";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
@@ -18,7 +21,6 @@ import {
 import {
   TrainingChallengeCta,
   type TrainingChallengeRules,
-  type TrainingVariant,
 } from "./training-challenge-cta";
 import { WithUrlVariant } from "./with-url-variant";
 
@@ -36,7 +38,7 @@ interface TrainingShellProps {
    * 模試は終了トーストと末尾の導線の文言を「チャレンジ」ではなく「本番の
    * 試験」で出す。それ以外（タイマー無し・正解を読ませて次へ）は同じ。
    */
-  readonly variant?: TrainingVariant;
+  readonly variant?: MenuKind;
   /**
    * 練習名の右隣に並べる操作要素（ヘルプボタン等）
    *

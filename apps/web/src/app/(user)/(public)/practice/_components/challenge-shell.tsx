@@ -2,7 +2,10 @@
 
 import { type ReactNode, memo, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
+import type {
+  MenuKind,
+  PracticeMenuSlug,
+} from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
@@ -101,7 +104,7 @@ interface ChallengeShellProps {
    * 終了後のスケルトンも同じ形にして結果ページとの高さのずれを防ぐ。
    * 中断の確認モーダルとトーストの文言（試験 / チャレンジ）もここで選ぶ。
    */
-  readonly variant?: "practice" | "exam";
+  readonly variant?: MenuKind;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,

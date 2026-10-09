@@ -35,12 +35,13 @@ import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { QuizTimer } from "./quiz-timer";
 import { ScoreCounter } from "./score-counter";
+import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
 
 interface ChallengeShellProps {
   readonly title: string;
   readonly gameSession: GameSessionState;
   readonly timerControl: TimerControl;
-  readonly variant: "practice" | "exam";
+  readonly variant: MenuKind;
   /** 中止したときに戻る先（説明画面） */
   readonly exitHref: string;
   /** 終わったときに呼ぶ（経過時間を渡す）。結果画面への遷移は呼び出し側が持つ */

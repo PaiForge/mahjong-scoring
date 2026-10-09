@@ -512,6 +512,15 @@ export function practiceMenuByType(
 }
 
 /**
+ * 練習メニューの種類。通常の練習（`/practice`）か昇級試験（`/exam`）か
+ * メニュー種類
+ *
+ * 種別キーからは {@link isExamMenuType} で導く。画面の殻（チャレンジ・
+ * トレーニング・結果）が文言と行き先を切り替えるのに使う。
+ */
+export type MenuKind = "practice" | "exam";
+
+/**
  * 昇級試験の練習種別か
  * 昇級試験判定（種別キー）
  *
