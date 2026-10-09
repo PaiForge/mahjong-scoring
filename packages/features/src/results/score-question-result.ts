@@ -1,11 +1,13 @@
 import { orderFuHan, type FuHanOrder } from "../settings/fu-han-order";
 import {
   haiIdToMpsz,
+  isMangan,
   isOya,
   judgeScoreTableAnswer,
   formatMpsz,
 } from "@mahjong-scoring/core";
 import type {
+  FuDetail,
   RuleConfig,
   ScoreQuestion,
   ScoreTableAnswer,
@@ -21,6 +23,7 @@ import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 import { paymentToScoreTableAnswer } from "./payment-adapter";
 import {
   answerOutcomeSchema,
+  fuDetailSchema,
   questionTilesSnapshotSchema,
   ruleConfigSchema,
   scoreTableAnswerSchema,
@@ -52,6 +55,15 @@ export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
    * 示すために持つ。この項目を保存する前の旧データには存在しないため任意。
    */
   readonly yakuDetails?: readonly YakuDetail[];
+  /**
+   * 符の内訳（切り上げ前。副底から待ち符まで）
+   *
+   * 結果ページで「なぜその符になるのか」を示すために持つ。要約行の
+   * 「30符」だけでは、符を積み上げる級（1級・初段）で間違えた人が数え直せない。
+   * 満貫以上の問題では符が点数に効かないため持たない（要約行が符を省くのと
+   * 同じ境目）。この項目を保存する前の旧データにも存在しない。
+   */
+  readonly fuDetails?: readonly FuDetail[];
   /**
    * 採点に使ったルール設定
    *
@@ -112,6 +124,10 @@ export function toScoreQuestionSnapshot(
     isRiichi: question.isRiichi,
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMpsz),
     yakuDetails: question.yakuDetails ?? [],
+    fuDetails:
+      question.fuDetails !== undefined && !isMangan(question.answer.scoreLevel)
+        ? question.fuDetails
+        : undefined,
     ruleConfig: question.ruleConfig,
   };
 }
@@ -154,7 +170,7 @@ export function toScoreQuestionResult(
  * MPSZ として解釈できるかまでは見ない（表示時のパースが失敗したら
  * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
  *
- * リーチ・裏ドラ・役の内訳は、それらを保存し始める前の旧データに存在しない
+ * リーチ・裏ドラ・役と符の内訳は、それらを保存し始める前の旧データに存在しない
  * ため任意フィールドとして見る。
  */
 export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
@@ -164,6 +180,7 @@ export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
     isRiichi: z.boolean().optional(),
     uraDoraMarkers: z.array(z.string()).optional(),
     yakuDetails: z.array(yakuDetailSchema).optional(),
+    fuDetails: z.array(fuDetailSchema).optional(),
     ruleConfig: ruleConfigSchema.optional(),
   });
 

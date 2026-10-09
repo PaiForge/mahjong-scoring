@@ -8,6 +8,8 @@ import {
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 符の内訳の文字列は features の共有フックが use-intl から引く
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 const { createScoreExamBoard } = await import("./create-score-exam-board");
 const { TrainingModeProvider } =
@@ -19,6 +21,35 @@ const Board = createScoreExamBoard({
   generateOptions: {},
   scoreRange: "all",
 });
+
+/** 満貫未満だけを出す盤面（符の内訳が出る側） */
+const NonManganBoard = createScoreExamBoard({
+  translationNamespace: "x",
+  generateOptions: { allowedRanges: ["nonMangan"] },
+  scoreRange: "nonMangan",
+});
+
+/** 満貫以上だけを出す盤面（符が点数に効かない側） */
+const ManganPlusBoard = createScoreExamBoard({
+  translationNamespace: "x",
+  generateOptions: { allowedRanges: ["manganPlus"] },
+  scoreRange: "all",
+});
+
+/** 模試の回答後の停止中として盤面を描く */
+function renderHolding(BoardComponent: typeof Board) {
+  return render(
+    <TrainingModeProvider
+      value={{ isRevealed: false, isHolding: true, registerAdvance: () => {} }}
+    >
+      <BoardComponent
+        showFeedback
+        lastAnswerCorrect={undefined}
+        onAnswer={() => {}}
+      />
+    </TrainingModeProvider>,
+  );
+}
 
 /**
  * @param holding 模試の回答後の停止中として描くか。
@@ -105,6 +136,32 @@ describe("createScoreExamBoard", () => {
 
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("模試の答え合わせでは、満貫未満なら符の内訳も閉じて出る", () => {
+    renderHolding(NonManganBoard);
+
+    const toggle = screen.getByRole("button", { name: "breakdownTitle" });
+    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("満貫以上の問題では符の内訳を出さない（符が点数に効かないため）", () => {
+    renderHolding(ManganPlusBoard);
+
+    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
+    expect(screen.getByRole("button", { name: "title" })).toBeDefined();
+  });
+
+  it("本番の試験では符の内訳も出さない", () => {
+    render(
+      <NonManganBoard
+        showFeedback
+        lastAnswerCorrect={undefined}
+        onAnswer={() => {}}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
   });
 
   it("模試でも回答前は内訳を出さない（答えの先出しになるため）", () => {

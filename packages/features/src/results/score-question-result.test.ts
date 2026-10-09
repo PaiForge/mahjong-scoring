@@ -282,6 +282,14 @@ describe("parseQuestionResults", () => {
       expect(parseQuestionResults(raw)).toEqual([]);
     });
 
+    it("符の内訳の形が壊れているスナップショットを持つ要素はフィルタされる", () => {
+      const invalid = {
+        ...validResult,
+        question: { ...validSnapshot, fuDetails: [{ reason: "副底" }] },
+      };
+      expect(parseQuestionResults([invalid])).toEqual([]);
+    });
+
     it("tehai が文字列でないスナップショットを持つ要素はフィルタされる", () => {
       const invalid = {
         ...validResult,
@@ -346,6 +354,27 @@ describe("toScoreQuestionSnapshot", () => {
     expect(
       restoreScoreQuestion(parsed[0]?.question, question.isTsumo)?.ruleConfig,
     ).toEqual(question.ruleConfig);
+  });
+
+  it("満貫未満の出題は符の内訳を保存し、パースを経ても残る", () => {
+    const question = generateOrThrow(() =>
+      generateValidScoreQuestion({ allowedRanges: ["nonMangan"] }),
+    );
+    const snapshot = toScoreQuestionSnapshot(question);
+
+    expect(snapshot.fuDetails).toEqual(question.fuDetails);
+    const parsed = parseQuestionResults([
+      { ...toScoreQuestionResult(question, undefined) },
+    ]);
+    expect(parsed[0]?.question?.fuDetails).toEqual(question.fuDetails);
+  });
+
+  it("満貫以上の出題は符が点数に効かないため符の内訳を保存しない", () => {
+    const question = generateOrThrow(() =>
+      generateValidScoreQuestion({ allowedRanges: ["manganPlus"] }),
+    );
+    expect(question.fuDetails).toBeDefined();
+    expect(toScoreQuestionSnapshot(question).fuDetails).toBeUndefined();
   });
 
   it("変換結果はパーサーのバリデーションを通過する", () => {

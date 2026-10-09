@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { isMangan } from "@mahjong-scoring/core";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { FuBreakdown } from "../components/fu-breakdown";
 import { QuestionDisplay } from "../components/question-display";
 import { QuestionPlaceholder } from "../components/question-placeholder";
 import { QuestionPrompt } from "../components/question-prompt";
@@ -30,9 +32,10 @@ import { ScoreExamAnswerForm } from "./score-exam-answer-form";
  *
  * モバイルでは模試（時間無制限・記録なしのトレーニング）だけを開く。模試では
  * 回答後の停止中と「わからない」の開示中に、正解の点数を出題の直下に、
- * 面子分解と翻数の内訳を回答欄の下に出す（試験は役一覧を出さないので、
- * 点数を間違えたとき「点数表の引き間違い」と「翻数の数え間違い」を内訳
- * なしには切り分けられない）。
+ * 面子分解と翻数の内訳、満貫未満なら符の内訳を回答欄の下に出す（試験は
+ * 役一覧を出さないので、点数を間違えたとき「点数表の引き間違い」と
+ * 「翻数・符の数え間違い」を内訳なしには切り分けられない。満貫以上では符が
+ * 点数に効かないので符の内訳は出さない）。
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の
@@ -106,6 +109,16 @@ export function createScoreExamBoard(
         {showBreakdown && (
           <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
         )}
+
+        {showBreakdown &&
+          question.fuDetails !== undefined &&
+          !isMangan(question.answer.scoreLevel) && (
+            <FuBreakdown
+              details={question.fuDetails}
+              answer={question.answer.fu}
+              translationNamespace="challenge.fuBreakdown"
+            />
+          )}
 
         {showBreakdown && (
           <YakuBreakdown
