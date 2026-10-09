@@ -176,27 +176,36 @@ async function findExpiredEntitlements(
       ),
   ]);
 
-  const rows: ExpiredEntitlement[] = [];
-  for (const row of purchaseRows) {
-    // WHERE で IS NOT NULL を掛けているが、型の上では nullable のまま
-    if (!row.expiresAt) continue;
-    rows.push({
+  return [
+    ...purchaseRows.flatMap((row) =>
+      toExpiredEntitlement(row, NotificationTargetType.Purchase),
+    ),
+    ...grantRows.flatMap((row) =>
+      toExpiredEntitlement(row, NotificationTargetType.BenefitGrant),
+    ),
+  ];
+}
+
+/** 購入・付与の行を期限切れの候補にする。期限の無い行は候補にしない */
+function toExpiredEntitlement(
+  row: {
+    readonly id: string;
+    readonly userId: string;
+    readonly plan: string;
+    readonly expiresAt: Date | null;
+  },
+  type: NotificationTargetType,
+): ExpiredEntitlement[] {
+  // WHERE で IS NOT NULL を掛けているが、型の上では nullable のまま
+  if (!row.expiresAt) return [];
+  return [
+    {
       userId: row.userId,
-      target: { type: NotificationTargetType.Purchase, id: row.id },
+      target: { type, id: row.id },
       plan: row.plan,
       expiresAt: row.expiresAt,
-    });
-  }
-  for (const row of grantRows) {
-    if (!row.expiresAt) continue;
-    rows.push({
-      userId: row.userId,
-      target: { type: NotificationTargetType.BenefitGrant, id: row.id },
-      plan: row.plan,
-      expiresAt: row.expiresAt,
-    });
-  }
-  return rows;
+    },
+  ];
 }
 
 /** 候補のうち、いま有効な購入か付与を 1 つでも持つ人 */
