@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseTehai } from "@mahjong-scoring/core";
+import { parseExtendedMpsz } from "@mahjong-scoring/core";
 
 import { convertLegacyExtendedMpsz } from "./legacy-mpsz.mjs";
 
@@ -27,9 +27,12 @@ describe("convertLegacyExtendedMpsz", () => {
     const result = convertLegacyExtendedMpsz("321m[555p]");
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    const tehai = parseTehai(result.value);
-    expect(tehai?.closed).toEqual([2, 1, 0]);
-    expect(tehai?.exposed).toHaveLength(1);
+    // parseTehai は理牌するので、表記の順のまま読む parseExtendedMpsz で確かめる
+    const parsed = parseExtendedMpsz(result.value);
+    expect(parsed.isOk()).toBe(true);
+    if (parsed.isErr()) return;
+    expect(parsed.value.closed).toEqual([2, 1, 0]);
+    expect(parsed.value.exposed).toHaveLength(1);
   });
 
   it.each([
