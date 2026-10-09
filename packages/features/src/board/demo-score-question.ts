@@ -1,4 +1,4 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { HaiKind, sortHaiCodes } from "@mahjong-scoring/core";
 import type {
   HaiKindId,
   ScoreQuestion,
@@ -18,13 +18,24 @@ export interface DemoHand {
 }
 
 /**
+ * デモ牌姿を定義する
+ * デモ牌姿定義
+ *
+ * 牌は面子ごとに書いてよい。純手牌を理牌して持たせ（sortHaiCodes）、盤面に
+ * 直接並べる箇所（練習一覧のバナー等）でも生成した問題と同じ並びにする。
+ */
+export function defineDemoHand(hand: DemoHand): DemoHand {
+  return { ...hand, closed: sortHaiCodes(hand.closed) };
+}
+
+/**
  * 面子手のデモ牌姿（234m 567m 345p 678s 55s）
  *
  * 子・門前ツモ・両面待ちで和了した形。平和 + 断么九 + 門前清自摸和が確定する
  * ため、点数即答と満貫以上の点数計算の双方のデモに使える（満貫以上側は
  * ドラと立直を足して5翻にする）。
  */
-export const DEMO_MENTSU_HAND: DemoHand = {
+export const DEMO_MENTSU_HAND = defineDemoHand({
   closed: [
     HaiKind.ManZu2,
     HaiKind.ManZu3,
@@ -43,7 +54,7 @@ export const DEMO_MENTSU_HAND: DemoHand = {
   ],
   agariHai: HaiKind.PinZu3,
   isTsumo: true,
-};
+});
 
 /**
  * 役牌の暗刻を持つ面子手のデモ牌姿（發發發 234m 567m 345p 55s）
@@ -57,7 +68,7 @@ export const DEMO_MENTSU_HAND: DemoHand = {
  * 通しで解く出題（30〜50符の昇級試験）のデモにはならない。ロンなのは、
  * ツモだと門前清自摸和が乗って翻数が上がり、符の話が霞むため。
  */
-export const DEMO_YAKUHAI_KOUTSU_HAND: DemoHand = {
+export const DEMO_YAKUHAI_KOUTSU_HAND = defineDemoHand({
   closed: [
     HaiKind.Hatsu,
     HaiKind.Hatsu,
@@ -76,7 +87,7 @@ export const DEMO_YAKUHAI_KOUTSU_HAND: DemoHand = {
   ],
   agariHai: HaiKind.PinZu3,
   isTsumo: false,
-};
+});
 
 /**
  * 七対子のデモ牌姿（22m 55m 33p 77p 44s 88s 中中）
@@ -86,7 +97,7 @@ export const DEMO_YAKUHAI_KOUTSU_HAND: DemoHand = {
  * 乗って翻数が上がるため — 七対子の試験は満貫未満の出題に限っており、
  * デモの牌姿もその範囲に収める。
  */
-export const DEMO_CHIITOITSU_HAND: DemoHand = {
+export const DEMO_CHIITOITSU_HAND = defineDemoHand({
   closed: [
     HaiKind.ManZu2,
     HaiKind.ManZu2,
@@ -105,7 +116,7 @@ export const DEMO_CHIITOITSU_HAND: DemoHand = {
   ],
   agariHai: HaiKind.Chun,
   isTsumo: false,
-};
+});
 
 /**
  * 遊び方デモ用の出題を組み立てるための指定

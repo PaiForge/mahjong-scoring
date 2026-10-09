@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { HaiKind } from "@mahjong-scoring/core";
 import { QuestionDisplay } from "../../agari-score/_components/question-display";
-import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-score-question";
-import type { DemoHand } from "@mahjong-scoring/features/board/demo-score-question";
+import {
+  buildDemoScoreQuestion,
+  defineDemoHand,
+} from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import {
   HAN_OPTIONS,
@@ -16,7 +18,7 @@ import {
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九（3翻）
  * 234m 567m 345p 555s 88s（門前ツモ・リーチ）。刻子があるため平和は不成立。
  */
-const DEMO_HAND: DemoHand = {
+const DEMO_HAND = defineDemoHand({
   closed: [
     HaiKind.ManZu2,
     HaiKind.ManZu3,
@@ -35,7 +37,7 @@ const DEMO_HAND: DemoHand = {
   ],
   agariHai: HaiKind.SouZu8,
   isTsumo: true,
-};
+});
 
 /**
  * デモの出題。実際の出題と同じくドラ表示牌を出し、リーチしているので

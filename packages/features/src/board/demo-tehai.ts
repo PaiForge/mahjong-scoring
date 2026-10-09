@@ -1,4 +1,4 @@
-import { HaiKind, validateTehai14 } from "@mahjong-scoring/core";
+import { HaiKind, sortTehai, validateTehai14 } from "@mahjong-scoring/core";
 import type { AgariContext, HaiKindId, Tehai14 } from "@mahjong-scoring/core";
 
 /**
@@ -11,13 +11,15 @@ import type { AgariContext, HaiKindId, Tehai14 } from "@mahjong-scoring/core";
  *
  * 牌姿を書き間違えたときに黙って描画が消えないよう、検証に失敗したら投げる
  * （固定値なので開発中に必ず気付ける）。
+ *
+ * 牌は面子ごとに書いてよい。生成した問題と同じく理牌して返す（sortTehai）。
  */
 export function buildDemoTehai(closed: readonly HaiKindId[]): Tehai14 {
   const result = validateTehai14({ closed: [...closed], exposed: [] });
   if (result.isErr()) {
     throw new Error("デモ用の手牌が 14 枚の手牌として不正です");
   }
-  return result.value;
+  return sortTehai(result.value);
 }
 
 /**

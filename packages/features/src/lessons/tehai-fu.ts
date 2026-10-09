@@ -3,6 +3,7 @@ import {
   HaiKind,
   calculateTotalFu,
   parseTehai,
+  sortTehai,
   validateTehai14,
   type AgariContext,
   type HaiKindId,
@@ -88,7 +89,8 @@ function toAgariTehai(source: TehaiFuQuestionSource): Tehai14 {
   if (result.isErr()) {
     throw new Error(`${source.key}: 和了形の手牌になっていない`);
   }
-  return result.value;
+  // 和了牌を末尾に足したので理牌し直す
+  return sortTehai(result.value);
 }
 
 /**
