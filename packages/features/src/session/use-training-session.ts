@@ -2,13 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-/**
- * 正解を自動で流すときにフィードバックを見せる時間（ms）
- *
- * チャレンジ（{@link useTimedSession}）の既定と同じ長さ。同じ「正解の
- * フラッシュ」が練習のモードによって速さを変えないため。
- */
-const AUTO_ADVANCE_FEEDBACK_MS = 800;
+import { ANSWER_FEEDBACK_DURATION_MS } from "../challenge/challenge-result-bounds";
 
 /**
  * トレーニングセッション状態
@@ -128,11 +122,13 @@ export function useTrainingSession({
 
       // 自動遷移は正解のときだけ。間違えた問題は答え合わせのために必ず止める
       if (correct && autoAdvanceOnCorrect) {
+        // フィードバックはチャレンジ（useTimedSession）の既定と同じ長さだけ見せる。
+        // 同じ「正解のフラッシュ」が練習のモードによって速さを変えないため
         setTimeout(() => {
           setShowFeedback(false);
           setLastAnswerCorrect(undefined);
           onNext();
-        }, AUTO_ADVANCE_FEEDBACK_MS);
+        }, ANSWER_FEEDBACK_DURATION_MS);
         return;
       }
 

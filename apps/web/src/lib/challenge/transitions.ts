@@ -1,3 +1,4 @@
+import { ANSWER_FEEDBACK_DURATION_MS } from "@mahjong-scoring/features/challenge/challenge-result-bounds";
 import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import type {
@@ -9,8 +10,6 @@ import type {
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 /** 開始直後のカウントダウン（3, 2, 1）の長さ。この間は時計を進めない。 */
 const COUNTDOWN_MS = 3000;
-/** 回答から次の回答を受け付けるまでの間隔。連打で問題を読み飛ばさせない。 */
-const ANSWER_INTERVAL_MS = 800;
 /**
  * 採点の応答を返してから時計を動かし始めるまでの猶予
  * 応答の猶予
@@ -35,7 +34,7 @@ const ANSWER_INTERVAL_MS = 800;
  * 通信と Server Action の枠組みの時間。挑戦の最初の回答だけ往復 684ms
  * （接続が冷えた形で、関数のコールドスタートと見ている）。
  *
- * 正誤の表示（`ANSWER_INTERVAL_MS`）は猶予に含めない — これは採点が
+ * 正誤の表示（`ANSWER_FEEDBACK_DURATION_MS`）は猶予に含めない — これは採点が
  * ローカルだった頃から数えていた時間で、含めると 1 分で解ける問題数が
  * 2 割以上増えて過去の記録と比べられなくなる。
  */
@@ -143,7 +142,9 @@ export function answeredChallenge(
     incorrectAnswers: state.incorrectAnswers + Number(!correct),
     elapsedMs: challengeElapsed(state, receivedAt),
     resumedAt: respondedAt + RESPONSE_GRACE_MS,
-    answerAfter: receivedAt + ANSWER_INTERVAL_MS,
+    // 回答から次の回答を受け付けるまでの間隔。連打で問題を読み飛ばさせない。
+    // クライアントの正誤表示と同じ長さで、ずれると表示中に送った回答を弾く
+    answerAfter: receivedAt + ANSWER_FEEDBACK_DURATION_MS,
   };
 }
 
