@@ -24,7 +24,6 @@ const mocks = vi.hoisted(() => ({
   appleRevoke: vi.fn(),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("@/lib/cache-tags", () => ({ purgeLeaderboardCache: vi.fn() }));
 vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
 vi.mock("@/lib/apple/refresh-tokens", () => ({

@@ -1,10 +1,8 @@
 import { generateKeyPairSync, verify } from "node:crypto";
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { createAppleClientSecret } from "./client-secret";
-
-vi.mock("server-only", () => ({}));
 
 const { privateKey, publicKey } = generateKeyPairSync("ec", {
   namedCurve: "P-256",

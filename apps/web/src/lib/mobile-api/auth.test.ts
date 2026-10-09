@@ -17,8 +17,6 @@ const {
   };
 });
 
-vi.mock("server-only", () => ({}));
-
 vi.mock("@supabase/supabase-js", () => ({
   createClient: mockCreateClient,
   isAuthRetryableFetchError: (error: unknown) =>

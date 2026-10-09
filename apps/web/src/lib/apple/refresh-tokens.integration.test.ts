@@ -21,7 +21,6 @@ const mocked = vi.hoisted(() => ({
   encryptionKey: Buffer.alloc(32),
 }));
 
-vi.mock("server-only", () => ({}));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
 vi.mock("./apple-id-api", () => ({
   exchangeAppleAuthorizationCode: mocked.exchange,
