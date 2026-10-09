@@ -4,15 +4,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mock setup
 // ---------------------------------------------------------------------------
 
-const mockCalculateExp = vi.fn();
-const mockGetLevel = vi.fn();
-const mockGetLevelProgress = vi.fn();
-
-vi.mock("@mahjong-scoring/core", () => ({
-  calculateExp: (...args: unknown[]) => mockCalculateExp(...args),
-  getLevel: (...args: unknown[]) => mockGetLevel(...args),
-  getLevelProgress: (...args: unknown[]) => mockGetLevelProgress(...args),
+const { mockCalculateExp, mockBuildExpInfo } = vi.hoisted(() => ({
+  mockCalculateExp: vi.fn(),
+  mockBuildExpInfo: vi.fn(),
 }));
+
+// レベルの判定は core の `buildExpInfo`（core 側でテスト済み）。ここでは
+// 獲得量と付与後の累計を正しく渡すかだけを見るため、本物を包んで呼び出しを記録する
+vi.mock("@mahjong-scoring/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@mahjong-scoring/core")>();
+  mockBuildExpInfo.mockImplementation(actual.buildExpInfo);
+  return {
+    ...actual,
+    calculateExp: (...args: unknown[]) => mockCalculateExp(...args),
+    buildExpInfo: mockBuildExpInfo,
+  };
+});
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 
@@ -118,14 +125,6 @@ describe("grantChallengeExp", () => {
       accuracyMultiplier: 1.2,
       totalExp: 24,
     });
-
-    mockGetLevel.mockImplementation((exp: number) => Math.floor(exp / 100));
-    mockGetLevelProgress.mockImplementation((exp: number) => ({
-      level: Math.floor(exp / 100),
-      currentLevelExp: Math.floor(exp / 100) * 100,
-      nextLevelExp: (Math.floor(exp / 100) + 1) * 100,
-      progress: (exp % 100) / 100,
-    }));
   });
 
   it("calculateExp を score / incorrectAnswers / menuType で呼び出す（streak なし）", async () => {
@@ -174,7 +173,7 @@ describe("grantChallengeExp", () => {
     expect(tx.update).toHaveBeenCalledTimes(1);
   });
 
-  it("ExpInfo を earnedExp / totalExp / level / levelUp 付きで返す", async () => {
+  it("挿入した獲得量と加算後の累計から ExpInfo を作って返す", async () => {
     const tx = createMockTx({
       expEventsInsertReturning: [{ id: "event-1", amount: 24 }],
       totalExpAfterGrant: 200,
@@ -183,34 +182,12 @@ describe("grantChallengeExp", () => {
 
     const result = await grantChallengeExp(tx as never, baseParams);
 
-    expect(result).toEqual({
-      earnedExp: 24,
-      totalExp: 200,
-      // getLevel(200) = 2, getLevel(176) = 1 → levelUp
-      level: 2,
-      levelUp: true,
-      progressPercent: 0,
+    expect(mockBuildExpInfo).toHaveBeenCalledWith({
+      earned: 24,
+      totalExpAfter: 200,
     });
-  });
-
-  it("レベル未更新時は levelUp=false", async () => {
-    mockCalculateExp.mockReturnValue({
-      baseExp: 10,
-      accuracyMultiplier: 1.0,
-      totalExp: 10,
-    });
-    const tx = createMockTx({
-      expEventsInsertReturning: [{ id: "event-1", amount: 10 }],
-      totalExpAfterGrant: 250,
-    });
-    const { grantChallengeExp } = await import("./save-exp");
-
-    // getLevel(250)=2, getLevel(240)=2 → no level up
-    const result = await grantChallengeExp(tx as never, baseParams);
-
-    expect(result).not.toBeNull();
-    expect(result?.levelUp).toBe(false);
-    expect(result?.level).toBe(2);
+    expect(result).toEqual(mockBuildExpInfo.mock.results[0]?.value);
+    expect(result).toMatchObject({ earnedExp: 24, totalExp: 200 });
   });
 
   it("重複時（onConflictDoNothing で 0 件）は既存イベントから ExpInfo を再構築する", async () => {
@@ -230,50 +207,12 @@ describe("grantChallengeExp", () => {
     expect(tx.insert).toHaveBeenCalledTimes(1);
     expect(tx.update).not.toHaveBeenCalled();
     expect(result).not.toBeNull();
-    expect(result?.earnedExp).toBe(24);
-    expect(result?.totalExp).toBe(200);
-    expect(result?.level).toBe(2); // getLevel(200) = 2
-    expect(result?.levelUp).toBe(true); // getLevel(200) > getLevel(176)
-  });
-
-  it("一度に複数レベル跨いでも levelUp=true（巨大 EXP ジャンプ）", async () => {
-    // earned=1000, totalAfter=1000 → levelBefore=getLevel(0)=0, levelAfter=getLevel(1000)=10
-    mockCalculateExp.mockReturnValue({
-      baseExp: 1000,
-      accuracyMultiplier: 1.0,
-      totalExp: 1000,
+    // 初回と同じく metadata の付与後の累計から作る（levelUp の判定が初回と一致する）
+    expect(mockBuildExpInfo).toHaveBeenCalledWith({
+      earned: 24,
+      totalExpAfter: 200,
     });
-    const tx = createMockTx({
-      expEventsInsertReturning: [{ id: "event-jump", amount: 1000 }],
-      totalExpAfterGrant: 1000,
-    });
-    const { grantChallengeExp } = await import("./save-exp");
-
-    const result = await grantChallengeExp(tx as never, baseParams);
-
-    expect(result).not.toBeNull();
-    expect(result?.levelUp).toBe(true);
-    // mockGetLevel: floor(exp / 100)
-    expect(result?.level).toBe(10);
-  });
-
-  it("レベル境界ちょうどを踏んだ場合 levelUp=true", async () => {
-    // earned=50, totalAfter=100 → levelBefore=getLevel(50)=0, levelAfter=getLevel(100)=1
-    mockCalculateExp.mockReturnValue({
-      baseExp: 50,
-      accuracyMultiplier: 1.0,
-      totalExp: 50,
-    });
-    const tx = createMockTx({
-      expEventsInsertReturning: [{ id: "event-exact", amount: 50 }],
-      totalExpAfterGrant: 100,
-    });
-    const { grantChallengeExp } = await import("./save-exp");
-
-    const result = await grantChallengeExp(tx as never, baseParams);
-
-    expect(result?.levelUp).toBe(true);
-    expect(result?.level).toBe(1);
+    expect(result).toMatchObject({ earnedExp: 24, totalExp: 200 });
   });
 
   it("重複再取得で metadata.totalExpAfter が欠けていても amount にフォールバックする", async () => {
@@ -312,27 +251,6 @@ describe("grantChallengeExp", () => {
     expect(result).not.toBeNull();
     expect(result?.earnedExp).toBe(30);
     expect(result?.totalExp).toBe(30);
-  });
-
-  it("重複再取得時も levelUp 判定が一貫している（初回と同じ結果）", async () => {
-    // 初回: earned 24, totalAfter 200 → levelUp true (getLevel(200)=2, getLevel(176)=1)
-    // 重複時: metadata.totalExpAfter=200 でも同じく levelUp=true
-    const tx = createMockTx({
-      expEventsInsertReturning: [],
-      totalExpAfterGrant: 0,
-      existingEvent: {
-        amount: 24,
-        metadata: { totalExpAfter: 200 },
-      },
-    });
-    const { grantChallengeExp } = await import("./save-exp");
-
-    const result = await grantChallengeExp(tx as never, baseParams);
-
-    expect(result?.earnedExp).toBe(24);
-    expect(result?.totalExp).toBe(200);
-    expect(result?.level).toBe(2);
-    expect(result?.levelUp).toBe(true);
   });
 
   it("重複再取得で既存イベントが空配列の場合はゼロ値の ExpInfo を返す", async () => {
