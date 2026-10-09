@@ -138,6 +138,12 @@ export {
   TSUMO_SCORES_OYA_PART,
   TSUMO_SCORES_KO_PART,
 } from "./score/constants";
+export {
+  koTsumoPaymentOptions,
+  koTsumoPaymentKey,
+  LOWEST_MANGAN_REACHABLE_HAN,
+} from "./score/ko-tsumo-payments";
+export type { KoTsumoPaymentOptions } from "./score/ko-tsumo-payments";
 
 // === Core ===
 export { YAKU_OPTIONS } from "./core/yaku-names";
@@ -152,7 +158,11 @@ export {
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";
-export type { RoleScore, TsumoPayment } from "./core/score-calculation";
+export type {
+  KoTsumoPayment,
+  RoleScore,
+  TsumoPayment,
+} from "./core/score-calculation";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";
