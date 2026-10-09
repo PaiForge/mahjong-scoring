@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
+import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import { ScoreAnswerForm } from "./score-answer-form";
 
 function firstRealOptionValue(select: HTMLElement): string {
@@ -12,6 +13,10 @@ function firstRealOptionValue(select: HTMLElement): string {
     .filter((o) => (o as HTMLOptionElement).value !== "");
   return (opts[0] as HTMLOptionElement).value;
 }
+
+afterEach(() => {
+  useDisplaySettingsStore.setState({ koTsumoInput: "combined" });
+});
 
 describe("ScoreAnswerForm autoSubmit", () => {
   it("単一選択（子ロン）は選択した時点で送信し、ボタンを表示しない", () => {
@@ -41,7 +46,32 @@ describe("ScoreAnswerForm autoSubmit", () => {
     });
   });
 
-  it("子ツモは2つとも選び終えた時点で1回だけ送信する", () => {
+  it("子ツモは組の select 1 つで、選んだ時点で1回だけ送信する", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={true}
+        han={3}
+        onSubmit={onSubmit}
+        translationNamespace="x"
+        autoSubmit
+      />,
+    );
+
+    const select = screen.getByRole("combobox");
+    fireEvent.change(select, { target: { value: "300/500" } });
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      type: "koTsumo",
+      fromKo: 300,
+      fromOya: 500,
+    });
+  });
+
+  it("子ツモの分割入力は2つとも選び終えた時点で1回だけ送信する", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
     const onSubmit = vi.fn();
     render(
       <ScoreAnswerForm
@@ -114,7 +144,19 @@ describe("ScoreAnswerForm のラベル", () => {
     expect(screen.getByLabelText("selectScore")).toBeDefined();
   });
 
-  it("子ツモの2つの select をそれぞれのラベルから引ける", () => {
+  it("子ツモの組の select を「子から / 親から」の順を示すラベルから引ける", () => {
+    renderForm(true);
+
+    const select = screen.getByLabelText("koTsumoScore");
+    expect(
+      within(select)
+        .getAllByRole("option")
+        .map((o) => o.textContent),
+    ).toContain("300/500");
+  });
+
+  it("子ツモの分割入力の2つの select をそれぞれのラベルから引ける", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
     renderForm(true);
 
     expect(screen.getByLabelText("fromKo")).toBeDefined();
@@ -176,7 +218,8 @@ describe("ScoreAnswerForm の正誤フィードバック", () => {
     expect(select.className).toContain("border-ink");
   });
 
-  it("子ツモは2つの select をまとめて同じ色にする", () => {
+  it("子ツモの分割入力は2つの select をまとめて同じ色にする", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
     renderForm({ isTsumo: true, showFeedback: true, lastAnswerCorrect: false });
 
     for (const select of screen.getAllByRole("combobox")) {

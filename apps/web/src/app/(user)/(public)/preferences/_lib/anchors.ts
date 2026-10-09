@@ -20,6 +20,8 @@ export const PREFERENCE_ANCHORS = {
   termLinks: "term-links",
   /** 符と翻を「4翻 30符」の翻→符の順で出すか */
   fuHanOrder: "fu-han-order",
+  /** 子のツモの点数を「子から」「親から」の 2 つに分けて選ぶか */
+  koTsumoInput: "ko-tsumo-input",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;
