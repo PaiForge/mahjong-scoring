@@ -386,6 +386,19 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 長文の段落には `leading-relaxed` を付けるだけでよく、ページ個別に `leading-*` の
 数値を上書きしない。全体の行間を変えたいときは `--leading-relaxed` を触ること。
 
+## 牌の並び（理牌）
+
+牌の順（萬子 → 筒子 → 索子 → 字牌、赤 5 は 5 の直後）を決めるのは riichi-mahjong だけ。
+アプリで順を書き起こさない。
+
+- 牌の列は `sortHaiCodes` / `compareHaiCode`、手牌は `sortTehai`（純手牌だけ理牌し、副露は鳴いた順のまま）
+- 面子・雀頭を手牌の左から右の順に並べる表は `sortBlocksByTehai` / `sortHouraBlocksByTehai`
+- 手牌がアプリに入る入口で必ず理牌する: 問題の生成（`finalizeTehai14` / `finalizeTehai13`）、
+  MPSZ の読み込み（`parseTehai` / `parseHais`）、コードに書いた手牌（`buildDemoTehai` /
+  `defineDemoHand`）、テストで手牌を組み立てる関数。表示側（`TehaiHand`）は受け取った順に並べる
+- `(a, b) => a - b` を `sort` / `toSorted` に渡すことは ESLint（ルートの `eslint.config.mjs`）が
+  弾く。牌かどうかを lint で見分けられないため。数値は core の `compareNumbers` で並べる
+
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
 - `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —

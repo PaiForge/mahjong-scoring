@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { compareNumbers } from "@mahjong-scoring/core";
 
 import {
   isPracticeMenuType,
@@ -79,7 +80,7 @@ export function HeatmapDetailPanel({
           {moduleBreakdown && Object.keys(moduleBreakdown).length > 0 ? (
             <ul className="mt-2 space-y-1">
               {Object.entries(moduleBreakdown)
-                .sort(([, a], [, b]) => b - a)
+                .sort(([, a], [, b]) => compareNumbers(b, a))
                 .map(([moduleKey, exp]) => (
                   <li
                     key={moduleKey}

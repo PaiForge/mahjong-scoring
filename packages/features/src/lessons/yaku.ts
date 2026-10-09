@@ -2,6 +2,7 @@ import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
   type YakuHanEntry,
+  compareNumbers,
 } from "@mahjong-scoring/core";
 
 import type { LessonChoice, LessonQuestion, LessonQuiz } from "./quiz";
@@ -72,6 +73,6 @@ export const YAKU_LESSON_QUIZ: LessonQuiz = {
       ),
     ),
   ]
-    .sort((a, b) => a - b)
+    .sort(compareNumbers)
     .map(hanChoice),
 };

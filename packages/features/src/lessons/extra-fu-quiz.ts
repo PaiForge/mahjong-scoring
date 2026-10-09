@@ -1,4 +1,8 @@
-import { mentsuTehaiFu, type WinType } from "@mahjong-scoring/core";
+import {
+  compareNumbers,
+  mentsuTehaiFu,
+  type WinType,
+} from "@mahjong-scoring/core";
 
 import { buildExtraFuRows } from "../curriculum/extra-fu-rows";
 import {
@@ -42,7 +46,7 @@ export function buildExtraFuQuiz(
         buildExtraFuRows(handShape).flatMap((row) => [row.tsumoFu, row.ronFu]),
       ),
     ]
-      .sort((a, b) => a - b)
+      .sort(compareNumbers)
       .map((fu) => ({ kind: "fu", fu })),
   };
 }

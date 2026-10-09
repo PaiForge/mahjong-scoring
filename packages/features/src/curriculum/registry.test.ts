@@ -11,6 +11,7 @@ import {
   isCurriculumChapterSlug,
   pickNextChapter,
 } from "./registry";
+import { compareNumbers } from "@mahjong-scoring/core";
 
 describe("pickNextChapter", () => {
   it("returns the first chapter when nothing is read", () => {
@@ -211,7 +212,7 @@ describe("CURRICULUM definition order (CI 健全性テスト)", () => {
   // いることを CI で守る。
   it("CURRICULUM is defined in ascending order by `order`", () => {
     const orders = CURRICULUM.map((c) => c.order);
-    const sorted = [...orders].sort((a, b) => a - b);
+    const sorted = [...orders].sort(compareNumbers);
     expect(orders).toEqual(sorted);
   });
 });

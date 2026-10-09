@@ -64,6 +64,27 @@ export default [
     },
   },
   {
+    // 牌の並び（理牌）の順を決めるのは riichi-mahjong だけにする。牌種 ID は
+    // 数値なので `(a, b) => a - b` でも並ぶが、それを許すと牌の順の定義が
+    // アプリのあちこちに散り、赤 5 のような ID の大小と一致しない牌で
+    // 並びが食い違う。型情報を使わない lint では配列が牌かどうかを見分け
+    // られないため、要素どうしを引き算するだけの比較関数そのものを禁じ、
+    // 牌は sortHaiCodes / compareHaiCode、数値は compareNumbers と、何を
+    // 並べているかを呼び出し側に書かせる
+    files: ["**/*.{js,jsx,ts,tsx,mts}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.property.name=/^(sort|toSorted)$/] > ArrowFunctionExpression[params.length=2][body.type='BinaryExpression'][body.operator='-'][body.left.type='Identifier'][body.right.type='Identifier']",
+          message:
+            "牌は sortHaiCodes / compareHaiCode（理牌の順）、数値は compareNumbers で並べる",
+        },
+      ],
+    },
+  },
+  {
     // CommonJS で書かれた設定ファイル（postcss・Metro・Babel 等）。`module` /
     // `require` を未定義扱いにしない
     files: [

@@ -1,4 +1,8 @@
-import { CHIITOITSU_FU, type Role } from "@mahjong-scoring/core";
+import {
+  compareNumbers,
+  CHIITOITSU_FU,
+  type Role,
+} from "@mahjong-scoring/core";
 
 import { scoreOf, sumMenzenHan } from "./agari-quiz";
 import type { LessonQuestion, LessonQuiz } from "./quiz";
@@ -56,6 +60,6 @@ export const CHIITOITSU_SCORE_LESSON_QUIZ: LessonQuiz = {
       ),
     ),
   ]
-    .sort((a, b) => a - b)
+    .sort(compareNumbers)
     .map((points) => ({ kind: "points", points })),
 };

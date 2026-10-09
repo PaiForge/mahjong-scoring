@@ -23,7 +23,7 @@
  * - `[1m2m3m]` のようにブロック内でサフィックスが複数あるもの、面子を
  *   成さないブロック、上記の構文に当たらない文字
  */
-import { parseTehai } from "@mahjong-scoring/core";
+import { compareNumbers, parseTehai } from "@mahjong-scoring/core";
 
 /** 書き換えられない理由 */
 export type LegacyMpszFailureReason =
@@ -53,7 +53,7 @@ function annotateOpenMeld(digits: string, suit: string): string | undefined {
     return `${first}=${digits.slice(1)}`;
   }
   if (digits.length === 3 && suit !== "z") {
-    const [a, b, c] = [...digits].map(Number).sort((x, y) => x - y);
+    const [a, b, c] = [...digits].map(Number).sort(compareNumbers);
     if (b === a + 1 && c === b + 1) return `${a}-${b}${c}`;
   }
   return undefined;

@@ -9,6 +9,7 @@ import {
   nextRank,
   rankTier,
 } from "./registry";
+import { compareNumbers } from "@mahjong-scoring/core";
 
 describe("RANK_REGISTRY", () => {
   it("slug が一意である", () => {
@@ -17,7 +18,7 @@ describe("RANK_REGISTRY", () => {
 
   it("level が昇順かつ一意である", () => {
     const levels = RANK_REGISTRY.map((rank) => rank.level);
-    expect(levels).toEqual([...new Set(levels)].sort((a, b) => a - b));
+    expect(levels).toEqual([...new Set(levels)].sort(compareNumbers));
   });
 
   it("試験が級ごとに一意である（1 つの試験が 2 つの級を決めない）", () => {
@@ -55,7 +56,7 @@ describe("RANK_REGISTRY", () => {
         orderBySlug.get(slug)!,
       );
       expect(orders, `${rank.slug} の前提章がカリキュラム順でない`).toEqual(
-        [...orders].sort((a, b) => a - b),
+        [...orders].sort(compareNumbers),
       );
       expect(
         new Set(rank.learnChapterSlugs).size,

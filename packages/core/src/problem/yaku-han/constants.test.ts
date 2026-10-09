@@ -8,6 +8,7 @@ import {
   groupYakuHanEntriesByMenzenHan,
 } from "./constants";
 import { YAKU_OPTION_GROUPS, YAKU_OPTIONS } from "../../core/yaku-names";
+import { compareNumbers } from "../../core/compare";
 
 /**
  * `YAKU_OPTIONS` にあって `YAKU_HAN_ENTRIES` に無くてよい役名。
@@ -125,7 +126,7 @@ describe("groupYakuHanEntriesByMenzenHan", () => {
       (g) => g.han,
     );
 
-    expect(hans).toEqual([...hans].sort((a, b) => a - b));
+    expect(hans).toEqual([...hans].sort(compareNumbers));
     expect(hans.at(-1)).toBe(YAKUMAN_HAN);
   });
 

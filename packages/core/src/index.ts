@@ -206,6 +206,8 @@ export type {
   TenpaiScoreGeneratorOptions,
 } from "./problem/tenpai-score/types";
 
+export { compareNumbers } from "./core/compare";
+
 // === Re-exports from @pai-forge/riichi-mahjong ===
 export {
   HaiKind,

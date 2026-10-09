@@ -3,6 +3,7 @@ import {
   calculateMachiFu,
   type HaiKindId,
   type MachiType,
+  compareNumbers,
 } from "@mahjong-scoring/core";
 
 import type { LessonQuestion, LessonQuiz } from "./quiz";
@@ -83,6 +84,6 @@ export const MACHI_FU_LESSON_QUIZ: LessonQuiz = {
     }),
   ),
   choices: [...new Set(ALL_MACHI_TYPES.map(calculateMachiFu))]
-    .sort((a, b) => a - b)
+    .sort(compareNumbers)
     .map((fu) => ({ kind: "fu", fu })),
 };
