@@ -15,6 +15,7 @@ import { ToggleGroup, toggleLabelColor } from "../components/toggle-group";
 import { useFuHanOrder } from "../hooks/use-display-settings-store";
 import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
+import { TehaiHand } from "./tehai-hand";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
 import { hasRonMinkou } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
@@ -46,6 +47,10 @@ function ClosedTiles({
  * 点数になる解釈には「最高点」のバッジを付け、同じ点数の解釈には同じ
  * バッジを付ける（絵文字ではなく文字。OS で絵が変わらず、凡例も要らない）。
  * 解釈が 1 つの手では切り替えを出さない。
+ *
+ * 分解の上には分ける前の手牌を盤面と同じ並び（{@link TehaiHand}）で置き、
+ * 盤面へ戻らなくても何を分けたのかが読めるようにする（web と同じ）。主役は
+ * 分解なので、手牌は折り返さず幅に収まる倍率まで縮めてよい。
  */
 export function TehaiMentsuBreakdown({
   tehai,
@@ -105,6 +110,12 @@ export function TehaiMentsuBreakdown({
         closeLabel={t("close")}
       >
         <View style={styles.body}>
+          <TehaiHand
+            tehai={tehai}
+            agariHai={context.agariHai}
+            agariLabel={context.isTsumo ? t("tsumo") : t("ron")}
+            agariLabelTone="light"
+          />
           {showsCandidateTabs && (
             <ToggleGroup
               groups={[

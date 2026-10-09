@@ -16,7 +16,7 @@ import {
   View,
   type AppStateStatus,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useIsFocused, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type {
   GameSessionState,
@@ -162,6 +162,19 @@ export function ChallengeShell({
     return () => sub.remove();
   }, []);
 
+  // 画面が手前から外れたとき（外部のリンクで別の画面が積まれた等）も止める。
+  // 止めないと裏で時計が進み、時間切れの結果画面への replace が手前の画面を
+  // 置き換える。カウントダウン中に外れたら、始まった時点で止める
+  const isFocused = useIsFocused();
+  const isRunning =
+    !gameSession.isPaused &&
+    !gameSession.isFinished &&
+    !gameSession.isCountingDown;
+  const pauseInBackground = useEffectEvent(() => gameSession.togglePause());
+  useEffect(() => {
+    if (!isFocused && isRunning) pauseInBackground();
+  }, [isFocused, isRunning]);
+
   return (
     <View style={styles.root}>
       {/* ヘッダーの × は中止（確認を挟む）。Android の戻るボタンと同じ */}
@@ -284,9 +297,11 @@ const styles = StyleSheet.create({
   heart: {
     fontSize: 16,
   },
+  // 不透明にして盤面を隠す。透けると時計を止めたまま問題を考えられる
+  // （web は盤面をぼかす）
   pauseOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255,255,255,0.97)",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
@@ -302,9 +317,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 32,
   },
+  // 一時停止と同じく不透明にして、時計が動く前に問題を読ませない
+  // （web は覆いの奥をぼかす）
   countdown: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255,255,255,0.85)",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
   },
