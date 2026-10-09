@@ -434,32 +434,13 @@ describe("resolveMentsuBreakdown", () => {
         agariHai: HaiKind.ManZu4,
       })?.fourMentsu.map((row) => row.mentsu.hais[0]);
 
-    it("手牌が發から始まれば發の刻子から並べる", () => {
-      // 發發發 234m 456p 678s + 99m
+    it("手牌の並びに依らず萬子 → 筒子 → 索子 → 字牌の順に並べる", () => {
+      // 發發發 234m 456p 678s + 99m（理牌していない並びで渡す）
       const tehai = makeTehai([
         HaiKind.Hatsu,
         HaiKind.Hatsu,
         HaiKind.Hatsu,
         ...THREE_SHUNTSU,
-        HaiKind.ManZu9,
-        HaiKind.ManZu9,
-      ]);
-
-      expect(leadHais(tehai)).toEqual([
-        HaiKind.Hatsu,
-        HaiKind.ManZu2,
-        HaiKind.PinZu4,
-        HaiKind.SouZu6,
-      ]);
-    });
-
-    it("同じ面子でも手牌で發が後ろにあれば發の刻子を後ろに並べる", () => {
-      // 234m 456p 678s 發發發 + 99m
-      const tehai = makeTehai([
-        ...THREE_SHUNTSU,
-        HaiKind.Hatsu,
-        HaiKind.Hatsu,
-        HaiKind.Hatsu,
         HaiKind.ManZu9,
         HaiKind.ManZu9,
       ]);
@@ -506,12 +487,7 @@ describe("resolveMentsuBreakdown", () => {
           ...TSUMO_CONTEXT,
           agariHai: HaiKind.PinZu6,
         })?.fourMentsu.map((row) => row.mentsu.hais[0]),
-      ).toEqual([
-        HaiKind.PinZu4,
-        HaiKind.SouZu6,
-        HaiKind.Haku,
-        HaiKind.ManZu2,
-      ]);
+      ).toEqual([HaiKind.PinZu4, HaiKind.SouZu6, HaiKind.Haku, HaiKind.ManZu2]);
     });
   });
 });
