@@ -18,7 +18,7 @@
     "@mahjong-scoring/core": "workspace:*",
     "@mahjong-scoring/features": "workspace:*",
     "@mahjong-scoring/messages": "workspace:*",
-    "@pai-forge/mahjong-react-ui": "^0.5.0",
+    "@pai-forge/mahjong-react-ui": "^0.6.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.112.2",
     "expo": "~57.0.26",
