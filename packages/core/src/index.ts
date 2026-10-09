@@ -215,8 +215,11 @@ export {
 export { isHaiKindId } from "./core/type-guards";
 
 export {
+  compareHaiCode,
   formatMpsz,
   parseExtendedMpsz,
+  sortHaiCodes,
+  sortTehai,
   validateTehai14,
   countDora,
   getDoraNext,

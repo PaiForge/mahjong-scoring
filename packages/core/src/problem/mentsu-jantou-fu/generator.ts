@@ -1,6 +1,7 @@
 import {
   MentsuType,
   isYaochu,
+  sortBlocksByTehai,
   type HaiKindId,
   type CompletedMentsu,
 } from "@pai-forge/riichi-mahjong";
@@ -26,7 +27,6 @@ import {
   pickAgariHai,
   pickRonAgariHai,
 } from "../shared/hand-skeleton";
-import { orderByHandLayout } from "../shared/hand-layout";
 
 /** 面子と雀頭の符練習用の面子生成重み（20%順子, 50%刻子, 30%槓子） */
 const MENTSU_JANTOU_FU_WEIGHTS = { shuntsu: 0.2, koutsu: 0.5 } as const;
@@ -121,8 +121,8 @@ export function generateMentsuJantouFuQuestion(
   //    手牌は「昇順ソート済みの暗牌 → 副露（右側）」で表示されるため、
   //    暗牌側の面子・雀頭を牌の昇順で、続けて副露を tehai.exposed の順に並べる。
   //    これにより回答行が手牌の左から右の見た目と対応する。
-  const orderedItems = orderByHandLayout(items, (item) => ({
-    tiles: item.tiles,
+  const orderedItems = sortBlocksByTehai(items, (item) => ({
+    hais: item.tiles,
     isExposed: isExposedItem(item),
   }));
 

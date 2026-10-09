@@ -2,6 +2,7 @@ import {
   MentsuType,
   getPaymentTotal,
   rankScoresForTehai,
+  sortBlocksByTehai,
   validateTehai14,
   type CompletedMentsu,
   type Fu,
@@ -17,7 +18,6 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { isOpenMentsuAt } from "../core/score-calculation";
 import { isExposedMentsu } from "../problem/shared/hand-skeleton";
-import { orderByHandLayout } from "../problem/shared/hand-layout";
 import { applyAppScoringRules } from "../problem/score/utils/reconciler";
 import type { AgariContext } from "../problem/shared/agari-context";
 
@@ -196,7 +196,7 @@ function candidateKeyOf(structure: MentsuHouraStructure): string {
  * 副露・明暗・和了牌の位置をここで併せて解決する。符内訳が「明刻子」と
  * 書いている面子を分解表示が単に「刻子」と出すと、同じ手牌の説明が
  * 2箇所で食い違って見える。面子は手牌の左から右の並びの順に並べる
- * （{@link orderByHandLayout}）。ライブラリの和了構造は面子を独自の順で
+ * （{@link sortBlocksByTehai}）。ライブラリの和了構造は面子を独自の順で
  * 持つため、そのままでは分解の表と手牌の並びが食い違う。
  */
 function toBreakdown(
@@ -215,9 +215,9 @@ function toBreakdown(
     agariHaiIndex: agari.mentsuIndex === index ? agari.haiIndex : undefined,
   });
 
-  const [first, second, third, fourth] = orderByHandLayout(
+  const [first, second, third, fourth] = sortBlocksByTehai(
     structure.fourMentsu.map(toRow),
-    (row) => ({ tiles: row.mentsu.hais, isExposed: row.isExposed }),
+    (row) => ({ hais: row.mentsu.hais, isExposed: row.isExposed }),
   );
 
   return {
