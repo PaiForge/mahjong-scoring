@@ -102,6 +102,7 @@ export {
 } from "./score/mentsu-structure";
 export type {
   MentsuBreakdown,
+  MentsuBreakdownBlock,
   MentsuBreakdownRow,
   MentsuBreakdownCandidate,
   MentsuBreakdownContext,

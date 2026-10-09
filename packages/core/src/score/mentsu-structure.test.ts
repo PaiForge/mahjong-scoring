@@ -5,6 +5,7 @@ import {
   MentsuType,
   Tacha,
   type CompletedMentsu,
+  type HaiKindId,
   type Tehai,
 } from "@pai-forge/riichi-mahjong";
 import {
@@ -426,15 +427,18 @@ describe("resolveMentsuBreakdown", () => {
     });
   });
 
-  describe("面子の並び", () => {
-    /** 各面子の先頭の牌（並びの比較用） */
-    const leadHais = (tehai: Tehai) =>
+  describe("面子と雀頭の並び", () => {
+    /** 各ブロックの種類と先頭の牌（並びの比較用） */
+    const blocksOf = (tehai: Tehai, agariHai: HaiKindId) =>
       resolveMentsuBreakdown(tehai, {
         ...TSUMO_CONTEXT,
-        agariHai: HaiKind.ManZu4,
-      })?.fourMentsu.map((row) => row.mentsu.hais[0]);
+        agariHai,
+      })?.blocks.map((block) => [
+        block.kind,
+        block.kind === "Jantou" ? block.row.hais[0] : block.row.mentsu.hais[0],
+      ]);
 
-    it("手牌の並びに依らず萬子 → 筒子 → 索子 → 字牌の順に並べる", () => {
+    it("雀頭も面子の間に、萬子 → 筒子 → 索子 → 字牌の順に並べる", () => {
       // 發發發 234m 456p 678s + 99m（理牌していない並びで渡す）
       const tehai = makeTehai([
         HaiKind.Hatsu,
@@ -445,7 +449,31 @@ describe("resolveMentsuBreakdown", () => {
         HaiKind.ManZu9,
       ]);
 
-      expect(leadHais(tehai)).toEqual([
+      expect(blocksOf(tehai, HaiKind.ManZu4)).toEqual([
+        ["Mentsu", HaiKind.ManZu2],
+        ["Jantou", HaiKind.ManZu9],
+        ["Mentsu", HaiKind.PinZu4],
+        ["Mentsu", HaiKind.SouZu6],
+        ["Mentsu", HaiKind.Hatsu],
+      ]);
+    });
+
+    it("4 面子は雀頭を除いた同じ順に並べる", () => {
+      const tehai = makeTehai([
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        HaiKind.Hatsu,
+        ...THREE_SHUNTSU,
+        HaiKind.ManZu9,
+        HaiKind.ManZu9,
+      ]);
+
+      expect(
+        resolveMentsuBreakdown(tehai, {
+          ...TSUMO_CONTEXT,
+          agariHai: HaiKind.ManZu4,
+        })?.fourMentsu.map((row) => row.mentsu.hais[0]),
+      ).toEqual([
         HaiKind.ManZu2,
         HaiKind.PinZu4,
         HaiKind.SouZu6,
@@ -453,7 +481,7 @@ describe("resolveMentsuBreakdown", () => {
       ]);
     });
 
-    it("副露した面子は手の内の面子の後に並べる", () => {
+    it("副露した面子は手の内の面子と雀頭の後に並べる", () => {
       // 456p 678s 白白白 99m + 234m チー
       const tehai: Tehai = {
         closed: [
@@ -482,12 +510,13 @@ describe("resolveMentsuBreakdown", () => {
         ],
       };
 
-      expect(
-        resolveMentsuBreakdown(tehai, {
-          ...TSUMO_CONTEXT,
-          agariHai: HaiKind.PinZu6,
-        })?.fourMentsu.map((row) => row.mentsu.hais[0]),
-      ).toEqual([HaiKind.PinZu4, HaiKind.SouZu6, HaiKind.Haku, HaiKind.ManZu2]);
+      expect(blocksOf(tehai, HaiKind.PinZu6)).toEqual([
+        ["Jantou", HaiKind.ManZu9],
+        ["Mentsu", HaiKind.PinZu4],
+        ["Mentsu", HaiKind.SouZu6],
+        ["Mentsu", HaiKind.Haku],
+        ["Mentsu", HaiKind.ManZu2],
+      ]);
     });
   });
 });

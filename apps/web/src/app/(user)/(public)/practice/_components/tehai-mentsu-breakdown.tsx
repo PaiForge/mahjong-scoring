@@ -222,8 +222,9 @@ export function TehaiMentsuBreakdown({
               />
             </div>
           )}
-          {/* 4面子を1行ずつ縦に積み、雀頭は最後に置く。面子から順に読ませ、
-              残りが雀頭だと分かる並びにする */}
+          {/* 雀頭と4面子を1行ずつ縦に積む。上の手牌の左から右と同じ順
+              （手の内は雀頭も含めて理牌の順、副露はその後）にし、表の行を
+              手牌の中で探さずに済むようにする */}
           <DataTable
             header={
               <>
@@ -236,24 +237,31 @@ export function TehaiMentsuBreakdown({
               </>
             }
           >
-            {breakdown.fourMentsu.map((row, i) => (
-              <BreakdownRow key={i} label={mentsuLabel(row)}>
-                {row.isExposed ? (
-                  <Furo mentsu={row.mentsu} furo={row.mentsu.furo} size="sm" />
-                ) : (
+            {breakdown.blocks.map(({ kind, row }, i) =>
+              kind === "Jantou" ? (
+                <BreakdownRow key={i} label={t("jantou")}>
                   <ClosedTiles
-                    hais={row.mentsu.hais}
+                    hais={row.hais}
                     agariHaiIndex={row.agariHaiIndex}
                   />
-                )}
-              </BreakdownRow>
-            ))}
-            <BreakdownRow label={t("jantou")}>
-              <ClosedTiles
-                hais={breakdown.jantou.hais}
-                agariHaiIndex={breakdown.jantou.agariHaiIndex}
-              />
-            </BreakdownRow>
+                </BreakdownRow>
+              ) : (
+                <BreakdownRow key={i} label={mentsuLabel(row)}>
+                  {row.isExposed ? (
+                    <Furo
+                      mentsu={row.mentsu}
+                      furo={row.mentsu.furo}
+                      size="sm"
+                    />
+                  ) : (
+                    <ClosedTiles
+                      hais={row.mentsu.hais}
+                      agariHaiIndex={row.agariHaiIndex}
+                    />
+                  )}
+                </BreakdownRow>
+              ),
+            )}
           </DataTable>
           {showsRonMinkouNote && <p>{t("mentsuBreakdownMinkouNote")}</p>}
         </div>

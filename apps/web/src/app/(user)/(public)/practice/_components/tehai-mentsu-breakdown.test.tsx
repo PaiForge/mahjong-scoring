@@ -123,6 +123,25 @@ describe("TehaiMentsuBreakdown", () => {
     expect(screen.getAllByText("jantou")).toHaveLength(1);
   });
 
+  it("雀頭と面子を上の手牌と同じ順（理牌の順）に並べる", () => {
+    render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
+
+    openModal();
+
+    // 見出し行を除いた各行の種別（234m 99m 456p 678s 白白白）
+    const labels = breakdownTable()
+      .getAllByRole("row")
+      .slice(1)
+      .map((row) => row.textContent?.match(/[a-z]+$/)?.[0]);
+    expect(labels).toEqual([
+      "shuntsu",
+      "jantou",
+      "shuntsu",
+      "shuntsu",
+      "ankou",
+    ]);
+  });
+
   it("閉じるボタンでモーダルが閉じる", () => {
     render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
 
@@ -222,7 +241,9 @@ describe("TehaiMentsuBreakdown", () => {
 
       expect(screen.getByText("minkou")).toBeTruthy();
       expect(screen.queryByText("ankou")).toBeNull();
-      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(FuroType.Pon);
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(
+        FuroType.Pon,
+      );
     });
 
     it("ロンで完成した刻子は明刻子とし、その旨を注記する", () => {
@@ -296,7 +317,9 @@ describe("TehaiMentsuBreakdown", () => {
       openModal();
 
       expect(screen.getByText("ankan")).toBeTruthy();
-      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe("none");
+      expect(breakdownTable().getByTestId("furo").dataset.furoType).toBe(
+        "none",
+      );
     });
   });
 
