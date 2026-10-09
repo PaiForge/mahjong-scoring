@@ -317,9 +317,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     gap: 32,
   },
+  // 一時停止と同じく不透明にして、時計が動く前に問題を読ませない
+  // （web は覆いの奥をぼかす）
   countdown: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(255,255,255,0.85)",
+    backgroundColor: colors.card,
     alignItems: "center",
     justifyContent: "center",
   },
