@@ -1,0 +1,35 @@
+# ログイン中（bob）の設定の入口: ホームのヘッダーに歯車は無く、マイページの「設定」の
+# 行から開く。会員限定ゲートは出ず、ルールの項目とアカウントの節が並ぶ
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- assertNotVisible:
+    id: "home-settings"
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-settings"
+    direction: DOWN
+- takeScreenshot: preferences-signed-in-mypage
+- tapOn:
+    id: "mypage-menu-settings"
+- extendedWaitUntil:
+    visible: "麻雀ルール"
+    timeout: 10000
+- assertNotVisible:
+    id: "preferences-members-gate"
+- takeScreenshot: preferences-signed-in

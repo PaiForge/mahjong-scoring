@@ -25,13 +25,22 @@ export const MOBILE_ME_API_PATH = `${MOBILE_API_PREFIX}/me`;
  */
 export interface MobileMeResponse {
   readonly userId: string;
-  /** プロフィール。ユーザー名を決める前は null */
-  readonly profile: { readonly username: string } | null;
+  /**
+   * プロフィール。ユーザー名を決める前は null。`avatarUrl` はアバター画像の
+   * URL（未設定なら無い。ホームのヘッダーのマイページの入口に出す）。省略可能
+   * なのは、項目を足す前の版のサーバーが返す形も読むため
+   */
+  readonly profile: {
+    readonly username: string;
+    readonly avatarUrl?: string;
+  } | null;
 }
 
 const mobileMeResponseSchema = z.object({
   userId: z.string(),
-  profile: z.object({ username: z.string() }).nullable(),
+  profile: z
+    .object({ username: z.string(), avatarUrl: z.string().optional() })
+    .nullable(),
 });
 
 /**

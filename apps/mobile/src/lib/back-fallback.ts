@@ -6,6 +6,9 @@ import {
   REFERENCE_PATH,
 } from "@mahjong-scoring/features/routes";
 
+/** マイページ（設定の入口） */
+const MYPAGE_PATH = "/mypage";
+
 /** 点数表のタブ（参照ページの入口） */
 const SCORE_TABLE_TAB_PATH = "/score-table";
 
@@ -21,10 +24,11 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  * - レッスン → レッスンの目次
  * - 道場・級の詳細・昇級試験 → 道場
  * - 参照（役一覧・用語）→ 参照の入口、参照の入口 → 点数表のタブ
- * - 設定の下のページ → 設定、設定 → ホーム
- * - アカウント（ログイン・登録・ユーザー名の設定・退会）→ 設定（入口が設定の
- *   アカウントの節のため）
- * - マイページ → ホーム（入口がホームのヘッダーのため）
+ * - 設定の下のページ → 設定、設定 → マイページ（入口がマイページのため）
+ * - ユーザー名の設定・退会 → 設定（入口が設定のアカウントの節のため）
+ * - マイページの下のページ → マイページ、マイページ → ホーム（入口がホームの
+ *   ヘッダーのため）
+ * - ログイン・登録 → ホーム（入口がホームとマイページの記録の案内のため）
  * - それ以外（練習）→ 練習一覧
  *
  * @param pathname 今の画面のパス（`usePathname()`）
@@ -40,12 +44,15 @@ export function backFallbackHref(pathname: string): string {
     case "reference":
       return child === undefined ? SCORE_TABLE_TAB_PATH : REFERENCE_PATH;
     case "preferences":
-      return child === undefined ? "/" : PREFERENCES_PATH;
+      return child === undefined ? MYPAGE_PATH : PREFERENCES_PATH;
     case "mypage":
-      return child === undefined ? "/" : PREFERENCES_PATH;
+      if (child === undefined) return "/";
+      return child === "setup-username" || child === "account"
+        ? PREFERENCES_PATH
+        : MYPAGE_PATH;
     case "sign-in":
     case "sign-up":
-      return PREFERENCES_PATH;
+      return "/";
     default:
       return PRACTICE_PATH;
   }

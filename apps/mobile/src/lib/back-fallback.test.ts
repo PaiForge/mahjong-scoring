@@ -19,19 +19,23 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/reference")).toBe("/score-table");
   });
 
-  it("設定の下は設定へ、設定はホームへ", () => {
+  it("設定の下は設定へ、設定は入口のマイページへ", () => {
     expect(backFallbackHref("/preferences/yaku-order")).toBe("/preferences");
-    expect(backFallbackHref("/preferences")).toBe("/");
+    expect(backFallbackHref("/preferences")).toBe("/mypage");
   });
 
-  it("アカウントの画面は入口の設定へ", () => {
-    expect(backFallbackHref("/sign-in")).toBe("/preferences");
-    expect(backFallbackHref("/sign-up")).toBe("/preferences");
+  it("ユーザー名の設定と退会は入口の設定へ", () => {
     expect(backFallbackHref("/mypage/setup-username")).toBe("/preferences");
     expect(backFallbackHref("/mypage/account/delete")).toBe("/preferences");
   });
 
-  it("マイページは入口のホームへ", () => {
+  it("ログイン・登録はホームへ", () => {
+    expect(backFallbackHref("/sign-in")).toBe("/");
+    expect(backFallbackHref("/sign-up")).toBe("/");
+  });
+
+  it("マイページの下はマイページへ、マイページは入口のホームへ", () => {
+    expect(backFallbackHref("/mypage/challenges")).toBe("/mypage");
     expect(backFallbackHref("/mypage")).toBe("/");
   });
 

@@ -1,14 +1,22 @@
-# ゲストの設定: 最後の「その他」に利用規約・プライバシーポリシー・お問い合わせ・
-# 運営者情報が並び（特商法の表記は無い）、プライバシーポリシーを押すと web のページが開く
+# ゲストの設定の入口: ホームのヘッダーに歯車は無い。マイページの「その他」に利用規約・
+# プライバシーポリシー・お問い合わせ・運営者情報が並び（特商法の表記は無い）、
+# プライバシーポリシーを押すと web のページが開く。設定を直接開くと会員限定ゲートが出る
 appId: help.mahjong.score
 ---
+# clearState は Keychain（SecureStore のログイン）を消さない。前のフローのログインが
+# 残るとゲストにならない
+- clearKeychain
 - launchApp:
     clearState: true
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- tapOn:
+- assertNotVisible:
     id: "home-settings"
+- tapOn:
+    id: "home-mypage"
+- assertNotVisible:
+    id: "mypage-menu-settings"
 - scrollUntilVisible:
     element:
       id: "site-link-company"
@@ -27,3 +35,11 @@ appId: help.mahjong.score
     visible: ".*利用者のプライバシーを尊重し.*"
     timeout: 20000
 - takeScreenshot: preferences-site-links-privacy
+- launchApp
+- openLink: "mahjong-scoring://preferences"
+- extendedWaitUntil:
+    visible:
+      id: "preferences-members-gate"
+    timeout: 10000
+- assertNotVisible: "麻雀ルール"
+- takeScreenshot: preferences-members-gate

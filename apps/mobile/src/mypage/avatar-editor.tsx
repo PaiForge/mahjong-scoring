@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { FormMessage } from "../auth/form-message";
+import { refreshAccount } from "../auth/use-auth";
 import { ConfirmationModal } from "../components/confirmation-modal";
 import { TextLink } from "../components/text-link";
 import { showToast } from "../components/toast";
@@ -46,7 +47,8 @@ const ERROR_KEYS = {
  * 選んだらすぐに上げる（web と同じ。保存ボタンは文字の欄のためのもの）。
  * 済んだことはトーストで知らせ、失敗の理由は操作の下に残す。
  * 画像は選ぶ画面で正方形に切り抜かせ、端末で縮めてから送る
- * （`pickAvatarImage`）。削除は確認を挟む。
+ * （`pickAvatarImage`）。削除は確認を挟む。済んだらアカウント状態を読み直し、
+ * ホームのヘッダーのアバターを差し替える。
  *
  * web と違うもの: 画像の上の削除バッジは置かず、「画像を選択」と並べた
  * 文字の操作にする（小さな丸の × は指で押しにくい）。
@@ -93,6 +95,7 @@ export function AvatarEditor({
       return;
     }
     setAvatarUrl(result.avatarUrl);
+    void refreshAccount();
     showToast(t("avatarUploaded"), "success");
   };
 
@@ -108,6 +111,7 @@ export function AvatarEditor({
       return;
     }
     setAvatarUrl(undefined);
+    void refreshAccount();
     showToast(t("avatarRemoved"), "success");
   };
 
