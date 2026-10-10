@@ -7,8 +7,6 @@ import {
 } from "react";
 import {
   AppState,
-  BackHandler,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -28,6 +26,7 @@ import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
+import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
@@ -134,15 +133,7 @@ export function ChallengeShell({
     showToast(tq(`${variant}.toast`));
   }, [router, exitHref, tq, variant]);
 
-  useEffect(() => {
-    // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る
-    if (Platform.OS === "web") return;
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      openQuit();
-      return true;
-    });
-    return () => sub.remove();
-  }, [openQuit]);
+  useHardwareBack(openQuit);
 
   // 購読は 1 度だけ張り、裏に回った時点の最新の状態で判定する。止めるのは
   // 実行中だけ（togglePause は切り替えなので、一時停止中に呼ぶと再開してしまう）
