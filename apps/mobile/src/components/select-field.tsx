@@ -100,7 +100,6 @@ export function SelectField<TValue extends string | number>({
         isOpen={isOpen}
         onClose={close}
         title={accessibilityLabel ?? placeholder}
-        closeLabel={placeholder}
       >
         <ScrollView
           style={styles.list}

@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   REPORT_DETAIL_MAX_LENGTH,
@@ -9,7 +9,7 @@ import {
   type ReportReason,
 } from "@mahjong-scoring/features/reports/report";
 
-import { BottomSheet, SheetScrollView } from "../components/bottom-sheet";
+import { BottomSheet } from "../components/bottom-sheet";
 import { Button } from "../components/button";
 import { Divider } from "../components/divider";
 import { InsetRing } from "../components/inset-ring";
@@ -46,7 +46,6 @@ export function ReportSheet({
   readonly username: string;
 }) {
   const t = useTranslations("report");
-  const tCommon = useTranslations("common");
   const [reason, setReason] = useState<ReportReason>();
   const [detail, setDetail] = useState("");
   const [error, setError] = useState<ReportInputError | "failed">();
@@ -80,9 +79,8 @@ export function ReportSheet({
       isOpen={isOpen}
       onClose={onClose}
       title={t("title", { username })}
-      closeLabel={tCommon("close")}
     >
-      <SheetScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.lead}>{t("lead")}</Text>
 
         <View style={styles.field}>
@@ -155,7 +153,7 @@ export function ReportSheet({
           </Button>
           <TextLink onPress={onClose}>{t("cancel")}</TextLink>
         </View>
-      </SheetScrollView>
+      </ScrollView>
     </BottomSheet>
   );
 }

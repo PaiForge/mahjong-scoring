@@ -40,6 +40,15 @@ appId: help.mahjong.score
 - assertVisible:
     id: "report-error"
 - takeScreenshot: moderation-report-detail-required
+# 詳細の入力欄にフォーカスすると、シートがキーボードの上へ上がり入力欄が隠れない
+- tapOn:
+    id: "report-detail"
+- inputText: "maestro"
+- assertVisible:
+    id: "report-detail"
+- takeScreenshot: moderation-report-keyboard
+# 複数行の入力欄は return が改行になり hideKeyboard が効かない。見出しを押して閉じる
+- tapOn: "詳細（必須）"
 - tapOn:
     id: "report-reason-spam"
 - tapOn:

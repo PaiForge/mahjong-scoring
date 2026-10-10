@@ -163,6 +163,7 @@ export function ScorePracticeAnswerForm({
           placeholder={t("form.placeholders.select")}
           accessibilityLabel={t("form.labels.han")}
           disabled={disabled}
+          testID="han-select"
         />
       </View>
 

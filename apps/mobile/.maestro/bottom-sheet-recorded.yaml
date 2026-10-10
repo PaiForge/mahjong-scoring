@@ -1,0 +1,60 @@
+# 記録が残る人（bob）: 記録付きのチャレンジの盤面からシート（ドラの見方）を開き、
+# 本文を引き下げて閉じた後も盤面で答えられ、中止の確認（RN の Modal）が出て押せる。
+# シートは OS 標準のもの（@expo/ui）で、中身の RN の view は自前のタッチの受け口を
+# 持つ。閉じた後にそれが残ると、次に出す Modal が押せなくなる
+# 手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- openLink: "mahjong-scoring://practice/han-count/play"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+# カウントダウン（3, 2, 1）が終わるまで待つ
+- extendedWaitUntil:
+    notVisible: "^[123]$"
+    timeout: 8000
+- tapOn: "詳細情報を表示"
+- extendedWaitUntil:
+    visible: "ドラの見方"
+    timeout: 5000
+- takeScreenshot: recorded-sheet-open
+# 引き終わりは下端より手前（Android は下端がナビゲーションのジェスチャー域）
+- swipe:
+    start: 50%, 70%
+    end: 50%, 95%
+    duration: 300
+- waitForAnimationToEnd
+- assertNotVisible: "ドラの見方"
+# 閉じた後の盤面で答えられる
+- tapOn:
+    id: "choice-0"
+- extendedWaitUntil:
+    visible: "不正解: 1|正解: 1"
+    timeout: 5000
+- takeScreenshot: recorded-answered-after-sheet
+# 中止の確認が出て、押せる
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しますか？"
+    timeout: 5000
+- tapOn: "中止する"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しました"
+    timeout: 5000
+- takeScreenshot: recorded-quit-toast
