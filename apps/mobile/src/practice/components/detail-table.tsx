@@ -2,7 +2,7 @@ import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors } from "../../lib/theme";
+import { borderWidth, colors } from "../../lib/theme";
 
 /** 内訳の表の 1 行 */
 export interface DetailTableRow {
@@ -19,7 +19,7 @@ const TONE_COLOR: Readonly<Record<JudgementVerdict, string>> = {
 interface DetailTableProps {
   readonly title?: string;
   readonly rows: readonly DetailTableRow[];
-  /** 合計の行（ink の実線で区切る） */
+  /** 合計の行（一段濃い灰の線で区切る） */
   readonly total?: Omit<DetailTableRow, "tone">;
   readonly note?: string;
 }
@@ -118,12 +118,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   rowDivider: {
-    borderTopWidth: 2,
-    borderTopColor: colors.surface200,
+    borderTopWidth: borderWidth.panel,
+    borderTopColor: colors.surface100,
   },
   totalRow: {
-    borderTopWidth: 2,
-    borderTopColor: colors.ink,
+    borderTopWidth: borderWidth.panel,
+    borderTopColor: colors.surface300,
   },
   labelCell: {
     paddingRight: 16,

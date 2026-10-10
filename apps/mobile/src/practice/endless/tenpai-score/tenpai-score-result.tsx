@@ -29,7 +29,7 @@ import { JudgementMark } from "../../components/judgement-mark";
 import { ResultDisplay } from "../agari-score/result-display";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
-import { WaitCellTabs } from "./wait-cell-tabs";
+import { PANEL_BORDER, WaitCellTabs } from "./wait-cell-tabs";
 
 /**
  * 判定の印を付けた牌 1 枚
@@ -297,8 +297,8 @@ const styles = StyleSheet.create({
     color: colors.surface400,
   },
   panel: {
-    borderWidth: 3,
-    borderColor: colors.ink,
+    borderWidth: PANEL_BORDER,
+    borderColor: colors.panel,
     borderBottomLeftRadius: radius.lg,
     borderBottomRightRadius: radius.lg,
     backgroundColor: colors.white,

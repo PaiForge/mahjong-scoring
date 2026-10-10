@@ -6,8 +6,9 @@ import {
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 
+import { InsetRing } from "../../components/inset-ring";
 import { SectionTitle } from "../../components/section-title";
-import { colors, radius } from "../../lib/theme";
+import { borderWidth, colors, radius } from "../../lib/theme";
 import { PracticeStartCta } from "./practice-start-cta";
 
 /**
@@ -41,8 +42,19 @@ export function VariantStartPanel({
                 onPress={() => setVariant(option)}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: isSelected }}
-                style={[styles.option, isSelected && styles.optionSelected]}
+                style={({ pressed }) => [
+                  styles.option,
+                  isSelected
+                    ? styles.optionSelected
+                    : pressed && styles.optionPressed,
+                ]}
               >
+                {isSelected && (
+                  <InsetRing
+                    color={colors.primary500}
+                    borderRadius={radius.panel}
+                  />
+                )}
                 <Text
                   style={[styles.label, isSelected && styles.labelSelected]}
                 >
@@ -69,9 +81,11 @@ const styles = StyleSheet.create({
   options: {
     gap: 8,
   },
+  // 選択肢のタイルはフォーム部品と同じ一段濃い灰の枠。選択中は枠の内側に
+  // 線を足して、塗りだけに頼らない
   option: {
-    borderWidth: 1,
-    borderColor: colors.surface200,
+    borderWidth: borderWidth.panel,
+    borderColor: colors.surface300,
     backgroundColor: colors.white,
     borderRadius: radius.panel,
     padding: 16,
@@ -79,6 +93,10 @@ const styles = StyleSheet.create({
   },
   optionSelected: {
     borderColor: colors.primary500,
+    backgroundColor: colors.primary50,
+  },
+  optionPressed: {
+    borderColor: colors.primary300,
     backgroundColor: colors.primary50,
   },
   label: {

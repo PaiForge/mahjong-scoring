@@ -5,7 +5,7 @@ import type { ScoreTableQuestion } from "@mahjong-scoring/core";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 import { type ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 
-import { radius } from "../../../lib/theme";
+import { borderWidth, radius } from "../../../lib/theme";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { feedbackFrameStyle } from "../../feedback-styles";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   frame: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.xl,
     padding: 24,
   },

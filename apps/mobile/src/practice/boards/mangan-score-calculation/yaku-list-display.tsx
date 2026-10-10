@@ -4,7 +4,7 @@ import type { YakuDetail } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
-import { colors, radius } from "../../../lib/theme";
+import { borderWidth, colors, radius } from "../../../lib/theme";
 import { DetailTable } from "../../components/detail-table";
 
 /**
@@ -20,8 +20,7 @@ import { DetailTable } from "../../components/detail-table";
  * 並びは設定の役の並び順（{@link orderYakuDetails}）に載せ替える — 判定順の
  * ままだと問題ごとに同じ役の位置が変わり、制限時間の中で翻数を拾う目が迷う。
  *
- * 折りたたまない（与件が閉じていては解けない）。表示だけの面なので影は
- * 付けず、太枠と淡い地で区切る。
+ * 折りたたまない（与件が閉じていては解けない）。細い枠と淡い地で区切る。
  */
 export function YakuListDisplay({
   yakuDetails,
@@ -54,7 +53,7 @@ export function YakuListDisplay({
 
 const styles = StyleSheet.create({
   frame: {
-    borderWidth: 1,
+    borderWidth: borderWidth.panel,
     borderColor: colors.panel,
     borderRadius: radius.panel,
     backgroundColor: colors.surface50,

@@ -32,7 +32,7 @@ import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
-import { colors } from "../../lib/theme";
+import { borderWidth, colors } from "../../lib/theme";
 import { QuizTimer } from "./quiz-timer";
 import { ScoreCounter } from "./score-counter";
 import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
@@ -228,7 +228,7 @@ export function ChallengeShell({
                 accessibilityLabel={tc("resume")}
                 style={({ pressed }) => [
                   styles.resumeButton,
-                  pressed && { transform: [{ scale: 0.95 }] },
+                  pressed && styles.resumeButtonPressed,
                 ]}
               >
                 <PlayIcon size={48} color={colors.surface700} />
@@ -310,12 +310,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  // 押しても大きさを変えず、地の色だけを変える（web の hover と同じ）
   resumeButton: {
     borderRadius: 9999,
-    backgroundColor: "rgba(255,255,255,0.8)",
-    borderWidth: 3,
-    borderColor: colors.surface200,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderWidth: borderWidth.panel,
+    borderColor: colors.panel,
     padding: 16,
+  },
+  resumeButtonPressed: {
+    backgroundColor: colors.surface100,
   },
   footer: {
     marginTop: 8,
