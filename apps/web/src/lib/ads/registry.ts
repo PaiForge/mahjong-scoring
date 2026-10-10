@@ -294,6 +294,12 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/announcements" }],
   },
+  [MOBILE_AD_SLOTS.leaderboardIndex]: {
+    webCounterpart: "leaderboard-index-native-ad",
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/leaderboard" }],
+    placements: 2,
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
@@ -341,7 +347,7 @@ export function isMobileAdSlot(slot: AdSlot): boolean {
 
 /**
  * web とアプリで同じ画面に出るもう片方のスロット。web だけの画面
- * （ランキング一覧など、アプリに画面が無いもの）は undefined
+ * （アプリに同じ画面が無いもの）は undefined
  * 対のスロット
  */
 export function counterpartSlot(slot: AdSlot): AdSlot | undefined {

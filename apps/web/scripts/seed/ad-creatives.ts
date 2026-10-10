@@ -248,6 +248,10 @@ const SLOT_BOOKS: Record<
     { id: "fb7188d5-6653-4740-8a7b-1768d527b2c3", book: "shinsoku" },
     { id: "37f43c76-fb41-40f7-aec8-54a2eb302d61", book: "oshihiki" },
   ],
+  [MOBILE_AD_SLOTS.leaderboardIndex]: [
+    { id: "407488f5-f4ba-4f82-89ec-70d01c6412a1", book: "shinsoku" },
+    { id: "204d4456-18bf-45ea-93f4-6e8fbd8690a9", book: "oshihiki" },
+  ],
 };
 
 /** シードが書く広告 1 行（本体 + 文言） */
