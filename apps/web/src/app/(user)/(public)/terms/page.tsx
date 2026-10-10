@@ -8,6 +8,10 @@
  * そのまま書いているので、実装を変えたら文面も合わせて直すこと。
  * 特に「退会」の節は `lib/users/delete-account.ts` と、「有料プラン」の節は
  * `lib/billing/plans.ts`（期間パスの重ね買い・買い切りの範囲）と対応している。
+ * 「通報とブロック」の節の「24 時間以内に確認する」は運営の約束で、通報が
+ * 届くと運営者へメールで知らせる仕組みがそれを支えている。App Store の審査
+ * （ガイドライン 1.2: 利用者の投稿を載せるアプリは、不適切な内容を容認しない
+ * 旨の規約・通報と迅速な対応・ブロック・連絡先を備えること）が求める文面でもある。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -26,7 +30,7 @@ import {
 } from "../_components/legal-article";
 
 /** 改定日。文面を変えたら更新する */
-const LAST_UPDATED = "2026-10-01";
+const LAST_UPDATED = "2026-10-10";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("terms", {
@@ -132,6 +136,27 @@ export default async function TermsPage() {
             <li>{t("prohibited.item4")}</li>
             <li>{t("prohibited.item5")}</li>
             <li>{t("prohibited.item6")}</li>
+            <li>{t("prohibited.item7")}</li>
+            <li>{t("prohibited.item8")}</li>
+            <li>{t("prohibited.item9")}</li>
+            <li>{t("prohibited.item10")}</li>
+          </LegalList>
+          <LegalParagraph>{t("prohibited.note")}</LegalParagraph>
+        </LegalSection>
+
+        <LegalSection title={t("reporting.title")}>
+          <LegalParagraph>{t("reporting.body")}</LegalParagraph>
+          <LegalList>
+            <li>{t("reporting.item1")}</li>
+            <li>{t("reporting.item2")}</li>
+            <li>{t("reporting.item3")}</li>
+            <li>
+              {t.rich("reporting.item4", {
+                contact: (chunks) => (
+                  <LegalLink href="/contact">{chunks}</LegalLink>
+                ),
+              })}
+            </li>
           </LegalList>
         </LegalSection>
 
