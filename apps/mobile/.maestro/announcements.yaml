@@ -1,0 +1,46 @@
+# ゲストのお知らせ: ホームの末尾に最新の 3 件（ピン留めが先）、「すべて見る」で一覧
+# （末尾に広告の行）、行を押すと詳細。dev seed の「書式の見本」で本文の描き方を撮る
+appId: help.mahjong.score
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "home-announcements-all"
+    direction: DOWN
+- assertVisible:
+    id: "announcement-dev-maintenance"
+- assertVisible: ".*固定.*"
+- takeScreenshot: announcements-home
+- tapOn:
+    id: "home-announcements-all"
+- extendedWaitUntil:
+    visible:
+      id: "announcement-dev-formatting"
+    timeout: 10000
+- takeScreenshot: announcements-index
+- scrollUntilVisible:
+    element: "広告、.*"
+    direction: DOWN
+- takeScreenshot: announcements-index-ad
+- scrollUntilVisible:
+    element:
+      id: "announcement-dev-formatting"
+    direction: UP
+- tapOn:
+    id: "announcement-dev-formatting"
+- extendedWaitUntil:
+    visible: "リンク"
+    timeout: 10000
+- takeScreenshot: announcement-detail
+- scrollUntilVisible:
+    element: "引用とコード"
+    direction: DOWN
+- takeScreenshot: announcement-detail-lists
+- scrollUntilVisible:
+    element: "2600"
+    direction: DOWN
+- takeScreenshot: announcement-detail-table

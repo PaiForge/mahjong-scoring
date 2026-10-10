@@ -56,14 +56,20 @@ function Blocks({
   nodes,
   openLink,
   muted = false,
+  tight = false,
 }: {
   readonly nodes: readonly RootContent[];
   readonly openLink: OpenLink;
   /** 引用の中（文字を一段淡くする） */
   readonly muted?: boolean;
+  /**
+   * 箇条書きの 1 項目の中（入れ子の箇条書きを項目の間と同じ間隔で続ける。
+   * 段落の間隔のままだと入れ子の前だけが大きく空く）
+   */
+  readonly tight?: boolean;
 }) {
   return (
-    <View style={styles.blocks}>
+    <View style={tight ? styles.list : styles.blocks}>
       {nodes.map((node, index) => (
         <Fragment key={index}>{renderBlock(node, openLink, muted)}</Fragment>
       ))}
@@ -153,7 +159,7 @@ function ListRow({
         {marker}
       </Text>
       <View style={styles.listBody}>
-        <Blocks nodes={item.children} openLink={openLink} muted={muted} />
+        <Blocks nodes={item.children} openLink={openLink} muted={muted} tight />
       </View>
     </View>
   );
