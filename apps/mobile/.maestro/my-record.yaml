@@ -1,0 +1,56 @@
+# 記録が残る人（bob）のマイレコード: マイページの行から開き、期間を今月に替えて
+# 統計・推移・直近の履歴を見る。全履歴を開き、練習の説明へ進む。シードの成績は
+# 当月と前月に 2 件ずつ。手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-menu-challenges"
+    timeout: 15000
+- tapOn:
+    id: "mypage-menu-challenges"
+- extendedWaitUntil:
+    visible: "ベストスコア"
+    timeout: 15000
+- takeScreenshot: my-record-this-week
+- tapOn:
+    id: "my-record-period"
+- tapOn: "今月"
+- extendedWaitUntil:
+    visible: "先月比.*"
+    timeout: 15000
+- takeScreenshot: my-record-this-month
+- scrollUntilVisible:
+    element:
+      id: "my-record-try"
+    direction: DOWN
+- takeScreenshot: my-record-bottom
+- openLink: "mahjong-scoring://mypage/challenges/results"
+- extendedWaitUntil:
+    visible: "結果一覧"
+    timeout: 15000
+- takeScreenshot: my-record-results
+- scrollUntilVisible:
+    element:
+      id: "my-record-results-more"
+    direction: DOWN
+- tapOn:
+    id: "my-record-results-more"
+- waitForAnimationToEnd
+- takeScreenshot: my-record-results-more

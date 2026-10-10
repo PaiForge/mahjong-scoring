@@ -5,6 +5,9 @@ import { formatDate } from "@mahjong-scoring/features/my-record/stats";
 import { DataTable, type DataTableColumn } from "../components/data-table";
 import { colors } from "../lib/theme";
 
+/** 「2026/10/05 23:51」が 14pt で 1 行に収まる幅 */
+const DATE_COLUMN_WIDTH = 140;
+
 /**
  * ミス数の文字色（web の `getMissColorClass`）
  *
@@ -48,10 +51,13 @@ export function AttemptTable({
     );
   }
   const columns: DataTableColumn[] = [
-    { label: headers.date, flex: 1.6 },
+    // 種目の列があるときは日時を 1 行に収まる幅で固定し、残りを種目に回す
+    boardLabelOf === undefined
+      ? { label: headers.date, flex: 1.6 }
+      : { label: headers.date, width: DATE_COLUMN_WIDTH },
     ...(boardLabelOf === undefined
       ? []
-      : [{ label: headers.menu ?? "", flex: 1.6 }]),
+      : [{ label: headers.menu ?? "", flex: 1 }]),
     { label: headers.correctAnswers, align: "right", width: 56 },
     { label: headers.incorrectAnswers, align: "right", width: 56 },
   ];
