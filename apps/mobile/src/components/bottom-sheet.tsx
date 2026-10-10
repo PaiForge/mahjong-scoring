@@ -2,12 +2,10 @@ import { BottomSheet as NativeBottomSheet, RNHostView } from "@expo/ui";
 import type { ReactNode } from "react";
 import {
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
-  type ScrollViewProps,
 } from "react-native";
 
 import { colors } from "../lib/theme";
@@ -66,6 +64,9 @@ interface BottomSheetProps {
  *   標準のシートは離した速さを初速にしたばねで下がる
  *
  * スクロールとの受け渡しを手で書き足すより、OS の部品に任せる方が確実。
+ * `@gorhom/bottom-sheet`（reanimated と gesture-handler で JS から再現する）も
+ * 採らなかった。調整で手触りを寄せられても標準のシートそのものにはならず、
+ * OS の更新（iOS のシートの動きの変更等）にも追随しない。
  *
  * OS 標準のシートでも expo-router の `presentation: "formSheet"` は使わない。
  * 画面（ルート）として開く仕組みで、選択欄のようにその場で開いて値を返す
@@ -126,16 +127,6 @@ export function BottomSheet({
       </RNHostView>
     </NativeBottomSheet>
   );
-}
-
-/** 引き下げはネイティブのシートが受け持つ。呼び出し側を外すまでの名残 */
-export function useSheetPullToClose(): undefined {
-  return undefined;
-}
-
-/** 引き下げはネイティブのシートが受け持つ。呼び出し側を外すまでの名残 */
-export function SheetScrollView(props: ScrollViewProps) {
-  return <ScrollView {...props} />;
 }
 
 const styles = StyleSheet.create({

@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, radius } from "../lib/theme";
-import { BottomSheet, SheetScrollView } from "./bottom-sheet";
+import { BottomSheet } from "./bottom-sheet";
 import { Button } from "./button";
 
 /**
@@ -82,7 +82,7 @@ export function HelpTourSheet({
               {labels.progress(index + 1, steps.length)}
             </Text>
           </View>
-          <SheetScrollView
+          <ScrollView
             style={styles.scroll}
             contentContainerStyle={styles.scrollInner}
           >
@@ -97,7 +97,7 @@ export function HelpTourSheet({
                 {step.node}
               </View>
             )}
-          </SheetScrollView>
+          </ScrollView>
           <View style={styles.actions}>
             <View style={styles.action}>
               <Button

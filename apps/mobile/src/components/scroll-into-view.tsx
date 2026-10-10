@@ -15,7 +15,6 @@ import {
 } from "react-native";
 
 import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
-import { useSheetPullToClose } from "./bottom-sheet";
 
 declare module "react-native" {
   interface ScrollView {
@@ -126,8 +125,6 @@ export function ScrollIntoViewScrollView({
   const scrollRef = useRef<ScrollView>(null);
   const viewportHeight = useRef(0);
   const scrollY = useRef(0);
-  // シート（点数早見表・役一覧の参照）の中では、先頭から引き下げて閉じる
-  const onPullToClose = useSheetPullToClose();
 
   return (
     <ScrollIntoViewProvider
@@ -145,7 +142,6 @@ export function ScrollIntoViewScrollView({
           scrollY.current = e.nativeEvent.contentOffset.y;
         }}
         scrollEventThrottle={16}
-        onScrollEndDrag={onPullToClose}
       >
         {children}
       </ScrollView>
