@@ -76,8 +76,7 @@ export function MultiSelect({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title={labels.title}
-        closeLabel={labels.done}
-        height="70%"
+        size="tall"
       >
         <View style={styles.body}>
           <SelectOptionList

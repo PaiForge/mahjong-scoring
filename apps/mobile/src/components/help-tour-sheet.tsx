@@ -71,7 +71,6 @@ export function HelpTourSheet({
       isOpen={isOpen && step !== undefined}
       onClose={onClose}
       title={title}
-      closeLabel={labels.close}
     >
       {step !== undefined && (
         <View style={styles.body}>

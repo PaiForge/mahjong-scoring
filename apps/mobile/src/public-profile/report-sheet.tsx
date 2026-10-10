@@ -46,7 +46,6 @@ export function ReportSheet({
   readonly username: string;
 }) {
   const t = useTranslations("report");
-  const tCommon = useTranslations("common");
   const [reason, setReason] = useState<ReportReason>();
   const [detail, setDetail] = useState("");
   const [error, setError] = useState<ReportInputError | "failed">();
@@ -80,7 +79,6 @@ export function ReportSheet({
       isOpen={isOpen}
       onClose={onClose}
       title={t("title", { username })}
-      closeLabel={tCommon("close")}
     >
       <SheetScrollView contentContainerStyle={styles.content}>
         <Text style={styles.lead}>{t("lead")}</Text>

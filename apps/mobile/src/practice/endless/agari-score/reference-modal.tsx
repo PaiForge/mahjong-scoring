@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { StyleSheet } from "react-native";
-import { useTranslations } from "use-intl";
 
 import { BottomSheet } from "../../../components/bottom-sheet";
 import { ScrollIntoViewScrollView } from "../../../components/scroll-into-view";
@@ -30,16 +29,8 @@ export function ReferenceModal({
   readonly title: string;
   readonly children: ReactNode;
 }) {
-  const tCommon = useTranslations("common");
-
   return (
-    <BottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      closeLabel={tCommon("close")}
-      height="85%"
-    >
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={title} size="tall">
       {/* 中身（点数早見表）が注目セルを中央へ寄せられるスクロール枠 */}
       <ScrollIntoViewScrollView style={styles.body}>
         {children}

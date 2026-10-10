@@ -7,14 +7,29 @@ import {
   Text,
   View,
   useWindowDimensions,
-  type DimensionValue,
   type ScrollViewProps,
 } from "react-native";
 
 import { colors } from "../lib/theme";
 
-/** 中身なりの高さの上限（画面の割合）。超える分は中身のスクロール枠が受け持つ */
-const AUTO_MAX_HEIGHT_RATIO = 0.85;
+/**
+ * 高い方のシートの高さ（画面の割合）
+ *
+ * 中身なり（`content`）の上限もこれ。超える分は中身のスクロール枠が受け持つ。
+ * 上に元の画面を少し残し、シート（一時的に重ねたもの）だと分かるようにする
+ */
+const TALL_HEIGHT_RATIO = 0.85;
+
+/**
+ * シートの高さ
+ *
+ * - `content` — 中身の高さ（画面の 85% が上限）。説明・短い選択肢
+ * - `tall` — 高さを固定し、中身がそれを埋める。一覧や表のように中身が自分で
+ *   スクロールするもの・中身を切り替えても上端を動かしたくないもの。iOS は
+ *   画面の 85%、Android は全画面（Material 3 のシートは半分と全画面の 2 段
+ *   しか持たず、半分では一覧が窮屈）
+ */
+export type BottomSheetSize = "content" | "tall";
 
 interface BottomSheetProps {
   readonly isOpen: boolean;
@@ -22,15 +37,8 @@ interface BottomSheetProps {
   readonly onClose: () => void;
   /** 上端の見出し。省略すると出さない */
   readonly title?: string;
-  /** 背景の読み上げ名（「閉じる」）。背景を押すと閉じることを伝える */
-  readonly closeLabel: string;
-  /**
-   * シートの高さ
-   *
-   * 既定は中身の高さ（画面の 85% が上限）。一覧のように中身が自分で
-   * スクロールするものは固定の高さ（画面の割合）を渡し、中身がそれを埋める
-   */
-  readonly height?: DimensionValue;
+  /** シートの高さ。既定は中身の高さ */
+  readonly size?: BottomSheetSize;
   readonly children: ReactNode;
 }
 
@@ -64,34 +72,34 @@ interface BottomSheetProps {
  * 使い方に合わない。`@expo/ui` のシートは `isPresented` で開閉する部品。
  *
  * RN の中身は `RNHostView` で包んでネイティブのシートへ載せる。中身なりの
- * 高さは `matchContents`（Yoga の高さをシートへ伝える）、固定の高さは
+ * 高さは `matchContents`（Yoga の高さをシートへ伝える）、Android の全画面は
  * シートの高さを Yoga へ伝えて中身が埋める。
+ *
+ * 背景（幕）には読み上げ名を付けられない（OS が描く）。閉じる操作は
+ * iOS の VoiceOver の標準の操作（2 本指の Z）と Android の幕・戻るが担い、
+ * 中身の側にも閉じる / 完了のボタンを置く。
  */
 export function BottomSheet({
   isOpen,
   onClose,
   title,
-  height,
+  size = "content",
   children,
 }: BottomSheetProps) {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const ratio =
-    typeof height === "string" && height.endsWith("%")
-      ? Number(height.slice(0, -1)) / 100
-      : undefined;
   // シートの高さを中身から決めるか（iOS は常に。Android は中身なりのときだけ）。
   // iOS の割合の段（presentationDetents の fraction）は、RN の中身へ段の高さが
   // 伝わらず全高で描かれる（一覧の下端と下のボタンがシートの外にはみ出す）。
   // 中身なり（fitToContents）は中身の Yoga の高さを段にするので、固定の高さも
   // 中身の側で高さを決めて中身なりで出す
-  const sizesFromContent = Platform.OS === "ios" || ratio === undefined;
+  const sizesFromContent = Platform.OS === "ios" || size === "content";
 
   return (
     <NativeBottomSheet
       isPresented={isOpen}
       onDismiss={onClose}
-      // Android（Material 3）は半分と全画面の 2 段しか持たない。固定の高さは
-      // 全画面にして中身に高さを与える（中身なりだと一覧の高さが決まらない）
+      // Android の tall は全画面にして中身に高さを与える（中身なりだと
+      // 一覧の高さが決まらない）
       snapPoints={sizesFromContent ? undefined : ["full"]}
       contentPadding={0}
       containerColor={colors.card}
@@ -103,15 +111,15 @@ export function BottomSheet({
             // 中身なりのときは幅も中身なり（fit-content）に測られ、段落が
             // 折り返さずに横へ伸びる。幅はシート（画面幅）に合わせる
             { width: windowWidth },
-            ratio === undefined
-              ? { maxHeight: windowHeight * AUTO_MAX_HEIGHT_RATIO }
+            size === "content"
+              ? { maxHeight: windowHeight * TALL_HEIGHT_RATIO }
               : sizesFromContent
-                ? { height: windowHeight * ratio }
+                ? { height: windowHeight * TALL_HEIGHT_RATIO }
                 : styles.fill,
           ]}
         >
           {title !== undefined && <Text style={styles.title}>{title}</Text>}
-          <View style={ratio === undefined ? styles.content : styles.fill}>
+          <View style={size === "content" ? styles.content : styles.fill}>
             {children}
           </View>
         </View>

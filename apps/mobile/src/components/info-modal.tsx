@@ -31,12 +31,7 @@ export function InfoModal({
   footnote,
 }: InfoModalProps) {
   return (
-    <BottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      closeLabel={closeLabel}
-    >
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={title}>
       <SheetScrollView
         style={styles.body}
         contentContainerStyle={styles.bodyInner}
