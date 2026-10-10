@@ -37,6 +37,7 @@ export default async function AdminLayout({
       label: t("navigation.management"),
       items: [
         { href: "/admin/users", label: t("users") },
+        { href: "/admin/reports", label: t("reports.navLabel") },
         { href: "/admin/benefit-grants", label: t("benefitGrants.navLabel") },
         { href: "/admin/announcements", label: t("announcements.navLabel") },
         { href: "/admin/ads", label: t("ads.navLabel") },

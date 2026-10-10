@@ -23,6 +23,12 @@ export const ModerationActionKind = {
   Unban: "unban",
   GrantBenefits: "grant_benefits",
   RevokeBenefits: "revoke_benefits",
+  /** 通報を受けてプロフィールの内容（表示名・自己紹介・アバター・SNS）を消した */
+  ClearProfile: "clear_profile",
+  /** 通報を対応済みにした（BAN・プロフィールの削除と同時に記録する） */
+  ResolveReport: "resolve_report",
+  /** 通報を対応不要として閉じた */
+  DismissReport: "dismiss_report",
 } as const;
 export type ModerationActionKind =
   (typeof ModerationActionKind)[keyof typeof ModerationActionKind];

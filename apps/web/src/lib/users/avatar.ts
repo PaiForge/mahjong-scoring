@@ -150,9 +150,7 @@ export async function removeAvatarForUser(userId: string): Promise<void> {
   // 保存と同じ理由でランキングのキャッシュを捨てる（行にアバター URL を含む）。
   purgeLeaderboardCache();
 
-  await createAdminClient()
-    .storage.from("avatars")
-    .remove([avatarFilePath(userId)]);
+  await deleteAvatarObject(userId);
 
   logActivityEvent({
     userId,
@@ -160,4 +158,18 @@ export async function removeAvatarForUser(userId: string): Promise<void> {
     targetType: "user",
     targetId: userId,
   });
+}
+
+/**
+ * Storage からアバター画像を消す（プロフィールの URL は触らない）
+ * アバター画像削除
+ *
+ * 本人の削除（{@link removeAvatarForUser}）と、管理者が通報を受けて
+ * プロフィールの内容を消すとき（`admin/reports`）に使う。どちらも先に
+ * `profiles.avatar_url` を切ってから呼ぶ。
+ */
+export async function deleteAvatarObject(userId: string): Promise<void> {
+  await createAdminClient()
+    .storage.from("avatars")
+    .remove([avatarFilePath(userId)]);
 }
