@@ -23,6 +23,7 @@ import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
 import { StartCtaDivider } from "../components/practice-start-cta";
 import { PracticeChapterSection } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * 昇級試験の説明画面
@@ -52,6 +53,7 @@ export function ExamIntroScreen({
   const tExam = useTranslations("examTraining");
   const tp = useTranslations("practice");
   const router = useRouter();
+  const goToTab = useGoToTab();
   const offersRealExam = useOffersRealExam();
   const trainingVariant = offersRealExam ? "secondary" : "primary";
   const rank = rankRequiringMenu(menuType)?.rank;
@@ -118,7 +120,7 @@ export function ExamIntroScreen({
       {rank !== undefined && (
         <LinkRowList>
           <LinkRow
-            onPress={() => router.navigate(practiceListHrefForRank(rank.slug))}
+            onPress={() => goToTab(practiceListHrefForRank(rank.slug))}
             leading={<Text style={styles.emoji}>✏️</Text>}
             title={tRanks("practiceLink.title", {
               rank: tRanks(`names.${rank.slug}`),

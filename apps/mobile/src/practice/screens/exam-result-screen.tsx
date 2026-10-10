@@ -32,6 +32,7 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ExamResultSummary } from "../exam/exam-result-summary";
 import { PromotionBanner } from "../exam/promotion-banner";
 import type { PracticeScreens } from "../practice-screens";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * 昇級試験の結果画面
@@ -65,6 +66,7 @@ export function ExamResultScreen({
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const router = useRouter();
+  const goToTab = useGoToTab();
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
@@ -80,7 +82,7 @@ export function ExamResultScreen({
   const passed =
     current !== undefined && current.finalResult.correctCount >= minScore;
   const retry = () => router.replace(practicePlayHref(slug));
-  const toDojo = () => router.dismissTo(DOJO_PATH);
+  const toDojo = () => goToTab(DOJO_PATH);
   const primaryButton = passed ? (
     <Button size="lg" fullWidth onPress={toDojo} testID="exam-to-dojo">
       {tc("backToDojo")}

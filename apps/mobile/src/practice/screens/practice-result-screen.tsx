@@ -32,6 +32,7 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * チャレンジの結果画面
@@ -75,6 +76,7 @@ export function PracticeResultScreen({
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const router = useRouter();
+  const goToTab = useGoToTab();
   const variant = useRouteVariant(slug);
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
@@ -145,7 +147,7 @@ export function PracticeResultScreen({
               </Button>
             )}
           </View>
-          <TextLink onPress={() => router.dismissTo(PRACTICE_PATH)}>
+          <TextLink onPress={() => goToTab(PRACTICE_PATH)}>
             {tc("backToList")}
           </TextLink>
         </View>

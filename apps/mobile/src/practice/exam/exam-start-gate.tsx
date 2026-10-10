@@ -16,6 +16,7 @@ import { PlayIcon } from "../../components/icons/icons";
 import { BeltButton } from "../../dojo/belt-button";
 import { useServerProgressStore } from "../../records/account-sync";
 import { colors } from "../../lib/theme";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /** ボタン 1 つと、その下の補足文（web の `CtaBlock`） */
 function CtaBlock({
@@ -81,6 +82,7 @@ export function ExamStartGate({
   const tc = useTranslations("challenge");
   const tExam = useTranslations("examTraining");
   const router = useRouter();
+  const goToTab = useGoToTab();
   const { status, user, account } = useAuth();
   const offersRealExam = useOffersRealExam();
   const userId = status === "signedIn" ? user?.id : undefined;
@@ -142,7 +144,7 @@ export function ExamStartGate({
       >
         <BeltButton
           slug={eligibility.requiredRank.slug}
-          onPress={() => router.navigate(DOJO_PATH)}
+          onPress={() => goToTab(DOJO_PATH)}
         >
           {t("examGate.dojoButton")}
         </BeltButton>
