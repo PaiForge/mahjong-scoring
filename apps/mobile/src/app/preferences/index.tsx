@@ -5,8 +5,9 @@
  * トレーニング設定・表示設定を集約する画面。ルール・トレーニング・表示の設定は
  * ログインの有無に関わらず端末ローカルに保存する。web にあるプライバシー設定
  * （ランキングへの表示可否）はランキングの画面がアプリに無いので出さない。
- * 設定はゲストでも使えるので、web の会員限定ゲートは掛けない。
- * @flow ホームのヘッダーの歯車 → 設定 →（役の並び順）
+ * 設定はゲストでも使えるので、web の会員限定ゲートは掛けない。最後に
+ * 利用規約・プライバシーポリシー等の web のページへの入口を置く。
+ * @flow ホームのヘッダーの歯車 → 設定 →（役の並び順 / web のページ）
  */
 import { View, StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
@@ -16,6 +17,7 @@ import { SectionTitle } from "../../components/section-title";
 import { AccountSection } from "../../preferences/account-section";
 import { DisplaySettingsSection } from "../../preferences/display-settings-section";
 import { RuleSettingsSection } from "../../preferences/rule-settings-section";
+import { SiteLinksSection } from "../../preferences/site-links-section";
 import { TrainingSettingsSection } from "../../preferences/training-settings-section";
 
 export default function PreferencesScreen() {
@@ -36,6 +38,7 @@ export default function PreferencesScreen() {
         <SectionTitle>{t("displaySectionTitle")}</SectionTitle>
         <DisplaySettingsSection />
       </View>
+      <SiteLinksSection />
     </Screen>
   );
 }

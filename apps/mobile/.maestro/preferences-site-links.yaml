@@ -1,0 +1,29 @@
+# ゲストの設定: 最後の「その他」に利用規約・プライバシーポリシー・お問い合わせ・
+# 運営者情報が並び（特商法の表記は無い）、プライバシーポリシーを押すと web のページが開く
+appId: help.mahjong.score
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-settings"
+- scrollUntilVisible:
+    element:
+      id: "site-link-company"
+    direction: DOWN
+- assertVisible:
+    id: "site-link-terms"
+- assertVisible:
+    id: "site-link-privacy"
+- assertVisible:
+    id: "site-link-contact"
+- assertNotVisible: "特定商取引法に基づく表記"
+- takeScreenshot: preferences-site-links
+- tapOn:
+    id: "site-link-privacy"
+- extendedWaitUntil:
+    visible: ".*利用者のプライバシーを尊重し.*"
+    timeout: 20000
+- takeScreenshot: preferences-site-links-privacy
