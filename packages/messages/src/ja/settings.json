@@ -31,6 +31,13 @@
   "leaderboardVisibilityTitle": "ランキングに表示しない",
   "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
   "leaderboardVisibilityFailedToast": "設定を保存できませんでした。しばらくしてからもう一度お試しください。",
+  "blockedUsersTitle": "ブロックしたユーザー",
+  "blockedUsersDescription": "ブロックした人は、あなたが見るランキングと公開プロフィールに表示されません。",
+  "blockedUsersEmpty": "ブロックしているユーザーはいません。",
+  "blockedUsersLoadFailed": "読み込めませんでした。しばらくしてからもう一度お試しください。",
+  "unblock": "解除",
+  "unblockedToast": "@{username} のブロックを解除しました。",
+  "unblockFailedToast": "解除できませんでした。しばらくしてからもう一度お試しください。",
   "membersGate": {
     "title": "設定は会員限定の機能です",
     "description": "無料登録すると、麻雀のローカルルールを自分好みにカスタマイズできます。",

@@ -2,7 +2,9 @@
  * 公開プロフィール
  *
  * @description ユーザー名で誰でも閲覧できる公開プロフィール。アバター・表示名・自己紹介・SNS リンクを表示する（SSR / SEO 対象）。退会・BAN・存在しないユーザーは 404。
- * @flow マイページの「公開プロフィール」リンク等 → /u/[username]
+ * 閲覧者がブロックした人は 404 にせず、ブロック中である旨と解除のボタンだけを出す（解除の入口を残すため）。
+ * 末尾にブロック（後に通報）のボタンを置く。未ログインならログインが要る旨、自分のページなら何も置かない。
+ * @flow マイページの「公開プロフィール」リンク・ランキングの行 → /u/[username] → ブロック → ブロック中の案内
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -14,7 +16,14 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { getOptionalUser } from "@/lib/auth";
+import { isBlocking } from "@/lib/blocks/blocks";
 import { getPublicProfileByUsername } from "@/lib/db/queries";
+import { buildSignInHref } from "@/lib/redirect";
+import Link from "next/link";
+
+import { BlockButton, UnblockButton } from "./_components/block-buttons";
 
 interface Props {
   readonly params: Promise<{ username: string }>;
@@ -75,6 +84,31 @@ export default async function PublicProfilePage({ params }: Props) {
   }
 
   const t = await getTranslations("publicProfile");
+  const viewer = await getOptionalUser();
+  const isOwnProfile = viewer?.id === profile.id;
+  const blocked = await isBlocking(viewer?.id, profile.id);
+
+  if (blocked) {
+    return (
+      <ContentContainer>
+        <PageTitle>{t("pageTitle")}</PageTitle>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <p className="text-sm leading-relaxed text-surface-700">
+            {t("blockedNotice", { username: profile.username })}
+          </p>
+          <UnblockButton
+            username={profile.username}
+            labels={{
+              unblock: t("unblock"),
+              unblockedToast: t("unblockedToast"),
+              failedToast: t("unblockFailedToast"),
+            }}
+          />
+        </div>
+      </ContentContainer>
+    );
+  }
+
   const name = profile.displayName ?? profile.username;
   const snsLinks = buildSnsLinks(profile);
 
@@ -126,6 +160,40 @@ export default async function PublicProfilePage({ params }: Props) {
               ))}
             </ul>
           </section>
+        )}
+
+        {!isOwnProfile && (
+          <div className="flex flex-col items-center gap-3 border-t border-panel pt-6">
+            {viewer === undefined ? (
+              <p className="text-sm text-surface-500">
+                {t.rich("guestModerationNote", {
+                  signIn: (chunks) => (
+                    <Link
+                      href={buildSignInHref(`/u/${profile.username}`)}
+                      className={TEXT_LINK_CLASSES}
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </p>
+            ) : (
+              <BlockButton
+                username={profile.username}
+                labels={{
+                  block: t("block"),
+                  confirmTitle: t("blockConfirmTitle", {
+                    username: profile.username,
+                  }),
+                  confirmMessage: t("blockConfirmMessage"),
+                  confirm: t("blockConfirm"),
+                  cancel: t("cancel"),
+                  blockedToast: t("blockedToast"),
+                  failedToast: t("blockFailedToast"),
+                }}
+              />
+            )}
+          </div>
         )}
       </div>
     </ContentContainer>
