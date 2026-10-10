@@ -13,7 +13,7 @@ import {
   PERMANENT_BAN_DURATION,
   recordModerationAction,
 } from "../_lib/moderation";
-import { revalidateAdminUsers } from "../_lib/revalidate";
+import { revalidateBanViews } from "../_lib/revalidate";
 
 /**
  * ユーザーの BAN を解除する Server Action。
@@ -110,6 +110,6 @@ export async function unbanUser(
     return { error: "unbanFailed" };
   }
 
-  revalidateAdminUsers();
+  revalidateBanViews();
   return { success: true };
 }

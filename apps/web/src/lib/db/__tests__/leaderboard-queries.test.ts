@@ -49,7 +49,7 @@ import {
   getMonthlyRanking,
   startOfCurrentMonth,
 } from "../leaderboard-queries";
-import { notHiddenFromLeaderboard } from "../leaderboard-visibility";
+import { visibleOnLeaderboard } from "../leaderboard-visibility";
 import {
   getUserAllTimeRankedRow,
   getUserMonthlyRankedRow,
@@ -218,7 +218,7 @@ describe("getAllTimeRanking", () => {
       expect(chain.where).toHaveBeenCalledWith(
         expect.objectContaining({
           op: "and",
-          args: expect.arrayContaining([notHiddenFromLeaderboard()]),
+          args: expect.arrayContaining([visibleOnLeaderboard()]),
         }),
       );
     }
@@ -278,7 +278,7 @@ describe("getMonthlyRanking", () => {
     expect(selectSequence.chains).toHaveLength(2);
     for (const chain of selectSequence.chains) {
       expect(chain.innerJoin).toHaveBeenCalled();
-      expect(chain.where).toHaveBeenCalledWith(notHiddenFromLeaderboard());
+      expect(chain.where).toHaveBeenCalledWith(visibleOnLeaderboard());
     }
   });
 
