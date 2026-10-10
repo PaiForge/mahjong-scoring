@@ -11,9 +11,9 @@ web と同じ画面をネイティブで出す Expo アプリ。技術スタッ�
 packages/features / core を共有し、アプリ側は画面と RN の部品だけを持つ。
 
 **仕様は web を踏襲するが、外観まで web を写さない。** スマホアプリとして見慣れない
-形（地の斜線の帯・太枠のヘッダーとタブバー・グレー + 下線のリンク・中央の太枠の
-ダイアログ）はネイティブの定石に置き換える。残すのは面の記号（太枠・ハードシャドウ・
-押し込み・緑の塗り = 押して始める）と色の値。
+形（ヘッダーとタブバーの帯・グレー + 下線のリンク・中央のモーダル）はネイティブの
+定石に置き換える。web から写すのは色の値と、線と影の規則（フラット。ルートの
+`CLAUDE.md`「線と影（フラット）」）と、緑の塗り = 押して始める面の記号。
 
 - 画面の枠（`components/screen.tsx`）はネイティブ標準: 白地のヘッダー（左に戻る / ×、
   中央に見出し、右に「?」等）とヘアラインの区切り。解答中の画面（チャレンジ・
@@ -61,13 +61,24 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   同じものをアプリ内課金でも売る必要がある — 審査ガイドライン 3.1）。web の練習の回数制限
   （practice-quota）はアプリの練習には掛からない。要求の本文の申告（「iOS から」等）で web の
   制限を外す経路も作らない。アプリ内課金を入れるときに購入の権利を web と共通にする
-- **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）。
-  太枠・ハードシャドウ・押し込みは `PressableSurface`（影は面の後ろに敷いた View で描く。
-  Android の elevation は硬い影を描けない）。影を持つのは押せる面だけ（web と同じ規則）
-- **表示だけのカード・表・設定のカード・一覧の枠は細枠。** `lib/panel-styles.ts` の `panelFrame`
-  （1px の `colors.panel` + `radius.panel`。web の `rounded-panel border border-panel`）を使い、太枠
-  （`borderWidth.regular` + `colors.ink`）は押せる面・回答欄・ダイアログに残す。段級位のカードは
-  `beltCardFrame()`（細枠 + 上端の帯色の帯）、小さな印は `Chip`、区切りは `Divider`（破線は使わない）
+- **色・角丸の値は web から写す。** `src/lib/theme.ts`（web の `globals.css` と同じ値）
+- **線と影はフラット（web と同じ）。** 線は 1px（`borderWidth.panel`）で、太枠・右下へずらした
+  ハードシャドウ・押し込み（押すと面が動く・縮む）・文字の影は使わない（2026-10 に web に揃えた）。
+  情報の優先順位は線の太さではなく、塗り（ボタンの緑・段級位の帯色・状態色）と文字の大きさで示す
+  - 押せる面（ボタン・選択肢・待ち牌・マス）は `PressableSurface`。押している間は `pressedStyle`
+    （一段濃い塗り・枠の色）だけを重ね、位置も大きさも変えない。ボタンは `Button` / `BeltButton`
+    （塗り + 1px の枠。塗りのボタンは枠を透明に）で、色・枠の一式を画面側で書かない
+  - 影（`floatingShadow`）は画面の上に浮く層（中央のダイアログ）だけ。下からのシートは影も枠も
+    持たず、幕の暗さで浮かせる。地に置いた面（カード・ボタン・表・選択肢）は影を持たない
+  - 表示だけのカード・表・設定のカード・一覧の枠は `lib/panel-styles.ts` の `panelFrame`
+    （1px の `colors.panel` + `radius.panel`。web の `rounded-panel border border-panel`）
+  - フォーム部品（選択欄・入力欄・選択肢・待ち牌・練習の設定のタイル）の枠は一段濃い灰
+    （`surface300` / `surface400`）。選択中は `InsetRing`（枠の内側の 1px の線。web の
+    `ring-1 ring-inset`）を足し、塗りだけに頼らない
+  - 段級位のカードは `beltCardFrame()`（細枠 + 上端だけ帯色の 2px。1px では淡い級が細線に紛れる）。
+    小さな印は `Chip`、区切りは `Divider`（破線は使わない）
+  - 2px が残るのは状態の印だけ（表の注目のセル・答え合わせの牌の印・小さなチェックボックス・
+    目次の丸）。面の枠には使わない
 - **牌は `Hai` / `FuroTiles` を使う。** `@pai-forge/mahjong-react-ui` の `Furo` /
   `HaiBack` / `Tehai` は `div` と Tailwind のクラスで描く web 専用の実装で、ネイティブでは描けない。
   `Hai` は 0.5.0 から `onClick` が無ければ `View` で包まれ、ボタンの中に置いてもタップを奪わない

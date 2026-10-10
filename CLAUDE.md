@@ -219,7 +219,8 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 - 段級位のカードは上端だけ帯色の `border-t-2`（1px では淡い級が細線に紛れる）
 - hover / active は色だけを変え、位置を動かさない（`hover:-translate-*` や `scale` を使わない）
 
-管理画面（`data-skin="plain"`）は別のビジュアル言語のため対象外。
+管理画面（`data-skin="plain"`）は別のビジュアル言語のため対象外。アプリ（`apps/mobile`）は
+同じ規則に従う（RN での組み方は `apps/mobile/CLAUDE.md`）。
 
 ### ボタン（`apps/web/src/app/(user)/_components/`）
 
