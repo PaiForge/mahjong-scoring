@@ -3,7 +3,7 @@
  *
  * 管理画面は運用者向けで日本語固定。エンドユーザー向けの画面は next-intl の
  * ロケールに従うため、こちらの関数を使ってはいけない
- * （お知らせの公開日なら `announcements/_lib/format.ts` の
+ * （お知らせの公開日なら features の `announcements/format.ts` の
  * `formatPublishedDate` のように、ロケールを受け取る関数を使う）。
  */
 const ADMIN_LOCALE = "ja-JP";

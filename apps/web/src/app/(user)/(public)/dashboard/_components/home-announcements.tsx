@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { AnnouncementTextList } from "@/app/(user)/(public)/announcements/_components/announcement-text-list";
-import { getPublishedAnnouncementsPaginated } from "@/app/(user)/(public)/announcements/_lib/queries";
+import { getPublishedAnnouncementsPaginated } from "@/lib/announcements/queries";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";

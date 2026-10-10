@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { getPublishedAnnouncementSlugsForSitemap } from "@/app/(user)/(public)/announcements/_lib/queries";
+import { getPublishedAnnouncementSlugsForSitemap } from "@/lib/announcements/queries";
 import {
   GLOSSARY_SITEMAP_PATHS,
   LEARN_SITEMAP_ENTRIES,
