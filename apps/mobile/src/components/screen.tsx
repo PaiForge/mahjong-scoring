@@ -132,6 +132,7 @@ export function Screen({
               {back && (
                 <Pressable
                   onPress={handleBack}
+                  testID="screen-back"
                   accessibilityRole="button"
                   accessibilityLabel={
                     backIcon === "close" ? t("close") : t("back")

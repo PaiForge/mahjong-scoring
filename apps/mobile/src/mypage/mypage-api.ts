@@ -16,12 +16,19 @@ import {
 import type { DatePeriod } from "@mahjong-scoring/features/my-record/types";
 import {
   MOBILE_PROFILE_API_PATH,
+  MOBILE_PROFILE_AVATAR_API_PATH,
+  MOBILE_PROFILE_AVATAR_DELETE_API_PATH,
+  isMobileAvatarErrorCode,
   isMobileProfileErrorCode,
+  parseMobileAvatarResponse,
   parseMobileProfileResponse,
+  type MobileAvatarErrorCode,
+  type MobileAvatarResponse,
   type MobileProfileErrorCode,
   type MobileProfileResponse,
 } from "@mahjong-scoring/features/profile/mobile-api";
 import type { ProfileInput } from "@mahjong-scoring/features/profile/validation";
+import { File } from "expo-file-system";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
@@ -142,6 +149,68 @@ export async function saveProfile(
           ? error
           : "unknown",
     };
+  }
+  if (!response.ok) return { error: await apiFailureOf(response) };
+  return { success: true };
+}
+
+/** アバター画像の保存・削除の失敗 */
+export type AvatarApiFailure = MypageApiFailure | MobileAvatarErrorCode;
+
+/**
+ * アバター画像を上げる
+ * アバターアップロード
+ *
+ * @param jpegUri - 端末上の JPEG のファイル（`pickAvatarImage` が作ったもの）
+ */
+export async function uploadAvatar(
+  userId: string,
+  jpegUri: string,
+): Promise<MobileAvatarResponse | { readonly error: AvatarApiFailure }> {
+  const body = new FormData();
+  // React Native の FormData の { uri, name, type } は使えない。global の
+  // fetch は Expo の実装（expo/fetch）に置き換わっていて、その FormData は
+  // Blob（か bytes() を持つもの）しか送れず、uri の部品は送る前に例外になる
+  // （2026-10 に Release ビルドで実測）。expo-file-system の File は Blob を
+  // 実装し、名前と拡張子から決まる形式（image/jpeg）を部品のヘッダに載せる
+  body.append("file", new File(jpegUri));
+  const response = await callMobileApi(MOBILE_PROFILE_AVATAR_API_PATH, {
+    method: "POST",
+    body,
+    asUser: userId,
+  });
+  if (typeof response === "string") return { error: response };
+  if (response.status === 409 || response.status === 422) {
+    const error = await errorOf(response);
+    return {
+      error:
+        isMobileMypageErrorCode(error) || isMobileAvatarErrorCode(error)
+          ? error
+          : "unknown",
+    };
+  }
+  if (!response.ok) return { error: await apiFailureOf(response) };
+  const value = parseMobileAvatarResponse(
+    await response.json().catch(() => undefined),
+  );
+  return value ?? { error: "unknown" };
+}
+
+/**
+ * アバター画像を消す
+ * アバター削除
+ */
+export async function deleteAvatar(
+  userId: string,
+): Promise<{ readonly success: true } | { readonly error: AvatarApiFailure }> {
+  const response = await callMobileApi(MOBILE_PROFILE_AVATAR_DELETE_API_PATH, {
+    method: "POST",
+    asUser: userId,
+  });
+  if (typeof response === "string") return { error: response };
+  if (response.status === 409) {
+    const error = await errorOf(response);
+    return { error: isMobileMypageErrorCode(error) ? error : "unknown" };
   }
   if (!response.ok) return { error: await apiFailureOf(response) };
   return { success: true };

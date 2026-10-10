@@ -12,6 +12,8 @@ interface ConfirmationModalProps {
   readonly confirmVariant?: ButtonVariant;
   readonly onConfirm: () => void;
   readonly onClose: () => void;
+  /** Maestro のフローで引く印。確定のボタンに `<testID>-confirm` を付ける */
+  readonly testID?: string;
 }
 
 /**
@@ -28,6 +30,7 @@ export function ConfirmationModal({
   confirmVariant = "primary",
   onConfirm,
   onClose,
+  testID,
 }: ConfirmationModalProps) {
   return (
     <Modal
@@ -54,6 +57,7 @@ export function ConfirmationModal({
             <Button
               variant={confirmVariant}
               onPress={onConfirm}
+              testID={testID === undefined ? undefined : `${testID}-confirm`}
               style={styles.action}
               fullWidth
             >

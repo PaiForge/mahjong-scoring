@@ -36,6 +36,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
+- **ファイルを送るときは expo-file-system の `File` を FormData に入れる。** global の
+  `fetch` は Expo の実装（expo/fetch）に置き換わっていて、RN の `{ uri, name, type }` の部品は
+  送る前に例外になる（通信の失敗に見える。`mypage/mypage-api.ts` の `uploadAvatar`）
 - **ログインは web と同じ Supabase Auth（`src/auth/`）。** 入口は設定のアカウントの節で、
   ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
   SecureStore、サーバーへの書き込みは web のアプリ向け API（`/api/mobile/v1/*`、
@@ -112,6 +115,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     `challenge-recorded` は最後に結果からその土俵のマイレコードへ進む
   - `mypage-profile-edit` — `bob@` のプロフィール編集。入力の誤りで理由が出て留まり、
     表示名を書き換えて保存するとマイページの見出しに出る。最後に表示名をシードの値に戻す
+  - `mypage-avatar` — `bob@` のアバター。写真ライブラリ（`addMedia` で足したアプリの
+    アイコン）から選んで上げ、マイページの見出しに出る。最後に削除して頭文字に戻す。
+    システムの写真の選択と切り抜きの画面は文字が端末の言語で変わるので、印で引く
+    （`PXGGridLayout-Info` の先頭・`Done`）
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい
