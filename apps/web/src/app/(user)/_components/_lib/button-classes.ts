@@ -81,7 +81,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
     "border-transparent bg-action text-action-foreground hover:bg-action-hover active:bg-action-active",
   secondary:
-    "border-panel bg-card text-action hover:border-primary-300 hover:bg-brand-subtle active:bg-primary-100",
+    "border-panel bg-card text-action hover:border-primary-300 hover:bg-brand-subtle active:bg-brand-subtle",
   neutral:
     "border-panel bg-card text-surface-700 hover:border-surface-300 hover:bg-surface-100 active:bg-surface-200",
   // 段級位の帯色をまとったボタン。塗り・hover・文字・枠をすべて帯色で
