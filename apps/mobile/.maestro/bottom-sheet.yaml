@@ -1,0 +1,81 @@
+appId: help.mahjong.score
+---
+# 下からのシート（BottomSheet）を、本文を引き下げて閉じる。取っ手や見出しではなく
+# 中身を掴んで閉じられること（OS 標準のシートの振る舞い）を確かめる
+- launchApp:
+    clearState: true
+# 起動しきる前に開いたリンクは Android で捨てられる
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "screen-back"
+    timeout: 15000
+# 中身なりの高さ: ドラの見方（InfoModal）
+- tapOn: "詳細情報を表示"
+- extendedWaitUntil:
+    visible: "ドラの見方"
+    timeout: 5000
+- takeScreenshot: sheet-info-open
+# 本文（見出しより下）を掴んで引き下げる
+# 引き終わりは下端より手前（Android は下端がナビゲーションのジェスチャー域）
+- swipe:
+    start: 50%, 70%
+    end: 50%, 95%
+    duration: 300
+- waitForAnimationToEnd
+- assertNotVisible: "ドラの見方"
+- takeScreenshot: sheet-info-closed
+# Android の戻るボタンはシートだけを閉じ、画面は戻らない
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: "詳細情報を表示"
+      - extendedWaitUntil:
+          visible: "ドラの見方"
+          timeout: 5000
+      - back
+      - waitForAnimationToEnd
+      - assertNotVisible: "ドラの見方"
+      - assertVisible: "わからない"
+# 固定の高さ・注目セルへ寄せるスクロール枠: 点数表（ReferenceModal）
+- tapOn: "わからない"
+- extendedWaitUntil:
+    visible: "点数表を確認"
+    timeout: 5000
+- tapOn: "点数表を確認"
+- waitForAnimationToEnd
+- takeScreenshot: sheet-reference-open
+- swipe:
+    start: 50%, 40%
+    end: 50%, 95%
+- waitForAnimationToEnd
+- assertVisible: "点数表を確認"
+- takeScreenshot: sheet-reference-closed
+# 固定の高さ・中身がスクロールする: 役の選択（MultiSelect）
+- openLink: "mahjong-scoring://practice/agari-score"
+- scrollUntilVisible:
+    element: "役を追加"
+    direction: DOWN
+- tapOn: "役を追加"
+- extendedWaitUntil:
+    visible: "完了"
+    timeout: 5000
+- takeScreenshot: sheet-multi-select-open
+# 一覧を下へ送ってから戻し、先頭まで戻ったところから同じ向きに引いて閉じる
+- swipe:
+    start: 50%, 80%
+    end: 50%, 40%
+- swipe:
+    start: 50%, 40%
+    end: 50%, 80%
+- takeScreenshot: sheet-multi-select-scrolled-back
+- swipe:
+    start: 50%, 45%
+    end: 50%, 95%
+- waitForAnimationToEnd
+- assertNotVisible: "完了"
+- takeScreenshot: sheet-multi-select-closed
