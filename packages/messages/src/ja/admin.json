@@ -379,5 +379,94 @@
     "workspace": "運営ワークスペース",
     "backToSite": "サイトを開く",
     "skipToContent": "本文へ移動"
+  },
+  "reports": {
+    "navLabel": "通報",
+    "listTitle": "通報",
+    "listDescription": "利用者からの通報です。利用規約で「24 時間以内に確認する」と約束しているので、未対応は古いものから片付けてください。",
+    "tabsLabel": "通報の状態",
+    "tabs": {
+      "open": "未対応",
+      "closed": "対応済み",
+      "openWithCount": "未対応（{count}）"
+    },
+    "table": {
+      "createdAt": "通報日時",
+      "target": "通報された人",
+      "reason": "理由",
+      "reporter": "通報した人",
+      "status": "状態",
+      "actions": "操作",
+      "empty": "通報はありません",
+      "detail": "詳細"
+    },
+    "status": {
+      "open": "未対応",
+      "resolved": "対応済み",
+      "dismissed": "対応不要"
+    },
+    "elapsed": "{hours} 時間経過",
+    "backToList": "← 通報一覧へ",
+    "detailTitle": "通報: @{username}",
+    "report": {
+      "title": "通報の内容",
+      "reason": "理由",
+      "detail": "詳細",
+      "reporter": "通報した人",
+      "createdAt": "通報日時",
+      "status": "状態",
+      "resolvedBy": "対応した管理者",
+      "resolvedAt": "対応日時",
+      "none": "（なし）",
+      "deletedUser": "（退会済み）"
+    },
+    "snapshot": {
+      "title": "通報した時点のプロフィール",
+      "note": "通報のあとで本人が書き換えていても、通報した時点の内容です。アバターは同じ URL に上書きされると今の画像が出ます。"
+    },
+    "current": {
+      "title": "今のプロフィール",
+      "openUser": "ユーザー詳細を開く",
+      "banned": "BAN 済み",
+      "deleted": "退会済み"
+    },
+    "profileFields": {
+      "username": "ユーザー名",
+      "displayName": "表示名",
+      "bio": "自己紹介",
+      "avatar": "アバター",
+      "sns": "SNS"
+    },
+    "others": {
+      "title": "同じ人への他の通報",
+      "empty": "ありません"
+    },
+    "actions": {
+      "title": "対応",
+      "description": "BAN とプロフィールの削除は、この人への未対応の通報をまとめて対応済みにします。対応不要はこの 1 件だけを閉じます。ユーザー名そのものが不適切なときは BAN してください（ユーザー名は消せません）。",
+      "reasonLabel": "対応の理由（監査ログに残ります）",
+      "reasonPlaceholder": "対応の理由を入力してください",
+      "errorReasonRequired": "理由を入力してください",
+      "cancel": "キャンセル",
+      "pending": "処理中...",
+      "ban": {
+        "button": "BAN して解決",
+        "title": "BAN して通報を解決する",
+        "confirm": "BAN する",
+        "failed": "BAN できませんでした"
+      },
+      "clearProfile": {
+        "button": "プロフィールを消して解決",
+        "title": "プロフィールの内容を消して通報を解決する",
+        "confirm": "消す",
+        "failed": "プロフィールを消せませんでした"
+      },
+      "dismiss": {
+        "button": "対応不要で閉じる",
+        "title": "対応不要として閉じる",
+        "confirm": "閉じる",
+        "failed": "閉じられませんでした"
+      }
+    }
   }
 }

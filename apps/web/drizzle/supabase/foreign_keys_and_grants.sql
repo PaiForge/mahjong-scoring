@@ -400,3 +400,39 @@ END;
 $$;
 
 REVOKE ALL ON TABLE public.user_blocks FROM anon, authenticated;
+
+-- =============================================================================
+-- reports
+-- =============================================================================
+-- 利用者による通報。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会はソフトデリートで auth.users を残すので、通常はどの FK も発火しない。
+-- auth.users を物理削除したときだけ、通報者・対応者は NULL に、通報された人の
+-- 行は消える（相手のいない通報は対応のしようがない）。
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reports_reporter_id_fkey'
+  ) THEN
+    ALTER TABLE public.reports
+      ADD CONSTRAINT reports_reporter_id_fkey
+      FOREIGN KEY (reporter_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reports_target_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.reports
+      ADD CONSTRAINT reports_target_user_id_fkey
+      FOREIGN KEY (target_user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'reports_resolved_by_fkey'
+  ) THEN
+    ALTER TABLE public.reports
+      ADD CONSTRAINT reports_resolved_by_fkey
+      FOREIGN KEY (resolved_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.reports FROM anon, authenticated;

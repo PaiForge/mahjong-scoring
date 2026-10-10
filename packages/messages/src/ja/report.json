@@ -1,0 +1,27 @@
+{
+  "button": "通報する",
+  "title": "@{username} を通報",
+  "lead": "通報した内容は運営者だけが確認し、24 時間以内に対応します。通報したことは相手に知らされません。",
+  "reasonLabel": "理由",
+  "reasons": {
+    "inappropriate_profile": "不適切な表示名・自己紹介・画像",
+    "harassment": "誹謗中傷・嫌がらせ",
+    "impersonation": "なりすまし",
+    "spam": "宣伝・スパム",
+    "cheating": "不正な成績（ランキング操作）",
+    "other": "その他"
+  },
+  "detailLabel": "詳細（任意）",
+  "detailLabelRequired": "詳細（必須）",
+  "detailPlaceholder": "どこが問題かを具体的に書いてください",
+  "submit": "通報する",
+  "submitting": "送信中...",
+  "cancel": "キャンセル",
+  "doneToast": "通報を受け付けました。ご協力ありがとうございます。",
+  "errors": {
+    "invalidReason": "理由を選んでください。",
+    "detailRequired": "「その他」を選んだときは詳細を書いてください。",
+    "detailTooLong": "詳細は{max}文字以内で入力してください。",
+    "failed": "通報できませんでした。しばらくしてからもう一度お試しください。"
+  }
+}
