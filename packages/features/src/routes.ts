@@ -1,9 +1,7 @@
 import type { RankSlug } from "./ranks/registry";
 import type { CurriculumChapterSlug } from "./curriculum/registry";
-import type { LeaderboardPeriod } from "./leaderboard/boards";
 import {
   DEFAULT_VARIANT,
-  menuTypeToSlug,
   practiceMenuBySlug,
   resolvePracticeVariant,
   type PracticeBoard,
@@ -189,31 +187,6 @@ export function myRecordHref(board: PracticeBoard): string {
 
 /** ランキング（土俵の一覧）のパス */
 export const LEADERBOARD_PATH = "/leaderboard";
-
-/**
- * ある土俵・期間のランキングのパス
- * ランキング詳細パス
- *
- * バリアントを持つ練習だけクエリで土俵を指す。持たない練習に付けても
- * 意味が無く、URL が長くなるだけ。
- */
-export function leaderboardHref(
-  period: LeaderboardPeriod,
-  board: PracticeBoard,
-): string {
-  const slug = menuTypeToSlug(board.menuType);
-  return `${LEADERBOARD_PATH}/${period}/${slug}${variantQuery(slug, board.variant)}`;
-}
-
-/**
- * 公開プロフィールのパス
- * 公開プロフィールパス
- *
- * @param username - 公開のユーザー名
- */
-export function publicProfileHref(username: string): string {
-  return `/u/${encodeURIComponent(username)}`;
-}
 
 /** 練習の結果ページのパス */
 export function practiceResultHref(slug: PracticeMenuSlug): string {

@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
-import { leaderboardHref } from "@mahjong-scoring/features/routes";
+import { leaderboardHref } from "@/lib/leaderboard/leaderboard-href";
 import { boardTitle } from "../_lib/board-title";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 

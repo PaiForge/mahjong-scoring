@@ -5,7 +5,7 @@ import {
   LEADERBOARD_PERIODS,
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
-import { leaderboardHref } from "@mahjong-scoring/features/routes";
+import { leaderboardHref } from "@/lib/leaderboard/leaderboard-href";
 import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
