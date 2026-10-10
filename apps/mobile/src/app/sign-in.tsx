@@ -17,6 +17,7 @@ import { AppleSignInSection } from "../auth/apple-sign-in-section";
 import { FormMessage } from "../auth/form-message";
 import { supabase } from "../auth/supabase-client";
 import { refreshAccount } from "../auth/use-auth";
+import { useLeaveAuthFlow } from "../auth/use-leave-auth-flow";
 import { Button } from "../components/button";
 import { Screen } from "../components/screen";
 import { TextField } from "../components/text-field";
@@ -38,6 +39,7 @@ function signInErrorKey(
 export default function SignInScreen() {
   const t = useTranslations("auth");
   const router = useRouter();
+  const leaveAuthFlow = useLeaveAuthFlow();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -62,7 +64,7 @@ export default function SignInScreen() {
       router.replace("/mypage/setup-username");
       return;
     }
-    router.back();
+    leaveAuthFlow();
   };
 
   return (

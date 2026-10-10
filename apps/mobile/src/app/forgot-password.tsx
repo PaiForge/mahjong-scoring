@@ -73,8 +73,11 @@ export default function ForgotPasswordScreen() {
             <Text style={styles.body}>{t("checkInbox")}</Text>
             <Text style={styles.body}>{t("returnToApp")}</Text>
           </View>
+          {/* 下のログイン画面まで閉じて戻る。置き換えるとログイン画面が 2 枚
+              重なり、ログインした後の戻るでもう 1 枚が出る。直接開いたときは
+              ログイン画面に置き換わる */}
           <Button
-            onPress={() => router.replace("/sign-in")}
+            onPress={() => router.dismissTo("/sign-in")}
             fullWidth
             size="lg"
           >
