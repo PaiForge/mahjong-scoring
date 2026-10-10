@@ -6,6 +6,7 @@ import type { MobilePublicProfileResponse } from "@mahjong-scoring/features/publ
 
 import { Button } from "../components/button";
 import { ConfirmationModal } from "../components/confirmation-modal";
+import { showToast } from "../components/toast";
 import { InlineTextLink } from "../lessons/components/chapter-link";
 import { colors } from "../lib/theme";
 import { blockUser, unblockUser } from "./moderation-api";
@@ -19,9 +20,9 @@ import { ReportSheet } from "./report-sheet";
  * - 他の人 — 「通報する」（シート）と「ブロックする」（確認のダイアログ）
  * - 本人 — 何も置かない
  *
- * web はトーストで結果を知らせるが、アプリにトーストは無いので、操作の下に
- * 1 行で出す。ブロックできたら `onChanged` で読み直し、画面はブロック中の
- * 案内（{@link UnblockPanel}）に切り替わる。
+ * 済んだこと（通報した・ブロックした）は web と同じくトーストで知らせ、
+ * 失敗は操作の下に 1 行で残す。ブロックできたら `onChanged` で読み直し、
+ * 画面はブロック中の案内（{@link UnblockPanel}）に切り替わる。
  */
 export function ProfileModeration({
   profile,
@@ -79,18 +80,19 @@ function MemberActions({
   const [reporting, setReporting] = useState(false);
   const [confirmingBlock, setConfirmingBlock] = useState(false);
   const [blocking, setBlocking] = useState(false);
-  const [message, setMessage] = useState<"reported" | "blockFailed">();
+  const [blockFailed, setBlockFailed] = useState(false);
 
   const block = () => {
     setConfirmingBlock(false);
     setBlocking(true);
-    setMessage(undefined);
+    setBlockFailed(false);
     void blockUser(viewerId, username).then((result) => {
       setBlocking(false);
       if ("error" in result) {
-        setMessage("blockFailed");
+        setBlockFailed(true);
         return;
       }
+      showToast(t("blockedToast"), "success");
       onChanged();
     });
   };
@@ -102,7 +104,7 @@ function MemberActions({
           variant="neutral"
           testID="public-profile-report"
           onPress={() => {
-            setMessage(undefined);
+            setBlockFailed(false);
             setReporting(true);
           }}
           style={styles.button}
@@ -119,15 +121,13 @@ function MemberActions({
           {t("block")}
         </Button>
       </View>
-      {message !== undefined && (
+      {blockFailed && (
         <Text
-          style={message === "reported" ? styles.note : styles.error}
+          style={styles.error}
           testID="public-profile-moderation-message"
           accessibilityLiveRegion="polite"
         >
-          {message === "reported"
-            ? tReport("doneToast")
-            : t("blockFailedToast")}
+          {t("blockFailedToast")}
         </Text>
       )}
       <ReportSheet
@@ -135,7 +135,7 @@ function MemberActions({
         onClose={() => setReporting(false)}
         onDone={() => {
           setReporting(false);
-          setMessage("reported");
+          showToast(tReport("doneToast"), "success");
         }}
         userId={viewerId}
         username={username}
@@ -182,6 +182,7 @@ export function UnblockPanel({
         setFailed(true);
         return;
       }
+      showToast(t("unblockedToast"), "success");
       onChanged();
     });
   };

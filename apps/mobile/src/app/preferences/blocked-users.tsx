@@ -11,6 +11,7 @@ import { Divider } from "../../components/divider";
 import { LoadFailed, LoadingIndicator } from "../../components/load-state";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
+import { showToast } from "../../components/toast";
 import { panelFrame } from "../../lib/panel-styles";
 import { colors } from "../../lib/theme";
 import { useFocusRead } from "../../lib/use-focus-read";
@@ -28,9 +29,9 @@ import {
  * その場で解除させる。行を押すとその人の公開プロフィール（ブロック中の案内）へ。
  * ブロックは公開プロフィールからしかできないので、ここに「追加」は無い。
  *
- * web と違うもの: 設定の中の節ではなく子ページ（`BLOCKED_USERS_PATH`）。解除の
- * 結果はトーストではなく一覧の下に 1 行で出す。解除は押した瞬間に行を消し、
- * 失敗したら戻す（web と同じ）。
+ * web と違うもの: 設定の中の節ではなく子ページ（`BLOCKED_USERS_PATH`）。
+ * 解除できたことは web と同じくトーストで知らせ、失敗は一覧の下に 1 行で残す。
+ * 解除は押した瞬間に行を消し、失敗したら戻す（web と同じ）。
  *
  * @flow 設定 → アカウント → ブロックしたユーザー → 解除
  */
@@ -44,11 +45,6 @@ export default function BlockedUsersScreen() {
     </Screen>
   );
 }
-
-/** 解除の結果（一覧の下に 1 行で出す） */
-type UnblockMessage =
-  | { readonly kind: "done"; readonly username: string }
-  | { readonly kind: "failed" };
 
 function BlockedUsers() {
   const t = useTranslations("settings");
@@ -66,7 +62,8 @@ function BlockedUsers() {
   );
   // 解除した人（応答を待たずに一覧から消す。失敗したら戻す）
   const [removed, setRemoved] = useState<ReadonlySet<string>>(new Set());
-  const [message, setMessage] = useState<UnblockMessage>();
+  // 解除できなかった（一覧の下に 1 行で出す）
+  const [failed, setFailed] = useState(false);
 
   if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed") {
@@ -81,7 +78,7 @@ function BlockedUsers() {
   const unblock = (username: string) => {
     if (viewerId === undefined) return;
     setRemoved((prev) => new Set(prev).add(username));
-    setMessage(undefined);
+    setFailed(false);
     void unblockUser(viewerId, username).then((result) => {
       if ("error" in result) {
         setRemoved((prev) => {
@@ -89,10 +86,10 @@ function BlockedUsers() {
           next.delete(username);
           return next;
         });
-        setMessage({ kind: "failed" });
+        setFailed(true);
         return;
       }
-      setMessage({ kind: "done", username });
+      showToast(t("unblockedToast", { username }), "success");
     });
   };
 
@@ -113,15 +110,13 @@ function BlockedUsers() {
           ))}
         </View>
       )}
-      {message !== undefined && (
+      {failed && (
         <Text
-          style={message.kind === "done" ? styles.done : styles.failed}
+          style={styles.failed}
           testID="blocked-users-message"
           accessibilityLiveRegion="polite"
         >
-          {message.kind === "done"
-            ? t("unblockedToast", { username: message.username })
-            : t("unblockFailedToast")}
+          {t("unblockFailedToast")}
         </Text>
       )}
     </>
@@ -210,10 +205,6 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 13,
     color: colors.surface500,
-  },
-  done: {
-    fontSize: 14,
-    color: colors.surface600,
   },
   failed: {
     fontSize: 14,
