@@ -93,7 +93,7 @@ export function HelpTourModal({
       onClose={close}
       label={title}
       widthClassName="max-w-lg"
-      panelClassName="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border-4 border-ink bg-white"
+      panelClassName="flex max-h-[85vh] flex-col overflow-hidden rounded-2xl border border-panel bg-white shadow-xl"
     >
       {current !== undefined && (
         <>

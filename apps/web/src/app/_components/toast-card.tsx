@@ -63,7 +63,7 @@ export function ToastCard({ toast }: { readonly toast: Toast }) {
     <div
       // 出入りは下からせり上がる。fixed 側が画面下端に置くため、
       // 消えるときも下へ引く（react-hot-toast は退出中も要素を残す）。
-      className={`flex max-w-sm items-center gap-3 rounded-xl border-3 border-ink px-4 py-3 transition-all duration-200 ${
+      className={`flex max-w-sm items-center gap-3 rounded-xl border border-black/5 px-4 py-3 shadow-lg transition-all duration-200 ${
         toast.visible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
       } ${TONE_CLASSES[toast.type]}`}
       {...toast.ariaProps}

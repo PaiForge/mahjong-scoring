@@ -39,9 +39,14 @@ interface ModalShellProps {
   readonly skin?: "plain";
 }
 
-/** パネル体裁の既定値（ユーザー向け画面の骨格） */
+/**
+ * パネル体裁の既定値（ユーザー向け画面の骨格）。
+ *
+ * 地に置かれた面は影を持たないが、モーダルは画面の上に浮く層なので
+ * 細線に柔らかい影を添えてオーバーレイから離す。
+ */
 const DEFAULT_PANEL_CLASS =
-  "space-y-6 rounded-2xl border-4 border-ink bg-white p-6";
+  "space-y-6 rounded-2xl border border-panel bg-white p-6 shadow-xl";
 
 /**
  * モーダル共通シェル
