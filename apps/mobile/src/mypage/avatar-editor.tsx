@@ -5,6 +5,7 @@ import { useTranslations } from "use-intl";
 import { FormMessage } from "../auth/form-message";
 import { ConfirmationModal } from "../components/confirmation-modal";
 import { TextLink } from "../components/text-link";
+import { showToast } from "../components/toast";
 import { colors, radius } from "../lib/theme";
 import {
   deleteAvatar,
@@ -38,17 +39,12 @@ const ERROR_KEYS = {
   string | undefined
 >;
 
-/** 知らせ（失敗の理由・済んだこと） */
-interface Notice {
-  readonly tone: "error" | "success";
-  readonly text: string;
-}
-
 /**
  * アバターの変更と削除（web の `AvatarUpload`）
  * アバター編集
  *
  * 選んだらすぐに上げる（web と同じ。保存ボタンは文字の欄のためのもの）。
+ * 済んだことはトーストで知らせ、失敗の理由は操作の下に残す。
  * 画像は選ぶ画面で正方形に切り抜かせ、端末で縮めてから送る
  * （`pickAvatarImage`）。削除は確認を挟む。
  *
@@ -69,53 +65,50 @@ export function AvatarEditor({
   const tAuth = useTranslations("auth");
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<Notice | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [confirmingRemove, setConfirmingRemove] = useState(false);
 
   const failure = (
-    error: AvatarApiFailure,
+    failed: AvatarApiFailure,
     fallback: "avatarUploadFailed" | "avatarRemoveFailed",
-  ): Notice => ({
-    tone: "error",
-    text:
-      error === "network"
-        ? tAuth("networkError")
-        : t(ERROR_KEYS[error] ?? fallback),
-  });
+  ): string =>
+    failed === "network"
+      ? tAuth("networkError")
+      : t(ERROR_KEYS[failed] ?? fallback);
 
   const change = async () => {
     if (busy) return;
-    setNotice(undefined);
+    setError(undefined);
     const picked = await pickAvatarImage();
     if (picked === "canceled") return;
     if (picked === "failed") {
-      setNotice({ tone: "error", text: t("avatarConversionFailed") });
+      setError(t("avatarConversionFailed"));
       return;
     }
     setBusy(true);
     const result = await uploadAvatar(userId, picked.uri);
     setBusy(false);
     if ("error" in result) {
-      setNotice(failure(result.error, "avatarUploadFailed"));
+      setError(failure(result.error, "avatarUploadFailed"));
       return;
     }
     setAvatarUrl(result.avatarUrl);
-    setNotice({ tone: "success", text: t("avatarUploaded") });
+    showToast(t("avatarUploaded"), "success");
   };
 
   const remove = async () => {
     setConfirmingRemove(false);
     if (busy) return;
-    setNotice(undefined);
+    setError(undefined);
     setBusy(true);
     const result = await deleteAvatar(userId);
     setBusy(false);
     if ("error" in result) {
-      setNotice(failure(result.error, "avatarRemoveFailed"));
+      setError(failure(result.error, "avatarRemoveFailed"));
       return;
     }
     setAvatarUrl(undefined);
-    setNotice({ tone: "success", text: t("avatarRemoved") });
+    showToast(t("avatarRemoved"), "success");
   };
 
   return (
@@ -144,9 +137,7 @@ export function AvatarEditor({
           </TextLink>
         )}
       </View>
-      {notice !== undefined && (
-        <FormMessage tone={notice.tone}>{notice.text}</FormMessage>
-      )}
+      {error !== undefined && <FormMessage tone="error">{error}</FormMessage>}
       <ConfirmationModal
         isOpen={confirmingRemove}
         title={t("avatarRemoveConfirmTitle")}

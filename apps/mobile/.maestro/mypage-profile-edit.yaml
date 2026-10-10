@@ -1,7 +1,8 @@
 # 記録が残る人（bob）のプロフィール編集: マイページの行から開き、入力の誤り
 # （X のユーザー名に使えない文字）で理由が出て留まることを見てから、表示名と
-# 自己紹介を書き換えて保存 → マイページの見出しが新しい名前になる。最後に
-# 表示名をシードの値に戻す（戻せなくても dev seed をもう一度流せば戻る）。
+# 自己紹介を書き換えて保存 → マイページの見出しが新しい名前になり、保存の
+# トーストが出る。最後に表示名をシードの値に戻す（戻せなくても dev seed を
+# もう一度流せば戻る）。
 # 手元の web（:3000）とその DB が動いていること
 appId: help.mahjong.score
 ---
@@ -73,6 +74,7 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "Bob Edited"
     timeout: 15000
+- assertVisible: "プロフィールを保存しました。"
 - assertVisible: "@seed_bob"
 - assertVisible:
     id: "mypage-menu-profile"

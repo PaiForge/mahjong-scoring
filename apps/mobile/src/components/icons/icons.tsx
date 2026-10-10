@@ -266,3 +266,21 @@ export function CloseIcon(props: IconProps) {
     </Outline>
   );
 }
+
+/** 丸で囲ったチェック（トーストの完了。web の `ToastCard` と同じ図形） */
+export function CircleCheckIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M8 12.5l2.75 2.75L16 9.5" />
+    </Outline>
+  );
+}
+
+/** 丸で囲った i（トーストの報告。web の `ToastCard` と同じ図形） */
+export function CircleInfoIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 11v5.5M12 7.5v.01" />
+    </Outline>
+  );
+}

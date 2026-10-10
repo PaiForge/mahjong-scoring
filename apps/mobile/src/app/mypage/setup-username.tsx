@@ -6,7 +6,7 @@
  * からもログアウトと退会に進める — ユーザー名を決めないまま
  * アカウントを消したい人を、ここで行き止まりにしない。名前を考えるのが
  * 手間な人には、web と同じくランダムなユーザー名の自動生成を添える。
- * @flow ログイン → ユーザー名の設定 → 設定へ戻る
+ * @flow ログイン → ユーザー名の設定 → 元の画面へ戻り、登録の完了をトーストで知らせる
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -27,6 +27,7 @@ import { Button } from "../../components/button";
 import { Screen } from "../../components/screen";
 import { TextField } from "../../components/text-field";
 import { TextLink } from "../../components/text-link";
+import { showToast } from "../../components/toast";
 import { colors } from "../../lib/theme";
 
 /** 登録の失敗を辞書のキーに写す（`setupUsername.validation.*`） */
@@ -90,6 +91,7 @@ export default function SetupUsernameScreen() {
     await refreshAccount();
     setSubmitting(false);
     router.back();
+    showToast(t("registered"), "success");
   };
 
   return (
@@ -140,7 +142,10 @@ export default function SetupUsernameScreen() {
       <View style={styles.links}>
         <TextLink
           onPress={() => {
-            void signOut().then(() => router.back());
+            void signOut().then(() => {
+              router.back();
+              showToast(tNav("signOutSuccess"), "success");
+            });
           }}
         >
           {tNav("signOut")}

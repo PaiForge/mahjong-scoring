@@ -19,7 +19,6 @@ function swapFirstTwo(order: readonly string[]): readonly string[] {
 
 const setOrder = vi.fn<(order: readonly string[]) => void>();
 const resetOrder = vi.fn<() => void>();
-const onUnlock = vi.fn<() => void>();
 const onSave = vi.fn<() => void>();
 const onReset = vi.fn<() => void>();
 
@@ -30,7 +29,6 @@ function renderEditor(savedOrder: readonly string[]) {
         savedOrder: props.savedOrder,
         setOrder,
         resetOrder,
-        onUnlock,
         onSave,
         onReset,
       }),
@@ -53,7 +51,7 @@ describe("useYakuOrderEditor", () => {
     expect(result.current.hasUnsavedChanges).toBe(false);
   });
 
-  it("解錠すると保存済みの並びから下書きを始め、アプリの後始末を呼ぶ", () => {
+  it("解錠すると保存済みの並びから下書きを始める", () => {
     const { result } = renderEditor(CUSTOM_ORDER);
 
     act(() => result.current.toggleLock());
@@ -61,7 +59,6 @@ describe("useYakuOrderEditor", () => {
     expect(result.current.isEditing).toBe(true);
     expect(result.current.order).toEqual(CUSTOM_ORDER);
     expect(result.current.hasUnsavedChanges).toBe(false);
-    expect(onUnlock).toHaveBeenCalledTimes(1);
   });
 
   it("並び替えは下書きだけを変え、保存するまで永続化しない", () => {

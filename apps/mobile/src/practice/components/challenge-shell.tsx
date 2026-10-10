@@ -32,6 +32,7 @@ import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
+import { showToast } from "../../components/toast";
 import { borderWidth, colors } from "../../lib/theme";
 import { QuizTimer } from "./quiz-timer";
 import { ScoreCounter } from "./score-counter";
@@ -130,7 +131,8 @@ export function ChallengeShell({
   const confirmQuit = useCallback(() => {
     setIsQuitOpen(false);
     router.dismissTo(exitHref);
-  }, [router, exitHref]);
+    showToast(tq(`${variant}.toast`));
+  }, [router, exitHref, tq, variant]);
 
   useEffect(() => {
     // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る

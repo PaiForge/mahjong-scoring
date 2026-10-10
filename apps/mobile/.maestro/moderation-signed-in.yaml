@@ -46,7 +46,7 @@ appId: help.mahjong.score
     id: "report-submit"
 - extendedWaitUntil:
     visible:
-      id: "public-profile-moderation-message"
+      id: "toast"
     timeout: 10000
 - takeScreenshot: moderation-reported
 # ブロック
@@ -63,6 +63,7 @@ appId: help.mahjong.score
     visible:
       id: "public-profile-unblock"
     timeout: 10000
+- assertVisible: "ブロックしました。"
 - takeScreenshot: moderation-blocked
 # ランキングから消える（seed_carol は 14 位、seed_alice は 15 位）
 - openLink: "mahjong-scoring://leaderboard/all-time/jantou-fu"
@@ -93,8 +94,7 @@ appId: help.mahjong.score
 - tapOn:
     id: "blocked-users-unblock-seed_alice"
 - extendedWaitUntil:
-    visible:
-      id: "blocked-users-message"
+    visible: "@seed_alice のブロックを解除しました。"
     timeout: 10000
 - assertNotVisible:
     id: "blocked-users-unblock-seed_alice"

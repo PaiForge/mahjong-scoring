@@ -14,8 +14,6 @@ export interface YakuOrderEditorOptions {
   readonly setOrder: (order: readonly string[]) => void;
   /** 並びを未設定に戻す（ストアの `reset`） */
   readonly resetOrder: () => void;
-  /** 解錠した直後に呼ぶ。知らせの消去などアプリ固有の後始末に使う */
-  readonly onUnlock?: () => void;
   /** 保存した直後に呼ぶ。保存の知らせはアプリが出す */
   readonly onSave?: () => void;
   /** 既定の順に戻した直後に呼ぶ。戻した知らせはアプリが出す */
@@ -80,7 +78,6 @@ export function useYakuOrderEditor({
   savedOrder,
   setOrder,
   resetOrder,
-  onUnlock,
   onSave,
   onReset,
 }: YakuOrderEditorOptions): YakuOrderEditor {
@@ -96,9 +93,8 @@ export function useYakuOrderEditor({
     !isSameOrder(savedOrder, YAKU_DEFAULT_ORDER) || hasUnsavedChanges;
 
   const unlock = useCallback(() => {
-    onUnlock?.();
     setDraft([...savedOrder]);
-  }, [onUnlock, savedOrder]);
+  }, [savedOrder]);
 
   const updateDraft = useCallback(
     (update: (current: readonly string[]) => readonly string[]) => {

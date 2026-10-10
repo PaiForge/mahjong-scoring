@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { useYakuOrderEditor } from "@mahjong-scoring/features/settings/use-yaku-order-editor";
@@ -13,11 +13,9 @@ import {
   LockClosedIcon,
   LockOpenIcon,
 } from "../components/icons/icons";
+import { showToast } from "../components/toast";
 import { borderWidth, colors, radius } from "../lib/theme";
 import { useYakuOrder, useYakuOrderStore } from "../hooks/use-yaku-order-store";
-
-/** 保存・既定に戻した知らせを鍵の横に出しておく時間 */
-const NOTICE_MS = 2500;
 
 /** 並びの index 番目を 1 つ上（-1）か下（+1）の役と入れ替える */
 function swapAdjacent(
@@ -142,8 +140,8 @@ export interface YakuOrderSectionParts {
  * web はつまみのドラッグ（dnd-kit）で並び替えるが、モバイルは依存を増やさず
  * 各行の ▲ ▼ で 1 つずつ動かす。施錠・下書き・保存・既定に戻すの流れは web と同じ
  * （{@link useYakuOrderEditor}）で、施錠中は読むだけの一覧に戻し、解錠したときだけ
- * ▲ ▼ を出す（触っただけで並びが変わるのを防ぐ）。保存の知らせは web のトーストの代わりに、鍵の横の
- * ラベルを一時的に差し替えて出す（操作とその結果を同じ場所に置く）。
+ * ▲ ▼ を出す（触っただけで並びが変わるのを防ぐ）。保存・既定に戻したことは web と同じく
+ * トーストで知らせる。
  */
 export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
   const t = useTranslations("settings.yakuOrder");
@@ -152,24 +150,14 @@ export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
   const setOrder = useYakuOrderStore((s) => s.setOrder);
   const resetOrder = useYakuOrderStore((s) => s.reset);
 
-  const [notice, setNotice] = useState<string | undefined>(undefined);
-
   const editor = useYakuOrderEditor({
     savedOrder,
     setOrder,
     resetOrder,
-    // 解錠したら前の保存の知らせは消す（編集中のラベルと取り合わない）
-    onUnlock: () => setNotice(undefined),
-    onSave: () => setNotice(t("savedToast")),
-    onReset: () => setNotice(t("resetToast")),
+    onSave: () => showToast(t("savedToast"), "success"),
+    onReset: () => showToast(t("resetToast"), "success"),
   });
   const { isEditing, order: items, updateDraft } = editor;
-
-  useEffect(() => {
-    if (notice === undefined) return;
-    const timer = setTimeout(() => setNotice(undefined), NOTICE_MS);
-    return () => clearTimeout(timer);
-  }, [notice]);
 
   const handleMove = useCallback(
     (index: number, direction: -1 | 1) => {
@@ -204,14 +192,10 @@ export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
           )}
         </Pressable>
         <Text
-          style={[
-            styles.toolbarLabel,
-            isEditing && styles.toolbarLabelEditing,
-            !isEditing && notice !== undefined && styles.toolbarLabelNotice,
-          ]}
+          style={[styles.toolbarLabel, isEditing && styles.toolbarLabelEditing]}
           accessibilityLiveRegion="polite"
         >
-          {isEditing ? t("editingLabel") : (notice ?? t("lockedLabel"))}
+          {isEditing ? t("editingLabel") : t("lockedLabel")}
         </Text>
         {isEditing && (
           <>
@@ -330,10 +314,6 @@ const styles = StyleSheet.create({
   toolbarLabelEditing: {
     fontWeight: "700",
     color: colors.warning,
-  },
-  toolbarLabelNotice: {
-    fontWeight: "700",
-    color: colors.primary700,
   },
   hint: {
     paddingHorizontal: 4,
