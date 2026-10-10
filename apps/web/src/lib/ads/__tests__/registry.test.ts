@@ -32,6 +32,12 @@ describe("counterpartSlot", () => {
     }
   });
 
+  it("昇級試験の結果は web とアプリで対になる", () => {
+    expect(counterpartSlot("exam-result-native-ad")).toBe(
+      "mobile-exam-result-native-ad",
+    );
+  });
+
   it("1 つの web のスロットに対になるアプリのスロットは 1 つまで", () => {
     const webs = mobileSlots.map(counterpartSlot);
     expect(new Set(webs).size).toBe(webs.length);
@@ -40,6 +46,5 @@ describe("counterpartSlot", () => {
   it("アプリに画面の無い web のスロットは対を持たない", () => {
     expect(counterpartSlot("leaderboard-index-native-ad")).toBeUndefined();
     expect(counterpartSlot("announcements-index-native-ad")).toBeUndefined();
-    expect(counterpartSlot("exam-result-native-ad")).toBeUndefined();
   });
 });

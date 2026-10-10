@@ -209,6 +209,10 @@ const SLOT_BOOKS: Record<
     { id: "1c30eee2-0796-4807-8062-39e631a71554", book: "scoreDrill" },
     { id: "c5734f80-fbeb-4bdc-86bd-7037c9adbf06", book: "oshihiki" },
   ],
+  [MOBILE_AD_SLOTS.examResult]: [
+    { id: "86a3b6b6-5467-4e90-b921-ec0fd01141e2", book: "scoreDrill" },
+    { id: "2e5c328b-dd96-412a-a83b-cc7376f4ab7f", book: "oshihiki" },
+  ],
   [MOBILE_AD_SLOTS.rankDetail]: [
     { id: "d5dc35c5-2a02-4641-9d94-0f9352a64e47", book: "scoreDrill" },
     { id: "5003ec8d-94a4-4d2d-93b0-5f7a1835d91e", book: "mangaIntro" },
