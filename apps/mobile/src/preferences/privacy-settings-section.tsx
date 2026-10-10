@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useReducer, useRef } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -7,8 +7,8 @@ import {
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import { useFocusEffect } from "expo-router";
 import { useTranslations } from "use-intl";
-import type { MobileLeaderboardVisibility } from "@mahjong-scoring/features/leaderboard/mobile-api";
 
 import { FormMessage } from "../auth/form-message";
 import { useAuth } from "../auth/use-auth";
@@ -24,7 +24,11 @@ import {
 } from "../leaderboard/leaderboard-api";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
-import { useFocusRead } from "../lib/use-focus-read";
+import {
+  INITIAL_LEADERBOARD_VISIBILITY_STATE,
+  canToggleLeaderboardVisibility,
+  reduceLeaderboardVisibility,
+} from "./leaderboard-visibility-state";
 
 /**
  * 設定のプライバシーの節（web の `PrivacySettingsSection`）
@@ -60,53 +64,52 @@ export function PrivacySettingsSection({
 function LeaderboardVisibilityRow({ userId }: { readonly userId: string }) {
   const t = useTranslations("settings");
   const tLeaderboard = useTranslations("leaderboard");
-  const { state, reload } = useFocusRead(
-    useCallback(() => fetchLeaderboardVisibility(userId), [userId]),
+  const [state, dispatch] = useReducer(
+    reduceLeaderboardVisibility,
+    INITIAL_LEADERBOARD_VISIBILITY_STATE,
   );
-  // 押した直後の値。保存を待たずにスイッチを動かし、失敗したら読んだ値へ戻す。
-  // 押したときに読んであった値（`base`）を覚え、保存の後に読み直した値が届いたら
-  // （`state.value` が別のものになったら）読んだ値を正にする — web で切り替えた
-  // 値も、画面を開き直したときに映る
-  const [optimistic, setOptimistic] = useState<
-    | { readonly hidden: boolean; readonly base: MobileLeaderboardVisibility }
-    | undefined
-  >(undefined);
-  const [saveFailed, setSaveFailed] = useState(false);
+  // 読み込みの番号。後から始めたものだけを受け付ける（状態の遷移の規則は
+  // `leaderboard-visibility-state.ts`）
+  const loadCount = useRef(0);
 
-  if (state.kind === "loading") {
+  const load = useCallback(() => {
+    const loadNumber = ++loadCount.current;
+    dispatch({ type: "loadStarted", load: loadNumber });
+    void fetchLeaderboardVisibility(userId).then((result) =>
+      dispatch(
+        "error" in result
+          ? { type: "loadFailed", load: loadNumber }
+          : { type: "loadSucceeded", load: loadNumber, hidden: result.hidden },
+      ),
+    );
+  }, [userId]);
+  // 画面を開くたびに読み直す（web で切り替えた値を映す）
+  useFocusEffect(load);
+
+  if (state.hidden === undefined) {
+    if (state.loadFailed) {
+      return (
+        <View style={styles.failed}>
+          <Text style={styles.failedText}>{tLeaderboard("loadFailed")}</Text>
+          <TextLink onPress={load}>{tLeaderboard("retry")}</TextLink>
+        </View>
+      );
+    }
     return (
       <View style={[panelFrame, styles.placeholder]}>
         <ActivityIndicator color={colors.action} />
       </View>
     );
   }
-  if (state.kind === "failed") {
-    return (
-      <View style={styles.failed}>
-        <Text style={styles.failedText}>{tLeaderboard("loadFailed")}</Text>
-        <TextLink onPress={reload}>{tLeaderboard("retry")}</TextLink>
-      </View>
-    );
-  }
 
-  const loaded = state.value;
-  const hidden =
-    optimistic !== undefined && optimistic.base === loaded
-      ? optimistic.hidden
-      : loaded.hidden;
   const handleChange = (next: boolean) => {
-    setOptimistic({ hidden: next, base: loaded });
-    setSaveFailed(false);
-    void saveLeaderboardVisibility(userId, next).then((result) => {
+    // 保存中は受け付けない（POST を直列にする）
+    if (!canToggleLeaderboardVisibility(state)) return;
+    dispatch({ type: "saveStarted", hidden: next });
+    void saveLeaderboardVisibility(userId, next).then((result) =>
       // 失敗は読み流せる完了ではないので、トーストではなくカードの下に残す
-      if ("error" in result) {
-        setOptimistic(undefined);
-        setSaveFailed(true);
-        return;
-      }
-      // 読み直して保存した値を正にする（読み終えるまでは押した値を出す）
-      reload();
-    });
+      dispatch({ type: "error" in result ? "saveFailed" : "saveSucceeded" }),
+    );
   };
 
   return (
@@ -115,11 +118,12 @@ function LeaderboardVisibilityRow({ userId }: { readonly userId: string }) {
         <SettingToggleRow
           title={t("leaderboardVisibilityTitle")}
           description={t("leaderboardVisibilityAppDescription")}
-          checked={hidden}
+          checked={state.hidden}
           onChange={handleChange}
+          disabled={!canToggleLeaderboardVisibility(state)}
         />
       </SettingsCard>
-      {saveFailed && (
+      {state.saveFailed && (
         <FormMessage tone="error">
           {t("leaderboardVisibilityFailedToast")}
         </FormMessage>
