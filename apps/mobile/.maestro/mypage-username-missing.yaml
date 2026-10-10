@@ -1,0 +1,36 @@
+# ユーザー名未設定（ivan）のマイページ: ユーザー名の案内が出て、ユーザー名の設定へ進める
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: ivan@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "ユーザー名の設定"
+    timeout: 15000
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-username-cta"
+    timeout: 10000
+- assertNotVisible:
+    id: "mypage-sign-up-cta"
+- takeScreenshot: mypage-username-missing
+- tapOn:
+    id: "mypage-username-cta"
+- extendedWaitUntil:
+    visible: "ユーザー名の設定"
+    timeout: 10000

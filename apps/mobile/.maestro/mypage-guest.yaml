@@ -1,0 +1,23 @@
+# ゲストのマイページ: ホームのヘッダーの人型のアイコンから開くと、中身の代わりに
+# 記録の案内（登録 CTA）が出て、登録画面へ進める
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 10000
+- assertVisible: "マイページ"
+- takeScreenshot: mypage-guest
+- tapOn:
+    id: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible: "アカウント登録"
+    timeout: 10000

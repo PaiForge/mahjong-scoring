@@ -4,6 +4,8 @@
   "viewProfile": "公開プロフィール",
   "editProfile": "プロフィール編集",
   "activityTitle": "アクティビティ",
+  "loadFailed": "マイページを読み込めませんでした。",
+  "retry": "もう一度読み込む",
   "cards": {
     "challenges": {
       "title": "マイレコード",

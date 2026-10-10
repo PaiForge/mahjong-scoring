@@ -104,6 +104,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   - `home-username-missing` — ユーザー名未設定（`ivan@`）でログイン → ユーザー名の設定へ
     送られる → ホームにユーザー名の案内
   - `challenge-recorded` — `bob@` でログインし雀頭の符計算を 1 回走らせ、結果に記録と EXP
+  - `mypage-guest` / `mypage-username-missing` — ホームの人型のアイコンからマイページを
+    開くと、記録の案内（登録 / ユーザー名の設定）が出る
+  - `mypage-signed-in` — `bob@` のマイページ。見出しと直近 7 日のアクティビティ、今日の
+    棒の内訳。棒を見るなら先に `challenge-recorded` を流す（シードに EXP は無い）
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい

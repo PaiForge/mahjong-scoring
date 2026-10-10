@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { SettingsIcon } from "../../components/icons/icons";
+import { SettingsIcon, UserIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useMobileJourney } from "../../dojo/use-mobile-journey";
 import { NextStepCard } from "../../home/next-step-card";
@@ -23,7 +23,9 @@ import { colors } from "../../lib/theme";
  *   出す「レッスンの続き」「おすすめの練習」はまだ持たない（全級取得済みの
  *   アカウントでは「次にやること」が出ない）
  * - お知らせはサーバーの記事なので出さない
- * - 設定への入口をヘッダー右に置く（web はドロワー。モバイルはドロワーを持たない）
+ * - マイページと設定への入口をヘッダー右に置く（web はヘッダーのアカウントの
+ *   メニューとドロワー。モバイルはどちらも持たず、タブも OS の上限の 5 つで
+ *   埋まっている）。マイページはゲストにも出す — 開くと記録の案内が出る
  * - ゲストにも開く画面なので、記録が残らない人（ゲスト・ユーザー名を
  *   決めていない人）には「次にやること」の下に記録の案内を出す
  *   （`RecordCtaCard`）。今することを先に置き、案内はその後
@@ -44,16 +46,29 @@ export default function HomeScreen() {
       title={t("home")}
       inTabs
       contentStyle={styles.content}
+      titleActionWide
       titleAction={
-        <Pressable
-          onPress={() => router.push("/preferences")}
-          accessibilityRole="button"
-          accessibilityLabel={t("settings")}
-          hitSlop={8}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          <SettingsIcon size={24} color={colors.surface700} />
-        </Pressable>
+        <View style={styles.actions}>
+          <Pressable
+            testID="home-mypage"
+            onPress={() => router.push("/mypage")}
+            accessibilityRole="button"
+            accessibilityLabel={t("mypage")}
+            hitSlop={8}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <UserIcon size={24} color={colors.surface700} />
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/preferences")}
+            accessibilityRole="button"
+            accessibilityLabel={t("settings")}
+            hitSlop={8}
+            style={({ pressed }) => pressed && styles.pressed}
+          >
+            <SettingsIcon size={24} color={colors.surface700} />
+          </Pressable>
+        </View>
       }
     >
       <NextStepCard journey={journey} />
@@ -65,6 +80,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: 32,
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
   },
   pressed: {
     opacity: 0.5,

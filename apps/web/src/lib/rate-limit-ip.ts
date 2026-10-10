@@ -136,6 +136,8 @@ export const IP_RATE_LIMITS = {
   finishChallenge: { maxRequests: 60, windowMs: 600_000 },
   // アプリが画面を開くたびに読む進み具合
   readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
+  // アプリがマイページを開くたび・前面に戻るたびに読む
+  readMobileMypage: { maxRequests: 120, windowMs: 600_000 },
   // アプリのレッスン完了の記録（未送信分の送り直しを含む）
   completeLessons: { maxRequests: 60, windowMs: 600_000 },
   // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に

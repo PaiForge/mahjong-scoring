@@ -31,6 +31,10 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/mypage/account/delete")).toBe("/preferences");
   });
 
+  it("マイページは入口のホームへ", () => {
+    expect(backFallbackHref("/mypage")).toBe("/");
+  });
+
   it("練習とそれ以外は練習一覧へ", () => {
     expect(backFallbackHref("/practice/jantou-fu")).toBe("/practice");
     expect(backFallbackHref("/unknown")).toBe("/practice");
