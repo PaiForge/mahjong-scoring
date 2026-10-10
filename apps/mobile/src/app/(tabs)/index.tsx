@@ -60,6 +60,7 @@ export default function HomeScreen() {
             <UserIcon size={24} color={colors.surface700} />
           </Pressable>
           <Pressable
+            testID="home-settings"
             onPress={() => router.push("/preferences")}
             accessibilityRole="button"
             accessibilityLabel={t("settings")}
