@@ -2,20 +2,21 @@
  * プロフィール編集
  *
  * @description
- * web のプロフィール編集（`/mypage/profile/edit`）のうち、文字の欄
- * （表示名・自己紹介・X / Instagram / YouTube）を編集する。すべて任意。
- * 検証と書き込みは web と同じもの（アプリ向け API が web のフォームと
- * 同じ本体を呼ぶ）。
+ * web のプロフィール編集（`/mypage/profile/edit`）。アバター・表示名・
+ * 自己紹介・X / Instagram / YouTube を編集する。すべて任意。検証と書き込みは
+ * web と同じもの（アプリ向け API が web と同じ本体を呼ぶ）。
  *
  * web と違うもの:
- * - アバターは編集しない（マイページの見出しに出すだけ）
+ * - アバターは選ぶ画面で正方形に切り抜かせ、端末で縮めてから送る
+ *   （web は端末で HEIC を変換し、サーバーが切り抜く）
  * - 保存の知らせ（web のトースト）は出さない — マイページへ戻ると見出しが
  *   新しい名前に変わっている
  *
  * @flow
  * 1. マイページの「プロフィール編集」の行から開く
- * 2. 欄を書き換えて「保存する」 → マイページへ戻る
- * 3. 入力の誤りはボタンの上に理由を出し、画面に留まる
+ * 2. 「画像を選択」で写真を選ぶとすぐにアバターが変わる（削除は確認を挟む）
+ * 3. 欄を書き換えて「保存する」 → マイページへ戻る
+ * 4. 入力の誤りはボタンの上に理由を出し、画面に留まる
  */
 import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -43,6 +44,7 @@ import {
   MypageLoadFailed,
   MypageLoading,
 } from "../../../mypage/mypage-gate";
+import { AvatarEditor } from "../../../mypage/avatar-editor";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
 
 /**
@@ -83,11 +85,20 @@ function ProfileEdit({ userId }: { readonly userId: string }) {
   if (state.kind === "loading") return <MypageLoading />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
-  return <ProfileForm userId={userId} initial={state.value} />;
+  return (
+    <>
+      <AvatarEditor
+        userId={userId}
+        name={state.value.displayName || state.value.username}
+        initialAvatarUrl={state.value.avatarUrl}
+      />
+      <ProfileForm userId={userId} initial={state.value} />
+    </>
+  );
 }
 
 /**
- * 編集フォーム（web の `ProfileForm` からアバターを除いたもの）
+ * 文字の欄の編集フォーム（web の `ProfileForm`。アバターは `AvatarEditor`）
  *
  * 初期値は最初に読めた値だけを使う。画面に戻るたびの読み直しで、書きかけの
  * 欄を上書きしない。

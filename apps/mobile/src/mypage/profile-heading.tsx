@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
@@ -6,7 +6,8 @@ import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { BeltPill } from "../components/belt-pill";
 import { panelFrame } from "../lib/panel-styles";
-import { colors, radius } from "../lib/theme";
+import { colors } from "../lib/theme";
+import { UserAvatar } from "./user-avatar";
 
 const AVATAR_SIZE = 64;
 
@@ -29,7 +30,11 @@ export function ProfileHeading({
   const name = profile.displayName ?? profile.username;
   return (
     <View style={[panelFrame, styles.card]}>
-      <Avatar avatarUrl={profile.avatarUrl} name={name} />
+      <UserAvatar
+        avatarUrl={profile.avatarUrl}
+        name={name}
+        size={AVATAR_SIZE}
+      />
       <View style={styles.texts}>
         <Text style={styles.name} numberOfLines={1}>
           {name}
@@ -51,60 +56,12 @@ export function ProfileHeading({
   );
 }
 
-/**
- * アバター（web の `UserAvatar`）。画像が無ければ名前の頭文字
- *
- * 太枠は付けない — 丸く回り込む枠は顔写真の縁を削る（web と同じ判断）。
- */
-function Avatar({
-  avatarUrl,
-  name,
-}: {
-  readonly avatarUrl: string | undefined;
-  readonly name: string;
-}) {
-  if (avatarUrl !== undefined) {
-    return (
-      <Image
-        source={{ uri: avatarUrl }}
-        style={styles.avatar}
-        accessibilityIgnoresInvertColors
-        accessible={false}
-      />
-    );
-  }
-  return (
-    <View
-      style={[styles.avatar, styles.fallback]}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
-      <Text style={styles.initial}>{name.charAt(0).toUpperCase()}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
     padding: 16,
-  },
-  avatar: {
-    width: AVATAR_SIZE,
-    height: AVATAR_SIZE,
-    borderRadius: radius.full,
-  },
-  fallback: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.surface100,
-  },
-  initial: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: colors.surface500,
   },
   texts: {
     flex: 1,
