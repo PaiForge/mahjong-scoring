@@ -15,6 +15,10 @@ appId: help.mahjong.score
     visible:
       id: "choice-0"
     timeout: 15000
+# カウントダウン（3, 2, 1）の覆いは閉じるも覆うので、明けるまで待つ
+- extendedWaitUntil:
+    notVisible: "^[123]$"
+    timeout: 8000
 - tapOn:
     id: "screen-back"
 - extendedWaitUntil:
