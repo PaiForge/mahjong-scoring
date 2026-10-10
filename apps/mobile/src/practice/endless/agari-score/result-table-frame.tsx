@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
+import { panelFrame } from "../../../lib/panel-styles";
 import { colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
 
@@ -19,25 +20,52 @@ const LABEL_COLUMN_WIDTH = 64;
  *
  * 項目名の列だけ固定幅にし、比べさせたい 2 列（あなたの回答 / 正解）は
  * 等分する。中身なりの幅だと問題ごとに列幅が変わり、回答の値が横に動く。
+ *
+ * 面は白地に淡い枠（`panelFrame`）で、正解の列にだけ中性の灰の薄い帯を
+ * 見出しから点数まで通す（web と同じ）。緑にしないのは回答側の正誤の
+ * 「正解」の緑と役割が重なるため。帯が行の間で途切れないよう、行の上下の
+ * 余白は行ではなく各セルが持つ。内訳の入口は `footer` として表の下に置く。
  */
 export function ResultTableFrame({
   children,
+  footer,
+  embedded = false,
 }: {
   readonly children: ReactNode;
+  /** 表の下、同じ面の中に続けるもの（翻数・符の内訳の入口） */
+  readonly footer?: ReactNode;
+  /**
+   * 既に白い枠を持つ面の中に置くか（聴牌形の点数計算のタブパネル）。
+   * 真なら表自身の枠と内側の余白を外す（白い枠の入れ子にしない）
+   */
+  readonly embedded?: boolean;
 }) {
   const t = useTranslations("agariScore");
   return (
-    <View style={styles.frame}>
+    <View style={embedded ? undefined : styles.frame}>
       <View style={styles.headerRow}>
-        <View style={styles.labelCell} />
-        <Text style={[styles.valueCell, styles.headerText]} numberOfLines={1}>
+        <View style={[styles.labelCell, styles.headerCell]} />
+        <Text
+          style={[styles.valueCell, styles.headerCell, styles.headerText]}
+          numberOfLines={1}
+        >
           {t("result.headers.answer")}
         </Text>
-        <Text style={[styles.valueCell, styles.headerText]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.valueCell,
+            styles.headerCell,
+            styles.headerText,
+            styles.correctBand,
+            styles.correctBandTop,
+          ]}
+          numberOfLines={1}
+        >
           {t("result.headers.correct")}
         </Text>
       </View>
       {children}
+      {footer !== undefined && <View style={styles.footer}>{footer}</View>}
     </View>
   );
 }
@@ -51,14 +79,27 @@ export function ResultTableFrame({
  */
 export function ResultSection({
   first = false,
+  final = false,
   children,
 }: {
   /** 先頭の項目（見出しの太線の直下なので罫線を引かない） */
   readonly first?: boolean;
+  /**
+   * 最後の項目（点数）。翻・符から出る最終的な答えなので、上の区切りを
+   * 一段濃くして途中の値と分ける
+   */
+  readonly final?: boolean;
   readonly children: ReactNode;
 }) {
   return (
-    <View style={first ? undefined : styles.sectionDivider}>{children}</View>
+    <View
+      style={[
+        !first && styles.sectionDivider,
+        final && styles.finalSectionDivider,
+      ]}
+    >
+      {children}
+    </View>
   );
 }
 
@@ -70,16 +111,33 @@ export function ResultRow({
   label,
   answer,
   correct,
+  final = false,
 }: {
   readonly label: string;
   readonly answer: ReactNode;
   readonly correct: ReactNode;
+  /**
+   * 表の最後の行（点数）。上下の余白を広げて最終結果として分け、正解の
+   * 列の帯の下端を丸める。数字をさらに大きくしないのは、ツモの支払い
+   * （「1300・2600」等）が列に収まらなくなるため
+   */
+  readonly final?: boolean;
 }) {
+  const cell = final ? styles.finalCell : styles.cell;
   return (
     <View style={styles.row}>
-      <Text style={[styles.labelCell, styles.labelText]}>{label}</Text>
-      <View style={styles.valueBox}>{answer}</View>
-      <View style={styles.valueBox}>{correct}</View>
+      <Text style={[styles.labelCell, cell, styles.labelText]}>{label}</Text>
+      <View style={[styles.valueBox, cell]}>{answer}</View>
+      <View
+        style={[
+          styles.valueBox,
+          cell,
+          styles.correctBand,
+          final && styles.correctBandBottom,
+        ]}
+      >
+        {correct}
+      </View>
     </View>
   );
 }
@@ -130,15 +188,44 @@ export function CorrectValue({ value }: { readonly value: string }) {
 
 const styles = StyleSheet.create({
   frame: {
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface50,
+    ...panelFrame,
     padding: 16,
   },
   headerRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: colors.surface300,
+  },
+  headerCell: {
     paddingTop: 8,
+    paddingBottom: 12,
+  },
+  correctBand: {
+    backgroundColor: colors.surface50,
+    paddingHorizontal: 12,
+  },
+  correctBandTop: {
+    borderTopLeftRadius: radius.md,
+    borderTopRightRadius: radius.md,
+    overflow: "hidden",
+  },
+  correctBandBottom: {
+    borderBottomLeftRadius: radius.md,
+    borderBottomRightRadius: radius.md,
+  },
+  footer: {
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.surface200,
+  },
+  finalSectionDivider: {
+    borderTopColor: colors.surface300,
+  },
+  cell: {
+    paddingVertical: 8,
+  },
+  finalCell: {
+    paddingTop: 16,
     paddingBottom: 12,
   },
   headerText: {
@@ -153,8 +240,8 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    paddingVertical: 8,
+    // 正解の列の帯を行の高さいっぱいに伸ばす（値は各セルの中で上に寄る）
+    alignItems: "stretch",
   },
   labelCell: {
     width: LABEL_COLUMN_WIDTH,

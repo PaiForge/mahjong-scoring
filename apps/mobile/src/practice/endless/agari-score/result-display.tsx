@@ -26,7 +26,13 @@ import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
 import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
-import { DetailsPanelRow } from "./details-panel-row";
+import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
+import { useFuHanOrder } from "../../../hooks/use-display-settings-store";
+import {
+  BreakdownPanel,
+  type BreakdownPanelSection,
+} from "../../components/breakdown-panel";
+import { ResultBreakdownTable } from "./result-breakdown-table";
 import {
   CorrectValue,
   JudgedValue,
@@ -53,6 +59,8 @@ interface ResultDisplayProps {
   readonly requireYaku?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
+  /** 既に白い枠を持つ面の中に置くか（{@link ResultTableFrame} の `embedded`） */
+  readonly embedded?: boolean;
 }
 
 /**
@@ -60,7 +68,8 @@ interface ResultDisplayProps {
  * 結果表示
  *
  * 「あなたの回答」と「正解」を項目（役・翻数・符・点数）ごとに並べ、翻数と
- * 符の内訳を閉じた状態で添える。`userAnswer` / `result` が無い場合は無回答の
+ * 符の内訳は表の下の 1 つの展開エリア（{@link BreakdownPanel}）にまとめる。
+ * 開いたときは間違えたほうの内訳を選ぶ。`userAnswer` / `result` が無い場合は無回答の
  * 正解開示として描き、「あなたの回答」列は落とさず各行に未回答の印を出す
  * （列数を変えると正解の列が動くため）。
  *
@@ -75,9 +84,11 @@ export function ResultDisplay({
   requireYaku = false,
   exactHan = false,
   requireFuForMangan = false,
+  embedded = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
   const yakuOrder = useYakuOrder();
+  const fuHanOrder = useFuHanOrder();
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -129,9 +140,69 @@ export function ResultDisplay({
     <ResultUnansweredValue />
   );
 
+  // 満貫以上は符の行を出さないので、符の内訳も出さない
+  const showsFu = !isManganOrAbove || requireFuForMangan;
+  const breakdownTabs = resolveBreakdownTabs(
+    fuHanOrder,
+    {
+      han: yakuBreakdown !== undefined,
+      fu: showsFu && fuBreakdown !== undefined,
+    },
+    judged?.result,
+  );
+  const breakdownSections = breakdownTabs.kinds.flatMap(
+    (kind): BreakdownPanelSection[] => {
+      if (kind === "han" && yakuBreakdown) {
+        return [
+          {
+            kind,
+            tabLabel: `${t("form.labels.han")} ${hanDisplay(answer.han)}`,
+            content: (
+              <ResultBreakdownTable
+                items={yakuBreakdown.items}
+                total={yakuBreakdown.total}
+                suffix={t("form.options.hanSuffix")}
+              />
+            ),
+          },
+        ];
+      }
+      if (kind === "fu" && fuBreakdown) {
+        return [
+          {
+            kind,
+            tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
+            content: (
+              <ResultBreakdownTable
+                items={fuBreakdown.items}
+                total={fuBreakdown.total}
+                suffix={t("form.options.fuSuffix")}
+                roundedTotal={answer.fu}
+              />
+            ),
+          },
+        ];
+      }
+      return [];
+    },
+  );
+
   return (
     <View>
-      <ResultTableFrame>
+      <ResultTableFrame
+        embedded={embedded}
+        footer={
+          breakdownSections.length > 0 ? (
+            <BreakdownPanel
+              title={t("result.details.toggle")}
+              sections={breakdownSections}
+              initialKind={breakdownTabs.initial}
+              surface="sunken"
+              testID="result-breakdown"
+            />
+          ) : undefined
+        }
+      >
         {requireYaku && (
           <ResultSection first>
             <ResultRow
@@ -178,17 +249,9 @@ export function ResultDisplay({
               />
             }
           />
-          {yakuBreakdown && (
-            <DetailsPanelRow
-              title={t("result.details.yakuTitle")}
-              items={yakuBreakdown.items}
-              total={yakuBreakdown.total}
-              suffix={t("form.options.hanSuffix")}
-            />
-          )}
         </ResultSection>
 
-        {(!isManganOrAbove || requireFuForMangan) && (
+        {showsFu && (
           <ResultSection>
             <ResultRow
               label={t("form.labels.fu")}
@@ -208,21 +271,12 @@ export function ResultDisplay({
                 />
               }
             />
-            {fuBreakdown && (
-              <DetailsPanelRow
-                title={t("result.details.fuTitle")}
-                items={fuBreakdown.items}
-                total={fuBreakdown.total}
-                suffix={t("form.options.fuSuffix")}
-                roundedTotal={answer.fu}
-                roundUpLabel={t("result.details.roundUp")}
-              />
-            )}
           </ResultSection>
         )}
 
-        <ResultSection>
+        <ResultSection final>
           <ResultRow
+            final
             label={t("form.labels.score")}
             answer={
               judged ? (
@@ -236,7 +290,8 @@ export function ResultDisplay({
             }
             correct={
               <>
-                {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
+                {/* 押せることが見て分かるよう、常時点線の下線を敷く。点数は
+                    最終的な答えなので、正解の値の中でここだけ一段大きくする */}
                 <Pressable
                   onPress={() => openScoreTable(true)}
                   accessibilityRole="button"
@@ -276,9 +331,9 @@ export function ResultDisplay({
 const styles = StyleSheet.create({
   payment: {
     textAlign: "right",
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
-    color: colors.surface800,
+    color: colors.surface900,
     textDecorationLine: "underline",
     textDecorationStyle: "dotted",
     textDecorationColor: colors.surface400,
