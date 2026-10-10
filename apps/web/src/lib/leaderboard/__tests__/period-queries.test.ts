@@ -12,12 +12,12 @@ const {
   mockGetUserMonthlyRankedRow: vi.fn(),
 }));
 
-vi.mock("@/lib/db/leaderboard-queries", () => ({
+vi.mock("../../db/leaderboard-queries", () => ({
   getAllTimeRanking: mockGetAllTimeRanking,
   getMonthlyRanking: mockGetMonthlyRanking,
 }));
 
-vi.mock("@/lib/db/user-rank-queries", () => ({
+vi.mock("../../db/user-rank-queries", () => ({
   getUserAllTimeRankedRow: mockGetUserAllTimeRankedRow,
   getUserMonthlyRankedRow: mockGetUserMonthlyRankedRow,
 }));

@@ -98,8 +98,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`/api/ads/<スロット>`）から読み（`src/ads/use-native-ads.ts`）、スロットは
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
   分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
-  ランキングは画面が無いので持たない。開発中は Metro を動かす
-  Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
+  開発中は Metro を動かす Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
@@ -150,6 +149,15 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     コード・表）を撮る
   - `forgot-password` — ログイン画面の「パスワードを忘れた方」から再設定のリンクを送り、送った
     案内が出る。届いたメール（`bob@` 宛て）は Mailpit（`:54324`）で見る
+  - `leaderboard-guest` — ゲストで練習の説明の末尾の総合ランキングの上位から詳細へ。期間を
+    月間に替えて「さらに読み込む」、行から公開プロフィール、最後に一覧（分野の行と広告の行）
+  - `leaderboard-signed-in` — `bob@` の一覧に各土俵の順位、詳細で自分の行が塗られる。自分の
+    行から本人の公開プロフィール、`seed_alice` のプロフィールも開く
+  - `moderation-signed-in` — `bob@` が `seed_alice` を通報（「その他」で詳細が無いと誤り →
+    宣伝・スパムで送る）、ブロックしてブロック中の案内とランキングから消えたことを撮り、
+    設定の「ブロックしたユーザー」で解除して元に戻す。通報は管理画面（`/admin/reports`）で見る
+    （運営者へのメールは Resend なので手元では送られない）
+  - `moderation-guest` — ゲストの公開プロフィールに、通報とブロックにはログインが要る旨
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい

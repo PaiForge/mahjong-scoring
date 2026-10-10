@@ -1,7 +1,9 @@
 import { getPaginationData } from "@/lib/pagination";
 
-import type { LeaderboardResult } from "../_lib/types";
-import { PAGE_SIZE } from "../_lib/types";
+import {
+  LEADERBOARD_PAGE_SIZE,
+  type LeaderboardResult,
+} from "@/lib/leaderboard/get-leaderboard";
 import { LeaderboardPagination } from "./leaderboard-pagination";
 import { LeaderboardTable } from "./leaderboard-table";
 
@@ -29,7 +31,7 @@ export function LeaderboardDetailContent({
   const { totalPages } = getPaginationData(
     currentPage,
     data.totalCount,
-    PAGE_SIZE,
+    LEADERBOARD_PAGE_SIZE,
   );
 
   return (

@@ -1,0 +1,41 @@
+# ログイン中（bob）のランキング: 一覧の各行に自分の順位、詳細で自分の行が塗られる。
+# 自分の行から開いた公開プロフィールは本人のもの、他の人のものも開ける
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- openLink: "mahjong-scoring://leaderboard"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- takeScreenshot: leaderboard-index-signed-in
+- tapOn:
+    id: "leaderboard-board-jantou_fu:default"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-row-seed_bob"
+    timeout: 10000
+- takeScreenshot: leaderboard-detail-signed-in
+- tapOn:
+    id: "leaderboard-row-seed_bob"
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 10000
+- takeScreenshot: public-profile-self
+- openLink: "mahjong-scoring://u/seed_alice"
+- extendedWaitUntil:
+    visible: "@seed_alice"
+    timeout: 10000
+- takeScreenshot: public-profile-member

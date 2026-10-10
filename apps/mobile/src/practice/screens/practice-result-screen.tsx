@@ -20,6 +20,7 @@ import { useNativeAds } from "../../ads/use-native-ads";
 import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
+import { LeaderboardPreview } from "../../leaderboard/leaderboard-preview";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
@@ -37,9 +38,9 @@ import { useRouteVariant } from "./use-route-variant";
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
  * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
- * もう一度。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
- * 添える（送れなければ、次に通信できたときに送ると伝える）。ランキング・
- * 経験値・自己ベストの比較はまだ出さない。
+ * もう一度 → 総合ランキングの上位。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
+ * 添える（送れなければ、次に通信できたときに送ると伝える）。自己ベストの
+ * 比較はまだ出さない。
  *
  * 「もう一度」を問題別の結果の末尾にも置くのは、一覧で間違えた問題を読み終えた
  * 位置から、広告とボタン群まで戻らずに再挑戦できるようにするため（web と同じ）。
@@ -167,6 +168,9 @@ export function PracticeResultScreen({
               {retryButton}
             </View>
           )}
+
+        {/* 末尾に総合ランキングの上位（web と同じ）。今走った土俵のもの */}
+        <LeaderboardPreview board={{ menuType, variant }} />
       </MistakeRevealProvider>
     </Screen>
   );

@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import type { LeaderboardPeriod } from "../_lib/types";
-import { VALID_PERIODS, buildDetailPath } from "../_lib/types";
+import {
+  LEADERBOARD_PERIODS,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
+import { leaderboardHref } from "@mahjong-scoring/features/routes";
 import {
   TOGGLE_GROUP_CONTAINER_CLASSES,
   toggleItemClasses,
@@ -26,10 +29,10 @@ export async function PeriodSelector({
 
   return (
     <div className={TOGGLE_GROUP_CONTAINER_CLASSES}>
-      {VALID_PERIODS.map((p) => (
+      {LEADERBOARD_PERIODS.map((p) => (
         <Link
           key={p}
-          href={buildDetailPath(p, board)}
+          href={leaderboardHref(p, board)}
           className={toggleItemClasses(currentPeriod === p)}
         >
           {t(`period.${p}`)}

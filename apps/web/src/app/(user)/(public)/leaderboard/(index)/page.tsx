@@ -24,8 +24,10 @@ import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { LeaderboardRowListSkeleton } from "../_components/leaderboard-row-list-skeleton";
 import { LeaderboardTopContent } from "../_components/leaderboard-top-content";
-import type { LeaderboardPeriod } from "../_lib/types";
-import { isValidPeriod } from "../_lib/validators";
+import {
+  isLeaderboardPeriod,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +38,7 @@ interface LeaderboardIndexPageProps {
 }
 
 function parsePeriod(value: string | undefined): LeaderboardPeriod {
-  if (value && isValidPeriod(value)) {
+  if (value && isLeaderboardPeriod(value)) {
     return value;
   }
   return "all-time";
