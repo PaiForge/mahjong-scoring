@@ -57,6 +57,7 @@ import { DoneMark } from "./done-mark";
 import { NextLessonPreview, nextChapterSlug } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /** レッスンの段階（並びは進む順） */
 type LessonPhase = "learn" | "quiz" | "done";
@@ -155,6 +156,7 @@ export function LessonView({
   const tScoreTable = useTranslations("scoreTable");
   const tAll = useTranslations();
   const router = useRouter();
+  const goToTab = useGoToTab();
   const completed = useLessonDone(slug);
   const { input: progress } = useAccountProgress();
   const markCompleted = useMarkLessonCompleted();
@@ -468,7 +470,7 @@ export function LessonView({
             })}
           </Button>
         ) : (
-          <Button size="lg" fullWidth onPress={() => router.navigate("/")}>
+          <Button size="lg" fullWidth onPress={() => goToTab("/")}>
             {t("continueHome")}
           </Button>
         )}

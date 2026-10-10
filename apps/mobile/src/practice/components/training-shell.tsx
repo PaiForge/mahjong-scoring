@@ -6,6 +6,7 @@ import { useTranslations } from "use-intl";
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { Button } from "../../components/button";
 import { Divider } from "../../components/divider";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
@@ -89,12 +90,13 @@ export function TrainingShell({
   const tp = useTranslations("practice");
   const tExam = useTranslations("examTraining");
   const router = useRouter();
+  const dismissToHref = useDismissToHref();
   const isExam = variant === "exam";
   useJudgementHaptics(correctCount, totalCount - correctCount);
 
   // 終えたことを知らせてから説明画面へ戻す（web と同じく、模試は模試の文言）
   const exit = () => {
-    router.dismissTo(exitHref);
+    dismissToHref(exitHref);
     showToast(isExam ? tExam("exitToast") : tt("exitToast"));
   };
 

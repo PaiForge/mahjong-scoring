@@ -15,6 +15,7 @@ import { LinkRow, LinkRowList } from "../../components/link-row";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { FollowUpPanel } from "./follow-up-panel";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * 級の最後のレッスンの完了画面の「昇級試験まで」（web の `RankGoalPanel`）
@@ -41,6 +42,7 @@ export function RankGoalPanel({
   const tRanks = useTranslations("ranks");
   const tAll = useTranslations();
   const router = useRouter();
+  const goToTab = useGoToTab();
   const rank = tRanks(`names.${rankSlug}`);
 
   return (
@@ -75,7 +77,7 @@ export function RankGoalPanel({
         <TextLink onPress={() => router.push(practiceTrainingHref(examSlug))}>
           {t("training")}
         </TextLink>
-        <TextLink onPress={() => router.push(DOJO_PATH)}>{t("dojo")}</TextLink>
+        <TextLink onPress={() => goToTab(DOJO_PATH)}>{t("dojo")}</TextLink>
       </View>
     </FollowUpPanel>
   );

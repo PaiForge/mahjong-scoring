@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { BackHandler, Platform, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
@@ -19,6 +19,7 @@ import { useNativeAds } from "../../ads/use-native-ads";
 import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
+import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
@@ -31,6 +32,8 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ExamResultSummary } from "../exam/exam-result-summary";
 import { PromotionBanner } from "../exam/promotion-banner";
 import type { PracticeScreens } from "../practice-screens";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * 昇級試験の結果画面
@@ -64,29 +67,24 @@ export function ExamResultScreen({
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const router = useRouter();
+  const dismissToHref = useDismissToHref();
+  const goToTab = useGoToTab();
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.examResult);
   const close = useCallback(
-    () => router.dismissTo(practiceHref(slug)),
-    [router, slug],
+    () => dismissToHref(practiceHref(slug)),
+    [dismissToHref, slug],
   );
 
-  useEffect(() => {
-    if (Platform.OS === "web") return;
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      close();
-      return true;
-    });
-    return () => sub.remove();
-  }, [close]);
+  useHardwareBack(close);
 
   const minScore = goalCount ?? 0;
   const passed =
     current !== undefined && current.finalResult.correctCount >= minScore;
   const retry = () => router.replace(practicePlayHref(slug));
-  const toDojo = () => router.dismissTo(DOJO_PATH);
+  const toDojo = () => goToTab(DOJO_PATH);
   const primaryButton = passed ? (
     <Button size="lg" fullWidth onPress={toDojo} testID="exam-to-dojo">
       {tc("backToDojo")}

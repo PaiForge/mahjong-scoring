@@ -1,4 +1,3 @@
-import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
@@ -16,6 +15,7 @@ import { panelFrame } from "../../lib/panel-styles";
 import { colors } from "../../lib/theme";
 import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
 import { useAccountProgress } from "../../records/use-account-progress";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * 道場
@@ -46,7 +46,7 @@ export default function DojoPage() {
   const journey = useMobileJourney();
   const { input, includesDeviceAttempts } = useAccountProgress();
   const current = highestRank(input.achievedRankSlugs);
-  const router = useRouter();
+  const goToTab = useGoToTab();
   const setPracticeMode = usePracticeModeStore((state) => state.setMode);
 
   return (
@@ -66,7 +66,7 @@ export default function DojoPage() {
           <TextLink
             onPress={() => {
               setPracticeMode("practical");
-              router.navigate(PRACTICE_PATH);
+              goToTab(PRACTICE_PATH);
             }}
           >
             {t("practicalCta")}

@@ -8,6 +8,7 @@ import { colors, radius } from "../lib/theme";
 import { signInWithApple, useAppleSignInAvailable } from "./apple-sign-in";
 import { FormMessage } from "./form-message";
 import { refreshAccount } from "./use-auth";
+import { useLeaveAuthFlow } from "./use-leave-auth-flow";
 
 /**
  * Apple のログインボタンと、メールのフォームとの区切り（iOS だけ）
@@ -29,6 +30,7 @@ export function AppleSignInSection({
 }) {
   const t = useTranslations("auth");
   const router = useRouter();
+  const leaveAuthFlow = useLeaveAuthFlow();
   const available = useAppleSignInAvailable();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -52,7 +54,7 @@ export function AppleSignInSection({
       router.replace("/mypage/setup-username");
       return;
     }
-    router.back();
+    leaveAuthFlow();
   };
 
   return (

@@ -91,7 +91,7 @@ function NotFound() {
   return (
     <View style={styles.notFound}>
       <Text style={styles.notFoundText}>{t("notFound")}</Text>
-      <TextLink onPress={() => router.navigate(ANNOUNCEMENTS_PATH)}>
+      <TextLink onPress={() => router.dismissTo(ANNOUNCEMENTS_PATH)}>
         {t("backToList")}
       </TextLink>
     </View>

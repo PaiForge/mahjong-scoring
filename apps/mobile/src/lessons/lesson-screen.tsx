@@ -1,6 +1,5 @@
 import { useCallback, useRef, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
@@ -27,6 +26,7 @@ import {
 } from "./components/next-lesson-preview";
 import { renderLessonGuide } from "./guide-registry";
 import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
+import { useGoToTab } from "../hooks/use-go-to-tab";
 
 /**
  * レッスンが見つからない（未知の slug・モバイル未移植の章）
@@ -34,13 +34,11 @@ import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 function LessonNotFound() {
   const tn = useTranslations("notFound");
   const t = useTranslations("learnCurriculum");
-  const router = useRouter();
+  const goToTab = useGoToTab();
   return (
     <Screen title={tn("title")} back>
       <Text style={styles.notFound}>{tn("description")}</Text>
-      <TextLink onPress={() => router.navigate(LESSONS_PATH)}>
-        {t("tocLink")}
-      </TextLink>
+      <TextLink onPress={() => goToTab(LESSONS_PATH)}>{t("tocLink")}</TextLink>
     </Screen>
   );
 }

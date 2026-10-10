@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { BackHandler, Platform, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
@@ -20,6 +20,7 @@ import { useNativeAds } from "../../ads/use-native-ads";
 import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
+import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { LeaderboardPreview } from "../../leaderboard/leaderboard-preview";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
@@ -31,6 +32,8 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
  * チャレンジの結果画面
@@ -74,25 +77,19 @@ export function PracticeResultScreen({
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const router = useRouter();
+  const dismissToHref = useDismissToHref();
+  const goToTab = useGoToTab();
   const variant = useRouteVariant(slug);
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
   const close = useCallback(
-    () => router.dismissTo(practiceHref(slug, variant)),
-    [router, slug, variant],
+    () => dismissToHref(practiceHref(slug, variant)),
+    [dismissToHref, slug, variant],
   );
 
-  useEffect(() => {
-    // web（画面確認用）には戻るボタンの仕組みが無く、登録すると警告が出る
-    if (Platform.OS === "web") return;
-    const sub = BackHandler.addEventListener("hardwareBackPress", () => {
-      close();
-      return true;
-    });
-    return () => sub.remove();
-  }, [close]);
+  useHardwareBack(close);
   // 上のボタン群と一覧の末尾の 2 か所に置く。行き先が食い違わないよう 1 つにする
   const retryButton = (
     <Button
@@ -152,7 +149,7 @@ export function PracticeResultScreen({
               </Button>
             )}
           </View>
-          <TextLink onPress={() => router.dismissTo(PRACTICE_PATH)}>
+          <TextLink onPress={() => goToTab(PRACTICE_PATH)}>
             {tc("backToList")}
           </TextLink>
         </View>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   listedPracticeMenus,
@@ -25,6 +25,7 @@ import { colors } from "../../lib/theme";
 import { PracticalPracticeCard } from "../../practice/components/practical-practice-card";
 import { PracticeCard } from "../../practice/components/practice-card";
 import { practiceScreensFor } from "../../practice/registry";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /** 絞り込みの値（`all` / 段級位スラッグ / カテゴリ）。web の `?rank=` / `?category=` に当たる */
 type FilterValue = string;
@@ -53,7 +54,7 @@ const AD_LIST_POSITION = 2;
 export default function PracticeListPage() {
   const t = useTranslations("practice");
   const tRanks = useTranslations("ranks");
-  const router = useRouter();
+  const goToTab = useGoToTab();
   const mode = usePracticeModeStore((state) => state.mode);
   const setMode = usePracticeModeStore((state) => state.setMode);
   const { rank: rankParam } = useLocalSearchParams<{ rank?: string }>();
@@ -112,7 +113,7 @@ export default function PracticeListPage() {
           <Text style={styles.lead}>{t("modes.basicDescription")}</Text>
           <LinkRowList>
             <LinkRow
-              onPress={() => router.push(DOJO_PATH)}
+              onPress={() => goToTab(DOJO_PATH)}
               leading={
                 <Text
                   style={styles.emoji}

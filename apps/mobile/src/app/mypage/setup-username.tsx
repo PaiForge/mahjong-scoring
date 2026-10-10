@@ -23,6 +23,7 @@ import type { ApiFailure } from "../../auth/account-api";
 import { registerUsername } from "../../auth/account-api";
 import { FormMessage } from "../../auth/form-message";
 import { refreshAccount, signOut } from "../../auth/use-auth";
+import { useLeaveAuthFlow } from "../../auth/use-leave-auth-flow";
 import { Button } from "../../components/button";
 import { Screen } from "../../components/screen";
 import { TextField } from "../../components/text-field";
@@ -61,6 +62,7 @@ export default function SetupUsernameScreen() {
   const tNav = useTranslations("nav");
   const tAccount = useTranslations("mypageAccount");
   const router = useRouter();
+  const leaveAuthFlow = useLeaveAuthFlow();
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -90,7 +92,7 @@ export default function SetupUsernameScreen() {
     }
     await refreshAccount();
     setSubmitting(false);
-    router.back();
+    leaveAuthFlow();
     showToast(t("registered"), "success");
   };
 
@@ -143,7 +145,7 @@ export default function SetupUsernameScreen() {
         <TextLink
           onPress={() => {
             void signOut().then(() => {
-              router.back();
+              leaveAuthFlow();
               showToast(tNav("signOutSuccess"), "success");
             });
           }}

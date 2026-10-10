@@ -15,6 +15,7 @@ import { TextLink } from "../components/text-link";
 import { SECTION_COLORS } from "../lessons/lesson-colors";
 import { colors } from "../lib/theme";
 import { DoneMark } from "./done-mark";
+import { useGoToTab } from "../hooks/use-go-to-tab";
 
 /**
  * 章スラッグの並びをセクションごとの目次として描く（web の `ChapterTocList`）
@@ -110,12 +111,10 @@ export function ChapterTocList({
  */
 export function CurriculumTocLink() {
   const t = useTranslations("learnCurriculum");
-  const router = useRouter();
+  const goToTab = useGoToTab();
   return (
     <View style={styles.tocLink}>
-      <TextLink onPress={() => router.navigate(LESSONS_PATH)}>
-        {t("tocLink")}
-      </TextLink>
+      <TextLink onPress={() => goToTab(LESSONS_PATH)}>{t("tocLink")}</TextLink>
     </View>
   );
 }

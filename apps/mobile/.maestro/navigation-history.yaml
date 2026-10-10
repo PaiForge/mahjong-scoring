@@ -1,0 +1,85 @@
+# 画面の履歴: ゲストのマイページから登録 → ログイン → パスワードを忘れた方 →
+# 「ログインへ戻る」と進んでログインすると、マイページへ戻る（ログイン画面が 2 枚
+# 重なって 2 枚目が出ない）。マイページの段級位から道場のタブへ移ると、マイページが
+# 下に残らない（タブ一式を積み増さない。左端から引いても戻らない）。
+# 手元の web（:3000）とその DB が動いていること。再設定のメール（erin@ 宛て）は Mailpit（:54324）に届く
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 10000
+- tapOn:
+    id: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible:
+      id: "sign-up-sign-in"
+    timeout: 10000
+- tapOn:
+    id: "sign-up-sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-forgot-password"
+    timeout: 10000
+- tapOn:
+    id: "sign-in-forgot-password"
+- extendedWaitUntil:
+    visible:
+      id: "forgot-password-submit"
+    timeout: 10000
+- tapOn:
+    id: "forgot-password-email"
+# 宛先は bob にしない（forgot-password のフローと続けて流すと、同じ宛先への
+# 送信の回数制限（60 秒に 1 通）に当たる）
+- inputText: erin@example.local
+- tapOn:
+    id: "forgot-password-submit"
+- extendedWaitUntil:
+    visible:
+      id: "forgot-password-back-to-sign-in"
+    timeout: 15000
+- tapOn:
+    id: "forgot-password-back-to-sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-submit"
+    timeout: 10000
+- tapOn:
+    id: "sign-in-email"
+- inputText: bob@example.local
+- tapOn:
+    id: "sign-in-password"
+- inputText: devpass1
+- tapOn:
+    id: "sign-in-submit"
+# ログインの前にいたマイページへ戻る
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 15000
+- assertNotVisible:
+    id: "sign-in-submit"
+- takeScreenshot: navigation-signed-in-mypage
+# 段級位の印から道場のタブへ
+- tapOn: "5級"
+- extendedWaitUntil:
+    visible: "現在の段級位"
+    timeout: 15000
+- assertNotVisible:
+    id: "screen-back"
+- takeScreenshot: navigation-dojo-tab
+# 左端から引いても下にマイページは無い
+- swipe:
+    start: 1%, 50%
+    end: 80%, 50%
+- waitForAnimationToEnd
+- assertNotVisible: "@seed_bob"
+- assertVisible: "現在の段級位"
+- takeScreenshot: navigation-dojo-after-swipe

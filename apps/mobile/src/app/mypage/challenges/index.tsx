@@ -42,6 +42,7 @@ import {
 import { ScoreChart } from "../../../mypage/score-chart";
 import { StatsCard } from "../../../mypage/stats-card";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
+import { useGoToTab } from "../../../hooks/use-go-to-tab";
 
 /** 直近の履歴に並べる件数（web と同じ） */
 const TABLE_DISPLAY_LIMIT = 5;
@@ -122,11 +123,11 @@ function Dashboard({
  */
 function NoRecords() {
   const t = useTranslations("mypage.challenges");
-  const router = useRouter();
+  const goToTab = useGoToTab();
   return (
     <View style={styles.noRecords}>
       <Text style={styles.muted}>{t("noData")}</Text>
-      <Button onPress={() => router.push(PRACTICE_PATH)}>
+      <Button onPress={() => goToTab(PRACTICE_PATH)}>
         {t("goToPractice")}
       </Button>
     </View>
@@ -149,6 +150,7 @@ function Records({
   const t = useTranslations("mypage.challenges");
   const tRoot = useTranslations();
   const router = useRouter();
+  const goToTab = useGoToTab();
   const { boards, board, current, previous } = records;
 
   const stats = useMemo(() => {
@@ -292,7 +294,7 @@ function Records({
           >
             {t("tryChallenge", { title: labelOf(board) })}
           </Button>
-          <TextLink onPress={() => router.push(PRACTICE_PATH)}>
+          <TextLink onPress={() => goToTab(PRACTICE_PATH)}>
             {t("goToPractice")}
           </TextLink>
         </View>

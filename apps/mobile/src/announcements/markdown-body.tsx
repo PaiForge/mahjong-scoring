@@ -13,8 +13,10 @@ import { parseAnnouncementMarkdown } from "@mahjong-scoring/features/announcemen
 import { DataTable } from "../components/data-table";
 import { Divider } from "../components/divider";
 import { SectionTitle } from "../components/section-title";
+import { useGoToTab } from "../hooks/use-go-to-tab";
 import { SITE_URL } from "../lib/app-site-url";
 import { linkStyles } from "../lib/link-styles";
+import { isTabHref } from "../lib/tab-href";
 import { colors, radius } from "../lib/theme";
 import { resolveAnnouncementLink } from "./announcement-link";
 
@@ -39,11 +41,14 @@ type OpenLink = (href: string) => void;
  */
 export function MarkdownBody({ content }: { readonly content: string }) {
   const router = useRouter();
+  const goToTab = useGoToTab();
   const tree = useMemo(() => parseAnnouncementMarkdown(content), [content]);
   const openLink: OpenLink = (href) => {
     const target = resolveAnnouncementLink(href, SITE_URL);
     if (target.kind === "app") {
-      router.push(target.path);
+      // タブの入口（`/dojo` 等）は積まずにタブを切り替える
+      if (isTabHref(target.path)) goToTab(target.path);
+      else router.push(target.path);
     } else {
       void Linking.openURL(target.url);
     }

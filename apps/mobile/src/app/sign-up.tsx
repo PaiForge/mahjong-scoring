@@ -172,7 +172,10 @@ export default function SignUpScreen() {
       </View>
       <View style={styles.signInRow}>
         <Text style={styles.lead}>{tAuth("alreadyHaveAccount")}</Text>
-        <TextLink onPress={() => router.replace("/sign-in")}>
+        <TextLink
+          onPress={() => router.replace("/sign-in")}
+          testID="sign-up-sign-in"
+        >
           {tAuth("signInLinkText")}
         </TextLink>
       </View>
