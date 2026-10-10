@@ -3,7 +3,7 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { RANK_BELT_COLORS } from "../lib/belt-colors";
 import { panelFrame } from "../lib/panel-styles";
-import { colors } from "../lib/theme";
+import { borderWidth, colors } from "../lib/theme";
 
 /** 段級位（無級を含む）の帯色一式 */
 interface BeltStyle {
@@ -15,6 +15,8 @@ interface BeltStyle {
   readonly tint: string;
   /** 淡い面に載せる文字 */
   readonly tintText: string;
+  /** 淡い面を押している間の塗り */
+  readonly tintPressed: string;
   /** 帯そのものの色に載せる文字・紋章 */
   readonly foreground: string;
 }
@@ -25,6 +27,7 @@ const UNRANKED: BeltStyle = {
   border: colors.surface300,
   tint: colors.surface100,
   tintText: colors.surface700,
+  tintPressed: colors.surface200,
   foreground: colors.surface500,
 };
 
@@ -44,21 +47,23 @@ export function beltStyle(slug: RankSlug | undefined): BeltStyle {
     border: belt.fill,
     tint: belt.tint,
     tintText: belt.tintText,
+    tintPressed: belt.tintPressed,
     foreground: colors.white,
   };
 }
 
 /**
- * 段級位のカードの枠（web の `rounded-panel border border-t-4 border-panel` + `beltBorderTopClass`）
+ * 段級位のカードの枠（web の `rounded-panel border border-t-2 border-panel` + `beltBorderTopClass`）
  * 帯色カード枠
  *
- * 細い枠に、上端だけ帯色の帯を敷く。級名を掲げたカードを既定の緑で
- * 縁取ると緑がその級の色に見えるため、級の色は帯が持つ。
+ * 細い枠に、上端だけ帯色の 2px の帯を敷く（1px では淡い級の帯色が細線に
+ * 紛れる）。級名を掲げたカードを既定の緑で縁取ると緑がその級の色に見える
+ * ため、級の色は帯が持つ。
  */
 export function beltCardFrame(slug: RankSlug | undefined): ViewStyle {
   return {
     ...panelFrame,
-    borderTopWidth: 4,
+    borderTopWidth: borderWidth.belt,
     borderTopColor: beltStyle(slug).fill,
   };
 }

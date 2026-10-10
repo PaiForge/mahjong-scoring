@@ -8,11 +8,11 @@ import {
   type MachiCellRef,
 } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
 
-import { colors, radius } from "../../../lib/theme";
+import { borderWidth, colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
 
 /** パネルの上枠の太さ。選択中のタブがこの分だけ下へ伸びて枠を覆う */
-export const PANEL_BORDER = 3;
+export const PANEL_BORDER = borderWidth.panel;
 
 /**
  * タブの地（web の `tabTone`）
@@ -135,9 +135,9 @@ const styles = StyleSheet.create({
   tab: {
     alignItems: "center",
     gap: 2,
-    borderWidth: 3,
+    borderWidth: PANEL_BORDER,
     borderBottomWidth: 0,
-    borderColor: colors.ink,
+    borderColor: colors.panel,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
     paddingHorizontal: 6,

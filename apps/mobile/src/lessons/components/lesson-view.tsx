@@ -41,7 +41,7 @@ import {
   useMarkLessonCompleted,
 } from "../../records/use-account-progress";
 import { hapticJudgement } from "../../lib/haptics";
-import { colors, radius } from "../../lib/theme";
+import { borderWidth, colors, radius } from "../../lib/theme";
 import { ChoiceButton } from "../../practice/components/choice-button";
 import { JudgementMark } from "../../practice/components/judgement-mark";
 import { PromptLabel } from "../../practice/components/prompt-label";
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     color: colors.surface600,
   },
   frame: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.xl,
     padding: 24,
     gap: 12,

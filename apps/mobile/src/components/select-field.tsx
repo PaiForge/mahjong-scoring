@@ -8,7 +8,7 @@ import {
   type ViewStyle,
 } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import { BottomSheet } from "./bottom-sheet";
 import { ChevronDownIcon } from "./icons/icons";
 
@@ -46,7 +46,7 @@ interface SelectFieldProps<TValue extends string | number> {
  * `onChange` を呼ぶ。
  * React Native には `<select>` が無く、OS ごとのピッカーは見た目も操作も
  * 揃わないため、アプリの部品で組む。欄の見た目は web の select と同じ
- * 太枠（3px・ink）の白地で、押せる面の記号である影は持たない（入力欄のため）。
+ * 1px の一段濃い灰の枠の白地。
  */
 export function SelectField<TValue extends string | number>({
   options,
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 4,
-    borderWidth: 3,
-    borderColor: colors.ink,
+    borderWidth: borderWidth.panel,
+    borderColor: colors.surface400,
     borderRadius: radius.lg,
     backgroundColor: colors.white,
     paddingHorizontal: 8,

@@ -11,7 +11,7 @@ export function feedbackFrameStyle(
   lastAnswerCorrect: boolean | undefined,
 ): ViewStyle {
   if (!showFeedback || lastAnswerCorrect === undefined)
-    return { borderColor: colors.ink, backgroundColor: colors.white };
+    return { borderColor: colors.panel, backgroundColor: colors.white };
   return lastAnswerCorrect
     ? { borderColor: colors.success, backgroundColor: colors.successSubtle }
     : {
@@ -25,7 +25,7 @@ export function feedbackFrameStyle(
  * 選択肢配色
  *
  * 押した選択肢は正誤が付く前から色を変え、正誤が出たら正解を緑、選んだ
- * 不正解を赤、それ以外を薄くする。
+ * 不正解を赤、それ以外を薄くする。枠はフォーム部品と同じ一段濃い灰。
  */
 export function choiceFeedbackStyle(
   showFeedback: boolean,
@@ -34,8 +34,8 @@ export function choiceFeedbackStyle(
 ): ViewStyle {
   if (!showFeedback) {
     return isSelected
-      ? { borderColor: colors.ink, backgroundColor: colors.primary100 }
-      : { borderColor: colors.ink, backgroundColor: colors.white };
+      ? { borderColor: colors.surface400, backgroundColor: colors.primary100 }
+      : { borderColor: colors.surface300, backgroundColor: colors.white };
   }
   if (isCorrect) {
     return {
@@ -50,7 +50,7 @@ export function choiceFeedbackStyle(
     };
   }
   return {
-    borderColor: colors.ink,
+    borderColor: colors.surface300,
     backgroundColor: colors.white,
     opacity: 0.5,
   };

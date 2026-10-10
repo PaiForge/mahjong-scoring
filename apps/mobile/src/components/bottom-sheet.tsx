@@ -69,8 +69,8 @@ const SheetCloseContext = createContext<(() => void) | undefined>(undefined);
  *   {@link useSheetPullToClose} を受け取って付ける（iOS の引っ張りの量で判定。
  *   Android は先頭より上へ引っ張れないので上端だけ）
  *
- * 押せる面ではないので影は持たず、web のモーダルの太枠も持たない（画面の
- * 下端から生える面なので、枠で区切るより地の暗さで浮かせる）。
+ * 枠も影も持たない（画面の下端から生える面なので、枠や影で区切るより
+ * 地の暗さで浮かせる。iOS の標準のシートと同じ）。
  */
 export function BottomSheet({
   isOpen,

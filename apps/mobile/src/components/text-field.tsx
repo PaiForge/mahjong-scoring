@@ -73,8 +73,7 @@ const KIND_PROPS: Record<
  * ラベル付きの 1 行の入力欄（web の `AuthTextField`）
  * テキスト入力欄
  *
- * 押して始める面ではないので、太枠ではなく細い枠（`panelFrame` と同じ
- * 1px）で組み、入力中だけ枠を緑にする。文字は 16pt — iOS の web 版で
+ * 細い枠（`panelFrame` と同じ 1px）で組み、入力中だけ枠を緑にする。文字は 16pt — iOS の web 版で
  * それ未満だと、入力を始めたときに画面が拡大される。
  */
 export function TextField({

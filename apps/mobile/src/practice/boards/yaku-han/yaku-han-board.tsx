@@ -4,7 +4,7 @@ import { DEFAULT_YAKU_HAN_RANGE } from "@mahjong-scoring/core";
 import type { YakuHanRange } from "@mahjong-scoring/core";
 import { type YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
-import { colors, radius } from "../../../lib/theme";
+import { borderWidth, colors, radius } from "../../../lib/theme";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { YakuHanAnswerForm } from "./yaku-han-answer-form";
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     gap: 24,
   },
   promptFrame: {
-    borderWidth: 3,
-    borderColor: colors.ink,
+    borderWidth: borderWidth.panel,
+    borderColor: colors.panel,
     borderRadius: radius.xl,
     backgroundColor: colors.white,
     paddingVertical: 32,

@@ -13,7 +13,7 @@ import { HelpIconButton } from "../components/help-icon-button";
 import { InfoModal } from "../components/info-modal";
 import { TextLink } from "../components/text-link";
 import { useDoraDisplayMode } from "../hooks/use-display-settings-store";
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import { useBoardBleed } from "./board-bleed";
 import { RiichiStick } from "./riichi-stick";
 import { HAI_SM_HEIGHT, REFERENCE_HAND_WIDTH, TehaiHand } from "./tehai-hand";
@@ -165,18 +165,18 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
 const styles = StyleSheet.create({
   frame: {
     backgroundColor: colors.primary800,
-    borderColor: colors.ink,
+    borderColor: colors.primary900,
     paddingVertical: 12,
   },
   inset: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.xl,
     paddingHorizontal: 12,
   },
   fullBleed: {
     marginHorizontal: -16,
-    borderTopWidth: 3,
-    borderBottomWidth: 3,
+    borderTopWidth: borderWidth.panel,
+    borderBottomWidth: borderWidth.panel,
     paddingHorizontal: 8,
   },
   infoRow: {

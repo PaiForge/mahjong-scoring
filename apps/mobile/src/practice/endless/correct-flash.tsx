@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, radius } from "../../lib/theme";
+import { borderWidth, colors, radius } from "../../lib/theme";
 
 /** 表示しておく時間（web のトーストと同じ 1.5 秒） */
 const FLASH_DURATION_MS = 1500;
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   pill: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderColor: colors.success,
     borderRadius: radius.full,
     backgroundColor: colors.successSubtle,

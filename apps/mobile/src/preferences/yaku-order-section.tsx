@@ -13,7 +13,7 @@ import {
   LockClosedIcon,
   LockOpenIcon,
 } from "../components/icons/icons";
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import { useYakuOrder, useYakuOrderStore } from "../hooks/use-yaku-order-store";
 
 /** 保存・既定に戻した知らせを鍵の横に出しておく時間 */
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.lg,
     paddingHorizontal: 8,
     paddingVertical: 8,

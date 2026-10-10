@@ -70,8 +70,6 @@ export function JudgementMark({
       accessibilityLabel={accessibilityLabel}
       style={{
         borderRadius: 9999,
-        borderWidth: 2,
-        borderColor: colors.ink,
         padding: 8,
         backgroundColor: BADGE[verdict].bg,
       }}

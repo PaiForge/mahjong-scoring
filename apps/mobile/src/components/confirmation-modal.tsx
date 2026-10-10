@@ -1,6 +1,6 @@
 import { Modal, StyleSheet, Text, View } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, floatingShadow, radius } from "../lib/theme";
 import { Button, type ButtonVariant } from "./button";
 
 interface ConfirmationModalProps {
@@ -19,7 +19,8 @@ interface ConfirmationModalProps {
 /**
  * 確認モーダル（web の `ConfirmationModal`）
  *
- * パネルは押せないので影を持たず、太枠で区切る。
+ * 画面の上に浮く層なので、細枠に柔らかい影（`floatingShadow`）を添えて
+ * 暗い幕から離す。地に置かれた面には影を付けない。
  */
 export function ConfirmationModal({
   isOpen,
@@ -82,11 +83,12 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
     backgroundColor: colors.card,
-    borderWidth: 4,
-    borderColor: colors.ink,
+    borderWidth: borderWidth.panel,
+    borderColor: colors.panel,
     borderRadius: radius["2xl"],
     padding: 24,
     gap: 12,
+    ...floatingShadow,
   },
   title: {
     fontSize: 18,

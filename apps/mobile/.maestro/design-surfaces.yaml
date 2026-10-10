@@ -1,0 +1,76 @@
+# 線と影（フラット）の見た目を撮る。ゲストで、ボタン・帯色のカード・選択肢・
+# 練習の設定のタイル・チャレンジの盤面と答え合わせ・中止の確認ダイアログ・
+# 待ち牌の選択とマスの表を順に開く。押下中の色は撮れないので見ない
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- takeScreenshot: home
+- openLink: "mahjong-scoring://dojo"
+- waitForAnimationToEnd
+- takeScreenshot: dojo
+- scrollUntilVisible:
+    element: "試験"
+    direction: DOWN
+    optional: true
+- takeScreenshot: dojo-scrolled
+- openLink: "mahjong-scoring://practice/yaku-han"
+- waitForAnimationToEnd
+- takeScreenshot: practice-intro-variants
+# チャレンジ: カウントダウンの後の盤面、1 つ答えた後の正誤、閉じるで中止の確認
+- openLink: "mahjong-scoring://practice/jantou-fu/play"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+# カウントダウン（3, 2, 1）が終わるまで待つ
+- extendedWaitUntil:
+    notVisible: "^[123]$"
+    timeout: 8000
+- takeScreenshot: challenge-board
+- tapOn:
+    id: "choice-0"
+- waitForAnimationToEnd
+- takeScreenshot: challenge-feedback
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しますか？"
+    timeout: 5000
+- takeScreenshot: quit-dialog
+- tapOn: "中止する"
+# 聴牌形: 待ち牌を 2 つ選ぶ → 回答 → マスの表で同じ列を 2 つ選ぶ
+- openLink: "mahjong-scoring://practice/tenpai-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "machi-tile-0"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "machi-tile-27"
+    direction: DOWN
+- tapOn:
+    id: "machi-tile-0"
+- tapOn:
+    id: "machi-tile-4"
+- takeScreenshot: machi-selected
+- tapOn: "待ちを回答する"
+- waitForAnimationToEnd
+- takeScreenshot: machi-judged
+- tapOn: "点数計算へ進む"
+- waitForAnimationToEnd
+- scrollUntilVisible:
+    element: "未回答"
+    direction: DOWN
+- tapOn: "未回答"
+- waitForAnimationToEnd
+- takeScreenshot: cells-answering
+- tapOn:
+    text: "同じ回答にする"
+    optional: true
+- waitForAnimationToEnd
+- takeScreenshot: cells-answering-together
