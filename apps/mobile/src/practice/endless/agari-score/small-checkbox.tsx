@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   boxChecked: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary500,
+    borderColor: colors.action,
+    backgroundColor: colors.action,
   },
   label: {
     fontSize: 14,

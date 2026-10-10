@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   title: {
     borderBottomWidth: 1,
     borderBottomColor: colors.panel,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.surface50,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 14,

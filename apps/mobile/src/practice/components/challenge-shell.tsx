@@ -330,6 +330,6 @@ const styles = StyleSheet.create({
   countdownText: {
     fontSize: 60,
     fontWeight: "700",
-    color: colors.primary500,
+    color: colors.action,
   },
 });

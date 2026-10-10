@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 36,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
     borderBottomWidth: 1,
     borderBottomColor: colors.panel,
   },
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.surface100,
   },
   viewer: {
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
   },
   viewerSection: {
     borderTopWidth: 1,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   you: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.primary800,
+    color: colors.brandSubtleForeground,
   },
   player: {
     flex: 1,

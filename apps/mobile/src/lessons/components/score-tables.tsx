@@ -66,7 +66,7 @@ export function FixedFuScoreTable({
                 <TsumoScore
                   key={cell.han}
                   payment={cell.score}
-                  color={colors.primary600}
+                  color={colors.foreground}
                 />
               ) : (
                 <View key={cell.han}>{dash}</View>

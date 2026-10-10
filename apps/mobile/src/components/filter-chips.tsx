@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   chipActive: {
-    borderColor: colors.primary700,
-    backgroundColor: colors.primary700,
+    borderColor: colors.selected,
+    backgroundColor: colors.selected,
   },
   chipPressed: {
     backgroundColor: colors.surface100,

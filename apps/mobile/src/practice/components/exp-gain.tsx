@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   earned: {
     fontSize: 18,
     fontWeight: "700",
-    color: colors.primary600,
+    color: colors.success,
   },
   progress: {
     gap: 6,
@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
   fill: {
     height: 8,
     borderRadius: radius.full,
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.success,
   },
 });

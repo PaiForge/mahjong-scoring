@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   optionSelected: {
-    backgroundColor: colors.primary100,
+    backgroundColor: colors.selectedSubtle,
   },
   optionPressed: {
     backgroundColor: colors.surface100,
@@ -191,6 +191,6 @@ const styles = StyleSheet.create({
   },
   optionTextSelected: {
     fontWeight: "700",
-    color: colors.primary700,
+    color: colors.foreground,
   },
 });

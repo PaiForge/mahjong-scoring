@@ -62,7 +62,7 @@ export function NativeAdCard({
       )}
       <View style={styles.footer}>
         <Text style={styles.cta}>{t("cta")}</Text>
-        <ChevronRightIcon size={16} color={colors.primary700} />
+        <ChevronRightIcon size={16} color={colors.action} />
       </View>
     </Pressable>
   );
@@ -151,6 +151,6 @@ const styles = StyleSheet.create({
   cta: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.primary700,
+    color: colors.action,
   },
 });

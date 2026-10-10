@@ -100,14 +100,14 @@ function MypageMenu() {
         testID="mypage-menu-challenges"
         title={t("cards.challenges.title")}
         description={t("cards.challenges.summary")}
-        leading={<ChartIcon size={22} color={colors.primary600} />}
+        leading={<ChartIcon size={22} color={colors.surface600} />}
         onPress={() => router.push("/mypage/challenges")}
       />
       <LinkRow
         testID="mypage-menu-profile"
         title={t("cards.profile.title")}
         description={t("cards.profile.summary")}
-        leading={<UserIcon size={22} color={colors.primary600} />}
+        leading={<UserIcon size={22} color={colors.surface600} />}
         onPress={() => router.push("/mypage/profile/edit")}
       />
     </LinkRowList>
@@ -129,7 +129,7 @@ function SettingsEntry() {
       <LinkRow
         testID="mypage-menu-settings"
         title={t("settings")}
-        leading={<SettingsIcon size={22} color={colors.primary600} />}
+        leading={<SettingsIcon size={22} color={colors.surface600} />}
         onPress={() => router.push(PREFERENCES_PATH)}
       />
     </LinkRowList>

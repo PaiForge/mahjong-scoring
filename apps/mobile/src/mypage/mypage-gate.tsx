@@ -60,7 +60,7 @@ function AccountLoadFailed({ banned }: { readonly banned: boolean }) {
 export function MypageLoading() {
   return (
     <View style={styles.loading}>
-      <ActivityIndicator color={colors.primary500} />
+      <ActivityIndicator color={colors.action} />
     </View>
   );
 }

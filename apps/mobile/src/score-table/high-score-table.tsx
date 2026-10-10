@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   score: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.primary600,
+    color: colors.foreground,
     textAlign: "right",
   },
 });

@@ -36,19 +36,21 @@ export default function ReferenceHubScreen() {
       href: SCORE_TABLE_TAB_PATH,
       title: t("scoreTable.title"),
       description: t("scoreTable.description"),
-      icon: <TableIcon size={20} color={colors.primary600} />,
+      icon: <TableIcon size={20} color={colors.brandSubtleForeground} />,
     },
     {
       href: REFERENCE_YAKU_PATH,
       title: t("yaku.title"),
       description: t("yaku.description"),
-      icon: <BookIcon size={20} color={colors.primary600} />,
+      icon: <BookIcon size={20} color={colors.brandSubtleForeground} />,
     },
     {
       href: GLOSSARY_PATH,
       title: t("glossary.title"),
       description: t("glossary.description"),
-      icon: <MagnifyingGlassIcon size={20} color={colors.primary600} />,
+      icon: (
+        <MagnifyingGlassIcon size={20} color={colors.brandSubtleForeground} />
+      ),
     },
   ];
 
@@ -89,7 +91,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.lg,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
     alignItems: "center",
     justifyContent: "center",
   },

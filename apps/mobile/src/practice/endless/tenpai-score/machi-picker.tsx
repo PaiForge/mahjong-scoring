@@ -72,7 +72,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                   <Hai hai={hai} size="xs" />
                   {isSelected && !judged && (
                     <InsetRing
-                      color={colors.primary500}
+                      color={colors.selected}
                       borderRadius={radius.md}
                     />
                   )}
@@ -104,12 +104,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   selected: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
+    borderColor: colors.selected,
+    backgroundColor: colors.selectedSubtle,
   },
   pressed: {
-    borderColor: colors.primary300,
-    backgroundColor: colors.primary50,
+    borderColor: colors.surface400,
+    backgroundColor: colors.surface50,
   },
   dimmed: {
     opacity: 0.4,

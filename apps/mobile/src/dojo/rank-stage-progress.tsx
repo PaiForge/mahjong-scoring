@@ -106,7 +106,7 @@ export function RankStageProgress({
               <Text
                 style={[
                   styles.value,
-                  { color: cell.done ? colors.primary700 : textColor },
+                  { color: cell.done ? colors.success : textColor },
                 ]}
               >
                 {cell.value}
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   linkName: {
-    color: colors.primary700,
+    color: colors.action,
   },
   valueRow: {
     flexDirection: "row",

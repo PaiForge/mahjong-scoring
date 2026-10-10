@@ -106,18 +106,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: radius.md,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   chipLabel: {
     fontSize: 14,
-    color: colors.primary800,
+    color: colors.brandSubtleForeground,
   },
   remove: {
     marginLeft: 8,
     fontSize: 14,
-    color: colors.primary600,
+    color: colors.brandSubtleForeground,
   },
   removeHidden: {
     opacity: 0,

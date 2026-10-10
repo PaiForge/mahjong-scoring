@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     backgroundColor: lessonColors.amber50Solid,
     fontSize: 18,
     fontWeight: "700",
-    color: colors.primary700,
+    color: colors.foreground,
   },
   resultBlock: {
     gap: 12,

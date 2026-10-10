@@ -9,7 +9,7 @@ export type ChipTone = "primary" | "success" | "amber" | "neutral";
 const TONES: Readonly<
   Record<ChipTone, { readonly bg: string; readonly fg: string }>
 > = {
-  primary: { bg: colors.primary50, fg: colors.primary800 },
+  primary: { bg: colors.brandSubtle, fg: colors.brandSubtleForeground },
   success: { bg: colors.successSubtle, fg: colors.successStrong },
   amber: { bg: colors.amber100, fg: colors.warningStrong },
   neutral: { bg: colors.surface100, fg: colors.surface600 },

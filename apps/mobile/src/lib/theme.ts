@@ -40,6 +40,27 @@ export const colors = {
   foreground: "#0f172a",
   mutedForeground: "#64748b",
 
+  /*
+   * 役割の色（web の `--color-action` 等と同じ名前・同じ値）。画面側は
+   * primary* の段ではなく役割の名前で引く。役割の定義と値の選び方は
+   * web の globals.css にある:
+   *   action        主操作（主ボタン・「?」・トグルのオン）。緑の塗りはこれだけ
+   *   selected      選択中（タブ・絞り込み・選択肢のタイル・タブバーの現在地）。墨
+   *   brandSubtle   補助面（次の目標・自分の行・小さな値のチップ）。淡緑はこの 1 値
+   *   pending       採点待ち。正誤のどちらとも読めない灰
+   */
+  action: "#007a3d",
+  actionHover: "#006833",
+  actionActive: "#00562a",
+  actionForeground: "#ffffff",
+  selected: "#1e293b",
+  selectedForeground: "#ffffff",
+  selectedSubtle: "#f1f5f9",
+  brandSubtle: "#ecfaef",
+  brandSubtleForeground: "#00562a",
+  pending: "#f1f5f9",
+  pendingBorder: "#94a3b8",
+
   success: "#007a3d",
   successSubtle: "#d3f5db",
   successStrong: "#034621",

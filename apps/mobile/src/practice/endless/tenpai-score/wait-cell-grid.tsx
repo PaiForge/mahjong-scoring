@@ -43,14 +43,14 @@ type CellState = "answered" | "answering" | "joinable" | "unanswered";
 /**
  * マスの枠と背景（web の `CELL_CLASSES`）
  *
- * 回答済みが緑（決めた面）、回答中が琥珀（今触っている面。枠の内側に
+ * 回答済みが墨（決めた面。答え合わせ前なので正解の緑にしない）、回答中が琥珀（今触っている面。枠の内側に
  * `InsetRing` を足して 2px で囲む）。同じ列の未回答は琥珀の破線で「回答中に
  * 加われる」ことを示し、他の列の未回答は灰の破線。
  */
 const CELL_STYLES: Readonly<Record<CellState, ViewStyle>> = {
   answered: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
+    borderColor: colors.selected,
+    backgroundColor: colors.selectedSubtle,
   },
   answering: {
     borderColor: colors.amber500,
@@ -70,7 +70,7 @@ const CELL_STYLES: Readonly<Record<CellState, ViewStyle>> = {
 
 /** 押している間の塗り（web の hover。状態の色相のまま一段濃くする） */
 const CELL_PRESSED_STYLES: Readonly<Record<CellState, ViewStyle>> = {
-  answered: { backgroundColor: colors.primary100 },
+  answered: { backgroundColor: colors.surface200 },
   answering: { backgroundColor: colors.amber100 },
   joinable: { backgroundColor: colors.amber50 },
   unanswered: { backgroundColor: colors.surface100 },

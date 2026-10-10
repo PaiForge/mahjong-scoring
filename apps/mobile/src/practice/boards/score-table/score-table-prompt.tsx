@@ -93,6 +93,6 @@ const styles = StyleSheet.create({
   fuHan: {
     fontSize: 24,
     fontWeight: "700",
-    color: colors.primary600,
+    color: colors.foreground,
   },
 });

@@ -51,7 +51,7 @@ export function VariantStartPanel({
               >
                 {isSelected && (
                   <InsetRing
-                    color={colors.primary500}
+                    color={colors.selected}
                     borderRadius={radius.panel}
                   />
                 )}
@@ -92,12 +92,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   optionSelected: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
+    borderColor: colors.selected,
+    backgroundColor: colors.selectedSubtle,
   },
   optionPressed: {
-    borderColor: colors.primary300,
-    backgroundColor: colors.primary50,
+    borderColor: colors.surface400,
+    backgroundColor: colors.surface50,
   },
   label: {
     fontSize: 15,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     color: colors.surface800,
   },
   labelSelected: {
-    color: colors.primary700,
+    color: colors.foreground,
   },
   hint: {
     fontSize: 13,
