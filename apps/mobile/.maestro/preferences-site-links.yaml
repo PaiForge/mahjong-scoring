@@ -3,6 +3,9 @@
 # プライバシーポリシーを押すと web のページが開く。設定を直接開くと会員限定ゲートが出る
 appId: help.mahjong.score
 ---
+# clearState は Keychain（SecureStore のログイン）を消さない。前のフローのログインが
+# 残るとゲストにならない
+- clearKeychain
 - launchApp:
     clearState: true
 - extendedWaitUntil:
