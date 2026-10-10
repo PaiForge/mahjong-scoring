@@ -28,9 +28,10 @@ import { colors } from "../lib/theme";
  * 設定のアカウントの節
  * アカウント設定
  *
- * ゲストにはログイン・登録の入口を、ログイン中はユーザー名・メール
- * アドレスと、ブロックしたユーザー・ログアウト・退会を出す。ユーザー名を決めていなければ、
- * その設定へ進む行を先頭に置く。
+ * ログイン中のユーザー名・メールアドレスと、ブロックしたユーザー・ログアウト・
+ * 退会を出す。ユーザー名を決めていなければ、その設定へ進む行を先頭に置く。
+ * ゲストには退会を受け付けた知らせ（退会の後にこの画面へ戻る）だけを出す。
+ * ログイン・登録の入口は設定の会員限定ゲート（`MembersOnlyGate`）が持つ。
  *
  * ログインを出せないビルド（接続先が無い）と、保存したログイン状態を
  * 読んでいる間は節ごと出さない。
@@ -46,11 +47,12 @@ export function AccountSection({
   const t = useTranslations("settings.account");
   const { status } = useAuth();
   if (status === "unavailable" || status === "loading") return null;
+  if (status === "signedOut") return <DeletionNoticePanel />;
   return (
     <View style={style}>
       <SectionTitle>{t("sectionTitle")}</SectionTitle>
       <DeletionNoticePanel />
-      {status === "signedOut" ? <GuestAccount /> : <SignedInAccount />}
+      <SignedInAccount />
     </View>
   );
 }
@@ -72,21 +74,6 @@ function DeletionNoticePanel() {
         {tAccount("dismissNotice")}
       </TextLink>
     </View>
-  );
-}
-
-/** ゲスト: ログイン・登録の入口 */
-function GuestAccount() {
-  const t = useTranslations("settings.account");
-  const router = useRouter();
-  return (
-    <>
-      <Text style={styles.lead}>{t("lead")}</Text>
-      <LinkRowList>
-        <LinkRow title={t("signIn")} onPress={() => router.push("/sign-in")} />
-        <LinkRow title={t("signUp")} onPress={() => router.push("/sign-up")} />
-      </LinkRowList>
-    </>
   );
 }
 
@@ -190,11 +177,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     color: colors.surface800,
-  },
-  lead: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.surface700,
   },
   failed: {
     alignItems: "flex-start",
