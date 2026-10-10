@@ -31,6 +31,8 @@ export function ToggleGroup<T extends string>({
       {options.map((opt) => (
         <button
           key={opt.value}
+          type="button"
+          aria-pressed={selected === opt.value}
           onClick={() => onChange(opt.value)}
           className={toggleItemClasses(selected === opt.value)}
         >

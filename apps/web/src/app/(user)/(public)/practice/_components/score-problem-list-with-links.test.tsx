@@ -43,7 +43,7 @@ describe("ScoreProblemListWithLinks", () => {
     );
   });
 
-  it("符の内訳を持つ問題は、詳細に閉じた符の内訳を出す", () => {
+  it("符の内訳を持つ問題は、詳細の閉じた内訳から符の内訳を開ける", () => {
     render(
       <ScoreProblemListWithLinks
         results={[
@@ -55,8 +55,31 @@ describe("ScoreProblemListWithLinks", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
 
-    const toggle = screen.getByRole("button", { name: "breakdownTitle" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(toggle);
+    expect(screen.getByText("副底")).toBeDefined();
+  });
+
+  it("内訳は答え合わせの後に置く（開いても正解と回答が押し出されない）", () => {
+    render(
+      <ScoreProblemListWithLinks
+        results={[
+          makeScoreQuestionResult({ fu: 40, question: SNAPSHOT_WITH_FU }),
+        ]}
+        translationNamespace="fuScoreExamChallenge"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
+
+    const correctAnswer = screen.getByRole("button", { name: /1000/ });
+    const toggle = screen.getByRole("button", { name: "toggle" });
+    expect(
+      correctAnswer.compareDocumentPosition(toggle) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it("符の内訳を持たない問題（満貫以上・旧データ）では出さない", () => {
@@ -69,6 +92,10 @@ describe("ScoreProblemListWithLinks", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
 
-    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
+    // 翻数の内訳はあっても、符の内訳は切り替えに並ばない
+    const toggle = screen.queryByRole("button", { name: "toggle" });
+    if (toggle) fireEvent.click(toggle);
+    expect(screen.queryByRole("button", { name: "fuTab" })).toBeNull();
+    expect(screen.queryByText("副底")).toBeNull();
   });
 });

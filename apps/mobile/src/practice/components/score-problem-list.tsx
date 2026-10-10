@@ -19,10 +19,9 @@ import { useFuHanOrder } from "../../hooks/use-display-settings-store";
 import { linkStyles } from "../../lib/link-styles";
 import { ScoreTableModal } from "../endless/agari-score/score-table-modal";
 import { AnswerComparison } from "./answer-comparison";
-import { FuBreakdown } from "./fu-breakdown";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { QuestionDisplay } from "./question-display";
-import { YakuBreakdown } from "./yaku-breakdown";
+import { ScoreBreakdownPanel } from "./score-breakdown-panel";
 
 interface ScoreProblemListProps {
   readonly results: readonly ScoreQuestionResult[];
@@ -51,10 +50,11 @@ interface ScoreProblemListProps {
  * ユーザー回答の詳細を確認できる。出題スナップショットが保存されている
  * 場合は出題時と同じ手牌表示も再現する。
  *
- * 詳細は「手牌 → 面子分解 → 符の内訳（符の根拠）→ 翻数の内訳（翻の根拠）→
- * 答え合わせ」の順。符の内訳は満貫未満の問題だけが持つ（満貫以上は符が点数に
- * 効かない）。符と翻数の内訳は既定で閉じる（問われているのは点数で、開いた
- * ままだと行数だけ答え合わせが下へ流れる）。
+ * 詳細は「手牌 → 面子分解 → 答え合わせ → 符・翻数の内訳」の順。内訳を答え
+ * 合わせの後に置くのは、開いても正解と自分の回答が内訳の下へ押し出されない
+ * ようにするため（web と同じ）。符の内訳は満貫未満の問題だけが持つ（満貫以上は
+ * 符が点数に効かない）。2 つは 1 つの入口から切り替え（{@link ScoreBreakdownPanel}）、
+ * 既定で閉じる。
  *
  * 正解の点数は押すとそのセルをハイライトした点数早見表を開く（web の
  * `ScoreProblemListWithLinks`）。
@@ -97,26 +97,6 @@ export function ScoreProblemList({
                   context={question}
                 />
               )}
-              {/* 符の内訳。満貫以上の問題と保存を始める前の旧データには無い */}
-              {fuDetails !== undefined && result.fu !== undefined && (
-                <FuBreakdown
-                  details={fuDetails}
-                  answer={result.fu}
-                  translationNamespace="challenge.fuBreakdown"
-                />
-              )}
-              {/* 役の内訳。保存を始める前の旧データには無いため任意 */}
-              {yakuDetails !== undefined && (
-                <YakuBreakdown
-                  yakuDetails={yakuDetails}
-                  note={buildYakumanCapNote(
-                    yakuDetails,
-                    result.yakumanMultiplier,
-                    (key, values) => tBreakdown(key, values),
-                  )}
-                />
-              )}
-
               <AnswerComparison
                 translationNamespace={translationNamespace}
                 outcome={result.outcome}
@@ -145,6 +125,21 @@ export function ScoreProblemList({
                     ? undefined
                     : formatAnswer(result.userAnswer, translate)
                 }
+              />
+              {/* 符と翻数の内訳。符は満貫以上の問題に無く、どちらも保存を
+                  始める前の旧データには無い */}
+              <ScoreBreakdownPanel
+                fu={
+                  fuDetails !== undefined && result.fu !== undefined
+                    ? { details: fuDetails, answer: result.fu }
+                    : undefined
+                }
+                yakuDetails={yakuDetails}
+                yakuNote={buildYakumanCapNote(
+                  yakuDetails,
+                  result.yakumanMultiplier,
+                  (key, values) => tBreakdown(key, values),
+                )}
               />
             </View>
           );

@@ -64,7 +64,7 @@ export function NoYakuResultDisplay({
 
   return (
     <View style={styles.root}>
-      <ResultTableFrame>
+      <ResultTableFrame embedded>
         {requireYaku && (
           <ResultSection first>
             <ResultRow
@@ -124,8 +124,9 @@ export function NoYakuResultDisplay({
             correct={notApplicable}
           />
         </ResultSection>
-        <ResultSection>
+        <ResultSection final>
           <ResultRow
+            final
             label={tScore("form.labels.score")}
             answer={
               scoreAnswer ? (

@@ -213,6 +213,7 @@ export function TenpaiScoreResult({
                   requireYaku={requireYaku}
                   exactHan={exactHan}
                   requireFuForMangan={requireFuForMangan}
+                  embedded
                 />
                 <TehaiMentsuBreakdown
                   tehai={focusedQuestion.tehai}

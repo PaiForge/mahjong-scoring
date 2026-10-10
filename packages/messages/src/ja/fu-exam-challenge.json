@@ -8,6 +8,7 @@
   "breakdownTitle": "符の内訳",
   "breakdownTotal": "合計",
   "roundUp": "切り上げ",
+  "roundedUp": "切り上げ後",
   "howToPlay": {
     "title": "問題方式",
     "lead": "このような問題が出題されます。副底・和了符・面子符・雀頭符・待ち符をすべて足し、10符単位に切り上げた符を答えます。"

@@ -26,6 +26,11 @@ interface DetailTableProps {
   readonly rows: readonly DetailTableRow[];
   /** 実線で締める最終行（内訳の合計）。持たない表もある */
   readonly total?: Omit<DetailTableRow, "tone">;
+  /**
+   * 合計の後に出す最終的な値（符の「切り上げ後 40符」）。表の結論なので、
+   * 値を表の中でいちばん大きく濃くする
+   */
+  readonly conclusion?: Omit<DetailTableRow, "tone">;
   /** 合計の後に効く丸め（切り上げ・役満止まり）の補足 */
   readonly note?: ReactNode;
 }
@@ -51,8 +56,20 @@ interface DetailTableProps {
  *
  * 値は右端で揃える（符・翻・点数は桁が揃う方が読みやすい）。役のチップの
  * ように自分で flex を張る値は、セルいっぱいに広がってそのまま左から並ぶ。
+ *
+ * 合計がそのまま答えにならないとき（符の切り上げ）は `conclusion` で答えを
+ * 合計の下に据える。小さな補足（「32符 → 40符（切り上げ）」）では、内訳の
+ * 合計 32符 と答えの 40符 のどちらが正解なのかが一目で読めず、切り上げを
+ * 忘れた人ほど 32符 を答えだと読む。強調は結論の 1 か所だけにし、行ごとの
+ * 色分けやカードは足さない（表の丈を増やさない）。
  */
-export function DetailTable({ title, rows, total, note }: DetailTableProps) {
+export function DetailTable({
+  title,
+  rows,
+  total,
+  conclusion,
+  note,
+}: DetailTableProps) {
   return (
     <div className="space-y-1.5">
       {title !== undefined && (
@@ -89,6 +106,15 @@ export function DetailTable({ title, rows, total, note }: DetailTableProps) {
           )}
         </tbody>
       </table>
+
+      {conclusion !== undefined && (
+        <p className="flex items-baseline justify-end gap-2 text-xs text-surface-500">
+          {conclusion.label}
+          <span className="text-base font-bold text-surface-900">
+            {conclusion.value}
+          </span>
+        </p>
+      )}
 
       {note !== undefined && (
         <p className="text-right text-xs text-surface-500">{note}</p>

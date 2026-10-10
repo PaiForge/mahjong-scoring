@@ -1,0 +1,55 @@
+# ゲストで和了形の点数計算の答え合わせを撮る。「わからない」で正解を開くと、
+# 白い面の表（正解の列に薄い帯・点数の行は区切りと余白で分ける）の下に
+# 「内訳を確認」の行が 1 つだけ出る。開くと符 / 翻数の切り替えと内訳が続き、
+# 切り替えで内訳を行き来できる。符の内訳を持つ問題（満貫未満）が出るまで次へ送る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "han-select"
+    timeout: 15000
+- repeat:
+    times: 10
+    while:
+      notVisible:
+        id: "result-breakdown-tab-fu"
+    commands:
+      - tapOn:
+          text: "次の問題へ"
+          optional: true
+      - scrollUntilVisible:
+          element: "わからない"
+          direction: DOWN
+      - tapOn: "わからない"
+      - scrollUntilVisible:
+          element:
+            id: "result-breakdown"
+          direction: DOWN
+      - tapOn:
+          id: "result-breakdown"
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "result-breakdown-tab-fu"
+          optional: true
+- scrollUntilVisible:
+    element: "あなたの回答"
+    direction: UP
+- takeScreenshot: result-breakdown-fu
+- tapOn:
+    id: "result-breakdown-tab-han"
+- waitForAnimationToEnd
+- takeScreenshot: result-breakdown-han
+# 閉じると入口の 1 行だけに戻る
+- tapOn:
+    id: "result-breakdown"
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: "result-breakdown-tab-fu"
+- takeScreenshot: result-breakdown-closed

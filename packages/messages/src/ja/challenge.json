@@ -62,10 +62,16 @@
     "doubleYakuman": "ダブル役満",
     "cappedNote": "13翻以上は役満"
   },
+  "scoreBreakdown": {
+    "toggle": "内訳を確認",
+    "fuTab": "符 {value}符",
+    "hanTab": "翻数 {count}翻"
+  },
   "fuBreakdown": {
     "breakdownTitle": "符の内訳",
     "breakdownTotal": "合計",
     "roundUp": "切り上げ",
+    "roundedUp": "切り上げ後",
     "fuSuffix": "{value}符"
   },
   "connectionError": "通信に失敗しました。もう一度開始してください。",

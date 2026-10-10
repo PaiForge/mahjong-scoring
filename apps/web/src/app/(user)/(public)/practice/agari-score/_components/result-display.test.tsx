@@ -144,35 +144,93 @@ describe("ResultDisplay の無回答", () => {
 });
 
 describe("ResultDisplay の内訳", () => {
-  it("翻数の内訳は他の練習と同じ器で閉じた状態から始まり、見出しを押すと開く", () => {
-    renderResult();
+  // 跳満の question では符の行が出ないので、符を持つ 4 翻 40 符にする
+  const fuQuestion = {
+    ...question,
+    answer: { ...question.answer, han: 4 },
+    fuDetails: [
+      { reason: "副底", fu: 20 },
+      { reason: "門前ロン", fu: 10 },
+      { reason: "カンチャン待ち", fu: 2 },
+    ],
+  } as unknown as ScoreQuestion;
 
-    const toggle = screen.getByRole("button", {
-      name: "result.details.yakuTitle",
-    });
-    expect(toggle.getAttribute("aria-expanded")).toBe("false");
+  function renderWith(judgement: Partial<JudgementResult>) {
+    return render(
+      <ResultDisplay
+        question={fuQuestion}
+        userAnswer={userAnswer}
+        result={{ ...result, ...judgement }}
+      />,
+    );
+  }
+
+  const toggle = () =>
+    screen.getByRole("button", { name: "result.details.toggle" });
+
+  it("入口 1 つで閉じた状態から始まり、押すと開く", () => {
+    renderWith({});
+
+    expect(toggle().getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByText("result.details.total")).toBeNull();
+    // 翻数・符の内訳を別々の入口にしない
+    expect(
+      screen.queryByRole("button", { name: /yakuTitle|fuTitle/ }),
+    ).toBeNull();
 
-    fireEvent.click(toggle);
+    fireEvent.click(toggle());
 
-    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(toggle().getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByText("result.details.total")).toBeTruthy();
   });
 
-  it("項目ごとに tbody を分け、内訳の行は翻数の行と同じ tbody に入る（罫線が項目の境目にだけ引かれる）", () => {
-    renderResult();
+  it("翻数だけ間違えたときは、開くと翻数の内訳を選ぶ", () => {
+    renderWith({ isHanCorrect: false, isFuCorrect: true });
+    fireEvent.click(toggle());
 
-    const tbodyOf = (text: string) => screen.getByText(text).closest("tbody");
-    const yaku = tbodyOf("form.labels.yaku");
-    const han = tbodyOf("form.labels.han");
-    const score = tbodyOf("form.labels.score");
-    const hanDetail = screen
-      .getByRole("button", { name: "result.details.yakuTitle" })
-      .closest("tbody");
+    expect(screen.getByText("三暗刻")).toBeTruthy();
+    expect(screen.queryByText("副底")).toBeNull();
+  });
 
-    expect(han).not.toBeNull();
-    expect(hanDetail).toBe(han);
-    expect(yaku).not.toBe(han);
-    expect(score).not.toBe(han);
+  it("符だけ間違えたときは符の内訳を選び、切り上げ後の符を最後に出す", () => {
+    renderWith({ isHanCorrect: true, isFuCorrect: false });
+    fireEvent.click(toggle());
+
+    expect(screen.getByText("副底")).toBeTruthy();
+    const roundedUp = screen.getByText("result.details.roundedUp");
+    expect(roundedUp.textContent).toContain("40form.options.fuSuffix");
+  });
+
+  it("切り替えで翻数と符の内訳を行き来できる", () => {
+    renderWith({ isHanCorrect: false, isFuCorrect: true });
+    fireEvent.click(toggle());
+
+    const fuTab = screen.getByRole("button", { name: /^form\.labels\.fu / });
+    fireEvent.click(fuTab);
+
+    expect(fuTab.getAttribute("aria-pressed")).toBe("true");
+    expect(screen.getByText("副底")).toBeTruthy();
+    expect(screen.queryByText("三暗刻")).toBeNull();
+  });
+
+  it("内訳が 1 種類なら切り替えを出さない", () => {
+    // 符の内訳を持たない出題（翻数の内訳だけ）
+    render(
+      <ResultDisplay
+        question={{ ...question, fuDetails: undefined }}
+        userAnswer={userAnswer}
+        result={result}
+      />,
+    );
+    fireEvent.click(toggle());
+
+    expect(screen.queryByRole("button", { pressed: true })).toBeNull();
+    expect(screen.getByText("result.details.total")).toBeTruthy();
+  });
+
+  it("内訳は表の外に置き、翻数・符・点数の行を分断しない", () => {
+    renderWith({});
+
+    expect(toggle().closest("table")).toBeNull();
   });
 });

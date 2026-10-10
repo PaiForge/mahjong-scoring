@@ -21,6 +21,14 @@ interface DetailTableProps {
   readonly rows: readonly DetailTableRow[];
   /** 合計の行（一段濃い灰の線で区切る） */
   readonly total?: Omit<DetailTableRow, "tone">;
+  /**
+   * 合計の後に出す最終的な値（符の「切り上げ後 40符」）。表の結論なので、
+   * 値を表の中でいちばん大きく濃くする（web の `DetailTable` と同じ）
+   */
+  readonly conclusion?: {
+    readonly label: string;
+    readonly value: string;
+  };
   readonly note?: string;
 }
 
@@ -57,8 +65,18 @@ function Cell({
  * 内訳表
  *
  * 答え合わせ（正解とあなたの回答）や符・翻の内訳に使う。
+ *
+ * 合計がそのまま答えにならないとき（符の切り上げ）は `conclusion` で答えを
+ * 合計の下に据える。小さな補足（「32符 → 40符（切り上げ）」）では、内訳の
+ * 合計と答えのどちらが正解なのかが一目で読めない。強調は結論の 1 か所だけ。
  */
-export function DetailTable({ title, rows, total, note }: DetailTableProps) {
+export function DetailTable({
+  title,
+  rows,
+  total,
+  conclusion,
+  note,
+}: DetailTableProps) {
   return (
     <View style={styles.root}>
       {title !== undefined && <Text style={styles.title}>{title}</Text>}
@@ -98,6 +116,12 @@ export function DetailTable({ title, rows, total, note }: DetailTableProps) {
           </View>
         )}
       </View>
+      {conclusion !== undefined && (
+        <View style={styles.conclusion}>
+          <Text style={styles.conclusionLabel}>{conclusion.label}</Text>
+          <Text style={styles.conclusionValue}>{conclusion.value}</Text>
+        </View>
+      )}
       {note !== undefined && <Text style={styles.note}>{note}</Text>}
     </View>
   );
@@ -140,6 +164,21 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: "700",
+  },
+  conclusion: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  conclusionLabel: {
+    fontSize: 12,
+    color: colors.surface500,
+  },
+  conclusionValue: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: colors.surface900,
   },
   note: {
     textAlign: "right",

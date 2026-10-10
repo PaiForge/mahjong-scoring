@@ -42,7 +42,26 @@ interface YakuBreakdownProps {
  *
  * 常に既定で閉じる（理由は {@link CollapsibleDetail}。符の内訳も同じ）。
  */
-export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
+export function YakuBreakdown(props: YakuBreakdownProps) {
+  const t = useTranslations("challenge.yakuBreakdown");
+
+  if (props.yakuDetails.length === 0) return undefined;
+
+  return (
+    <CollapsibleDetail title={t("title")}>
+      <YakuBreakdownTable {...props} />
+    </CollapsibleDetail>
+  );
+}
+
+/**
+ * 翻数の内訳の表（開閉の器なし）
+ * 翻内訳表
+ *
+ * 符の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
+ * 置く側が持つので表だけを使う。
+ */
+export function YakuBreakdownTable({ yakuDetails, note }: YakuBreakdownProps) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();
@@ -60,28 +79,26 @@ export function YakuBreakdown({ yakuDetails, note }: YakuBreakdownProps) {
 
   return (
     <>
-      <CollapsibleDetail title={t("title")}>
-        <DetailTable
-          // 見出しは開閉ボタンが持つため、表側の見出しは出さない
-          rows={ordered.map((detail) => ({
-            label: canOpenYakuCheatsheet(detail.name) ? (
-              <button
-                type="button"
-                onClick={() => openYakuCheatsheet(detail.name)}
-                title={tChallenge("openInYakuList")}
-                className={TEXT_LINK_CLASSES}
-              >
-                {detail.name}
-              </button>
-            ) : (
-              detail.name
-            ),
-            value: t("han", { count: detail.han }),
-          }))}
-          total={{ label: t("total"), value: t("han", { count: total }) }}
-          note={note}
-        />
-      </CollapsibleDetail>
+      <DetailTable
+        // 見出しは開閉の入口が持つため、表側の見出しは出さない
+        rows={ordered.map((detail) => ({
+          label: canOpenYakuCheatsheet(detail.name) ? (
+            <button
+              type="button"
+              onClick={() => openYakuCheatsheet(detail.name)}
+              title={tChallenge("openInYakuList")}
+              className={TEXT_LINK_CLASSES}
+            >
+              {detail.name}
+            </button>
+          ) : (
+            detail.name
+          ),
+          value: t("han", { count: detail.han }),
+        }))}
+        total={{ label: t("total"), value: t("han", { count: total }) }}
+        note={note}
+      />
       {yakuCheatsheetModal}
     </>
   );
