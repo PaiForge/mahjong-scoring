@@ -28,6 +28,7 @@ import {
   type MobileProfileResponse,
 } from "@mahjong-scoring/features/profile/mobile-api";
 import type { ProfileInput } from "@mahjong-scoring/features/profile/validation";
+import { File } from "expo-file-system";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
@@ -167,12 +168,12 @@ export async function uploadAvatar(
   jpegUri: string,
 ): Promise<MobileAvatarResponse | { readonly error: AvatarApiFailure }> {
   const body = new FormData();
-  // React Native の FormData はファイルを { uri, name, type } で受け、
-  // 送るときに端末のファイルを読む（web の File の代わり）。型は DOM の
-  // FormData（Blob か文字列）しか見えていないので、そこへ合わせる
-  const file = { uri: jpegUri, name: "avatar.jpg", type: "image/jpeg" };
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- React Native の FormData が受けるファイルの形を DOM の型へ渡す（上のコメント参照）
-  body.append("file", file as unknown as Blob);
+  // React Native の FormData の { uri, name, type } は使えない。global の
+  // fetch は Expo の実装（expo/fetch）に置き換わっていて、その FormData は
+  // Blob（か bytes() を持つもの）しか送れず、uri の部品は送る前に例外になる
+  // （2026-10 に Release ビルドで実測）。expo-file-system の File は Blob を
+  // 実装し、名前と拡張子から決まる形式（image/jpeg）を部品のヘッダに載せる
+  body.append("file", new File(jpegUri));
   const response = await callMobileApi(MOBILE_PROFILE_AVATAR_API_PATH, {
     method: "POST",
     body,
