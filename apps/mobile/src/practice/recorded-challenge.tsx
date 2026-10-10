@@ -406,11 +406,17 @@ function RecordedSession({
     }
   }, [userId, attemptId, resync, waitForReconnect]);
 
-  /** 一時停止の同期を始める（走っていれば、その処理が最新の状態まで送る） */
+  /**
+   * 一時停止の同期を始める（走っていれば、その処理が最新の状態まで送る）
+   *
+   * 画面の操作と時計を止める（`resuming`）のは再開を送るときだけ。止める要求は
+   * 届くのを待たずに画面を止めており、送っている間に押せなくする理由が無い
+   * （中止の確認を開いた瞬間に画面全体を押せなくすることにもなる）。
+   */
   const startPauseSync = useCallback(
     function start(): void {
+      if (!wantPaused.current) setResuming(true);
       if (pauseSync.current) return;
-      setResuming(true);
       pauseSync.current = syncPause().finally(() => {
         pauseSync.current = undefined;
         setResuming(false);
@@ -540,8 +546,12 @@ function RecordedSession({
           registerUnanswered,
         }}
       >
+        {/* 平坦化させない。押せなくする間だけ実体の view ができると、中の
+            ネイティブの view が付け替えられ、開いたばかりの中止の確認
+            （Modal）が iOS で表示に失敗して、押せない画面が残る */}
         <View
           style={styles.fill}
+          collapsable={false}
           pointerEvents={grading || resuming ? "none" : "auto"}
         >
           {children}
