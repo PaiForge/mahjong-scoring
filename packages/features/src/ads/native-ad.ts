@@ -66,6 +66,7 @@ export const MOBILE_AD_SLOTS = {
   practiceIntro: "mobile-practice-intro-native-ad",
   practiceResult: "mobile-practice-result-native-ad",
   examIntro: "mobile-exam-intro-native-ad",
+  examResult: "mobile-exam-result-native-ad",
   rankDetail: "mobile-rank-detail-native-ad",
   learnIndex: "mobile-learn-index-native-ad",
   learnChapter: "mobile-learn-chapter-native-ad",

@@ -81,4 +81,16 @@ describe("parseMobileFinishResponse", () => {
       }),
     ).toBeUndefined();
   });
+
+  it("昇級試験の応答は付与した段級位を読み、知らない段級位は落とす", () => {
+    expect(
+      parseMobileFinishResponse({ grantedRanks: ["kyu-4", "future-rank"] }),
+    ).toEqual({ grantedRanks: ["kyu-4"] });
+  });
+
+  it("不合格の試験（付与なし）も読む", () => {
+    expect(parseMobileFinishResponse({ grantedRanks: [] })).toEqual({
+      grantedRanks: [],
+    });
+  });
 });

@@ -26,6 +26,7 @@ import { useRecordedResults } from "@mahjong-scoring/features/challenge/use-reco
 import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
 import { challengeViewSettings } from "@mahjong-scoring/features/practice/challenge-view-settings";
 import { submitChallengeFinish } from "../records/account-sync";
+import { ExamStartGate, useOffersRealExam } from "./exam/exam-start-gate";
 import {
   RecordedChallengeProvider,
   useRecordedChallenge,
@@ -66,6 +67,9 @@ function useScrollToTop() {
  * 記録せずに結果画面で今回の成績を見せ、「チャレンジを終えた練習」だけを
  * 端末のゲストの記録に残す。ログイン中のチャレンジはゲストの記録に書かない
  * （サーバーの記録が「練習した」を持つ）。
+ *
+ * 昇級試験（`kind === "exam"`）は記録付きでしか始めない。確定の応答が
+ * 合否と付与した段級位を持ち、結果画面がそれを読む。
  */
 export function createChallengePlayView<TResult = never>(
   config: ChallengePlayViewConfig<TResult>,
@@ -180,7 +184,11 @@ export function createChallengePlayView<TResult = never>(
   ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
   function RecordedPlayView(props: PracticeViewProps) {
     return (
-      <RecordedChallengeProvider slug={slug} variant={props.variant}>
+      <RecordedChallengeProvider
+        slug={slug}
+        variant={props.variant}
+        requireRecording={kind === "exam"}
+      >
         <ChallengePlayView {...props} />
       </RecordedChallengeProvider>
     );
@@ -218,6 +226,7 @@ export function createTrainingView(
   function TrainingView(props: PracticeViewProps) {
     const t = useTranslations(namespace);
     const tExam = useTranslations("examTraining");
+    const offersRealExam = useOffersRealExam();
     const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
     const { scrollRef, scrollToTop } = useScrollToTop();
     const session = useTrainingSession({
@@ -248,6 +257,15 @@ export function createTrainingView(
         onProceed={session.proceed}
         hasSubmitButton={hasSubmitButton}
         help={help}
+        examStart={
+          kind === "exam" && offersRealExam ? (
+            <ExamStartGate
+              slug={slug}
+              startLabel={tExam("realExamButton")}
+              replace
+            />
+          ) : undefined
+        }
         scrollRef={scrollRef}
       >
         <TrainingModeProvider value={trainingMode}>

@@ -10,6 +10,7 @@ const {
   mockStatus,
   mockReveal,
   mockExp,
+  mockRankSlugs,
 } = vi.hoisted(() => ({
   mockAuthorize: vi.fn(),
   mockBegin: vi.fn(),
@@ -19,6 +20,7 @@ const {
   mockStatus: vi.fn(),
   mockReveal: vi.fn(),
   mockExp: vi.fn(),
+  mockRankSlugs: vi.fn(),
 }));
 
 vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
@@ -33,6 +35,7 @@ vi.mock("../challenge/attempts", () => ({
 vi.mock("../db/save-exp", () => ({
   getExpInfoByChallengeResultId: mockExp,
 }));
+vi.mock("../db/rank-queries", () => ({ getUserRankSlugs: mockRankSlugs }));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
 
 import {
@@ -127,13 +130,44 @@ describe("handleBeginChallenge", () => {
     expect(response.status).toBe(400);
   });
 
-  it("昇級試験は始めない（アプリに本番の画面が無い）", async () => {
+  it("昇級試験も同じ入口で始める", async () => {
+    mockBegin.mockResolvedValue({ id: ATTEMPT_ID, sequence: 0, question: {} });
+
     const response = await handleBeginChallenge(
       post({ ...body, menuType: "fu_exam" }),
     );
 
-    expect(response.status).toBe(422);
-    expect(mockBegin).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(mockBegin).toHaveBeenCalledWith(
+      USER_ID,
+      "fu_exam",
+      "default",
+      { renfonpaiAs4Fu: false },
+      ATTEMPT_ID,
+    );
+  });
+
+  it("受験資格の無い昇級試験は 403 examLocked", async () => {
+    mockBegin.mockResolvedValue(undefined);
+    mockStatus.mockResolvedValue(undefined);
+    // 5級（満貫）を持たずに 4級（符）の試験を受けようとした
+    mockRankSlugs.mockResolvedValue([]);
+
+    const response = await handleBeginChallenge(
+      post({ ...body, menuType: "fu_exam" }),
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "examLocked" });
+  });
+
+  it("練習なら受験資格を読まない", async () => {
+    mockBegin.mockResolvedValue(undefined);
+    mockStatus.mockResolvedValue(undefined);
+
+    await handleBeginChallenge(post(body));
+
+    expect(mockRankSlugs).not.toHaveBeenCalled();
   });
 
   it("同じ ID の行があるのに返らなければ 409 conflict", async () => {
@@ -308,6 +342,34 @@ describe("handleFinishChallenge", () => {
     const response = await handleFinishChallenge(request(), ATTEMPT_ID);
 
     expect(response.status).toBe(422);
+  });
+
+  it("昇級試験は合否を判定し、付与した段級位を返す", async () => {
+    mockFinish
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ grantedRanks: ["kyu-5"] });
+    mockStatus.mockResolvedValue({
+      ...STATUS,
+      menuType: "fu_exam",
+      finished: true,
+    });
+
+    const response = await handleFinishChallenge(request(), ATTEMPT_ID);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ grantedRanks: ["kyu-5"] });
+    expect(mockFinish).toHaveBeenLastCalledWith(USER_ID, ATTEMPT_ID, true);
+    expect(mockExp).not.toHaveBeenCalled();
+  });
+
+  it("まだ終わっていない昇級試験は 409 notFinished", async () => {
+    mockFinish.mockResolvedValue(undefined);
+    mockStatus.mockResolvedValue({ ...STATUS, menuType: "fu_exam" });
+
+    const response = await handleFinishChallenge(request(), ATTEMPT_ID);
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "notFinished" });
   });
 
   it("DB の失敗は 500（送り直してよい）", async () => {

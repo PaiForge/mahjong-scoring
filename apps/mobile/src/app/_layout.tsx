@@ -46,6 +46,15 @@ export default function RootLayout() {
                 name="practice/[slug]/result"
                 options={{ gestureEnabled: false }}
               />
+              {/* 昇級試験の本番と結果も練習と同じ理由で切る */}
+              <Stack.Screen
+                name="exam/[exam]/play"
+                options={{ gestureEnabled: false }}
+              />
+              <Stack.Screen
+                name="exam/[exam]/result"
+                options={{ gestureEnabled: false }}
+              />
             </Stack>
           </TermSheetProvider>
         </TileImageProvider>

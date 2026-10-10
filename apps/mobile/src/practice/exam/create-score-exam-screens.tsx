@@ -33,9 +33,8 @@ interface ScoreExamScreensConfig {
  * `-result-view.tsx` に当たるものを 1 か所で組む。級ごとに違うのは盤面と
  * 見本と翻訳名前空間だけ。
  *
- * モバイルが開くのは模試（`Training`）だけ。本番（`Play`）と結果の一覧
- * （`ProblemList`）は `PracticeScreens` の契約として組んでおくが、本番の
- * 試験は合否と段級位の付与にアカウントが要るため、どの画面からもリンクしない。
+ * 本番（`Play`）は記録付きでしか始めない（ゲスト等は説明画面へ戻る）。
+ * 結果の一覧（`ProblemList`）は試験の結果画面が使う。
  */
 export function createScoreExamScreens({
   slug,

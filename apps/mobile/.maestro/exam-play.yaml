@@ -1,0 +1,46 @@
+# 昇級試験の本番（bob = 5級）: 次に取る 4級（符）の試験を説明から始め、最初の選択肢を
+# 押し続けて終わらせる（ほぼ必ず誤答で終わる）。結果に合否の帯が出て、判定の送信が
+# 済む（判定中の 1 行が消える）。手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- openLink: "mahjong-scoring://exam/fu"
+- scrollUntilVisible:
+    element:
+      id: "start-exam"
+    direction: DOWN
+- takeScreenshot: exam-intro-signed-in
+- tapOn:
+    id: "start-exam"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- repeat:
+    while:
+      notVisible: "結果"
+    times: 60
+    commands:
+      - tapOn:
+          id: "choice-0"
+          optional: true
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "exam-verdict"
+    timeout: 70000
+- extendedWaitUntil:
+    notVisible:
+      id: "grading-status"
+    timeout: 15000
+- takeScreenshot: exam-result

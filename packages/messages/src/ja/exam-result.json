@@ -12,5 +12,10 @@
   "requiredPaceValue": "{seconds} 秒/問",
   "endedByGoal": "合格ラインに到達して終了",
   "endedByMistake": "{n} 問目の誤答で終了",
-  "endedByTime": "時間切れで終了"
+  "endedByTime": "時間切れで終了",
+  "status": {
+    "sending": "合否を判定しています…",
+    "queued": "合否の判定を送れませんでした。次に通信できたときに送ります（合格なら、そのとき段級位が付きます）。",
+    "notRecorded": "この試験は判定されませんでした。"
+  }
 }

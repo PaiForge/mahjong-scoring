@@ -52,15 +52,7 @@ export function PracticeStartCta({
         <Text style={styles.hint}>{labels.challengeHint}</Text>
       </View>
 
-      <View style={styles.divider}>
-        <View style={styles.line}>
-          <Divider />
-        </View>
-        <Text style={styles.or}>{labels.orDivider}</Text>
-        <View style={styles.line}>
-          <Divider />
-        </View>
-      </View>
+      <StartCtaDivider label={labels.orDivider} />
 
       <View style={styles.block}>
         <Button
@@ -76,6 +68,23 @@ export function PracticeStartCta({
           {labels.training}
         </Button>
         <Text style={styles.hint}>{labels.trainingHint}</Text>
+      </View>
+    </View>
+  );
+}
+
+/**
+ * 開始導線の 2 つのブロックを分ける「または」の区切り（web の `PracticeStartCtaDivider`）
+ */
+export function StartCtaDivider({ label }: { readonly label: string }) {
+  return (
+    <View style={styles.divider}>
+      <View style={styles.line}>
+        <Divider />
+      </View>
+      <Text style={styles.or}>{label}</Text>
+      <View style={styles.line}>
+        <Divider />
       </View>
     </View>
   );

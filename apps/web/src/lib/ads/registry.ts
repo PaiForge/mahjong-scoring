@@ -246,6 +246,11 @@ export const AD_SLOTS = {
     kind: "native_row",
     surfaces: [{ platform: "mobile", route: "/exam/<級>" }],
   },
+  [MOBILE_AD_SLOTS.examResult]: {
+    webCounterpart: "exam-result-native-ad",
+    kind: "native_card",
+    surfaces: [{ platform: "mobile", route: "/exam/<級>/result" }],
+  },
   [MOBILE_AD_SLOTS.rankDetail]: {
     webCounterpart: "rank-detail-native-ad",
     kind: "native_row",
