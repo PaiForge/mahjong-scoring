@@ -9,9 +9,13 @@
  * どちらでユーザー名を決めてもよい。
  * @flow 設定のアカウント → 登録 → 確認メールの案内 →（メールのリンク）→ ログイン
  * （Apple: 設定のアカウント → 登録 → Apple のシート → ユーザー名の設定）
+ *
+ * 利用規約への同意は、登録の手段（Apple・メール）より上に置いた一文で取る
+ * （web の登録画面と同じ）。規約とプライバシーポリシーは設定の「その他」と
+ * 同じく web のページをブラウザで開く。
  */
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
@@ -28,6 +32,8 @@ import { Screen } from "../components/screen";
 import { SectionTitle } from "../components/section-title";
 import { TextField } from "../components/text-field";
 import { TextLink } from "../components/text-link";
+import { SITE_URL } from "../lib/app-site-url";
+import { InlineTextLink } from "../lessons/components/chapter-link";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
@@ -109,6 +115,24 @@ export default function SignUpScreen() {
 
   return (
     <Screen title={t("pageTitle")} back contentStyle={styles.content}>
+      <Text style={styles.consent} testID="sign-up-consent">
+        {t.rich("consent", {
+          terms: (chunks) => (
+            <InlineTextLink
+              onPress={() => void Linking.openURL(`${SITE_URL}/terms`)}
+            >
+              {chunks}
+            </InlineTextLink>
+          ),
+          privacy: (chunks) => (
+            <InlineTextLink
+              onPress={() => void Linking.openURL(`${SITE_URL}/privacy`)}
+            >
+              {chunks}
+            </InlineTextLink>
+          ),
+        })}
+      </Text>
       <AppleSignInSection mode="signUp" />
       <View style={styles.form}>
         <TextField
@@ -223,6 +247,11 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
+  },
+  consent: {
+    fontSize: 15,
+    lineHeight: 23,
+    color: colors.surface700,
   },
   assurance: {
     fontSize: 13,
