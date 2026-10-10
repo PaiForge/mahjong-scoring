@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { findRouteIndexByHref, routePathname } from "./route-pathname";
+import {
+  findRouteIndexByHref,
+  paramsForHref,
+  routePathname,
+} from "./route-pathname";
 
 describe("routePathname", () => {
   it("動的な部分を params で埋め、index を落とす", () => {
@@ -41,5 +45,37 @@ describe("findRouteIndexByHref", () => {
     expect(findRouteIndexByHref(routes, 4, "/practice/machi-fu")).toBe(
       undefined,
     );
+  });
+});
+
+describe("paramsForHref", () => {
+  it("同じ slug で variant が違うときは href の variant に置き換える", () => {
+    expect(
+      paramsForHref(
+        "practice/[slug]/index",
+        { slug: "yaku", variant: "default" },
+        "/practice/yaku?variant=all",
+      ),
+    ).toEqual({ slug: "yaku", variant: "all" });
+  });
+
+  it("href にクエリが無ければクエリの params は落とす（dismissTo と同じ）", () => {
+    expect(
+      paramsForHref(
+        "exam/[exam]/index",
+        { exam: "kyu-4", variant: "x" },
+        "/exam/kyu-4",
+      ),
+    ).toEqual({ exam: "kyu-4" });
+  });
+
+  it("クエリの値を復号する", () => {
+    expect(
+      paramsForHref(
+        "practice/[slug]/index",
+        { slug: "a" },
+        "/practice/a?q=a%20b",
+      ),
+    ).toEqual({ slug: "a", q: "a b" });
   });
 });

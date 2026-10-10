@@ -58,3 +58,48 @@ export function findRouteIndexByHref(
   }
   return undefined;
 }
+
+/**
+ * 履歴の画面へ戻るときに、その画面へ渡し直す params
+ * 戻り先の params
+ *
+ * `router.dismissTo(href)` と同じく、戻り先の params を href の内容で置き換える
+ * （パスの動的な部分はその画面の値のまま、クエリは href のもの）。閉じて戻る
+ * だけだと、href で指定したクエリ（`?variant=` 等）が捨てられ、前の値が残る。
+ *
+ * @param name - 戻り先の画面のルート名
+ * @param params - 戻り先の画面の今の params
+ * @param href - 行き先（クエリ付き）
+ */
+export function paramsForHref(
+  name: string,
+  params: object | undefined,
+  href: string,
+): Record<string, string> {
+  const dynamicKeys = new Set(
+    name
+      .split("/")
+      .map((segment) => /^\[(.+)\]$/u.exec(segment)?.[1])
+      .filter((key) => key !== undefined),
+  );
+  const pathParams = Object.fromEntries(
+    Object.entries(params ?? {}).filter(
+      (entry): entry is [string, string] =>
+        dynamicKeys.has(entry[0]) && typeof entry[1] === "string",
+    ),
+  );
+  const query = href.split("#", 1)[0]?.split("?")[1] ?? "";
+  const queryParams = Object.fromEntries(
+    query
+      .split("&")
+      .filter((pair) => pair !== "")
+      .map((pair) => {
+        const [key = "", value = ""] = pair.split("=");
+        return [
+          decodeURIComponent(key.replaceAll("+", " ")),
+          decodeURIComponent(value.replaceAll("+", " ")),
+        ];
+      }),
+  );
+  return { ...pathParams, ...queryParams };
+}
