@@ -21,7 +21,21 @@ interface BreakdownPanelProps {
   readonly sections: readonly BreakdownPanelSection[];
   /** 開いたときに選ぶ内訳。省略時は先頭 */
   readonly initialKind?: BreakdownKind;
+  /**
+   * 内訳の表を載せる面（既定 `raised`）
+   *
+   * - `raised` — 白地に淡い枠。灰の地（結果一覧のアコーディオンの本文）や
+   *   面を持たない盤面の末尾に置くとき
+   * - `sunken` — 枠なしの淡い灰。白い面（答え合わせの表の枠）の中に置くとき。
+   *   白い枠を入れ子にせず、「比較表」と「その説明」を地の色で分ける
+   */
+  readonly surface?: "raised" | "sunken";
 }
+
+const SURFACE_CLASSES: Readonly<Record<"raised" | "sunken", string>> = {
+  raised: "rounded-panel border border-panel bg-white p-3",
+  sunken: "rounded-panel bg-surface-50 p-3",
+};
 
 /**
  * 翻数・符の内訳をまとめた展開エリア
@@ -46,13 +60,16 @@ interface BreakdownPanelProps {
  *
  * 入口は行全体を押せる 1 行（`min-h-11`）にする。直下に全幅の
  * 「次の問題へ」が続くため、文字の高さだけを当たり判定にすると外れた指が
- * ボタンに吸われる。▶ が開くと回るのは {@link import("@/app/(user)/_components/accordion-card").AccordionCard}
- * と同じ約束。閉じている間は中身を描画しない。
+ * ボタンに吸われる。文言を左、開閉の矢印（⌄、開くと上向き）を右端に置き、
+ * 補助リンクではなく「この答え合わせの続きを開く」行に見せる。開いても
+ * 入口は同じ位置に残り、その下に切り替えと内訳が続く。閉じている間は
+ * 中身を描画しない。
  */
 export function BreakdownPanel({
   title,
   sections,
   initialKind,
+  surface = "raised",
 }: BreakdownPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [chosenKind, setChosenKind] = useState<BreakdownKind | undefined>(
@@ -73,17 +90,21 @@ export function BreakdownPanel({
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
         aria-controls={panelId}
-        className="flex min-h-11 w-full cursor-pointer items-center gap-2 text-left text-sm text-surface-600 transition-colors hover:text-foreground"
+        className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 text-left text-sm text-surface-600 transition-colors hover:text-foreground"
       >
+        {title}
         <svg
-          className={`size-3 shrink-0 text-surface-400 transition-transform ${isOpen ? "rotate-90" : ""}`}
+          className={`size-4 shrink-0 text-surface-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
           viewBox="0 0 24 24"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
           aria-hidden="true"
         >
-          <path d="M8 5v14l11-7z" />
+          <path d="M6 9l6 6 6-6" />
         </svg>
-        {title}
       </button>
       {isOpen && (
         <div id={panelId} className="space-y-3 pb-1">
@@ -100,10 +121,8 @@ export function BreakdownPanel({
             </div>
           )}
           {/* 内訳の表は合計の線を持つので、答え合わせの表の罫線と紛れない
-              よう白い面に沈める（以前の DetailsPanelRow と同じ理由） */}
-          <div className="rounded-panel border border-panel bg-white p-3">
-            {selected.content}
-          </div>
+              よう地の色を変えた面に載せる */}
+          <div className={SURFACE_CLASSES[surface]}>{selected.content}</div>
         </div>
       )}
     </div>

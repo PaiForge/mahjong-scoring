@@ -104,7 +104,7 @@ export function NoYakuResultDisplay({
 
   return (
     <div className="space-y-3">
-      <ResultTableFrame>
+      <ResultTableFrame embedded>
         {requireYaku && (
           <tbody>
             <tr>

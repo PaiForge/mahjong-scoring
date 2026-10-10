@@ -25,7 +25,29 @@ interface ResultTableFrameProps {
    * 1 つの面にまとめ、内訳が答え合わせとは別の資料に見えないようにする
    */
   readonly footer?: ReactNode;
+  /**
+   * 既に白い枠を持つ面の中に置くか（聴牌形の点数計算のタブパネル）。
+   * 真なら表自身の枠と内側の余白を外す（白い枠の入れ子にしない）
+   */
+  readonly embedded?: boolean;
 }
+
+/**
+ * 正解の列（3 列目）のセルに敷く薄い帯
+ *
+ * 見出しから点数まで、正解の値を縦に目で追わせる。色は中性の灰で、緑には
+ * しない — 回答側の正誤の「正解」の緑と役割が重なる。縦の罫線も引かない。
+ * 帯の端に値が貼り付かないよう左右に余白を取り、上下の端だけ丸める。
+ * 列の `<col>` に背景を付けると角を丸められないため、セル側に当てる。
+ */
+const CORRECT_COLUMN_CLASSES = [
+  "[&_th:nth-child(3)]:bg-surface-50",
+  "[&_td:nth-child(3)]:bg-surface-50",
+  "[&_th:nth-child(3)]:px-3",
+  "[&_td:nth-child(3)]:px-3",
+  "[&_th:nth-child(3)]:rounded-t-md",
+  "[&>tbody:last-of-type_td:nth-child(3)]:rounded-b-md",
+].join(" ");
 
 /**
  * 答え合わせの表の外枠
@@ -35,6 +57,11 @@ interface ResultTableFrameProps {
  * 結果表（`ResultDisplay`）と、点数の出題を持たない役なしのマスの表
  * （聴牌形の点数計算）で同じ枠を使い、タブを切り替えても表の形が変わらない
  * ようにする。行は呼び出し側が項目ごとの `<tbody>` で渡す。
+ *
+ * 面は白地に淡い枠（地に置かれた他のカードと同じ）で、正解の列にだけ
+ * 薄い帯を通す（{@link CORRECT_COLUMN_CLASSES}）。以前は面全体が淡い灰で、
+ * 開いた内訳だけが白い枠の箱になり、枠が入れ子に見えた。白地の面の中で
+ * 内訳を淡い灰に沈めると、「比較表」と「その説明」が枠を足さずに分かれる。
  *
  * 回答全体の正誤を名乗る見出し・バナーは置かない。「あなたの回答」と
  * 「正解」を並べた時点で合っていたかは読めば分かり、行ごとの ✓/✗ と
@@ -62,11 +89,21 @@ interface ResultTableFrameProps {
  * 固定幅を与え、残りを 2 列で等分する（table-fixed は幅を指定して
  * いない列に残りを均等に配る）。
  */
-export function ResultTableFrame({ children, footer }: ResultTableFrameProps) {
+export function ResultTableFrame({
+  children,
+  footer,
+  embedded = false,
+}: ResultTableFrameProps) {
   const t = useTranslations("agariScore");
   return (
-    <div className="rounded-lg bg-surface-50 p-4">
-      <table className="w-full table-fixed text-sm [&>tbody+tbody]:border-t [&>tbody+tbody]:border-surface-200">
+    <div
+      className={
+        embedded ? "bg-white" : "rounded-panel border border-panel bg-white p-4"
+      }
+    >
+      <table
+        className={`w-full table-fixed text-sm [&>tbody+tbody]:border-t [&>tbody+tbody]:border-surface-200 ${CORRECT_COLUMN_CLASSES}`}
+      >
         <colgroup>
           {/* 項目名（役・翻数・符・点数）+ pr-4 が収まる最小限 */}
           <col className="w-16" />
@@ -89,7 +126,7 @@ export function ResultTableFrame({ children, footer }: ResultTableFrameProps) {
         {children}
       </table>
       {footer !== undefined && (
-        <div className="mt-2 border-t border-surface-200">{footer}</div>
+        <div className="mt-3 border-t border-surface-200">{footer}</div>
       )}
     </div>
   );

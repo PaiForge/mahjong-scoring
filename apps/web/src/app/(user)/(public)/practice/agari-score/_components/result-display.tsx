@@ -54,6 +54,8 @@ interface ResultDisplayProps {
   readonly requireYaku?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
+  /** 既に白い枠を持つ面の中に置くか（{@link ResultTableFrame} の `embedded`） */
+  readonly embedded?: boolean;
 }
 
 /**
@@ -76,6 +78,7 @@ export function ResultDisplay({
   requireYaku = false,
   exactHan = false,
   requireFuForMangan = false,
+  embedded = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
@@ -195,12 +198,14 @@ export function ResultDisplay({
     <div className="space-y-4">
       {/* 表の箱・見出し・列幅の約束は ResultTableFrame（役なしのマスの表と共有） */}
       <ResultTableFrame
+        embedded={embedded}
         footer={
           breakdownSections.length > 0 ? (
             <BreakdownPanel
               title={t("result.details.toggle")}
               sections={breakdownSections}
               initialKind={breakdownTabs.initial}
+              surface="sunken"
             />
           ) : undefined
         }
@@ -311,8 +316,10 @@ export function ResultDisplay({
           </tbody>
         )}
 
-        {/* Score */}
-        <tbody>
+        {/* Score。翻・符から出る最終的な答えなので、上の区切りを一段濃くし、
+            上下の余白を広げて途中の値（翻・符）と分ける。数字をさらに大きく
+            しないのは、ツモの支払い（「1300・2600」等）が列に収まらなくなるため */}
+        <tbody className="border-surface-300! [&>tr>td]:pt-4 [&>tr>td]:pb-3">
           <tr>
             <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
               {t("form.labels.score")}
