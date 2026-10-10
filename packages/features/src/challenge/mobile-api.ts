@@ -57,12 +57,15 @@ export const MOBILE_LESSON_COMPLETIONS_MAX = 50;
  * - `conflict` — 同じ ID・同じ回答番号で中身が違う、または今の状態では
  *   受け付けられない（409）。アプリは状態を取り直して合わせる
  * - `notFinished` — 確定しようとしたが、まだ終わっていない（409）
+ * - `examLocked` — 受験資格の無い昇級試験を始めようとした（403）。先に取る
+ *   級がある（級の順序は `evaluateExamEligibility`）
  */
 export const MOBILE_CHALLENGE_ERROR_CODES = [
   "invalidRequest",
   "invalidChallenge",
   "conflict",
   "notFinished",
+  "examLocked",
 ] as const;
 
 /** チャレンジ固有の失敗の理由（{@link MOBILE_CHALLENGE_ERROR_CODES}） */
@@ -160,16 +163,23 @@ export type MobileUnansweredResponse =
   { readonly question: ChallengeQuestion } | { readonly remainingMs: number };
 
 /**
- * 確定の応答。記録した成績の ID と、その成績で付いた経験値
+ * 確定の応答
  *
- * 確定済みのチャレンジへの再送にも、記録し直さずに同じ ID と同じ経験値を
- * 返す。`exp` は経験値の対象にならない練習と、経験値を読めなかったときに
- * 無い（成績の記録は済んでいる）。
+ * - 練習: 記録した成績の ID と、その成績で付いた経験値。`exp` は経験値の
+ *   対象にならない練習と、経験値を読めなかったときに無い（成績の記録は
+ *   済んでいる）
+ * - 昇級試験: 今回の挑戦で付与した段級位（`grantedRanks`。不合格・既に
+ *   持っている級の再挑戦では空）。試験は成績を記録しない（web の
+ *   `submitExamResult` と同じ）
+ *
+ * 確定済みのチャレンジへの再送にも、記録・判定し直さずに同じ値を返す。
  */
-export interface MobileFinishChallengeResponse {
-  readonly challengeResultId: string;
-  readonly exp?: ExpInfo;
-}
+export type MobileFinishChallengeResponse =
+  | {
+      readonly challengeResultId: string;
+      readonly exp?: ExpInfo;
+    }
+  | { readonly grantedRanks: readonly RankSlug[] };
 
 /**
  * 本人の進み具合（`buildJourney` の入力を JSON に載る形にしたもの）
@@ -290,10 +300,13 @@ const expInfoSchema = z.object({
   progressPercent: z.number(),
 });
 
-const finishSchema = z.object({
-  challengeResultId: z.string(),
-  exp: expInfoSchema.optional(),
-});
+const finishSchema = z.union([
+  z.object({
+    challengeResultId: z.string(),
+    exp: expInfoSchema.optional(),
+  }),
+  z.object({ grantedRanks: z.array(z.string()) }),
+]);
 
 /**
  * 確定の応答を検証する。形が違えば undefined
@@ -303,7 +316,11 @@ export function parseMobileFinishResponse(
   body: unknown,
 ): MobileFinishChallengeResponse | undefined {
   const parsed = finishSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  if (!parsed.success) return undefined;
+  // アプリが知らない段級位は落とす（サーバーがアプリより新しい版で増やしたとき）
+  return "grantedRanks" in parsed.data
+    ? { grantedRanks: parsed.data.grantedRanks.filter(isRankSlug) }
+    : parsed.data;
 }
 
 const progressSchema = z.object({

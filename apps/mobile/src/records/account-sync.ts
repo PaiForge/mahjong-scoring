@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import type { ExpInfo } from "@mahjong-scoring/core";
+import type { MobileFinishChallengeResponse } from "@mahjong-scoring/features/challenge/mobile-api";
 import type { BuildJourneyInput } from "@mahjong-scoring/features/journey/journey";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { onAccountDeleted } from "../auth/api-client";
 import { useLessonCompletionStore } from "../hooks/use-lesson-completion-store";
@@ -193,7 +195,7 @@ async function sendPendingFinish(
       setFinishStatus(
         pending.attemptId,
         "recorded",
-        "value" in finished ? finished.value.exp : undefined,
+        "value" in finished ? finished.value : undefined,
       );
       dropPending(userId, pending.attemptId);
       return true;
@@ -244,7 +246,7 @@ onAccountDeleted((userId) => {
  * 確定の送信の状態（結果画面の表示用）
  *
  * - `sending` — 送っている
- * - `recorded` — 成績を記録した
+ * - `recorded` — 成績を記録した（昇級試験は合否を判定した）
  * - `queued` — 送れなかった。預けておき、次に通信できたときに送る
  * - `notRecorded` — 記録されない（サーバーが記録できないと答えた）
  */
@@ -254,17 +256,27 @@ const useFinishStatusStore = create<{
   readonly byAttempt: Readonly<Record<string, FinishStatus>>;
   /** 記録できたチャレンジに付いた経験値（対象外の練習には無い） */
   readonly expByAttempt: Readonly<Record<string, ExpInfo>>;
-}>(() => ({ byAttempt: {}, expByAttempt: {} }));
+  /** 判定した昇級試験で付与した段級位（不合格・再挑戦なら空） */
+  readonly grantedRanksByAttempt: Readonly<Record<string, readonly RankSlug[]>>;
+}>(() => ({ byAttempt: {}, expByAttempt: {}, grantedRanksByAttempt: {} }));
 
 function setFinishStatus(
   attemptId: string,
   status: FinishStatus,
-  exp?: ExpInfo,
+  response?: MobileFinishChallengeResponse,
 ): void {
   useFinishStatusStore.setState((state) => ({
     byAttempt: { ...state.byAttempt, [attemptId]: status },
-    ...(exp
-      ? { expByAttempt: { ...state.expByAttempt, [attemptId]: exp } }
+    ...(response !== undefined && "exp" in response && response.exp
+      ? { expByAttempt: { ...state.expByAttempt, [attemptId]: response.exp } }
+      : {}),
+    ...(response !== undefined && "grantedRanks" in response
+      ? {
+          grantedRanksByAttempt: {
+            ...state.grantedRanksByAttempt,
+            [attemptId]: response.grantedRanks,
+          },
+        }
       : {}),
   }));
 }
@@ -297,6 +309,23 @@ export function useFinishExp(
 }
 
 /**
+ * 判定した昇級試験で付与した段級位を読む
+ * 付与段級位参照
+ *
+ * まだ判定を受け取れていない・練習のチャレンジなら undefined。不合格や
+ * 既に持っている級の再挑戦は空の配列。
+ */
+export function useFinishGrantedRanks(
+  attemptId: string | undefined,
+): readonly RankSlug[] | undefined {
+  return useFinishStatusStore((state) =>
+    attemptId === undefined
+      ? undefined
+      : state.grantedRanksByAttempt[attemptId],
+  );
+}
+
+/**
  * 終わったチャレンジを確定待ちへ移し、確定を送る
  * チャレンジ確定送信
  *
@@ -321,7 +350,7 @@ export async function submitChallengeFinish(
     updateAccountRecords((records) =>
       dropPendingFinish(records, userId, challenge.attemptId),
     );
-    setFinishStatus(challenge.attemptId, "recorded", result.value.exp);
+    setFinishStatus(challenge.attemptId, "recorded", result.value);
     void refreshServerProgress(userId);
     return;
   }

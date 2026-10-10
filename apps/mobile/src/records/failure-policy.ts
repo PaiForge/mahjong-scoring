@@ -29,7 +29,8 @@ export function isSettled(error: RecordsApiFailure): boolean {
     error === "notFinished" ||
     error === "invalidChallenge" ||
     error === "conflict" ||
-    error === "invalidRequest"
+    error === "invalidRequest" ||
+    error === "examLocked"
   );
 }
 

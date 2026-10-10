@@ -15,6 +15,7 @@ import {
   isExamMenuType,
   isPracticeMenuType,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 
 import {
   answerAttempt,
@@ -24,6 +25,7 @@ import {
   readAttemptStatus,
   revealExpiredAttempt,
 } from "../challenge/attempts";
+import { getUserRankSlugs } from "../db/rank-queries";
 import { getExpInfoByChallengeResultId } from "../db/save-exp";
 import { logExternalError } from "../log-error";
 
@@ -81,8 +83,9 @@ async function rejectionOf(
  * チャレンジ開始API（アプリ向け）
  *
  * ID はアプリが決める。同じ ID・同じ中身の再送には作り直さずに同じ
- * チャレンジを返し、中身が違えば 409 `conflict`。昇級試験はアプリに
- * 本番の画面が無いので受け付けない（422）。
+ * チャレンジを返し、中身が違えば 409 `conflict`。昇級試験も同じ入口で
+ * 始める。受験資格（級の順序）は `beginAttempt` が検査し、資格が無ければ
+ * 403 `examLocked`（web の play ページの受験ガードに当たる）。
  */
 export async function handleBeginChallenge(
   request: Request,
@@ -96,7 +99,7 @@ export async function handleBeginChallenge(
   );
   if (!body.ok) return body.response;
   const { id, menuType, variant, settings } = body.data;
-  if (!isPracticeMenuType(menuType) || isExamMenuType(menuType))
+  if (!isPracticeMenuType(menuType))
     return challengeError("invalidChallenge", 422);
   try {
     const attempt = await beginAttempt(
@@ -108,9 +111,16 @@ export async function handleBeginChallenge(
     );
     if (attempt) return mobileJson<MobileChallengeEntry>(attempt);
     // 同じ ID の行があるのに返らなかった = 違う中身・確定済み
-    return (await readAttemptStatus(auth.user.id, id))
-      ? challengeError("conflict", 409)
-      : challengeError("invalidChallenge", 422);
+    if (await readAttemptStatus(auth.user.id, id))
+      return challengeError("conflict", 409);
+    // 始められなかった理由が受験資格かどうかは、失敗したときだけ読み直す
+    if (
+      isExamMenuType(menuType) &&
+      evaluateExamEligibility(menuType, await getUserRankSlugs(auth.user.id))
+        ?.kind === "locked"
+    )
+      return challengeError("examLocked", 403);
+    return challengeError("invalidChallenge", 422);
   } catch (error) {
     return mobileServerError(
       "POST /api/mobile/v1/challenges",
@@ -272,6 +282,11 @@ export async function handleReadUnanswered(
  * 確定済みへの再送には同じ ID を返す。付いた経験値も添える（web の結果
  * ページと同じく、成績の ID から付与の記録を引く。再送でも同じ値になる）。まだ終わっていなければ 409
  * `notFinished`、1 問も答えずに終わった（記録が無い）なら 422。
+ *
+ * 昇級試験は成績を記録せず、合否を判定して付与した段級位を返す（web の
+ * `submitExamResult` と同じ `finishAttempt(…, true)`）。どちらの確定かは
+ * まず練習として確定を試み、受け付けなかったときに行の種別を見て決める —
+ * 練習の確定に読み直しの往復を足さないため。
  */
 export async function handleFinishChallenge(
   request: Request,
@@ -292,6 +307,14 @@ export async function handleFinishChallenge(
     }
     const status = await readAttemptStatus(auth.user.id, attemptId);
     if (!status) return challengeError("invalidChallenge", 404);
+    if (isExamMenuType(status.menuType)) {
+      const graded = await finishAttempt(auth.user.id, attemptId, true);
+      if (graded && "grantedRanks" in graded)
+        return mobileJson<MobileFinishChallengeResponse>({
+          grantedRanks: graded.grantedRanks,
+        });
+      return challengeError("notFinished", 409);
+    }
     return status.finished
       ? challengeError("invalidChallenge", 422)
       : challengeError("notFinished", 409);
