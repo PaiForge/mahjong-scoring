@@ -5,9 +5,11 @@ type UsernameValidationMessageKey =
   | "validation.tooLong"
   | "validation.invalidFormat"
   | "validation.reserved"
+  | "validation.prohibited"
   | "validation.taken"
   | "validation.alreadySet"
   | "validation.displayNameTooLong"
+  | "validation.displayNameProhibited"
   | "validation.rateLimited"
   | "validation.unauthorized"
   | "validation.banned"
@@ -29,12 +31,16 @@ export function usernameValidationMessageKey(
       return "validation.invalidFormat";
     case "reserved":
       return "validation.reserved";
+    case "prohibited":
+      return "validation.prohibited";
     case "username_taken":
       return "validation.taken";
     case "username_already_set":
       return "validation.alreadySet";
     case "display_name_too_long":
       return "validation.displayNameTooLong";
+    case "display_name_prohibited":
+      return "validation.displayNameProhibited";
     case "rateLimited":
       return "validation.rateLimited";
     case "unauthorized":

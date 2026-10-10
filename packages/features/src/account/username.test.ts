@@ -102,6 +102,12 @@ describe("validateUsername", () => {
     });
   });
 
+  describe("prohibited words", () => {
+    it.each(["fuck_you", "xnigger1"])('returns prohibited for "%s"', (u) => {
+      expect(validateUsername(u)).toBe("prohibited");
+    });
+  });
+
   describe("reserved words", () => {
     it.each([
       "api",

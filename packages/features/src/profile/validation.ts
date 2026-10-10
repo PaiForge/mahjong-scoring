@@ -10,6 +10,8 @@
  * 変わって静かに乖離する）。
  */
 
+import { containsProhibitedWord } from "./prohibited-words";
+
 /** 各フィールドの最大長 */
 export const PROFILE_LIMITS = {
   displayName: 50,
@@ -56,10 +58,13 @@ export interface NormalizedProfile {
  */
 export const PROFILE_VALIDATION_ERRORS = [
   "displayNameTooLong",
+  "displayNameProhibited",
   "bioTooLong",
+  "bioProhibited",
   "xUsernameInvalid",
   "instagramUsernameInvalid",
   "youtubeHandleInvalid",
+  "snsProhibited",
 ] as const;
 
 /** バリデーションエラー（{@link PROFILE_VALIDATION_ERRORS}） */
@@ -70,18 +75,22 @@ export type ProfileValidationResult =
   | { readonly ok: false; readonly error: ProfileValidationError };
 
 /**
- * 表示名の長さを検証する。
+ * 表示名の長さと語句を検証する。
  *
  * プロフィール編集と初回のユーザー名登録は、入り口も返すエラーの形も違うが
  * 表示名に課す規則は同じ。規則をここに 1 つだけ持ち、両方から呼ぶ。
+ * 載せられない語句は `prohibited-words.ts`。
  *
  * @param displayName - トリム済みの表示名
  */
 export function validateDisplayName(
   displayName: string,
-): "displayNameTooLong" | undefined {
-  return displayName.length > PROFILE_LIMITS.displayName
-    ? "displayNameTooLong"
+): "displayNameTooLong" | "displayNameProhibited" | undefined {
+  if (displayName.length > PROFILE_LIMITS.displayName) {
+    return "displayNameTooLong";
+  }
+  return containsProhibitedWord(displayName)
+    ? "displayNameProhibited"
     : undefined;
 }
 
@@ -91,7 +100,7 @@ function normalizeHandle(raw: string): string {
 }
 
 /**
- * 入力を正規化し、長さ・形式を検証する。
+ * 入力を正規化し、長さ・形式・載せられない語句を検証する。
  * 空欄は省略可（null）として扱う。
  */
 export function normalizeAndValidateProfile(
@@ -106,6 +115,9 @@ export function normalizeAndValidateProfile(
   const bio = input.bio.trim();
   if (bio.length > PROFILE_LIMITS.bio) {
     return { ok: false, error: "bioTooLong" };
+  }
+  if (containsProhibitedWord(bio)) {
+    return { ok: false, error: "bioProhibited" };
   }
 
   const xUsername = normalizeHandle(input.xUsername);
@@ -133,6 +145,14 @@ export function normalizeAndValidateProfile(
       !YOUTUBE_HANDLE_PATTERN.test(youtubeHandle))
   ) {
     return { ok: false, error: "youtubeHandleInvalid" };
+  }
+
+  // SNS のアカウント名は形式を満たしても公開プロフィールに出るので、語句も見る。
+  // どの欄かは 3 つまとめて 1 つの誤りで返す（欄ごとに分けるほど起きない）
+  if (
+    [xUsername, instagramUsername, youtubeHandle].some(containsProhibitedWord)
+  ) {
+    return { ok: false, error: "snsProhibited" };
   }
 
   return {
