@@ -1,19 +1,14 @@
 import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
 import {
-  mobileLeaderboardApiUrl,
   mobileLeaderboardRanksApiUrl,
   parseMobileLeaderboardRanksResponse,
-  parseMobileLeaderboardResponse,
   type MobileLeaderboardErrorCode,
   type MobileLeaderboardRanksResponse,
-  type MobileLeaderboardResponse,
 } from "@mahjong-scoring/features/leaderboard/mobile-api";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   apiFailureOf,
   callMobileApi,
-  callMobileApiAsViewer,
   type ApiFailure,
 } from "../auth/api-client";
 
@@ -49,27 +44,5 @@ export async function fetchLeaderboardRanks(
       asUser: userId,
     }),
     parseMobileLeaderboardRanksResponse,
-  );
-}
-
-/**
- * ある土俵・期間のランキングの 1 ページを読む
- * ランキング取得
- *
- * @param viewerId - ログイン中のユーザー。ゲストなら undefined
- * @param page - 1 始まりのページ番号
- */
-export async function fetchLeaderboard(
-  viewerId: string | undefined,
-  period: LeaderboardPeriod,
-  board: PracticeBoard,
-  page: number,
-): Promise<LeaderboardApiResult<MobileLeaderboardResponse>> {
-  return readResponse(
-    await callMobileApiAsViewer(
-      mobileLeaderboardApiUrl(period, board, page),
-      viewerId,
-    ),
-    parseMobileLeaderboardResponse,
   );
 }

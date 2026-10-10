@@ -7,6 +7,7 @@ import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import {
   ChartIcon,
   SettingsIcon,
+  TrophyIcon,
   UserIcon,
 } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
@@ -38,6 +39,9 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * - Pro プランと通知の行は持たない（アプリでは Pro を扱わない。通知は今の
  *   種別がすべて Pro の出来事）。アカウント（メールアドレス・ログアウト・
  *   退会）は設定のアカウントの節にあり、ここには置かない
+ * - ランキングでの自分の順位への行を置く。アプリはランキングの詳細を持たず
+ *   （他の利用者の名前・アバターを見せない）、練習の画面からランキングへの
+ *   導線も無いので、入口をここに置く
  * - 設定への入口を置く（web はヘッダーのアカウントのメニュー。アプリはそれを
  *   マイページが兼ねる）。設定は web と同じくログイン中だけのものなので、行も
  *   ログイン中だけ出す。ユーザー名を決めていない人・アカウントを読めなかった
@@ -52,7 +56,7 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・プロフィール編集・設定へ
+ * 3. 行からマイレコード・ランキングでの順位・プロフィール編集・設定へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -102,6 +106,13 @@ function MypageMenu() {
         description={t("cards.challenges.summary")}
         leading={<ChartIcon size={22} color={colors.surface600} />}
         onPress={() => router.push("/mypage/challenges")}
+      />
+      <LinkRow
+        testID="mypage-menu-ranks"
+        title={t("cards.ranks.title")}
+        description={t("cards.ranks.summary")}
+        leading={<TrophyIcon size={22} color={colors.surface600} />}
+        onPress={() => router.push("/leaderboard")}
       />
       <LinkRow
         testID="mypage-menu-profile"
