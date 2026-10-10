@@ -14,8 +14,9 @@ import { toQuestionResult, type YakuHanQuestionResult } from "./types";
  * 役翻数の練習の出題状態と回答ロジック
  * 役翻数ボード
  *
- * 出題範囲（役のフィルタ）から出題し、選んだ翻数を採点・記録して次問へ
- * 差し替える。盤面は描画だけをする。web・モバイルの両方で共有する。
+ * 出題範囲（役のフィルタ）から、範囲を一巡するまで同じ問題を出さずに
+ * 出題し、選んだ翻数を採点・記録して次問へ差し替える。盤面は描画だけを
+ * する。web・モバイルの両方で共有する。
  */
 export function useYakuHanBoard({
   range,
@@ -27,7 +28,8 @@ export function useYakuHanBoard({
   readonly range: YakuHanRange;
 }): UseQuestionBoardResult<YakuHanQuestion, number> {
   const generateQuestion = useCallback(
-    (): YakuHanQuestion => generateYakuHanQuestion(range),
+    (asked: readonly YakuHanQuestion[]): YakuHanQuestion =>
+      generateYakuHanQuestion(range, asked),
     [range],
   );
   return useQuestionBoard({

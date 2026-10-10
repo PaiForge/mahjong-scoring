@@ -1,10 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { generateYakuHanQuestion } from "./generator";
 import { expectSampled } from "../../test/sampling";
+import { mulberry32 } from "../../core/random";
+import type { YakuHanQuestion } from "./types";
 import {
   YAKU_HAN_ENTRIES,
   YAKUMAN_HAN,
   canPromptNaki,
+  DEFAULT_YAKU_HAN_RANGE,
   getYakuHanEntries,
   normalizeYakuHanRange,
 } from "./constants";
@@ -73,6 +76,85 @@ describe("generateYakuHanQuestion", () => {
       expect(q.isMenzen).toBe(true);
       expect(q.correctHan).toBe(2);
     }
+  });
+});
+
+describe("generateYakuHanQuestion の出題履歴", () => {
+  const key = (q: YakuHanQuestion) => `${q.yakuName}/${q.isMenzen}`;
+
+  /** 履歴を渡しながら count 問続けて出題する */
+  function play(count: number, seed: number, range = DEFAULT_YAKU_HAN_RANGE) {
+    const rng = mulberry32(seed);
+    const asked: YakuHanQuestion[] = [];
+    for (let i = 0; i < count; i++) {
+      asked.push(generateYakuHanQuestion(range, asked, rng));
+    }
+    return asked;
+  }
+
+  /** 出題範囲の問題（役 × 門前 / 鳴き）の数 */
+  function poolSize(range = DEFAULT_YAKU_HAN_RANGE) {
+    return getYakuHanEntries(range).reduce(
+      (sum, e) => sum + (canPromptNaki(e) ? 2 : 1),
+      0,
+    );
+  }
+
+  it("一巡するまで同じ問題を出さず、一巡で範囲の問題をすべて出す", () => {
+    for (const seed of [1, 2, 3]) {
+      const size = poolSize();
+      const round = play(size, seed);
+      expect(new Set(round.map(key)).size).toBe(size);
+    }
+  });
+
+  it("二巡目も一巡目と同じく重複なく出し切る", () => {
+    const size = poolSize("kuisagari");
+    const asked = play(size * 2, 7, "kuisagari");
+    expect(new Set(asked.slice(size).map(key)).size).toBe(size);
+  });
+
+  it("巡の変わり目を含めて、同じ問題を続けて出さない", () => {
+    const asked = play(poolSize("kuisagari") * 5, 11, "kuisagari");
+    for (let i = 1; i < asked.length; i++) {
+      expect(key(asked[i])).not.toBe(key(asked[i - 1]));
+    }
+  });
+
+  it("残りに違う役があれば、直前と同じ役（門前 / 鳴き違い）は出さない", () => {
+    const all = play(poolSize(), 5);
+    const yakuhaiNaki = all.find((q) => q.yakuName === "役牌" && !q.isMenzen);
+    const yakuhaiMenzen = all.find((q) => q.yakuName === "役牌" && q.isMenzen);
+    const other = all.find((q) => q.yakuName !== "役牌");
+    if (!yakuhaiNaki || !yakuhaiMenzen || !other) throw new Error("母集団");
+    const rest = all.filter(
+      (q) => key(q) !== key(yakuhaiNaki) && key(q) !== key(other),
+    );
+    // 役牌（門前）を最後に出した。残りは役牌（鳴き）と別の役 1 つ
+    const asked = [
+      ...rest.filter((q) => key(q) !== key(yakuhaiMenzen)),
+      yakuhaiMenzen,
+    ];
+    for (const seed of [1, 2, 3, 4, 5]) {
+      expect(key(generateYakuHanQuestion("all", asked, mulberry32(seed)))).toBe(
+        key(other),
+      );
+    }
+    // 別の役も出し終えたら、残りの役牌（鳴き）を続けて出す
+    expect(
+      key(generateYakuHanQuestion("all", [...asked, other], mulberry32(1))),
+    ).toBe(key(yakuhaiNaki));
+  });
+
+  it("出題範囲の外の問題は履歴にあっても数えない", () => {
+    const outside = play(poolSize("no-kuisagari"), 3, "no-kuisagari");
+    const size = poolSize("kuisagari");
+    const rng = mulberry32(9);
+    const asked: YakuHanQuestion[] = [...outside];
+    for (let i = 0; i < size; i++) {
+      asked.push(generateYakuHanQuestion("kuisagari", asked, rng));
+    }
+    expect(new Set(asked.slice(outside.length).map(key)).size).toBe(size);
   });
 });
 

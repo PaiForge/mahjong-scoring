@@ -42,6 +42,12 @@ export interface ChallengeState {
   readonly answerAfter: number;
   readonly createdAt: number;
   /**
+   * 既に出した問題（古い順。今の `question` は含まない）。同じ問題を続けて
+   * 出さない出題（役翻数）だけが持ち、次問の生成に渡す。他の練習は問題が
+   * 大きく履歴も使わないので持たない
+   */
+  readonly askedQuestions?: readonly ChallengeQuestion[];
+  /**
    * 最後に受け付けた回答。応答が通信で失われた再送に、同じ応答を
    * 組み直して返すために持つ。最初の回答までは無い
    */

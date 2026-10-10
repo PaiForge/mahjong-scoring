@@ -26,16 +26,42 @@ import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "@mahjong-scoring/features/e
 import { EXAM_GENERATE_OPTIONS as pinfu } from "@mahjong-scoring/features/exam/pinfu/types";
 import { EXAM_GENERATE_OPTIONS as fuScore } from "@mahjong-scoring/features/exam/fu-score/types";
 import { EXAM_GENERATE_OPTIONS as score } from "@mahjong-scoring/features/exam/score/types";
+import type { YakuHanQuestion } from "@mahjong-scoring/core";
 import type {
   ChallengeQuestion,
   ChallengeSettings,
+  ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
 
-/** 記録対象の問題をサーバーで生成する。出題条件はメニューから決める。 */
+function isYakuHanQuestion(
+  question: ChallengeQuestion,
+): question is YakuHanQuestion {
+  return "yakuName" in question && "correctHan" in question;
+}
+
+/**
+ * 次問の生成に渡す出題履歴（今の問題までを含む）
+ *
+ * 同じ問題を続けて出さない出題（役翻数）だけが履歴を持つ。それ以外は
+ * undefined を返し、挑戦の行にも積まない。
+ */
+export function askedChallengeQuestions(
+  state: Pick<ChallengeState, "menuType" | "question" | "askedQuestions">,
+): readonly ChallengeQuestion[] | undefined {
+  if (state.menuType !== "yaku_han") return undefined;
+  return [...(state.askedQuestions ?? []), state.question];
+}
+
+/**
+ * 記録対象の問題をサーバーで生成する。出題条件はメニューから決める。
+ *
+ * @param asked - この挑戦で既に出した問題（{@link askedChallengeQuestions}）
+ */
 export function generateChallengeQuestion(
   menu: PracticeMenuType,
   variant: string,
   settings: ChallengeSettings,
+  asked: readonly ChallengeQuestion[] = [],
 ): ChallengeQuestion | undefined {
   switch (menu) {
     case "jantou_fu":
@@ -55,6 +81,7 @@ export function generateChallengeQuestion(
     case "yaku_han":
       return generateYakuHanQuestion(
         YAKU_HAN_VARIANT_RANGES[resolvePracticeVariant("yaku-han", variant)],
+        asked.filter(isYakuHanQuestion),
       );
     case "score_table":
       return generateScoreTableQuestion({
