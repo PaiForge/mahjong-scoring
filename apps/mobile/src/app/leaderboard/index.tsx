@@ -63,6 +63,7 @@ export default function LeaderboardIndexScreen() {
           selected={period}
           onSelect={setPeriod}
           accessibilityLabel={t("periodLabel")}
+          testID="leaderboard-period"
           fill
         />
       </View>

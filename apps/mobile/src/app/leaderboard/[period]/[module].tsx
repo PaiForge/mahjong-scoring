@@ -109,6 +109,7 @@ function LeaderboardDetail({
           selected={period}
           onSelect={(value) => router.replace(leaderboardHref(value, board))}
           accessibilityLabel={t("periodLabel")}
+          testID="leaderboard-period"
           fill
         />
         <Ranking period={period} board={board} />

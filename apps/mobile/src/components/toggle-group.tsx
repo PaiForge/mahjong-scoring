@@ -26,6 +26,8 @@ interface ToggleGroupProps<T extends string> {
    * 文言の幅に詰める
    */
   readonly fill?: boolean;
+  /** Maestro のフローで引く印。選択肢ごとに `<testID>-<値>` を付ける */
+  readonly testID?: string;
 }
 
 /**
@@ -54,6 +56,7 @@ export function ToggleGroup<T extends string>({
   onSelect,
   accessibilityLabel,
   fill = false,
+  testID,
 }: ToggleGroupProps<T>) {
   const options = groups.flat();
   return (
@@ -68,6 +71,9 @@ export function ToggleGroup<T extends string>({
           <Pressable
             key={option.value}
             onPress={() => onSelect(option.value)}
+            testID={
+              testID === undefined ? undefined : `${testID}-${option.value}`
+            }
             accessibilityRole="radio"
             accessibilityState={{ selected: isActive }}
             style={[

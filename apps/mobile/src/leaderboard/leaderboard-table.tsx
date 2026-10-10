@@ -90,6 +90,7 @@ function RankingRow({
     <Pressable
       accessibilityRole="link"
       accessibilityLabel={`${t("rankLabel", { rank: row.rank })} ${name}`}
+      testID={`leaderboard-row-${row.username}`}
       onPress={() => router.push(publicProfileHref(row.username))}
       style={({ pressed }) => [
         styles.row,
