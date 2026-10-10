@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     height: BULLET_SIZE,
     borderRadius: BULLET_SIZE / 2,
     borderWidth: 2,
-    borderColor: colors.ink,
+    borderColor: colors.panel,
   },
   sectionLabel: {
     fontSize: 14,

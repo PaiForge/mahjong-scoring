@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.ink,
+    borderColor: colors.panel,
   },
   sectionLabel: {
     fontSize: 14,

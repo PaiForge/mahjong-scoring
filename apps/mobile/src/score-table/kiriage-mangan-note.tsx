@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
 import { TextLink } from "../components/text-link";
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /**
@@ -30,9 +30,9 @@ export function KiriageManganNote() {
 
 const styles = StyleSheet.create({
   panel: {
-    borderWidth: 3,
-    borderColor: colors.amber500,
-    borderRadius: radius.lg,
+    borderWidth: borderWidth.panel,
+    borderColor: colors.amber300,
+    borderRadius: radius.panel,
     backgroundColor: colors.amber50,
     paddingHorizontal: 16,
     paddingVertical: 12,

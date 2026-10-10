@@ -33,8 +33,6 @@ export const colors = {
   surface800: "#1e293b",
   surface900: "#0f172a",
 
-  /** 旧: 太枠の色。移行中の画面だけが参照する */
-  ink: "#2f6b4f",
   /** カード・表・ボタン・区切り線の淡い枠（`--color-panel` = `--color-border`） */
   panel: "#dce3e0",
   background: "#f8fafc",
