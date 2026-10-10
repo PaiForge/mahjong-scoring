@@ -96,3 +96,37 @@ export function parseMobileLeaderboardRanksResponse(
     ),
   };
 }
+
+/**
+ * ランキングに表示しない設定を読む（GET）・書く（POST）API のパス（ログインが要る）
+ * ランキング非表示設定APIパス
+ *
+ * GET は {@link MobileLeaderboardVisibility}。POST の本文も同じ形で、成功なら
+ * `{ success: true }`。ユーザー名を決める前は 409 `usernameRequired`
+ * （`mypage/mobile-api.ts`）。web の設定のプライバシーと同じ値を読み書きする。
+ */
+export const MOBILE_LEADERBOARD_VISIBILITY_API_PATH = `${MOBILE_API_PREFIX}/leaderboard/visibility`;
+
+/**
+ * ランキングに表示しない設定
+ * ランキング非表示設定
+ *
+ * 項目を足すときは省略可能にする — ストアに出ている版のアプリが古い形のまま読む。
+ */
+export interface MobileLeaderboardVisibility {
+  /** true のあいだ、web のランキングに名前と成績が出ず、本人の順位も付かない */
+  readonly hidden: boolean;
+}
+
+const visibilitySchema = z.object({ hidden: z.boolean() });
+
+/**
+ * ランキングに表示しない設定の応答を検証する。形が違えば undefined
+ * ランキング非表示設定応答検証
+ */
+export function parseMobileLeaderboardVisibility(
+  body: unknown,
+): MobileLeaderboardVisibility | undefined {
+  const parsed = visibilitySchema.safeParse(body);
+  return parsed.success ? parsed.data : undefined;
+}

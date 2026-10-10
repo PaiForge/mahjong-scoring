@@ -1,0 +1,65 @@
+# ログイン中（bob）のランキングでの順位: マイページの行から開き、土俵ごとに自分の順位が
+# 並ぶ（他の人の行は無い）。期間を月間に替える。設定で「ランキングに表示しない」に
+# すると一覧が非表示の案内に替わり、戻すと順位が戻る。手元の web（:3000）と dev seed が要る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-ranks"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-ranks"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-all-time
+- tapOn: "月間"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-monthly
+# 設定で非表示にすると、順位の代わりに案内と設定への導線が出る
+- openLink: "mahjong-scoring://preferences"
+- extendedWaitUntil:
+    visible: "ランキングに表示しない"
+    timeout: 15000
+- takeScreenshot: preferences-privacy
+- tapOn: "ランキングに表示しない"
+# 保存の応答を待ってから移る（移った先は開いたときに読み直す）
+- waitForAnimationToEnd
+- openLink: "mahjong-scoring://leaderboard"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-hidden"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-hidden
+# 戻すと順位が戻る（シードの状態に戻す）
+- openLink: "mahjong-scoring://preferences"
+- extendedWaitUntil:
+    visible: "ランキングに表示しない"
+    timeout: 15000
+- tapOn: "ランキングに表示しない"
+# 保存の応答を待ってから移る（移った先は開いたときに読み直す）
+- waitForAnimationToEnd
+- openLink: "mahjong-scoring://leaderboard"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- assertNotVisible:
+    id: "leaderboard-hidden"

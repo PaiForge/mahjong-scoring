@@ -1,9 +1,12 @@
 import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
 import {
+  MOBILE_LEADERBOARD_VISIBILITY_API_PATH,
   mobileLeaderboardRanksApiUrl,
   parseMobileLeaderboardRanksResponse,
+  parseMobileLeaderboardVisibility,
   type MobileLeaderboardErrorCode,
   type MobileLeaderboardRanksResponse,
+  type MobileLeaderboardVisibility,
 } from "@mahjong-scoring/features/leaderboard/mobile-api";
 
 import {
@@ -45,4 +48,39 @@ export async function fetchLeaderboardRanks(
     }),
     parseMobileLeaderboardRanksResponse,
   );
+}
+
+/**
+ * ランキングに表示しない設定を読む（ログイン中だけ）
+ * ランキング非表示設定取得
+ */
+export async function fetchLeaderboardVisibility(
+  userId: string,
+): Promise<LeaderboardApiResult<MobileLeaderboardVisibility>> {
+  return readResponse(
+    await callMobileApi(MOBILE_LEADERBOARD_VISIBILITY_API_PATH, {
+      asUser: userId,
+    }),
+    parseMobileLeaderboardVisibility,
+  );
+}
+
+/**
+ * ランキングに表示しない設定を保存する
+ * ランキング非表示設定保存
+ *
+ * 切り替えたユーザーの名義でだけ送る（`asUser`）。
+ */
+export async function saveLeaderboardVisibility(
+  userId: string,
+  hidden: boolean,
+): Promise<{ readonly success: true } | { readonly error: ApiFailure }> {
+  const response = await callMobileApi(MOBILE_LEADERBOARD_VISIBILITY_API_PATH, {
+    method: "POST",
+    body: { hidden },
+    asUser: userId,
+  });
+  if (typeof response === "string") return { error: response };
+  if (!response.ok) return { error: await apiFailureOf(response) };
+  return { success: true };
 }

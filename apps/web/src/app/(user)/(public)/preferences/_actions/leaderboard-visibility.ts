@@ -1,16 +1,12 @@
 "use server";
 
-import { eq } from "drizzle-orm";
-
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { getOptionalUser } from "@/lib/auth";
-import { purgeLeaderboardCache } from "@/lib/cache-tags";
-import { profiles } from "@/lib/db";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { logExternalError } from "@/lib/log-error";
-import { writeAsAccount } from "@/lib/users/account-write-lock";
+import { saveLeaderboardVisibility } from "@/lib/users/leaderboard-visibility";
 
 /** ランキング非表示設定の失敗理由 */
 export type SetLeaderboardVisibilityError =
@@ -51,12 +47,7 @@ export async function setLeaderboardVisibility(
   const { user } = guard;
 
   try {
-    const { written } = await writeAsAccount(user.id, (tx) =>
-      tx
-        .update(profiles)
-        .set({ hiddenFromLeaderboard: hidden, updatedAt: new Date() })
-        .where(eq(profiles.id, user.id)),
-    );
+    const { written } = await saveLeaderboardVisibility(user.id, hidden);
     if (!written) return { error: "unauthorized" };
   } catch (error) {
     logExternalError(
@@ -66,11 +57,6 @@ export async function setLeaderboardVisibility(
     );
     return { error: "updateFailed" };
   }
-
-  // ランキングのキャッシュは 5 分保持なので、purge しないと切り替えたのに
-  // まだ自分が載っている画面をしばらく見せてしまう。タグは全ユーザー共通で、
-  // 切り替え自体は滅多に起きない操作のため、粒度を細かくはしない。
-  purgeLeaderboardCache();
 
   return { success: true };
 }

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   mobileLeaderboardRanksApiUrl,
   parseMobileLeaderboardRanksResponse,
+  parseMobileLeaderboardVisibility,
 } from "./mobile-api";
 
 describe("mobileLeaderboardRanksApiUrl", () => {
@@ -31,5 +32,17 @@ describe("parseMobileLeaderboardRanksResponse", () => {
 
   it("形が違えば undefined", () => {
     expect(parseMobileLeaderboardRanksResponse({ ranks: [] })).toBeUndefined();
+  });
+});
+
+describe("parseMobileLeaderboardVisibility", () => {
+  it("設定を読む", () => {
+    expect(parseMobileLeaderboardVisibility({ hidden: true })).toEqual({
+      hidden: true,
+    });
+  });
+
+  it("形が違えば undefined", () => {
+    expect(parseMobileLeaderboardVisibility({ hidden: "yes" })).toBeUndefined();
   });
 });

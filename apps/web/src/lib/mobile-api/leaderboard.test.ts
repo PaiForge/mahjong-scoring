@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockAuthorize, mockHidden, mockGetUserRanks } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
-  mockHidden: vi.fn(),
-  mockGetUserRanks: vi.fn(),
-}));
+const { mockAuthorize, mockHidden, mockGetUserRanks, mockSaveVisibility } =
+  vi.hoisted(() => ({
+    mockAuthorize: vi.fn(),
+    mockHidden: vi.fn(),
+    mockGetUserRanks: vi.fn(),
+    mockSaveVisibility: vi.fn(),
+  }));
 
 vi.mock("./auth", () => ({
   authorizeMobileRequest: mockAuthorize,
@@ -15,9 +17,16 @@ vi.mock("../db/leaderboard-visibility", () => ({
 vi.mock("../leaderboard/user-ranks", () => ({
   getUserRanks: mockGetUserRanks,
 }));
+vi.mock("../users/leaderboard-visibility", () => ({
+  saveLeaderboardVisibility: mockSaveVisibility,
+}));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
 
-import { handleReadLeaderboardRanks } from "./leaderboard";
+import {
+  handleReadLeaderboardRanks,
+  handleReadLeaderboardVisibility,
+  handleUpdateLeaderboardVisibility,
+} from "./leaderboard";
 
 const URL_BASE = "https://example.test/api/mobile/v1/leaderboard";
 
@@ -30,7 +39,25 @@ beforeEach(() => {
   });
   mockHidden.mockResolvedValue(false);
   mockGetUserRanks.mockResolvedValue([]);
+  mockSaveVisibility.mockResolvedValue({ written: true });
 });
+
+/** ユーザー名を決める前の認証の結果 */
+function withoutUsername() {
+  mockAuthorize.mockResolvedValue({
+    ok: true,
+    user: { id: "me" },
+    profile: undefined,
+  });
+}
+
+function postVisibility(body: unknown) {
+  return new Request(`${URL_BASE}/visibility`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
 
 describe("handleReadLeaderboardRanks", () => {
   it("期間ごとの本人の順位を返す", async () => {
@@ -66,5 +93,72 @@ describe("handleReadLeaderboardRanks", () => {
     );
 
     expect(response.status).toBe(404);
+  });
+});
+
+describe("handleReadLeaderboardVisibility", () => {
+  it("本人の設定を返す", async () => {
+    mockHidden.mockResolvedValue(true);
+
+    const response = await handleReadLeaderboardVisibility(
+      new Request(`${URL_BASE}/visibility`),
+    );
+
+    expect(mockHidden).toHaveBeenCalledWith("me");
+    expect(await response.json()).toEqual({ hidden: true });
+  });
+
+  it("ユーザー名を決める前は読まずに 409 usernameRequired", async () => {
+    withoutUsername();
+
+    const response = await handleReadLeaderboardVisibility(
+      new Request(`${URL_BASE}/visibility`),
+    );
+
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({ error: "usernameRequired" });
+    expect(mockHidden).not.toHaveBeenCalled();
+  });
+});
+
+describe("handleUpdateLeaderboardVisibility", () => {
+  it("本人の設定として保存する", async () => {
+    const response = await handleUpdateLeaderboardVisibility(
+      postVisibility({ hidden: true }),
+    );
+
+    expect(mockSaveVisibility).toHaveBeenCalledWith("me", true);
+    expect(await response.json()).toEqual({ success: true });
+  });
+
+  it("本文の形が違えば保存せずに 400", async () => {
+    const response = await handleUpdateLeaderboardVisibility(
+      postVisibility({ hidden: "yes" }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mockSaveVisibility).not.toHaveBeenCalled();
+  });
+
+  it("ユーザー名を決める前は保存せずに 409 usernameRequired", async () => {
+    withoutUsername();
+
+    const response = await handleUpdateLeaderboardVisibility(
+      postVisibility({ hidden: true }),
+    );
+
+    expect(response.status).toBe(409);
+    expect(mockSaveVisibility).not.toHaveBeenCalled();
+  });
+
+  it("認証の後に退会を受け付けていたら 403 deleted", async () => {
+    mockSaveVisibility.mockResolvedValue({ written: false });
+
+    const response = await handleUpdateLeaderboardVisibility(
+      postVisibility({ hidden: true }),
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "deleted" });
   });
 });
