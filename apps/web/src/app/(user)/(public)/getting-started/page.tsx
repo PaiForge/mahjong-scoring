@@ -45,7 +45,7 @@ export default async function GettingStartedPage() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <StepCard
             icon={<CheckIcon className="size-7" />}
-            iconClassName="bg-primary-50 text-primary-800"
+            iconClassName="bg-brand-subtle text-brand-subtle-foreground"
             title={t("steps.tryout.title")}
             description={t("steps.tryout.description")}
             ctaLabel={t("steps.tryout.cta")}
@@ -53,7 +53,7 @@ export default async function GettingStartedPage() {
           />
           <StepCard
             icon={<PlayIcon className="size-7" />}
-            iconClassName="bg-primary-50 text-primary-800"
+            iconClassName="bg-brand-subtle text-brand-subtle-foreground"
             title={t("steps.practice.title")}
             description={t("steps.practice.description")}
             ctaLabel={t("steps.practice.cta")}

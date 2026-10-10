@@ -67,7 +67,7 @@ export function DerivationStep({
       <span
         className={
           highlighted
-            ? `rounded-md px-3 py-1 text-lg font-bold text-primary-700 ${TABLE_HIGHLIGHT_CELL_CLASS}`
+            ? `rounded-md px-3 py-1 text-lg font-bold text-foreground ${TABLE_HIGHLIGHT_CELL_CLASS}`
             : "px-3 py-1 text-lg font-semibold text-surface-900"
         }
       >

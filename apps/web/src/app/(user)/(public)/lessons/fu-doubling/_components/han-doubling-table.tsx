@@ -47,7 +47,7 @@ export async function HanDoublingTable({
           {
             header: t("colScore"),
             render: (row) => row.ron,
-            className: "font-semibold text-primary-600",
+            className: "font-semibold text-foreground",
           },
         ]}
       />

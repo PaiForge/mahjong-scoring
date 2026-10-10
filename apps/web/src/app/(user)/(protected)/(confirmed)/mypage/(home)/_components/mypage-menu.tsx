@@ -41,11 +41,11 @@ export function MyPageMenu() {
             <li key={key}>
               <Link
                 href={href}
-                className={`group ${rowClasses} transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${featured ? "bg-primary-50/60 hover:bg-primary-50" : "hover:bg-surface-50"}`}
+                className={`group ${rowClasses} transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${featured ? "bg-brand-subtle hover:bg-primary-100" : "hover:bg-surface-50"}`}
               >
                 <span
                   aria-hidden="true"
-                  className={`flex size-11 shrink-0 items-center justify-center rounded-lg ${featured ? "bg-primary-50 text-primary-800" : "bg-surface-100 text-surface-600"}`}
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-lg ${featured ? "bg-card text-brand-subtle-foreground" : "bg-surface-100 text-surface-600"}`}
                 >
                   <Icon />
                 </span>

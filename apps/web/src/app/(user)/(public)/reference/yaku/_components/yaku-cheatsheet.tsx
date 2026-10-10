@@ -147,7 +147,7 @@ export function YakuCheatsheet({
                         {entry.name}
                       </span>
                       {markedYakuNames?.includes(entry.name) && (
-                        <span className="rounded-md bg-primary-50 px-2 py-0.5 text-[11px] font-bold text-primary-800">
+                        <span className="rounded-md bg-brand-subtle px-2 py-0.5 text-[11px] font-bold text-brand-subtle-foreground">
                           {t("inThisHand")}
                         </span>
                       )}

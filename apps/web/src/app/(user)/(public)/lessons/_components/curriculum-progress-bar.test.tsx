@@ -80,7 +80,7 @@ describe("CurriculumProgressBar", () => {
     expect(container.textContent).toContain('"total":7');
   });
 
-  it("uses the primary-500 bar when all chapters are completed", async () => {
+  it("uses the solid success bar when all chapters are completed", async () => {
     const { container } = render(
       await CurriculumProgressBar({
         completedCount: 7,
@@ -89,10 +89,11 @@ describe("CurriculumProgressBar", () => {
       }),
     );
     const bar = container.querySelector('[role="progressbar"] > div');
-    expect(bar?.className).toContain("bg-primary-500");
+    expect(bar?.className).toContain("bg-success");
+    expect(bar?.className).not.toContain("bg-success/70");
   });
 
-  it("uses the primary-400 bar when not all chapters are completed", async () => {
+  it("uses the translucent success bar when not all chapters are completed", async () => {
     const { container } = render(
       await CurriculumProgressBar({
         completedCount: 1,
@@ -101,6 +102,6 @@ describe("CurriculumProgressBar", () => {
       }),
     );
     const bar = container.querySelector('[role="progressbar"] > div');
-    expect(bar?.className).toContain("bg-primary-400");
+    expect(bar?.className).toContain("bg-success/70");
   });
 });

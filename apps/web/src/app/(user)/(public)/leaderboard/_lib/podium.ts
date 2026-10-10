@@ -37,7 +37,7 @@ export function leaderboardRowClassName(options: {
   return [
     "border-b border-surface-100 last:border-b-0 transition-colors",
     options.isCurrentUser
-      ? "bg-primary-50"
+      ? "bg-brand-subtle"
       : isTop3
         ? "bg-surface-50 hover:bg-surface-100"
         : "hover:bg-surface-50",

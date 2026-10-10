@@ -148,7 +148,7 @@ export async function CurriculumToc({
                     role="img"
                     aria-label={tChapter("completedMark")}
                     data-testid="curriculum-achieved-mark"
-                    className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white"
+                    className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-success text-success-foreground"
                   >
                     <CheckIcon className="size-3.5" />
                   </span>

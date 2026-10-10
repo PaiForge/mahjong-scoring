@@ -17,7 +17,7 @@ const COLUMNS: readonly ManganTableColumn[] = [
   {
     headerKey: "colScore",
     align: "right",
-    cellClassName: "font-semibold text-primary-600",
+    cellClassName: "font-semibold text-foreground",
   },
   { headerKey: "colNote", align: "left", cellClassName: "text-surface-500" },
 ];

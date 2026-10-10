@@ -22,7 +22,7 @@ export async function CurriculumProgressBar({
 }: CurriculumProgressBarProps) {
   const t = await getTranslations("learnCurriculum.index");
   const percentage = roundedPercent(completedCount, totalCount);
-  const barColorClass = allCompleted ? "bg-primary-500" : "bg-primary-400";
+  const barColorClass = allCompleted ? "bg-success" : "bg-success/70";
 
   return (
     <div className="space-y-2">

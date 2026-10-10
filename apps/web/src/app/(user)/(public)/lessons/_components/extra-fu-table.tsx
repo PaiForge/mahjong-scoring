@@ -47,10 +47,10 @@ export async function ExtraFuTable({ handShape }: ExtraFuTableProps) {
               ? t("fuUnit", { value: row.from })
               : t("fuRange", { from: row.from, to: row.to })}
           </DataTableRowHeaderCell>
-          <td className="px-4 py-3 font-semibold text-primary-600">
+          <td className="px-4 py-3 font-semibold text-foreground">
             {t("fuUnit", { value: row.tsumoFu })}
           </td>
-          <td className="px-4 py-3 font-semibold text-primary-600">
+          <td className="px-4 py-3 font-semibold text-foreground">
             {t("fuUnit", { value: row.ronFu })}
           </td>
         </tr>

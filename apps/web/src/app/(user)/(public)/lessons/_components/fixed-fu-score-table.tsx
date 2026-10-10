@@ -75,7 +75,7 @@ export async function FixedFuScoreTable({
           {rows.tsumo.map((cell) => (
             <td key={cell.han} className={DATA_TABLE_CELL_PADDING.dense}>
               {cell.score ? (
-                <span className="font-semibold text-primary-600">
+                <span className="font-semibold text-foreground">
                   <TsumoScore payment={cell.score} />
                 </span>
               ) : (
@@ -91,7 +91,7 @@ export async function FixedFuScoreTable({
           {rows.ron.map((cell) => (
             <td
               key={cell.han}
-              className={`${DATA_TABLE_CELL_PADDING.dense} font-semibold text-primary-600`}
+              className={`${DATA_TABLE_CELL_PADDING.dense} font-semibold text-foreground`}
             >
               {cell.score ?? <span className="text-surface-400">-</span>}
             </td>

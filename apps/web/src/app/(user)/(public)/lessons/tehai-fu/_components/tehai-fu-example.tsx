@@ -6,7 +6,7 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 /** 注釈の意味づけと色の対応表 */
 const ANNOTATION_TONE_CLASS = {
   /** 正しい計算結果 */
-  result: "text-primary-600",
+  result: "text-foreground",
   /** 間違えやすく、注意を促したい結果 */
   caution: "text-amber-600",
 } as const;

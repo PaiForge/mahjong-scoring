@@ -161,7 +161,7 @@ export function NormalScoreTable({
                   }
                 >
                   <span
-                    className={`font-semibold text-primary-600 ${
+                    className={`font-semibold text-foreground ${
                       isHidden ? "blur-md" : ""
                     }`}
                   >

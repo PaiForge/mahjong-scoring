@@ -45,7 +45,7 @@ export async function YakuHanTable() {
     >
       {groups.map((group) => (
         <tr key={group.han} className="bg-white">
-          <td className="whitespace-nowrap px-4 py-3 align-top font-semibold text-primary-600">
+          <td className="whitespace-nowrap px-4 py-3 align-top font-semibold text-foreground">
             {hanLabel(group.han)}
           </td>
           <td className="px-4 py-3 text-surface-700">

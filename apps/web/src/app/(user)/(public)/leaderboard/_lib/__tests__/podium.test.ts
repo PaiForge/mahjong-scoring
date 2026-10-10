@@ -24,7 +24,7 @@ describe("leaderboardRowClassName", () => {
   it("prefers the current-user highlight over the podium fill", () => {
     const className = leaderboardRowClassName({ rank: 1, isCurrentUser: true });
 
-    expect(className).toContain("bg-primary-50");
+    expect(className).toContain("bg-brand-subtle");
     expect(className).not.toContain("bg-surface-50");
     // 塗りは自分の行が勝っても、金属の縁は残す
     expect(className).toContain("border-l-podium-gold");

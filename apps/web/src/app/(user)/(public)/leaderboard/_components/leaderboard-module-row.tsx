@@ -35,7 +35,7 @@ export async function LeaderboardModuleRow({
         {showRank && (
           <span className="w-20 shrink-0 text-right">
             {rank !== undefined ? (
-              <span className="inline-block rounded-md bg-primary-50 px-2.5 py-1 text-sm font-bold tabular-nums text-primary-800">
+              <span className="inline-block rounded-md bg-brand-subtle px-2.5 py-1 text-sm font-bold tabular-nums text-brand-subtle-foreground">
                 {t("rankLabel", { rank })}
               </span>
             ) : (
