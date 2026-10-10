@@ -75,6 +75,7 @@ export const MOBILE_AD_SLOTS = {
   glossaryTerm: "mobile-glossary-term-native-ad",
   yakuReference: "mobile-yaku-reference-native-ad",
   announcementsIndex: "mobile-announcements-index-native-ad",
+  leaderboardIndex: "mobile-leaderboard-index-native-ad",
 } as const;
 
 /** モバイル広告スロット */

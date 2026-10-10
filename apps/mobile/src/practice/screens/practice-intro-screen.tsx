@@ -10,6 +10,7 @@ import {
 import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRowList } from "../../components/link-row";
+import { LeaderboardPreview } from "../../leaderboard/leaderboard-preview";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors, radius } from "../../lib/theme";
@@ -25,7 +26,7 @@ import { useRouteVariant } from "./use-route-variant";
  * @description
  * web の練習説明ページ（`PracticeIntroContent`）と同じ並び: 問題方式（見本の
  * 盤面）→ 出題設定（バリアントを持つ練習だけ）→ チャレンジ / トレーニングの
- * 開始導線 → 関連するレッスン → 広告の行（始める前に目に入れない）。
+ * 開始導線 → 関連するレッスン → 広告の行（始める前に目に入れない）→ 総合ランキングの上位。
  */
 export function PracticeIntroScreen({
   slug,
@@ -34,7 +35,7 @@ export function PracticeIntroScreen({
   readonly slug: PracticeMenuSlug;
   readonly screens: PracticeScreens;
 }) {
-  const { namespace, hasSetup } = practiceMenuBySlug(slug);
+  const { namespace, hasSetup, menuType } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
   const tp = useTranslations("practice");
   const variant = useRouteVariant(slug);
@@ -77,6 +78,10 @@ export function PracticeIntroScreen({
           <NativeAdRow creative={ad} />
         </LinkRowList>
       )}
+
+      {/* ランキングはタブに置かず、練習の入口で上位を見せて導線にする（web と同じ）。
+          出題設定を持つ練習は、開いたときのバリアントの土俵を出す */}
+      <LeaderboardPreview board={{ menuType, variant }} />
     </Screen>
   );
 }

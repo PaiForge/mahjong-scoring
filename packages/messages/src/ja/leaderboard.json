@@ -33,5 +33,9 @@
     "cta": "無料登録"
   },
   "allTimeRanking": "総合ランキング",
-  "viewMore": "ランキングをもっと見る"
+  "viewMore": "ランキングをもっと見る",
+  "otherBoards": "ほかの種目のランキングを見る",
+  "loadFailed": "ランキングを読み込めませんでした。",
+  "retry": "もう一度読み込む",
+  "loadMore": "さらに読み込む"
 }

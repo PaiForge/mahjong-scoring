@@ -1,18 +1,18 @@
 import {
   getAllTimeRanking,
   getMonthlyRanking,
-} from "@/lib/db/leaderboard-queries";
+} from "../db/leaderboard-queries";
 import type {
   LeaderboardPage,
   RankedLeaderboardRow,
-} from "@/lib/db/leaderboard-queries";
+} from "../db/leaderboard-queries";
 import {
   getUserAllTimeRankedRow,
   getUserMonthlyRankedRow,
-} from "@/lib/db/user-rank-queries";
+} from "../db/user-rank-queries";
 import { jstCalendarDate } from "@mahjong-scoring/features/jst";
 
-import type { LeaderboardPeriod } from "./types";
+import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
 
 type RankingFn = (
   menuType: string,

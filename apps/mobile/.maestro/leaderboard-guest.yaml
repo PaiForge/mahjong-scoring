@@ -1,0 +1,69 @@
+# ゲストのランキング: 練習の説明の末尾に総合の上位 3 人、「ランキングをもっと見る」で
+# 詳細（期間の切り替え・さらに読み込む）、行を押すと公開プロフィール。最後に一覧
+# （分野ごとの行と広告の行）を撮る。手元の web（:3000）と dev seed が要る
+appId: help.mahjong.score
+---
+# キーチェーンのセッションは clearState では消えない
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://practice/jantou-fu"
+- scrollUntilVisible:
+    element:
+      id: "leaderboard-preview-more"
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: "leaderboard-preview"
+- takeScreenshot: leaderboard-preview-intro
+- tapOn:
+    id: "leaderboard-preview-more"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-table"
+    timeout: 10000
+- takeScreenshot: leaderboard-detail-all-time
+- tapOn:
+    id: "leaderboard-period-monthly"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-table"
+    timeout: 10000
+- assertVisible: "月間"
+- scrollUntilVisible:
+    element:
+      id: "leaderboard-more"
+    direction: DOWN
+- tapOn:
+    id: "leaderboard-more"
+- extendedWaitUntil:
+    notVisible:
+      id: "leaderboard-more"
+    timeout: 10000
+- takeScreenshot: leaderboard-detail-monthly-more
+- scrollUntilVisible:
+    element:
+      id: "leaderboard-row-seed_bob"
+    direction: UP
+- tapOn:
+    id: "leaderboard-row-seed_bob"
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 10000
+- takeScreenshot: public-profile-guest
+- openLink: "mahjong-scoring://leaderboard"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-board-jantou_fu:default"
+    timeout: 10000
+# ゲストには順位の印を出さない
+- assertNotVisible: "未挑戦"
+- assertNotVisible: ".*位"
+- takeScreenshot: leaderboard-index-guest
+- scrollUntilVisible:
+    element: "広告、.*"
+    direction: DOWN
+- takeScreenshot: leaderboard-index-ad

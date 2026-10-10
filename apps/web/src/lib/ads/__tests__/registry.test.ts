@@ -49,7 +49,9 @@ describe("counterpartSlot", () => {
     expect(new Set(webs).size).toBe(webs.length);
   });
 
-  it("アプリに画面の無い web のスロットは対を持たない", () => {
-    expect(counterpartSlot("leaderboard-index-native-ad")).toBeUndefined();
+  it("ランキングの一覧は web とアプリで対になる", () => {
+    expect(counterpartSlot("leaderboard-index-native-ad")).toBe(
+      "mobile-leaderboard-index-native-ad",
+    );
   });
 });

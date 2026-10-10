@@ -35,9 +35,15 @@ export function isReportReason(value: unknown): value is ReportReason {
   return typeof value === "string" && reportReasonSet.has(value);
 }
 
-/** 通報の入力の誤り。辞書の `report.errors.<key>` と対応する */
-export type ReportInputError =
-  "invalidReason" | "detailRequired" | "detailTooLong";
+/** 通報の入力の誤り（辞書の `report.errors.<key>` と対応する） */
+export const REPORT_INPUT_ERRORS = [
+  "invalidReason",
+  "detailRequired",
+  "detailTooLong",
+] as const;
+
+/** 通報の入力の誤り（{@link REPORT_INPUT_ERRORS}） */
+export type ReportInputError = (typeof REPORT_INPUT_ERRORS)[number];
 
 /** 検証済みの通報の入力（詳細は前後の空白を除き、空なら null） */
 export interface ReportInput {
