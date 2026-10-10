@@ -39,8 +39,10 @@ interface ScoreProblemListProps {
  * 各問をアコーディオン形式で表示し、正誤と正解・ユーザー回答の詳細を確認できる。
  * 出題スナップショットが保存されている場合は、出題時と同じ手牌表示も再現する。
  *
- * 詳細は「手牌 → 面子分解 → 符・翻数の内訳（符と翻の根拠）→ 答え合わせ」の
- * 順に並べる。要約行は「子・ロン・40符・2翻」としか言わないので、
+ * 詳細は「手牌 → 面子分解 → 答え合わせ → 符・翻数の内訳（符と翻の根拠）」の
+ * 順に並べる。内訳を答え合わせの後に置くのは、トレーニングの答え合わせ
+ * （`ResultDisplay`）と同じく、開いても正解と自分の回答が内訳の下へ
+ * 押し出されないようにするため。要約行は「子・ロン・40符・2翻」としか言わないので、
  * 間違えた人が数え直すには符と翻それぞれの根拠が要る。面子分解は牌の分け方まで
  * しか見せず、副底・門前加符・ツモ符・待ち符と 10 符単位の切り上げは符の内訳
  * （合計符練習の結果ページと同じ表）が受け持つ。符の内訳は満貫未満の問題だけが
@@ -49,7 +51,7 @@ interface ScoreProblemListProps {
  * （{@link ScoreBreakdownPanel}）。
  *
  * 内訳は既定で閉じている。ここで問われているのは点数であって符や翻ではなく、
- * 開いたままだと行数だけ答え合わせが下へ流れる。
+ * 開いたままだと行数だけ詳細が縦に伸びる。
  */
 export function ScoreProblemList({
   results,
@@ -77,6 +79,17 @@ export function ScoreProblemList({
             {question && (
               <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
             )}
+            <AnswerComparison
+              translationNamespace={translationNamespace}
+              outcome={result.outcome}
+              correct={renderCorrectAnswer(result.correctAnswer, result)}
+              user={
+                result.userAnswer === undefined
+                  ? undefined
+                  : formatAnswer(result.userAnswer, t)
+              }
+            />
+
             {/* 符と翻数の内訳。符は満貫以上の問題に無く、どちらも保存を
                 始める前の旧データには無い */}
             <ScoreBreakdownPanel
@@ -92,17 +105,6 @@ export function ScoreProblemList({
                 result.yakumanMultiplier,
                 tBreakdown,
               )}
-            />
-
-            <AnswerComparison
-              translationNamespace={translationNamespace}
-              outcome={result.outcome}
-              correct={renderCorrectAnswer(result.correctAnswer, result)}
-              user={
-                result.userAnswer === undefined
-                  ? undefined
-                  : formatAnswer(result.userAnswer, t)
-              }
             />
           </div>
         );

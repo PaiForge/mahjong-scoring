@@ -62,6 +62,26 @@ describe("ScoreProblemListWithLinks", () => {
     expect(screen.getByText("副底")).toBeDefined();
   });
 
+  it("内訳は答え合わせの後に置く（開いても正解と回答が押し出されない）", () => {
+    render(
+      <ScoreProblemListWithLinks
+        results={[
+          makeScoreQuestionResult({ fu: 40, question: SNAPSHOT_WITH_FU }),
+        ]}
+        translationNamespace="fuScoreExamChallenge"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
+
+    const correctAnswer = screen.getByRole("button", { name: /1000/ });
+    const toggle = screen.getByRole("button", { name: "toggle" });
+    expect(
+      correctAnswer.compareDocumentPosition(toggle) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("符の内訳を持たない問題（満貫以上・旧データ）では出さない", () => {
     render(
       <ScoreProblemListWithLinks
