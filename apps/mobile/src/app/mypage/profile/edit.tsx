@@ -53,10 +53,13 @@ import { useMypageRead } from "../../../mypage/use-mypage-read";
  */
 const ERROR_KEYS = {
   displayNameTooLong: "displayNameTooLong",
+  displayNameProhibited: "displayNameProhibited",
   bioTooLong: "bioTooLong",
+  bioProhibited: "bioProhibited",
   xUsernameInvalid: "xUsernameInvalid",
   instagramUsernameInvalid: "instagramUsernameInvalid",
   youtubeHandleInvalid: "youtubeHandleInvalid",
+  snsProhibited: "snsProhibited",
   rateLimited: "rateLimited",
   banned: "banned",
   // 退会の受付・ログアウト・ユーザー名の未設定は、ゲートが記録の案内へ切り替える

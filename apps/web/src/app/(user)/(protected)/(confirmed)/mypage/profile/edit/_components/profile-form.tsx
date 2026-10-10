@@ -13,17 +13,21 @@ import toast from "react-hot-toast";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
-import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
+import {
+  PROFILE_LIMITS,
+  PROFILE_VALIDATION_ERRORS,
+} from "@mahjong-scoring/features/profile/validation";
 import type { ProfileInput } from "@mahjong-scoring/features/profile/validation";
 import { Button } from "@/app/(user)/_components/button";
 
-/** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */
-const KNOWN_ERROR_KEYS = new Set([
-  "displayNameTooLong",
-  "bioTooLong",
-  "xUsernameInvalid",
-  "instagramUsernameInvalid",
-  "youtubeHandleInvalid",
+/**
+ * action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある）
+ *
+ * 検証の誤りは features の一覧から引く。書き写すと、誤りを足したときに
+ * ここだけ汎用の「保存できませんでした」に落ちる。
+ */
+const KNOWN_ERROR_KEYS = new Set<string>([
+  ...PROFILE_VALIDATION_ERRORS,
   "rateLimited",
   "updateFailed",
   "banned",

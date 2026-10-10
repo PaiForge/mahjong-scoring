@@ -100,10 +100,12 @@ export const MOBILE_USERNAME_ERROR_CODES = [
   "too_long",
   "invalid_format",
   "reserved",
+  "prohibited",
   "username_required",
   "username_already_set",
   "username_taken",
   "display_name_too_long",
+  "display_name_prohibited",
 ] as const;
 
 /** ユーザー名登録で弾く理由（{@link MOBILE_USERNAME_ERROR_CODES}） */

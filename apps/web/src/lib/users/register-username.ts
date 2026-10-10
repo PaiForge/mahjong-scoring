@@ -22,7 +22,8 @@ export type UsernameRegistrationError =
   | "username_required"
   | "username_already_set"
   | "username_taken"
-  | "display_name_too_long";
+  | "display_name_too_long"
+  | "display_name_prohibited";
 
 /**
  * ユーザー名を決めてプロフィールを作る（本登録）
@@ -53,9 +54,13 @@ export async function registerUsernameForUser(
   }
 
   // 入力欄の maxLength はフォーム経由の入力しか止められない。表示名は
-  // プロフィール編集と同じ行を書くので、上限も編集側と同じ規則で弾く。
-  if (validateDisplayName(trimmedDisplayName)) {
+  // プロフィール編集と同じ行を書くので、上限と語句も編集側と同じ規則で弾く。
+  const displayNameError = validateDisplayName(trimmedDisplayName);
+  if (displayNameError === "displayNameTooLong") {
     return { error: "display_name_too_long" };
+  }
+  if (displayNameError === "displayNameProhibited") {
+    return { error: "display_name_prohibited" };
   }
 
   // 二重作成を防ぐ（プロフィールが既にあるなら登録済み）

@@ -9,6 +9,7 @@
  *
  * ユーザー名バリデーション
  */
+import { containsProhibitedWord } from "../profile/prohibited-words";
 import { isReservedUsername } from "./reserved-usernames";
 
 const USERNAME_REGEX = /^[a-z](?:[a-z0-9]_?)*[a-z0-9]$/;
@@ -23,7 +24,8 @@ const USERNAME_MIN_LENGTH = 2;
 export const USERNAME_MAX_LENGTH = 20;
 
 export type UsernameFormatError = "too_short" | "too_long" | "invalid_format";
-export type UsernameValidationError = UsernameFormatError | "reserved";
+export type UsernameValidationError =
+  UsernameFormatError | "reserved" | "prohibited";
 
 /**
  * Validate username format only (length, characters, pattern).
@@ -51,7 +53,7 @@ export function validateUsernameFormat(
  * Full username validation including reserved word check.
  * Use this for registration and username change flows.
  *
- * ユーザー名バリデーション（予約語チェック込み）
+ * ユーザー名バリデーション（予約語・禁止語句チェック込み）
  */
 export function validateUsername(
   username: string,
@@ -62,6 +64,10 @@ export function validateUsername(
   }
   if (isReservedUsername(username)) {
     return "reserved";
+  }
+  // ユーザー名は公開プロフィールの URL とランキングに出る（`profile/prohibited-words.ts`）
+  if (containsProhibitedWord(username)) {
+    return "prohibited";
   }
   return undefined;
 }
