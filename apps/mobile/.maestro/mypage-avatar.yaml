@@ -1,8 +1,8 @@
 # 記録が残る人（bob）のアバター: プロフィール編集で写真ライブラリから画像を選んで
-# 上げ（iOS の標準の切り抜きで「Choose」）、マイページの見出しに出ることを見る。
-# 最後に削除して頭文字に戻す。写真はアプリのアイコンを addMedia でシミュレーターに
-# 足し、ライブラリの先頭（最新）を選ぶ。手元の web（:3000）とその DB・Storage が
-# 動いていること
+# 上げ（iOS の標準の切り抜きで「Choose」）、マイページの見出しとホームのヘッダーの
+# マイページの入口に出ることを見る。最後に削除して頭文字（ホームは人型のアイコン）に
+# 戻す。写真はアプリのアイコンを addMedia でシミュレーターに足し、ライブラリの先頭
+# （最新）を選ぶ。手元の web（:3000）とその DB・Storage が動いていること
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -63,7 +63,20 @@ appId: help.mahjong.score
     visible: "@seed_bob"
     timeout: 15000
 - takeScreenshot: avatar-mypage
+# ホームのヘッダーの入口もアバターに替わる
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- takeScreenshot: avatar-home
 # 削除して頭文字に戻す
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-menu-profile"
+    timeout: 15000
 - tapOn:
     id: "mypage-menu-profile"
 - extendedWaitUntil:
@@ -80,3 +93,14 @@ appId: help.mahjong.score
 - assertNotVisible:
     id: "profile-edit-avatar-remove"
 - takeScreenshot: avatar-removed
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- takeScreenshot: avatar-home-removed

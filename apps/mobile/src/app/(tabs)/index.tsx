@@ -2,6 +2,7 @@ import { Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
+import { useAuth } from "../../auth/use-auth";
 import { UserIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useMobileJourney } from "../../dojo/use-mobile-journey";
@@ -9,6 +10,13 @@ import { HomeAnnouncements } from "../../home/home-announcements";
 import { NextStepCard } from "../../home/next-step-card";
 import { RecordCtaCard } from "../../home/record-cta-card";
 import { colors } from "../../lib/theme";
+import { UserAvatar } from "../../mypage/user-avatar";
+
+/**
+ * ヘッダー右のアバターの直径。人型のアイコン（24）より一回り大きくし、
+ * 塗りの円と線画のアイコンの見た目の大きさをそろえる
+ */
+const ENTRY_SIZE = 28;
 
 /**
  * ホーム
@@ -28,7 +36,10 @@ import { colors } from "../../lib/theme";
  *   メニュー。モバイルはメニューを持たず、タブも OS の上限の 5 つで
  *   埋まっている）。マイページはゲストにも出す — 開くと記録の案内が出る。
  *   設定は web のアカウントのメニューと同じくマイページの奥に置き、ヘッダーに
- *   歯車を常に出さない（web もヘッダーに設定を常設しない）
+ *   歯車を常に出さない（web もヘッダーに設定を常設しない）。アバター画像を
+ *   設定した人にはアイコンの代わりにその画像を出す（スマホアプリで見慣れた
+ *   形）。画像の無い人は頭文字ではなく人型のアイコンのまま — `/me` は表示名を
+ *   持たず、マイページの見出しの頭文字と食い違うため
  * - ゲストにも開く画面なので、記録が残らない人（ゲスト・ユーザー名を
  *   決めていない人）には「次にやること」の下に記録の案内を出す
  *   （`RecordCtaCard`）。今することを先に置き、案内はその後
@@ -59,7 +70,7 @@ export default function HomeScreen() {
           hitSlop={8}
           style={({ pressed }) => pressed && styles.pressed}
         >
-          <UserIcon size={24} color={colors.surface700} />
+          <MypageEntryIcon />
         </Pressable>
       }
     >
@@ -68,6 +79,22 @@ export default function HomeScreen() {
       <HomeAnnouncements />
     </Screen>
   );
+}
+
+/** マイページの入口の絵柄。アバター画像があればそれ、無ければ人型のアイコン */
+function MypageEntryIcon() {
+  const { account } = useAuth();
+  const profile = account?.profile;
+  if (profile?.avatarUrl !== undefined) {
+    return (
+      <UserAvatar
+        avatarUrl={profile.avatarUrl}
+        name={profile.username}
+        size={ENTRY_SIZE}
+      />
+    );
+  }
+  return <UserIcon size={24} color={colors.surface700} />;
 }
 
 const styles = StyleSheet.create({
