@@ -56,9 +56,11 @@ export function SelectValueBox({
   // 足した瞬間に箱が伸び、下の送信ボタンが動く
   return (
     <div
-      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 px-2 py-1.5 transition-colors ${
+      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border px-2 py-1.5 transition-colors ${
         frameClasses ??
-        (disabled ? "border-ink bg-surface-100" : "border-ink bg-white")
+        (disabled
+          ? "border-surface-400 bg-surface-100"
+          : "border-surface-400 bg-white")
       } ${disabled ? "cursor-not-allowed" : ""} ${
         canOpen ? "cursor-pointer" : ""
       }`}

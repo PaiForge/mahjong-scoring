@@ -188,7 +188,7 @@ describe("ScoreAnswerForm の正誤フィードバック", () => {
     renderForm({});
 
     const select = screen.getByRole("combobox");
-    expect(select.className).toContain("border-ink");
+    expect(select.className).toContain("border-surface-400");
     expect(select.className).not.toContain("border-success");
     expect(select.className).not.toContain("border-destructive");
   });
@@ -215,7 +215,7 @@ describe("ScoreAnswerForm の正誤フィードバック", () => {
     renderForm({ showFeedback: true });
 
     const select = screen.getByRole("combobox");
-    expect(select.className).toContain("border-ink");
+    expect(select.className).toContain("border-surface-400");
   });
 
   it("子ツモの分割入力は2つの select をまとめて同じ色にする", () => {

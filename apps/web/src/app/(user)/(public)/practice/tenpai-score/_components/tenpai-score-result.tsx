@@ -250,7 +250,7 @@ export function TenpaiScoreResult({
             id={DETAIL_PANEL_ID}
             role="tabpanel"
             aria-labelledby={cellTabId(focusedCell)}
-            className="rounded-b-lg border-3 border-ink bg-white p-3 sm:p-4"
+            className="rounded-b-lg border border-panel bg-white p-3 sm:p-4"
           >
             {focusedQuestion ? (
               <div className="space-y-3">

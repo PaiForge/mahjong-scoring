@@ -10,7 +10,7 @@ export function getFeedbackBorderClass(
   lastAnswerCorrect: boolean | undefined,
 ): string {
   if (!showFeedback || lastAnswerCorrect === undefined)
-    return "border-ink bg-white";
+    return "border-panel bg-white";
   return lastAnswerCorrect
     ? "border-success bg-success-subtle"
     : "border-destructive bg-destructive-subtle";
@@ -41,8 +41,11 @@ export function getFeedbackStyles(
 ): { borderClass: string; bgClass: string } {
   if (!showFeedback) {
     return isSelected
-      ? { borderClass: "border-ink", bgClass: "bg-surface-100" }
-      : { borderClass: "border-ink", bgClass: "bg-white hover:bg-primary-50" };
+      ? { borderClass: "border-surface-400", bgClass: "bg-surface-100" }
+      : {
+          borderClass: "border-surface-300 hover:border-primary-300",
+          bgClass: "bg-white hover:bg-primary-50",
+        };
   }
 
   if (isCorrect) {
@@ -56,7 +59,7 @@ export function getFeedbackStyles(
     };
   }
 
-  return { borderClass: "border-ink", bgClass: "bg-white opacity-50" };
+  return { borderClass: "border-surface-300", bgClass: "bg-white opacity-50" };
 }
 
 /**
