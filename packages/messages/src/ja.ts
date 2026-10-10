@@ -56,6 +56,7 @@ import mypage from "./ja/mypage.json";
 import setupUsername from "./ja/setup-username.json";
 import profileEdit from "./ja/profile-edit.json";
 import publicProfile from "./ja/public-profile.json";
+import report from "./ja/report.json";
 import admin from "./ja/admin.json";
 import banned from "./ja/banned.json";
 import pagination from "./ja/pagination.json";
@@ -156,6 +157,7 @@ export const messages = {
   setupUsername,
   profileEdit,
   publicProfile,
+  report,
   admin,
   banned,
   pagination,

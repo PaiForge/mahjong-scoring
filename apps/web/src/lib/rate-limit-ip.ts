@@ -103,6 +103,8 @@ export const IP_RATE_LIMITS = {
   updateProfile: { maxRequests: 10, windowMs: 600_000 },
   updateLeaderboardVisibility: { maxRequests: 20, windowMs: 600_000 },
   updateBlocks: { maxRequests: 30, windowMs: 600_000 },
+  // 1 件ごとに運営者へメールが飛ぶので、ブロックより絞る
+  reportUser: { maxRequests: 10, windowMs: 600_000 },
   // 未ログインで叩けるメール送信。Resend の送信枠（アカウント単位）を
   // 1 つの IP に食い潰されないよう短い窓で絞る
   contact: { maxRequests: 3, windowMs: 60_000 },

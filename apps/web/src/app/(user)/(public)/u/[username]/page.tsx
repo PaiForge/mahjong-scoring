@@ -3,7 +3,7 @@
  *
  * @description ユーザー名で誰でも閲覧できる公開プロフィール。アバター・表示名・自己紹介・SNS リンクを表示する（SSR / SEO 対象）。退会・BAN・存在しないユーザーは 404。
  * 閲覧者がブロックした人は 404 にせず、ブロック中である旨と解除のボタンだけを出す（解除の入口を残すため）。
- * 末尾にブロック（後に通報）のボタンを置く。未ログインならログインが要る旨、自分のページなら何も置かない。
+ * 末尾に通報とブロックのボタンを置く。未ログインならログインが要る旨、自分のページなら何も置かない。
  * @flow マイページの「公開プロフィール」リンク・ランキングの行 → /u/[username] → ブロック → ブロック中の案内
  */
 import type { Metadata } from "next";
@@ -24,6 +24,7 @@ import { buildSignInHref } from "@/lib/redirect";
 import Link from "next/link";
 
 import { BlockButton, UnblockButton } from "./_components/block-buttons";
+import { ReportButton } from "./_components/report-button";
 
 interface Props {
   readonly params: Promise<{ username: string }>;
@@ -178,20 +179,23 @@ export default async function PublicProfilePage({ params }: Props) {
                 })}
               </p>
             ) : (
-              <BlockButton
-                username={profile.username}
-                labels={{
-                  block: t("block"),
-                  confirmTitle: t("blockConfirmTitle", {
-                    username: profile.username,
-                  }),
-                  confirmMessage: t("blockConfirmMessage"),
-                  confirm: t("blockConfirm"),
-                  cancel: t("cancel"),
-                  blockedToast: t("blockedToast"),
-                  failedToast: t("blockFailedToast"),
-                }}
-              />
+              <div className="flex gap-3">
+                <ReportButton username={profile.username} />
+                <BlockButton
+                  username={profile.username}
+                  labels={{
+                    block: t("block"),
+                    confirmTitle: t("blockConfirmTitle", {
+                      username: profile.username,
+                    }),
+                    confirmMessage: t("blockConfirmMessage"),
+                    confirm: t("blockConfirm"),
+                    cancel: t("cancel"),
+                    blockedToast: t("blockedToast"),
+                    failedToast: t("blockFailedToast"),
+                  }}
+                />
+              </div>
             )}
           </div>
         )}
