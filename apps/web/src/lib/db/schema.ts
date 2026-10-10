@@ -269,6 +269,50 @@ export type ModerationAction = typeof moderationActions.$inferSelect;
 export type NewModerationAction = typeof moderationActions.$inferInsert;
 
 /**
+ * ユーザーのブロック
+ *
+ * @description
+ * 「この人を自分の画面に出さない」という本人の設定。ブロックした本人が見る
+ * ランキングと公開プロフィールからだけ相手を消す一方向の関係で、相手には
+ * 知らせず、相手からの見え方も変えない（DM のような双方向のやり取りが
+ * 無いため）。App Store の審査ガイドライン 1.2 が求める「迷惑な利用者を
+ * ブロックできること」に当たる。
+ *
+ * @design ランキングの順位は詰めない
+ * ランキングは全員で共有するキャッシュ（土俵 × 期間 × ページ）から引き、
+ * ブロックした人の行は閲覧者ごとに後から取り除く（`lib/blocks/queries.ts`）。
+ * 順位は「1, 2, 4」のように飛ぶが、閲覧者ごとに順位を数え直すとキャッシュが
+ * 効かなくなり、自分の順位も他の人が見るものとずれるため。
+ *
+ * 退会すると、ブロックした側・された側のどちらの行も消す
+ * （`lib/users/delete-account.ts`）。
+ */
+export const userBlocks = pgTable(
+  "user_blocks",
+  {
+    /** ブロックした人の auth.users(id)（Supabase SQL で FK を定義） */
+    blockerId: uuid("blocker_id").notNull(),
+    /** ブロックされた人の auth.users(id)（Supabase SQL で FK を定義） */
+    blockedId: uuid("blocked_id").notNull(),
+    /** ブロックした日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.blockerId, table.blockedId] }),
+    // 退会で「ブロックされた側」の行を消すときに引く
+    index("idx_user_blocks_blocked").on(table.blockedId),
+    check(
+      "user_blocks_not_self",
+      sql`${table.blockerId} <> ${table.blockedId}`,
+    ),
+  ],
+);
+
+export type UserBlock = typeof userBlocks.$inferSelect;
+
+/**
  * ユーザーアクティビティログ — ユーザー行動の記録
  *
  * @description

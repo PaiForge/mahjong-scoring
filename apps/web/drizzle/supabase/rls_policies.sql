@@ -273,3 +273,14 @@ ALTER TABLE "apple_refresh_tokens" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens";
 CREATE POLICY "apple_refresh_tokens_deny_all" ON "apple_refresh_tokens"
   USING (false);
+
+-- =============================================================================
+-- user_blocks
+-- =============================================================================
+-- 誰が誰をブロックしたか。相手に知らせない約束なので、クライアントからは
+-- 読ませない。読み書きはサーバーが直 DB 接続で行う。
+ALTER TABLE "user_blocks" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "user_blocks_deny_all" ON "user_blocks";
+CREATE POLICY "user_blocks_deny_all" ON "user_blocks"
+  USING (false);
