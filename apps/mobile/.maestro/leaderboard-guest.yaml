@@ -3,6 +3,8 @@
 # （分野ごとの行と広告の行）を撮る。手元の web（:3000）と dev seed が要る
 appId: help.mahjong.score
 ---
+# キーチェーンのセッションは clearState では消えない
+- clearKeychain
 - launchApp:
     clearState: true
 - extendedWaitUntil:
@@ -57,7 +59,9 @@ appId: help.mahjong.score
     visible:
       id: "leaderboard-board-jantou_fu:default"
     timeout: 10000
+# ゲストには順位の印を出さない
 - assertNotVisible: "未挑戦"
+- assertNotVisible: ".*位"
 - takeScreenshot: leaderboard-index-guest
 - scrollUntilVisible:
     element: "広告、.*"
