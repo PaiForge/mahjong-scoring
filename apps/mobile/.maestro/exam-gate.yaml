@@ -1,0 +1,34 @@
+# 昇級試験の本番の受験ゲート: ゲストには登録の案内、無級の alice が 4級（符）の
+# 試験を開くと先に取る級（5級）と道場への導線が出る。模試はどちらも受けられる
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://exam/fu"
+- scrollUntilVisible:
+    element:
+      id: "start-training"
+    direction: DOWN
+- assertVisible:
+    id: "exam-sign-up"
+- assertNotVisible:
+    id: "start-exam"
+- takeScreenshot: exam-gate-guest
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: alice@example.local
+      PASSWORD: devpass1
+- openLink: "mahjong-scoring://exam/fu"
+- scrollUntilVisible:
+    element:
+      id: "start-training"
+    direction: DOWN
+- assertVisible: "道場で次の目標を確認する"
+- assertNotVisible:
+    id: "start-exam"
+- takeScreenshot: exam-gate-locked
