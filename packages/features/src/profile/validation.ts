@@ -49,13 +49,21 @@ export interface NormalizedProfile {
   readonly youtubeHandle: string | null;
 }
 
-/** i18n キー（profileEdit 名前空間）と対応するバリデーションエラー */
-export type ProfileValidationError =
-  | "displayNameTooLong"
-  | "bioTooLong"
-  | "xUsernameInvalid"
-  | "instagramUsernameInvalid"
-  | "youtubeHandleInvalid";
+/**
+ * バリデーションエラーの一覧。i18n キー（profileEdit 名前空間）と対応する
+ *
+ * アプリ向け API はこの一覧を 422 の理由としてそのまま返す。
+ */
+export const PROFILE_VALIDATION_ERRORS = [
+  "displayNameTooLong",
+  "bioTooLong",
+  "xUsernameInvalid",
+  "instagramUsernameInvalid",
+  "youtubeHandleInvalid",
+] as const;
+
+/** バリデーションエラー（{@link PROFILE_VALIDATION_ERRORS}） */
+export type ProfileValidationError = (typeof PROFILE_VALIDATION_ERRORS)[number];
 
 export type ProfileValidationResult =
   | { readonly ok: true; readonly value: NormalizedProfile }
