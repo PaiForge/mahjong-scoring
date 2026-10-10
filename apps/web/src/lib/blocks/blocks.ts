@@ -118,8 +118,7 @@ async function findTargetId(username: string): Promise<string | undefined> {
  * 相手をブロックする
  * ブロック
  *
- * 相手はユーザー名で指す（画面とアプリ向け API が持っているのは公開の
- * ユーザー名だけで、内部の ID を外に出さないため）。BAN された人も
+ * 相手はユーザー名で指す（画面が持っているのは公開のユーザー名だけで、内部の ID を外に出さないため）。BAN された人も
  * ブロックできる（解除後に備えて）。
  */
 export async function blockUser(

@@ -129,12 +129,9 @@ export const IP_RATE_LIMITS = {
   // アプリが起動・復帰・ログインのたびに読むアカウント状態。書き込みは
   // しないので、認証サーバーへの問い合わせを連打させない程度に取る
   readMobileAccount: { maxRequests: 60, windowMs: 600_000 },
-  // アプリのランキング・公開プロフィールの閲覧。ゲストも読むので IP で数える。
-  // ページ送りと期間の切り替えで続けて飛ぶので、人の操作が届かない程度に広く取る
+  // アプリの自分の順位の閲覧。期間の切り替えと画面へ戻るたびに続けて飛ぶので、
+  // 人の操作が届かない程度に広く取る
   readLeaderboard: { maxRequests: 300, windowMs: 600_000 },
-  readPublicProfile: { maxRequests: 120, windowMs: 600_000 },
-  // アプリの設定の「ブロックしたユーザー」。開くたびと解除のたびに読む
-  readBlocks: { maxRequests: 60, windowMs: 600_000 },
   // アプリの記録付きチャレンジの回答。1 回のチャレンジで数十問、通信の
   // 失敗で同じ回答を送り直すこともあるので、人の操作が届かない程度に広く取る
   answerChallenge: { maxRequests: 600, windowMs: 600_000 },

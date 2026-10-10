@@ -25,7 +25,7 @@ export type CreateReportResult =
  * 通報を受け付け、運営者に知らせる
  * 通報受付
  *
- * web の Server Action とアプリ向け API の両方から呼ぶ。認証・回数制限・
+ * web の Server Action から呼ぶ。認証・回数制限・
  * 入力の検証（`validateReportInput`）は呼び出し側が済ませる。相手は公開の
  * ユーザー名で指す（ブロックと同じ理由）。相手のプロフィールはこの時点の
  * 内容を `snapshot` に写す。

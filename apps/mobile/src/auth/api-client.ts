@@ -107,30 +107,6 @@ export async function callMobileApi(
   }
 }
 
-/**
- * ゲストも読める API を、閲覧者として呼ぶ
- * 閲覧者API呼び出し
- *
- * `viewerId` があればそのユーザーのトークンを付けて {@link callMobileApi} で
- * 送る（読んでいる間に別のユーザーへ切り替わったら送らない）。無ければ
- * トークンを付けずに送り、サーバーはゲストとして答える。ログイン中に
- * トークンを付け忘れると、本人の順位やブロックの除外が効かない応答になる
- * ので、ログインの状態を読み終えてから呼ぶこと（`useViewer`）。
- *
- * @param viewerId - ログイン中のユーザーの ID。ゲストなら undefined
- */
-export async function callMobileApiAsViewer(
-  path: string,
-  viewerId: string | undefined,
-): Promise<Response | ApiFailure> {
-  if (viewerId !== undefined) return callMobileApi(path, { asUser: viewerId });
-  try {
-    return await fetch(`${SITE_URL}${path}`);
-  } catch {
-    return "network";
-  }
-}
-
 /** 1 回の HTTP 要求 */
 function send(
   path: string,
