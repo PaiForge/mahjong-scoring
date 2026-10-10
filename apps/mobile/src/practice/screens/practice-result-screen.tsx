@@ -6,9 +6,11 @@ import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
+  type PracticeMenuType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_PATH,
+  myRecordHref,
   practiceHref,
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
@@ -66,7 +68,7 @@ export function PracticeResultScreen({
   readonly slug: PracticeMenuSlug;
   readonly screens: PracticeScreens;
 }) {
-  const { namespace, hasSetup } = practiceMenuBySlug(slug);
+  const { namespace, hasSetup, menuType } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
@@ -133,6 +135,11 @@ export function PracticeResultScreen({
           )}
           <RecordStatus attemptId={current?.recordedAttemptId} />
           <RecordedExp attemptId={current?.recordedAttemptId} />
+          <MyRecordLink
+            attemptId={current?.recordedAttemptId}
+            menuType={menuType}
+            variant={variant}
+          />
         </View>
 
         <View style={styles.actions}>
@@ -192,7 +199,39 @@ function RecordedExp({
   return <ExpGain exp={exp} />;
 }
 
+/**
+ * 記録できたチャレンジから、その土俵を選んだマイレコードへ（web の結果ページの
+ * 「マイレコードで推移を見る」）
+ */
+function MyRecordLink({
+  attemptId,
+  menuType,
+  variant,
+}: {
+  readonly attemptId: string | undefined;
+  readonly menuType: PracticeMenuType;
+  readonly variant: string;
+}) {
+  const t = useTranslations("challenge.record");
+  const router = useRouter();
+  const status = useFinishStatus(attemptId);
+  if (status !== "recorded") return undefined;
+  return (
+    <View style={styles.myRecord}>
+      <TextLink
+        testID="result-my-record"
+        onPress={() => router.push(myRecordHref({ menuType, variant }))}
+      >
+        {t("viewMyRecords")}
+      </TextLink>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  myRecord: {
+    alignItems: "center",
+  },
   recordStatus: {
     fontSize: 15,
     lineHeight: 24,

@@ -60,6 +60,9 @@
     "pageTitle": "マイレコード",
     "records": "成績",
     "noData": "データがありません",
+    "loadFailed": "成績を読み込めませんでした。",
+    "periodLabel": "期間",
+    "boardLabel": "種目",
     "bestScore": "ベストスコア",
     "avgScore": "平均スコア",
     "avgScoreInfo": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
@@ -93,6 +96,8 @@
     "tableMenu": "種目",
     "tableCorrectAnswers": "正解数",
     "tableIncorrectAnswers": "ミス数",
-    "allMenuTypes": "すべての種目"
+    "allMenuTypes": "すべての種目",
+    "loadFailed": "結果を読み込めませんでした。",
+    "loadMore": "さらに読み込む"
   }
 }
