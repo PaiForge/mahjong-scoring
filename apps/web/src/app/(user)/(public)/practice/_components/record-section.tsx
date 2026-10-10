@@ -74,7 +74,7 @@ export async function RecordSection({
     view?.status === "newBest"
       ? {
           label: t("record.newBest"),
-          className: "bg-primary-50 text-primary-800",
+          className: "bg-success-subtle text-success-strong",
         }
       : view?.status === "first"
         ? {

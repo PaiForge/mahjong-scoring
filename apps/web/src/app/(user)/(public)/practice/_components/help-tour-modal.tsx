@@ -145,7 +145,7 @@ export function HelpTourModal({
                 <span
                   key={s.key}
                   className={`h-2 w-2 rounded-full transition-colors ${
-                    i === index ? "bg-primary-500" : "bg-surface-300"
+                    i === index ? "bg-selected" : "bg-surface-300"
                   }`}
                 />
               ))}

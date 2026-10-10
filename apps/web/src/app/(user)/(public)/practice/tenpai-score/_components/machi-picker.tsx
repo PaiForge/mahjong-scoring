@@ -12,6 +12,10 @@ import {
 } from "@mahjong-scoring/features/practice/tenpai-score/machi-tile-mark";
 import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/tenpai-score/picker-rows";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  SELECTED_TILE_CLASSES,
+  UNSELECTED_TILE_CLASSES,
+} from "@/app/(user)/_components/_lib/selection-classes";
 
 /**
  * 牌の枠と背景。押せる面なので ChoiceButton と同じ細枠 + hover の塗り。
@@ -26,9 +30,7 @@ function tileClasses(
   judged: boolean,
 ): string {
   if (!judged) {
-    return selected
-      ? "border-primary-500 bg-primary-50 ring-1 ring-inset ring-primary-500"
-      : "border-surface-300 bg-white hover:border-primary-300 hover:bg-primary-50";
+    return selected ? SELECTED_TILE_CLASSES : UNSELECTED_TILE_CLASSES;
   }
   return mark
     ? MACHI_TILE_MARK_CLASSES[mark]

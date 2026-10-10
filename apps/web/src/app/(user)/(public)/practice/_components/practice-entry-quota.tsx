@@ -80,7 +80,7 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
             </p>
           </div>
         ) : (
-          <p className="font-bold text-primary-700">{t("unlimited")}</p>
+          <p className="font-bold text-foreground">{t("unlimited")}</p>
         )
       ) : (
         <>

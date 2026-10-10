@@ -45,7 +45,7 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
       >
         {safeCorrect > 0 && (
           <div
-            className="flex items-center justify-center bg-primary-500 text-sm font-semibold text-white"
+            className="flex items-center justify-center bg-success text-sm font-semibold text-success-foreground"
             style={{ width: `${correctPercent}%` }}
           >
             {safeCorrect}
@@ -64,10 +64,7 @@ export async function ResultScoreBar({ correct, total }: ResultScoreBarProps) {
       <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-surface-600">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span
-              className="size-3 rounded-sm bg-primary-500"
-              aria-hidden="true"
-            />
+            <span className="size-3 rounded-sm bg-success" aria-hidden="true" />
             {tc("correct")}:{" "}
             <span className="font-semibold text-surface-800">
               {safeCorrect}

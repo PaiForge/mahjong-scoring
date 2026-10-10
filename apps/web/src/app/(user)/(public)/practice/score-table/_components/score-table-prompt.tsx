@@ -58,7 +58,7 @@ export function ScoreTablePrompt({
           fu: fu === undefined ? undefined : t("fu", { count: fu }),
           han: t("han", { count: han }),
         }).map((label) => (
-          <span key={label} className="text-2xl font-bold text-primary-600">
+          <span key={label} className="text-2xl font-bold text-foreground">
             {label}
           </span>
         ))}

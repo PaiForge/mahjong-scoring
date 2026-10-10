@@ -47,13 +47,13 @@ type CellState =
 /**
  * マスの枠と背景
  *
- * 回答済みが緑（決めた面）、回答中が琥珀（今触っている面）。答えを入れる
- * 前の状態を緑にすると「済んだ」ように見えるため、進行中の色は
+ * 回答済みが墨（決めた面）、回答中が琥珀（今触っている面）。回答済みは
+ * まだ答え合わせ前なので、正解の緑ではなく選択中の墨で示す。進行中の色は
  * HighlightPanel と同じ琥珀に寄せる。同じ列の未回答は琥珀の破線で
  * 「回答中に加われる」ことを示し、他の列の未回答は灰の破線のまま。
  */
 const CELL_CLASSES: Readonly<Record<CellState, string>> = {
-  answered: "border-primary-500 bg-primary-50 text-surface-900",
+  answered: "border-selected bg-selected-subtle text-surface-900",
   answering:
     "border-amber-500 bg-amber-50 text-surface-900 ring-1 ring-inset ring-amber-500",
   joinable: "border-dashed border-amber-400 bg-amber-50/40 text-surface-700",

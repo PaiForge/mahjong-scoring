@@ -40,9 +40,9 @@ export function getSelectClass(
   // disabled のグレーを外す（付けたままだと正誤の地の色を塗り潰す）
   const surfaceClass = showsFeedback
     ? getFeedbackBorderClass(true, feedback.lastAnswerCorrect)
-    : "border-surface-400 bg-white disabled:bg-surface-100";
+    : "border-surface-400 bg-white disabled:bg-pending";
 
-  return `w-full rounded-lg border px-2 py-3 text-sm transition-colors focus:border-primary-500 focus:ring-2 focus:ring-primary-500 ${surfaceClass} ${
+  return `w-full rounded-lg border px-2 py-3 text-sm transition-colors focus:border-ring focus:ring-2 focus:ring-ring ${surfaceClass} ${
     hasValue ? "text-surface-900" : "text-surface-400"
   }`;
 }

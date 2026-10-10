@@ -62,9 +62,9 @@ function startButton(): HTMLElement | null {
   return document.querySelector(`a[href="${PLAY_HREF}"]`);
 }
 
-/** 緑（primary）の塗りを持つ要素 */
+/** 主操作（action）の緑の塗りを持つ要素 */
 function primaryFilledElements(): readonly Element[] {
-  return [...document.querySelectorAll(".bg-primary-500")];
+  return [...document.querySelectorAll(".bg-action")];
 }
 
 describe("ExamStartGate", () => {

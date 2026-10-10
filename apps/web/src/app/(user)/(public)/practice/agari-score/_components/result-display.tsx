@@ -298,7 +298,7 @@ export function ResultDisplay({
                 type="button"
                 onClick={() => openScoreTable(true)}
                 title={t("result.openInScoreTable")}
-                className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
+                className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
               >
                 {paymentDescription}
               </button>

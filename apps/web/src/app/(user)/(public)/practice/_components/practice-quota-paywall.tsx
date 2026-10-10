@@ -63,7 +63,7 @@ export function PracticeQuotaPaywall({
 
       <div className="space-y-8 py-6">
         <div className="space-y-4 text-center">
-          <h2 className="text-2xl leading-relaxed font-bold text-primary-900 text-balance">
+          <h2 className="text-2xl leading-relaxed font-bold text-foreground text-balance">
             {t("title")}
           </h2>
           <p className="text-sm leading-relaxed">
@@ -85,13 +85,13 @@ export function PracticeQuotaPaywall({
           </div>
         )}
 
-        <section className="space-y-5 rounded-panel border border-primary-200 bg-primary-50/60 p-5">
+        <section className="space-y-5 rounded-panel border border-panel bg-brand-subtle p-5">
           <div>
-            <h3 className="font-bold text-primary-900">{t("perksTitle")}</h3>
+            <h3 className="font-bold text-foreground">{t("perksTitle")}</h3>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed">
               {["perkUnlimited", "perkTools"].map((perk) => (
                 <li key={perk} className="flex gap-2">
-                  <span aria-hidden="true" className="text-primary-700">
+                  <span aria-hidden="true" className="text-success">
                     ✓
                   </span>
                   <span>{t(perk)}</span>

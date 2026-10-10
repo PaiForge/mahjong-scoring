@@ -20,6 +20,10 @@ import {
 import { PracticeStartCta } from "./practice-start-cta";
 import { PracticeStartCtaSkeleton } from "./practice-start-cta-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import {
+  SELECTED_TILE_CLASSES,
+  UNSELECTED_TILE_CLASSES,
+} from "@/app/(user)/_components/_lib/selection-classes";
 
 interface VariantStartPanelProps {
   /** バリアントを持つ練習のスラッグ（レジストリの `variants` を列挙する） */
@@ -67,14 +71,12 @@ function VariantOptions({ slug }: VariantStartPanelProps) {
               onClick={() => setVariant(option)}
               aria-pressed={isSelected}
               className={`${OPTION_FRAME_CLASS} transition-colors ${
-                isSelected
-                  ? "border-primary-500 bg-primary-50"
-                  : "border-surface-200 bg-white hover:border-primary-300"
+                isSelected ? SELECTED_TILE_CLASSES : UNSELECTED_TILE_CLASSES
               }`}
             >
               <span
                 className={`text-sm font-semibold ${
-                  isSelected ? "text-primary-700" : "text-surface-800"
+                  isSelected ? "text-foreground" : "text-surface-800"
                 }`}
               >
                 {tVariants(`${option}.label`)}
