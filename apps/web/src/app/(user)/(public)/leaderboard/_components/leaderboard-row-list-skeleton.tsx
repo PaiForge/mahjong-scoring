@@ -2,7 +2,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import type { PracticeCategory } from "@mahjong-scoring/features/practice/catalog";
 
-import { leaderboardBoardGroups } from "../_lib/board-groups";
+import { leaderboardBoardGroups } from "@mahjong-scoring/features/leaderboard/boards";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 見出し のプレースホルダ幅。分野名の字数に合わせる */
@@ -17,7 +17,7 @@ const HEADING_WIDTH: Record<PracticeCategory, string> = {
  * ランキング行リストスケルトン
  *
  * 分野の見出しと、その分野に並ぶ土俵の行を実描画と同じ数だけ置く。土俵は
- * 静的な定数（`BOARDS`）で、分野分けもデータ到着前に確定しているため、
+ * 静的な定数（`LEADERBOARD_BOARDS`）で、分野分けもデータ到着前に確定しているため、
  * 行数を近似する理由が無い。狭い画面で長い種目名が折り返す場合を除き、
  * 実表示と同じ行高を確保する。
  *

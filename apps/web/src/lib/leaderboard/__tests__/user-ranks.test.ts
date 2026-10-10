@@ -1,28 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { LeaderboardModule } from "../../_lib/types";
-import { BOARDS } from "../../_lib/types";
+import { LEADERBOARD_BOARDS } from "@mahjong-scoring/features/leaderboard/boards";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
-const { mockGetOptionalUser, mockGetUserRankedRow, mockUnstableCache } =
-  vi.hoisted(() => ({
-    mockGetOptionalUser: vi.fn(),
-    mockGetUserRankedRow: vi.fn(),
-    mockUnstableCache: vi.fn(),
-  }));
+const { mockGetUserRankedRow, mockUnstableCache } = vi.hoisted(() => ({
+  mockGetUserRankedRow: vi.fn(),
+  mockUnstableCache: vi.fn(),
+}));
 
 vi.mock("next/cache", () => ({
   unstable_cache: mockUnstableCache,
 }));
 
-vi.mock("@/lib/auth", () => ({
-  getOptionalUser: mockGetOptionalUser,
-}));
-
-vi.mock("../../_lib/period-queries", () => ({
+vi.mock("../period-queries", () => ({
   getQueriesForPeriod: vi.fn((period: string) => ({
     cacheKey: `${period}:key`,
     getRanking: vi.fn(),
@@ -30,18 +24,18 @@ vi.mock("../../_lib/period-queries", () => ({
   })),
 }));
 
-import { getUserRanks } from "../get-user-ranks";
+import { getUserRanks } from "../user-ranks";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const [FIRST_BOARD, SECOND_BOARD] = BOARDS;
+const [FIRST_BOARD, SECOND_BOARD] = LEADERBOARD_BOARDS;
 
 /** 土俵ごとの順位を返す `getUserRankedRow` の差し替え */
 function rankByBoard(ranks: ReadonlyMap<string, number>) {
-  return (_userId: string, module: LeaderboardModule, variant: string) => {
+  return (_userId: string, module: PracticeMenuType, variant: string) => {
     const rank = ranks.get(practiceBoardKey({ menuType: module, variant }));
     return Promise.resolve(rank === undefined ? undefined : { rank });
   };
@@ -58,15 +52,7 @@ describe("getUserRanks", () => {
 
     // unstable_cache はコールバックをそのまま実行する
     mockUnstableCache.mockImplementation((fn: () => unknown) => fn);
-    mockGetOptionalUser.mockResolvedValue({ id: "user-1" });
     mockGetUserRankedRow.mockResolvedValue(undefined);
-  });
-
-  it("未ログインなら空配列を返し、土俵を引かない", async () => {
-    mockGetOptionalUser.mockResolvedValue(undefined);
-
-    expect(await getUserRanks("all-time")).toEqual([]);
-    expect(mockGetUserRankedRow).not.toHaveBeenCalled();
   });
 
   it("順位のある土俵だけを土俵一覧の順で返す", async () => {
@@ -79,16 +65,18 @@ describe("getUserRanks", () => {
       ),
     );
 
-    expect(await getUserRanks("all-time")).toEqual([
+    expect(await getUserRanks("user-1", "all-time")).toEqual([
       { ...FIRST_BOARD, rank: 3 },
       { ...SECOND_BOARD, rank: 7 },
     ]);
-    expect(mockGetUserRankedRow).toHaveBeenCalledTimes(BOARDS.length);
+    expect(mockGetUserRankedRow).toHaveBeenCalledTimes(
+      LEADERBOARD_BOARDS.length,
+    );
   });
 
   it("1 つの土俵の取得が失敗しても他の土俵の順位は返す", async () => {
     mockGetUserRankedRow.mockImplementation(
-      (userId: string, module: LeaderboardModule, variant: string) => {
+      (userId: string, module: PracticeMenuType, variant: string) => {
         if (
           practiceBoardKey({ menuType: module, variant }) ===
           practiceBoardKey(FIRST_BOARD)
@@ -103,13 +91,13 @@ describe("getUserRanks", () => {
       },
     );
 
-    expect(await getUserRanks("monthly")).toEqual([
+    expect(await getUserRanks("user-1", "monthly")).toEqual([
       { ...SECOND_BOARD, rank: 7 },
     ]);
   });
 
   it("キャッシュのキーに集計の範囲（月間なら年月）を含める", async () => {
-    await getUserRanks("monthly");
+    await getUserRanks("user-1", "monthly");
 
     expect(mockUnstableCache).toHaveBeenCalledWith(
       expect.any(Function),
@@ -126,22 +114,22 @@ describe("getUserRanks", () => {
     });
     mockGetUserRankedRow.mockRejectedValue(new Error("boom"));
 
-    await getUserRanks("all-time");
+    await getUserRanks("user-1", "all-time");
 
-    expect(cached).toHaveLength(BOARDS.length);
+    expect(cached).toHaveLength(LEADERBOARD_BOARDS.length);
     await expect(cached[0]()).rejects.toThrow("boom");
   });
 
   it("失敗した土俵をキー付きで記録する", async () => {
     mockGetUserRankedRow.mockImplementation(
-      (_userId: string, module: LeaderboardModule, variant: string) =>
+      (_userId: string, module: PracticeMenuType, variant: string) =>
         practiceBoardKey({ menuType: module, variant }) ===
         practiceBoardKey(FIRST_BOARD)
           ? Promise.reject(new Error("boom"))
           : Promise.resolve(undefined),
     );
 
-    await getUserRanks("all-time");
+    await getUserRanks("user-1", "all-time");
 
     expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { getMedalEmoji } from "../_lib/podium";
+import { getMedalEmoji } from "@mahjong-scoring/features/leaderboard/podium";
 
 interface RankBadgeProps {
   readonly rank: number;

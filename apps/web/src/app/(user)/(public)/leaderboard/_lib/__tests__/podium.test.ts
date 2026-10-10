@@ -1,19 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getMedalEmoji, leaderboardRowClassName } from "../podium";
-
-describe("getMedalEmoji", () => {
-  it("returns gold / silver / bronze medals for the podium", () => {
-    expect(getMedalEmoji(1)).toBe("🥇");
-    expect(getMedalEmoji(2)).toBe("🥈");
-    expect(getMedalEmoji(3)).toBe("🥉");
-  });
-
-  it("returns undefined outside the podium", () => {
-    expect(getMedalEmoji(4)).toBeUndefined();
-    expect(getMedalEmoji(0)).toBeUndefined();
-  });
-});
+import { leaderboardRowClassName } from "../podium";
 
 describe("leaderboardRowClassName", () => {
   it("accents the podium rows with the matching metal", () => {

@@ -23,42 +23,13 @@ import { getPublicProfileByUsername } from "@/lib/db/queries";
 import { buildSignInHref } from "@/lib/redirect";
 import Link from "next/link";
 
+import { buildSnsLinks } from "@mahjong-scoring/features/public-profile/sns-links";
+
 import { BlockButton, UnblockButton } from "./_components/block-buttons";
 import { ReportButton } from "./_components/report-button";
 
 interface Props {
   readonly params: Promise<{ username: string }>;
-}
-
-/** 公開プロフィールに表示する SNS リンクを組み立てる */
-function buildSnsLinks(profile: {
-  xUsername: string | null;
-  instagramUsername: string | null;
-  youtubeHandle: string | null;
-}) {
-  const links: { label: string; handle: string; url: string }[] = [];
-  if (profile.xUsername) {
-    links.push({
-      label: "X",
-      handle: `@${profile.xUsername}`,
-      url: `https://x.com/${profile.xUsername}`,
-    });
-  }
-  if (profile.instagramUsername) {
-    links.push({
-      label: "Instagram",
-      handle: `@${profile.instagramUsername}`,
-      url: `https://www.instagram.com/${profile.instagramUsername}`,
-    });
-  }
-  if (profile.youtubeHandle) {
-    links.push({
-      label: "YouTube",
-      handle: `@${profile.youtubeHandle}`,
-      url: `https://www.youtube.com/@${profile.youtubeHandle}`,
-    });
-  }
-  return links;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -111,7 +82,11 @@ export default async function PublicProfilePage({ params }: Props) {
   }
 
   const name = profile.displayName ?? profile.username;
-  const snsLinks = buildSnsLinks(profile);
+  const snsLinks = buildSnsLinks({
+    xUsername: profile.xUsername ?? undefined,
+    instagramUsername: profile.instagramUsername ?? undefined,
+    youtubeHandle: profile.youtubeHandle ?? undefined,
+  });
 
   return (
     <ContentContainer>
