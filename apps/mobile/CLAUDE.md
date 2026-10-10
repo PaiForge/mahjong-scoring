@@ -52,9 +52,6 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   タブ一式がもう 1 組積まれる。履歴にある画面へ戻るリンクは `dismissTo`（slug ごとに使い回す
   `practice/[slug]` 等は `useDismissToHref`。`dismissTo` はルート名だけで照合する）。
   Android の戻るボタンは `useHardwareBack`（フォーカス中だけ購読する）
-- **ファイルを送るときは expo-file-system の `File` を FormData に入れる。** global の
-  `fetch` は Expo の実装（expo/fetch）に置き換わっていて、RN の `{ uri, name, type }` の部品は
-  送る前に例外になる（通信の失敗に見える。`mypage/mypage-api.ts` の `uploadAvatar`）
 - **ログインは web と同じ Supabase Auth（`src/auth/`）。** ゲストの入口はホームと
   マイページの記録の案内（`RecordCtaCard`）、ログアウト・退会は設定のアカウントの節で、
   ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
@@ -151,13 +148,6 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     棒の内訳。棒を見るなら先に `challenge-recorded` を流す（シードに EXP は無い）
   - `my-record` — `bob@` のマイレコード。期間を今月に替え、全履歴で「さらに読み込む」。
     `challenge-recorded` は最後に結果からその土俵のマイレコードへ進む
-  - `mypage-profile-edit` — `bob@` のプロフィール編集。入力の誤りで理由が出て留まり、
-    表示名を書き換えて保存するとマイページの見出しに出る。最後に表示名をシードの値に戻す
-  - `mypage-avatar` — `bob@` のアバター。写真ライブラリ（`addMedia` で足したアプリの
-    アイコン）から選んで上げ、マイページの見出しとホームのヘッダーの入口に出る。最後に
-    削除して頭文字（ホームは人型のアイコン）に戻す。
-    システムの写真の選択と切り抜きの画面は文字が端末の言語で変わるので、印で引く
-    （`PXGGridLayout-Info` の先頭・`Done`）
   - `design-surfaces` — ゲストで線と影（フラット）の見た目を撮る。ホーム・道場の帯色のボタン・
     練習の設定のタイル・チャレンジの選択肢と正誤・中止の確認ダイアログ・待ち牌の選択・
     回答中のマス。押している間の色は撮れない

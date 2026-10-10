@@ -23,7 +23,7 @@ export type ApiFailure =
 /** API 呼び出しの指定 */
 export interface MobileApiInit {
   readonly method?: "GET" | "POST";
-  /** 要求の本文。`FormData` は multipart のまま、それ以外は JSON にして送る */
+  /** 要求の本文。JSON にして送る */
   readonly body?: unknown;
   /**
    * このユーザーとして送る。今のログインが別のユーザー（ログアウト済みを
@@ -113,14 +113,6 @@ function send(
   init: MobileApiInit,
   accessToken: string,
 ): Promise<Response> {
-  // multipart は Content-Type を付けない — 境界（boundary）付きの値は fetch が付ける
-  if (init.body instanceof FormData) {
-    return fetch(`${SITE_URL}${path}`, {
-      method: init.method ?? "GET",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: init.body,
-    });
-  }
   return fetch(`${SITE_URL}${path}`, {
     method: init.method ?? "GET",
     headers: {

@@ -8,7 +8,6 @@ import {
   ChartIcon,
   SettingsIcon,
   TrophyIcon,
-  UserIcon,
 } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
@@ -36,6 +35,10 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * web と違うもの:
  * - アクティビティは web のスマホ幅と同じ直近 7 日の棒グラフだけ（PC 幅の
  *   46 週の格子は持たない）
+ * - プロフィール編集を持たない。アバター・表示名・自己紹介・SNS は web の
+ *   公開プロフィールに出る、他の利用者に見せる入力なので、アプリでは受け付けない
+ *   （アプリで入力するのはユーザー名だけ）。web で設定したアバター・表示名は
+ *   見出しに出す
  * - Pro プランと通知の行は持たない（アプリでは Pro を扱わない。通知は今の
  *   種別がすべて Pro の出来事）。アカウント（メールアドレス・ログアウト・
  *   退会）は設定のアカウントの節にあり、ここには置かない
@@ -56,7 +59,7 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・ランキングでの順位・プロフィール編集・設定へ
+ * 3. 行からマイレコード・ランキングでの順位・設定へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -92,8 +95,7 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
 
 /**
  * マイページの各機能への行（web の `MyPageMenu` から Pro プラン・通知・
- * アカウントを除いたもの。除いた理由は画面の TSDoc）。プロフィール編集は
- * web では見出しのカードのボタンだが、アプリでは機能の行と並べる
+ * アカウントを除き、ランキングでの順位を足したもの。理由は画面の TSDoc）
  */
 function MypageMenu() {
   const t = useTranslations("mypage");
@@ -113,13 +115,6 @@ function MypageMenu() {
         description={t("cards.ranks.summary")}
         leading={<TrophyIcon size={22} color={colors.surface600} />}
         onPress={() => router.push("/leaderboard")}
-      />
-      <LinkRow
-        testID="mypage-menu-profile"
-        title={t("cards.profile.title")}
-        description={t("cards.profile.summary")}
-        leading={<UserIcon size={22} color={colors.surface600} />}
-        onPress={() => router.push("/mypage/profile/edit")}
       />
     </LinkRowList>
   );

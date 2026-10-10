@@ -15,8 +15,5 @@
   "unblock": "ブロックを解除",
   "unblockedToast": "ブロックを解除しました。",
   "unblockFailedToast": "解除できませんでした。しばらくしてからもう一度お試しください。",
-  "guestModerationNote": "通報とブロックにはログインが必要です。<signIn>ログイン</signIn>",
-  "loadFailed": "プロフィールを読み込めませんでした。",
-  "retry": "もう一度読み込む",
-  "notFound": "このユーザーは見つかりませんでした。"
+  "guestModerationNote": "通報とブロックにはログインが必要です。<signIn>ログイン</signIn>"
 }
