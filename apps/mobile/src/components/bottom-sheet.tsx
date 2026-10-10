@@ -3,11 +3,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import {
   Animated,
+  Easing,
   Modal,
   PanResponder,
   Pressable,
@@ -19,6 +21,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   type ScrollViewProps,
+  useWindowDimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -30,6 +33,10 @@ const DRAG_CLOSE_DISTANCE = 96;
 const DRAG_CLOSE_VELOCITY = 0.8;
 /** 中身を先頭からさらに引き下げて閉じる量（iOS の引っ張りの量、px） */
 const PULL_CLOSE_DISTANCE = 72;
+/** 開くときのせり上がりの長さ（ms） */
+const OPEN_DURATION = 320;
+/** 閉じるときの下がる長さ（ms）。指を離した位置から続けて下がる */
+const CLOSE_DURATION = 240;
 
 interface BottomSheetProps {
   readonly isOpen: boolean;
@@ -70,7 +77,18 @@ const SheetCloseContext = createContext<(() => void) | undefined>(undefined);
  *   Android は先頭より上へ引っ張れないので上端だけ）
  *
  * 枠も影も持たない（画面の下端から生える面なので、枠や影で区切るより
- * 地の暗さで浮かせる。iOS の標準のシートと同じ）。
+ * 地の暗さで浮かせる。iOS の標準のシートと同じ）。幕はその場で濃くなり、
+ * シートだけが下から上がる。幕の濃さはシートの位置から引くので、引き下げて
+ * いる間は引いた量だけ薄くなり、離して閉じるときはその位置から続けて下がる。
+ *
+ * OS 標準のシート（iOS の `UISheetPresentationController`、expo-router の
+ * `presentation: "formSheet"`）は使わない。画面（ルート）として開く仕組みで、
+ * 選択欄のようにその場で開いて値を返す使い方に合わず、Android には同じ部品が
+ * 無い（react-native-screens が寄せて再現したものになる）。標準のシートが持つ
+ * 動きのうち、ここに無いのは「中身のスクロールが先頭に戻ったら同じ指で
+ * シートを下げる」受け渡し・段階の高さ（半分 / 全画面）・キーボードの回避。
+ * どれかが要る中身を載せるときは、この API のまま中を `@gorhom/bottom-sheet`
+ * （reanimated と gesture-handler が要る）に替える。自前で書き足さない。
  */
 export function BottomSheet({
   isOpen,
@@ -81,11 +99,59 @@ export function BottomSheet({
   children,
 }: BottomSheetProps) {
   const insets = useSafeAreaInsets();
-  const [translateY] = useState(() => new Animated.Value(0));
-  // 引き下げて閉じた後、次に開いたときは元の位置から出す
+  const { height: windowHeight } = useWindowDimensions();
+  // シートが下端から上がっている量の逆（0 = 開ききった、シートの高さ = 隠れた）。
+  // 位置も幕の濃さもこの 1 つの値から引くので、指で引いた量に幕が追随する
+  const [offset] = useState(() => new Animated.Value(windowHeight));
+  const [sheetHeight, setSheetHeight] = useState(0);
+  const sheetHeightRef = useRef(0);
+  // 開いた直後はシートの高さが未計測なので、最初の計測を待ってからせり上げる
+  const pendingOpenRef = useRef(false);
+
+  // 閉じるアニメーションが終わるまで Modal を出したままにする（isOpen が
+  // false になった瞬間に外すと、シートも幕も下がる間もなく消える）
+  const [isMounted, setIsMounted] = useState(isOpen);
+  if (isOpen && !isMounted) setIsMounted(true);
+
   useEffect(() => {
-    if (isOpen) translateY.setValue(0);
-  }, [isOpen, translateY]);
+    if (isOpen) {
+      if (sheetHeightRef.current === 0) {
+        pendingOpenRef.current = true;
+        offset.setValue(windowHeight);
+        return;
+      }
+      // 閉じる途中で開き直したときは、その位置から上げ直す
+      Animated.timing(offset, {
+        toValue: 0,
+        duration: OPEN_DURATION,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+    pendingOpenRef.current = false;
+    Animated.timing(offset, {
+      toValue: sheetHeightRef.current || windowHeight,
+      duration: CLOSE_DURATION,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(({ finished }) => {
+      // 開き直されて止まったときは出したままにする
+      if (!finished) return;
+      sheetHeightRef.current = 0;
+      setIsMounted(false);
+    });
+  }, [isOpen, offset, windowHeight]);
+
+  const backdropOpacity = useMemo(
+    () =>
+      offset.interpolate({
+        inputRange: [0, Math.max(sheetHeight, 1)],
+        outputRange: [1, 0],
+        extrapolate: "clamp",
+      }),
+    [offset, sheetHeight],
+  );
 
   // 引いている間は描画し直さない（位置は Animated の値だけで動かす）ので、
   // 掴んでいる途中で作り直されることはない
@@ -94,46 +160,65 @@ export function BottomSheet({
       PanResponder.create({
         onMoveShouldSetPanResponder: (_e, g) =>
           g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_e, g) => translateY.setValue(Math.max(0, g.dy)),
+        onPanResponderMove: (_e, g) => offset.setValue(Math.max(0, g.dy)),
         onPanResponderRelease: (_e, g) => {
           if (g.dy > DRAG_CLOSE_DISTANCE || g.vy > DRAG_CLOSE_VELOCITY) {
             onClose();
             return;
           }
-          Animated.spring(translateY, {
+          Animated.spring(offset, {
             toValue: 0,
             useNativeDriver: true,
           }).start();
         },
         onPanResponderTerminate: () =>
-          Animated.spring(translateY, {
+          Animated.spring(offset, {
             toValue: 0,
             useNativeDriver: true,
           }).start(),
       }).panHandlers,
-    [translateY, onClose],
+    [offset, onClose],
   );
 
+  // Modal 自身のアニメーション（slide）は使わない。中身全体を 1 枚として
+  // 動かすため、幕までシートと一緒に下から上がってくる。幕はその場で
+  // 濃くなり、シートだけが下から上がるのが iOS / Android 共通のシートの動き
   return (
     <Modal
-      visible={isOpen}
+      visible={isMounted}
       transparent
-      animationType="slide"
+      animationType="none"
       onRequestClose={onClose}
     >
-      <View style={styles.backdrop}>
-        <Pressable
-          style={StyleSheet.absoluteFill}
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel={closeLabel}
-        />
+      <View style={styles.root}>
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel={closeLabel}
+          />
+        </Animated.View>
         <Animated.View
+          onLayout={(event) => {
+            const measured = event.nativeEvent.layout.height;
+            sheetHeightRef.current = measured;
+            setSheetHeight(measured);
+            if (!pendingOpenRef.current) return;
+            pendingOpenRef.current = false;
+            offset.setValue(measured);
+            Animated.timing(offset, {
+              toValue: 0,
+              duration: OPEN_DURATION,
+              easing: Easing.out(Easing.cubic),
+              useNativeDriver: true,
+            }).start();
+          }}
           style={[
             styles.sheet,
             height === undefined ? styles.sheetAuto : { height },
             { paddingBottom: Math.max(insets.bottom, 16) },
-            { transform: [{ translateY }] },
+            { transform: [{ translateY: offset }] },
           ]}
         >
           <View style={styles.dragArea} {...dragHandlers}>
@@ -184,9 +269,16 @@ export function SheetScrollView(props: ScrollViewProps) {
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
+  root: {
     flex: 1,
     justifyContent: "flex-end",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     backgroundColor: "rgba(15, 23, 42, 0.45)",
   },
   sheet: {
