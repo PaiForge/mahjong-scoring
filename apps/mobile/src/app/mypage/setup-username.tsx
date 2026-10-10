@@ -4,14 +4,20 @@
  * @description 登録して最初にログインした後、ランキングなどに出るユーザー名を
  * 決める（web の `/mypage/setup-username` と同じ段階・同じ検証）。この段階
  * からもログアウトと退会に進める — ユーザー名を決めないまま
- * アカウントを消したい人を、ここで行き止まりにしない。
+ * アカウントを消したい人を、ここで行き止まりにしない。名前を考えるのが
+ * 手間な人には、web と同じくランダムなユーザー名の自動生成を添える。
  * @flow ログイン → ユーザー名の設定 → 設定へ戻る
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
+import { getRandomBytes } from "expo-crypto";
 import { useTranslations } from "use-intl";
 import type { MobileUsernameErrorCode } from "@mahjong-scoring/features/account/mobile-api";
+import {
+  generateUsername,
+  USERNAME_MAX_LENGTH,
+} from "@mahjong-scoring/features/account/username";
 
 import type { ApiFailure } from "../../auth/account-api";
 import { registerUsername } from "../../auth/account-api";
@@ -57,6 +63,11 @@ export default function SetupUsernameScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
+  const changeUsername = (value: string) => {
+    setUsername(value);
+    setError(undefined);
+  };
+
   const submit = async () => {
     if (submitting) return;
     setSubmitting(true);
@@ -85,9 +96,18 @@ export default function SetupUsernameScreen() {
       <View style={styles.form}>
         <TextField
           label={t("usernameLabel")}
+          labelAction={
+            <TextLink
+              onPress={() => changeUsername(generateUsername(getRandomBytes))}
+              testID="generate-username"
+            >
+              {t("generateUsername")}
+            </TextLink>
+          }
           value={username}
-          onChangeText={setUsername}
+          onChangeText={changeUsername}
           placeholder={t("usernamePlaceholder")}
+          maxLength={USERNAME_MAX_LENGTH}
           kind="username"
           hint={[
             t("usernameHintChars"),
