@@ -510,6 +510,8 @@ pnpm --filter web db:seed:dev
 
 ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告と、ローカル用の架空の Amazon トラッキング ID（web は `localdev-web-22`、アプリは `localdev-app-22`。リンクの `tag=` でどちらの ID で組んだかが分かる）を入れる（`scripts/dev-seed/ad-creatives.ts`）。ASIN で指す広告はトラッキング ID が無いと画面に出ないため、これで配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
 
+お知らせは slug が `dev-` の公開済みの記事を入れる（`scripts/dev-seed/announcements.ts`）。ピン留めの 1 件と、本文の書式（見出し・リンク・箇条書き・引用・コード・表）を一通り使った「書式の見本」があり、web とアプリの描き方を見比べられる。管理画面で書いた手元のお知らせ（`dev-` 以外）には触れない。
+
 既存のアカウントを管理者にしたい場合は DB に直接 INSERT する:
 
 1. 対象ユーザーをメールアドレスで通常登録する（`auth.users` に行ができる）
