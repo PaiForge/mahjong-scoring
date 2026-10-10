@@ -16,7 +16,7 @@ const SIZE_CLASSES = {
 } as const;
 
 /**
- * 済みの印 — 緑の丸に白抜きのチェック
+ * 済みの印 — 正解・完了の緑の丸に白抜きのチェック
  * 済みマーク
  *
  * 道場の行程（レッスンの完了・練習の挑戦）とレッスンの見出しで、同じ
@@ -30,7 +30,7 @@ export function DoneMark({ label, size = "md" }: DoneMarkProps) {
       role={label === undefined ? undefined : "img"}
       aria-label={label}
       aria-hidden={label === undefined ? true : undefined}
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-primary-500 text-white ${classes.circle}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-success text-success-foreground ${classes.circle}`}
     >
       <CheckIcon className={classes.check} />
     </span>

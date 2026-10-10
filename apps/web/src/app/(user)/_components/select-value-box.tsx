@@ -81,7 +81,7 @@ export function SelectValueBox({
             key={v}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
-            className="inline-flex items-center rounded-md bg-primary-50 px-2 py-1 text-sm text-primary-800"
+            className="inline-flex items-center rounded-md bg-brand-subtle px-2 py-1 text-sm text-brand-subtle-foreground"
             role="listitem"
           >
             {labelOf(v)}
@@ -94,7 +94,7 @@ export function SelectValueBox({
                 disabled={disabled}
                 aria-hidden={disabled}
                 tabIndex={disabled ? -1 : undefined}
-                className={`ml-2 text-primary-600 hover:text-primary-900 focus:outline-none ${
+                className={`ml-2 text-brand-subtle-foreground hover:text-foreground focus:outline-none ${
                   disabled ? "invisible" : ""
                 }`}
               >

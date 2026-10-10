@@ -56,7 +56,7 @@ export function SettingToggleRow({
     // target: は「どれが目当ての項目か」を着地後も示すための下地。
     <div
       id={id}
-      className="flex scroll-mt-24 items-center justify-between px-5 py-4 target:bg-primary-50"
+      className="flex scroll-mt-24 items-center justify-between px-5 py-4 target:bg-brand-subtle"
     >
       <span className="pr-4">
         <span className="block text-sm font-medium text-surface-900">
@@ -80,7 +80,7 @@ export function SettingToggleRow({
             className="peer sr-only"
             aria-label={title}
           />
-          <div className="h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-primary-500 peer-focus:ring-offset-2 peer-checked:bg-primary-500" />
+          <div className="h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-ring peer-focus:ring-offset-2 peer-checked:bg-action" />
           <span
             className={`pointer-events-none absolute left-[2px] top-[2px] block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
               checked ? "translate-x-[20px]" : "translate-x-0"

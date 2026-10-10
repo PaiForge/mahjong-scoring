@@ -144,7 +144,7 @@ export function MarkdownRenderer({
             </div>
           ),
           th: ({ children }) => (
-            <th className="border-b border-panel bg-primary-50 px-3 py-2 text-left font-bold text-surface-900">
+            <th className="border-b border-panel bg-surface-50 px-3 py-2 text-left font-bold text-surface-900">
               {children}
             </th>
           ),

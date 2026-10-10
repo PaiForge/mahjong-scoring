@@ -4,7 +4,7 @@
  * 見た目はフラット: 1px の細枠と塗りだけで、影や押し込みの移動は持たない。
  * 押せることは塗り（緑・帯色）と、hover で塗りが一段濃くなることで示し、
  * キーボード操作中はフォーカスリングで示す。ボタンはここで組み立てた
- * クラスだけを使い、`border bg-primary-500 ...` のような一式をページ側で
+ * クラスだけを使い、`border bg-action ...` のような一式をページ側で
  * 直接書かない。
  *
  * 実際の要素は用途で分かれる:
@@ -79,9 +79,9 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   // 塗りのボタンは枠を塗りと同化させる（透明）。細い淡色の枠を緑の上に
   // 引くと縁だけが白っぽく浮いて見える。幅は他の variant と同じ 1px を保つ。
   primary:
-    "border-transparent bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700",
+    "border-transparent bg-action text-action-foreground hover:bg-action-hover active:bg-action-active",
   secondary:
-    "border-panel bg-card text-primary-700 hover:border-primary-300 hover:bg-primary-50 active:bg-primary-100",
+    "border-panel bg-card text-action hover:border-primary-300 hover:bg-brand-subtle active:bg-primary-100",
   neutral:
     "border-panel bg-card text-surface-700 hover:border-surface-300 hover:bg-surface-100 active:bg-surface-200",
   // 段級位の帯色をまとったボタン。塗り・hover・文字・枠をすべて帯色で

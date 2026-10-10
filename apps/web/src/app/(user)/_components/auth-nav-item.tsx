@@ -76,7 +76,7 @@ export function AuthNavItem() {
         </DeferredPrefetchLink>
         <DeferredPrefetchLink
           href="/sign-up"
-          className={`rounded-lg border border-panel bg-card px-2.5 py-1 font-bold whitespace-nowrap text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50 sm:px-3 sm:py-1.5 ${FOCUS_RING_CLASSES}`}
+          className={`rounded-lg border border-panel bg-card px-2.5 py-1 font-bold whitespace-nowrap text-action transition-colors hover:border-primary-300 hover:bg-brand-subtle sm:px-3 sm:py-1.5 ${FOCUS_RING_CLASSES}`}
         >
           {t("signUp")}
         </DeferredPrefetchLink>
@@ -101,7 +101,7 @@ export function AuthNavItem() {
             size="sm"
           />
         ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary-300 bg-primary-50 text-foreground">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary-300 bg-brand-subtle text-foreground">
             <UserIcon className="size-5" />
           </span>
         )}
@@ -125,7 +125,7 @@ export function AuthNavItem() {
           href="/mypage"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"
         >
           {t("mypage")}
         </DeferredPrefetchLink>
@@ -133,7 +133,7 @@ export function AuthNavItem() {
           href="/preferences"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"
         >
           {t("settings")}
         </DeferredPrefetchLink>
@@ -141,7 +141,7 @@ export function AuthNavItem() {
           type="button"
           role="menuitem"
           onClick={handleSignOut}
-          className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
+          className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"
         >
           {t("signOut")}
         </button>

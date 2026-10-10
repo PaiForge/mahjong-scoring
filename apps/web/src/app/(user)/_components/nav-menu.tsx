@@ -40,7 +40,7 @@ export function NavMenu() {
         }}
         onPointerEnter={armPrefetch}
         onFocus={armPrefetch}
-        className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50 ${FOCUS_RING_CLASSES}`}
+        className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-surface-100 ${FOCUS_RING_CLASSES}`}
         aria-label={t("menu")}
         aria-expanded={isOpen}
       >
@@ -90,7 +90,7 @@ export function NavMenu() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50 ${FOCUS_RING_CLASSES}`}
+                  className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-surface-100 ${FOCUS_RING_CLASSES}`}
                   aria-label={t("close")}
                 >
                   <svg
@@ -120,8 +120,8 @@ export function NavMenu() {
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${FOCUS_RING_CLASSES} ${
                         isActive
-                          ? "bg-primary-50 text-primary"
-                          : "text-muted-foreground hover:bg-primary-50 hover:text-foreground"
+                          ? "bg-selected-subtle text-foreground"
+                          : "text-muted-foreground hover:bg-surface-100 hover:text-foreground"
                       }`}
                     >
                       {item.icon}

@@ -75,7 +75,7 @@ export function SelectOptionList({
               disabled ? "cursor-not-allowed" : "cursor-pointer"
             } ${
               isSelected
-                ? "bg-primary-100 font-medium text-primary-900"
+                ? "bg-selected-subtle font-medium text-foreground"
                 : "text-surface-700 hover:bg-surface-50"
             }`}
           >
@@ -83,7 +83,7 @@ export function SelectOptionList({
             {isSelected && (
               <span
                 aria-hidden
-                className="text-lg leading-none text-primary-600"
+                className="text-lg leading-none text-foreground"
               >
                 &#10003;
               </span>

@@ -6,7 +6,7 @@
  * 単行入力（{@link AuthTextField}）と textarea で共有する。
  */
 export const AUTH_INPUT_CLASS =
-  "w-full px-3 py-2.5 bg-white border border-surface-400 rounded-lg text-surface-700 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary/50";
+  "w-full px-3 py-2.5 bg-white border border-surface-400 rounded-lg text-surface-700 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50";
 
 interface AuthTextFieldProps {
   readonly id: string;

@@ -55,7 +55,7 @@ export function NotificationBell() {
       prefetch={false}
       aria-label={label}
       title={label}
-      className={`relative flex size-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-primary-50 ${FOCUS_RING_CLASSES}`}
+      className={`relative flex size-8 items-center justify-center rounded-full text-foreground transition-colors hover:bg-surface-100 ${FOCUS_RING_CLASSES}`}
     >
       <BellIcon className="size-5" />
       {count > 0 && (
