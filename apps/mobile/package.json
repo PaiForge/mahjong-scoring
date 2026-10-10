@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.16",
+    "@expo/ui": "~57.0.22",
     "@mahjong-scoring/core": "workspace:*",
     "@mahjong-scoring/features": "workspace:*",
     "@mahjong-scoring/messages": "workspace:*",
