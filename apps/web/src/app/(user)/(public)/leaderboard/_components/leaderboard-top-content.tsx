@@ -9,13 +9,12 @@ import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
-import { getUserRanks } from "../_actions/get-user-ranks";
+import { getUserRanks, type UserRankInfo } from "@/lib/leaderboard/user-ranks";
 import {
   LEADERBOARD_PERIODS,
   leaderboardBoardGroups,
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
-import type { UserRankInfo } from "../_lib/types";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -56,7 +55,7 @@ export async function LeaderboardTopContent({
   // 非表示中はどのモジュールでも順位が付かない。モジュール数ぶんの
   // ROW_NUMBER クエリを空振りさせないよう手前で打ち切る。
   if (currentUserId && !viewerHidden) {
-    userRanks = await getUserRanks(period);
+    userRanks = await getUserRanks(currentUserId, period);
   }
 
   const rankMap = new Map<string, number>(

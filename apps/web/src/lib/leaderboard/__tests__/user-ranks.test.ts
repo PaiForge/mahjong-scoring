@@ -7,22 +7,16 @@ import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-t
 // Mocks
 // ---------------------------------------------------------------------------
 
-const { mockGetOptionalUser, mockGetUserRankedRow, mockUnstableCache } =
-  vi.hoisted(() => ({
-    mockGetOptionalUser: vi.fn(),
-    mockGetUserRankedRow: vi.fn(),
-    mockUnstableCache: vi.fn(),
-  }));
+const { mockGetUserRankedRow, mockUnstableCache } = vi.hoisted(() => ({
+  mockGetUserRankedRow: vi.fn(),
+  mockUnstableCache: vi.fn(),
+}));
 
 vi.mock("next/cache", () => ({
   unstable_cache: mockUnstableCache,
 }));
 
-vi.mock("@/lib/auth", () => ({
-  getOptionalUser: mockGetOptionalUser,
-}));
-
-vi.mock("../../_lib/period-queries", () => ({
+vi.mock("../period-queries", () => ({
   getQueriesForPeriod: vi.fn((period: string) => ({
     cacheKey: `${period}:key`,
     getRanking: vi.fn(),
@@ -30,7 +24,7 @@ vi.mock("../../_lib/period-queries", () => ({
   })),
 }));
 
-import { getUserRanks } from "../get-user-ranks";
+import { getUserRanks } from "../user-ranks";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
@@ -58,15 +52,7 @@ describe("getUserRanks", () => {
 
     // unstable_cache はコールバックをそのまま実行する
     mockUnstableCache.mockImplementation((fn: () => unknown) => fn);
-    mockGetOptionalUser.mockResolvedValue({ id: "user-1" });
     mockGetUserRankedRow.mockResolvedValue(undefined);
-  });
-
-  it("未ログインなら空配列を返し、土俵を引かない", async () => {
-    mockGetOptionalUser.mockResolvedValue(undefined);
-
-    expect(await getUserRanks("all-time")).toEqual([]);
-    expect(mockGetUserRankedRow).not.toHaveBeenCalled();
   });
 
   it("順位のある土俵だけを土俵一覧の順で返す", async () => {
@@ -79,7 +65,7 @@ describe("getUserRanks", () => {
       ),
     );
 
-    expect(await getUserRanks("all-time")).toEqual([
+    expect(await getUserRanks("user-1", "all-time")).toEqual([
       { ...FIRST_BOARD, rank: 3 },
       { ...SECOND_BOARD, rank: 7 },
     ]);
@@ -105,13 +91,13 @@ describe("getUserRanks", () => {
       },
     );
 
-    expect(await getUserRanks("monthly")).toEqual([
+    expect(await getUserRanks("user-1", "monthly")).toEqual([
       { ...SECOND_BOARD, rank: 7 },
     ]);
   });
 
   it("キャッシュのキーに集計の範囲（月間なら年月）を含める", async () => {
-    await getUserRanks("monthly");
+    await getUserRanks("user-1", "monthly");
 
     expect(mockUnstableCache).toHaveBeenCalledWith(
       expect.any(Function),
@@ -128,7 +114,7 @@ describe("getUserRanks", () => {
     });
     mockGetUserRankedRow.mockRejectedValue(new Error("boom"));
 
-    await getUserRanks("all-time");
+    await getUserRanks("user-1", "all-time");
 
     expect(cached).toHaveLength(LEADERBOARD_BOARDS.length);
     await expect(cached[0]()).rejects.toThrow("boom");
@@ -143,7 +129,7 @@ describe("getUserRanks", () => {
           : Promise.resolve(undefined),
     );
 
-    await getUserRanks("all-time");
+    await getUserRanks("user-1", "all-time");
 
     expect(console.error).toHaveBeenCalledTimes(1);
     expect(console.error).toHaveBeenCalledWith(

@@ -31,7 +31,10 @@ import { getOptionalUser } from "@/lib/auth";
 import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { parsePageParam } from "@/lib/pagination";
-import { getLeaderboard } from "../../_actions/get-leaderboard";
+import {
+  EMPTY_LEADERBOARD,
+  getLeaderboard,
+} from "@/lib/leaderboard/get-leaderboard";
 import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-content";
 import { LeaderboardTableSkeleton } from "../../_components/leaderboard-table-skeleton";
 import { PeriodSelector } from "../../_components/period-selector";
@@ -120,7 +123,7 @@ async function DetailContent({
   // 非表示中は母集団から外れているので順位行もハイライトも出ない。順位取得は
   // ランキング全体に ROW_NUMBER を回すため、undefined が返ると分かっている
   // 呼び出しは投げない。
-  const [data, blockedIds] = await Promise.all([
+  const [fetched, blockedIds] = await Promise.all([
     getLeaderboard(
       board,
       period,
@@ -129,6 +132,8 @@ async function DetailContent({
     ),
     getBlockedUserIds(currentUserId),
   ]);
+  // 取得の失敗は空の表で描く（ページの本体は土俵の名前と挑戦の導線）
+  const data = fetched ?? EMPTY_LEADERBOARD;
 
   return (
     <LeaderboardDetailContent

@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import type {
   LeaderboardPage,
   RankedLeaderboardRow,
-} from "@/lib/db/leaderboard-queries";
+} from "../../db/leaderboard-queries";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -21,7 +21,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: mockUnstableCache,
 }));
 
-vi.mock("../../_lib/period-queries", () => ({
+vi.mock("../period-queries", () => ({
   getQueriesForPeriod: vi.fn((period: string) => ({
     cacheKey: `${period}:key`,
     getRanking: mockGetRanking,
@@ -160,9 +160,9 @@ describe("getLeaderboard", () => {
     it("returns rows with computed rank (page 1)", async () => {
       const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
-      expect(result.rows).toHaveLength(2);
-      expect(result.rows[0]).toMatchObject({ userId: "user-1", rank: 1 });
-      expect(result.rows[1]).toMatchObject({ userId: "user-2", rank: 2 });
+      expect(result?.rows).toHaveLength(2);
+      expect(result?.rows[0]).toMatchObject({ userId: "user-1", rank: 1 });
+      expect(result?.rows[1]).toMatchObject({ userId: "user-2", rank: 2 });
     });
 
     it("キャッシュのキーに集計の範囲（月間なら年月）を含める", async () => {
@@ -180,7 +180,7 @@ describe("getLeaderboard", () => {
     it("returns totalCount from the query", async () => {
       const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
-      expect(result.totalCount).toBe(2);
+      expect(result?.totalCount).toBe(2);
     });
   });
 
@@ -210,8 +210,8 @@ describe("getLeaderboard", () => {
       const result = await getLeaderboard(JANTOU_FU, "all-time", 2);
 
       // Page 2 with PAGE_SIZE=20 means offset=20, so first row rank = 21
-      expect(result.rows[0]).toMatchObject({ rank: 21, userId: "user-21" });
-      expect(result.totalCount).toBe(25);
+      expect(result?.rows[0]).toMatchObject({ rank: 21, userId: "user-21" });
+      expect(result?.totalCount).toBe(25);
     });
 
     it("computes rank offset correctly for page 3", async () => {
@@ -234,7 +234,7 @@ describe("getLeaderboard", () => {
 
       const result = await getLeaderboard(JANTOU_FU, "monthly", 3);
 
-      expect(result.rows[0]).toMatchObject({ rank: 41, userId: "user-41" });
+      expect(result?.rows[0]).toMatchObject({ rank: 41, userId: "user-41" });
     });
   });
 
@@ -246,13 +246,13 @@ describe("getLeaderboard", () => {
     it("is undefined when no currentUserId is provided", async () => {
       const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
 
-      expect(result.currentUserRank).toBeUndefined();
+      expect(result?.currentUserRank).toBeUndefined();
     });
 
     it("is undefined when the current user appears in the page rows", async () => {
       const result = await getLeaderboard(JANTOU_FU, "all-time", 1, "user-1");
 
-      expect(result.currentUserRank).toBeUndefined();
+      expect(result?.currentUserRank).toBeUndefined();
       expect(mockGetUserRankedRow).not.toHaveBeenCalled();
     });
 
@@ -266,7 +266,7 @@ describe("getLeaderboard", () => {
         "jantou_fu",
         "default",
       );
-      expect(result.currentUserRank).toEqual(rankedRow);
+      expect(result?.currentUserRank).toEqual(rankedRow);
     });
 
     it("returns undefined currentUserRank when user has no ranked row", async () => {
@@ -279,7 +279,7 @@ describe("getLeaderboard", () => {
         "user-not-found",
       );
 
-      expect(result.currentUserRank).toBeUndefined();
+      expect(result?.currentUserRank).toBeUndefined();
     });
   });
 
@@ -288,28 +288,21 @@ describe("getLeaderboard", () => {
   // -------------------------------------------------------------------------
 
   describe("error handling", () => {
-    it("returns empty result when ranking query throws", async () => {
+    // 空で描くか失敗として返すかは呼び出し側が決める（web は空、アプリ向け API は 500）
+    it("ランキングの取得が失敗したら undefined", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
       mockGetRanking.mockRejectedValue(new Error("DB connection lost"));
 
-      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
-
-      expect(result).toEqual({
-        rows: [],
-        totalCount: 0,
-        currentUserRank: undefined,
-      });
+      expect(await getLeaderboard(JANTOU_FU, "all-time", 1)).toBeUndefined();
     });
 
-    it("returns empty result when getUserRankedRow throws", async () => {
+    it("閲覧者の順位の取得が失敗したら undefined", async () => {
+      vi.spyOn(console, "error").mockImplementation(() => undefined);
       mockGetUserRankedRow.mockRejectedValue(new Error("Query timeout"));
 
-      const result = await getLeaderboard(JANTOU_FU, "all-time", 1, "user-99");
-
-      expect(result).toEqual({
-        rows: [],
-        totalCount: 0,
-        currentUserRank: undefined,
-      });
+      expect(
+        await getLeaderboard(JANTOU_FU, "all-time", 1, "user-99"),
+      ).toBeUndefined();
     });
   });
 });

@@ -5,7 +5,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header";
 import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
-import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
+import { getLeaderboard } from "@/lib/leaderboard/get-leaderboard";
 import { getOptionalUser } from "@/lib/auth";
 import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
 import { leaderboardHref } from "@mahjong-scoring/features/routes";
@@ -78,14 +78,18 @@ export async function BoardLeaderboardPreview({
   readonly board: PracticeBoard;
 }) {
   const user = await getOptionalUser();
-  const [{ rows }, blockedIds] = await Promise.all([
+  const [result, blockedIds] = await Promise.all([
     getLeaderboard(board, "all-time", 1),
     getBlockedUserIds(user?.id),
   ]);
 
   return (
     <LeaderboardPreview
-      rows={withoutBlocked(rows, blockedIds).slice(0, PREVIEW_COUNT)}
+      // 取得の失敗は誰もいない土俵と同じく出さない
+      rows={withoutBlocked(result?.rows ?? [], blockedIds).slice(
+        0,
+        PREVIEW_COUNT,
+      )}
       detailPath={leaderboardHref("all-time", board)}
     />
   );

@@ -1,26 +1,34 @@
-"use server";
-
 import { unstable_cache } from "next/cache";
 
-import { getOptionalUser } from "@/lib/auth";
-import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
-import { logExternalError } from "@/lib/log-error";
-
-import { getQueriesForPeriod } from "../_lib/period-queries";
-import type { UserRankInfo } from "../_lib/types";
 import {
   LEADERBOARD_BOARDS,
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
-import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
+import {
+  practiceBoardKey,
+  type PracticeBoard,
+} from "@mahjong-scoring/features/practice-menu-types";
+
+import { LEADERBOARD_CACHE_TAG } from "../cache-tags";
+import { logExternalError } from "../log-error";
+
+import { getQueriesForPeriod } from "./period-queries";
 
 const REVALIDATE_SECONDS = 300; // 5 minutes
 
 /**
- * 認証済みユーザーの全土俵（練習 × バリアント）におけるランクを一括取得する。
- * 未認証の場合は空配列を返す。
+ * ユーザーランク情報
+ * ランキング一覧の行に添える、その土俵での本人の順位
+ */
+export interface UserRankInfo extends PracticeBoard {
+  readonly rank: number;
+}
+
+/**
+ * ユーザーの全土俵（練習 × バリアント）における順位を一括取得する
  * ユーザーランク一括取得
+ *
+ * web のランキング一覧とアプリ向け API で共有する。順位の無い土俵は含めない。
  *
  * 土俵ごとの取得が失敗しても他の土俵のランクは返す（1 つの土俵の障害で
  * 一覧全体のランク表示を消さない）。失敗は土俵のキー付きで記録し、その
@@ -30,18 +38,13 @@ const REVALIDATE_SECONDS = 300; // 5 minutes
  * `unstable_cache` は投げた回を保存しないので、一時的な DB 障害が
  * 「ランクなし」として 5 分間残らない。
  *
+ * @param userId - 本人の ID
  * @param period - 期間
  */
 export async function getUserRanks(
+  userId: string,
   period: LeaderboardPeriod,
 ): Promise<readonly UserRankInfo[]> {
-  const user = await getOptionalUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const userId = user.id;
   const { getUserRankedRow, cacheKey } = getQueriesForPeriod(
     period,
     new Date(),
