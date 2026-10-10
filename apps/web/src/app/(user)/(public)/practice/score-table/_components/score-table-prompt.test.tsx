@@ -17,18 +17,18 @@ function promptLabels(): readonly string[] {
 }
 
 describe("ScoreTablePrompt", () => {
-  it("既定では符→翻の順に出す（点数表を引く目線と同じ）", () => {
-    render(<ScoreTablePrompt isOya={false} isTsumo={false} han={4} fu={30} />);
-
-    expect(promptLabels()).toEqual(["fu", "han"]);
-  });
-
-  it("表示設定を翻→符にすると出題文も入れ替わる", () => {
-    useDisplaySettingsStore.setState({ fuHanOrder: "han-first" });
-
+  it("既定では翻→符の順に出す", () => {
     render(<ScoreTablePrompt isOya={false} isTsumo={false} han={4} fu={30} />);
 
     expect(promptLabels()).toEqual(["han", "fu"]);
+  });
+
+  it("表示設定を符→翻にすると出題文も入れ替わる", () => {
+    useDisplaySettingsStore.setState({ fuHanOrder: "fu-first" });
+
+    render(<ScoreTablePrompt isOya={false} isTsumo={false} han={4} fu={30} />);
+
+    expect(promptLabels()).toEqual(["fu", "han"]);
   });
 
   it("満貫以上（符なし）は翻だけを出す", () => {

@@ -47,7 +47,7 @@ export function ScoreTablePrompt({
         <Text style={styles.condition}>{isTsumo ? t("tsumo") : t("ron")}</Text>
       </View>
 
-      {/* 符と翻の順は表示設定に従う（既定は点数表と同じ符→翻） */}
+      {/* 符と翻の順は表示設定に従う（既定は翻→符） */}
       <View style={styles.row}>
         {orderFuHan(fuHanOrder, {
           fu: fu === undefined ? undefined : t("fu", { count: fu }),

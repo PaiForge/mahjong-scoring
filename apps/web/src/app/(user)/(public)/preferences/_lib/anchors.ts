@@ -18,7 +18,7 @@ export const PREFERENCE_ANCHORS = {
   doraDisplay: "dora-display",
   /** 教本本文の語を用語リンクにするか */
   termLinks: "term-links",
-  /** 符と翻を「4翻 30符」の翻→符の順で出すか */
+  /** 符と翻を「30符 4翻」の符→翻の順で出すか */
   fuHanOrder: "fu-han-order",
   /** 子のツモの点数を「子から」「親から」の 2 つに分けて選ぶか */
   koTsumoInput: "ko-tsumo-input",
