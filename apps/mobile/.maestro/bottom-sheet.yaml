@@ -41,6 +41,20 @@ appId: help.mahjong.score
       - waitForAnimationToEnd
       - assertNotVisible: "ドラの見方"
       - assertVisible: "わからない"
+# 中身なりの一覧から選ぶ: 翻数の選択欄（SelectField）。選ぶとシートが閉じて値が入る
+- tapOn:
+    id: "han-select"
+- extendedWaitUntil:
+    visible:
+      id: "han-select-option-2"
+    timeout: 5000
+- takeScreenshot: sheet-select-open
+- tapOn:
+    id: "han-select-option-2"
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: "han-select-option-2"
+- takeScreenshot: sheet-select-chosen
 # 固定の高さ・注目セルへ寄せるスクロール枠: 点数表（ReferenceModal）
 - tapOn: "わからない"
 - extendedWaitUntil:
