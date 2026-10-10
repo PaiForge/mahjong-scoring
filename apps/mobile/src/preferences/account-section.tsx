@@ -20,6 +20,7 @@ import { LinkRow, LinkRowList } from "../components/link-row";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { panelFrame } from "../lib/panel-styles";
+import { BLOCKED_USERS_PATH } from "../public-profile/blocked-users-path";
 import { colors } from "../lib/theme";
 
 /**
@@ -27,7 +28,7 @@ import { colors } from "../lib/theme";
  * アカウント設定
  *
  * ゲストにはログイン・登録の入口を、ログイン中はユーザー名・メール
- * アドレスとログアウト・退会を出す。ユーザー名を決めていなければ、
+ * アドレスと、ブロックしたユーザー・ログアウト・退会を出す。ユーザー名を決めていなければ、
  * その設定へ進む行を先頭に置く。
  *
  * ログインを出せないビルド（接続先が無い）と、保存したログイン状態を
@@ -91,6 +92,7 @@ function GuestAccount() {
 /** ログイン中: アカウントの情報とログアウト・退会 */
 function SignedInAccount() {
   const t = useTranslations("settings.account");
+  const tSettings = useTranslations("settings");
   const router = useRouter();
   const { user, account, accountError } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -127,6 +129,11 @@ function SignedInAccount() {
         <InfoRow label={t("email")} value={user?.email ?? "—"} />
       </View>
       <LinkRowList>
+        <LinkRow
+          title={tSettings("blockedUsersTitle")}
+          testID="preferences-blocked-users"
+          onPress={() => router.push(BLOCKED_USERS_PATH)}
+        />
         <LinkRow
           title={t("signOut")}
           onPress={() => setConfirmingSignOut(true)}

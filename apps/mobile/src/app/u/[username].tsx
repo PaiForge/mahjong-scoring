@@ -13,6 +13,10 @@ import { SectionTitle } from "../../components/section-title";
 import { useFocusRead } from "../../lib/use-focus-read";
 import { colors } from "../../lib/theme";
 import { UserAvatar } from "../../mypage/user-avatar";
+import {
+  ProfileModeration,
+  UnblockPanel,
+} from "../../public-profile/profile-moderation";
 import { fetchPublicProfile } from "../../public-profile/public-profile-api";
 
 /**
@@ -21,12 +25,13 @@ import { fetchPublicProfile } from "../../public-profile/public-profile-api";
  * @description
  * web の `/u/<ユーザー名>`。アバター・表示名・自己紹介・SNS のリンクを出す。
  * 退会・BAN・存在しない人は「見つかりませんでした」。閲覧者がブロックした人は
- * 中身を出さず、ブロック中である旨だけを出す（web と同じ）。
+ * 中身を出さず、ブロック中である旨と解除だけを出す（web と同じ）。末尾に通報と
+ * ブロック（ゲストにはログインが要る旨、本人には何も置かない）。
  *
  * web と違うもの: SNS のリンクはボタンの並びではなく行リンクで並べ、端末の
  * ブラウザ（またはそのサービスのアプリ）で開く。
  *
- * @flow ランキングの行 → 公開プロフィール
+ * @flow ランキングの行 → 公開プロフィール → 通報（シート）/ ブロック（確認）→ ブロック中の案内 → 解除
  */
 export default function PublicProfileScreen() {
   const t = useTranslations("publicProfile");
@@ -70,12 +75,23 @@ function PublicProfile({ username }: { readonly username: string }) {
   const profile = state.value;
   if (profile.relation === "blocking") {
     return (
-      <Text style={styles.notice} testID="public-profile-blocked">
-        {t("blockedNotice", { username: profile.username })}
-      </Text>
+      <UnblockPanel
+        username={profile.username}
+        viewerId={viewerId}
+        onChanged={reload}
+      />
     );
   }
-  return <ProfileBody profile={profile} />;
+  return (
+    <>
+      <ProfileBody profile={profile} />
+      <ProfileModeration
+        profile={profile}
+        viewerId={viewerId}
+        onChanged={reload}
+      />
+    </>
+  );
 }
 
 /** プロフィールの中身（ブロック中でないとき） */
@@ -166,11 +182,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 23,
     color: colors.surface500,
-  },
-  notice: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: colors.surface700,
-    textAlign: "center",
   },
 });
