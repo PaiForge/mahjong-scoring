@@ -70,16 +70,31 @@ export function validateUsername(
 const GENERATED_USERNAME_PREFIX = "player_";
 
 /**
+ * 指定した長さの乱数バイト列を返す関数
+ *
+ * {@link generateUsername} の乱数源。React Native の JS エンジン（Hermes）には
+ * `crypto` が無いため、アプリは expo-crypto の `getRandomBytes` を渡す。
+ */
+export type RandomBytes = (length: number) => Uint8Array;
+
+/** 既定の乱数源。ブラウザと Node の `crypto.getRandomValues` を使う */
+const defaultRandomBytes: RandomBytes = (length) =>
+  crypto.getRandomValues(new Uint8Array(length));
+
+/**
  * 必ず {@link validateUsername} を通るランダムなユーザー名を作る。
  * ランダムユーザー名生成
  *
  * 名前を考えるのが手間で登録を止める人に、そのまま使える／書き換えて使える
  * 叩き台を渡すためのもの。接尾辞は 16 進 10 桁（40 bit）で、
  * `player_` と合わせて 17 文字に収まる。重複はサーバー側の一意制約が弾く。
+ *
+ * @param randomBytes - 乱数源（省略時は `crypto.getRandomValues`）
  */
-export function generateUsername(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(5));
-  const suffix = Array.from(bytes, (byte) =>
+export function generateUsername(
+  randomBytes: RandomBytes = defaultRandomBytes,
+): string {
+  const suffix = Array.from(randomBytes(5), (byte) =>
     byte.toString(16).padStart(2, "0"),
   ).join("");
   return `${GENERATED_USERNAME_PREFIX}${suffix}`;
