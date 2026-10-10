@@ -284,3 +284,14 @@ ALTER TABLE "user_blocks" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "user_blocks_deny_all" ON "user_blocks";
 CREATE POLICY "user_blocks_deny_all" ON "user_blocks"
   USING (false);
+
+-- =============================================================================
+-- reports
+-- =============================================================================
+-- 誰が誰を通報したか。通報した人を相手に知らせない約束なので、クライアントからは
+-- 読ませない。受付も管理画面もサーバーが直 DB 接続で行う。
+ALTER TABLE "reports" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "reports_deny_all" ON "reports";
+CREATE POLICY "reports_deny_all" ON "reports"
+  USING (false);

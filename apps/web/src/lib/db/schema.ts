@@ -313,6 +313,79 @@ export const userBlocks = pgTable(
 export type UserBlock = typeof userBlocks.$inferSelect;
 
 /**
+ * 通報した時点の相手のプロフィール
+ *
+ * 通報のあとで本人が書き換えても、管理者が「何が通報されたか」を読めるように
+ * 残す。アバターは URL だけで、同じ URL に上書きされた画像は今のものが見える。
+ */
+export interface ReportedProfileSnapshot {
+  readonly username: string;
+  readonly displayName: string | null;
+  readonly bio: string | null;
+  readonly avatarUrl: string | null;
+  readonly xUsername: string | null;
+  readonly instagramUsername: string | null;
+  readonly youtubeHandle: string | null;
+}
+
+/**
+ * 利用者による通報
+ *
+ * @description
+ * 公開プロフィールから「この人のプロフィールや振る舞いが不適切」と運営者に
+ * 知らせたもの。App Store の審査ガイドライン 1.2 が求める「通報と迅速な対応」に
+ * 当たり、利用規約で「24 時間以内に確認する」と約束している。届くと運営者へ
+ * メールで知らせ（`lib/reports/notify.ts`）、管理画面（`/admin/reports`）で
+ * BAN・プロフィールの削除・対応不要のいずれかで閉じる。管理者の操作は
+ * `moderation_actions` にも残す。
+ *
+ * - `status` — `open`（未対応）/ `resolved`（対応した）/ `dismissed`（対応不要）
+ * - 同じ人への未対応の通報は 1 人 1 件（部分ユニーク）。重ねて押しても行を
+ *   増やさず成功を返す（何度も押させてメールを増やさない）
+ * - 退会はソフトデリートで auth.users を残すので、通報した人・された人が
+ *   退会しても行は残る（利用規約の「通報の記録は保持する」）
+ */
+export const reports = pgTable(
+  "reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 通報した人の auth.users(id)（Supabase SQL で FK を定義） */
+    reporterId: uuid("reporter_id"),
+    /** 通報された人の auth.users(id)（Supabase SQL で FK を定義） */
+    targetUserId: uuid("target_user_id").notNull(),
+    /** 理由（features の `reports/report.ts` の `REPORT_REASONS`） */
+    reason: varchar("reason", { length: 30 }).notNull(),
+    /** 詳細（任意。「その他」では必須） */
+    detail: text("detail"),
+    /** 通報した時点の相手のプロフィール */
+    snapshot: jsonb("snapshot").notNull().$type<ReportedProfileSnapshot>(),
+    /** 対応の状態 */
+    status: varchar("status", { length: 20 }).notNull().default("open"),
+    /** 閉じた管理者の auth.users(id) */
+    resolvedBy: uuid("resolved_by"),
+    /** 閉じた日時 */
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    /** 通報した日時 */
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_reports_status_created").on(table.status, table.createdAt),
+    index("idx_reports_target").on(table.targetUserId),
+    uniqueIndex("uq_reports_open_per_reporter")
+      .on(table.reporterId, table.targetUserId)
+      .where(sql`${table.status} = 'open'`),
+    check(
+      "reports_status_values",
+      sql`${table.status} IN ('open', 'resolved', 'dismissed')`,
+    ),
+  ],
+);
+
+export type Report = typeof reports.$inferSelect;
+
+/**
  * ユーザーアクティビティログ — ユーザー行動の記録
  *
  * @description
