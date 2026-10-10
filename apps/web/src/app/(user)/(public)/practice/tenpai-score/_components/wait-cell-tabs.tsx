@@ -38,8 +38,8 @@ function tabTone(
     : "bg-destructive-subtle text-surface-800";
 }
 
-/** パネルの上枠の太さ（`border-3`）。選択中のタブがこの分だけ下へ伸びて枠を覆う */
-const PANEL_BORDER_PX = 3;
+/** パネルの上枠の太さ（`border`）。選択中のタブがこの分だけ下へ伸びて枠を覆う */
+const PANEL_BORDER_PX = 1;
 
 /** タブの id（内訳パネルの `aria-labelledby` から引く） */
 export function cellTabId(cell: MachiCellRef): string {
@@ -202,7 +202,7 @@ export function WaitCellTabs({
             // （高さは stretch で他のタブに揃うので上端は動かない）。
             // フォーカスのリングは箱の overflow で切れないよう内側に引く
             style={isFocused ? { marginBottom: `-${overlap}` } : undefined}
-            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border-3 border-b-0 border-ink px-1.5 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
+            className={`flex shrink-0 flex-col items-center gap-0.5 rounded-t-lg border border-b-0 border-panel px-1.5 pb-1.5 pt-1 text-xs font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 ${tabTone(
               verdict,
               isFocused,
             )}`}

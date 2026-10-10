@@ -14,7 +14,7 @@ interface AdminPaginationNavProps {
  *
  * ユーザー向けの `PaginationNav` と同じ構成（ページ数 + 前へ / 次へ）で、
  * ボタンだけ管理画面の `adminButtonClasses()` で描く。ユーザー向けのものを
- * 共有すると、太枠のブランドボタンが管理画面の中で 1 か所だけ浮く。
+ * 共有すると、丸ゴシック・大きな角丸のブランドボタンが管理画面の中で 1 か所だけ浮く。
  * totalPages が 1 以下の場合は何も描画しない。
  */
 export async function AdminPaginationNav({

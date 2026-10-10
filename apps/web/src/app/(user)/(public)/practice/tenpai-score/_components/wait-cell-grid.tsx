@@ -16,6 +16,7 @@ import {
   type WaitCellRun,
 } from "@mahjong-scoring/features/practice/tenpai-score/wait-cell-runs";
 import { TENPAI_SCORE_TOUR_ID } from "../_lib/tour-ids";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface WaitCellGridProps {
   readonly question: TenpaiScoreQuestion;
@@ -53,7 +54,8 @@ type CellState =
  */
 const CELL_CLASSES: Readonly<Record<CellState, string>> = {
   answered: "border-primary-500 bg-primary-50 text-surface-900",
-  answering: "border-amber-500 bg-amber-50 text-surface-900",
+  answering:
+    "border-amber-500 bg-amber-50 text-surface-900 ring-1 ring-inset ring-amber-500",
   joinable: "border-dashed border-amber-400 bg-amber-50/40 text-surface-700",
   unanswered: "border-dashed border-surface-300 bg-surface-50 text-surface-400",
 };
@@ -117,7 +119,7 @@ export function WaitCellGrid({
   } = buildWaitCellRuns(question, cellAnswers, selectedCells);
 
   const buttonClasses = (state: CellState) =>
-    `press-sm flex h-full min-h-14 w-full items-center justify-center rounded-lg border-3 px-2 py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
+    `flex h-full min-h-14 w-full items-center justify-center rounded-lg border px-2 transition-colors ${FOCUS_RING_CLASSES} py-2 text-center text-sm font-bold leading-snug ${CELL_CLASSES[state]}`;
 
   /** 塊の文字。全マスの回答が同じならその回答、そうでなければ「まとめて回答中」 */
   const runLabel = (run: WaitCellRun) =>
@@ -150,12 +152,11 @@ export function WaitCellGrid({
       <td key={key} rowSpan={run.cells.length} className="h-px p-1 sm:p-1.5">
         {/* 見た目は 1 枚のマス、押す単位は行。枠と文字は外側の div が持ち、
             行ごとの button は透明で積む（文字は読み上げから外し、行の
-            button が「何を外すか」を名乗る）。押し込みの演出は外側に付ける
-            （:hover / :active は押した行の祖先にも当たる） */}
+            button が「何を外すか」を名乗る） */}
         <div
           role="group"
           aria-label={label}
-          className={`relative flex h-full min-h-14 w-full flex-col overflow-hidden rounded-lg border-3 ${CELL_CLASSES.answering} ${disabled ? "" : "press-sm"}`}
+          className={`relative flex h-full min-h-14 w-full flex-col overflow-hidden rounded-lg border ${CELL_CLASSES.answering}`}
         >
           {run.cells.map((member, i) => (
             <button
@@ -167,7 +168,7 @@ export function WaitCellGrid({
                 hai: haiIdToMpsz(member.agariHai),
               })}
               onClick={() => onToggleCell(member)}
-              className={`min-h-14 w-full flex-1 ${i > 0 ? "border-t-2 border-dashed border-amber-300" : ""}`}
+              className={`min-h-14 w-full flex-1 ${i > 0 ? "border-t border-dashed border-amber-300" : ""}`}
             />
           ))}
           {/* 文字の背後だけ塗って、行の区切り線が文字を横切らないようにする */}

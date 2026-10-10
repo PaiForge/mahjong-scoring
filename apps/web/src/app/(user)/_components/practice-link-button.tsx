@@ -39,14 +39,14 @@ export function PracticeLinkButton({ href, label }: PracticeLinkButtonProps) {
  * {@link PracticeLinkButton} の読み込み中スケルトン
  * 練習リンクボタンスケルトン
  *
- * 50px は実物の内訳（枠 3px × 2 + py-3 の 12px × 2 + 文字の行ボックス 20px）。
+ * 46px は実物の内訳（枠 1px × 2 + py-3 の 12px × 2 + 文字の行ボックス 20px）。
  * ボタンと同じファイルに置いてあるので、寸法が変わったときに直す場所が
  * 1 つで済む。
  *
- * 実物の苔緑の太枠（`border-ink`）は写さず灰色の矩形にする
+ * 実物の緑の塗りは写さず灰色の矩形にする
  * （`PracticeStartCtaSkeleton` と同じ理由 — 読み込み中の画面が実物より
  * 賑やかに見えるため）。高さは border-box なので枠を外しても一致する。
  */
 export function PracticeLinkButtonSkeleton() {
-  return <SkeletonBar radius="lg" tone={100} className="h-[50px] w-full" />;
+  return <SkeletonBar radius="lg" tone={100} className="h-[46px] w-full" />;
 }

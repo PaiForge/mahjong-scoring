@@ -40,6 +40,7 @@ import {
 } from "./practice-footer-actions";
 import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
 import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -308,7 +309,7 @@ export function ChallengeShell({
             <button
               type="button"
               onClick={gameSession.togglePause}
-              className="rounded-full bg-white/80 p-4 text-surface-700 shadow-lg transition-transform hover:scale-110 active:scale-95"
+              className={`rounded-full border border-panel bg-white/90 p-4 text-surface-700 transition-colors hover:bg-white hover:text-surface-900 ${FOCUS_RING_CLASSES}`}
               aria-label={tc("resume")}
             >
               <PlayIcon className="size-12" />

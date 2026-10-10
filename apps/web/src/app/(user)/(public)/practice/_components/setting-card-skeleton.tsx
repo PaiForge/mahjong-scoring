@@ -25,7 +25,7 @@ interface SettingCardSkeletonProps {
  * 確保して CLS を防ぐ。寸法は SettingCard と同じクラス定数を共有するため、
  * カードの見た目を変えてもスケルトンだけ取り残されることがない。
  *
- * 色は共有しない。実物の苔緑の枠（`border-ink`）と淡緑の見出し帯
+ * 色は共有しない。実物の枠の色と淡緑の見出し帯
  * （`bg-primary-50`）は写さず灰色にする（`ProblemListSkeleton` と同じ理由 —
  * 読み込み中の画面が実物より賑やかに見えるため）。枠は border-box なので、
  * 色だけ替えても寸法は実物と一致したまま。

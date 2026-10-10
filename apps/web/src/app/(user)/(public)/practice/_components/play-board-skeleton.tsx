@@ -11,7 +11,7 @@ import { START_BUTTON_HEIGHT_CLASS } from "./practice-start-cta-skeleton";
  * 打ち消して画面端まで広がり、端に接する角も落ちる。同じだけ外へ出す。
  * 高さは牌が列の幅に合わせて縮むぶん幅で変わるので 2 点で測った値を持つ。
  * 手の中身では変わらない（`TehaiHand` 参照）。状況行にドラを出す盤面は
- * 124px / 144px、出さない盤面（符の練習）は 106px / 121px の 2 種類だけ。
+ * 119px / 140px、出さない盤面（符の練習）は 101px / 117px の 2 種類だけ。
  */
 function BoardRect({ heightClass }: { readonly heightClass: string }) {
   return (
@@ -83,7 +83,7 @@ function Rows({
   );
 }
 
-/** 送信ボタン（`LinkButton size="lg"` と同じ 50px） */
+/** 送信ボタン（`LinkButton size="lg"` と同じ 46px） */
 function SubmitButton() {
   return (
     <SkeletonBar
@@ -95,13 +95,13 @@ function SubmitButton() {
 
 /**
  * 点数を select で答える回答フォーム（ラベル + select）。選択した時点で
- * 送信するため送信ボタンは無い。実測 74px で、幅によらない
+ * 送信するため送信ボタンは無い。実測 70px で、幅によらない
  */
 function ScoreAnswerForm() {
   return (
     <div>
       <SkeletonBar className="mb-2 h-4 w-24" tone={100} />
-      <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
+      <SkeletonBar radius="lg" className="h-[46px] w-full" tone={100} />
     </div>
   );
 }
@@ -110,8 +110,8 @@ function ScoreAnswerForm() {
  * 盤面ごとのスケルトンの形
  * 盤面形状
  *
- * 実物の部品の並びをそのまま置く。寸法はすべて実測値（2026-09、幅 390px と
- * 1280px の 2 点。牌も選択肢も列の幅で畳まれるため片方では足りない）。
+ * 実物の部品の並びをそのまま置く。寸法はすべて実測値（2026-10、390×844 と
+ * 1280×900 の 2 点。牌も選択肢も列の幅で畳まれるため片方では足りない）。
  * 盤面を作り替えたら測り直すこと。
  *
  * 外側の余白（`mt-*`）と部品の間隔（`space-y-*`）も実物に合わせる。ここが
@@ -121,7 +121,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 昇級試験 5 種。盤面 / 設問 / ラベル + select
   scoreExam: () => (
     <div className="mt-4 space-y-6">
-      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[119px] sm:h-[140px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>
@@ -129,31 +129,31 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 合計符の試験。選択肢は 3 列 11 個
   fuExam: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
+      <BoardRect heightClass="h-[101px] sm:h-[117px]" />
       <Prompt />
       <Choices
         columns="grid-cols-3"
         count={11}
-        itemClass="h-[66px] sm:h-[70px]"
+        itemClass="h-[62px] sm:h-[66px]"
       />
     </div>
   ),
   // 点数計算。試験と同じ構図で盤面だけ少し高い
   scoreCalculation: () => (
     <div className="mt-4 space-y-6">
-      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[119px] sm:h-[140px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>
   ),
   // 満貫以上点数計算。盤面と設問の間に成立役の一覧が入る。役の数で高さが
-  // 変わる（役 1 行で 130px、役が 1 つ増えるごとに 38px 高い）ため一致させ
+  // 変わる（役 1 行で 125px、役が 1 つ増えるごとに 37px 高い）ため一致させ
   // られない。低い側に置いて、実体が現れたときに縮むより伸びる方に倒す
   // （縮む方が目立つため）
   manganScoreCalculation: () => (
     <div className="mt-4 space-y-6">
-      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
-      <Panel heightClass="h-[130px]" />
+      <BoardRect heightClass="h-[119px] sm:h-[140px]" />
+      <Panel heightClass="h-[125px]" />
       <Prompt />
       <ScoreAnswerForm />
     </div>
@@ -163,7 +163,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
     <div className="mt-6 space-y-5">
       <SkeletonBar className="mx-auto h-[48px] w-32" tone={100} />
       <Prompt />
-      <Choices columns="grid-cols-2" count={4} itemClass="h-[100px]" />
+      <Choices columns="grid-cols-2" count={4} itemClass="h-[96px]" />
     </div>
   ),
   // 待ち符。待ちの形を 2 段で見せる
@@ -174,7 +174,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
       <Choices
         columns="grid-cols-2"
         count={2}
-        itemClass="h-[66px] sm:h-[70px]"
+        itemClass="h-[62px] sm:h-[66px]"
       />
     </div>
   ),
@@ -186,7 +186,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
       <Choices
         columns="grid-cols-3"
         count={6}
-        itemClass="h-[66px] sm:h-[70px]"
+        itemClass="h-[62px] sm:h-[66px]"
       />
     </div>
   ),
@@ -194,7 +194,7 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 時点で送信するため送信ボタンは無い
   mentsuJantouFu: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
+      <BoardRect heightClass="h-[101px] sm:h-[117px]" />
       <Prompt />
       <Rows count={5} itemClass="h-[123px] w-full" />
     </div>
@@ -202,19 +202,19 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 合計符。選択肢は 3 列 11 個
   totalFu: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[106px] sm:h-[121px]" />
+      <BoardRect heightClass="h-[101px] sm:h-[117px]" />
       <Prompt />
       <Choices
         columns="grid-cols-3"
         count={11}
-        itemClass="h-[66px] sm:h-[70px]"
+        itemClass="h-[62px] sm:h-[66px]"
       />
     </div>
   ),
   // 役判定。役の一覧パネルと選択中のチップ行、送信ボタン
   yaku: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[119px] sm:h-[140px]" />
       <Prompt />
       <Panel heightClass="h-[287px] sm:h-[414px]" />
       <SkeletonBar className="h-[46px] w-full" tone={100} />
@@ -226,12 +226,12 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 翻数即答。設問文は選択肢と同じ節の中にあり、盤面の直後には無い
   hanCount: () => (
     <div className="mt-4 space-y-4">
-      <BoardRect heightClass="h-[124px] sm:h-[144px]" />
+      <BoardRect heightClass="h-[119px] sm:h-[140px]" />
       <div className="space-y-3">
         <Prompt />
         <SkeletonBar
           radius="lg"
-          className="h-[256px] w-full sm:h-[190px]"
+          className="h-[240px] w-full sm:h-[178px]"
           tone={100}
         />
       </div>
@@ -240,19 +240,19 @@ const SHAPES: Readonly<Record<PlayBoardHeight, () => ReactNode>> = {
   // 点数表早引き。手牌を持たず、条件のパネルと回答フォームだけ
   scoreTable: () => (
     <div className="mt-6 space-y-6">
-      <Panel heightClass="h-[170px]" />
-      <SkeletonBar radius="lg" className="h-[74px] w-full" tone={100} />
+      <Panel heightClass="h-[166px]" />
+      <SkeletonBar radius="lg" className="h-[70px] w-full" tone={100} />
     </div>
   ),
   // 役の翻数。役名のパネルと翻数の選択肢
   yakuHan: () => (
     <div className="mt-4 space-y-6">
-      <Panel heightClass="h-[142px]" />
+      <Panel heightClass="h-[138px]" />
       <div className="space-y-3">
         <Prompt />
         <SkeletonBar
           radius="lg"
-          className="h-[124px] w-full sm:h-[58px]"
+          className="h-[116px] w-full sm:h-[54px]"
           tone={100}
         />
       </div>

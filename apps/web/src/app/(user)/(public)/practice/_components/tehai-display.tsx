@@ -35,7 +35,7 @@ interface TehaiDisplayProps {
   readonly onScaleChange?: (scale: number) => void;
   /**
    * モバイル（<sm）で盤面をどこまで広げるか。sm 以上はどれを選んでも
-   * 同じ（角丸＋四辺の太枠＋余白）で、狭い画面での見え方だけが変わる。
+   * 同じ（角丸＋四辺の細枠＋余白）で、狭い画面での見え方だけが変わる。
    *
    * - `"inset"`（既定）— 白カードの内側に収める。説明や一覧の中に置く盤面は
    *   地の文と幅が揃っている方が読みやすい
@@ -68,14 +68,14 @@ type MobileFrame = keyof typeof MOBILE_FRAME_CLASSES;
 /**
  * 盤面の枠。広げるときは角丸と接する辺の枠線を落とし、左右のパディングも
  * 詰めて牌に幅を回す（白カード自身の <sm 表示と同じ作法）。上端に密着させる
- * ときは、カードの上枠（4px）と二重にならないよう自前の上枠も落とす。
+ * ときは、カードの上枠と二重にならないよう自前の上枠も落とす。
  */
 const MOBILE_FRAME_CLASSES = {
-  inset: "mt-4 rounded-xl border-3 p-3",
+  inset: "mt-4 rounded-xl border p-3",
   fullBleed:
-    "-mx-4 mt-4 rounded-none border-x-0 border-y-3 px-2 py-3 sm:mx-0 sm:rounded-xl sm:border-x-3 sm:px-3",
+    "-mx-4 mt-4 rounded-none border-x-0 border-y px-2 py-3 sm:mx-0 sm:rounded-xl sm:border-x sm:px-3",
   fullBleedFlushTop:
-    "-mx-4 -mt-4 rounded-none border-x-0 border-t-0 border-b-3 px-2 py-3 sm:mx-0 sm:mt-4 sm:rounded-xl sm:border-x-3 sm:border-t-3 sm:px-3",
+    "-mx-4 -mt-4 rounded-none border-x-0 border-t-0 border-b px-2 py-3 sm:mx-0 sm:mt-4 sm:rounded-xl sm:border-x sm:border-t sm:px-3",
 } as const;
 
 /**
@@ -140,7 +140,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
 
   return (
     <div
-      className={`border-ink bg-primary-800 ${MOBILE_FRAME_CLASSES[mobileFrame]}`}
+      className={`border-primary-900 bg-primary-800 ${MOBILE_FRAME_CLASSES[mobileFrame]}`}
       data-tour-id={tourId}
     >
       <div

@@ -11,7 +11,7 @@ import { NotificationBell } from "./notification-bell";
  */
 export function Header() {
   return (
-    <header className="bg-card border-b-4 border-ink">
+    <header className="bg-card border-b border-panel">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-14 items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-3">

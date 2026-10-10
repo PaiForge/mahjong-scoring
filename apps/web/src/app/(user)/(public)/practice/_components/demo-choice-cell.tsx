@@ -24,7 +24,7 @@ export function DemoChoiceCell({
 }: DemoChoiceCellProps) {
   return (
     <div
-      className={`flex items-center justify-center rounded-xl border-3 border-ink bg-white p-4 ${className}`}
+      className={`flex items-center justify-center rounded-xl border border-surface-300 bg-white p-4 ${className}`}
     >
       {children}
     </div>

@@ -65,7 +65,7 @@ export function ChapterCompleteButton({ slug }: ChapterCompleteButtonProps) {
   }
 
   if (!fetched) {
-    return <SkeletonBar radius="lg" tone={100} className="h-[50px] w-full" />;
+    return <SkeletonBar radius="lg" tone={100} className="h-[46px] w-full" />;
   }
 
   if (completed) {

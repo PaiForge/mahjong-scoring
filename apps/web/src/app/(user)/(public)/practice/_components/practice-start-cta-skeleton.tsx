@@ -8,14 +8,14 @@ import {
 
 /**
  * `LinkButton size="lg"` の実寸（py-3 の 24px + text-sm の行 20px +
- * border-3 の 6px = 50px）
+ * border の 2px = 46px）
  * 開始ボタン高さ
  *
  * 開始ボタンの場所を確保するスケルトンはこの高さを共有する（このファイルの
  * ものと、昇級試験の受験ゲート・説明ページのスケルトン）。ボタンの寸法が
  * 変わったときに直す場所を 1 つにするため。
  */
-export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
+export const START_BUTTON_HEIGHT_CLASS = "h-[46px]";
 
 /**
  * 練習の開始導線の読み込み中スケルトン
@@ -28,7 +28,7 @@ export const START_BUTTON_HEIGHT_CLASS = "h-[50px]";
  * そのまま描画する。昇級試験の説明ページ（本番 / 模試）のスケルトンも
  * 同じ 3 ブロックなのでこれを使う。
  *
- * ボタンは実物の苔緑の太枠（`border-ink`）を写さず灰色の矩形にする
+ * ボタンは実物の緑の塗りを写さず灰色の矩形にする
  * （`ProblemListSkeleton` と同じ理由 — 読み込み中の画面が実物より賑やかに
  * 見えるため）。高さは border-box なので枠を外しても実物と一致する。
  */

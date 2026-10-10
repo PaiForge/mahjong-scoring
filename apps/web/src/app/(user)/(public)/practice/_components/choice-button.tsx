@@ -2,6 +2,8 @@
 
 import { type ReactNode, memo, useCallback } from "react";
 
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+
 interface ChoiceButtonProps {
   /** 選択肢のインデックス（onSelect に渡される識別子） */
   readonly index: number;
@@ -37,7 +39,7 @@ export const ChoiceButton = memo(function ChoiceButtonComponent({
       type="button"
       disabled={disabled}
       onClick={handleClick}
-      className={`press-sm flex items-center justify-center rounded-xl border-3 shadow-sm ${borderClass} ${bgClass} p-4 ${className}`}
+      className={`flex items-center justify-center rounded-xl border transition-colors ${FOCUS_RING_CLASSES} ${borderClass} ${bgClass} p-4 ${className}`}
     >
       {children}
     </button>

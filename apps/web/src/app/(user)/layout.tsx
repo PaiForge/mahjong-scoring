@@ -10,8 +10,8 @@ export default function UserLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      {/* 背景は敷かず、body の下地（bg-secondary + 斜線）をそのまま地にする。
-          白い角丸カード（ContentContainer）がこの上に浮く。
+      {/* 背景は敷かず、body の無地の下地（bg-secondary）をそのまま地にする。
+          白い角丸カード（ContentContainer）がこの上に置かれる。
           最大幅・余白は ContentContainer 側が持つ。 */}
       <main className="flex flex-1 flex-col">{children}</main>
       <Footer />

@@ -6,8 +6,8 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * ページ見出しの見た目。`PageTitle`（本物）と `PageTitlePlaceholder`（読み込み中）で
  * 同じ箱にするために共有する。
  *
- * 見出しは白カードの外（斜線の地の上）に置かれる。foreground のスレート系だと
- * 緑がかった地から浮くため、地と同系の深緑（primary-900）を使う。
+ * 見出しは白カードの外（地の上）に置かれる。ブランドの見出しとして
+ * 深緑（primary-900）を使う。
  *
  * 高さは行ボックス（1.4em 前後）ではなく 1.5em で固定する。`action` を持つ
  * ページでも loading.tsx は `action` 無しでこの見出しを描くため、行の高さを

@@ -33,7 +33,8 @@ function journeyOf(overrides: Partial<BuildJourneyInput> = {}) {
 /** 帯色のボタン（CTA）の href */
 function ctaHref(container: HTMLElement): string | null {
   return (
-    container.querySelector("a[class*='press-']")?.getAttribute("href") ?? null
+    container.querySelector("a[class*='--belt-fill']")?.getAttribute("href") ??
+    null
   );
 }
 

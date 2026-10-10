@@ -58,7 +58,7 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
           ランクカードと同じく、細い枠に加えて上端に帯を敷く。 */}
       <div
         data-belt-slug={exam.rank.slug}
-        className={`rounded-panel border border-t-4 border-panel bg-white ${beltBorderTopClass(exam.rank.slug)}`}
+        className={`rounded-panel border border-t-2 border-panel bg-white ${beltBorderTopClass(exam.rank.slug)}`}
       >
         <div className="space-y-4 p-5">
           <p className="text-sm leading-relaxed text-surface-700">

@@ -134,10 +134,10 @@ function GripIcon({ className = "shrink-0" }: { readonly className?: string }) {
  * 36 行の先で見つからない。鍵と保存を一覧の上の追従バーに同居させ、
  * 操作とその結果を同じ場所に置く。
  *
- * 追従バーは施錠中と解錠中で地の色を変える。施錠中に一覧と同じ白＋太枠で
+ * 追従バーは施錠中と解錠中で地の色を変える。施錠中に一覧と同じ白＋枠線で
  * 置くと表の一部に見えて鍵に気づかないため、地色だけの静かな帯にする。
  * 解錠中は琥珀（アプリで「本筋の隣に置く箱」に使っている色）の枠を出し、
- * 一時的なモードに入っていることを主張する。枠の太さは両方 3 のまま
+ * 一時的なモードに入っていることを主張する。枠の太さは両方 1px のまま
  * 色だけを透明にして、切り替えで高さが動かないようにする。
  */
 export function YakuOrderSection() {
@@ -191,9 +191,9 @@ export function YakuOrderSection() {
           画面下に固定すると MobileTabBar と重なるので上に置く
           （このアプリの Header は sticky ではないので top-0 でよい）。 */}
       <div
-        className={`sticky top-0 z-20 flex items-center gap-2 rounded-lg border-3 px-2 py-2 ${
+        className={`sticky top-0 z-20 flex items-center gap-2 rounded-lg border px-2 py-2 ${
           isEditing
-            ? "border-amber-500 bg-amber-50 shadow-hard"
+            ? "border-amber-500 bg-amber-50"
             : "border-transparent bg-surface-100"
         }`}
       >

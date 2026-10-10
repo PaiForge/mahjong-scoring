@@ -148,7 +148,7 @@ export function ChallengeDashboard({
 
   return (
     // 横のはみ出しはこの階層で抑えない。`overflow-x-hidden` を張ると
-    // overflow-y の使用値も auto に落ちるため、末尾の CTA のハードシャドウが
+    // overflow-y の使用値も auto に落ちるため、末尾の CTA のフォーカスリングが
     // 右と下の両方で切り落とされ、同じ `PracticeLinkButton` を使っている
     // 教本の章末のボタンと見た目が変わる。はみ出す当人（チャートの
     // `overflow-hidden`、履歴の表の `overflow-x-auto`）と、最後の受け皿で

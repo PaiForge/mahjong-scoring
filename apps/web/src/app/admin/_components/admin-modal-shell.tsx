@@ -13,8 +13,7 @@ import { ModalShell } from "@/app/_components/modal-shell";
  *
  * `skin="plain"` を渡すのは、ModalShell が body へポータルする＝管理画面の
  * ルートに付いた `data-skin="plain"` の配下から抜けるため。渡さないと
- * `rounded-xl` / `shadow-xl` がユーザー向けの骨格（太い角丸・ハードシャドウ）を
- * 引いてしまう。
+ * `rounded-xl` がユーザー向けの骨格（大きな角丸）を引いてしまう。
  */
 export function AdminModalShell(
   props: Omit<ComponentProps<typeof ModalShell>, "panelClassName" | "skin">,

@@ -91,7 +91,7 @@ export function JudgementMark({
   if (variant === "badge") {
     return (
       <span
-        className={`inline-flex rounded-full border-2 border-ink p-2 ${BADGE_CLASSES[verdict]} ${className}`}
+        className={`inline-flex rounded-full p-2 ${BADGE_CLASSES[verdict]} ${className}`}
       >
         {svg}
       </span>

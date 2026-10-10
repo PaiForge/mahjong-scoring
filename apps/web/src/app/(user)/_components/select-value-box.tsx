@@ -21,7 +21,7 @@ interface SelectValueBoxProps {
   /** 開くボタン（＋）の説明。`onOpen` を渡すときだけ使う */
   readonly openLabel?: string;
   /**
-   * 枠線と背景のクラス（既定: 白地に ink の枠）
+   * 枠線と背景のクラス（既定: 白地にフォーム部品と同じ灰の枠）
    *
    * 回答の正誤を箱の色で示す練習が、フィードバック中だけ差し替える。
    * 枠線と背景は必ずこの1つで決まる（渡すと disabled の灰色にも勝つ）。
@@ -51,14 +51,16 @@ export function SelectValueBox({
     options.find((option) => option.value === val)?.label ?? val;
   const canOpen = onOpen !== undefined && !disabled;
 
-  // 高さは select と同じ 46px。チップ 1 行（28px）が枠 6px と上下の余白に
-  // ちょうど収まる余白（py-1.5 = 12px）にする。余白を広げると最初のチップを
+  // 高さは select と同じ 46px。チップ 1 行（28px）が枠 2px と上下の余白
+  // （py-1.5 = 12px）に収まり、まだ 4px 余る。それ以上余白を広げると最初のチップを
   // 足した瞬間に箱が伸び、下の送信ボタンが動く
   return (
     <div
-      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border-3 px-2 py-1.5 transition-colors ${
+      className={`flex min-h-[46px] w-full flex-wrap items-center gap-2 rounded-lg border px-2 py-1.5 transition-colors ${
         frameClasses ??
-        (disabled ? "border-ink bg-surface-100" : "border-ink bg-white")
+        (disabled
+          ? "border-surface-400 bg-surface-100"
+          : "border-surface-400 bg-white")
       } ${disabled ? "cursor-not-allowed" : ""} ${
         canOpen ? "cursor-pointer" : ""
       }`}

@@ -35,11 +35,11 @@ export default async function Loading() {
             実測（2026-10-07）で 390px 幅・1280px 幅とも 84px（ログイン済みは導線が無く 60px） */}
         <SkeletonBar radius="lg" className="h-[84px] w-full" tone={100} />
 
-        {/* 次の目標: 開いた 5級のカード。実測（2026-10-07）で 971px（sm 以上 979px） */}
+        {/* 次の目標: 開いた 5級のカード。実測（2026-10-10）で 965px（sm 以上 973px） */}
         <section>
           <SkeletonBar
             radius="lg"
-            className="h-[971px] w-full sm:h-[979px]"
+            className="h-[965px] w-full sm:h-[973px]"
             tone={100}
           />
         </section>
@@ -51,12 +51,12 @@ export default async function Loading() {
               <SkeletonBar
                 key={rank.slug}
                 radius="lg"
-                // 実測（2026-10-07）: 次の目標の 5級は 153px（sm 以上 161px）、
-                // 施錠の注記を持つ他の級は 177px（sm 以上 185px）
+                // 実測（2026-10-10）: 次の目標の 5級は 151px（sm 以上 159px）、
+                // 施錠の注記を持つ他の級は 175px（sm 以上 183px）
                 className={
                   index === 0
-                    ? "h-[153px] w-full sm:h-[161px]"
-                    : "h-[177px] w-full sm:h-[185px]"
+                    ? "h-[151px] w-full sm:h-[159px]"
+                    : "h-[175px] w-full sm:h-[183px]"
                 }
                 tone={100}
               />

@@ -20,7 +20,7 @@ export default function Loading() {
           <div className="space-y-3 rounded-panel border border-panel bg-surface-50 p-5">
             <SkeletonBar className="h-6 w-40" />
             <SkeletonBar className="h-4 w-full" />
-            <SkeletonBar radius="lg" className="h-[50px] w-full" />
+            <SkeletonBar radius="lg" className="h-[46px] w-full" />
           </div>
         </section>
 

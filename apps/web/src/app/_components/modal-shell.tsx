@@ -18,7 +18,7 @@ interface ModalShellProps {
   /** aria-label（labelledBy を使わない場合） */
   readonly label?: string;
   /**
-   * パネル（白い箱）の体裁。既定はユーザー向け画面の骨格（太枠）。
+   * パネル（白い箱）の体裁。既定はユーザー向け画面の骨格（細枠 + 浮く層の柔らかい影）。
    * 内側の余白・子要素の間隔（p-6 / space-y-6）も体裁の一部としてここが持つ。
    * 管理画面のように別の見た目で使う場合や、ヘルプツアーのようにパネル内で
    * 独自のレイアウトを組む場合はここで丸ごと差し替える。
@@ -39,9 +39,14 @@ interface ModalShellProps {
   readonly skin?: "plain";
 }
 
-/** パネル体裁の既定値（ユーザー向け画面の骨格） */
+/**
+ * パネル体裁の既定値（ユーザー向け画面の骨格）。
+ *
+ * 地に置かれた面は影を持たないが、モーダルは画面の上に浮く層なので
+ * 細線に柔らかい影を添えてオーバーレイから離す。
+ */
 const DEFAULT_PANEL_CLASS =
-  "space-y-6 rounded-2xl border-4 border-ink bg-white p-6";
+  "space-y-6 rounded-2xl border border-panel bg-white p-6 shadow-xl";
 
 /**
  * モーダル共通シェル

@@ -8,7 +8,10 @@ import { UserIcon } from "./icons/user-icon";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import {
+  FOCUS_RING_CLASSES,
+  TEXT_LINK_CLASSES,
+} from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 /**
@@ -16,14 +19,13 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
  * blindfold-chess の AuthStatusDisplay を移植。
  * 認証済み: アバター丸ボタン → ドロップダウン（マイページ/設定/ログアウト）。
  * アバターを設定していればその画像を、未設定ならユーザーアイコンを出す。
- * 設定済みの画像だけは太枠を外す。32px では枠が画像の面積をそのまま削り、
- * 誰の顔かが分からなくなるため。未設定時のアイコンは中身が線画で、
- * 枠が無いと背景に溶けるので border-3 のまま置く。
+ * 設定済みの画像には枠を付けない。未設定時のアイコンは中身が線画で、
+ * 枠が無いと背景に溶けるので細線の円で囲む。
  * 未認証: ログイン（テキストリンク）/ 新規登録（枠線のみのボタン）。
  * 同形のボタンを 2 つ並べるとセグメントに見えるため、押せる面は新規登録だけに絞る。
- * その新規登録も塗り + オフセット影のフル装備にはしない。ヘッダーは遷移の場であって
+ * その新規登録も緑の塗りにはしない。ヘッダーは遷移の場であって
  * 登録の本命導線は LP ヒーローや結果画面の CTA が持つため、ここはアバター
- * （border-3 + 影なし）と同じ重さに揃え、認証状態が変わっても右端の重量を一定に保つ。
+ * （細線の円）と同じ重さに揃え、認証状態が変わっても右端の重量を一定に保つ。
  */
 export function AuthNavItem() {
   const t = useTranslations("nav");
@@ -57,8 +59,8 @@ export function AuthNavItem() {
   // ログイン済みならプロフィール（アバター）が届くまでスケルトンを続ける。
   // 先にユーザーアイコンを出すと、アバター設定済みの人には毎回アイコン →
   // アバターの差し替わりが見えてしまう。
-  // 実物のアバターは苔緑の太枠（border-ink）を持つが、スケルトンは灰色の円だけで
-  // 示す（ProblemListSkeleton と同じ理由）。枠は border-box なので直径は変わらない。
+  // スケルトンは灰色の円だけで示す（ProblemListSkeleton と同じ理由）。
+  // 実物の枠は border-box なので直径は変わらない。
   if (isLoading || (user && isProfileLoading)) {
     return <SkeletonBar radius="full" className="h-8 w-8" />;
   }
@@ -74,7 +76,7 @@ export function AuthNavItem() {
         </DeferredPrefetchLink>
         <DeferredPrefetchLink
           href="/sign-up"
-          className="rounded-lg border-3 border-ink bg-card px-2.5 py-1 font-bold whitespace-nowrap text-primary-700 transition-colors hover:bg-primary-50 sm:px-3 sm:py-1.5"
+          className={`rounded-lg border border-panel bg-card px-2.5 py-1 font-bold whitespace-nowrap text-primary-700 transition-colors hover:border-primary-300 hover:bg-primary-50 sm:px-3 sm:py-1.5 ${FOCUS_RING_CLASSES}`}
         >
           {t("signUp")}
         </DeferredPrefetchLink>
@@ -86,7 +88,7 @@ export function AuthNavItem() {
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        className="flex items-center justify-center rounded-full transition-opacity hover:opacity-80"
+        className={`flex items-center justify-center rounded-full transition-opacity hover:opacity-80 ${FOCUS_RING_CLASSES}`}
         aria-label={t("account")}
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -99,7 +101,7 @@ export function AuthNavItem() {
             size="sm"
           />
         ) : (
-          <span className="flex h-8 w-8 items-center justify-center rounded-full border-3 border-ink bg-primary-50 text-foreground">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-primary-300 bg-primary-50 text-foreground">
             <UserIcon className="size-5" />
           </span>
         )}
@@ -117,13 +119,13 @@ export function AuthNavItem() {
         role="menu"
         inert={!isOpen}
         aria-hidden={!isOpen}
-        className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border-3 border-ink bg-card ${isOpen ? "" : "invisible"}`}
+        className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-panel bg-card shadow-lg ${isOpen ? "" : "invisible"}`}
       >
         <DeferredPrefetchLink
           href="/mypage"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
         >
           {t("mypage")}
         </DeferredPrefetchLink>
@@ -131,7 +133,7 @@ export function AuthNavItem() {
           href="/preferences"
           role="menuitem"
           onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
         >
           {t("settings")}
         </DeferredPrefetchLink>
@@ -139,7 +141,7 @@ export function AuthNavItem() {
           type="button"
           role="menuitem"
           onClick={handleSignOut}
-          className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50"
+          className="block w-full px-4 py-3 text-left text-sm font-bold text-foreground transition-colors hover:bg-primary-50 focus-visible:bg-primary-50 focus-visible:outline-none"
         >
           {t("signOut")}
         </button>

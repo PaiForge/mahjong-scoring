@@ -11,9 +11,12 @@ import {
   type MachiTileMark,
 } from "@mahjong-scoring/features/practice/tenpai-score/machi-tile-mark";
 import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/tenpai-score/picker-rows";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
- * 牌の枠と背景。押せる面なので太枠 + 押し込み演出（ChoiceButton と同じ語彙）。
+ * 牌の枠と背景。押せる面なので ChoiceButton と同じ細枠 + hover の塗り。
+ * 選んだ牌は枠の内側に 1px のリングを足して 2px の緑で囲み、塗りだけに
+ * 頼らず選択中であることを示す（枠の幅は変えないので牌は動かない）。
  * 判定後は正誤の配色（答え合わせと共通の `MACHI_TILE_MARK_CLASSES`）に
  * 切り替え、待ちでも選んでもいない牌は薄くする。
  */
@@ -24,12 +27,12 @@ function tileClasses(
 ): string {
   if (!judged) {
     return selected
-      ? "border-primary-500 bg-primary-50"
-      : "border-ink bg-white hover:bg-primary-50";
+      ? "border-primary-500 bg-primary-50 ring-1 ring-inset ring-primary-500"
+      : "border-surface-300 bg-white hover:border-primary-300 hover:bg-primary-50";
   }
   return mark
     ? MACHI_TILE_MARK_CLASSES[mark]
-    : "border-ink bg-white opacity-40";
+    : "border-surface-300 bg-white opacity-40";
 }
 
 interface MachiPickerProps {
@@ -79,7 +82,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                 aria-pressed={isSelected}
                 aria-label={haiIdToMpsz(hai)}
                 onClick={() => onToggle(hai)}
-                className={`press-sm flex min-h-12 flex-col items-center justify-center rounded-lg border-2 px-0.5 py-1 sm:min-h-16 sm:rounded-xl sm:border-3 ${tileClasses(isSelected, mark, judged)}`}
+                className={`flex min-h-12 flex-col items-center justify-center rounded-lg border px-0.5 py-1 transition-colors sm:min-h-16 sm:rounded-xl ${FOCUS_RING_CLASSES} ${tileClasses(isSelected, mark, judged)}`}
               >
                 <span className="origin-center scale-75 sm:scale-100">
                   <Hai hai={hai} size="sm" />

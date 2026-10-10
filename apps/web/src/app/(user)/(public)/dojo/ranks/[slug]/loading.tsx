@@ -21,21 +21,21 @@ export default async function Loading() {
       <PageTitlePlaceholder width="w-16" />
 
       <div className="space-y-8">
-        {/* 帯バッジ（64px）+ 枠と余白で 109px。390px 幅では合格基準が
-            2 行に折り返して 118px になる（2026-10-07 に実測） */}
+        {/* 帯バッジ（64px）+ 枠と余白で 107px。390px 幅では合格基準が
+            2 行に折り返して 116px になる（2026-10-10 に実測） */}
         <SkeletonBar
           radius="lg"
-          className="h-[118px] w-full sm:h-[109px]"
+          className="h-[116px] w-full sm:h-[107px]"
           tone={100}
         />
 
-        {/* 昇級試験カード: リード文 + 合格基準 + ボタン。390px 幅で 200px、
-            640px 以上でリード文が 1 行に収まり 174px（2026-10-07 に実測） */}
+        {/* 昇級試験カード: リード文 + 合格基準 + ボタン。390px 幅で 194px、
+            640px 以上でリード文が 1 行に収まり 168px（2026-10-10 に実測） */}
         <section className="space-y-4">
           <SectionTitleSkeleton width="w-28" />
           <SkeletonBar
             radius="lg"
-            className="h-[200px] w-full sm:h-[174px]"
+            className="h-[194px] w-full sm:h-[168px]"
             tone={100}
           />
         </section>

@@ -19,7 +19,7 @@ interface ContentContainerProps {
    * 白カード自身を最小高さ画面いっぱい（min-h-screen）にして画面を埋め、スクロール先 id
    * はカード領域（本文）に付与する。`useScrollToElement` やハッシュ遷移と併用すると、
    * 練習開始直後にタイトル帯・グローバルヘッダが画面外へ送られ、本文（盤面）が最上部に
-   * 来る。白背景が伸びるため地の斜線はタイトル帯周辺にしか露出しない
+   * 来る。白背景が伸びるため地はタイトル帯周辺にしか露出しない
    * （blindfold-chess のセッション画面準拠：タイトルはスクロール対象に含めない）。
    */
   fillViewport?: boolean;
@@ -29,18 +29,17 @@ interface ContentContainerProps {
  * ページコンテンツの白カードラッパー（blindfold-chess の PagePanel / PageLayout 準拠）。
  *
  * 横幅は (user) レイアウトの `max-w-4xl` ラッパーが与えるため、ここでは持たない。
- * `-mx-4 sm:mx-0` でモバイル時は左右いっぱいに（フルブリード。上下だけ太枠を残す）、
- * sm 以上では大きな角丸＋四辺の太枠＋オフセット影のカードになる。
- * 影を持つのはこのカードと「押せる面」（ボタン・カード全体がリンクのもの）だけ。
- * 中の情報カード・表は border border-panel rounded-panel の細枠で組む。押せないものにも影が
- * あると、影が「押せる」の記号として読めなくなる。
+ * `-mx-4 sm:mx-0` でモバイル時は左右いっぱいに（フルブリード。上下だけ細線を残す）、
+ * sm 以上では大きな角丸＋四辺の細線のカードになる。影は付けない — 白いカードは
+ * 地（bg-secondary）との明暗の差と細線だけで浮かせる。中の情報カード・表も
+ * 同じ border border-panel rounded-panel の細線で組む。
  *
- * 地は body の下地（bg-secondary + 薄い斜線）で、この白カードがその上に浮く。
- * (user) レイアウトの main は背景を持たないため、地の柄はページ全体で連続する。
+ * 地は body の無地の下地（bg-secondary）で、この白カードがその上に置かれる。
+ * (user) レイアウトの main は背景を持たないため、地はページ全体で連続する。
  *
  * 子要素に `<PageTitle>`（読み込み中は `<PageTitlePlaceholder>`）が含まれる場合は、
  * それをカードの外（上）へ引き上げ、画面最上部の全幅領域に表示する
- * （背景は地の斜線がそのまま続く）。
+ * （背景は地がそのまま続く）。
  */
 export function ContentContainer({
   children,
@@ -56,20 +55,20 @@ export function ContentContainer({
     : childArray;
 
   // fillViewport 時は白カード自身を min-h-screen にして画面を埋める。
-  // ラッパー（透明）側に付けると下に地の斜線が伸びてしまうため、
+  // ラッパー（透明）側に付けると下に地が伸びてしまうため、
   // 白背景が伸びるようカードへ付与する（blindfold-chess のセッション画面準拠）。
   // 通常時はモバイル（<sm）で flex-1 にし、cardArea（flex-col）内で縦に伸ばす。
-  // これで本文が短くてもカード下に地の斜線が露出せず、地はタイトル帯周辺だけになる
+  // これで本文が短くてもカード下に地が露出せず、地はタイトル帯周辺だけになる
   // （sm 以上は flex-none に戻し、角丸カードが地から浮く従来表示）。
   //
   // タイトル帯があるレイアウトでは、モバイルのカードが flex-1 で画面下端まで伸びて
-  // フッターに密着する。カード下端の枠線（4px）とフッター上端の枠線（4px）が並ぶと
-  // 8px の太い線に見えるため、この場合はカードの下枠を落としてフッターの枠線に任せる。
+  // フッターに密着する。カード下端の枠線とフッター上端の枠線が並ぶと 2 本分の
+  // 太い線に見えるため、この場合はカードの下枠を落としてフッターの枠線に任せる。
   // タイトル無しのレイアウトはラッパーの py-6 でフッターとの間に余白があるため、
   // 従来どおり四辺（モバイルは上下）に枠を持たせる。
   const card = (
     <div
-      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-2xl ${title ? "border-t-4" : "border-y-4"} border-ink sm:border-4 sm:shadow-lg p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
+      className={`bg-card -mx-4 sm:mx-0 rounded-none sm:rounded-2xl ${title ? "border-t" : "border-y"} border-panel sm:border p-4 sm:p-6 md:p-8${fillViewport ? " min-h-screen" : " flex-1 sm:flex-none"} ${className}`}
     >
       {body}
       {breadcrumb && breadcrumb.length > 0 && (

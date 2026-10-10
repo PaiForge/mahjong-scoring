@@ -23,7 +23,7 @@ interface NativeAdCardProps {
  * カード型のネイティブ広告（`native_card`）
  * 広告カード
  *
- * 練習一覧の練習カード（`PracticeCard`）と同じ骨格 — 太枠の白いカード、
+ * 練習一覧の練習カード（`PracticeCard`）と同じ骨格 — 細枠の白いカード、
  * 左上にタイトル、右上に添え物、右下に行き先の文言 — で描く。練習一覧の
  * グリッドに混ざったときに 1 枚だけ別の形にならないようにするため。
  * 練習一覧以外（結果画面・教本の章末）でも同じ形を使う。
@@ -50,7 +50,7 @@ export async function NativeAdCard({ creative }: NativeAdCardProps) {
       href={creative.href}
       {...NATIVE_AD_LINK_PROPS}
       data-native-ad={creative.id}
-      className={`group flex flex-col justify-between rounded-panel border border-panel bg-white p-5 transition-transform hover:-translate-y-1 ${FOCUS_RING_CLASSES}`}
+      className={`group flex flex-col justify-between rounded-panel border border-panel bg-white p-5 transition-colors hover:border-surface-300 hover:bg-surface-50 ${FOCUS_RING_CLASSES}`}
     >
       <div>
         <div className="flex items-start justify-between gap-2">

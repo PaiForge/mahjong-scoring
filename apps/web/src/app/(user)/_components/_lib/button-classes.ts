@@ -1,10 +1,11 @@
 /**
  * ボタンの共通クラス文字列。
  *
- * 見た目の基準は `/lessons/*` の「<練習名>にチャレンジ」ボタン
- * （太枠 + ハードシャドウ + 押し込み演出）。ボタンはここで組み立てた
- * クラスだけを使い、`border-3 border-ink bg-primary-500 ...` のような
- * 一式をページ側で直接書かない。
+ * 見た目はフラット: 1px の細枠と塗りだけで、影や押し込みの移動は持たない。
+ * 押せることは塗り（緑・帯色）と、hover で塗りが一段濃くなることで示し、
+ * キーボード操作中はフォーカスリングで示す。ボタンはここで組み立てた
+ * クラスだけを使い、`border bg-primary-500 ...` のような一式をページ側で
+ * 直接書かない。
  *
  * 実際の要素は用途で分かれる:
  * - `<button>` → `Button`
@@ -30,8 +31,7 @@ export type ButtonVariant =
 /**
  * 大きさ。
  *
- * `xl` だけは LP のヒーロー CTA 用で、枠と影も一段太くなる
- * （border-4 / shadow-md / press-md）。
+ * `xl` だけは LP のヒーロー CTA 用で、余白と文字が一段大きい。
  */
 export type ButtonSize = "sm" | "md" | "lg" | "xl";
 
@@ -50,7 +50,7 @@ export interface ButtonClassOptions {
   readonly disabled?: boolean;
 }
 
-const BASE = `inline-flex items-center justify-center rounded-lg font-bold ${FOCUS_RING_CLASSES}`;
+const BASE = `inline-flex items-center justify-center rounded-lg border font-bold ${FOCUS_RING_CLASSES}`;
 
 /**
  * ボタンの中身（アイコン + ラベル）を包む一段のクラス。
@@ -62,57 +62,52 @@ const BASE = `inline-flex items-center justify-center rounded-lg font-bold ${FOC
 export const BUTTON_CONTENT_CLASSES = "inline-flex items-center gap-2";
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: "border-3 px-4 py-2 text-sm",
-  md: "border-3 px-6 py-2.5 text-sm",
-  lg: "border-3 px-6 py-3 text-sm",
-  xl: "border-4 px-8 py-3 text-base",
+  sm: "px-4 py-2 text-sm",
+  md: "px-6 py-2.5 text-sm",
+  lg: "px-6 py-3 text-sm",
+  xl: "px-8 py-3 text-base",
 };
 
-/** 押せるときだけ付く影と押し込み演出（サイズで太さが変わる） */
-const PRESSABLE_CLASSES: Record<ButtonSize, string> = {
-  sm: "press-sm shadow-sm",
-  md: "press-sm shadow-sm",
-  lg: "press-sm shadow-sm",
-  xl: "press-md shadow-md",
-};
+/**
+ * 押せるときだけ付く遷移。塗りと枠の色だけが変わり、位置は動かさない
+ * （以前の押し込み演出は要素を右下へずらしていた）。
+ */
+const PRESSABLE_CLASSES =
+  "transition-colors duration-100 motion-reduce:transition-none";
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "border-ink bg-primary-500 text-white hover:bg-primary-600",
-  secondary: "border-ink bg-card text-primary-700 hover:bg-primary-50",
-  neutral: "border-ink bg-card text-surface-700 hover:bg-surface-100",
-  // 段級位の帯色をまとったボタン。塗り・hover・文字・枠・影をすべて帯色で
+  // 塗りのボタンは枠を塗りと同化させる（透明）。細い淡色の枠を緑の上に
+  // 引くと縁だけが白っぽく浮いて見える。幅は他の variant と同じ 1px を保つ。
+  primary:
+    "border-transparent bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700",
+  secondary:
+    "border-panel bg-card text-primary-700 hover:border-primary-300 hover:bg-primary-50 active:bg-primary-100",
+  neutral:
+    "border-panel bg-card text-surface-700 hover:border-surface-300 hover:bg-surface-100 active:bg-surface-200",
+  // 段級位の帯色をまとったボタン。塗り・hover・文字・枠をすべて帯色で
   // 通し、緑を一切載せない。5級のカードの中のボタンはオレンジ、4級なら青。
   //
-  // 面は帯色の淡い側で、帯そのものの濃さは枠とハードシャドウが持つ。濃い色で
-  // 塗り潰すと、白いカードの中でボタンだけが重く浮いて先に目に入る
-  // （このボタンは章や合格基準を読んだ後に押すもので、カードの主役ではない）。
-  // 淡い面 + 濃い枠なら、級の色であることは保ったまま重さだけが下がる。
+  // 面は帯色の淡い側で、帯そのものの濃さは細い枠が持つ。濃い色で塗り潰すと、
+  // 白いカードの中でボタンだけが重く浮いて先に目に入る（このボタンは章や
+  // 合格基準を読んだ後に押すもので、カードの主役ではない）。
   //
   // 色そのものは持たず `--belt-*` を読むだけにしてある。級ごとの値は
   // `lib/ranks/belt-colors.ts` が正典で、呼び出し側が `beltButtonVarsClass()`
   // を className に添えて立てる（級が増えても触るのは向こう 1 箇所）。
   // 変数が無い面に置かれたときは緑の淡い側に落ちて既定の見た目になる。
-  //
-  // 枠と影も帯色にする。他の色付き variant（danger / warning）は枠を ink の
-  // ままにしているが、この variant が着くのは帯色で縁取ったカードの中で、
-  // 緑の枠が「その級の色」に見えてしまう面。枠だけ塗り替えると全 variant
-  // 共通のハードシャドウ（3px 3px 0 var(--color-ink)）が緑のまま右下に残る
-  // （dangerOutline が踏んだのと同じ罠）ため、静止時の影は `--skin-shadow-*`
-  // を要素側で立てて差し替え（`shadow-*` は素の値ではなくこの変数を参照して
-  // 展開される）、hover / active は press-* が読む `--press-shadow-color` で
-  // 差し替える。サイズによって使う影が変わるため sm / md の両方を立てておく。
-  belt: "border-[color:var(--belt-edge,var(--color-ink))] bg-[color:var(--belt-fill,var(--color-primary-50))] text-[color:var(--belt-text,var(--color-primary-800))] hover:bg-[color:var(--belt-fill-hover,var(--color-primary-100))] [--skin-shadow-sm:3px_3px_0_var(--belt-edge,var(--color-ink))] [--skin-shadow-md:4px_4px_0_var(--belt-edge,var(--color-ink))] [--press-shadow-color:var(--belt-edge,var(--color-ink))]",
-  danger: "border-ink bg-destructive text-white hover:bg-destructive/90",
-  warning: "border-ink bg-warning text-white hover:bg-warning/90",
-  // 枠は他の variant と同じ ink。枠を destructive にすると、全 variant 共通の
-  // ハードシャドウ（3px 3px 0 var(--color-ink)）だけが緑のまま右下に残り、
-  // 赤枠の右と下に緑の帯が出る。危険であることは文字色と確認モーダルが伝える。
+  belt: "border-[color:var(--belt-edge,var(--color-primary-300))] bg-[color:var(--belt-fill,var(--color-primary-50))] text-[color:var(--belt-text,var(--color-primary-800))] hover:bg-[color:var(--belt-fill-hover,var(--color-primary-100))]",
+  danger:
+    "border-transparent bg-destructive text-white hover:bg-destructive/90 active:bg-destructive-strong",
+  warning:
+    "border-transparent bg-warning text-white hover:bg-warning/90 active:bg-warning-strong",
+  // 枠も赤にして、塗りの danger と並んでも「危険な操作」と読めるようにする。
+  // 危険であることは確認モーダルも伝える。
   dangerOutline:
-    "border-ink bg-card text-destructive hover:bg-destructive-subtle",
+    "border-destructive/40 bg-card text-destructive hover:border-destructive hover:bg-destructive-subtle",
 };
 
 const DISABLED_CLASSES =
-  "cursor-not-allowed border-ink bg-surface-200 text-surface-400 opacity-60";
+  "cursor-not-allowed border-surface-200 bg-surface-100 text-surface-400";
 
 /**
  * ボタンのクラス文字列を組み立てる。
@@ -127,7 +122,7 @@ export function buttonClasses({
 }: ButtonClassOptions = {}): string {
   const stateClasses = disabled
     ? DISABLED_CLASSES
-    : `${PRESSABLE_CLASSES[size]} ${VARIANT_CLASSES[variant]}`;
+    : `${PRESSABLE_CLASSES} ${VARIANT_CLASSES[variant]}`;
   const widthClass = fullWidth ? "w-full" : "";
 
   return `${BASE} ${SIZE_CLASSES[size]} ${stateClasses} ${widthClass}`.trim();

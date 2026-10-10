@@ -25,7 +25,7 @@ describe("ContentContainer", () => {
 
     expect(card(container)?.querySelector("h1")).toBeNull();
     expect(container.querySelector("h1")?.textContent).toBe("ホーム");
-    expect(card(container)?.className).toContain("border-t-4");
+    expect(card(container)?.classList.contains("border-t")).toBe(true);
   });
 
   it("PageTitlePlaceholder も見出しとして扱う", () => {
@@ -39,7 +39,7 @@ describe("ContentContainer", () => {
     const placeholder = container.querySelector('[aria-hidden="true"]');
     expect(placeholder).not.toBeNull();
     expect(card(container)?.contains(placeholder)).toBe(false);
-    expect(card(container)?.className).toContain("border-t-4");
+    expect(card(container)?.classList.contains("border-t")).toBe(true);
   });
 
   it("見出しが無ければ余白付きの箱に収める", () => {
@@ -49,6 +49,6 @@ describe("ContentContainer", () => {
       </ContentContainer>,
     );
 
-    expect(card(container)?.className).toContain("border-y-4");
+    expect(card(container)?.classList.contains("border-y")).toBe(true);
   });
 });

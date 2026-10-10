@@ -38,7 +38,7 @@ export async function PromotionBanner({ slugs }: PromotionBannerProps) {
   const awarded = highestRank(verified)?.slug;
 
   return (
-    /* 枠も面も帯色。既定の ink（緑）と bg-primary-50 で祝うと、緑が授与
+    /* 枠も面も帯色。ブランドの緑（bg-primary-50）で祝うと、緑が授与
        された級の色に見えてしまう（5級はオレンジ）。見出しの色は section の
        文字色を継いで帯色の濃い側になる。 */
     <section

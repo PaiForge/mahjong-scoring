@@ -39,8 +39,8 @@ interface YakuListDisplayProps {
  * 表の注目セル（{@link import("@/app/(user)/_components/_lib/table-highlight")}）、
  * つまり「地の文から浮かせて読ませる」合図で、常に出ている与件には合わない
  * （`globals.css` の状態色の項も、意味を持つ色に Tailwind 既定の amber-* を
- * 直接書くことを禁じている）。表示だけの面の既定どおり、太枠と淡い地で
- * 区切る（影は押せる面の記号なので付けない）。
+ * 直接書くことを禁じている）。表示だけの面の既定どおり、細枠と淡い地で
+ * 区切る。
  *
  * 高さは出題待ちのプレースホルダと `loading.tsx` が先に場所を確保している
  * （{@link import("../../_lib/board-area-height").BOARD_AREA_HEIGHT} の

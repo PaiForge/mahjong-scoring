@@ -109,7 +109,7 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
 
       <div
         data-belt-slug={rankSlug}
-        className={`space-y-4 rounded-panel border border-t-4 border-panel bg-white p-5 ${beltBorderTopClass(rankSlug)}`}
+        className={`space-y-4 rounded-panel border border-t-2 border-panel bg-white p-5 ${beltBorderTopClass(rankSlug)}`}
       >
         <RankHeading
           rankSlug={rankSlug}

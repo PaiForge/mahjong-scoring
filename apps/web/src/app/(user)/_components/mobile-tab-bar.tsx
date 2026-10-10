@@ -7,6 +7,7 @@ import { useIsOverlayOpen } from "@/app/_hooks/use-body-scroll-lock";
 import { TAB_BAR_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 import { isSessionRoute } from "@/app/_components/_lib/session-routes";
 import { DeferredPrefetchLink } from "./deferred-prefetch-link";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 const SCROLL_DEAD_ZONE = 10;
 
@@ -52,7 +53,7 @@ export function MobileTabBar() {
           z-index はすでにオーバーレイ（z-50）が上なので上げても直らない。
           スペーサーは残す — 高さが変わると背面の本文が動いて透けて見えるため。 */}
       <nav
-        className={`fixed bottom-0 left-0 right-0 z-40 border-t-4 border-ink bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
+        className={`fixed bottom-0 left-0 right-0 z-40 border-t border-panel bg-card pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ${
           isOverlayOpen ? "hidden" : "md:hidden"
         } ${isVisible ? "translate-y-0" : "translate-y-full"}`}
       >
@@ -63,7 +64,7 @@ export function MobileTabBar() {
               <li key={item.href} className="flex-1">
                 <DeferredPrefetchLink
                   href={item.href}
-                  className={`flex w-full flex-col items-center gap-0.5 px-3 py-1 text-xs transition-colors ${
+                  className={`flex w-full flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-xs transition-colors ${FOCUS_RING_CLASSES} ${
                     isActive
                       ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
