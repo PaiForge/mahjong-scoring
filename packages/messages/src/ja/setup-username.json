@@ -12,7 +12,7 @@
   "displayNamePlaceholder": "例: ツモの達人",
   "displayNameCanChange": "表示名は後から変更できます",
   "displayNameMaxLength": "最大50文字",
-  "appPublicNotice": "ユーザー名とチャレンジの成績は、web のランキングで公開されます。載せたくないときは、登録の後に設定の「ランキングに表示しない」で外せます。",
+  "appPublicNotice": "ユーザー名とチャレンジの成績は、web のランキングで公開されます。載せたくないときは、登録の後に設定の「ランキングに表示しない」で外せます。ランキングから外しても、web の公開プロフィール（ユーザー名のページ）は残ります。",
   "submit": "登録する",
   "submitting": "登録中...",
   "registered": "登録が完了しました",
