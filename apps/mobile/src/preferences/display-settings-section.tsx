@@ -52,13 +52,13 @@ export function DisplaySettingsSection() {
         checked={!termLinks}
         onChange={(checked) => setTermLinks(!checked)}
       />
-      {/* 符→翻が既定なので、スイッチは「翻を先にする」の向きで出す */}
+      {/* 翻→符が既定なので、スイッチは「符を先にする」の向きで出す */}
       <SettingToggleRow
         title={t("fuHanOrderTitle")}
         description={t("fuHanOrderDescription")}
-        checked={fuHanOrder === "han-first"}
+        checked={fuHanOrder === "fu-first"}
         onChange={(checked) =>
-          setFuHanOrder(checked ? "han-first" : "fu-first")
+          setFuHanOrder(checked ? "fu-first" : "han-first")
         }
       />
       {/* 組の 1 つの select が既定なので、スイッチは「分けて選ぶ」の向きで出す */}
