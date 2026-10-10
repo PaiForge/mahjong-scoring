@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
-/** 結果表の列数（項目名 / あなたの回答 / 正解）。展開行の colSpan に使う */
-export const RESULT_TABLE_COLUMN_COUNT = 3;
-
 /**
  * 結果表の「あなたの回答」の未回答セル
  * 未回答セル
@@ -23,6 +20,11 @@ export function ResultUnansweredCell() {
 interface ResultTableFrameProps {
   /** 項目（役・翻数・符・点数）ごとの `<tbody>` */
   readonly children: ReactNode;
+  /**
+   * 表の下、同じ面の中に続けるもの（翻数・符の内訳の入口）。表と内訳を
+   * 1 つの面にまとめ、内訳が答え合わせとは別の資料に見えないようにする
+   */
+  readonly footer?: ReactNode;
 }
 
 /**
@@ -39,19 +41,15 @@ interface ResultTableFrameProps {
  * 下部の正解/不正解カウンタが既に判定を持っている。全幅の色帯や
  * 見出し行を足すと、いちばん読ませたいこの表より判定が強く出る。
  *
- * 値の 2 列は右端で揃える（項目名は左）。内訳の行は全幅で
- * DetailTable が値を右端に置くので、正解の「2翻」の真下に内訳の
- * 「1翻 / 1翻 / 合計 2翻」が並び、縦に足し算が読める。左寄せだと
- * 正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る。
+ * 値の 2 列は右端で揃える（項目名は左）。下の内訳も DetailTable が値を
+ * 右端に置くので、正解の「2翻」と内訳の「合計 2翻」が同じ縦位置に並ぶ。
+ * 左寄せだと正解は列の中ほど、内訳の合計は右端と、同じ数字が別の縦位置に出る。
  *
  * 罫線は項目（役・翻数・符・点数）の境目にだけ引く。項目ごとに
- * `<tbody>` を分け、tbody 同士の境目を実線にする。翻数とその内訳の
- * 行は同じ tbody に入るので、開いた内訳がどの行に付く注釈かを線が
- * 言う。行ごとに引くと内訳の行の上下にも線が入り、内訳が独立した
- * 項目に見える。縦の罫線は引かない — 内訳の行は全幅（colSpan）
- * なので開くたびに縦線が途切れて壊れて見えるし、アプリの表
- * （DataTable / DetailTable）はどれも縦線を持たない。回答と正解は
- * 色（正誤の色 / 太字）で既に分かれている。
+ * `<tbody>` を分け、tbody 同士の境目を実線にする。縦の罫線は引かない —
+ * アプリの表（DataTable / DetailTable）はどれも縦線を持たず、回答と正解は
+ * 色（正誤の色 / 太字）で既に分かれている。内訳は表の中に挟まず、
+ * `footer` として表の下に置く（理由は `BreakdownPanel`）。
  *
  * 列幅は table-fixed + colgroup で決め打ちする。比べさせたい 2 列
  * （あなたの回答 / 正解）を同じ幅にするため。中身なりに決まる
@@ -64,7 +62,7 @@ interface ResultTableFrameProps {
  * 固定幅を与え、残りを 2 列で等分する（table-fixed は幅を指定して
  * いない列に残りを均等に配る）。
  */
-export function ResultTableFrame({ children }: ResultTableFrameProps) {
+export function ResultTableFrame({ children, footer }: ResultTableFrameProps) {
   const t = useTranslations("agariScore");
   return (
     <div className="rounded-lg bg-surface-50 p-4">
@@ -90,6 +88,9 @@ export function ResultTableFrame({ children }: ResultTableFrameProps) {
         </thead>
         {children}
       </table>
+      {footer !== undefined && (
+        <div className="mt-2 border-t border-surface-200">{footer}</div>
+      )}
     </div>
   );
 }

@@ -22,14 +22,16 @@ import {
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
-import { DetailsPanelRow } from "./details-accordion";
+import { ResultBreakdownTable } from "./result-breakdown-table";
+import {
+  BreakdownPanel,
+  type BreakdownPanelSection,
+} from "../../_components/breakdown-panel";
+import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
+import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { ScoreTableModal } from "./score-table-modal";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
-import {
-  RESULT_TABLE_COLUMN_COUNT,
-  ResultTableFrame,
-  ResultUnansweredCell,
-} from "./result-table-frame";
+import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
@@ -62,6 +64,9 @@ interface ResultDisplayProps {
  * 「あなたの回答」列は落とさず各行に未回答の印を出す — 列数を変えると
  * 正解の列が中央へ動き、回答したときと開示したときで同じ値を別の場所に
  * 探すことになる。
+ *
+ * 翻数・符の内訳は表の行の間に挟まず、表の下の 1 つの展開エリア
+ * （{@link BreakdownPanel}）にまとめる。開いたときは間違えたほうの内訳を選ぶ。
  */
 export function ResultDisplay({
   question,
@@ -75,6 +80,7 @@ export function ResultDisplay({
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
   const yakuOrder = useYakuOrder();
+  const fuHanOrder = useFuHanOrder();
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -138,10 +144,67 @@ export function ResultDisplay({
   const getHanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
+  // 満貫以上は符の行を出さないので、符の内訳も出さない
+  const showsFu = !isManganOrAbove || requireFuForMangan;
+  const breakdownTabs = resolveBreakdownTabs(
+    fuHanOrder,
+    {
+      han: yakuBreakdown !== undefined,
+      fu: showsFu && fuBreakdown !== undefined,
+    },
+    judged?.result,
+  );
+  const breakdownSections = breakdownTabs.kinds.flatMap(
+    (kind): BreakdownPanelSection[] => {
+      if (kind === "han" && yakuBreakdown) {
+        return [
+          {
+            kind,
+            tabLabel: `${t("form.labels.han")} ${getHanDisplay(answer.han)}`,
+            content: (
+              <ResultBreakdownTable
+                items={yakuBreakdown.items}
+                total={yakuBreakdown.total}
+                suffix={t("form.options.hanSuffix")}
+              />
+            ),
+          },
+        ];
+      }
+      if (kind === "fu" && fuBreakdown) {
+        return [
+          {
+            kind,
+            tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
+            content: (
+              <ResultBreakdownTable
+                items={fuBreakdown.items}
+                total={fuBreakdown.total}
+                suffix={t("form.options.fuSuffix")}
+                roundedTotal={answer.fu}
+              />
+            ),
+          },
+        ];
+      }
+      return [];
+    },
+  );
+
   return (
     <div className="space-y-4">
       {/* 表の箱・見出し・列幅の約束は ResultTableFrame（役なしのマスの表と共有） */}
-      <ResultTableFrame>
+      <ResultTableFrame
+        footer={
+          breakdownSections.length > 0 ? (
+            <BreakdownPanel
+              title={t("result.details.toggle")}
+              sections={breakdownSections}
+              initialKind={breakdownTabs.initial}
+            />
+          ) : undefined
+        }
+      >
         {/* Yaku */}
         {requireYaku && (
           <tbody>
@@ -213,20 +276,10 @@ export function ResultDisplay({
               {exactHan && scoreLevelName && ` (${scoreLevelName})`}
             </td>
           </tr>
-          {/* 翻数の内訳。閉じた状態から始める（理由は CollapsibleDetail） */}
-          {yakuBreakdown && (
-            <DetailsPanelRow
-              title={t("result.details.yakuTitle")}
-              items={yakuBreakdown.items}
-              total={yakuBreakdown.total}
-              suffix={t("form.options.hanSuffix")}
-              colSpan={RESULT_TABLE_COLUMN_COUNT}
-            />
-          )}
         </tbody>
 
         {/* Fu */}
-        {(!isManganOrAbove || requireFuForMangan) && (
+        {showsFu && (
           <tbody>
             <tr>
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
@@ -255,17 +308,6 @@ export function ResultDisplay({
                 {t("form.options.fuSuffix")}
               </td>
             </tr>
-            {fuBreakdown && (
-              <DetailsPanelRow
-                title={t("result.details.fuTitle")}
-                items={fuBreakdown.items}
-                total={fuBreakdown.total}
-                suffix={t("form.options.fuSuffix")}
-                colSpan={RESULT_TABLE_COLUMN_COUNT}
-                roundedTotal={answer.fu}
-                roundUpLabel={t("result.details.roundUp")}
-              />
-            )}
           </tbody>
         )}
 
@@ -293,12 +335,14 @@ export function ResultDisplay({
               <ResultUnansweredCell />
             )}
             <td className="space-y-1.5 py-2 text-right align-top">
-              {/* 押せることが見て分かるよう、常時点線の下線を敷く */}
+              {/* 押せることが見て分かるよう、常時点線の下線を敷く。
+                  点数は翻・符から出る最終的な答えなので、正解の値の中で
+                  ここだけ一段大きくする（枠や色は足さない） */}
               <button
                 type="button"
                 onClick={() => openScoreTable(true)}
                 title={t("result.openInScoreTable")}
-                className="ml-auto block cursor-pointer text-right font-bold text-surface-800 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
+                className="ml-auto block cursor-pointer text-right text-base font-bold text-surface-900 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
               >
                 {paymentDescription}
               </button>
