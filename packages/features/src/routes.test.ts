@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { practiceHref, rankHref } from "./routes";
+import { myRecordHref, practiceHref, rankHref } from "./routes";
 
 describe("practiceHref", () => {
   it("slug から練習ページのパスを作る", () => {
@@ -21,5 +21,13 @@ describe("practiceHref", () => {
 describe("rankHref", () => {
   it("段級位の詳細の親パスの下に slug を置く", () => {
     expect(rankHref("kyu-5")).toBe("/dojo/ranks/kyu-5");
+  });
+});
+
+describe("myRecordHref", () => {
+  it("土俵を menu と variant のクエリで運ぶ", () => {
+    expect(myRecordHref({ menuType: "yaku_han", variant: "kuisagari" })).toBe(
+      "/mypage/challenges?menu=yaku_han&variant=kuisagari",
+    );
   });
 });

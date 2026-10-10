@@ -17,9 +17,12 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
 import { ChallengeDashboard } from "../_components/challenge-dashboard";
-import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
+import {
+  getPeriodRange,
+  getPreviousPeriodRange,
+} from "@mahjong-scoring/features/my-record/period";
 import { fetchAvailableBoards, fetchChallengeAttempts } from "../_lib/queries";
-import { resolveRequestedBoard } from "../_lib/requested-board";
+import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 export async function generateMetadata(): Promise<Metadata> {

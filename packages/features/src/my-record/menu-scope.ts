@@ -1,12 +1,13 @@
-import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
+import { compareNumbers } from "@mahjong-scoring/core";
+import type { PracticeMenuType } from "../practice-menu-types";
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
   isPracticeMenuType,
   isPracticeVariant,
   practiceMenuByType,
-} from "@mahjong-scoring/features/practice-menu-types";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+} from "../practice-menu-types";
+import type { PracticeBoard } from "../practice-menu-types";
 
 /**
  * マイレコードが扱わない練習種別（昇級試験）
@@ -80,5 +81,5 @@ export function toRecordBoards(
   const order = (board: PracticeBoard): number =>
     PRACTICE_MENU_TYPES.indexOf(board.menuType) * 100 +
     practiceMenuByType(board.menuType).variants.indexOf(board.variant);
-  return boards.toSorted((a, b) => order(a) - order(b));
+  return [...boards].sort((a, b) => compareNumbers(order(a), order(b)));
 }

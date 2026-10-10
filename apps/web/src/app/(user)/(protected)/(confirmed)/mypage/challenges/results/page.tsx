@@ -16,9 +16,9 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { parsePageParam } from "@/lib/pagination";
 
-import { boardLabel } from "../_lib/board-label";
+import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 import { getChallengeResultsPaginated } from "../_lib/queries";
-import { resolveRequestedBoard } from "../_lib/requested-board";
+import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
 import { ResultsTable } from "./_components/results-table";
 
 interface Props {

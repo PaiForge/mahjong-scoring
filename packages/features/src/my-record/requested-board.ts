@@ -1,12 +1,9 @@
-import {
-  DEFAULT_VARIANT,
-  isPracticeMenuType,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { DEFAULT_VARIANT, isPracticeMenuType } from "../practice-menu-types";
 
 import { isMyRecordBoard } from "./menu-scope";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "../practice-menu-types";
 
-/** Next.js の searchParams（解決済み） */
+/** URL クエリ（Next.js の解決済み searchParams・expo-router の useLocalSearchParams と同じ形） */
 type ResolvedSearchParams = Record<
   string,
   string | readonly string[] | undefined

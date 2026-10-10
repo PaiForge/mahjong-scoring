@@ -46,3 +46,14 @@ appId: help.mahjong.score
 - assertVisible:
     id: "record-status"
 - takeScreenshot: challenge-result
+# 結果から、その土俵を選んだマイレコードへ
+- scrollUntilVisible:
+    element:
+      id: "result-my-record"
+    direction: DOWN
+- tapOn:
+    id: "result-my-record"
+- extendedWaitUntil:
+    visible: "ベストスコア"
+    timeout: 15000
+- takeScreenshot: challenge-my-record

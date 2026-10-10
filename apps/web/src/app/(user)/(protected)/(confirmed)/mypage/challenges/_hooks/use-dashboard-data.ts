@@ -15,14 +15,17 @@ import {
   computeAbsoluteChange,
   computeStats,
   toAttemptRows,
-} from "../_lib/dashboard-utils";
-import { getPeriodRange, getPreviousPeriodRange } from "../_lib/period-utils";
+} from "@mahjong-scoring/features/my-record/stats";
+import {
+  getPeriodRange,
+  getPreviousPeriodRange,
+} from "@mahjong-scoring/features/my-record/period";
 import type {
   ChallengeAttempt,
   ChartDataPoint,
   DatePeriod,
   AttemptRow,
-} from "../_lib/types";
+} from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 const TABLE_DISPLAY_LIMIT = 5;

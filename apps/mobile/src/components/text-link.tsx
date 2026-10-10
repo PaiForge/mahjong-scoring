@@ -13,13 +13,17 @@ import { linkStyles } from "../lib/link-styles";
 export function TextLink({
   onPress,
   children,
+  testID,
 }: {
   readonly onPress: () => void;
   readonly children: string;
+  /** Maestro のフローで引く印 */
+  readonly testID?: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
+      testID={testID}
       accessibilityRole="link"
       hitSlop={8}
       style={styles.pressable}

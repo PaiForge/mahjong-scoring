@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveRequestedBoard } from "../requested-board";
+import { resolveRequestedBoard } from "./requested-board";
 
 describe("resolveRequestedBoard", () => {
   it("menu と variant から土俵を組む", () => {

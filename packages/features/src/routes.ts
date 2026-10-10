@@ -4,6 +4,7 @@ import {
   DEFAULT_VARIANT,
   practiceMenuBySlug,
   resolvePracticeVariant,
+  type PracticeBoard,
   type PracticeMenuSlug,
 } from "./practice-menu-types";
 
@@ -151,6 +152,24 @@ export function practiceTrainingHref(
   variant?: string,
 ): string {
   return `${practiceHref(slug)}/training${variantQuery(slug, variant ?? DEFAULT_VARIANT)}`;
+}
+
+/** マイレコード（チャレンジの成績）のパス */
+export const MY_RECORD_PATH = "/mypage/challenges";
+
+/**
+ * マイレコードを、ある土俵（練習 × バリアント）を選んだ状態で開くパス
+ * マイレコード土俵パス
+ *
+ * 練習の結果画面の「マイレコードで推移を見る」が使う。クエリの語彙は
+ * `menu`（menuType）と `variant`（`my-record/requested-board.ts` が読む）。
+ */
+export function myRecordHref(board: PracticeBoard): string {
+  const params = new URLSearchParams({
+    menu: board.menuType,
+    variant: board.variant,
+  });
+  return `${MY_RECORD_PATH}?${params.toString()}`;
 }
 
 /** 練習の結果ページのパス */

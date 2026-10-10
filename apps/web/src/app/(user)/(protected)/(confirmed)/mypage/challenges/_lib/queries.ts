@@ -15,8 +15,11 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { challengeResults } from "@/lib/db/schema";
 
-import { EXCLUDED_MENU_TYPES, toRecordBoards } from "./menu-scope";
-import type { ChallengeAttempt } from "./types";
+import {
+  EXCLUDED_MENU_TYPES,
+  toRecordBoards,
+} from "@mahjong-scoring/features/my-record/menu-scope";
+import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** ChallengeAttempt の組み立てに使う challenge_results の列 */

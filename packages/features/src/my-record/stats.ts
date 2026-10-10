@@ -1,24 +1,13 @@
-import type { useTranslations } from "next-intl";
+import { practiceMenuByType } from "../practice-menu-types";
+import { formatJstDateTime, JST_TIME_ZONE, jstDayKey } from "../jst";
 
-import { practiceMenuByType } from "@mahjong-scoring/features/practice-menu-types";
-import {
-  formatJstDateTime,
-  JST_TIME_ZONE,
-  jstDayKey,
-} from "@mahjong-scoring/features/jst";
-
-import type {
-  ChallengeAttempt,
-  ChartDataPoint,
-  DatePeriod,
-  AttemptRow,
-} from "./types";
+import type { AttemptRow, ChallengeAttempt, ChartDataPoint } from "./types";
 
 /**
  * 日付を YYYY/MM/DD HH:mm 形式にフォーマットする（JST）
  * 日付フォーマット
  *
- * 期間の境界（`period-utils.ts`）と同じ JST で表示する。サーバーで描画する
+ * 期間の境界（`period.ts`）と同じ JST で表示する。サーバーで描画する
  * 全履歴の表とクライアントで描画するダッシュボードが同じ文字列を出すため。
  */
 export function formatDate(date: Date | undefined): string {
@@ -37,72 +26,6 @@ export function formatShortDate(date: Date | undefined): string {
     day: "numeric",
     timeZone: JST_TIME_ZONE,
   }).format(new Date(date));
-}
-
-/**
- * 期間に応じた比較ラベルを返す
- * 比較ラベル取得
- */
-export function getComparisonLabel(
-  period: DatePeriod,
-  t: ReturnType<typeof useTranslations>,
-): string {
-  switch (period) {
-    case "thisWeek":
-      return t("vsLastWeek");
-    case "lastWeek":
-      return t("vs2WeeksAgo");
-    case "thisMonth":
-      return t("vsLastMonth");
-    case "lastMonth":
-      return t("vs2MonthsAgo");
-  }
-}
-
-/**
- * 前の期間のラベルキーを返す
- * 前期間ラベルキー
- */
-export function getPreviousPeriodLabel(period: DatePeriod): string {
-  switch (period) {
-    case "thisWeek":
-      return "lastWeek";
-    case "lastWeek":
-      return "twoWeeksAgo";
-    case "thisMonth":
-      return "lastMonth";
-    case "lastMonth":
-      return "twoMonthsAgo";
-  }
-}
-
-/**
- * 凡例クリックで遷移可能な前の期間を返す。不可なら undefined。
- * 遷移可能な前期間
- *
- * 同ファイルの {@link getComparisonLabel} などは戻り値が `string` のため、
- * 分岐が漏れると「undefined を返しうる」ことになって型検査で落ちる。
- * この関数は戻り値に `undefined` を含むので同じ守りが効かない
- * （漏れたケースは黙って「遷移不可」に落ちる）。default で `never` を
- * 受け止め、DatePeriod にケースが増えたらここが壊れるようにしてある。
- */
-export function getNavigablePreviousPeriod(
-  period: DatePeriod,
-): DatePeriod | undefined {
-  switch (period) {
-    case "thisWeek":
-      return "lastWeek";
-    case "thisMonth":
-      return "lastMonth";
-    // さらに前の期間は期間選択に無いため遷移先を持たない
-    case "lastWeek":
-    case "lastMonth":
-      return undefined;
-    default: {
-      const exhaustive: never = period;
-      return exhaustive;
-    }
-  }
 }
 
 /**

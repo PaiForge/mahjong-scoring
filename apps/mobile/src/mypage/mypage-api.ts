@@ -5,6 +5,16 @@ import {
   type MobileMypageErrorCode,
   type MobileMypageResponse,
 } from "@mahjong-scoring/features/mypage/mobile-api";
+import {
+  mobileRecordResultsApiUrl,
+  mobileRecordsApiUrl,
+  parseMobileRecordResultsResponse,
+  parseMobileRecordsResponse,
+  type MobileRecordResultsResponse,
+  type MobileRecordsResponse,
+} from "@mahjong-scoring/features/my-record/mobile-api";
+import type { DatePeriod } from "@mahjong-scoring/features/my-record/types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   apiFailureOf,
@@ -13,29 +23,73 @@ import {
   type ApiFailure,
 } from "../auth/api-client";
 
-/** マイページの API の失敗 */
+/** マイページ・マイレコードの API の失敗 */
 export type MypageApiFailure = ApiFailure | MobileMypageErrorCode;
 
+/** 読み取りの結果。失敗なら理由 */
+export type MypageApiResult<T> = T | { readonly error: MypageApiFailure };
+
 /**
- * マイページのトップの材料を読む
- * マイページ取得
+ * GET を送り、成功なら応答を検証して返す
  *
  * 読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
+ * 409 はユーザー名を決めていない（`usernameRequired`）。
  */
-export async function fetchMypage(
+async function read<T extends object>(
   userId: string,
-): Promise<MobileMypageResponse | { readonly error: MypageApiFailure }> {
-  const response = await callMobileApi(MOBILE_MYPAGE_API_PATH, {
-    asUser: userId,
-  });
+  path: string,
+  parse: (body: unknown) => T | undefined,
+): Promise<MypageApiResult<T>> {
+  const response = await callMobileApi(path, { asUser: userId });
   if (typeof response === "string") return { error: response };
   if (response.status === 409) {
     const error = await errorOf(response);
     return { error: isMobileMypageErrorCode(error) ? error : "unknown" };
   }
   if (!response.ok) return { error: await apiFailureOf(response) };
-  const mypage = parseMobileMypageResponse(
-    await response.json().catch(() => undefined),
+  const value = parse(await response.json().catch(() => undefined));
+  return value ?? { error: "unknown" };
+}
+
+/**
+ * マイページのトップの材料を読む
+ * マイページ取得
+ */
+export function fetchMypage(
+  userId: string,
+): Promise<MypageApiResult<MobileMypageResponse>> {
+  return read(userId, MOBILE_MYPAGE_API_PATH, parseMobileMypageResponse);
+}
+
+/**
+ * マイレコードのダッシュボードの材料を読む
+ * マイレコード取得
+ *
+ * @param board - 見たい土俵。省くと記録を持つ先頭の土俵
+ */
+export function fetchRecords(
+  userId: string,
+  board: PracticeBoard | undefined,
+  period: DatePeriod,
+): Promise<MypageApiResult<MobileRecordsResponse>> {
+  return read(
+    userId,
+    mobileRecordsApiUrl(board, period),
+    parseMobileRecordsResponse,
   );
-  return mypage ?? { error: "unknown" };
+}
+
+/**
+ * マイレコードの全履歴の 1 ページを読む
+ * 全履歴取得
+ */
+export function fetchRecordResults(
+  userId: string,
+  page: number,
+): Promise<MypageApiResult<MobileRecordResultsResponse>> {
+  return read(
+    userId,
+    mobileRecordResultsApiUrl(undefined, page),
+    parseMobileRecordResultsResponse,
+  );
 }

@@ -1,8 +1,8 @@
 import {
   menuTypeToMessageKey,
   practiceMenuByType,
-} from "@mahjong-scoring/features/practice-menu-types";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+} from "../practice-menu-types";
+import type { PracticeBoard } from "../practice-menu-types";
 
 /** next-intl のルート翻訳関数（`useTranslations()` / `getTranslations()` の戻り値） */
 type RootTranslator = (key: string) => string;

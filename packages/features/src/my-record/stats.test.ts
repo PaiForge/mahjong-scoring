@@ -1,12 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import {
-  aggregateByDay,
-  formatDate,
-  formatShortDate,
-  getNavigablePreviousPeriod,
-} from "../dashboard-utils";
-import type { ChallengeAttempt } from "../types";
+import { getNavigablePreviousPeriod } from "./period";
+import { aggregateByDay, formatDate, formatShortDate } from "./stats";
+import type { ChallengeAttempt } from "./types";
 
 describe("getNavigablePreviousPeriod", () => {
   it("今週からは先週へ遷移できる", () => {

@@ -1,16 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  PRACTICE_MENU_TYPES,
-  isExamMenuType,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { PRACTICE_MENU_TYPES, isExamMenuType } from "../practice-menu-types";
 
 import {
   EXCLUDED_MENU_TYPES,
   isMyRecordBoard,
   isMyRecordMenuType,
   toRecordBoards,
-} from "../menu-scope";
+} from "./menu-scope";
 
 describe("マイレコードの対象種別", () => {
   it("昇級試験をすべて除外対象に持つ", () => {

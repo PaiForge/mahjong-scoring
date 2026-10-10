@@ -1,15 +1,22 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { refreshAccount, useAuth } from "../../auth/use-auth";
+import { ChartIcon } from "../../components/icons/icons";
+import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
-import { TextLink } from "../../components/text-link";
-import { RecordCtaCard } from "../../home/record-cta-card";
 import { colors } from "../../lib/theme";
 import { ActivityChart } from "../../mypage/activity-chart";
 import { ProfileHeading } from "../../mypage/profile-heading";
-import { useMypage } from "../../mypage/use-mypage";
+import { fetchMypage } from "../../mypage/mypage-api";
+import {
+  MypageGate,
+  MypageLoadFailed,
+  MypageLoading,
+} from "../../mypage/mypage-gate";
+import { useMypageRead } from "../../mypage/use-mypage-read";
 
 /**
  * マイページ
@@ -33,80 +40,56 @@ import { useMypage } from "../../mypage/use-mypage";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
+ * 3. 行からマイレコードへ
+ * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
 export default function MypageScreen() {
   const t = useTranslations("nav");
   return (
     <Screen title={t("mypage")} back contentStyle={styles.content}>
-      <MypageBody />
+      <MypageGate>{(userId) => <SignedInMypage userId={userId} />}</MypageGate>
     </Screen>
   );
 }
 
-function MypageBody() {
-  const { status, user, account, accountError } = useAuth();
-  if (status === "signedOut") return <RecordCtaCard testIDPrefix="mypage" />;
-  if (status !== "signedIn" || user === undefined) return <Loading />;
-  if (account === undefined) {
-    return accountError === undefined ? (
-      <Loading />
-    ) : (
-      <AccountLoadFailed banned={accountError === "banned"} />
-    );
-  }
-  if (account.profile === null) return <RecordCtaCard testIDPrefix="mypage" />;
-  // ユーザーが変わったら前のユーザーの値を持ち越さない
-  return <SignedInMypage key={user.id} userId={user.id} />;
-}
-
 function SignedInMypage({ userId }: { readonly userId: string }) {
   const t = useTranslations("mypage");
-  const { state, reload } = useMypage(userId);
-  if (state.kind === "loading") return <Loading />;
-  if (state.kind === "failed") {
-    return (
-      <View style={styles.failed}>
-        <Text style={styles.failedText}>{t("loadFailed")}</Text>
-        <TextLink onPress={reload}>{t("retry")}</TextLink>
-      </View>
-    );
-  }
+  const { state, reload } = useMypageRead(
+    useCallback(() => fetchMypage(userId), [userId]),
+  );
+  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "failed")
+    return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
   return (
     <>
-      <ProfileHeading mypage={state.mypage} />
+      <ProfileHeading mypage={state.value} />
       <View style={styles.section}>
         <SectionTitle>{t("activityTitle")}</SectionTitle>
-        <ActivityChart days={state.mypage.recentActivity} />
+        <ActivityChart days={state.value.recentActivity} />
       </View>
+      <MypageMenu />
     </>
   );
 }
 
 /**
- * アカウント状態を読めなかったとき。BAN 中はその旨だけ（ログアウトと退会は
- * 設定のアカウントの節から）
+ * マイページの各機能への行（web の `MyPageMenu` から Pro プラン・通知・
+ * アカウントを除いたもの。除いた理由は画面の TSDoc）
  */
-function AccountLoadFailed({ banned }: { readonly banned: boolean }) {
-  const t = useTranslations("settings.account");
+function MypageMenu() {
+  const t = useTranslations("mypage");
+  const router = useRouter();
   return (
-    <View style={styles.failed}>
-      <Text style={styles.failedText}>
-        {banned ? t("banned") : t("loadFailed")}
-      </Text>
-      {!banned && (
-        <TextLink onPress={() => void refreshAccount()}>{t("retry")}</TextLink>
-      )}
-    </View>
-  );
-}
-
-function Loading() {
-  return (
-    <View style={styles.loading}>
-      <ActivityIndicator color={colors.primary500} />
-    </View>
+    <LinkRowList>
+      <LinkRow
+        testID="mypage-menu-challenges"
+        title={t("cards.challenges.title")}
+        description={t("cards.challenges.summary")}
+        leading={<ChartIcon size={22} color={colors.primary600} />}
+        onPress={() => router.push("/mypage/challenges")}
+      />
+    </LinkRowList>
   );
 }
 
@@ -116,18 +99,5 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
-  },
-  loading: {
-    paddingVertical: 48,
-    alignItems: "center",
-  },
-  failed: {
-    alignItems: "flex-start",
-    gap: 4,
-  },
-  failedText: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.destructiveStrong,
   },
 });

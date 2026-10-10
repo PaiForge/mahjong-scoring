@@ -10,6 +10,7 @@ import {
   signedDeltaTone,
 } from "@mahjong-scoring/features/challenge/signed-delta";
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
+import { myRecordHref } from "@mahjong-scoring/features/routes";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";
 import type { Fetched } from "../_lib/try-fetch";
@@ -125,7 +126,7 @@ export async function RecordSection({
 
       <p className="text-center">
         <Link
-          href={`/mypage/challenges?menu=${menuType}&variant=${encodeURIComponent(variant)}`}
+          href={myRecordHref({ menuType, variant })}
           className={`text-sm ${TEXT_LINK_CLASSES}`}
         >
           <span aria-hidden="true">📈</span> {t("record.viewMyRecords")}
