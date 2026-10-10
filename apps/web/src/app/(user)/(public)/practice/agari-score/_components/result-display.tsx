@@ -69,6 +69,7 @@ interface ResultDisplayProps {
  *
  * 翻数・符の内訳は表の行の間に挟まず、表の下の 1 つの展開エリア
  * （{@link BreakdownPanel}）にまとめる。開いたときは間違えたほうの内訳を選ぶ。
+ * 内訳の下には、正解のセルをハイライトした点数表を開く導線を添える。
  */
 export function ResultDisplay({
   question,
@@ -95,8 +96,8 @@ export function ResultDisplay({
     undefined,
   );
   const [isYakuListOpen, setIsYakuListOpen] = useState(false);
-  // 点数表モーダル。点数そのものをタップしたときだけ正解のセルを
-  // ハイライトする（表への補助リンクからは素の表を開く）。
+  // 点数表モーダル。点数そのものと内訳の導線から開いたときは正解のセルを
+  // ハイライトする（点数の下の表への補助リンクからは素の表を開く）。
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
 
@@ -206,6 +207,16 @@ export function ResultDisplay({
               sections={breakdownSections}
               initialKind={breakdownTabs.initial}
               surface="sunken"
+              action={
+                // 内訳で翻・符を確かめた流れのまま、その組が表のどこかを
+                // 見られるよう正解のセルをハイライトして開く
+                <ReferenceLinkButton
+                  icon={<TableIcon className="size-3.5 shrink-0" />}
+                  label={t("result.openInScoreTable")}
+                  hitArea="row"
+                  onClick={() => openScoreTable(true)}
+                />
+              }
             />
           ) : undefined
         }

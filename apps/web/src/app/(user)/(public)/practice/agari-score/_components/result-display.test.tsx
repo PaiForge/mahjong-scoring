@@ -228,6 +228,22 @@ describe("ResultDisplay の内訳", () => {
     expect(screen.getByText("result.details.total")).toBeTruthy();
   });
 
+  it("内訳の下の「点数表で見る」から点数表モーダルを開ける", () => {
+    renderWith({});
+
+    // 閉じている間は内訳と一緒に隠れている
+    expect(
+      screen.queryByRole("button", { name: "result.openInScoreTable" }),
+    ).toBeNull();
+
+    fireEvent.click(toggle());
+    fireEvent.click(
+      screen.getByRole("button", { name: "result.openInScoreTable" }),
+    );
+
+    expect(openedModalTitle()).toBe("pageTitle");
+  });
+
   it("内訳は表の外に置き、翻数・符・点数の行を分断しない", () => {
     renderWith({});
 

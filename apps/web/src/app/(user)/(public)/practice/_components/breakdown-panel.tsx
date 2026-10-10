@@ -30,6 +30,14 @@ interface BreakdownPanelProps {
    *   白い枠を入れ子にせず、「比較表」と「その説明」を地の色で分ける
    */
   readonly surface?: "raised" | "sunken";
+  /**
+   * 内訳の面の下・右端に添える導線（点数表を開く補助リンク）
+   *
+   * 内訳を読み終えた人が「この翻・符は点数表のどこか」を続けて確かめられる
+   * ようにする。どの内訳を選んでいても同じものを出す — 点数表で指す先は
+   * 翻と符の組で、片方の内訳だけに属さない。
+   */
+  readonly action?: ReactNode;
 }
 
 const SURFACE_CLASSES: Readonly<Record<"raised" | "sunken", string>> = {
@@ -70,6 +78,7 @@ export function BreakdownPanel({
   sections,
   initialKind,
   surface = "raised",
+  action,
 }: BreakdownPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [chosenKind, setChosenKind] = useState<BreakdownKind | undefined>(
@@ -123,6 +132,9 @@ export function BreakdownPanel({
           {/* 内訳の表は合計の線を持つので、答え合わせの表の罫線と紛れない
               よう地の色を変えた面に載せる */}
           <div className={SURFACE_CLASSES[surface]}>{selected.content}</div>
+          {action !== undefined && (
+            <div className="flex justify-end">{action}</div>
+          )}
         </div>
       )}
     </div>
