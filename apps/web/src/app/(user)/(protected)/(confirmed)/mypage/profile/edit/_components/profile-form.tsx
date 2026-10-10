@@ -13,8 +13,8 @@ import toast from "react-hot-toast";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 
 import { updateProfile } from "../_actions/update-profile";
-import { PROFILE_LIMITS } from "@/lib/validations/profile";
-import type { ProfileInput } from "@/lib/validations/profile";
+import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
+import type { ProfileInput } from "@mahjong-scoring/features/profile/validation";
 import { Button } from "@/app/(user)/_components/button";
 
 /** action が返す既知のエラーキー（profileEdit 名前空間に対応する文言がある） */

@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { ChartIcon } from "../../components/icons/icons";
+import { ChartIcon, UserIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
@@ -40,7 +40,7 @@ import { useMypageRead } from "../../mypage/use-mypage-read";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコードへ
+ * 3. 行からマイレコード・プロフィール編集へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -75,7 +75,8 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
 
 /**
  * マイページの各機能への行（web の `MyPageMenu` から Pro プラン・通知・
- * アカウントを除いたもの。除いた理由は画面の TSDoc）
+ * アカウントを除いたもの。除いた理由は画面の TSDoc）。プロフィール編集は
+ * web では見出しのカードのボタンだが、アプリでは機能の行と並べる
  */
 function MypageMenu() {
   const t = useTranslations("mypage");
@@ -88,6 +89,13 @@ function MypageMenu() {
         description={t("cards.challenges.summary")}
         leading={<ChartIcon size={22} color={colors.primary600} />}
         onPress={() => router.push("/mypage/challenges")}
+      />
+      <LinkRow
+        testID="mypage-menu-profile"
+        title={t("cards.profile.title")}
+        description={t("cards.profile.summary")}
+        leading={<UserIcon size={22} color={colors.primary600} />}
+        onPress={() => router.push("/mypage/profile/edit")}
       />
     </LinkRowList>
   );

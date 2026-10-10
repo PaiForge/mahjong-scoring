@@ -1,12 +1,13 @@
 /**
  * プロフィール（表示名・自己紹介・SNS）の正規化＋バリデーション。
- * client（即時フィードバック）と server action（信頼境界）の両方で使う。
+ * client（即時フィードバック）と server（信頼境界）の両方で使う。
  * プロフィールバリデーション
  *
  * プロフィール編集だけでなく初回のユーザー名登録も同じ `profiles` 行の
- * 表示名を書くため、ルート配下の `_lib` ではなくここに置く。上限値を
- * 入力欄の `maxLength` と検証の両方でこのモジュールから引き、フォームごとに
- * 数値を書き写さないこと（書き写すと片方だけ変わって静かに乖離する）。
+ * 表示名を書き、web とアプリの両方に入力欄があるため、web の中ではなく
+ * ここに置く。上限値を入力欄の `maxLength` と検証の両方でこのモジュール
+ * から引き、フォームごとに数値を書き写さないこと（書き写すと片方だけ
+ * 変わって静かに乖離する）。
  */
 
 /** 各フィールドの最大長 */
@@ -27,7 +28,7 @@ const YOUTUBE_HANDLE_PATTERN = /^[a-zA-Z0-9._-]+$/;
  * プロフィール生入力
  *
  * 空欄は null ではなく空文字。編集フォームの初期値もこの形で受け取り、
- * 入力された値をそのまま Server Action へ渡す。DB 保存用の形
+ * 入力された値をそのままサーバーへ渡す。DB 保存用の形
  * （空文字を null に寄せた {@link NormalizedProfile}）への変換は
  * {@link normalizeAndValidateProfile} が担う。
  */
@@ -48,13 +49,21 @@ export interface NormalizedProfile {
   readonly youtubeHandle: string | null;
 }
 
-/** i18n キー（profileEdit 名前空間）と対応するバリデーションエラー */
-export type ProfileValidationError =
-  | "displayNameTooLong"
-  | "bioTooLong"
-  | "xUsernameInvalid"
-  | "instagramUsernameInvalid"
-  | "youtubeHandleInvalid";
+/**
+ * バリデーションエラーの一覧。i18n キー（profileEdit 名前空間）と対応する
+ *
+ * アプリ向け API はこの一覧を 422 の理由としてそのまま返す。
+ */
+export const PROFILE_VALIDATION_ERRORS = [
+  "displayNameTooLong",
+  "bioTooLong",
+  "xUsernameInvalid",
+  "instagramUsernameInvalid",
+  "youtubeHandleInvalid",
+] as const;
+
+/** バリデーションエラー（{@link PROFILE_VALIDATION_ERRORS}） */
+export type ProfileValidationError = (typeof PROFILE_VALIDATION_ERRORS)[number];
 
 export type ProfileValidationResult =
   | { readonly ok: true; readonly value: NormalizedProfile }

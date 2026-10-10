@@ -19,8 +19,11 @@ interface TextFieldProps {
   /** パスワードとして伏せる */
   readonly secure?: boolean;
   readonly maxLength?: number;
+  /** 複数行の欄（自己紹介など）。改行を入力でき、数行ぶんの高さを取る */
+  readonly multiline?: boolean;
   /** 何を入れる欄かを OS に伝える（自動入力・キーボードの種類） */
-  readonly kind?: "email" | "password" | "newPassword" | "username" | "text";
+  readonly kind?:
+    "email" | "password" | "newPassword" | "username" | "handle" | "text";
   readonly editable?: boolean;
   readonly onSubmitEditing?: () => void;
   /** UI テスト（Maestro）が欄を引く印。文字（ラベル・プレースホルダ）は辞書で変わるので使わない */
@@ -57,6 +60,12 @@ const KIND_PROPS: Record<
     autoCapitalize: "none",
     autoCorrect: false,
   },
+  // 他のサービスのアカウント名（SNS）。自分のユーザー名として自動入力させない
+  handle: {
+    autoComplete: "off",
+    autoCapitalize: "none",
+    autoCorrect: false,
+  },
   text: {},
 };
 
@@ -76,6 +85,7 @@ export function TextField({
   hint,
   secure = false,
   maxLength,
+  multiline = false,
   kind = "text",
   editable = true,
   onSubmitEditing,
@@ -92,13 +102,18 @@ export function TextField({
         placeholderTextColor={colors.surface400}
         secureTextEntry={secure}
         maxLength={maxLength}
+        multiline={multiline}
         editable={editable}
         onSubmitEditing={onSubmitEditing}
         testID={testID}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         accessibilityLabel={label}
-        style={[styles.input, focused && styles.inputFocused]}
+        style={[
+          styles.input,
+          multiline && styles.multiline,
+          focused && styles.inputFocused,
+        ]}
         {...KIND_PROPS[kind]}
       />
       {hint !== undefined && <Text style={styles.hint}>{hint}</Text>}
@@ -124,6 +139,13 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     fontSize: 16,
     color: colors.surface700,
+  },
+  // 4 行ぶん。iOS の複数行の TextInput は上下の余白を独自に持つので、
+  // paddingTop で 1 行の欄と文字の位置をそろえる
+  multiline: {
+    minHeight: 112,
+    paddingTop: 11,
+    textAlignVertical: "top",
   },
   inputFocused: {
     borderColor: colors.primary500,

@@ -13,7 +13,7 @@ import {
   USERNAME_MAX_LENGTH,
   validateUsername,
 } from "@/lib/username";
-import { PROFILE_LIMITS } from "@/lib/validations/profile";
+import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
 
 import { registerUsername } from "../_actions/register-username";
 import { usernameValidationMessageKey } from "../_lib/username-validation-message";

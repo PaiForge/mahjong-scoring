@@ -46,7 +46,7 @@ import {
   setupAuthorized,
 } from "@/test/auth-mocks";
 
-import { PROFILE_LIMITS } from "@/lib/validations/profile";
+import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
 
 import { registerUsername } from "../register-username";
 

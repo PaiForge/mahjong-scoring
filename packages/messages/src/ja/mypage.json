@@ -11,6 +11,10 @@
       "title": "マイレコード",
       "summary": "チャレンジモードの成績を確認できます"
     },
+    "profile": {
+      "title": "プロフィール編集",
+      "summary": "表示名・自己紹介・SNS アカウント"
+    },
     "plan": {
       "title": "Pro プラン",
       "summary": "購入状況と購入履歴"
