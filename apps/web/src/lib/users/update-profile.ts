@@ -28,7 +28,7 @@ export type ProfileUpdateError =
  * プロフィール（表示名・自己紹介・SNS）を更新する
  * プロフィール更新
  *
- * web の Server Action とアプリ向け API の両方から呼ぶ。認証と回数制限は
+ * web の Server Action から呼ぶ。認証と回数制限は
  * 呼び出し側が済ませ、検証済みのユーザー ID だけを渡すこと。アバター画像は
  * 別（/api/profile/avatar）。
  *

@@ -35,10 +35,19 @@ beforeEach(() => {
 describe("handleRegisterUsername", () => {
   it("トークンの本人の名義でユーザー名を登録する", async () => {
     const response = await handleRegisterUsername(
+      postJson({ username: "alice" }),
+    );
+
+    expect(mockRegister).toHaveBeenCalledWith("user-1", "alice");
+    expect(await response.json()).toEqual({ success: true });
+  });
+
+  it("表示名を送られても受け取らない（ユーザー名を流用させる）", async () => {
+    const response = await handleRegisterUsername(
       postJson({ username: "alice", displayName: "アリス" }),
     );
 
-    expect(mockRegister).toHaveBeenCalledWith("user-1", "alice", "アリス");
+    expect(mockRegister).toHaveBeenCalledWith("user-1", "alice");
     expect(await response.json()).toEqual({ success: true });
   });
 
@@ -47,10 +56,10 @@ describe("handleRegisterUsername", () => {
     const longest = "\u0001".repeat(200);
 
     const response = await handleRegisterUsername(
-      postJson({ username: longest, displayName: longest }),
+      postJson({ username: longest }),
     );
 
-    expect(mockRegister).toHaveBeenCalledWith("user-1", longest, longest);
+    expect(mockRegister).toHaveBeenCalledWith("user-1", longest);
     expect(response.status).toBe(200);
   });
 

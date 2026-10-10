@@ -44,11 +44,7 @@ vi.mock("../db/queries", () => ({
 
 import { _resetStore } from "../rate-limit-ip";
 
-import {
-  authorizeMobileRequest,
-  authorizeOptionalMobileRequest,
-  readBearerToken,
-} from "./auth";
+import { authorizeMobileRequest, readBearerToken } from "./auth";
 
 const LIMIT = { maxRequests: 2, windowMs: 60_000 };
 
@@ -346,43 +342,5 @@ describe("authorizeMobileRequest", () => {
     );
 
     expect(result.ok === false && result.response.status).toBe(429);
-  });
-});
-
-describe("authorizeOptionalMobileRequest", () => {
-  it("Authorization が無ければゲストとして通し、認証サーバーに問い合わせない", async () => {
-    const result = await authorizeOptionalMobileRequest(
-      requestWith(),
-      "readLeaderboard",
-    );
-
-    expect(result).toEqual({ ok: true, viewer: undefined });
-    expect(mockGetUser).not.toHaveBeenCalled();
-  });
-
-  it("有効なトークンなら閲覧者を返す", async () => {
-    activeUser();
-
-    const result = await authorizeOptionalMobileRequest(
-      withToken(),
-      "readLeaderboard",
-    );
-
-    expect(result.ok && result.viewer?.user.id).toBe("user-1");
-    expect(result.ok && result.viewer?.profile).toEqual({ username: "alice" });
-  });
-
-  it("無効なトークンはゲストに落とさず 401", async () => {
-    mockGetUser.mockResolvedValue({
-      data: { user: null },
-      error: { name: "AuthApiError", status: 403 },
-    });
-
-    const result = await authorizeOptionalMobileRequest(
-      withToken(),
-      "readLeaderboard",
-    );
-
-    expect(result.ok === false && result.response.status).toBe(401);
   });
 });

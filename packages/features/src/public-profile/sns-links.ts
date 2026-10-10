@@ -2,8 +2,8 @@
  * 公開プロフィールに並べる SNS のリンク
  * SNSリンク
  *
- * web の公開プロフィールとアプリのプロフィール画面が同じ並び・同じ URL で
- * 出すため、ここで組み立てる。ハンドルは保存時に `@` を除いてある
+ * web の公開プロフィールが出す。アプリは他の利用者のプロフィールを見せない
+ * （アプリの `app/leaderboard/index.tsx`）。ハンドルは保存時に `@` を除いてある
  * （`profile/validation.ts`）。
  */
 export interface SnsLink {

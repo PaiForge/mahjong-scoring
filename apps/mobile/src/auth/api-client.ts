@@ -23,7 +23,7 @@ export type ApiFailure =
 /** API 呼び出しの指定 */
 export interface MobileApiInit {
   readonly method?: "GET" | "POST";
-  /** 要求の本文。`FormData` は multipart のまま、それ以外は JSON にして送る */
+  /** 要求の本文。JSON にして送る */
   readonly body?: unknown;
   /**
    * このユーザーとして送る。今のログインが別のユーザー（ログアウト済みを
@@ -107,44 +107,12 @@ export async function callMobileApi(
   }
 }
 
-/**
- * ゲストも読める API を、閲覧者として呼ぶ
- * 閲覧者API呼び出し
- *
- * `viewerId` があればそのユーザーのトークンを付けて {@link callMobileApi} で
- * 送る（読んでいる間に別のユーザーへ切り替わったら送らない）。無ければ
- * トークンを付けずに送り、サーバーはゲストとして答える。ログイン中に
- * トークンを付け忘れると、本人の順位やブロックの除外が効かない応答になる
- * ので、ログインの状態を読み終えてから呼ぶこと（`useViewer`）。
- *
- * @param viewerId - ログイン中のユーザーの ID。ゲストなら undefined
- */
-export async function callMobileApiAsViewer(
-  path: string,
-  viewerId: string | undefined,
-): Promise<Response | ApiFailure> {
-  if (viewerId !== undefined) return callMobileApi(path, { asUser: viewerId });
-  try {
-    return await fetch(`${SITE_URL}${path}`);
-  } catch {
-    return "network";
-  }
-}
-
 /** 1 回の HTTP 要求 */
 function send(
   path: string,
   init: MobileApiInit,
   accessToken: string,
 ): Promise<Response> {
-  // multipart は Content-Type を付けない — 境界（boundary）付きの値は fetch が付ける
-  if (init.body instanceof FormData) {
-    return fetch(`${SITE_URL}${path}`, {
-      method: init.method ?? "GET",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      body: init.body,
-    });
-  }
   return fetch(`${SITE_URL}${path}`, {
     method: init.method ?? "GET",
     headers: {

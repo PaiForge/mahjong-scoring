@@ -21,15 +21,13 @@ import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { showToast } from "../components/toast";
 import { panelFrame } from "../lib/panel-styles";
-import { BLOCKED_USERS_PATH } from "../public-profile/blocked-users-path";
 import { colors } from "../lib/theme";
 
 /**
  * 設定のアカウントの節
  * アカウント設定
  *
- * ログイン中のユーザー名・メールアドレスと、ブロックしたユーザー・ログアウト・
- * 退会を出す。ユーザー名を決めていなければ、その設定へ進む行を先頭に置く。
+ * ログイン中のユーザー名・メールアドレスと、ログアウト・退会を出す。ユーザー名を決めていなければ、その設定へ進む行を先頭に置く。
  * ゲストには退会を受け付けた知らせ（退会の後にこの画面へ戻る）だけを出す。
  * ログイン・登録の入口は設定の会員限定ゲート（`MembersOnlyGate`）が持つ。
  *
@@ -81,7 +79,6 @@ function DeletionNoticePanel() {
 function SignedInAccount() {
   const t = useTranslations("settings.account");
   const tNav = useTranslations("nav");
-  const tSettings = useTranslations("settings");
   const router = useRouter();
   const { user, account, accountError } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -118,11 +115,6 @@ function SignedInAccount() {
         <InfoRow label={t("email")} value={user?.email ?? "—"} />
       </View>
       <LinkRowList>
-        <LinkRow
-          title={tSettings("blockedUsersTitle")}
-          testID="preferences-blocked-users"
-          onPress={() => router.push(BLOCKED_USERS_PATH)}
-        />
         <LinkRow
           title={t("signOut")}
           onPress={() => setConfirmingSignOut(true)}

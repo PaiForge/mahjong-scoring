@@ -1,61 +1,35 @@
 import "server-only";
 
 import type { NextResponse } from "next/server";
+import { z } from "zod";
 
-import {
-  isLeaderboardPeriod,
-  resolveLeaderboardBoard,
-} from "@mahjong-scoring/features/leaderboard/boards";
+import { isLeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
 import type {
   MobileLeaderboardErrorCode,
   MobileLeaderboardRanksResponse,
-  MobileLeaderboardResponse,
-  MobileLeaderboardRow,
+  MobileLeaderboardVisibility,
 } from "@mahjong-scoring/features/leaderboard/mobile-api";
 
-import { getBlockedUserIds, withoutBlocked } from "../blocks/blocks";
-import type { RankedLeaderboardRow } from "../db/leaderboard-queries";
 import { isHiddenFromLeaderboard } from "../db/leaderboard-visibility";
-import {
-  LEADERBOARD_PAGE_SIZE,
-  getLeaderboard,
-} from "../leaderboard/get-leaderboard";
 import { getUserRanks } from "../leaderboard/user-ranks";
-import { parsePageParam } from "../pagination";
+import { saveLeaderboardVisibility } from "../users/leaderboard-visibility";
 
-import { authorizeMobileRequest, authorizeOptionalMobileRequest } from "./auth";
+import { authorizeMobileRequest } from "./auth";
+import { usernameRequired } from "./mypage";
+import { parseMobileBody } from "./request";
 import { mobileJson, mobileServerError } from "./response";
 
-/** 期間・土俵が無いときの 404 */
+/** 設定の本文の上限。`{"hidden":false}` が収まれば足りる */
+const VISIBILITY_BODY_MAX_BYTES = 256;
+
+const visibilityBodySchema = z.object({ hidden: z.boolean() });
+
+/** 期間が無いときの 404 */
 function notFound(): NextResponse {
   return mobileJson<{ error: MobileLeaderboardErrorCode }>(
     { error: "notFound" },
     { status: 404 },
   );
-}
-
-/**
- * ランキングの取得の失敗（500）。記録は `getLeaderboard` が済ませている
- */
-function rankingFailed(): NextResponse {
-  return mobileJson({ error: "serverError" }, { status: 500 });
-}
-
-/** ランキングの行を応答の形にする（内部の ID は出さない） */
-function toMobileRow(
-  row: RankedLeaderboardRow,
-  viewerId: string | undefined,
-): MobileLeaderboardRow {
-  return {
-    rank: row.rank,
-    username: row.username,
-    displayName: row.displayName,
-    avatarUrl: row.avatarUrl,
-    score: row.score,
-    incorrectAnswers: row.incorrectAnswers,
-    timeTaken: row.timeTaken,
-    isViewer: row.userId === viewerId,
-  };
 }
 
 /**
@@ -87,74 +61,65 @@ export async function handleReadLeaderboardRanks(
 }
 
 /**
- * ある土俵・期間のランキングの 1 ページを返す（アプリ向け）
- * ランキング詳細API（アプリ向け）
+ * ランキングに表示しない設定を返す（アプリ向け）
+ * ランキング非表示設定取得API（アプリ向け）
  *
- * web の詳細ページと同じ材料・同じ並び。ゲストも読める。ログイン中なら
- * 本人の行に印を付け、ページ外の本人の順位を添え、ブロックした人の行を除く
- * （順位・件数は数え直さない）。範囲外のページは最後のページに丸める（お知らせと同じ）。
- *
- * @param period - URL の期間
- * @param slug - URL の練習の slug
+ * web の設定のプライバシーの初期値と同じ値。ユーザー名を決める前は 409
+ * `usernameRequired`（設定を書く `profiles` の行がまだ無い）。
  */
-export async function handleReadLeaderboard(
+export async function handleReadLeaderboardVisibility(
   request: Request,
-  period: string,
-  slug: string,
 ): Promise<NextResponse> {
-  const auth = await authorizeOptionalMobileRequest(request, "readLeaderboard");
+  const auth = await authorizeMobileRequest(request, "readLeaderboard");
   if (!auth.ok) return auth.response;
-  const params = new URL(request.url).searchParams;
-  const board = resolveLeaderboardBoard(
-    slug,
-    params.get("variant") ?? undefined,
-  );
-  if (!isLeaderboardPeriod(period) || board === undefined) return notFound();
-  const requestedPage = parsePageParam(params.get("page") ?? undefined);
-  const viewerId = auth.viewer?.user.id;
-
+  if (!auth.profile) return usernameRequired();
   try {
-    const [viewerHidden, blockedIds] = await Promise.all([
-      viewerId === undefined
-        ? Promise.resolve(false)
-        : isHiddenFromLeaderboard(viewerId),
-      getBlockedUserIds(viewerId),
-    ]);
-    // 非表示中は母集団から外れているので本人の順位は引かない（web と同じ）
-    const rankedViewerId = viewerHidden ? undefined : viewerId;
-
-    const first = await getLeaderboard(
-      board,
-      period,
-      requestedPage,
-      rankedViewerId,
-    );
-    if (first === undefined) return rankingFailed();
-    const totalPages = Math.ceil(first.totalCount / LEADERBOARD_PAGE_SIZE);
-    const page = Math.max(1, Math.min(requestedPage, totalPages));
-    const result =
-      page === requestedPage
-        ? first
-        : await getLeaderboard(board, period, page, rankedViewerId);
-    if (result === undefined) return rankingFailed();
-
-    return mobileJson<MobileLeaderboardResponse>({
-      rows: withoutBlocked(result.rows, blockedIds).map((row) =>
-        toMobileRow(row, viewerId),
-      ),
-      page,
-      totalPages,
-      totalCount: result.totalCount,
-      viewerRow:
-        result.currentUserRank === undefined
-          ? undefined
-          : toMobileRow(result.currentUserRank, viewerId),
-      viewerHidden,
-    });
+    const hidden = await isHiddenFromLeaderboard(auth.user.id);
+    return mobileJson<MobileLeaderboardVisibility>({ hidden });
   } catch (error) {
     return mobileServerError(
-      "GET /api/mobile/v1/leaderboard/[period]/[module]",
+      "GET /api/mobile/v1/leaderboard/visibility",
       "読み取りに失敗",
+      error,
+    );
+  }
+}
+
+/**
+ * ランキングに表示しない設定を保存する（アプリ向け）
+ * ランキング非表示設定保存API（アプリ向け）
+ *
+ * web の設定のプライバシーと同じ本体（`saveLeaderboardVisibility`）を呼び、
+ * 回数制限の枠も web と共有する。ユーザー名を決める前は 409
+ * `usernameRequired`。
+ */
+export async function handleUpdateLeaderboardVisibility(
+  request: Request,
+): Promise<NextResponse> {
+  const auth = await authorizeMobileRequest(
+    request,
+    "updateLeaderboardVisibility",
+  );
+  if (!auth.ok) return auth.response;
+  if (!auth.profile) return usernameRequired();
+  const body = await parseMobileBody(
+    request,
+    visibilityBodySchema,
+    VISIBILITY_BODY_MAX_BYTES,
+  );
+  if (!body.ok) return body.response;
+  try {
+    const { written } = await saveLeaderboardVisibility(
+      auth.user.id,
+      body.data.hidden,
+    );
+    // 認証を通った後に退会が受け付けられた（入口で弾いたときと同じ答え）
+    if (!written) return mobileJson({ error: "deleted" }, { status: 403 });
+    return mobileJson({ success: true });
+  } catch (error) {
+    return mobileServerError(
+      "POST /api/mobile/v1/leaderboard/visibility",
+      "保存に失敗",
       error,
     );
   }

@@ -6,8 +6,7 @@ import { removeAvatarForUser, saveAvatarForUser } from "@/lib/users/avatar";
 /**
  * アバター画像のアップロード（POST）・削除（DELETE）エンドポイント。
  *
- * 本体（正規化・保存・参照の差し替え）はアプリ向け API と共有する
- * `lib/users/avatar.ts`。ここは認証と受け付ける画像の検証、応答の形だけを持つ。
+ * 本体（正規化・保存・参照の差し替え）は `lib/users/avatar.ts`。ここは認証と受け付ける画像の検証、応答の形だけを持つ。
  *
  * アバターアップロードAPI
  */

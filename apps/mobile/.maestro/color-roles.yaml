@@ -1,6 +1,6 @@
 # 色の役割（ルートの CLAUDE.md「色の役割」）を撮る。ログイン中（bob）で、選択中の墨
-# （練習一覧の切り替えと絞り込み・タブバー・ランキングの期間）、補助面の淡緑（自分の行・
-# 順位のチップ）、正解・完了の緑（レッスンの済みマーク・道場の済んだ段）を並べる。
+# （練習一覧の切り替えと絞り込み・タブバー・ランキングの期間）、補助面の淡緑（順位の
+# チップ）、正解・完了の緑（レッスンの済みマーク・道場の済んだ段）を並べる。
 # 正誤と待ち牌の選択は design-surfaces が撮る。手元の web（:3000）と dev seed が要る
 appId: help.mahjong.score
 ---
@@ -33,10 +33,3 @@ appId: help.mahjong.score
     visible: ".*位"
     timeout: 15000
 - takeScreenshot: leaderboard-index
-- tapOn:
-    id: "leaderboard-board-jantou_fu:default"
-- extendedWaitUntil:
-    visible:
-      id: "leaderboard-row-seed_bob"
-    timeout: 10000
-- takeScreenshot: leaderboard-detail

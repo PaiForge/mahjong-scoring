@@ -20,14 +20,15 @@ const FIELD_MAX_LENGTH = 200;
  *
  * 1 項目は最長 200（UTF-16 の単位）で、JSON の文字列では 1 単位が最悪
  * 6 バイト（制御文字の `\uXXXX`。それ以外は UTF-8 で 3 バイトまで、
- * サロゲートの組は 2 単位で 4 バイト）になる。2 項目で 2400 バイト、
+ * サロゲートの組は 2 単位で 4 バイト）になる。1 項目で 1200 バイト、
  * キーと括弧を足しても 4 KiB に収まる。
  */
 const BODY_MAX_BYTES = 4 * 1024;
 
+// 表示名は受け付けない（未知のキーとして捨てる）。理由は契約の
+// `MobileRegisterUsernameRequest`
 const bodySchema = z.object({
   username: z.string().max(FIELD_MAX_LENGTH),
-  displayName: z.string().max(FIELD_MAX_LENGTH).optional(),
 });
 
 /**
@@ -35,6 +36,7 @@ const bodySchema = z.object({
  * ユーザー名登録API（アプリ向け）
  *
  * web の setup-username と同じ本体（`registerUsernameForUser`）を呼ぶ。
+ * 表示名は渡さず、本体がユーザー名を流用する。
  * プロフィール未作成のユーザーが呼ぶので、認証はプロフィールの有無を問わない。
  * 入力の誤りは 422 で理由を返す。
  */
@@ -49,7 +51,6 @@ export async function handleRegisterUsername(
   const result = await registerUsernameForUser(
     auth.user.id,
     body.data.username,
-    body.data.displayName,
   );
   if (!("error" in result)) return mobileJson({ success: true });
   // 認証を通った後に退会が受け付けられた（入口で弾いたときと同じ答え）

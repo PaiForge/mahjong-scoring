@@ -93,11 +93,15 @@ export function isMobileApiErrorCode(
  */
 export const MOBILE_USERNAME_API_PATH = `${MOBILE_API_PREFIX}/username`;
 
-/** ユーザー名登録の要求 */
+/**
+ * ユーザー名登録の要求
+ *
+ * 表示名は受け付けない（サーバーがユーザー名を流用する）。アプリで入力するのは
+ * ユーザー名だけ — 表示名は web の公開プロフィールとランキングで他の利用者に
+ * 見せる自由入力なので、web のプロフィール編集だけで受け付ける。
+ */
 export interface MobileRegisterUsernameRequest {
   readonly username: string;
-  /** 表示名。省略・空ならユーザー名を流用する */
-  readonly displayName?: string;
 }
 
 /**
@@ -113,6 +117,8 @@ export const MOBILE_USERNAME_ERROR_CODES = [
   "username_required",
   "username_already_set",
   "username_taken",
+  // 表示名はユーザー名を流用するので、ユーザー名の検証を通れば起きない。
+  // 登録の本体（web と共有）が返しうる理由として残している
   "display_name_too_long",
   "display_name_prohibited",
 ] as const;

@@ -8,7 +8,7 @@ import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { getLeaderboard } from "@/lib/leaderboard/get-leaderboard";
 import { getOptionalUser } from "@/lib/auth";
 import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
-import { leaderboardHref } from "@mahjong-scoring/features/routes";
+import { leaderboardHref } from "@/lib/leaderboard/leaderboard-href";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 

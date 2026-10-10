@@ -1,5 +1,6 @@
-# ログイン中（bob）のランキング: 一覧の各行に自分の順位、詳細で自分の行が塗られる。
-# 自分の行から開いた公開プロフィールは本人のもの、他の人のものも開ける
+# ログイン中（bob）のランキングでの順位: マイページの行から開き、土俵ごとに自分の順位が
+# 並ぶ（他の人の行は無い）。期間を月間に替える。設定で「ランキングに表示しない」に
+# すると一覧が非表示の案内に替わり、戻すと順位が戻る。手元の web（:3000）と dev seed が要る
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -16,26 +17,49 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-ranks"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-ranks"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-all-time
+- tapOn: "月間"
+- extendedWaitUntil:
+    visible: ".*位"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-monthly
+# 設定で非表示にすると、順位の代わりに案内と設定への導線が出る
+- openLink: "mahjong-scoring://preferences"
+- extendedWaitUntil:
+    visible: "ランキングに表示しない"
+    timeout: 15000
+- takeScreenshot: preferences-privacy
+- tapOn: "ランキングに表示しない"
+# 保存の応答を待ってから移る（移った先は開いたときに読み直す）
+- waitForAnimationToEnd
+- openLink: "mahjong-scoring://leaderboard"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-hidden"
+    timeout: 15000
+- takeScreenshot: leaderboard-ranks-hidden
+# 戻すと順位が戻る（シードの状態に戻す）
+- openLink: "mahjong-scoring://preferences"
+- extendedWaitUntil:
+    visible: "ランキングに表示しない"
+    timeout: 15000
+- tapOn: "ランキングに表示しない"
+# 保存の応答を待ってから移る（移った先は開いたときに読み直す）
+- waitForAnimationToEnd
 - openLink: "mahjong-scoring://leaderboard"
 - extendedWaitUntil:
     visible: ".*位"
     timeout: 15000
-- takeScreenshot: leaderboard-index-signed-in
-- tapOn:
-    id: "leaderboard-board-jantou_fu:default"
-- extendedWaitUntil:
-    visible:
-      id: "leaderboard-row-seed_bob"
-    timeout: 10000
-- takeScreenshot: leaderboard-detail-signed-in
-- tapOn:
-    id: "leaderboard-row-seed_bob"
-- extendedWaitUntil:
-    visible: "@seed_bob"
-    timeout: 10000
-- takeScreenshot: public-profile-self
-- openLink: "mahjong-scoring://u/seed_alice"
-- extendedWaitUntil:
-    visible: "@seed_alice"
-    timeout: 10000
-- takeScreenshot: public-profile-member
+- assertNotVisible:
+    id: "leaderboard-hidden"

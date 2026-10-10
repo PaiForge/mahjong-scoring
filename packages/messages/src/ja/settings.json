@@ -30,6 +30,7 @@
   "privacySectionTitle": "プライバシー",
   "leaderboardVisibilityTitle": "ランキングに表示しない",
   "leaderboardVisibilityDescription": "オンにすると、ランキングにあなたの名前と成績が表示されなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
+  "leaderboardVisibilityAppDescription": "オンにすると、web のランキングにあなたのユーザー名と成績が表示されなくなり、アプリの「ランキングでの順位」にも順位が付かなくなります。\n成績の記録は残るので、オフに戻せば順位も元どおりです。",
   "leaderboardVisibilityFailedToast": "設定を保存できませんでした。しばらくしてからもう一度お試しください。",
   "blockedUsersTitle": "ブロックしたユーザー",
   "blockedUsersDescription": "ブロックした人は、あなたが見るランキングと公開プロフィールに表示されません。",

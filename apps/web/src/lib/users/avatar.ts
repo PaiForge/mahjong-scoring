@@ -13,7 +13,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { writeAsAccount } from "./account-write-lock";
 
 /*
- * アバター画像の保存と削除（web の /api/profile/avatar とアプリ向け API の本体）
+ * アバター画像の保存と削除（web の /api/profile/avatar の本体）
  *
  * 画像は検証してから Sharp で EXIF を除去して 256x256 の WebP に正規化した
  * うえで `avatars/${userId}/avatar.webp` に保存し、`profiles.avatar_url` を更新する。
@@ -47,7 +47,7 @@ export type AvatarSaveError = "invalidImage" | "uploadFailed" | "unauthorized";
  * アバター画像を正規化して保存し、プロフィールの URL を差し替える
  * アバター保存
  *
- * web の Route Handler とアプリ向け API の両方から呼ぶ。認証・回数制限・
+ * web の Route Handler から呼ぶ。認証・回数制限・
  * 受け付ける形式とサイズの検証（`readUploadedImageFile`）は呼び出し側が済ませること。
  *
  * @param userId - 認証済みユーザーの ID
@@ -129,7 +129,7 @@ export async function saveAvatarForUser(
  * アバター画像を削除し、プロフィールの URL を空に戻す
  * アバター削除
  *
- * web の Route Handler とアプリ向け API の両方から呼ぶ。認証と回数制限は
+ * web の Route Handler から呼ぶ。認証と回数制限は
  * 呼び出し側が済ませること。Storage の削除に失敗しても失敗にしない（下の
  * コメントの通り無害なため）。
  */

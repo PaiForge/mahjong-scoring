@@ -40,6 +40,11 @@ interface SettingToggleRowProps {
   readonly onChange: (checked: boolean) => void;
   /** 見出しの右隣に添える操作（補足を開く「?」等。web の `onInfoClick`） */
   readonly titleAction?: ReactNode;
+  /**
+   * 切り替えを受け付けない（サーバーへ保存している間など）。見た目は変えず、
+   * 押しても何もしない。読み上げには無効と伝える
+   */
+  readonly disabled?: boolean;
 }
 
 /**
@@ -68,6 +73,7 @@ export function SettingToggleRow({
   checked,
   onChange,
   titleAction,
+  disabled = false,
 }: SettingToggleRowProps) {
   // 描画の間ずっと同じ値を使う（ref ではなく state の初期化で 1 度だけ作る）
   const [position] = useState(() => new Animated.Value(checked ? 1 : 0));
@@ -92,9 +98,10 @@ export function SettingToggleRow({
   return (
     <Pressable
       onPress={() => onChange(!checked)}
+      disabled={disabled}
       accessibilityRole="switch"
       accessibilityLabel={title}
-      accessibilityState={{ checked }}
+      accessibilityState={{ checked, disabled }}
       style={styles.row}
     >
       <View style={styles.body}>

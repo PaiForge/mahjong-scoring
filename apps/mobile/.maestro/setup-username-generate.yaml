@@ -19,4 +19,8 @@ appId: help.mahjong.score
 - tapOn:
     id: "generate-username"
 - assertVisible: "player_[0-9a-f]{10}"
+# 表示名の欄は無く、web のランキングで公開される旨が出る
+- assertNotVisible: "表示名"
+- assertVisible:
+    id: "setup-username-public-notice"
 - takeScreenshot: setup-username-generate

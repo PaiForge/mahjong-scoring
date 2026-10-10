@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  leaderboardHref,
-  myRecordHref,
-  practiceHref,
-  publicProfileHref,
-  rankHref,
-} from "./routes";
+import { myRecordHref, practiceHref, rankHref } from "./routes";
 
 describe("practiceHref", () => {
   it("slug から練習ページのパスを作る", () => {
@@ -35,34 +29,5 @@ describe("myRecordHref", () => {
     expect(myRecordHref({ menuType: "yaku_han", variant: "kuisagari" })).toBe(
       "/mypage/challenges?menu=yaku_han&variant=kuisagari",
     );
-  });
-});
-
-describe("leaderboardHref", () => {
-  it("バリアントを持たない練習はクエリを付けない", () => {
-    expect(
-      leaderboardHref("all-time", {
-        menuType: "jantou_fu",
-        variant: "default",
-      }),
-    ).toBe("/leaderboard/all-time/jantou-fu");
-    expect(
-      leaderboardHref("monthly", { menuType: "yaku", variant: "default" }),
-    ).toBe("/leaderboard/monthly/yaku");
-  });
-
-  it("バリアントを持つ練習は ?variant= で土俵を指す", () => {
-    expect(
-      leaderboardHref("all-time", {
-        menuType: "yaku_han",
-        variant: "kuisagari",
-      }),
-    ).toBe("/leaderboard/all-time/yaku-han?variant=kuisagari");
-  });
-});
-
-describe("publicProfileHref", () => {
-  it("ユーザー名を /u/ の下に置く", () => {
-    expect(publicProfileHref("bob")).toBe("/u/bob");
   });
 });

@@ -21,7 +21,6 @@ import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useHardwareBack } from "../../hooks/use-hardware-back";
-import { LeaderboardPreview } from "../../leaderboard/leaderboard-preview";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
@@ -41,7 +40,8 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
  * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
- * もう一度 → 総合ランキングの上位。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
+ * もう一度。web の末尾にある総合ランキングの上位は置かない（アプリでは他の利用者の
+ * 名前・アバターを見せない。`app/leaderboard/index.tsx`）。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
  * 添える（送れなければ、次に通信できたときに送ると伝える）。自己ベストの
  * 比較はまだ出さない。
  *
@@ -165,9 +165,6 @@ export function PracticeResultScreen({
               {retryButton}
             </View>
           )}
-
-        {/* 末尾に総合ランキングの上位（web と同じ）。今走った土俵のもの */}
-        <LeaderboardPreview board={{ menuType, variant }} />
       </MistakeRevealProvider>
     </Screen>
   );

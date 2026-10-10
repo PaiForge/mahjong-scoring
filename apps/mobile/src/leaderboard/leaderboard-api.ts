@@ -1,19 +1,17 @@
 import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
 import {
-  mobileLeaderboardApiUrl,
+  MOBILE_LEADERBOARD_VISIBILITY_API_PATH,
   mobileLeaderboardRanksApiUrl,
   parseMobileLeaderboardRanksResponse,
-  parseMobileLeaderboardResponse,
+  parseMobileLeaderboardVisibility,
   type MobileLeaderboardErrorCode,
   type MobileLeaderboardRanksResponse,
-  type MobileLeaderboardResponse,
+  type MobileLeaderboardVisibility,
 } from "@mahjong-scoring/features/leaderboard/mobile-api";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   apiFailureOf,
   callMobileApi,
-  callMobileApiAsViewer,
   type ApiFailure,
 } from "../auth/api-client";
 
@@ -53,23 +51,36 @@ export async function fetchLeaderboardRanks(
 }
 
 /**
- * ある土俵・期間のランキングの 1 ページを読む
- * ランキング取得
- *
- * @param viewerId - ログイン中のユーザー。ゲストなら undefined
- * @param page - 1 始まりのページ番号
+ * ランキングに表示しない設定を読む（ログイン中だけ）
+ * ランキング非表示設定取得
  */
-export async function fetchLeaderboard(
-  viewerId: string | undefined,
-  period: LeaderboardPeriod,
-  board: PracticeBoard,
-  page: number,
-): Promise<LeaderboardApiResult<MobileLeaderboardResponse>> {
+export async function fetchLeaderboardVisibility(
+  userId: string,
+): Promise<LeaderboardApiResult<MobileLeaderboardVisibility>> {
   return readResponse(
-    await callMobileApiAsViewer(
-      mobileLeaderboardApiUrl(period, board, page),
-      viewerId,
-    ),
-    parseMobileLeaderboardResponse,
+    await callMobileApi(MOBILE_LEADERBOARD_VISIBILITY_API_PATH, {
+      asUser: userId,
+    }),
+    parseMobileLeaderboardVisibility,
   );
+}
+
+/**
+ * ランキングに表示しない設定を保存する
+ * ランキング非表示設定保存
+ *
+ * 切り替えたユーザーの名義でだけ送る（`asUser`）。
+ */
+export async function saveLeaderboardVisibility(
+  userId: string,
+  hidden: boolean,
+): Promise<{ readonly success: true } | { readonly error: ApiFailure }> {
+  const response = await callMobileApi(MOBILE_LEADERBOARD_VISIBILITY_API_PATH, {
+    method: "POST",
+    body: { hidden },
+    asUser: userId,
+  });
+  if (typeof response === "string") return { error: response };
+  if (!response.ok) return { error: await apiFailureOf(response) };
+  return { success: true };
 }
