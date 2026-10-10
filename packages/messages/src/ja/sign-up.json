@@ -12,5 +12,6 @@
   "passwordMismatch": "パスワードが一致しません。",
   "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
   "freeBadge": "無料",
-  "freeAssurance": "完全無料 ・ クレジットカード不要"
+  "freeAssurance": "完全無料 ・ クレジットカード不要",
+  "consent": "登録すると、<terms>利用規約</terms>と<privacy>プライバシーポリシー</privacy>に同意したものとみなします。"
 }

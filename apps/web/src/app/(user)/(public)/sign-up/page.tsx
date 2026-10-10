@@ -11,6 +11,9 @@
  * 1. ユーザーが Google OAuth またはメールフォームで登録
  * 2. メール登録の場合 → 確認メール送信 → verify-email ページへ遷移
  * 3. OAuth の場合 → /auth/callback → /mypage
+ *
+ * 利用規約への同意は、登録の手段（Google・メール）より上に置いた一文で取る。
+ * どの手段で登録しても、押す前に必ず目に入る位置に置くため。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -57,6 +60,20 @@ export default async function SignUpPage({
             {tAuth("authError")}
           </p>
         )}
+        <p className="text-center text-sm leading-relaxed text-surface-500">
+          {t.rich("consent", {
+            terms: (chunks) => (
+              <Link href="/terms" className={TEXT_LINK_CLASSES}>
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/privacy" className={TEXT_LINK_CLASSES}>
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
         <div className="space-y-2">
           <GoogleOAuthButton intent="signUp" />
           <p className="text-center text-xs text-success">
