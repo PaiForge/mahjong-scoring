@@ -11,8 +11,9 @@ import {
 import { MACHI_PICKER_ROWS } from "@mahjong-scoring/features/practice/tenpai-score/picker-rows";
 
 import { Grid } from "../../../components/grid";
+import { InsetRing } from "../../../components/inset-ring";
 import { PressableSurface } from "../../../components/pressable-surface";
-import { colors, radius } from "../../../lib/theme";
+import { borderWidth, colors, radius } from "../../../lib/theme";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 
 /** 牌の枠と背景（判定前は選択、判定後は正誤の配色。web の `tileClasses`） */
@@ -30,8 +31,10 @@ function tileStyle(
  * 待ち牌選択
  *
  * 種類ごとに 1 行、9 列がそのまま収まるよう牌を小さく出す。押せる面なので
- * 太枠 + ハードシャドウ + 押し込み。判定後は牌ごとに枠の色で「正解（緑）/
- * 待ちではない（赤）/ 見落とし（緑の破線）」を示し、押せなくする。
+ * 選択肢と同じ 1px の灰の枠 + 押している間の塗り。選んだ牌は枠の内側に
+ * 1px の線を足して 2px の緑で囲み、塗りだけに頼らず選択中であることを示す。
+ * 判定後は牌ごとに枠の色で「正解（緑）/ 待ちではない（赤）/ 見落とし
+ * （緑の破線）」を示し、押せなくする。
  * 文字は添えない — 牌の下に 1 行足すと判定の瞬間に下のボタンがずれる。
  */
 export const MachiPicker = memo(function MachiPickerComponent({
@@ -64,8 +67,15 @@ export const MachiPicker = memo(function MachiPickerComponent({
                   accessibilityState={{ selected: isSelected }}
                   testID={`machi-tile-${hai}`}
                   style={[styles.tile, tileStyle(isSelected, mark, judged)]}
+                  pressedStyle={styles.pressed}
                 >
                   <Hai hai={hai} size="xs" />
+                  {isSelected && !judged && (
+                    <InsetRing
+                      color={colors.primary500}
+                      borderRadius={radius.md}
+                    />
+                  )}
                 </PressableSurface>
               );
             })}
@@ -84,17 +94,21 @@ const styles = StyleSheet.create({
     minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.md,
     paddingVertical: 4,
     overflow: "hidden",
   },
   idle: {
-    borderColor: colors.ink,
+    borderColor: colors.surface300,
     backgroundColor: colors.white,
   },
   selected: {
     borderColor: colors.primary500,
+    backgroundColor: colors.primary50,
+  },
+  pressed: {
+    borderColor: colors.primary300,
     backgroundColor: colors.primary50,
   },
   dimmed: {

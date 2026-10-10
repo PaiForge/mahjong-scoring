@@ -8,6 +8,8 @@ interface BeltColors {
   readonly tint: string;
   /** 淡い面に載せる文字 */
   readonly tintText: string;
+  /** 淡い面を押している間の塗り（web の `--belt-fill-hover`） */
+  readonly tintPressed: string;
 }
 
 /**
@@ -18,10 +20,40 @@ interface BeltColors {
  * 5級オレンジ → 4級青 → 3級黄 → 2級緑 → 1級茶 → 初段黒。
  */
 export const RANK_BELT_COLORS: Readonly<Record<RankSlug, BeltColors>> = {
-  "kyu-5": { fill: "#f97316", tint: "#ffedd5", tintText: "#9a3412" },
-  "kyu-4": { fill: "#3b82f6", tint: "#dbeafe", tintText: "#1e40af" },
-  "kyu-3": { fill: "#eab308", tint: "#fef9c3", tintText: "#854d0e" },
-  "kyu-2": { fill: "#22c55e", tint: "#dcfce7", tintText: "#166534" },
-  "kyu-1": { fill: "#92400e", tint: "#fde68a", tintText: "#78350f" },
-  "dan-1": { fill: "#1c1917", tint: "#e7e5e4", tintText: "#1c1917" },
+  "kyu-5": {
+    fill: "#f97316",
+    tint: "#ffedd5",
+    tintText: "#9a3412",
+    tintPressed: "#fed7aa",
+  },
+  "kyu-4": {
+    fill: "#3b82f6",
+    tint: "#dbeafe",
+    tintText: "#1e40af",
+    tintPressed: "#bfdbfe",
+  },
+  "kyu-3": {
+    fill: "#eab308",
+    tint: "#fef9c3",
+    tintText: "#854d0e",
+    tintPressed: "#fef08a",
+  },
+  "kyu-2": {
+    fill: "#22c55e",
+    tint: "#dcfce7",
+    tintText: "#166534",
+    tintPressed: "#bbf7d0",
+  },
+  "kyu-1": {
+    fill: "#92400e",
+    tint: "#fde68a",
+    tintText: "#78350f",
+    tintPressed: "#fcd34d",
+  },
+  "dan-1": {
+    fill: "#1c1917",
+    tint: "#e7e5e4",
+    tintText: "#1c1917",
+    tintPressed: "#d6d3d1",
+  },
 };

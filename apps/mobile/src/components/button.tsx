@@ -7,7 +7,7 @@ import {
   type ViewStyle,
 } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import { PressableSurface } from "./pressable-surface";
 
 /** 塗り・文字色の系統（web の `ButtonVariant` のうちモバイルで使うもの） */
@@ -29,11 +29,49 @@ interface ButtonProps {
   readonly children: string;
 }
 
-const FILL: Record<ButtonVariant, { bg: string; fg: string }> = {
-  primary: { bg: colors.primary500, fg: colors.white },
-  secondary: { bg: colors.card, fg: colors.primary700 },
-  neutral: { bg: colors.card, fg: colors.surface700 },
-  danger: { bg: colors.destructive, fg: colors.white },
+interface ButtonFill {
+  readonly bg: string;
+  readonly fg: string;
+  readonly border: string;
+  /** 押している間の塗りと枠（web の active / hover） */
+  readonly pressedBg: string;
+  readonly pressedBorder: string;
+}
+
+/**
+ * 塗りのボタン（primary / danger）は枠を塗りと同化させる（透明）。淡色の
+ * 細い枠を緑の上に引くと縁だけが白っぽく浮いて見える。幅は他の variant と
+ * 同じ 1px を保つ。
+ */
+const FILL: Record<ButtonVariant, ButtonFill> = {
+  primary: {
+    bg: colors.primary500,
+    fg: colors.white,
+    border: "transparent",
+    pressedBg: colors.primary700,
+    pressedBorder: "transparent",
+  },
+  secondary: {
+    bg: colors.card,
+    fg: colors.primary700,
+    border: colors.panel,
+    pressedBg: colors.primary100,
+    pressedBorder: colors.primary300,
+  },
+  neutral: {
+    bg: colors.card,
+    fg: colors.surface700,
+    border: colors.panel,
+    pressedBg: colors.surface200,
+    pressedBorder: colors.surface300,
+  },
+  danger: {
+    bg: colors.destructive,
+    fg: colors.white,
+    border: "transparent",
+    pressedBg: colors.destructiveStrong,
+    pressedBorder: "transparent",
+  },
 };
 
 const PADDING: Record<ButtonSize, ViewStyle> = {
@@ -61,8 +99,9 @@ export function buttonForeground(
  * ボタン
  *
  * web の `Button` / `LinkButton`（`buttonClasses()`）と同じ見た目:
- * 太枠（3px・ink）+ ハードシャドウ + 押し込み。色・枠・影は variant で決め、
- * `style` はレイアウト（外側の余白など）だけに使う。
+ * 塗り + 1px の枠。影は持たず、押している間は塗りが一段濃くなるだけで
+ * 位置は動かない。色・枠は variant で決め、`style` はレイアウト（外側の
+ * 余白など）だけに使う。
  */
 export function Button({
   onPress,
@@ -81,14 +120,19 @@ export function Button({
       onPress={onPress}
       disabled={disabled}
       testID={testID}
-      containerStyle={[fullWidth && { alignSelf: "stretch" }, style]}
       style={[
         styles.face,
         PADDING[size],
         disabled
           ? styles.disabled
-          : { backgroundColor: fill.bg, borderColor: colors.ink },
+          : { backgroundColor: fill.bg, borderColor: fill.border },
+        fullWidth && { alignSelf: "stretch" },
+        style,
       ]}
+      pressedStyle={{
+        backgroundColor: fill.pressedBg,
+        borderColor: fill.pressedBorder,
+      }}
     >
       <View style={styles.content}>
         {icon}
@@ -110,7 +154,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   face: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.lg,
     alignItems: "center",
     justifyContent: "center",
@@ -124,8 +168,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   disabled: {
-    backgroundColor: colors.surface200,
-    borderColor: colors.ink,
-    opacity: 0.6,
+    backgroundColor: colors.surface100,
+    borderColor: colors.surface200,
   },
 });

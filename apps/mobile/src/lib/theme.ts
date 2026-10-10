@@ -2,10 +2,13 @@
  * アプリの色・角丸・余白のトークン
  * デザイントークン
  *
- * web の `globals.css`（`@theme`）と同じ値を持つ。web はブランドの見た目
- * （太枠 `border-ink`・ハードシャドウ・押し込み演出・緑の塗り）を CSS 変数で
- * 組み立てているが、React Native には CSS が無いので値をここに写す。色を
- * 変えるときは web の `globals.css` と一緒に直すこと。
+ * web の `globals.css`（`@theme`）と同じ値を持つ。React Native には CSS が
+ * 無いので値をここに写す。色を変えるときは web の `globals.css` と一緒に直すこと。
+ *
+ * 見た目はフラット（web と同じ）: 線は 1px の淡い `panel` で統一し、地に置いた
+ * 面（カード・ボタン・表・選択肢）は影を持たず、押しても位置を動かさない。
+ * 情報の優先順位は線の太さではなく、塗り（ボタンの緑・段級位の帯色・状態色）と
+ * 文字の大きさで示す。
  */
 export const colors = {
   primary50: "#ecfaef",
@@ -30,9 +33,9 @@ export const colors = {
   surface800: "#1e293b",
   surface900: "#0f172a",
 
-  /** 太枠とハードシャドウの色（`--color-ink`） */
+  /** 旧: 太枠の色。移行中の画面だけが参照する */
   ink: "#2f6b4f",
-  /** 内側の情報カード・表・区切り線の淡い枠（`--color-panel`）。外側の太枠と区別する */
+  /** カード・表・ボタン・区切り線の淡い枠（`--color-panel` = `--color-border`） */
   panel: "#dce3e0",
   background: "#f8fafc",
   card: "#ffffff",
@@ -69,25 +72,27 @@ export const radius = {
 } as const;
 
 /**
- * 枠の太さ（web の `border` / `border-3` / `border-4`）
+ * 枠の太さ
  *
- * 太枠（regular / thick）は押せる面とダイアログの記号。表示だけのカード・表・
- * 入力欄は `panel`（1px の淡い枠）で組む。
+ * 線は 1px（`panel`）だけで組む。`belt` は段級位のカードの上端の帯色の帯
+ * （web の `border-t-2`。1px では淡い級の帯色が細線に紛れる）。
  */
 export const borderWidth = {
   panel: 1,
-  regular: 3,
-  thick: 4,
+  belt: 2,
 } as const;
 
 /**
- * ハードシャドウのずれ（web の `shadow-sm` = 3px 3px 0 ink）
+ * 画面の上に浮く層（ダイアログ等）の柔らかい影（web の `shadow-xl` 相当）
  *
- * 影は「押せる」の記号で、押せる面（ボタン・カード全体がリンクのもの）だけが持つ。
+ * 影は地から離れて浮く層だけが持つ。地に置かれた面には付けない。
  */
-export const shadowOffset = {
-  sm: 3,
-  md: 4,
+export const floatingShadow = {
+  shadowColor: "#0f172a",
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.18,
+  shadowRadius: 24,
+  elevation: 12,
 } as const;
 
 /** 余白（Tailwind の 4px 刻み） */

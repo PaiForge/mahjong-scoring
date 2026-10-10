@@ -1,24 +1,16 @@
-import { useState, type ReactNode } from "react";
-import {
-  Pressable,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
-
-import { colors, shadowOffset } from "../lib/theme";
+import type { ReactNode } from "react";
+import { Pressable, type StyleProp, type ViewStyle } from "react-native";
 
 interface PressableSurfaceProps {
   readonly onPress?: () => void;
   readonly disabled?: boolean;
-  /** 面の見た目（枠・塗り・角丸・余白）。角丸は影にも写す */
+  /** 面の見た目とレイアウト（枠・塗り・角丸・余白・幅） */
   readonly style?: StyleProp<ViewStyle>;
-  /** 外側の箱のレイアウト（幅・外側の余白） */
-  readonly containerStyle?: StyleProp<ViewStyle>;
-  readonly shadow?: keyof typeof shadowOffset;
-  /** 影の色（既定は ink） */
-  readonly shadowColor?: string;
+  /**
+   * 押している間だけ重ねる見た目（塗りと枠の色）。位置・大きさは変えない。
+   * 無効なときは重ねない
+   */
+  readonly pressedStyle: StyleProp<ViewStyle>;
   readonly accessibilityLabel?: string;
   readonly accessibilityState?: { readonly selected?: boolean };
   readonly testID?: string;
@@ -26,71 +18,35 @@ interface PressableSurfaceProps {
 }
 
 /**
- * 押せる面 — ハードシャドウと押し込み演出
+ * 押せる面 — 押している間だけ色が変わる
  * 押せる面
  *
- * web の `press-sm shadow-sm`（右下へ 3px ずれた ink の影。押すと面が影の
- * 位置まで沈み、影が消える）を再現する。iOS の shadow は radius 0 で描けるが
- * Android の elevation は硬い影を描けないため、影は面の後ろに敷いた同じ形の
- * View で描く（両プラットフォームで同じ見た目になる）。
- *
- * 無効なときは影を落とし、押し込みもしない（web の `buttonClasses` の
- * disabled と同じ — 押せないものに「押せる」の記号を付けない）。
+ * web の `buttonClasses()` / `ChoiceButton` と同じフラットな面: 影を持たず、
+ * 押しても位置を動かさない（web の hover / active が色だけを変えるのと同じ）。
+ * 押したことは `pressedStyle`（一段濃い塗り・枠）で示す。押せることは
+ * 塗り（緑・帯色）と枠の色で示し、押せる面だけの記号（影・押し込み）は持たない。
  */
 export function PressableSurface({
   onPress,
   disabled = false,
   style,
-  containerStyle,
-  shadow = "sm",
-  shadowColor = colors.ink,
+  pressedStyle,
   accessibilityLabel,
   accessibilityState,
   testID,
   children,
 }: PressableSurfaceProps) {
-  const [pressed, setPressed] = useState(false);
-  const offset = shadowOffset[shadow];
-  const flat = StyleSheet.flatten(style);
-  const borderRadius = flat?.borderRadius ?? 0;
-  const sunk = pressed && !disabled;
-
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled, ...accessibilityState }}
       testID={testID}
-      style={[{ paddingRight: offset, paddingBottom: offset }, containerStyle]}
+      style={({ pressed }) => [style, pressed && !disabled && pressedStyle]}
     >
-      {!disabled && (
-        <View
-          pointerEvents="none"
-          style={{
-            position: "absolute",
-            top: offset,
-            left: offset,
-            right: 0,
-            bottom: 0,
-            borderRadius,
-            backgroundColor: shadowColor,
-          }}
-        />
-      )}
-      <View
-        style={[
-          style,
-          sunk && {
-            transform: [{ translateX: offset }, { translateY: offset }],
-          },
-        ]}
-      >
-        {children}
-      </View>
+      {children}
     </Pressable>
   );
 }

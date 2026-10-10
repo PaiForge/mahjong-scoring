@@ -22,8 +22,9 @@ import {
   type WaitCellRun,
 } from "@mahjong-scoring/features/practice/tenpai-score/wait-cell-runs";
 
+import { InsetRing } from "../../../components/inset-ring";
 import { PressableSurface } from "../../../components/pressable-surface";
-import { colors, radius, shadowOffset } from "../../../lib/theme";
+import { borderWidth, colors, radius } from "../../../lib/theme";
 
 /** マス 1 つの高さ（px）。回答の文字が 3 行まで収まる高さ */
 const ROW_HEIGHT = 64;
@@ -42,8 +43,9 @@ type CellState = "answered" | "answering" | "joinable" | "unanswered";
 /**
  * マスの枠と背景（web の `CELL_CLASSES`）
  *
- * 回答済みが緑（決めた面）、回答中が琥珀（今触っている面）。同じ列の未回答は
- * 琥珀の破線で「回答中に加われる」ことを示し、他の列の未回答は灰の破線。
+ * 回答済みが緑（決めた面）、回答中が琥珀（今触っている面。枠の内側に
+ * `InsetRing` を足して 2px で囲む）。同じ列の未回答は琥珀の破線で「回答中に
+ * 加われる」ことを示し、他の列の未回答は灰の破線。
  */
 const CELL_STYLES: Readonly<Record<CellState, ViewStyle>> = {
   answered: {
@@ -64,6 +66,14 @@ const CELL_STYLES: Readonly<Record<CellState, ViewStyle>> = {
     borderStyle: "dashed",
     backgroundColor: colors.surface50,
   },
+};
+
+/** 押している間の塗り（web の hover。状態の色相のまま一段濃くする） */
+const CELL_PRESSED_STYLES: Readonly<Record<CellState, ViewStyle>> = {
+  answered: { backgroundColor: colors.primary100 },
+  answering: { backgroundColor: colors.amber100 },
+  joinable: { backgroundColor: colors.amber50 },
+  unanswered: { backgroundColor: colors.surface100 },
 };
 
 const CELL_TEXT_COLORS: Readonly<Record<CellState, string>> = {
@@ -134,9 +144,12 @@ export function WaitCellGrid({
       onPress={onPress}
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      containerStyle={{ height }}
-      style={[styles.cell, CELL_STYLES[state]]}
+      style={[styles.cell, CELL_STYLES[state], { height }]}
+      pressedStyle={CELL_PRESSED_STYLES[state]}
     >
+      {state === "answering" && (
+        <InsetRing color={colors.amber500} borderRadius={radius.lg} />
+      )}
       <Text
         style={[styles.cellText, { color: CELL_TEXT_COLORS[state] }]}
         numberOfLines={3}
@@ -164,34 +177,32 @@ export function WaitCellGrid({
     // 見た目は 1 枚のマス、押す単位は行。行ごとの押せる面は透明で積み、
     // 文字は面の上に重ねる（行の区切りの破線が文字を横切らないよう、文字の
     // 背後だけ塗る）
-    const offset = shadowOffset.sm;
     return (
       <View
-        style={{ height, paddingRight: offset, paddingBottom: offset }}
+        style={[styles.cell, styles.group, CELL_STYLES.answering, { height }]}
         accessibilityLabel={label}
       >
-        <View
-          pointerEvents="none"
-          style={[styles.groupShadow, { top: offset, left: offset }]}
-        />
-        <View style={[styles.cell, styles.group, CELL_STYLES.answering]}>
-          {run.cells.map((member, i) => (
-            <Pressable
-              key={cellKeyOf(member)}
-              onPress={() => onToggleCell(member)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: true }}
-              accessibilityLabel={t("removeFromSelection", {
-                hai: haiIdToMpsz(member.agariHai),
-              })}
-              style={[styles.groupRow, i > 0 && styles.groupRowDivider]}
-            />
-          ))}
-          <View pointerEvents="none" style={styles.groupLabelWrap}>
-            <Text style={styles.groupLabel} numberOfLines={3}>
-              {label}
-            </Text>
-          </View>
+        {run.cells.map((member, i) => (
+          <Pressable
+            key={cellKeyOf(member)}
+            onPress={() => onToggleCell(member)}
+            accessibilityRole="button"
+            accessibilityState={{ selected: true }}
+            accessibilityLabel={t("removeFromSelection", {
+              hai: haiIdToMpsz(member.agariHai),
+            })}
+            style={({ pressed }) => [
+              styles.groupRow,
+              i > 0 && styles.groupRowDivider,
+              pressed && styles.groupRowPressed,
+            ]}
+          />
+        ))}
+        <InsetRing color={colors.amber500} borderRadius={radius.lg} />
+        <View pointerEvents="none" style={styles.groupLabelWrap}>
+          <Text style={styles.groupLabel} numberOfLines={3}>
+            {label}
+          </Text>
         </View>
       </View>
     );
@@ -278,11 +289,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  // 高さは呼び出し側が行数から決めて渡す（列を行の高さで揃える）
   cell: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.lg,
     paddingHorizontal: 6,
     paddingVertical: 4,
@@ -292,13 +303,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 17,
     fontWeight: "700",
-  },
-  groupShadow: {
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    borderRadius: radius.lg,
-    backgroundColor: colors.ink,
   },
   group: {
     overflow: "hidden",
@@ -310,8 +314,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: "stretch",
   },
+  groupRowPressed: {
+    backgroundColor: colors.amber100,
+  },
   groupRowDivider: {
-    borderTopWidth: 2,
+    borderTopWidth: borderWidth.panel,
     borderStyle: "dashed",
     borderTopColor: AMBER_300,
   },

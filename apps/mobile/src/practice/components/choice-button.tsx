@@ -2,7 +2,7 @@ import { memo, useCallback, type ReactNode } from "react";
 import { StyleSheet, type StyleProp, type ViewStyle } from "react-native";
 
 import { PressableSurface } from "../../components/pressable-surface";
-import { radius } from "../../lib/theme";
+import { borderWidth, colors, radius } from "../../lib/theme";
 
 interface ChoiceButtonProps {
   readonly index: number;
@@ -10,26 +10,23 @@ interface ChoiceButtonProps {
   readonly disabled: boolean;
   /** 正誤の配色（`choiceFeedbackProps` の `feedbackStyle`） */
   readonly feedbackStyle: ViewStyle;
-  /** 外側の箱のレイアウト（グリッドの幅など） */
-  readonly containerStyle?: StyleProp<ViewStyle>;
-  /** 面の中の並び（縦積み等） */
+  /** 面のレイアウト（グリッドの幅・中の並び等） */
   readonly style?: StyleProp<ViewStyle>;
   readonly accessibilityLabel?: string;
   readonly children: ReactNode;
 }
 
 /**
- * 選択肢ボタン（web の `ChoiceButton` = 太枠・ハードシャドウ・押し込み）
+ * 選択肢ボタン（web の `ChoiceButton` = 1px の枠 + 押している間の塗り）
  *
- * 選択肢は押せる面なので影を持つ。無効（フィードバック中）でも正誤の色を
- * 読ませるため、影を落とすだけで面は残す。
+ * 枠はフォーム部品と同じ一段濃い灰（`choiceFeedbackStyle`）。無効
+ * （フィードバック中）でも正誤の色を読ませるため、面はそのまま残す。
  */
 export const ChoiceButton = memo(function ChoiceButtonComponent({
   index,
   onSelect,
   disabled,
   feedbackStyle,
-  containerStyle,
   style,
   accessibilityLabel,
   children,
@@ -41,8 +38,8 @@ export const ChoiceButton = memo(function ChoiceButtonComponent({
       disabled={disabled}
       accessibilityLabel={accessibilityLabel}
       testID={`choice-${index}`}
-      containerStyle={containerStyle}
       style={[styles.face, feedbackStyle, style]}
+      pressedStyle={styles.pressed}
     >
       {children}
     </PressableSurface>
@@ -51,10 +48,14 @@ export const ChoiceButton = memo(function ChoiceButtonComponent({
 
 const styles = StyleSheet.create({
   face: {
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.xl,
     padding: 16,
     alignItems: "center",
     justifyContent: "center",
+  },
+  pressed: {
+    borderColor: colors.primary300,
+    backgroundColor: colors.primary50,
   },
 });
