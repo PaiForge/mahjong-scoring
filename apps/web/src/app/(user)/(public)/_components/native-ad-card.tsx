@@ -50,7 +50,7 @@ export async function NativeAdCard({ creative }: NativeAdCardProps) {
       href={creative.href}
       {...NATIVE_AD_LINK_PROPS}
       data-native-ad={creative.id}
-      className={`group flex flex-col justify-between rounded-panel border border-panel bg-white p-5 transition-transform hover:-translate-y-1 ${FOCUS_RING_CLASSES}`}
+      className={`group flex flex-col justify-between rounded-panel border border-panel bg-white p-5 transition-colors hover:border-surface-300 hover:bg-surface-50 ${FOCUS_RING_CLASSES}`}
     >
       <div>
         <div className="flex items-start justify-between gap-2">

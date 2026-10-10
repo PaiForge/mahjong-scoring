@@ -83,7 +83,7 @@ export async function CurriculumToc({
             aria-hidden="true"
             data-testid="curriculum-section-bullet"
             data-section={section}
-            className={`relative z-10 inline-block ${SECTION_BULLET_SIZE_CLASS} shrink-0 rounded-full border-2 border-ink ${bulletColorClass}`}
+            className={`relative z-10 inline-block ${SECTION_BULLET_SIZE_CLASS} shrink-0 rounded-full border-2 border-panel ${bulletColorClass}`}
           />
           <p className="text-sm font-bold tracking-wide text-surface-900">
             {sectionLabel}

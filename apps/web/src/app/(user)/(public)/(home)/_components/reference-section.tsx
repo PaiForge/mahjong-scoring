@@ -9,7 +9,7 @@ export function ReferenceSection() {
 
   return (
     <LandingSection
-      sectionClassName="border-b-4 border-ink bg-surface-50"
+      sectionClassName="border-b border-panel bg-surface-50"
       icon={<TableIcon className="size-8" />}
       iconClassName="bg-amber-200 text-amber-800"
       title={t("referenceTitle")}

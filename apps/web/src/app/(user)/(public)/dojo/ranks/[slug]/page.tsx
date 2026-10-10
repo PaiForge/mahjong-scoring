@@ -108,7 +108,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
             持つので、ここは帯・取得状態・合格基準だけを置く */}
         <div
           data-belt-slug={rank.slug}
-          className={`flex items-center gap-4 rounded-panel border border-t-4 border-panel bg-white p-5 ${beltBorderTopClass(rank.slug)}`}
+          className={`flex items-center gap-4 rounded-panel border border-t-2 border-panel bg-white p-5 ${beltBorderTopClass(rank.slug)}`}
         >
           <BeltBadge slug={rank.slug} size="lg" />
           <div className="min-w-0 space-y-2">

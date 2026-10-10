@@ -30,7 +30,7 @@ import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-ske
  */
 export default function Loading() {
   return (
-    <ContentContainer className="home-design">
+    <ContentContainer>
       <PageTitlePlaceholder width="w-24" />
 
       {/* 次にやること: 帯色のカード 1 枚 */}

@@ -54,7 +54,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
     });
 
   return (
-    <ContentContainer className="home-design">
+    <ContentContainer>
       <PageTitle>{t("home")}</PageTitle>
 
       <div className="space-y-8">

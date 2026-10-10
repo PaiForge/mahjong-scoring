@@ -32,7 +32,7 @@ export function LandingSection({
     <section className={`px-6 py-24 ${sectionClassName}`}>
       <div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
         <div
-          className={`flex size-16 items-center justify-center rounded-2xl border-4 border-ink ${iconClassName}`}
+          className={`flex size-16 items-center justify-center rounded-2xl ${iconClassName}`}
         >
           {icon}
         </div>

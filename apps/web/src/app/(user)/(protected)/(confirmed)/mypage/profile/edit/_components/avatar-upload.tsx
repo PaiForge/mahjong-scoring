@@ -159,7 +159,7 @@ export function AvatarUpload({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={isBusy}
-          className="relative block h-24 w-24 overflow-hidden rounded-full border-3 border-ink bg-surface-100 transition-opacity hover:opacity-90 disabled:cursor-not-allowed"
+          className={`relative block h-24 w-24 overflow-hidden rounded-full border border-panel bg-surface-100 transition-opacity hover:opacity-90 disabled:cursor-not-allowed ${FOCUS_RING_CLASSES}`}
           aria-label={t("avatarChange")}
         >
           {avatarUrl ? (
@@ -192,8 +192,7 @@ export function AvatarUpload({
         </button>
 
         {/*
-          画像に重ねる削除バッジは、ボタンの太枠・ハードシャドウの体裁には
-          乗せない（アップロード UI で見慣れた小さな丸のバツ印のほうが
+          画像に重ねる削除バッジは、ボタンの体裁には乗せない（アップロード UI で見慣れた小さな丸のバツ印のほうが
           何をするボタンか一目で分かる）。白いリングは写真の上でも輪郭が
           消えないようにするためのもの。
         */}
