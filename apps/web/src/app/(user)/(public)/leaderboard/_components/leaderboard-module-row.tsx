@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
-import type { LeaderboardPeriod } from "../_lib/types";
-import { buildDetailPath } from "../_lib/types";
+import type { LeaderboardPeriod } from "@mahjong-scoring/features/leaderboard/boards";
+import { leaderboardHref } from "@mahjong-scoring/features/routes";
 import { boardTitle } from "../_lib/board-title";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -26,7 +26,7 @@ export async function LeaderboardModuleRow({
   return (
     <li>
       <Link
-        href={buildDetailPath(period, board)}
+        href={leaderboardHref(period, board)}
         className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
       >
         <span className="min-w-0 flex-1 text-sm font-bold leading-relaxed text-foreground">

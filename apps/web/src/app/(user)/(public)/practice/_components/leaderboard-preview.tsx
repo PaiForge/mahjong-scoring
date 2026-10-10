@@ -8,7 +8,7 @@ import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
 import { getOptionalUser } from "@/lib/auth";
 import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
-import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
+import { leaderboardHref } from "@mahjong-scoring/features/routes";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
@@ -86,7 +86,7 @@ export async function BoardLeaderboardPreview({
   return (
     <LeaderboardPreview
       rows={withoutBlocked(rows, blockedIds).slice(0, PREVIEW_COUNT)}
-      detailPath={buildDetailPath("all-time", board)}
+      detailPath={leaderboardHref("all-time", board)}
     />
   );
 }

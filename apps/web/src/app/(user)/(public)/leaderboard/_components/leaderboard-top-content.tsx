@@ -10,9 +10,12 @@ import { getOptionalUser } from "@/lib/auth";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 
 import { getUserRanks } from "../_actions/get-user-ranks";
-import { leaderboardBoardGroups } from "../_lib/board-groups";
-import { VALID_PERIODS } from "../_lib/types";
-import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
+import {
+  LEADERBOARD_PERIODS,
+  leaderboardBoardGroups,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
+import type { UserRankInfo } from "../_lib/types";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -72,7 +75,7 @@ export async function LeaderboardTopContent({
           aria-label={t("periodLabel")}
           className="flex shrink-0 self-start rounded-lg border border-panel bg-surface-50 p-1"
         >
-          {VALID_PERIODS.map((value) => (
+          {LEADERBOARD_PERIODS.map((value) => (
             <Link
               key={value}
               href={

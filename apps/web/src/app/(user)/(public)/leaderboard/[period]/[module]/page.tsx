@@ -36,11 +36,17 @@ import { LeaderboardDetailContent } from "../../_components/leaderboard-detail-c
 import { LeaderboardTableSkeleton } from "../../_components/leaderboard-table-skeleton";
 import { PeriodSelector } from "../../_components/period-selector";
 import { boardTitle } from "../../_lib/board-title";
-import type { LeaderboardPeriod } from "../../_lib/types";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
-import { buildChallengePath, resolveBoard } from "../../_lib/types";
-import { isValidPeriod } from "../../_lib/validators";
-import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import {
+  isLeaderboardPeriod,
+  resolveLeaderboardBoard,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
+import {
+  menuTypeToSlug,
+  type PracticeBoard,
+} from "@mahjong-scoring/features/practice-menu-types";
+import { practicePlayHref } from "@mahjong-scoring/features/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -65,11 +71,11 @@ function validateParams(
   moduleSlug: string,
   rawVariant: string | undefined,
 ): ValidatedParams | undefined {
-  if (!isValidPeriod(periodStr)) return undefined;
+  if (!isLeaderboardPeriod(periodStr)) return undefined;
 
   // 練習種別として実在するだけでは足りない。ランキングを持たない練習
   // （昇級試験）のスラッグはここで落とす。バリアントは既定に正規化される
-  const board = resolveBoard(moduleSlug, rawVariant);
+  const board = resolveLeaderboardBoard(moduleSlug, rawVariant);
   if (!board) return undefined;
 
   return { period: periodStr, board };
@@ -149,7 +155,11 @@ export default async function LeaderboardDetailPage({
   const t = await getTranslations("leaderboard");
 
   const moduleTitle = await boardTitle(validated.board);
-  const challengePath = buildChallengePath(validated.board);
+  // その土俵のバリアントで play を開く
+  const challengePath = practicePlayHref(
+    menuTypeToSlug(validated.board.menuType),
+    validated.board.variant,
+  );
 
   return (
     <ContentContainer

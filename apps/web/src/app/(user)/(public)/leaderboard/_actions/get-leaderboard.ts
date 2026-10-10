@@ -6,9 +6,13 @@ import { logExternalError } from "@/lib/log-error";
 import { getPaginationData } from "@/lib/pagination";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
-import type { LeaderboardPeriod, LeaderboardResult } from "../_lib/types";
+import type { LeaderboardResult } from "../_lib/types";
 import { PAGE_SIZE } from "../_lib/types";
-import { isValidBoard, isValidPeriod } from "../_lib/validators";
+import {
+  isLeaderboardBoard,
+  isLeaderboardPeriod,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
@@ -64,7 +68,7 @@ export async function getLeaderboard(
   page: number,
   currentUserId?: string,
 ): Promise<LeaderboardResult> {
-  if (!isValidBoard(board) || !isValidPeriod(period) || page < 1) {
+  if (!isLeaderboardBoard(board) || !isLeaderboardPeriod(period) || page < 1) {
     return EMPTY_RESULT;
   }
 

@@ -7,8 +7,11 @@ import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { logExternalError } from "@/lib/log-error";
 
 import { getQueriesForPeriod } from "../_lib/period-queries";
-import type { LeaderboardPeriod, UserRankInfo } from "../_lib/types";
-import { BOARDS } from "../_lib/types";
+import type { UserRankInfo } from "../_lib/types";
+import {
+  LEADERBOARD_BOARDS,
+  type LeaderboardPeriod,
+} from "@mahjong-scoring/features/leaderboard/boards";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -71,6 +74,6 @@ export async function getUserRanks(
     }
   };
 
-  const ranks = await Promise.all(BOARDS.map(fetchRank));
+  const ranks = await Promise.all(LEADERBOARD_BOARDS.map(fetchRank));
   return ranks.filter((rank) => rank !== undefined);
 }

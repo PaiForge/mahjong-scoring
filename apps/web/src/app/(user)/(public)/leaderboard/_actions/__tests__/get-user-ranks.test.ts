@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { LeaderboardModule } from "../../_lib/types";
-import { BOARDS } from "../../_lib/types";
+import { LEADERBOARD_BOARDS } from "@mahjong-scoring/features/leaderboard/boards";
+import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -37,11 +37,11 @@ import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types"
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const [FIRST_BOARD, SECOND_BOARD] = BOARDS;
+const [FIRST_BOARD, SECOND_BOARD] = LEADERBOARD_BOARDS;
 
 /** 土俵ごとの順位を返す `getUserRankedRow` の差し替え */
 function rankByBoard(ranks: ReadonlyMap<string, number>) {
-  return (_userId: string, module: LeaderboardModule, variant: string) => {
+  return (_userId: string, module: PracticeMenuType, variant: string) => {
     const rank = ranks.get(practiceBoardKey({ menuType: module, variant }));
     return Promise.resolve(rank === undefined ? undefined : { rank });
   };
@@ -83,12 +83,14 @@ describe("getUserRanks", () => {
       { ...FIRST_BOARD, rank: 3 },
       { ...SECOND_BOARD, rank: 7 },
     ]);
-    expect(mockGetUserRankedRow).toHaveBeenCalledTimes(BOARDS.length);
+    expect(mockGetUserRankedRow).toHaveBeenCalledTimes(
+      LEADERBOARD_BOARDS.length,
+    );
   });
 
   it("1 つの土俵の取得が失敗しても他の土俵の順位は返す", async () => {
     mockGetUserRankedRow.mockImplementation(
-      (userId: string, module: LeaderboardModule, variant: string) => {
+      (userId: string, module: PracticeMenuType, variant: string) => {
         if (
           practiceBoardKey({ menuType: module, variant }) ===
           practiceBoardKey(FIRST_BOARD)
@@ -128,13 +130,13 @@ describe("getUserRanks", () => {
 
     await getUserRanks("all-time");
 
-    expect(cached).toHaveLength(BOARDS.length);
+    expect(cached).toHaveLength(LEADERBOARD_BOARDS.length);
     await expect(cached[0]()).rejects.toThrow("boom");
   });
 
   it("失敗した土俵をキー付きで記録する", async () => {
     mockGetUserRankedRow.mockImplementation(
-      (_userId: string, module: LeaderboardModule, variant: string) =>
+      (_userId: string, module: PracticeMenuType, variant: string) =>
         practiceBoardKey({ menuType: module, variant }) ===
         practiceBoardKey(FIRST_BOARD)
           ? Promise.reject(new Error("boom"))
