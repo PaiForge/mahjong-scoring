@@ -167,7 +167,7 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 | ディレクトリ                           | 中身                                                                                                                                                                                                     |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
-| `apps/web/src/app/(user)/_components/` | ブランド UI（太枠・ハードシャドウ・押し込み演出の世界）。上記以外はすべてここ                                                                                                                            |
+| `apps/web/src/app/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
 
 新しい共通コンポーネントは原則 `(user)/_components/` に置く。`app/_components/`
 へ足すのは管理画面からも使うときだけ。`app/_components/` 側から
@@ -186,7 +186,7 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
-- `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。太枠 + ハードシャドウ + 押し込みは「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
+- `LinkRow` / `LinkRowList` — 読む・見るためのリンク 1 行とその枠。ボタン（緑や帯色の塗り）は「押して始める面」（練習・試験・登録）の記号なので、ページを読みに行くだけ / 一覧を見に行くだけの導線はカードにせずこれを使う
 - `SkeletonBar` — 読み込み中のプレースホルダ矩形。`animate-pulse` と背景色を直接書かない。角丸は `radius`（md / lg / xl / full）で指定し、`className` に `rounded*` を書かない
 - `PageTitlePlaceholder` / `AdminPageTitlePlaceholder` — 読み込み中の見出し。`PageTitle` / `AdminPageTitle` と同じ箱にグレー帯（`PageTitleSkeleton`）を置く。スケルトンで `PageTitle` に `PageTitleSkeleton` を入れない — 空の h1 が本物より先に初期 HTML へ出る
 - `SectionTitleSkeleton` — 見出しのプレースホルダ。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
@@ -203,24 +203,28 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
   説明を文章のモーダルで読ませない。ページの見方の説明を見出しと本文の間の地の文に置かない —
   `PageTitle` の `action` に「?」を置いてツアーへ逃がす（道場が前例）
 
-### 影
+### 線と影（フラット）
 
-影は「押せる」の記号。`shadow-*` を持つのは次の 2 つだけ。
+ユーザー向け画面はフラット。線は 1px の淡い `border-panel`（`--color-border` と同値）で
+統一し、太枠（`border-3` / `border-4`）・右下へずらした濃色の影・押し込みの移動・
+地の斜線・文字の影は使わない（2026-10 にホームを基準に全体へ揃えた）。情報の優先順位は
+線の太さではなく、塗り（ボタンの緑・段級位の帯色・状態色）と文字の大きさで示す。
 
-- 押せる面 — ボタン（`buttonClasses()` が `press-*` と一緒に付ける）、カード全体が
-  リンクになっているもの、トグルのつまみ
-- 最外の白カード（`ContentContainer` の `sm:shadow-lg`）— 地の斜線から浮かせる 1 枚
-
-押せないもの（表示だけのカード・表・見出し・モーダルパネル・トースト・
-アイコンの丸）には付けない。区切りは太枠（`border-3` / `border-4 border-ink`）が
-持つ。マイページのカードが既定の姿。
+- 地に置かれた面（`ContentContainer` の白カード・情報カード・表・ボタン）は影を持たない
+- `shadow-*` は Tailwind 既定の柔らかい影で、画面の上に浮く層（モーダル・ドロワー・
+  アカウントメニュー・トースト）だけに使う
+- フォーム部品（select・テキスト入力・選択肢のタイル）の枠は一段濃い灰
+  （`border-surface-300` / `border-surface-400`）。選択中はリング（`ring-1 ring-inset`）を足して
+  塗りだけに頼らない。押せるものには `FOCUS_RING_CLASSES` を付ける
+- 段級位のカードは上端だけ帯色の `border-t-2`（1px では淡い級が細線に紛れる）
+- hover / active は色だけを変え、位置を動かさない（`hover:-translate-*` や `scale` を使わない）
 
 管理画面（`data-skin="plain"`）は別のビジュアル言語のため対象外。
 
 ### ボタン（`apps/web/src/app/(user)/_components/`）
 
 - `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン
-- 見た目は `_lib/button-classes.ts` の `buttonClasses()` に集約。`border-3 border-ink bg-primary-500 ...` のような一式をページ側で直接書かない
+- 見た目は `_lib/button-classes.ts` の `buttonClasses()` に集約。`border bg-primary-500 ...` のような一式をページ側で直接書かない
 - `variant`（primary / secondary / neutral / danger / warning / dangerOutline）、`size`（sm / md / lg / xl）、`fullWidth`、`disabled` で指定する。`className` は余白などレイアウト調整用で、色・枠・影を上書きしない
 - 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
 - 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
