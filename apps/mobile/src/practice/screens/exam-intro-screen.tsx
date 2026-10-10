@@ -19,6 +19,8 @@ import { SectionTitle } from "../../components/section-title";
 import { practiceListHrefForRank } from "../../dojo/dojo-routes";
 import { colors, radius } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
+import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
+import { StartCtaDivider } from "../components/practice-start-cta";
 import { PracticeChapterSection } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
 
@@ -30,10 +32,11 @@ import type { PracticeScreens } from "../practice-screens";
  * 問題方式（見本の盤面）→ 合格条件 → 開始導線 → 前提となるレッスン →
  * その級の練習メニュー（末尾に広告の行）。
  *
- * 開始導線は模試だけ。web は本番の試験（合否判定・段級位の付与）と模試を
- * 並べ、未ログインには本番の代わりに登録の案内を出すが、モバイルはまだ
- * ログインも登録も持たないので、本番の導線そのものを出さない。模試は記録も
- * 段級位の付与も無いので誰でも受けられる。
+ * 開始導線は web と同じく本番 / 「または」/ 模試の 3 段。本番のボタンは
+ * 受験ゲート（{@link ExamStartGate}）がログイン・ユーザー名・級の順序で
+ * 出し分ける。模試には掛けない — 記録も段級位の付与も無く、誰でも受けられる。
+ * 本番を出せないとき（ログインを出せないビルド・BAN 中）は模試だけを
+ * 主ボタンで出す。
  */
 export function ExamIntroScreen({
   slug,
@@ -47,7 +50,10 @@ export function ExamIntroScreen({
   const tDojo = useTranslations("dojo");
   const tRanks = useTranslations("ranks");
   const tExam = useTranslations("examTraining");
+  const tp = useTranslations("practice");
   const router = useRouter();
+  const offersRealExam = useOffersRealExam();
+  const trainingVariant = offersRealExam ? "secondary" : "primary";
   const rank = rankRequiringMenu(menuType)?.rank;
   const { Demo } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.examIntro);
@@ -73,17 +79,31 @@ export function ExamIntroScreen({
 
       <ExamConditions slug={slug} />
 
-      <View style={styles.start}>
-        <Button
-          size="lg"
-          fullWidth
-          icon={<InfinityIcon size={16} color={buttonForeground("primary")} />}
-          onPress={() => router.push(practiceTrainingHref(slug))}
-          testID="start-training"
-        >
-          {tExam("startButton")}
-        </Button>
-        <Text style={styles.hint}>{tExam("hint")}</Text>
+      <View style={styles.startFrame}>
+        {offersRealExam && (
+          <>
+            <ExamStartGate slug={slug} />
+            <StartCtaDivider label={tp("orDivider")} />
+          </>
+        )}
+        <View style={styles.start}>
+          <Button
+            variant={trainingVariant}
+            size="lg"
+            fullWidth
+            icon={
+              <InfinityIcon
+                size={16}
+                color={buttonForeground(trainingVariant)}
+              />
+            }
+            onPress={() => router.push(practiceTrainingHref(slug))}
+            testID="start-training"
+          >
+            {tExam("startButton")}
+          </Button>
+          <Text style={styles.hint}>{tExam("hint")}</Text>
+        </View>
       </View>
 
       {rank !== undefined && (
@@ -136,6 +156,9 @@ const styles = StyleSheet.create({
     borderRadius: radius.panel,
     backgroundColor: colors.surface50,
     padding: 16,
+  },
+  startFrame: {
+    gap: 20,
   },
   start: {
     alignItems: "center",

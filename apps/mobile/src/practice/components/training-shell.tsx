@@ -47,6 +47,8 @@ interface TrainingShellProps {
    * （モーダルを開いている間も時計は止まらない）ためトレーニングだけが持つ。
    */
   readonly help?: ReactNode;
+  /** 模試の末尾に置く本番の試験の開始導線（模試だけ） */
+  readonly examStart?: ReactNode;
   readonly scrollRef: RefObject<ScrollView | null>;
   readonly children: ReactNode;
 }
@@ -60,9 +62,8 @@ interface TrainingShellProps {
  * 時計もライフも無く、記録も残らない。ヘッダーの × は下端の「終了する」と
  * 同じく説明画面へ戻る（記録が無いので確認は挟まない）。
  *
- * 模試（`variant="exam"`）は「模試を受験中」の印だけを残し、本番の試験への
- * 誘いを出さない。web は本番へ送るが、アプリには本番の試験の画面がまだ無い
- * （段級位はサーバーから読んで表示するだけ）。
+ * 模試（`variant="exam"`）は「模試を受験中」の印の下に、本番の試験への誘い
+ * （`examStart`。受験ゲートが資格に応じて出し分ける）を置く（web と同じ）。
  */
 export function TrainingShell({
   title,
@@ -79,6 +80,7 @@ export function TrainingShell({
   onProceed,
   hasSubmitButton = false,
   help,
+  examStart,
   scrollRef,
   children,
 }: TrainingShellProps) {
@@ -149,9 +151,13 @@ export function TrainingShell({
           {!isExam && (
             <Text style={styles.prompt}>{tt("challengePrompt")}</Text>
           )}
+          {isExam && examStart !== undefined && (
+            <Text style={styles.prompt}>{tExam("realExamPrompt")}</Text>
+          )}
         </View>
-        {/* 模試から本番の試験へは誘わない。アプリには本番の試験の画面が
-            まだ無いため */}
+        {isExam && examStart !== undefined && (
+          <View style={styles.examStart}>{examStart}</View>
+        )}
         {!isExam && (
           <>
             <Button
@@ -192,6 +198,9 @@ const styles = StyleSheet.create({
   cta: {
     gap: 12,
     alignItems: "center",
+  },
+  examStart: {
+    alignSelf: "stretch",
   },
   ctaLead: {
     marginTop: 20,

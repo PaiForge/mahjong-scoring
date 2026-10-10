@@ -17,7 +17,10 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { practiceTrainingHref } from "@mahjong-scoring/features/routes";
+import {
+  practiceHref,
+  practiceTrainingHref,
+} from "@mahjong-scoring/features/routes";
 import { QuestionHostProvider } from "@mahjong-scoring/features/practice/use-question-host";
 import type { ClockReading } from "@mahjong-scoring/features/session/use-timed-session";
 
@@ -136,14 +139,20 @@ type Mode =
  * - 始める前・回答を送る前に端末へ預ける（`account-records.ts`）。アプリが
  *   落ちても、次の起動で後始末できる
  * - 画面を閉じた（中止した）ら預かりを捨てる。途中で抜けたチャレンジは記録しない
+ * - `requireRecording`（昇級試験）では端末で採点しない。記録付きで始められない
+ *   （ゲスト・ユーザー名を決める前・BAN 中・受験資格が無いとサーバーが断った）
+ *   ときは試験の説明画面へ戻す（web の play ページの受験ガードと同じ）。合否と
+ *   段級位はサーバーが判定するもので、端末で解いても何も残らないため
  */
 export function RecordedChallengeProvider({
   slug,
   variant,
+  requireRecording = false,
   children,
 }: {
   readonly slug: PracticeMenuSlug;
   readonly variant: string;
+  readonly requireRecording?: boolean;
   readonly children: ReactNode;
 }) {
   const auth = useAuth();
@@ -235,7 +244,8 @@ export function RecordedChallengeProvider({
     setGeneration((value) => value + 1);
   }, [accountUnreachable]);
 
-  if (mode.kind === "local") return children;
+  if (mode.kind === "local")
+    return requireRecording ? <BackToIntro slug={slug} /> : children;
   if (mode.kind === "offline")
     return <OfflineScreen slug={slug} variant={variant} onRetry={retry} />;
   if (mode.kind === "checking") return <PreparingScreen slug={slug} />;
@@ -559,6 +569,15 @@ function PreparingScreen({ slug }: { readonly slug: PracticeMenuSlug }) {
       </View>
     </Screen>
   );
+}
+
+/** 記録付きでしか始めないチャレンジを始められなかった。説明画面へ置き換える */
+function BackToIntro({ slug }: { readonly slug: PracticeMenuSlug }) {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace(practiceHref(slug));
+  }, [router, slug]);
+  return <PreparingScreen slug={slug} />;
 }
 
 /** 通信できず、記録付きのチャレンジを始められなかった */
