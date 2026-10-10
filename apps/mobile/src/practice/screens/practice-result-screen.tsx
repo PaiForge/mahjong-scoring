@@ -32,6 +32,7 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
@@ -76,6 +77,7 @@ export function PracticeResultScreen({
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const router = useRouter();
+  const dismissToHref = useDismissToHref();
   const goToTab = useGoToTab();
   const variant = useRouteVariant(slug);
   const attempt = useChallengeResultStore((s) => s.attempt);
@@ -83,8 +85,8 @@ export function PracticeResultScreen({
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
   const close = useCallback(
-    () => router.dismissTo(practiceHref(slug, variant)),
-    [router, slug, variant],
+    () => dismissToHref(practiceHref(slug, variant)),
+    [dismissToHref, slug, variant],
   );
 
   useHardwareBack(close);

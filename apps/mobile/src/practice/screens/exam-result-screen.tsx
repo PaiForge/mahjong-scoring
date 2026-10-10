@@ -32,6 +32,7 @@ import { MistakeRevealProvider } from "../components/mistake-reveal";
 import { ExamResultSummary } from "../exam/exam-result-summary";
 import { PromotionBanner } from "../exam/promotion-banner";
 import type { PracticeScreens } from "../practice-screens";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
@@ -66,14 +67,15 @@ export function ExamResultScreen({
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const router = useRouter();
+  const dismissToHref = useDismissToHref();
   const goToTab = useGoToTab();
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.examResult);
   const close = useCallback(
-    () => router.dismissTo(practiceHref(slug)),
-    [router, slug],
+    () => dismissToHref(practiceHref(slug)),
+    [dismissToHref, slug],
   );
 
   useHardwareBack(close);

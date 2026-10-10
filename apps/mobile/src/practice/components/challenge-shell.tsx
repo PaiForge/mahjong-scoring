@@ -14,7 +14,7 @@ import {
   View,
   type AppStateStatus,
 } from "react-native";
-import { useIsFocused, useRouter } from "expo-router";
+import { useIsFocused } from "expo-router";
 import { useTranslations } from "use-intl";
 import type {
   GameSessionState,
@@ -26,6 +26,7 @@ import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
+import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
 import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
@@ -103,7 +104,7 @@ export function ChallengeShell({
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
   const tq = useTranslations("challenge.quit");
-  const router = useRouter();
+  const dismissToHref = useDismissToHref();
   const [isQuitOpen, setIsQuitOpen] = useState(false);
 
   const { remainingSeconds, elapsedMs } = useChallengeClock({
@@ -129,9 +130,9 @@ export function ChallengeShell({
 
   const confirmQuit = useCallback(() => {
     setIsQuitOpen(false);
-    router.dismissTo(exitHref);
+    dismissToHref(exitHref);
     showToast(tq(`${variant}.toast`));
-  }, [router, exitHref, tq, variant]);
+  }, [dismissToHref, exitHref, tq, variant]);
 
   useHardwareBack(openQuit);
 
