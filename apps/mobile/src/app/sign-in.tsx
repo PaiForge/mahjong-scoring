@@ -4,11 +4,12 @@
  * @description Apple（iOS だけ）か、メールアドレスとパスワードでログインする。
  * web で登録したアカウントもそのまま使える（同じ Supabase の認証）。ユーザー名をまだ
  * 決めていなければ、続けてユーザー名の設定へ進む。
- * パスワードの再設定は web の画面で行う（メールのリンクも web に着地するため）。
+ * パスワードを忘れた人は再設定のリンクを送る画面へ（新しいパスワードはメールの
+ * リンクから web で決める。`forgot-password.tsx`）。
  * @flow 設定のアカウント → ログイン →（ユーザー名の設定）→ 設定へ戻る
  */
 import { useState } from "react";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -20,7 +21,6 @@ import { Button } from "../components/button";
 import { Screen } from "../components/screen";
 import { TextField } from "../components/text-field";
 import { TextLink } from "../components/text-link";
-import { SITE_URL } from "../lib/app-site-url";
 import { colors } from "../lib/theme";
 
 /** ログインの失敗を辞書のキーに写す（`auth.*`） */
@@ -100,7 +100,8 @@ export default function SignInScreen() {
       </View>
       <View style={styles.links}>
         <TextLink
-          onPress={() => void Linking.openURL(`${SITE_URL}/forgot-password`)}
+          onPress={() => router.push("/forgot-password")}
+          testID="sign-in-forgot-password"
         >
           {t("forgotPasswordLink")}
         </TextLink>
