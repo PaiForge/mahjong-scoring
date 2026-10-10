@@ -229,9 +229,9 @@ export function ScoreSetupForm({
         {/* 出題する役カード（ヘッダー＋MultiSelect の追加ボタン相当） */}
         {showYakuFilter && <SettingCardSkeleton />}
 
-        {/* Full-width start button（Button size="lg" の実寸 = 枠込み 50px） */}
+        {/* Full-width start button（Button size="lg" の実寸 = 枠込み 46px） */}
         <div>
-          <SkeletonBar radius="lg" className="h-[50px] w-full" />
+          <SkeletonBar radius="lg" className="h-[46px] w-full" />
         </div>
 
         {/* 注記は静的なテキストなのでスケルトンでもそのまま描く

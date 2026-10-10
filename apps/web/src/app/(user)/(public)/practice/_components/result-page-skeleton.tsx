@@ -78,14 +78,14 @@ export function ResultPageSkeleton({
         {/* アクションボタンと練習一覧へのリンク。ResultView と同じ入れ子で組む —
             内側 gap-3 がボタン同士のリズム、外側 SUB_LINK_GAP が「ボタン群 →
             補助リンク」の境界。矩形の寸法も実物の実測値をそのまま置く:
-            ボタンは lg（border-3 の 3px×2 + py-3 の 12px×2 + text-sm 20px = 50px）、
+            ボタンは lg（border の 1px×2 + py-3 の 12px×2 + text-sm 20px = 46px）、
             補助リンクは text-sm の <p> 1 行ぶん 24px。ここが 44px + space-y-3 の
             ままだと、スケルトンから実体へ替わるときにボタンから下が 10px 沈む。 */}
         <div aria-hidden="true" className={`flex flex-col ${SUB_LINK_GAP}`}>
           <div className="flex flex-col gap-3">
-            <SkeletonBar radius="lg" className="h-[50px] w-full" />
+            <SkeletonBar radius="lg" className="h-[46px] w-full" />
             {hasSetup && (
-              <SkeletonBar radius="lg" className="h-[50px] w-full" tone={100} />
+              <SkeletonBar radius="lg" className="h-[46px] w-full" tone={100} />
             )}
           </div>
           <SkeletonBar className="mx-auto h-6 w-32" />
