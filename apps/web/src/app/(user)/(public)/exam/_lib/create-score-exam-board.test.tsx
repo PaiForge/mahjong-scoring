@@ -177,13 +177,13 @@ describe("createScoreExamBoard", () => {
   it("本番の試験では翻数の内訳を出さない（読ませる間もタイマーが進むため）", () => {
     renderBoard({ showFeedback: true });
 
-    expect(screen.queryByRole("button", { name: "title" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 
   it("模試の答え合わせでは、回答欄の下に閉じた内訳が出る", () => {
     renderBoard({ showFeedback: true }, true);
 
-    const toggle = screen.getByRole("button", { name: "title" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
 
     // 回答欄より後ろ＝上の手牌と select の色を動かさずに下へ伸びる
@@ -198,18 +198,25 @@ describe("createScoreExamBoard", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
   });
 
-  it("模試の答え合わせでは、満貫未満なら符の内訳も閉じて出る", () => {
+  it("模試の答え合わせでは、満貫未満なら同じ入口から符の内訳に切り替えられる", () => {
     renderHolding(NonManganBoard);
 
-    const toggle = screen.getByRole("button", { name: "breakdownTitle" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(toggle);
+    expect(screen.getByRole("button", { name: "fuTab" })).toBeDefined();
+    expect(screen.getByRole("button", { name: "hanTab" })).toBeDefined();
   });
 
   it("満貫以上の問題では符の内訳を出さない（符が点数に効かないため）", () => {
     renderHolding(ManganPlusBoard);
 
-    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
-    expect(screen.getByRole("button", { name: "title" })).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
+    // 翻数の内訳だけなので切り替えも出ない
+    expect(screen.queryByRole("button", { name: "fuTab" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "hanTab" })).toBeNull();
+    expect(screen.getByText("total")).toBeDefined();
   });
 
   it("本番の試験では符の内訳も出さない", () => {
@@ -221,12 +228,12 @@ describe("createScoreExamBoard", () => {
       />,
     );
 
-    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 
   it("模試でも回答前は内訳を出さない（答えの先出しになるため）", () => {
     renderBoard({}, false);
 
-    expect(screen.queryByRole("button", { name: "title" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 });

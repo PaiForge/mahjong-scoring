@@ -11,8 +11,8 @@ interface FuBreakdownProps {
   /** 切り上げ後の符（正解） */
   readonly answer: number;
   /**
-   * `breakdownTitle` / `breakdownTotal` / `roundUp` / `fuSuffix` を持つ
-   * 翻訳名前空間（例: "totalFu"）
+   * `breakdownTitle` / `breakdownTotal` / `roundUp` / `roundedUp` / `fuSuffix` を
+   * 持つ翻訳名前空間（例: "totalFu"）
    */
   readonly translationNamespace: string;
 }
@@ -23,28 +23,46 @@ interface FuBreakdownProps {
  *
  * 回答後のフィードバックとして、副底から待ち符までの各構成要素と
  * その合計、そして10符単位への切り上げを示す。
- * 内訳の合計と正解が一致しない場合（例: 32符 → 40符）に切り上げの補足を出す。
+ * 内訳の合計と正解が一致しない場合（例: 32符 → 40符）は、合計の下に
+ * 切り上げ後の符を結論として出す（{@link FuBreakdownTable}）。
  *
  * 翻数の内訳（{@link import("./yaku-breakdown").YakuBreakdown}）と同じく
  * 閉じた状態から始める（理由は {@link CollapsibleDetail}）。トレーニングの
  * 答え合わせと結果ページの問題別詳細のどちらでも、内訳の開き方が符と翻数で
  * 変わらない。
  */
-export function FuBreakdown({
+export function FuBreakdown(props: FuBreakdownProps) {
+  const { title } = useFuBreakdown(
+    props.details,
+    props.answer,
+    props.translationNamespace,
+  );
+
+  return (
+    <CollapsibleDetail title={title}>
+      <FuBreakdownTable {...props} />
+    </CollapsibleDetail>
+  );
+}
+
+/**
+ * 合計符の内訳の表（開閉の器なし）
+ * 符内訳表
+ *
+ * 翻数の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
+ * 置く側が持つので表だけを使う。
+ */
+export function FuBreakdownTable({
   details,
   answer,
   translationNamespace,
 }: FuBreakdownProps) {
-  // 見出し・行・合計・切り上げの補足の文字列はモバイルと共有する
-  const { title, rows, total, note } = useFuBreakdown(
+  // 行・合計・切り上げ後の文字列はモバイルと共有する
+  const { rows, total, rounded } = useFuBreakdown(
     details,
     answer,
     translationNamespace,
   );
 
-  return (
-    <CollapsibleDetail title={title}>
-      <DetailTable rows={rows} total={total} note={note} />
-    </CollapsibleDetail>
-  );
+  return <DetailTable rows={rows} total={total} conclusion={rounded} />;
 }

@@ -43,7 +43,7 @@ describe("ScoreProblemListWithLinks", () => {
     );
   });
 
-  it("符の内訳を持つ問題は、詳細に閉じた符の内訳を出す", () => {
+  it("符の内訳を持つ問題は、詳細の閉じた内訳から符の内訳を開ける", () => {
     render(
       <ScoreProblemListWithLinks
         results={[
@@ -55,8 +55,11 @@ describe("ScoreProblemListWithLinks", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
 
-    const toggle = screen.getByRole("button", { name: "breakdownTitle" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(toggle);
+    expect(screen.getByText("副底")).toBeDefined();
   });
 
   it("符の内訳を持たない問題（満貫以上・旧データ）では出さない", () => {
@@ -69,6 +72,10 @@ describe("ScoreProblemListWithLinks", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
 
-    expect(screen.queryByRole("button", { name: "breakdownTitle" })).toBeNull();
+    // 翻数の内訳はあっても、符の内訳は切り替えに並ばない
+    const toggle = screen.queryByRole("button", { name: "toggle" });
+    if (toggle) fireEvent.click(toggle);
+    expect(screen.queryByRole("button", { name: "fuTab" })).toBeNull();
+    expect(screen.queryByText("副底")).toBeNull();
   });
 });

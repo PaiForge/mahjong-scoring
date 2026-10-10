@@ -5,9 +5,8 @@ import { useTranslations } from "next-intl";
 import { isMangan, isOya } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { FuBreakdown } from "@/app/(user)/(public)/practice/_components/fu-breakdown";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
-import { YakuBreakdown } from "@/app/(user)/(public)/practice/_components/yaku-breakdown";
+import { ScoreBreakdownPanel } from "@/app/(user)/(public)/practice/_components/score-breakdown-panel";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
@@ -158,20 +157,20 @@ export function createScoreExamBoard(
           <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
         )}
 
-        {showBreakdown &&
-          question.fuDetails !== undefined &&
-          !isMangan(question.answer.scoreLevel) && (
-            <FuBreakdown
-              details={question.fuDetails}
-              answer={question.answer.fu}
-              translationNamespace="challenge.fuBreakdown"
-            />
-          )}
-
+        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は満貫未満だけ
+            （満貫以上は符が点数に効かない）。問題ごとに作り直して閉じた
+            状態へ戻す */}
         {showBreakdown && (
-          <YakuBreakdown
-            yakuDetails={question.yakuDetails ?? []}
-            note={buildYakumanCapNote(
+          <ScoreBreakdownPanel
+            key={questionIndex}
+            fu={
+              question.fuDetails !== undefined &&
+              !isMangan(question.answer.scoreLevel)
+                ? { details: question.fuDetails, answer: question.answer.fu }
+                : undefined
+            }
+            yakuDetails={question.yakuDetails}
+            yakuNote={buildYakumanCapNote(
               question.yakuDetails,
               question.answer.yakumanMultiplier,
               tBreakdown,
