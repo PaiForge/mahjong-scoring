@@ -12,7 +12,7 @@ import {
   generateUsername,
   USERNAME_MAX_LENGTH,
   validateUsername,
-} from "@/lib/username";
+} from "@mahjong-scoring/features/account/username";
 import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
 
 import { registerUsername } from "../_actions/register-username";

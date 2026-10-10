@@ -1,0 +1,22 @@
+# ユーザー名未設定（ivan）のユーザー名の設定: 自動生成を押すと、そのまま使える
+# ユーザー名（player_ + 16 進 10 桁）が欄に入る。登録はしない（ivan を未設定のまま残す）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: ivan@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "ユーザー名の設定"
+    timeout: 15000
+- tapOn:
+    id: "generate-username"
+- assertVisible: "player_[0-9a-f]{10}"
+- takeScreenshot: setup-username-generate

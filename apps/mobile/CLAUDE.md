@@ -117,6 +117,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   - `home-guest` — ゲストのホーム。記録の案内（登録 CTA）から登録画面へ
   - `home-username-missing` — ユーザー名未設定（`ivan@`）でログイン → ユーザー名の設定へ
     送られる → ホームにユーザー名の案内
+  - `setup-username-generate` — `ivan@` のユーザー名の設定で自動生成を押すと、
+    `player_` + 16 進 10 桁が欄に入る。登録はしない（`ivan@` を未設定のまま残す）
   - `challenge-recorded` — `bob@` でログインし雀頭の符計算を 1 回走らせ、結果に記録と EXP
   - `mypage-guest` / `mypage-username-missing` — ホームの人型のアイコンからマイページを
     開くと、記録の案内（登録 / ユーザー名の設定）が出る

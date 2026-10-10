@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,8 @@ import { borderWidth, colors, radius } from "../lib/theme";
 
 interface TextFieldProps {
   readonly label: string;
+  /** ラベルの右に並べる操作（ユーザー名の自動生成など。web の `labelAction`） */
+  readonly labelAction?: ReactNode;
   readonly value: string;
   readonly onChangeText: (value: string) => void;
   readonly placeholder?: string;
@@ -78,6 +80,7 @@ const KIND_PROPS: Record<
  */
 export function TextField({
   label,
+  labelAction,
   value,
   onChangeText,
   placeholder,
@@ -93,7 +96,14 @@ export function TextField({
   const [focused, setFocused] = useState(false);
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
+      {labelAction === undefined ? (
+        <Text style={styles.label}>{label}</Text>
+      ) : (
+        <View style={styles.labelRow}>
+          <Text style={styles.label}>{label}</Text>
+          {labelAction}
+        </View>
+      )}
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -123,6 +133,11 @@ export function TextField({
 const styles = StyleSheet.create({
   field: {
     gap: 6,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   label: {
     fontSize: 15,

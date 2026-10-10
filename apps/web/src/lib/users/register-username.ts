@@ -4,8 +4,8 @@ import type { ActionResult } from "@/lib/action-types";
 import { db, profiles } from "@/lib/db";
 import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
-import { validateUsername } from "@/lib/username";
-import type { UsernameValidationError } from "@/lib/username";
+import { validateUsername } from "@mahjong-scoring/features/account/username";
+import type { UsernameValidationError } from "@mahjong-scoring/features/account/username";
 import { validateDisplayName } from "@mahjong-scoring/features/profile/validation";
 
 import { lockAccountForWrite } from "./account-write-lock";

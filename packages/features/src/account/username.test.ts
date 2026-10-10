@@ -3,7 +3,7 @@ import {
   generateUsername,
   validateUsername,
   validateUsernameFormat,
-} from "../username";
+} from "./username";
 
 describe("validateUsernameFormat", () => {
   describe("valid usernames", () => {
@@ -163,5 +163,10 @@ describe("generateUsername", () => {
 
   it("returns a different name each time", () => {
     expect(generateUsername()).not.toBe(generateUsername());
+  });
+
+  it("builds the suffix from the given random source", () => {
+    const bytes = new Uint8Array([0x00, 0x0f, 0xa0, 0xff, 0x12]);
+    expect(generateUsername(() => bytes)).toBe("player_000fa0ff12");
   });
 });
