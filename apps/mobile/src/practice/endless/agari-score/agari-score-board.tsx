@@ -9,6 +9,7 @@ import { BoardBleedProvider } from "../../../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
+import { showToast } from "../../../components/toast";
 import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useAgariScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-store";
@@ -74,7 +75,12 @@ export function AgariScoreBoard() {
   const scrollToTop = () =>
     scrollRef.current?.scrollTo({ y: 0, animated: false });
 
-  const handleBackToSetup = () => router.dismissTo(AGARI_SCORE_PRACTICE_HREF);
+  // 終えたことを知らせてから設定画面へ戻す（web と同じ。文言はこの練習のもの —
+  // チャレンジでもトレーニングでもないため）
+  const handleBackToSetup = () => {
+    router.dismissTo(AGARI_SCORE_PRACTICE_HREF);
+    showToast(t("exitToast"));
+  };
 
   const handleNext = () => {
     scrollToTop();

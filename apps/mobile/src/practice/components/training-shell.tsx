@@ -10,6 +10,7 @@ import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { TextLink } from "../../components/text-link";
+import { showToast } from "../../components/toast";
 import { colors } from "../../lib/theme";
 import { ScoreCounter } from "./score-counter";
 import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
@@ -91,6 +92,12 @@ export function TrainingShell({
   const isExam = variant === "exam";
   useJudgementHaptics(correctCount, totalCount - correctCount);
 
+  // 終えたことを知らせてから説明画面へ戻す（web と同じく、模試は模試の文言）
+  const exit = () => {
+    router.dismissTo(exitHref);
+    showToast(isExam ? tExam("exitToast") : tt("exitToast"));
+  };
+
   return (
     <Screen
       ref={scrollRef}
@@ -98,7 +105,7 @@ export function TrainingShell({
       titleAction={help}
       back
       backIcon="close"
-      onBack={() => router.dismissTo(exitHref)}
+      onBack={exit}
       contentStyle={styles.content}
     >
       <View>
@@ -134,9 +141,7 @@ export function TrainingShell({
             </TextLink>
           </View>
         )}
-        <TextLink onPress={() => router.dismissTo(exitHref)}>
-          {tt("exitButton")}
-        </TextLink>
+        <TextLink onPress={exit}>{tt("exitButton")}</TextLink>
       </View>
 
       <View style={styles.cta}>

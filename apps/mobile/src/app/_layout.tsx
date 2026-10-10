@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { ToastHost } from "../components/toast";
 import { AppIntlProvider } from "../lib/intl-provider";
 import { useAccountSync } from "../records/use-account-sync";
 import { colors } from "../lib/theme";
@@ -58,6 +59,8 @@ export default function RootLayout() {
             </Stack>
           </TermSheetProvider>
         </TileImageProvider>
+        {/* 遷移をまたいで生き、どの画面の上にも出す（`showToast`） */}
+        <ToastHost />
         <StatusBar style="dark" />
       </AppIntlProvider>
     </SafeAreaProvider>

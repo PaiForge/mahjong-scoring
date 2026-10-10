@@ -29,6 +29,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
   `ToggleGroup`（セグメントコントロール）
 - 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
+- 短い知らせは画面下の帯（`components/toast.tsx` の `showToast`。react-native-toast-message に
+  自前の見た目を渡す。Android の Snackbar と同じ位置で、タブバーがあればその上）。web が
+  トーストを出す操作はこちらでも出す。出すのは「読み流してよい完了」だけで、次の行動が要る
+  知らせ（確認メールの送信・退会の受付）は画面かパネルに残し、失敗の理由はフォームの下
+  （`FormMessage`）に置き、取り返しのつかない操作の確認は `ConfirmationModal` にする。
+  OS の Toast（Android）や iOS の中央の HUD は使わない（両 OS で見た目が割れ、配色も選べない）
 - 本文の文字は 15〜16pt（web の 14px を写さない）。辞書の改行は設定の説明では取り除く
 
 - **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
@@ -147,6 +153,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     コード・表）を撮る
   - `forgot-password` — ログイン画面の「パスワードを忘れた方」から再設定のリンクを送り、送った
     案内が出る。届いたメール（`bob@` 宛て）は Mailpit（`:54324`）で見る
+  - `toast-exits` — ゲストでチャレンジの中止・トレーニングの終了・和了形の点数計算の終了の
+    トーストが、戻った先の画面の下に出る
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい

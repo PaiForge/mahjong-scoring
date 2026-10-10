@@ -19,6 +19,7 @@ import { Divider } from "../components/divider";
 import { LinkRow, LinkRowList } from "../components/link-row";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
+import { showToast } from "../components/toast";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
@@ -91,6 +92,7 @@ function GuestAccount() {
 /** ログイン中: アカウントの情報とログアウト・退会 */
 function SignedInAccount() {
   const t = useTranslations("settings.account");
+  const tNav = useTranslations("nav");
   const router = useRouter();
   const { user, account, accountError } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -144,7 +146,9 @@ function SignedInAccount() {
         cancelText={t("signOutCancel")}
         onConfirm={() => {
           setConfirmingSignOut(false);
-          void signOut();
+          void signOut().then(() =>
+            showToast(tNav("signOutSuccess"), "success"),
+          );
         }}
         onClose={() => setConfirmingSignOut(false)}
       />

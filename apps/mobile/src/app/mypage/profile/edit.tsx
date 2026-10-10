@@ -9,13 +9,12 @@
  * web と違うもの:
  * - アバターは選ぶ画面で正方形に切り抜かせ、端末で縮めてから送る
  *   （web は端末で HEIC を変換し、サーバーが切り抜く）
- * - 保存の知らせ（web のトースト）は出さない — マイページへ戻ると見出しが
- *   新しい名前に変わっている
  *
  * @flow
  * 1. マイページの「プロフィール編集」の行から開く
- * 2. 「画像を選択」で写真を選ぶとすぐにアバターが変わる（削除は確認を挟む）
- * 3. 欄を書き換えて「保存する」 → マイページへ戻る
+ * 2. 「画像を選択」で写真を選ぶとすぐにアバターが変わり、トーストで知らせる
+ *    （削除は確認を挟む）
+ * 3. 欄を書き換えて「保存する」 → マイページへ戻り、保存をトーストで知らせる
  * 4. 入力の誤りはボタンの上に理由を出し、画面に留まる
  */
 import { useCallback, useState } from "react";
@@ -34,6 +33,7 @@ import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { TextField } from "../../../components/text-field";
+import { showToast } from "../../../components/toast";
 import {
   fetchProfile,
   saveProfile,
@@ -145,6 +145,7 @@ function ProfileForm({
       return;
     }
     router.back();
+    showToast(t("success"), "success");
   };
 
   return (

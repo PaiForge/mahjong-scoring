@@ -1,0 +1,53 @@
+# ゲストで、練習を離れたときのトースト（画面下の帯）を撮る。チャレンジの中止・
+# トレーニングの終了・和了形の点数計算の終了のそれぞれで、戻った先の画面に
+# 文言が出る。帯は 3 秒で消えるので、出たらすぐ撮る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+# チャレンジ: 閉じる → 中止の確認 → 説明画面に「チャレンジを中止しました」
+- openLink: "mahjong-scoring://practice/jantou-fu/play"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しますか？"
+    timeout: 5000
+- tapOn: "中止する"
+- extendedWaitUntil:
+    visible:
+      id: "toast"
+    timeout: 5000
+- assertVisible: "チャレンジを中止しました"
+- takeScreenshot: toast-challenge-quit
+# トレーニング: 閉じる → 説明画面に「トレーニングを終了しました」
+- openLink: "mahjong-scoring://practice/jantou-fu/training"
+- extendedWaitUntil:
+    visible:
+      id: "screen-back"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "トレーニングを終了しました"
+    timeout: 5000
+- takeScreenshot: toast-training-exit
+# 和了形の点数計算: 閉じる → 設定画面に「和了形の点数計算を終了しました」
+- openLink: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "screen-back"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "和了形の点数計算を終了しました"
+    timeout: 5000
+- takeScreenshot: toast-agari-score-exit
