@@ -70,6 +70,33 @@ describe("useQuestionBoard", () => {
     expect(result.current.questionIndex).toBe(1);
   });
 
+  it("出題に、それまでに出した問題を古い順に渡す", () => {
+    const generate = vi.fn(
+      (asked: readonly Question[]): Question => ({
+        id: asked.length,
+        answer: 3,
+      }),
+    );
+    const { result } = renderHook(() =>
+      useQuestionBoard({
+        generateQuestion: generate,
+        toResult,
+        showFeedback: false,
+        onAnswer: vi.fn(),
+      }),
+    );
+    expect(generate).toHaveBeenLastCalledWith([]);
+
+    act(() => result.current.advanceQuestion());
+    act(() => result.current.advanceQuestion());
+
+    expect(generate).toHaveBeenLastCalledWith([
+      { id: 0, answer: 3 },
+      { id: 1, answer: 3 },
+    ]);
+    expect(result.current.question).toEqual({ id: 2, answer: 3 });
+  });
+
   it("ホストがあればホストの問題を出し、採点済みの問題で結果を組む", () => {
     const hosted: Question = { id: 100, answer: 0 };
     const graded: Question = { id: 100, answer: 5 };

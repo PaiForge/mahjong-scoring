@@ -20,6 +20,7 @@ import type {
 } from "@mahjong-scoring/features/challenge/types";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import {
+  askedChallengeQuestions,
   generateChallengeQuestion,
   gradeChallengeAnswer,
   publicChallengeQuestion,
@@ -217,10 +218,12 @@ export async function answerAttempt(
       row.state.question,
       answer,
     );
+    const askedQuestions = askedChallengeQuestions(row.state);
     const next = generateChallengeQuestion(
       row.state.menuType,
       row.state.variant,
       row.state.settings,
+      askedQuestions,
     );
     if (!next) return undefined;
     const answered = answeredChallenge(
@@ -232,6 +235,7 @@ export async function answerAttempt(
     );
     const state: ChallengeState = {
       ...answered,
+      ...(askedQuestions && { askedQuestions }),
       lastAnswer: {
         sequence,
         answer: toJsonValue(answer),

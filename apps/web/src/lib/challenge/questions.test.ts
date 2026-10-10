@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  askedChallengeQuestions,
   generateChallengeQuestion,
   gradeChallengeAnswer,
   publicChallengeQuestion,
@@ -8,6 +9,7 @@ import {
   PRACTICE_MENU_TYPES,
   practiceMenuByType,
 } from "@mahjong-scoring/features/practice-menu-types";
+import type { ChallengeQuestion } from "@mahjong-scoring/features/challenge/types";
 
 // 全メニューの生成・JSON往復・正解隠蔽を同じ境界で検証する。
 describe("server questions", () => {
@@ -80,5 +82,42 @@ describe("server questions", () => {
         question.correctYakuNames[0],
       ]),
     ).toBe(false);
+  });
+});
+
+describe("askedChallengeQuestions", () => {
+  it("役翻数は履歴を積み、同じ問題を続けて出さない", () => {
+    const settings = { renfonpaiAs4Fu: false };
+    const first = generateChallengeQuestion("yaku_han", "kuisagari", settings);
+    if (!first) throw new Error("出題できない");
+    let state = {
+      menuType: "yaku_han" as const,
+      question: first,
+      askedQuestions: undefined as readonly ChallengeQuestion[] | undefined,
+    };
+    // 食い下がり役 6 つ × 門前 / 鳴き = 12 問を一巡させる
+    for (let i = 1; i < 12; i++) {
+      const asked = askedChallengeQuestions(state);
+      const next = generateChallengeQuestion(
+        "yaku_han",
+        "kuisagari",
+        settings,
+        asked,
+      );
+      if (!next) throw new Error("出題できない");
+      state = { ...state, question: next, askedQuestions: asked };
+    }
+    const all = [...(state.askedQuestions ?? []), state.question];
+    expect(new Set(all.map((q) => JSON.stringify(q))).size).toBe(12);
+  });
+
+  it("履歴を使わない練習は積まない", () => {
+    const question = generateChallengeQuestion("jantou_fu", "default", {
+      renfonpaiAs4Fu: false,
+    });
+    if (!question) throw new Error("出題できない");
+    expect(
+      askedChallengeQuestions({ menuType: "jantou_fu", question }),
+    ).toBeUndefined();
   });
 });

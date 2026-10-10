@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { AnswerOutcome } from "../results/result-schemas";
 import type { RecordingPracticeBoardProps } from "./board-props";
 import { useGeneratedQuestion } from "./use-generated-question";
@@ -20,9 +20,15 @@ export interface UseQuestionBoardParams<
   /**
    * 問題を 1 問生成する。生成に失敗しうる出題は undefined を返してよく、
    * 盤面は問題が揃うまでプレースホルダを描く。出題条件に依存する場合は
-   * `useCallback` で安定させること
+   * `useCallback` で安定させること。
+   *
+   * 引数はこの盤面で既に出した問題（古い順。今出している問題を含む）。
+   * 同じ問題を続けて出さないための履歴で、使わない出題は無視してよい。
+   * 出題条件（この関数の参照）が変わると空からやり直す
    */
-  readonly generateQuestion: () => TQuestion | undefined;
+  readonly generateQuestion: (
+    asked: readonly TQuestion[],
+  ) => TQuestion | undefined;
   readonly toResult: ToQuestionResult<TQuestion, TAnswer, TResult>;
 }
 
@@ -56,13 +62,29 @@ export function useQuestionBoard<
   TQuestion,
   TAnswer
 > {
-  const [question, setQuestion] = useGeneratedQuestion(generateQuestion);
+  const generateFirstQuestion = useCallback(
+    () => generateQuestion([]),
+    [generateQuestion],
+  );
+  const [question, setQuestion] = useGeneratedQuestion(generateFirstQuestion);
   const [questionIndex, setQuestionIndex] = useState(0);
+  // 履歴は描画に使わないので ref に持つ。積むのは次問へ進めるイベントの中だけ
+  // （描画中に積むと StrictMode の二重実行で同じ問題が 2 回入る）
+  const askedRef = useRef<{
+    readonly generate: typeof generateQuestion;
+    readonly questions: readonly TQuestion[];
+  }>({ generate: generateQuestion, questions: [] });
 
   const advanceQuestion = useCallback(() => {
-    setQuestion(generateQuestion());
+    const previous =
+      askedRef.current.generate === generateQuestion
+        ? askedRef.current.questions
+        : [];
+    const asked = question === undefined ? previous : [...previous, question];
+    askedRef.current = { generate: generateQuestion, questions: asked };
+    setQuestion(generateQuestion(asked));
     setQuestionIndex((prev) => prev + 1);
-  }, [generateQuestion, setQuestion]);
+  }, [generateQuestion, question, setQuestion]);
 
   const handleSubmit = useQuestionAnswer({
     question,
