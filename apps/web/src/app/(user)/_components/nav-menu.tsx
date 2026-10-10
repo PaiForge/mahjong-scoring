@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { DRAWER_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 
 /**
  * ハンバーガーメニュー（左スライドのドロワー）。
@@ -39,7 +40,7 @@ export function NavMenu() {
         }}
         onPointerEnter={armPrefetch}
         onFocus={armPrefetch}
-        className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50"
+        className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50 ${FOCUS_RING_CLASSES}`}
         aria-label={t("menu")}
         aria-expanded={isOpen}
       >
@@ -78,18 +79,18 @@ export function NavMenu() {
             )}
 
             <div
-              className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r-4 border-ink bg-card transition-transform duration-300 ease-in-out ${
-                isOpen ? "translate-x-0" : "-translate-x-full"
+              className={`fixed inset-y-0 left-0 z-50 w-64 transform border-r border-panel bg-card transition-transform duration-300 ease-in-out ${
+                isOpen ? "translate-x-0 shadow-xl" : "-translate-x-full"
               }`}
             >
-              <div className="flex h-14 items-center justify-between border-b-4 border-ink px-4">
+              <div className="flex h-14 items-center justify-between border-b border-panel px-4">
                 <span className="text-lg font-bold text-foreground">
                   {t("menu")}
                 </span>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50"
+                  className={`rounded-lg p-1.5 text-foreground transition-colors hover:bg-primary-50 ${FOCUS_RING_CLASSES}`}
                   aria-label={t("close")}
                 >
                   <svg
@@ -117,7 +118,7 @@ export function NavMenu() {
                       href={item.href}
                       prefetch={wantsPrefetch ? undefined : false}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
+                      className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${FOCUS_RING_CLASSES} ${
                         isActive
                           ? "bg-primary-50 text-primary"
                           : "text-muted-foreground hover:bg-primary-50 hover:text-foreground"
