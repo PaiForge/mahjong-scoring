@@ -140,7 +140,8 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 36,
-    backgroundColor: colors.brandSubtle,
+    // 見出しは灰（web の DataTable と同じ）。淡緑は自分の行（viewer）だけ
+    backgroundColor: colors.surface50,
     borderBottomWidth: 1,
     borderBottomColor: colors.panel,
   },
