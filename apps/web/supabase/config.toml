@@ -204,15 +204,15 @@ otp_expiry = 3600
 # サイト名や件名を変更したら ja.json・contents.ts・以下の subject を揃え、
 # pnpm --filter web email:generate でテンプレートを作り直すこと。
 [auth.email.template.confirmation]
-subject = "麻雀点数計算 - メールアドレスの確認"
+subject = "麻雀点数計算教室 - メールアドレスの確認"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "麻雀点数計算 - パスワードのリセット"
+subject = "麻雀点数計算教室 - パスワードのリセット"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "麻雀点数計算 - メールアドレス変更の確認"
+subject = "麻雀点数計算教室 - メールアドレス変更の確認"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.sms]

@@ -37,6 +37,9 @@ const FONT_STACK =
 const CARD = { x: 64, y: 64, w: WIDTH - 128, h: HEIGHT - 128, r: 32 } as const;
 const SHADOW_OFFSET = 12;
 const LOGO_SIZE = 220;
+/** サイト名「麻雀点数計算教室」（8 文字）がカードの実効幅 700px に収まる大きさ */
+const SITE_NAME_FONT_SIZE = 80;
+const TAGLINE_FONT_SIZE = 36;
 
 function escapeXml(value: string): string {
   return value.replace(
@@ -89,16 +92,16 @@ function buildBackgroundSvg(siteName: string, tagline: string): string {
   <rect x="${CARD.x}" y="${CARD.y}" width="${CARD.w}" height="${CARD.h}"
         rx="${CARD.r}" fill="#ffffff" stroke="${INK}" stroke-width="6"/>
   <text x="${textX}" y="${HEIGHT / 2 - 16}" font-family="${FONT_STACK}"
-        font-size="88" font-weight="700" fill="${SURFACE_900}">${escapeXml(siteName)}</text>
+        font-size="${SITE_NAME_FONT_SIZE}" font-weight="700" fill="${SURFACE_900}">${escapeXml(siteName)}</text>
   <text x="${textX}" y="${HEIGHT / 2 + 56}" font-family="${FONT_STACK}"
-        font-size="36" font-weight="400" fill="${SURFACE_600}">${escapeXml(tagline)}</text>
+        font-size="${TAGLINE_FONT_SIZE}" font-weight="400" fill="${SURFACE_600}">${escapeXml(tagline)}</text>
 </svg>`;
 }
 
 async function main(): Promise<void> {
   const { siteName, siteTagline } = messages.metadata;
-  assertTextFits("サイト名", siteName, 88);
-  assertTextFits("キャッチコピー", siteTagline, 36);
+  assertTextFits("サイト名", siteName, SITE_NAME_FONT_SIZE);
+  assertTextFits("キャッチコピー", siteTagline, TAGLINE_FONT_SIZE);
   const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 
   const background = await sharp(
