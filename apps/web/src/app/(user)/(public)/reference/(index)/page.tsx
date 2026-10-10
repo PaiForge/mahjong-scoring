@@ -42,19 +42,21 @@ export default async function ReferenceHubPage() {
       href: "/reference/score-table",
       title: t("scoreTable.title"),
       description: t("scoreTable.description"),
-      icon: <TableIcon className="size-5 text-primary-600" />,
+      icon: <TableIcon className="size-5 text-brand-subtle-foreground" />,
     },
     {
       href: "/reference/yaku",
       title: t("yaku.title"),
       description: t("yaku.description"),
-      icon: <BookIcon className="size-5 text-primary-600" />,
+      icon: <BookIcon className="size-5 text-brand-subtle-foreground" />,
     },
     {
       href: GLOSSARY_PATH,
       title: t("glossary.title"),
       description: t("glossary.description"),
-      icon: <MagnifyingGlassIcon className="size-5 text-primary-600" />,
+      icon: (
+        <MagnifyingGlassIcon className="size-5 text-brand-subtle-foreground" />
+      ),
     },
   ];
 
@@ -73,11 +75,11 @@ export default async function ReferenceHubPage() {
             <li key={link.href} className="min-w-0">
               <Link
                 href={link.href}
-                className={`group relative flex h-full items-center gap-4 rounded-panel border border-panel bg-card p-5 transition-colors hover:border-primary-200 hover:bg-primary-50/40 sm:block sm:p-6 ${FOCUS_RING_CLASSES}`}
+                className={`group relative flex h-full items-center gap-4 rounded-panel border border-panel bg-card p-5 transition-colors hover:border-surface-300 hover:bg-surface-50 sm:block sm:p-6 ${FOCUS_RING_CLASSES}`}
               >
                 <span
                   aria-hidden="true"
-                  className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-50 sm:mb-5 sm:size-12"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-brand-subtle sm:mb-5 sm:size-12"
                 >
                   {link.icon}
                 </span>
@@ -91,7 +93,7 @@ export default async function ReferenceHubPage() {
                 </span>
                 <span
                   aria-hidden="true"
-                  className="shrink-0 text-surface-400 transition-colors group-hover:text-primary-700 group-focus-visible:text-primary-700 sm:absolute sm:top-10 sm:right-6"
+                  className="shrink-0 text-surface-400 transition-colors group-hover:text-foreground group-focus-visible:text-foreground sm:absolute sm:top-10 sm:right-6"
                 >
                   <ChevronRightIcon />
                 </span>

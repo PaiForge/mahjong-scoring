@@ -14,6 +14,10 @@ import {
   validateReportInput,
   type ReportReason,
 } from "@mahjong-scoring/features/reports/report";
+import {
+  SELECTED_TILE_CLASSES,
+  UNSELECTED_TILE_CLASSES,
+} from "@/app/(user)/_components/_lib/selection-classes";
 
 /**
  * 公開プロフィールの「通報する」
@@ -85,8 +89,8 @@ export function ReportButton({ username }: { readonly username: string }) {
                 key={key}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-sm text-surface-800 ${
                   reason === key
-                    ? "border-primary-500 bg-primary-50 ring-1 ring-inset ring-primary-500"
-                    : "border-surface-300 bg-white hover:bg-surface-50"
+                    ? SELECTED_TILE_CLASSES
+                    : UNSELECTED_TILE_CLASSES
                 }`}
               >
                 <input
@@ -95,7 +99,7 @@ export function ReportButton({ username }: { readonly username: string }) {
                   value={key}
                   checked={reason === key}
                   onChange={() => setReason(key)}
-                  className="accent-primary-600"
+                  className="accent-selected"
                 />
                 {t(`reasons.${key}`)}
               </label>

@@ -87,11 +87,13 @@ describe("MobileTabBar", () => {
   it("配下のページでも親のタブを選択中にする", () => {
     renderAt("/dojo/ranks/kyu5");
 
-    expect(screen.getByRole("link", { name: /道場/ }).className).toContain(
-      "text-primary",
-    );
+    // 選択中は墨（text-foreground）、それ以外は muted。hover: 付きの同名クラスと
+    // 取り違えないよう、クラスを 1 語ずつに分けて見る
     expect(
-      screen.getByRole("link", { name: /ホーム/ }).className,
-    ).not.toContain("text-primary");
+      screen.getByRole("link", { name: /道場/ }).className.split(" "),
+    ).toContain("text-foreground");
+    expect(
+      screen.getByRole("link", { name: /ホーム/ }).className.split(" "),
+    ).not.toContain("text-foreground");
   });
 });

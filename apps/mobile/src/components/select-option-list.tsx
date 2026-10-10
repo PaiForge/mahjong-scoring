@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   rowSelected: {
-    backgroundColor: colors.primary100,
+    backgroundColor: colors.selectedSubtle,
   },
   rowPressed: {
     backgroundColor: colors.surface50,
@@ -112,11 +112,11 @@ const styles = StyleSheet.create({
   },
   labelSelected: {
     fontWeight: "500",
-    color: colors.primary900,
+    color: colors.foreground,
   },
   check: {
     fontSize: 18,
     lineHeight: 20,
-    color: colors.primary600,
+    color: colors.foreground,
   },
 });

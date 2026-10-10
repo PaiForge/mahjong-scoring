@@ -575,7 +575,7 @@ function PreparingScreen({ slug }: { readonly slug: PracticeMenuSlug }) {
   return (
     <Screen title={t("title")} back backIcon="close">
       <View style={styles.center}>
-        <ActivityIndicator color={colors.primary500} />
+        <ActivityIndicator color={colors.action} />
       </View>
     </Screen>
   );

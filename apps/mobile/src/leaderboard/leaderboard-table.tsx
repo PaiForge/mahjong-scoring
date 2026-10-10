@@ -140,7 +140,8 @@ const styles = StyleSheet.create({
   },
   header: {
     minHeight: 36,
-    backgroundColor: colors.primary50,
+    // 見出しは灰（web の DataTable と同じ）。淡緑は自分の行（viewer）だけ
+    backgroundColor: colors.surface50,
     borderBottomWidth: 1,
     borderBottomColor: colors.panel,
   },
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.surface100,
   },
   viewer: {
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
   },
   viewerSection: {
     borderTopWidth: 1,
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   you: {
     fontSize: 11,
     fontWeight: "600",
-    color: colors.primary800,
+    color: colors.brandSubtleForeground,
   },
   player: {
     flex: 1,

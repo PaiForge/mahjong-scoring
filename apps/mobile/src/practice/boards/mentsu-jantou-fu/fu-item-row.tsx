@@ -12,20 +12,9 @@ import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
 
 import { Grid } from "../../../components/grid";
+import { InsetRing } from "../../../components/inset-ring";
 import { colors, radius } from "../../../lib/theme";
 import { FuItemTiles } from "./fu-item-tiles";
-
-/**
- * 選んだ（まだ答え合わせ前の）符の配色
- *
- * web は Tailwind 既定パレットの青（`border-blue-500 bg-blue-100
- * text-blue-700`）で示す。ブランドのトークンに無い色なのでここに写す。
- */
-const SELECTED_COLORS = {
-  border: "#3b82f6",
-  background: "#dbeafe",
-  text: "#1d4ed8",
-} as const;
 
 interface FuItemRowProps {
   readonly index: number;
@@ -58,12 +47,20 @@ function optionColors(params: {
   readonly isCorrect: boolean;
   readonly showFeedback: boolean;
   readonly isRevealed: boolean;
-}): { readonly box: ViewStyle; readonly text: TextStyle } {
+}): {
+  readonly box: ViewStyle;
+  readonly text: TextStyle;
+  /** 選択中（答え合わせ前）だけ内側の線を足す（web の `ring-1 ring-inset`） */
+  readonly ring?: boolean;
+} {
   const { option, fu, isSelected, isCorrect, showFeedback, isRevealed } =
     params;
   const correctColors = {
-    box: { borderColor: colors.primary500, backgroundColor: colors.primary50 },
-    text: { color: colors.primary700 },
+    box: {
+      borderColor: colors.success,
+      backgroundColor: colors.successSubtle,
+    },
+    text: { color: colors.successStrong },
   };
   const plainColors = {
     box: { borderColor: colors.surface200, backgroundColor: colors.white },
@@ -82,13 +79,15 @@ function optionColors(params: {
           text: { color: colors.destructiveStrong },
         };
   }
+  // 選んだ（まだ答え合わせ前の）符は選択中の墨。正解の緑と取り違えない
   if (isSelected) {
     return {
       box: {
-        borderColor: SELECTED_COLORS.border,
-        backgroundColor: SELECTED_COLORS.background,
+        borderColor: colors.selected,
+        backgroundColor: colors.selectedSubtle,
       },
-      text: { color: SELECTED_COLORS.text },
+      text: { color: colors.foreground },
+      ring: true,
     };
   }
   return plainColors;
@@ -145,7 +144,7 @@ export const FuItemRow = memo(function FuItemRowComponent({
       {/* 符の選択肢。牌の下に全幅で並べ、タップしやすい大きさにする */}
       <Grid columns={FU_OPTIONS.length} gap={6}>
         {FU_OPTIONS.map((option) => {
-          const { box, text } = optionColors({
+          const { box, text, ring } = optionColors({
             option,
             fu: item.fu,
             isSelected: answer === option,
@@ -164,6 +163,9 @@ export const FuItemRow = memo(function FuItemRowComponent({
               style={[styles.option, box, disabled && styles.disabled]}
             >
               <Text style={[styles.optionLabel, text]}>{option}</Text>
+              {ring === true && (
+                <InsetRing color={colors.selected} borderRadius={radius.lg} />
+              )}
             </Pressable>
           );
         })}
@@ -184,8 +186,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   rowCorrect: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
+    borderColor: colors.success,
+    backgroundColor: colors.successSubtle,
   },
   rowWrong: {
     borderColor: colors.destructive,

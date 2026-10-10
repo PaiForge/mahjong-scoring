@@ -15,7 +15,7 @@ import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
  * 「?」（HelpIconButton）はこの高さに収まる大きさにしている（下の `action` 参照）。
  */
 const PAGE_TITLE_CLASSES =
-  "min-h-[1.5em] text-lg md:text-xl leading-normal tracking-wide font-bold text-primary-900 text-center";
+  "min-h-[1.5em] text-lg md:text-xl leading-normal tracking-wide font-bold text-foreground text-center";
 
 interface PageTitleProps {
   children: React.ReactNode;

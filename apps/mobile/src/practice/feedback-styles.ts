@@ -34,7 +34,7 @@ export function choiceFeedbackStyle(
 ): ViewStyle {
   if (!showFeedback) {
     return isSelected
-      ? { borderColor: colors.surface400, backgroundColor: colors.primary100 }
+      ? { borderColor: colors.pendingBorder, backgroundColor: colors.pending }
       : { borderColor: colors.surface300, backgroundColor: colors.white };
   }
   if (isCorrect) {

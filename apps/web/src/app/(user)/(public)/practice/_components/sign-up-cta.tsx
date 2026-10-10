@@ -28,7 +28,7 @@ export async function SignUpCta() {
   return (
     <ResultBlockSection>
       <SectionTitle>{t("signUpCta.sectionTitle")}</SectionTitle>
-      <div className="rounded-panel border border-panel bg-primary-50/60 p-4 sm:p-6">
+      <div className="rounded-panel border border-panel bg-brand-subtle p-4 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-surface-900">

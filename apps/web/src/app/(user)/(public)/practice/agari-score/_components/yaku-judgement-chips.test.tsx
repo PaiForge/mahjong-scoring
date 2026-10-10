@@ -50,7 +50,7 @@ describe("YakuJudgementChips", () => {
       />,
     );
 
-    expect(chipFor("混一色").className).toContain("text-primary-700");
+    expect(chipFor("混一色").className).toContain("text-success-strong");
     expect(chipFor("門前清自摸和").className).toContain(
       "text-destructive-strong",
     );

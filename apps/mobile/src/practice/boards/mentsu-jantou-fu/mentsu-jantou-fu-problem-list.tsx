@@ -56,7 +56,7 @@ function ItemRow({
                   userFu === undefined
                     ? colors.surface500
                     : correct
-                      ? colors.primary600
+                      ? colors.success
                       : colors.destructive,
               },
             ]}
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface50,
   },
   itemCorrect: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
+    borderColor: colors.success,
+    backgroundColor: colors.successSubtle,
   },
   itemWrong: {
     borderColor: colors.destructive,

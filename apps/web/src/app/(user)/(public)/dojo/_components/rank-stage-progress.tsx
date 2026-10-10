@@ -158,7 +158,7 @@ export function RankStageProgress({
               {tRanks(`stages.${cell.stage}`)}
             </span>
             <span
-              className={`flex items-center gap-1 text-sm font-bold tabular-nums ${cell.done ? "text-primary-700" : ""}`}
+              className={`flex items-center gap-1 text-sm font-bold tabular-nums ${cell.done ? "text-success" : ""}`}
             >
               {cell.done && <DoneMark size="sm" />}
               {cell.value}

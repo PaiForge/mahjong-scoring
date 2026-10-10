@@ -47,7 +47,7 @@ function appearanceOf(type: string) {
     case NotificationType.BenefitGranted:
       return {
         icon: <CheckIcon className="size-4" />,
-        tone: "border-primary-500 bg-primary-50 text-primary-700",
+        tone: "border-success bg-success-subtle text-success-strong",
       };
     case NotificationType.PurchaseRevoked:
     case NotificationType.BenefitGrantRevoked:

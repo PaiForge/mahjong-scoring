@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   fill: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.success,
   },
   fillText: {
     fontSize: 14,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 3,
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.success,
   },
   legendText: {
     fontSize: 12,

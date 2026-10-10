@@ -72,7 +72,7 @@ export function MentsuJantouFuProblemList({
                       userFu === undefined
                         ? "border-surface-300 bg-surface-50"
                         : correct
-                          ? "border-primary-500 bg-primary-50"
+                          ? "border-success bg-success-subtle"
                           : "border-destructive bg-destructive-subtle"
                     }`}
                   >
@@ -103,7 +103,7 @@ export function MentsuJantouFuProblemList({
                             userFu === undefined
                               ? "text-surface-500"
                               : correct
-                                ? "text-primary-600"
+                                ? "text-success"
                                 : "text-destructive"
                           }`}
                         >

@@ -75,7 +75,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
           <span
             role="img"
             aria-label={t("unread")}
-            className="block size-2.5 rounded-full bg-primary-500"
+            className="block size-2.5 rounded-full bg-action"
           />
         </span>
       )}

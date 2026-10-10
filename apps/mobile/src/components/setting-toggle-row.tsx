@@ -82,7 +82,7 @@ export function SettingToggleRow({
 
   const trackColor = position.interpolate({
     inputRange: [0, 1],
-    outputRange: [colors.surface200, colors.primary500],
+    outputRange: [colors.surface200, colors.action],
   });
   const translateX = position.interpolate({
     inputRange: [0, 1],

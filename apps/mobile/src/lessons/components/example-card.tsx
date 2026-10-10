@@ -22,7 +22,7 @@ export function ExampleCard({
 
 /** 注釈の意味づけと色（正しい結果 / 間違えやすく注意を促したい結果） */
 const ANNOTATION_TONE_COLOR = {
-  result: colors.primary600,
+  result: colors.foreground,
   caution: lessonColors.amber600,
 } as const;
 

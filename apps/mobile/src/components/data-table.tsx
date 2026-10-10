@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
   },
   header: {
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.surface50,
     borderBottomWidth: 1,
     borderBottomColor: colors.panel,
   },

@@ -6,7 +6,7 @@ import { colors } from "../../lib/theme";
 export function QuestionPlaceholder({ label }: { readonly label: string }) {
   return (
     <View style={styles.box}>
-      <ActivityIndicator color={colors.primary500} />
+      <ActivityIndicator color={colors.action} />
       <Text style={styles.label}>{label}</Text>
     </View>
   );

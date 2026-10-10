@@ -24,7 +24,7 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
         <span className="text-sm font-semibold text-surface-900">
           {t("level", { level })}
         </span>
-        <span className="text-lg font-bold text-primary-600">
+        <span className="text-lg font-bold text-success">
           {t("earned", { amount: earnedExp })}
         </span>
       </div>
@@ -35,14 +35,14 @@ export async function ExpGainDisplay({ expInfo }: ExpGainDisplayProps) {
         </div>
         <div className="h-2 w-full rounded-full bg-surface-100">
           <div
-            className="h-2 rounded-full bg-primary-500 transition-[width] duration-500 motion-reduce:transition-none"
+            className="h-2 rounded-full bg-success transition-[width] duration-500 motion-reduce:transition-none"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
 
       {levelUp && (
-        <span className="inline-block rounded-md bg-primary-50 px-2.5 py-1 text-sm font-bold text-primary-800">
+        <span className="inline-block rounded-md bg-success-subtle px-2.5 py-1 text-sm font-bold text-success-strong">
           {t("levelUp")}
         </span>
       )}

@@ -55,7 +55,7 @@ export function AnnouncementTextList({
                   {announcement.title}
                 </span>
                 {announcement.pinnedAt !== null && (
-                  <span className="shrink-0 rounded-md bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-800">
+                  <span className="shrink-0 rounded-md bg-brand-subtle px-2 py-0.5 text-xs font-medium text-brand-subtle-foreground">
                     {pinnedLabel}
                   </span>
                 )}

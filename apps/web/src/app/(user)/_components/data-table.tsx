@@ -143,7 +143,7 @@ export function DataTable({
     <div className="overflow-x-auto rounded-panel border border-panel">
       <table className={className}>
         <thead>
-          <tr className="border-b border-panel bg-primary-50">{header}</tr>
+          <tr className="border-b border-panel bg-surface-50">{header}</tr>
         </thead>
         <tbody className="divide-y divide-surface-100">{children}</tbody>
       </table>

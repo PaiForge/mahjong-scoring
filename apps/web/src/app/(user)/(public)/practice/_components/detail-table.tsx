@@ -13,7 +13,7 @@ export interface DetailTableRow {
 }
 
 const TONE_CLASSES: Readonly<Record<JudgementVerdict, string>> = {
-  correct: "text-primary-600",
+  correct: "text-success",
   incorrect: "text-destructive",
 };
 

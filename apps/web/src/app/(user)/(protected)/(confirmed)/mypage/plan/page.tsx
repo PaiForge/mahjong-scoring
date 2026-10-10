@@ -87,7 +87,7 @@ export default async function MypagePlanPage({
           status === "failed") && (
           <p
             role="status"
-            className="rounded-panel border border-panel bg-primary-50 px-4 py-3 text-sm font-bold"
+            className="rounded-panel border border-panel bg-brand-subtle px-4 py-3 text-sm font-bold"
           >
             {t(status)}
           </p>

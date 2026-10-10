@@ -89,7 +89,7 @@ export function PracticeCard({
       {visual !== undefined && <PracticeCardVisual visual={visual} />}
       <View style={styles.footer}>
         <Text style={styles.detail}>{t("detail")}</Text>
-        <ChevronRightIcon size={16} color={colors.primary700} />
+        <ChevronRightIcon size={16} color={colors.action} />
       </View>
     </Pressable>
   );
@@ -144,6 +144,6 @@ const styles = StyleSheet.create({
   detail: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.primary700,
+    color: colors.action,
   },
 });

@@ -17,7 +17,7 @@ export async function CurrentUserRankRow({ row }: CurrentUserRankRowProps) {
 
   return (
     <div className="border-t border-panel">
-      <div className="bg-primary-50">
+      <div className="bg-brand-subtle">
         <table className="w-full table-fixed">
           <tbody>
             <tr>

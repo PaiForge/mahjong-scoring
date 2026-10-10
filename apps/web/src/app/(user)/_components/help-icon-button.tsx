@@ -36,7 +36,7 @@ export function HelpIconButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`inline-flex size-[1.5em] shrink-0 items-center justify-center rounded-full bg-primary-500 font-bold leading-none text-white transition-colors hover:bg-primary-600 ${className}`}
+      className={`inline-flex size-[1.5em] shrink-0 items-center justify-center rounded-full bg-action font-bold leading-none text-action-foreground transition-colors hover:bg-action-hover ${className}`}
     >
       {/* 丸の直径に対する字の大きさ（1.2 / 1.5 = 0.8） */}
       <span className="text-[1.2em]">?</span>

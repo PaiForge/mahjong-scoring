@@ -55,7 +55,7 @@ function ModeContent({
             href={`/practice?mode=${value}`}
             scroll={false}
             aria-current={mode === value ? "page" : undefined}
-            className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-4 text-sm font-bold transition-colors ${mode === value ? "bg-primary-700 text-white" : "text-surface-500 hover:bg-surface-100 hover:text-foreground"}`}
+            className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-4 text-sm font-bold transition-colors ${mode === value ? "bg-selected text-selected-foreground" : "text-surface-500 hover:bg-surface-100 hover:text-foreground"}`}
           >
             {t(value)}
           </Link>

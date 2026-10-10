@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   practical: {
     gap: 12,
     padding: 20,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
   },
   note: {
     fontSize: 14,

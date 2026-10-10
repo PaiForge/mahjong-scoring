@@ -40,7 +40,7 @@ export async function FuChecklistTable() {
               {t(`checklistRows.${key}.condition`)}
             </span>
           </td>
-          <td className="px-4 py-3 text-right font-semibold whitespace-nowrap text-primary-600">
+          <td className="px-4 py-3 text-right font-semibold whitespace-nowrap text-foreground">
             {t(`checklistRows.${key}.fu`)}
           </td>
         </tr>

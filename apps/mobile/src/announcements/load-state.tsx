@@ -8,7 +8,7 @@ import { colors } from "../lib/theme";
 export function AnnouncementLoading() {
   return (
     <View style={styles.loading}>
-      <ActivityIndicator color={colors.primary500} />
+      <ActivityIndicator color={colors.action} />
     </View>
   );
 }

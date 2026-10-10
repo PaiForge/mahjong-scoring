@@ -33,7 +33,7 @@ export function MembersOnlyGate({
   if (status === "loading") {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={colors.primary500} />
+        <ActivityIndicator color={colors.action} />
       </View>
     );
   }
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   card: {
     gap: 16,
     padding: 16,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
   },
   texts: {
     gap: 4,

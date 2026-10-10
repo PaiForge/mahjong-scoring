@@ -58,11 +58,11 @@ export async function FuPairScoreTable({
     }
     if (cell.score.isMangan) {
       return (
-        <span className="font-semibold text-primary-600">{t("mangan")}</span>
+        <span className="font-semibold text-foreground">{t("mangan")}</span>
       );
     }
     return (
-      <span className="font-semibold text-primary-600">
+      <span className="font-semibold text-foreground">
         {winType === "ron" ? (
           cell.score.ron
         ) : (

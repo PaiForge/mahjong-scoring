@@ -41,6 +41,41 @@
    * Tailwind 既定の green-* / red-* / amber-* を直接書かない。
    * 章カテゴリや順位メダルのような「区別のための色」は対象外。
    */
+  /*
+   * 役割の色。画面側は primary-* の段ではなく、役割の名前で色を引く。
+   * 同じ緑でも用途で段がばらつき（主ボタンは 500、選択中のタブは 700、
+   * 淡い面は 50 / 100 / 200 と透明度違い）、どれが「押す所」か読めなくなって
+   * いたため、役割ごとに 1 つの値へ寄せた（2026-10）。アプリ
+   * （apps/mobile/src/lib/theme.ts）も同じ名前・同じ値で持つ。
+   *
+   *   action    主操作 — 押して始める面（主ボタン・「?」・トグルのオン）。
+   *             緑の塗りはこれだけが使う。
+   *   selected  選択中 — 今どれを選んでいるか / どこにいるか（タブ・絞り込み・
+   *             ページ送り・選択肢のタイル・ナビの現在地）。緑にしない。
+   *             緑 = 押して始める、墨 = 選んでいる、と読み分けるため。
+   *   brand-subtle 補助面 — 主役ではないが地から少し浮かせる面（次の目標・
+   *             自分の行・特典の囲み・小さな値のチップ）。淡緑はこの 1 値だけ。
+   *   success   正解・完了（状態色の項）。主操作と同じ色相の緑だが役割は別。
+   *   pending   採点待ち — 押した選択肢が採点の結果を待つ間。正誤のどちらとも
+   *             読めない灰色に限る（緑だと正解に見え、不正解で赤に変わる）。
+   *
+   * 主操作の値は #007a3d（primary-600）。以前の #00904a（primary-500）は白文字に
+   * 対して 4.1:1 で、14px の太字のボタン文字が WCAG AA（4.5:1）に届かず、練習の
+   * カードの深緑の卓（primary-800）と並ぶと明るく浮いて見えた。#007a3d は 5.5:1。
+   * #00904a はブランドの色としてロゴ等の primary-500 に残る。
+   */
+  --color-action: #007a3d;
+  --color-action-hover: #006833;
+  --color-action-active: #00562a;
+  --color-action-foreground: #ffffff;
+  --color-selected: #1e293b;
+  --color-selected-foreground: #ffffff;
+  --color-selected-subtle: #f1f5f9;
+  --color-brand-subtle: #ecfaef;
+  --color-brand-subtle-foreground: #00562a;
+  --color-pending: #f1f5f9;
+  --color-pending-border: #94a3b8;
+
   --color-success: #007a3d;
   --color-success-foreground: #ffffff;
   --color-success-subtle: #d3f5db;
@@ -76,7 +111,7 @@
   --color-foreground: #0f172a;
   --color-card: #ffffff;
   --color-card-foreground: #0f172a;
-  --color-primary: #00904a;
+  --color-primary: #007a3d;
   --color-primary-foreground: #ffffff;
   /* ページ背景（main）に使う淡いトーン。surface-50 と同値で、白カードが控えめに浮く。 */
   --color-secondary: #f8fafc;
@@ -88,7 +123,7 @@
   /* 枠線は控えめな細線。区切りは線の太さではなく余白と面の明暗で示す。panel と同値。 */
   --color-border: #dce3e0;
   --color-input: #ffffff;
-  --color-ring: #00904a;
+  --color-ring: #007a3d;
   --color-destructive: #dc524a;
   --color-destructive-foreground: #ffffff;
   --color-destructive-subtle: #fee2e2;

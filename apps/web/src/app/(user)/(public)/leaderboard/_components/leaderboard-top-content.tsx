@@ -83,7 +83,7 @@ export async function LeaderboardTopContent({
                   : "/leaderboard?period=monthly"
               }
               aria-current={period === value ? "page" : undefined}
-              className={`rounded-md px-5 py-2 text-sm font-bold transition-colors ${FOCUS_RING_CLASSES} ${period === value ? "bg-primary-700 text-white" : "text-surface-500 hover:bg-surface-100 hover:text-foreground"}`}
+              className={`rounded-md px-5 py-2 text-sm font-bold transition-colors ${FOCUS_RING_CLASSES} ${period === value ? "bg-selected text-selected-foreground" : "text-surface-500 hover:bg-surface-100 hover:text-foreground"}`}
             >
               {t(`period.${value}`)}
             </Link>

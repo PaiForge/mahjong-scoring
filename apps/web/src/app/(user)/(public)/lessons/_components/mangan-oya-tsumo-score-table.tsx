@@ -6,7 +6,7 @@ const COLUMNS: readonly ManganTableColumn[] = [
   {
     headerKey: "colTotal",
     align: "right",
-    cellClassName: "font-semibold text-primary-600",
+    cellClassName: "font-semibold text-foreground",
   },
 ];
 

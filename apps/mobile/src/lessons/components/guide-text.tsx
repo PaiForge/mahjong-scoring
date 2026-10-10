@@ -162,14 +162,14 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.brandSubtle,
     alignItems: "center",
     justifyContent: "center",
   },
   badgeText: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.white,
+    color: colors.brandSubtleForeground,
   },
   subsectionText: {
     flex: 1,

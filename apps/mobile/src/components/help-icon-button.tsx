@@ -42,10 +42,10 @@ const styles = StyleSheet.create({
   circle: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.action,
   },
   pressed: {
-    backgroundColor: colors.primary600,
+    backgroundColor: colors.actionHover,
   },
   mark: {
     fontWeight: "700",

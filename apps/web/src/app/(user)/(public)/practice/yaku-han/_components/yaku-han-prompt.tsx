@@ -37,7 +37,7 @@ export function YakuHanPrompt({ yakuName, isMenzen }: YakuHanPromptProps) {
       <span
         className={`rounded-md px-2.5 py-1 text-xs font-bold ${
           isMenzen
-            ? "bg-primary-50 text-primary-800"
+            ? "bg-brand-subtle text-brand-subtle-foreground"
             : "bg-amber-100 text-amber-900"
         }`}
       >

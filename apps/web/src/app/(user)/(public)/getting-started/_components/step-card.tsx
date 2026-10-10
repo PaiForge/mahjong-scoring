@@ -31,7 +31,7 @@ export function StepCard({
   return (
     <div className="flex flex-col items-center space-y-4 rounded-panel border border-panel bg-white p-6 text-center">
       {stepLabel ? (
-        <span className="text-xs font-bold tracking-wider text-primary-600">
+        <span className="text-xs font-bold tracking-wider text-surface-500">
           {stepLabel}
         </span>
       ) : null}

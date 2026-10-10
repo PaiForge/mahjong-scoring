@@ -48,9 +48,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: "600",
-    color: colors.primary700,
+    color: colors.action,
   },
   pressed: {
-    color: colors.primary900,
+    color: colors.actionActive,
   },
 });

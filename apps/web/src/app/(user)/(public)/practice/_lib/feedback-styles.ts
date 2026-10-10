@@ -28,7 +28,7 @@ export function getFeedbackBorderClass(
  * 正誤の色は後から乗せる。採点が同期のトレーニングとレッスンでは、選択と
  * 同時に `showFeedback` が立つのでこの状態を通らない。
  *
- * 「受け付けた」の塗りは正誤のどちらとも読めない灰色（`bg-surface-100`。
+ * 「受け付けた」の塗りは正誤のどちらとも読めない灰色（`bg-pending`。
  * select で答える盤面が待ち中に出す `disabled:bg-surface-100` と同じ）に
  * 限る。以前はブランドの緑（`bg-primary-100`）を使っていたが、その値は
  * 正解の塗り `bg-success-subtle` と同じ色で、不正解だったときに「緑で
@@ -41,10 +41,10 @@ export function getFeedbackStyles(
 ): { borderClass: string; bgClass: string } {
   if (!showFeedback) {
     return isSelected
-      ? { borderClass: "border-surface-400", bgClass: "bg-surface-100" }
+      ? { borderClass: "border-pending-border", bgClass: "bg-pending" }
       : {
-          borderClass: "border-surface-300 hover:border-primary-300",
-          bgClass: "bg-white hover:bg-primary-50",
+          borderClass: "border-surface-300 hover:border-surface-400",
+          bgClass: "bg-white hover:bg-surface-50",
         };
   }
 

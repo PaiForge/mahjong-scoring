@@ -44,7 +44,7 @@ const ScoreChart = dynamic(
 );
 
 const selectClassName =
-  "px-3 py-2.5 rounded-lg border border-surface-400 bg-white text-surface-900 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400";
+  "px-3 py-2.5 rounded-lg border border-surface-400 bg-white text-surface-900 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-primary-400";
 
 interface ChallengeDashboardProps {
   /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */

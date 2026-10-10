@@ -12,7 +12,7 @@ export interface DetailTableRow {
 }
 
 const TONE_COLOR: Readonly<Record<JudgementVerdict, string>> = {
-  correct: colors.primary600,
+  correct: colors.success,
   incorrect: colors.destructive,
 };
 

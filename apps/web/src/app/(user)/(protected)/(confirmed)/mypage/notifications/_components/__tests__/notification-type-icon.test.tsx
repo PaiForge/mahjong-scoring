@@ -12,8 +12,8 @@ function toneOf(type: string): string {
 
 describe("NotificationTypeIcon", () => {
   it("良い知らせは緑、取り消しは赤、期限切れは中立", () => {
-    expect(toneOf(NotificationType.PurchaseCompleted)).toContain("primary");
-    expect(toneOf(NotificationType.BenefitGranted)).toContain("primary");
+    expect(toneOf(NotificationType.PurchaseCompleted)).toContain("success");
+    expect(toneOf(NotificationType.BenefitGranted)).toContain("success");
     expect(toneOf(NotificationType.PurchaseRevoked)).toContain("destructive");
     expect(toneOf(NotificationType.BenefitGrantRevoked)).toContain(
       "destructive",

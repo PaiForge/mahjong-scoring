@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   pressed: {
-    borderColor: colors.primary300,
-    backgroundColor: colors.primary50,
+    borderColor: colors.surface400,
+    backgroundColor: colors.surface50,
   },
 });

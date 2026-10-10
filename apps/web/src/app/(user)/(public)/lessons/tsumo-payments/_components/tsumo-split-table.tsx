@@ -43,7 +43,7 @@ export async function TsumoSplitTable({ fu, caption }: TsumoSplitTableProps) {
           {
             header: t("colActualPay"),
             render: (row) => <TsumoScore payment={row.actual} />,
-            className: "font-semibold text-primary-600",
+            className: "font-semibold text-foreground",
           },
         ]}
       />

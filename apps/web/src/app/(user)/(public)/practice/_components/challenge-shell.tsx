@@ -248,7 +248,7 @@ export function ChallengeShell({
           同じ形をしていてもこの症状が出ない。 */}
       {gameSession.isCountingDown && (
         <div className="fixed inset-0 z-30 flex min-h-lvh items-center justify-center bg-white/80 backdrop-blur-sm">
-          <span className="text-6xl font-bold text-primary-500 animate-pulse">
+          <span className="text-6xl font-bold text-action animate-pulse">
             {gameSession.countdownValue}
           </span>
         </div>

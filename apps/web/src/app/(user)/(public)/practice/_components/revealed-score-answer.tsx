@@ -75,7 +75,7 @@ export function RevealedScoreAnswer({
                 type="button"
                 onClick={() => setIsScoreTableOpen(true)}
                 title={tChallenge("openInScoreTable")}
-                className="cursor-pointer font-bold underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-primary-500"
+                className="cursor-pointer font-bold underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
               >
                 {formatted}
               </button>

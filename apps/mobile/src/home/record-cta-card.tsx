@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   card: {
     gap: 16,
     padding: 16,
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.brandSubtle,
   },
   texts: {
     gap: 4,

@@ -40,7 +40,7 @@ export function ResultScoreBar({
           <View
             style={[
               styles.segment,
-              { flex: safeCorrect, backgroundColor: colors.primary500 },
+              { flex: safeCorrect, backgroundColor: colors.success },
             ]}
           >
             <Text style={styles.segmentText}>{safeCorrect}</Text>
@@ -61,7 +61,7 @@ export function ResultScoreBar({
         <View style={styles.legendItems}>
           <View style={styles.legendItem}>
             <View
-              style={[styles.swatch, { backgroundColor: colors.primary500 }]}
+              style={[styles.swatch, { backgroundColor: colors.success }]}
             />
             <Text style={styles.legendText}>
               {tc("correct")}: <Text style={styles.strong}>{safeCorrect}</Text>

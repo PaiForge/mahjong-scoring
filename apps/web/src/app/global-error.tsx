@@ -59,7 +59,9 @@ export default function GlobalError({
             style={{
               display: "inline-block",
               padding: "0.5rem 1.5rem",
-              backgroundColor: "#22c55e",
+              // 主操作の色（globals.css の --color-action）。このページは
+              // ルートレイアウトごと差し替わり globals.css が読まれないため値で持つ
+              backgroundColor: "#007a3d",
               color: "#ffffff",
               borderRadius: "0.5rem",
               textDecoration: "none",

@@ -10,7 +10,7 @@ import { TextLink } from "./text-link";
 export function LoadingIndicator() {
   return (
     <View style={styles.loading}>
-      <ActivityIndicator color={colors.primary500} />
+      <ActivityIndicator color={colors.action} />
     </View>
   );
 }

@@ -115,7 +115,7 @@ export function ReportSheet({
                     </Text>
                     {selected && <Text style={styles.check}>{"✓"}</Text>}
                     {selected && (
-                      <InsetRing color={colors.primary500} borderRadius={0} />
+                      <InsetRing color={colors.selected} borderRadius={0} />
                     )}
                   </Pressable>
                 </Fragment>
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   optionSelected: {
-    backgroundColor: colors.primary50,
+    backgroundColor: colors.selectedSubtle,
   },
   optionPressed: {
     backgroundColor: colors.surface50,
@@ -207,12 +207,12 @@ const styles = StyleSheet.create({
   },
   optionLabelSelected: {
     fontWeight: "600",
-    color: colors.primary800,
+    color: colors.foreground,
   },
   check: {
     fontSize: 15,
     fontWeight: "700",
-    color: colors.primary700,
+    color: colors.foreground,
   },
   error: {
     fontSize: 14,

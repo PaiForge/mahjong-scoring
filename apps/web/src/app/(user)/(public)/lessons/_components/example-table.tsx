@@ -79,7 +79,7 @@ export function ExampleTable({
                 {row.label}
               </td>
               <td
-                className={`${DATA_TABLE_CELL_PADDING.dense} text-right whitespace-nowrap ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
+                className={`${DATA_TABLE_CELL_PADDING.dense} text-right whitespace-nowrap ${hasFu ? "font-semibold text-foreground" : "text-surface-400"}`}
               >
                 {formatFu(row.fu)}
               </td>

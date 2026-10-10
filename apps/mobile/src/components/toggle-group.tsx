@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   segmentActive: {
-    backgroundColor: colors.primary700,
+    backgroundColor: colors.selected,
   },
   label: {
     fontSize: 13,

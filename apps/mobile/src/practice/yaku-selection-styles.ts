@@ -15,9 +15,9 @@ export const YAKU_SELECTION_STYLES: Readonly<
   Record<YakuSelectionState, TextStyle>
 > = {
   correct: {
-    borderColor: colors.primary500,
-    backgroundColor: colors.primary50,
-    color: colors.primary700,
+    borderColor: colors.success,
+    backgroundColor: colors.successSubtle,
+    color: colors.successStrong,
   },
   incorrect: {
     borderColor: colors.destructive,

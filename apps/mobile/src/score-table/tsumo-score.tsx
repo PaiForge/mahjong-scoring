@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
   rule: {
     height: StyleSheet.hairlineWidth * 2,
     marginVertical: 2,
-    // 数字と同じ色（点数表の数字の緑）を薄く敷く
-    backgroundColor: colors.primary600,
+    // 数字と同じ色（点数表の数字の墨）を薄く敷く
+    backgroundColor: colors.foreground,
     opacity: 0.3,
   },
   all: {

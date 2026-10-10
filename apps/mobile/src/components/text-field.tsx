@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   inputFocused: {
-    borderColor: colors.primary500,
+    borderColor: colors.action,
   },
   hint: {
     fontSize: 13,

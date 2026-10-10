@@ -66,7 +66,7 @@ export function MobileTabBar() {
                   href={item.href}
                   className={`flex w-full flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-xs transition-colors ${FOCUS_RING_CLASSES} ${
                     isActive
-                      ? "text-primary"
+                      ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >

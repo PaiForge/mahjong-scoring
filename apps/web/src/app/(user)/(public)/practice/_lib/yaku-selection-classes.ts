@@ -13,7 +13,7 @@ import type { YakuSelectionState } from "@mahjong-scoring/core";
 export const YAKU_SELECTION_CLASSES: Readonly<
   Record<YakuSelectionState, string>
 > = {
-  correct: "border-primary-500 bg-primary-50 text-primary-700",
+  correct: "border-success bg-success-subtle text-success-strong",
   incorrect: "border-destructive bg-destructive-subtle text-destructive-strong",
   missed: "border-warning bg-warning-subtle text-warning-strong",
 };

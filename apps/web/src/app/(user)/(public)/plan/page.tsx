@@ -65,15 +65,15 @@ export default async function PlanPage() {
         <section className="space-y-4">
           <SectionTitle>{t("perks.title")}</SectionTitle>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <li className="flex items-start gap-3 rounded-panel bg-primary-50 p-5">
+            <li className="flex items-start gap-3 rounded-panel bg-brand-subtle p-5">
               <span
                 aria-hidden="true"
-                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-200 text-primary-800"
+                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-card text-brand-subtle-foreground"
               >
                 <InfinityIcon className="size-7" />
               </span>
               <div className="space-y-1">
-                <h3 className="font-bold text-primary-900">
+                <h3 className="font-bold text-foreground">
                   {t("perks.unlimitedTitle")}
                 </h3>
                 <p className="text-sm leading-relaxed">
@@ -81,15 +81,15 @@ export default async function PlanPage() {
                 </p>
               </div>
             </li>
-            <li className="flex items-start gap-3 rounded-panel bg-primary-50 p-5">
+            <li className="flex items-start gap-3 rounded-panel bg-brand-subtle p-5">
               <span
                 aria-hidden="true"
-                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary-200 text-primary-800"
+                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-card text-brand-subtle-foreground"
               >
                 <ClockIcon className="size-7" />
               </span>
               <div className="space-y-1">
-                <h3 className="font-bold text-primary-900">
+                <h3 className="font-bold text-foreground">
                   {t("perks.toolsTitle")}
                 </h3>
                 <p className="text-sm leading-relaxed">{t("perks.tools")}</p>

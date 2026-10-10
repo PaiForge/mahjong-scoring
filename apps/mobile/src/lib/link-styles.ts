@@ -29,14 +29,14 @@ export const linkStyles = StyleSheet.create({
   },
   textButton: {
     fontWeight: "600",
-    color: colors.primary700,
+    color: colors.action,
   },
   textButtonPressed: {
-    color: colors.primary900,
+    color: colors.actionActive,
     opacity: 0.7,
   },
   inline: {
-    color: colors.primary700,
+    color: colors.action,
     textDecorationLine: "underline",
     textDecorationColor: colors.primary300,
   },

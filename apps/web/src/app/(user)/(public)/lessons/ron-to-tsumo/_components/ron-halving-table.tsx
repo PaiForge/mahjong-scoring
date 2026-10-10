@@ -43,7 +43,7 @@ export async function RonHalvingTable({ fu, caption }: RonHalvingTableProps) {
           {
             header: t("colDerived"),
             render: (row) => <TsumoScore payment={row.derived} />,
-            className: "font-semibold text-primary-600",
+            className: "font-semibold text-foreground",
           },
           {
             header: t("colActualPay"),

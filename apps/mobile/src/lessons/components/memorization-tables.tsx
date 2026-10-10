@@ -140,7 +140,7 @@ export function FuPairScoreTable({
     return winType === "ron" ? (
       <StrongCell>{cell.score.ron}</StrongCell>
     ) : (
-      <TsumoScore payment={cell.score.tsumo} color={colors.primary600} />
+      <TsumoScore payment={cell.score.tsumo} color={colors.foreground} />
     );
   };
 
@@ -226,7 +226,7 @@ export function RonHalvingTable({
           {
             header: t("colDerived"),
             render: (row) => (
-              <TsumoScore payment={row.derived} color={colors.primary600} />
+              <TsumoScore payment={row.derived} color={colors.foreground} />
             ),
           },
           {
@@ -276,7 +276,7 @@ export function TsumoSplitTable({
           {
             header: t("colActualPay"),
             render: (row) => (
-              <TsumoScore payment={row.actual} color={colors.primary600} />
+              <TsumoScore payment={row.actual} color={colors.foreground} />
             ),
           },
         ]}
@@ -315,7 +315,7 @@ export function TsumoCarryoverDiagram({
       </DerivationStep>
       <DerivationArrow label={t("diagramArrowLabel")} />
       <DerivationStep label={t("diagramOyaLabel")} highlighted>
-        <TsumoScore payment={oya} color={colors.primary700} />
+        <TsumoScore payment={oya} color={colors.foreground} />
       </DerivationStep>
     </DerivationFigure>
   );

@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   },
   legendLink: {
     fontWeight: "700",
-    color: colors.primary700,
+    color: colors.action,
   },
   pressed: {
     opacity: 0.5,

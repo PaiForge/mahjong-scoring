@@ -154,7 +154,7 @@ describe("WaitCellGrid の選択中の表示", () => {
 
     const merged = screen.getByRole("button", { name: "1翻 30符 1000点" });
     expect(merged.closest("td")?.rowSpan).toBe(question.waits.length);
-    expect(merged.className).toContain("border-primary-500");
+    expect(merged.className).toContain("border-selected");
 
     fireEvent.click(merged);
     expect(onToggleCell.mock.calls.map(([cell]) => cellKeyOf(cell))).toEqual(

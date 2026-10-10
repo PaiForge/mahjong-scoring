@@ -39,7 +39,7 @@ export const TOGGLE_ITEM_METRICS_CLASSES =
 export function toggleItemClasses(isActive: boolean): string {
   return `${TOGGLE_ITEM_METRICS_CLASSES} transition-colors ${
     isActive
-      ? "bg-primary-700 text-white"
+      ? "bg-selected text-selected-foreground"
       : "text-surface-500 hover:bg-surface-100 hover:text-foreground"
   }`;
 }

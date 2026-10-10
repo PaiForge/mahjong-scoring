@@ -16,6 +16,9 @@ import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, SECTION_COLORS } from "../lesson-colors";
 import { DoneMark } from "./done-mark";
 
+/** 途中の進み具合のバー（web の `bg-success/70`） */
+const SUCCESS_70 = "rgba(0, 122, 61, 0.7)";
+
 /** セクションの bullet の大きさ（web の `size-4`） */
 const BULLET_SIZE = 16;
 
@@ -200,9 +203,8 @@ export function CurriculumProgressBar({
             styles.progressFill,
             {
               width: `${percentage}%`,
-              backgroundColor: allCompleted
-                ? colors.primary500
-                : colors.primary400,
+              // 全章を終えたら濃く、途中は薄い（web の bg-success / bg-success/70）
+              backgroundColor: allCompleted ? colors.success : SUCCESS_70,
             },
           ]}
         />
@@ -272,7 +274,7 @@ const styles = StyleSheet.create({
     color: colors.surface400,
   },
   titlePressed: {
-    color: colors.primary700,
+    color: colors.action,
   },
   description: {
     fontSize: 12,

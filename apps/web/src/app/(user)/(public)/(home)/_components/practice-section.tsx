@@ -11,7 +11,7 @@ export function PracticeSection() {
     <LandingSection
       sectionClassName="border-y border-panel bg-white"
       icon={<PlayIcon className="size-8" />}
-      iconClassName="bg-primary-200 text-primary-800"
+      iconClassName="bg-brand-subtle text-brand-subtle-foreground"
       title={t("practiceTitle")}
       description={t("practiceDescription")}
       href="/practice"

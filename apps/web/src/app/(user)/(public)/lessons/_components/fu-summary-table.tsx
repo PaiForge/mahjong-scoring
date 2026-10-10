@@ -61,7 +61,7 @@ export function FuSummaryTable({
                   {row.label}
                 </td>
                 <td
-                  className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-primary-600" : "text-surface-400"}`}
+                  className={`px-4 py-3 text-right ${hasFu ? "font-semibold text-foreground" : "text-surface-400"}`}
                 >
                   {formatFu(row.fu)}
                 </td>

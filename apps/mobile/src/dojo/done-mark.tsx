@@ -48,6 +48,6 @@ const styles = StyleSheet.create({
   circle: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primary500,
+    backgroundColor: colors.success,
   },
 });

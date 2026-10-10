@@ -61,7 +61,7 @@ export async function RankGoalPanel({
     >
       <h3
         id={HEADING_ID}
-        className="border-b border-panel bg-primary-50 px-4 py-3 text-sm font-bold text-surface-700"
+        className="border-b border-panel bg-surface-50 px-4 py-3 text-sm font-bold text-surface-700"
       >
         {t("title", { rank })}
       </h3>

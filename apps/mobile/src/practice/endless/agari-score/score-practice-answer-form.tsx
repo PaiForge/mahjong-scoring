@@ -283,10 +283,10 @@ const styles = StyleSheet.create({
   noYaku: {
     fontSize: 13,
     fontWeight: "600",
-    color: colors.primary700,
+    color: colors.action,
   },
   noYakuPressed: {
-    color: colors.primary900,
+    color: colors.actionActive,
     opacity: 0.7,
   },
 });

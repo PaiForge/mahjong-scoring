@@ -45,17 +45,17 @@ interface ButtonFill {
  */
 const FILL: Record<ButtonVariant, ButtonFill> = {
   primary: {
-    bg: colors.primary500,
-    fg: colors.white,
+    bg: colors.action,
+    fg: colors.actionForeground,
     border: "transparent",
-    pressedBg: colors.primary700,
+    pressedBg: colors.actionActive,
     pressedBorder: "transparent",
   },
   secondary: {
     bg: colors.card,
-    fg: colors.primary700,
+    fg: colors.action,
     border: colors.panel,
-    pressedBg: colors.primary100,
+    pressedBg: colors.brandSubtle,
     pressedBorder: colors.primary300,
   },
   neutral: {
