@@ -5,11 +5,11 @@ import { LearnSection } from "./learn-section";
 
 export function LandingPage() {
   return (
-    <>
+    <div className="home-design contents">
       <HeroSection />
       <PracticeSection />
       <ReferenceSection />
       <LearnSection />
-    </>
+    </div>
   );
 }

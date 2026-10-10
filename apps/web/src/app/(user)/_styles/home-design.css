@@ -1,0 +1,58 @@
+/*
+ * ホーム（LP・ダッシュボード・そのスケルトン）だけのフラットな外観。
+ * DOM のマーカーで判定し、初回描画・認証 rewrite・クライアント遷移に追従する。
+ * 共通ヘッダーと body にポータルされるメニューも同じ外観にする。
+ * ユーティリティより優先するが、フォーカスリングと段級位の色は残す。
+ */
+body:has(main .home-design) {
+  --skin-shadow-2xs: 0 0 #0000;
+  --skin-shadow-xs: 0 0 #0000;
+  --skin-shadow-sm: 0 0 #0000;
+  --skin-shadow-md: 0 0 #0000;
+  --skin-shadow-lg: 0 0 #0000;
+  --skin-shadow-xl: 0 0 #0000;
+  --skin-shadow-2xl: 0 0 #0000;
+  background-image: none;
+
+  .border-ink {
+    border-color: var(--color-panel);
+  }
+
+  :is(.border-3, .border-4) {
+    border-width: 1px;
+  }
+
+  :is(.border-t-4, .border-y-4) {
+    border-top-width: 1px;
+  }
+
+  :is(.border-b-4, .border-y-4) {
+    border-bottom-width: 1px;
+  }
+
+  @media (width >= 40rem) {
+    .sm\:border-4 {
+      border-width: 1px;
+    }
+  }
+
+  /* 帯色ボタンは要素自身に影の変数を持つため、継承値に加えてここでも除く。 */
+  :is(.press-sm, .press-md, .press-lg) {
+    --skin-shadow-sm: 0 0 #0000;
+    --skin-shadow-md: 0 0 #0000;
+    --skin-shadow-lg: 0 0 #0000;
+    transition-property: background-color, border-color, color;
+
+    &:is(:hover, :active):not(:disabled) {
+      transform: none;
+      /* 押し込みの影だけを外し、キーボードのフォーカスリングは保持する。 */
+      box-shadow:
+        var(--tw-ring-offset-shadow, 0 0 #0000),
+        var(--tw-ring-shadow, 0 0 #0000);
+    }
+  }
+
+  .text-shadow-pop {
+    text-shadow: none;
+  }
+}
