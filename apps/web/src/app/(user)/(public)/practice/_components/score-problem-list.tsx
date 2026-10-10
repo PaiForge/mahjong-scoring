@@ -11,6 +11,7 @@ import {
   scoreResultSummary,
 } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
@@ -105,6 +106,12 @@ export function ScoreProblemList({
                 result.yakumanMultiplier,
                 tBreakdown,
               )}
+              scoreTableFocus={scoreTableFocusOf({
+                isOya: result.isOya,
+                isTsumo: result.isTsumo,
+                han: result.han,
+                fu: result.fu,
+              })}
             />
           </div>
         );

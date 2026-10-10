@@ -175,6 +175,7 @@ export function createScoreExamBoard(
               question.answer.yakumanMultiplier,
               tBreakdown,
             )}
+            scoreTableFocus={scoreTableFocus}
           />
         )}
       </div>
