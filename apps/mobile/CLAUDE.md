@@ -22,7 +22,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - リンクは下線を引かない（`lib/link-styles.ts`）。押せる行は濃い題名 + 右端の矢印 +
   押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線
 - 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
-  ダイアログ（`ConfirmationModal`）
+  ダイアログ（`ConfirmationModal`）。`BottomSheet` は自前の実装（幕のフェード・
+  シートのスライド・引き下げて閉じる）で、スクロールとの受け渡し・段階の高さ・
+  キーボードの回避が要る中身を載せるときは中を `@gorhom/bottom-sheet` に替える
+  （理由は `bottom-sheet.tsx` の TSDoc）
 - 「?」のヘルプは `HelpTourSheet`（1 枚ずつ送るシート）。web の 2 種類（設定画面の
   `HelpTourModal` と画面の要素を照らす `SpotlightTour`）を、どちらもこの形で出す
   （要素を照らす仕組みはネイティブに無い。進め方の方だけ実物の見本を添える）
