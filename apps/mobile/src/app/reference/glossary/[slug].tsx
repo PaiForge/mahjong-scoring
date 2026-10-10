@@ -125,7 +125,8 @@ export default function GlossaryTermScreen() {
         </View>
       )}
 
-      <TextLink onPress={() => router.navigate(GLOSSARY_PATH)}>
+      {/* 一覧から来たならそこまで閉じて戻る（navigate は一覧をもう 1 枚積む） */}
+      <TextLink onPress={() => router.dismissTo(GLOSSARY_PATH)}>
         {t("backToIndex")}
       </TextLink>
     </Screen>

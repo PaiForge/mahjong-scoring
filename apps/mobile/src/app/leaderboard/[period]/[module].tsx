@@ -131,7 +131,8 @@ function LeaderboardDetail({
         </Button>
         <TextLink
           testID="leaderboard-other-boards"
-          onPress={() => router.push(LEADERBOARD_PATH)}
+          // 一覧から来たならそこまで閉じて戻る（push は一覧と詳細を交互に積む）
+          onPress={() => router.dismissTo(LEADERBOARD_PATH)}
         >
           {t("otherBoards")}
         </TextLink>
