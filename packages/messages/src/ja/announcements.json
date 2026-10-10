@@ -6,5 +6,8 @@
   "pinned": "固定",
   "empty": "お知らせはまだありません。",
   "notFound": "お知らせが見つかりません",
-  "backToList": "お知らせ一覧へ戻る"
+  "backToList": "お知らせ一覧へ戻る",
+  "loadFailed": "お知らせを読み込めませんでした。",
+  "retry": "もう一度読み込む",
+  "loadMore": "さらに読み込む"
 }

@@ -5,6 +5,7 @@ import { useTranslations } from "use-intl";
 import { SettingsIcon, UserIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useMobileJourney } from "../../dojo/use-mobile-journey";
+import { HomeAnnouncements } from "../../home/home-announcements";
 import { NextStepCard } from "../../home/next-step-card";
 import { RecordCtaCard } from "../../home/record-cta-card";
 import { colors } from "../../lib/theme";
@@ -22,7 +23,7 @@ import { colors } from "../../lib/theme";
  *   ゲストなら端末の記録から出す（`useMobileJourney`）。web が全級取得後に
  *   出す「レッスンの続き」「おすすめの練習」はまだ持たない（全級取得済みの
  *   アカウントでは「次にやること」が出ない）
- * - お知らせはサーバーの記事なので出さない
+ * - お知らせは「次にやること」と記録の案内の後に置く（web は学習導線の後）
  * - マイページと設定への入口をヘッダー右に置く（web はヘッダーのアカウントの
  *   メニューとドロワー。モバイルはどちらも持たず、タブも OS の上限の 5 つで
  *   埋まっている）。マイページはゲストにも出す — 開くと記録の案内が出る
@@ -35,6 +36,7 @@ import { colors } from "../../lib/theme";
  * 2. 級の見出しで級の詳細、進み具合の各段でその段の一覧へ
  * 3. ゲストは記録の案内から登録・ログインへ、ユーザー名を決めていない人は
  *    ユーザー名の設定へ進む
+ * 4. お知らせの行で詳細、「すべて見る」で一覧へ
  */
 export default function HomeScreen() {
   const t = useTranslations("nav");
@@ -74,6 +76,7 @@ export default function HomeScreen() {
     >
       <NextStepCard journey={journey} />
       <RecordCtaCard />
+      <HomeAnnouncements />
     </Screen>
   );
 }
