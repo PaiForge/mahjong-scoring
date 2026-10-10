@@ -75,10 +75,10 @@ Supabase Integration はアカウント（チーム）レベルでインスト�
 1. Authentication > Emails > Templates を開く
 2. 次のテンプレートの Body を、ローカルのファイルの中身で置き換えて Save する
 
-| テンプレート   | ローカルのファイル                     | Subject                               |
-| -------------- | -------------------------------------- | ------------------------------------- |
-| Confirm signup | `supabase/templates/confirmation.html` | `麻雀点数計算 - メールアドレスの確認` |
-| Reset password | `supabase/templates/recovery.html`     | `麻雀点数計算 - パスワードのリセット` |
+| テンプレート   | ローカルのファイル                     | Subject                                   |
+| -------------- | -------------------------------------- | ----------------------------------------- |
+| Confirm signup | `supabase/templates/confirmation.html` | `麻雀点数計算教室 - メールアドレスの確認` |
+| Reset password | `supabase/templates/recovery.html`     | `麻雀点数計算教室 - パスワードのリセット` |
 
 Subject は `supabase/config.toml` の `[auth.email.template.*]` と同じ値です。
 

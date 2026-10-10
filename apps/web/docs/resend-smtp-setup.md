@@ -38,11 +38,11 @@ Resend のダッシュボードで必要な DNS レコード（SPF、DKIM、DMAR
 1. Supabase Dashboard で **Authentication** > **Email** > **Templates** タブに移動
 2. 各テンプレートタイプについて、対応するローカルファイルから HTML コンテンツをコピー:
 
-   | テンプレートタイプ       | ローカルファイル                       | Subject                                   |
-   | ------------------------ | -------------------------------------- | ----------------------------------------- |
-   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数計算 - メールアドレスの確認`     |
-   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数計算 - パスワードのリセット`     |
-   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数計算 - メールアドレス変更の確認` |
+   | テンプレートタイプ       | ローカルファイル                       | Subject                                       |
+   | ------------------------ | -------------------------------------- | --------------------------------------------- |
+   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数計算教室 - メールアドレスの確認`     |
+   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数計算教室 - パスワードのリセット`     |
+   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数計算教室 - メールアドレス変更の確認` |
 
 3. 各テンプレートについて:
    - **Subject** を上記の値に設定
