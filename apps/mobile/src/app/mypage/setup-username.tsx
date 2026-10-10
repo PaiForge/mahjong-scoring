@@ -2,7 +2,11 @@
  * ユーザー名の設定（本登録）
  *
  * @description 登録して最初にログインした後、ランキングなどに出るユーザー名を
- * 決める（web の `/mypage/setup-username` と同じ段階・同じ検証）。この段階
+ * 決める（web の `/mypage/setup-username` と同じ段階・同じ検証）。
+ * web と違い表示名の欄を持たない（サーバーがユーザー名を流用する）。表示名は
+ * web の公開プロフィールとランキングで他の利用者に見せる自由入力なので、
+ * アプリでは受け付けない。代わりに、ユーザー名と成績が web のランキングに
+ * 載ることと、設定で外せることを伝える。この段階
  * からもログアウトと退会に進める — ユーザー名を決めないまま
  * アカウントを消したい人を、ここで行き止まりにしない。名前を考えるのが
  * 手間な人には、web と同じくランダムなユーザー名の自動生成を添える。
@@ -64,7 +68,6 @@ export default function SetupUsernameScreen() {
   const router = useRouter();
   const leaveAuthFlow = useLeaveAuthFlow();
   const [username, setUsername] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
@@ -77,10 +80,7 @@ export default function SetupUsernameScreen() {
     if (submitting) return;
     setSubmitting(true);
     setError(undefined);
-    const result = await registerUsername({
-      username: username.trim(),
-      displayName: displayName.trim() || undefined,
-    });
+    const result = await registerUsername({ username: username.trim() });
     if ("error" in result) {
       setSubmitting(false);
       setError(
@@ -120,17 +120,11 @@ export default function SetupUsernameScreen() {
             t("usernameHintEdges"),
             t("cannotChange"),
           ].join("\n")}
-        />
-        <TextField
-          label={t("displayNameLabel")}
-          value={displayName}
-          onChangeText={setDisplayName}
-          placeholder={t("displayNamePlaceholder")}
-          hint={[t("displayNameCanChange"), t("displayNameMaxLength")].join(
-            "\n",
-          )}
           onSubmitEditing={() => void submit()}
         />
+        <Text style={styles.notice} testID="setup-username-public-notice">
+          {t("appPublicNotice")}
+        </Text>
         {error !== undefined && <FormMessage tone="error">{error}</FormMessage>}
         <Button
           onPress={() => void submit()}
@@ -171,6 +165,11 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 16,
+  },
+  notice: {
+    fontSize: 14,
+    lineHeight: 21,
+    color: colors.surface600,
   },
   links: {
     alignItems: "center",
