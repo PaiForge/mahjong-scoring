@@ -15,7 +15,7 @@ import {
   type ProfileInput,
   type ProfileValidationError,
   normalizeAndValidateProfile,
-} from "@/lib/validations/profile";
+} from "@mahjong-scoring/features/profile/validation";
 
 /** プロフィール更新の失敗理由 */
 export type UpdateProfileError =

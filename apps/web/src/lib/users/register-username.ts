@@ -6,7 +6,7 @@ import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
 import { validateUsername } from "@/lib/username";
 import type { UsernameValidationError } from "@/lib/username";
-import { validateDisplayName } from "@/lib/validations/profile";
+import { validateDisplayName } from "@mahjong-scoring/features/profile/validation";
 
 import { lockAccountForWrite } from "./account-write-lock";
 
