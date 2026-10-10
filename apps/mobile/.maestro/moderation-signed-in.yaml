@@ -1,0 +1,101 @@
+# ログイン中（bob）の通報とブロック: seed_alice のプロフィールから通報（「その他」で
+# 詳細が無いと誤りが出て送れない → 宣伝・スパムで送る）、ブロック（確認のダイアログ）で
+# ブロック中の案内に替わり、ランキングから消える。設定の「ブロックしたユーザー」で
+# 解除して元に戻す。通報は reports に残る（管理画面の /admin/reports）。運営者への
+# メールは Resend で送るので、手元（キー無し）では送られない
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- openLink: "mahjong-scoring://u/seed_alice"
+- extendedWaitUntil:
+    visible:
+      id: "public-profile-report"
+    timeout: 10000
+- takeScreenshot: moderation-profile-member
+# 通報
+- tapOn:
+    id: "public-profile-report"
+- extendedWaitUntil:
+    visible:
+      id: "report-submit"
+    timeout: 5000
+- takeScreenshot: moderation-report-sheet
+- tapOn:
+    id: "report-reason-other"
+- tapOn:
+    id: "report-submit"
+- assertVisible:
+    id: "report-error"
+- takeScreenshot: moderation-report-detail-required
+- tapOn:
+    id: "report-reason-spam"
+- tapOn:
+    id: "report-submit"
+- extendedWaitUntil:
+    visible:
+      id: "public-profile-moderation-message"
+    timeout: 10000
+- takeScreenshot: moderation-reported
+# ブロック
+- tapOn:
+    id: "public-profile-block"
+- extendedWaitUntil:
+    visible:
+      id: "public-profile-block-confirm-confirm"
+    timeout: 5000
+- takeScreenshot: moderation-block-confirm
+- tapOn:
+    id: "public-profile-block-confirm-confirm"
+- extendedWaitUntil:
+    visible:
+      id: "public-profile-unblock"
+    timeout: 10000
+- takeScreenshot: moderation-blocked
+# ランキングから消える（seed_carol は 14 位、seed_alice は 15 位）
+- openLink: "mahjong-scoring://leaderboard/all-time/jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "leaderboard-table"
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: "leaderboard-row-seed_carol"
+    direction: DOWN
+- assertNotVisible:
+    id: "leaderboard-row-seed_alice"
+- takeScreenshot: moderation-leaderboard-without-blocked
+# 設定の「ブロックしたユーザー」で解除する
+- openLink: "mahjong-scoring://preferences"
+- scrollUntilVisible:
+    element:
+      id: "preferences-blocked-users"
+    direction: DOWN
+- tapOn:
+    id: "preferences-blocked-users"
+- extendedWaitUntil:
+    visible:
+      id: "blocked-users-unblock-seed_alice"
+    timeout: 10000
+- takeScreenshot: moderation-blocked-users
+- tapOn:
+    id: "blocked-users-unblock-seed_alice"
+- extendedWaitUntil:
+    visible:
+      id: "blocked-users-message"
+    timeout: 10000
+- assertNotVisible:
+    id: "blocked-users-unblock-seed_alice"
+- takeScreenshot: moderation-unblocked

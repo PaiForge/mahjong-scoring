@@ -1,0 +1,17 @@
+# ゲストの公開プロフィール: 通報とブロックの代わりにログインが要る旨と、ログインへの導線
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://u/seed_bob"
+- extendedWaitUntil:
+    visible:
+      id: "public-profile-guest-note"
+    timeout: 10000
+- assertNotVisible:
+    id: "public-profile-report"
+- takeScreenshot: moderation-guest-note

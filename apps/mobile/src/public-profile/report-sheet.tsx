@@ -163,7 +163,8 @@ export function ReportSheet({
 const styles = StyleSheet.create({
   content: {
     gap: 20,
-    paddingBottom: 8,
+    // 末尾の「キャンセル」をホームインジケータに掛けない
+    paddingBottom: 32,
   },
   lead: {
     fontSize: 15,
