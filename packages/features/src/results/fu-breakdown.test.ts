@@ -34,6 +34,10 @@ describe("buildFuBreakdown", () => {
     expect(buildFuBreakdown(DETAILS, 30, t).note).toBe(
       "26符 → 30符（<roundUp>）",
     );
+    expect(buildFuBreakdown(DETAILS, 30, t).rounded).toEqual({
+      label: "<roundedUp>",
+      value: "30符",
+    });
   });
 
   it("合計と正解が一致するときは補足を出さない", () => {
@@ -42,5 +46,6 @@ describe("buildFuBreakdown", () => {
       { reason: "門前加符", fu: 10 },
     ];
     expect(buildFuBreakdown(exact, 30, t).note).toBeUndefined();
+    expect(buildFuBreakdown(exact, 30, t).rounded).toBeUndefined();
   });
 });

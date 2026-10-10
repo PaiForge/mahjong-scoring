@@ -24,14 +24,8 @@ interface ResultBreakdownTableProps {
  * 符詳細・役詳細の表
  *
  * 翻数・符の内訳の行と合計を {@link DetailTable} で並べる。開閉と切り替えは
- * 置く側の `BreakdownPanel` が持つ。
- *
- * 符の切り上げは合計の下に「切り上げ後 40符」として最後の計算に据え、
- * 正解の符だけを一段大きく濃くする。小さな補足（「32符 → 40符（切り上げ）」）
- * では、内訳の合計 32符と答えの 40符のどちらが正解なのかが一目で読めず、
- * 切り上げを忘れた人ほど 32符 のほうを答えだと読む。行ごとに色分けしたり
- * カードにしたりはしない — 強調するのは結論の 1 か所だけにして、表の丈を
- * 増やさない。
+ * 置く側の `BreakdownPanel` が持つ。符の切り上げは合計の下に「切り上げ後 40符」
+ * として据える（理由は {@link DetailTable} の `conclusion`）。
  */
 export function ResultBreakdownTable({
   items,
@@ -52,15 +46,13 @@ export function ResultBreakdownTable({
         label: t("result.details.total"),
         value: withSuffix(total),
       }}
-      note={
-        roundedTotal !== undefined && total !== roundedTotal ? (
-          <span className="inline-flex items-baseline gap-2">
-            {t("result.details.roundedUp")}
-            <span className="text-base font-bold text-surface-900">
-              {withSuffix(roundedTotal)}
-            </span>
-          </span>
-        ) : undefined
+      conclusion={
+        roundedTotal !== undefined && total !== roundedTotal
+          ? {
+              label: t("result.details.roundedUp"),
+              value: withSuffix(roundedTotal),
+            }
+          : undefined
       }
     />
   );

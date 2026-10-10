@@ -34,6 +34,7 @@ describe("useFuBreakdown", () => {
       ],
       total: { label: "合計", value: "32符" },
       note: "32符 → 40符（切り上げ）",
+      rounded: { label: "切り上げ後", value: "40符" },
     });
   });
 });

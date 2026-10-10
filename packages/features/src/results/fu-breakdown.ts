@@ -3,8 +3,8 @@ import type { FuDetail } from "@mahjong-scoring/core";
 /**
  * 符の内訳の翻訳関数
  *
- * `breakdownTitle` / `breakdownTotal` / `roundUp` / `fuSuffix`（`value` の補間）を
- * 持つ名前空間（例: "totalFu"）を引く。
+ * `breakdownTitle` / `breakdownTotal` / `roundUp` / `roundedUp` / `fuSuffix`
+ * （`value` の補間）を持つ名前空間（例: "totalFu"）を引く。
  */
 type FuBreakdownTranslator = (
   key: string,
@@ -27,6 +27,14 @@ export interface FuBreakdown {
   readonly total: FuBreakdownRow;
   /** 合計と正解が違うとき（切り上げ）だけの補足。例: 「32符 → 40符（切り上げ）」 */
   readonly note: string | undefined;
+  /**
+   * 合計と正解が違うとき（切り上げ）だけの、切り上げ後の符の行。例: 「切り上げ後」「40符」
+   *
+   * `note` と同じことを、正解の符を主役にして言う形。web は表の最後の計算として
+   * これを強調して出す（内訳の合計 32符 と答えの 40符 のどちらが正解かを
+   * 一目で読ませるため）。モバイルは `note` を出す
+   */
+  readonly rounded: FuBreakdownRow | undefined;
 }
 
 /**
@@ -49,6 +57,8 @@ export function buildFuBreakdown(
   const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
   const formatFu = (value: number) => t("fuSuffix", { value });
 
+  const isRounded = rawTotal !== answer;
+
   return {
     title: t("breakdownTitle"),
     rows: details.map((detail) => ({
@@ -56,9 +66,11 @@ export function buildFuBreakdown(
       value: formatFu(detail.fu),
     })),
     total: { label: t("breakdownTotal"), value: formatFu(rawTotal) },
-    note:
-      rawTotal === answer
-        ? undefined
-        : `${formatFu(rawTotal)} → ${formatFu(answer)}（${t("roundUp")}）`,
+    note: isRounded
+      ? `${formatFu(rawTotal)} → ${formatFu(answer)}（${t("roundUp")}）`
+      : undefined,
+    rounded: isRounded
+      ? { label: t("roundedUp"), value: formatFu(answer) }
+      : undefined,
   };
 }

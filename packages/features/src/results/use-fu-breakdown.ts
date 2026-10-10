@@ -15,7 +15,7 @@ import { buildFuBreakdown, type FuBreakdown } from "./fu-breakdown";
  * @param details - 切り上げ前の符の内訳
  * @param answer - 切り上げ後の符（正解）
  * @param translationNamespace - `breakdownTitle` / `breakdownTotal` / `roundUp` /
- *   `fuSuffix` を持つ名前空間（例: "totalFu"）
+ *   `roundedUp` / `fuSuffix` を持つ名前空間（例: "totalFu"）
  */
 export function useFuBreakdown(
   details: readonly FuDetail[],
