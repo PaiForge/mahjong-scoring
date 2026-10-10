@@ -34,9 +34,8 @@ const PILL_CLASSES =
  * 大きく掲げて主役にするためのもの。こちらは名前まで含めて 1 つのラベルに
  * なり、添えものとして小さく置ける。
  *
- * 帯バッジと同じ理由でこのアプリ既定の太枠（`border-3 border-ink`）を付け
- * ない。枠の ink は緑で、帯色の pill を縁取ると緑の輪が帯の一部に見え、
- * 5級（オレンジ）が「緑帯」に読めてしまう。
+ * 帯バッジと同じ理由で枠を付けない。帯色の pill を別の色で縁取ると、その
+ * 輪が帯の一部に見え、5級（オレンジ）が別の色の帯に読めてしまう。
  */
 export function BeltPill({ slug, label, href, ariaLabel }: BeltPillProps) {
   const className = `${PILL_CLASSES} ${beltClass(slug)} ${beltForegroundClass(slug)}`;

@@ -8,7 +8,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * ローディング
  *
  * 実描画（ログイン情報のカード 1 枚 → 退会リンク）に合わせる。
- * カードの太枠は `/mypage/plan` のスケルトンと同じく灰色に置き換える。
+ * カードの枠は `/mypage/plan` のスケルトンと同じく灰色に置き換える。
  */
 export default function Loading() {
   return (

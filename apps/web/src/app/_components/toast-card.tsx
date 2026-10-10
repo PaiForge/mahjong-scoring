@@ -6,8 +6,7 @@ import { resolveValue, type Toast } from "react-hot-toast";
  * トーストの見た目（種類ごとの配色とアイコン）
  * トーストカード
  *
- * react-hot-toast の既定の見た目（白い角丸にぼかし影）はこのアプリの
- * 骨格（太枠）から浮くため、
+ * react-hot-toast の既定の見た目は配色が状態色トークンに乗らないため、
  * {@link import("./global-toaster").GlobalToaster} が全トーストを
  * これに差し替えて描く。
  *
@@ -16,8 +15,8 @@ import { resolveValue, type Toast } from "react-hot-toast";
  *
  * 強さは 2 段に分かれる。success / error は濃い塗りに白文字で「判定」を返し、
  * blank は淡い塗りに濃い文字で「報告」を返す（「練習を終了しました」等、
- * 正誤でも破壊的操作でもないもの）。太枠の ink が両者を束ねるため、
- * 強さが違っても同じ部品に見える。
+ * 正誤でも破壊的操作でもないもの）。画面の上に浮く層なので、どちらも
+ * 同じ淡い縁と柔らかい影を持ち、強さが違っても同じ部品に見える。
  *
  * blank に琥珀（warning-subtle）を引くのは、白（bg-card）だと下地の白カードと
  * 同化して出たことに気づけないため。トーン名は warning だが、このアプリの琥珀は

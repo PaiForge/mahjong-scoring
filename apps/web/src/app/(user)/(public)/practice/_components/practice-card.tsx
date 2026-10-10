@@ -61,7 +61,7 @@ export function PracticeCard({
           <div className="flex shrink-0 items-center gap-3">
             {learnHref && learnLabel && (
               // 丸で囲むのは押せることを示すため。アイコンだけを地に置くと
-              // 見出しの装飾に見える。太枠（border-3 border-ink）にしないのは
+              // 見出しの装飾に見える。枠を淡い細線に留めるのは
               // 隣の段級位ピルが枠を持たないため（`BeltPill` の TSDoc 参照）
               <Link
                 href={learnHref}

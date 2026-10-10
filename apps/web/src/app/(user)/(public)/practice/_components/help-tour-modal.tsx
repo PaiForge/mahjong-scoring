@@ -86,8 +86,8 @@ export function HelpTourModal({
   return (
     // ヘッダー・本文・フッターの区画をパネル自身の flex で組むため、
     // 既定のパネル体裁の余白（p-6 / space-y-6）は使わず差し替える。外枠
-    // （太枠・角丸）は他のモーダルと同じものを保つ — モーダルは地から浮かせる
-    // 最外の面で、ContentContainer の白カードと同じ記号を着る。
+    // （細枠・角丸・柔らかい影）は他のモーダルと同じものを保つ — モーダルは
+    // 画面の上に浮く層で、地に置かれた面とは影の有無で区別する。
     <ModalShell
       isOpen={isOpen}
       onClose={close}
