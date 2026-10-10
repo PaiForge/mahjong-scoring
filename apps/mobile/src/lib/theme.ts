@@ -55,6 +55,11 @@ export const colors = {
   amber50: "#fffbeb",
   red500: "#ef4444",
   white: "#ffffff",
+
+  /** ランキングの上位3位の行の左端の縁（`--color-podium-*`） */
+  podiumGold: "#e6b422",
+  podiumSilver: "#b0b3b8",
+  podiumBronze: "#c17f3f",
 } as const;
 
 /** 角丸（web の `--radius-*` を取り直した値） */

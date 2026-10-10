@@ -14,7 +14,7 @@ const DATE_COLUMN_WIDTH = 140;
  * 0 回は地の文字色、1 回は注意、2 回以上は危険。チャレンジはミス 3 回で
  * 終わるので、2 回は「あと 1 回」の警告に当たる。
  */
-function missColor(incorrectAnswers: number): string {
+export function missColor(incorrectAnswers: number): string {
   if (incorrectAnswers === 0) return colors.foreground;
   if (incorrectAnswers <= 1) return colors.warning;
   return colors.destructive;
