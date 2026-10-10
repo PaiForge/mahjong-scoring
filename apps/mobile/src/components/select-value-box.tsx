@@ -6,7 +6,7 @@ import {
   type ViewStyle,
 } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { borderWidth, colors, radius } from "../lib/theme";
 import type { SelectOption } from "./select-option-list";
 
 interface SelectValueBoxProps {
@@ -19,7 +19,7 @@ interface SelectValueBoxProps {
   /** チップの × を押したときの解除。省略すると × を出さない */
   readonly onRemove?: (value: string) => void;
   /**
-   * 枠線と背景（既定: 白地に ink の枠）
+   * 枠線と背景（既定: 白地に一段濃い灰の枠）
    *
    * 回答の正誤を箱の色で示す練習が、フィードバック中だけ差し替える。
    * 渡すと disabled の灰色にも勝つ。
@@ -89,17 +89,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     alignItems: "center",
     gap: 8,
-    borderWidth: 3,
+    borderWidth: borderWidth.panel,
     borderRadius: radius.lg,
     paddingHorizontal: 8,
     paddingVertical: 6,
   },
   boxEnabled: {
-    borderColor: colors.ink,
+    borderColor: colors.surface400,
     backgroundColor: colors.white,
   },
   boxDisabled: {
-    borderColor: colors.ink,
+    borderColor: colors.surface400,
     backgroundColor: colors.surface100,
   },
   chip: {
