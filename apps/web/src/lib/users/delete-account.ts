@@ -19,6 +19,7 @@ import {
   stripeCustomers,
   userExp,
   userRanks,
+  userBlocks,
   userRoles,
   type AccountDeletion,
 } from "@/lib/db";
@@ -68,7 +69,8 @@ const CRON_BATCH_SIZE = 20;
  *   監査ログ保持の足場として残す。
  * - `profiles` は行を残し、個人情報を NULL 化して `deletedAt` を記録する
  *   （username は再利用防止のため保持）。
- * - 成績・経験値・学習履歴・段級位・ロール・途中のチャレンジ・通知は物理削除する
+ * - 成績・経験値・学習履歴・段級位・ロール・途中のチャレンジ・通知・ブロック（した側・
+ *   された側の両方）は物理削除する
  *   （ランキングからも消える）。購入・顧客対応・手動付与・無料枠も同じ
  *   トランザクションで明示的に削除する。auth.users のソフトデリートでは
  *   CASCADE しない。購入手続きは顧客対応の削除に CASCADE する。Stripe の
@@ -294,6 +296,13 @@ async function deleteAccountData(userId: string): Promise<void> {
       .delete(challengeAttempts)
       .where(eq(challengeAttempts.userId, userId));
     await tx.delete(notifications).where(eq(notifications.userId, userId));
+    // ブロックは本人がした分も、本人がされた分も消す。された分は相手の設定だが、
+    // 退会した人はどの画面にも出ないので、残しても相手の一覧に宛先の無い行が残るだけ
+    await tx
+      .delete(userBlocks)
+      .where(
+        or(eq(userBlocks.blockerId, userId), eq(userBlocks.blockedId, userId)),
+      );
 
     await tx
       .update(profiles)

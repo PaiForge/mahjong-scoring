@@ -3,6 +3,7 @@ import {
   mockRecordModerationAction,
   mockRequireAdminActor,
   mockRevalidatePath,
+  mockRevalidateTag,
   mockTransaction,
   setupAdminActor,
 } from "@/test/admin-action-mocks";
@@ -116,6 +117,8 @@ describe("unbanUser", () => {
       ipAddress: "203.0.113.1",
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/users", "layout");
+    // ランキングに載るかどうかが変わるので、ランキングのキャッシュも捨てる
+    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "default");
   });
 
   it("仮登録（プロフィール無し）の BAN も解除できる — Auth にしか残っていない BAN を解く経路", async () => {

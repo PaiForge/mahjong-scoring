@@ -3,5 +3,17 @@
   "metaDescription": "{name} さんのプロフィール",
   "bioTitle": "自己紹介",
   "bioEmpty": "自己紹介は登録されていません。",
-  "snsTitle": "SNS"
+  "snsTitle": "SNS",
+  "block": "ブロックする",
+  "blockConfirmTitle": "@{username} をブロックしますか？",
+  "blockConfirmMessage": "ブロックすると、この人はあなたが見るランキングとプロフィールに表示されなくなります。相手には通知されません。ブロックは設定からいつでも解除できます。",
+  "blockConfirm": "ブロックする",
+  "cancel": "キャンセル",
+  "blockedToast": "ブロックしました。",
+  "blockFailedToast": "ブロックできませんでした。しばらくしてからもう一度お試しください。",
+  "blockedNotice": "@{username} をブロックしています。ランキングとこのページにこの人の情報は表示されません。",
+  "unblock": "ブロックを解除",
+  "unblockedToast": "ブロックを解除しました。",
+  "unblockFailedToast": "解除できませんでした。しばらくしてからもう一度お試しください。",
+  "guestModerationNote": "通報とブロックにはログインが必要です。<signIn>ログイン</signIn>"
 }

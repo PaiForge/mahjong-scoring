@@ -366,3 +366,37 @@ END;
 $$;
 
 REVOKE ALL ON TABLE public.notifications FROM anon, authenticated;
+
+-- =============================================================================
+-- user_blocks
+-- =============================================================================
+-- 本人のブロックの設定。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会はソフトデリートで auth.users を残すので、行は退会の処理が明示的に消す。
+
+-- FK constraint: user_blocks.blocker_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'user_blocks_blocker_id_fkey'
+  ) THEN
+    ALTER TABLE public.user_blocks
+      ADD CONSTRAINT user_blocks_blocker_id_fkey
+      FOREIGN KEY (blocker_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+-- FK constraint: user_blocks.blocked_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'user_blocks_blocked_id_fkey'
+  ) THEN
+    ALTER TABLE public.user_blocks
+      ADD CONSTRAINT user_blocks_blocked_id_fkey
+      FOREIGN KEY (blocked_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.user_blocks FROM anon, authenticated;

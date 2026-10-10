@@ -78,6 +78,7 @@ export const getProfileCardByUserId = cache(async (userId: string) => {
 export const getPublicProfileByUsername = cache(async (username: string) => {
   const [profile] = await db
     .select({
+      id: profiles.id,
       username: profiles.username,
       displayName: profiles.displayName,
       avatarUrl: profiles.avatarUrl,

@@ -14,7 +14,7 @@ import {
   PERMANENT_BAN_DURATION,
   recordModerationAction,
 } from "../_lib/moderation";
-import { revalidateAdminUsers } from "../_lib/revalidate";
+import { revalidateBanViews } from "../_lib/revalidate";
 
 /**
  * ユーザーを BAN する Server Action。
@@ -102,6 +102,6 @@ export async function banUser(
     return { error: "banFailed" };
   }
 
-  revalidateAdminUsers();
+  revalidateBanViews();
   return { success: true };
 }

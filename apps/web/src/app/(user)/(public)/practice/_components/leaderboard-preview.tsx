@@ -6,6 +6,8 @@ import { LeaderboardTableHeader } from "@/app/(user)/(public)/leaderboard/_compo
 import { LeaderboardTableRow } from "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-row";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 import { getLeaderboard } from "@/app/(user)/(public)/leaderboard/_actions/get-leaderboard";
+import { getOptionalUser } from "@/lib/auth";
+import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
 import { buildDetailPath } from "@/app/(user)/(public)/leaderboard/_lib/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -67,17 +69,23 @@ const PREVIEW_COUNT = 3;
  *
  * @remarks
  * 結果ページと練習の説明ページ（`renderLeaderboardPreview` 経由）で共有する。
+ * 閲覧者がブロックした人は除く（順位は数え直さないので、上位が 1・2・4 位に
+ * なることがある）。どちらの呼び出し元もリクエストごとに描くので cookie を読める。
  */
 export async function BoardLeaderboardPreview({
   board,
 }: {
   readonly board: PracticeBoard;
 }) {
-  const { rows } = await getLeaderboard(board, "all-time", 1);
+  const user = await getOptionalUser();
+  const [{ rows }, blockedIds] = await Promise.all([
+    getLeaderboard(board, "all-time", 1),
+    getBlockedUserIds(user?.id),
+  ]);
 
   return (
     <LeaderboardPreview
-      rows={rows.slice(0, PREVIEW_COUNT)}
+      rows={withoutBlocked(rows, blockedIds).slice(0, PREVIEW_COUNT)}
       detailPath={buildDetailPath("all-time", board)}
     />
   );

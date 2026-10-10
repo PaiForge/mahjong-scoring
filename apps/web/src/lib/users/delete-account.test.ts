@@ -154,7 +154,12 @@ import {
   processPendingAccountDeletions,
   requestAccountDeletion,
 } from "./delete-account";
-import { challengeAttempts, notifications, purchases } from "../db/schema";
+import {
+  challengeAttempts,
+  notifications,
+  purchases,
+  userBlocks,
+} from "../db/schema";
 
 const USER = "11111111-1111-4111-8111-111111111111";
 
@@ -219,10 +224,15 @@ describe("requestAccountDeletion", () => {
     expect(state.row).toMatchObject({ appleRevokedAt: expect.any(Date) });
   });
 
-  it("途中のチャレンジ・通知・購入も消す（Auth のソフト削除では CASCADE しない）", async () => {
+  it("途中のチャレンジ・通知・購入・ブロックも消す（Auth のソフト削除では CASCADE しない）", async () => {
     await requestAccountDeletion(USER);
 
-    for (const table of [challengeAttempts, notifications, purchases])
+    for (const table of [
+      challengeAttempts,
+      notifications,
+      purchases,
+      userBlocks,
+    ])
       expect(mocks.dataDeletes).toHaveBeenCalledWith(table);
   });
 

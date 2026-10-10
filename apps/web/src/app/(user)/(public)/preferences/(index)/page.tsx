@@ -2,7 +2,7 @@
  * 設定（環境設定）
  *
  * @description 麻雀ルールの差分設定・表示設定（いずれも端末ローカル）と
- * プライバシー設定（アカウントに紐づく）を集約するページ。
+ * プライバシー設定（ランキング非表示・ブロックしたユーザー。アカウントに紐づく）を集約するページ。
  * @flow ヘッダーのメニュー / アカウントメニュー → 設定
  */
 import type { Metadata } from "next";
@@ -13,6 +13,7 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { AnchorScroll } from "../_components/anchor-scroll";
+import { BlockedUsersSection } from "../_components/blocked-users-section";
 import { DisplaySettingsSection } from "../_components/display-settings-section";
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
@@ -52,6 +53,7 @@ export default async function PreferencesPage() {
             <section className="space-y-4">
               <SectionTitle>{t("privacySectionTitle")}</SectionTitle>
               <PrivacySettingsSection />
+              <BlockedUsersSection />
             </section>
           </div>
         </MembersOnlyGate>

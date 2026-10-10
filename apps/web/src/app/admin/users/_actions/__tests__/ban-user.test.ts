@@ -3,6 +3,7 @@ import {
   mockRecordModerationAction,
   mockRequireAdminActor,
   mockRevalidatePath,
+  mockRevalidateTag,
   mockTransaction,
   setupAdminActor,
 } from "@/test/admin-action-mocks";
@@ -106,6 +107,8 @@ describe("banUser", () => {
       ipAddress: "203.0.113.1",
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/users", "layout");
+    // ランキングに載るかどうかが変わるので、ランキングのキャッシュも捨てる
+    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "default");
   });
 
   it("仮登録（プロフィール無し）でも成功する — profiles の更新は 0 行で BAN は Auth にだけ残る", async () => {

@@ -53,6 +53,9 @@ export const mockRevalidatePath = vi.fn();
 /** `admin/users/_lib/moderation` の `recordModerationAction` の差し替え先 */
 export const mockRecordModerationAction = vi.fn();
 
+/** `next/cache` の `revalidateTag`（BAN でランキングのキャッシュを捨てる） */
+export const mockRevalidateTag = vi.fn();
+
 /** `@/lib/notifications/create-notification` の `notifyQuietly` の差し替え先 */
 export const mockNotify = vi.fn();
 
@@ -64,6 +67,9 @@ export const getClientIp = mockGetClientIp;
 
 /** `vi.mock("next/cache", ...)` 用のエイリアス */
 export const revalidatePath = mockRevalidatePath;
+
+/** `next/cache` の `revalidateTag` */
+export const revalidateTag = mockRevalidateTag;
 
 /** `vi.mock("@/lib/notifications/create-notification", ...)` 用のエイリアス */
 export const notifyQuietly = mockNotify;

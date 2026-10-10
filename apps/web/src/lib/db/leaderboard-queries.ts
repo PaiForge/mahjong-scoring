@@ -3,7 +3,7 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import { jstStartOfMonth } from "@mahjong-scoring/features/jst";
 
 import { db } from "./index";
-import { notHiddenFromLeaderboard } from "./leaderboard-visibility";
+import { visibleOnLeaderboard } from "./leaderboard-visibility";
 import { rankingOrder } from "./ranking-order";
 import { challengeBestScores, challengeResults, profiles } from "./schema";
 
@@ -115,13 +115,13 @@ export function periodResultsWhere(
  * 全期間ランキング母集団
  *
  * profiles との結合を前提に、対象の練習・セグメントかつランキング非表示で
- * ないものへ絞る。一覧と件数で同じものを使う。
+ * ないもの（BAN・退会も除く）へ絞る。一覧と件数で同じものを使う。
  */
 function allTimeWhere(menuType: string, leaderboardKey: string) {
   return and(
     eq(challengeBestScores.menuType, menuType),
     eq(challengeBestScores.leaderboardKey, leaderboardKey),
-    notHiddenFromLeaderboard(),
+    visibleOnLeaderboard(),
   );
 }
 
@@ -201,7 +201,7 @@ async function getPeriodRanking(
     })
     .from(bestPerUser)
     .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
-    .where(notHiddenFromLeaderboard())
+    .where(visibleOnLeaderboard())
     .orderBy(...rankingOrder(bestPerUser))
     .offset(offset)
     .limit(limit);
@@ -211,7 +211,7 @@ async function getPeriodRanking(
     .select({ count: sql<number>`count(*)::int` })
     .from(bestPerUser)
     .innerJoin(profiles, eq(bestPerUser.userId, profiles.id))
-    .where(notHiddenFromLeaderboard());
+    .where(visibleOnLeaderboard());
 
   return {
     rows: rows.map(toLeaderboardRow),
