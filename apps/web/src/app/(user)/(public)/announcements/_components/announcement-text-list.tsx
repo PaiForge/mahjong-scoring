@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { Announcement } from "@/lib/db";
 
-import { formatPublishedDate } from "../_lib/format";
+import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
 
 interface AnnouncementTextListProps {
   readonly announcements: readonly Announcement[];

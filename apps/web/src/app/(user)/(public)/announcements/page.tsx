@@ -22,7 +22,7 @@ import { AnnouncementTextList } from "./_components/announcement-text-list";
 import {
   getPublishedAnnouncementCount,
   getPublishedAnnouncementsPaginated,
-} from "./_lib/queries";
+} from "@/lib/announcements/queries";
 
 export const revalidate = 86400;
 

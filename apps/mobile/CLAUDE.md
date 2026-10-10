@@ -95,7 +95,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`/api/ads/<スロット>`）から読み（`src/ads/use-native-ads.ts`）、スロットは
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
   分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
-  ランキング・お知らせは画面が無いので持たない。開発中は Metro を動かす
+  ランキングは画面が無いので持たない。開発中は Metro を動かす
   Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
@@ -142,6 +142,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     試験を開くと先に取る級と道場への導線。模試はどちらも受けられる
   - `exam-play` — `bob@`（5級）が 4級の本番を説明から始め、最初の選択肢を押し続けて終わらせる。
     結果に合否の帯が出て判定の送信が済む。合格（昇級バナー）は Maestro では作れない
+  - `announcements` — ゲストのホームの末尾にお知らせ 3 件（ピン留めが先）、「すべて見る」で一覧
+    （末尾に広告の行）、dev seed の「書式の見本」の詳細で本文の描き方（リンク・箇条書き・引用・
+    コード・表）を撮る
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい

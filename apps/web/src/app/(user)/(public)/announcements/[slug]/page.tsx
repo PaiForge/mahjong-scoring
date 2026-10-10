@@ -14,8 +14,8 @@ import { MarkdownRenderer } from "@/app/(user)/_components/markdown-renderer";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
-import { formatPublishedDate } from "../_lib/format";
-import { getPublishedAnnouncement } from "../_lib/queries";
+import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
+import { getPublishedAnnouncement } from "@/lib/announcements/queries";
 
 export const revalidate = 86400;
 

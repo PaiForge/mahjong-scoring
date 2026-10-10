@@ -38,6 +38,12 @@ describe("counterpartSlot", () => {
     );
   });
 
+  it("お知らせの一覧は web とアプリで対になる", () => {
+    expect(counterpartSlot("announcements-index-native-ad")).toBe(
+      "mobile-announcements-index-native-ad",
+    );
+  });
+
   it("1 つの web のスロットに対になるアプリのスロットは 1 つまで", () => {
     const webs = mobileSlots.map(counterpartSlot);
     expect(new Set(webs).size).toBe(webs.length);
@@ -45,6 +51,5 @@ describe("counterpartSlot", () => {
 
   it("アプリに画面の無い web のスロットは対を持たない", () => {
     expect(counterpartSlot("leaderboard-index-native-ad")).toBeUndefined();
-    expect(counterpartSlot("announcements-index-native-ad")).toBeUndefined();
   });
 });

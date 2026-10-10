@@ -244,6 +244,10 @@ const SLOT_BOOKS: Record<
     { id: "2ebff36b-e29d-4ac5-9742-f9949e46088a", book: "haiKouritsu" },
     { id: "3c7c44cb-2f1e-401c-b3e2-ab5b7928bfd5", book: "oshihiki" },
   ],
+  [MOBILE_AD_SLOTS.announcementsIndex]: [
+    { id: "fb7188d5-6653-4740-8a7b-1768d527b2c3", book: "shinsoku" },
+    { id: "37f43c76-fb41-40f7-aec8-54a2eb302d61", book: "oshihiki" },
+  ],
 };
 
 /** シードが書く広告 1 行（本体 + 文言） */

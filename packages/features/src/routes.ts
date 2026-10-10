@@ -91,6 +91,19 @@ export const PRACTICE_PATH = "/practice";
 /** レッスン一覧（教本の目次）のパス */
 export const LESSONS_PATH = "/lessons";
 
+/** お知らせ一覧のパス */
+export const ANNOUNCEMENTS_PATH = "/announcements";
+
+/**
+ * お知らせ 1 件のパス
+ * お知らせパス
+ *
+ * @param slug - お知らせの slug
+ */
+export function announcementHref(slug: string): string {
+  return `${ANNOUNCEMENTS_PATH}/${encodeURIComponent(slug)}`;
+}
+
 /** 設定のパス */
 export const PREFERENCES_PATH = "/preferences";
 
