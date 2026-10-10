@@ -129,6 +129,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   - `setup-username-generate` — `ivan@` のユーザー名の設定で自動生成を押すと、
     `player_` + 16 進 10 桁が欄に入る。登録はしない（`ivan@` を未設定のまま残す）
   - `challenge-recorded` — `bob@` でログインし雀頭の符計算を 1 回走らせ、結果に記録と EXP
+  - `challenge-quit-recorded` — `bob@` のチャレンジで中止の確認を開いて「続ける」で戻り、答えられること、
+    もう一度開いて中止するとトーストが出ること（記録付きだけで起きた、確認が出ず押せなくなる不具合の再現）
   - `mypage-guest` / `mypage-username-missing` — ホームの人型のアイコンからマイページを
     開くと、記録の案内（登録 / ユーザー名の設定）が出る
   - `mypage-signed-in` — `bob@` のマイページ。見出しと直近 7 日のアクティビティ、今日の
