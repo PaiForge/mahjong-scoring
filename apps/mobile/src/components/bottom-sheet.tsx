@@ -1,42 +1,20 @@
+import { BottomSheet as NativeBottomSheet, RNHostView } from "@expo/ui";
+import type { ReactNode } from "react";
 import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import {
-  Animated,
-  Easing,
-  Modal,
-  PanResponder,
-  Pressable,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  type DimensionValue,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-  type ScrollViewProps,
   useWindowDimensions,
+  type DimensionValue,
+  type ScrollViewProps,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, radius } from "../lib/theme";
+import { colors } from "../lib/theme";
 
-/** 上端を引き下げて閉じる距離（px） */
-const DRAG_CLOSE_DISTANCE = 96;
-/** 上端を払って閉じる速さ（px/ms）。距離が足りなくても素早く払えば閉じる */
-const DRAG_CLOSE_VELOCITY = 0.8;
-/** 中身を先頭からさらに引き下げて閉じる量（iOS の引っ張りの量、px） */
-const PULL_CLOSE_DISTANCE = 72;
-/** 開くときのせり上がりの長さ（ms） */
-const OPEN_DURATION = 320;
-/** 閉じるときの下がる長さ（ms）。指を離した位置から続けて下がる */
-const CLOSE_DURATION = 240;
+/** 中身なりの高さの上限（画面の割合）。超える分は中身のスクロール枠が受け持つ */
+const AUTO_MAX_HEIGHT_RATIO = 0.85;
 
 interface BottomSheetProps {
   readonly isOpen: boolean;
@@ -56,8 +34,6 @@ interface BottomSheetProps {
   readonly children: ReactNode;
 }
 
-const SheetCloseContext = createContext<(() => void) | undefined>(undefined);
-
 /**
  * 下からせり上がるシート（ボトムシート）
  * ボトムシート
@@ -66,246 +42,105 @@ const SheetCloseContext = createContext<(() => void) | undefined>(undefined);
  * 選ばせるものの器。スマホアプリでは中央のダイアログより下からのシートが
  * 定石（親指で届き、背景を押せば閉じる）。
  *
- * 上端の取っ手は「引き下げて閉じられる」印で、OS 標準のシートと同じ記号。
- * 印だけで閉じられないと、指が覚えている操作が効かずに固まって見えるので、
- * 2 つの経路で閉じる:
+ * 中身は OS 標準のシート（`@expo/ui` の `BottomSheet`。iOS は SwiftUI の
+ * `.sheet`、Android は Material 3 の `ModalBottomSheet`）。引き下げ・払い・
+ * 中身のスクロールが先頭に戻ってからの引き下げ・閉じるときの動き・幕・
+ * 取っ手は、どれも各 OS のものがそのまま出る。iOS の見た目を Android に
+ * 寄せるのではなく、それぞれの OS で指が覚えている振る舞いに合わせる。
  *
- * - 上端（取っ手と見出し）を引き下げる — 指に付いて動き、一定以上引くか
- *   素早く払えば閉じ、足りなければ戻る
- * - 中身のスクロールを先頭から更に引き下げる — 中身のスクロール枠が
- *   {@link useSheetPullToClose} を受け取って付ける（iOS の引っ張りの量で判定。
- *   Android は先頭より上へ引っ張れないので上端だけ）
+ * 以前は RN の `Modal` に `PanResponder` と `Animated` で引き下げを自作して
+ * いたが、次の 2 点で標準のシートと食い違った:
  *
- * 枠も影も持たない（画面の下端から生える面なので、枠や影で区切るより
- * 地の暗さで浮かせる。iOS の標準のシートと同じ）。幕はその場で濃くなり、
- * シートだけが下から上がる。幕の濃さはシートの位置から引くので、引き下げて
- * いる間は引いた量だけ薄くなり、離して閉じるときはその位置から続けて下がる。
+ * - 掴めるのは取っ手と見出しの細い帯だけで、本文を引いても動かない
+ *   （スクロールの先頭からの引っ張りは指を離した瞬間に判定するだけで、
+ *   シートが指に付いてこない。Android にはその経路も無い）
+ * - 閉じる動きが時間固定のイージングで、指を離した速さを引き継がない。
+ *   標準のシートは離した速さを初速にしたばねで下がる
  *
- * OS 標準のシート（iOS の `UISheetPresentationController`、expo-router の
- * `presentation: "formSheet"`）は使わない。画面（ルート）として開く仕組みで、
- * 選択欄のようにその場で開いて値を返す使い方に合わず、Android には同じ部品が
- * 無い（react-native-screens が寄せて再現したものになる）。標準のシートが持つ
- * 動きのうち、ここに無いのは「中身のスクロールが先頭に戻ったら同じ指で
- * シートを下げる」受け渡し・段階の高さ（半分 / 全画面）・キーボードの回避。
- * どれかが要る中身を載せるときは、この API のまま中を `@gorhom/bottom-sheet`
- * （reanimated と gesture-handler が要る）に替える。自前で書き足さない。
+ * スクロールとの受け渡しを手で書き足すより、OS の部品に任せる方が確実。
+ *
+ * OS 標準のシートでも expo-router の `presentation: "formSheet"` は使わない。
+ * 画面（ルート）として開く仕組みで、選択欄のようにその場で開いて値を返す
+ * 使い方に合わない。`@expo/ui` のシートは `isPresented` で開閉する部品。
+ *
+ * RN の中身は `RNHostView` で包んでネイティブのシートへ載せる。中身なりの
+ * 高さは `matchContents`（Yoga の高さをシートへ伝える）、固定の高さは
+ * シートの高さを Yoga へ伝えて中身が埋める。
  */
 export function BottomSheet({
   isOpen,
   onClose,
   title,
-  closeLabel,
   height,
   children,
 }: BottomSheetProps) {
-  const insets = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
-  // シートが下端から上がっている量の逆（0 = 開ききった、シートの高さ = 隠れた）。
-  // 位置も幕の濃さもこの 1 つの値から引くので、指で引いた量に幕が追随する
-  const [offset] = useState(() => new Animated.Value(windowHeight));
-  const [sheetHeight, setSheetHeight] = useState(0);
-  const sheetHeightRef = useRef(0);
-  // 開いた直後はシートの高さが未計測なので、最初の計測を待ってからせり上げる
-  const pendingOpenRef = useRef(false);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const ratio =
+    typeof height === "string" && height.endsWith("%")
+      ? Number(height.slice(0, -1)) / 100
+      : undefined;
+  // シートの高さを中身から決めるか（iOS は常に。Android は中身なりのときだけ）。
+  // iOS の割合の段（presentationDetents の fraction）は、RN の中身へ段の高さが
+  // 伝わらず全高で描かれる（一覧の下端と下のボタンがシートの外にはみ出す）。
+  // 中身なり（fitToContents）は中身の Yoga の高さを段にするので、固定の高さも
+  // 中身の側で高さを決めて中身なりで出す
+  const sizesFromContent = Platform.OS === "ios" || ratio === undefined;
 
-  // 閉じるアニメーションが終わるまで Modal を出したままにする（isOpen が
-  // false になった瞬間に外すと、シートも幕も下がる間もなく消える）
-  const [isMounted, setIsMounted] = useState(isOpen);
-  if (isOpen && !isMounted) setIsMounted(true);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (sheetHeightRef.current === 0) {
-        pendingOpenRef.current = true;
-        offset.setValue(windowHeight);
-        return;
-      }
-      // 閉じる途中で開き直したときは、その位置から上げ直す
-      Animated.timing(offset, {
-        toValue: 0,
-        duration: OPEN_DURATION,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
-      }).start();
-      return;
-    }
-    pendingOpenRef.current = false;
-    Animated.timing(offset, {
-      toValue: sheetHeightRef.current || windowHeight,
-      duration: CLOSE_DURATION,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      // 開き直されて止まったときは出したままにする
-      if (!finished) return;
-      sheetHeightRef.current = 0;
-      setIsMounted(false);
-    });
-  }, [isOpen, offset, windowHeight]);
-
-  const backdropOpacity = useMemo(
-    () =>
-      offset.interpolate({
-        inputRange: [0, Math.max(sheetHeight, 1)],
-        outputRange: [1, 0],
-        extrapolate: "clamp",
-      }),
-    [offset, sheetHeight],
-  );
-
-  // 引いている間は描画し直さない（位置は Animated の値だけで動かす）ので、
-  // 掴んでいる途中で作り直されることはない
-  const dragHandlers = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_e, g) =>
-          g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_e, g) => offset.setValue(Math.max(0, g.dy)),
-        onPanResponderRelease: (_e, g) => {
-          if (g.dy > DRAG_CLOSE_DISTANCE || g.vy > DRAG_CLOSE_VELOCITY) {
-            onClose();
-            return;
-          }
-          Animated.spring(offset, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        },
-        onPanResponderTerminate: () =>
-          Animated.spring(offset, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start(),
-      }).panHandlers,
-    [offset, onClose],
-  );
-
-  // Modal 自身のアニメーション（slide）は使わない。中身全体を 1 枚として
-  // 動かすため、幕までシートと一緒に下から上がってくる。幕はその場で
-  // 濃くなり、シートだけが下から上がるのが iOS / Android 共通のシートの動き
   return (
-    <Modal
-      visible={isMounted}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
+    <NativeBottomSheet
+      isPresented={isOpen}
+      onDismiss={onClose}
+      // Android（Material 3）は半分と全画面の 2 段しか持たない。固定の高さは
+      // 全画面にして中身に高さを与える（中身なりだと一覧の高さが決まらない）
+      snapPoints={sizesFromContent ? undefined : ["full"]}
+      contentPadding={0}
+      containerColor={colors.card}
     >
-      <View style={styles.root}>
-        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-          <Pressable
-            style={StyleSheet.absoluteFill}
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel={closeLabel}
-          />
-        </Animated.View>
-        <Animated.View
-          onLayout={(event) => {
-            const measured = event.nativeEvent.layout.height;
-            sheetHeightRef.current = measured;
-            setSheetHeight(measured);
-            if (!pendingOpenRef.current) return;
-            pendingOpenRef.current = false;
-            offset.setValue(measured);
-            Animated.timing(offset, {
-              toValue: 0,
-              duration: OPEN_DURATION,
-              easing: Easing.out(Easing.cubic),
-              useNativeDriver: true,
-            }).start();
-          }}
+      <RNHostView matchContents={sizesFromContent}>
+        <View
           style={[
             styles.sheet,
-            height === undefined ? styles.sheetAuto : { height },
-            { paddingBottom: Math.max(insets.bottom, 16) },
-            { transform: [{ translateY: offset }] },
+            // 中身なりのときは幅も中身なり（fit-content）に測られ、段落が
+            // 折り返さずに横へ伸びる。幅はシート（画面幅）に合わせる
+            { width: windowWidth },
+            ratio === undefined
+              ? { maxHeight: windowHeight * AUTO_MAX_HEIGHT_RATIO }
+              : sizesFromContent
+                ? { height: windowHeight * ratio }
+                : styles.fill,
           ]}
         >
-          <View style={styles.dragArea} {...dragHandlers}>
-            <View style={styles.grabber} />
-            {title !== undefined && <Text style={styles.title}>{title}</Text>}
+          {title !== undefined && <Text style={styles.title}>{title}</Text>}
+          <View style={ratio === undefined ? styles.content : styles.fill}>
+            {children}
           </View>
-          <View style={height === undefined ? styles.content : styles.fill}>
-            <SheetCloseContext.Provider value={onClose}>
-              {children}
-            </SheetCloseContext.Provider>
-          </View>
-        </Animated.View>
-      </View>
-    </Modal>
+        </View>
+      </RNHostView>
+    </NativeBottomSheet>
   );
 }
 
-/**
- * シートの中のスクロール枠に付ける「先頭から引き下げて閉じる」
- *
- * 返り値をスクロール枠の `onScrollEndDrag` に渡す。シートの外では
- * `undefined`（何もしない）。
- */
-export function useSheetPullToClose():
-  ((event: NativeSyntheticEvent<NativeScrollEvent>) => void) | undefined {
-  const close = useContext(SheetCloseContext);
-  return useMemo(
-    () =>
-      close === undefined
-        ? undefined
-        : (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-            if (event.nativeEvent.contentOffset.y < -PULL_CLOSE_DISTANCE) {
-              close();
-            }
-          },
-    [close],
-  );
+/** 引き下げはネイティブのシートが受け持つ。呼び出し側を外すまでの名残 */
+export function useSheetPullToClose(): undefined {
+  return undefined;
 }
 
-/**
- * シートの中身のスクロール枠（{@link useSheetPullToClose} を付けた `ScrollView`）
- *
- * 先頭から更に引き下げるとシートを閉じる。シートの外では素の `ScrollView`。
- */
+/** 引き下げはネイティブのシートが受け持つ。呼び出し側を外すまでの名残 */
 export function SheetScrollView(props: ScrollViewProps) {
-  const onPullToClose = useSheetPullToClose();
-  return <ScrollView {...props} onScrollEndDrag={onPullToClose} />;
+  return <ScrollView {...props} />;
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
-  backdrop: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    backgroundColor: "rgba(15, 23, 42, 0.45)",
-  },
   sheet: {
-    backgroundColor: colors.card,
-    borderTopLeftRadius: radius["2xl"],
-    borderTopRightRadius: radius["2xl"],
-    paddingTop: 8,
+    // 取っ手は OS が描く。見出しをその下に置く
+    paddingTop: Platform.OS === "ios" ? 24 : 0,
     paddingHorizontal: 20,
+    // ホームインジケーター・ナビゲーションバーの分はシートが取る
+    paddingBottom: 16,
     gap: 12,
-  },
-  sheetAuto: {
-    maxHeight: "85%",
   },
   content: {
     flexShrink: 1,
-  },
-  // 取っ手と見出しをまとめて掴める帯。取っ手だけでは指で掴むには細い
-  dragArea: {
-    gap: 12,
-  },
-  grabber: {
-    alignSelf: "center",
-    width: 36,
-    height: 5,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface300,
-    marginBottom: 4,
   },
   title: {
     fontSize: 17,
