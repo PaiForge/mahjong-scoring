@@ -156,6 +156,7 @@ export function AvatarEditor({
         confirmVariant="danger"
         onConfirm={() => void remove()}
         onClose={() => setConfirmingRemove(false)}
+        testID="profile-edit-avatar-remove-dialog"
       />
     </View>
   );
