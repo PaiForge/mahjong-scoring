@@ -28,6 +28,7 @@ import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
+import { getBlockedUserIds, withoutBlocked } from "@/lib/blocks/blocks";
 import { isHiddenFromLeaderboard } from "@/lib/db/leaderboard-visibility";
 import { parsePageParam } from "@/lib/pagination";
 import { getLeaderboard } from "../../_actions/get-leaderboard";
@@ -113,17 +114,21 @@ async function DetailContent({
   // 非表示中は母集団から外れているので順位行もハイライトも出ない。順位取得は
   // ランキング全体に ROW_NUMBER を回すため、undefined が返ると分かっている
   // 呼び出しは投げない。
-  const data = await getLeaderboard(
-    board,
-    period,
-    page,
-    viewerHidden ? undefined : currentUserId,
-  );
+  const [data, blockedIds] = await Promise.all([
+    getLeaderboard(
+      board,
+      period,
+      page,
+      viewerHidden ? undefined : currentUserId,
+    ),
+    getBlockedUserIds(currentUserId),
+  ]);
 
   return (
     <LeaderboardDetailContent
       currentUserId={currentUserId}
-      data={data}
+      // ブロックした人の行は除くが、順位・件数・ページ送りは共有の集計のまま
+      data={{ ...data, rows: withoutBlocked(data.rows, blockedIds) }}
       currentPage={page}
       viewerHidden={viewerHidden}
     />
