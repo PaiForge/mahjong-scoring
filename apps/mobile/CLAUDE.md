@@ -45,6 +45,11 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
+- **タブの入口（`/`・`/dojo`・`/practice`・`/lessons`・`/score-table`）へは `useGoToTab` で移る。**
+  詳細の画面はルートのスタックに積んでいて、そこから `push` / `navigate` でタブへ送ると
+  タブ一式がもう 1 組積まれる。履歴にある画面へ戻るリンクは `dismissTo`（slug ごとに使い回す
+  `practice/[slug]` 等は `useDismissToHref`。`dismissTo` はルート名だけで照合する）。
+  Android の戻るボタンは `useHardwareBack`（フォーカス中だけ購読する）
 - **ファイルを送るときは expo-file-system の `File` を FormData に入れる。** global の
   `fetch` は Expo の実装（expo/fetch）に置き換わっていて、RN の `{ uri, name, type }` の部品は
   送る前に例外になる（通信の失敗に見える。`mypage/mypage-api.ts` の `uploadAvatar`）
@@ -167,6 +172,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     コード・表）を撮る
   - `forgot-password` — ログイン画面の「パスワードを忘れた方」から再設定のリンクを送り、送った
     案内が出る。届いたメール（`bob@` 宛て）は Mailpit（`:54324`）で見る
+  - `navigation-history` — ゲストのマイページから登録 → ログイン → パスワードを忘れた方 →
+    「ログインへ戻る」と進んでログインするとマイページへ戻る（ログイン画面が重ならない）。
+    マイページの段級位から道場のタブへ移ると、下にマイページが残らない
   - `toast-exits` — ゲストでチャレンジの中止・トレーニングの終了・和了形の点数計算の終了の
     トーストが、戻った先の画面の下に出る
   - `leaderboard-guest` — ゲストで練習の説明の末尾の総合ランキングの上位から詳細へ。期間を

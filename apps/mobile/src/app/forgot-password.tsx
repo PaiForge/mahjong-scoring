@@ -78,6 +78,7 @@ export default function ForgotPasswordScreen() {
               ログイン画面に置き換わる */}
           <Button
             onPress={() => router.dismissTo("/sign-in")}
+            testID="forgot-password-back-to-sign-in"
             fullWidth
             size="lg"
           >
