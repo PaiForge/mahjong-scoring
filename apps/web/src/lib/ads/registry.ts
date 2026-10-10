@@ -289,6 +289,11 @@ export const AD_SLOTS = {
     surfaces: [{ platform: "mobile", route: "/reference/yaku" }],
     placements: 2,
   },
+  [MOBILE_AD_SLOTS.announcementsIndex]: {
+    webCounterpart: "announcements-index-native-ad",
+    kind: "native_row",
+    surfaces: [{ platform: "mobile", route: "/announcements" }],
+  },
 } as const satisfies Record<string, AdSlotConfig>;
 
 /** 広告スロット */
