@@ -5,6 +5,7 @@ import {
   isPurchaseProvider,
   PurchaseProvider,
 } from "@mahjong-scoring/features/billing/provider";
+import type { PurchaseState } from "@mahjong-scoring/features/billing/purchase-state";
 import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**
@@ -29,15 +30,10 @@ export type PlanStatus =
   | { readonly kind: "free" };
 
 /**
- * 購入履歴 1 行の状態
+ * 購入履歴 1 行の状態（語彙はアプリ向け API と共有するため features に置く）
  * 購入状態
- *
- * - `refunded` — 取り消し済み（返金・不正）
- * - `active` — 開始済みで有効
- * - `scheduled` — 旧実装などの開始待ちの購入
- * - `expired` — 期限切れ
  */
-export type PurchaseState = "refunded" | "active" | "scheduled" | "expired";
+export type { PurchaseState };
 
 /** 購入の状態（表示用） */
 export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
