@@ -84,6 +84,13 @@ export function BrandLogo({ size }: BrandLogoProps) {
         height={MARK_BASE_PX}
         // ヘッダーは初期表示に入るため遅延読み込みしない。フッターも同じ URL を
         // 指すので、2 か所に置いてもリクエストは 1 本で済む。
+        // eager の画像には React 19 が `<link rel="preload" as="image" imageSrcSet>`
+        // を自動で出す。href を持たないこのタグ（仕様上は正しい）を Meta の
+        // クローラー（meta-externalagent）が href = null → "null" の相対 URL と
+        // 読み、本番ログに `/null`・`/practice/<slug>/null` への 404 が参照元
+        // 1 ページにつき 1 件出る。アプリが null の URL を作っていないことは
+        // 2026-10 に本番の Chrome で確認済みで、Googlebot 等は踏まないので放置する。
+        // preload を外せば消えるが、得られるのはこの 404 が消えることだけ。
         loading="eager"
         className={`ml-1 h-[1.6em] w-[1.6em] ${MARK_HIDDEN_CLASS}`}
       />

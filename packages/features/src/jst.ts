@@ -12,6 +12,14 @@
  * そのまま JST の暦として扱える。`Intl.DateTimeFormat` で表示する箇所は
  * {@link JST_TIME_ZONE} を `timeZone` に渡す。
  *
+ * 日付境界を扱うテストは TZ を複数回して書く（`describe.each` +
+ * `vi.stubEnv("TZ", tz)`。`process.env.TZ =` の直書きは turbo の lint が警告する）。
+ * 開発機は JST なので 1 つの TZ では再現せず、CI（UTC）か本番でだけ出る。
+ * 期待値は `new Date("...+09:00")` の絶対瞬間で書く — `new Date(y, m, d)`
+ * （ローカル時刻）で組むと期待値も TZ ごと一緒にずれて失敗が隠れる。
+ * postgres.js は `date` 型を文字列で返すので、DB が JST で切った暦日を `Date` に
+ * 組み直さない。
+ *
  * このモジュールは純粋。
  */
 
