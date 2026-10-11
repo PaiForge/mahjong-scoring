@@ -71,12 +71,10 @@ describe("useQuestionBoard", () => {
   });
 
   it("出題に、それまでに出した問題を古い順に渡す", () => {
-    const generate = vi.fn(
-      (asked: readonly Question[]): Question => ({
-        id: asked.length,
-        answer: 3,
-      }),
-    );
+    const generate = vi.fn((asked: readonly Question[]): Question => ({
+      id: asked.length,
+      answer: 3,
+    }));
     const { result } = renderHook(() =>
       useQuestionBoard({
         generateQuestion: generate,

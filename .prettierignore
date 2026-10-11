@@ -5,3 +5,6 @@ apps/web/.next/
 **/coverage/
 
 pnpm-lock.yaml
+apps/mobile/ios/
+apps/mobile/android/
+apps/web/supabase/.temp/
