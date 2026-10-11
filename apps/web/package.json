@@ -12,7 +12,7 @@
     "og:generate": "tsx scripts/generate-og-image.ts",
     "icons:generate": "tsx scripts/generate-icons.ts",
     "tiles:generate": "tsx scripts/generate-tiles.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --incremental false",
     "test": "vitest run",
     "db:run-migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
