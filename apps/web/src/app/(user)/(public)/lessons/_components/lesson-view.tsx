@@ -434,6 +434,7 @@ export function LessonView({
     return (
       <div className="space-y-6">
         <section className="space-y-4">
+          <SectionTitle>{t("quizTitle")}</SectionTitle>
           <LessonQuizSteps
             current={index}
             total={questions.length}
