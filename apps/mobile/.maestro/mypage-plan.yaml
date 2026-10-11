@@ -1,0 +1,42 @@
+# ログイン中（bob）の Pro プラン: マイページの「Pro プラン」の行から開くと、
+# 有効なパスの状態（「Pro（〜まで）」）と、有効・期限切れの 2 行の購入履歴が並ぶ。
+# 有効な購入があるので「プランを選ぶ」には追加購入できない旨が出る（販売中のとき）。
+# iOS だけの画面（Android はマイページに行が出ない）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-plan"
+    direction: DOWN
+- takeScreenshot: mypage-plan-menu
+- tapOn:
+    id: "mypage-menu-plan"
+- extendedWaitUntil:
+    visible: "現在の状態"
+    timeout: 10000
+- assertVisible: "Pro（.*まで）"
+- takeScreenshot: mypage-plan-status
+- scrollUntilVisible:
+    element:
+      id: "plan-history"
+    direction: DOWN
+- assertVisible: "購入履歴"
+- assertVisible: "有効"
+- assertVisible: "期限切れ"
+- takeScreenshot: mypage-plan-history
