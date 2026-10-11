@@ -2,6 +2,7 @@ import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
+import { linkStyles } from "../../lib/link-styles";
 import { borderWidth, colors } from "../../lib/theme";
 
 /** 内訳の表の 1 行 */
@@ -30,7 +31,21 @@ interface DetailTableProps {
     readonly value: string;
   };
   readonly note?: string;
+  /**
+   * 答えの値（`conclusion` があればその値、無ければ合計の値）を押したときの
+   * 処理。渡すとその値に点線の下線を敷き、押すと点数表が開く（web では
+   * 置く側が値をボタンにする）。切り上げ前の合計は点数表の行に無いので、
+   * 結論があるときは合計を押せるようにしない
+   */
+  readonly answerLink?: {
+    readonly onPress: () => void;
+    /** 押すと何が起きるか（「点数表で見る」） */
+    readonly accessibilityHint: string;
+  };
 }
+
+/** Maestro のフローで引く、押すと点数表が開く答えの値の印 */
+const ANSWER_LINK_TEST_ID = "detail-table-answer-link";
 
 /** 文字列・数はそのまま Text に、要素はそのまま置く */
 function Cell({
@@ -38,16 +53,27 @@ function Cell({
   color,
   bold = false,
   align,
+  link,
 }: {
   readonly value: ReactNode;
   readonly color: string;
   readonly bold?: boolean;
   readonly align: "left" | "right";
+  readonly link?: DetailTableProps["answerLink"];
 }) {
   if (typeof value === "string" || typeof value === "number") {
     return (
       <Text
-        style={[styles.text, { color, textAlign: align }, bold && styles.bold]}
+        onPress={link?.onPress}
+        accessibilityRole={link === undefined ? undefined : "button"}
+        accessibilityHint={link?.accessibilityHint}
+        testID={link === undefined ? undefined : ANSWER_LINK_TEST_ID}
+        style={[
+          styles.text,
+          { color, textAlign: align },
+          bold && styles.bold,
+          link !== undefined && linkStyles.scoreTableValue,
+        ]}
       >
         {value}
       </Text>
@@ -76,6 +102,7 @@ export function DetailTable({
   total,
   conclusion,
   note,
+  answerLink,
 }: DetailTableProps) {
   return (
     <View style={styles.root}>
@@ -111,6 +138,7 @@ export function DetailTable({
                 color={colors.surface700}
                 bold
                 align="right"
+                link={conclusion === undefined ? answerLink : undefined}
               />
             </View>
           </View>
@@ -119,7 +147,18 @@ export function DetailTable({
       {conclusion !== undefined && (
         <View style={styles.conclusion}>
           <Text style={styles.conclusionLabel}>{conclusion.label}</Text>
-          <Text style={styles.conclusionValue}>{conclusion.value}</Text>
+          <Text
+            onPress={answerLink?.onPress}
+            accessibilityRole={answerLink === undefined ? undefined : "button"}
+            accessibilityHint={answerLink?.accessibilityHint}
+            testID={answerLink === undefined ? undefined : ANSWER_LINK_TEST_ID}
+            style={[
+              styles.conclusionValue,
+              answerLink !== undefined && linkStyles.scoreTableValue,
+            ]}
+          >
+            {conclusion.value}
+          </Text>
         </View>
       )}
       {note !== undefined && <Text style={styles.note}>{note}</Text>}

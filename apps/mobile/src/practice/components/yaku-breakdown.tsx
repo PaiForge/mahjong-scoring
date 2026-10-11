@@ -47,7 +47,14 @@ interface YakuBreakdownProps {
  * 符の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
  * 置く側が持つので表だけを使う。
  */
-export function YakuBreakdownTable({ yakuDetails, note }: YakuBreakdownProps) {
+export function YakuBreakdownTable({
+  yakuDetails,
+  note,
+  onOpenScoreTable,
+}: YakuBreakdownProps & {
+  /** 合計の翻数を押したときの処理。渡すとその値が点数表を開く */
+  readonly onOpenScoreTable?: () => void;
+}) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();
@@ -84,6 +91,14 @@ export function YakuBreakdownTable({ yakuDetails, note }: YakuBreakdownProps) {
         }))}
         total={{ label: t("total"), value: t("han", { count: total }) }}
         note={note}
+        answerLink={
+          onOpenScoreTable === undefined
+            ? undefined
+            : {
+                onPress: onOpenScoreTable,
+                accessibilityHint: tChallenge("openInScoreTable"),
+              }
+        }
       />
       {yakuCheatsheetModal}
     </>

@@ -39,6 +39,7 @@ export function BreakdownPanel({
   sections,
   initialKind,
   surface = "raised",
+  action,
   testID,
 }: {
   /** 開閉の入口の文言（「内訳を確認」） */
@@ -53,6 +54,12 @@ export function BreakdownPanel({
    * 答え合わせの表の枠の中に置くとき。白い枠を入れ子にしない）
    */
   readonly surface?: "raised" | "sunken";
+  /**
+   * 内訳の面の下・右端に添える導線（「点数表を確認」の補助リンク）。どの
+   * 内訳を選んでいても同じものを出す — 点数表は翻と符の組で引くもので、
+   * 片方の内訳だけに属さない
+   */
+  readonly action?: ReactNode;
   /** Maestro のフローで引く印。入口に付け、切り替えには `<testID>-tab-<種類>` を付ける */
   readonly testID?: string;
 }) {
@@ -101,6 +108,7 @@ export function BreakdownPanel({
           {/* 内訳の表は合計の線を持つので、答え合わせの表の罫線と紛れない
               よう地の色を変えた面に載せる */}
           <View style={SURFACE_STYLES[surface]}>{selected.content}</View>
+          {action !== undefined && <View style={styles.action}>{action}</View>}
         </View>
       )}
     </View>
@@ -133,6 +141,9 @@ const styles = StyleSheet.create({
   },
   tabs: {
     alignItems: "center",
+  },
+  action: {
+    alignItems: "flex-end",
   },
   raised: {
     ...panelFrame,

@@ -21,6 +21,7 @@ export function ResultBreakdownTable({
   total,
   suffix,
   roundedTotal,
+  onOpenScoreTable,
 }: {
   readonly items: readonly DetailItem[];
   /** 内訳の合計（切り上げの前） */
@@ -29,6 +30,11 @@ export function ResultBreakdownTable({
   readonly suffix: string;
   /** 切り上げた後の値（符の正解）。合計と同じなら切り上げの行を出さない */
   readonly roundedTotal?: number;
+  /**
+   * 答えの値（切り上げ後、切り上げが無ければ合計）を押したときの処理。
+   * 渡すとその値が点数表を開く（{@link DetailTable} の `answerLink`）
+   */
+  readonly onOpenScoreTable?: () => void;
 }) {
   const t = useTranslations("agariScore");
   const withSuffix = (value: number) => `${value}${suffix}`;
@@ -50,6 +56,14 @@ export function ResultBreakdownTable({
               value: withSuffix(roundedTotal),
             }
           : undefined
+      }
+      answerLink={
+        onOpenScoreTable === undefined
+          ? undefined
+          : {
+              onPress: onOpenScoreTable,
+              accessibilityHint: t("result.openInScoreTable"),
+            }
       }
     />
   );

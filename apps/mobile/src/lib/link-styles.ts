@@ -18,6 +18,8 @@ import { colors } from "./theme";
  *   戻る」「続きを読む」）。アクセント色の太字で、下線は引かない
  * - {@link linkStyles.inline} — 本文の中の語に掛けるリンク。文の中では色だけ
  *   では見分けにくいので、ここだけ下線を残す
+ * - {@link linkStyles.scoreTableValue} — 答え合わせの値そのもの（点数・翻・符）
+ *   を押すと点数表が開くもの。値の色を変えず、灰の点線の下線で示す
  *
  * 緑の塗りのボタンは「押して始める面」。文字ボタンは移動するだけの導線で、
  * 色は同じ系統でも面を持たないことで区別する。
@@ -39,5 +41,15 @@ export const linkStyles = StyleSheet.create({
     color: colors.action,
     textDecorationLine: "underline",
     textDecorationColor: colors.primary300,
+  },
+  /**
+   * 押すと点数表を開く答え合わせの値（正解の点数・内訳の翻数と符）。値の
+   * 濃さと大きさは置く側のまま、灰の点線の下線だけを足す（web の
+   * `SCORE_TABLE_LINK_CLASSES`）。値を読む妨げにならない記号で押せることを示す
+   */
+  scoreTableValue: {
+    textDecorationLine: "underline",
+    textDecorationStyle: "dotted",
+    textDecorationColor: colors.surface400,
   },
 });

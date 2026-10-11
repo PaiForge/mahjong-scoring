@@ -232,7 +232,9 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontSize: 14,
     fontWeight: "700",
-    color: colors.surface600,
+    // 表の中でいちばん濃くする。直下の正解の値（surface800 の太字）より
+    // 淡いと、見出しが値に負けて項目として読めない（web と同じ）
+    color: colors.surface900,
   },
   sectionDivider: {
     borderTopWidth: 1,

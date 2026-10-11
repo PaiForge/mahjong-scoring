@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { isMangan } from "@mahjong-scoring/core";
+import { isMangan, isOya } from "@mahjong-scoring/core";
+import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
@@ -127,6 +128,12 @@ export function createScoreExamBoard(
               question.answer.yakumanMultiplier,
               tBreakdown,
             )}
+            scoreTableFocus={scoreTableFocusOf({
+              isOya: isOya(question.jikaze),
+              isTsumo: question.isTsumo,
+              han: question.answer.han,
+              fu: question.answer.fu,
+            })}
           />
         )}
       </View>

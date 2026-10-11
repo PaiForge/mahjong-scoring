@@ -23,6 +23,7 @@ import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score
 import { BookIcon, TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
+import { linkStyles } from "../../../lib/link-styles";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
 import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
@@ -73,8 +74,9 @@ interface ResultDisplayProps {
  * 正解開示として描き、「あなたの回答」列は落とさず各行に未回答の印を出す
  * （列数を変えると正解の列が動くため）。
  *
- * 正解の点数を押すと点数早見表をその和了のセルで開き、役のチップを押すと
- * 役一覧をその役で開く（web と同じ。どちらも表への補助リンクも置く）。
+ * 正解の点数と内訳の答えの値（翻数の合計・符）を押すと点数早見表をその和了の
+ * セルで開き、役のチップを押すと役一覧をその役で開く（web と同じ。どちらも
+ * 表への補助リンクも置き、点数表の補助リンクは内訳の下にも添える）。
  */
 export function ResultDisplay({
   question,
@@ -94,8 +96,8 @@ export function ResultDisplay({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
-  // 点数表。点数そのものを押したときだけ正解のセルをハイライトする
-  // （表への補助リンクからは素の表を開く。web と同じ）
+  // 点数表。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
+  // ハイライトする（表への補助リンクからは素の表を開く。web と同じ）
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
   const openScoreTable = (highlighted: boolean) => {
@@ -162,6 +164,7 @@ export function ResultDisplay({
                 items={yakuBreakdown.items}
                 total={yakuBreakdown.total}
                 suffix={t("form.options.hanSuffix")}
+                onOpenScoreTable={() => openScoreTable(true)}
               />
             ),
           },
@@ -178,6 +181,7 @@ export function ResultDisplay({
                 total={fuBreakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
+                onOpenScoreTable={() => openScoreTable(true)}
               />
             ),
           },
@@ -199,6 +203,15 @@ export function ResultDisplay({
               initialKind={breakdownTabs.initial}
               surface="sunken"
               testID="result-breakdown"
+              action={
+                // 点数の行と同じ導線。正解の位置へ着地させたいときは内訳の
+                // 答えの値（翻数・符）を押す
+                <ReferenceLinkButton
+                  icon={<TableIcon size={14} color={colors.mutedForeground} />}
+                  label={t("result.viewScoreTable")}
+                  onPress={() => openScoreTable(false)}
+                />
+              }
             />
           ) : undefined
         }
@@ -298,7 +311,9 @@ export function ResultDisplay({
                   accessibilityHint={t("result.openInScoreTable")}
                   hitSlop={6}
                 >
-                  <Text style={styles.payment}>{paymentDescription}</Text>
+                  <Text style={[styles.payment, linkStyles.scoreTableValue]}>
+                    {paymentDescription}
+                  </Text>
                 </Pressable>
                 {/* 点数を押しても開けるが、それが分かるように表への導線も置く */}
                 <ReferenceLinkButton
@@ -334,8 +349,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: colors.surface900,
-    textDecorationLine: "underline",
-    textDecorationStyle: "dotted",
-    textDecorationColor: colors.surface400,
   },
 });
