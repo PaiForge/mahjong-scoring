@@ -73,5 +73,6 @@
   "ownedByAnotherAccount": "この購入は別のアカウントで記録されています。購入したアカウントでログインしてください。",
   "restored": "購入を復元しました。",
   "nothingToRestore": "復元できる購入はありませんでした。",
-  "restoreFailed": "復元できませんでした。通信できる状態でもう一度お試しください。"
+  "restoreFailed": "復元できませんでした。通信できる状態でもう一度お試しください。",
+  "paywallCta": "Pro プランを見る"
 }

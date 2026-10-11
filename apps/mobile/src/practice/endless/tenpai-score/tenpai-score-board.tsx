@@ -10,6 +10,7 @@ import {
 } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
 import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/tenpai-score/cell-runs";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -23,6 +24,10 @@ import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-st
 import { colors, radius } from "../../../lib/theme";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
+import { AnswerTimeBadge } from "../../quota/answer-time-badge";
+import { PracticeQuotaPaywall } from "../../quota/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../../quota/practice-quota-remaining";
+import { usePracticeQuota } from "../../quota/use-practice-quota";
 import { CorrectFlash } from "../correct-flash";
 import { EndlessFooterActions } from "../endless-footer-actions";
 import { GenerationFailedNotice } from "../generation-failed-notice";
@@ -49,13 +54,15 @@ const COLUMNS = ["tsumo", "ron"] as const;
  * 解く。段階の状態はストア（{@link useTenpaiScoreStore}）が持ち、この
  * コンポーネントは段階ごとの画面を切り替えるだけ。
  *
- * 出題条件は開いたときの設定から組む（web はクエリから読む）。web の無料枠・
- * 回答時間の計測（Pro）はモバイルに無い。web が要素を照らすツアーの代わりに、
+ * 出題条件は開いたときの設定から組む（web はクエリから読む）。回数制限の
+ * ゲート・ペイウォール・回答時間の計測は和了形の点数計算の盤面
+ * （`AgariScoreBoard`）と同じ。web が要素を照らすツアーの代わりに、
  * 見出しの「?」からいまの段階の操作を 1 枚ずつ説明する。
  */
 export function TenpaiScoreBoard() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
+  const tq = useTranslations("practiceQuota");
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
@@ -82,8 +89,16 @@ export function TenpaiScoreBoard() {
     assignAnswer,
     submitCells,
     revealAnswer,
-    generateNewQuestion,
   } = useTenpaiScoreStore();
+  // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う
+  const { requestQuestion, requestFirstQuestion, isChecking, gate } =
+    usePracticeQuota("tenpai-score", () =>
+      useTenpaiScoreStore.getState().generateNewQuestion(),
+    );
+
+  useEffect(() => {
+    if (gate?.kind === "rateLimited") showToast(tq("rateLimited"));
+  }, [gate, tq]);
 
   useJudgementHaptics(stats.correct, stats.total - stats.correct);
 
@@ -95,8 +110,8 @@ export function TenpaiScoreBoard() {
     const options = { allowedRanges, includeParent, includeChild, includeFuro };
     const store = useTenpaiScoreStore.getState();
     store.applyPracticeQuery(JSON.stringify(options), options);
-    store.generateNewQuestion();
-  }, [settings]);
+    void requestFirstQuestion();
+  }, [settings, requestFirstQuestion]);
 
   const scrollToTop = () =>
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -109,8 +124,9 @@ export function TenpaiScoreBoard() {
   };
 
   const handleNext = () => {
+    if (isChecking) return;
     scrollToTop();
-    generateNewQuestion();
+    void requestQuestion();
   };
 
   const handleReveal = () => {
@@ -150,7 +166,7 @@ export function TenpaiScoreBoard() {
     });
     if (autoAdvanceOnCorrect && useTenpaiScoreStore.getState().isAllCorrect) {
       setFlashSignal((prev) => prev + 1);
-      generateNewQuestion();
+      void requestQuestion();
     }
   };
 
@@ -162,6 +178,26 @@ export function TenpaiScoreBoard() {
       />
     );
   }
+
+  // 無料枠を使い切った。問題は生成していないので盤面ごと置き換える
+  if (gate?.kind === "blocked") {
+    return (
+      <PracticeQuotaPaywall
+        menu="tenpai-score"
+        translationNamespace="tenpaiScore"
+        limit={gate.limit}
+        signedIn={gate.signedIn}
+        onBackToSetup={handleBackToSetup}
+      />
+    );
+  }
+
+  // 回答時間の計測（Pro の拡張機能）。設定のスイッチだけでなく、ゲートが
+  // 返した特典にも含まれているときだけ出す。止めるのは答え合わせの段階
+  const showAnswerTime =
+    settings.measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools);
 
   const renderBoard = () => {
     if (currentQuestion === undefined) return undefined;
@@ -361,6 +397,20 @@ export function TenpaiScoreBoard() {
       >
         <BoardBleedProvider>{renderBoard()}</BoardBleedProvider>
 
+        {/* 無料枠の残りと回答時間。どちらも無いときは何も描かない。リンクは
+            待ち牌を選ぶ段階（1 問の最初）だけ */}
+        {(gate?.kind === "open" || showAnswerTime) && (
+          <View style={styles.quota}>
+            {showAnswerTime && (
+              <AnswerTimeBadge key={questionSeq} running={phase !== "result"} />
+            )}
+            <PracticeQuotaRemaining
+              remaining={gate?.kind === "open" ? gate.remaining : undefined}
+              showPlanLink={phase === "machi" && !machiJudgement}
+            />
+          </View>
+        )}
+
         <ScoreCounter
           correct={stats.correct}
           incorrect={stats.total - stats.correct}
@@ -389,6 +439,9 @@ const styles = StyleSheet.create({
   },
   stage: {
     gap: 16,
+  },
+  quota: {
+    gap: 4,
   },
   verdict: {
     textAlign: "center",
