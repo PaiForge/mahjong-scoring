@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 
 import type { BillingCheckout, NewPurchase, Purchase } from "@/lib/db";
 import { addPassDuration } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { PurchaseRevokeReason } from "./revoke-reason";
 
 /**
@@ -46,6 +47,7 @@ export function buildPurchaseRow({
   const startsAt = new Date(chargeCreated * 1000);
   return {
     userId,
+    provider: PurchaseProvider.Stripe,
     plan: checkout.plan,
     kind: checkout.kind,
     benefits: checkout.benefits,

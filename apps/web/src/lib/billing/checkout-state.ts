@@ -1,9 +1,13 @@
-import { and, eq, gt, isNull, or } from "drizzle-orm";
+import { and, eq, gt, isNull, or, sql } from "drizzle-orm";
 import "server-only";
 import { purchases, stripeCustomers, type TransactionClient } from "@/lib/db";
 
 /**
  * 未取消で、期限内または永久の購入があるか。旧実装の開始待ちも再販売しない。
+ * App Store の Sandbox の購入は数えない（テスターが買い直して試せるように）。
+ * `apple_environment` は Stripe の行で NULL なので、`<>` ではなく
+ * `IS DISTINCT FROM` で NULL を残す。
+ *
  * 画面側の同じ規則は `plan-status.ts` の `blocksNewPurchase`。条件を変えるときは
  * 両方を揃える
  */
@@ -20,6 +24,7 @@ export async function hasUnexpiredPurchase(
         eq(purchases.userId, userId),
         isNull(purchases.revokedAt),
         or(isNull(purchases.expiresAt), gt(purchases.expiresAt, now)),
+        sql`${purchases.appleEnvironment} IS DISTINCT FROM 'Sandbox'`,
       ),
     )
     .limit(1);

@@ -18,12 +18,14 @@ import {
   formatPlanDate,
   formatPlanDateShort,
   planStatusOf,
+  purchaseProviderOf,
   purchaseStateOf,
 } from "@/lib/billing/plan-status";
 import {
   PLAN_PAGE_HREF,
   PurchaseKind,
 } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
@@ -46,13 +48,16 @@ interface MypagePlanPageProps {
  * 付けてここへ送る。購入ボタンは置かず、料金ページへ送る（価格と注意書きは
  * あちらにある）。
  *
+ * 購入履歴は決済元（web の Stripe / iOS アプリの App Store）を「購入元」の列に
+ * 出す。領収書の在処は決済元ごとに違うので、履歴にある決済元の分だけ案内を出す。
+ *
  * 運営が手動で付けた特典（`benefit_grants`）は「付与された特典」として購入履歴と
  * 別の表に出す。金額が無く、Stripe の領収書も無いため同じ表に混ぜない。付与の
  * 理由は運営の内部メモになり得るので出さない。
  *
  * @flow
  * 1. 状態を見る → 購入が有効でなければ「Pro を購入する」で料金ページへ
- * 2. 購入履歴で日付・内容・金額・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
+ * 2. 購入履歴で日付・内容・金額・購入元・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
  * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
  */
 export default async function MypagePlanPage({
@@ -71,6 +76,7 @@ export default async function MypagePlanPage({
   const canPurchase = !purchases.some((purchase) =>
     blocksNewPurchase(purchase, now),
   );
+  const providers = new Set(purchases.map(purchaseProviderOf));
 
   return (
     <ContentContainer
@@ -139,6 +145,9 @@ export default async function MypagePlanPage({
                   <DataTableHeaderCell align="right">
                     {t("history.amount")}
                   </DataTableHeaderCell>
+                  <DataTableHeaderCell align="left">
+                    {t("history.provider.label")}
+                  </DataTableHeaderCell>
                   <DataTableHeaderCell>
                     {t("history.state")}
                   </DataTableHeaderCell>
@@ -161,6 +170,9 @@ export default async function MypagePlanPage({
                     <td className={`${cell} text-right tabular-nums`}>
                       {formatAmount(purchase.amount, purchase.currency)}
                     </td>
+                    <td className={`${cell} whitespace-nowrap text-left`}>
+                      {t(`history.provider.${purchaseProviderOf(purchase)}`)}
+                    </td>
                     <td className={`${cell} whitespace-nowrap text-center`}>
                       {t(`history.state_${state}`)}
                     </td>
@@ -169,7 +181,16 @@ export default async function MypagePlanPage({
               })}
             </DataTable>
           )}
-          <p className="text-xs text-surface-500">{t("history.receiptHint")}</p>
+          {providers.has(PurchaseProvider.Stripe) && (
+            <p className="text-xs text-surface-500">
+              {t("history.receiptHint")}
+            </p>
+          )}
+          {providers.has(PurchaseProvider.Apple) && (
+            <p className="text-xs text-surface-500">
+              {t("history.receiptHintApple")}
+            </p>
+          )}
         </section>
 
         {grants.length > 0 && (

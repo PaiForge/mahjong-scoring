@@ -21,6 +21,11 @@
     "date": "購入日",
     "item": "内容",
     "amount": "金額",
+    "provider": {
+      "label": "購入元",
+      "stripe": "Web",
+      "apple": "App Store"
+    },
     "state": "状態",
     "kind": {
       "pass": "30 日パス",
@@ -30,7 +35,8 @@
     "state_scheduled": "開始待ち",
     "state_expired": "期限切れ",
     "state_refunded": "返金済み",
-    "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。"
+    "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。",
+    "receiptHintApple": "App Store で購入した分の領収書は Apple から届くメール、または iPhone の「設定 > Apple アカウント > メディアと購入 > 購入履歴」でご確認ください。"
   },
   "grants": {
     "title": "付与された特典",
