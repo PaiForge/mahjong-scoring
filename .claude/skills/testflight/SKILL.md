@@ -31,7 +31,7 @@ pnpm --filter @mahjong-scoring/mobile testflight
 
 ## 2. 見届ける
 
-Monitor で見張る（`timeout_ms` は上限の 1800000。iOS のビルドは 15〜25 分、提出は数分）:
+Monitor で見張る（`timeout_ms` は上限の 1800000。iOS のビルドは 6 分ほど（2026-10 の実測。混み具合で延びる）、提出は 1 分ほど）:
 
 ```bash
 cd apps/mobile && scripts/testflight-status.sh <ビルド ID> --watch
