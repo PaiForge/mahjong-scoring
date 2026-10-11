@@ -7,6 +7,7 @@ import {
   blocksNewPurchase,
   formatPlanDate,
   planStatusOf,
+  purchaseProviderOf,
   purchaseStateOf,
 } from "../plan-status";
 
@@ -19,8 +20,13 @@ function purchase(overrides: Partial<Purchase>): Purchase {
     plan: "pro",
     kind: "pass",
     benefits: ["unlimited_practice"],
+    provider: "stripe",
     stripeCheckoutSessionId: "cs",
     stripePaymentIntentId: "pi",
+    appleTransactionId: null,
+    appleOriginalTransactionId: null,
+    appleProductId: null,
+    appleEnvironment: null,
     currency: "jpy",
     amount: 480,
     startsAt: new Date("2026-09-20T00:00:00Z"),
@@ -30,6 +36,22 @@ function purchase(overrides: Partial<Purchase>): Purchase {
     createdAt: new Date("2026-09-20T00:00:00Z"),
     ...overrides,
   };
+}
+
+function applePurchase(
+  environment: "Sandbox" | "Production",
+  overrides: Partial<Purchase>,
+): Purchase {
+  return purchase({
+    provider: "apple",
+    stripeCheckoutSessionId: null,
+    stripePaymentIntentId: null,
+    appleTransactionId: "2000000000000001",
+    appleOriginalTransactionId: "2000000000000001",
+    appleProductId: "help.mahjong.score.pro.pass30",
+    appleEnvironment: environment,
+    ...overrides,
+  });
 }
 
 function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
@@ -118,6 +140,44 @@ describe("blocksNewPurchase", () => {
     expect(
       blocksNewPurchase(purchase({ revokedAt: NOW, revokeReason: "x" }), NOW),
     ).toBe(false);
+  });
+
+  it("App Store の Sandbox の購入は有効でも止めない", () => {
+    expect(blocksNewPurchase(applePurchase("Sandbox", {}), NOW)).toBe(false);
+    expect(
+      blocksNewPurchase(
+        applePurchase("Sandbox", { kind: "lifetime", expiresAt: null }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
+
+  it("App Store の Production の購入は Stripe と同じく有効な間は止める", () => {
+    expect(blocksNewPurchase(applePurchase("Production", {}), NOW)).toBe(true);
+    expect(
+      blocksNewPurchase(
+        applePurchase("Production", {
+          startsAt: new Date("2026-10-02T00:00:00Z"),
+        }),
+        NOW,
+      ),
+    ).toBe(true);
+    expect(
+      blocksNewPurchase(
+        applePurchase("Production", {
+          expiresAt: new Date("2026-09-30T00:00:00Z"),
+        }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("purchaseProviderOf", () => {
+  it("stripe / apple はそのまま、知らない値は stripe に倒す", () => {
+    expect(purchaseProviderOf({ provider: "stripe" })).toBe("stripe");
+    expect(purchaseProviderOf({ provider: "apple" })).toBe("apple");
+    expect(purchaseProviderOf({ provider: "paypal" })).toBe("stripe");
   });
 });
 

@@ -34,6 +34,7 @@ describe("buildPurchaseRow", () => {
     const startsAt = new Date(CHARGE_CREATED * 1000);
     expect(build()).toEqual({
       userId: "user-1",
+      provider: "stripe",
       plan: "pro",
       kind: "pass",
       benefits: ["unlimitedPractice"],

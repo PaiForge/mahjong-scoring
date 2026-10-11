@@ -176,6 +176,52 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         url: "https://checkout.stripe.com/cs_2",
       });
     });
+    it("App Store の Sandbox の購入は追加購入を止めず、Production は止める", async () => {
+      const apple = (environment: "Sandbox" | "Production") => ({
+        userId: owner,
+        provider: "apple",
+        plan: "pro",
+        kind: "lifetime",
+        benefits: ["unlimited_practice"],
+        appleTransactionId: `tx_${environment}`,
+        appleOriginalTransactionId: `tx_${environment}`,
+        appleProductId: "help.mahjong.score.pro.lifetime",
+        appleEnvironment: environment,
+        currency: "jpy",
+        amount: 0,
+        startsAt: new Date(),
+      });
+      await billingTestDb().insert(purchases).values(apple("Sandbox"));
+      expect(await start()).toEqual({
+        url: "https://checkout.stripe.com/cs_1",
+      });
+      await billingTestDb().insert(purchases).values(apple("Production"));
+      expect(await start("lifetime")).toEqual({ error: "alreadyActive" });
+    });
+    it("決済元と列の組み合わせが食い違う行は CHECK で弾く", async () => {
+      await expect(
+        billingTestDb()
+          .insert(purchases)
+          .values({
+            userId: owner,
+            provider: "apple",
+            plan: "pro",
+            kind: "lifetime",
+            benefits: ["unlimited_practice"],
+            stripeCheckoutSessionId: "cs_mixed",
+            stripePaymentIntentId: "pi_mixed",
+            appleTransactionId: "tx_mixed",
+            appleOriginalTransactionId: "tx_mixed",
+            appleProductId: "help.mahjong.score.pro.lifetime",
+            appleEnvironment: "Production",
+            currency: "jpy",
+            amount: 0,
+            startsAt: new Date(),
+          }),
+      ).rejects.toMatchObject({
+        cause: { constraint_name: "purchases_chk_provider_columns" },
+      });
+    });
     it("Webhook 未到着の決済済み Session を期限切れと誤認しない", async () => {
       await start();
       paid();
