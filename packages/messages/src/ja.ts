@@ -7,6 +7,7 @@ import landing from "./ja/landing.json";
 import gettingStarted from "./ja/getting-started.json";
 import tryDemo from "./ja/try-demo.json";
 import dashboard from "./ja/dashboard.json";
+import recordCta from "./ja/record-cta.json";
 import practice from "./ja/practice.json";
 import challenge from "./ja/challenge.json";
 import examResult from "./ja/exam-result.json";
@@ -108,6 +109,7 @@ export const messages = {
   gettingStarted,
   tryDemo,
   dashboard,
+  recordCta,
   practice,
   challenge,
   examResult,

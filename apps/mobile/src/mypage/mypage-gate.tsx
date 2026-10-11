@@ -15,17 +15,21 @@ import { colors } from "../lib/theme";
  * 決めた人）のもの。web はそれ以外の人を開かせないが、アプリはホームの
  * ヘッダーから誰でも押せる入口を置くので、ゲストとユーザー名を決めていない
  * 人には記録の案内（ホームと同じ `RecordCtaCard`）を中身の代わりに出す。
+ * `preview` を渡すと、案内の下にそれ（登録すると並ぶ中身の見本）を添える。
  *
  * 記録が残る人にだけ `children` を呼ぶ。ユーザーが変わったら前のユーザーの
  * 値を持ち越さないよう、userId を key にして描き直す。
  */
 export function MypageGate({
+  preview,
   children,
 }: {
+  /** 記録が残らない人に、記録の案内の下へ添える中身の見本 */
+  readonly preview?: ReactNode;
   readonly children: (userId: string) => ReactNode;
 }) {
   const { status, user, account, accountError } = useAuth();
-  if (status === "signedOut") return <RecordCtaCard testIDPrefix="mypage" />;
+  if (status === "signedOut") return <RecordCta preview={preview} />;
   if (status !== "signedIn" || user === undefined) return <MypageLoading />;
   if (account === undefined) {
     return accountError === undefined ? (
@@ -34,11 +38,21 @@ export function MypageGate({
       <AccountLoadFailed banned={accountError === "banned"} />
     );
   }
-  if (account.profile === null) return <RecordCtaCard testIDPrefix="mypage" />;
+  if (account.profile === null) return <RecordCta preview={preview} />;
   return (
     <View key={user.id} style={styles.content}>
       {children(user.id)}
     </View>
+  );
+}
+
+/** 記録の案内と、渡されていればその下の見本 */
+function RecordCta({ preview }: { readonly preview: ReactNode }) {
+  return (
+    <>
+      <RecordCtaCard placement="mypage" />
+      {preview}
+    </>
   );
 }
 
