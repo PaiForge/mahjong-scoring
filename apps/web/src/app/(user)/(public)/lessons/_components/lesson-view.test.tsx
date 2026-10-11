@@ -123,7 +123,7 @@ describe("LessonView", () => {
     renderLesson();
     startQuiz();
 
-    expect(screen.getByText("progress")).toBeTruthy();
+    expect(screen.getByRole("list", { name: "progress" })).toBeTruthy();
     for (const points of ["8,000", "12,000", "16,000", "24,000", "32,000"]) {
       expect(choice(points)).toBeTruthy();
     }

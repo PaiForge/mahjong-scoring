@@ -55,6 +55,7 @@ import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { LessonFollowUpProvider } from "./lesson-follow-up-context";
+import { LessonQuizSteps } from "./lesson-quiz-steps";
 import {
   forgetPendingLessonCompletions,
   rememberPendingLessonCompletion,
@@ -396,8 +397,8 @@ export function LessonView({
     return (
       <div className="relative space-y-8">
         {/* 完了済みの印はカードの右上（本文の最初の見出しの行の右端）。
-            見出しの「?」とは場所を分ける。確認問題の画面では同じ位置に
-            進み具合が、完了画面には達成の表示があるので本文の画面だけ */}
+            見出しの「?」とは場所を分ける。確認問題の画面には頭に進み具合の
+            ステップが、完了画面には達成の表示があるので本文の画面だけ */}
         {completed && (
           <div className="absolute right-0 top-1.5">
             <DoneMark label={t("completedMark")} />
@@ -433,14 +434,11 @@ export function LessonView({
     return (
       <div className="space-y-6">
         <section className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <SectionTitle className="min-w-0 flex-1">
-              {t("quizTitle")}
-            </SectionTitle>
-            <span className="text-sm font-bold tabular-nums text-surface-600">
-              {t("progress", { index: index + 1, total: questions.length })}
-            </span>
-          </div>
+          <LessonQuizSteps
+            current={index}
+            total={questions.length}
+            label={t("progress", { index: index + 1, total: questions.length })}
+          />
 
           <PromptBoard prompt={question.prompt} />
 
