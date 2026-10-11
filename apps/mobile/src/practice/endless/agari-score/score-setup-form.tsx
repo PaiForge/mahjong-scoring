@@ -250,7 +250,14 @@ function MeasureTimeRow(props: MeasureTimeRowProps) {
   return <LockedMeasureTimeRow href="/sign-in" />;
 }
 
-/** ログイン中の行。プランの特典を読み終えるまでは鍵の行を出す */
+/**
+ * ログイン中の行
+ *
+ * プランの特典を読んでいる間は、保存済みの値のまま押せないスイッチを出す。
+ * 読み込み中に鍵の行を出すと、Pro の人にも一瞬鍵が見え、そこで押すとプラン
+ * 画面へ飛んでしまう。読み終えて Pro でなければ鍵の行に替わる。読めなかった
+ * ときは鍵の行（特典の判定は fail-closed）。
+ */
 function SignedInMeasureTimeRow({
   userId,
   checked,
@@ -258,16 +265,18 @@ function SignedInMeasureTimeRow({
 }: MeasureTimeRowProps & { readonly userId: string }) {
   const t = useTranslations("agariScore");
   const { state } = usePlan(userId);
+  const loading = state.kind === "loading";
   const hasPracticeTools =
     state.kind === "loaded" &&
     state.value.benefits.includes(PlanBenefit.PracticeTools);
-  if (!hasPracticeTools)
+  if (!loading && !hasPracticeTools)
     return <LockedMeasureTimeRow href={MYPAGE_PLAN_PATH} />;
   return (
     <SettingToggleRow
       title={t("setup.measureTime")}
       checked={checked}
       onChange={onChange}
+      disabled={loading}
       testID="setup-measure-time"
     />
   );

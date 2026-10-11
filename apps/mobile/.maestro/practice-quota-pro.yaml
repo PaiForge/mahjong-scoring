@@ -1,7 +1,8 @@
 # Pro（bob。有効な 30 日パス）の回答時間の計測（iOS で Pro を販売中のとき）:
 # 和了形の点数計算の設定に「回答時間を計測する」のスイッチが出て、オンにして
 # 始めると盤面に回答時間が出る。残数の表示は無い（無制限）。最後にスイッチを
-# 戻す。回数の消費は Pro では記録されない
+# 戻す。回数の消費は Pro では記録されない。プランを読んでいる間のスイッチは
+# 同じ testID のまま押せない（鍵の行は出さない）ので、押せるようになるのを待つ
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -22,6 +23,7 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible:
       id: "setup-measure-time"
+      enabled: true
     timeout: 15000
 - tapOn:
     id: "setup-measure-time"
@@ -47,6 +49,7 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible:
       id: "setup-measure-time"
+      enabled: true
     timeout: 10000
 - tapOn:
     id: "setup-measure-time"
