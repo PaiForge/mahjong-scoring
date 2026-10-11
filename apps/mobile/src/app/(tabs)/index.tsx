@@ -75,7 +75,7 @@ export default function HomeScreen() {
       }
     >
       <NextStepCard journey={journey} />
-      <RecordCtaCard />
+      <RecordCtaCard placement="home" />
       <HomeAnnouncements />
     </Screen>
   );

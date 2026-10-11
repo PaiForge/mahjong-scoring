@@ -1,7 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { jstDayKey } from "@mahjong-scoring/features/jst";
+import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 import {
@@ -54,7 +56,8 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * - ゲストとユーザー名を決めていない人にも開く。web はこの段階でマイページを
  *   開かせないが、アプリはホームのヘッダーから誰でも押せる入口を置くので、
  *   記録の案内（ホームと同じ `RecordCtaCard`）を出してログイン・登録・
- *   ユーザー名の設定へ送る
+ *   ユーザー名の設定へ送る。案内の下には、登録すると並ぶ中身の見本
+ *   （`MypagePreview`）を淡く添える
  *
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
@@ -67,7 +70,9 @@ export default function MypageScreen() {
   const t = useTranslations("nav");
   return (
     <Screen title={t("mypage")} back contentStyle={styles.content}>
-      <MypageGate>{(userId) => <SignedInMypage userId={userId} />}</MypageGate>
+      <MypageGate preview={<MypagePreview />}>
+        {(userId) => <SignedInMypage userId={userId} />}
+      </MypageGate>
       <SettingsEntry />
     </Screen>
   );
@@ -81,15 +86,62 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
   if (state.kind === "loading") return <MypageLoading />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
+  return <MypageBody mypage={state.value} />;
+}
+
+/** マイページの中身（見出し・アクティビティ・各機能への行） */
+function MypageBody({ mypage }: { readonly mypage: MobileMypageResponse }) {
+  const t = useTranslations("mypage");
   return (
     <>
-      <ProfileHeading mypage={state.value} />
+      <ProfileHeading mypage={mypage} />
       <View style={styles.section}>
         <SectionTitle>{t("activityTitle")}</SectionTitle>
-        <ActivityChart days={state.value.recentActivity} />
+        <ActivityChart days={mypage.recentActivity} />
       </View>
       <MypageMenu />
     </>
+  );
+}
+
+/** 見本の直近 7 日の経験値（古い順）。棒の高さに起伏が出る値 */
+const PREVIEW_EXP = [40, 0, 120, 80, 0, 160, 60] as const;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * 登録すると並ぶマイページの見本
+ * マイページ見本
+ *
+ * 記録が残らない人に、記録の案内の下へ本物の部品を淡く描いて見せる。
+ * 言葉で項目を並べるより、自分の画面に何が並ぶかが一目で伝わる。値は
+ * 架空なので、押せず（`pointerEvents`）、読み上げにも載せない。日付だけは
+ * 開いた日までの 7 日にして、本物と同じ見え方にする。
+ */
+function MypagePreview() {
+  const t = useTranslations("mypage.preview");
+  const [now] = useState(() => Date.now());
+  const mypage: MobileMypageResponse = {
+    profile: { username: t("username"), displayName: t("name") },
+    rankSlug: "kyu-3",
+    recentActivity: PREVIEW_EXP.map((exp, index) => ({
+      date: jstDayKey(
+        new Date(now - (PREVIEW_EXP.length - 1 - index) * DAY_MS),
+      ),
+      exp,
+      expByMenuType: {},
+    })),
+  };
+  return (
+    <View
+      testID="mypage-preview"
+      style={styles.preview}
+      pointerEvents="none"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <MypageBody mypage={mypage} />
+    </View>
   );
 }
 
@@ -148,5 +200,10 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
+  },
+  // 本物の中身と同じ間隔で並べ、淡くして見本だと分かるようにする
+  preview: {
+    gap: 32,
+    opacity: 0.4,
   },
 });

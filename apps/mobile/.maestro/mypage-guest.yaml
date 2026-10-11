@@ -1,5 +1,5 @@
 # ゲストのマイページ: ホームのヘッダーの人型のアイコンから開くと、中身の代わりに
-# 記録の案内（登録 CTA）が出て、登録画面へ進める
+# 記録の案内（登録 CTA）と、その下に登録すると並ぶ中身の見本が出て、登録画面へ進める
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -15,6 +15,7 @@ appId: help.mahjong.score
       id: "mypage-sign-up-cta"
     timeout: 10000
 - assertVisible: "マイページ"
+- assertVisible: ".*ここにあなたの記録が並びます.*"
 - takeScreenshot: mypage-guest
 - tapOn:
     id: "mypage-sign-up-cta"

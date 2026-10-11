@@ -107,5 +107,9 @@
     "allMenuTypes": "すべての種目",
     "loadFailed": "結果を読み込めませんでした。",
     "loadMore": "さらに読み込む"
+  },
+  "preview": {
+    "name": "あなたの名前",
+    "username": "your_name"
   }
 }

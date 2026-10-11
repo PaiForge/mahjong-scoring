@@ -11,6 +11,7 @@ appId: help.mahjong.score
     element:
       id: "home-sign-up-cta"
     direction: DOWN
+- assertVisible: ".*学習の進み具合をアカウントに残せます.*"
 - takeScreenshot: home-guest
 - tapOn:
     id: "home-sign-up-cta"
