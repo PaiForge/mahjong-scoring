@@ -9,9 +9,11 @@
 | Framework Preset | Next.js    |
 | Root Directory   | `apps/web` |
 
-`apps/web/vercel.json` の `regions` で関数（Server Actions・動的ルート・Route Handlers）を東京（`hnd1`）に置いている。Supabase が `ap-northeast-1` にあり、関数と DB の往復はリクエストごとに何度も直列で起きるため（チャレンジの回答 1 回で BAN 判定 + トランザクションの約 5 往復）、関数を DB から離すとその回数ぶん太平洋往復が掛かる。未指定だと Vercel の既定の `iad1`（米国東部）になり、チャレンジで回答してから正誤が出るまでに 1 秒前後の遅れが出ていた（2026-10 に本番で `x-vercel-id: hnd1::iad1::…` を実測）。DB のリージョンを変えるときはここも一緒に変えること。
+`apps/web/vercel.json` の `regions` で関数（Server Actions・動的ルート・Route Handlers）を東京（`hnd1`）に置いている。Supabase が `ap-northeast-1` にあり、関数と DB の往復はリクエストごとに何度も直列で起きるため（チャレンジの回答 1 回で BAN 判定 + トランザクションの約 5 往復）、関数を DB から離すとその回数ぶん太平洋往復が掛かる。未指定だと Vercel の既定の `iad1`（米国東部）になり、チャレンジで回答してから正誤が出るまでに 1 秒前後の遅れが出ていた（2026-10 に本番で `x-vercel-id: hnd1::iad1::…` を実測）。DB のリージョンを変えるときはここも一緒に変えること。本番の遅延を調べるときは、まず `curl -sD - https://score.mahjong.help/dojo -o /dev/null | grep -i x-vercel-id` で `hnd1::<関数リージョン>` を確かめる（期待は `hnd1::hnd1`）。
 
-`apps/web/vercel.json` の `ignoreCommand` で、`claude/*` ブランチ（`.github/workflows/claude-issue-solve.yml` が bot 名義で開く PR の head）のビルドをスキップしている。bot の PR は人が Actions からマージするまでレビュー対象でしかなく、PR ごとに preview デプロイを作る意味がないため。
+`vercel.json` に `ignoreCommand` は置かない。`claude/*` の PR にも他と同じく Preview を立てる理由はルートの `CLAUDE.md`「Preview デプロイの DB は Supabase Branching から来る」にある。
+
+Vercel CLI を使うときの注意: `vercel link` は `.gitignore` に `.env*` を足し、`.env.local` に `VERCEL_OIDC_TOKEN` を書く。`.gitignore` の変更は戻すこと。環境変数は `vercel env add NAME production --sensitive`、反映は `vercel redeploy <deployment-url>` で CLI だけで完結する。
 
 ## Supabase の設定
 

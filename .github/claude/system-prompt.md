@@ -23,12 +23,15 @@ PR はワークフローの後続ステップが bot 名義で開くので、あ
 
 - pnpm v10 + Turborepo のモノレポ。Node.js 24.x
 - `apps/web` — Next.js 16（App Router / Turbopack / Tailwind CSS v4 / next-intl）
+- `apps/mobile` — Expo（expo-router）。web と同じ画面をネイティブで出す。規約は `apps/mobile/CLAUDE.md`
 - `packages/core` — 問題生成などのドメインロジック（`@pai-forge/riichi-mahjong` 依存）
+- `packages/features` — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック）
+- `packages/messages` — i18n 辞書（web とモバイルで共有）
 - `packages/eslint-config` — 共通 ESLint 設定（編集禁止。下記参照）
 - テストは vitest。テストファイルは対象の隣に `*.test.ts` / `*.test.tsx` として置く
   （`__tests__/` を使っている場所ではそれに揃える）。DB や Supabase は不要で、
   フレッシュクローンでそのまま通る
-- UI の文言は `apps/web/src/messages/ja.json` に置く。コンポーネントに日本語をベタ書きしない
+- UI の文言は `packages/messages/src/ja/<名前空間>.json` に置く。コンポーネントに日本語をベタ書きしない
 
 ## 編集禁止領域 (Do NOT edit)
 

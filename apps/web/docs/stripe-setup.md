@@ -39,7 +39,11 @@ Price ID は環境変数で結び付けます（`src/lib/billing/env.ts`）。
 （`pro_pass` / `pro_lifetime`）で冪等になっており、何度実行しても既存のものを再利用します。
 
 ```bash
-# apps/web で実行。鍵は STRIPE_SECRET_KEY（.env.local）か、Stripe CLI のログイン情報から渡す
+# apps/web で実行。鍵は STRIPE_SECRET_KEY（.env.local）か、Stripe CLI のログイン情報から渡す。
+# `stripe login` は承認ページを開いた時点で Dashboard で選択中のアカウントに紐付くので、
+# 別サービスのアカウントが選ばれていると商品をそちらに作ってしまう。必ず --project-name で
+# このリポジトリ用のログインを分け、`stripe config --list --project-name mahjong-scoring` の
+# account_id が Dashboard の URL の acct と一致することを確かめてから API を叩く。
 STRIPE_SECRET_KEY="$(stripe config --list --project-name mahjong-scoring \
   | awk -F= '/test_mode_api_key/{print $2}' | tr -d ' ')" \
   pnpm stripe:bootstrap
@@ -51,8 +55,10 @@ pnpm stripe:bootstrap --pass-amount 480 --lifetime-amount 1480
 出力された `STRIPE_PRICE_ID_PRO_PASS` / `STRIPE_PRICE_ID_PRO_LIFETIME` の行を `.env.local` に追加してください。
 本番はライブモードの鍵で同じコマンドを実行し、出力を Vercel の環境変数に設定します。
 
-> **Note:** 金額は作成時にしか使いません。Stripe の Price は金額を変更できないため、価格改定は Dashboard で
+> **Note:** 金額は作成時にしか使いません。Stripe の Price は API からは金額を変更できないため、価格改定は Dashboard で
 > 新しい Price を作り、`lookup_key` を付け替えます（旧 Price は無効化）。環境変数も新しい ID に差し替えてください。
+> 一度も決済に使われていない Price だけは Dashboard から金額を書き換えられ、ID は変わりません（2026-10 に実施）。
+> いずれの場合も料金ページは価格を 1 日キャッシュする（`src/lib/billing/prices.ts`）ので、再デプロイで反映します。
 
 ### Dashboard で作る場合
 
@@ -116,6 +122,11 @@ stripe trigger charge.refunded
 ```bash
 STRIPE_SECRET_KEY=sk_live_... pnpm stripe:bootstrap --webhook-url https://<本番ドメイン>/api/stripe/webhook
 ```
+
+鍵は Dashboard で作った `sk_live_` を使います。`stripe login` が作る鍵（Dashboard では `mk_`）はライブモードでは
+読み取り専用で権限も編集できず、`stripe config --list` もライブキーを `*` でマスクして出すため（テストキーは
+マスクされない）、抜き出してスクリプトに渡しても `Invalid API Key` になります。本番の商品・Price・Webhook の作成は
+鍵を持つ人が自分で実行してください。
 
 新規作成のときは出力に `STRIPE_WEBHOOK_SECRET` の行が含まれます（署名シークレットは作成時にしか返らない）。
 既存のエンドポイントなら Dashboard のエンドポイント詳細で確認してください。いずれも Vercel の環境変数に設定します。
