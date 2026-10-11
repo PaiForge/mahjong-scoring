@@ -3,12 +3,14 @@
  * 購入シード
  *
  * マイページのプラン表示・購入履歴と、回数制限や拡張機能の出し分けを
- * ログインするだけで確認できるよう、`purchases` に偽の Stripe ID を持つ行を
- * 入れる。Stripe API は叩かない。
+ * ログインするだけで確認できるよう、`purchases` に偽の Stripe ID・偽の
+ * App Store の取引 ID を持つ行を入れる。Stripe API も App Store も叩かない。
  *
  * - bob   — 有効な 30 日パス 1 枚（10 日前に購入）と、その前に使い切った
  *           パス 1 枚（履歴に「期限切れ」が並ぶ状態）
  * - carol — 買い切り（永久）
+ * - erin  — App Store で買った有効な 30 日パス 1 枚（Production）。マイページと
+ *           管理画面の「購入元」の列を確かめる
  * - alice — 購入なし（無料枠の回数制限が掛かる状態）
  *
  * `stripe_customers` には入れない。偽の顧客 ID を置くと、シードユーザーで
@@ -27,6 +29,7 @@ import {
   PurchaseKind,
   addPassDuration,
 } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { purchases, type NewPurchase } from "../../src/lib/db/schema";
 
 /** 投入先のユーザー（`ensureSeedUser` が返した id と username） */
@@ -95,6 +98,40 @@ function lifetimeRow(
   };
 }
 
+/**
+ * App Store で買った 30 日パス。取引 ID はユーザー名（`seed_` 始まり）で本物と見分ける。
+ * Product ID は App Store Connect に登録する本物と同じ文字列にする
+ */
+function applePassRow(
+  userId: string,
+  username: string,
+  n: number,
+  startsAt: Date,
+): NewPurchase {
+  const plan = PLANS.pro;
+  const offer = plan.offers.pass;
+  if (offer.kind !== PurchaseKind.Pass) {
+    throw new Error("pro.offers.pass はパスであるべき");
+  }
+  const transactionId = `${username}_${n}`;
+  return {
+    userId,
+    provider: PurchaseProvider.Apple,
+    plan: plan.key,
+    kind: offer.kind,
+    benefits: [...plan.benefits],
+    appleTransactionId: transactionId,
+    appleOriginalTransactionId: transactionId,
+    appleProductId: "help.mahjong.score.pro.pass30",
+    appleEnvironment: "Production",
+    currency: "jpy",
+    amount: 500,
+    startsAt,
+    expiresAt: addPassDuration(startsAt, offer.durationDays),
+    createdAt: startsAt,
+  };
+}
+
 /** username → 投入する行を作る関数 */
 const PURCHASES_BY_USERNAME: Readonly<
   Record<string, (userId: string, now: Date) => readonly NewPurchase[]>
@@ -105,6 +142,9 @@ const PURCHASES_BY_USERNAME: Readonly<
   ],
   seed_carol: (userId, now) => [
     lifetimeRow(userId, "seed_carol", 1, daysAgo(now, 30)),
+  ],
+  seed_erin: (userId, now) => [
+    applePassRow(userId, "seed_erin", 1, daysAgo(now, 5)),
   ],
 };
 

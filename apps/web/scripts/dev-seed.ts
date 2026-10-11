@@ -120,7 +120,7 @@ async function main() {
   console.log("dev-seed: 有料プランの購入記録を投入します...");
   const purchased = await reseedPurchases(db, scored);
   console.log(
-    `  purchases ${purchased} 件（bob: 有効な 30 日パス + 期限切れのパス / carol: 買い切り）`,
+    `  purchases ${purchased} 件（bob: 有効な 30 日パス + 期限切れのパス / carol: 買い切り / erin: App Store の 30 日パス）`,
   );
 
   console.log("dev-seed: 特典の手動付与を投入します...");
