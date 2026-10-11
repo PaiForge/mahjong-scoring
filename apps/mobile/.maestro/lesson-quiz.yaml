@@ -1,0 +1,55 @@
+# ゲストでレッスンの確認問題を撮る。見出しの下に 1-2-3 のステップ表示があり、
+# 1 問答えて進むと 1 が済み（緑の塗り）、2 が今の問題（淡緑にリング）になる。
+# 「本文を読み返す」で本文へ戻ると、本文の下のボタンが「確認問題に戻る（2 / 3 問目）」に
+# なり、押すと同じ問題から続く
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://lessons/mangan-ko-ron"
+- scrollUntilVisible:
+    element:
+      id: "lesson-start-quiz"
+    direction: DOWN
+- tapOn:
+    id: "lesson-start-quiz"
+- extendedWaitUntil:
+    visible:
+      id: "lesson-quiz-steps"
+    timeout: 5000
+- takeScreenshot: lesson-quiz-step-1
+- tapOn:
+    id: "choice-0"
+- scrollUntilVisible:
+    element:
+      id: "lesson-next"
+    direction: DOWN
+- tapOn:
+    id: "lesson-next"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "lesson-quiz-steps"
+- takeScreenshot: lesson-quiz-step-2
+- scrollUntilVisible:
+    element:
+      id: "lesson-review-body"
+    direction: DOWN
+- tapOn:
+    id: "lesson-review-body"
+- scrollUntilVisible:
+    element:
+      id: "lesson-resume-quiz"
+    direction: DOWN
+- assertVisible: "確認問題に戻る（2 / 3 問目）"
+- takeScreenshot: lesson-quiz-resume
+- tapOn:
+    id: "lesson-resume-quiz"
+- extendedWaitUntil:
+    visible:
+      id: "lesson-quiz-steps"
+    timeout: 5000
+- takeScreenshot: lesson-quiz-resumed

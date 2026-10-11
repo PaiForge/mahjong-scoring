@@ -54,6 +54,7 @@ import { isLessonPorted } from "../ported-lessons";
 import { lessonColors, verdictTextColors } from "../lesson-colors";
 import { ChapterRelatedLinks } from "./chapter-related-links";
 import { DoneMark } from "./done-mark";
+import { LessonQuizSteps } from "./lesson-quiz-steps";
 import { NextLessonPreview, nextChapterSlug } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
 import { MachiTiles, MentsuSet, TileSet } from "./tile-row";
@@ -252,7 +253,12 @@ export function LessonView({
         )}
         {explanation}
         {inQuiz ? (
-          <Button size="lg" fullWidth onPress={handleStart}>
+          <Button
+            size="lg"
+            fullWidth
+            onPress={handleStart}
+            testID="lesson-resume-quiz"
+          >
             {t("resumeQuiz", { index: index + 1, total: questions.length })}
           </Button>
         ) : completed ? (
@@ -264,7 +270,12 @@ export function LessonView({
             <ChapterRelatedLinks slug={slug} />
           </>
         ) : (
-          <Button size="lg" fullWidth onPress={handleStart}>
+          <Button
+            size="lg"
+            fullWidth
+            onPress={handleStart}
+            testID="lesson-start-quiz"
+          >
             {t("startQuiz", { count: questions.length })}
           </Button>
         )}
@@ -276,15 +287,12 @@ export function LessonView({
   if (phase === "quiz") {
     return (
       <View style={styles.quiz}>
-        <View style={styles.quizHeader}>
-          {/* 見出しが残りの幅を取らないと、右へ伸びる横線が最小幅に潰れる */}
-          <View style={styles.quizTitle}>
-            <SectionTitle>{t("quizTitle")}</SectionTitle>
-          </View>
-          <Text style={styles.progress}>
-            {t("progress", { index: index + 1, total: questions.length })}
-          </Text>
-        </View>
+        <SectionTitle>{t("quizTitle")}</SectionTitle>
+        <LessonQuizSteps
+          current={index}
+          total={questions.length}
+          label={t("progress", { index: index + 1, total: questions.length })}
+        />
 
         <PromptBoard prompt={question.prompt} />
 
@@ -373,7 +381,12 @@ export function LessonView({
 
         {isAnswered ? (
           <View ref={nextButtonRef} collapsable={false}>
-            <Button size="lg" fullWidth onPress={handleNext}>
+            <Button
+              size="lg"
+              fullWidth
+              onPress={handleNext}
+              testID="lesson-next"
+            >
               {isLast ? t("finish") : t("next")}
             </Button>
           </View>
@@ -387,7 +400,9 @@ export function LessonView({
             {t("showHint")}
           </Button>
         )}
-        <TextLink onPress={() => goTo("learn")}>{t("reviewBody")}</TextLink>
+        <TextLink onPress={() => goTo("learn")} testID="lesson-review-body">
+          {t("reviewBody")}
+        </TextLink>
       </View>
     );
   }
@@ -495,21 +510,6 @@ const styles = StyleSheet.create({
   },
   quiz: {
     gap: 16,
-  },
-  quizHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  quizTitle: {
-    flex: 1,
-    minWidth: 0,
-  },
-  progress: {
-    fontSize: 14,
-    fontWeight: "700",
-    fontVariant: ["tabular-nums"],
-    color: colors.surface600,
   },
   frame: {
     borderWidth: borderWidth.panel,

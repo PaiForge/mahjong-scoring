@@ -55,6 +55,7 @@ import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { LessonFollowUpProvider } from "./lesson-follow-up-context";
+import { LessonQuizSteps } from "./lesson-quiz-steps";
 import {
   forgetPendingLessonCompletions,
   rememberPendingLessonCompletion,
@@ -239,9 +240,13 @@ function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
  * @design 段階はブラウザの履歴に積む
  * 段階を進めるたびに履歴へ 1 項目積み（{@link usePhaseHistory}）、「戻る」で
  * 1 段階ずつ戻れるようにする。完了画面から戻ると最後の問題を答えた状態、
- * 確認問題から戻ると本文で、もう一度「確認問題へ」を押せば途中の問題から
- * 続ける。解き終えたあとに本文まで戻って押したときだけ最初から解き直す
- * （完了は記録済みなので、もう一度は記録しない）。
+ * 確認問題から戻ると本文で、本文の下のボタンは「確認問題に戻る（n / m 問目）」
+ * になり、途中の問題（選んだ答え・ヒント・正答数ごと）から続ける。
+ * 確認問題の下の「本文を読み返す」も同じで、本文の段階を履歴に積んで
+ * 本文の先頭へ送る（読み返してからの「戻る」は解いていた問題へ戻る）。
+ * 表を見返したくなるたびに最初から解き直させないため。解き終えたあとに
+ * 本文まで戻って押したときだけ最初から解き直す（完了は記録済みなので、
+ * もう一度は記録しない）。
  *
  * @design ログインしているかはサーバーが決める
  * 認証状態をクライアントで先読みして保存を分岐しない（練習の保存
@@ -277,6 +282,10 @@ export function LessonView({
   const [selected, setSelected] = useState<LessonChoice | undefined>(undefined);
   const [showHint, setShowHint] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+  // 確認問題を解いている途中か（本文を読み返しても続きから戻れるように）。
+  // 解き終えた時点で外す — 完了は `finished`（保存の状態）が持ち、こちらは
+  // 解き直しの途中も表す
+  const [inQuiz, setInQuiz] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   // 記録のときにサーバーが返した本人の続き（次の一歩・級の進み具合）
   const [fetchedFollowUp, setFetchedFollowUp] = useState<
@@ -365,17 +374,24 @@ export function LessonView({
 
   const handleStart = () => {
     // 解き終えたあとに本文まで戻ってきたら最初から。途中なら続きから
-    if (finished) {
+    if (!inQuiz) {
       setIndex(0);
       setSelected(undefined);
       setShowHint(false);
       setCorrectCount(0);
+      setInQuiz(true);
     }
     pushPhase("quiz");
   };
 
+  const handleReviewBody = () => {
+    // 履歴に本文の段階を積む。読み返した後の「戻る」は解いていた問題へ戻る
+    pushPhase("learn");
+  };
+
   const handleNext = () => {
     if (isLast) {
+      setInQuiz(false);
       pushPhase("done");
       // 完了画面から戻って押し直したときは、もう記録を始めている
       if (!finished) void save(user?.id);
@@ -396,15 +412,19 @@ export function LessonView({
     return (
       <div className="relative space-y-8">
         {/* 完了済みの印はカードの右上（本文の最初の見出しの行の右端）。
-            見出しの「?」とは場所を分ける。確認問題の画面では同じ位置に
-            進み具合が、完了画面には達成の表示があるので本文の画面だけ */}
+            見出しの「?」とは場所を分ける。確認問題の画面には頭に進み具合の
+            ステップが、完了画面には達成の表示があるので本文の画面だけ */}
         {completed && (
           <div className="absolute right-0 top-1.5">
             <DoneMark label={t("completedMark")} />
           </div>
         )}
         {explanation}
-        {completed ? (
+        {inQuiz ? (
+          <Button size="lg" fullWidth onClick={handleStart}>
+            {t("resumeQuiz", { index: index + 1, total: questions.length })}
+          </Button>
+        ) : completed ? (
           <>
             {/* 完了済みの人に確認問題を主導線として勧めない。解き直しは
                 移動と同じ控えめなリンクにして、練習・試験へ送る */}
@@ -433,14 +453,12 @@ export function LessonView({
     return (
       <div className="space-y-6">
         <section className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <SectionTitle className="min-w-0 flex-1">
-              {t("quizTitle")}
-            </SectionTitle>
-            <span className="text-sm font-bold tabular-nums text-surface-600">
-              {t("progress", { index: index + 1, total: questions.length })}
-            </span>
-          </div>
+          <SectionTitle>{t("quizTitle")}</SectionTitle>
+          <LessonQuizSteps
+            current={index}
+            total={questions.length}
+            label={t("progress", { index: index + 1, total: questions.length })}
+          />
 
           <PromptBoard prompt={question.prompt} />
 
@@ -517,20 +535,26 @@ export function LessonView({
           </div>
         </section>
 
-        {isAnswered ? (
-          <Button size="lg" fullWidth onClick={handleNext}>
-            {isLast ? t("finish") : t("next")}
-          </Button>
-        ) : (
+        <div className={`flex flex-col ${SUB_LINK_GAP}`}>
+          {isAnswered && (
+            <Button size="lg" fullWidth onClick={handleNext}>
+              {isLast ? t("finish") : t("next")}
+            </Button>
+          )}
           <PracticeFooterActions>
-            <PracticeFooterAction
-              onClick={() => setShowHint(true)}
-              disabled={showHint}
-            >
-              {t("showHint")}
+            {!isAnswered && (
+              <PracticeFooterAction
+                onClick={() => setShowHint(true)}
+                disabled={showHint}
+              >
+                {t("showHint")}
+              </PracticeFooterAction>
+            )}
+            <PracticeFooterAction onClick={handleReviewBody}>
+              {t("reviewBody")}
             </PracticeFooterAction>
           </PracticeFooterActions>
-        )}
+        </div>
       </div>
     );
   }
