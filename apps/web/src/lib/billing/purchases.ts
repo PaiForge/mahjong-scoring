@@ -225,7 +225,8 @@ function purchaseRevokeReasonOf(
   value: string | null,
 ): PurchaseRevokeReason | undefined {
   return value === PurchaseRevokeReason.Refunded ||
-    value === PurchaseRevokeReason.Fraud
+    value === PurchaseRevokeReason.Fraud ||
+    value === PurchaseRevokeReason.Revoked
     ? value
     : undefined;
 }
