@@ -230,6 +230,19 @@ describe("答えの出どころ", () => {
     });
   });
 
+  it("サーバーが要求を受け付けない 4xx（rejected）でも生成する（fail-open）", async () => {
+    mocks.userId = "user-a";
+    mocks.beginPracticeQuota.mockResolvedValue({ error: "rejected" });
+    const generate = vi.fn();
+
+    await requestPracticeQuestion("agari-score", generate);
+
+    expect(generate).toHaveBeenCalledTimes(1);
+    expect(readPracticeQuotaGate("agari-score")).toEqual({
+      kind: "unverified",
+    });
+  });
+
   it("問い合わせ自体が例外を投げても生成する", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockRejectedValue(new Error("boom"));

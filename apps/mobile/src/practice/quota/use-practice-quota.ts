@@ -200,7 +200,8 @@ async function askQuota(
       return { kind: "answer", answer: { ...result.value, signedIn: true } };
     }
     if (result.error === "rateLimited") return { kind: "rateLimited" };
-    // 通信の失敗・サーバーの障害・ログインの切り替わりは確かめられなかった扱い
+    // 通信の失敗・サーバーの障害・ログインの切り替わり・要求を受け付けない 4xx は
+    // 確かめられなかった扱い
     if (result.error !== "usernameRequired") return { kind: "unverified" };
   }
   return guestOutcome(menu, mode, signedIn);

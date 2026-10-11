@@ -21,13 +21,19 @@ import { parseMobileBody } from "./request";
 import { mobileJson, mobileServerError } from "./response";
 
 /**
- * 本文の上限。署名付き取引は証明書の鎖（x5c）を含んで数 KB になる。
- * 取引そのものの上限（`JWS_MAX_LENGTH`）に JSON の包みの分を足した値
+ * 本文の上限。取引そのものの上限（`JWS_MAX_LENGTH`）の 2 倍を取り、JSON の
+ * 包みの分の余裕を持たせる
  */
-const BODY_MAX_BYTES = 16 * 1024;
+const BODY_MAX_BYTES = 32 * 1024;
 
-/** 署名付き取引の長さの上限。実物は 4〜6KB 程度で、これを超えるものは読まずに弾く */
-const JWS_MAX_LENGTH = 8192;
+/**
+ * 署名付き取引の長さの上限。これを超えるものは読まずに 400 で弾く
+ *
+ * 実物は証明書の鎖（x5c に 3 枚）を含んで 5〜6KB。上限を超えた取引はアプリが
+ * 「送り直しても通らない」として完了して捨てるので、正規の取引を超えさせない
+ * ために実物の 2 倍以上を取る。
+ */
+const JWS_MAX_LENGTH = 16_384;
 
 const requestSchema: z.ZodType<MobileAppleTransactionRequest> = z.object({
   jws: z.string().min(1).max(JWS_MAX_LENGTH),

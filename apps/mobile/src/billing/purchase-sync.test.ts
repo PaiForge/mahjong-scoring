@@ -43,6 +43,10 @@ describe("shouldFinishAfter", () => {
     }
   });
 
+  it("サーバーが要求を受け付けない 4xx（rejected）は完了する", () => {
+    expect(shouldFinishAfter(failed("rejected"))).toBe(true);
+  });
+
   it("サーバーが検証できない・通信や一時的な障害・ログインの問題は完了しない", () => {
     for (const error of [
       "appleUnavailable",
@@ -94,5 +98,9 @@ describe("summarizeRestore", () => {
     expect(summarizeRestore([failed("sandboxNotAccepted")])).toBe(
       "nothingToRestore",
     );
+  });
+
+  it("受け付けない 4xx（rejected）だけなら復元するものは無い", () => {
+    expect(summarizeRestore([failed("rejected")])).toBe("nothingToRestore");
   });
 });

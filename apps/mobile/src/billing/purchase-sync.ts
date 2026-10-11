@@ -12,6 +12,8 @@ import type { PlanApiResult } from "./plan-api";
  *   署名が通らない・知らない商品・Sandbox を受け付けない）→ 完了する。送り直しても
  *   通らず、完了しないと StoreKit が起動のたびに同じ取引を配り直し、同じ要求を
  *   永久に送り続ける
+ * - サーバーが要求を受け付けない 4xx（`rejected`）→ 完了する。送り直しても同じ
+ *   400 が返り、完了しないと起動のたびに送り続ける
  * - サーバーが検証できない（503 `appleUnavailable`）・通信の失敗・一時的な障害・
  *   ログインの失効や切り替え・形の分からない応答 → 完了しない。次の起動で
  *   StoreKit が配り直し、そのとき送り直す
@@ -23,6 +25,7 @@ export function shouldFinishAfter(
   result: PlanApiResult<MobileAppleTransactionResponse>,
 ): boolean {
   if ("value" in result) return true;
+  if (result.error === "rejected") return true;
   return (
     isMobilePlanErrorCode(result.error) && result.error !== "appleUnavailable"
   );

@@ -24,9 +24,12 @@ import { SITE_URL } from "../lib/app-site-url";
 /**
  * プラン・取引の記録の API の失敗
  *
- * `serverError` はサーバー側の一時的な失敗（500）で、同じ要求を送り直してよい。
+ * - `serverError` — サーバー側の一時的な失敗（500）。同じ要求を送り直してよい
+ * - `rejected` — サーバーが要求そのものを受け付けない 4xx（本文の形・無いパス等）。
+ *   送り直しても通らない
  */
-export type PlanApiFailure = ApiFailure | MobilePlanErrorCode | "serverError";
+export type PlanApiFailure =
+  ApiFailure | MobilePlanErrorCode | "serverError" | "rejected";
 
 /** プラン・取引の記録の API の結果 */
 export type PlanApiResult<T> =
@@ -37,7 +40,10 @@ export type PlanApiResult<T> =
  * プランAPI要求
  *
  * 409 / 422 / 503 はプランの API 固有の理由（{@link isMobilePlanErrorCode}）に
- * 丸める。読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
+ * 丸める。認証・回数制限の 4xx（401 / 403 / 429）はその理由のまま、それ以外の
+ * 4xx（本文の検証の 400 `invalidRequest`・404 等）は `rejected` にする —
+ * `unknown` のままだと取引の同期が「分からない失敗」として完了せず、StoreKit が
+ * 起動のたびに配り直して同じ 4xx を受け続ける。読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
  * 回数制限の API（`practice/quota/quota-api.ts`）も同じ理由の集合を返すので、
  * これを通す。
  */
@@ -56,7 +62,13 @@ export async function requestPlanApi<T>(
   if (isMobilePlanErrorCode(error)) return { error };
   if (response.status >= 500 && response.status !== 503)
     return { error: "serverError" };
-  return { error: await apiFailureOf(response) };
+  const failure = await apiFailureOf(response);
+  return {
+    error:
+      failure === "unknown" && response.status >= 400 && response.status < 500
+        ? "rejected"
+        : failure,
+  };
 }
 
 /**
