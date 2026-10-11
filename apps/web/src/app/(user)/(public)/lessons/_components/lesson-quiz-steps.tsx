@@ -14,9 +14,12 @@ interface LessonQuizStepsProps {
  * 入れ替わって出る画面で、見出しが無くても選択肢と出題文で確認問題だと
  * 分かる。残りが何問かは数字の「n / m 問目」より並びのほうが一目で読める。
  *
- * 済んだ問題は墨の塗り、今の問題は墨のリング、まだの問題は灰の枠
- * （どれも `selected` の役割の色 — 「どこにいるか」の記号）。済んだ問題を
- * 正誤で塗り分けない。レッスンは間違えても解説を読んで進むもので、
+ * 済んだ問題は緑の塗り（`success` — 完了の記号）、今の問題は淡緑の面に
+ * 緑のリング（`brand-subtle`）、まだの問題は灰の枠。ナビの現在地のような
+ * 墨（`selected`）にしないのは、ここが「どこにいるか」より「どこまで
+ * 済んだか」を見せる場所で、済みの印と同じ緑で積み上がるほうが進んだ
+ * 手応えになるため。主操作の `action` は使わない（丸は押せない）。
+ * 済んだ問題を正誤で塗り分けない。レッスンは間違えても解説を読んで進むもので、
  * 途中で正答数を意識させない（正答数は完了画面で添えるだけ）。
  */
 export function LessonQuizSteps({
@@ -35,9 +38,9 @@ export function LessonQuizSteps({
         const isDone = step < current;
         const isCurrent = step === current;
         const circleClass = isDone
-          ? "border-selected bg-selected text-selected-foreground"
+          ? "border-success bg-success text-success-foreground"
           : isCurrent
-            ? "border-selected bg-white text-selected ring-1 ring-inset ring-selected"
+            ? "border-success bg-brand-subtle text-success-strong ring-1 ring-inset ring-success"
             : "border-surface-300 bg-white text-surface-400";
         return (
           <li
@@ -46,10 +49,10 @@ export function LessonQuizSteps({
             className={`flex items-center ${step === 0 ? "" : "flex-1"}`}
           >
             {step > 0 && (
-              // 前の丸からこの丸へ伸びる線。ここまで来ていれば墨
+              // 前の丸からこの丸へ伸びる線。ここまで来ていれば緑
               <span
                 aria-hidden
-                className={`h-px flex-1 ${step <= current ? "bg-selected" : "bg-surface-300"}`}
+                className={`h-px flex-1 ${step <= current ? "bg-success" : "bg-surface-300"}`}
               />
             )}
             <span
