@@ -33,7 +33,6 @@ describe("shouldFinishAfter", () => {
 
   it("送り直しても通らない 4xx は完了する", () => {
     for (const error of [
-      "usernameRequired",
       "ownedByAnotherAccount",
       "invalidTransaction",
       "unknownProduct",
@@ -47,9 +46,10 @@ describe("shouldFinishAfter", () => {
     expect(shouldFinishAfter(failed("rejected"))).toBe(true);
   });
 
-  it("サーバーが検証できない・通信や一時的な障害・ログインの問題は完了しない", () => {
+  it("サーバーが検証できない・ユーザー名が無い・通信や一時的な障害・ログインの問題は完了しない", () => {
     for (const error of [
       "appleUnavailable",
+      "usernameRequired",
       "network",
       "serverError",
       "unauthorized",

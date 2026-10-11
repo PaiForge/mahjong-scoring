@@ -53,8 +53,8 @@ const ROUTE = "POST /api/mobile/v1/iap/apple/transactions";
  * 再登録した人の復元を通すため（`recordAppleTransaction` の TSDoc）。
  *
  * 応答はアプリが取引を完了（finish）するかの判断に使われる。2xx と 4xx の後に
- * 完了し、503 と通信の失敗だけ未完了のまま残して次の起動で送り直す
- * （`MOBILE_PLAN_ERROR_CODES` の TSDoc）。
+ * 完了し、409 `usernameRequired`（一時的な状態）・503・通信の失敗は未完了の
+ * まま残して次の起動で送り直す（`MOBILE_PLAN_ERROR_CODES` の TSDoc）。
  *
  * - 200 `recorded` / `duplicate` — 記録した・記録済み。記録後のプランの状態を添える。
  *   返金済みの取引を履歴として記録した場合も `recorded`（状態に特典は付かない）

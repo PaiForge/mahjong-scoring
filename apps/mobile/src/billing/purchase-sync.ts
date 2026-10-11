@@ -8,12 +8,17 @@ import type { PlanApiResult } from "./plan-api";
  * 取引完了の判定
  *
  * - 記録した・記録済み（2xx）→ 完了する
- * - プランの API 固有の理由（4xx。ユーザー名が無い・別のアカウントの取引・
- *   署名が通らない・知らない商品・Sandbox を受け付けない）→ 完了する。送り直しても
- *   通らず、完了しないと StoreKit が起動のたびに同じ取引を配り直し、同じ要求を
+ * - プランの API 固有の理由（4xx。別のアカウントの取引・署名が通らない・
+ *   知らない商品・Sandbox を受け付けない）→ 完了する。送り直しても通らず、
+ *   完了しないと StoreKit が起動のたびに同じ取引を配り直し、同じ要求を
  *   永久に送り続ける
  * - サーバーが要求を受け付けない 4xx（`rejected`）→ 完了する。送り直しても同じ
  *   400 が返り、完了しないと起動のたびに送り続ける
+ * - ユーザー名が無い（409 `usernameRequired`）→ 完了しない。ユーザー名が無いのは
+ *   一時的な状態で、決めれば同じ取引が通る。完了すると二度と配られず、取り戻せ
+ *   ない（Ask to Buy の承認がログアウト中に届き、ユーザー名の無い別のアカウントで
+ *   ログインした等）。サーバーは検証の前に 409 を返すので、起動ごとに 1 回
+ *   送り直す費用は小さい。起動中には送り直さない（`isRetryable` に入れない）
  * - サーバーが検証できない（503 `appleUnavailable`）・通信の失敗・一時的な障害・
  *   ログインの失効や切り替え・形の分からない応答 → 完了しない。次の起動で
  *   StoreKit が配り直し、そのとき送り直す
@@ -27,7 +32,9 @@ export function shouldFinishAfter(
   if ("value" in result) return true;
   if (result.error === "rejected") return true;
   return (
-    isMobilePlanErrorCode(result.error) && result.error !== "appleUnavailable"
+    isMobilePlanErrorCode(result.error) &&
+    result.error !== "appleUnavailable" &&
+    result.error !== "usernameRequired"
   );
 }
 
