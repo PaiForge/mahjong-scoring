@@ -48,7 +48,11 @@ export default async function PrivacyPage() {
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <LegalArticle>
-        <LegalParagraph>{t("intro", { siteName: SITE_NAME })}</LegalParagraph>
+        <LegalSection title={t("intro.title")}>
+          <LegalParagraph>
+            {t("intro.body", { siteName: SITE_NAME })}
+          </LegalParagraph>
+        </LegalSection>
 
         <LegalSection title={t("collected.title")}>
           <LegalParagraph>{t("collected.body")}</LegalParagraph>

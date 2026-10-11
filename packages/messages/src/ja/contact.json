@@ -2,6 +2,7 @@
   "pageTitle": "お問い合わせ",
   "description": "ご質問やご意見、不具合の報告などがありましたら、こちらからお送りください。",
   "form": {
+    "sectionTitle": "お問い合わせフォーム",
     "name": "お名前",
     "email": "メールアドレス",
     "emailPlaceholder": "mail@example.com",
@@ -15,6 +16,7 @@
   },
   "confirm": {
     "title": "送信内容の確認",
+    "sectionTitle": "送信内容",
     "description": "以下の内容で送信します。よろしければ「送信する」を押してください。"
   },
   "success": {
