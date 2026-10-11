@@ -177,7 +177,7 @@ describe("handleRecordAppleTransaction", () => {
     expect(mockRecord).not.toHaveBeenCalled();
   });
 
-  it.each([{}, { jws: "" }, { jws: "x".repeat(8193) }])(
+  it.each([{}, { jws: "" }, { jws: "x".repeat(16_385) }])(
     "本文が不正なら 400 invalidRequest（%#）",
     async (body) => {
       const response = await handle(request(body));
@@ -186,6 +186,13 @@ describe("handleRecordAppleTransaction", () => {
       expect(await response.json()).toEqual({ error: "invalidRequest" });
     },
   );
+
+  it("証明書の鎖を含む長さ（8KB を超える）の取引も検証まで通す", async () => {
+    const response = await handle(request({ jws: "x".repeat(12_000) }));
+
+    expect(response.status).toBe(422);
+    expect(await response.json()).toEqual({ error: "invalidTransaction" });
+  });
 
   it("記録に失敗したら 500 serverError", async () => {
     mockRecord.mockRejectedValue(new Error("db down"));
