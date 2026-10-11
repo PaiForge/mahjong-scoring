@@ -33,8 +33,8 @@ interface ScoreBreakdownPanelProps {
   /** 翻数・符の正誤。分かる画面だけが渡し、開いたときに間違えたほうを選ぶ */
   readonly judgement?: BreakdownJudgement;
   /**
-   * この問題の正解の位置（親子・ロンツモ・翻・符）。渡すと内訳の下に
-   * 「点数表で見る」を置き、そのセルをハイライトした点数表をモーダルで開く
+   * この問題の正解の位置（親子・ロンツモ・翻・符）。渡すと内訳の答えの値と
+   * 内訳の下の「点数表を確認」から点数表をモーダルで開ける
    */
   readonly scoreTableFocus?: ScoreTableFocus;
 }
@@ -51,9 +51,10 @@ interface ScoreBreakdownPanelProps {
  * 文言は共通の `challenge` 名前空間から引く（翻数の内訳と同じ理由で、練習
  * ごとの辞書に同じ語を持たせない）。
  *
- * `scoreTableFocus` を渡すと、内訳の下から正解のセルをハイライトした点数表を
- * 開ける。内訳で翻・符を数え直した人が、その組から点数を引く次の一歩まで
- * 同じ場所で確かめられる。
+ * `scoreTableFocus` を渡すと、内訳の答えの値（翻数の合計・符）が正解のセルを
+ * ハイライトした点数表を開くボタンになり、内訳の下に「点数表を確認」を添える。
+ * 内訳で翻・符を数え直した人が、その組から点数を引く次の一歩まで同じ場所で
+ * 確かめられる。
  */
 export function ScoreBreakdownPanel({
   fu,
@@ -65,6 +66,18 @@ export function ScoreBreakdownPanel({
   const t = useTranslations("challenge.scoreBreakdown");
   const tChallenge = useTranslations("challenge");
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
+  // 値（翻数・符）を押したときだけ正解のセルをハイライトする
+  // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
+  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+  const openScoreTable =
+    scoreTableFocus === undefined
+      ? undefined
+      : (highlighted: boolean) => {
+          setIsScoreTableHighlighted(highlighted);
+          setIsScoreTableOpen(true);
+        };
+  const openHighlighted =
+    openScoreTable === undefined ? undefined : () => openScoreTable(true);
   const fuHanOrder = useFuHanOrder();
 
   const hasYaku = yakuDetails !== undefined && yakuDetails.length > 0;
@@ -85,6 +98,7 @@ export function ScoreBreakdownPanel({
               details={fu.details}
               answer={fu.answer}
               translationNamespace="challenge.fuBreakdown"
+              onOpenScoreTable={openHighlighted}
             />
           ),
         },
@@ -98,7 +112,11 @@ export function ScoreBreakdownPanel({
             count: yakuDetails.reduce((sum, detail) => sum + detail.han, 0),
           }),
           content: (
-            <YakuBreakdownTable yakuDetails={yakuDetails} note={yakuNote} />
+            <YakuBreakdownTable
+              yakuDetails={yakuDetails}
+              note={yakuNote}
+              onOpenScoreTable={openHighlighted}
+            />
           ),
         },
       ];
@@ -113,12 +131,12 @@ export function ScoreBreakdownPanel({
         sections={sections}
         initialKind={initial}
         action={
-          scoreTableFocus === undefined ? undefined : (
+          openScoreTable === undefined ? undefined : (
             <ReferenceLinkButton
               icon={<TableIcon className="size-3.5 shrink-0" />}
-              label={tChallenge("openInScoreTable")}
+              label={tChallenge("viewScoreTable")}
               hitArea="row"
-              onClick={() => setIsScoreTableOpen(true)}
+              onClick={() => openScoreTable(false)}
             />
           )
         }
@@ -128,7 +146,7 @@ export function ScoreBreakdownPanel({
           isOpen={isScoreTableOpen}
           onClose={() => setIsScoreTableOpen(false)}
           focus={scoreTableFocus}
-          highlighted
+          highlighted={isScoreTableHighlighted}
         />
       )}
     </>

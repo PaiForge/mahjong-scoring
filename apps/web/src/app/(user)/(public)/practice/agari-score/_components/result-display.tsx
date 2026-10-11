@@ -30,6 +30,7 @@ import {
 import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { ScoreTableModal } from "./score-table-modal";
+import { SCORE_TABLE_LINK_CLASSES } from "../../_lib/score-table-link-classes";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
 import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
@@ -69,7 +70,8 @@ interface ResultDisplayProps {
  *
  * 翻数・符の内訳は表の行の間に挟まず、表の下の 1 つの展開エリア
  * （{@link BreakdownPanel}）にまとめる。開いたときは間違えたほうの内訳を選ぶ。
- * 内訳の下には、正解のセルをハイライトした点数表を開く導線を添える。
+ * 内訳の答えの値（翻数の合計・符）は押すと正解のセルをハイライトした点数表を
+ * 開き、内訳の下には点数の行と同じ「点数表を確認」を添える。
  */
 export function ResultDisplay({
   question,
@@ -96,8 +98,8 @@ export function ResultDisplay({
     undefined,
   );
   const [isYakuListOpen, setIsYakuListOpen] = useState(false);
-  // 点数表モーダル。点数そのものと内訳の導線から開いたときは正解のセルを
-  // ハイライトする（点数の下の表への補助リンクからは素の表を開く）。
+  // 点数表モーダル。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
+  // ハイライトする（表への補助リンクからは素の表を開く）。
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
 
@@ -170,6 +172,7 @@ export function ResultDisplay({
                 items={yakuBreakdown.items}
                 total={yakuBreakdown.total}
                 suffix={t("form.options.hanSuffix")}
+                onOpenScoreTable={() => openScoreTable(true)}
               />
             ),
           },
@@ -186,6 +189,7 @@ export function ResultDisplay({
                 total={fuBreakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
+                onOpenScoreTable={() => openScoreTable(true)}
               />
             ),
           },
@@ -208,13 +212,13 @@ export function ResultDisplay({
               initialKind={breakdownTabs.initial}
               surface="sunken"
               action={
-                // 内訳で翻・符を確かめた流れのまま、その組が表のどこかを
-                // 見られるよう正解のセルをハイライトして開く
+                // 点数の行の「点数表を確認」と同じ導線。正解の位置へ着地
+                // させたいときは内訳の答えの値（翻数・符）を押す
                 <ReferenceLinkButton
                   icon={<TableIcon className="size-3.5 shrink-0" />}
-                  label={t("result.openInScoreTable")}
+                  label={t("result.viewScoreTable")}
                   hitArea="row"
-                  onClick={() => openScoreTable(true)}
+                  onClick={() => openScoreTable(false)}
                 />
               }
             />
@@ -360,7 +364,7 @@ export function ResultDisplay({
                 type="button"
                 onClick={() => openScoreTable(true)}
                 title={t("result.openInScoreTable")}
-                className="ml-auto block cursor-pointer text-right text-base font-bold text-surface-900 underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
+                className={`ml-auto block text-right text-base font-bold text-surface-900 ${SCORE_TABLE_LINK_CLASSES}`}
               >
                 {paymentDescription}
               </button>

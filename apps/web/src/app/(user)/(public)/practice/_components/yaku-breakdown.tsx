@@ -9,6 +9,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useYakuCheatsheetModal } from "../_hooks/use-yaku-cheatsheet-modal";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
+import { ScoreTableValueButton } from "./score-table-value-button";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 interface YakuBreakdownProps {
@@ -16,6 +17,11 @@ interface YakuBreakdownProps {
   readonly yakuDetails: readonly YakuDetail[];
   /** 合計の後に効く丸めの補足（役満止まりなど）。持たない画面もある */
   readonly note?: ReactNode;
+}
+
+interface YakuBreakdownTableProps extends YakuBreakdownProps {
+  /** 合計の翻数を押したときの処理。渡すとその値が点数表を開くボタンになる */
+  readonly onOpenScoreTable?: () => void;
 }
 
 /**
@@ -59,9 +65,14 @@ export function YakuBreakdown(props: YakuBreakdownProps) {
  * 翻内訳表
  *
  * 符の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
- * 置く側が持つので表だけを使う。
+ * 置く側が持つので表だけを使う。`onOpenScoreTable` を渡すと、合計の翻数が
+ * 点数表を開くボタンになる。
  */
-export function YakuBreakdownTable({ yakuDetails, note }: YakuBreakdownProps) {
+export function YakuBreakdownTable({
+  yakuDetails,
+  note,
+  onOpenScoreTable,
+}: YakuBreakdownTableProps) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();
@@ -96,7 +107,17 @@ export function YakuBreakdownTable({ yakuDetails, note }: YakuBreakdownProps) {
           ),
           value: t("han", { count: detail.han }),
         }))}
-        total={{ label: t("total"), value: t("han", { count: total }) }}
+        total={{
+          label: t("total"),
+          value:
+            onOpenScoreTable === undefined ? (
+              t("han", { count: total })
+            ) : (
+              <ScoreTableValueButton onClick={onOpenScoreTable}>
+                {t("han", { count: total })}
+              </ScoreTableValueButton>
+            ),
+        }}
         note={note}
       />
       {yakuCheatsheetModal}
