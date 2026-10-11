@@ -1,3 +1,4 @@
+import { useTranslations } from "use-intl";
 import type { FuDetail } from "@mahjong-scoring/core";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 
@@ -41,12 +42,34 @@ export function FuBreakdownTable({
   details,
   answer,
   translationNamespace,
-}: FuBreakdownProps) {
+  onOpenScoreTable,
+}: FuBreakdownProps & {
+  /**
+   * 答えの符（切り上げ後、切り上げが無ければ合計）を押したときの処理。
+   * 渡すとその値が点数表を開く
+   */
+  readonly onOpenScoreTable?: () => void;
+}) {
+  const tChallenge = useTranslations("challenge");
   // 行・合計・切り上げ後の文字列は web と共有する
   const { rows, total, rounded } = useFuBreakdown(
     details,
     answer,
     translationNamespace,
   );
-  return <DetailTable rows={rows} total={total} conclusion={rounded} />;
+  return (
+    <DetailTable
+      rows={rows}
+      total={total}
+      conclusion={rounded}
+      answerLink={
+        onOpenScoreTable === undefined
+          ? undefined
+          : {
+              onPress: onOpenScoreTable,
+              accessibilityHint: tChallenge("openInScoreTable"),
+            }
+      }
+    />
+  );
 }

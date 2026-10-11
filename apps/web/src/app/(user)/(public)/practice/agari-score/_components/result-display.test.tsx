@@ -228,6 +228,45 @@ describe("ResultDisplay の内訳", () => {
     expect(screen.getByText("result.details.total")).toBeTruthy();
   });
 
+  it("内訳の答えの翻数・符を押すと点数表モーダルが開く", () => {
+    renderWith({ isHanCorrect: false, isFuCorrect: true });
+    fireEvent.click(toggle());
+
+    // 翻数の内訳の合計（役牌 白 1 + 混一色 3 + 三暗刻 2）
+    fireEvent.click(
+      screen.getByRole("button", { name: "6form.options.hanSuffix" }),
+    );
+    expect(openedModalTitle()).toBe("pageTitle");
+  });
+
+  it("切り上げがあるときは切り上げ後の符だけを押せる（合計の符は点数表に無い）", () => {
+    renderWith({ isHanCorrect: true, isFuCorrect: false });
+    fireEvent.click(toggle());
+
+    expect(
+      screen.queryByRole("button", { name: "32form.options.fuSuffix" }),
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "40form.options.fuSuffix" }),
+    );
+    expect(openedModalTitle()).toBe("pageTitle");
+  });
+
+  it("内訳の下の「点数表を確認」は開いたときだけ出る", () => {
+    renderWith({});
+
+    // 点数の行にも同じ導線がある
+    expect(
+      screen.getAllByRole("button", { name: "result.viewScoreTable" }),
+    ).toHaveLength(1);
+
+    fireEvent.click(toggle());
+
+    expect(
+      screen.getAllByRole("button", { name: "result.viewScoreTable" }),
+    ).toHaveLength(2);
+  });
+
   it("内訳は表の外に置き、翻数・符・点数の行を分断しない", () => {
     renderWith({});
 

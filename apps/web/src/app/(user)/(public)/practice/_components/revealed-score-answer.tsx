@@ -13,6 +13,7 @@ import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focu
 
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "../agari-score/_components/score-table-modal";
+import { SCORE_TABLE_LINK_CLASSES } from "../_lib/score-table-link-classes";
 
 interface RevealedScoreAnswerProps {
   /** 開示する正解の点数 */
@@ -75,7 +76,7 @@ export function RevealedScoreAnswer({
                 type="button"
                 onClick={() => setIsScoreTableOpen(true)}
                 title={tChallenge("openInScoreTable")}
-                className="cursor-pointer font-bold underline decoration-surface-400 decoration-dotted decoration-2 underline-offset-4 hover:decoration-action"
+                className={`font-bold ${SCORE_TABLE_LINK_CLASSES}`}
               >
                 {formatted}
               </button>

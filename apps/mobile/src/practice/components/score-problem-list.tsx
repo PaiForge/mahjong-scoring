@@ -140,6 +140,12 @@ export function ScoreProblemList({
                   result.yakumanMultiplier,
                   (key, values) => tBreakdown(key, values),
                 )}
+                scoreTableFocus={scoreTableFocusOf({
+                  isOya: result.isOya,
+                  isTsumo: result.isTsumo,
+                  han: result.han,
+                  fu: result.fu,
+                })}
               />
             </View>
           );

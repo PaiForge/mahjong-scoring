@@ -1,7 +1,9 @@
 # ゲストで和了形の点数計算の答え合わせを撮る。「わからない」で正解を開くと、
 # 白い面の表（正解の列に薄い帯・点数の行は区切りと余白で分ける）の下に
 # 「内訳を確認」の行が 1 つだけ出る。開くと符 / 翻数の切り替えと内訳が続き、
-# 切り替えで内訳を行き来できる。符の内訳を持つ問題（満貫未満）が出るまで次へ送る
+# 切り替えで内訳を行き来できる。内訳の答えの値（切り上げ後の符・合計の翻数）は
+# 点線の下線付きで、押すと点数早見表のシートが開く。内訳の下には点数の行と同じ
+# 「点数表を確認」が出る。符の内訳を持つ問題（満貫未満）が出るまで次へ送る
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -42,6 +44,24 @@ appId: help.mahjong.score
     element: "あなたの回答"
     direction: UP
 - takeScreenshot: result-breakdown-fu
+- scrollUntilVisible:
+    element:
+      id: "detail-table-answer-link"
+    direction: DOWN
+- takeScreenshot: result-breakdown-fu-actions
+- tapOn:
+    id: "detail-table-answer-link"
+- extendedWaitUntil:
+    visible: "点数早見表"
+    timeout: 5000
+- takeScreenshot: result-breakdown-score-table
+# 表の上ではなくシートの見出しを掴んで引き下げる（表はスクロール枠の中）
+- swipe:
+    start: 50%, 15%
+    end: 50%, 95%
+    duration: 300
+- waitForAnimationToEnd
+- assertNotVisible: "点数早見表"
 - tapOn:
     id: "result-breakdown-tab-han"
 - waitForAnimationToEnd

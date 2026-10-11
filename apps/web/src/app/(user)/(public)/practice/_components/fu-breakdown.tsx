@@ -4,6 +4,7 @@ import type { FuDetail } from "@mahjong-scoring/core";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 import { CollapsibleDetail } from "./collapsible-detail";
 import { DetailTable } from "./detail-table";
+import { ScoreTableValueButton } from "./score-table-value-button";
 
 interface FuBreakdownProps {
   /** 切り上げ前の符の内訳 */
@@ -15,6 +16,14 @@ interface FuBreakdownProps {
    * 持つ翻訳名前空間（例: "totalFu"）
    */
   readonly translationNamespace: string;
+}
+
+interface FuBreakdownTableProps extends FuBreakdownProps {
+  /**
+   * 答えの符（切り上げ後、切り上げが無ければ合計）を押したときの処理。
+   * 渡すとその値が点数表を開くボタンになる
+   */
+  readonly onOpenScoreTable?: () => void;
 }
 
 /**
@@ -50,13 +59,16 @@ export function FuBreakdown(props: FuBreakdownProps) {
  * 符内訳表
  *
  * 翻数の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
- * 置く側が持つので表だけを使う。
+ * 置く側が持つので表だけを使う。`onOpenScoreTable` を渡すと、答えの符
+ * （切り上げ後の符、切り上げが無ければ合計）が点数表を開くボタンになる。
+ * 切り上げ前の合計は点数表の行に無いので押せるようにしない。
  */
 export function FuBreakdownTable({
   details,
   answer,
   translationNamespace,
-}: FuBreakdownProps) {
+  onOpenScoreTable,
+}: FuBreakdownTableProps) {
   // 行・合計・切り上げ後の文字列はモバイルと共有する
   const { rows, total, rounded } = useFuBreakdown(
     details,
@@ -64,5 +76,23 @@ export function FuBreakdownTable({
     translationNamespace,
   );
 
-  return <DetailTable rows={rows} total={total} conclusion={rounded} />;
+  const linked = (row: typeof total) =>
+    onOpenScoreTable === undefined
+      ? row
+      : {
+          ...row,
+          value: (
+            <ScoreTableValueButton onClick={onOpenScoreTable}>
+              {row.value}
+            </ScoreTableValueButton>
+          ),
+        };
+
+  return (
+    <DetailTable
+      rows={rows}
+      total={rounded === undefined ? linked(total) : total}
+      conclusion={rounded === undefined ? undefined : linked(rounded)}
+    />
+  );
 }

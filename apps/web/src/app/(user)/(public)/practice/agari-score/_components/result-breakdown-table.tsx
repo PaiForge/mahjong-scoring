@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 
 import { DetailTable } from "../../_components/detail-table";
+import { ScoreTableValueButton } from "../../_components/score-table-value-button";
 
 interface DetailItem {
   readonly name: string;
@@ -17,6 +18,12 @@ interface ResultBreakdownTableProps {
   readonly suffix: string;
   /** 切り上げた後の値（符の正解）。合計と同じなら切り上げの行を出さない */
   readonly roundedTotal?: number;
+  /**
+   * 答えの値（切り上げ後、切り上げが無ければ合計）を押したときの処理。
+   * 渡すとその値が点数表を開くボタンになる。切り上げ前の合計は点数表の
+   * 行に無いので押せるようにしない
+   */
+  readonly onOpenScoreTable?: () => void;
 }
 
 /**
@@ -32,9 +39,19 @@ export function ResultBreakdownTable({
   total,
   suffix,
   roundedTotal,
+  onOpenScoreTable,
 }: ResultBreakdownTableProps) {
   const t = useTranslations("agariScore");
   const withSuffix = (value: number) => `${value}${suffix}`;
+  const answerValue = (value: number) =>
+    onOpenScoreTable === undefined ? (
+      withSuffix(value)
+    ) : (
+      <ScoreTableValueButton onClick={onOpenScoreTable}>
+        {withSuffix(value)}
+      </ScoreTableValueButton>
+    );
+  const isRounded = roundedTotal !== undefined && total !== roundedTotal;
 
   return (
     <DetailTable
@@ -44,13 +61,13 @@ export function ResultBreakdownTable({
       }))}
       total={{
         label: t("result.details.total"),
-        value: withSuffix(total),
+        value: isRounded ? withSuffix(total) : answerValue(total),
       }}
       conclusion={
-        roundedTotal !== undefined && total !== roundedTotal
+        isRounded
           ? {
               label: t("result.details.roundedUp"),
-              value: withSuffix(roundedTotal),
+              value: answerValue(roundedTotal),
             }
           : undefined
       }
