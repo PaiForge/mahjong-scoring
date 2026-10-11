@@ -2,7 +2,7 @@ import { useTranslations } from "use-intl";
 import type { FuDetail } from "@mahjong-scoring/core";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 
-import { CollapsibleDetail } from "./collapsible-detail";
+import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 
 interface FuBreakdownProps {
@@ -16,18 +16,25 @@ interface FuBreakdownProps {
  *
  * 符の理由ごとの表と合計。切り上げで答えと合計が違うときは、合計の下に
  * 切り上げ後の符を結論として出す（{@link FuBreakdownTable}）。辞書は
- * `<namespace>.breakdownTitle` / `fuSuffix` / `breakdownTotal` / `roundUp` / `roundedUp`。
+ * `<namespace>.fuSuffix` / `breakdownTotal` / `roundedUp`。
+ *
+ * 器は点数系と同じ {@link BreakdownPanel}（「内訳を確認」の 1 行の入口）で、
+ * 内訳が符だけなので切り替えは出ない。点数表への導線は持たない（符だけでは
+ * 点数表の行が決まらない）。
  */
 export function FuBreakdown(props: FuBreakdownProps) {
-  const { title } = useFuBreakdown(
-    props.details,
-    props.answer,
-    props.translationNamespace,
-  );
+  const t = useTranslations("challenge.scoreBreakdown");
   return (
-    <CollapsibleDetail title={title}>
-      <FuBreakdownTable {...props} />
-    </CollapsibleDetail>
+    <BreakdownPanel
+      title={t("toggle")}
+      sections={[
+        {
+          kind: "fu",
+          tabLabel: t("fuTab", { value: props.answer }),
+          content: <FuBreakdownTable {...props} />,
+        },
+      ]}
+    />
   );
 }
 

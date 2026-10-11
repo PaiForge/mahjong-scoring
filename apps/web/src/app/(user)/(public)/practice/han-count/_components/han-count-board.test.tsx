@@ -59,14 +59,14 @@ describe("HanCountBoard", () => {
   it("チャレンジでは翻数の内訳を出さない（読ませる間もタイマーが進むため）", () => {
     renderBoard(questionWithYaku());
 
-    expect(screen.queryByRole("button", { name: "title" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 
   it("トレーニングの答え合わせでは、選択肢の下に閉じた内訳が出る", () => {
     const question = questionWithYaku();
     renderBoard(question, true);
 
-    const toggle = screen.getByRole("button", { name: "title" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
 
     // 選択肢グリッドより後ろ＝上の手牌と選択肢の色を動かさずに下へ伸びる
@@ -85,6 +85,6 @@ describe("HanCountBoard", () => {
   it("回答前は内訳を出さない（答えの先出しになるため）", () => {
     renderBoard(questionWithYaku(), false);
 
-    expect(screen.queryByRole("button", { name: "title" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 });

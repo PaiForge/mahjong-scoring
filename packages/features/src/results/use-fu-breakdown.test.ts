@@ -6,7 +6,7 @@ import { IntlWrapper } from "../test/intl-wrapper";
 import { useFuBreakdown } from "./use-fu-breakdown";
 
 describe("useFuBreakdown", () => {
-  it("渡した名前空間の辞書で見出し・行・合計・切り上げの補足を引く", () => {
+  it("渡した名前空間の辞書で行・合計・切り上げ後の符を引く", () => {
     const { result } = renderHook(
       () =>
         useFuBreakdown(
@@ -24,7 +24,6 @@ describe("useFuBreakdown", () => {
     );
 
     expect(result.current).toEqual({
-      title: "符の内訳",
       rows: [
         { label: "副底", value: "20符" },
         { label: "中張牌の暗刻", value: "4符" },
@@ -33,7 +32,6 @@ describe("useFuBreakdown", () => {
         { label: "幺九牌の暗刻", value: "4符" },
       ],
       total: { label: "合計", value: "32符" },
-      note: "32符 → 40符（切り上げ）",
       rounded: { label: "切り上げ後", value: "40符" },
     });
   });

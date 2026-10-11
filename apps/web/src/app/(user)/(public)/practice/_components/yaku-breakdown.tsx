@@ -7,7 +7,7 @@ import type { YakuDetail } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useYakuCheatsheetModal } from "../_hooks/use-yaku-cheatsheet-modal";
-import { CollapsibleDetail } from "./collapsible-detail";
+import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
@@ -17,6 +17,11 @@ interface YakuBreakdownProps {
   readonly yakuDetails: readonly YakuDetail[];
   /** 合計の後に効く丸めの補足（役満止まりなど）。持たない画面もある */
   readonly note?: ReactNode;
+  /**
+   * 合計がそのまま答えにならないときの答えの行（翻数即答の「13翻以上は 役満」）。
+   * 符の内訳の「切り上げ後 40符」と同じく、合計の下に結論として据える
+   */
+  readonly conclusion?: { readonly label: string; readonly value: string };
 }
 
 interface YakuBreakdownTableProps extends YakuBreakdownProps {
@@ -46,17 +51,28 @@ interface YakuBreakdownTableProps extends YakuBreakdownProps {
  * どんな形だったかは、名前と翻数だけでは思い出せない。状況役・ドラの行は
  * 一覧に無いため文字のまま。
  *
- * 常に既定で閉じる（理由は {@link CollapsibleDetail}。符の内訳も同じ）。
+ * 器は点数系の答え合わせと同じ {@link BreakdownPanel}（「内訳を確認」の
+ * 1 行の入口で、既定で閉じる）。内訳が翻数だけなので切り替えは出ない
+ * （符の内訳も同じ）。
  */
 export function YakuBreakdown(props: YakuBreakdownProps) {
-  const t = useTranslations("challenge.yakuBreakdown");
+  const t = useTranslations("challenge.scoreBreakdown");
 
   if (props.yakuDetails.length === 0) return undefined;
 
+  const total = props.yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
+
   return (
-    <CollapsibleDetail title={t("title")}>
-      <YakuBreakdownTable {...props} />
-    </CollapsibleDetail>
+    <BreakdownPanel
+      title={t("toggle")}
+      sections={[
+        {
+          kind: "han",
+          tabLabel: t("hanTab", { count: total }),
+          content: <YakuBreakdownTable {...props} />,
+        },
+      ]}
+    />
   );
 }
 
@@ -71,6 +87,7 @@ export function YakuBreakdown(props: YakuBreakdownProps) {
 export function YakuBreakdownTable({
   yakuDetails,
   note,
+  conclusion,
   onOpenScoreTable,
 }: YakuBreakdownTableProps) {
   const t = useTranslations("challenge.yakuBreakdown");
@@ -118,6 +135,7 @@ export function YakuBreakdownTable({
               </ScoreTableValueButton>
             ),
         }}
+        conclusion={conclusion}
         note={note}
       />
       {yakuCheatsheetModal}

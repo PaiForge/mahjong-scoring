@@ -28,7 +28,7 @@ describe("YakuBreakdown", () => {
 
   it("早見表に載る役の名前を押すと役一覧モーダルが開き、状況役は押せない", () => {
     render(<YakuBreakdown yakuDetails={YAKU_DETAILS} />);
-    fireEvent.click(screen.getByRole("button", { name: "title" }));
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
 
     // 立直は状況役で一覧に無いため文字のまま
     expect(screen.queryByRole("button", { name: "立直" })).toBeNull();
@@ -37,6 +37,22 @@ describe("YakuBreakdown", () => {
     fireEvent.click(screen.getByRole("button", { name: "混一色" }));
 
     expect(screen.getByRole("dialog")).toBeTruthy();
+  });
+
+  it("合計がそのまま答えにならないときは、合計の下に結論の行を出す", () => {
+    render(
+      <YakuBreakdown
+        yakuDetails={[
+          { name: "四暗刻", han: 13 },
+          { name: "ドラ", han: 3 },
+        ]}
+        conclusion={{ label: "13翻以上は", value: "役満" }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
+
+    expect(screen.getByText("13翻以上は")).toBeTruthy();
+    expect(screen.getByText("役満")).toBeTruthy();
   });
 
   it("役が無ければ開閉の見出しごと出さない", () => {

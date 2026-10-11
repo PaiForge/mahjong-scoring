@@ -56,7 +56,6 @@
   "viewScoreTable": "点数表を確認",
   "openInYakuList": "役一覧で見る",
   "yakuBreakdown": {
-    "title": "翻数の内訳",
     "total": "合計",
     "han": "{count}翻",
     "yakuman": "役満",
@@ -69,9 +68,7 @@
     "hanTab": "翻数 {count}翻"
   },
   "fuBreakdown": {
-    "breakdownTitle": "符の内訳",
     "breakdownTotal": "合計",
-    "roundUp": "切り上げ",
     "roundedUp": "切り上げ後",
     "fuSuffix": "{value}符"
   },
