@@ -81,6 +81,18 @@ describe("レッスンの未送信", () => {
     expect(records.guestLessonsImported).toBe(true);
   });
 
+  it("取り込んだゲストの完了を見分け、記録できたら外す", () => {
+    let records = addPendingLessons(EMPTY_ACCOUNT_RECORDS, A, ["a"]);
+    records = importGuestLessons(records, A, ["a", "b", "b", "c"]);
+
+    // ログイン中に終えて既に預けていた a はゲストの分に数えない
+    expect(recordsOf(records, A).pendingLessons).toEqual(["a", "b", "c"]);
+    expect(recordsOf(records, A).guestLessons).toEqual(["b", "c"]);
+
+    records = removePendingLessons(records, A, ["b"]);
+    expect(recordsOf(records, A).guestLessons).toEqual(["c"]);
+  });
+
   it("ゲストの完了が無くても取り込み済みにする", () => {
     const records = importGuestLessons(EMPTY_ACCOUNT_RECORDS, A, []);
     expect(records.guestLessonsImported).toBe(true);

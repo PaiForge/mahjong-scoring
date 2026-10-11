@@ -49,6 +49,15 @@ export interface UserRecords {
   readonly pendingFinishes: readonly PendingFinish[];
   /** まだサーバーに記録していないレッスンの完了（章の slug） */
   readonly pendingLessons: readonly string[];
+  /**
+   * `pendingLessons` のうち、ゲストのときの完了を取り込んだもの
+   *
+   * 記録できたら「レッスンの完了を記録しました」と知らせるために見分ける
+   * （web がログイン後にゲストの完了を送ったときと同じ知らせ）。ログイン中に
+   * 終えたレッスンはその場で完了の印が出るので知らせない。この項目より前に
+   * 保存した預かりには無い。
+   */
+  readonly guestLessons?: readonly string[];
 }
 
 /** 端末全体の預かり */
@@ -224,6 +233,7 @@ export function removePendingLessons(
   return updateUser(records, userId, (user) => ({
     ...user,
     pendingLessons: user.pendingLessons.filter((slug) => !done.has(slug)),
+    guestLessons: user.guestLessons?.filter((slug) => !done.has(slug)),
   }));
 }
 
@@ -231,7 +241,8 @@ export function removePendingLessons(
  * ゲストのレッスン完了を、このユーザーの未送信へ取り込む（端末で 1 度だけ）
  *
  * 取り込み済みの印は未送信へ積むのと同じ書き込みで立てる。送るのは
- * いつもの未送信の送信が行う。
+ * いつもの未送信の送信が行う。既に未送信にあるもの（ログイン中に終えた分）は
+ * ゲストの分として数えない。
  */
 export function importGuestLessons(
   records: AccountRecords,
@@ -239,8 +250,17 @@ export function importGuestLessons(
   guestSlugs: readonly string[],
 ): AccountRecords {
   if (records.guestLessonsImported) return records;
+  const pending = recordsOf(records, userId).pendingLessons;
+  const added = [
+    ...new Set(guestSlugs.filter((slug) => !pending.includes(slug))),
+  ];
+  if (added.length === 0) return { ...records, guestLessonsImported: true };
   return {
-    ...addPendingLessons(records, userId, guestSlugs),
+    ...updateUser(
+      addPendingLessons(records, userId, added),
+      userId,
+      (user) => ({ ...user, guestLessons: added }),
+    ),
     guestLessonsImported: true,
   };
 }

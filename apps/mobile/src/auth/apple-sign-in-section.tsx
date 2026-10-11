@@ -4,6 +4,7 @@ import * as AppleAuthentication from "expo-apple-authentication";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
+import { showToast } from "../components/toast";
 import { colors, radius } from "../lib/theme";
 import { signInWithApple, useAppleSignInAvailable } from "./apple-sign-in";
 import { FormMessage } from "./form-message";
@@ -55,6 +56,7 @@ export function AppleSignInSection({
       return;
     }
     leaveAuthFlow();
+    showToast(t("signInSuccess"), "success");
   };
 
   return (

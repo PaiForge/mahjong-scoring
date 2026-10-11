@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { takeToastOnArrival, toastOnArrival } from "./toast-on-arrival";
 
 describe("toastOnArrival", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+  });
+
   it("預けた文言を着地先の pathname で取り出せる", () => {
     toastOnArrival("/practice/jantou-fu", "練習を終了しました");
     expect(takeToastOnArrival("/practice/jantou-fu")).toEqual({
@@ -40,5 +44,29 @@ describe("toastOnArrival", () => {
 
   it("何も預けていなければ null を返す", () => {
     expect(takeToastOnArrival("/practice")).toBeNull();
+  });
+
+  it("ページを読み込み直しても（モジュールが作り直されても）着地先で取り出せる", async () => {
+    toastOnArrival("/mypage?tab=1", "ログインしました", "success");
+    vi.resetModules();
+    const reloaded = await import("./toast-on-arrival");
+    expect(reloaded.takeToastOnArrival("/mypage")).toEqual({
+      message: "ログインしました",
+      tone: "success",
+    });
+    expect(reloaded.takeToastOnArrival("/mypage")).toBeNull();
+  });
+
+  it("読み込み直した先が違えば、写しも捨てる", async () => {
+    toastOnArrival("/mypage", "ログインしました", "success");
+    vi.resetModules();
+    const reloaded = await import("./toast-on-arrival");
+    expect(reloaded.takeToastOnArrival("/mypage/setup-username")).toBeNull();
+    expect(reloaded.takeToastOnArrival("/mypage")).toBeNull();
+  });
+
+  it("壊れた写しは無視する", () => {
+    sessionStorage.setItem("toast-on-arrival", "{");
+    expect(takeToastOnArrival("/")).toBeNull();
   });
 });

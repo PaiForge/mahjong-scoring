@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/app/(user)/_components/button";
 import { GoogleIcon } from "@/app/(user)/_components/icons/google-icon";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { createClient } from "@/lib/supabase/client";
 
 const LABEL_KEYS = {
@@ -38,6 +39,10 @@ export function GoogleOAuthButton({
       if (redirectTo) {
         callbackUrl.searchParams.set("next", redirectTo);
       }
+      // Google から戻って着いた先で出す。ユーザー名が未設定（新規登録）なら
+      // コールバックがユーザー名の設定へ送り、着地先が違うので預かりは捨てられる
+      // （そちらは設定を終えたときに「登録が完了しました」を出す）
+      toastOnArrival(redirectTo ?? "/mypage", t("signInSuccess"), "success");
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {

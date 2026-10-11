@@ -219,19 +219,42 @@ function dropPending(userId: string, attemptId: string): void {
   );
 }
 
+type GuestLessonsRecordedListener = () => void;
+const guestLessonsRecordedListeners = new Set<GuestLessonsRecordedListener>();
+
+/**
+ * ゲストのときに終えたレッスンを、ログインしたアカウントへ記録できたことを
+ * 知らせる先を登録する。解除する関数を返す
+ * ゲストレッスン記録通知購読
+ *
+ * 知らせるのはサーバーが 1 件以上を記録した送信ごとに 1 回。送れずに
+ * 預けたままの分は、後で送れた時点で知らせる。
+ */
+export function onGuestLessonsRecorded(
+  listener: GuestLessonsRecordedListener,
+): () => void {
+  guestLessonsRecordedListeners.add(listener);
+  return () => guestLessonsRecordedListeners.delete(listener);
+}
+
 /** 未送信のレッスンの完了を送る */
 async function sendPendingLessons(userId: string): Promise<void> {
+  let guestRecorded = false;
   for (;;) {
-    const pending = recordsFor(userId).pendingLessons;
-    if (pending.length === 0) return;
+    const { pendingLessons: pending, guestLessons = [] } = recordsFor(userId);
+    if (pending.length === 0) break;
     const result = await sendLessonCompletions(userId, pending);
-    if ("error" in result) return;
+    if ("error" in result) break;
     const done = [...result.value.completed, ...result.value.rejected];
-    if (done.length === 0) return;
+    if (done.length === 0) break;
+    if (result.value.completed.some((slug) => guestLessons.includes(slug)))
+      guestRecorded = true;
     updateAccountRecords((records) =>
       removePendingLessons(records, userId, done),
     );
   }
+  if (guestRecorded)
+    for (const listener of guestLessonsRecordedListeners) listener();
 }
 
 // 退会を受け付けたアカウントの預かりとキャッシュを消す（この端末から
