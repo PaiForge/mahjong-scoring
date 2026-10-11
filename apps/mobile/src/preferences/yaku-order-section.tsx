@@ -208,8 +208,6 @@ export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
           </>
         )}
       </View>
-      {/* ▲ ▼ で動かせることは解錠したときにその場で言う */}
-      {isEditing && <Text style={styles.hint}>{t("moveHint")}</Text>}
     </View>
   );
 
@@ -314,13 +312,6 @@ const styles = StyleSheet.create({
   toolbarLabelEditing: {
     fontWeight: "700",
     color: colors.warning,
-  },
-  hint: {
-    paddingHorizontal: 4,
-    textAlign: "right",
-    fontSize: 12,
-    lineHeight: 18,
-    color: colors.surface500,
   },
   list: {
     borderWidth: 1,
