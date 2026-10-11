@@ -175,8 +175,10 @@ describe("ResultDisplay の内訳", () => {
     expect(screen.queryByText("result.details.total")).toBeNull();
     // 翻数・符の内訳を別々の入口にしない
     expect(
-      screen.queryByRole("button", { name: /yakuTitle|fuTitle/ }),
-    ).toBeNull();
+      screen
+        .getAllByRole("button")
+        .filter((button) => button.hasAttribute("aria-expanded")),
+    ).toHaveLength(1);
 
     fireEvent.click(toggle());
 

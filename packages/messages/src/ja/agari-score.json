@@ -128,10 +128,7 @@
     "unanswered": "—",
     "details": {
       "none": "なし",
-      "yakuTitle": "翻数の内訳",
-      "fuTitle": "符の内訳",
       "total": "合計",
-      "roundUp": "切り上げ",
       "roundedUp": "切り上げ後",
       "toggle": "内訳を確認"
     },

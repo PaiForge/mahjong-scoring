@@ -13,8 +13,7 @@ interface FuBreakdownProps {
   /** 切り上げ後の符（正解） */
   readonly answer: number;
   /**
-   * `breakdownTitle` / `breakdownTotal` / `roundUp` / `roundedUp` / `fuSuffix` を
-   * 持つ翻訳名前空間（例: "totalFu"）
+   * `breakdownTotal` / `roundedUp` / `fuSuffix` を持つ翻訳名前空間（例: "totalFu"）
    */
   readonly translationNamespace: string;
 }
