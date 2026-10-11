@@ -17,7 +17,7 @@ describe("FuBreakdown", () => {
       <FuBreakdown details={DETAILS} answer={30} translationNamespace="x" />,
     );
 
-    const toggle = screen.getByRole("button", { name: "breakdownTitle" });
+    const toggle = screen.getByRole("button", { name: "toggle" });
     expect(toggle.getAttribute("aria-expanded")).toBe("false");
     expect(screen.queryByText("副底")).toBeNull();
 

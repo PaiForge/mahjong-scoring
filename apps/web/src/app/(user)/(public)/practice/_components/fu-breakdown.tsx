@@ -1,8 +1,9 @@
 "use client";
 
 import type { FuDetail } from "@mahjong-scoring/core";
+import { useTranslations } from "next-intl";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
-import { CollapsibleDetail } from "./collapsible-detail";
+import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
 
@@ -35,22 +36,26 @@ interface FuBreakdownTableProps extends FuBreakdownProps {
  * 内訳の合計と正解が一致しない場合（例: 32符 → 40符）は、合計の下に
  * 切り上げ後の符を結論として出す（{@link FuBreakdownTable}）。
  *
- * 翻数の内訳（{@link import("./yaku-breakdown").YakuBreakdown}）と同じく
- * 閉じた状態から始める（理由は {@link CollapsibleDetail}）。トレーニングの
- * 答え合わせと結果ページの問題別詳細のどちらでも、内訳の開き方が符と翻数で
- * 変わらない。
+ * 器は点数系の答え合わせと同じ {@link BreakdownPanel}（「内訳を確認」の
+ * 1 行の入口で、既定で閉じる）。内訳が符だけなので切り替えは出ない。
+ * 符だけを答える練習でも、点数系と内訳の開き方・見え方を変えない。
+ * 点数表への導線は持たない — 点数表は翻と符の組で引くもので、符だけでは
+ * 引く行が決まらない。
  */
 export function FuBreakdown(props: FuBreakdownProps) {
-  const { title } = useFuBreakdown(
-    props.details,
-    props.answer,
-    props.translationNamespace,
-  );
+  const t = useTranslations("challenge.scoreBreakdown");
 
   return (
-    <CollapsibleDetail title={title}>
-      <FuBreakdownTable {...props} />
-    </CollapsibleDetail>
+    <BreakdownPanel
+      title={t("toggle")}
+      sections={[
+        {
+          kind: "fu",
+          tabLabel: t("fuTab", { value: props.answer }),
+          content: <FuBreakdownTable {...props} />,
+        },
+      ]}
+    />
   );
 }
 

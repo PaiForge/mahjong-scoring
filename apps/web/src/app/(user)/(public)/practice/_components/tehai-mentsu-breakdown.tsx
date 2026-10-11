@@ -104,7 +104,7 @@ function ClosedTiles({
  *
  * リンクのタップ領域は 1 行ぶん（`hitArea="row"`）取る。表の外で 1 行を
  * 占め、すぐ下に翻数・符の内訳の開閉行と「次の問題へ」が続くため、文字の
- * 高さだけでは隣の行やボタンに指が流れる（{@link import("./collapsible-detail").CollapsibleDetail} と同じ理由）。
+ * 高さだけでは隣の行やボタンに指が流れる（{@link import("./breakdown-panel").BreakdownPanel} の入口と同じ理由）。
  *
  * 分解は resolveMentsuBreakdowns が返す、ライブラリが点数計算で評価した
  * 和了解釈に基づく。面子分解は一意ではなく（さらに同じ分解でも和了牌を
