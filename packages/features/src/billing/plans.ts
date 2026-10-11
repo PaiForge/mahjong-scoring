@@ -44,6 +44,16 @@
  * - **問題生成をサーバーへ移す** — 「始めてよいか」をサーバーが数えれば回数は
  *   正確になり、生成を移す理由がない。移すと静的な play 画面と core の配置を
  *   変える大工事になる
+ * - **アプリ内課金に RevenueCat 等の仲介サービスを使う** — 月額の固定費が掛かり、
+ *   購入の正（`purchases`）を外のサービスに置くことになる。App Store の署名付き
+ *   取引（JWS）の検証は `@apple/app-store-server-library` で済む
+ * - **App Store Server API の鍵を持つ** — 取引の現在値・通知の履歴・TEST 通知の
+ *   要求が得られるが、鍵の管理が増える。返金の通知が購入の記録より先に届く穴は、
+ *   通知を取引 ID 付きで記録する表（`apple_notification_events`）で塞いだ
+ * - **App Store の 2 枚目のパスを購入日から始める** — App Store には開発者から
+ *   返金する手段が無いので、有効な購入の期限の後ろに開始待ちで繋ぐ。web の
+ *   「重ね買いしない」（重なった決済は自動で返金する）とは前提が違う。理由の
+ *   詳細は web の `lib/billing/apple/purchase-row.ts` の `applePassStartsAt`
  */
 
 /**
