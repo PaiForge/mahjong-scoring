@@ -194,3 +194,134 @@ npx expo run:ios --device   # 繋いだ iPhone を選ぶ。初回は数分かか
 
 サーバーの環境変数が無い環境では、Apple でログインした人は退会できない（Apple の連携を
 取り消せないまま退会を受け付けないため。退会の画面に通信の失敗の案内が出る）。
+
+## アプリ内課金（iOS）
+
+iOS アプリは有料プラン Pro を App Store のアプリ内課金で売る。購入は web の Stripe と同じ
+`purchases` の 1 行になり（`provider` が `apple`）、特典の判定は web と共通。web で買った Pro は
+アプリで、アプリで買った Pro は web で有効。Android は Pro を扱わない。
+
+仕組み:
+
+1. アプリが StoreKit で購入し（`appAccountToken` にユーザーの id）、署名付き取引（JWS）を
+   web の `/api/mobile/v1/iap/apple/transactions` に送る。サーバーが Apple のルート証明書で
+   検証して記録し、2xx か 4xx が返ったらアプリが取引を完了（finish）する
+2. Apple が返金などを `/api/apple/notifications`（App Store Server Notifications V2）に送る。
+   サーバーは署名を検証して購入を取り消す。購入の記録より先に届いた返金も覚えておき、
+   後から来た記録を取り消し済みで入れる
+3. 「購入を復元」は端末にある取引を同じ API へ送り直す（買い切り向け。パスはログインで戻る）
+
+App Store Server API の鍵は持たない。取引の現在値の照会・通知の履歴・TEST 通知の要求は
+できない。
+
+### App Store Connect の設定
+
+アプリ（`help.mahjong.score`、Apple ID `6820905974` = `eas.json` の `ascAppId`）の
+Monetization > In-App Purchases で 2 商品を作る。
+
+| 売り方    | 種類                                        | Product ID                        |
+| --------- | ------------------------------------------- | --------------------------------- |
+| 30 日パス | Non-Renewing Subscription（非更新サブスク） | `help.mahjong.score.pro.pass30`   |
+| 買い切り  | Non-Consumable（非消耗型）                  | `help.mahjong.score.pro.lifetime` |
+
+- 価格は App Store の価格帯から選ぶ。アプリは StoreKit の表示価格（`displayPrice`）を
+  出すので、価格を変えてもコードの変更は要らない。web の価格はアプリに出さない
+- 表示名・説明（日本語）: 30 日パスは「購入から 30 日間、和了形・聴牌形の点数計算の
+  回数制限が外れ、回答時間を計測できる。自動更新しない」、買い切りは同じ特典が永久に
+  続く旨。プラン画面の文言（`packages/messages/src/ja/mobile-plan.json`）と食い違えない
+- 審査用のスクリーンショットは、Sandbox で開いたプラン画面（マイページ > Pro プラン）を撮る
+- **Family Sharing は両商品とも OFF**。サーバーも家族共有の取引を記録しない
+- App Information > App Store Server Notifications で、**Production Server URL と
+  Sandbox Server URL の両方**に `https://score.mahjong.help/api/apple/notifications` を
+  入れ、Version 2 を選ぶ（Sandbox の通知も同じ本番サーバーに届き、サーバーが環境を見分ける）
+- 初回は商品をアプリのバージョンと一緒に審査へ出す（App Review Information に下の
+  デモアカウントを書く）
+
+### サーバーの環境変数（Vercel）
+
+web（Vercel と、手元で試すなら `apps/web/.env.local`）に入れる。どれも秘密ではない。
+
+| 変数名                              | 値                                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `APPLE_IAP_PRODUCT_ID_PRO_PASS`     | `help.mahjong.score.pro.pass30`                                                 |
+| `APPLE_IAP_PRODUCT_ID_PRO_LIFETIME` | `help.mahjong.score.pro.lifetime`                                               |
+| `APPLE_IAP_APP_APPLE_ID`            | `6820905974`（`eas.json` の `ascAppId`。Production の取引の検証に要る）         |
+| `APPLE_IAP_SANDBOX_USER_IDS`        | Sandbox の取引に特典を付けてよい user_id（カンマ区切りの UUID）。下の許可リスト |
+
+- **2 つの Product ID の両方がそろうまでは「販売していない」扱い**。アプリはプラン画面に
+  商品を出さず、iOS の回数制限も掛けない（払えないペイウォールを出さない）。web の回数制限は
+  Stripe の Price ID で別に決まる
+- `APPLE_IAP_APP_APPLE_ID` が無いと検証器を作れない。アプリからの取引は 503 になり、アプリは
+  取引を完了せずに残して次の起動で送り直す。通知は 500 になり、Apple が数日にわたって再送する
+- `apps/web/.env.example` にもこの 4 つを足す（エージェントは `.env*` を読めないので人が足す）
+
+### Sandbox の許可リスト
+
+TestFlight・App Review・開発ビルドの購入はすべて **Sandbox** で、課金されずに本番サーバーへ
+届く。全員に特典を付けると TestFlight の配布を受けた人が全員無料で買い切りを得るので、
+Sandbox の取引は `APPLE_IAP_SANDBOX_USER_IDS` に載った user_id にだけ記録する（それ以外は 422 で
+断る。アプリは取引を完了するが知らせは出さず、プラン画面は無料のまま）。Sandbox の購入は
+追加購入の禁止に数えないので、テスターは何度でも買い直して試せる。
+
+- **審査に出すときは、App Review のデモアカウントの user_id を必ず入れる。** 入れないと
+  審査員の購入が 422 で止まり、「購入が完了しない」でリジェクトされる
+- 運営のテスター（自分のアカウント）も入れる
+- user_id はメールアドレスから引く。本番は Supabase の SQL Editor で、手元は
+  `psql postgresql://postgres:postgres@127.0.0.1:54322/postgres` で:
+
+  ```sql
+  select id from auth.users where email = '<メールアドレス>';
+  ```
+
+- 変えたら Vercel を再デプロイする（環境変数はデプロイ時に読まれる）
+
+### 実機で購入を確かめる
+
+購入のシートと課金はシミュレーターの `sim:release` や Maestro では確かめない。実機と
+**Sandbox テスター**で行う。
+
+1. App Store Connect の Users and Access > Sandbox でテスターの Apple アカウントを作る
+2. iPhone の 設定 > App Store > Sandbox アカウント でそのテスターにサインインする
+   （ふだんの Apple アカウントはそのままでよい）
+3. 次のどちらかでアプリを入れる
+   - **手元の web に向ける**: 開発ビルド（`npx expo run:ios --device`。上の「実機で確かめる」）。
+     接続先は自動で Mac の Supabase と web になる。`apps/web/.env.local` に上の 4 つを入れ、
+     ログインするアカウントの user_id を許可リストに入れて web を再起動する
+   - **本番に向ける**: TestFlight のビルド（`eas build --profile production`。「TestFlight に出す」）。
+     本番の許可リストに自分の user_id を入れておく
+4. ログインして マイページ > Pro プラン から買う。Sandbox のシートが出る
+5. プラン画面の状態が「Pro（〜まで）」に変わり、購入履歴に行が増える
+6. web の `/mypage/plan` にも同じ購入が「購入元: App Store」で出る。管理画面のユーザー詳細にも出る
+7. 練習一覧の回数制限の表示が消え、和了形の点数計算に「回答時間を計測する」が出る
+8. 「購入を復元」を押すと「復元できる購入はありませんでした」（記録済み）で、行は増えない
+
+返金は Sandbox では App Store Connect から起こせない。`REFUND` / `REFUND_REVERSED` の処理は
+単体テスト（`apps/web/src/lib/billing/apple/`）と統合テストに任せる。
+
+### 通知が届いているか
+
+TEST 通知は App Store Server API の鍵が無いと要求できない。代わりに Sandbox で買ったときの
+`ONE_TIME_CHARGE` で確かめる:
+
+- Vercel のログで `POST /api/apple/notifications` が 200 になっている（400 は署名の検証に失敗。
+  500 は `APPLE_IAP_APP_APPLE_ID` が無いか DB の障害）
+- DB の `apple_notification_events` に `notification_type = 'ONE_TIME_CHARGE'` の行ができている
+
+### Apple のルート証明書を更新する
+
+署名の検証に使うルート証明書（Apple Root CA - G2 / G3）は `apps/web/certs/apple/*.cer` に置き、
+ソースに埋め込んで使う（`src/lib/billing/apple/root-certs.generated.ts`）。Apple が証明書を
+替えたら、[Apple PKI](https://www.apple.com/certificateauthority/) から `.cer` を取り直して置き換え、
+
+```bash
+pnpm --filter web certs:generate
+```
+
+で生成物を作り直してコミットする（`root-certs.test.ts` が `.cer` と生成物の一致を検査する）。
+
+### Android のビルドについて
+
+`expo-iap` は Android でも Play Billing のライブラリをリンクするので、Android のビルドには
+Billing のライブラリと `com.android.vending.BILLING` の権限が乗る。アプリのコードは Android で
+課金の API を一切呼ばない（`src/billing/iap-availability.ts` の `IAP_AVAILABLE`）。Play Console が
+ビルドを課金対応と見なすだけで、挙動は変わらない。
