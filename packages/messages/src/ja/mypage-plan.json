@@ -9,7 +9,7 @@
     "lifetime": "Pro（買い切り）",
     "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
     "pass": "Pro（{until} まで）",
-    "passHint": "期限が来ると無料プランに戻ります。もう 1 枚買うと期限の後ろに繋がります。",
+    "passHint": "期限が来ると無料プランに戻ります。期限切れ後に再購入できます。",
     "granted": "Pro（付与）",
     "grantedUntil": "Pro（付与・{until} まで）",
     "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
