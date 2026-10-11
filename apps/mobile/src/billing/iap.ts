@@ -98,6 +98,24 @@ function errorOf(error: unknown): {
   };
 }
 
+/**
+ * StoreKit のイベントを購読する。ネイティブのモジュールが無ければ undefined
+ *
+ * 購読は同期で例外を投げうる（ネイティブのモジュールを含まないビルド）。
+ * 購入の同期はルートレイアウトで購読するので、投げるとアプリ全体が落ちる。
+ * 購入できないだけに留める。
+ */
+function subscribeNative(
+  subscribe: () => { readonly remove: () => void },
+): { readonly remove: () => void } | undefined {
+  try {
+    return subscribe();
+  } catch (error) {
+    console.warn("[iap] イベントを購読できない", errorOf(error));
+    return undefined;
+  }
+}
+
 let connection: Promise<boolean> | undefined;
 
 /**
@@ -177,9 +195,11 @@ let nativeErrorSubscription: { readonly remove: () => void } | undefined;
 export function onIapPurchaseError(listener: ErrorListener): () => void {
   if (!IAP_AVAILABLE) return () => {};
   errorListeners.add(listener);
-  nativeErrorSubscription ??= purchaseErrorListener((error) => {
-    deliverError(error.code ?? ErrorCode.Unknown, error.message);
-  });
+  nativeErrorSubscription ??= subscribeNative(() =>
+    purchaseErrorListener((error) => {
+      deliverError(error.code ?? ErrorCode.Unknown, error.message);
+    }),
+  );
   return () => {
     errorListeners.delete(listener);
     if (errorListeners.size === 0) {
@@ -211,7 +231,9 @@ let nativePurchaseSubscription: { readonly remove: () => void } | undefined;
 export function onIapPurchase(listener: PurchaseListener): () => void {
   if (!IAP_AVAILABLE) return () => {};
   purchaseListeners.add(listener);
-  nativePurchaseSubscription ??= purchaseUpdatedListener(deliverPurchase);
+  nativePurchaseSubscription ??= subscribeNative(() =>
+    purchaseUpdatedListener(deliverPurchase),
+  );
   return () => {
     purchaseListeners.delete(listener);
     if (purchaseListeners.size === 0) {
