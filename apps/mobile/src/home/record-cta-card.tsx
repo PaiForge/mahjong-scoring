@@ -28,28 +28,40 @@ import { colors } from "../lib/theme";
  *   アカウントを読めなかったとき）は何も出さない。読めなかったときの再試行は
  *   設定のアカウントの節が持つ
  *
+ * 見出し（「スコアの記録」）はマイページでだけ出す。ホームではカードの文言が
+ * そのまま言い切っており、見出しを足しても同じことを繰り返すだけになる。
+ *
  * 表示だけのカードなので細枠に淡い緑の地（web の `bg-primary-50/60`）。
  * 押して始める面は中のボタンだけ。Pro・購入には触れない（アプリでは扱わない）。
  */
 export function RecordCtaCard({
   testIDPrefix = "home",
+  showTitle = false,
 }: {
   /** ボタンの `testID` の接頭辞（`<接頭辞>-sign-up-cta` 等）。置いた画面の名前 */
   readonly testIDPrefix?: string;
+  /** 見出し（「スコアの記録」）を出すか */
+  readonly showTitle?: boolean;
 }) {
   const { status, account } = useAuth();
-  if (status === "signedOut") return <SignUpCta testIDPrefix={testIDPrefix} />;
+  if (status === "signedOut")
+    return <SignUpCta testIDPrefix={testIDPrefix} showTitle={showTitle} />;
   if (status === "signedIn" && account?.profile === null)
-    return <UsernameCta testIDPrefix={testIDPrefix} />;
+    return <UsernameCta testIDPrefix={testIDPrefix} showTitle={showTitle} />;
   return undefined;
 }
 
-function SignUpCta({ testIDPrefix }: { readonly testIDPrefix: string }) {
+interface CtaProps {
+  readonly testIDPrefix: string;
+  readonly showTitle: boolean;
+}
+
+function SignUpCta({ testIDPrefix, showTitle }: CtaProps) {
   const t = useTranslations("challenge.signUpCta");
   const router = useRouter();
   return (
     <CtaFrame
-      title={t("sectionTitle")}
+      title={showTitle ? t("sectionTitle") : undefined}
       message={t("message")}
       description={t("description")}
     >
@@ -68,13 +80,13 @@ function SignUpCta({ testIDPrefix }: { readonly testIDPrefix: string }) {
   );
 }
 
-function UsernameCta({ testIDPrefix }: { readonly testIDPrefix: string }) {
+function UsernameCta({ testIDPrefix, showTitle }: CtaProps) {
   const tTitle = useTranslations("challenge.signUpCta");
   const t = useTranslations("dashboard.usernameCta");
   const router = useRouter();
   return (
     <CtaFrame
-      title={tTitle("sectionTitle")}
+      title={showTitle ? tTitle("sectionTitle") : undefined}
       message={t("message")}
       description={t("description")}
     >
@@ -96,14 +108,14 @@ function CtaFrame({
   description,
   children,
 }: {
-  readonly title: string;
+  readonly title: string | undefined;
   readonly message: string;
   readonly description: string;
   readonly children: ReactNode;
 }) {
   return (
     <View style={styles.section}>
-      <SectionTitle>{title}</SectionTitle>
+      {title !== undefined && <SectionTitle>{title}</SectionTitle>}
       <View style={[panelFrame, styles.card]}>
         <View style={styles.texts}>
           <Text style={styles.message}>{message}</Text>
