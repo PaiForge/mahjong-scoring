@@ -48,12 +48,26 @@ export const IapErrorCode = {
 } as const;
 
 /**
- * 完了に使う元の購入オブジェクト（取引 ID → expo-iap の Purchase）
+ * 取引がどこから届いたか
+ *
+ * - `event` — StoreKit のイベント（購入の直後・Ask to Buy の承認・配り直し）。未完了
+ * - `list` — 端末の現在の権利の一覧（復元・ログイン直後の取り直し）。通常は完了済み
+ */
+type PurchaseOrigin = "event" | "list";
+
+/** 完了に使う元の購入オブジェクトと、その届き方 */
+interface SourcePurchase {
+  readonly purchase: Purchase;
+  readonly origin: PurchaseOrigin;
+}
+
+/**
+ * 完了に使う元の購入オブジェクト（取引 ID → expo-iap の Purchase と届き方）
  *
  * `finishTransaction` は expo-iap の Purchase を受け取るので、写した
- * {@link IapPurchase} から引けるように持つ。完了したら外す。
+ * {@link IapPurchase} から引けるように持つ。完了したら（失敗しても）外す。
  */
-const sourcePurchases = new Map<string, Purchase>();
+const sourcePurchases = new Map<string, SourcePurchase>();
 
 /**
  * expo-iap の Purchase を {@link IapPurchase} に写す。必須の項目（JWS・取引 ID・
@@ -61,7 +75,10 @@ const sourcePurchases = new Map<string, Purchase>();
  *
  * 欠けた取引はサーバーへ送れず、完了もしない（StoreKit が次の起動で配り直す）。
  */
-function toIapPurchase(purchase: Purchase): IapPurchase | undefined {
+function toIapPurchase(
+  purchase: Purchase,
+  origin: PurchaseOrigin,
+): IapPurchase | undefined {
   const jws = purchase.purchaseToken;
   const { transactionId, productId } = purchase;
   if (
@@ -79,7 +96,13 @@ function toIapPurchase(purchase: Purchase): IapPurchase | undefined {
     });
     return undefined;
   }
-  sourcePurchases.set(transactionId, purchase);
+  // イベントで届いた未完了の取引を、同じ取引を一覧で読み直したときに
+  // 「一覧から」へ書き換えない（書き換えると完了を呼ばなくなる）
+  const known = sourcePurchases.get(transactionId);
+  sourcePurchases.set(transactionId, {
+    purchase,
+    origin: known?.origin === "event" ? "event" : origin,
+  });
   return { transactionId, productId, jws };
 }
 
@@ -213,7 +236,7 @@ type PurchaseListener = (purchase: IapPurchase) => void;
 const purchaseListeners = new Set<PurchaseListener>();
 
 function deliverPurchase(purchase: Purchase): void {
-  const mapped = toIapPurchase(purchase);
+  const mapped = toIapPurchase(purchase, "event");
   if (mapped === undefined) return;
   for (const listener of purchaseListeners) listener(mapped);
 }
@@ -303,7 +326,7 @@ export async function listIapPurchases(): Promise<readonly IapPurchase[]> {
   try {
     const purchases = await getAvailablePurchases();
     return purchases.flatMap((purchase) => {
-      const mapped = toIapPurchase(purchase);
+      const mapped = toIapPurchase(purchase, "list");
       return mapped === undefined ? [] : [mapped];
     });
   } catch (error) {
@@ -318,18 +341,29 @@ export async function listIapPurchases(): Promise<readonly IapPurchase[]> {
  *
  * サーバーが記録した・記録しないと答えた後に呼ぶ。完了済みの取引を
  * もう一度完了しても害は無いので、失敗はログだけにする。
+ *
+ * 現在の権利の一覧（{@link listIapPurchases}）から読んだ取引は
+ * `finishTransaction` を呼ばず、控えを外すだけにする。一覧の取引は通常は
+ * 完了済みで、呼ぶと復元のたびに失敗のログが残るだけになる。未完了のものが
+ * 混じっていても、StoreKit が次の起動でイベントとして配り直し、そのとき
+ * 完了する（サーバーは `duplicate` を返す）。
  */
 export async function finishIapPurchase(purchase: IapPurchase): Promise<void> {
   if (!IAP_AVAILABLE) return;
   const source = sourcePurchases.get(purchase.transactionId);
   if (source === undefined) return;
-  try {
-    await finishTransaction({ purchase: source, isConsumable: false });
+  if (source.origin === "list") {
     sourcePurchases.delete(purchase.transactionId);
+    return;
+  }
+  try {
+    await finishTransaction({ purchase: source.purchase, isConsumable: false });
   } catch (error) {
     console.warn("[iap] 取引の完了に失敗", {
       transactionId: purchase.transactionId,
       ...errorOf(error),
     });
+  } finally {
+    sourcePurchases.delete(purchase.transactionId);
   }
 }

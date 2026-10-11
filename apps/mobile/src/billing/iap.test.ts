@@ -31,7 +31,12 @@ vi.mock("expo-iap", () => ({
 }));
 vi.mock("./iap-availability", () => ({ IAP_AVAILABLE: true }));
 
-import { onIapPurchase, requestIapPurchase } from "./iap";
+import {
+  finishIapPurchase,
+  listIapPurchases,
+  onIapPurchase,
+  requestIapPurchase,
+} from "./iap";
 
 const PURCHASE = {
   transactionId: "2000000000000001",
@@ -69,6 +74,62 @@ describe("取引の届け方", () => {
       productId: PURCHASE.productId,
       jws: "jws",
     });
+    unsubscribe();
+  });
+});
+
+describe("取引の完了", () => {
+  it("イベントで届いた取引は finishTransaction で完了する", async () => {
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchase(listener);
+    mocks.purchaseUpdated?.(PURCHASE);
+
+    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+
+    expect(mocks.finishTransaction).toHaveBeenCalledWith({
+      purchase: PURCHASE,
+      isConsumable: false,
+    });
+    unsubscribe();
+  });
+
+  it("一覧から読んだ取引の完了は finishTransaction を呼ばない", async () => {
+    mocks.getAvailablePurchases.mockResolvedValue([
+      { ...PURCHASE, transactionId: "2000000000000002" },
+    ]);
+    const [listed] = await listIapPurchases();
+
+    await finishIapPurchase(listed);
+
+    expect(mocks.finishTransaction).not.toHaveBeenCalled();
+  });
+
+  it("イベントで届いた未完了の取引は、一覧で読み直しても完了する", async () => {
+    const PENDING = { ...PURCHASE, transactionId: "2000000000000003" };
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchase(listener);
+    mocks.purchaseUpdated?.(PENDING);
+    mocks.getAvailablePurchases.mockResolvedValue([PENDING]);
+    await listIapPurchases();
+
+    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+
+    expect(mocks.finishTransaction).toHaveBeenCalledTimes(1);
+    unsubscribe();
+  });
+
+  it("完了に失敗しても控えを残さない（2 度目は呼ばない）", async () => {
+    const FAILING = { ...PURCHASE, transactionId: "2000000000000004" };
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    mocks.finishTransaction.mockRejectedValueOnce(new Error("boom"));
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchase(listener);
+    mocks.purchaseUpdated?.(FAILING);
+
+    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+
+    expect(mocks.finishTransaction).toHaveBeenCalledTimes(1);
     unsubscribe();
   });
 });
