@@ -225,8 +225,8 @@ let nativePurchaseSubscription: { readonly remove: () => void } | undefined;
  * 取引購読
  *
  * 購入の直後・Ask to Buy の承認・前回の起動で完了しなかった取引の配り直しが
- * ここへ届く。同じ取引が 2 度届くことがある（購入の要求の戻り値とイベントの
- * 両方から渡す）ので、受け取る側が取引 ID で重複を除く。
+ * ここへ届く。StoreKit が同じ取引を配り直すことがあるので、受け取る側が
+ * 取引 ID で重複を除く。
  */
 export function onIapPurchase(listener: PurchaseListener): () => void {
   if (!IAP_AVAILABLE) return () => {};
@@ -249,6 +249,9 @@ export function onIapPurchase(listener: PurchaseListener): () => void {
  *
  * 結果は待たない: 届いた取引は {@link onIapPurchase}、失敗は
  * {@link onIapPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決する。
+ * `requestPurchase` の戻り値は結果に使わない（expo-iap の TSDoc どおり。取引は
+ * イベントで届く）— 戻り値からも配ると同じ取引が 2 度届き、記録の知らせが
+ * 2 回出る。待つのは要求の拒否（失敗）を受け取るためだけ。
  * 取引は自動で完了させない — サーバーに記録してから完了する（完了した取引は
  * StoreKit が配り直さず、記録に失敗すると取り戻せない）。
  *
@@ -266,7 +269,7 @@ export async function requestIapPurchase(
   }
   errorDeliveredDuringRequest = false;
   try {
-    const result = await requestPurchase({
+    await requestPurchase({
       request: {
         apple: {
           sku: productId,
@@ -276,12 +279,6 @@ export async function requestIapPurchase(
       },
       type: "in-app",
     });
-    const purchases = Array.isArray(result)
-      ? result
-      : result === null || result === undefined
-        ? []
-        : [result];
-    for (const purchase of purchases) deliverPurchase(purchase);
   } catch (error) {
     // StoreKit のイベントで同じ失敗を受け取っていれば、重ねて知らせない
     if (!errorDeliveredDuringRequest) {

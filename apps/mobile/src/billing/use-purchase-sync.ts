@@ -42,8 +42,8 @@ const t = createTranslator({
 const inFlight = new Map<string, Promise<TransactionResult>>();
 
 /**
- * この起動中に完了した取引の ID。StoreKit のイベントと購入の要求の戻り値の
- * 両方から同じ取引が届くので、2 度目は送らない
+ * この起動中に完了した取引の ID。StoreKit が同じ取引を配り直すことがあるので、
+ * 2 度目は送らない
  */
 const finished = new Set<string>();
 
