@@ -3,6 +3,7 @@ import { create } from "zustand";
 import type { MobilePlanResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
 import { useFocusRead, type FocusReadState } from "../lib/use-focus-read";
+import { clearPlanBenefitsCache } from "../practice/quota/use-practice-quota";
 import { fetchPlan, type PlanApiFailure } from "./plan-api";
 
 /**
@@ -20,9 +21,10 @@ const usePlanVersionStore = create<{ readonly version: number }>(() => ({
  * プラン再読み込み
  *
  * 取引を記録した後・復元の後に呼ぶ。画面が開いていなければ何もしない
- * （次に開いたときに読む）。
+ * （次に開いたときに読む）。回数制限が控えている特典も捨てる。
  */
 export function invalidatePlan(): void {
+  clearPlanBenefitsCache();
   usePlanVersionStore.setState((state) => ({ version: state.version + 1 }));
 }
 

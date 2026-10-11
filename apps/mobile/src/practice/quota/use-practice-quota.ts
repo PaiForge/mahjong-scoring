@@ -87,9 +87,30 @@ function patchMenu(menu: QuotaMenu, patch: Partial<MenuQuotaState>): void {
   }));
 }
 
+/**
+ * 販売していない間の特典（ユーザー ID → `/plan` の特典）
+ *
+ * 販売していない間は 1 問ごとに出題許可を聞くので、毎回 `/plan` を読むと
+ * 1 問ごとに 1 要求になる。起動中はユーザーごとに控え、プランが変わった
+ * 合図（{@link clearPlanBenefitsCache}）で捨てる。読めなかった（空）ときは
+ * 控えない — 次の問いで読み直す。
+ */
+const benefitsCache = new Map<string, Promise<readonly PlanBenefit[]>>();
+
+/**
+ * 販売していない間の特典の控えを捨てる
+ * 特典キャッシュ破棄
+ *
+ * プランの読み直しの合図（`invalidatePlan`。取引の記録・復元の後）から呼ぶ。
+ */
+export function clearPlanBenefitsCache(): void {
+  benefitsCache.clear();
+}
+
 /** テスト用。モジュールスコープの状態を初期化する */
 export function _resetPracticeQuota(): void {
   usePracticeQuotaStore.setState({ menus: {} });
+  benefitsCache.clear();
   for (const menu of QUOTA_MENUS) {
     delete requestSeq[menu];
   }
@@ -128,13 +149,22 @@ async function currentUserId(): Promise<string | undefined> {
  *
  * 回数は数えないが、回答時間の計測（`practice_tools`）は web で買った Pro でも
  * 出す。読めなければ特典なし（特典の判定は fail-closed。web と同じ）。
+ * 読めた特典は控える（{@link benefitsCache}）。
  */
-async function benefitsWhileNotOnSale(
+function benefitsWhileNotOnSale(
   userId: string | undefined,
 ): Promise<readonly PlanBenefit[]> {
-  if (userId === undefined) return [];
-  const result = await fetchPlan(userId);
-  return "value" in result ? result.value.benefits : [];
+  if (userId === undefined) return Promise.resolve([]);
+  const cached = benefitsCache.get(userId);
+  if (cached !== undefined) return cached;
+  const loading = fetchPlan(userId).then((result) => {
+    if ("value" in result) return result.value.benefits;
+    // 失敗は控えない。読んでいる間に捨てられていれば、別の要求を消さない
+    if (benefitsCache.get(userId) === loading) benefitsCache.delete(userId);
+    return [];
+  });
+  benefitsCache.set(userId, loading);
+  return loading;
 }
 
 /** 端末で数えるゲストの答え。宛先の `signedIn` はユーザー名の無いログイン中なら true */

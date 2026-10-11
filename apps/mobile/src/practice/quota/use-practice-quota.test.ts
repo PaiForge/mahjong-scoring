@@ -56,6 +56,7 @@ import {
   refreshPracticeQuota,
   requestPracticeQuestion,
 } from "./use-practice-quota";
+import { invalidatePlan } from "../../billing/use-plan";
 
 type Reply = PlanApiResult<MobilePracticeQuotaResponse>;
 
@@ -125,6 +126,28 @@ describe("答えの出どころ", () => {
       remaining: "unlimited",
       limit: "unlimited",
       benefits: [PlanBenefit.PracticeTools],
+    });
+
+    // 2 問目は /plan を読まない
+    await requestPracticeQuestion("agari-score", generate);
+    expect(mocks.fetchPlan).toHaveBeenCalledTimes(1);
+
+    // プランが変わった合図の後は読み直す
+    invalidatePlan();
+    await requestPracticeQuestion("agari-score", generate);
+    expect(mocks.fetchPlan).toHaveBeenCalledTimes(2);
+  });
+
+  it("販売していない間に /plan を読めなければ控えず、次の問いで読み直す", async () => {
+    mocks.offers = [];
+    mocks.userId = "user-a";
+
+    await requestPracticeQuestion("agari-score", vi.fn());
+    await requestPracticeQuestion("agari-score", vi.fn());
+
+    expect(mocks.fetchPlan).toHaveBeenCalledTimes(2);
+    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
+      benefits: [],
     });
   });
 
