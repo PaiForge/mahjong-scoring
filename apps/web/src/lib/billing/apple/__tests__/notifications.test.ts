@@ -53,6 +53,11 @@ function notification(
   };
 }
 
+/** 取り消しが記録表に書く通知の識別 */
+function identityOf(notificationType: string) {
+  return { notificationUuid: "uuid-1", notificationType, subtype: undefined };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockRecord.mockResolvedValue({ outcome: "recorded", purchaseId: "p1" });
@@ -116,6 +121,7 @@ describe("dispatchAppleNotification", () => {
     expect(mockRevoke).toHaveBeenCalledWith(
       "2000000000000001",
       "refunded",
+      identityOf("REFUND"),
       NOW,
     );
   });
@@ -124,7 +130,12 @@ describe("dispatchAppleNotification", () => {
     expect(await dispatchAppleNotification(notification("REVOKE"), NOW)).toBe(
       true,
     );
-    expect(mockRevoke).toHaveBeenCalledWith("2000000000000001", "revoked", NOW);
+    expect(mockRevoke).toHaveBeenCalledWith(
+      "2000000000000001",
+      "revoked",
+      identityOf("REVOKE"),
+      NOW,
+    );
   });
 
   it("取り消す行が無くても処理済み（後の記録が通知の記録を見る）", async () => {
@@ -141,7 +152,10 @@ describe("dispatchAppleNotification", () => {
     expect(
       await dispatchAppleNotification(notification("REFUND_REVERSED"), NOW),
     ).toBe(true);
-    expect(mockReverse).toHaveBeenCalledWith("2000000000000001");
+    expect(mockReverse).toHaveBeenCalledWith(
+      "2000000000000001",
+      identityOf("REFUND_REVERSED"),
+    );
   });
 
   it("CONSUMPTION_REQUEST はログだけで処理済み", async () => {

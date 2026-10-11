@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import "server-only";
 
-import { appleNotificationEvents, db } from "@/lib/db";
+import { appleNotificationEvents, db, type TransactionClient } from "@/lib/db";
 
 /**
  * App Store Server Notification のうち、このアプリが扱う種別
@@ -56,6 +56,18 @@ export async function hasProcessedAppleNotification(
 }
 
 /**
+ * 処理済みの記録に残す通知の識別
+ * 通知識別
+ */
+export interface AppleNotificationIdentity {
+  /** 通知の一意な ID（`notificationUUID`） */
+  readonly notificationUuid: string;
+  /** `REFUND` 等の種別（`notificationType`） */
+  readonly notificationType: string;
+  readonly subtype: string | undefined;
+}
+
+/**
  * 通知を処理済みとして記録する（既にあれば何もしない）
  * 通知の処理済み記録
  *
@@ -65,20 +77,26 @@ export async function hasProcessedAppleNotification(
  * （`recordAppleTransaction`）がこれを見て取り消し済みで入れる。
  * App Store Server API で取引の現在の状態を問い合わせない代わり。
  *
- * @param transactionId - 通知が指す取引 ID。取引を伴わない種別は undefined
+ * 取り消し（`revoke.ts`）は取り消す行が無いとき、取引のロックを持った
+ * トランザクションの中でここを呼ぶ（`tx` を渡す）。受け口も処理の後に同じ
+ * 通知を記録するが、`notification_uuid` の `ON CONFLICT DO NOTHING` で 1 行に
+ * 重なる。
+ *
+ * @param notification.transactionId - 通知が指す取引 ID。取引を伴わない種別は undefined
+ * @param tx - 渡されたらそのトランザクションの中で書く。省略時は `db`
  */
-export async function markAppleNotificationProcessed({
-  notificationUuid,
-  notificationType,
-  subtype,
-  transactionId,
-}: {
-  readonly notificationUuid: string;
-  readonly notificationType: string;
-  readonly subtype: string | undefined;
-  readonly transactionId: string | undefined;
-}): Promise<void> {
-  await db
+export async function markAppleNotificationProcessed(
+  {
+    notificationUuid,
+    notificationType,
+    subtype,
+    transactionId,
+  }: AppleNotificationIdentity & {
+    readonly transactionId: string | undefined;
+  },
+  tx?: TransactionClient,
+): Promise<void> {
+  await (tx ?? db)
     .insert(appleNotificationEvents)
     .values({
       notificationUuid,

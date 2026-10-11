@@ -4,7 +4,10 @@ import { z } from "zod";
 import { logExternalError } from "@/lib/log-error";
 
 import { PurchaseRevokeReason } from "../revoke-reason";
-import { AppleNotificationType } from "./notification-events";
+import {
+  AppleNotificationType,
+  type AppleNotificationIdentity,
+} from "./notification-events";
 import { recordAppleTransaction } from "./record";
 import { reverseAppleRevocation, revokeAppleTransaction } from "./revoke";
 import type { AppleNotification } from "./verifier";
@@ -19,9 +22,9 @@ import type { AppleNotification } from "./verifier";
  * @design 取り消す行が無くても処理済みにする
  *
  * REFUND / REVOKE が購入の記録より先に届くことがある（アプリが送る前に返金
- * された等）。そのときも処理済みとして扱い、受け口が通知を取引 ID 付きで
- * 記録する。後から来た記録（`recordAppleTransaction`）が記録表を見て、
- * 取り消し済みで入れる。App Store Server API で取引の現在の状態を問い合わせ
+ * された等）。そのときも処理済みとして扱い、取り消し（`revoke.ts`）が取引の
+ * ロックの下で通知を取引 ID 付きで記録する。後から来た記録
+ * （`recordAppleTransaction`）が記録表を見て、取り消し済みで入れる。App Store Server API で取引の現在の状態を問い合わせ
  * ない代わりに、記録表がその役を担う。
  *
  * @design 消費情報を送らない
@@ -100,6 +103,7 @@ export async function dispatchAppleNotification(
         notificationType === AppleNotificationType.Refund
           ? PurchaseRevokeReason.Refunded
           : PurchaseRevokeReason.Revoked,
+        identityOf(notification),
         now,
       );
       return true;
@@ -108,7 +112,10 @@ export async function dispatchAppleNotification(
         logMissingTransaction(notification);
         return true;
       }
-      await reverseAppleRevocation(transaction.transactionId);
+      await reverseAppleRevocation(
+        transaction.transactionId,
+        identityOf(notification),
+      );
       return true;
     case AppleNotificationType.ConsumptionRequest:
       logExternalError(
@@ -164,6 +171,17 @@ async function recordFromOneTimeCharge(
       `ONE_TIME_CHARGE for ${transaction.transactionId} not recorded (${result.outcome === "rejected" ? result.reason : result.outcome})`,
       undefined,
     );
+}
+
+/** 処理済みの記録に残す通知の識別 */
+function identityOf(
+  notification: AppleNotification,
+): AppleNotificationIdentity {
+  return {
+    notificationUuid: notification.notificationUuid,
+    notificationType: notification.notificationType,
+    subtype: notification.subtype,
+  };
 }
 
 /** 取引を指すはずの種別に取引が無い（Apple の仕様上は起きない）ことを残す */

@@ -12,25 +12,55 @@ import {
   type PurchaseNotificationSource,
 } from "../purchases";
 import { PurchaseRevokeReason } from "../revoke-reason";
+import {
+  markAppleNotificationProcessed,
+  type AppleNotificationIdentity,
+} from "./notification-events";
 import { lockAppleTransaction } from "./transaction-lock";
 
 /**
- * App Store の取引の購入を取り消す
+ * App Store の通知による購入の取り消しと、その戻し
  * 購入取り消し（App Store）
+ *
+ * @design 取り消す行が無いときは、ロックの下で通知を記録表に書く
+ *
+ * REFUND / REVOKE / REFUND_REVERSED が購入の記録より先に届く（アプリが送る前に
+ * 返金された等）と、取り消す行が無い。そのときは取引の advisory lock を持った
+ * トランザクションの中で、通知を取引 ID 付きで `apple_notification_events` に
+ * 書く。後から来た記録（`recordAppleTransaction`）は同じロックの下で記録表を
+ * 読むので、2 つの順序がロックで決まる — 取り消しが先なら記録が取り消し済みで
+ * 入れ、記録が先なら取り消しが行を見つけて取り消す。
+ *
+ * 受け口（`api/apple/notifications/route.ts`）も処理の後に通知を記録するが、
+ * それは別のトランザクションなので、取り消しの commit から受け口の記録までの
+ * 隙に記録が割り込むと、記録は空の記録表を見て有効な購入として入れてしまう
+ * （返金が落ちる）。ここでロックの下で書くのはその隙を塞ぐため。受け口の記録とは
+ * `notification_uuid` で 1 行に重なる。
+ *
+ * 退会を受け付けたユーザーの行でも同じく記録表に書く。退会の処理が行を消した
+ * 後に、同じ Apple ID で再登録した人が復元したとき、取り消し済みで入れるため。
+ */
+
+/**
+ * App Store の取引の購入を取り消す
+ * 購入取り消し
  *
  * REFUND 通知（`refunded`）と REVOKE 通知（`revoked`。Family Sharing の解除など
  * 返金ではない取り消し）から呼ぶ。行は消さず `revoked_at` と理由を立てるだけ
  * （購入履歴に残す）。未取消の行だけを更新するので、再送されても冪等。
  *
  * 取引のロックの後にユーザーの書き込みロックを取り、退会を受け付けたユーザー
- * なら何も書かず `notFound` を返す（退会の処理が行ごと消す）。行が無いときも
- * `notFound` — 返金が購入の記録より先に届いた場合で、呼び出し側は通知を
- * 取引 ID 付きで記録しておき、後から来た記録が取り消し済みで入れる。
+ * なら購入の行は書かず `notFound` を返す（退会の処理が行ごと消す）。行が無いときも
+ * `notFound` — 返金が購入の記録より先に届いた場合。どちらも通知を同じ
+ * トランザクションで記録表に書き、後から来た記録が取り消し済みで入れる
+ * （このモジュールの「取り消す行が無いときは、ロックの下で通知を記録表に書く」）。
  *
  * 本人への通知はトランザクションの外で、失敗しても取り消しを巻き込まない
  * （Stripe の `revokePurchaseByPaymentIntent` と同じ）。既に取り消し済みの
  * 再送でも保存済みの行から通知を組み直して通す（通知の補完）。
  *
+ * @param notification - 取り消しの元の通知。行が無いときに記録表へ書く
+ * @param now - 取り消しの日時
  * @returns `revoked` — 取り消した / `alreadyRevoked` — 既に取り消し済み /
  *   `notFound` — 行が無い・退会を受け付けたユーザーの行
  */
@@ -38,6 +68,7 @@ export async function revokeAppleTransaction(
   transactionId: string,
   reason:
     typeof PurchaseRevokeReason.Refunded | typeof PurchaseRevokeReason.Revoked,
+  notification: AppleNotificationIdentity,
   now: Date = new Date(),
 ): Promise<"revoked" | "alreadyRevoked" | "notFound"> {
   const { result, purchase } = await db.transaction(
@@ -53,12 +84,16 @@ export async function revokeAppleTransaction(
         .from(purchases)
         .where(eq(purchases.appleTransactionId, transactionId))
         .limit(1);
-      if (!current) return { result: "notFound", purchase: undefined };
-      if (!(await lockAccountForWrite(tx, current.userId))) {
-        logExternalError(
-          "revokeAppleTransaction",
-          `退会を受け付けたユーザーの取引 ${transactionId} は取り消さない`,
-          undefined,
+      if (!current || !(await lockAccountForWrite(tx, current.userId))) {
+        if (current)
+          logExternalError(
+            "revokeAppleTransaction",
+            `退会を受け付けたユーザーの取引 ${transactionId} は取り消さない`,
+            undefined,
+          );
+        await markAppleNotificationProcessed(
+          { ...notification, transactionId },
+          tx,
         );
         return { result: "notFound", purchase: undefined };
       }
@@ -96,13 +131,17 @@ export async function revokeAppleTransaction(
  * 戻したことは本人に通知しない。通知の種別を増やさずに済ませ、購入履歴の
  * 「返金済み」が消えるだけにする（取り消しの通知は既読のまま残る）。
  *
- * ロックと退会の扱いは {@link revokeAppleTransaction} と同じ。
+ * ロックと退会の扱い、行が無いときに通知を記録表へ書くことは
+ * {@link revokeAppleTransaction} と同じ。先に届いた REFUND の後にこれが
+ * 記録表に入っていれば、後から来た記録は有効な購入として入れる。
  *
+ * @param notification - REFUND_REVERSED の通知。行が無いときに記録表へ書く
  * @returns `reversed` — 戻した / `notRefunded` — 取り消されていない、または
  *   返金以外の理由の取り消し / `notFound` — 行が無い・退会を受け付けたユーザーの行
  */
 export async function reverseAppleRevocation(
   transactionId: string,
+  notification: AppleNotificationIdentity,
 ): Promise<"reversed" | "notRefunded" | "notFound"> {
   return db.transaction(async (tx) => {
     await lockAppleTransaction(tx, transactionId);
@@ -111,12 +150,16 @@ export async function reverseAppleRevocation(
       .from(purchases)
       .where(eq(purchases.appleTransactionId, transactionId))
       .limit(1);
-    if (!current) return "notFound";
-    if (!(await lockAccountForWrite(tx, current.userId))) {
-      logExternalError(
-        "reverseAppleRevocation",
-        `退会を受け付けたユーザーの取引 ${transactionId} は戻さない`,
-        undefined,
+    if (!current || !(await lockAccountForWrite(tx, current.userId))) {
+      if (current)
+        logExternalError(
+          "reverseAppleRevocation",
+          `退会を受け付けたユーザーの取引 ${transactionId} は戻さない`,
+          undefined,
+        );
+      await markAppleNotificationProcessed(
+        { ...notification, transactionId },
+        tx,
       );
       return "notFound";
     }

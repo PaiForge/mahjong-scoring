@@ -79,14 +79,25 @@ async function rowsOf(transactionId: string) {
 }
 
 let notificationSequence = 0;
-function markNotification(type: string, transactionId: string) {
+/** 通知ごとに UUID を変えた通知の識別 */
+function identity(type: string) {
   notificationSequence += 1;
-  return markAppleNotificationProcessed({
+  return {
     notificationUuid: `uuid-${notificationSequence}`,
     notificationType: type,
     subtype: undefined,
-    transactionId,
-  });
+  };
+}
+
+function markNotification(type: string, transactionId: string) {
+  return markAppleNotificationProcessed({ ...identity(type), transactionId });
+}
+
+async function eventsOf(transactionId: string) {
+  return billingTestDb()
+    .select()
+    .from(appleNotificationEvents)
+    .where(eq(appleNotificationEvents.appleTransactionId, transactionId));
 }
 
 describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
@@ -265,12 +276,20 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
     it("取り消して戻すと行が有効に戻り、取り消しは本人に通知される", async () => {
       const tx = transaction({ ...lifetime });
       await recordAppleTransaction(owner, tx);
-      expect(await revokeAppleTransaction(tx.transactionId, "refunded")).toBe(
-        "revoked",
-      );
-      expect(await revokeAppleTransaction(tx.transactionId, "refunded")).toBe(
-        "alreadyRevoked",
-      );
+      expect(
+        await revokeAppleTransaction(
+          tx.transactionId,
+          "refunded",
+          identity("REFUND"),
+        ),
+      ).toBe("revoked");
+      expect(
+        await revokeAppleTransaction(
+          tx.transactionId,
+          "refunded",
+          identity("REFUND"),
+        ),
+      ).toBe("alreadyRevoked");
       const [revoked] = await rowsOf(tx.transactionId);
       expect(revoked.revokeReason).toBe("refunded");
       const sent = await billingTestDb().select().from(notifications);
@@ -279,13 +298,21 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         "purchase_revoked",
       ]);
 
-      expect(await reverseAppleRevocation(tx.transactionId)).toBe("reversed");
+      expect(
+        await reverseAppleRevocation(
+          tx.transactionId,
+          identity("REFUND_REVERSED"),
+        ),
+      ).toBe("reversed");
       const [restored] = await rowsOf(tx.transactionId);
       expect(restored.revokedAt).toBeNull();
       expect(restored.revokeReason).toBeNull();
-      expect(await reverseAppleRevocation(tx.transactionId)).toBe(
-        "notRefunded",
-      );
+      expect(
+        await reverseAppleRevocation(
+          tx.transactionId,
+          identity("REFUND_REVERSED"),
+        ),
+      ).toBe("notRefunded");
     });
 
     it("fraud で止めた行は返金の覆りで戻さない", async () => {
@@ -295,29 +322,68 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         .update(purchases)
         .set({ revokedAt: new Date(), revokeReason: "fraud" })
         .where(eq(purchases.appleTransactionId, tx.transactionId));
-      expect(await reverseAppleRevocation(tx.transactionId)).toBe(
-        "notRefunded",
-      );
+      expect(
+        await reverseAppleRevocation(
+          tx.transactionId,
+          identity("REFUND_REVERSED"),
+        ),
+      ).toBe("notRefunded");
       const [row] = await rowsOf(tx.transactionId);
       expect(row.revokeReason).toBe("fraud");
     });
 
-    it("行の無い取引の取り消し・戻しは notFound", async () => {
-      expect(await revokeAppleTransaction("missing", "refunded")).toBe(
+    it("行の無い取引の取り消し・戻しは notFound で、同じトランザクションで記録表に書く", async () => {
+      const refund = identity("REFUND");
+      expect(await revokeAppleTransaction("missing", "refunded", refund)).toBe(
         "notFound",
       );
-      expect(await reverseAppleRevocation("missing")).toBe("notFound");
+      expect(await eventsOf("missing")).toMatchObject([
+        {
+          notificationUuid: refund.notificationUuid,
+          notificationType: "REFUND",
+        },
+      ]);
+      expect(
+        await reverseAppleRevocation("missing", identity("REFUND_REVERSED")),
+      ).toBe("notFound");
+      expect(
+        (await eventsOf("missing")).map((e) => e.notificationType).sort(),
+      ).toEqual(["REFUND", "REFUND_REVERSED"]);
     });
 
-    it("退会を受け付けた人の行は取り消さない", async () => {
+    it("取り消しと記録が並行しても、行は取り消し済みで終わる", async () => {
+      for (let i = 0; i < 10; i += 1) {
+        const tx = transaction({ ...lifetime });
+        await Promise.all([
+          revokeAppleTransaction(
+            tx.transactionId,
+            "refunded",
+            identity("REFUND"),
+          ),
+          recordAppleTransaction(owner, tx),
+        ]);
+        const [row] = await rowsOf(tx.transactionId);
+        expect(row.revokedAt).not.toBeNull();
+        expect(row.revokeReason).toBe("refunded");
+      }
+    });
+
+    it("退会を受け付けた人の行は取り消さず、通知を記録表に書く", async () => {
       const tx = transaction({ ...lifetime });
       await recordAppleTransaction(owner, tx);
       await billingTestDb().insert(accountDeletions).values({ userId: owner });
-      expect(await revokeAppleTransaction(tx.transactionId, "refunded")).toBe(
-        "notFound",
-      );
+      expect(
+        await revokeAppleTransaction(
+          tx.transactionId,
+          "refunded",
+          identity("REFUND"),
+        ),
+      ).toBe("notFound");
       const [row] = await rowsOf(tx.transactionId);
       expect(row.revokedAt).toBeNull();
+      expect(
+        (await eventsOf(tx.transactionId)).map((e) => e.notificationType),
+      ).toEqual(["REFUND"]);
     });
   },
 );
