@@ -110,8 +110,8 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
   版のアプリが古い形のまま読む
 - web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す（スロットは
   `MOBILE_AD_SLOTS`。成果をトラッキング ID で分けるため web とは別に持つ）
-- web の練習の回数制限（practice-quota）はアプリの練習には掛からないが、要求の本文の
-  申告（「iOS から」等）で web の制限を外す経路は作らない
+- 練習の回数制限（practice-quota）は iOS のアプリにも掛かる（同じ表・同じ規則。アプリ向け
+  API `practice-quota`）。要求の本文の申告（「iOS から」等）で web の制限を外す経路は作らない
 - 他の利用者を見せる画面（ランキング・公開プロフィール）と、他の利用者に見せる自由入力
   （表示名・自己紹介・SNS・アバター）は web だけのもの。web に足してもアプリには持ち込まず、
   アプリ向け API にも他の利用者の情報を返す経路を作らない（理由は `apps/mobile/CLAUDE.md`）
@@ -431,6 +431,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 /mypage/plan                — 購入状況と購入履歴（動的）
 /tokushoho                  — 特定商取引法に基づく表記
 /api/stripe/webhook         — Stripe Webhook（署名検証・重複排除）
+/api/apple/notifications    — App Store Server Notifications（署名検証・重複排除）
 /api/stripe/checkout/complete — Checkout 完了の着地（所有者検証 → 同期記録 → /mypage/plan）
 ```
 
@@ -471,6 +472,10 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   トレーニングは設定どおりに出題する
 - 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
   付与する）。`savePracticeResult` は試験の menuType を入口で弾く
+- Pro の購入は web の Stripe と iOS の App Store の 2 経路で、どちらも `purchases` の 1 行に
+  なる（`purchases.provider`）。特典の判定（`hasBenefit`）は経路を知らない。App Store の
+  Sandbox の取引（TestFlight・審査）は許可リスト（`APPLE_IAP_SANDBOX_USER_IDS`）の
+  ユーザーにだけ記録する（運用の手順は `apps/mobile/README.md`「アプリ内課金」）
 
 ## 点数計算・黒帯への道（段級位の行程）
 
