@@ -24,7 +24,7 @@ interface HanCountProblemListProps {
  * そのまま再現したうえで内訳まで並べる。
  *
  * 並び順は点数系の問題別一覧（{@link import("../../_components/score-problem-list").ScoreProblemList}）
- * と同じ「手牌 → 面子の内訳 → 翻数の内訳 → 答え合わせ」。練習ごとに内訳と
+ * と同じ「手牌 → 面子の内訳 → 答え合わせ → 翻数の内訳」。練習ごとに内訳と
  * 答え合わせが入れ替わると、結果を続けて見返すときに毎回目で探し直すことになる。
  */
 export function HanCountProblemList({ results }: HanCountProblemListProps) {
@@ -55,13 +55,6 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
               </>
             )}
 
-            {result.question && (
-              <HanBreakdown
-                yakuDetails={result.question.yakuDetails}
-                correctHan={result.correctHan}
-              />
-            )}
-
             <AnswerComparison
               translationNamespace="hanCountChallenge"
               outcome={result.outcome}
@@ -79,6 +72,13 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
                     }
               }
             />
+
+            {result.question && (
+              <HanBreakdown
+                yakuDetails={result.question.yakuDetails}
+                correctHan={result.correctHan}
+              />
+            )}
           </div>
         );
       }}

@@ -15,8 +15,8 @@ import { HanBreakdown } from "./han-breakdown";
  * 翻数問題一覧
  *
  * 展開すると出題された手牌・面子の取り方・翻数の内訳・正解とユーザー回答を
- * 確認できる。並び順は点数系の問題別一覧と同じ「手牌 → 面子の内訳 → 翻数の
- * 内訳 → 答え合わせ」。
+ * 確認できる。並び順は点数系の問題別一覧と同じ「手牌 → 面子の内訳 → 答え合わせ →
+ * 翻数の内訳」。
  */
 export function HanCountProblemList({
   results,
@@ -51,13 +51,6 @@ export function HanCountProblemList({
               </>
             )}
 
-            {result.question && (
-              <HanBreakdown
-                yakuDetails={result.question.yakuDetails}
-                correctHan={result.correctHan}
-              />
-            )}
-
             <AnswerComparison
               translationNamespace="hanCountChallenge"
               outcome={result.outcome}
@@ -75,6 +68,13 @@ export function HanCountProblemList({
                     }
               }
             />
+
+            {result.question && (
+              <HanBreakdown
+                yakuDetails={result.question.yakuDetails}
+                correctHan={result.correctHan}
+              />
+            )}
           </View>
         );
       }}
