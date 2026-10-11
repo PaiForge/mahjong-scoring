@@ -3,7 +3,8 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
-import { ChevronRightIcon } from "./icons/icons";
+import { Chip } from "./chip";
+import { ChevronRightIcon, LockClosedIcon } from "./icons/icons";
 
 /**
  * 設定項目を並べるカード（web の `SettingsCard`）
@@ -45,6 +46,8 @@ interface SettingToggleRowProps {
    * 押しても何もしない。読み上げには無効と伝える
    */
   readonly disabled?: boolean;
+  /** Maestro のフローで引く印 */
+  readonly testID?: string;
 }
 
 /**
@@ -74,6 +77,7 @@ export function SettingToggleRow({
   onChange,
   titleAction,
   disabled = false,
+  testID,
 }: SettingToggleRowProps) {
   // 描画の間ずっと同じ値を使う（ref ではなく state の初期化で 1 度だけ作る）
   const [position] = useState(() => new Animated.Value(checked ? 1 : 0));
@@ -102,6 +106,7 @@ export function SettingToggleRow({
       accessibilityRole="switch"
       accessibilityLabel={title}
       accessibilityState={{ checked, disabled }}
+      testID={testID}
       style={styles.row}
     >
       <View style={styles.body}>
@@ -161,6 +166,52 @@ export function SettingLinkRow({
         )}
       </View>
       <ChevronRightIcon size={20} color={colors.surface400} />
+    </Pressable>
+  );
+}
+
+interface SettingLockedRowProps {
+  readonly onPress: () => void;
+  readonly title: string;
+  /** 見出しの右隣のチップ（「Pro」） */
+  readonly badge: string;
+  /** 使える条件（「Pro プランで利用できます」） */
+  readonly note: string;
+  readonly testID?: string;
+}
+
+/**
+ * 鍵の掛かった設定の行（web の `SettingToggle` の `locked`）
+ * 設定ロック行
+ *
+ * まだ使えない設定（Pro の機能）を、スイッチの代わりに鍵とチップで示す。
+ * 押せないスイッチは「壊れている」に見えるので、行全体を押すと使える条件を
+ * 満たす画面（プラン画面・ログイン）へ移る。行の形は {@link SettingToggleRow} と
+ * 揃え、スイッチの位置に鍵が入る。
+ */
+export function SettingLockedRow({
+  onPress,
+  title,
+  badge,
+  note,
+  testID,
+}: SettingLockedRowProps) {
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      accessibilityLabel={`${title}、${badge}、${note}`}
+      testID={testID}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
+      <View style={styles.body}>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>{title}</Text>
+          <Chip tone="amber">{badge}</Chip>
+        </View>
+        <Text style={styles.description}>{note}</Text>
+      </View>
+      <LockClosedIcon size={20} color={colors.surface400} />
     </Pressable>
   );
 }
