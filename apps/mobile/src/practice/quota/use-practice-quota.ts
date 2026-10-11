@@ -361,6 +361,10 @@ export function readPracticeQuotaGate(
   return readMenu(menu).gate;
 }
 
+/**
+ * 盤面の回数制限の操作（{@link usePracticeQuota} の戻り値）
+ * 回数制限操作
+ */
 export interface PracticeQuotaControl {
   /**
    * 1 問始める。枠の消費を聞き、許可されたら `generate` を呼ぶ。許可されな
