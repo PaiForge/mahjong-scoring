@@ -78,6 +78,11 @@ const CORRECT_COLUMN_CLASSES = [
  * 色（正誤の色 / 太字）で既に分かれている。内訳は表の中に挟まず、
  * `footer` として表の下に置く（理由は `BreakdownPanel`）。
  *
+ * 列の見出し（あなたの回答 / 正解）は表の中でいちばん濃くする（`surface-900`）。
+ * 直下に並ぶ正解の値（`surface-800` の太字）より淡いと、見出しが値に負けて
+ * 項目として読めない（濃さの順は {@link import("../../_components/detail-table").DetailTable}
+ * と同じく 見出し > 値 > 名前）。大きさは本文と同じ `text-sm` のまま。
+ *
  * 列幅は table-fixed + colgroup で決め打ちする。比べさせたい 2 列
  * （あなたの回答 / 正解）を同じ幅にするため。中身なりに決まる
  * auto レイアウトでは、正解の列だけが役の一覧や「点数表を確認」の
@@ -112,13 +117,13 @@ export function ResultTableFrame({
         </colgroup>
         <thead>
           <tr className="border-b border-surface-300">
-            <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-600" />
+            <th className="pb-3 pr-4 pt-2 text-left font-bold text-surface-900" />
             {/* 見出しは折り返さない。役のチップが列幅を取ると
                 「あなたの回答」が 2 行に割れて表の頭が崩れる */}
-            <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-600">
+            <th className="whitespace-nowrap pb-3 pr-4 pt-2 text-right font-bold text-surface-900">
               {t("result.headers.answer")}
             </th>
-            <th className="whitespace-nowrap pb-3 pt-2 text-right font-bold text-surface-600">
+            <th className="whitespace-nowrap pb-3 pt-2 text-right font-bold text-surface-900">
               {t("result.headers.correct")}
             </th>
           </tr>
