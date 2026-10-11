@@ -51,6 +51,10 @@ function startQuiz() {
   fireEvent.click(screen.getByRole("button", { name: "startQuiz" }));
 }
 
+function resumeQuiz() {
+  fireEvent.click(screen.getByRole("button", { name: "resumeQuiz" }));
+}
+
 /** 選択肢ボタン（点数の表示文字列で引く） */
 function choice(points: string) {
   return screen.getByRole("button", { name: points });
@@ -449,6 +453,53 @@ describe("LessonView", () => {
     });
   });
 
+  describe("本文を読み返す", () => {
+    function reviewBody() {
+      fireEvent.click(screen.getByRole("button", { name: "reviewBody" }));
+    }
+
+    it("確認問題の下から本文へ戻り、答えた状態の問題から続けられる", () => {
+      renderLesson();
+      startQuiz();
+      fireEvent.click(choice("8,000"));
+
+      reviewBody();
+      expect(screen.getByTestId("explanation")).toBeTruthy();
+      expect(screen.queryByTestId("lesson-condition")).toBeNull();
+      expect(screen.queryByRole("button", { name: "startQuiz" })).toBeNull();
+
+      resumeQuiz();
+      expect(screen.getByTestId("lesson-judgement").textContent).toContain(
+        "correct",
+      );
+      expect((choice("8,000") as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it("読み返してからブラウザで戻ると、解いていた問題に戻る", async () => {
+      renderLesson();
+      startQuiz();
+      fireEvent.click(choice("8,000"));
+      fireEvent.click(screen.getByRole("button", { name: "next" }));
+
+      reviewBody();
+      await traverse("back");
+
+      expect(screen.getByTestId("lesson-condition")).toBeTruthy();
+      expect((choice("12,000") as HTMLButtonElement).disabled).toBe(false);
+    });
+
+    it("回答前はヒントと並べ、回答後も残す", () => {
+      renderLesson();
+      startQuiz();
+      expect(screen.getByRole("button", { name: "showHint" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "reviewBody" })).toBeTruthy();
+
+      fireEvent.click(choice("8,000"));
+      expect(screen.queryByRole("button", { name: "showHint" })).toBeNull();
+      expect(screen.getByRole("button", { name: "reviewBody" })).toBeTruthy();
+    });
+  });
+
   describe("ブラウザの戻る / 進む", () => {
     it("確認問題から戻ると説明に戻り、進むと答えた状態の問題に戻る", async () => {
       renderLesson();
@@ -471,7 +522,7 @@ describe("LessonView", () => {
       fireEvent.click(screen.getByRole("button", { name: "next" }));
 
       await traverse("back");
-      startQuiz();
+      resumeQuiz();
 
       // 2 問目に答えていないので選択肢は押せ、3 問目まで答えると終われる
       expect((choice("12,000") as HTMLButtonElement).disabled).toBe(false);
