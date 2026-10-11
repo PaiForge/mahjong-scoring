@@ -1,5 +1,5 @@
 ---
-name: testflight
+name: ship-to-testflight
 description: モバイルアプリ（apps/mobile）の iOS ビルドを EAS で作り、TestFlight（App Store Connect）へ送って、ビルドと提出が終わるまで見届けて結果を報告する手順。「TestFlight に出して」「新しいビルドを配信して」「EAS でビルドして TestFlight へ」等で使う。Android・ストアの審査提出・シミュレーター向けのビルド（sim:release）は対象外。
 ---
 

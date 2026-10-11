@@ -81,7 +81,7 @@ pnpm --filter @mahjong-scoring/mobile testflight:status <ID> --watch # ビルド
 
 `testflight` は main のプッシュ済みのコミットか・依存・EAS のログイン・`production` 環境の接続先を
 確かめてから、`eas build --platform ios --profile production --auto-submit` を待たずに投入する。
-Claude Code ではスキル `testflight`（`.claude/skills/testflight/`）が投入から報告までを通す。
+Claude Code ではスキル `ship-to-testflight`（`.claude/skills/ship-to-testflight/`）が投入から報告までを通す。
 
 - 初回は Apple ID でのログインを求められる。配布用の証明書とプロビジョニングプロファイルは
   EAS に作らせて EAS 側に置く（「Generate a new Apple Distribution Certificate?」等にすべて Yes）
