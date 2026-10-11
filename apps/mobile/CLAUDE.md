@@ -225,5 +225,5 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - 本番の接続先（EAS の `production` 環境の値）でビルドしたときは、登録・ログイン・記録を
   試さない。画面の表示を見るまで。ビルドしたら `strings <app>/main.jsbundle` で接続先を
   確かめてから操作する（`sim-release.sh` がローカル向けに行うのと同じ検査）
-- TestFlight は `README.md` の「TestFlight に出す」。会話の中から出すなら
-  `--non-interactive --no-wait` を足す（提出先・証明書は設定済み）
+- TestFlight はスキル `testflight`（`scripts/testflight.sh` で投入し、`testflight-status.sh` で
+  見届ける）。EAS 側の設定は `README.md` の「TestFlight に出す」

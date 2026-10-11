@@ -75,9 +75,13 @@ EAS のプロジェクトは `@k0kishima/mahjong-scoring`（`app.json` の `extr
 輸出コンプライアンスを毎回答えなくてよい。
 
 ```bash
-cd apps/mobile
-npx eas-cli build --platform ios --profile production --auto-submit
+pnpm --filter @mahjong-scoring/mobile testflight                     # 検査してから投入し、ビルド ID を出す
+pnpm --filter @mahjong-scoring/mobile testflight:status <ID> --watch # ビルドと提出が終わるまで見る
 ```
+
+`testflight` は main のプッシュ済みのコミットか・依存・EAS のログイン・`production` 環境の接続先を
+確かめてから、`eas build --platform ios --profile production --auto-submit` を待たずに投入する。
+Claude Code ではスキル `testflight`（`.claude/skills/testflight/`）が投入から報告までを通す。
 
 - 初回は Apple ID でのログインを求められる。配布用の証明書とプロビジョニングプロファイルは
   EAS に作らせて EAS 側に置く（「Generate a new Apple Distribution Certificate?」等にすべて Yes）
