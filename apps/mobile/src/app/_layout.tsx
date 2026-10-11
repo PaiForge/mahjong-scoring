@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { usePurchaseSync } from "../billing/use-purchase-sync";
 import { ToastHost } from "../components/toast";
 import { AppIntlProvider } from "../lib/intl-provider";
 import { useAccountSync } from "../records/use-account-sync";
@@ -20,6 +21,7 @@ import { TermSheetProvider } from "../reference/term-sheet";
  */
 export default function RootLayout() {
   useAccountSync();
+  usePurchaseSync();
   return (
     <SafeAreaProvider>
       <AppIntlProvider>
