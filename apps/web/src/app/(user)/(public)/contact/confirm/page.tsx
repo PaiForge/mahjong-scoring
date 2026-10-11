@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 
 import { ContactConfirm } from "../_components/contact-confirm";
@@ -41,7 +42,10 @@ export default async function ContactConfirmPage({
       ]}
     >
       <PageTitle>{t("confirm.title")}</PageTitle>
-      <ContactConfirm formData={formData} />
+      <section className="space-y-6">
+        <SectionTitle>{t("confirm.sectionTitle")}</SectionTitle>
+        <ContactConfirm formData={formData} />
+      </section>
     </ContentContainer>
   );
 }

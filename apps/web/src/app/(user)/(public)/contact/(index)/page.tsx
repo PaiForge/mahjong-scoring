@@ -19,6 +19,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 import { ContactForm } from "../_components/contact-form";
@@ -36,14 +37,15 @@ export default async function ContactPage() {
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
-      <div className="space-y-6">
+      <section className="space-y-6">
+        <SectionTitle>{t("form.sectionTitle")}</SectionTitle>
         <p className="text-sm text-surface-500">{t("description")}</p>
         {/* ContactForm は useSearchParams() を読むため、静的ルートでは
             このサブツリーだけがクライアント描画になる */}
         <Suspense>
           <ContactForm />
         </Suspense>
-      </div>
+      </section>
     </ContentContainer>
   );
 }
