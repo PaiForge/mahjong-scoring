@@ -76,6 +76,10 @@ interface BottomSheetProps {
  * 高さは `matchContents`（Yoga の高さをシートへ伝える）、Android の全画面は
  * シートの高さを Yoga へ伝えて中身が埋める。
  *
+ * 下端の余白はシートがホームインジケーター / ナビゲーションバーの分を取るので、
+ * `useSafeAreaInsets().bottom` を足すと二重になる。キーボードの回避も OS が行う
+ * （iOS はシートが large まで上がる）。
+ *
  * 背景（幕）には読み上げ名を付けられない（OS が描く）。閉じる操作は
  * iOS の VoiceOver の標準の操作（2 本指の Z）と Android の幕・戻るが担い、
  * 中身の側にも閉じる / 完了のボタンを置く。

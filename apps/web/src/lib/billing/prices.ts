@@ -28,6 +28,10 @@ export interface OfferPriceView {
  * ので、一時的な障害が 1 日分の「価格なし」として残らない（期限切れの値が
  * あれば、再検証の失敗中はそれを返し続ける）。設定の欠け（Price ID 未設定・
  * 金額の無い Price）は再試行しても変わらないので undefined として保存する。
+ *
+ * ページの `revalidate` への伝播はコールバックを実行する前に行われるので、
+ * 投げても料金ページの ISR 間隔は変わらない。ただし、エントリが無い状態で
+ * 失敗して描画された HTML は、その ISR 間隔のあいだ「価格なし」のまま残る。
  */
 const readOfferPrices = unstable_cache(
   async (plan: PlanKey): Promise<readonly OfferPriceView[] | undefined> => {

@@ -24,6 +24,11 @@ type MessageNamespace = keyof typeof messages;
  * クライアントで使い始めるときは、ここから外す（テストが落ちて教える）。
  * 逆に、サーバーでしか読まない名前空間を足したときは、ここに加えて
  * 辞書を軽く保つ。
+ *
+ * 残った辞書をルートレイアウトから外してページごとに渡す分割は見送った。
+ * LP の HTML を 42KB → 14KB にしても Lighthouse（Lantern）の LCP は変わらず
+ * （2026-10 に `next start` で実測）、名前空間とページの対応を保つ手間に
+ * 見合わない。
  */
 export const SERVER_ONLY_MESSAGE_NAMESPACES = [
   // 用語集・規約・運営情報（サーバーで描く長文）

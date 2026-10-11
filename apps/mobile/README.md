@@ -33,6 +33,17 @@ pnpm --filter @mahjong-scoring/mobile start
 開発用のアカウントは web と同じ（`pnpm --filter web db:seed:dev` の `alice@example.local` /
 `devpass1` など）。
 
+端末なしでバンドルだけ確かめるときは `CI=1 npx expo start --port 8099` を起動し、
+`http://127.0.0.1:8099/apps/mobile/index.bundle?platform=ios&dev=true&lazy=false&transform.routerRoot=src%2Fapp`
+（ネイティブは `&transform.engine=hermes` も付ける）で取る。`transform.routerRoot` を付けないと
+expo-router が `apps/mobile/app` を探し、アプリのコードが 1 行も入っていないバンドルが 200 で返る。
+正しい URL は `curl -H "expo-platform: ios" -H "accept: application/expo+json" localhost:8099/` で
+得られるマニフェストの `launchAsset.url` から引ける。
+
+アプリ向け API（`/api/mobile/v1`）を curl で叩くときは、画面の確認を先に済ませる。退会のように
+回数制限の厳しい API（`rate-limit-ip.ts`）を同じ IP から何度か叩くと 429 になり、その後 5 分は
+ブラウザやアプリからの確認も巻き込まれる（curl だけなら `X-Forwarded-For` を変えれば枠を避けられる）。
+
 ## ビルドの環境変数（EAS）
 
 ストアや TestFlight に出すビルドは、本番の接続先を EAS の環境変数で渡す。アプリに
@@ -75,6 +86,7 @@ npx eas-cli build --platform ios --profile production --auto-submit
   自分を入れれば iPhone の TestFlight アプリから入れられる。内部テストに審査は無い
 - 本番の Supabase・web に繋がるので、試して作ったアカウントは本番の DB に残る。最後にアプリから
   退会すると、退会と Apple 連携の取り消しの確認を兼ねられる
+- EAS のビルドログは brotli 圧縮で、ダウンロードしたものは node の `zlib.brotliDecompressSync` で読める
 
 ## Apple でログイン（iOS）
 

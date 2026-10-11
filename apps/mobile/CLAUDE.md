@@ -39,7 +39,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   トーストを出す操作はこちらでも出す。出すのは「読み流してよい完了」だけで、次の行動が要る
   知らせ（確認メールの送信・退会の受付）は画面かパネルに残し、失敗の理由はフォームの下
   （`FormMessage`）に置き、取り返しのつかない操作の確認は `ConfirmationModal` にする。
-  OS の Toast（Android）や iOS の中央の HUD は使わない（両 OS で見た目が割れ、配色も選べない）
+  OS の Toast（Android）や iOS の中央の HUD は使わない（両 OS で見た目が割れ、配色も選べない）。
+  `Modal` を含む木の祖先では、平坦化を左右する props（`pointerEvents`・`transform`・`opacity`）を
+  動的に切り替えない。切り替えるなら `collapsable={false}` で常にネイティブの view を持たせる —
+  平坦化が外れると子の view が付け替えられ、同じ commit で開いた `Modal` が iOS で表示に失敗して
+  押せない画面が残る（`recorded-challenge.tsx`。疑ったらシミュレーターのログで
+  "Attempt to present" を grep する）
 - 本文の文字は 15〜16pt（web の 14px を写さない）。辞書の改行は設定の説明では取り除く
 
 - **画面の構成は web をなぞる。** ルートは expo-router で web と同じパス（`/practice/<slug>`,
@@ -200,7 +205,21 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     「本文を読み返す」で本文へ戻ると「確認問題に戻る（2 / 3 問目）」から同じ問題へ戻れる
   - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
-  押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい
+  押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい。
+  ただし `LinkRow` のように行全体が 1 つのアクセシビリティ要素にまとまる部品の中の文字
+  （「固定」のチップ等）は単体では見つからないので `".*固定.*"` の正規表現で引く。広告の行は
+  `accessibilityLabel` が「広告、<題名>、<説明>」なので `"広告、.*"`（画面の「PR」では引けない）。
+  段落の中のリンク（入れ子の `Text`）も段落全体が 1 要素で、リンクだけを押せない
+- Android はエミュレーターの Release ビルドで確かめる（`android/` は gitignore 済みで
+  `npx expo run:android --variant release --no-bundler` が生成する。`expo run:*` は package.json を
+  書き換えるので前後で退避・復元する）。Maestro は `maestro --device emulator-5554 test <flow>`
+  （`scripts/maestro.sh` は iOS 専用）。Release は平文 HTTP を通さずローカルの Supabase に
+  ログインできない（「通信できませんでした」）ので、ログインが要る確認は iOS で行い、Android は
+  ゲストで同じ構造を確かめる。起動直後の `openLink` は捨てられるので `launchApp` の後に画面の文言を
+  待ってから開く。`hideKeyboard` は複数行の入力欄で効かない（return が改行）ので見出し等を押して閉じる。
+  iOS の反復は `sim:release` を毎回回さず、`expo export:embed --platform ios --dev false
+--bundle-output "$APP/main.jsbundle" --assets-dest "$APP"`（`APP` は `simctl get_app_container`）で
+  JS だけ差し替えられる（`EXPO_PUBLIC_*` と metro-cache の削除は `sim-release.sh` と同じにする）
 - 状態の用意は web の dev seed（ルートの `CLAUDE.md` の「管理者ロールの割り当て」）。
   ゲストは `launchApp` の `clearState`、ユーザー名未設定は `ivan@`、記録が残る人は `bob@` 等
 - 本番の接続先（EAS の `production` 環境の値）でビルドしたときは、登録・ログイン・記録を

@@ -74,6 +74,12 @@ async function queryActiveCreatives(slot: string): Promise<ActiveCreative[]> {
  *
  * DB の失敗はキャッシュの外で握る。中で握って空配列を返すと、その空配列が
  * 1 日キャッシュされ、DB が戻っても広告が出ない。
+ *
+ * dev サーバーではこのキャッシュはプロセスのメモリにあり、`.next` の
+ * ファイルを消しても DB の行を直しても捨てられない。シードを流す前に一度でも
+ * ページを描いていると「広告なし」が残り続けるので、管理画面（`/admin/ads`）で
+ * トラッキング ID を別の値にして保存し元に戻す（タグが捨てられる。同じ値の
+ * 保存は DB が更新されず効かない）か、dev サーバーを再起動する。
  */
 const getActiveCreativesCached = unstable_cache(
   queryActiveCreatives,
