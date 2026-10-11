@@ -16,7 +16,7 @@ import {
   type BeginPracticeQuestionResult,
   type QuotaAudience,
   type QuotaUsage,
-} from "./quota-answer";
+} from "@mahjong-scoring/features/quota/answer";
 import { readUserQuotaUsage } from "./read-user-quota";
 
 /**

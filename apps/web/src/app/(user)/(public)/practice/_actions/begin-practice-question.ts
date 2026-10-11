@@ -20,7 +20,7 @@ import {
   type BeginPracticeQuestionResult,
   type QuotaAudience,
   type QuotaUsage,
-} from "@/lib/practice-quota/quota-answer";
+} from "@mahjong-scoring/features/quota/answer";
 import { beginUserQuota, peekUserQuota } from "@/lib/practice-quota/user-quota";
 import {
   isQuotaMenu,

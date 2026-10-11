@@ -1,8 +1,5 @@
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
-import {
-  PRACTICE_QUOTA_LIMITS,
-  type QuotaMenu,
-} from "@mahjong-scoring/features/quota/limits";
+import { PlanBenefit } from "../billing/plans";
+import { PRACTICE_QUOTA_LIMITS, type QuotaMenu } from "./limits";
 
 /**
  * 練習の無料枠 — 「1 問始めてよいか」の答えを組み立てる規則
@@ -10,8 +7,11 @@ import {
  *
  * 出題開始（`beginPracticeQuestion`）と残数問い合わせ（`peekPracticeQuota`）が
  * 同じ規則で答えるための純粋な関数を集める。両者が食い違うと、残数の表示と
- * 実際に始められるかがずれる。DB・cookie・特典の読み出しと、失敗したときに
- * 止めるか通すかの判断は呼び出し側（Server Action）が持つ。
+ * 実際に始められるかがずれる。DB・cookie・端末の保存・特典の読み出しと、
+ * 失敗したときに止めるか通すかの判断は呼び出し側（web の Server Action・
+ * アプリ向け API・アプリのゲートとゲストの数え方）が持つ。
+ *
+ * web とアプリの両方が同じ規則で答えるため features に置く。このモジュールは純粋。
  */
 
 /**
@@ -92,7 +92,7 @@ export function peekUsage(limit: number, used: number): QuotaUsage {
  * 上限に達していれば消費せず不許可。許可したときの `remaining` は
  * この 1 問を含めない残り。ログイン済みの消費は並行リクエストで上限を
  * 超えないよう SQL の 1 文で同じ規則を行う（`consumeUserQuota`）ため、
- * これを使うのは cookie で数える未ログインだけ。
+ * これを使うのは端末側で数える未ログイン（web の cookie・アプリの端末の保存）だけ。
  *
  * @param used - 消費前に今日すでに始めた問題数
  */

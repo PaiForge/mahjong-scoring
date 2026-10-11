@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/features/quota/limits";
 
 import { isAppleIapOnSale } from "../billing/apple/env";
-import type { BeginPracticeQuestionResult } from "../practice-quota/quota-answer";
+import type { BeginPracticeQuestionResult } from "@mahjong-scoring/features/quota/answer";
 import { beginUserQuota, peekUserQuota } from "../practice-quota/user-quota";
 
 import { authorizeMobileRequest } from "./auth";
