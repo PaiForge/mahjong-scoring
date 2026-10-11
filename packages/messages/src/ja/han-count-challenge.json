@@ -4,7 +4,7 @@
   "selectHan": "合計翻数を選択してください",
   "hanOption": "{count}翻",
   "yakuman": "役満",
-  "yakumanNote": "13翻以上は役満",
+  "yakumanRoundedLabel": "13翻以上は",
   "breakdownTitle": "翻数の内訳",
   "breakdownTotal": "合計",
   "howToPlay": {

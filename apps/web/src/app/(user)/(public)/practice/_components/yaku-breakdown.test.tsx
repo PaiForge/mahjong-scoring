@@ -39,6 +39,22 @@ describe("YakuBreakdown", () => {
     expect(screen.getByRole("dialog")).toBeTruthy();
   });
 
+  it("合計がそのまま答えにならないときは、合計の下に結論の行を出す", () => {
+    render(
+      <YakuBreakdown
+        yakuDetails={[
+          { name: "四暗刻", han: 13 },
+          { name: "ドラ", han: 3 },
+        ]}
+        conclusion={{ label: "13翻以上は", value: "役満" }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
+
+    expect(screen.getByText("13翻以上は")).toBeTruthy();
+    expect(screen.getByText("役満")).toBeTruthy();
+  });
+
   it("役が無ければ開閉の見出しごと出さない", () => {
     const { container } = render(<YakuBreakdown yakuDetails={[]} />);
 

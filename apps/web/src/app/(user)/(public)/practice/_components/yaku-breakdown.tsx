@@ -17,6 +17,11 @@ interface YakuBreakdownProps {
   readonly yakuDetails: readonly YakuDetail[];
   /** 合計の後に効く丸めの補足（役満止まりなど）。持たない画面もある */
   readonly note?: ReactNode;
+  /**
+   * 合計がそのまま答えにならないときの答えの行（翻数即答の「13翻以上は 役満」）。
+   * 符の内訳の「切り上げ後 40符」と同じく、合計の下に結論として据える
+   */
+  readonly conclusion?: { readonly label: string; readonly value: string };
 }
 
 interface YakuBreakdownTableProps extends YakuBreakdownProps {
@@ -82,6 +87,7 @@ export function YakuBreakdown(props: YakuBreakdownProps) {
 export function YakuBreakdownTable({
   yakuDetails,
   note,
+  conclusion,
   onOpenScoreTable,
 }: YakuBreakdownTableProps) {
   const t = useTranslations("challenge.yakuBreakdown");
@@ -129,6 +135,7 @@ export function YakuBreakdownTable({
               </ScoreTableValueButton>
             ),
         }}
+        conclusion={conclusion}
         note={note}
       />
       {yakuCheatsheetModal}

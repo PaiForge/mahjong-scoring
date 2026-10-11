@@ -1,5 +1,5 @@
 import type { YakuDetail } from "@mahjong-scoring/core";
-import { useYakumanRoundingNote } from "@mahjong-scoring/features/practice/han-count/use-yakuman-rounding-note";
+import { useYakumanRounding } from "@mahjong-scoring/features/practice/han-count/use-yakuman-rounding";
 
 import { YakuBreakdown } from "../../components/yaku-breakdown";
 
@@ -8,8 +8,8 @@ import { YakuBreakdown } from "../../components/yaku-breakdown";
  * 翻内訳表示（翻数即答）
  *
  * 表そのものは共通の {@link YakuBreakdown}。この練習だけが持つのは役満への
- * 丸めの補足で、13翻に丸めた正解と内訳の合計が食い違うときに「16翻 → 役満」と
- * 示す。結果画面の問題別一覧とトレーニングの答え合わせの両方から使う。
+ * 丸めで、13翻に丸めた正解と内訳の合計が食い違うときに、合計の下へ
+ * 「13翻以上は 役満」を結論として据える。結果画面の問題別一覧とトレーニングの答え合わせの両方から使う。
  */
 export function HanBreakdown({
   yakuDetails,
@@ -20,8 +20,8 @@ export function HanBreakdown({
   /** 正解の翻数（役満に丸めた後） */
   readonly correctHan: number;
 }) {
-  // 役満への丸めの補足（出す条件と文言）はwebと共有する
-  const note = useYakumanRoundingNote(yakuDetails, correctHan);
+  // 役満への丸め（出す条件と文言）は web と共有する
+  const conclusion = useYakumanRounding(yakuDetails, correctHan);
 
-  return <YakuBreakdown yakuDetails={yakuDetails} note={note} />;
+  return <YakuBreakdown yakuDetails={yakuDetails} conclusion={conclusion} />;
 }
