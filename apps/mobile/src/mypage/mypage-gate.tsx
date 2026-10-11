@@ -25,8 +25,7 @@ export function MypageGate({
   readonly children: (userId: string) => ReactNode;
 }) {
   const { status, user, account, accountError } = useAuth();
-  if (status === "signedOut")
-    return <RecordCtaCard testIDPrefix="mypage" showTitle />;
+  if (status === "signedOut") return <RecordCtaCard testIDPrefix="mypage" />;
   if (status !== "signedIn" || user === undefined) return <MypageLoading />;
   if (account === undefined) {
     return accountError === undefined ? (
@@ -35,8 +34,7 @@ export function MypageGate({
       <AccountLoadFailed banned={accountError === "banned"} />
     );
   }
-  if (account.profile === null)
-    return <RecordCtaCard testIDPrefix="mypage" showTitle />;
+  if (account.profile === null) return <RecordCtaCard testIDPrefix="mypage" />;
   return (
     <View key={user.id} style={styles.content}>
       {children(user.id)}
