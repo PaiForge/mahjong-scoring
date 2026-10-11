@@ -188,11 +188,12 @@ CREATE POLICY "ad_network_settings_deny_all" ON "ad_network_settings"
   USING (false);
 
 -- =============================================================================
--- stripe_customers / purchases / stripe_webhook_events
+-- stripe_customers / purchases / stripe_webhook_events / apple_notification_events
 -- =============================================================================
--- 有料プラン。Stripe の顧客対応・購入記録・Webhook の重複排除は、読み込み
--- （特典の判定・マイページの購入履歴）も書き込み（Checkout 完了・Webhook）も
--- サーバーが直 DB 接続で行う。クライアントに Stripe の ID を読ませる理由がなく、
+-- 有料プラン。Stripe の顧客対応・購入記録・Webhook と App Store Server
+-- Notification の重複排除は、読み込み（特典の判定・マイページの購入履歴）も
+-- 書き込み（Checkout 完了・Webhook・アプリ内課金の記録・通知）もサーバーが
+-- 直 DB 接続で行う。クライアントに Stripe や Apple の ID を読ませる理由がなく、
 -- 購入行を書き換えられれば特典を自分で付けられるため、読み書きとも許可しない。
 ALTER TABLE "stripe_customers" ENABLE ROW LEVEL SECURITY;
 
@@ -210,6 +211,12 @@ ALTER TABLE "stripe_webhook_events" ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "stripe_webhook_events_deny_all" ON "stripe_webhook_events";
 CREATE POLICY "stripe_webhook_events_deny_all" ON "stripe_webhook_events"
+  USING (false);
+
+ALTER TABLE "apple_notification_events" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "apple_notification_events_deny_all" ON "apple_notification_events";
+CREATE POLICY "apple_notification_events_deny_all" ON "apple_notification_events"
   USING (false);
 
 -- =============================================================================

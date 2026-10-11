@@ -30,6 +30,8 @@ export async function setupBillingTestDb() {
     "20261001085049_create_benefit_grants.sql",
     "20261001092536_add_billing_checkouts.sql",
     "20261002125751_create_notifications.sql",
+    "20261008085348_create_account_deletions.sql",
+    "20261011050421_add_apple_iap_to_purchases.sql",
   ]) {
     const ddl = await readFile(
       new URL(`../../../drizzle/${name}`, import.meta.url),
