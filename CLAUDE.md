@@ -6,6 +6,12 @@
 
 - **旧リポ**: `/Users/k0kishima/work/PaiForge/mahjong-score-drill` — 以前の実装。コードの移植元として参照する。
 - **参考プロジェクト**: `/Users/k0kishima/work/checkmate-works/blindfold-chess` — チェスアプリ。技術スタック（言語・フレームワーク・主要ライブラリの選定と構成）をこのプロジェクトと同一にする。バージョンまでは揃えない — 各リポジトリはそれぞれの都合で最新に追従する
+- **PaiForge の npm パッケージ**（`@pai-forge/riichi-mahjong`・`@pai-forge/mahjong-react-ui`）: どちらも main へ
+  マージすると CI が publish する（手動の `npm publish` やタグ push は二重実行になる）。こちらで依存を
+  上げるコミットは publish 後に `pnpm install` で lockfile を更新してから作る — `^新版` だけ先に書くと
+  `--frozen-lockfile` で落ちる。publish 前に消費側で確かめたいときは
+  `node_modules/.pnpm/@pai-forge+<name>@…/node_modules/@pai-forge/<name>/` の dist をローカルビルドで
+  上書きする（`pnpm install` で元に戻る）
 
 ## コーディング規約
 
@@ -121,6 +127,10 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
   レジストリと結び付いた契約（`practice.practices.<messageKey>`・`<namespace>.variants.<key>`・
   `ranks.names.<slug>`）なので、辞書を 2 つに分けない。モバイルは使う名前空間だけを
   分割代入で束ね直して渡す
+- `next start` の HTML をボタンの文言で grep しても描画の確認にならない — クライアント用の
+  名前空間の辞書が全ページの RSC ペイロードに丸ごと載る（`src/i18n/client-messages.ts`）ため、
+  どのページでも当たる。描画の有無は ICU の引数が埋まった形（「確認問題へ（4 問）」）や
+  `<h1>` / `aria-label` などマークアップ付きで grep するか、ブラウザで見る
 
 ## 用語（チャレンジ / トレーニング / 模試 / レッスン / セッション）
 
@@ -185,7 +195,8 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 ### 主なコンポーネント
 
 - `PageTitle` — h1。全ページで使用
-- `SectionTitle` — h2。左の短い縦線・文字・右へ伸びる淡い横線
+- `SectionTitle` — h2。左の短い縦線・文字・右へ伸びる淡い横線。ページは「PageTitle → SectionTitle → 本文」の
+  型を保つ。見出しの文言が分かりにくくても、見出しを外して導入文に置き換えない（案内は見出しの下に足す）
 - `ContentContainer` — ページコンテンツの max-w-3xl ラッパー。全ページで統一して使用し CLS を防ぐ
 - `Sidebar` / `MobileHeader` / `MobileTabBar` — ナビゲーションシェル
 - `DataTable` / `DataTableHeaderCell` — データテーブルの外枠と見出しセル。表を作るときは直接 `<table>` を書かない
@@ -274,7 +285,12 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 （`next build` の route table で ƒ）はテスト内の `DYNAMIC_ROUTES` に写してあり、
 `pnpm build` 後は `.next` の manifest と突き合わせる。ページを動的にしたとき
 （cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、この一覧と
-loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す。
+loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す。ページを消した・改名したあとは
+`apps/web` で `npx next build` を回して `.next` を作り直してから tsc とテストを見る —
+`.next/types/validator.ts`（tsconfig が include）が消したページを参照したまま残って tsc が
+「Cannot find module …/page.js」で落ち、このテストも古い manifest と突き合わせて落ちる。
+どちらもソースの誤りではない（急ぐなら validator.ts だけ消せば tsc は通る。manifest 側の
+テストはビルドが無ければ skip される）。
 
 - **静的ルートに置かない** — loading.tsx はページ全体を包む Suspense 境界で、
   React（Fizz）は完了済みの境界でも中身が 12.8KB（既に流したバイト数との累計）を
@@ -318,6 +334,14 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   閉じたドロワー（`NavMenu`）の中のリンクは、開きそうな操作（ボタンへの pointerenter / focus）か
   開いた時点まで `prefetch={false}` にする（`<Link>` は `prefetch` が変わると先読みを登録し直す）。
   本文の主導線（LP のヒーローの CTA 等）は素の `<Link>` のまま
+- 上の挙動を再検証するとき（Next を上げたとき等）。初期 HTML は `pnpm build` 後の
+  `.next/server/app/<route>.html` の `<main>` を直接見る — `<!--$?-->` / `$RC(` /
+  `<div hidden id="S:…">` があれば本文は外出しされている（同じ応答の末尾にあり、別 fetch ではない）。
+  境界の入れ子は `curl -sL -H 'RSC: 1' -H 'Next-Router-Prefetch: 1' -H 'Next-Url: /' <URL>` の
+  prefetch payload にルート固有のスケルトンのクラスが含まれるかで見る（server loading だけ。
+  client loading は参照しか入らない）。体感は `next start` にブラウザ自動化で MutationObserver を
+  仕込み、click 後の `.animate-pulse` の数の推移を記録する。遅いサーバーを模すときは対象ルートの
+  RSC 応答だけを遅らせる — 全 RSC を遅らせると静的リンクの prefetch が渋滞して誤った結論になる
 
 ## ボタンの下の補助リンクの余白（`apps/web/src/app/_components/_lib/spacing.ts`）
 
@@ -414,12 +438,11 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 
 練習種別により2つのパターンが存在する:
 
-| パターン     | 構成                           | 該当                                                              |
-| ------------ | ------------------------------ | ----------------------------------------------------------------- |
-| チャレンジ型 | 説明(page.tsx) → play → result | jantou-fu, mentsu-fu, machi-fu, mentsu-jantou-fu, yaku, han-count |
-| 無限訓練型   | play のみ（result なし）       | agari-score, tenpai-score                                         |
+| パターン     | 構成                                         | 該当                                                                                                                                            |
+| ------------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| チャレンジ型 | 説明(page.tsx) → play → result（+ training） | jantou-fu, mentsu-fu, machi-fu, mentsu-jantou-fu, total-fu, yaku, yaku-han, han-count, score-calculation, mangan-score-calculation, score-table |
+| 無限訓練型   | play のみ（result なし）                     | agari-score, tenpai-score                                                                                                                       |
 
-- `score-calculation`, `score-table` はチャレンジ型だが説明ページ（page.tsx）は未作成
 - `agari-score` / `tenpai-score` は終了条件がなく無限ループする訓練機能のため、result ページを持たない。
   どちらも `PRACTICE_MENU_REGISTRY` に載らず、練習一覧のバナー（`practical-practice-banners.tsx`）と
   `sitemap-routes.ts` の手書きの 1 行で参照する
@@ -599,6 +622,15 @@ Anthropic 管理の VM（Ubuntu 24.04、Node 20/21/22 のみ、Docker あり）�
 - `bash scripts/claude-cloud/screenshot.sh /practice --login alice` — `/opt/pw-browsers` の
   Chromium（Chrome for Testing のダウンロードは VM から 403）でデスクトップ幅とスマホ幅を撮る。
   Claude が PNG を Read で開くとチャットに画像が出る。UI を変えたら両方の幅を見せる
+- 手元（VM 以外）でレイアウト・ハイドレーション・Server Action の失敗を実測するときは、scratchpad に
+  puppeteer-core を入れてシステム Chrome で開く（汎用の手順は dotagents のスキル `browser-measurement`）。
+  このリポジトリで踏むもの: dev は `http://localhost:3000` で開く（`127.0.0.1` だと Next 16 の dev が
+  `/_next/static/chunks/*.js` に 403 を返し、curl では 200 なのに JS が一切動かないページになる）。
+  dev の右上の「LOCAL」リボンがアカウントメニューのボタンに重なるので `page.click()` ではなく要素の
+  `click()` を呼ぶ。点数系の盤面は子ツモで `select` が 2 つあり `page.select("select")` は先頭しか
+  触らない。採点待ちの灰色を撮るには alice で `/practice/yaku-han/play` を開き、正解は伏せられて
+  いるので不正解が出るまで数問押す。dev seed のユーザーで保存まで走らせたら `lesson_completions` 等の
+  残骸を psql で消して元に戻す
 - 品質ゲート（`pnpm lint` / `pnpm typecheck` / `pnpm test`）と上の 2 スクリプトは
   `permissions.allow` で事前許可してあり、スマホからの操作が権限プロンプトで止まらない
 - VM でできないこと: 本番のシークレット（Google OAuth、Resend、GA）が要る確認。
