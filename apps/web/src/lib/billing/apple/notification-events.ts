@@ -65,6 +65,11 @@ export interface AppleNotificationIdentity {
   /** `REFUND` 等の種別（`notificationType`） */
   readonly notificationType: string;
   readonly subtype: string | undefined;
+  /**
+   * Apple が通知に署名した日時（`signedDate`）。記録表に残し、同じ取引の
+   * 通知の前後関係をこれで決める
+   */
+  readonly signedDate: Date;
 }
 
 /**
@@ -90,6 +95,7 @@ export async function markAppleNotificationProcessed(
     notificationUuid,
     notificationType,
     subtype,
+    signedDate,
     transactionId,
   }: AppleNotificationIdentity & {
     readonly transactionId: string | undefined;
@@ -102,6 +108,7 @@ export async function markAppleNotificationProcessed(
       notificationUuid,
       notificationType,
       subtype: subtype ?? null,
+      signedDate,
       appleTransactionId: transactionId ?? null,
     })
     .onConflictDoNothing({ target: appleNotificationEvents.notificationUuid });

@@ -1201,9 +1201,9 @@ export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
  *
  * REFUND / REVOKE が購入の記録より先に届くことがある（アプリが署名付き取引を
  * 送る前に返金された等）。そのとき取り消す行はまだ無いが、通知はこの表に
- * 取引 ID 付きで処理済みとして記録する。後から来た購入の記録はこの表を見て、
- * REFUND / REVOKE が REFUND_REVERSED より後に記録されていれば取り消し済みで
- * 入れる。App Store Server API（Get Transaction Info）を持たないので、
+ * 取引 ID 付きで処理済みとして記録する（取り消しが取引のロックの下で書く）。
+ * 後から来た購入の記録はこの表を見て、REFUND / REVOKE が REFUND_REVERSED より
+ * 後に署名されていれば取り消し済みで入れる。App Store Server API（Get Transaction Info）を持たないので、
  * この表が「その取引の現在の状態」の代わりになる。取引を伴わない通知
  * （TEST 等）は NULL。
  *
@@ -1220,6 +1220,16 @@ export const appleNotificationEvents = pgTable(
     subtype: varchar("subtype", { length: 50 }),
     /** 通知が指す取引 ID（`transactionId`）。取引を伴わない通知は NULL */
     appleTransactionId: varchar("apple_transaction_id", { length: 64 }),
+    /**
+     * Apple が通知に署名した日時（`signedDate`）
+     *
+     * 同じ取引の REFUND / REVOKE / REFUND_REVERSED の前後関係はこれで決める
+     * （受信順は再送で入れ替わる）。DEFAULT は列を NOT NULL で足すためだけの
+     * もので、書き手は必ず値を渡す。
+     */
+    signedDate: timestamp("signed_date", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     /** 受信日時 */
     receivedAt: timestamp("received_at", { withTimezone: true })
       .defaultNow()
@@ -1228,7 +1238,7 @@ export const appleNotificationEvents = pgTable(
   (table) => [
     index("idx_apple_notification_events_transaction").on(
       table.appleTransactionId,
-      table.receivedAt,
+      table.signedDate,
     ),
   ],
 );

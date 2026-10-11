@@ -78,6 +78,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         notificationUuid: notification.notificationUuid,
         notificationType: notification.notificationType,
         subtype: notification.subtype,
+        signedDate: notification.signedDate,
         transactionId: notificationTransactionId(notification),
       });
     }

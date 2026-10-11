@@ -70,6 +70,11 @@ export interface AppleNotification {
   /** `REFUND` 等の種別（`notificationType`） */
   readonly notificationType: string;
   readonly subtype: string | undefined;
+  /**
+   * Apple が通知に署名した日時（`signedDate`）。同じ取引の通知の前後関係は
+   * これで決める（受信順は再送で入れ替わる）
+   */
+  readonly signedDate: Date;
   readonly environment: AppleEnvironment;
   /** `data.signedTransactionInfo` を検証したもの。無ければ undefined */
   readonly transaction: AppleTransaction | undefined;
@@ -131,6 +136,7 @@ const notificationPayloadSchema = z.object({
   notificationUUID: z.string().min(1),
   notificationType: z.string().min(1),
   subtype: z.string().optional(),
+  signedDate: z.number(),
   data: z.object({ signedTransactionInfo: z.string().optional() }).optional(),
 });
 
@@ -287,6 +293,7 @@ export function createAppleSignedDataVerifier({
         notificationUuid: payload.notificationUUID,
         notificationType: payload.notificationType,
         subtype: payload.subtype,
+        signedDate: new Date(payload.signedDate),
         environment: verified.environment,
         transaction,
       },

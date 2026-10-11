@@ -22,6 +22,7 @@ import {
 } from "../notifications";
 
 const NOW = new Date("2026-10-11T00:00:00Z");
+const SIGNED_AT = new Date("2026-10-11T00:00:05Z");
 const OWNER = "11111111-1111-4111-8111-111111111111";
 
 const TRANSACTION: AppleTransaction = {
@@ -47,6 +48,7 @@ function notification(
     notificationUuid: "uuid-1",
     notificationType,
     subtype: undefined,
+    signedDate: SIGNED_AT,
     environment: "Production",
     transaction: TRANSACTION,
     ...overrides,
@@ -55,7 +57,12 @@ function notification(
 
 /** 取り消しが記録表に書く通知の識別 */
 function identityOf(notificationType: string) {
-  return { notificationUuid: "uuid-1", notificationType, subtype: undefined };
+  return {
+    notificationUuid: "uuid-1",
+    notificationType,
+    subtype: undefined,
+    signedDate: SIGNED_AT,
+  };
 }
 
 beforeEach(() => {
@@ -135,6 +142,22 @@ describe("dispatchAppleNotification", () => {
       "revoked",
       identityOf("REVOKE"),
       NOW,
+    );
+  });
+
+  it("REFUND の取り消しの日時は取引の revocationDate", async () => {
+    const revokedAt = new Date("2026-10-10T12:00:00Z");
+    await dispatchAppleNotification(
+      notification("REFUND", {
+        transaction: { ...TRANSACTION, revocationDate: revokedAt },
+      }),
+      NOW,
+    );
+    expect(mockRevoke).toHaveBeenCalledWith(
+      "2000000000000001",
+      "refunded",
+      identityOf("REFUND"),
+      revokedAt,
     );
   });
 

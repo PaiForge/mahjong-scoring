@@ -163,6 +163,7 @@ describe("verifyNotification", () => {
     return {
       notificationType: "REFUND",
       notificationUUID: "uuid-1",
+      signedDate: 1_791_676_800_000,
       data,
     };
   }
@@ -180,6 +181,7 @@ describe("verifyNotification", () => {
         notificationUuid: "uuid-1",
         notificationType: "REFUND",
         subtype: undefined,
+        signedDate: new Date(1_791_676_800_000),
         environment: "Production",
         transaction: { transactionId: "2000000000000001" },
       },
@@ -213,6 +215,7 @@ describe("verifyNotification", () => {
         notificationUuid: "uuid-1",
         notificationType: "TEST",
         subtype: undefined,
+        signedDate: new Date(1_791_676_800_000),
         environment: "Sandbox",
         transaction: undefined,
       },

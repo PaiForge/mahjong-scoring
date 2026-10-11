@@ -231,7 +231,11 @@ async function findPurchaseOfTransaction(
  * - 署名付き取引に `revocationDate` がある → その日時で `refunded`
  * - 通知の記録表（`apple_notification_events`）にこの取引の REFUND / REVOKE /
  *   REFUND_REVERSED があり、最新が REFUND なら `refunded`、REVOKE なら `revoked`
- *   （日時はその通知を受け取った時刻）。最新が REFUND_REVERSED なら取り消されていない
+ *   （日時はその通知の署名日時）。最新が REFUND_REVERSED なら取り消されていない
+ *
+ * 「最新」は Apple が通知に署名した日時（`signed_date`）で決める。受信の順は
+ * Apple の再送で入れ替わる — REFUND の配達に失敗して再送を待つ間に
+ * REFUND_REVERSED が先に届くと、受信順では返金が後に見えて逆の結果になる。
  *
  * 2 つ目は、返金の通知が購入の記録より先に届いたとき（アプリが送る前に返金
  * された等）の備え。取り消し（`revoke.ts`）は取り消す行が無くても取引 ID 付きで
@@ -254,7 +258,7 @@ async function revocationOf(
   const [latest] = await tx
     .select({
       type: appleNotificationEvents.notificationType,
-      receivedAt: appleNotificationEvents.receivedAt,
+      signedDate: appleNotificationEvents.signedDate,
     })
     .from(appleNotificationEvents)
     .where(
@@ -270,11 +274,11 @@ async function revocationOf(
         ]),
       ),
     )
-    .orderBy(desc(appleNotificationEvents.receivedAt))
+    .orderBy(desc(appleNotificationEvents.signedDate))
     .limit(1);
   if (latest?.type === AppleNotificationType.Refund)
-    return { at: latest.receivedAt, reason: PurchaseRevokeReason.Refunded };
+    return { at: latest.signedDate, reason: PurchaseRevokeReason.Refunded };
   if (latest?.type === AppleNotificationType.Revoke)
-    return { at: latest.receivedAt, reason: PurchaseRevokeReason.Revoked };
+    return { at: latest.signedDate, reason: PurchaseRevokeReason.Revoked };
   return undefined;
 }

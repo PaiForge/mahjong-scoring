@@ -79,7 +79,10 @@ const appAccountTokenSchema = z.uuid();
  *   （Stripe の購読していないイベントと同じ。扱い始めたときに過去の通知を
  *   処理済みとして捨てないため）
  *
- * @param now - 期限・取り消しの日時の基準
+ * REFUND / REVOKE の取り消しの日時は取引の `revocationDate`（Apple が取り消した
+ * 日時）。無ければ受け取った時刻で代える。
+ *
+ * @param now - 期限の基準。取引に取り消しの日時が無いときの取り消しの日時
  */
 export async function dispatchAppleNotification(
   notification: AppleNotification,
@@ -104,7 +107,7 @@ export async function dispatchAppleNotification(
           ? PurchaseRevokeReason.Refunded
           : PurchaseRevokeReason.Revoked,
         identityOf(notification),
-        now,
+        transaction.revocationDate ?? now,
       );
       return true;
     case AppleNotificationType.RefundReversed:
@@ -181,6 +184,7 @@ function identityOf(
     notificationUuid: notification.notificationUuid,
     notificationType: notification.notificationType,
     subtype: notification.subtype,
+    signedDate: notification.signedDate,
   };
 }
 

@@ -79,18 +79,31 @@ async function rowsOf(transactionId: string) {
 }
 
 let notificationSequence = 0;
-/** 通知ごとに UUID を変えた通知の識別 */
-function identity(type: string) {
+/**
+ * 通知ごとに UUID を変えた通知の識別。署名日時を省くと呼んだ順に 1 秒ずつ進む
+ * （同じミリ秒に並ぶと前後関係が決まらないため）
+ */
+function identity(type: string, signedDate?: Date) {
   notificationSequence += 1;
   return {
     notificationUuid: `uuid-${notificationSequence}`,
     notificationType: type,
     subtype: undefined,
+    signedDate:
+      signedDate ??
+      new Date(Date.UTC(2026, 9, 1) + notificationSequence * 1000),
   };
 }
 
-function markNotification(type: string, transactionId: string) {
-  return markAppleNotificationProcessed({ ...identity(type), transactionId });
+function markNotification(
+  type: string,
+  transactionId: string,
+  signedDate?: Date,
+) {
+  return markAppleNotificationProcessed({
+    ...identity(type, signedDate),
+    transactionId,
+  });
 }
 
 async function eventsOf(transactionId: string) {
@@ -190,6 +203,30 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       expect((await recordAppleTransaction(owner, reversed)).outcome).toBe(
         "recorded",
       );
+    });
+
+    it("REFUND_REVERSED が先に届き REFUND が後に届いても、署名順で有効で入れる", async () => {
+      const tx = transaction({ ...lifetime });
+      const refundSignedAt = new Date("2026-10-01T00:00:00Z");
+      const reversedSignedAt = new Date("2026-10-02T00:00:00Z");
+      await markNotification(
+        "REFUND_REVERSED",
+        tx.transactionId,
+        reversedSignedAt,
+      );
+      await markNotification("REFUND", tx.transactionId, refundSignedAt);
+      expect((await recordAppleTransaction(owner, tx)).outcome).toBe(
+        "recorded",
+      );
+    });
+
+    it("先に届いた REFUND の取り消しの日時はその署名日時", async () => {
+      const tx = transaction();
+      const signedAt = new Date("2026-10-03T00:00:00Z");
+      await markNotification("REFUND", tx.transactionId, signedAt);
+      await recordAppleTransaction(owner, tx);
+      const [row] = await rowsOf(tx.transactionId);
+      expect(row.revokedAt).toEqual(signedAt);
     });
 
     it("先に届いた REVOKE は revoked で入れる", async () => {

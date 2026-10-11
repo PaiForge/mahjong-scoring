@@ -38,6 +38,7 @@ const NOTIFICATION: AppleNotification = {
   notificationUuid: "uuid-1",
   notificationType: "REFUND",
   subtype: undefined,
+  signedDate: new Date("2026-10-12T00:00:01Z"),
   environment: "Production",
   transaction: {
     transactionId: "2000000000000001",
@@ -131,6 +132,7 @@ describe("POST /api/apple/notifications", () => {
       notificationUuid: "uuid-1",
       notificationType: "REFUND",
       subtype: undefined,
+      signedDate: new Date("2026-10-12T00:00:01Z"),
       transactionId: "2000000000000001",
     });
     expect(mockDispatch.mock.invocationCallOrder[0]).toBeLessThan(
