@@ -1,0 +1,62 @@
+# ゲストの回数制限（iOS で Pro を販売中のとき。手元の web の .env.local に Apple の
+# Product ID を 2 つ入れておく）: 練習一覧の実戦練習のカードの下に「ログインすると
+# 1日 5 問まで無料」。和了形の点数計算を 1 問解くと「今日はこの問題で最後です」、
+# 次へ進むと盤面の代わりにペイウォール（ログインする / 練習に戻る）が出る。
+# ゲストの枠は端末に保存するので clearState で戻る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- openLink: "mahjong-scoring://practice"
+- extendedWaitUntil:
+    visible:
+      id: "practice-mode-practical"
+    timeout: 10000
+- tapOn:
+    id: "practice-mode-practical"
+- extendedWaitUntil:
+    visible:
+      id: "practice-entry-quota-sign-in-agari-score"
+    timeout: 15000
+- takeScreenshot: practice-quota-guest-entry
+- openLink: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "han-select"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "practice-quota-remaining"
+    direction: DOWN
+- assertVisible: "今日はこの問題で最後です"
+- takeScreenshot: practice-quota-guest-last
+- scrollUntilVisible:
+    element: "わからない"
+    direction: DOWN
+- tapOn: "わからない"
+- scrollUntilVisible:
+    element: "次の問題へ"
+    direction: DOWN
+- tapOn: "次の問題へ"
+- extendedWaitUntil:
+    visible:
+      id: "practice-quota-paywall"
+    timeout: 15000
+- assertVisible:
+    id: "practice-quota-paywall-sign-in"
+- assertNotVisible:
+    id: "practice-quota-paywall-plan"
+- takeScreenshot: practice-quota-guest-paywall
+- scrollUntilVisible:
+    element:
+      id: "practice-quota-paywall-back"
+    direction: DOWN
+- tapOn:
+    id: "practice-quota-paywall-back"
+- extendedWaitUntil:
+    visible: "開始する"
+    timeout: 10000
