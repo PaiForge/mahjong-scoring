@@ -194,15 +194,6 @@ export function TilesIcon(props: IconProps) {
   );
 }
 
-/** 開閉の三角（塗り） */
-export function TriangleRightIcon(props: IconProps) {
-  return (
-    <Filled {...props}>
-      <Path d="M8 5v14l11-7z" />
-    </Filled>
-  );
-}
-
 /** 南京錠の本体（施錠・解錠で同じ寸法にする） */
 const LOCK_BODY =
   "M6 11h12a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2z";

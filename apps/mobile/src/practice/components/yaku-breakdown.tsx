@@ -7,7 +7,7 @@ import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-d
 import { useYakuOrder } from "../../hooks/use-yaku-order-store";
 import { linkStyles } from "../../lib/link-styles";
 import { useYakuCheatsheetModal } from "../use-yaku-cheatsheet-modal";
-import { CollapsibleDetail } from "./collapsible-detail";
+import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 
 /**
@@ -16,20 +16,30 @@ import { DetailTable } from "./detail-table";
  *
  * 成立していた役とその翻数、合計を示す。並びは役選択練習の選択肢と同じ順
  * （{@link orderYakuDetails}）。文言は共通の `challenge.yakuBreakdown` から
- * 引く。常に既定で閉じる。
+ * 引く。器は点数系と同じ {@link BreakdownPanel}（既定で閉じる「内訳を確認」の
+ * 入口）で、内訳が翻数だけなので切り替えは出ない。
  *
  * 早見表に載る役の名前は押せて、押すと役一覧のシートをその役で開く
  * （web と同じ）。
  */
 export function YakuBreakdown(props: YakuBreakdownProps) {
-  const t = useTranslations("challenge.yakuBreakdown");
+  const t = useTranslations("challenge.scoreBreakdown");
 
   if (props.yakuDetails.length === 0) return undefined;
 
+  const total = props.yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
+
   return (
-    <CollapsibleDetail title={t("title")}>
-      <YakuBreakdownTable {...props} />
-    </CollapsibleDetail>
+    <BreakdownPanel
+      title={t("toggle")}
+      sections={[
+        {
+          kind: "han",
+          tabLabel: t("hanTab", { count: total }),
+          content: <YakuBreakdownTable {...props} />,
+        },
+      ]}
+    />
   );
 }
 
