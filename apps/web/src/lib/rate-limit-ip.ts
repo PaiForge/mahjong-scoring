@@ -152,6 +152,17 @@ export const IP_RATE_LIMITS = {
   // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に
   // 1 度（失敗の送り直しを含めて数回）しか飛ばない。Apple への問い合わせを伴う
   saveAppleToken: { maxRequests: 20, windowMs: 600_000 },
+  // アプリがプラン画面を開くたび・購入の後に読むプランの状態
+  readMobilePlan: { maxRequests: 120, windowMs: 600_000 },
+  // 認証なしの販売中の商品の一覧。ゲストの練習の入口が開くたびに読む
+  readMobilePlanOffers: { maxRequests: 120, windowMs: 600_000 },
+  // アプリの購入と復元の取引の記録。復元は持っている取引を数件まとめて
+  // 送るので、その分だけ余裕を持たせる。Apple の証明書の確認を伴う
+  recordAppleTransaction: { maxRequests: 30, windowMs: 600_000 },
+  // アプリのエンドレス練習の 1 問ごとの消費と残数の取り直し。web の
+  // beginPracticeQuestion / peekPracticeQuota と同じ理由で同じ値
+  mobileBeginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },
+  mobilePeekPracticeQuota: { maxRequests: 120, windowMs: 600_000 },
 } as const;
 
 /**

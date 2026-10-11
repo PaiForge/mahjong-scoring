@@ -3,14 +3,12 @@
 import type { ActionResult } from "@/lib/action-types";
 import { getOptionalUser } from "@/lib/auth";
 import { isPlanOnSale } from "@/lib/billing/env";
-import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { logExternalError } from "@/lib/log-error";
 import {
   canSignAnonymousQuota,
   readAnonymousQuota,
   writeAnonymousQuota,
 } from "@/lib/practice-quota/anonymous-quota-cookie";
-import { consumeUserQuota } from "@/lib/practice-quota/consume-user-quota";
 import {
   consumeUsage,
   dailyLimit,
@@ -22,9 +20,8 @@ import {
   type BeginPracticeQuestionResult,
   type QuotaAudience,
   type QuotaUsage,
-} from "@/lib/practice-quota/quota-answer";
-import { jstDayKey } from "@mahjong-scoring/features/jst";
-import { readUserQuotaUsage } from "@/lib/practice-quota/read-user-quota";
+} from "@mahjong-scoring/features/quota/answer";
+import { beginUserQuota, peekUserQuota } from "@/lib/practice-quota/user-quota";
 import {
   isQuotaMenu,
   type QuotaMenu,
@@ -47,10 +44,12 @@ export type BeginPracticeQuestionError = RateLimitErrorCode | "invalidMenu";
  * 問題の内容には関わらない。
  *
  * - Pro（`unlimited_practice`）は消費せず常に許可
- * - ログイン済みの無料ユーザーは DB（`practice_quota_usage`）で数える。回避不能
+ * - ログイン済みの無料ユーザーは DB（`practice_quota_usage`）で数える。回避不能。
+ *   規則はアプリ向け API と共有する `beginUserQuota`（web とアプリで 1 日の枠は 1 つ）
  * - 未ログインは署名付き cookie で数える。cookie を消せば戻る弱い制限（決定どおり）
  * - Pro を販売していない間（Price ID 未設定。`isPlanOnSale`）は誰にも制限を
- *   掛けない。払う手段が無いペイウォールを出さないため。特典は本物の判定
+ *   掛けない。web の経路の販売の有無を見る（アプリ向け API は App Store の
+ *   Product ID の有無を見る）。払う手段が無いペイウォールを出さないため。特典は本物の判定
  *   どおり返す（拡張機能の出し分けは販売の有無と無関係）
  *
  * @design DB の失敗は許可して通す
@@ -71,17 +70,19 @@ export async function beginPracticeQuestion(
 
   const now = new Date();
   const user = await getOptionalUser();
-  const audience = await readAudience(user?.id, now);
-
-  if (isUnlimited(isPlanOnSale("pro"), audience.benefits)) {
-    return { success: true, ...unlimitedAnswer(audience) };
+  if (user) {
+    return {
+      success: true,
+      ...(await beginUserQuota(user.id, menu, now, isPlanOnSale("pro"))),
+    };
   }
 
-  const limit = dailyLimit(menu, audience);
-  const usage = user
-    ? await consumeForUser(user.id, menu, now, limit)
-    : await consumeForAnonymous(menu, now, limit);
-  return { success: true, ...limitedAnswer(audience, limit, usage) };
+  if (isUnlimited(isPlanOnSale("pro"), ANONYMOUS_AUDIENCE.benefits)) {
+    return { success: true, ...unlimitedAnswer(ANONYMOUS_AUDIENCE) };
+  }
+  const limit = dailyLimit(menu, ANONYMOUS_AUDIENCE);
+  const usage = await consumeForAnonymous(menu, now, limit);
+  return { success: true, ...limitedAnswer(ANONYMOUS_AUDIENCE, limit, usage) };
 }
 
 /**
@@ -110,33 +111,23 @@ export async function peekPracticeQuota(
 
   const now = new Date();
   const user = await getOptionalUser();
-  const audience = await readAudience(user?.id, now);
-
-  if (isUnlimited(isPlanOnSale("pro"), audience.benefits)) {
-    return { success: true, ...unlimitedAnswer(audience) };
+  if (user) {
+    return {
+      success: true,
+      ...(await peekUserQuota(user.id, menu, now, isPlanOnSale("pro"))),
+    };
   }
 
-  const limit = dailyLimit(menu, audience);
-  const usage = user
-    ? peekUsage(limit, await readUserQuotaUsage(user.id, menu, jstDayKey(now)))
-    : await peekForAnonymous(menu, now, limit);
-  return { success: true, ...limitedAnswer(audience, limit, usage) };
+  if (isUnlimited(isPlanOnSale("pro"), ANONYMOUS_AUDIENCE.benefits)) {
+    return { success: true, ...unlimitedAnswer(ANONYMOUS_AUDIENCE) };
+  }
+  const limit = dailyLimit(menu, ANONYMOUS_AUDIENCE);
+  const usage = await peekForAnonymous(menu, now, limit);
+  return { success: true, ...limitedAnswer(ANONYMOUS_AUDIENCE, limit, usage) };
 }
 
-/**
- * 答えの宛先を読む。特典の判定は失敗すると特典なしに倒れる（fail-closed）
- * （出題開始・残数問い合わせで共通）
- */
-async function readAudience(
-  userId: string | undefined,
-  now: Date,
-): Promise<QuotaAudience> {
-  if (userId === undefined) return { signedIn: false, benefits: [] };
-  return {
-    signedIn: true,
-    benefits: [...(await getActiveBenefits(userId, now))],
-  };
-}
+/** 未ログインの宛先。特典を持たない */
+const ANONYMOUS_AUDIENCE: QuotaAudience = { signedIn: false, benefits: [] };
 
 async function peekForAnonymous(
   menu: QuotaMenu,
@@ -146,24 +137,6 @@ async function peekForAnonymous(
   if (!canSignAnonymousQuota()) return failOpenUsage(limit);
   const counts = await readAnonymousQuota(now);
   return peekUsage(limit, counts[menu]);
-}
-
-async function consumeForUser(
-  userId: string,
-  menu: QuotaMenu,
-  now: Date,
-  limit: number,
-): Promise<QuotaUsage> {
-  try {
-    return await consumeUserQuota(userId, menu, jstDayKey(now), limit);
-  } catch (error) {
-    logExternalError(
-      "beginPracticeQuestion",
-      "failed to consume quota; allowing the question",
-      error,
-    );
-    return failOpenUsage(limit);
-  }
 }
 
 async function consumeForAnonymous(

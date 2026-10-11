@@ -168,8 +168,13 @@ export async function recordPurchaseFromCheckoutSession(
   return result;
 }
 
-/** 通知を組むのに要る購入行の列 */
-const PURCHASE_NOTIFICATION_COLUMNS = {
+/**
+ * 通知を組むのに要る購入行の列
+ * 購入通知の列
+ *
+ * App Store の購入の記録（`apple/record.ts`）も同じ列を読んで通知を組む。
+ */
+export const PURCHASE_NOTIFICATION_COLUMNS = {
   id: purchases.id,
   userId: purchases.userId,
   plan: purchases.plan,
@@ -180,7 +185,7 @@ const PURCHASE_NOTIFICATION_COLUMNS = {
 } as const;
 
 /** 購入行のうち通知が見る部分 */
-type PurchaseNotificationSource = Pick<
+export type PurchaseNotificationSource = Pick<
   Purchase,
   "id" | "userId" | "plan" | "kind" | "expiresAt" | "revokedAt" | "revokeReason"
 >;
@@ -190,9 +195,10 @@ type PurchaseNotificationSource = Pick<
  * 購入通知生成
  *
  * 取り消し済みなら取り消し、そうでなければ購入完了。初回の記録でも再送でも
- * 同じ行から同じ通知になるので、再送が通知の補完になる。
+ * 同じ行から同じ通知になるので、再送が通知の補完になる。決済元を問わない
+ * （App Store の購入の記録・取り消しも同じ通知を出す）。
  */
-function purchaseNotificationOf(
+export function purchaseNotificationOf(
   purchase: PurchaseNotificationSource,
 ): NotificationInput {
   const revoked = purchase.revokedAt !== null;
@@ -225,7 +231,8 @@ function purchaseRevokeReasonOf(
   value: string | null,
 ): PurchaseRevokeReason | undefined {
   return value === PurchaseRevokeReason.Refunded ||
-    value === PurchaseRevokeReason.Fraud
+    value === PurchaseRevokeReason.Fraud ||
+    value === PurchaseRevokeReason.Revoked
     ? value
     : undefined;
 }

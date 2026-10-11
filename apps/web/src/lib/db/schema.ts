@@ -938,7 +938,8 @@ export type BillingCheckout = typeof billingCheckouts.$inferSelect;
  * 購入
  *
  * @description
- * Stripe Checkout（一括払い）が完了するごとに 1 行。特典の判定
+ * Stripe Checkout（一括払い）または App Store のアプリ内課金が完了するごとに
+ * 1 行。特典の判定
  * （`lib/entitlements/has-benefit.ts`）は「取り消されておらず、期限内か
  * 永久の行の `benefits` の和集合」で決まる。契約状態（サブスクリプション）
  * は持たない — 期間パスは `expires_at` が来れば自然に失効し、買い切りは
@@ -952,17 +953,31 @@ export type BillingCheckout = typeof billingCheckouts.$inferSelect;
  * 期間パスも同じ規則で揃える（数十日の残期間に新特典が付かないだけで、
  * 例外を作るより単純）。
  *
- * @design 冪等キーは `stripe_checkout_session_id`
+ * @design 冪等キーは Stripe は `stripe_checkout_session_id`、Apple は `apple_transaction_id`
  *
- * Checkout 完了の着地（Route Handler）と Webhook の両方が同じ購入を
+ * Stripe は Checkout 完了の着地（Route Handler）と Webhook の両方が同じ購入を
  * 記録しようとする。UNIQUE + ON CONFLICT DO NOTHING で、どちらが先でも
  * 1 行になる。`stripe_payment_intent_id` は返金（`charge.refunded`）から
- * 購入行を引くためのキー。
+ * 購入行を引くためのキー。Apple はアプリからの署名付き取引の送信・復元・
+ * App Store Server Notification が同じ取引を何度でも届けるので、取引 ID
+ * （`apple_transaction_id`）の UNIQUE で 1 行にする。
  *
- * @design 金額と通貨は Stripe の値をそのまま保存
+ * @design 決済元を 1 表に持つ
  *
- * 価格表をコードに持たない（Stripe の Price が正）。`amount` は最小通貨
- * 単位（JPY は円そのまま、USD はセント）。表示は `currency` に応じて
+ * Stripe と Apple の購入を別表にせず、`provider` 列で決済元を区別する。
+ * 特典の判定（`has-benefit.ts`）・追加購入の禁止・マイページと管理画面の
+ * 購入履歴・退会・期限切れ通知の cron がすべてこの表を読んでいて、2 表に
+ * すると読み手のすべてを UNION に書き換えることになるため。特典の判定は
+ * 決済元を知らないまま動く。決済元ごとの列の組み合わせ（その決済元の列は
+ * NOT NULL、他方の列は NULL）は CHECK `purchases_chk_provider_columns` で
+ * 強制する。Stripe の 2 列は Apple の行で NULL になるので NULL 可にしたが、
+ * UNIQUE は残す（Postgres の UNIQUE は NULL を複数許す）。
+ *
+ * @design 金額と通貨は決済元の値をそのまま保存
+ *
+ * 価格表をコードに持たない（Stripe の Price・App Store Connect の価格が正）。
+ * `amount` は最小通貨単位（JPY は円そのまま、USD はセント）。Apple の値は
+ * Apple 自身が収益計算に使わないよう明記しているので表示専用。表示は `currency` に応じて
  * `Intl.NumberFormat` に任せる。
  *
  * @design 取り消し（`revoked_at`）は論理削除
@@ -988,27 +1003,43 @@ export const purchases = pgTable(
     kind: varchar("kind", { length: 20 }).notNull(),
     /** 購入時点で付与した特典（`PlanBenefit` の値）。空にしない */
     benefits: text("benefits").array().notNull(),
-    /** Checkout Session ID（`cs_...`）。冪等キー */
+    /** 決済元（`PurchaseProvider`）。`stripe` = web、`apple` = App Store */
+    provider: varchar("provider", { length: 20 }).notNull().default("stripe"),
+    /** Checkout Session ID（`cs_...`）。Stripe の冪等キー。Apple の行は NULL */
     stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
       length: 255,
-    })
-      .unique()
-      .notNull(),
-    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー */
+    }).unique(),
+    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー。Apple の行は NULL */
     stripePaymentIntentId: varchar("stripe_payment_intent_id", {
       length: 255,
-    })
-      .unique()
-      .notNull(),
+    }).unique(),
+    /** App Store の取引 ID（`transactionId`）。Apple の冪等キー。Stripe の行は NULL */
+    appleTransactionId: varchar("apple_transaction_id", {
+      length: 64,
+    }).unique(),
+    /** App Store の元の取引 ID（`originalTransactionId`）。Stripe の行は NULL */
+    appleOriginalTransactionId: varchar("apple_original_transaction_id", {
+      length: 64,
+    }),
+    /** App Store Connect の Product ID。Stripe の行は NULL */
+    appleProductId: varchar("apple_product_id", { length: 255 }),
+    /**
+     * 取引の課金環境（`Sandbox` / `Production`）。Stripe の行は NULL。
+     * Sandbox の行は追加購入の禁止から外す（テスターが買い直して試せるように）
+     */
+    appleEnvironment: varchar("apple_environment", { length: 20 }),
     /** 通貨（ISO 4217 小文字。Stripe の表記に合わせる） */
     currency: varchar("currency", { length: 3 }).notNull(),
     /** 支払額（最小通貨単位） */
     amount: integer("amount").notNull(),
-    /** 特典の開始。支払いの Charge 作成日時。期間は連結しない */
+    /**
+     * 特典の開始。Stripe は支払いの Charge 作成日時、Apple は取引の購入日時
+     * （有効なパスがあるときに届いたパスは、その期限から始まる開始待ち）
+     */
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
     /** 特典の終了。買い切りは NULL（永久） */
     expiresAt: timestamp("expires_at", { withTimezone: true }),
-    /** 取り消し日時（返金・不正）。NULL なら有効 */
+    /** 取り消し日時（返金・不正・App Store の REVOKE）。NULL なら有効 */
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     /** 取り消し理由（`PurchaseRevokeReason`）。`revoked_at` と対で入る */
     revokeReason: varchar("revoke_reason", { length: 50 }),
@@ -1034,6 +1065,18 @@ export const purchases = pgTable(
     ),
     check("purchases_chk_amount_non_negative", sql`${table.amount} >= 0`),
     check("purchases_chk_currency", sql`${table.currency} ~ '^[a-z]{3}$'`),
+    check(
+      "purchases_chk_provider",
+      sql`${table.provider} IN ('stripe', 'apple')`,
+    ),
+    check(
+      "purchases_chk_provider_columns",
+      sql`(${table.provider} = 'stripe' AND ${table.stripeCheckoutSessionId} IS NOT NULL AND ${table.stripePaymentIntentId} IS NOT NULL AND ${table.appleTransactionId} IS NULL AND ${table.appleOriginalTransactionId} IS NULL AND ${table.appleProductId} IS NULL AND ${table.appleEnvironment} IS NULL) OR (${table.provider} = 'apple' AND ${table.appleTransactionId} IS NOT NULL AND ${table.appleOriginalTransactionId} IS NOT NULL AND ${table.appleProductId} IS NOT NULL AND ${table.appleEnvironment} IS NOT NULL AND ${table.stripeCheckoutSessionId} IS NULL AND ${table.stripePaymentIntentId} IS NULL)`,
+    ),
+    check(
+      "purchases_chk_apple_environment",
+      sql`${table.appleEnvironment} IS NULL OR ${table.appleEnvironment} IN ('Sandbox', 'Production')`,
+    ),
   ],
 );
 
@@ -1142,6 +1185,66 @@ export const stripeWebhookEvents = pgTable("stripe_webhook_events", {
 });
 
 export type StripeWebhookEvent = typeof stripeWebhookEvents.$inferSelect;
+
+/**
+ * 処理済みの App Store Server Notification
+ * 通知イベント
+ *
+ * @description
+ * Apple は同じ通知を複数回届けることがある（応答が 2xx でなければ再送）。
+ * 処理成功後に `notificationUUID` を INSERT し、再送時は処理済みなら 200 を
+ * 返す。先に記録すると失敗後の再送を捨ててしまうので、`stripe_webhook_events`
+ * と同じく **処理の後に** 記録する。並行配信では両方処理されうるため、
+ * 購入の記録と取り消し自身も冪等にする。
+ *
+ * @design `apple_transaction_id` を持つ — 取引の現在値の代わり
+ *
+ * REFUND / REVOKE が購入の記録より先に届くことがある（アプリが署名付き取引を
+ * 送る前に返金された等）。そのとき取り消す行はまだ無いが、通知はこの表に
+ * 取引 ID 付きで処理済みとして記録する（取り消しが取引のロックの下で書く）。
+ * 後から来た購入の記録はこの表を見て、REFUND / REVOKE が REFUND_REVERSED より
+ * 後に署名されていれば取り消し済みで入れる。App Store Server API（Get Transaction Info）を持たないので、
+ * この表が「その取引の現在の状態」の代わりになる。取引を伴わない通知
+ * （TEST 等）は NULL。
+ *
+ * 行は 1 購入あたり数件なので、掃除は必要になってから考える。
+ */
+export const appleNotificationEvents = pgTable(
+  "apple_notification_events",
+  {
+    /** 通知の一意な ID（`notificationUUID`） */
+    notificationUuid: varchar("notification_uuid", { length: 64 }).primaryKey(),
+    /** 通知の種別（`REFUND` 等の `notificationType`） */
+    notificationType: varchar("notification_type", { length: 50 }).notNull(),
+    /** 通知の副種別（`subtype`）。無い種別は NULL */
+    subtype: varchar("subtype", { length: 50 }),
+    /** 通知が指す取引 ID（`transactionId`）。取引を伴わない通知は NULL */
+    appleTransactionId: varchar("apple_transaction_id", { length: 64 }),
+    /**
+     * Apple が通知に署名した日時（`signedDate`）
+     *
+     * 同じ取引の REFUND / REVOKE / REFUND_REVERSED の前後関係はこれで決める
+     * （受信順は再送で入れ替わる）。DEFAULT は列を NOT NULL で足すためだけの
+     * もので、書き手は必ず値を渡す。
+     */
+    signedDate: timestamp("signed_date", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    /** 受信日時 */
+    receivedAt: timestamp("received_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("idx_apple_notification_events_transaction").on(
+      table.appleTransactionId,
+      table.signedDate,
+    ),
+  ],
+);
+
+export type AppleNotificationEvent =
+  typeof appleNotificationEvents.$inferSelect;
 
 /**
  * 練習の無料枠の消費記録 — ユーザー × 練習 × 日

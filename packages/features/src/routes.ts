@@ -208,3 +208,10 @@ export const AGARI_SCORE_PRACTICE_HREF = "/practice/agari-score";
  * 練習一覧のバナーが参照する。
  */
 export const TENPAI_SCORE_PRACTICE_HREF = "/practice/tenpai-score";
+
+/**
+ * 購入状況（プランの状態と購入履歴）のパス
+ *
+ * web は購入状況のページ、アプリはプラン画面（状態・購入・復元・購入履歴）。
+ */
+export const MYPAGE_PLAN_PATH = "/mypage/plan";

@@ -252,7 +252,7 @@ REVOKE ALL ON TABLE public.ad_creative_translations FROM anon, authenticated;
 REVOKE ALL ON TABLE public.ad_network_settings FROM anon, authenticated;
 
 -- =============================================================================
--- stripe_customers / purchases / stripe_webhook_events
+-- stripe_customers / purchases / stripe_webhook_events / apple_notification_events
 -- =============================================================================
 -- 有料プラン。サーバーだけが読み書きする（rls_policies.sql 参照）。
 -- 退会（auth.users の削除）で顧客対応と購入記録は一緒に消える。返金はしない
@@ -287,6 +287,7 @@ $$;
 REVOKE ALL ON TABLE public.stripe_customers FROM anon, authenticated;
 REVOKE ALL ON TABLE public.purchases FROM anon, authenticated;
 REVOKE ALL ON TABLE public.stripe_webhook_events FROM anon, authenticated;
+REVOKE ALL ON TABLE public.apple_notification_events FROM anon, authenticated;
 
 -- =============================================================================
 -- practice_quota_usage

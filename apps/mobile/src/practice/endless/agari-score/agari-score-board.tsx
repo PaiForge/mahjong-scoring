@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { isOya, type UserAnswer } from "@mahjong-scoring/core";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -16,6 +17,10 @@ import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-st
 import { QuestionDisplay } from "../../components/question-display";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
+import { AnswerTimeBadge } from "../../quota/answer-time-badge";
+import { PracticeQuotaPaywall } from "../../quota/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../../quota/practice-quota-remaining";
+import { usePracticeQuota } from "../../quota/use-practice-quota";
 import { CorrectFlash } from "../correct-flash";
 import { EndlessFooterActions } from "../endless-footer-actions";
 import { GenerationFailedNotice } from "../generation-failed-notice";
@@ -34,12 +39,17 @@ import { useAgariScoreStore } from "./use-agari-score-store";
  * 回答欄（回答後は面子分解・結果表・「次の問題へ」）→ 正誤カウンタ →
  * わからない / 終了する。
  *
- * 出題条件は開いたときの設定から組む（web はクエリから読む）。web の
- * 無料枠・回答時間の計測（Pro）はモバイルに無い。正解で自動で次へ進む
- * ときの知らせはトーストの代わりに {@link CorrectFlash} で出す。
+ * 出題条件は開いたときの設定から組む（web はクエリから読む）。問題は
+ * 回数制限のゲート（{@link usePracticeQuota}）の許可を待ってから作り、
+ * 無料枠を使い切ったら盤面の代わりにペイウォールを出す（iOS で販売中の
+ * ときだけ。Android と販売していない間は無制限）。回答時間の計測（Pro）は
+ * 設定のスイッチと、ゲートが返した特典の両方があるときだけ出す（web と同じ
+ * 二重の判定）。正解で自動で次へ進むときの知らせはトーストの代わりに
+ * {@link CorrectFlash} で出す。
  */
 export function AgariScoreBoard() {
   const t = useTranslations("agariScore");
+  const tq = useTranslations("practiceQuota");
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   // 盤面を開いたときの設定で通す（途中で変わる経路は無いが、出題条件と
@@ -58,8 +68,16 @@ export function AgariScoreBoard() {
     stats,
     submitAnswer,
     revealAnswer,
-    generateNewQuestion,
   } = useAgariScoreStore();
+  // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う
+  const { requestQuestion, requestFirstQuestion, isChecking, gate } =
+    usePracticeQuota("agari-score", () =>
+      useAgariScoreStore.getState().generateNewQuestion(),
+    );
+
+  useEffect(() => {
+    if (gate?.kind === "rateLimited") showToast(tq("rateLimited"));
+  }, [gate, tq]);
 
   useJudgementHaptics(stats.correct, stats.total - stats.correct);
 
@@ -68,8 +86,8 @@ export function AgariScoreBoard() {
     const options = readGeneratorOptions(settings, true);
     const store = useAgariScoreStore.getState();
     store.applyPracticeQuery(JSON.stringify(options), options);
-    store.generateNewQuestion();
-  }, [settings]);
+    void requestFirstQuestion();
+  }, [settings, requestFirstQuestion]);
 
   // 回答・開示・次へのボタンは縦に長い盤面の下端にあるので、押すたびに先頭へ戻す
   const scrollToTop = () =>
@@ -83,8 +101,9 @@ export function AgariScoreBoard() {
   };
 
   const handleNext = () => {
+    if (isChecking) return;
     scrollToTop();
-    generateNewQuestion();
+    void requestQuestion();
   };
 
   const handleReveal = () => {
@@ -100,7 +119,7 @@ export function AgariScoreBoard() {
       useAgariScoreStore.getState().judgementResult?.isCorrect
     ) {
       setFlashSignal((prev) => prev + 1);
-      generateNewQuestion();
+      void requestQuestion();
     }
   };
 
@@ -112,6 +131,26 @@ export function AgariScoreBoard() {
       />
     );
   }
+
+  // 無料枠を使い切った。問題は生成していないので盤面ごと置き換える
+  if (gate?.kind === "blocked") {
+    return (
+      <PracticeQuotaPaywall
+        menu="agari-score"
+        translationNamespace="agariScore"
+        limit={gate.limit}
+        signedIn={gate.signedIn}
+        onBackToSetup={handleBackToSetup}
+      />
+    );
+  }
+
+  // 回答時間の計測（Pro の拡張機能）。設定のスイッチだけでなく、ゲートが
+  // 返した特典にも含まれているときだけ出す
+  const showAnswerTime =
+    settings.measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools);
 
   return (
     <View style={styles.root}>
@@ -155,7 +194,12 @@ export function AgariScoreBoard() {
                       requireFuForMangan={requireFuForMangan}
                     />
                   </View>
-                  <Button size="lg" fullWidth onPress={handleNext}>
+                  <Button
+                    size="lg"
+                    fullWidth
+                    onPress={handleNext}
+                    disabled={isChecking}
+                  >
                     {t("result.next")}
                   </Button>
                 </View>
@@ -175,6 +219,19 @@ export function AgariScoreBoard() {
               )}
             </View>
           </BoardBleedProvider>
+        )}
+
+        {/* 無料枠の残りと回答時間。どちらも無いときは何も描かない */}
+        {(gate?.kind === "open" || showAnswerTime) && (
+          <View style={styles.quota}>
+            {showAnswerTime && (
+              <AnswerTimeBadge key={questionSeq} running={!isAnswered} />
+            )}
+            <PracticeQuotaRemaining
+              remaining={gate?.kind === "open" ? gate.remaining : undefined}
+              showPlanLink={!isAnswered}
+            />
+          </View>
         )}
 
         <ScoreCounter
@@ -211,5 +268,8 @@ const styles = StyleSheet.create({
   },
   answering: {
     gap: 16,
+  },
+  quota: {
+    gap: 4,
   },
 });

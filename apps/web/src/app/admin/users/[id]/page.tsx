@@ -16,10 +16,12 @@ import { formatAmount } from "@/lib/billing/prices";
 import {
   benefitGrantStateOf,
   planStatusOf,
+  purchaseProviderOf,
   purchaseStateOf,
   type PlanStatus,
 } from "@/lib/billing/plan-status";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { Profile } from "@/lib/db";
 import {
   highestRank,
@@ -222,6 +224,7 @@ export default async function AdminUserDetailPage({
           headers={[
             t("purchases.date"),
             t("purchases.item"),
+            t("purchases.provider"),
             t("purchases.amount"),
             t("purchases.period"),
             t("purchases.state"),
@@ -238,6 +241,11 @@ export default async function AdminUserDetailPage({
                 {purchase.kind === PurchaseKind.Lifetime
                   ? tPlan("history.kind.lifetime")
                   : tPlan("history.kind.pass")}
+              </td>
+              <td className="px-3 py-2 whitespace-nowrap">
+                {purchaseProviderOf(purchase) === PurchaseProvider.Apple
+                  ? t("purchases.providerApple")
+                  : t("purchases.providerStripe")}
               </td>
               <td className="px-3 py-2 whitespace-nowrap tabular-nums">
                 {formatAmount(purchase.amount, purchase.currency)}

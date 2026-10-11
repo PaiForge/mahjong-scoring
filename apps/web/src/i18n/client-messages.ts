@@ -68,6 +68,8 @@ export const SERVER_ONLY_MESSAGE_NAMESPACES = [
   "notFound",
   "nativeAd",
   "pagination",
+  // アプリだけが使う名前空間（web は引かない）
+  "mobilePlan",
 ] as const satisfies readonly MessageNamespace[];
 
 /**

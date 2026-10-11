@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { PlanBenefit } from "../billing/plans";
 
 import {
   consumeUsage,
@@ -11,7 +11,7 @@ import {
   limitedAnswer,
   peekUsage,
   unlimitedAnswer,
-} from "../quota-answer";
+} from "./answer";
 
 describe("isUnlimited", () => {
   it("Pro を販売していない間は特典が無くても無制限", () => {

@@ -1,6 +1,11 @@
 import type { BenefitGrant, Purchase } from "@/lib/db";
 
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import {
+  isPurchaseProvider,
+  PurchaseProvider,
+} from "@mahjong-scoring/features/billing/provider";
+import type { PurchaseState } from "@mahjong-scoring/features/billing/purchase-state";
 import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**
@@ -25,15 +30,10 @@ export type PlanStatus =
   | { readonly kind: "free" };
 
 /**
- * 購入履歴 1 行の状態
+ * 購入履歴 1 行の状態（語彙はアプリ向け API と共有するため features に置く）
  * 購入状態
- *
- * - `refunded` — 取り消し済み（返金・不正）
- * - `active` — 開始済みで有効
- * - `scheduled` — 旧実装などの開始待ちの購入
- * - `expired` — 期限切れ
  */
-export type PurchaseState = "refunded" | "active" | "scheduled" | "expired";
+export type { PurchaseState };
 
 /** 購入の状態（表示用） */
 export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
@@ -53,13 +53,40 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
  * この規則の対象外（付与だけの人は買える）。特典の有無の判定
  * （`lib/entitlements/has-benefit.ts`）とは別の問いなので混ぜない。
  *
+ * App Store の Sandbox の購入（TestFlight・審査・開発中の課金。実際には
+ * 課金されない）は追加購入を止めない。テスターや審査が同じアカウントで
+ * 買い直して購入の流れを何度でも試せるようにするため。特典の判定
+ * （`has-benefit.ts`）では Production と同じに扱う — Sandbox の取引は
+ * 許可したユーザーにしか記録されない。
+ *
  * 購入手続きの SQL 側（`checkout-state.ts` の `hasUnexpiredPurchase`）と
  * 同じ条件。マイページの「購入する」の表示とサーバーの拒否が食い違わないよう、
  * 画面側はこちらを使い、条件を直接書き直さない。
  */
 export function blocksNewPurchase(purchase: Purchase, now: Date): boolean {
+  if (
+    purchase.provider === PurchaseProvider.Apple &&
+    purchase.appleEnvironment === "Sandbox"
+  )
+    return false;
   const state = purchaseStateOf(purchase, now);
   return state === "active" || state === "scheduled";
+}
+
+/**
+ * 購入の決済元
+ * 決済元
+ *
+ * `purchases.provider` は varchar なので `PurchaseProvider` に絞る。DB の
+ * CHECK が `stripe` / `apple` 以外を弾くので知らない値は実際には来ないが、
+ * 来たら列の DEFAULT と同じ `stripe` に倒す。
+ */
+export function purchaseProviderOf(
+  purchase: Pick<Purchase, "provider">,
+): PurchaseProvider {
+  return isPurchaseProvider(purchase.provider)
+    ? purchase.provider
+    : PurchaseProvider.Stripe;
 }
 
 /**

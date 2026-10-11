@@ -103,6 +103,8 @@ iOS アプリの Apple ログインは、ローカルの Supabase で設定済�
 
 API キーの取得、商品と価格の作成、Webhook の登録、本番移行の手順は [docs/stripe-setup.md](docs/stripe-setup.md) を参照してください。
 
+iOS アプリでは同じ Pro を App Store のアプリ内課金で売ります（購入は同じ `purchases` に `provider = 'apple'` で入る）。環境変数（`APPLE_IAP_PRODUCT_ID_PRO_PASS` / `APPLE_IAP_PRODUCT_ID_PRO_LIFETIME` / `APPLE_IAP_APP_APPLE_ID` / `APPLE_IAP_SANDBOX_USER_IDS`）、App Store Connect の設定、Sandbox の許可リストは [apps/mobile/README.md](../mobile/README.md) の「アプリ内課金（iOS）」を参照してください。未設定ならアプリでは販売せず、アプリの回数制限も掛かりません。
+
 ### サイト内通知と Cron
 
 Pro プランの出来事（購入完了・期限切れ・運営からの付与・取り消し）は、ヘッダーのベルと `/mypage/notifications` でユーザー本人に知らせます。購入や付与の通知はその処理の中で書かれますが、**期限切れ**は時刻だけで起きるため、`vercel.json` の `crons` が 1 日 1 回 `/api/cron/notify-plan-expiry` を呼んで書きます。

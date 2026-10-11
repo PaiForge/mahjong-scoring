@@ -9,7 +9,7 @@
     "lifetime": "Pro（買い切り）",
     "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
     "pass": "Pro（{until} まで）",
-    "passHint": "期限が来ると無料プランに戻ります。もう 1 枚買うと期限の後ろに繋がります。",
+    "passHint": "期限が来ると無料プランに戻ります。期限切れ後に再購入できます。",
     "granted": "Pro（付与）",
     "grantedUntil": "Pro（付与・{until} まで）",
     "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
@@ -21,6 +21,11 @@
     "date": "購入日",
     "item": "内容",
     "amount": "金額",
+    "provider": {
+      "label": "購入元",
+      "stripe": "Web",
+      "apple": "App Store"
+    },
     "state": "状態",
     "kind": {
       "pass": "30 日パス",
@@ -30,7 +35,8 @@
     "state_scheduled": "開始待ち",
     "state_expired": "期限切れ",
     "state_refunded": "返金済み",
-    "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。"
+    "receiptHint": "領収書は購入時に Stripe から届いたメールをご確認ください。",
+    "receiptHintApple": "App Store で購入した分の領収書は Apple から届くメール、または iPhone の「設定 > Apple アカウント > メディアと購入 > 購入履歴」でご確認ください。"
   },
   "grants": {
     "title": "付与された特典",

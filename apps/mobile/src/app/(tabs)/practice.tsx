@@ -98,6 +98,7 @@ export default function PracticeListPage() {
     <Screen title={t("title")} inTabs>
       <ToggleGroup<PracticeMode>
         accessibilityLabel={t("modes.label")}
+        testID="practice-mode"
         fill
         selected={mode}
         onSelect={setMode}

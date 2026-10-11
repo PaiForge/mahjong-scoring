@@ -4,11 +4,16 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import {
+  MYPAGE_PLAN_PATH,
+  PREFERENCES_PATH,
+} from "@mahjong-scoring/features/routes";
 
+import { IAP_AVAILABLE } from "../../billing/iap-availability";
 import {
   ChartIcon,
   SettingsIcon,
+  StarIcon,
   TrophyIcon,
 } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
@@ -41,9 +46,11 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  *   公開プロフィールに出る、他の利用者に見せる入力なので、アプリでは受け付けない
  *   （アプリで入力するのはユーザー名だけ）。web で設定したアバター・表示名は
  *   見出しに出す
- * - Pro プランと通知の行は持たない（アプリでは Pro を扱わない。通知は今の
- *   種別がすべて Pro の出来事）。アカウント（メールアドレス・ログアウト・
- *   退会）は設定のアカウントの節にあり、ここには置かない
+ * - 通知の行は持たない（通知は今の種別がすべて web の Pro の出来事で、
+ *   アプリには通知の画面が無い）。Pro プランの行は iOS だけ — Android は Pro を
+ *   扱わない（購入・表示・回数制限のどれも出さない。Play Billing の実装は別の
+ *   仕事）。アカウント（メールアドレス・ログアウト・退会）は設定のアカウントの
+ *   節にあり、ここには置かない
  * - ランキングでの自分の順位への行を置く。アプリはランキングの詳細を持たず
  *   （他の利用者の名前・アバターを見せない）、練習の画面からランキングへの
  *   導線も無いので、入口をここに置く
@@ -62,7 +69,7 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・ランキングでの順位・設定へ
+ * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・設定へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -146,8 +153,8 @@ function MypagePreview() {
 }
 
 /**
- * マイページの各機能への行（web の `MyPageMenu` から Pro プラン・通知・
- * アカウントを除き、ランキングでの順位を足したもの。理由は画面の TSDoc）
+ * マイページの各機能への行（web の `MyPageMenu` から通知・アカウントを除き、
+ * ランキングでの順位を足したもの。Pro プランは iOS だけ。理由は画面の TSDoc）
  */
 function MypageMenu() {
   const t = useTranslations("mypage");
@@ -168,6 +175,15 @@ function MypageMenu() {
         leading={<TrophyIcon size={22} color={colors.surface600} />}
         onPress={() => router.push("/leaderboard")}
       />
+      {IAP_AVAILABLE && (
+        <LinkRow
+          testID="mypage-menu-plan"
+          title={t("cards.plan.title")}
+          description={t("cards.plan.summary")}
+          leading={<StarIcon size={22} color={colors.surface600} />}
+          onPress={() => router.push(MYPAGE_PLAN_PATH)}
+        />
+      )}
     </LinkRowList>
   );
 }

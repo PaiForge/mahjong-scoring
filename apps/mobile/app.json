@@ -40,7 +40,8 @@
         }
       ],
       "expo-secure-store",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-iap"
     ],
     "experiments": {
       "typedRoutes": false

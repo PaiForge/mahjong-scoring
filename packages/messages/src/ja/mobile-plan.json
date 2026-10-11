@@ -1,0 +1,77 @@
+{
+  "title": "Pro プラン",
+  "loadFailed": "プランの情報を読み込めませんでした。",
+  "recording": "購入を記録しています。このままお待ちください。",
+  "status": {
+    "title": "現在の状態",
+    "free": "無料プラン",
+    "freeHint": "Pro を購入すると、点数計算の練習を回数制限なしで続けられます。",
+    "lifetime": "Pro（買い切り）",
+    "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
+    "pass": "Pro（{until} まで）",
+    "passHint": "期限が来ると無料プランに戻ります。",
+    "granted": "Pro（付与）",
+    "grantedUntil": "Pro（付与・{until} まで）",
+    "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。"
+  },
+  "offers": {
+    "title": "プランを選ぶ",
+    "shared": "どちらも同じ Pro 機能。自動更新はありません。",
+    "lifetimeScope": "買い切りに今後の追加機能は含まれません。",
+    "pass": {
+      "title": "30 日パス",
+      "description": "購入から30日間"
+    },
+    "lifetime": {
+      "title": "買い切り",
+      "description": "一度の支払いで、購入時の機能を期限なしで利用"
+    },
+    "priceUnavailable": "価格は購入画面でご確認ください",
+    "buy": "購入する"
+  },
+  "alreadyActive": "有効な購入があるため、追加購入はできません。パスは期限切れ後に再購入できます。",
+  "notes": {
+    "title": "ご購入前に",
+    "noAutoRenew": "30 日パス・買い切りのどちらも自動更新はありません。",
+    "pass": "30 日パスは期限が来ると無料プランに戻ります。有効期間中の追加購入はできませんが、期限切れ後に再購入できます。",
+    "snapshot": "購入対象は購入した時点の Pro の特典です。後から特典が変わっても対象は変わりません。",
+    "noRefund": "デジタルコンテンツのため、当方では購入後の返金を受け付けていません。",
+    "deletion": "退会すると購入記録は削除され、返金もされません。",
+    "appleBilling": "支払いは Apple の App Store で行われます。領収書は Apple から届きます。"
+  },
+  "restore": {
+    "title": "購入を復元",
+    "button": "購入を復元",
+    "hint": "買い切りを別の端末で買った・アプリを入れ直したときに使います。30 日パスはログインすれば戻ります。"
+  },
+  "history": {
+    "title": "購入履歴",
+    "empty": "購入履歴はありません",
+    "date": "購入日",
+    "item": "内容",
+    "provider": "購入元",
+    "state": "状態",
+    "kind": {
+      "pass": "30 日パス",
+      "lifetime": "買い切り"
+    },
+    "providers": {
+      "stripe": "Web",
+      "apple": "App Store"
+    },
+    "states": {
+      "active": "有効",
+      "scheduled": "開始待ち",
+      "expired": "期限切れ",
+      "refunded": "返金済み"
+    }
+  },
+  "purchaseRecorded": "購入を記録しました。ありがとうございます！",
+  "purchaseFailed": "購入を完了できませんでした。時間をおいてお試しください。",
+  "purchaseDeferred": "購入の承認を待っています。承認されると Pro が有効になります。",
+  "ownedByAnotherAccount": "この購入は別のアカウントで記録されています。購入したアカウントでログインしてください。",
+  "restored": "購入を復元しました。",
+  "nothingToRestore": "復元できる購入はありませんでした。",
+  "restoreFailed": "復元できませんでした。通信できる状態でもう一度お試しください。",
+  "paywallCta": "Pro プランを見る"
+}

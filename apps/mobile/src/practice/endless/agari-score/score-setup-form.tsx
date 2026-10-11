@@ -10,14 +10,20 @@ import { PlayIcon } from "../../../components/icons/icons";
 import { InfoModal } from "../../../components/info-modal";
 import { MultiSelect } from "../../../components/multi-select";
 import {
+  SettingLockedRow,
   SettingsCard,
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
 import { useTrainingSettingsStore } from "../../../hooks/use-training-settings-store";
+import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
+import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { colors } from "../../../lib/theme";
+import { useAuth } from "../../../auth/use-auth";
+import { IAP_AVAILABLE } from "../../../billing/iap-availability";
+import { usePlan } from "../../../billing/use-plan";
 import { SettingCard } from "./setting-card";
 import { SmallCheckbox } from "./small-checkbox";
 
@@ -42,9 +48,10 @@ interface ScoreSetupFormProps {
  * 翻数回答・符の入力・自動で次へ・親子・点数帯）は同じで、保存先と遷移先だけが
  * 練習ごとに違う。
  *
- * web の「回答時間を計測する」（Pro の拡張機能）はモバイルに購入が無いため
- * 出さない。web は設定をクエリに書いて play へ渡すが、モバイルの play は
- * 開いたときの設定をストアから直接読む（共有される URL が無いため）。
+ * 「回答時間を計測する」（Pro の拡張機能）は iOS だけに出す（Android は Pro を
+ * 扱わない）。中身は {@link MeasureTimeRow}。web は設定をクエリに書いて play へ
+ * 渡すが、モバイルの play は開いたときの設定をストアから直接読む（共有される
+ * URL が無いため）。
  */
 export function ScoreSetupForm({
   settingsStore: useSettingsStore,
@@ -83,6 +90,8 @@ export function ScoreSetupForm({
     setIncludeChild,
     targetYaku,
     setTargetYaku,
+    measureTime,
+    setMeasureTime,
   } = useSettingsStore();
 
   // 並びは allowlist の定義順（実戦出現率順）で固定し、役の並び替え設定は
@@ -134,6 +143,9 @@ export function ScoreSetupForm({
           checked={autoAdvanceOnCorrect}
           onChange={setAutoAdvanceOnCorrect}
         />
+        {IAP_AVAILABLE && (
+          <MeasureTimeRow checked={measureTime} onChange={setMeasureTime} />
+        )}
       </SettingsCard>
 
       <SettingCard title={t("setup.questionMode")}>
@@ -213,6 +225,75 @@ export function ScoreSetupForm({
         {t("setup.exactHanInfo")}
       </InfoModal>
     </View>
+  );
+}
+
+interface MeasureTimeRowProps {
+  readonly checked: boolean;
+  readonly onChange: (checked: boolean) => void;
+}
+
+/**
+ * 「回答時間を計測する」の行（iOS だけ）
+ * 回答時間設定行
+ *
+ * Pro（`practice_tools`）ならスイッチ、そうでなければ鍵の掛かった行。鍵の行は
+ * ログイン中ならプラン画面へ、ゲストならログインへ送る（購入はログインして
+ * からプラン画面で行う）。盤面は、このスイッチに加えてゲートが返した特典にも
+ * `practice_tools` があるときだけ回答時間を出す（web と同じ二重の判定）ので、
+ * Pro が切れた後にスイッチがオンのまま残っても計測は出ない。
+ */
+function MeasureTimeRow(props: MeasureTimeRowProps) {
+  const { status, user } = useAuth();
+  if (status === "signedIn" && user !== undefined)
+    return <SignedInMeasureTimeRow userId={user.id} {...props} />;
+  return <LockedMeasureTimeRow href="/sign-in" />;
+}
+
+/**
+ * ログイン中の行
+ *
+ * プランの特典を読んでいる間は、保存済みの値のまま押せないスイッチを出す。
+ * 読み込み中に鍵の行を出すと、Pro の人にも一瞬鍵が見え、そこで押すとプラン
+ * 画面へ飛んでしまう。読み終えて Pro でなければ鍵の行に替わる。読めなかった
+ * ときは鍵の行（特典の判定は fail-closed）。
+ */
+function SignedInMeasureTimeRow({
+  userId,
+  checked,
+  onChange,
+}: MeasureTimeRowProps & { readonly userId: string }) {
+  const t = useTranslations("agariScore");
+  const { state } = usePlan(userId);
+  const loading = state.kind === "loading";
+  const hasPracticeTools =
+    state.kind === "loaded" &&
+    state.value.benefits.includes(PlanBenefit.PracticeTools);
+  if (!loading && !hasPracticeTools)
+    return <LockedMeasureTimeRow href={MYPAGE_PLAN_PATH} />;
+  return (
+    <SettingToggleRow
+      title={t("setup.measureTime")}
+      checked={checked}
+      onChange={onChange}
+      disabled={loading}
+      testID="setup-measure-time"
+    />
+  );
+}
+
+/** Pro でない人の鍵の行。押すと `href` へ */
+function LockedMeasureTimeRow({ href }: { readonly href: string }) {
+  const t = useTranslations("agariScore");
+  const router = useRouter();
+  return (
+    <SettingLockedRow
+      title={t("setup.measureTime")}
+      badge={t("setup.measureTimePro.badge")}
+      note={t("setup.measureTimePro.note")}
+      onPress={() => router.push(href)}
+      testID="setup-measure-time-locked"
+    />
   );
 }
 

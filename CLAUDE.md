@@ -110,8 +110,8 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
   版のアプリが古い形のまま読む
 - web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す（スロットは
   `MOBILE_AD_SLOTS`。成果をトラッキング ID で分けるため web とは別に持つ）
-- web の練習の回数制限（practice-quota）はアプリの練習には掛からないが、要求の本文の
-  申告（「iOS から」等）で web の制限を外す経路は作らない
+- 練習の回数制限（practice-quota）は iOS のアプリにも掛かる（同じ表・同じ規則。アプリ向け
+  API `practice-quota`）。要求の本文の申告（「iOS から」等）で web の制限を外す経路は作らない
 - 他の利用者を見せる画面（ランキング・公開プロフィール）と、他の利用者に見せる自由入力
   （表示名・自己紹介・SNS・アバター）は web だけのもの。web に足してもアプリには持ち込まず、
   アプリ向け API にも他の利用者の情報を返す経路を作らない（理由は `apps/mobile/CLAUDE.md`）
@@ -431,6 +431,7 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
 /mypage/plan                — 購入状況と購入履歴（動的）
 /tokushoho                  — 特定商取引法に基づく表記
 /api/stripe/webhook         — Stripe Webhook（署名検証・重複排除）
+/api/apple/notifications    — App Store Server Notifications（署名検証・重複排除）
 /api/stripe/checkout/complete — Checkout 完了の着地（所有者検証 → 同期記録 → /mypage/plan）
 ```
 
@@ -471,6 +472,10 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   トレーニングは設定どおりに出題する
 - 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
   付与する）。`savePracticeResult` は試験の menuType を入口で弾く
+- Pro の購入は web の Stripe と iOS の App Store の 2 経路で、どちらも `purchases` の 1 行に
+  なる（`purchases.provider`）。特典の判定（`hasBenefit`）は経路を知らない。App Store の
+  Sandbox の取引（TestFlight・審査）は許可リスト（`APPLE_IAP_SANDBOX_USER_IDS`）の
+  ユーザーにだけ記録する（運用の手順は `apps/mobile/README.md`「アプリ内課金」）
 
 ## 点数計算・黒帯への道（段級位の行程）
 
@@ -549,7 +554,7 @@ pnpm --filter web db:seed:dev
 
 これに加えて、ランキングの母集団を作るためだけの `seed_player01`〜`seed_player20`（`player01@example.local` …）を投入する。上位3位のメダル・ページ送り・1 ページに収まらない自分の順位を出す「あなた」の行は、人数が足りないと画面に出ないため。ユーザー名を持つ全シードユーザーに全練習種別（昇級試験を除く。試験は本番でも記録されない）のチャレンジ成績（当月と前月の 2 件ずつ）が入り、総合・月間の両方のランキングが埋まる。成績の値はユーザー名から決まる擬似乱数なので、何度実行しても順位は変わらない。ただしシードユーザーの既存の成績・段級位・レッスンの完了は宣言された状態へ消して入れ直すため、シードユーザーとして遊んだ記録は残らない。EXP は付与しないので、EXP の画面を見たいときは実際に練習を 1 回走らせること。
 
-有料プラン（`purchases`）は bob に有効な 30 日パス 1 枚と期限切れのパス 1 枚、carol に買い切りを入れる（偽の Stripe ID。Stripe API は叩かない）。alice は購入なしで、無料枠の回数制限が掛かる状態。`stripe_customers` には入れない — 偽の顧客 ID があるとシードユーザーで Checkout を試したときに Stripe 側に存在しない顧客を渡して失敗するため。特典の手動付与（`benefit_grants`）は dave に 60 日の付与 1 件（付与者は admin、購入なし）を入れる。マイページの「Pro（付与）」と管理画面の付与一覧（`/admin/benefit-grants`）の取り消しがこれで試せる。
+有料プラン（`purchases`）は bob に有効な 30 日パス 1 枚と期限切れのパス 1 枚、carol に買い切りを入れる（偽の Stripe ID。Stripe API は叩かない）。erin には App Store で買った有効な 30 日パス 1 枚（`provider` が `apple`、Production、偽の取引 ID）を入れ、マイページと管理画面の「購入元」の列を見比べられる。alice は購入なしで、無料枠の回数制限が掛かる状態。`stripe_customers` には入れない — 偽の顧客 ID があるとシードユーザーで Checkout を試したときに Stripe 側に存在しない顧客を渡して失敗するため。特典の手動付与（`benefit_grants`）は dave に 60 日の付与 1 件（付与者は admin、購入なし）を入れる。マイページの「Pro（付与）」と管理画面の付与一覧（`/admin/benefit-grants`）の取り消しがこれで試せる。
 
 ネイティブ広告も、本番のシード（`scripts/seed/ad-creatives.ts`）と同じ広告と、ローカル用の架空の Amazon トラッキング ID（web は `localdev-web-22`、アプリは `localdev-app-22`。リンクの `tag=` でどちらの ID で組んだかが分かる）を入れる（`scripts/dev-seed/ad-creatives.ts`）。ASIN で指す広告はトラッキング ID が無いと画面に出ないため、これで配置と見た目をログインなしで確かめられる。管理画面（`/admin/ads`）で編集しても、次の実行で戻る。
 

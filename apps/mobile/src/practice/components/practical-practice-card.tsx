@@ -11,6 +11,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { TehaiHand } from "../../board/tehai-hand";
+import { PracticeEntryQuota } from "../quota/practice-entry-quota";
 import { ChevronRightIcon } from "../../components/icons/icons";
 import { panelFrame } from "../../lib/panel-styles";
 import { colors, radius } from "../../lib/theme";
@@ -33,8 +34,10 @@ const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
  * 説明を添える。押すと説明画面へ移動するだけで練習は始まらないので、練習
  * カードと同じ細枠で影を持たない（web と同じ）。
  *
- * web がカードの下に出す無料枠の残り回数は出さない。回数制限はアカウントに
- * 紐づき、ログインの無いモバイルには掛かっていないため。
+ * カードの下に今日の利用枠（{@link PracticeEntryQuota}）を出す（web と同じ）。
+ * 回数制限が掛かるのは iOS で Pro を販売中のときだけで、それ以外は何も出さない。
+ * 利用枠はカードの外に置く — ゲストの「ログインすると…」は押せる文字なので、
+ * カード全体の当たり判定の中に入れない。
  */
 export function PracticalPracticeCard({
   menu,
@@ -49,56 +52,62 @@ export function PracticalPracticeCard({
   const title = t(`${key}.title`);
 
   return (
-    <Pressable
-      onPress={() => router.push(href)}
-      accessibilityRole="link"
-      accessibilityLabel={title}
-      testID={`practical-practice-card-${menu}`}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-    >
-      <View
-        style={styles.preview}
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
+    <View style={styles.entry}>
+      <Pressable
+        onPress={() => router.push(href)}
+        accessibilityRole="link"
+        accessibilityLabel={title}
+        testID={`practical-practice-card-${menu}`}
+        style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       >
-        <TehaiHand
-          tehai={{
-            closed: isScore ? DEMO_MENTSU_HAND.closed : TENPAI_TILES,
-            exposed: [],
-          }}
-          agariHai={isScore ? DEMO_MENTSU_HAND.agariHai : undefined}
-          agariLabel={isScore ? t("preview.tsumo") : undefined}
-        />
-        {isScore ? (
-          <Text style={styles.previewText}>{t("preview.score")}</Text>
-        ) : (
-          <View style={styles.waits}>
-            {WAIT_TILES.map((tile) => (
-              <View key={tile} style={styles.wait}>
-                <Hai hai={tile} size="sm" alt="" />
-                <Text style={styles.waitText}>
-                  {t("preview.ron")}
-                  {"\n"}
-                  {t("preview.tsumoScore")}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-      </View>
-      <View style={styles.body}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{t(`${key}.description`)}</Text>
-      </View>
-      <View style={styles.footer}>
-        <Text style={styles.detail}>{t("detail")}</Text>
-        <ChevronRightIcon size={16} color={colors.action} />
-      </View>
-    </Pressable>
+        <View
+          style={styles.preview}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          <TehaiHand
+            tehai={{
+              closed: isScore ? DEMO_MENTSU_HAND.closed : TENPAI_TILES,
+              exposed: [],
+            }}
+            agariHai={isScore ? DEMO_MENTSU_HAND.agariHai : undefined}
+            agariLabel={isScore ? t("preview.tsumo") : undefined}
+          />
+          {isScore ? (
+            <Text style={styles.previewText}>{t("preview.score")}</Text>
+          ) : (
+            <View style={styles.waits}>
+              {WAIT_TILES.map((tile) => (
+                <View key={tile} style={styles.wait}>
+                  <Hai hai={tile} size="sm" alt="" />
+                  <Text style={styles.waitText}>
+                    {t("preview.ron")}
+                    {"\n"}
+                    {t("preview.tsumoScore")}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
+        <View style={styles.body}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.description}>{t(`${key}.description`)}</Text>
+        </View>
+        <View style={styles.footer}>
+          <Text style={styles.detail}>{t("detail")}</Text>
+          <ChevronRightIcon size={16} color={colors.action} />
+        </View>
+      </Pressable>
+      <PracticeEntryQuota menu={menu} />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  entry: {
+    gap: 8,
+  },
   card: {
     ...panelFrame,
     padding: 20,
