@@ -34,11 +34,14 @@ export type PlanApiResult<T> =
 
 /**
  * 要求を送り、成功なら応答を検証して返す
+ * プランAPI要求
  *
  * 409 / 422 / 503 はプランの API 固有の理由（{@link isMobilePlanErrorCode}）に
  * 丸める。読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
+ * 回数制限の API（`practice/quota/quota-api.ts`）も同じ理由の集合を返すので、
+ * これを通す。
  */
-async function request<T>(
+export async function requestPlanApi<T>(
   path: string,
   init: MobileApiInit & { readonly asUser: string },
   parse: (body: unknown) => T | undefined,
@@ -63,7 +66,7 @@ async function request<T>(
 export function fetchPlan(
   userId: string,
 ): Promise<PlanApiResult<MobilePlanResponse>> {
-  return request(
+  return requestPlanApi(
     MOBILE_PLAN_API_PATH,
     { asUser: userId },
     parseMobilePlanResponse,
@@ -102,7 +105,7 @@ export function postAppleTransaction(
   userId: string,
   jws: string,
 ): Promise<PlanApiResult<MobileAppleTransactionResponse>> {
-  return request(
+  return requestPlanApi(
     MOBILE_APPLE_TRANSACTIONS_API_PATH,
     { method: "POST", body: { jws }, asUser: userId },
     parseMobileAppleTransactionResponse,
