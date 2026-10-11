@@ -11,6 +11,8 @@
     "web": "expo start --web",
     "sim:release": "scripts/sim-release.sh",
     "maestro": "scripts/maestro.sh",
+    "testflight": "scripts/testflight.sh",
+    "testflight:status": "scripts/testflight-status.sh",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
