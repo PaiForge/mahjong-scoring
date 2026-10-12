@@ -20,6 +20,7 @@ import {
   type MobileApiInit,
 } from "../auth/api-client";
 import { SITE_URL } from "../lib/app-site-url";
+import { readJson } from "../auth/read-json";
 
 /**
  * プラン・取引の記録の API の失敗
@@ -55,7 +56,7 @@ export async function requestPlanApi<T>(
   const response = await callMobileApi(path, init);
   if (typeof response === "string") return { error: response };
   if (response.ok) {
-    const value = parse(await response.json().catch(() => undefined));
+    const value = parse(await readJson(response));
     return value === undefined ? { error: "unknown" } : { value };
   }
   const error = await errorOf(response.clone());
@@ -97,9 +98,7 @@ export async function fetchPlanOffers(): Promise<
   try {
     const response = await fetch(`${SITE_URL}${MOBILE_PLAN_OFFERS_API_PATH}`);
     if (!response.ok) return undefined;
-    const parsed = parseMobilePlanOffersResponse(
-      await response.json().catch(() => undefined),
-    );
+    const parsed = parseMobilePlanOffersResponse(await readJson(response));
     return parsed?.offers;
   } catch {
     return undefined;

@@ -30,6 +30,7 @@ import {
   type ApiFailure,
   type MobileApiInit,
 } from "../auth/api-client";
+import { readJson } from "../auth/read-json";
 
 /**
  * 記録の API の失敗
@@ -52,7 +53,7 @@ async function request<T>(
   const response = await callMobileApi(path, init);
   if (typeof response === "string") return { error: response };
   if (response.ok) {
-    const value = parse(await response.json().catch(() => undefined));
+    const value = parse(await readJson(response));
     return value === undefined ? { error: "unknown" } : { value };
   }
   if (response.status >= 500 && response.status !== 503)

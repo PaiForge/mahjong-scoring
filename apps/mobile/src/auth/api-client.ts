@@ -10,6 +10,7 @@ import {
   decideUnauthorizedRecovery,
   type Credentials,
 } from "./unauthorized-recovery";
+import { readJson } from "./read-json";
 
 /**
  * API 呼び出しの失敗
@@ -185,7 +186,7 @@ async function signOutIfStillCurrent(sent: Credentials): Promise<boolean> {
 
 /** 失敗の応答の `error` を読む。形が違えば undefined */
 export async function errorOf(response: Response): Promise<unknown> {
-  const body: unknown = await response.json().catch(() => undefined);
+  const body = await readJson(response);
   return typeof body === "object" && body !== null && "error" in body
     ? body.error
     : undefined;

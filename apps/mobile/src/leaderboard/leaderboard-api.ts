@@ -14,6 +14,7 @@ import {
   callMobileApi,
   type ApiFailure,
 } from "../auth/api-client";
+import { readJson } from "../auth/read-json";
 
 /** ランキングの API の失敗 */
 export type LeaderboardApiFailure = ApiFailure | MobileLeaderboardErrorCode;
@@ -30,7 +31,7 @@ async function readResponse<T extends object>(
   if (typeof response === "string") return { error: response };
   if (response.status === 404) return { error: "notFound" };
   if (!response.ok) return { error: await apiFailureOf(response) };
-  const value = parse(await response.json().catch(() => undefined));
+  const value = parse(await readJson(response));
   return value ?? { error: "unknown" };
 }
 
