@@ -27,7 +27,11 @@ export type {
 export {
   calculateTotalFu,
   generateTotalFuQuestion,
+  generateTotalFuQuestionInRange,
 } from "./problem/total-fu/generator";
+export type { TotalFuGeneratorOptions } from "./problem/total-fu/generator";
+export { totalFuChoices } from "./problem/total-fu/range";
+export type { TotalFuRange } from "./problem/total-fu/range";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
 export type { FuDetail } from "./score/fu-calculator";
 

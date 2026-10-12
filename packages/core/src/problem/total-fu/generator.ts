@@ -21,6 +21,8 @@ import { generateMentsuTehai } from "../score/strategies/mentsu-strategy";
 import type { AgariContext } from "../shared/agari-context";
 import type { TotalFuQuestion } from "./types";
 import { doubleWindJantouFu } from "../../rules/settings";
+import { retryGenerate } from "../retry-generate";
+import { pickTotalFuBand, type TotalFuBand, type TotalFuRange } from "./range";
 
 /** 七対子を出題する確率 */
 const CHIITOI_RATE = 0.12;
@@ -98,6 +100,15 @@ function jikazeOptions(
   return excludeRenfonpai ? KAZEHAI.filter((kaze) => kaze !== bakaze) : KAZEHAI;
 }
 
+/** {@link generateTotalFuQuestion} の出題条件（各項目の意味はそちらの `@param`） */
+export interface TotalFuGeneratorOptions {
+  readonly renfonpaiAs4Fu?: boolean;
+  readonly excludeRenfonpai?: boolean;
+  readonly fuBand?: TotalFuBand;
+  readonly idGen?: IdGenerator;
+  readonly rng?: RandomSource;
+}
+
 /**
  * 手牌全体の合計符を答える問題を生成する（生成不可能な場合は undefined を返す）
  * 合計符問題ジェネレータ
@@ -107,20 +118,17 @@ function jikazeOptions(
  *
  * @param options.renfonpaiAs4Fu - 連風牌の雀頭を4符として扱うか（既定 false=2符）
  * @param options.excludeRenfonpai - 場風＝自風の局面を出題しないか（既定 false）
+ * @param options.fuBand - 正解の符をこの帯に限る（帯の外なら undefined。既定は限らない）
  * @param options.idGen - 問題 ID の採番（既定 crypto.randomUUID）
  * @param options.rng - 乱数供給源（既定 Math.random）
  */
 export function generateTotalFuQuestion(
-  options: {
-    readonly renfonpaiAs4Fu?: boolean;
-    readonly excludeRenfonpai?: boolean;
-    readonly idGen?: IdGenerator;
-    readonly rng?: RandomSource;
-  } = {},
+  options: TotalFuGeneratorOptions = {},
 ): TotalFuQuestion | undefined {
   const {
     renfonpaiAs4Fu = false,
     excludeRenfonpai = false,
+    fuBand,
     idGen = defaultIdGenerator,
     rng = defaultRandomSource,
   } = options;
@@ -155,6 +163,9 @@ export function generateTotalFuQuestion(
   // 選べない問題になるため
   if (!isFu(score.detail.fuResult.total)) return undefined;
 
+  const total = score.detail.fuResult.total;
+  if (fuBand && (total < fuBand.min || total > fuBand.max)) return undefined;
+
   return {
     id: idGen(),
     tehai: tehaiResult.tehai,
@@ -163,4 +174,39 @@ export function generateTotalFuQuestion(
     answer: score.detail.fuResult.total,
     fuDetails: convertScoreDetailToFuDetails(score.detail, context),
   };
+}
+
+/**
+ * 出題範囲つきの合計符の生成リトライ予算
+ * 範囲つき出題リトライ予算
+ *
+ * 1 回の試行が成立するのは約 47%（牌の残数不足・役なしの手を弾くため）で、
+ * そのうち正解が 50・60符になるのは約 16%。50・60符の帯を引いた問題は
+ * 1 試行あたり約 7.5% しか成立せず、範囲なしの練習と同じ 100 回では
+ * 約 0.04%/問で生成に失敗する（盤面がプレースホルダのまま固まり、
+ * チャレンジのタイマーだけが進む）。500 回なら失敗確率は 1e-17 程度で
+ * 実質ゼロになり、平均の試行回数は 15 回前後にとどまる。
+ */
+export const TOTAL_FU_RANGE_MAX_ATTEMPTS = 500;
+
+/**
+ * 出題範囲（{@link TotalFuRange}）に収まる合計符の問題を生成する（生成できなければ undefined）
+ * 範囲つき合計符問題ジェネレータ
+ *
+ * 正解の符の帯を 1 問につき 1 回だけ選び、その帯に収まる手が出るまで
+ * {@link generateTotalFuQuestion} を試す（帯を固定する理由は
+ * {@link pickTotalFuBand}）。
+ *
+ * @param range - 出題範囲
+ * @param options - {@link generateTotalFuQuestion} の条件（帯は範囲から決める）
+ */
+export function generateTotalFuQuestionInRange(
+  range: TotalFuRange,
+  options: Omit<TotalFuGeneratorOptions, "fuBand"> = {},
+): TotalFuQuestion | undefined {
+  const fuBand = pickTotalFuBand(range, options.rng ?? defaultRandomSource);
+  return retryGenerate(
+    () => generateTotalFuQuestion({ ...options, fuBand }),
+    TOTAL_FU_RANGE_MAX_ATTEMPTS,
+  );
 }

@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { HaiKind, validateTehai14 } from "@pai-forge/riichi-mahjong";
-import { calculateTotalFu, generateTotalFuQuestion } from "./generator";
+import {
+  calculateTotalFu,
+  generateTotalFuQuestion,
+  generateTotalFuQuestionInRange,
+} from "./generator";
+import { totalFuChoices } from "./range";
+import { mulberry32 } from "../../core/random";
 import {
   CHIITOITSU_FU,
   FU_VALUES,
@@ -128,6 +134,55 @@ describe("generateTotalFuQuestion", () => {
     );
 
     expect(questions.length).toBeGreaterThan(0);
+  });
+});
+
+describe("generateTotalFuQuestionInRange", () => {
+  it("fuBand の外の符は出題しない", () => {
+    const questions = expectSampled(
+      () => generateTotalFuQuestion({ fuBand: { min: 50, max: 60 } }),
+      { attempts: 2000, need: 50 },
+    );
+
+    for (const q of questions) {
+      expect([50, 60]).toContain(q.answer);
+    }
+  });
+
+  it.each(["up-to-40", "up-to-60", "all"] as const)(
+    "%s の正解は選択肢（totalFuChoices）に収まる",
+    (range) => {
+      const choices = totalFuChoices(range);
+      const questions = expectSampled(
+        () => generateTotalFuQuestionInRange(range),
+        { attempts: 300, need: 300 },
+      );
+
+      expect(questions).toHaveLength(300);
+      for (const q of questions) {
+        expect(choices).toContain(q.answer);
+      }
+    },
+  );
+
+  it("up-to-60 は問題の半分前後を 50・60符から出す", () => {
+    // 範囲外を捨てるだけだと 50・60符は 2 割弱にとどまる。帯を 1 問ごとに
+    // 固定して選んでいることの確認（リトライのたびに選び直すと低い帯に寄る）
+    const rng = mulberry32(1);
+    const questions = expectSampled(
+      () => generateTotalFuQuestionInRange("up-to-60", { rng }),
+      { attempts: 1000, need: 1000 },
+    );
+    const high = questions.filter((q) => q.answer >= 50).length;
+
+    expect(high / questions.length).toBeGreaterThan(0.4);
+    expect(high / questions.length).toBeLessThan(0.6);
+  });
+
+  it("up-to-40 の選択肢は 20・25・30・40符", () => {
+    expect(totalFuChoices("up-to-40")).toEqual([20, 25, 30, 40]);
+    expect(totalFuChoices("up-to-60")).toEqual([20, 25, 30, 40, 50, 60]);
+    expect(totalFuChoices("all")).toEqual(FU_VALUES);
   });
 });
 
