@@ -1,5 +1,6 @@
 # ログイン中（bob）の設定の入口: ホームのヘッダーに歯車は無く、マイページの「設定」の
-# 行から開く。会員限定ゲートは出ず、ルールの項目とアカウントの節が並ぶ
+# 行から開く。設定の行の下には「その他」（web のページ）が並ぶ。会員限定ゲートは出ず、
+# ルールの項目とアカウントの節が並ぶ
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -23,6 +24,10 @@ appId: help.mahjong.score
 - scrollUntilVisible:
     element:
       id: "mypage-menu-settings"
+    direction: DOWN
+- scrollUntilVisible:
+    element:
+      id: "site-link-company"
     direction: DOWN
 - takeScreenshot: preferences-signed-in-mypage
 - tapOn:

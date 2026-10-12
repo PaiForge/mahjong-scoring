@@ -30,7 +30,7 @@ import {
   MypageLoading,
 } from "../../mypage/mypage-gate";
 import { useMypageRead } from "../../mypage/use-mypage-read";
-import { SiteLinksSection } from "../../preferences/site-links-section";
+import { SiteLinksSection } from "../../mypage/site-links-section";
 
 /**
  * マイページ
@@ -58,8 +58,9 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  *   マイページが兼ねる）。設定は web と同じくログイン中だけのものなので、行も
  *   ログイン中だけ出す。ユーザー名を決めていない人・アカウントを読めなかった
  *   人にも出す — ログアウトと退会がそこにある
- * - ゲストには設定の行の代わりに「その他」（利用規約・プライバシーポリシー等）を
- *   出す。ログイン中は設定の最後にあるが、ゲストは設定を開かないため
+ * - 末尾に「その他」（利用規約・プライバシーポリシー等の web のページ）を、
+ *   ゲストにもログイン中の人にも出す。web のフッターに当たる場所がアプリには
+ *   無く、マイページがその役を兼ねる（設定には置かない。理由は `SiteLinksSection`）
  * - ゲストとユーザー名を決めていない人にも開く。web はこの段階でマイページを
  *   開かせないが、アプリはホームのヘッダーから誰でも押せる入口を置くので、
  *   記録の案内（ホームと同じ `RecordCtaCard`）を出してログイン・登録・
@@ -69,7 +70,8 @@ import { SiteLinksSection } from "../../preferences/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・設定へ
+ * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・設定・
+ *    web のページ（規約等）へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -81,6 +83,7 @@ export default function MypageScreen() {
         {(userId) => <SignedInMypage userId={userId} />}
       </MypageGate>
       <SettingsEntry />
+      <SiteLinksSection />
     </Screen>
   );
 }
@@ -189,15 +192,14 @@ function MypageMenu() {
 }
 
 /**
- * 設定の行（ログイン中）/ web のページへの入口（ゲスト）。ログインを出せない
- * ビルドは設定にゲートが掛からないので、行を出す
+ * 設定の行（ログイン中だけ）。ログインを出せないビルドは設定にゲートが
+ * 掛からないので、行を出す
  */
 function SettingsEntry() {
   const t = useTranslations("nav");
   const router = useRouter();
   const { status } = useAuth();
-  if (status === "loading") return null;
-  if (status === "signedOut") return <SiteLinksSection />;
+  if (status === "loading" || status === "signedOut") return null;
   return (
     <LinkRowList>
       <LinkRow

@@ -7,10 +7,10 @@
  * サーバーに保存し、アプリで記録した成績も載る web のランキングから外れられる
  * ようにする。
  * 設定は web と同じくログイン中だけ使える。ゲストには会員限定ゲート
- * （`MembersOnlyGate`）で中身の代わりに登録・ログインの案内を出す。最後に
- * 利用規約・プライバシーポリシー等の web のページへの入口を置く（ゲートの外。
- * ゲストの入口はマイページにもある）。
- * @flow ホームのヘッダーの人型のアイコン → マイページ → 設定 →（役の並び順 / web のページ）
+ * （`MembersOnlyGate`）で中身の代わりに登録・ログインの案内を出す。
+ * 利用規約・プライバシーポリシー等の web のページへの入口はここに置かず、
+ * マイページの「その他」に置く（`SiteLinksSection`）。
+ * @flow ホームのヘッダーの人型のアイコン → マイページ → 設定 →（役の並び順）
  */
 import { View, StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
@@ -22,7 +22,6 @@ import { DisplaySettingsSection } from "../../preferences/display-settings-secti
 import { MembersOnlyGate } from "../../preferences/members-only-gate";
 import { PrivacySettingsSection } from "../../preferences/privacy-settings-section";
 import { RuleSettingsSection } from "../../preferences/rule-settings-section";
-import { SiteLinksSection } from "../../preferences/site-links-section";
 import { TrainingSettingsSection } from "../../preferences/training-settings-section";
 
 export default function PreferencesScreen() {
@@ -46,7 +45,6 @@ export default function PreferencesScreen() {
           <DisplaySettingsSection />
         </View>
       </MembersOnlyGate>
-      <SiteLinksSection />
     </Screen>
   );
 }
