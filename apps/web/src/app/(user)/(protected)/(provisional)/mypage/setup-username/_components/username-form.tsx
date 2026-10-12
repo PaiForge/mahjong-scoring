@@ -13,10 +13,11 @@ import {
   USERNAME_MAX_LENGTH,
   validateUsername,
 } from "@mahjong-scoring/features/account/username";
+import type { UsernameErrorCode } from "@mahjong-scoring/features/account/username-error-message";
+import { usernameErrorMessageKey } from "@mahjong-scoring/features/account/username-error-message";
 import { PROFILE_LIMITS } from "@mahjong-scoring/features/profile/validation";
 
 import { registerUsername } from "../_actions/register-username";
-import { usernameValidationMessageKey } from "../_lib/username-validation-message";
 import { Button } from "@/app/(user)/_components/button";
 
 /**
@@ -34,8 +35,8 @@ export function UsernameForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const getValidationMessage = useCallback(
-    (errorKey: Parameters<typeof usernameValidationMessageKey>[0]): string =>
-      t(usernameValidationMessageKey(errorKey)),
+    (errorKey: UsernameErrorCode): string =>
+      t(`validation.${usernameErrorMessageKey(errorKey)}`),
     [t],
   );
 

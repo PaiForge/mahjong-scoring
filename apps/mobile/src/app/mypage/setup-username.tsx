@@ -18,6 +18,8 @@ import { useRouter } from "expo-router";
 import { getRandomBytes } from "expo-crypto";
 import { useTranslations } from "use-intl";
 import type { MobileUsernameErrorCode } from "@mahjong-scoring/features/account/mobile-api";
+import type { UsernameErrorMessageKey } from "@mahjong-scoring/features/account/username-error-message";
+import { usernameErrorMessageKey } from "@mahjong-scoring/features/account/username-error-message";
 import {
   generateUsername,
   USERNAME_MAX_LENGTH,
@@ -35,30 +37,27 @@ import { TextLink } from "../../components/text-link";
 import { showToast } from "../../components/toast";
 import { colors } from "../../lib/theme";
 
-/** 登録の失敗を辞書のキーに写す（`setupUsername.validation.*`） */
-const ERROR_KEYS = {
-  too_short: "tooShort",
-  username_required: "tooShort",
-  too_long: "tooLong",
-  invalid_format: "invalidFormat",
-  reserved: "reserved",
-  prohibited: "prohibited",
-  username_taken: "taken",
-  username_already_set: "alreadySet",
-  display_name_too_long: "displayNameTooLong",
-  display_name_prohibited: "displayNameProhibited",
-  rateLimited: "rateLimited",
-  banned: "banned",
-  unauthorized: "unauthorized",
-  deleted: "unauthorized",
-  // 送る前にログインが変わった（ユーザーを指定して送る記録の同期だけが返す）
-  userChanged: "unauthorized",
-  authUnavailable: "error",
-  unknown: "error",
-} as const satisfies Record<
-  Exclude<MobileUsernameErrorCode | ApiFailure, "network">,
-  string
->;
+/**
+ * 登録の失敗を辞書のキーに写す（`setupUsername.validation.*`）
+ *
+ * アプリだけが持つ失敗（`ApiFailure`）だけをここで写し、残りは web と共有の
+ * 対応表に渡す。`network` は辞書が別なので呼び出し側で分ける。
+ */
+function errorMessageKey(
+  error: Exclude<MobileUsernameErrorCode | ApiFailure, "network">,
+): UsernameErrorMessageKey {
+  switch (error) {
+    // 退会を受け付けた、または送る前にログインが変わった（ユーザーを指定して
+    // 送る記録の同期だけが返す）。どちらもログインし直すしかない
+    case "deleted":
+    case "userChanged":
+      return "unauthorized";
+    case "authUnavailable":
+      return "error";
+    default:
+      return usernameErrorMessageKey(error);
+  }
+}
 
 export default function SetupUsernameScreen() {
   const t = useTranslations("setupUsername");
@@ -86,7 +85,7 @@ export default function SetupUsernameScreen() {
       setError(
         result.error === "network"
           ? tAuth("networkError")
-          : t(`validation.${ERROR_KEYS[result.error]}`),
+          : t(`validation.${errorMessageKey(result.error)}`),
       );
       return;
     }
