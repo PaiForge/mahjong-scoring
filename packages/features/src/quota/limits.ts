@@ -24,6 +24,21 @@ export function isQuotaMenu(value: string): value is QuotaMenu {
   return quotaMenuSet.has(value);
 }
 
+/** 練習ごとのその日の回数 */
+export type QuotaCounts = Readonly<Record<QuotaMenu, number>>;
+
+/**
+ * どの練習もまだ始めていない回数
+ * 空の練習回数
+ *
+ * 未ログイン（web の cookie）とゲスト（アプリの端末）の数え方が、日の変わり目と
+ * 保存値が読めないときに戻る値。練習を足したらここが型エラーになる。
+ */
+export const EMPTY_QUOTA_COUNTS: QuotaCounts = {
+  "agari-score": 0,
+  "tenpai-score": 0,
+};
+
 /** 1 日の上限（問） */
 export interface QuotaLimit {
   /** ログイン済みの無料ユーザー */

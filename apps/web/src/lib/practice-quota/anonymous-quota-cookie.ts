@@ -5,7 +5,9 @@ import "server-only";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import { jstEndOfDay } from "@mahjong-scoring/features/quota/day";
 import {
+  EMPTY_QUOTA_COUNTS,
   QUOTA_MENUS,
+  type QuotaCounts,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
 
@@ -32,14 +34,6 @@ export const ANONYMOUS_QUOTA_COOKIE_NAME = "mj_quota";
 
 /** 署名のバージョン。形式を変えるときに上げ、古い cookie は無効として扱う */
 const FORMAT_VERSION = "v1";
-
-/** 練習ごとのその日の回数 */
-export type AnonymousQuotaCounts = Readonly<Record<QuotaMenu, number>>;
-
-const EMPTY_COUNTS: AnonymousQuotaCounts = {
-  "agari-score": 0,
-  "tenpai-score": 0,
-};
 
 /**
  * 鍵の素材から署名鍵を派生させる
@@ -75,10 +69,10 @@ function sign(key: Buffer, payload: string): string {
 }
 
 /** JSON から回数を取り出す。形が違えば undefined */
-function parseCounts(value: unknown): AnonymousQuotaCounts | undefined {
+function parseCounts(value: unknown): QuotaCounts | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const record: Record<string, unknown> = { ...value };
-  const counts: Record<QuotaMenu, number> = { ...EMPTY_COUNTS };
+  const counts: Record<QuotaMenu, number> = { ...EMPTY_QUOTA_COUNTS };
   for (const menu of QUOTA_MENUS) {
     const count = record[menu];
     if (count === undefined) continue;
@@ -94,36 +88,35 @@ function parseCounts(value: unknown): AnonymousQuotaCounts | undefined {
  * cookie から今日の回数を読む。無い・不正・別の日なら全部 0
  * 匿名回数読み取り
  */
-export async function readAnonymousQuota(
-  now: Date,
-): Promise<AnonymousQuotaCounts> {
+export async function readAnonymousQuota(now: Date): Promise<QuotaCounts> {
   const key = signingKey();
-  if (!key) return EMPTY_COUNTS;
+  if (!key) return EMPTY_QUOTA_COUNTS;
 
   const raw = (await cookies()).get(ANONYMOUS_QUOTA_COOKIE_NAME)?.value;
-  if (!raw) return EMPTY_COUNTS;
+  if (!raw) return EMPTY_QUOTA_COUNTS;
 
   const [version, payload, signature] = raw.split(".");
   if (version !== FORMAT_VERSION || !payload || !signature) {
-    return EMPTY_COUNTS;
+    return EMPTY_QUOTA_COUNTS;
   }
 
   const expected = Buffer.from(sign(key, payload));
   const actual = Buffer.from(signature);
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
-    return EMPTY_COUNTS;
+    return EMPTY_QUOTA_COUNTS;
   }
 
   try {
     const decoded: unknown = JSON.parse(
       Buffer.from(payload, "base64url").toString("utf8"),
     );
-    if (typeof decoded !== "object" || decoded === null) return EMPTY_COUNTS;
+    if (typeof decoded !== "object" || decoded === null)
+      return EMPTY_QUOTA_COUNTS;
     const record: Record<string, unknown> = { ...decoded };
-    if (record.day !== jstDayKey(now)) return EMPTY_COUNTS;
-    return parseCounts(record.counts) ?? EMPTY_COUNTS;
+    if (record.day !== jstDayKey(now)) return EMPTY_QUOTA_COUNTS;
+    return parseCounts(record.counts) ?? EMPTY_QUOTA_COUNTS;
   } catch {
-    return EMPTY_COUNTS;
+    return EMPTY_QUOTA_COUNTS;
   }
 }
 
@@ -135,7 +128,7 @@ export async function readAnonymousQuota(
  * （Server Component の描画中は cookie を書けない）。
  */
 export async function writeAnonymousQuota(
-  counts: AnonymousQuotaCounts,
+  counts: QuotaCounts,
   now: Date,
 ): Promise<void> {
   const key = signingKey();
