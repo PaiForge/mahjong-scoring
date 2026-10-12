@@ -1,0 +1,47 @@
+# ログイン中（bob）のアカウント: マイページの「アカウント」の行から開き、ユーザー名・
+# メールアドレスとログアウト・退会の行が並ぶ（設定の画面には無い）。ログアウトすると
+# ゲストのマイページへ戻る。手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-account"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-account"
+- extendedWaitUntil:
+    visible: "seed_bob"
+    timeout: 10000
+- assertVisible: "bob@example.local"
+- assertVisible:
+    id: "account-sign-out"
+- assertVisible:
+    id: "account-delete"
+- takeScreenshot: mypage-account
+- tapOn:
+    id: "account-sign-out"
+- tapOn:
+    id: "account-sign-out-confirm"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-preview"
+    timeout: 10000
+- assertNotVisible:
+    id: "mypage-menu-account"
+- takeScreenshot: mypage-account-signed-out

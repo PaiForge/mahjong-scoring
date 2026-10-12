@@ -6,7 +6,8 @@
  * 決めていなければ、続けてユーザー名の設定へ進む。
  * パスワードを忘れた人は再設定のリンクを送る画面へ（新しいパスワードはメールの
  * リンクから web で決める。`forgot-password.tsx`）。
- * @flow 設定のアカウント → ログイン →（ユーザー名の設定）→ 設定へ戻る
+ * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート → ログイン →
+ * （ユーザー名の設定）→ 元の画面へ戻る
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";

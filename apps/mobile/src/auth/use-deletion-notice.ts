@@ -18,7 +18,7 @@ const useDeletionNoticeStore = create<{
  *
  * 退会の画面で受け付けたときと、別の端末で退会した・成功の応答を失った後に
  * サーバーから「退会を受け付けた」と返ってきたとき（`account-api.ts`）に
- * 呼ぶ。設定のアカウントの節が出す。
+ * 呼ぶ。マイページの先頭が出す。
  */
 export function showDeletionNotice(notice: DeletionNotice): void {
   useDeletionNoticeStore.setState({ notice });

@@ -15,12 +15,14 @@ import {
   SettingsIcon,
   StarIcon,
   TrophyIcon,
+  UserIcon,
 } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { useAuth } from "../../auth/use-auth";
 import { colors } from "../../lib/theme";
+import { DeletionNoticePanel } from "../../mypage/account-section";
 import { ActivityChart } from "../../mypage/activity-chart";
 import { ProfileHeading } from "../../mypage/profile-heading";
 import { fetchMypage } from "../../mypage/mypage-api";
@@ -49,15 +51,16 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  * - 通知の行は持たない（通知は今の種別がすべて web の Pro の出来事で、
  *   アプリには通知の画面が無い）。Pro プランの行は iOS だけ — Android は Pro を
  *   扱わない（購入・表示・回数制限のどれも出さない。Play Billing の実装は別の
- *   仕事）。アカウント（メールアドレス・ログアウト・退会）は設定のアカウントの
- *   節にあり、ここには置かない
+ *   仕事）
  * - ランキングでの自分の順位への行を置く。アプリはランキングの詳細を持たず
  *   （他の利用者の名前・アバターを見せない）、練習の画面からランキングへの
  *   導線も無いので、入口をここに置く
- * - 設定への入口を置く（web はヘッダーのアカウントのメニュー。アプリはそれを
- *   マイページが兼ねる）。設定は web と同じくログイン中だけのものなので、行も
- *   ログイン中だけ出す。ユーザー名を決めていない人・アカウントを読めなかった
- *   人にも出す — ログアウトと退会がそこにある
+ * - アカウント（web と同じくマイページから開く。ログアウトもそこにある）と
+ *   設定（web はヘッダーのアカウントのメニュー。アプリはそれをマイページが
+ *   兼ねる）の行を、記録の行とは別の枠でログイン中だけ出す。ユーザー名を
+ *   決めていない人・アカウントを読めなかった人にも出す — ログアウトと退会が
+ *   アカウントにある
+ * - 退会した後はゲストとしてここへ戻るので、受け付けた知らせを先頭に出す
  * - 末尾に「その他」（利用規約・プライバシーポリシー等の web のページ）を、
  *   ゲストにもログイン中の人にも出す。web のフッターに当たる場所がアプリには
  *   無く、マイページがその役を兼ねる（設定には置かない。理由は `SiteLinksSection`）
@@ -70,8 +73,8 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・設定・
- *    web のページ（規約等）へ
+ * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・アカウント・
+ *    設定・web のページ（規約等）へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -79,10 +82,11 @@ export default function MypageScreen() {
   const t = useTranslations("nav");
   return (
     <Screen title={t("mypage")} back contentStyle={styles.content}>
+      <DeletionNoticePanel />
       <MypageGate preview={<MypagePreview />}>
         {(userId) => <SignedInMypage userId={userId} />}
       </MypageGate>
-      <SettingsEntry />
+      <AccountEntries />
       <SiteLinksSection />
     </Screen>
   );
@@ -192,16 +196,25 @@ function MypageMenu() {
 }
 
 /**
- * 設定の行（ログイン中だけ）。ログインを出せないビルドは設定にゲートが
- * 掛からないので、行を出す
+ * アカウントと設定の行（ログイン中だけ）。ログインを出せないビルドは
+ * アカウントが無く設定にゲートが掛からないので、設定の行だけを出す
  */
-function SettingsEntry() {
+function AccountEntries() {
   const t = useTranslations("nav");
+  const tMypage = useTranslations("mypage");
   const router = useRouter();
   const { status } = useAuth();
   if (status === "loading" || status === "signedOut") return null;
   return (
     <LinkRowList>
+      {status === "signedIn" && (
+        <LinkRow
+          testID="mypage-menu-account"
+          title={tMypage("cards.account.title")}
+          leading={<UserIcon size={22} color={colors.surface600} />}
+          onPress={() => router.push("/mypage/account")}
+        />
+      )}
       <LinkRow
         testID="mypage-menu-settings"
         title={t("settings")}

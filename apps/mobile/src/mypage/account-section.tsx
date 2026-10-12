@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -24,41 +18,12 @@ import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
 /**
- * 設定のアカウントの節
- * アカウント設定
- *
- * ログイン中のユーザー名・メールアドレスと、ログアウト・退会を出す。ユーザー名を決めていなければ、その設定へ進む行を先頭に置く。
- * ゲストには退会を受け付けた知らせ（退会の後にこの画面へ戻る）だけを出す。
- * ログイン・登録の入口は設定の会員限定ゲート（`MembersOnlyGate`）が持つ。
- *
- * ログインを出せないビルド（接続先が無い）と、保存したログイン状態を
- * 読んでいる間は節ごと出さない。
- *
- * BAN 中もログアウトと退会の行は出す（本人による退会は BAN の対象にしない）。
- */
-export function AccountSection({
-  style,
-}: {
-  /** 節の外枠（他の節と間隔をそろえる） */
-  readonly style?: StyleProp<ViewStyle>;
-}) {
-  const t = useTranslations("settings.account");
-  const { status } = useAuth();
-  if (status === "unavailable" || status === "loading") return null;
-  if (status === "signedOut") return <DeletionNoticePanel />;
-  return (
-    <View style={style}>
-      <SectionTitle>{t("sectionTitle")}</SectionTitle>
-      <DeletionNoticePanel />
-      <SignedInAccount />
-    </View>
-  );
-}
-
-/**
  * 退会を受け付けた知らせ。工程が残っている（pending）ときは完了と言わない
+ *
+ * 退会の後はゲストに戻ってマイページへ戻るので、マイページの先頭に置く。
+ * 知らせが無ければ何も出さない。
  */
-function DeletionNoticePanel() {
+export function DeletionNoticePanel() {
   const t = useTranslations("deleteAccount");
   const tAccount = useTranslations("settings.account");
   const notice = useDeletionNotice();
@@ -75,9 +40,18 @@ function DeletionNoticePanel() {
   );
 }
 
-/** ログイン中: アカウントの情報とログアウト・退会 */
-function SignedInAccount() {
+/**
+ * アカウントの情報とログアウト・退会（ログイン中）
+ * アカウント設定
+ *
+ * ユーザー名・メールアドレスと、ログアウト・退会を出す。ユーザー名を
+ * 決めていなければ、その設定へ進む行を先頭に置く。BAN 中もログアウトと
+ * 退会の行は出す（本人による退会は BAN の対象にしない）。ログアウトしたら
+ * マイページへ戻る（ゲストに見せるアカウントの中身は無い）。
+ */
+export function SignedInAccount() {
   const t = useTranslations("settings.account");
+  const tAccount = useTranslations("mypageAccount");
   const tNav = useTranslations("nav");
   const router = useRouter();
   const { user, account, accountError } = useAuth();
@@ -105,21 +79,26 @@ function SignedInAccount() {
           />
         </LinkRowList>
       )}
-      <View style={[panelFrame, styles.info]}>
-        {account?.profile && (
-          <>
-            <InfoRow label={t("username")} value={account.profile.username} />
-            <Divider />
-          </>
-        )}
-        <InfoRow label={t("email")} value={user?.email ?? "—"} />
+      <View style={styles.section}>
+        <SectionTitle>{tAccount("login.title")}</SectionTitle>
+        <View style={[panelFrame, styles.info]}>
+          {account?.profile && (
+            <>
+              <InfoRow label={t("username")} value={account.profile.username} />
+              <Divider />
+            </>
+          )}
+          <InfoRow label={t("email")} value={user?.email ?? "—"} />
+        </View>
       </View>
       <LinkRowList>
         <LinkRow
+          testID="account-sign-out"
           title={t("signOut")}
           onPress={() => setConfirmingSignOut(true)}
         />
         <LinkRow
+          testID="account-delete"
           title={t("deleteAccount")}
           onPress={() => router.push("/mypage/account/delete")}
         />
@@ -130,11 +109,13 @@ function SignedInAccount() {
         message={t("signOutConfirmMessage")}
         confirmText={t("signOut")}
         cancelText={t("signOutCancel")}
+        testID="account-sign-out"
         onConfirm={() => {
           setConfirmingSignOut(false);
-          void signOut().then(() =>
-            showToast(tNav("signOutSuccess"), "success"),
-          );
+          void signOut().then(() => {
+            showToast(tNav("signOutSuccess"), "success");
+            router.dismissTo("/mypage");
+          });
         }}
         onClose={() => setConfirmingSignOut(false)}
       />
@@ -160,6 +141,9 @@ function InfoRow({
 }
 
 const styles = StyleSheet.create({
+  section: {
+    gap: 16,
+  },
   notice: {
     padding: 16,
     gap: 4,

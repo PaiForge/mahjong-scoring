@@ -58,7 +58,7 @@ function RecordCta({ preview }: { readonly preview: ReactNode }) {
 
 /**
  * アカウント状態を読めなかったとき。BAN 中はその旨だけ（ログアウトと退会は
- * 設定のアカウントの節から）
+ * マイページの下のアカウントの行から）
  */
 function AccountLoadFailed({ banned }: { readonly banned: boolean }) {
   const t = useTranslations("settings.account");
