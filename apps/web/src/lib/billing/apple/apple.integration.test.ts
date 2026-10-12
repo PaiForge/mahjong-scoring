@@ -10,13 +10,10 @@ import {
   vi,
 } from "vitest";
 
-vi.mock("@/lib/db", async () => {
-  const { billingTestDb } = await import("../test-database");
-  return {
-    ...(await import("../../db/schema")),
-    db: process.env.BILLING_TEST_DATABASE_URL ? billingTestDb() : undefined,
-  };
-});
+vi.mock(
+  "@/lib/db",
+  async () => await import("@/lib/billing/test-database-mock"),
+);
 
 import {
   addPassDuration,
