@@ -5,6 +5,7 @@ import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
 import {
   isCurriculumChapterSlug,
+  isLessonChapterSlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
 import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
@@ -115,7 +116,8 @@ function LessonScreenContent({
       ) : (
         <View style={styles.body}>
           {guide}
-          <ChapterCompleteButton slug={slug} />
+          {/* コラムは完了を持たない（ChapterKind） */}
+          {isLessonChapterSlug(slug) && <ChapterCompleteButton slug={slug} />}
           {completed && nextSlug !== undefined && (
             <NextLessonPreview slug={nextSlug} />
           )}

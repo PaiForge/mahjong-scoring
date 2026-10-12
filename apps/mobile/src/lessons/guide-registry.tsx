@@ -23,6 +23,7 @@ import {
 } from "./guides/memorization-guides";
 import { TehaiFuGuide } from "./guides/tehai-fu-guide";
 import { WhyScoringIsComplexGuide } from "./guides/why-scoring-is-complex-guide";
+import { WhyScoringIsHardToLearnGuide } from "./guides/why-scoring-is-hard-to-learn-guide";
 import { YakuGuide } from "./guides/yaku-guide";
 
 /**
@@ -34,6 +35,7 @@ import { YakuGuide } from "./guides/yaku-guide";
  */
 const LESSON_GUIDES: Readonly<Record<PortedLessonSlug, () => ReactNode>> = {
   "about-this-app": () => <AboutThisAppGuide />,
+  "why-scoring-is-hard-to-learn": () => <WhyScoringIsHardToLearnGuide />,
   "why-scoring-is-complex": () => <WhyScoringIsComplexGuide />,
   "mangan-ko-ron": () => <ManganKoRonGuide />,
   "mangan-ko-tsumo": () => <ManganKoTsumoGuide />,

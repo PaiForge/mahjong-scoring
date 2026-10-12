@@ -12,6 +12,7 @@ import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum
  */
 export const PORTED_LESSON_SLUGS = [
   "about-this-app",
+  "why-scoring-is-hard-to-learn",
   "why-scoring-is-complex",
   "mangan-ko-ron",
   "mangan-ko-tsumo",
