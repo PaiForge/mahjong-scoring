@@ -3,14 +3,17 @@ import {
   CHIITOITSU_SCORE_TABLE,
   PINFU_SCORE_TABLE,
 } from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
+import { KUIPINFU_EXAMPLE } from "@mahjong-scoring/features/curriculum/kuipinfu-example";
 
 import {
   ChapterColumn,
   PreferenceSettingsNote,
 } from "../components/chapter-column";
+import { TehaiHand } from "../../board/tehai-hand";
 import { ChapterLink, richLineBreak } from "../components/chapter-link";
+import { ExampleCard } from "../components/example-card";
 import { GuideBody, GuideSection } from "../components/guide-section";
-import { GuideParagraph } from "../components/guide-text";
+import { GuideNote, GuideParagraph } from "../components/guide-text";
 import { GuideColumn } from "../components/highlight-panel";
 import { ExtraFuTable, FixedFuScoreTable } from "../components/score-tables";
 
@@ -117,6 +120,7 @@ export function MenzenMentsuScoreGuide() {
 /** 鳴いた手の点数計算 — 点数の計算セクション第 4 章（web の `FuroScoreGuide`） */
 export function FuroScoreGuide() {
   const t = useTranslations("furoScore.learn");
+  const tCommon = useTranslations("common");
   return (
     <GuideBody>
       <GuideSection title={t("startTitle")}>
@@ -138,6 +142,15 @@ export function FuroScoreGuide() {
         <GuideParagraph>
           {t.rich("columnBody1", { br: richLineBreak })}
         </GuideParagraph>
+        {/* 「この形」を実際の手牌で見せる。並びは出題盤面と同じ */}
+        <ExampleCard>
+          <TehaiHand
+            {...KUIPINFU_EXAMPLE}
+            agariLabel={tCommon("ron")}
+            agariLabelTone="light"
+          />
+          <GuideNote>{t("columnExample")}</GuideNote>
+        </ExampleCard>
         <GuideParagraph>
           {t.rich("columnBody2", { br: richLineBreak })}
         </GuideParagraph>

@@ -1,5 +1,10 @@
 import { HaiKind, sortTehai, validateTehai14 } from "@mahjong-scoring/core";
-import type { AgariContext, HaiKindId, Tehai14 } from "@mahjong-scoring/core";
+import type {
+  AgariContext,
+  CompletedMentsu,
+  HaiKindId,
+  Tehai14,
+} from "@mahjong-scoring/core";
 
 /**
  * 遊び方デモ用の手牌を組み立てる
@@ -13,9 +18,16 @@ import type { AgariContext, HaiKindId, Tehai14 } from "@mahjong-scoring/core";
  * （固定値なので開発中に必ず気付ける）。
  *
  * 牌は面子ごとに書いてよい。生成した問題と同じく理牌して返す（sortTehai）。
+ * 鳴いた手は `exposed` に面子を渡す（`closed` は残りの牌だけ）。
  */
-export function buildDemoTehai(closed: readonly HaiKindId[]): Tehai14 {
-  const result = validateTehai14({ closed: [...closed], exposed: [] });
+export function buildDemoTehai(
+  closed: readonly HaiKindId[],
+  exposed: readonly CompletedMentsu[] = [],
+): Tehai14 {
+  const result = validateTehai14({
+    closed: [...closed],
+    exposed: [...exposed],
+  });
   if (result.isErr()) {
     throw new Error("デモ用の手牌が 14 枚の手牌として不正です");
   }

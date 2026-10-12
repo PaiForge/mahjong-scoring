@@ -1,7 +1,12 @@
 import { getTranslations } from "next-intl/server";
+import { KUIPINFU_EXAMPLE } from "@mahjong-scoring/features/curriculum/kuipinfu-example";
+
+import { ExampleCard } from "@/app/(user)/_components/example-card";
+import { TehaiHand } from "../../../_components/tehai-hand";
 
 import { GuideColumn } from "../../_components/guide-column";
 import { ExtraFuTable } from "../../_components/extra-fu-table";
+import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 
@@ -10,6 +15,7 @@ import { GuideSection } from "../../_components/guide-section";
  */
 export async function FuroScoreGuide() {
   const t = await getTranslations("furoScore.learn");
+  const tCommon = await getTranslations("common");
 
   return (
     <div className="space-y-10">
@@ -36,6 +42,15 @@ export async function FuroScoreGuide() {
         <GuideParagraph>
           {t.rich("columnBody1", { br: () => <br /> })}
         </GuideParagraph>
+        {/* 「この形」を実際の手牌で見せる。並びは出題盤面と同じ */}
+        <ExampleCard>
+          <TehaiHand
+            {...KUIPINFU_EXAMPLE}
+            agariLabel={tCommon("ron")}
+            agariLabelTone="light"
+          />
+          <GuideNote>{t("columnExample")}</GuideNote>
+        </ExampleCard>
         <GuideParagraph>
           {t.rich("columnBody2", { br: () => <br /> })}
         </GuideParagraph>
