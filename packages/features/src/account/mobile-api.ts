@@ -106,7 +106,7 @@ export interface MobileRegisterUsernameRequest {
 
 /**
  * ユーザー名登録で弾く理由（422）。辞書の `setupUsername.validation` の
- * キーへの対応はアプリ側が持つ
+ * キーへの対応は web と共有の `usernameErrorMessageKey`（`username-error-message.ts`）が持つ
  */
 export const MOBILE_USERNAME_ERROR_CODES = [
   "too_short",
