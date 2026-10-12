@@ -10,7 +10,7 @@ import {
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
 import type { MobileLeaderboardRanksResponse } from "@mahjong-scoring/features/leaderboard/mobile-api";
-import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
+import { leaderboardBoardLabel } from "@mahjong-scoring/features/leaderboard/board-label";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
@@ -160,7 +160,7 @@ function ViewerRanks({
                 {index > 0 && <Divider tone="row" />}
                 <View style={styles.row} testID={`leaderboard-board-${key}`}>
                   <Text style={styles.rowTitle}>
-                    {boardLabel(board, tRoot)}
+                    {leaderboardBoardLabel(board, tRoot)}
                   </Text>
                   {ranks !== undefined && <RankMark rank={ranks.get(key)} />}
                 </View>

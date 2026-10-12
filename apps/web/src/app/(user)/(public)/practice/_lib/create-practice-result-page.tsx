@@ -48,6 +48,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 import { practiceSetupHref } from "./practice-web-routes";
 import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
+import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /** 取得失敗のログに付ける発生箇所タグ */
@@ -187,6 +188,10 @@ interface PracticeResultPageProps {
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
  *    - `AsyncLeaderboardBlock`: `BoardLeaderboardPreview` で全期間の上位を描画
+ *    - 出すのは遊んだ範囲を含む練習のランキング（`resolveLeaderboardBoard`）。
+ *      範囲を絞った回も「すべて」の上位を出す — 絞った範囲はランキングを
+ *      持たないので、遊んだ土俵そのままでは何も出ず、範囲によって結果ページの
+ *      構成が変わる
  *    - ランキングを持たない練習（昇級試験）では境界ごと出さない
  *
  * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
@@ -231,6 +236,8 @@ export function createPracticeResultPage(
     const variantLabel = hasSetup
       ? tp("variantLabel", { label: t(`variants.${variant}.label`) })
       : undefined;
+    // 上位を出すランキング。範囲を絞った回は「すべて」に寄る
+    const leaderboardBoard = resolveLeaderboardBoard(slug, variant);
 
     const rawGrant = resolvedSearchParams.grant;
     const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
@@ -309,9 +316,9 @@ export function createPracticeResultPage(
           )
         }
         leaderboardBlock={
-          isExam ? undefined : (
+          leaderboardBoard === undefined ? undefined : (
             <Suspense fallback={<LeaderboardSkeleton />}>
-              <AsyncLeaderboardBlock board={{ menuType: menuType, variant }} />
+              <AsyncLeaderboardBlock board={leaderboardBoard} />
             </Suspense>
           )
         }

@@ -309,7 +309,7 @@ const CURRICULUM_REGISTRY = [
     publishedAt: "2026-08-31",
     section: "memorization",
     order: 220,
-    // 点数表早引きの全部。この章が要らなくする暗記はまさに親ツモの列で、
+    // 点数表早引きの「すべて」。この章が要らなくする暗記はまさに親ツモの列で、
     // 親子のセルを引く練習がそのまま腕試しになる
     // （ツモだけに絞るバリアントは持たない — ロンとツモは同じセルの表裏）
     practiceLinks: [practiceLink("score-table", "all")],

@@ -1,30 +1,16 @@
 import { getTranslations } from "next-intl/server";
 
-import {
-  menuTypeToMessageKey,
-  practiceMenuByType,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { leaderboardBoardLabel } from "@mahjong-scoring/features/leaderboard/board-label";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 /**
- * 土俵の表示名（練習の短い名 + バリアント名）
+ * ランキングでの土俵の表示名
  * 土俵名
  *
- * バリアントを持つ練習は「点数表早引き（子・満貫未満）」のように設定名を
- * 添える。同じ練習の土俵が並ぶ一覧で、名前だけで見分けられるようにする。
- * 設定を持たない練習は短い名だけ。
- *
+ * 規則は `leaderboardBoardLabel`（アプリの順位の一覧と同じ）。
  * サーバーコンポーネント専用（`getTranslations`）。
  */
 export async function boardTitle(board: PracticeBoard): Promise<string> {
-  const tPractices = await getTranslations("practice.practices");
-  const title = tPractices(
-    `${menuTypeToMessageKey(board.menuType)}.shortTitle`,
-  );
-
-  const { hasSetup, namespace } = practiceMenuByType(board.menuType);
-  if (!hasSetup) return title;
-
-  const tVariants = await getTranslations(`${namespace}.variants`);
-  return `${title}（${tVariants(`${board.variant}.label`)}）`;
+  const t = await getTranslations();
+  return leaderboardBoardLabel(board, t);
 }

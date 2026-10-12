@@ -75,9 +75,12 @@ interface PracticeMenuEntry {
    *
    * 練習の出題設定は、ここに列挙した少数のバリアントから 1 つを選ぶ形に
    * 限る。自由な組み合わせ（チェックボックス等）は作らない — 記録が残る
-   * チャレンジは、設定ごとに別のランキング・別のベストスコアを持つ必要が
+   * チャレンジは、設定ごとに別のベストスコア・別のマイレコードを持つ必要が
    * あり、列挙できない設定は名前を付けて並べることも比較することも
-   * できないため。
+   * できないため。ランキングに載るのはそのうち `rankedVariants` だけ。
+   *
+   * 範囲を絞らない完成形のバリアントは {@link ALL_VARIANT} を名乗る
+   * （ランキングの既定がこれを引く）。
    *
    * バリアントのキーはそのまま `challenge_results.leaderboard_key` になり、
    * URL の `?variant=` とラベルの辞書キー（`<namespace>.variants.<key>`）
@@ -86,13 +89,13 @@ interface PracticeMenuEntry {
    */
   readonly variants?: readonly [string, ...string[]];
   /**
-   * ランキングに載せるバリアント（省略時は `variants` のすべて）。
+   * ランキングに載せるバリアントの上書き（省略時は既定の規則。
+   * `resolveDescriptor` 参照）。
    * ランキング対象バリアント
    *
    * `variants` の部分集合で、並びはランキングの一覧の並びになる。ここに
    * 無いバリアントのチャレンジも記録（自己ベスト・マイレコード）は残るが、
-   * ランキングの土俵にはならない。出題範囲を絞るバリアントは練習の
-   * 足場で、腕前を並べて比べる土俵は「すべて」1 つで足りるため。
+   * ランキングの土俵にはならない。
    */
   readonly rankedVariants?: readonly [string, ...string[]];
   /**
@@ -157,6 +160,18 @@ export const PRACTICE_SLUG = {
 export const DEFAULT_VARIANT = "default";
 
 /**
+ * 出題範囲を絞らない完成形のバリアントのキー
+ * すべてバリアント
+ *
+ * バリアントを持つ練習がこれを列挙していれば、ランキングの土俵はこれ 1 つに
+ * なる（`rankedVariants` の既定）。範囲を絞ったバリアントは練習の足場で、
+ * 腕前を並べて比べるのは全範囲 1 つで足りる。絞った範囲ごとに土俵を並べると
+ * ランキングの一覧が練習の数より大きく膨らみ、同じ練習の成績が土俵ごとに
+ * 散って母集団も薄くなる。
+ */
+export const ALL_VARIANT = "all";
+
+/**
  * 練習種別レジストリ
  * 新しい練習の追加はここに1行追加するだけでよい。
  */
@@ -198,8 +213,6 @@ const PRACTICE_MENU_REGISTRY = [
     // 正解の符の上限で区切る累積の範囲。実戦の大半を占める 40符までから、
     // 50・60符を足し、まれな 70符以上まで広げる（core の `TotalFuRange`）
     variants: ["up_to_40", "up_to_60", "all"],
-    // ランキングは「すべて」だけ。範囲を絞った回は記録だけ残る
-    rankedVariants: ["all"],
   },
   {
     menuType: "yaku",
@@ -386,7 +399,8 @@ export interface PracticeMenuDescriptor {
    */
   readonly variants: readonly [string, ...string[]];
   /**
-   * ランキングに載せるバリアント（レジストリで省略した練習は `variants` と同じ）。
+   * ランキングに載せるバリアント（レジストリで省略した練習は、
+   * {@link ALL_VARIANT} を列挙していればそれだけ、無ければ `variants` と同じ）。
    * 先頭がランキングの既定の土俵。
    */
   readonly rankedVariants: readonly [string, ...string[]];
@@ -432,6 +446,17 @@ const menuTypeToMessageKeyMap = new Map<
   PracticeMenuMessageKey
 >(PRACTICE_MENU_REGISTRY.map((e) => [e.menuType, e.messageKey]));
 
+/**
+ * `rankedVariants` を省略した練習のランキング対象（{@link ALL_VARIANT} を
+ * 列挙していればそれだけ、無ければ全バリアント）
+ */
+function defaultRankedVariants(
+  variants: readonly [string, ...string[]] | undefined,
+): readonly [string, ...string[]] {
+  if (variants === undefined) return [DEFAULT_VARIANT];
+  return variants.includes(ALL_VARIANT) ? [ALL_VARIANT] : variants;
+}
+
 /** レジストリの省略値を共通定数で解決した記述子を組み立てる */
 function resolveDescriptor(
   entry: (typeof PRACTICE_MENU_REGISTRY)[number],
@@ -443,8 +468,8 @@ function resolveDescriptor(
     ...entry,
     hasSetup: overrides.variants !== undefined,
     variants: overrides.variants ?? [DEFAULT_VARIANT],
-    rankedVariants: overrides.rankedVariants ??
-      overrides.variants ?? [DEFAULT_VARIANT],
+    rankedVariants:
+      overrides.rankedVariants ?? defaultRankedVariants(overrides.variants),
     mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
     timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
     basePath: overrides.basePath ?? `/practice/${entry.slug}`,
