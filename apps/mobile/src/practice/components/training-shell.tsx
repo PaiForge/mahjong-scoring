@@ -111,7 +111,7 @@ export function TrainingShell({
       contentStyle={styles.content}
     >
       <View>
-        <BoardBleedProvider>{children}</BoardBleedProvider>
+        <BoardBleedProvider flushTop>{children}</BoardBleedProvider>
         {(isHolding || !hasSubmitButton) && (
           <View
             style={[styles.next, !isHolding && styles.hidden]}

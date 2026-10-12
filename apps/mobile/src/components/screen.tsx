@@ -26,6 +26,14 @@ const HEADER_SLOT_WIDTH = 48;
 /** ヘッダー右に操作を 2 つ並べるときの左右の幅（アイコン 24 × 2 + 間 16 + 余白） */
 const HEADER_WIDE_SLOT_WIDTH = 80;
 
+/**
+ * 本文の上の余白
+ *
+ * ヘッダーの直下に付けたい子（盤面の帯）が、この値ぶん上へ食い込んで打ち消す
+ * （`TehaiDisplay` の `flushTop`）
+ */
+export const SCREEN_CONTENT_PADDING_TOP = 20;
+
 interface ScreenProps {
   /** 見出し（ヘッダー中央に出す）。省略するとヘッダーを出さない */
   readonly title?: string;
@@ -259,7 +267,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: SCREEN_CONTENT_PADDING_TOP,
     gap: 24,
   },
 });

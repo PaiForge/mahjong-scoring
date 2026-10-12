@@ -11,10 +11,11 @@ import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-displa
 import { AutoScale } from "../components/auto-scale";
 import { HelpIconButton } from "../components/help-icon-button";
 import { InfoModal } from "../components/info-modal";
+import { SCREEN_CONTENT_PADDING_TOP } from "../components/screen";
 import { TextLink } from "../components/text-link";
 import { useDoraDisplayMode } from "../hooks/use-display-settings-store";
 import { borderWidth, colors, radius } from "../lib/theme";
-import { useBoardBleed } from "./board-bleed";
+import { useBoardBleed, useBoardFlushTop } from "./board-bleed";
 import { RiichiStick } from "./riichi-stick";
 import { HAI_SM_HEIGHT, REFERENCE_HAND_WIDTH, TehaiHand } from "./tehai-hand";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
@@ -75,6 +76,8 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
 }: TehaiDisplayProps) {
   const bleed = useBoardBleed();
   const fullBleed = fullBleedProp ?? bleed;
+  // 先頭の盤面はヘッダーの直下に付ける（{@link useBoardFlushTop}）
+  const flushTop = useBoardFlushTop() && fullBleed;
   const t = useTranslations("common");
   const router = useRouter();
   const doraDisplay = useDoraDisplayMode();
@@ -90,7 +93,13 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   const oya = isOya(context.jikaze);
 
   return (
-    <View style={[styles.frame, fullBleed ? styles.fullBleed : styles.inset]}>
+    <View
+      style={[
+        styles.frame,
+        fullBleed ? styles.fullBleed : styles.inset,
+        flushTop && styles.flushTop,
+      ]}
+    >
       <View style={styles.infoRow}>
         <AutoScale
           referenceWidth={REFERENCE_HAND_WIDTH}
@@ -178,6 +187,11 @@ const styles = StyleSheet.create({
     borderTopWidth: borderWidth.panel,
     borderBottomWidth: borderWidth.panel,
     paddingHorizontal: 8,
+  },
+  // 上の線はヘッダーの区切り線と重なって 2 本に見えるので引かない
+  flushTop: {
+    marginTop: -SCREEN_CONTENT_PADDING_TOP,
+    borderTopWidth: 0,
   },
   infoRow: {
     marginBottom: 12,
