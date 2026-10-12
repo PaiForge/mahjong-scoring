@@ -17,6 +17,7 @@ import {
 
 import { NativeAdCard } from "../../ads/native-ad-card";
 import { useNativeAds } from "../../ads/use-native-ads";
+import { RecordCtaCard } from "../../home/record-cta-card";
 import { Button, buttonForeground } from "../../components/button";
 import { RotateCcwIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
@@ -40,8 +41,10 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
  * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
- * もう一度。web の末尾にある総合ランキングの上位は置かない（アプリでは他の利用者の
- * 名前・アバターを見せない。`app/leaderboard/index.tsx`）。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
+ * もう一度 → 記録の案内。web の末尾にある総合ランキングの上位は置かない（アプリでは他の利用者の
+ * 名前・アバターを見せない。`app/leaderboard/index.tsx`）。その下にある web の登録 CTA の
+ * 位置には、記録が残らない人（ゲスト・ユーザー名未設定）にだけ記録の案内
+ * （`RecordCtaCard`）を置く。文言はランキングに触れない（`recordCta.result`）。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
  * 添える（送れなければ、次に通信できたときに送ると伝える）。自己ベストの
  * 比較はまだ出さない。
  *
@@ -165,6 +168,8 @@ export function PracticeResultScreen({
               {retryButton}
             </View>
           )}
+
+        <RecordCtaCard placement="result" />
       </MistakeRevealProvider>
     </Screen>
   );
