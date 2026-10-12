@@ -4,6 +4,7 @@ import type {
   RankDefinition,
   RankSlug,
 } from "@mahjong-scoring/features/ranks/registry";
+import { isExamPassed } from "@mahjong-scoring/features/exam/exam-outcome";
 import { nextRank } from "@mahjong-scoring/features/ranks/registry";
 import { db } from "./index";
 import { getUserRankSlugs } from "./rank-queries";
@@ -58,7 +59,7 @@ export function selectGrantableRank(
   const next = nextRank(achievedSlugs);
   if (next === undefined) return undefined;
   if (next.exam.menuType !== run.menuType) return undefined;
-  return run.score >= next.exam.minScore ? next : undefined;
+  return isExamPassed(run.score, next.exam.minScore) ? next : undefined;
 }
 
 /**
