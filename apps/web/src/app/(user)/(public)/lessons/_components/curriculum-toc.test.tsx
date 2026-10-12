@@ -315,4 +315,42 @@ describe("CurriculumToc", () => {
     });
     expect(result).toBeUndefined();
   });
+  describe("コラム", () => {
+    const column: CurriculumChapter = {
+      slug: "why-scoring-is-hard-to-learn",
+      section: "foundation",
+      order: 15,
+      publishedAt: "2026-10-12",
+      kind: "column",
+      i18nKey: "learnCurriculum.chapters.whyScoringIsHardToLearn",
+    };
+
+    it("札とタイトルだけを描き、説明文・完了の印・次の印を持たない", async () => {
+      const { container } = render(
+        await CurriculumToc({
+          section,
+          chapters: [chapters[0]!, column, chapters[1]!],
+          // 完了済み・次として渡されても、コラムの行には印を出さない
+          completedSlugs: new Set<string>([column.slug]),
+          nextSlug: column.slug,
+        }),
+      );
+      const row = container.querySelector(
+        '[data-chapter-slug="why-scoring-is-hard-to-learn"]',
+      );
+      expect(row?.getAttribute("data-column")).toBe("true");
+      expect(row?.querySelector("a")?.getAttribute("href")).toBe(
+        "/lessons/why-scoring-is-hard-to-learn",
+      );
+      expect(row?.textContent).toContain("columnBadge");
+      expect(row?.textContent).not.toContain("description");
+      expect(
+        row?.querySelector('[data-testid="curriculum-achieved-mark"]'),
+      ).toBeNull();
+      expect(
+        row?.querySelector('[data-testid="curriculum-next-badge"]'),
+      ).toBeNull();
+      expect(row?.getAttribute("aria-current")).toBeNull();
+    });
+  });
 });

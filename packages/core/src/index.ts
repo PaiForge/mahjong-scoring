@@ -233,6 +233,7 @@ export {
   parseExtendedMpsz,
   sortHaiCodes,
   sortTehai,
+  validateTehai13,
   validateTehai14,
   countDora,
   getDoraNext,

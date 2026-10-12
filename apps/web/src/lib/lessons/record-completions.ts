@@ -1,7 +1,7 @@
 import "server-only";
 
 import {
-  isCurriculumChapterSlug,
+  isLessonChapterSlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
 
@@ -10,10 +10,10 @@ import { lessonCompletions } from "../db/schema";
 import { lockAccountForWrite } from "../users/account-write-lock";
 
 /**
- * クライアントが送ってきたスラッグを、カリキュラムにある章とそれ以外に分ける
+ * クライアントが送ってきたスラッグを、完了を記録できるレッスンとそれ以外に分ける
  * レッスンスラッグ仕分け
  *
- * 重複は 1 つにまとめる。
+ * コラムは章でも完了を持たないので、不明な slug と同じく弾く。重複は 1 つにまとめる。
  */
 export function partitionLessonSlugs(slugs: readonly string[]): {
   readonly completed: readonly CurriculumChapterSlug[];
@@ -22,7 +22,7 @@ export function partitionLessonSlugs(slugs: readonly string[]): {
   const completed: CurriculumChapterSlug[] = [];
   const rejected: string[] = [];
   for (const slug of new Set(slugs)) {
-    if (isCurriculumChapterSlug(slug)) completed.push(slug);
+    if (isLessonChapterSlug(slug)) completed.push(slug);
     else rejected.push(slug);
   }
   return { completed, rejected };

@@ -52,8 +52,13 @@ interface ChallengeShellProps {
   readonly children: ReactNode;
 }
 
-/** 残りライフ（ハート） */
-function LifeIndicator({
+/**
+ * 残りライフ（ハート）
+ *
+ * チャレンジの画面を練習の外で見せる場所（「このアプリについて」の
+ * プレビュー）も同じものを描くため公開している。
+ */
+export function LifeIndicator({
   remainingLives,
   mistakeLimit,
 }: {

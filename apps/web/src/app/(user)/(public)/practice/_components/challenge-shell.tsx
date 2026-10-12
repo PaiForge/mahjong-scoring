@@ -47,8 +47,13 @@ interface LifeIndicatorProps {
   readonly mistakeLimit: number;
 }
 
-/** ライフ表示（ハートアイコン） */
-const LifeIndicator = memo(function LifeIndicatorComponent({
+/**
+ * ライフ表示（ハートアイコン）
+ *
+ * チャレンジの画面を練習の外で見せる場所（「このアプリについて」の
+ * プレビュー）も同じものを描くため公開している。
+ */
+export const LifeIndicator = memo(function LifeIndicatorComponent({
   remainingLives,
   mistakeLimit,
 }: LifeIndicatorProps) {

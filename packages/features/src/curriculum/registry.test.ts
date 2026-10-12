@@ -8,7 +8,10 @@ import {
   getAdjacentChapters,
   getChapterBySlug,
   getChapterI18nPath,
+  LESSON_CHAPTERS,
+  isColumnChapter,
   isCurriculumChapterSlug,
+  isLessonChapterSlug,
   pickNextChapter,
 } from "./registry";
 import { compareNumbers } from "@mahjong-scoring/core";
@@ -42,6 +45,41 @@ describe("pickNextChapter", () => {
   });
 });
 
+describe("コラム", () => {
+  const COLUMN = "why-scoring-is-hard-to-learn";
+
+  it("目次にはレッスンと並ぶが、進捗の分母には数えない", () => {
+    expect(CURRICULUM_CHAPTER_SLUGS).toContain(COLUMN);
+    expect(LESSON_CHAPTERS.map((c) => c.slug)).not.toContain(COLUMN);
+    expect(LESSON_CHAPTERS.some(isColumnChapter)).toBe(false);
+  });
+
+  it("「次はここから」の候補にしない", () => {
+    expect(pickNextChapter(new Set(["about-this-app"]))?.slug).toBe(
+      "why-scoring-is-complex",
+    );
+  });
+
+  it("前後のレッスンへのリンクはコラムを飛ばし、コラム自身は挟むレッスンへ戻す", () => {
+    expect(getAdjacentChapters("about-this-app").next?.slug).toBe(
+      "why-scoring-is-complex",
+    );
+    expect(getAdjacentChapters("why-scoring-is-complex").prev?.slug).toBe(
+      "about-this-app",
+    );
+    const { prev, next } = getAdjacentChapters(COLUMN);
+    expect(prev?.slug).toBe("about-this-app");
+    expect(next?.slug).toBe("why-scoring-is-complex");
+  });
+
+  it("完了を記録できる slug に含めない", () => {
+    expect(isCurriculumChapterSlug(COLUMN)).toBe(true);
+    expect(isLessonChapterSlug(COLUMN)).toBe(false);
+    expect(isLessonChapterSlug("about-this-app")).toBe(true);
+    expect(isLessonChapterSlug("nonexistent-chapter")).toBe(false);
+  });
+});
+
 describe("getAdjacentChapters", () => {
   it("returns undefined prev for the first chapter", () => {
     const { prev, next } = getAdjacentChapters("about-this-app");
@@ -50,8 +88,8 @@ describe("getAdjacentChapters", () => {
   });
 
   it("returns undefined next for the last chapter", () => {
-    // 末尾の章は章を足すたびに変わるため、slug を直書きせず CURRICULUM から引く
-    const sorted = [...CURRICULUM].sort((a, b) => a.order - b.order);
+    // 末尾の章は章を足すたびに変わるため、slug を直書きせず LESSON_CHAPTERS から引く
+    const sorted = [...LESSON_CHAPTERS].sort((a, b) => a.order - b.order);
     const last = sorted.at(-1)!;
     const secondLast = sorted.at(-2)!;
     const { prev, next } = getAdjacentChapters(last.slug);

@@ -28,14 +28,14 @@ export function LearnIndexSkeleton() {
         <CurriculumProgressBarSkeleton />
 
         {CURRICULUM_SECTIONS.map((section) => {
-          const chapterCount = CURRICULUM.filter(
+          const chapters = CURRICULUM.filter(
             (chapter) => chapter.section === section,
-          ).length;
-          if (chapterCount === 0) return undefined;
+          );
+          if (chapters.length === 0) return undefined;
           return (
             <CurriculumTocSkeleton
               key={section}
-              chapterCount={chapterCount}
+              chapters={chapters}
               labelWidthClassName={SECTION_LABEL_WIDTH_CLASS[section]}
             />
           );

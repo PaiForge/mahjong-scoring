@@ -10,7 +10,7 @@ import { logExternalError } from "@/lib/log-error";
 import { resolveRecorder } from "@/lib/resolve-recorder";
 
 import {
-  isCurriculumChapterSlug,
+  isLessonChapterSlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
 import {
@@ -100,7 +100,7 @@ async function recordCompletions(
  * 間違えた問題もその場で解説を読んで進める設計のため（`lesson_completions` の
  * TSDoc 参照）。
  *
- * - 不正な slug は `{ success: false, error: 'invalid_slug' }` で拒否
+ * - 不正な slug・コラムの slug は `{ success: false, error: 'invalid_slug' }` で拒否
  * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
  * - BAN は `{ success: false, error: 'banned' }` で拒否
  * - 既に完了済みでも `ON CONFLICT DO NOTHING` で冪等
@@ -110,7 +110,7 @@ async function recordCompletions(
 export async function completeLesson(
   slug: string,
 ): Promise<CompleteLessonResult> {
-  if (!isCurriculumChapterSlug(slug)) {
+  if (!isLessonChapterSlug(slug)) {
     return { success: false, error: "invalid_slug" };
   }
 

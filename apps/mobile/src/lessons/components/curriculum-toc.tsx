@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   getChapterI18nPath,
+  isColumnChapter,
   type CurriculumChapter,
   type CurriculumSection,
 } from "@mahjong-scoring/features/curriculum/registry";
@@ -44,6 +45,57 @@ function GuideLine() {
         />
       </Svg>
     </View>
+  );
+}
+
+/**
+ * 目次のコラム 1 行（web の `CurriculumToc` のコラムの行）
+ *
+ * 「コラム」の札と小さな題名だけの 1 段。説明文・完了の印・「次はここから」を
+ * 持たない — 順路のレッスンの間に差し込んだ寄り道だと、行の重さで分かるように
+ */
+function ColumnRow({ chapter }: { readonly chapter: CurriculumChapter }) {
+  const t = useTranslations("learnCurriculum");
+  const router = useRouter();
+  const title = t(`${getChapterI18nPath(chapter)}.title`);
+  const ported = isLessonPorted(chapter.slug);
+  const badge = <Chip tone="neutral">{t("index.columnBadge")}</Chip>;
+
+  if (!ported) {
+    return (
+      <View
+        style={[styles.row, styles.columnRow]}
+        accessibilityState={{ disabled: true }}
+        testID={`chapter-${chapter.slug}`}
+      >
+        {badge}
+        <Text style={[styles.columnTitle, styles.titleDisabled]}>{title}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={() => router.push(chapterHref(chapter.slug))}
+      accessibilityRole="link"
+      testID={`chapter-${chapter.slug}`}
+      style={[styles.row, styles.columnRow]}
+    >
+      {({ pressed }) => (
+        <>
+          {badge}
+          <Text
+            style={[
+              styles.columnTitle,
+              styles.titleLink,
+              pressed && styles.titlePressed,
+            ]}
+          >
+            {title}
+          </Text>
+        </>
+      )}
+    </Pressable>
   );
 }
 
@@ -124,6 +176,8 @@ function ChapterRow({
  * 破線のガイド線がセクションの bullet から最後の章までを縦に束ねる。
  * 「次はここから」のバッジと完了の印は行の右端に出す（排他）。
  *
+ * コラム（`ChapterKind`）は札と小さな題名だけの 1 段で、レッスンより一段弱く描く。
+ *
  * モバイルに本文を移植していない章は、目次の並びを崩さないよう行は残し、
  * 押せない形（淡い題名）に「アプリ版は準備中」を添える。
  */
@@ -153,14 +207,18 @@ export function CurriculumToc({
         <Text style={styles.sectionLabel}>{sectionLabel}</Text>
       </View>
       <View>
-        {chapters.map((chapter) => (
-          <ChapterRow
-            key={chapter.slug}
-            chapter={chapter}
-            isDone={completedSlugs.has(chapter.slug)}
-            isNext={nextSlug === chapter.slug}
-          />
-        ))}
+        {chapters.map((chapter) =>
+          isColumnChapter(chapter) ? (
+            <ColumnRow key={chapter.slug} chapter={chapter} />
+          ) : (
+            <ChapterRow
+              key={chapter.slug}
+              chapter={chapter}
+              isDone={completedSlugs.has(chapter.slug)}
+              isNext={nextSlug === chapter.slug}
+            />
+          ),
+        )}
       </View>
     </View>
   );
@@ -246,6 +304,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingLeft: CHAPTER_INDENT,
     paddingRight: 8,
+  },
+  columnRow: {
+    alignItems: "center",
+    gap: 8,
+  },
+  columnTitle: {
+    flexShrink: 1,
+    fontSize: 13,
   },
   rowNext: {
     backgroundColor: lessonColors.amber50Solid,

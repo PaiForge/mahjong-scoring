@@ -4,7 +4,7 @@ import { CurriculumProgressBar } from "@/app/(user)/(public)/lessons/_components
 import { CurriculumToc } from "@/app/(user)/(public)/lessons/_components/curriculum-toc";
 import { CurriculumTocLink } from "@/app/(user)/(public)/lessons/_components/curriculum-toc-link";
 import {
-  CURRICULUM,
+  LESSON_CHAPTERS,
   type CurriculumChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
@@ -44,7 +44,7 @@ export async function ContinueLearningSection({
 
       <CurriculumProgressBar
         completedCount={completedSlugs.size}
-        totalCount={CURRICULUM.length}
+        totalCount={LESSON_CHAPTERS.length}
         allCompleted={false}
       />
 
