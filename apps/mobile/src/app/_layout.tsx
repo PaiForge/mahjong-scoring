@@ -20,11 +20,11 @@ import { TermSheetProvider } from "../reference/term-sheet";
  * web がタブバーを畳むのと同じく、ヘッダーもタブも出さず画面を明け渡す。
  */
 export default function RootLayout() {
-  useAccountSync();
   usePurchaseSync();
   return (
     <SafeAreaProvider>
       <AppIntlProvider>
+        <AccountSync />
         {/* 牌はパッケージ同梱の画像（base64）で描く。web と違い静的ファイルを
             配信する手段が無く、アプリのバンドルに画像が入っても起動時に
             一度読むだけなので構わない。Provider が無いと Hai は描けない（例外） */}
@@ -67,4 +67,10 @@ export default function RootLayout() {
       </AppIntlProvider>
     </SafeAreaProvider>
   );
+}
+
+/** 預かりの送信を回す（記録できた知らせに辞書を引くので Provider の内側に置く） */
+function AccountSync() {
+  useAccountSync();
+  return null;
 }

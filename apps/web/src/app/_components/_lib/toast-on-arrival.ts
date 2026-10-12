@@ -1,5 +1,7 @@
 "use client";
 
+import { safeSessionStorage } from "@/lib/safe-storage";
+
 /**
  * 遷移してから出すトースト
  *
@@ -15,6 +17,11 @@
  *
  * 預かりは 1 件だけ持ち、次に pathname が変わった時点で必ず捨てる。遷移が
  * 起きなかった場合や別の場所へ飛んだ場合に、無関係なページで後から出るのを防ぐ。
+ *
+ * 預かりは sessionStorage にも写す。ページを読み込み直す遷移（ログインの
+ * `window.location.href`）や、外のサイトを経由して戻る遷移（Google の OAuth）では
+ * モジュールの変数が消えるため。読み込み直した先では GlobalToaster が最初の
+ * pathname で取り出す。sessionStorage はタブごとなので、別のタブでは出ない。
  *
  * 遷移を伴わない報せ（その場に留まる保存完了など）はここを通さず `toast()` を
  * 直接呼ぶこと。着地を待てないまま宙に浮く。
@@ -42,6 +49,35 @@ interface PendingToast extends ArrivalToast {
  */
 let pending: PendingToast | null = null;
 
+/** 読み込み直しをまたぐ写し（{@link pending} と同じ中身） */
+const STORAGE_KEY = "toast-on-arrival";
+
+function readStored(): PendingToast | null {
+  const raw = safeSessionStorage.getItem(STORAGE_KEY);
+  if (raw === null) return null;
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "pathname" in value &&
+      typeof value.pathname === "string" &&
+      "message" in value &&
+      typeof value.message === "string" &&
+      "tone" in value &&
+      (value.tone === "notice" || value.tone === "success")
+    )
+      return {
+        pathname: value.pathname,
+        message: value.message,
+        tone: value.tone,
+      };
+  } catch {
+    // 壊れた写しは無かったことにする
+  }
+  return null;
+}
+
 /** 着地判定はパスだけで行う。クエリ・ハッシュは同じページの中の状態なので見ない */
 function pathnameOf(href: string): string {
   return href.split(/[?#]/)[0] ?? href;
@@ -54,6 +90,7 @@ export function toastOnArrival(
   tone: ArrivalToastTone = "notice",
 ): void {
   pending = { pathname: pathnameOf(href), message, tone };
+  safeSessionStorage.setItem(STORAGE_KEY, JSON.stringify(pending));
 }
 
 /**
@@ -61,8 +98,9 @@ export function toastOnArrival(
  * pathname が変わるたびに呼ぶ前提で、呼べば必ず空になる。
  */
 export function takeToastOnArrival(pathname: string): ArrivalToast | null {
-  const queued = pending;
+  const queued = pending ?? readStored();
   pending = null;
+  safeSessionStorage.removeItem(STORAGE_KEY);
   if (queued?.pathname !== pathname) return null;
   return { message: queued.message, tone: queued.tone };
 }

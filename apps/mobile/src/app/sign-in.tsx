@@ -20,6 +20,7 @@ import { refreshAccount } from "../auth/use-auth";
 import { useLeaveAuthFlow } from "../auth/use-leave-auth-flow";
 import { Button } from "../components/button";
 import { Screen } from "../components/screen";
+import { showToast } from "../components/toast";
 import { TextField } from "../components/text-field";
 import { TextLink } from "../components/text-link";
 import { colors } from "../lib/theme";
@@ -65,6 +66,7 @@ export default function SignInScreen() {
       return;
     }
     leaveAuthFlow();
+    showToast(t("signInSuccess"), "success");
   };
 
   return (

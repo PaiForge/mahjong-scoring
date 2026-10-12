@@ -11,6 +11,7 @@ import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
 import { signIn } from "../_actions/sign-in";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 /**
  * メールアドレス/パスワードによるサインインフォーム
@@ -32,9 +33,12 @@ export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
       mapError: (code) =>
         code === "rateLimited" ? t("rateLimited") : t("emailSignInError"),
       onSuccess: () => {
+        const next = redirectTo ?? "/mypage";
+        // 読み込み直した先で出す（預かりは sessionStorage を経由して残る）
+        toastOnArrival(next, t("signInSuccess"), "success");
         // Hard navigation で Cookie の同期を確実にする。
         // router.push だと Server Component が Cookie 反映前にレンダリングされる可能性がある。
-        window.location.href = redirectTo ?? "/mypage";
+        window.location.href = next;
       },
     });
   };

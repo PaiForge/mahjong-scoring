@@ -13,6 +13,7 @@ import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
 import { resetPassword } from "../_actions/reset-password";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 /**
  * パスワード再設定フォーム。
@@ -38,6 +39,7 @@ export function ResetPasswordForm() {
         return mapPasswordError(code) ?? t("error");
       },
       onSuccess: () => {
+        toastOnArrival("/mypage", t("successToast"), "success");
         router.push("/mypage");
       },
     });
