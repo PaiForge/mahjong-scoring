@@ -73,8 +73,10 @@ export function isLeaderboardMenuType(
  * ランキング土俵一覧
  *
  * 練習の並びは {@link LEADERBOARD_MENU_TYPES}、その中のバリアントの並びは
- * レジストリの `rankedVariants` の列挙順。出題範囲を選べる練習でも、
- * `rankedVariants` に無いバリアントは土俵にならない（記録だけ残る）。
+ * レジストリの `rankedVariants` の列挙順。出題範囲を選べる練習は「すべて」
+ * （`ALL_VARIANT`）だけが土俵になり、範囲を絞った回は記録（自己ベスト・
+ * マイレコード）だけが残る。絞った範囲は練習の足場で、腕前を並べて比べる
+ * のは全範囲 1 つで足りるため（理由の全文は `ALL_VARIANT`）。
  */
 export const LEADERBOARD_BOARDS: readonly PracticeBoard[] =
   LEADERBOARD_MENU_TYPES.flatMap((menuType) =>
@@ -145,7 +147,7 @@ function boardCategory(board: PracticeBoard): PracticeCategory | undefined {
  * ランキングの土俵を分野（符の計算 / 翻数 / 点数計算）ごとにまとめる
  * 土俵の分野分け
  *
- * 一覧は 17 行あり、行頭の記号 1 つで種目を見分けさせるのは元々無理がある
+ * 一覧は練習の数だけ（10 行を超える）あり、行頭の記号 1 つで種目を見分けさせるのは元々無理がある
  * （運べるのはせいぜい分野までで、種目そのものではない）。分野なら名前ごと
  * 見出しに出せるので、行頭には何も置かず見出しで括る。
  *

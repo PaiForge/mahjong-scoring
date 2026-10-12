@@ -82,15 +82,8 @@ describe("isLeaderboardMenuType", () => {
 });
 
 describe("LEADERBOARD_BOARDS", () => {
-  it("ランキング対象の練習 × バリアントを列挙順に並べる", () => {
-    const yakuHan = LEADERBOARD_BOARDS.filter(
-      (board) => board.menuType === "yaku_han",
-    );
-    expect(yakuHan.map((board) => board.variant)).toEqual([
-      "no_kuisagari",
-      "kuisagari",
-      "all",
-    ]);
+  it("練習ごとに土俵を 1 つ持つ", () => {
+    expect(LEADERBOARD_BOARDS).toHaveLength(LEADERBOARD_MENU_TYPES.length);
     const jantouFu = LEADERBOARD_BOARDS.filter(
       (board) => board.menuType === "jantou_fu",
     );
@@ -103,11 +96,16 @@ describe("LEADERBOARD_BOARDS", () => {
     ).toBe(false);
   });
 
-  it("rankedVariants に無いバリアントは土俵にしない", () => {
-    const totalFu = LEADERBOARD_BOARDS.filter(
-      (board) => board.menuType === "total_fu",
-    );
-    expect(totalFu.map((board) => board.variant)).toEqual(["all"]);
+  it("出題範囲を選べる練習は「すべて」だけを土俵にする", () => {
+    for (const menuType of ["total_fu", "score_table", "yaku_han"]) {
+      const boards = LEADERBOARD_BOARDS.filter(
+        (board) => board.menuType === menuType,
+      );
+      expect(
+        boards.map((board) => board.variant),
+        menuType,
+      ).toEqual(["all"]);
+    }
   });
 });
 
@@ -133,6 +131,9 @@ describe("isLeaderboardBoard", () => {
     expect(
       isLeaderboardBoard({ menuType: "total_fu", variant: "up_to_40" }),
     ).toBe(false);
+    expect(
+      isLeaderboardBoard({ menuType: "yaku_han", variant: "kuisagari" }),
+    ).toBe(false);
     expect(isLeaderboardBoard({ menuType: "total_fu", variant: "all" })).toBe(
       true,
     );
@@ -143,11 +144,9 @@ describe("resolveLeaderboardBoard", () => {
   it("バリアントを既定に正規化する", () => {
     expect(resolveLeaderboardBoard("yaku-han", undefined)).toEqual({
       menuType: "yaku_han",
-      variant: "no_kuisagari",
+      variant: "all",
     });
-    expect(resolveLeaderboardBoard("yaku-han", "bogus")?.variant).toBe(
-      "no_kuisagari",
-    );
+    expect(resolveLeaderboardBoard("yaku-han", "bogus")?.variant).toBe("all");
     expect(resolveLeaderboardBoard("yaku-han", "all")?.variant).toBe("all");
     expect(resolveLeaderboardBoard("jantou-fu", "all")?.variant).toBe(
       "default",
@@ -158,6 +157,10 @@ describe("resolveLeaderboardBoard", () => {
     // 合計符の練習の既定（40符まで）はランキングに載らない
     expect(resolveLeaderboardBoard("total-fu", undefined)?.variant).toBe("all");
     expect(resolveLeaderboardBoard("total-fu", "up_to_60")?.variant).toBe(
+      "all",
+    );
+    // 点数表の練習の既定（子・満貫以上）も同じ
+    expect(resolveLeaderboardBoard("score-table", undefined)?.variant).toBe(
       "all",
     );
   });

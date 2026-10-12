@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ALL_VARIANT,
   DEFAULT_VARIANT,
   PRACTICE_MENU_TYPES,
   isPracticeMenuType,
@@ -71,9 +72,18 @@ describe("バリアント", () => {
     }
   });
 
-  it("rankedVariants を省略した練習は全バリアントをランキングに載せる", () => {
-    const { variants, rankedVariants } = practiceMenuBySlug("yaku-han");
-    expect(rankedVariants).toEqual(variants);
+  it("all を列挙した練習は all だけをランキングに載せる", () => {
+    for (const menuType of PRACTICE_MENU_TYPES) {
+      const { variants, rankedVariants } = practiceMenuByType(menuType);
+      if (!variants.includes(ALL_VARIANT)) continue;
+      expect(rankedVariants, menuType).toEqual([ALL_VARIANT]);
+    }
+  });
+
+  it("設定を持たない練習は default をランキングに載せる", () => {
+    expect(practiceMenuBySlug("jantou-fu").rankedVariants).toEqual([
+      DEFAULT_VARIANT,
+    ]);
   });
 
   it("キーは leaderboard_key（varchar(20)）に収まる snake_case", () => {
