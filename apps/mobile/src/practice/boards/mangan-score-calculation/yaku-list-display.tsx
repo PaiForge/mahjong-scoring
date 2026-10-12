@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { sumYakuHan } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
@@ -32,7 +33,7 @@ export function YakuListDisplay({
   const yakuOrder = useYakuOrder();
 
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
-  const totalHan = ordered.reduce((sum, yaku) => sum + yaku.han, 0);
+  const totalHan = sumYakuHan(ordered);
 
   return (
     <View style={styles.frame}>

@@ -20,6 +20,7 @@ import {
 } from "./assemble-question";
 import type { ScoreQuestion, ScoreRange, YakuDetail } from "./types";
 import { applyAppScoringRules, type RiichiInput } from "./utils/reconciler";
+import { sumYakuHan } from "./yaku-han";
 
 /** 表ドラの内訳名（`yakuDetails.name` の語彙。裏ドラは reconciler.ts） */
 const DORA_NAME = "ドラ";
@@ -202,7 +203,7 @@ export function buildScoreQuestion(
     yakuDetails = [...yakuDetails, { name: DORA_NAME, han: doraHan }];
   }
 
-  const detailsHan = yakuDetails.reduce((total, yaku) => total + yaku.han, 0);
+  const detailsHan = sumYakuHan(yakuDetails);
   if (detailsHan !== finalAnswer.han) {
     finalAnswer = recalculateScore(finalAnswer, detailsHan, {
       isTsumo,

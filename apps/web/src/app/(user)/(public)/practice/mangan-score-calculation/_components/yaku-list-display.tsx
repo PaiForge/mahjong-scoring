@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { sumYakuHan } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 
 import { DetailTable } from "../../_components/detail-table";
@@ -53,7 +54,7 @@ export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
   const yakuOrder = useYakuOrder();
 
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
-  const totalHan = ordered.reduce((sum, yaku) => sum + yaku.han, 0);
+  const totalHan = sumYakuHan(ordered);
 
   return (
     <div className="rounded-panel border border-panel bg-surface-50 p-3">

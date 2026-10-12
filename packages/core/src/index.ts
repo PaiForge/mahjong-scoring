@@ -122,6 +122,7 @@ export type {
   YakuSelectionState,
   YakuSelectionJudgement,
 } from "./problem/score/types";
+export { sumYakuHan } from "./problem/score/yaku-han";
 export {
   parseTehai,
   parseHais,

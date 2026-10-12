@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslations } from "use-intl";
 import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
+import { sumYakuHan } from "@mahjong-scoring/core";
 import {
   resolveBreakdownTabs,
   type BreakdownJudgement,
@@ -100,7 +101,7 @@ export function ScoreBreakdownPanel({
         {
           kind,
           tabLabel: t("hanTab", {
-            count: yakuDetails.reduce((sum, detail) => sum + detail.han, 0),
+            count: sumYakuHan(yakuDetails),
           }),
           content: (
             <YakuBreakdownTable
