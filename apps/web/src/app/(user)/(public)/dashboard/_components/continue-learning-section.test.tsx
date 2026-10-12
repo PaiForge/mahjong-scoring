@@ -3,6 +3,7 @@ import { render } from "@testing-library/react";
 
 import {
   CURRICULUM,
+  LESSON_CHAPTERS,
   type CurriculumChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 
@@ -91,7 +92,9 @@ describe("ContinueLearningSection", () => {
 
     const progress = getByTestId("progress");
     expect(progress.getAttribute("data-done")).toBe("2");
-    expect(progress.getAttribute("data-total")).toBe(String(CURRICULUM.length));
+    expect(progress.getAttribute("data-total")).toBe(
+      String(LESSON_CHAPTERS.length),
+    );
   });
 
   it("目次ページへのリンクを持つ", async () => {

@@ -11,6 +11,7 @@ import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
   getChapterBySlug,
+  isColumnChapter,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
 import { stepAfterLesson } from "@mahjong-scoring/features/journey/journey";
@@ -59,7 +60,8 @@ interface LearnPageLayoutProps {
  *   黒帯への道の次の一歩（次のレッスンの冒頭のプレビュー・練習・昇級試験）へ
  *   送り、級の最後のレッスンでは昇級試験までの進み具合を添える
  * - 確認問題を持たない章: 本文の下に完了ボタン（`ChapterCompleteButton`）。
- *   記録される印は確認問題と同じ
+ *   記録される印は確認問題と同じ。コラム（`ChapterKind`）は完了を持たないので
+ *   出さない
  * - 練習・昇級試験への導線（`ChapterRelatedLinks`）— 確認問題を持つ章では
  *   完了後に、持たない章では完了ボタンの下に。確認問題より前に押して始める
  *   ボタンを置かない
@@ -168,7 +170,9 @@ export async function LearnPageLayout({
       ) : (
         <div className="space-y-10">
           {body}
-          <ChapterCompleteButton slug={slug} />
+          {chapter && !isColumnChapter(chapter) && (
+            <ChapterCompleteButton slug={slug} />
+          )}
           <ChapterRelatedLinks slug={slug} />
           {footer}
         </div>

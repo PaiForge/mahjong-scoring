@@ -61,11 +61,12 @@ describe("section grouping", () => {
     expect(fuSlugs).toEqual(["jantou-fu", "mentsu-fu", "machi-fu", "tehai-fu"]);
   });
 
-  it('places about-this-app and why-scoring-is-complex in "foundation"', () => {
+  it('places about-this-app, its column and why-scoring-is-complex in "foundation"', () => {
     const grouped = chaptersBySection();
     const foundationSlugs = grouped.get("foundation")?.map((c) => c.slug) ?? [];
     expect(foundationSlugs).toEqual([
       "about-this-app",
+      "why-scoring-is-hard-to-learn",
       "why-scoring-is-complex",
     ]);
   });

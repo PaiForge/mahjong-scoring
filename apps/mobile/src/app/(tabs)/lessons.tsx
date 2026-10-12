@@ -6,6 +6,7 @@ import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import {
   CURRICULUM,
   CURRICULUM_SECTIONS,
+  LESSON_CHAPTERS,
   chaptersBySection,
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
@@ -22,8 +23,8 @@ import {
 } from "../../lessons/components/curriculum-toc";
 import { isLessonPorted } from "../../lessons/ported-lessons";
 
-/** モバイルで開けるレッスン（目次の順） */
-const PORTED_CHAPTERS = CURRICULUM.filter((chapter) =>
+/** モバイルで開けるレッスン（目次の順）。コラムは進捗に数えないので除く */
+const PORTED_LESSONS = LESSON_CHAPTERS.filter((chapter) =>
   isLessonPorted(chapter.slug),
 );
 
@@ -52,7 +53,7 @@ export default function LessonsTab() {
   const t = useTranslations("learnCurriculum.index");
   const completedSlugs = useCompletedLessons();
   const next = pickNextChapter(new Set([...completedSlugs, ...UNPORTED_SLUGS]));
-  const completedCount = PORTED_CHAPTERS.filter((chapter) =>
+  const completedCount = PORTED_LESSONS.filter((chapter) =>
     completedSlugs.has(chapter.slug),
   ).length;
   const allCompleted = next === undefined;
@@ -63,7 +64,7 @@ export default function LessonsTab() {
       <View style={styles.page}>
         <CurriculumProgressBar
           completedCount={completedCount}
-          totalCount={PORTED_CHAPTERS.length}
+          totalCount={PORTED_LESSONS.length}
           allCompleted={allCompleted}
         />
 

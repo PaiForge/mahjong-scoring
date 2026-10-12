@@ -11,7 +11,11 @@
   "chapters": {
     "aboutThisApp": {
       "title": "このアプリについて",
-      "description": "このアプリで学べることと、開発の経緯"
+      "description": "このアプリの特徴と、学習の進め方"
+    },
+    "whyScoringIsHardToLearn": {
+      "title": "点数計算ができるようにならない理由",
+      "description": "作者が点数計算でつまずいた 3 つの理由"
     },
     "whyScoringIsComplex": {
       "title": "点数計算が複雑な理由",
@@ -88,7 +92,8 @@
     "progressLabel": "{done} / {total} レッスン完了",
     "nextChapterBadge": "次はここから",
     "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！",
-    "unavailableBadge": "アプリ版は準備中"
+    "unavailableBadge": "アプリ版は準備中",
+    "columnBadge": "コラム"
   },
   "chapter": {
     "completeCta": "このレッスンを完了にする",

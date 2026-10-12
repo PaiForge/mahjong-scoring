@@ -5,6 +5,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
   getChapterI18nPath,
+  isColumnChapter,
   type CurriculumChapter,
   type CurriculumSection,
 } from "@mahjong-scoring/features/curriculum/registry";
@@ -40,6 +41,10 @@ interface CurriculumTocProps {
  * - 章は bullet なし / `pl-7` インデントで配置し「タイトル Link + description」を表示
  * - 「次はここから」バッジは行の右端、`aria-current="step"` も付与
  * - 完了したレッスンは行の右端に緑丸のチェック（白抜き・枠なし）
+ *
+ * - コラム（`ChapterKind`）は一段弱く描く: 小さな「コラム」の札と小さな
+ *   タイトルだけで、説明文・完了の印・「次はここから」を持たない。順路の
+ *   レッスンの間に差し込んだ寄り道だと、行の重さで分かるようにする
  *
  * バッジとチェックは同じ右端の位置に出す（完了したレッスンが「次」になることは
  * ないため排他）。行の中で状態を示す印は右端の 1 列に揃え、左側はタイトルと
@@ -95,6 +100,29 @@ export async function CurriculumToc({
           aria-label={sectionLabel}
         >
           {chapters.map((ch) => {
+            if (isColumnChapter(ch)) {
+              return (
+                <li
+                  key={ch.slug}
+                  id={anchored ? chapterTocAnchorId(ch.slug) : undefined}
+                  className={`${CHAPTER_ROW_BASE_CLASS} scroll-mt-24`}
+                  data-chapter-slug={ch.slug}
+                  data-column="true"
+                >
+                  <span className="inline-flex h-5 shrink-0 items-center rounded-md bg-surface-100 px-1.5 text-[10px] leading-none font-bold text-surface-500">
+                    {tIndex("columnBadge")}
+                  </span>
+                  <Link
+                    href={chapterHref(ch.slug)}
+                    // 札（h-5）と同じ行の高さにして、1 行目の中心を揃える
+                    className={`min-w-0 text-xs leading-5 ${TEXT_LINK_CLASSES}`}
+                  >
+                    {t(`${getChapterI18nPath(ch)}.title`)}
+                  </Link>
+                </li>
+              );
+            }
+
             const isDone = completedSlugs.has(ch.slug);
             const isNext = nextSlug === ch.slug;
             const path = getChapterI18nPath(ch);

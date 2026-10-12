@@ -1,5 +1,9 @@
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import {
+  isColumnChapter,
+  type CurriculumChapter,
+} from "@mahjong-scoring/features/curriculum/registry";
+import {
   BULLET_CENTER_TOP_PX,
   CHAPTER_ROW_BASE_CLASS,
   GUIDE_LINE_LEFT_PX,
@@ -7,8 +11,11 @@ import {
 } from "../_lib/toc-layout";
 
 interface CurriculumTocSkeletonProps {
-  /** このセクションに属する章数。実際の目次と同じ行数を確保する */
-  readonly chapterCount: number;
+  /**
+   * このセクションに属する章。実際の目次と同じ行数・同じ行の形
+   * （レッスンは 2 段、コラムは 1 段）を確保する
+   */
+  readonly chapters: readonly CurriculumChapter[];
   /** セクションラベルのプレースホルダ幅（Tailwind の `w-*` クラス） */
   readonly labelWidthClassName: string;
 }
@@ -18,13 +25,13 @@ interface CurriculumTocSkeletonProps {
  * 目次スケルトン
  *
  * `CurriculumToc` と同じ構造 — 破線ガイド線・セクション bullet・`pl-7` の章行
- * （タイトル行 + 説明行の 2 段）— を描き、テキストだけを矩形に置き換える。
+ * （レッスンはタイトル行 + 説明行の 2 段、コラムは札とタイトルの 1 段）— を描き、テキストだけを矩形に置き換える。
  * 座標とインデントは `_lib/toc-layout.ts` を実物と共有しているためズレない。
  *
  * 章タイトルの幅は行ごとに変えて、実際の目次と同じくランダムな長さに見せる。
  */
 export function CurriculumTocSkeleton({
-  chapterCount,
+  chapters,
   labelWidthClassName,
 }: CurriculumTocSkeletonProps) {
   return (
@@ -57,33 +64,48 @@ export function CurriculumTocSkeleton({
         </p>
       </div>
       <div className="flex flex-col">
-        {Array.from({ length: chapterCount }).map((_, i) => (
-          <div
-            key={i}
-            data-testid="curriculum-chapter-row-skeleton"
-            className={CHAPTER_ROW_BASE_CLASS}
-          >
-            <span className="flex min-w-0 flex-1 flex-col gap-2">
-              <span className="flex flex-wrap items-center gap-2 text-sm font-bold">
-                <SkeletonBar
-                  as="span"
-                  className={`inline-block ${CHAPTER_TITLE_WIDTH_CLASSES[i % CHAPTER_TITLE_WIDTH_CLASSES.length]}`}
-                >
+        {chapters.map((chapter, i) =>
+          isColumnChapter(chapter) ? (
+            <div
+              key={chapter.slug}
+              data-testid="curriculum-chapter-row-skeleton"
+              className={CHAPTER_ROW_BASE_CLASS}
+            >
+              <SkeletonBar tone={100} className="h-5 w-9 shrink-0" />
+              <span className="text-xs leading-5">
+                <SkeletonBar as="span" tone={100} className="inline-block w-48">
                   &nbsp;
                 </SkeletonBar>
               </span>
-              <span className="text-xs">
-                <SkeletonBar
-                  as="span"
-                  tone={100}
-                  className={`inline-block ${CHAPTER_DESCRIPTION_WIDTH_CLASSES[i % CHAPTER_DESCRIPTION_WIDTH_CLASSES.length]}`}
-                >
-                  &nbsp;
-                </SkeletonBar>
+            </div>
+          ) : (
+            <div
+              key={chapter.slug}
+              data-testid="curriculum-chapter-row-skeleton"
+              className={CHAPTER_ROW_BASE_CLASS}
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-2">
+                <span className="flex flex-wrap items-center gap-2 text-sm font-bold">
+                  <SkeletonBar
+                    as="span"
+                    className={`inline-block ${CHAPTER_TITLE_WIDTH_CLASSES[i % CHAPTER_TITLE_WIDTH_CLASSES.length]}`}
+                  >
+                    &nbsp;
+                  </SkeletonBar>
+                </span>
+                <span className="text-xs">
+                  <SkeletonBar
+                    as="span"
+                    tone={100}
+                    className={`inline-block ${CHAPTER_DESCRIPTION_WIDTH_CLASSES[i % CHAPTER_DESCRIPTION_WIDTH_CLASSES.length]}`}
+                  >
+                    &nbsp;
+                  </SkeletonBar>
+                </span>
               </span>
-            </span>
-          </div>
-        ))}
+            </div>
+          ),
+        )}
       </div>
     </div>
   );

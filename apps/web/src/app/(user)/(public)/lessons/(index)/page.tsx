@@ -32,7 +32,7 @@ import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
 import { CurriculumToc } from "../_components/curriculum-toc";
 import {
-  CURRICULUM,
+  LESSON_CHAPTERS,
   CURRICULUM_SECTIONS,
   chaptersBySection,
   pickNextChapter,
@@ -66,7 +66,7 @@ export default async function LearnIndexPage() {
       <div className="space-y-8">
         <CurriculumProgressBar
           completedCount={completedSlugs.size}
-          totalCount={CURRICULUM.length}
+          totalCount={LESSON_CHAPTERS.length}
           allCompleted={allCompleted}
         />
 

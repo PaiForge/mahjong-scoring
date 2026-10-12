@@ -39,6 +39,7 @@ import scoreTable from "./ja/score-table.json";
 import tenpaiScore from "./ja/tenpai-score.json";
 import agariScore from "./ja/agari-score.json";
 import aboutThisApp from "./ja/about-this-app.json";
+import whyScoringIsHardToLearn from "./ja/why-scoring-is-hard-to-learn.json";
 import whyScoringIsComplex from "./ja/why-scoring-is-complex.json";
 import learnCurriculum from "./ja/learn-curriculum.json";
 import footer from "./ja/footer.json";
@@ -142,6 +143,7 @@ export const messages = {
   tenpaiScore,
   agariScore,
   aboutThisApp,
+  whyScoringIsHardToLearn,
   whyScoringIsComplex,
   learnCurriculum,
   footer,

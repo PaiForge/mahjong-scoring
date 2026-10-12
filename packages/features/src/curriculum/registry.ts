@@ -83,8 +83,27 @@ interface CurriculumChapterEntry {
    * とは意味が違うため別フィールドにしている。
    */
   readonly examSlug?: PracticeMenuSlug;
+  /** 章の種別。省略するとレッスン（{@link ChapterKind}） */
+  readonly kind?: ChapterKind;
   readonly i18nKey: string;
 }
+
+/**
+ * 章の種別
+ * 章種別
+ *
+ * - `lesson`（既定）— 完了を持つレッスン。「次はここから」・進捗・前後の
+ *   レッスンへのリンクはこの種別だけを数える
+ * - `column` — 目次の流れに差し込む読み物（UI の呼び名は「コラム」）。
+ *   本筋を読むのに要らない背景の話を置く。完了を持たず、「次はここから」・
+ *   進捗の分母・前後のリンクからも外す — 読まなくても先へ進めることを、
+ *   順路に数えないことで示す。目次には並べるが、レッスンより一段弱く描く
+ *
+ * 章の中の囲み（`GuideColumn`・`ChapterColumn`）も「コラム」と呼ぶが、
+ * あちらは章の一部で、こちらは 1 ページを持つ章。どちらも本筋から外れた
+ * 話という同じ役割なので、UI の呼び名を揃えている。
+ */
+export type ChapterKind = "lesson" | "column";
 
 /** 章メタデータのマスタ配列（order 昇順で並べる） */
 const CURRICULUM_REGISTRY = [
@@ -94,6 +113,16 @@ const CURRICULUM_REGISTRY = [
     section: "foundation",
     order: 10,
     i18nKey: "learnCurriculum.chapters.aboutThisApp",
+  },
+  {
+    // このアプリについての背景（作者が点数計算でつまずいた理由）。アプリの
+    // 説明を先に読ませ、なぜその作りなのかを知りたい人だけが寄る読み物
+    slug: "why-scoring-is-hard-to-learn",
+    publishedAt: "2026-10-12",
+    section: "foundation",
+    order: 15,
+    kind: "column",
+    i18nKey: "learnCurriculum.chapters.whyScoringIsHardToLearn",
   },
   {
     slug: "why-scoring-is-complex",
@@ -307,6 +336,8 @@ export interface CurriculumChapter {
   readonly practiceLinks?: readonly PracticeLink[];
   /** この章の読了が前提となる昇級試験（練習スラッグ）。章末に CTA を出す */
   readonly examSlug?: PracticeMenuSlug;
+  /** 章の種別。省略するとレッスン（{@link ChapterKind}） */
+  readonly kind?: ChapterKind;
   readonly i18nKey: string;
 }
 
@@ -322,6 +353,24 @@ const curriculumChapterSlugSet: ReadonlySet<string> = new Set(
 );
 
 /**
+ * 章がコラムか
+ * コラム判定
+ *
+ * @param chapter 対象の章
+ */
+export function isColumnChapter(chapter: CurriculumChapter): boolean {
+  return chapter.kind === "column";
+}
+
+/**
+ * レッスン（コラムを除いた章）。進捗の分母はこの数
+ * レッスン一覧
+ */
+export const LESSON_CHAPTERS: readonly CurriculumChapter[] = CURRICULUM.filter(
+  (chapter) => !isColumnChapter(chapter),
+);
+
+/**
  * order 昇順にソート済みの章配列。
  *
  * @remarks
@@ -332,6 +381,10 @@ const curriculumChapterSlugSet: ReadonlySet<string> = new Set(
 const CURRICULUM_SORTED_BY_ORDER: readonly CurriculumChapter[] = [
   ...CURRICULUM,
 ].sort((a, b) => a.order - b.order);
+
+/** {@link CURRICULUM_SORTED_BY_ORDER} からコラムを除いたもの（順路） */
+const LESSONS_SORTED_BY_ORDER: readonly CurriculumChapter[] =
+  CURRICULUM_SORTED_BY_ORDER.filter((chapter) => !isColumnChapter(chapter));
 
 /**
  * slug から CurriculumChapter を O(1) で引くための lookup map。
@@ -356,20 +409,25 @@ export function getChapterBySlug(
 }
 
 /**
- * 次に読むべき章を返す。order 昇順で readSlugs に含まれない最初の章。
- * 全章読了済の場合は undefined を返す。
+ * 次に読むべき章を返す。order 昇順で readSlugs に含まれない最初のレッスン。
+ * 全レッスン完了済の場合は undefined を返す。コラムは完了を持たないので
+ * 候補にしない（{@link ChapterKind}）。
  *
  * @param readSlugs 読了済み章スラッグの集合
  */
 export function pickNextChapter(
   readSlugs: ReadonlySet<string>,
 ): CurriculumChapter | undefined {
-  return CURRICULUM_SORTED_BY_ORDER.find((c) => !readSlugs.has(c.slug));
+  return LESSONS_SORTED_BY_ORDER.find((c) => !readSlugs.has(c.slug));
 }
 
 /**
- * 指定 slug の前後章を返す。
+ * 指定 slug の前後のレッスンを返す。
  * 指定 slug が存在しない場合は `{ prev: undefined, next: undefined }`。
+ *
+ * コラムは順路に数えない（{@link ChapterKind}）。レッスンの前後はコラムを
+ * 飛ばし、コラム自身の前後はそれを挟むレッスンになる — コラムを読み終えた
+ * 人が順路へ戻れるように。
  *
  * @param slug 対象章のスラッグ
  */
@@ -377,11 +435,11 @@ export function getAdjacentChapters(slug: CurriculumChapterSlug): {
   prev: CurriculumChapter | undefined;
   next: CurriculumChapter | undefined;
 } {
-  const idx = CURRICULUM_SORTED_BY_ORDER.findIndex((c) => c.slug === slug);
-  if (idx === -1) return { prev: undefined, next: undefined };
+  const chapter = CURRICULUM_BY_SLUG.get(slug);
+  if (chapter === undefined) return { prev: undefined, next: undefined };
   return {
-    prev: CURRICULUM_SORTED_BY_ORDER[idx - 1],
-    next: CURRICULUM_SORTED_BY_ORDER[idx + 1],
+    prev: LESSONS_SORTED_BY_ORDER.findLast((c) => c.order < chapter.order),
+    next: LESSONS_SORTED_BY_ORDER.find((c) => c.order > chapter.order),
   };
 }
 
@@ -394,6 +452,23 @@ export function isCurriculumChapterSlug(
   value: unknown,
 ): value is CurriculumChapterSlug {
   return typeof value === "string" && curriculumChapterSlugSet.has(value);
+}
+
+/**
+ * slug が完了を記録できる章（コラムでないレッスン）かを判定する
+ * レッスン判定
+ *
+ * 完了の記録（Server Action・端末に溜めた完了の同期）の入口で使う。コラムは
+ * 完了を持たない（{@link ChapterKind}）ので、slug が正しくても弾く。
+ *
+ * @param value 検査対象の値
+ */
+export function isLessonChapterSlug(
+  value: unknown,
+): value is CurriculumChapterSlug {
+  if (!isCurriculumChapterSlug(value)) return false;
+  const chapter = CURRICULUM_BY_SLUG.get(value);
+  return chapter !== undefined && !isColumnChapter(chapter);
 }
 
 /**
