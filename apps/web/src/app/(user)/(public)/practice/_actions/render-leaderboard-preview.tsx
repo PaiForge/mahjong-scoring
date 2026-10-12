@@ -27,7 +27,8 @@ import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
  * 出題設定を持つ練習はランキングの既定の土俵（`rankedVariants` の先頭）を
  * 出す — 選択パネルの状態はクライアントにあり、選び直すたびに取り直すほどの
  * 導線ではない。練習の既定のバリアントがランキングに載らないこともある
- * （合計符の「40符まで」）ので、練習の既定ではなくランキングの既定を引く。
+ * （合計符の「40符まで」・点数表の「子・満貫以上」）ので、練習の既定ではなく
+ * ランキングの既定を引く。
  */
 export async function renderLeaderboardPreview(
   slug: string,
