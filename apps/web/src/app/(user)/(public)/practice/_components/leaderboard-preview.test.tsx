@@ -123,4 +123,28 @@ describe("LeaderboardPreview", () => {
 
     expect(screen.getAllByTestId(/^row-/)).toHaveLength(2);
   });
+
+  it("renders the footer below the table", async () => {
+    render(
+      await LeaderboardPreview({
+        rows: [createRow()],
+        detailPath: "/leaderboard/all-time/jantou-fu",
+        footer: <p>footer</p>,
+      }),
+    );
+
+    expect(screen.getByText("footer")).toBeDefined();
+  });
+
+  it("does not render the footer when rows is empty", async () => {
+    const { container } = render(
+      await LeaderboardPreview({
+        rows: [],
+        detailPath: "/leaderboard/all-time/jantou-fu",
+        footer: <p>footer</p>,
+      }),
+    );
+
+    expect(container.innerHTML).toBe("");
+  });
 });
