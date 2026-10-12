@@ -141,7 +141,7 @@ export interface YakuOrderSectionParts {
  * 各行の ▲ ▼ で 1 つずつ動かす。施錠・下書き・保存・既定に戻すの流れは web と同じ
  * （{@link useYakuOrderEditor}）で、施錠中は読むだけの一覧に戻し、解錠したときだけ
  * ▲ ▼ を出す（触っただけで並びが変わるのを防ぐ）。保存・既定に戻したことは web と同じく
- * トーストで知らせる。
+ * トーストで知らせる。行に手牌の例示や翻数の補足を付けないのも web と同じ理由による。
  */
 export function YakuOrderSection({ renderLayout }: YakuOrderSectionProps) {
   const t = useTranslations("settings.yakuOrder");

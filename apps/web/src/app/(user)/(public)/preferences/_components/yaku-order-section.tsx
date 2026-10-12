@@ -139,6 +139,11 @@ function GripIcon({ className = "shrink-0" }: { readonly className?: string }) {
  * 解錠中は琥珀（アプリで「本筋の隣に置く箱」に使っている色）の枠を出し、
  * 一時的なモードに入っていることを主張する。枠の太さは両方 1px のまま
  * 色だけを透明にして、切り替えで高さが動かないようにする。
+ *
+ * 行は役名だけで、手牌の例示（役名を押して役一覧モーダルを開く等）や翻数の
+ * 補足は付けない。並び順を変えに来るのは練習をやり込んで「よく使う役」が
+ * 分かっている人で、役名だけで形が思い浮かぶ。形を確かめたい段階の人は
+ * 答え合わせの役一覧やリファレンスの役一覧で見る。
  */
 export function YakuOrderSection() {
   const t = useTranslations("settings.yakuOrder");
