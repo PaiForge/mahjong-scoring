@@ -18,7 +18,7 @@ export async function Footer() {
         <nav className="grid grid-cols-2 gap-8 md:grid-cols-3">
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">
-              {t("learn")}
+              {t("introduction")}
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
