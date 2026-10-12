@@ -28,13 +28,13 @@ appId: help.mahjong.score
 - assertVisible:
     id: "site-link-contact"
 - assertNotVisible: "特定商取引法に基づく表記"
-- takeScreenshot: preferences-site-links
+- takeScreenshot: mypage-site-links
 - tapOn:
     id: "site-link-privacy"
 - extendedWaitUntil:
     visible: ".*利用者のプライバシーを尊重し.*"
     timeout: 20000
-- takeScreenshot: preferences-site-links-privacy
+- takeScreenshot: mypage-site-links-privacy
 - launchApp
 - openLink: "mahjong-scoring://preferences"
 - extendedWaitUntil:

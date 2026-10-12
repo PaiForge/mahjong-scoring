@@ -5,11 +5,11 @@
  * アカウントを作れるアプリはアプリの中で削除できること）。web の退会と
  * 同じ受付をサーバーで行い、消える内容も同じ文言で示す。受け付けた後の
  * 工程はサーバーが最後まで進めるので（一時障害で残った分も再開する）、
- * 受け付けたらこの端末のログイン状態を捨ててゲストに戻り、設定で
+ * 受け付けたらこの端末のログイン状態を捨ててゲストに戻り、マイページで
  * 受け付けたことを知らせる。BAN 中・ユーザー名を決める前でも退会できる。
  * Apple でログインしたことがあり、サーバーが Apple の連携の取り消しに使う
  * トークンを持っていなければ、退会の前に Apple のシートで確認し直す。
- * @flow 設定のアカウント（またはユーザー名の設定）→ 退会 → 確認 → 設定へ戻る
+ * @flow マイページ → アカウント（またはユーザー名の設定）→ 退会 → 確認 → マイページへ戻る
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -83,9 +83,9 @@ export default function DeleteAccountScreen() {
       setError(t(deletionErrorKey(result.error)));
       return;
     }
-    // 受け付けた知らせ（完了か、残りをサーバーが続けているか）は設定の
-    // アカウントの節が出す（deleteOwnAccount が知らせを立てる）
-    router.dismissTo("/preferences");
+    // 受け付けた知らせ（完了か、残りをサーバーが続けているか）はマイページの
+    // 先頭が出す（deleteOwnAccount が知らせを立てる）
+    router.dismissTo("/mypage");
   };
 
   return (

@@ -6,7 +6,7 @@ import {
   REFERENCE_PATH,
 } from "@mahjong-scoring/features/routes";
 
-/** マイページ（設定の入口） */
+/** マイページ（設定・アカウントの入口） */
 const MYPAGE_PATH = "/mypage";
 
 /** 点数表のタブ（参照ページの入口） */
@@ -25,9 +25,8 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  * - 道場・級の詳細・昇級試験 → 道場
  * - 参照（役一覧・用語）→ 参照の入口、参照の入口 → 点数表のタブ
  * - 設定の下のページ → 設定、設定 → マイページ（入口がマイページのため）
- * - ユーザー名の設定・退会 → 設定（入口が設定のアカウントの節のため）
- * - マイページの下のページ → マイページ、マイページ → ホーム（入口がホームの
- *   ヘッダーのため）
+ * - 退会 → アカウント、それ以外のマイページの下のページ → マイページ、
+ *   マイページ → ホーム（入口がホームのヘッダーのため）
  * - ログイン・登録 → ホーム（入口がホームとマイページの記録の案内のため）
  * - それ以外（練習）→ 練習一覧
  *
@@ -47,8 +46,8 @@ export function backFallbackHref(pathname: string): string {
       return child === undefined ? MYPAGE_PATH : PREFERENCES_PATH;
     case "mypage":
       if (child === undefined) return "/";
-      return child === "setup-username" || child === "account"
-        ? PREFERENCES_PATH
+      return pathname === "/mypage/account/delete"
+        ? "/mypage/account"
         : MYPAGE_PATH;
     case "sign-in":
     case "sign-up":

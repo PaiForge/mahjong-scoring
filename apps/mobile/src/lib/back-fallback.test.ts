@@ -24,9 +24,10 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/preferences")).toBe("/mypage");
   });
 
-  it("ユーザー名の設定と退会は入口の設定へ", () => {
-    expect(backFallbackHref("/mypage/setup-username")).toBe("/preferences");
-    expect(backFallbackHref("/mypage/account/delete")).toBe("/preferences");
+  it("アカウント・ユーザー名の設定は入口のマイページへ、退会はアカウントへ", () => {
+    expect(backFallbackHref("/mypage/setup-username")).toBe("/mypage");
+    expect(backFallbackHref("/mypage/account")).toBe("/mypage");
+    expect(backFallbackHref("/mypage/account/delete")).toBe("/mypage/account");
   });
 
   it("ログイン・登録はホームへ", () => {
