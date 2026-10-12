@@ -1,7 +1,7 @@
 import type { NextResponse } from "next/server";
 import type { z } from "zod";
 
-import { mobileJson } from "./response";
+import { mobileInvalidRequest } from "./response";
 
 /**
  * アプリ向け API の要求本文を JSON として読む。上限を超えた・JSON でなければ undefined
@@ -52,6 +52,6 @@ export async function parseMobileBody<T>(
   if (body.success) return { ok: true, data: body.data };
   return {
     ok: false,
-    response: mobileJson({ error: "invalidRequest" }, { status: 400 }),
+    response: mobileInvalidRequest(),
   };
 }

@@ -18,7 +18,7 @@ import type { AppleSignedDataVerifier } from "../billing/apple/verifier";
 import { authorizeMobileRequest } from "./auth";
 import { buildMobilePlanResponse, mobilePlanError } from "./plan";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
 /**
  * 本文の上限。取引そのものの上限（`JWS_MAX_LENGTH`）の 2 倍を取り、JSON の
@@ -122,7 +122,7 @@ function responseOutcomeOf(
     case "ownedByAnotherAccount":
       return mobilePlanError("ownedByAnotherAccount");
     case "accountUnavailable":
-      return mobileJson({ error: "deleted" }, { status: 403 });
+      return mobileDeleted();
     case "rejected":
       switch (recorded.reason) {
         case "unknownProduct":
