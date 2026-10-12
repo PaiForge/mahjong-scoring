@@ -4,21 +4,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 const { mockMarkRead } = vi.hoisted(() => ({ mockMarkRead: vi.fn() }));
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-    onClick,
-  }: {
-    readonly children: React.ReactNode;
-    readonly href: string;
-    readonly onClick?: () => void;
-  }) => (
-    <a href={href} onClick={onClick}>
-      {children}
-    </a>
-  ),
-}));
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock("../../_actions/mark-read", () => ({
   markNotificationReadAction: mockMarkRead,
 }));

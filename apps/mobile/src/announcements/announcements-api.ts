@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/features/announcements/mobile-api";
 
 import { SITE_URL } from "../lib/app-site-url";
+import { readJson } from "../auth/read-json";
 
 /**
  * お知らせの API の失敗
@@ -41,7 +42,7 @@ async function read<T extends object>(
   }
   if (response.status === 404) return { error: "notFound" };
   if (!response.ok) return { error: "unknown" };
-  const value = parse(await response.json().catch(() => undefined));
+  const value = parse(await readJson(response));
   return value ?? { error: "unknown" };
 }
 

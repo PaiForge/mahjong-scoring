@@ -5,15 +5,7 @@ import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-  }: {
-    readonly children: React.ReactNode;
-    readonly href: string;
-  }) => <a href={href}>{children}</a>,
-}));
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
 vi.mock(
   "@/app/(user)/(public)/leaderboard/_components/leaderboard-table-header",

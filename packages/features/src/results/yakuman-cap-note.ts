@@ -1,4 +1,4 @@
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
+import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
 /** `challenge.yakuBreakdown` の翻訳関数（`han` の件数補間を含む） */
@@ -33,7 +33,7 @@ export function buildYakumanCapNote(
   if (yakumanMultiplier === undefined || yakuDetails === undefined) {
     return undefined;
   }
-  const rawTotal = yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
+  const rawTotal = sumYakuHan(yakuDetails);
 
   // 支払いに対応する翻数（役満13翻 × 単位。数え役満は役満1つ分）
   const capHan = YAKUMAN_HAN * Math.max(yakumanMultiplier, 1);

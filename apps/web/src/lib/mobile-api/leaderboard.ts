@@ -17,7 +17,7 @@ import { saveLeaderboardVisibility } from "../users/leaderboard-visibility";
 import { authorizeMobileRequest } from "./auth";
 import { usernameRequired } from "./mypage";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
 /** 設定の本文の上限。`{"hidden":false}` が収まれば足りる */
 const VISIBILITY_BODY_MAX_BYTES = 256;
@@ -114,7 +114,7 @@ export async function handleUpdateLeaderboardVisibility(
       body.data.hidden,
     );
     // 認証を通った後に退会が受け付けられた（入口で弾いたときと同じ答え）
-    if (!written) return mobileJson({ error: "deleted" }, { status: 403 });
+    if (!written) return mobileDeleted();
     return mobileJson({ success: true });
   } catch (error) {
     return mobileServerError(

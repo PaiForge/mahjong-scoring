@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
+import { isExamPassed } from "@mahjong-scoring/features/exam/exam-outcome";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -82,7 +83,8 @@ export function ExamResultScreen({
 
   const minScore = goalCount ?? 0;
   const passed =
-    current !== undefined && current.finalResult.correctCount >= minScore;
+    current !== undefined &&
+    isExamPassed(current.finalResult.correctCount, minScore);
   const retry = () => router.replace(practicePlayHref(slug));
   const toDojo = () => goToTab(DOJO_PATH);
   const primaryButton = passed ? (

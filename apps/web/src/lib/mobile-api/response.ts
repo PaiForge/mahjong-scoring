@@ -53,6 +53,25 @@ export function mobileServerError(
 }
 
 /**
+ * 認証を通った後に退会が受け付けられたときの 403 `deleted`
+ * アプリAPI退会済み応答
+ *
+ * 入口で弾いたとき（`authorizeMobileRequest`）と同じ答え。401 にしないのは、
+ * アプリの「古いトークンなら更新して送り直す」に回ってしまうため。
+ */
+export function mobileDeleted(): NextResponse {
+  return mobileJson({ error: "deleted" }, { status: 403 });
+}
+
+/**
+ * 本文の形が違う要求への 400 `invalidRequest`
+ * アプリAPI不正要求応答
+ */
+export function mobileInvalidRequest(): NextResponse {
+  return mobileJson({ error: "invalidRequest" }, { status: 400 });
+}
+
+/**
  * プリフライト（OPTIONS）への応答
  * アプリAPIプリフライト応答
  *

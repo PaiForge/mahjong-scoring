@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { YakuDetail } from "@mahjong-scoring/core";
+import { sumYakuHan } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useYakuCheatsheetModal } from "../_hooks/use-yaku-cheatsheet-modal";
@@ -60,7 +61,7 @@ export function YakuBreakdown(props: YakuBreakdownProps) {
 
   if (props.yakuDetails.length === 0) return undefined;
 
-  const total = props.yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
+  const total = sumYakuHan(props.yakuDetails);
 
   return (
     <BreakdownPanel
@@ -103,7 +104,7 @@ export function YakuBreakdownTable({
   if (yakuDetails.length === 0) return undefined;
 
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
-  const total = ordered.reduce((sum, detail) => sum + detail.han, 0);
+  const total = sumYakuHan(ordered);
 
   return (
     <>

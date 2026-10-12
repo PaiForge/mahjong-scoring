@@ -3,7 +3,12 @@ import {
   consumeUsage,
   type QuotaUsage,
 } from "@mahjong-scoring/features/quota/answer";
-import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
+import {
+  EMPTY_QUOTA_COUNTS,
+  QUOTA_MENUS,
+  type QuotaCounts,
+  type QuotaMenu,
+} from "@mahjong-scoring/features/quota/limits";
 
 /**
  * ゲストの回数制限の数え方（純粋な状態遷移）
@@ -30,14 +35,8 @@ import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
  */
 export interface GuestQuotaState {
   readonly day: string;
-  readonly counts: Readonly<Record<QuotaMenu, number>>;
+  readonly counts: QuotaCounts;
 }
-
-/** どの練習もまだ始めていない数 */
-const EMPTY_COUNTS: Readonly<Record<QuotaMenu, number>> = {
-  "agari-score": 0,
-  "tenpai-score": 0,
-};
 
 /**
  * その日の利用状況を返す。保存が無い・日が違うなら 0 から
@@ -50,7 +49,7 @@ export function guestQuotaForDay(
   day: string,
 ): GuestQuotaState {
   if (state?.day === day) return state;
-  return { day, counts: EMPTY_COUNTS };
+  return { day, counts: EMPTY_QUOTA_COUNTS };
 }
 
 /**
@@ -96,11 +95,9 @@ export function parseGuestQuotaState(
     const count = countSchema.safeParse(stored[menu]);
     return count.success ? count.data : 0;
   };
-  return {
-    day: parsed.data.day,
-    counts: {
-      "agari-score": countOf("agari-score"),
-      "tenpai-score": countOf("tenpai-score"),
-    },
-  };
+  const counts: Record<QuotaMenu, number> = { ...EMPTY_QUOTA_COUNTS };
+  for (const menu of QUOTA_MENUS) {
+    counts[menu] = countOf(menu);
+  }
+  return { day: parsed.data.day, counts };
 }

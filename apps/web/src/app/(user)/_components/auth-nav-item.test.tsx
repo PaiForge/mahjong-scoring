@@ -24,15 +24,7 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-  }: {
-    readonly children: React.ReactNode;
-    readonly href: string;
-  }) => <a href={href}>{children}</a>,
-}));
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
 vi.mock("next/image", () => ({
   default: ({ src, alt }: { readonly src: string; readonly alt: string }) => (

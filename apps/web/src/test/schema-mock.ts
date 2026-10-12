@@ -142,3 +142,12 @@ export const notifications = {
   readAt: "read_at",
   createdAt: "created_at",
 } as const;
+
+/** practice_quota_usage のカラム */
+export const practiceQuotaUsage = {
+  _name: "practice_quota_usage",
+  userId: "user_id",
+  menu: "menu",
+  day: "day",
+  count: "count",
+} as const;

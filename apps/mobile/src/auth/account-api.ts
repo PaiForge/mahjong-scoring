@@ -23,6 +23,7 @@ import {
 import { requestAppleAuthorizationCode } from "./apple-sign-in";
 import { supabase } from "./supabase-client";
 import { showDeletionNotice } from "./use-deletion-notice";
+import { readJson } from "./read-json";
 
 export type { ApiFailure } from "./api-client";
 
@@ -36,9 +37,7 @@ export async function fetchAccount(): Promise<
   const response = await callMobileApi(MOBILE_ME_API_PATH);
   if (typeof response === "string") return { error: response };
   if (!response.ok) return { error: await apiFailureOf(response) };
-  const account = parseMobileMeResponse(
-    await response.json().catch(() => undefined),
-  );
+  const account = parseMobileMeResponse(await readJson(response));
   return account ?? { error: "unknown" };
 }
 
@@ -122,7 +121,7 @@ export async function deleteOwnAccount(): Promise<
         : await apiFailureOf(response),
     };
   }
-  const body: unknown = await response.json().catch(() => undefined);
+  const body = await readJson(response);
   const status =
     typeof body === "object" &&
     body !== null &&

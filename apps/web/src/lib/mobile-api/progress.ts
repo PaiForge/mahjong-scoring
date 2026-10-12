@@ -17,7 +17,7 @@ import {
 
 import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
 const completeLessonsSchema = z.object({
   slugs: z.array(z.string().max(100)).max(MOBILE_LESSON_COMPLETIONS_MAX),
@@ -70,7 +70,7 @@ export async function handleCompleteLessons(
   const { completed, rejected } = partitionLessonSlugs(body.data.slugs);
   try {
     if (!(await recordLessonCompletions(auth.user.id, completed)))
-      return mobileJson({ error: "deleted" }, { status: 403 });
+      return mobileDeleted();
   } catch (error) {
     return mobileServerError(
       "POST /api/mobile/v1/lessons/complete",

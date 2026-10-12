@@ -44,9 +44,19 @@ export interface ExamOutcome {
   readonly showRequiredPace: boolean;
 }
 
+/**
+ * 昇級試験に合格したか（正解数が合格ライン以上）
+ * 試験合否
+ *
+ * 結果画面の表示とサーバーの段級位の付与が同じ条件で判定するために置く。
+ */
+export function isExamPassed(correct: number, minScore: number): boolean {
+  return correct >= minScore;
+}
+
 export function evaluateExamOutcome(input: ExamOutcomeInput): ExamOutcome {
   const { correct, total, elapsedMs, minScore, timeLimitSec } = input;
-  const passed = correct >= minScore;
+  const passed = isExamPassed(correct, minScore);
   const ending: ExamEnding = passed
     ? "goal"
     : total - correct >= 1

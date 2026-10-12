@@ -1,4 +1,4 @@
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
+import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
 /** `hanCountChallenge` の翻訳関数（`yakuman` / `yakumanRoundedLabel`） */
@@ -37,7 +37,7 @@ export function buildYakumanRounding(
   correctHan: number,
   t: HanCountTranslator,
 ): YakumanRounding | undefined {
-  const rawTotal = yakuDetails.reduce((sum, detail) => sum + detail.han, 0);
+  const rawTotal = sumYakuHan(yakuDetails);
   if (correctHan !== YAKUMAN_HAN || rawTotal <= correctHan) return undefined;
 
   return { label: t("yakumanRoundedLabel"), value: t("yakuman") };

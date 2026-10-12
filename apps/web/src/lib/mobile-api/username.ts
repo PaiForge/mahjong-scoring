@@ -9,7 +9,7 @@ import { registerUsernameForUser } from "../users/register-username";
 
 import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
-import { mobileJson } from "./response";
+import { mobileDeleted, mobileJson } from "./response";
 
 /** 要求の 1 項目の長さの上限。本当の上限は検証側が持つので、ここでは型と桁だけを見る */
 const FIELD_MAX_LENGTH = 200;
@@ -54,8 +54,7 @@ export async function handleRegisterUsername(
   );
   if (!("error" in result)) return mobileJson({ success: true });
   // 認証を通った後に退会が受け付けられた（入口で弾いたときと同じ答え）
-  if (result.error === "unauthorized")
-    return mobileJson({ error: "deleted" }, { status: 403 });
+  if (result.error === "unauthorized") return mobileDeleted();
   return mobileJson<{ error: MobileUsernameErrorCode }>(
     { error: result.error },
     { status: 422 },

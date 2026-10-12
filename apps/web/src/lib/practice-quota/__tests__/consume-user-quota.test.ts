@@ -2,15 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockInsert } = vi.hoisted(() => ({ mockInsert: vi.fn() }));
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", async () => ({
+  ...(await import("@/test/schema-mock")),
   db: { insert: mockInsert },
-  practiceQuotaUsage: {
-    _name: "practice_quota_usage",
-    userId: "user_id",
-    menu: "menu",
-    day: "day",
-    count: "count",
-  },
 }));
 
 // 退会と直列にする書き込みの枠は、退会が無い状態（そのまま書く）として通す

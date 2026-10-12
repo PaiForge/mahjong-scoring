@@ -16,16 +16,15 @@ import { beginUserQuota, peekUserQuota } from "../practice-quota/user-quota";
 import { authorizeMobileRequest } from "./auth";
 import { mobilePlanError } from "./plan";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import {
+  mobileInvalidRequest,
+  mobileJson,
+  mobileServerError,
+} from "./response";
 
 const BODY_MAX_BYTES = 1024;
 
 const beginSchema = z.object({ menu: z.string() });
-
-/** 回数制限の対象でない練習名への 400（本文の形が違うときと同じ理由） */
-function invalidRequest(): NextResponse {
-  return mobileJson({ error: "invalidRequest" }, { status: 400 });
-}
 
 /** web の答えからアプリ向けの形へ。アプリ向け API は常にログイン済みなので `signedIn` を落とす */
 function mobileQuotaResponseOf({
@@ -67,7 +66,8 @@ export async function handleBeginPracticeQuota(
   const body = await parseMobileBody(request, beginSchema, BODY_MAX_BYTES);
   if (!body.ok) return body.response;
   const { menu } = body.data;
-  if (!isQuotaMenu(menu)) return invalidRequest();
+  // 回数制限の対象でない練習名は、本文の形が違うときと同じ理由で弾く
+  if (!isQuotaMenu(menu)) return mobileInvalidRequest();
   try {
     return mobileQuotaResponseOf(
       await beginUserQuota(auth.user.id, menu, new Date(), isAppleIapOnSale()),
@@ -99,7 +99,7 @@ export async function handlePeekPracticeQuota(
   if (!auth.ok) return auth.response;
   if (!auth.profile) return mobilePlanError("usernameRequired");
   const menu = quotaMenuOf(new URL(request.url).searchParams.get("menu"));
-  if (menu === undefined) return invalidRequest();
+  if (menu === undefined) return mobileInvalidRequest();
   try {
     return mobileQuotaResponseOf(
       await peekUserQuota(auth.user.id, menu, new Date(), isAppleIapOnSale()),
