@@ -30,23 +30,7 @@ vi.mock("@/app/_lib/viewer-ranks", () => ({
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-    className,
-  }: {
-    readonly children: React.ReactNode;
-    readonly href: string;
-    readonly className?: string;
-  }) => (
-    <a href={href} className={className}>
-      {children}
-    </a>
-  ),
-  // LinkButton の遷移待ちオーバーレイ（`LinkPendingOverlay`）が使う
-  useLinkStatus: () => ({ pending: false }),
-}));
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
 import { ExamStartGate } from "./exam-start-gate";
 

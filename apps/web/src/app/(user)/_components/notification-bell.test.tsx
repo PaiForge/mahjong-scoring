@@ -16,21 +16,7 @@ vi.mock(
   async () => await import("@/test/auth-context-mock"),
 );
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-    ...props
-  }: {
-    readonly children: React.ReactNode;
-    readonly href: string;
-    readonly "aria-label"?: string;
-  }) => (
-    <a href={href} aria-label={props["aria-label"]}>
-      {children}
-    </a>
-  ),
-}));
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
 import {
   NOTIFICATIONS_READ_EVENT,
