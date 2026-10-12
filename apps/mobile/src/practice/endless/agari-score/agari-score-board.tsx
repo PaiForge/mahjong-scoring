@@ -173,7 +173,7 @@ export function AgariScoreBoard() {
         contentStyle={styles.content}
       >
         {currentQuestion !== undefined && (
-          <BoardBleedProvider>
+          <BoardBleedProvider flushTop>
             <View style={styles.board}>
               <QuestionDisplay question={currentQuestion} />
 

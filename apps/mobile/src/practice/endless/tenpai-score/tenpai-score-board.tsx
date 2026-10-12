@@ -395,7 +395,7 @@ export function TenpaiScoreBoard() {
         }
         contentStyle={styles.content}
       >
-        <BoardBleedProvider>{renderBoard()}</BoardBleedProvider>
+        <BoardBleedProvider flushTop>{renderBoard()}</BoardBleedProvider>
 
         {/* 無料枠の残りと回答時間。どちらも無いときは何も描かない。リンクは
             待ち牌を選ぶ段階（1 問の最初）だけ */}
