@@ -2,11 +2,8 @@
 
 import type { ReactNode } from "react";
 
-import {
-  isPracticeMenuSlug,
-  practiceMenuBySlug,
-  resolvePracticeVariant,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
+import { isPracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
 
 import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
@@ -27,8 +24,10 @@ import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
  * 結果ページの表示部品をそのまま使うため、行ではなく描画済みの UI を返す。
  * `slug` はブラウザから来るので、練習の slug でなければ何も返さない。
  * 昇級試験は記録を残さずランキングも無いため返さない。
- * 出題設定を持つ練習は既定のバリアントの土俵を出す — 選択パネルの状態は
- * クライアントにあり、選び直すたびに取り直すほどの導線ではない。
+ * 出題設定を持つ練習はランキングの既定の土俵（`rankedVariants` の先頭）を
+ * 出す — 選択パネルの状態はクライアントにあり、選び直すたびに取り直すほどの
+ * 導線ではない。練習の既定のバリアントがランキングに載らないこともある
+ * （合計符の「40符まで」）ので、練習の既定ではなくランキングの既定を引く。
  */
 export async function renderLeaderboardPreview(
   slug: string,
@@ -37,12 +36,6 @@ export async function renderLeaderboardPreview(
     return undefined;
   }
 
-  return (
-    <BoardLeaderboardPreview
-      board={{
-        menuType: practiceMenuBySlug(slug).menuType,
-        variant: resolvePracticeVariant(slug, undefined),
-      }}
-    />
-  );
+  const board = resolveLeaderboardBoard(slug, undefined);
+  return board && <BoardLeaderboardPreview board={board} />;
 }

@@ -59,6 +59,23 @@ describe("バリアント", () => {
     }
   });
 
+  it("ランキングに載せるバリアントは、選べるバリアントの重複の無い部分集合", () => {
+    for (const menuType of PRACTICE_MENU_TYPES) {
+      const { variants, rankedVariants } = practiceMenuByType(menuType);
+      for (const variant of rankedVariants) {
+        expect(variants, `${menuType} の ${variant} が列挙に無い`).toContain(
+          variant,
+        );
+      }
+      expect(new Set(rankedVariants).size).toBe(rankedVariants.length);
+    }
+  });
+
+  it("rankedVariants を省略した練習は全バリアントをランキングに載せる", () => {
+    const { variants, rankedVariants } = practiceMenuBySlug("yaku-han");
+    expect(rankedVariants).toEqual(variants);
+  });
+
   it("キーは leaderboard_key（varchar(20)）に収まる snake_case", () => {
     for (const menuType of PRACTICE_MENU_TYPES) {
       for (const variant of practiceMenuByType(menuType).variants) {

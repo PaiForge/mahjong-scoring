@@ -102,6 +102,13 @@ describe("LEADERBOARD_BOARDS", () => {
       LEADERBOARD_BOARDS.some((board) => board.menuType === "mangan_exam"),
     ).toBe(false);
   });
+
+  it("rankedVariants に無いバリアントは土俵にしない", () => {
+    const totalFu = LEADERBOARD_BOARDS.filter(
+      (board) => board.menuType === "total_fu",
+    );
+    expect(totalFu.map((board) => board.variant)).toEqual(["all"]);
+  });
 });
 
 describe("isLeaderboardBoard", () => {
@@ -122,6 +129,14 @@ describe("isLeaderboardBoard", () => {
       isLeaderboardBoard({ menuType: "mangan_exam", variant: "default" }),
     ).toBe(false);
   });
+  it("ランキングに載せないバリアントの土俵を弾く", () => {
+    expect(
+      isLeaderboardBoard({ menuType: "total_fu", variant: "up_to_40" }),
+    ).toBe(false);
+    expect(isLeaderboardBoard({ menuType: "total_fu", variant: "all" })).toBe(
+      true,
+    );
+  });
 });
 
 describe("resolveLeaderboardBoard", () => {
@@ -136,6 +151,14 @@ describe("resolveLeaderboardBoard", () => {
     expect(resolveLeaderboardBoard("yaku-han", "all")?.variant).toBe("all");
     expect(resolveLeaderboardBoard("jantou-fu", "all")?.variant).toBe(
       "default",
+    );
+  });
+
+  it("ランキングに載せないバリアントは rankedVariants の先頭に寄せる", () => {
+    // 合計符の練習の既定（40符まで）はランキングに載らない
+    expect(resolveLeaderboardBoard("total-fu", undefined)?.variant).toBe("all");
+    expect(resolveLeaderboardBoard("total-fu", "up_to_60")?.variant).toBe(
+      "all",
     );
   });
 

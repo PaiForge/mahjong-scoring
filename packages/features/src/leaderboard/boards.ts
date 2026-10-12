@@ -6,7 +6,6 @@ import {
 import {
   PRACTICE_MENU_TYPES,
   isExamMenuType,
-  isPracticeVariant,
   menuTypeToSlug,
   practiceMenuByType,
   resolvePracticeVariant,
@@ -74,11 +73,12 @@ export function isLeaderboardMenuType(
  * ランキング土俵一覧
  *
  * 練習の並びは {@link LEADERBOARD_MENU_TYPES}、その中のバリアントの並びは
- * レジストリの列挙順。
+ * レジストリの `rankedVariants` の列挙順。出題範囲を選べる練習でも、
+ * `rankedVariants` に無いバリアントは土俵にならない（記録だけ残る）。
  */
 export const LEADERBOARD_BOARDS: readonly PracticeBoard[] =
   LEADERBOARD_MENU_TYPES.flatMap((menuType) =>
-    practiceMenuByType(menuType).variants.map((variant) => ({
+    practiceMenuByType(menuType).rankedVariants.map((variant) => ({
       menuType,
       variant,
     })),
@@ -88,14 +88,14 @@ export const LEADERBOARD_BOARDS: readonly PracticeBoard[] =
  * 土俵がランキングを持つかを判定する
  * 土俵判定
  *
- * ランキングを持つ練習で、かつバリアントがその練習の列挙にあるか。
- * クライアントから任意の値で来る要求では、他の練習のバリアント名を
- * 名乗った土俵をここで落とす。
+ * ランキングを持つ練習で、かつバリアントがその練習の `rankedVariants` に
+ * あるか。クライアントから任意の値で来る要求では、他の練習のバリアント名を
+ * 名乗った土俵や、ランキングに載せないバリアントの土俵をここで落とす。
  */
 export function isLeaderboardBoard(board: PracticeBoard): boolean {
   return (
     isLeaderboardMenuType(board.menuType) &&
-    isPracticeVariant(board.menuType, board.variant)
+    practiceMenuByType(board.menuType).rankedVariants.includes(board.variant)
   );
 }
 
@@ -103,8 +103,9 @@ export function isLeaderboardBoard(board: PracticeBoard): boolean {
  * URL のスラッグとクエリから土俵を復元する
  * 土俵解決
  *
- * バリアントは `resolvePracticeVariant` で正規化する（未指定・不正値は
- * その練習の既定）。練習がランキングを持たない（昇級試験）・未知なら undefined
+ * バリアントは `resolvePracticeVariant` で正規化し、ランキングに載せない
+ * バリアント（未指定で練習の既定に落ちた場合を含む）は `rankedVariants` の
+ * 先頭に寄せる。練習がランキングを持たない（昇級試験）・未知なら undefined
  *
  * @param slug - 練習の slug（URL の `/leaderboard/<期間>/<slug>`）
  * @param rawVariant - URL の `?variant=` の値
@@ -117,9 +118,11 @@ export function resolveLeaderboardBoard(
   if (menuType === undefined || !isLeaderboardMenuType(menuType)) {
     return undefined;
   }
+  const { rankedVariants } = practiceMenuByType(menuType);
+  const variant = resolvePracticeVariant(menuTypeToSlug(menuType), rawVariant);
   return {
     menuType,
-    variant: resolvePracticeVariant(menuTypeToSlug(menuType), rawVariant),
+    variant: rankedVariants.includes(variant) ? variant : rankedVariants[0],
   };
 }
 

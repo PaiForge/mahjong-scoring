@@ -86,6 +86,16 @@ interface PracticeMenuEntry {
    */
   readonly variants?: readonly [string, ...string[]];
   /**
+   * ランキングに載せるバリアント（省略時は `variants` のすべて）。
+   * ランキング対象バリアント
+   *
+   * `variants` の部分集合で、並びはランキングの一覧の並びになる。ここに
+   * 無いバリアントのチャレンジも記録（自己ベスト・マイレコード）は残るが、
+   * ランキングの土俵にはならない。出題範囲を絞るバリアントは練習の
+   * 足場で、腕前を並べて比べる土俵は「すべて」1 つで足りるため。
+   */
+  readonly rankedVariants?: readonly [string, ...string[]];
+  /**
    * チャレンジのミス上限の上書き（省略時は共通の `MISTAKE_LIMIT`）。
    * ミス上限
    *
@@ -188,6 +198,8 @@ const PRACTICE_MENU_REGISTRY = [
     // 正解の符の上限で区切る累積の範囲。実戦の大半を占める 40符までから、
     // 50・60符を足し、まれな 70符以上まで広げる（core の `TotalFuRange`）
     variants: ["up_to_40", "up_to_60", "all"],
+    // ランキングは「すべて」だけ。範囲を絞った回は記録だけ残る
+    rankedVariants: ["all"],
   },
   {
     menuType: "yaku",
@@ -373,6 +385,11 @@ export interface PracticeMenuDescriptor {
    * 先頭が既定。
    */
   readonly variants: readonly [string, ...string[]];
+  /**
+   * ランキングに載せるバリアント（レジストリで省略した練習は `variants` と同じ）。
+   * 先頭がランキングの既定の土俵。
+   */
+  readonly rankedVariants: readonly [string, ...string[]];
   readonly mistakeLimit: number;
   readonly timeLimit: number;
   /** ルートのベースパス（説明ページの URL。play / result はこの配下） */
@@ -426,6 +443,8 @@ function resolveDescriptor(
     ...entry,
     hasSetup: overrides.variants !== undefined,
     variants: overrides.variants ?? [DEFAULT_VARIANT],
+    rankedVariants: overrides.rankedVariants ??
+      overrides.variants ?? [DEFAULT_VARIANT],
     mistakeLimit: overrides.mistakeLimit ?? MISTAKE_LIMIT,
     timeLimit: overrides.timeLimit ?? CHALLENGE_TIME_LIMIT,
     basePath: overrides.basePath ?? `/practice/${entry.slug}`,
