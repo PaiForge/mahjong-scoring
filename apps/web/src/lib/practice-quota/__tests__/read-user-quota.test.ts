@@ -2,15 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { mockSelect } = vi.hoisted(() => ({ mockSelect: vi.fn() }));
 
-vi.mock("@/lib/db", () => ({
+vi.mock("@/lib/db", async () => ({
+  ...(await import("@/test/schema-mock")),
   db: { select: mockSelect },
-  practiceQuotaUsage: {
-    _name: "practice_quota_usage",
-    userId: "user_id",
-    menu: "menu",
-    day: "day",
-    count: "count",
-  },
 }));
 
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
