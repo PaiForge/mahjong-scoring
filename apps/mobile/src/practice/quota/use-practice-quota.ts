@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useFocusEffect } from "expo-router";
-import { create } from "zustand";
 import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import {
   limitedAnswer,
@@ -9,11 +8,15 @@ import {
   type QuotaAudience,
   type QuotaUsage,
 } from "@mahjong-scoring/features/quota/answer";
+import type {
+  PracticeQuotaGate,
+  QuotaOutcome,
+} from "@mahjong-scoring/features/quota/gate";
 import {
   PRACTICE_QUOTA_LIMITS,
-  QUOTA_MENUS,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
+import { createPracticeQuotaGate } from "@mahjong-scoring/features/quota/use-practice-quota-gate";
 
 import { supabase } from "../../auth/supabase-client";
 import { IAP_AVAILABLE } from "../../billing/iap-availability";
@@ -25,67 +28,13 @@ import {
 } from "./guest-quota-storage";
 import { beginPracticeQuota, peekPracticeQuota } from "./quota-api";
 
-/**
- * 直近の出題許可の結果（web の `PracticeQuotaGate` と同じ形）
- * 出題ゲート
- *
- * - `open` — 直前の問題は許可された。`remaining` は今日の残り（無制限は `"unlimited"`）
- * - `blocked` — 無料枠を使い切った。問題は生成していない
- * - `unverified` — 通信失敗で出題だけ許可。残数不明・特典なし
- * - `rateLimited` — サーバーのレート制限に掛かった（連打）。問題は生成していない
- */
-export type PracticeQuotaGate =
-  | {
-      readonly kind: "open";
-      readonly remaining: number | "unlimited";
-      readonly limit: number | "unlimited";
-      readonly benefits: readonly PlanBenefit[];
-    }
-  | {
-      readonly kind: "blocked";
-      readonly limit: number;
-      readonly signedIn: boolean;
-      readonly benefits: readonly PlanBenefit[];
-    }
-  | { readonly kind: "rateLimited" }
-  | { readonly kind: "unverified" };
-
-/** 練習 1 つぶんのゲートの状態 */
-interface MenuQuotaState {
-  readonly gate: PracticeQuotaGate | undefined;
-  readonly isChecking: boolean;
-}
-
-interface PracticeQuotaStoreState {
-  readonly menus: Readonly<Partial<Record<QuotaMenu, MenuQuotaState>>>;
-}
-
-const IDLE: MenuQuotaState = { gate: undefined, isChecking: false };
+export type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
 
 /**
- * 練習ごとのゲートの状態
- * 出題ゲートストア
- *
- * 盤面のローカル state ではなくモジュールスコープに置く（web と同じ）。
- * 返事を待つ間に盤面を離れても、届いた返事で問題を作ってストアに入れられる
- * ように、生成先の練習ストアと同じ寿命にする。読む側は `usePracticeQuota()` を通す。
+ * 練習ごとのゲートの状態（設計は `createPracticeQuotaGate`。web と同じ）。
+ * 読む側は `usePracticeQuota()` を通す
  */
-const usePracticeQuotaStore = create<PracticeQuotaStoreState>(() => ({
-  menus: {},
-}));
-
-/** 練習ごとの要求の連番。後から始めた要求の返事だけを採用するために使う */
-const requestSeq: Partial<Record<QuotaMenu, number>> = {};
-
-function readMenu(menu: QuotaMenu): MenuQuotaState {
-  return usePracticeQuotaStore.getState().menus[menu] ?? IDLE;
-}
-
-function patchMenu(menu: QuotaMenu, patch: Partial<MenuQuotaState>): void {
-  usePracticeQuotaStore.setState((state) => ({
-    menus: { ...state.menus, [menu]: { ...readMenu(menu), ...patch } },
-  }));
-}
+const gates = createPracticeQuotaGate();
 
 /**
  * 販売していない間の特典（ユーザー ID → `/plan` の特典）
@@ -109,24 +58,9 @@ export function clearPlanBenefitsCache(): void {
 
 /** テスト用。モジュールスコープの状態を初期化する */
 export function _resetPracticeQuota(): void {
-  usePracticeQuotaStore.setState({ menus: {} });
+  gates.reset();
   benefitsCache.clear();
-  for (const menu of QUOTA_MENUS) {
-    delete requestSeq[menu];
-  }
 }
-
-/**
- * 出題許可の問い合わせの結果
- *
- * - `answer` — 規則どおりの答え（web の出題開始と同じ形）
- * - `rateLimited` — サーバーのレート制限（止める）
- * - `unverified` — 確かめられなかった（出題開始なら許可して通す・残数問い合わせなら今の表示を保つ）
- */
-type QuotaOutcome =
-  | { readonly kind: "answer"; readonly answer: BeginPracticeQuestionResult }
-  | { readonly kind: "rateLimited" }
-  | { readonly kind: "unverified" };
 
 /** 消費するか（出題開始）、見るだけか（残数問い合わせ） */
 type QuotaMode = "begin" | "peek";
@@ -247,69 +181,11 @@ async function askQuota(
  *
  * @param generate - 許可されたときに呼ぶ生成処理。返事が届いた時点で呼ぶ
  */
-export async function requestPracticeQuestion(
+export function requestPracticeQuestion(
   menu: QuotaMenu,
   generate: () => void,
 ): Promise<void> {
-  const seq = (requestSeq[menu] ?? 0) + 1;
-  requestSeq[menu] = seq;
-  const isCurrent = () => requestSeq[menu] === seq;
-  patchMenu(menu, { isChecking: true });
-
-  try {
-    let outcome: QuotaOutcome;
-    try {
-      outcome = await askQuota(menu, "begin");
-    } catch (error) {
-      console.warn(
-        "practice quota check failed; allowing the question:",
-        error,
-      );
-      outcome = { kind: "unverified" };
-    }
-    if (!isCurrent()) return;
-
-    switch (outcome.kind) {
-      case "rateLimited":
-        patchMenu(menu, { gate: { kind: "rateLimited" } });
-        return;
-      case "unverified":
-        // 出題だけを fail-open にする。以前の残数や特典を引き継がない
-        patchMenu(menu, { gate: { kind: "unverified" } });
-        generate();
-        return;
-      case "answer": {
-        const { answer } = outcome;
-        if (answer.allowed) {
-          generate();
-          patchMenu(menu, {
-            gate: {
-              kind: "open",
-              remaining: answer.remaining,
-              limit: answer.limit,
-              benefits: answer.benefits,
-            },
-          });
-        } else {
-          patchMenu(menu, {
-            gate: {
-              kind: "blocked",
-              limit: typeof answer.limit === "number" ? answer.limit : 0,
-              signedIn: answer.signedIn,
-              benefits: answer.benefits,
-            },
-          });
-        }
-        return;
-      }
-      default: {
-        const exhaustive: never = outcome;
-        return exhaustive;
-      }
-    }
-  } finally {
-    if (isCurrent()) patchMenu(menu, { isChecking: false });
-  }
+  return gates.request(menu, () => askQuota(menu, "begin"), generate);
 }
 
 /**
@@ -340,25 +216,15 @@ export async function peekPracticeQuotaAnswer(
  * 新しいのでこちらは捨てる（連番は進めない）。表示している問題はもう
  * 許可済みなので、残りが 0 でも `open`（「この問題で最後」）。
  */
-export async function refreshPracticeQuota(menu: QuotaMenu): Promise<void> {
-  const seq = requestSeq[menu];
-  const answer = await peekPracticeQuotaAnswer(menu);
-  if (requestSeq[menu] !== seq || answer === undefined) return;
-  patchMenu(menu, {
-    gate: {
-      kind: "open",
-      remaining: answer.remaining,
-      limit: answer.limit,
-      benefits: answer.benefits,
-    },
-  });
+export function refreshPracticeQuota(menu: QuotaMenu): Promise<void> {
+  return gates.refresh(menu, () => peekPracticeQuotaAnswer(menu));
 }
 
 /** 練習のいまのゲート（テストと盤面の外から読む） */
 export function readPracticeQuotaGate(
   menu: QuotaMenu,
 ): PracticeQuotaGate | undefined {
-  return readMenu(menu).gate;
+  return gates.read(menu).gate;
 }
 
 /**
@@ -426,9 +292,7 @@ export function usePracticeQuota(
   menu: QuotaMenu,
   generate: () => void,
 ): PracticeQuotaControl {
-  const { gate, isChecking } = usePracticeQuotaStore(
-    (state) => state.menus[menu] ?? IDLE,
-  );
+  const { gate, isChecking } = gates.useMenuState(menu);
   const generateRef = useRef(generate);
 
   // 最新の generate を効果の中で控える（描画中に ref へ書かない）
@@ -442,7 +306,7 @@ export function usePracticeQuota(
   );
 
   const requestFirstQuestion = useCallback(() => {
-    patchMenu(menu, { gate: undefined });
+    gates.clear(menu);
     return requestQuestion();
   }, [menu, requestQuestion]);
 
@@ -456,7 +320,7 @@ export function usePracticeQuota(
         focusedOnce.current = true;
         return;
       }
-      const { gate: current, isChecking: checking } = readMenu(menu);
+      const { gate: current, isChecking: checking } = gates.read(menu);
       if (checking || current === undefined) return;
       if (current.kind === "blocked") void requestQuestion();
       else void refreshGate();
