@@ -1,11 +1,17 @@
-import { useCallback } from "react";
-import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
-import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import { useCallback, useMemo } from "react";
+import {
+  generateTotalFuQuestionInRange,
+  totalFuChoices,
+} from "@mahjong-scoring/core";
+import {
+  PRACTICE_SLUG,
+  resolvePracticeVariant,
+} from "@mahjong-scoring/features/practice-menu-types";
 import {
   parseFuQuestionResults,
-  QUESTION_GENERATION_MAX_RETRIES,
   type TotalFuQuestionResult,
 } from "@mahjong-scoring/features/practice/total-fu/types";
+import { TOTAL_FU_VARIANT_RANGES } from "@mahjong-scoring/features/practice/total-fu/variants";
 
 import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
@@ -17,23 +23,28 @@ import {
 } from "../../create-practice-views";
 import type { PracticeScreens } from "../../practice-screens";
 
-/** 手牌の合計符の盤面（web の `TotalFuBoard`） */
-function TotalFuBoard(
-  props: RecordingPracticeBoardProps<TotalFuQuestionResult>,
-) {
+/** 手牌の合計符の盤面（web の `TotalFuBoard`）。`variant` は出題範囲のバリアント */
+function TotalFuBoard({
+  variant,
+  ...props
+}: RecordingPracticeBoardProps<TotalFuQuestionResult> & {
+  readonly variant: string;
+}) {
+  const range =
+    TOTAL_FU_VARIANT_RANGES[
+      resolvePracticeVariant(PRACTICE_SLUG.totalFu, variant)
+    ];
   const renfonpaiAs4Fu = useRuleSettingsStore((s) => s.renfonpaiAs4Fu);
   const generateQuestion = useCallback(
-    () =>
-      retryGenerate(
-        () => generateTotalFuQuestion({ renfonpaiAs4Fu }),
-        QUESTION_GENERATION_MAX_RETRIES,
-      ),
-    [renfonpaiAs4Fu],
+    () => generateTotalFuQuestionInRange(range, { renfonpaiAs4Fu }),
+    [range, renfonpaiAs4Fu],
   );
+  const options = useMemo(() => totalFuChoices(range), [range]);
   return (
     <TotalFuQuestionBoard
       {...props}
       generateQuestion={generateQuestion}
+      options={options}
       translationNamespace="totalFu"
     />
   );
@@ -43,8 +54,9 @@ function TotalFuBoard(
 export const totalFuScreens: PracticeScreens = {
   Play: createChallengePlayView<TotalFuQuestionResult>({
     slug: PRACTICE_SLUG.totalFu,
-    renderBoard: (args) => (
+    renderBoard: (args, props) => (
       <TotalFuBoard
+        variant={props.variant}
         showFeedback={args.showFeedback}
         isCountingDown={args.isCountingDown}
         onAnswer={args.onAnswer}
@@ -55,11 +67,21 @@ export const totalFuScreens: PracticeScreens = {
   }),
   Training: createTrainingView({
     slug: PRACTICE_SLUG.totalFu,
-    renderBoard: (args) => (
-      <TotalFuBoard showFeedback={args.showFeedback} onAnswer={args.onAnswer} />
+    renderBoard: (args, props) => (
+      <TotalFuBoard
+        variant={props.variant}
+        showFeedback={args.showFeedback}
+        onAnswer={args.onAnswer}
+      />
     ),
   }),
-  Demo: () => <TotalFuBoard showFeedback={false} onAnswer={() => undefined} />,
+  Demo: () => (
+    <TotalFuBoard
+      variant="all"
+      showFeedback={false}
+      onAnswer={() => undefined}
+    />
+  ),
   ProblemList: ({ results }) => (
     <FuProblemList
       results={parseFuQuestionResults(results)}

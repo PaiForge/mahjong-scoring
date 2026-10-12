@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
-import type { TotalFuQuestion } from "@mahjong-scoring/core";
+import type { Fu, TotalFuQuestion } from "@mahjong-scoring/core";
 import {
   toFuQuestionResult,
   type FuQuestionResult,
@@ -26,6 +26,7 @@ import { QuestionPrompt } from "./question-prompt";
  */
 export function TotalFuQuestionBoard({
   generateQuestion,
+  options = FU_VALUES,
   translationNamespace,
   showFeedback,
   isCountingDown = false,
@@ -34,12 +35,14 @@ export function TotalFuQuestionBoard({
   onPresentQuestion,
 }: RecordingPracticeBoardProps<FuQuestionResult> & {
   readonly generateQuestion: () => TotalFuQuestion | undefined;
+  /** 回答の選択肢（既定は全符）。出題範囲を絞る練習は範囲の符だけを渡す */
+  readonly options?: readonly Fu[];
   readonly translationNamespace: string;
 }) {
   const t = useTranslations(translationNamespace);
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
-    options: FU_VALUES,
+    options,
     toResult: toFuQuestionResult,
     showFeedback,
     onAnswer,
@@ -57,7 +60,7 @@ export function TotalFuQuestionBoard({
       <TehaiDisplay tehai={question.tehai} context={question.context} />
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
       <FuChoiceGrid
-        options={FU_VALUES}
+        options={options}
         answer={question.answer}
         selectedFu={selectedFu}
         showFeedback={showFeedback}

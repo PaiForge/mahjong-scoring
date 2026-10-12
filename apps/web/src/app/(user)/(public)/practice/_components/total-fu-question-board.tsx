@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { FU_VALUES } from "@mahjong-scoring/core";
-import type { TotalFuQuestion } from "@mahjong-scoring/core";
+import type { Fu, TotalFuQuestion } from "@mahjong-scoring/core";
 import { FuChoiceGrid } from "./fu-choice-grid";
 import { QuestionGeneratingPlaceholder } from "./question-generating-placeholder";
 import { TehaiDisplay } from "./tehai-display";
@@ -24,6 +24,8 @@ interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuesti
    * 呼び出し側で `useCallback` 等により安定させること
    */
   readonly generateQuestion: () => TotalFuQuestion | undefined;
+  /** 回答の選択肢（既定は全符）。出題範囲を絞る練習は範囲の符だけを渡す */
+  readonly options?: readonly Fu[];
   /** 生成中表示・問題文・選択肢・内訳の文言を引く辞書の namespace */
   readonly translationNamespace: string;
   /** 生成中プレースホルダの高さ（`loading.tsx` のフォールバックと同値にする） */
@@ -49,6 +51,7 @@ interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuesti
  */
 export function TotalFuQuestionBoard({
   generateQuestion,
+  options = FU_VALUES,
   translationNamespace,
   boardHeight,
   showFeedback,
@@ -61,7 +64,7 @@ export function TotalFuQuestionBoard({
   const t = useTranslations(translationNamespace);
   const { question, selectedFu, handleSelect } = useFuChoiceBoard({
     generateQuestion,
-    options: FU_VALUES,
+    options,
     toResult: toFuQuestionResult,
     showFeedback,
     onAnswer,
@@ -92,7 +95,7 @@ export function TotalFuQuestionBoard({
       <QuestionPrompt>{t("prompt")}</QuestionPrompt>
 
       <FuChoiceGrid
-        options={FU_VALUES}
+        options={options}
         answer={question.answer}
         selectedFu={selectedFu}
         showFeedback={showFeedback}
