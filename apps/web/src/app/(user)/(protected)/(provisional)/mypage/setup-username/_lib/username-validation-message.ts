@@ -23,7 +23,9 @@ export function usernameValidationMessageKey(
   error: RegisterUsernameError | "unknown",
 ): UsernameValidationMessageKey {
   switch (error) {
+    // username_required は前後の空白を除くと空。2 文字未満なので、直し方が伝わる tooShort に寄せる
     case "too_short":
+    case "username_required":
       return "validation.tooShort";
     case "too_long":
       return "validation.tooLong";
@@ -47,7 +49,6 @@ export function usernameValidationMessageKey(
       return "validation.unauthorized";
     case "banned":
       return "validation.banned";
-    case "username_required":
     case "unknown":
       return "validation.error";
     default: {

@@ -16,7 +16,7 @@ describe("usernameValidationMessageKey", () => {
     ["rateLimited", "validation.rateLimited"],
     ["unauthorized", "validation.unauthorized"],
     ["banned", "validation.banned"],
-    ["username_required", "validation.error"],
+    ["username_required", "validation.tooShort"],
     ["unknown", "validation.error"],
   ];
 
