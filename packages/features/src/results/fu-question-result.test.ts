@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { generateTotalFuQuestion } from "@mahjong-scoring/core";
+import { generateTotalFuQuestionInRange } from "@mahjong-scoring/core";
 
 import { expectRestoresQuestion } from "../test/expect-restores-question";
 import { generateOrThrow } from "../test/generate-or-throw";
-
-import { QUESTION_GENERATION_MAX_RETRIES } from "../practice/total-fu/types";
 
 import {
   parseFuQuestionResults,
@@ -61,10 +59,7 @@ describe("parseFuQuestionResults", () => {
 describe("toFuQuestionResult", () => {
   /** 生成できるまで試す（牌の残数不足で undefined を返しうるため） */
   function generate() {
-    return generateOrThrow(
-      generateTotalFuQuestion,
-      QUESTION_GENERATION_MAX_RETRIES,
-    );
+    return generateOrThrow(() => generateTotalFuQuestionInRange("all"));
   }
 
   it("出題を保存形式に変換し、パースを通過する", () => {

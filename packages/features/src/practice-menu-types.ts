@@ -185,6 +185,9 @@ const PRACTICE_MENU_REGISTRY = [
     messageKey: "totalFu",
     namespace: "totalFu",
     hasProblemList: true,
+    // 正解の符の上限で区切る累積の範囲。実戦の大半を占める 40符までから、
+    // 50・60符を足し、まれな 70符以上まで広げる（core の `TotalFuRange`）
+    variants: ["up_to_40", "up_to_60", "all"],
   },
   {
     menuType: "yaku",

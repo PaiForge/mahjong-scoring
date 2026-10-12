@@ -6,6 +6,7 @@ import {
   generateMentsuFuQuestion,
   generateMentsuJantouFuQuestion,
   generateTotalFuQuestion,
+  generateTotalFuQuestionInRange,
   generateYakuQuestion,
   generateYakuHanQuestion,
   generateScoreTableQuestion,
@@ -17,6 +18,7 @@ import {
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import { resolvePracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
 import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
+import { TOTAL_FU_VARIANT_RANGES } from "@mahjong-scoring/features/practice/total-fu/variants";
 import { YAKU_HAN_VARIANT_RANGES } from "@mahjong-scoring/features/practice/yaku-han/variants";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { scoreTableAnswerSchema } from "@mahjong-scoring/features/results/result-schemas";
@@ -73,7 +75,10 @@ export function generateChallengeQuestion(
     case "mentsu_jantou_fu":
       return retryGenerate(() => generateMentsuJantouFuQuestion(settings), 100);
     case "total_fu":
-      return retryGenerate(() => generateTotalFuQuestion(settings), 100);
+      return generateTotalFuQuestionInRange(
+        TOTAL_FU_VARIANT_RANGES[resolvePracticeVariant("total-fu", variant)],
+        settings,
+      );
     case "fu_exam":
       return retryGenerate(() => generateTotalFuQuestion(fu), 100);
     case "yaku":
