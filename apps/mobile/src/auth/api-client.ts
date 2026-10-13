@@ -81,30 +81,78 @@ export async function callMobileApi(
   if (init.asUser !== undefined && session?.user.id !== init.asUser)
     return "userChanged";
   if (!session) return "unauthorized";
-  let sent: Credentials = {
+  const received = await receive(path, init, {
     userId: session.user.id,
     accessToken: session.access_token,
-  };
+  });
+  if (received === "network") return "network";
   try {
-    let response = await send(path, init, sent.accessToken);
-    if (response.status === 401) {
-      const retryToken = await recoverFromUnauthorized(sent);
-      if (retryToken === undefined) return response;
-      sent = { ...sent, accessToken: retryToken };
-      response = await send(path, init, retryToken);
-      if (response.status === 401) await signOutIfStillCurrent(sent);
-    }
-    if (
-      response.status === 403 &&
-      (await errorOf(response.clone())) === "deleted" &&
-      (await signOutIfStillCurrent(sent))
-    ) {
-      notifyAccountDeleted(sent.userId);
-      showDeletionNotice("pending");
-    }
-    return response;
+    await settleRejectedLogin(received);
+  } catch (error) {
+    console.warn("[api] 認められなかったログインの後始末に失敗した", {
+      path,
+      status: received.response.status,
+      error,
+    });
+  }
+  return received.response;
+}
+
+/** 受け取った応答と、それを得たときに載せたログイン */
+interface Received {
+  readonly response: Response;
+  readonly sent: Credentials;
+  /** 401 を受けてトークンを替え、送り直した応答か */
+  readonly retried: boolean;
+}
+
+/**
+ * 応答を受け取る。401 なら 1 度だけ送り直す。応答が得られなければ `network`
+ *
+ * 通信の失敗だけをここで `network` に丸める。応答を受け取った後の処理
+ * （{@link settleRejectedLogin}）をこの範囲に入れると、そこで投げたときに
+ * 受け取った応答を捨てて「通信できなかった」と返してしまう。
+ */
+async function receive(
+  path: string,
+  init: MobileApiInit,
+  sent: Credentials,
+): Promise<Received | "network"> {
+  try {
+    const response = await send(path, init, sent.accessToken);
+    if (response.status !== 401) return { response, sent, retried: false };
+    const retryToken = await recoverFromUnauthorized(sent);
+    if (retryToken === undefined) return { response, sent, retried: false };
+    return {
+      response: await send(path, init, retryToken),
+      sent: { ...sent, accessToken: retryToken },
+      retried: true,
+    };
   } catch {
     return "network";
+  }
+}
+
+/**
+ * サーバーがログインを認めなかった応答を受けて、端末のログインを捨てる
+ * 拒否されたログインの後始末
+ *
+ * 送り直しても 401 なら捨てる。403 `deleted` なら捨てたうえで退会を受け付けた
+ * ことを知らせる。
+ */
+async function settleRejectedLogin({
+  response,
+  sent,
+  retried,
+}: Received): Promise<void> {
+  if (retried && response.status === 401) await signOutIfStillCurrent(sent);
+  if (
+    response.status === 403 &&
+    (await errorOf(response.clone())) === "deleted" &&
+    (await signOutIfStillCurrent(sent))
+  ) {
+    notifyAccountDeleted(sent.userId);
+    showDeletionNotice("pending");
   }
 }
 

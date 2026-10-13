@@ -121,4 +121,19 @@ describe("callMobileApi", () => {
     expect(deleted).toHaveBeenCalledWith("user-a");
     expect(mocks.showDeletionNotice).toHaveBeenCalledWith("pending");
   });
+
+  it("応答を受け取った後の処理が投げても network にせず応答を返す", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const unsubscribe = onAccountDeleted(() => {
+      throw new Error("listener failed");
+    });
+    mocks.fetch.mockResolvedValueOnce(jsonResponse(403, { error: "deleted" }));
+
+    const result = await callMobileApi("/api/x");
+    unsubscribe();
+
+    expect((result as Response).status).toBe(403);
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
+  });
 });
