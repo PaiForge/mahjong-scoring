@@ -8,12 +8,12 @@
  *
  * @see apps/web/src/app/(user)/(protected)/(confirmed)/mypage/(home)/_components/exp-activity-heatmap.tsx
  */
+import { jstStartOfDay } from "@mahjong-scoring/features/jst";
 import { and, eq, gte, lte, sql, sum } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
 import {
   DESKTOP_WEEKS,
-  formatDate,
   getHeatmapDateRangeForWeeks,
   getJstTodayDate,
 } from "@/app/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
@@ -98,9 +98,19 @@ async function fetchExpHeatmapData(
 
   // startDate / endDate は JST の年月日を表すローカル TZ Date。
   // クエリ境界は「JST 00:00 〜 JST 23:59:59.999」を表す絶対 UTC 瞬間として組み立てる必要がある。
-  // ISO 8601 の `+09:00` オフセット付き文字列を経由して確定させる。
-  const startInstant = new Date(`${formatDate(startDate)}T00:00:00+09:00`);
-  const endInstant = new Date(`${formatDate(endDate)}T23:59:59.999+09:00`);
+  // 終端は翌日の JST 0:00 の 1ms 前（`jstStartOfDay` は日の繰り上がりを畳む）。
+  const startInstant = jstStartOfDay(
+    startDate.getFullYear(),
+    startDate.getMonth() + 1,
+    startDate.getDate(),
+  );
+  const endInstant = new Date(
+    jstStartOfDay(
+      endDate.getFullYear(),
+      endDate.getMonth() + 1,
+      endDate.getDate() + 1,
+    ).getTime() - 1,
+  );
 
   const whereClause = and(
     eq(expEvents.userId, userId),
