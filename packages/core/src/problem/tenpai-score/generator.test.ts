@@ -3,15 +3,20 @@ import {
   HaiKind,
   calculateScoreForTehai,
   calculateShanten,
+  countDora,
   getUkeire,
   isMenzen,
   sortHaiCodes,
+  validateTehai14,
 } from "@pai-forge/riichi-mahjong";
 import {
   generateTenpaiScoreQuestion,
   generateValidTenpaiScoreQuestion,
 } from "./generator";
 import type { TenpaiScoreQuestion } from "./types";
+import { buildScoreQuestion } from "../score/build-question";
+import { parseTehai } from "../score/mpsz-serializer";
+import type { ScoreQuestion } from "../score/types";
 import { countKantsu } from "../shared/count-kantsu";
 import { listTehaiHais } from "../../core/hai-count";
 import { ScoreLevel } from "../../core/constants";
@@ -29,6 +34,35 @@ function listCells(question: TenpaiScoreQuestion) {
   return question.waits.flatMap((wait) =>
     wait.ron ? [wait.tsumo, wait.ron] : [wait.tsumo],
   );
+}
+
+/**
+ * リーチ無しの出題の答えを、ライブラリの素の計算と突き合わせる
+ *
+ * 役満の手だけは翻をそのまま比べない。ライブラリは役満の手でも翻にドラを
+ * 足して返す（支払いは役満単位で固定なので点数には効かない）が、アプリは
+ * 役満を通常役・ドラと複合させず、翻を役満の翻そのものに揃える
+ * （`buildScoreQuestion`）。そのまま比べるとドラの乗った役満で
+ * 「13 翻と 16 翻」のように食い違う
+ */
+function expectMatchesLibraryScore(cell: ScoreQuestion) {
+  const recomputed = calculateScoreForTehai(cell.tehai, {
+    agariHai: cell.agariHai,
+    isTsumo: cell.isTsumo,
+    jikaze: cell.jikaze,
+    bakaze: cell.bakaze,
+    doraMarkers: cell.doraMarkers,
+  });
+  expect(recomputed.isOk()).toBe(true);
+  if (!recomputed.isOk()) return;
+  const { han, fu, payment, yakumanMultiplier } = recomputed.value;
+  const expectedHan =
+    yakumanMultiplier >= 1
+      ? han - countDora(cell.tehai, cell.doraMarkers)
+      : han;
+  expect(cell.answer.han).toBe(expectedHan);
+  expect(cell.answer.fu).toBe(fu);
+  expect(cell.answer.payment).toEqual(payment);
 }
 
 describe("generateTenpaiScoreQuestion", () => {
@@ -81,26 +115,33 @@ describe("generateTenpaiScoreQuestion", () => {
           expect(cell.tehai.exposed).toEqual(question.tehai.exposed);
 
           // リーチ無しの出題は、ライブラリの素の計算と翻・符・支払いが一致する
-          if (!question.isRiichi) {
-            const recomputed = calculateScoreForTehai(cell.tehai, {
-              agariHai: cell.agariHai,
-              isTsumo: cell.isTsumo,
-              jikaze: cell.jikaze,
-              bakaze: cell.bakaze,
-              doraMarkers: cell.doraMarkers,
-            });
-            expect(recomputed.isOk()).toBe(true);
-            if (recomputed.isOk()) {
-              expect(cell.answer.han).toBe(recomputed.value.han);
-              expect(cell.answer.fu).toBe(recomputed.value.fu);
-              expect(cell.answer.payment).toEqual(recomputed.value.payment);
-            }
-          }
+          if (!question.isRiichi) expectMatchesLibraryScore(cell);
         }
         expect(wait.tsumo.isTsumo).toBe(true);
         if (wait.ron) expect(wait.ron.isTsumo).toBe(false);
       }
     }
+  });
+
+  it("ドラの乗った役満も、ライブラリの素の計算と点数が一致する", () => {
+    // 乱数で稀に引く形の固定（2026-10 に上のテストが「13 翻と 16 翻」で落ちた）。
+    // 111m 66m 888p 999p 44z の双碰待ちで 6m をツモると四暗刻。ドラ表示牌が
+    // 7p なので 8p がドラ 3 枚で、ライブラリの翻は 16 になる
+    const parsed = parseTehai("111666m888999p44z");
+    if (parsed === undefined) throw new Error("MPSZ を読めない");
+    const tehai = validateTehai14(parsed)._unsafeUnwrap();
+    const cell = buildScoreQuestion({
+      tehai,
+      agariHai: HaiKind.ManZu6,
+      isTsumo: true,
+      jikaze: HaiKind.Ton,
+      bakaze: HaiKind.Nan,
+      doraMarkers: [HaiKind.PinZu7],
+      ruleConfig: {},
+    })._unsafeUnwrap();
+    expect(cell.answer.yakumanMultiplier).toBe(1);
+    expect(cell.answer.han).toBe(13);
+    expectMatchesLibraryScore(cell);
   });
 
   it("翻数は役の内訳の合計と一致する", () => {
