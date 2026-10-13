@@ -35,7 +35,7 @@ export interface ReportNotification {
  * （`CONTACT_TO_EMAIL`）と同じ。通報した人は書かない（管理画面で見る）。
  *
  * 送れなくても通報の受付は失敗にしない — 通報は DB に残り、管理画面の
- * 未対応の一覧に出る。失敗は Sentry に残して気づけるようにする。
+ * 未対応の一覧に出る。失敗（未設定・送信エラー）はサーバーログ（console.error）に残す。
  */
 export async function notifyOperatorOfReport(
   report: ReportNotification,
