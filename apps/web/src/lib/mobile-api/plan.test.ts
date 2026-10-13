@@ -153,7 +153,7 @@ describe("handleReadPlan", () => {
     expect(body.purchases[0]).not.toHaveProperty("currency");
   });
 
-  it("Product ID が 1 つでも欠けていれば販売中の商品は空", async () => {
+  it("買い切りの Product ID が無ければ販売中の商品は空", async () => {
     vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
 
     const body = await (await handleReadPlan(request())).json();
@@ -186,8 +186,18 @@ describe("handleReadPlanOffers", () => {
     expect(mockAuthorize).not.toHaveBeenCalled();
   });
 
-  it("販売していなければ空", async () => {
+  it("パスの Product ID が無ければ買い切りだけを返す", async () => {
     vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_PASS", "");
+
+    expect(await (await handleReadPlanOffers()).json()).toEqual({
+      offers: [
+        { key: "lifetime", productId: "help.mahjong.score.pro.lifetime" },
+      ],
+    });
+  });
+
+  it("販売していなければ空", async () => {
+    vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
 
     expect(await (await handleReadPlanOffers()).json()).toEqual({
       offers: [],

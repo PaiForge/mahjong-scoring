@@ -18,7 +18,7 @@ function stubProducts(pass: string, lifetime: string) {
 }
 
 describe("readAppleProductIds", () => {
-  it("両方そろって初めて値を返す", () => {
+  it("両方あれば両方を返す", () => {
     stubProducts("p.pass", "p.lifetime");
     expect(readAppleProductIds()).toEqual({
       pass: "p.pass",
@@ -27,12 +27,16 @@ describe("readAppleProductIds", () => {
     expect(isAppleIapOnSale()).toBe(true);
   });
 
-  it("片方でも空なら undefined で、販売中ではない", () => {
+  it("パスが無ければ買い切りだけを返し、販売中のまま", () => {
+    stubProducts("", "p.lifetime");
+    expect(readAppleProductIds()).toEqual({ lifetime: "p.lifetime" });
+    expect(isAppleIapOnSale()).toBe(true);
+  });
+
+  it("買い切りが無ければ undefined で、販売中ではない", () => {
     stubProducts("p.pass", "");
     expect(readAppleProductIds()).toBeUndefined();
     expect(isAppleIapOnSale()).toBe(false);
-    stubProducts("", "p.lifetime");
-    expect(readAppleProductIds()).toBeUndefined();
   });
 });
 
@@ -42,6 +46,12 @@ describe("offerKeyOfAppleProductId", () => {
     expect(offerKeyOfAppleProductId("p.pass")).toBe("pass");
     expect(offerKeyOfAppleProductId("p.lifetime")).toBe("lifetime");
     expect(offerKeyOfAppleProductId("p.other")).toBeUndefined();
+  });
+
+  it("パスの設定が無ければパスの Product ID は知らない", () => {
+    stubProducts("", "p.lifetime");
+    expect(offerKeyOfAppleProductId("p.pass")).toBeUndefined();
+    expect(offerKeyOfAppleProductId("p.lifetime")).toBe("lifetime");
   });
 
   it("設定が無ければどれも知らない", () => {

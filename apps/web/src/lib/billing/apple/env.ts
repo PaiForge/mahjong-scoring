@@ -36,28 +36,38 @@ const APPLE_PRODUCT_ID_ENV_NAMES: Readonly<
 };
 
 /**
- * 売り方ごとの Product ID を読む。どれか 1 つでも無ければ undefined
+ * アプリで売る売り方とその Product ID を読む。買い切りが無ければ undefined
  * Product ID取得
  *
- * 片方だけ売る状態は作らない（アプリの購入画面は 2 商品を並べる前提）ので、
- * 両方そろって初めて値を返す。
+ * 買い切りは必須、30 日パスは任意。パスの Product ID を外すと、アプリには
+ * 買い切りだけが並ぶ（web の Stripe のパスはそのまま売る）。
+ *
+ * @design アプリでは 30 日パスを売らない（2026-10）
+ *
+ * パスは Non-Renewing Subscription なので、App Store の購入シートのボタンが
+ * 「サブスクリプションに登録」になり、自動更新しない売り方の意味が伝わらない。
+ * ボタンの文言は商品の種類で決まり、アプリからは変えられない。消耗型
+ * （Consumable）にすると「購入」になるが、期間で区切った利用権に消耗型を
+ * 使うと審査で「IAP の種類が違う」と差し戻されうるので採らなかった。
+ * App Store Connect の商品（`help.mahjong.score.pro.pass30`）は消さずに
+ * 残してあり、環境変数を入れ直せば売り始められる。
  */
 export function readAppleProductIds():
-  Readonly<Record<OfferKey, string>> | undefined {
+  Readonly<Partial<Record<OfferKey, string>>> | undefined {
   const pass = process.env[APPLE_PRODUCT_ID_ENV_NAMES.pro.pass];
   const lifetime = process.env[APPLE_PRODUCT_ID_ENV_NAMES.pro.lifetime];
-  if (!pass || !lifetime) return undefined;
-  return { pass, lifetime };
+  if (!lifetime) return undefined;
+  return pass ? { pass, lifetime } : { lifetime };
 }
 
 /**
- * アプリで Pro を販売できる状態か（全売り方の Product ID が設定済み）
+ * アプリで Pro を販売できる状態か（買い切りの Product ID が設定済み）
  * アプリ内課金の販売可否
  *
  * web の `isPlanOnSale`（Stripe の Price ID の有無）とは独立に、経路ごとに
  * 判定する。web で売っていてもアプリで売っていなければアプリの回数制限は
  * 掛けない（払いたくても払えないペイウォールを出さない）し、逆も同じ。
- * 片方だけ設定した期間は、同じアカウントの扱いが web とアプリで割れるが、
+ * 一方の経路だけで売っている期間は、同じアカウントの扱いが web とアプリで割れるが、
  * それは受け入れる — 「その経路で買えるか」が制限を掛ける根拠だから。
  */
 export function isAppleIapOnSale(): boolean {
