@@ -1,17 +1,14 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
 import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { AttemptTable } from "../../../mypage/attempt-table";
-import {
-  fetchRecordResults,
-  type MypageApiFailure,
-} from "../../../mypage/mypage-api";
+import { useLoadMore } from "../../../lib/use-load-more";
+import { fetchRecordResults } from "../../../mypage/mypage-api";
 import {
   MypageGate,
   MypageLoadFailed,
@@ -41,68 +38,21 @@ export default function ChallengeResultsScreen() {
   );
 }
 
-/** 2 ページ目以降の読み足し */
-interface MorePages {
-  readonly items: readonly ChallengeAttempt[];
-  readonly page: number;
-  readonly loading: boolean;
-  readonly error?: MypageApiFailure;
-}
-
 function Results({ userId }: { readonly userId: string }) {
   const t = useTranslations("mypage.challengeResults");
   const tRoot = useTranslations();
   const { state, reload } = useMypageRead(
     useCallback(() => fetchRecordResults(userId, 1), [userId]),
   );
-  // 1 ページ目を読み直したら読み足しを捨てる（重ねると同じ行が二重に並ぶ）
-  const [more, setMore] = useState<{
-    readonly base: unknown;
-    readonly pages: MorePages;
-  }>();
   const firstPage = state.kind === "loaded" ? state.value : undefined;
-  const pages =
-    more !== undefined && more.base === firstPage ? more.pages : undefined;
+  const { items, hasMore, loading, error, loadMore } = useLoadMore(
+    firstPage,
+    (page: number) => fetchRecordResults(userId, page),
+  );
 
   if (state.kind === "loading") return <MypageLoading />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
-
-  const items = [...state.value.items, ...(pages?.items ?? [])];
-  const lastPage = pages?.page ?? state.value.page;
-  const hasMore = lastPage < state.value.totalPages;
-
-  const loadMore = () => {
-    const base = state.value;
-    const nextPage = lastPage + 1;
-    setMore({
-      base,
-      pages: {
-        items: pages?.items ?? [],
-        page: lastPage,
-        loading: true,
-      },
-    });
-    void fetchRecordResults(userId, nextPage).then((result) => {
-      setMore((prev) => {
-        if (prev === undefined || prev.base !== base) return prev;
-        if ("error" in result) {
-          return {
-            base,
-            pages: { ...prev.pages, loading: false, error: result.error },
-          };
-        }
-        return {
-          base,
-          pages: {
-            items: [...prev.pages.items, ...result.items],
-            page: result.page,
-            loading: false,
-          },
-        };
-      });
-    });
-  };
 
   return (
     <View style={styles.section}>
@@ -118,15 +68,13 @@ function Results({ userId }: { readonly userId: string }) {
         }}
         boardLabelOf={(attempt) => boardLabel(attempt, tRoot)}
       />
-      {pages?.error !== undefined && (
-        <MypageLoadFailed message={t("loadFailed")} />
-      )}
+      {error !== undefined && <MypageLoadFailed message={t("loadFailed")} />}
       {hasMore && (
         <Button
           variant="secondary"
           fullWidth
           testID="my-record-results-more"
-          disabled={pages?.loading === true}
+          disabled={loading}
           onPress={loadMore}
         >
           {t("loadMore")}
