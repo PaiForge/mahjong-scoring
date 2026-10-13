@@ -1,7 +1,10 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { highestRank } from "@mahjong-scoring/features/ranks/registry";
+import {
+  BLACK_BELT_SLUG,
+  highestRank,
+} from "@mahjong-scoring/features/ranks/registry";
 import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 import { Screen } from "../../components/screen";
@@ -59,7 +62,7 @@ export default function DojoPage() {
       {/* 現在の段級位は節にせずバーで示す。ゲストは常に無級 */}
       <RankProgressBar currentSlug={current?.slug} />
 
-      {current?.slug === "dan-1" && (
+      {current?.slug === BLACK_BELT_SLUG && (
         <View style={[panelFrame, styles.practical]}>
           <SectionTitle>{t("practicalTitle")}</SectionTitle>
           <Text style={styles.body}>{t("practicalDescription")}</Text>

@@ -219,6 +219,15 @@ export const RANK_REGISTRY = [
 /** 段級位スラッグ */
 export type RankSlug = (typeof RANK_REGISTRY)[number]["slug"];
 
+/**
+ * 黒帯（初段）のスラッグ
+ * 黒帯スラッグ
+ *
+ * 黒帯への道の終点。これを取った人には、道場で次の行き先として
+ * 実戦練習を案内する（web とモバイルの道場が同じ値で判定する）。
+ */
+export const BLACK_BELT_SLUG = "dan-1" satisfies RankSlug;
+
 /** 段級位1件の定義（公開型） */
 export type RankDefinition = (typeof RANK_REGISTRY)[number];
 

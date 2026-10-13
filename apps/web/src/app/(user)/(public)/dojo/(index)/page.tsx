@@ -52,7 +52,10 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { buildJourney } from "@mahjong-scoring/features/journey/journey";
-import { highestRank } from "@mahjong-scoring/features/ranks/registry";
+import {
+  BLACK_BELT_SLUG,
+  highestRank,
+} from "@mahjong-scoring/features/ranks/registry";
 
 import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
@@ -105,7 +108,7 @@ export default async function DojoPage() {
           )}
         </div>
 
-        {current?.slug === "dan-1" && (
+        {current?.slug === BLACK_BELT_SLUG && (
           <section className="space-y-3 rounded-panel border border-panel bg-brand-subtle p-5">
             <SectionTitle>{t("practicalTitle")}</SectionTitle>
             <p className="text-sm leading-relaxed text-surface-700">
