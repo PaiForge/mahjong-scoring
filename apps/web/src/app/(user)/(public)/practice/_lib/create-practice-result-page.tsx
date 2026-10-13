@@ -46,6 +46,7 @@ import {
   practiceHref,
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
+import { PracticeRelatedChapters } from "../_components/practice-related-chapters";
 import { practiceSetupHref } from "./practice-web-routes";
 import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
@@ -136,6 +137,12 @@ export interface PracticeResultViewProps {
    * `resultBlock` と `leaderboardBlock` の間に描画される。
    */
   readonly children?: React.ReactNode;
+  /**
+   * 関連するレッスン（昇級試験は前提となるレッスン）のセクション。
+   * 説明ページと同じ集合・同じ見出し（`PracticeRelatedChapters`）。
+   * ページの最下部に描画される。
+   */
+  readonly chaptersBlock?: React.ReactNode;
 }
 
 interface ResultPageConfig {
@@ -322,6 +329,7 @@ export function createPracticeResultPage(
             </Suspense>
           )
         }
+        chaptersBlock={<PracticeRelatedChapters slug={slug} />}
       />
     );
   };
