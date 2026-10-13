@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
 import type { PlanApiFailure, PlanApiResult } from "./plan-api";
-import { shouldFinishAfter, summarizeRestore } from "./purchase-sync";
+import {
+  isRetryable,
+  shouldFinishAfter,
+  summarizeRestore,
+} from "./purchase-sync";
 
 function ok(
   outcome: MobileAppleTransactionResponse["outcome"],
@@ -102,5 +106,37 @@ describe("summarizeRestore", () => {
 
   it("受け付けない 4xx（rejected）だけなら復元するものは無い", () => {
     expect(summarizeRestore([failed("rejected")])).toBe("nothingToRestore");
+  });
+});
+
+describe("isRetryable", () => {
+  it("通信・サーバーの一時的な障害は送り直す", () => {
+    for (const error of [
+      "network",
+      "serverError",
+      "appleUnavailable",
+      "authUnavailable",
+      "rateLimited",
+    ] as const) {
+      expect(isRetryable(error), error).toBe(true);
+    }
+  });
+
+  it("送り直しても通らない失敗は送り直さない", () => {
+    for (const error of [
+      "usernameRequired",
+      "ownedByAnotherAccount",
+      "invalidTransaction",
+      "unknownProduct",
+      "sandboxNotAccepted",
+      "rejected",
+      "unauthorized",
+      "deleted",
+      "banned",
+      "userChanged",
+      "unknown",
+    ] as const) {
+      expect(isRetryable(error), error).toBe(false);
+    }
   });
 });
