@@ -4,6 +4,7 @@ import {
   formatJstDateTime,
   jstCalendarDate,
   jstDayKey,
+  jstDayStartIso,
   jstStartOfDay,
   jstStartOfMonth,
 } from "./jst";
@@ -63,6 +64,15 @@ describe("jstDayKey", () => {
 
   it("月末・年末の繰り上がりも JST で判定する", () => {
     expect(jstDayKey(new Date("2026-12-31T15:00:00Z"))).toBe("2027-01-01");
+  });
+});
+
+describe("jstDayStartIso", () => {
+  it("JST の日付の 0:00 を +09:00 付きで返し、jstDayKey で同じ日付に戻る", () => {
+    const iso = jstDayStartIso("2026-04-02");
+    expect(iso).toBe("2026-04-02T00:00:00+09:00");
+    expect(new Date(iso).toISOString()).toBe("2026-04-01T15:00:00.000Z");
+    expect(jstDayKey(new Date(iso))).toBe("2026-04-02");
   });
 });
 

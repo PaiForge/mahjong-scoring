@@ -5,6 +5,7 @@ import {
 } from "@/app/_lib/site-schema";
 import { SITE_URL } from "@/config";
 
+import { jstDayStartIso } from "@mahjong-scoring/features/jst";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
@@ -49,7 +50,7 @@ export function buildLearnArticleSchema({
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     inLanguage: "ja",
     image: [`${SITE_URL}${OG_IMAGE.url}`],
-    datePublished: `${publishedAt}T00:00:00+09:00`,
+    datePublished: jstDayStartIso(publishedAt),
     articleSection: SITE_NAME,
     author: organization,
     publisher: organization,

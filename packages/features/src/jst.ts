@@ -94,6 +94,19 @@ export function jstDayKey(instant: Date): string {
   return new Date(instant.getTime() + JST_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+/**
+ * JST の日付（`YYYY-MM-DD`）の 0:00 を、`+09:00` 付きの ISO 8601 の日時で表す
+ * JST日開始日時文字列
+ *
+ * {@link jstDayKey} の逆向き。日付だけを持つ値（章の公開日・ヒートマップの日付
+ * キー）を日時として扱うときに使う。そのまま `new Date()` に渡せるほか、
+ * 外へ出す日時（OGP の `article:published_time`・JSON-LD の `datePublished`）は
+ * JST のオフセットのまま見せたいので、UTC に直さない文字列で返す。
+ */
+export function jstDayStartIso(dayKey: string): string {
+  return `${dayKey}T00:00:00+09:00`;
+}
+
 const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
   year: "numeric",
   month: "2-digit",
