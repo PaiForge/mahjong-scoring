@@ -16,40 +16,24 @@ import {
   createPrivateMetadata,
   createResultMetadata,
   createTitleOnlyMetadata,
-  OG_IMAGE,
-  SITE_NAME,
 } from "../metadata";
 
 /**
- * createMetadata が常に付ける OGP / Twitter Card の期待値。
+ * OGP / Twitter Card に毎回明示する画像。
  *
- * Next は openGraph / twitter をオブジェクトごと差し替えるため、
- * ヘルパーは毎回完全な形を返す必要がある。ここを緩めると
- * 「og:image だけ欠けたページ」に気付けなくなるので完全一致で見る。
+ * Next は openGraph / twitter をオブジェクトごと差し替えるため、ヘルパーは毎回
+ * 完全な形を返す必要がある。ここを緩めると「og:image だけ欠けたページ」に
+ * 気付けなくなるので、各テストは openGraph / twitter を完全一致で見る。
  *
- * @param title - サイト名サフィックス込みのタイトル
- * @param description - 説明（無いページでは省略される）
- * @param path - canonical のパス（指定時のみ og:url が付く）
+ * 期待値は本体（OG_IMAGE・buildSocialCard）を写さずリテラルで書く。写しは本体と
+ * 同じ誤りを持つので、本体が崩れてもテストが落ちない。
  */
-function expectedCard(title: string, description?: string, path?: string) {
-  return {
-    openGraph: {
-      type: "website",
-      siteName: SITE_NAME,
-      locale: "ja_JP",
-      title,
-      images: [OG_IMAGE],
-      ...(description ? { description } : {}),
-      ...(path ? { url: path } : {}),
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      images: [OG_IMAGE],
-      ...(description ? { description } : {}),
-    },
-  };
-}
+const EXPECTED_IMAGE = {
+  url: "/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "麻雀点数計算教室 - 麻雀の点数計算トレーニング",
+};
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -62,9 +46,22 @@ describe("createNamespaceMetadata", () => {
     });
 
     await expect(createNamespaceMetadata("jantouFu")).resolves.toEqual({
-      title: `雀頭符 - ${SITE_NAME}`,
+      title: "雀頭符 - 麻雀点数計算教室",
       description: "雀頭の符を学ぶ",
-      ...expectedCard(`雀頭符 - ${SITE_NAME}`, "雀頭の符を学ぶ"),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "雀頭符 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "雀頭の符を学ぶ",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "雀頭符 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "雀頭の符を学ぶ",
+      },
     });
   });
 
@@ -79,9 +76,22 @@ describe("createNamespaceMetadata", () => {
         description: "pageDescription",
       }),
     ).resolves.toEqual({
-      title: `点数表 - ${SITE_NAME}`,
+      title: "点数表 - 麻雀点数計算教室",
       description: "早見表",
-      ...expectedCard(`点数表 - ${SITE_NAME}`, "早見表"),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "点数表 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "早見表",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "点数表 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "早見表",
+      },
     });
   });
 
@@ -106,8 +116,19 @@ describe("createTitleOnlyMetadata", () => {
     const metadata = await createTitleOnlyMetadata("jantouFu");
 
     expect(metadata).toEqual({
-      title: `雀頭符 - ${SITE_NAME}`,
-      ...expectedCard(`雀頭符 - ${SITE_NAME}`),
+      title: "雀頭符 - 麻雀点数計算教室",
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "雀頭符 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "雀頭符 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
     expect(metadata).not.toHaveProperty("description");
     expect(metadata.openGraph).not.toHaveProperty("description");
@@ -119,8 +140,19 @@ describe("createTitleOnlyMetadata", () => {
     await expect(
       createTitleOnlyMetadata("scoreTable", "pageTitle"),
     ).resolves.toEqual({
-      title: `点数表 - ${SITE_NAME}`,
-      ...expectedCard(`点数表 - ${SITE_NAME}`),
+      title: "点数表 - 麻雀点数計算教室",
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "点数表 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "点数表 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 
@@ -138,9 +170,20 @@ describe("createPrivateMetadata", () => {
     setupTranslations({ mypage: { pageTitle: "マイページ" } });
 
     await expect(createPrivateMetadata("mypage")).resolves.toEqual({
-      title: `マイページ - ${SITE_NAME}`,
+      title: "マイページ - 麻雀点数計算教室",
       robots: { index: false, follow: false },
-      ...expectedCard(`マイページ - ${SITE_NAME}`),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "マイページ - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "マイページ - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 
@@ -158,9 +201,20 @@ describe("createPrivateMetadata", () => {
     await expect(
       createPrivateMetadata("setupUsername", "title"),
     ).resolves.toEqual({
-      title: `ユーザー名の設定 - ${SITE_NAME}`,
+      title: "ユーザー名の設定 - 麻雀点数計算教室",
       robots: { index: false, follow: false },
-      ...expectedCard(`ユーザー名の設定 - ${SITE_NAME}`),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "ユーザー名の設定 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "ユーザー名の設定 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 });
@@ -173,9 +227,20 @@ describe("createResultMetadata", () => {
     });
 
     await expect(createResultMetadata("jantouFu")).resolves.toEqual({
-      title: `雀頭符 - 結果 - ${SITE_NAME}`,
+      title: "雀頭符 - 結果 - 麻雀点数計算教室",
       robots: { index: false, follow: true },
-      ...expectedCard(`雀頭符 - 結果 - ${SITE_NAME}`),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "雀頭符 - 結果 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "雀頭符 - 結果 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 
@@ -206,24 +271,60 @@ describe("createResultMetadata", () => {
 describe("createMetadata", () => {
   it("サイト名を付けた title を返す", () => {
     expect(createMetadata({ title: "練習" })).toEqual({
-      title: `練習 - ${SITE_NAME}`,
-      ...expectedCard(`練習 - ${SITE_NAME}`),
+      title: "練習 - 麻雀点数計算教室",
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 
   it("description を渡すとそのまま含める", () => {
     expect(createMetadata({ title: "練習", description: "説明" })).toEqual({
-      title: `練習 - ${SITE_NAME}`,
+      title: "練習 - 麻雀点数計算教室",
       description: "説明",
-      ...expectedCard(`練習 - ${SITE_NAME}`, "説明"),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "説明",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        description: "説明",
+      },
     });
   });
 
   it("path を渡すと canonical と og:url が付く", () => {
     expect(createMetadata({ title: "練習", path: "/practice" })).toEqual({
-      title: `練習 - ${SITE_NAME}`,
+      title: "練習 - 麻雀点数計算教室",
       alternates: { canonical: "/practice" },
-      ...expectedCard(`練習 - ${SITE_NAME}`, undefined, "/practice"),
+      openGraph: {
+        type: "website",
+        siteName: "麻雀点数計算教室",
+        locale: "ja_JP",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+        url: "/practice",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "練習 - 麻雀点数計算教室",
+        images: [EXPECTED_IMAGE],
+      },
     });
   });
 
@@ -237,7 +338,7 @@ describe("createMetadata", () => {
   it("OGP 画像を必ず含める（file convention に頼らない）", () => {
     const metadata = createMetadata({ title: "練習" });
 
-    expect(metadata.openGraph).toMatchObject({ images: [OG_IMAGE] });
-    expect(metadata.twitter).toMatchObject({ images: [OG_IMAGE] });
+    expect(metadata.openGraph).toMatchObject({ images: [EXPECTED_IMAGE] });
+    expect(metadata.twitter).toMatchObject({ images: [EXPECTED_IMAGE] });
   });
 });
