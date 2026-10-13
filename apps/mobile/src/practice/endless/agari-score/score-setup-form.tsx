@@ -9,6 +9,7 @@ import { HelpIconButton } from "../../../components/help-icon-button";
 import { PlayIcon } from "../../../components/icons/icons";
 import { InfoModal } from "../../../components/info-modal";
 import { MultiSelect } from "../../../components/multi-select";
+import { TextLink } from "../../../components/text-link";
 import {
   SettingLockedRow,
   SettingsCard,
@@ -196,6 +197,17 @@ export function ScoreSetupForm({
           {targetYaku.length >= 2 && (
             <Text style={styles.note}>{t("setup.yakuFilterNote")}</Text>
           )}
+          {/* 選んだ役を 1 つずつ × で外す手間を省く。外すと「指定しない」に戻る */}
+          {targetYaku.length > 0 && (
+            <View style={styles.clearRow}>
+              <TextLink
+                onPress={() => setTargetYaku([])}
+                testID="setup-target-yaku-clear"
+              >
+                {t("setup.yakuFilterClear")}
+              </TextLink>
+            </View>
+          )}
         </SettingCard>
       )}
 
@@ -304,5 +316,8 @@ const styles = StyleSheet.create({
   note: {
     fontSize: 12,
     color: colors.surface500,
+  },
+  clearRow: {
+    alignItems: "flex-end",
   },
 });

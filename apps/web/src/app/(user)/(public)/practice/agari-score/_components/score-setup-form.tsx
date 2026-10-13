@@ -29,6 +29,7 @@ import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
 import { useAuth } from "@/app/_contexts/auth-context";
@@ -338,10 +339,20 @@ export function ScoreSetupForm({
               done: tPicker("done"),
             }}
           />
-          {targetYaku.length >= 2 && (
-            <p className="text-xs text-surface-500">
-              {t("setup.yakuFilterNote")}
-            </p>
+          {/* 選んだ役を 1 つずつ × で外す手間を省く。外すと「指定しない」に戻る */}
+          {targetYaku.length > 0 && (
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-xs text-surface-500">
+                {targetYaku.length >= 2 && t("setup.yakuFilterNote")}
+              </p>
+              <button
+                type="button"
+                onClick={() => setTargetYaku([])}
+                className={`shrink-0 text-xs ${TEXT_LINK_CLASSES}`}
+              >
+                {t("setup.yakuFilterClear")}
+              </button>
+            </div>
           )}
         </SettingCard>
       )}
