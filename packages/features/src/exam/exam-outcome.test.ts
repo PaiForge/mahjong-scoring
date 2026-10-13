@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { evaluateExamOutcome } from "./exam-outcome";
+import { evaluateExamOutcome, formatExamSeconds } from "./exam-outcome";
 
 /** 満貫試験の条件（合格ライン 6 問 / 制限時間 60 秒） */
 const MANGAN = { minScore: 6, timeLimitSec: 60 } as const;
@@ -62,5 +62,13 @@ describe("evaluateExamOutcome", () => {
     expect(o.averageSeconds).toBeUndefined();
     expect(o.ending).toBe("time");
     expect(o.remaining).toBe(6);
+  });
+});
+
+describe("formatExamSeconds", () => {
+  it("小数 1 桁に揃える", () => {
+    expect(formatExamSeconds(7.5)).toBe("7.5");
+    expect(formatExamSeconds(10)).toBe("10.0");
+    expect(formatExamSeconds(60 / 7)).toBe("8.6");
   });
 });

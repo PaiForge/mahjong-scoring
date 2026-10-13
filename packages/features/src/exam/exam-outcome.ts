@@ -71,3 +71,14 @@ export function evaluateExamOutcome(input: ExamOutcomeInput): ExamOutcome {
     showRequiredPace: !passed && ending === "time",
   };
 }
+
+/**
+ * 結果に出す秒数（平均・合格ペース）を小数 1 桁にする（"7.5"）
+ * 試験秒数整形
+ *
+ * ロケールを跨いでも桁が揺れないよう固定する。web とモバイルの結果
+ * サマリが同じ桁で出すためにここに置く。
+ */
+export function formatExamSeconds(seconds: number): string {
+  return seconds.toFixed(1);
+}

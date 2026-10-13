@@ -2,17 +2,13 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   evaluateExamOutcome,
+  formatExamSeconds,
   type ExamOutcomeInput,
 } from "@mahjong-scoring/features/exam/exam-outcome";
 
 import { linkStyles } from "../../lib/link-styles";
 import { colors, radius } from "../../lib/theme";
 import { useMistakeReveal } from "../components/mistake-reveal";
-
-/** 秒を小数 1 桁で出す（"7.5"）。web と同じく桁を固定する */
-function formatSeconds(seconds: number): string {
-  return seconds.toFixed(1);
-}
 
 /**
  * 昇級試験の結果サマリ（web の `ExamResultSummary`）
@@ -111,7 +107,7 @@ export function ExamResultSummary(input: ExamOutcomeInput) {
             {outcome.averageSeconds === undefined
               ? t("averageTimeNone")
               : t("averageTimeValue", {
-                  seconds: formatSeconds(outcome.averageSeconds),
+                  seconds: formatExamSeconds(outcome.averageSeconds),
                 })}
           </Text>
         </View>
@@ -120,7 +116,7 @@ export function ExamResultSummary(input: ExamOutcomeInput) {
             <Text style={styles.figureLabel}>{t("requiredPaceLabel")}</Text>
             <Text style={styles.figureValue}>
               {t("requiredPaceValue", {
-                seconds: formatSeconds(outcome.requiredPaceSeconds),
+                seconds: formatExamSeconds(outcome.requiredPaceSeconds),
               })}
             </Text>
           </View>
