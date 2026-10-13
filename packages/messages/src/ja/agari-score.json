@@ -74,6 +74,7 @@
     "targetYaku": "出題する役",
     "yakuFilterPlaceholder": "指定しない（すべての役から出題）",
     "yakuFilterNote": "※ 複数選ぶと、いずれかが成立する手牌が出題されます",
+    "yakuFilterClear": "すべて外す",
     "measureTime": "回答時間を計測する",
     "measureTimePro": {
       "badge": "Pro",
