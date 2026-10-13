@@ -60,13 +60,16 @@ export function mobilePlanError(code: MobilePlanErrorCode): NextResponse {
  * 販売中の商品（App Store の Product ID）。販売していなければ空
  * 販売中商品
  *
- * 売り方の Product ID が 1 つでも欠けていれば販売していない扱い
- * （`readAppleProductIds` の TSDoc）。
+ * Product ID が設定された売り方だけを並べる。買い切りが無ければ販売していない
+ * 扱いで空（`readAppleProductIds` の TSDoc）。
  */
 function appleOffers(): MobilePlanOffer[] {
   const ids = readAppleProductIds();
   if (!ids) return [];
-  return OFFER_KEYS.map((key) => ({ key, productId: ids[key] }));
+  return OFFER_KEYS.flatMap((key) => {
+    const productId = ids[key];
+    return productId ? [{ key, productId }] : [];
+  });
 }
 
 /** 表示用のプランの状態を応答の形に写す（日時は ISO 8601） */

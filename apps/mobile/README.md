@@ -243,14 +243,18 @@ web（Vercel と、手元で試すなら `apps/web/.env.local`）に入れる。
 
 | 変数名                              | 値                                                                              |
 | ----------------------------------- | ------------------------------------------------------------------------------- |
-| `APPLE_IAP_PRODUCT_ID_PRO_PASS`     | `help.mahjong.score.pro.pass30`                                                 |
+| `APPLE_IAP_PRODUCT_ID_PRO_PASS`     | 入れない（入れると `help.mahjong.score.pro.pass30` をアプリで売る）             |
 | `APPLE_IAP_PRODUCT_ID_PRO_LIFETIME` | `help.mahjong.score.pro.lifetime`                                               |
 | `APPLE_IAP_APP_APPLE_ID`            | `6820905974`（`eas.json` の `ascAppId`。Production の取引の検証に要る）         |
 | `APPLE_IAP_SANDBOX_USER_IDS`        | Sandbox の取引に特典を付けてよい user_id（カンマ区切りの UUID）。下の許可リスト |
 
-- **2 つの Product ID の両方がそろうまでは「販売していない」扱い**。アプリはプラン画面に
+- **買い切りの Product ID が無ければ「販売していない」扱い**。アプリはプラン画面に
   商品を出さず、iOS の回数制限も掛けない（払えないペイウォールを出さない）。web の回数制限は
   Stripe の Price ID で別に決まる
+- **30 日パスの Product ID は任意で、今は入れていない**。入れていなければアプリには買い切りだけが
+  並ぶ（web の Stripe ではパスも売る）。パスの購入シートのボタンが「サブスクリプションに登録」に
+  なるため、アプリでは売らないことにした（理由は `apps/web/src/lib/billing/apple/env.ts` の
+  `readAppleProductIds`）。App Store Connect の商品は残してあり、値を入れれば売り始める
 - `APPLE_IAP_APP_APPLE_ID` が無いと検証器を作れない。アプリからの取引は 503 になり、アプリは
   取引を完了せずに残して次の起動で送り直す。通知は 500 になり、Apple が数日にわたって再送する
 - `apps/web/.env.example` にもこの 4 つを足す（エージェントは `.env*` を読めないので人が足す）
