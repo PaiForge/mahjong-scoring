@@ -14,12 +14,9 @@ import {
   type IapPurchase,
 } from "./iap";
 import { IAP_AVAILABLE } from "./iap-availability";
+import { postAppleTransaction, type PlanApiResult } from "./plan-api";
 import {
-  postAppleTransaction,
-  type PlanApiFailure,
-  type PlanApiResult,
-} from "./plan-api";
-import {
+  isRetryable,
   shouldFinishAfter,
   summarizeRestore,
   type RestoreSummary,
@@ -52,17 +49,6 @@ const finished = new Set<string>();
  * 取引を未完了のまま残し、次の起動で StoreKit が配り直したときに送る
  */
 const RETRY_DELAYS_MS = [2_000, 5_000, 10_000, 30_000] as const;
-
-/** 送り直せば通るかもしれない失敗（通信・サーバーの一時的な障害） */
-function isRetryable(error: PlanApiFailure): boolean {
-  return (
-    error === "network" ||
-    error === "serverError" ||
-    error === "appleUnavailable" ||
-    error === "authUnavailable" ||
-    error === "rateLimited"
-  );
-}
 
 /** 記録を送っている取引の数。プラン画面が「記録しています」を出すのに使う */
 const useRecordingStore = create<{ readonly count: number }>(() => ({

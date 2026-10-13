@@ -1,7 +1,7 @@
 import { isMobilePlanErrorCode } from "@mahjong-scoring/features/billing/mobile-api";
 import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
-import type { PlanApiResult } from "./plan-api";
+import type { PlanApiFailure, PlanApiResult } from "./plan-api";
 
 /**
  * 取引をサーバーへ送った応答から、取引を完了（finish）するかを決める
@@ -36,6 +36,48 @@ export function shouldFinishAfter(
     result.error !== "appleUnavailable" &&
     result.error !== "usernameRequired"
   );
+}
+
+/**
+ * 失敗の理由ごとの、起動中に間を置いて送り直すか
+ *
+ * 表にして理由を漏れなく並べる。理由が増えたら型検査がここで止め、
+ * 送り直すかを決めさせる（`||` の羅列では、増えた理由が黙って
+ * 「送り直さない」に落ちる）。
+ */
+const RETRYABLE: Readonly<Record<PlanApiFailure, boolean>> = {
+  // 通信・サーバーの一時的な障害。送り直せば通るかもしれない
+  network: true,
+  serverError: true,
+  appleUnavailable: true,
+  authUnavailable: true,
+  rateLimited: true,
+  // ユーザー名を決めれば通るが、起動中には決まらない（{@link shouldFinishAfter}）
+  usernameRequired: false,
+  // 送り直しても同じ答えが返る
+  ownedByAnotherAccount: false,
+  invalidTransaction: false,
+  unknownProduct: false,
+  sandboxNotAccepted: false,
+  rejected: false,
+  // ログインが失効・変わった。同じ名義で送り直しても通らない
+  unauthorized: false,
+  deleted: false,
+  banned: false,
+  userChanged: false,
+  // 形の分からない応答。次の起動で StoreKit が配り直したときに送る
+  unknown: false,
+};
+
+/**
+ * 送り直せば通るかもしれない失敗か
+ * 送り直し判定
+ *
+ * 購入の直後に記録できなかったとき、起動中に間を置いて送り直すかを決める。
+ * 送り直さない失敗でも、取引を完了するかは別に {@link shouldFinishAfter} が決める。
+ */
+export function isRetryable(error: PlanApiFailure): boolean {
+  return RETRYABLE[error];
 }
 
 /**
