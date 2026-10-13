@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya } from "@mahjong-scoring/core";
@@ -15,6 +15,7 @@ import {
   HelpTourSheet,
   type HelpTourStep,
 } from "../../../components/help-tour-sheet";
+import { OperationHelp } from "../../../components/operation-help";
 import { QuestionDisplay } from "../../components/question-display";
 import { ResultDisplay } from "./result-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
@@ -121,7 +122,6 @@ export function AgariScoreOperationHelp({
   readonly requireFuForMangan: boolean;
 }) {
   const t = useTranslations("agariScore.tour");
-  const [isOpen, setIsOpen] = useState(false);
 
   const steps: readonly HelpTourStep[] = [
     {
@@ -167,26 +167,7 @@ export function AgariScoreOperationHelp({
     },
   ];
 
-  return (
-    <>
-      <HelpIconButton
-        onPress={() => setIsOpen(true)}
-        label={t("label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
-      />
-      <HelpTourSheet
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        steps={steps}
-        labels={{
-          prev: t("prev"),
-          next: t("next"),
-          close: t("done"),
-          progress: (current, total) => t("progress", { current, total }),
-        }}
-      />
-    </>
-  );
+  return <OperationHelp namespace="agariScore.tour" steps={steps} />;
 }
 
 const styles = StyleSheet.create({

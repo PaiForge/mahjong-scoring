@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
@@ -15,6 +15,10 @@ import {
   HelpTourSheet,
   type HelpTourStep,
 } from "../../../components/help-tour-sheet";
+import {
+  OperationHelp,
+  operationHelpSteps,
+} from "../../../components/operation-help";
 import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreResult } from "./tenpai-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
@@ -142,37 +146,15 @@ export function TenpaiScoreOperationHelp({
   readonly phase: "machi" | "cells";
 }) {
   const t = useTranslations("tenpaiScore.tour");
-  const [isOpen, setIsOpen] = useState(false);
-
   const keys =
     phase === "machi"
-      ? (["board", "picker", "machiSubmit"] as const)
-      : (["board", "cells", "answerForm", "cellsSubmit"] as const);
-  const steps: readonly HelpTourStep[] = keys.map((key) => ({
-    key,
-    title: t(`${key}.title`),
-    description: t(`${key}.description`),
-  }));
-
+      ? ["board", "picker", "machiSubmit"]
+      : ["board", "cells", "answerForm", "cellsSubmit"];
   return (
-    <>
-      <HelpIconButton
-        onPress={() => setIsOpen(true)}
-        label={t("label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
-      />
-      <HelpTourSheet
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        steps={steps}
-        labels={{
-          prev: t("prev"),
-          next: t("next"),
-          close: t("done"),
-          progress: (current, total) => t("progress", { current, total }),
-        }}
-      />
-    </>
+    <OperationHelp
+      namespace="tenpaiScore.tour"
+      steps={operationHelpSteps(t, keys)}
+    />
   );
 }
 
