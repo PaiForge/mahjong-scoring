@@ -52,6 +52,8 @@ import { ResultScoreBar } from "./result-score-bar";
  *    問題別一覧は末尾に 5 の主ボタンをもう 1 つ持つ（`ResultPrimaryAction`）
  * 8. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
  *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
+ * 9. `chaptersBlock` — 関連するレッスン（昇級試験は前提となるレッスン）。
+ *    説明ページと同じ集合で、どちらも持たない練習では節ごと出ない
  */
 export async function ResultView({
   practiceTitle,
@@ -66,6 +68,7 @@ export async function ResultView({
   summary,
   resultBlock,
   leaderboardBlock,
+  chaptersBlock,
   children,
 }: PracticeResultViewProps) {
   const tc = await getTranslations("challenge");
@@ -163,6 +166,10 @@ export async function ResultView({
 
         {/* リーダーボードプレビュー。Suspense + LeaderboardSkeleton で包まれている。 */}
         {leaderboardBlock}
+
+        {/* 結果を見て復習したくなった人の行き先。次の行動（もう一度）より
+            前に出さないよう最下部に置く */}
+        {chaptersBlock}
       </div>
     </ContentContainer>
   );

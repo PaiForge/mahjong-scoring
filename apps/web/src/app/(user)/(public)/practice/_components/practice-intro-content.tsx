@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ExamStartCta } from "@/app/(user)/(public)/exam/_components/exam-start-cta";
 import { HowToPlaySection } from "./how-to-play-section";
 import { LeaderboardPreviewLoader } from "./leaderboard-preview-loader";
-import { PracticeChapterSection } from "./practice-chapter-section";
+import { PracticeRelatedChapters } from "./practice-related-chapters";
 import { PracticeStartCta } from "./practice-start-cta";
 import { VariantStartPanel } from "./variant-start-panel";
 import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
@@ -10,8 +10,6 @@ import { getTranslations } from "next-intl/server";
 import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
-import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
-import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
@@ -56,20 +54,9 @@ interface PracticeIntroContentProps {
  * 練習説明共通
  *
  * @remarks
- * 教本の章のセクションは、練習と昇級試験で見出しも中身の出どころも変わる。
- *
- * - 通常の練習は「関連する教本の章」。読んでおくと解きやすいという程度の
- *   関係で、`relatedChaptersForPractice()` がカタログの `learnChapter` と
- *   「その練習へ送っている章」（章の `practiceLinks` の逆引き）を畳んで返す。
- *   章から練習へ来た人が同じ章へ戻れるのはこの逆引きの側で、点数表早引きの
- *   ように複数の章が送る練習では 1 件にならない
- * - 昇級試験は「前提となる教本の章」。合格に必要な知識の全体なので、
- *   段級位レジストリがそのランクに宣言した章をすべて出す（1 章ではない）。
- *   道場が出す前提章と同じ集合・同じ見出しで、出どころも同じレジストリ
- *
- * どちらも練習ページ側でパスを渡したり表示可否を切り替えたりはしない。
- * 描画は {@link PracticeChapterSection} が持つ（記録を取らない和了形の点数計算の
- * 設定ページと共有する）。
+ * レッスンのセクションは {@link PracticeRelatedChapters} が練習と昇級試験の
+ * どちらかで見出しと章の集合を決める（結果ページと共有する）。練習ページ側で
+ * パスを渡したり表示可否を切り替えたりはしない。
  */
 export async function PracticeIntroContent({
   namespace,
@@ -90,23 +77,14 @@ export async function PracticeIntroContent({
     ? { label: tDojo("title"), href: "/dojo" }
     : { label: tp("title"), href: "/practice" };
 
-  // 昇級試験は段級位レジストリの前提章をすべて、通常の練習は関連章
-  // （カタログの前提章 + その練習へ送っている章）を出す。どちらも持たない
-  // 練習ではセクションごと出さない。
-  // 見出しは道場と同じ文言を引く（同じ集合を別の名前で呼ばないため）。
+  // 段級位への導線（ページ末尾）に使う
   const examRank = isExam
     ? rankRequiringMenu(practiceMenuBySlug(slug).menuType)?.rank
     : undefined;
-  const chapterSlugs: readonly CurriculumChapterSlug[] = examRank
-    ? examRank.learnChapterSlugs
-    : relatedChaptersForPractice(slug);
   // 広告は開始の導線とレッスンの後ろに置く（始める前に目に入れない）
   const ad = await getNativeAdCreative(
     isExam ? "exam-intro-native-ad" : "practice-intro-native-ad",
   );
-  const chaptersTitle = examRank
-    ? tDojo("chaptersTitle")
-    : tp("requiredKnowledge");
 
   return (
     <ContentContainer breadcrumb={[parent, { label: t("title") }]}>
@@ -164,7 +142,7 @@ export async function PracticeIntroContent({
           </LinkButton>
         )}
 
-        <PracticeChapterSection title={chaptersTitle} slugs={chapterSlugs} />
+        <PracticeRelatedChapters slug={slug} />
 
         {/* 目次は枠を持たないので、広告の行も枠を描かない（/lessons と同じ） */}
         {!isExam && ad && (
