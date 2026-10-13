@@ -5,10 +5,8 @@ import { Resend } from "resend";
 import { SITE_NAME } from "@/app/_lib/metadata";
 import { SITE_URL } from "@/config";
 import { logExternalError } from "@/lib/log-error";
+import { readOperatorMailConfig } from "@/lib/operator-mail";
 import type { ReportReason } from "@mahjong-scoring/features/reports/report";
-
-/** Resend で送信元ドメインを認証していない環境向けの送信元（お問い合わせと同じ） */
-const FALLBACK_FROM_EMAIL = "onboarding@resend.dev";
 
 /** メールの本文に出す理由の名前（運営者だけが読むので辞書を通さない） */
 const REASON_LABELS: Record<ReportReason, string> = {
@@ -42,9 +40,8 @@ export interface ReportNotification {
 export async function notifyOperatorOfReport(
   report: ReportNotification,
 ): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
-  if (!apiKey || !to) {
+  const mail = readOperatorMailConfig();
+  if (!mail) {
     console.error(
       "[notifyOperatorOfReport] RESEND_API_KEY / CONTACT_TO_EMAIL が未設定のため通報を知らせられません",
     );
@@ -60,9 +57,9 @@ export async function notifyOperatorOfReport(
     adminUrl,
   ];
   try {
-    const { error } = await new Resend(apiKey).emails.send({
-      from: process.env.CONTACT_FROM_EMAIL || FALLBACK_FROM_EMAIL,
-      to,
+    const { error } = await new Resend(mail.apiKey).emails.send({
+      from: mail.from,
+      to: mail.to,
       subject: `[${SITE_NAME}] 通報: @${report.targetUsername}`,
       text: lines.join("\n"),
     });

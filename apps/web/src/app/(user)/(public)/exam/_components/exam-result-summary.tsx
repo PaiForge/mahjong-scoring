@@ -1,13 +1,11 @@
 import { getTranslations } from "next-intl/server";
 
 import type { ExamOutcomeInput } from "@mahjong-scoring/features/exam/exam-outcome";
-import { evaluateExamOutcome } from "@mahjong-scoring/features/exam/exam-outcome";
+import {
+  evaluateExamOutcome,
+  formatExamSeconds,
+} from "@mahjong-scoring/features/exam/exam-outcome";
 import { RevealMistakesLink } from "@/app/(user)/(public)/practice/_components/reveal-mistakes-link";
-
-/** 秒を小数 1 桁で出す（"7.5"）。ロケールを跨いでも桁が揺れないよう固定 */
-function formatSeconds(seconds: number): string {
-  return seconds.toFixed(1);
-}
 
 /**
  * 昇級試験の結果サマリ（合否・合格ラインまでの進み具合・ペース）
@@ -107,7 +105,7 @@ export async function ExamResultSummary(input: ExamOutcomeInput) {
             {outcome.averageSeconds === undefined
               ? t("averageTimeNone")
               : t("averageTimeValue", {
-                  seconds: formatSeconds(outcome.averageSeconds),
+                  seconds: formatExamSeconds(outcome.averageSeconds),
                 })}
           </dd>
         </div>
@@ -116,7 +114,7 @@ export async function ExamResultSummary(input: ExamOutcomeInput) {
             <dt className="text-surface-600">{t("requiredPaceLabel")}</dt>
             <dd className="font-semibold text-surface-900">
               {t("requiredPaceValue", {
-                seconds: formatSeconds(outcome.requiredPaceSeconds),
+                seconds: formatExamSeconds(outcome.requiredPaceSeconds),
               })}
             </dd>
           </div>

@@ -6,17 +6,11 @@ import { SITE_NAME } from "@/app/_lib/metadata";
 import type { ActionResult } from "@/lib/action-types";
 import { escapeHtml } from "@/lib/escape-html";
 import { logExternalError } from "@/lib/log-error";
+import { readOperatorMailConfig } from "@/lib/operator-mail";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { parseContactForm } from "@/lib/validations/contact";
 import type { ContactValidationErrorKey } from "@/lib/validations/contact";
-
-/**
- * Resend で送信元ドメインを認証していない環境向けの送信元。
- * Resend が用意しているテスト用アドレスで、アカウント所有者のメールアドレス
- * 宛てにしか届かない。本番では `CONTACT_FROM_EMAIL` を必ず設定する
- */
-const FALLBACK_FROM_EMAIL = "onboarding@resend.dev";
 
 /**
  * 問い合わせ送信の失敗理由
@@ -41,11 +35,7 @@ export type SendContactMailResult = ActionResult<SendContactMailError>;
  * 返信先（Reply-To）に送信者のメールアドレスを入れるので、受信側は
  * メーラーの「返信」でそのまま返せる。
  *
- * 環境変数:
- * - `RESEND_API_KEY` — 必須。無ければ送らずに `sendFailed`
- * - `CONTACT_TO_EMAIL` — 必須。受信する運営のメールアドレス
- * - `CONTACT_FROM_EMAIL` — Resend で認証済みドメインのアドレス。
- *   未設定なら Resend のテスト用アドレスから送る
+ * 送信設定（`readOperatorMailConfig`）が揃っていなければ送らずに `sendFailed`。
  */
 export async function sendContactMail(
   input: unknown,
@@ -61,20 +51,19 @@ export async function sendContactMail(
   }
   const { name, email, subject, message } = parsed.value;
 
-  const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL;
-  if (!apiKey || !to) {
+  const mail = readOperatorMailConfig();
+  if (!mail) {
     console.error(
       "[sendContactMail] RESEND_API_KEY / CONTACT_TO_EMAIL が未設定のため送信できません",
     );
     return { error: "sendFailed" };
   }
 
-  const resend = new Resend(apiKey);
+  const resend = new Resend(mail.apiKey);
   try {
     const { error } = await resend.emails.send({
-      from: process.env.CONTACT_FROM_EMAIL || FALLBACK_FROM_EMAIL,
-      to,
+      from: mail.from,
+      to: mail.to,
       replyTo: email,
       subject: `[${SITE_NAME}] ${subject}`,
       text: [

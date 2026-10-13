@@ -2,22 +2,17 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { judgeMachiSelection, isOya } from "@mahjong-scoring/core";
-import type { MachiCellAnswer } from "@mahjong-scoring/core";
+import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
   HelpTourButton,
   HelpTourModal,
 } from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
 import {
-  cellKeyOf,
-  listCellRefs,
-  type MachiCellRef,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
-import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
-import {
   buildTenpaiHelpCells,
   generateTenpaiHelpSample,
+  tenpaiHelpCellFormatters,
+  tenpaiHelpProgress,
 } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 import { MachiPicker } from "./machi-picker";
@@ -54,22 +49,12 @@ export function TenpaiScoreHelpTour() {
     if (!sample) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
     const { answers, results } = buildTenpaiHelpCells(sample);
-    const isOyaQuestion = isOya(sample.jikaze);
-    const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
-      t: tScore,
-      noYakuLabel: t("cells.noYakuShort"),
-      exactHan: false,
-      allowDoubleYakuman: false,
-      isOya: isOyaQuestion,
-    });
+    const { formatAnswer, formatAnswerLines } = tenpaiHelpCellFormatters(
+      sample,
+      { t: tScore, noYakuLabel: t("cells.noYakuShort") },
+    );
     // マスのスライドはツモ列を回答済み、ロン列を選択中の途中経過で見せる
-    const tsumoAnswers: Record<string, MachiCellAnswer> = {};
-    const ronCells: MachiCellRef[] = [];
-    for (const cell of listCellRefs(sample)) {
-      const key = cellKeyOf(cell);
-      if (cell.isTsumo) tsumoAnswers[key] = answers[key];
-      else ronCells.push(cell);
-    }
+    const { tsumoAnswers, ronCells } = tenpaiHelpProgress(sample, answers);
 
     return [
       {
