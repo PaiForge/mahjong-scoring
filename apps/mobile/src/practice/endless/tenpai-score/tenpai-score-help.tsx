@@ -1,20 +1,12 @@
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  isOya,
-  judgeMachiSelection,
-  type MachiCellAnswer,
-} from "@mahjong-scoring/core";
-import {
-  cellKeyOf,
-  listCellRefs,
-  type MachiCellRef,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
-import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
+import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
   buildTenpaiHelpCells,
   generateTenpaiHelpSample,
+  tenpaiHelpCellFormatters,
+  tenpaiHelpProgress,
 } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
@@ -53,20 +45,11 @@ export function TenpaiScoreHelpTour() {
     if (sample === undefined) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
     const { answers, results } = buildTenpaiHelpCells(sample);
-    const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
-      t: tScore,
-      noYakuLabel: t("cells.noYakuShort"),
-      exactHan: false,
-      allowDoubleYakuman: false,
-      isOya: isOya(sample.jikaze),
-    });
-    const tsumoAnswers: Record<string, MachiCellAnswer> = {};
-    const ronCells: MachiCellRef[] = [];
-    for (const cell of listCellRefs(sample)) {
-      const key = cellKeyOf(cell);
-      if (cell.isTsumo) tsumoAnswers[key] = answers[key];
-      else ronCells.push(cell);
-    }
+    const { formatAnswer, formatAnswerLines } = tenpaiHelpCellFormatters(
+      sample,
+      { t: tScore, noYakuLabel: t("cells.noYakuShort") },
+    );
+    const { tsumoAnswers, ronCells } = tenpaiHelpProgress(sample, answers);
 
     return [
       {

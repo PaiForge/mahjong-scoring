@@ -1,8 +1,9 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { isOya } from "@mahjong-scoring/core";
-import { buildTenpaiHelpCells } from "@mahjong-scoring/features/practice/help-tour-sample";
-import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
+import {
+  buildTenpaiHelpCells,
+  tenpaiHelpCellFormatters,
+} from "@mahjong-scoring/features/practice/help-tour-sample";
 import { TENPAI_SCORE_DEMO_QUESTION } from "@mahjong-scoring/features/practice/tenpai-score/demo-question";
 
 import { TenpaiDisplay } from "./tenpai-display";
@@ -26,13 +27,10 @@ const { answers: DEMO_ANSWERS } = buildTenpaiHelpCells(
 export function TenpaiScorePreview() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
-  const { formatAnswer } = cellAnswerFormatters({
-    t: tScore,
-    noYakuLabel: t("cells.noYakuShort"),
-    exactHan: false,
-    allowDoubleYakuman: false,
-    isOya: isOya(TENPAI_SCORE_DEMO_QUESTION.jikaze),
-  });
+  const { formatAnswer } = tenpaiHelpCellFormatters(
+    TENPAI_SCORE_DEMO_QUESTION,
+    { t: tScore, noYakuLabel: t("cells.noYakuShort") },
+  );
 
   return (
     <View style={styles.root}>
