@@ -1,7 +1,6 @@
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
 
-import { isAuthorizedCronRequest } from "@/lib/cron-auth";
-import { logExternalError } from "@/lib/log-error";
+import { runCronJob } from "@/lib/cron-job";
 import { notifyExpiredPlans } from "@/lib/notifications/plan-expiry";
 
 /**
@@ -21,23 +20,12 @@ import { notifyExpiredPlans } from "@/lib/notifications/plan-expiry";
  * ログに残す。Vercel の cron は失敗しても再試行しないが、翌日の実行が
  * 7 日の窓で拾い直す。
  */
-export async function GET(request: Request): Promise<NextResponse> {
-  if (!isAuthorizedCronRequest(request)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const result = await notifyExpiredPlans();
-    console.log(
-      `[cron/notify-plan-expiry] expired=${result.expired} stillActive=${result.stillActive} candidates=${result.candidates} notified=${result.notified}`,
-    );
-    return NextResponse.json(result);
-  } catch (error) {
-    logExternalError(
-      "cron/notify-plan-expiry",
-      "failed to notify expired plans",
-      error,
-    );
-    return NextResponse.json({ error: "failed" }, { status: 500 });
-  }
+export function GET(request: Request): Promise<NextResponse> {
+  return runCronJob(request, {
+    tag: "cron/notify-plan-expiry",
+    failureMessage: "failed to notify expired plans",
+    run: notifyExpiredPlans,
+    summarize: (result) =>
+      `expired=${result.expired} stillActive=${result.stillActive} candidates=${result.candidates} notified=${result.notified}`,
+  });
 }

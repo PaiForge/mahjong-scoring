@@ -1,7 +1,6 @@
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
 
-import { isAuthorizedCronRequest } from "@/lib/cron-auth";
-import { logExternalError } from "@/lib/log-error";
+import { runCronJob } from "@/lib/cron-job";
 import { processPendingAccountDeletions } from "@/lib/users/delete-account";
 
 /**
@@ -20,23 +19,12 @@ import { processPendingAccountDeletions } from "@/lib/users/delete-account";
  *
  * 何度呼んでも二重に処理しない（工程は冪等で、処理中の要求は貸し出しで飛ばす）。
  */
-export async function GET(request: Request): Promise<NextResponse> {
-  if (!isAuthorizedCronRequest(request)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const result = await processPendingAccountDeletions();
-    console.log(
-      `[cron/process-account-deletions] processed=${result.processed} completed=${result.completed}`,
-    );
-    return NextResponse.json(result);
-  } catch (error) {
-    logExternalError(
-      "cron/process-account-deletions",
-      "failed to process pending deletions",
-      error,
-    );
-    return NextResponse.json({ error: "failed" }, { status: 500 });
-  }
+export function GET(request: Request): Promise<NextResponse> {
+  return runCronJob(request, {
+    tag: "cron/process-account-deletions",
+    failureMessage: "failed to process pending deletions",
+    run: processPendingAccountDeletions,
+    summarize: (result) =>
+      `processed=${result.processed} completed=${result.completed}`,
+  });
 }
