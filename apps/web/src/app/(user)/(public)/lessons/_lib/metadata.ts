@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
+import { jstDayStartIso } from "@mahjong-scoring/features/jst";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
   getChapterBySlug,
@@ -36,9 +37,7 @@ export async function createLearnMetadata(
     openGraph: {
       ...base.openGraph,
       type: "article",
-      ...(publishedAt
-        ? { publishedTime: `${publishedAt}T00:00:00+09:00` }
-        : {}),
+      ...(publishedAt ? { publishedTime: jstDayStartIso(publishedAt) } : {}),
     },
   };
 }

@@ -1,20 +1,12 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { HOME_ANNOUNCEMENTS_LIMIT } from "@mahjong-scoring/features/announcements/listing";
 import { AnnouncementTextList } from "@/app/(user)/(public)/announcements/_components/announcement-text-list";
 import { getPublishedAnnouncementsPaginated } from "@/lib/announcements/queries";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
-
-/**
- * ダッシュボードに載せる件数。
- *
- * ここはお知らせの在庫を見せる場ではなく、更新に気づくための場なので、
- * 学習導線（教本の続き・おすすめの練習）より縦を食わない長さに抑える。
- * 全件は「すべて見る」から一覧ページへ。
- */
-const HOME_ANNOUNCEMENTS_LIMIT = 3;
 
 /**
  * ダッシュボードのお知らせセクション。最新のお知らせを数件だけ載せる。

@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { useTranslations } from "use-intl";
 
-import { HelpIconButton } from "../components/help-icon-button";
 import {
-  HelpTourSheet,
-  type HelpTourStep,
-} from "../components/help-tour-sheet";
+  OperationHelp,
+  operationHelpSteps,
+} from "../components/operation-help";
 
 /** 説明する順（web の `DojoSpotlightTour` の手順と同じ） */
 const STEP_KEYS = [
@@ -26,32 +24,10 @@ const STEP_KEYS = [
  */
 export function DojoHelp() {
   const t = useTranslations("dojo.tour");
-  const [isOpen, setIsOpen] = useState(false);
-
-  const steps: readonly HelpTourStep[] = STEP_KEYS.map((key) => ({
-    key,
-    title: t(`${key}.title`),
-    description: t(`${key}.description`),
-  }));
-
   return (
-    <>
-      <HelpIconButton
-        onPress={() => setIsOpen(true)}
-        label={t("label")}
-        fontSize={17}
-      />
-      <HelpTourSheet
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        steps={steps}
-        labels={{
-          prev: t("prev"),
-          next: t("next"),
-          close: t("done"),
-          progress: (current, total) => t("progress", { current, total }),
-        }}
-      />
-    </>
+    <OperationHelp
+      namespace="dojo.tour"
+      steps={operationHelpSteps(t, STEP_KEYS)}
+    />
   );
 }

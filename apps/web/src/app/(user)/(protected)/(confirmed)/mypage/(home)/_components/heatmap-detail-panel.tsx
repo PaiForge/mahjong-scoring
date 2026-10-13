@@ -7,7 +7,7 @@ import {
   isPracticeMenuType,
   menuTypeToMessageKey,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
+import { JST_TIME_ZONE, jstDayStartIso } from "@mahjong-scoring/features/jst";
 
 interface HeatmapDetailPanelProps {
   readonly selectedDate: string | undefined;
@@ -64,7 +64,7 @@ export function HeatmapDetailPanel({
       {selectedDate ? (
         <>
           <p className="font-semibold text-surface-900">
-            {new Date(selectedDate + "T00:00:00+09:00").toLocaleDateString(
+            {new Date(jstDayStartIso(selectedDate)).toLocaleDateString(
               "ja-JP",
               {
                 year: "numeric",

@@ -1,19 +1,12 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
-import type {
-  MobileAnnouncementSummary,
-  MobileAnnouncementsResponse,
-} from "@mahjong-scoring/features/announcements/mobile-api";
 
 import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { AnnouncementRow } from "../../announcements/announcement-rows";
-import {
-  fetchAnnouncements,
-  type AnnouncementApiFailure,
-} from "../../announcements/announcements-api";
+import { fetchAnnouncements } from "../../announcements/announcements-api";
 import {
   AnnouncementLoadFailed,
   AnnouncementLoading,
@@ -24,6 +17,7 @@ import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors } from "../../lib/theme";
+import { useLoadMore } from "../../lib/use-load-more";
 
 /**
  * お知らせ一覧
@@ -48,65 +42,23 @@ export default function AnnouncementsScreen() {
   );
 }
 
-/** 2 ページ目以降の読み足し */
-interface MorePages {
-  readonly items: readonly MobileAnnouncementSummary[];
-  readonly page: number;
-  readonly loading: boolean;
-  readonly error?: AnnouncementApiFailure;
-}
-
 function AnnouncementList() {
   const t = useTranslations("announcements");
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.announcementsIndex);
   const { state, reload } = useAnnouncementRead(
     useCallback(() => fetchAnnouncements(1), []),
   );
-  // 1 ページ目を読み直したら読み足しを捨てる（重ねると同じ行が二重に並ぶ）
-  const [more, setMore] = useState<{
-    readonly base: MobileAnnouncementsResponse;
-    readonly pages: MorePages;
-  }>();
   const firstPage = state.kind === "loaded" ? state.value : undefined;
-  const pages =
-    more !== undefined && more.base === firstPage ? more.pages : undefined;
+  const { items, hasMore, loading, error, loadMore } = useLoadMore(
+    firstPage,
+    fetchAnnouncements,
+  );
 
   if (state.kind === "loading") return <AnnouncementLoading />;
   if (state.kind === "failed")
     return (
       <AnnouncementLoadFailed message={t("loadFailed")} onRetry={reload} />
     );
-
-  const items = [...state.value.items, ...(pages?.items ?? [])];
-  const lastPage = pages?.page ?? state.value.page;
-  const hasMore = lastPage < state.value.totalPages;
-
-  const loadMore = () => {
-    const base = state.value;
-    setMore({
-      base,
-      pages: { items: pages?.items ?? [], page: lastPage, loading: true },
-    });
-    void fetchAnnouncements(lastPage + 1).then((result) => {
-      setMore((prev) => {
-        if (prev === undefined || prev.base !== base) return prev;
-        if ("error" in result) {
-          return {
-            base,
-            pages: { ...prev.pages, loading: false, error: result.error },
-          };
-        }
-        return {
-          base,
-          pages: {
-            items: [...prev.pages.items, ...result.items],
-            page: result.page,
-            loading: false,
-          },
-        };
-      });
-    });
-  };
 
   return (
     <View style={styles.section}>
@@ -124,7 +76,7 @@ function AnnouncementList() {
           {ad !== undefined && <NativeAdRow creative={ad} />}
         </LinkRowList>
       )}
-      {pages?.error !== undefined && (
+      {error !== undefined && (
         <AnnouncementLoadFailed message={t("loadFailed")} />
       )}
       {hasMore && (
@@ -132,7 +84,7 @@ function AnnouncementList() {
           variant="secondary"
           fullWidth
           testID="announcements-more"
-          disabled={pages?.loading === true}
+          disabled={loading}
           onPress={loadMore}
         >
           {t("loadMore")}

@@ -6,6 +6,7 @@ import {
 } from "@mahjong-scoring/features/ads/native-ad";
 import { parseNativeAdsResponse } from "@mahjong-scoring/features/ads/parse-native-ads-response";
 
+import { readJson } from "../auth/read-json";
 import { SITE_URL } from "../lib/app-site-url";
 
 /**
@@ -27,11 +28,11 @@ export function useNativeAds(slot: MobileAdSlot): readonly NativeAdView[] {
     })
       .then(async (response) => {
         if (!response.ok) return;
-        const parsed = parseNativeAdsResponse(await response.json());
+        const parsed = parseNativeAdsResponse(await readJson(response));
         if (parsed !== undefined) setAds(parsed.ads);
       })
       .catch(() => {
-        // 通信できない・中断した・JSON でない。広告を出さないだけでよい
+        // 通信できない・中断した。広告を出さないだけでよい
       });
     return () => controller.abort();
   }, [slot]);

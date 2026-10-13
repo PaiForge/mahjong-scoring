@@ -1,4 +1,4 @@
-import { JST_TIME_ZONE } from "../jst";
+import { JST_TIME_ZONE, jstDayStartIso } from "../jst";
 
 /**
  * 章の公開日（ISO 8601 の日付）を日本語表記にする
@@ -15,5 +15,5 @@ export function formatPublishedDate(isoDate: string): string {
     month: "long",
     day: "numeric",
     timeZone: JST_TIME_ZONE,
-  }).format(new Date(`${isoDate}T00:00:00+09:00`));
+  }).format(new Date(jstDayStartIso(isoDate)));
 }

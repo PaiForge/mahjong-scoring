@@ -1,5 +1,8 @@
+import { AD_KINDS } from "@mahjong-scoring/features/ads/native-ad";
+import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import {
   boolean,
   check,
@@ -17,6 +20,20 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+import { AD_PLATFORMS } from "../ads/registry";
+
+/**
+ * CHECK の `IN (...)` に並べる値のリスト
+ * CHECK値リスト
+ *
+ * 値の集合を TS の定数と DB の CHECK で二重に書かないため、定数から組み立てる。
+ * 定数に値を足すと `drizzle-kit generate` が CHECK の差し替えを出す。値はコードの
+ * 定数（利用者の入力ではない）なので、そのまま SQL に埋め込む。
+ */
+function sqlInList(values: readonly string[]): SQL {
+  return sql.raw(values.map((value) => `'${value}'`).join(", "));
+}
 
 /** プロフィール */
 export const profiles = pgTable("profiles", {
@@ -728,7 +745,7 @@ export const adCreatives = pgTable(
     index("idx_ad_creatives_slot_active").on(table.slot, table.isActive),
     check(
       "ad_creatives_chk_kind",
-      sql`${table.kind} IN ('native_card', 'native_row')`,
+      sql`${table.kind} IN (${sqlInList(AD_KINDS)})`,
     ),
     check(
       "ad_creatives_chk_has_visual",
@@ -790,7 +807,7 @@ export const adNetworkSettings = pgTable(
     ),
     check(
       "ad_network_settings_chk_platform",
-      sql`${table.platform} IN ('web', 'mobile')`,
+      sql`${table.platform} IN (${sqlInList(AD_PLATFORMS)})`,
     ),
   ],
 );
@@ -917,7 +934,7 @@ export const billingCheckouts = pgTable(
       .where(sql`${table.settledAt} IS NULL`),
     check(
       "billing_checkouts_chk_kind",
-      sql`${table.kind} IN ('pass', 'lifetime')`,
+      sql`${table.kind} IN (${sqlInList(Object.values(PurchaseKind))})`,
     ),
     check(
       "billing_checkouts_chk_duration",
@@ -1050,7 +1067,10 @@ export const purchases = pgTable(
   },
   (table) => [
     index("idx_purchases_user_expires").on(table.userId, table.expiresAt),
-    check("purchases_chk_kind", sql`${table.kind} IN ('pass', 'lifetime')`),
+    check(
+      "purchases_chk_kind",
+      sql`${table.kind} IN (${sqlInList(Object.values(PurchaseKind))})`,
+    ),
     check(
       "purchases_chk_lifetime_has_no_expiry",
       sql`(${table.kind} = 'lifetime') = (${table.expiresAt} IS NULL)`,
@@ -1067,7 +1087,7 @@ export const purchases = pgTable(
     check("purchases_chk_currency", sql`${table.currency} ~ '^[a-z]{3}$'`),
     check(
       "purchases_chk_provider",
-      sql`${table.provider} IN ('stripe', 'apple')`,
+      sql`${table.provider} IN (${sqlInList(Object.values(PurchaseProvider))})`,
     ),
     check(
       "purchases_chk_provider_columns",
