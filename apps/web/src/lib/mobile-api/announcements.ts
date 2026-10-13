@@ -2,6 +2,7 @@ import "server-only";
 
 import type { NextResponse } from "next/server";
 
+import { ANNOUNCEMENTS_PER_PAGE } from "@mahjong-scoring/features/announcements/listing";
 import type {
   MobileAnnouncementErrorCode,
   MobileAnnouncementResponse,
@@ -17,12 +18,6 @@ import {
 import { getPaginationData, parsePageParam } from "../pagination";
 
 import { mobileJson, mobileServerError } from "./response";
-
-/**
- * 1 ページの件数（web の一覧ページと同じ）
- * お知らせ一覧件数
- */
-const ANNOUNCEMENTS_PER_PAGE = 20;
 
 /** 日時を JSON に載せる形（ISO 8601）にする。無ければ undefined */
 function isoOf(value: Date | string | null): string | undefined {

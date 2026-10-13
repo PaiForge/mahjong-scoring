@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { ANNOUNCEMENTS_PER_PAGE } from "@mahjong-scoring/features/announcements/listing";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -25,8 +26,6 @@ import {
 } from "@/lib/announcements/queries";
 
 export const revalidate = 86400;
-
-const ANNOUNCEMENTS_PER_PAGE = 20;
 
 interface Props {
   searchParams: Promise<{ page?: string }>;

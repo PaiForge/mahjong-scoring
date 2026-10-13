@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { HOME_ANNOUNCEMENTS_LIMIT } from "@mahjong-scoring/features/announcements/listing";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 import { AnnouncementRow } from "../announcements/announcement-rows";
@@ -11,14 +12,6 @@ import { LinkRowList } from "../components/link-row";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { colors } from "../lib/theme";
-
-/**
- * ホームに載せる件数（web のダッシュボードと同じ）
- *
- * ここはお知らせの在庫を見せる場ではなく、更新に気づくための場なので、
- * 「次にやること」より縦を食わない長さに抑える。全件は「すべて見る」から。
- */
-const HOME_ANNOUNCEMENTS_LIMIT = 3;
 
 /**
  * ホームのお知らせの節（web のダッシュボードの `HomeAnnouncements`）
