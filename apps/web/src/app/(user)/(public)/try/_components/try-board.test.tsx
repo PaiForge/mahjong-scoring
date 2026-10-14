@@ -64,6 +64,16 @@ describe("TryBoard", () => {
     expect(signUpLink()).toBeTruthy();
   });
 
+  it("答え合わせのあとの導線は、答え合わせが出てから出す", () => {
+    render(<TryBoard afterAnswer={<p>after-answer</p>} />);
+
+    expect(screen.queryByText("after-answer")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    expect(screen.getByText("after-answer")).toBeTruthy();
+  });
+
   it("「もう一度解く」で空の回答フォームに戻る", () => {
     render(<TryBoard />);
 
