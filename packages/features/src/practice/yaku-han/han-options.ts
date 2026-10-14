@@ -1,4 +1,4 @@
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
+import { YAKUMAN_HAN, isYakumanHan } from "@mahjong-scoring/core";
 
 /**
  * 役翻数練習の選択肢（1〜6翻 + 役満）
@@ -9,14 +9,6 @@ import { YAKUMAN_HAN } from "@mahjong-scoring/core";
  * 同じ位置づけ）。
  */
 export const HAN_OPTIONS = [1, 2, 3, 4, 5, 6, YAKUMAN_HAN] as const;
-
-/**
- * 翻数が役満か（役満は「13翻」ではなく専用表記にする）
- * 役満判定
- */
-export function isYakuman(han: number): boolean {
-  return han === YAKUMAN_HAN;
-}
 
 /**
  * 役翻数の選択肢の表記（「n翻」か「役満」）
@@ -30,5 +22,5 @@ export function yakuHanLabel(
   han: number,
   t: (key: string, values?: Record<string, number>) => string,
 ): string {
-  return isYakuman(han) ? t("yakuman") : t("hanOption", { count: han });
+  return isYakumanHan(han) ? t("yakuman") : t("hanOption", { count: han });
 }

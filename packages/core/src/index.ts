@@ -85,6 +85,7 @@ export {
 } from "./problem/score/judgement";
 export {
   clampHanToYakuman,
+  isYakumanHan,
   isMangan,
   getScoreLevelName,
   scoreTierForHan,

@@ -97,6 +97,18 @@ export function clampHanToYakuman(han: number): number {
 }
 
 /**
+ * 翻数が役満か（{@link YAKUMAN_HAN} 以上）
+ * 役満判定
+ *
+ * 翻数を「n翻」ではなく「役満」と呼ぶかの判定はこれを通す。丸め漏れの
+ * 13翻超の値が紛れても「14翻」のような存在しない区分として扱わないよう、
+ * 等号ではなく以上で見る。
+ */
+export function isYakumanHan(han: number): boolean {
+  return han >= YAKUMAN_HAN;
+}
+
+/**
  * 翻数から満貫以上の点数区分を引く（満貫未満は undefined）
  * 点数区分特定
  */
