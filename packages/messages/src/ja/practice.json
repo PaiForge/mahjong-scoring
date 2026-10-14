@@ -128,10 +128,7 @@
     "label": "練習の目的",
     "basic": "基礎練習",
     "practical": "実戦練習",
-    "basicDescription": "黒帯を目指して、点数計算を身につける。苦手な分野を選んで反復練習できます。",
-    "practicalDescription": "身につけた点数計算を、実際の手牌で磨く",
-    "recommendation": "点数計算の基礎が身についた方におすすめです。黒帯取得前でも利用できます。",
-    "journeyTitle": "黒帯への道",
+    "journeyTitle": "点数計算 黒帯への道",
     "journeyDescription": "現在の級・次の目標を確認して、レッスンと試験へ"
   },
   "preview": {

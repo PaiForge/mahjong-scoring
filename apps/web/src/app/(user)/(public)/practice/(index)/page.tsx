@@ -61,9 +61,6 @@ export default async function PracticePage() {
       <PracticeModeSwitcher
         basic={
           <div className="space-y-6">
-            <p className="text-sm font-medium leading-relaxed text-surface-500">
-              {t("modes.basicDescription")}
-            </p>
             <LinkRowList>
               <LinkRow
                 href="/dojo"
@@ -98,22 +95,10 @@ export default async function PracticePage() {
           </div>
         }
         practical={
-          <section className="space-y-6">
-            <div className="space-y-2">
-              {/* 実戦モードの節の見出しだが、中身は 1 文のリード。基礎モードの
-                  説明文と同じ見た目にそろえ、太字の大見出しにしない */}
-              <h2 className="text-sm font-bold leading-relaxed text-surface-700">
-                {t("modes.practicalDescription")}
-              </h2>
-              <p className="text-sm leading-relaxed text-surface-500">
-                {t("modes.recommendation")}
-              </p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AgariScorePracticeBanner />
-              <TenpaiScorePracticeBanner />
-            </div>
-          </section>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AgariScorePracticeBanner />
+            <TenpaiScorePracticeBanner />
+          </div>
         }
       />
     </ContentContainer>

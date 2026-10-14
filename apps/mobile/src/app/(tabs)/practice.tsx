@@ -21,7 +21,6 @@ import { Screen } from "../../components/screen";
 import { FilterChips } from "../../components/filter-chips";
 import { ToggleGroup } from "../../components/toggle-group";
 import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
-import { colors } from "../../lib/theme";
 import { PracticalPracticeCard } from "../../practice/components/practical-practice-card";
 import { PracticeCard } from "../../practice/components/practice-card";
 import { practiceScreensFor } from "../../practice/registry";
@@ -111,7 +110,6 @@ export default function PracticeListPage() {
       />
       {mode === "basic" ? (
         <View style={styles.section}>
-          <Text style={styles.lead}>{t("modes.basicDescription")}</Text>
           <LinkRowList>
             <LinkRow
               onPress={() => goToTab(DOJO_PATH)}
@@ -155,18 +153,9 @@ export default function PracticeListPage() {
           </View>
         </View>
       ) : (
-        <View style={styles.section}>
-          <View style={styles.leadGroup}>
-            {/* 節の見出しだが中身は 1 文のリード。基礎練習の説明文と同じ大きさにそろえる（web と同じ） */}
-            <Text accessibilityRole="header" style={styles.practicalLead}>
-              {t("modes.practicalDescription")}
-            </Text>
-            <Text style={styles.lead}>{t("modes.recommendation")}</Text>
-          </View>
-          <View style={styles.list}>
-            <PracticalPracticeCard menu="agari-score" />
-            <PracticalPracticeCard menu="tenpai-score" />
-          </View>
+        <View style={styles.list}>
+          <PracticalPracticeCard menu="agari-score" />
+          <PracticalPracticeCard menu="tenpai-score" />
         </View>
       )}
     </Screen>
@@ -176,21 +165,6 @@ export default function PracticeListPage() {
 const styles = StyleSheet.create({
   section: {
     gap: 24,
-  },
-  leadGroup: {
-    gap: 8,
-  },
-  lead: {
-    fontSize: 15,
-    fontWeight: "500",
-    lineHeight: 24,
-    color: colors.surface500,
-  },
-  practicalLead: {
-    fontSize: 15,
-    fontWeight: "700",
-    lineHeight: 24,
-    color: colors.surface700,
   },
   list: {
     gap: 16,
