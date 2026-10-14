@@ -1,4 +1,8 @@
-import { DISPLAY_TIERS, hanRangeOf } from "@mahjong-scoring/core";
+import {
+  DISPLAY_TIERS,
+  MANGAN_MIN_HAN,
+  hanRangeOf,
+} from "@mahjong-scoring/core";
 
 /**
  * 学習ページで満貫の下限として示す翻数
@@ -8,7 +12,7 @@ import { DISPLAY_TIERS, hanRangeOf } from "@mahjong-scoring/core";
  * 満貫を 5 翻からとするが、学習ページは「満貫になる翻数」を教えるため 4 翻から示す。
  * 4 翻でも符が高ければ（40 符以上で基本符 2000 以上）満貫になるため。
  */
-const MANGAN_DISPLAY_MIN_HAN = 4;
+const MANGAN_DISPLAY_MIN_HAN = MANGAN_MIN_HAN - 1;
 
 /** "6 〜 7" 形式のレンジ表示を組み立てる（上限なしは "13 〜"） */
 function formatRange(min: number, max: number | undefined): string {
