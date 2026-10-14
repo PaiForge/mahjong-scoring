@@ -4,6 +4,8 @@ import { judgeAnswer } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
+import { useScrollToElement } from "@/app/(user)/(public)/practice/_hooks/use-scroll-to-element";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 import { ResultDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/result-display";
 import { TRY_QUESTION } from "@/app/(user)/(public)/try/_lib/try-question";
@@ -34,9 +36,16 @@ const SAMPLE_RESULT = judgeAnswer(TRY_QUESTION, SAMPLE_ANSWER);
  * 役一覧の両方の連動を 1 画面で見せるため。
  */
 export function ReferenceDemoBoard() {
+  // 開いた直後にグローバルヘッダとタイトル帯を画面外へ送り、盤面を最上部に
+  // 出す（練習の play 画面・体験ページと同じ）
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <QuestionDisplay question={TRY_QUESTION} mobileFrame="fullBleed" />
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      <QuestionDisplay
+        question={TRY_QUESTION}
+        mobileFrame="fullBleedFlushTop"
+      />
       <ResultDisplay
         question={TRY_QUESTION}
         userAnswer={SAMPLE_ANSWER}
