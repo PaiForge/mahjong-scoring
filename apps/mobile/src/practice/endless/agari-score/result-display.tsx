@@ -165,6 +165,7 @@ export function ResultDisplay({
                 total={yakuBreakdown.total}
                 suffix={t("form.options.hanSuffix")}
                 onOpenScoreTable={() => openScoreTable(true)}
+                onOpenYakuList={openYakuCheatsheet}
               />
             ),
           },
