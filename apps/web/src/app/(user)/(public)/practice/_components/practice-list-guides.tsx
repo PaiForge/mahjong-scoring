@@ -24,7 +24,7 @@ interface PracticeListGuidesProps {
  * Server Component。基礎練習の一覧の後ろに「関連するレッスン」と
  * 「点数計算 黒帯への道」を並べる。中身は絞り込みに合わせて変わり、
  * 絞り込みが無ければ先頭だけを出す（決め方は features の `practiceListChapters` /
- * `practiceListRanks`）。どちらも末尾に全体への導線（目次へ / 道場へ）を置く。
+ * `practiceListRanks`）。どちらも末尾の中央に全体への導線（目次へ / 道場へ）を置く。
  *
  * レッスンは練習の説明ページの「関連するレッスン」と同じ部品
  * （{@link PracticeChapterSection}）、級は道場の級カードと同じ枠と見出しの
@@ -42,6 +42,7 @@ export async function PracticeListGuides({ filter }: PracticeListGuidesProps) {
       <PracticeChapterSection
         title={t("requiredKnowledge")}
         slugs={practiceListChapters(filter)}
+        tocLinkAlign="center"
       />
       {ranks.length > 0 && (
         <section className="space-y-3">
@@ -53,7 +54,7 @@ export async function PracticeListGuides({ filter }: PracticeListGuidesProps) {
               </li>
             ))}
           </ol>
-          <div className="text-right">
+          <div className="text-center">
             <Link
               href="/dojo"
               className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}

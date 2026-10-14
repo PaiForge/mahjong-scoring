@@ -19,7 +19,7 @@ import { PracticeChapterSection } from "./practice-chapter-section";
  *
  * 基礎練習の一覧の後ろに「関連するレッスン」と「点数計算 黒帯への道」を並べる。
  * 中身は絞り込みに合わせて変わり、絞り込みが無ければ先頭だけを出す（決め方は
- * features の `practiceListChapters` / `practiceListRanks`）。どちらも末尾に
+ * features の `practiceListChapters` / `practiceListRanks`）。どちらも末尾の中央に
  * 全体への導線（目次へ / 道場へ）を置く。一覧の上ではなく下に置くのは、基礎練習と
  * 実戦練習を切り替えたときにカードの始まる位置をずらさないため。
  */
@@ -38,6 +38,7 @@ export function PracticeListGuides({
       <PracticeChapterSection
         title={t("requiredKnowledge")}
         slugs={practiceListChapters(filter)}
+        tocLinkAlign="center"
       />
       {ranks.length > 0 && (
         <View style={styles.section}>
@@ -69,6 +70,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   link: {
-    alignItems: "flex-end",
+    alignItems: "center",
   },
 });
