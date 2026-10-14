@@ -6,6 +6,7 @@ import announcements from "./ja/announcements.json";
 import landing from "./ja/landing.json";
 import gettingStarted from "./ja/getting-started.json";
 import tryDemo from "./ja/try-demo.json";
+import tryMentsuFu from "./ja/try-mentsu-fu.json";
 import dashboard from "./ja/dashboard.json";
 import recordCta from "./ja/record-cta.json";
 import practice from "./ja/practice.json";
@@ -110,6 +111,7 @@ export const messages = {
   landing,
   gettingStarted,
   tryDemo,
+  tryMentsuFu,
   dashboard,
   recordCta,
   practice,

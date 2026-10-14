@@ -4,12 +4,14 @@
  * @description 初めて訪れたユーザー向けの始め方ガイド。基礎を学ぶ→練習で鍛える→
  * 早見表で確認する3ステップで点数計算の学習フローを案内する。LP の「はじめよう」
  * ボタンの遷移先。SEO 重視で SSR。
- * @flow 各ステップカードの CTA から体験(/try)・練習(/practice)・学習(/lessons)へ
- * 遷移する。ページ下部からアカウント登録(/sign-up)へ誘導する。
+ * @flow 各ステップカードの CTA から体験(/try)・符の計算の体験(/try/mentsu-fu)・
+ * 学習(/lessons)へ遷移する。2 枚目のカードの補助リンクは練習一覧(/practice)へ。ページ下部からアカウント登録(/sign-up)へ誘導する。
  *
  * 「まずは体験」は和了形の点数計算（/practice/agari-score）ではなく固定 1 問の体験ページへ送る。
  * 和了形の点数計算は入口が設定画面で、何も見ていない人に出題条件の判断を求めるうえ、
  * 未ログインの無料枠（1 日 1 問）をその 1 問で使い切る。
+ * 「簡単な問題を解く」も練習の play へは送らない。開いた瞬間にチャレンジが
+ * 始まるため、レッスンの確認問題を 1 問だけ解く体験ページへ送る。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -57,7 +59,7 @@ export default async function GettingStartedPage() {
             title={t("steps.practice.title")}
             description={t("steps.practice.description")}
             ctaLabel={t("steps.practice.cta")}
-            ctaHref="/practice/jantou-fu/play"
+            ctaHref="/try/mentsu-fu"
             subLabel={t("steps.practice.sub")}
             subHref="/practice"
           />

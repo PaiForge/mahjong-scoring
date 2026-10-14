@@ -9,20 +9,12 @@ import { DoneMark } from "@/app/(user)/_components/done-mark";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
-import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
-import { TileSet } from "@/app/(user)/_components/tile-set";
-import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-display";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
-import { ChoiceButton } from "@/app/(user)/(public)/practice/_components/choice-button";
-import { FeedbackFrame } from "@/app/(user)/(public)/practice/_components/feedback-frame";
 import { JudgementMark } from "@/app/(user)/(public)/practice/_components/judgement-mark";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "@/app/(user)/(public)/practice/_components/practice-footer-actions";
-import { PromptLabel } from "@/app/(user)/(public)/practice/_components/prompt-label";
-import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
-import { getFeedbackStyles } from "@/app/(user)/(public)/practice/_lib/feedback-styles";
 import { scrollToAnchor } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -31,17 +23,10 @@ import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
-  choiceKey,
   isSameChoice,
   type LessonChoice,
-  type LessonPrompt,
 } from "@mahjong-scoring/features/lessons/quiz";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
-import {
-  lessonAnswerLabel,
-  lessonChoiceLabel,
-  lessonConditionValues,
-} from "@mahjong-scoring/features/lessons/quiz-labels";
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
@@ -55,6 +40,7 @@ import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 import { usePhaseHistory } from "../_hooks/use-phase-history";
 import { LESSON_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { LessonFollowUpProvider } from "./lesson-follow-up-context";
+import { LessonQuestionCard } from "./lesson-question-card";
 import { LessonQuizSteps } from "./lesson-quiz-steps";
 import {
   forgetPendingLessonCompletions,
@@ -121,88 +107,6 @@ const PHASES = ["learn", "quiz", "done"] as const;
  */
 type SaveState =
   "idle" | "saving" | "saved" | "failed" | "anonymous" | "signedOut";
-
-/**
- * 選択肢の文字の大きさ
- *
- * 子のツモは数字が 2 つ並び（「8,000 / 16,000」）、スマホの 2 列では
- * 既定の大きさだと途中で折り返す。この種類だけ一段小さくし、折り返さない。
- */
-function choiceTextClass(choice: LessonChoice): string {
-  return choice.kind === "koTsumo"
-    ? "whitespace-nowrap text-base font-bold tabular-nums"
-    : "text-lg font-bold tabular-nums";
-}
-
-/**
- * 条件文の下に並べる牌
- * 出題牌
- *
- * 牌を見て答える問題（雀頭・面子 …）だけが持つ。文字だけで条件が言い切れる
- * 問題（帯・役）は undefined。
- */
-function PromptTiles({ prompt }: { readonly prompt: LessonPrompt }) {
-  switch (prompt.kind) {
-    case "tier":
-    case "yaku":
-    case "agari":
-    case "extraFu":
-      return undefined;
-    case "jantou":
-      return (
-        <div className="flex justify-center" data-testid="lesson-tiles">
-          <TileSet tiles={[prompt.tile, prompt.tile]} size="md" />
-        </div>
-      );
-    case "mentsu":
-      return (
-        <div className="flex justify-center" data-testid="lesson-tiles">
-          <MentsuSet mentsu={prompt.mentsu} size="md" />
-        </div>
-      );
-    case "machi":
-      // 教本の待ちの例（手の内 ＋ 和了牌）と同じ並び
-      return (
-        <div
-          className="flex items-center justify-center gap-2"
-          data-testid="lesson-tiles"
-        >
-          <TileSet tiles={prompt.tiles} size="md" />
-          <span className="text-sm text-surface-400">+</span>
-          <TileSet tiles={[prompt.agariHai]} size="md" />
-        </div>
-      );
-    case "tehai":
-      // 手牌は 14 枚並び、枠の内側では読めない大きさまで縮む。枠の外の
-      // 盤面（{@link PromptBoard}）に出す
-      return undefined;
-    default: {
-      const exhaustive: never = prompt;
-      return exhaustive;
-    }
-  }
-}
-
-/**
- * 条件の枠の上に置く手牌の盤面
- * 出題盤面
- *
- * 手牌 1 つを見て答える問題だけが持つ。練習・昇級試験と同じ盤面で、
- * スマホでは画面の左右いっぱいに広げて牌を大きく保つ（和了牌とツモ /
- * ロンは牌のそばに出る）。
- */
-function PromptBoard({ prompt }: { readonly prompt: LessonPrompt }) {
-  if (prompt.kind !== "tehai") return undefined;
-  return (
-    <div data-testid="lesson-tiles">
-      <TehaiDisplay
-        tehai={prompt.tehai}
-        context={prompt.context}
-        mobileFrame="fullBleed"
-      />
-    </div>
-  );
-}
 
 /**
  * レッスンの進行（本文 → 確認問題 → できたことの確認）
@@ -272,7 +176,6 @@ export function LessonView({
 }: LessonViewProps) {
   const t = useTranslations("lessons");
   const tLesson = useTranslations(`lessons.${messageKey}`);
-  const tScoreTable = useTranslations("scoreTable");
   const { user } = useAuth();
   const { completed, markCompleted } = useLessonCompletion(slug);
 
@@ -310,7 +213,6 @@ export function LessonView({
 
   const question = questions[index];
   const isAnswered = selected !== undefined;
-  const isCorrect = isAnswered && isSameChoice(selected, question.answer);
   const isLast = index === questions.length - 1;
 
   /**
@@ -460,79 +362,14 @@ export function LessonView({
             label={t("progress", { index: index + 1, total: questions.length })}
           />
 
-          <PromptBoard prompt={question.prompt} />
-
-          <FeedbackFrame
-            showFeedback={isAnswered}
-            lastAnswerCorrect={isAnswered ? isCorrect : undefined}
-            className="space-y-3 p-6 text-center"
-          >
-            <PromptLabel>{t("conditionLabel")}</PromptLabel>
-            <p
-              className="text-xl font-bold text-surface-900"
-              data-testid="lesson-condition"
-            >
-              {tLesson(
-                "condition",
-                lessonConditionValues(question.prompt, tScoreTable),
-              )}
-            </p>
-            <PromptTiles prompt={question.prompt} />
-            {/* ヒントは選択肢に手を付ける前に見られる。答えそのものではなく
-                倍率の言い方で、表を思い出す手がかりにする */}
-            {showHint && !isAnswered && (
-              <p className="text-sm text-amber-900" data-testid="lesson-hint">
-                <span className="font-bold">{t("hintLabel")}: </span>
-                {tLesson(`questions.${question.key}.hint`)}
-              </p>
-            )}
-            {isAnswered && (
-              <p
-                className={`flex items-center justify-center gap-1.5 text-sm font-bold ${isCorrect ? "text-success-strong" : "text-destructive-strong"}`}
-                data-testid="lesson-judgement"
-              >
-                <JudgementMark
-                  verdict={isCorrect ? "correct" : "incorrect"}
-                  tone="inherit"
-                />
-                {isCorrect
-                  ? t("correct")
-                  : t("incorrect", {
-                      answer: lessonAnswerLabel(question.answer, t),
-                    })}
-              </p>
-            )}
-            {isAnswered && (
-              <p className="text-sm leading-relaxed text-surface-700">
-                {tLesson(`questions.${question.key}.explanation`)}
-              </p>
-            )}
-          </FeedbackFrame>
-
-          <QuestionPrompt>{tLesson("questionPrompt")}</QuestionPrompt>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {choices.map((choice, choiceIndex) => {
-              const { borderClass, bgClass } = getFeedbackStyles(
-                isAnswered,
-                selected !== undefined && isSameChoice(selected, choice),
-                isSameChoice(choice, question.answer),
-              );
-              return (
-                <ChoiceButton
-                  key={choiceKey(choice)}
-                  index={choiceIndex}
-                  onSelect={handleSelect}
-                  disabled={isAnswered}
-                  borderClass={borderClass}
-                  bgClass={bgClass}
-                  className={choiceTextClass(choice)}
-                >
-                  {lessonChoiceLabel(choice, t)}
-                </ChoiceButton>
-              );
-            })}
-          </div>
+          <LessonQuestionCard
+            messageKey={messageKey}
+            question={question}
+            choices={choices}
+            selected={selected}
+            showHint={showHint}
+            onSelect={handleSelect}
+          />
         </section>
 
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
