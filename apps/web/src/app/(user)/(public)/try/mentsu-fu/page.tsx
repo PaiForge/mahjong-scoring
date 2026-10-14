@@ -51,8 +51,12 @@ export default async function TryMentsuFuPage() {
               title={t("signUp.title")}
               description={t("signUp.description")}
               cta={t("signUp.cta")}
-              secondary={{ label: t("backToHome"), href: "/" }}
             />
+            <div className="text-center">
+              <Link href="/" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+                {t("backToHome")}
+              </Link>
+            </div>
             <section className={`flex flex-col ${SUB_LINK_GAP}`}>
               <div className="space-y-4">
                 <SectionTitle>{t("practiceTitle")}</SectionTitle>
