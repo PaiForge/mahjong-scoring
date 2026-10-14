@@ -4,14 +4,14 @@ import { listedPracticeMenus } from "./catalog";
 import { listedPracticeRanks, practiceRanks } from "./rank-practices";
 
 describe("practiceRanks", () => {
-  it("カタログの級に加えて、その練習を行程に並べている級にも属する", () => {
-    // 点数表早引きはカタログでは 3級だが、5級の章が満貫以上の範囲で送っている
-    expect(practiceRanks("score-table")).toEqual(["kyu-5", "kyu-3"]);
+  it("カタログの級だけに属する", () => {
+    expect(practiceRanks("score-calculation")).toEqual(["kyu-2"]);
   });
 
-  it("行程に並ばない練習はカタログの級だけに属する", () => {
-    // 2級の章は練習へ送っていない
-    expect(practiceRanks("score-calculation")).toEqual(["kyu-2"]);
+  it("行程に並べている級には属さない", () => {
+    // 点数表早引きはカタログでは 3級。5級の章も満貫以上の範囲で送っているが、
+    // 5級の一覧に「3級」のカードが並ぶと読めないため 5級には含めない
+    expect(practiceRanks("score-table")).toEqual(["kyu-3"]);
   });
 
   it("一覧に並ぶ練習はどれもいずれかの級に属する", () => {

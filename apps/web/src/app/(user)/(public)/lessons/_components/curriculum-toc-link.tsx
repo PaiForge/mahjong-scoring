@@ -26,15 +26,21 @@ interface CurriculumTocLinkProps {
    * 指しているときに、目次のどこにその章があるかを見せるため
    */
   readonly focusSlug?: CurriculumChapterSlug;
+  /**
+   * 寄せる側。既定は右端。練習一覧のように、抜粋の後ろへ続けて別の節が
+   * 並ぶ場所では中央に置く（節の終わりの導線として読ませる）
+   */
+  readonly align?: "end" | "center";
 }
 
 export async function CurriculumTocLink({
   focusSlug,
+  align = "end",
 }: CurriculumTocLinkProps = {}) {
   const t = await getTranslations("learnCurriculum");
 
   return (
-    <div className="text-right">
+    <div className={align === "center" ? "text-center" : "text-right"}>
       <Link
         href={focusSlug ? chapterTocHref(focusSlug) : "/lessons"}
         className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}

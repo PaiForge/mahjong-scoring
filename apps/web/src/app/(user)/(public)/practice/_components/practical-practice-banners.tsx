@@ -32,9 +32,14 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
     // （緑はボタン = 押して始める面の色で、リンクには使わない）
     <article className="flex h-full flex-col rounded-panel border border-panel bg-white">
       <div className="flex flex-1 flex-col p-5">
+        {/* 題名を帯の上に置き、大きさも基礎練習のカード（PracticeCard）に
+            そろえる。練習一覧の 2 つのモードでカードの読み順が変わらないように */}
+        <h3 className="text-base font-bold text-surface-900">
+          {t(`${key}.title`)}
+        </h3>
         <div
           aria-hidden="true"
-          className="mb-5 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-lg bg-primary-800 p-3"
+          className="mt-4 flex min-h-40 flex-col justify-center gap-4 overflow-hidden rounded-lg bg-primary-800 p-3"
         >
           <TehaiHand
             tehai={{
@@ -63,10 +68,7 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
             </div>
           )}
         </div>
-        <h3 className="text-lg font-bold text-surface-900">
-          {t(`${key}.title`)}
-        </h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-surface-500">
+        <p className="mt-4 flex-1 text-sm leading-relaxed text-surface-500">
           {t(`${key}.description`)}
         </p>
         <div className="mt-4 flex justify-end">

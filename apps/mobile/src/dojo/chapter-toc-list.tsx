@@ -108,12 +108,18 @@ export function ChapterTocList({
  * 目次リンク
  *
  * 章を抜粋して見せたセクションの末尾に、右端揃えのテキストリンクで置く。
+ * 練習一覧のように、後ろへ別の節が続く場所では中央に置く（web と同じ）。
  */
-export function CurriculumTocLink() {
+export function CurriculumTocLink({
+  align = "end",
+}: {
+  /** 寄せる側。既定は右端 */
+  readonly align?: "end" | "center";
+} = {}) {
   const t = useTranslations("learnCurriculum");
   const goToTab = useGoToTab();
   return (
-    <View style={styles.tocLink}>
+    <View style={align === "center" ? styles.tocLinkCenter : styles.tocLink}>
       <TextLink onPress={() => goToTab(LESSONS_PATH)}>{t("tocLink")}</TextLink>
     </View>
   );
@@ -176,5 +182,8 @@ const styles = StyleSheet.create({
   },
   tocLink: {
     alignItems: "flex-end",
+  },
+  tocLinkCenter: {
+    alignItems: "center",
   },
 });

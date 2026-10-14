@@ -24,7 +24,11 @@ export function RankHeading({
   status,
 }: {
   readonly rankSlug: RankSlug;
-  readonly status: RankStatus;
+  /**
+   * 取得状態。省略すると状態の pill を出さない（練習一覧のように本人の
+   * 取得状況を読まずに級を掲げるとき。web と同じ）
+   */
+  readonly status?: RankStatus;
 }) {
   const t = useTranslations("ranks");
   const router = useRouter();
@@ -41,7 +45,7 @@ export function RankHeading({
           criterion: t(`criteria.${rankSlug}`),
         })}
       </Text>
-      <RankStatusBadge status={status} />
+      {status !== undefined && <RankStatusBadge status={status} />}
       <ChevronRightIcon size={18} color={colors.surface400} />
     </Pressable>
   );

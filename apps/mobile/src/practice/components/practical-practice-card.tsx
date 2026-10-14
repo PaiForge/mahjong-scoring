@@ -30,8 +30,8 @@ const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
  * 実戦練習カード
  *
  * 終わりのない訓練（和了形の点数計算・聴牌形の点数計算）の入口。卓と同じ濃い緑に出題の
- * 縮図（和了形と「何点？」/ 聴牌形と待ちごとのロン・ツモ）を描き、練習名と
- * 説明を添える。押すと説明画面へ移動するだけで練習は始まらないので、練習
+ * 縮図（和了形と「何点？」/ 聴牌形と待ちごとのロン・ツモ）を描き、上に練習名、
+ * 下に説明を添える。押すと説明画面へ移動するだけで練習は始まらないので、練習
  * カードと同じ細枠で影を持たない（web と同じ）。
  *
  * カードの下に今日の利用枠（{@link PracticeEntryQuota}）を出す（web と同じ）。
@@ -60,6 +60,8 @@ export function PracticalPracticeCard({
         testID={`practical-practice-card-${menu}`}
         style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       >
+        {/* 題名を帯の上に置き、大きさも練習カード（PracticeCard）にそろえる（web と同じ） */}
+        <Text style={styles.title}>{title}</Text>
         <View
           style={styles.preview}
           accessibilityElementsHidden
@@ -90,10 +92,7 @@ export function PracticalPracticeCard({
             </View>
           )}
         </View>
-        <View style={styles.body}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{t(`${key}.description`)}</Text>
-        </View>
+        <Text style={styles.description}>{t(`${key}.description`)}</Text>
         <View style={styles.footer}>
           <Text style={styles.detail}>{t("detail")}</Text>
           <ChevronRightIcon size={16} color={colors.action} />
@@ -147,11 +146,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: colors.white,
   },
-  body: {
-    gap: 8,
-  },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: colors.surface900,
   },

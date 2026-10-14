@@ -18,8 +18,11 @@ const NO_COMPLETED_SLUGS: ReadonlySet<string> = new Set();
 export function PracticeChapterSection({
   title,
   slugs,
+  tocLinkAlign,
 }: {
   readonly title: string;
+  /** 「目次へ」を寄せる側（{@link CurriculumTocLink}）。既定は右端 */
+  readonly tocLinkAlign?: "end" | "center";
   /** 並べる章（カリキュラムの表示順で渡す） */
   readonly slugs: readonly CurriculumChapterSlug[];
 }) {
@@ -28,7 +31,7 @@ export function PracticeChapterSection({
     <View style={styles.section}>
       <SectionTitle>{title}</SectionTitle>
       <ChapterTocList slugs={slugs} completedSlugs={NO_COMPLETED_SLUGS} />
-      <CurriculumTocLink />
+      <CurriculumTocLink align={tocLinkAlign} />
     </View>
   );
 }

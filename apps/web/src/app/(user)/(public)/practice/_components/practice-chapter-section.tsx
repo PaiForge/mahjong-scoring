@@ -20,6 +20,8 @@ interface PracticeChapterSectionProps {
   readonly slugs: readonly CurriculumChapterSlug[];
   /** 「目次へ」で目次のこの章の位置へ着地させる（{@link CurriculumTocLink}） */
   readonly tocFocusSlug?: CurriculumChapterSlug;
+  /** 「目次へ」を寄せる側（{@link CurriculumTocLink}）。既定は右端 */
+  readonly tocLinkAlign?: "end" | "center";
 }
 
 /**
@@ -37,6 +39,7 @@ export function PracticeChapterSection({
   title,
   slugs,
   tocFocusSlug,
+  tocLinkAlign,
 }: PracticeChapterSectionProps) {
   if (slugs.length === 0) return undefined;
 
@@ -44,7 +47,7 @@ export function PracticeChapterSection({
     <div className="space-y-3">
       <SectionTitle>{title}</SectionTitle>
       <ChapterTocList slugs={slugs} completedSlugs={NO_COMPLETED_SLUGS} />
-      <CurriculumTocLink focusSlug={tocFocusSlug} />
+      <CurriculumTocLink focusSlug={tocFocusSlug} align={tocLinkAlign} />
     </div>
   );
 }
