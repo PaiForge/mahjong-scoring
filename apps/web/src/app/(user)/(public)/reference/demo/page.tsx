@@ -66,9 +66,6 @@ export default async function ReferenceDemoPage() {
       </div>
       <section className="mt-10 space-y-4">
         <SectionTitle>{t("practicalTitle")}</SectionTitle>
-        <p className="text-sm leading-relaxed text-surface-500">
-          {t("practicalDescription")}
-        </p>
         {/* 無料の練習を先に置く。下の 2 枚は回数制限（Pro で無制限）が掛かる */}
         <div className="grid gap-4 sm:grid-cols-2">
           <CatalogPracticeCard slug="score-calculation" />
