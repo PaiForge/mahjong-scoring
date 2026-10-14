@@ -36,7 +36,7 @@ describe("TryBoard", () => {
     expect(signUpLink()).toBeNull();
   });
 
-  it("回答すると答え合わせと登録への誘導を出し、フッターが「もう一度解く」に替わる", () => {
+  it("回答すると答え合わせと登録への誘導を出し、フッターの「わからない」を消す", () => {
     render(<TryBoard />);
 
     choose("form.labels.han", 1);
@@ -52,7 +52,6 @@ describe("TryBoard", () => {
       screen.getByRole("link", { name: "signUp.browse" }).getAttribute("href"),
     ).toBe("/practice");
     expect(screen.queryByRole("button", { name: "revealButton" })).toBeNull();
-    expect(screen.getByRole("button", { name: "retry" })).toBeTruthy();
   });
 
   it("「わからない」で回答せずに正解を開示しても登録への誘導を出す", () => {
@@ -64,19 +63,13 @@ describe("TryBoard", () => {
     expect(signUpLink()).toBeTruthy();
   });
 
-  it("「もう一度解く」で空の回答フォームに戻る", () => {
-    render(<TryBoard />);
+  it("答え合わせのあとの導線は、答え合わせが出てから出す", () => {
+    render(<TryBoard afterAnswer={<p>after-answer</p>} />);
 
-    choose("form.labels.han", 1);
-    choose("form.labels.fu", 40);
-    choose("form.labels.score", 1300);
-    fireEvent.click(
-      screen.getByRole("button", { name: "form.buttons.answer" }),
-    );
-    fireEvent.click(screen.getByRole("button", { name: "retry" }));
+    expect(screen.queryByText("after-answer")).toBeNull();
 
-    expect(signUpLink()).toBeNull();
-    expect(select("form.labels.han").value).toBe("");
-    expect(screen.getByRole("button", { name: "revealButton" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    expect(screen.getByText("after-answer")).toBeTruthy();
   });
 });

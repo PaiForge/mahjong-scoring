@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { isOya, judgeAnswer } from "@mahjong-scoring/core";
 import type { JudgementResult, UserAnswer } from "@mahjong-scoring/core";
@@ -48,23 +48,31 @@ interface TryAttempt {
  *   TSDoc 参照）。回答フォームの選択肢だけはフォーム自身が設定を読むが、
  *   この手の正解には影響しない
  * - 「次の問題へ」の代わりに登録への誘導（{@link SignUpPanel}）を置く。
- *   フッターは「わからない」が、答え合わせ後は同じ位置で「もう一度解く」に
- *   替わる（並ぶ操作の数と位置を変えない）
+ *   フッターの「わからない」は解く前だけ出す。答え合わせのあとは解き直しを
+ *   置かず、行き先（`afterAnswer` のホームへ戻るリンクと練習の入口）だけを残す
+ *   — 同じ 1 問を解き直しても新しく分かることは無い
  *
  * 回答フォームはハイドレーション後に出す（それまで同じ形のスケルトン）。
  * フォームの選択肢が端末ローカルのルール設定で変わるため、サーバーの HTML
  * と初回のクライアント描画がずれうる。盤面（手牌）は設定に依らないので
  * サーバーで描き、静的 HTML に牌姿が載る。
  */
-export function TryBoard() {
+export function TryBoard({
+  afterAnswer,
+}: {
+  /**
+   * 答え合わせのあとにだけ、フッターの下へ出す導線（ホームへ戻るリンクと
+   * 練習の入口）。解く前に練習のカードが並ぶと、体験の 1 問より先に目に入る。
+   * サーバーコンポーネントを渡すため、ページから要素で受け取る
+   */
+  readonly afterAnswer?: ReactNode;
+} = {}) {
   const t = useTranslations("tryDemo");
   const tScore = useTranslations("agariScore");
   const tTraining = useTranslations("training");
   const isClient = useIsClient();
 
   const [attempt, setAttempt] = useState<TryAttempt | undefined>(undefined);
-  // 「もう一度解く」でフォームを作り直す（入力欄を空に戻す）ための key
-  const [attemptSeq, setAttemptSeq] = useState(0);
   const isAnswered = attempt !== undefined;
 
   // 開いた直後にグローバルヘッダとタイトル帯を画面外へ送り、盤面を最上部に
@@ -73,7 +81,7 @@ export function TryBoard() {
   // 直接開いたときのフォールバック
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
-  // 回答・開示・やり直しのボタンはいずれも縦に長い盤面の下端にあるため、
+  // 回答・開示のボタンはいずれも縦に長い盤面の下端にあるため、
   // 和了形の点数計算と同じく表示が切り替わる操作のたびに盤面の先頭へ戻す
   const handleSubmit = useCallback((answer: UserAnswer) => {
     scrollToPracticeAnchor();
@@ -88,66 +96,58 @@ export function TryBoard() {
     setAttempt({});
   }, []);
 
-  const handleRetry = useCallback(() => {
-    scrollToPracticeAnchor();
-    setAttempt(undefined);
-    setAttemptSeq((seq) => seq + 1);
-  }, []);
-
   return (
-    <div className="space-y-4 sm:space-y-6 md:space-y-8">
-      <QuestionDisplay
-        question={TRY_QUESTION}
-        mobileFrame="fullBleedFlushTop"
-      />
+    <>
+      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        <QuestionDisplay
+          question={TRY_QUESTION}
+          mobileFrame="fullBleedFlushTop"
+        />
 
-      {isAnswered ? (
-        <div className="space-y-4 sm:space-y-6">
-          <div className="space-y-4">
-            <TehaiMentsuBreakdown
-              tehai={TRY_QUESTION.tehai}
-              context={TRY_QUESTION}
-            />
-            <ResultDisplay
-              question={TRY_QUESTION}
-              userAnswer={attempt.userAnswer}
-              result={attempt.result}
+        {isAnswered ? (
+          <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-4">
+              <TehaiMentsuBreakdown
+                tehai={TRY_QUESTION.tehai}
+                context={TRY_QUESTION}
+              />
+              <ResultDisplay
+                question={TRY_QUESTION}
+                userAnswer={attempt.userAnswer}
+                result={attempt.result}
+              />
+            </div>
+            <SignUpPanel
+              title={t("signUp.title")}
+              description={t("signUp.description")}
+              cta={t("signUp.cta")}
+              secondary={{ label: t("signUp.browse"), href: "/practice" }}
             />
           </div>
-          <SignUpPanel
-            title={t("signUp.title")}
-            description={t("signUp.description")}
-            cta={t("signUp.cta")}
-            secondary={{ label: t("signUp.browse"), href: "/practice" }}
-          />
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <QuestionPrompt>{tScore("board.questionPrompt")}</QuestionPrompt>
-          {isClient ? (
-            <ScorePracticeAnswerForm
-              key={attemptSeq}
-              onSubmit={handleSubmit}
-              isTsumo={TRY_QUESTION.isTsumo}
-              isOya={isOya(TRY_QUESTION.jikaze)}
-            />
-          ) : (
-            <ScoreAnswerFormSkeleton />
-          )}
-        </div>
-      )}
-
-      <PracticeFooterActions>
-        {isAnswered ? (
-          <PracticeFooterAction onClick={handleRetry}>
-            {t("retry")}
-          </PracticeFooterAction>
         ) : (
-          <PracticeFooterAction onClick={handleReveal}>
-            {tTraining("revealButton")}
-          </PracticeFooterAction>
+          <div className="space-y-4">
+            <QuestionPrompt>{tScore("board.questionPrompt")}</QuestionPrompt>
+            {isClient ? (
+              <ScorePracticeAnswerForm
+                onSubmit={handleSubmit}
+                isTsumo={TRY_QUESTION.isTsumo}
+                isOya={isOya(TRY_QUESTION.jikaze)}
+              />
+            ) : (
+              <ScoreAnswerFormSkeleton />
+            )}
+          </div>
         )}
-      </PracticeFooterActions>
-    </div>
+
+        {!isAnswered && (
+          <PracticeFooterActions>
+            <PracticeFooterAction onClick={handleReveal}>
+              {tTraining("revealButton")}
+            </PracticeFooterAction>
+          </PracticeFooterActions>
+        )}
+      </div>
+      {isAnswered && afterAnswer}
+    </>
   );
 }

@@ -139,5 +139,9 @@
     "score": "役・翻・符を数えて、何点？",
     "ron": "ロン ？点",
     "tsumoScore": "ツモ ？点"
+  },
+  "tryLinks": {
+    "title": "練習で試す",
+    "backToHome": "ホームに戻る"
   }
 }
