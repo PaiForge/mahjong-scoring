@@ -1,0 +1,45 @@
+/**
+ * 早見表の連動サンプル
+ *
+ * @description LP の「早見表」の紹介から開くページ。練習の答え合わせで正解の
+ * 点数や役名を押すと、その場で点数表・役一覧がモーダルで開くことを、本番と
+ * 同じ部品で答え終えた 1 問を置いて試させる。解く手順は省く（解く体験は
+ * /try が担う）。cookie を読まない静的ページ。
+ *
+ * @flow 役名を押す → 役一覧がその役に着地して開く / 点数を押す → 正解の
+ * セルをハイライトした点数表が開く
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { PageTitle } from "@/app/(user)/_components/page-title";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
+
+import { ReferenceDemoBoard } from "./_components/reference-demo-board";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return createNamespaceMetadata("reference.demo", {
+    path: "/reference/demo",
+  });
+}
+
+export default async function ReferenceDemoPage() {
+  const tHub = await getTranslations("reference");
+  const t = await getTranslations("reference.demo");
+
+  return (
+    <ContentContainer
+      breadcrumb={[
+        { label: tHub("title"), href: "/reference" },
+        { label: t("title") },
+      ]}
+    >
+      <PageTitle>{t("title")}</PageTitle>
+      <p className="mb-6 text-sm font-medium leading-relaxed text-surface-500">
+        {t("intro")}
+      </p>
+      <ReferenceDemoBoard />
+    </ContentContainer>
+  );
+}

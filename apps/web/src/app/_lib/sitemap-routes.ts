@@ -34,6 +34,7 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
   { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
   { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
+  { url: "/reference/demo", changeFrequency: "monthly", priority: 0.5 },
   { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
   { url: "/leaderboard", changeFrequency: "daily", priority: 0.4 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
