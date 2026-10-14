@@ -1,3 +1,4 @@
+import { compareNumbers } from "@mahjong-scoring/core";
 import {
   isExamMenuType,
   practiceMenuBySlug,
@@ -8,7 +9,7 @@ import {
   sortChapterSlugs,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import type { RankSlug } from "../ranks/registry";
+import { RANK_SLUGS, type RankSlug } from "../ranks/registry";
 
 /**
  * 練習メニューのカタログ — 一覧の並び・段級位・教本リンクの単一の真実のソース
@@ -73,7 +74,10 @@ export interface PracticeMenu {
   readonly learnChapter?: CurriculumChapterSlug;
 }
 
-/** 練習メニューのマスタ配列（カテゴリごとに一覧の表示順で並べる） */
+/**
+ * 練習メニューのマスタ配列（カテゴリごとに並べる）。一覧はこれを段級位の
+ * 順に並べ直して出す（{@link listedPracticeMenus}）。同じ級の中の順はここで決まる
+ */
 export const PRACTICE_CATALOG: readonly PracticeMenu[] = [
   {
     slug: "jantou-fu",
@@ -211,11 +215,25 @@ export function isExamMenu(slug: PracticeMenuSlug): boolean {
  *
  * 昇級試験は含まない（練習カードにせず、道場から入る）。カテゴリごとの
  * 見出しは持たず 1 つのグリッドに並べるため、返すのは平坦な 1 本の配列。
- * カタログの並び自体がカテゴリ順（符 → 翻数 → 点数）なので、絞り込みを
- * 解除したときも分野ごとに固まって見える。
+ *
+ * 並びは段級位の学習順（5級 → 4級 → …）で、同じ級の中はカタログの順
+ * （符 → 翻数 → 点数）を保つ。級を持たない練習は末尾に置く。
+ * 以前はカタログの順そのまま（分野ごと）だったが、符の練習がすべて 4級の
+ * ため、絞り込みを解除すると 4級のカードが 5級より先に並び、道場・
+ * ダッシュボード・絞り込みの選択肢が示す学習順と食い違っていた。分野で
+ * まとめて見たいときは分野の絞り込みがある。
  */
 export function listedPracticeMenus(): readonly PracticeMenu[] {
-  return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug));
+  return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug)).toSorted(
+    (a, b) => compareNumbers(rankOrder(a), rankOrder(b)),
+  );
+}
+
+/** 一覧の並びに使う段級位の順位。級を持たない練習は最後 */
+function rankOrder(menu: PracticeMenu): number {
+  return menu.rank === undefined
+    ? RANK_SLUGS.length
+    : RANK_SLUGS.indexOf(menu.rank);
 }
 
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
