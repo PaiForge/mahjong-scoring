@@ -98,6 +98,16 @@ describe("ResultDisplay", () => {
     expect(openedModalTitle()).toBe("title");
   });
 
+  it("牌まで含んだ役牌の成立も、役一覧の「役牌」のカードに印を付ける", () => {
+    renderResult();
+
+    fireEvent.click(screen.getAllByText("役牌 白")[0]!);
+
+    const dialog = screen.getByRole("dialog");
+    const yakuhaiTitle = within(dialog).getByText("役牌", { exact: true });
+    expect(yakuhaiTitle.parentElement?.textContent).toContain("inThisHand");
+  });
+
   it("早見表に載らない状況役はタップ対象にしない", () => {
     renderResult();
 
