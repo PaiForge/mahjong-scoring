@@ -1,7 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { screen } from "@testing-library/react";
+import { render } from "@/test/intl-render";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { messages } from "@mahjong-scoring/messages/ja";
 import { PracticeModeSwitcher } from "./practice-mode-switcher";
 let query = "";
 vi.mock("next/navigation", () => ({
@@ -16,12 +15,10 @@ afterEach(() => {
 });
 function show() {
   return render(
-    <NextIntlClientProvider locale="ja" messages={messages}>
-      <PracticeModeSwitcher
-        basic={<p>基礎一覧</p>}
-        practical={<p>実戦一覧</p>}
-      />
-    </NextIntlClientProvider>,
+    <PracticeModeSwitcher
+      basic={<p>基礎一覧</p>}
+      practical={<p>実戦一覧</p>}
+    />,
   );
 }
 it("初回は基礎練習を表示する", () => {

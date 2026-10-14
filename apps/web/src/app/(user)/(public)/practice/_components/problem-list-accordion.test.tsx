@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
-import { messages } from "@mahjong-scoring/messages/ja";
+import { fireEvent, screen } from "@testing-library/react";
+import { render } from "@/test/intl-render";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { ProblemListAccordion } from "./problem-list-accordion";
 import { RevealMistakesLink } from "./reveal-mistakes-link";
@@ -20,7 +19,7 @@ afterEach(() => {
 
 function show(outcomes: readonly AnswerOutcome[]) {
   return render(
-    <NextIntlClientProvider locale="ja" messages={messages}>
+    <>
       <RevealMistakesLink>不正解を見る</RevealMistakesLink>
       <ProblemListAccordion
         results={outcomes}
@@ -28,7 +27,7 @@ function show(outcomes: readonly AnswerOutcome[]) {
         outcome={(outcome) => outcome}
         renderDetail={(_, index) => <p>詳細 {index + 1}</p>}
       />
-    </NextIntlClientProvider>,
+    </>,
   );
 }
 
