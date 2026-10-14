@@ -122,13 +122,13 @@
   "modeTrainingHint": "時間無制限・1問ごとに答え合わせして反復練習",
   "settingsTitle": "設定",
   "requiredKnowledge": "関連するレッスン",
+  "relatedRanks": "関連する段級位",
   "variantLabel": "設定: {label}",
   "introTitle": "{title}の練習",
   "modes": {
     "label": "練習の目的",
     "basic": "基礎練習",
     "practical": "実戦練習",
-    "journeyTitle": "点数計算 黒帯への道",
     "dojoLink": "道場へ"
   },
   "preview": {

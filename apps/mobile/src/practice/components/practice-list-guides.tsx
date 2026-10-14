@@ -17,7 +17,7 @@ import { PracticeChapterSection } from "./practice-chapter-section";
  * 練習一覧の下に置くレッスンと段級位（web の `PracticeListGuides`）
  * 一覧のガイド
  *
- * 基礎練習の一覧の後ろに「関連するレッスン」と「点数計算 黒帯への道」を並べる。
+ * 基礎練習の一覧の後ろに「関連するレッスン」と「関連する段級位」を並べる。
  * 中身は絞り込みに合わせて変わり、絞り込みが無ければ先頭だけを出す（決め方は
  * features の `practiceListChapters` / `practiceListRanks`）。どちらも末尾の中央に
  * 全体への導線（目次へ / 道場へ）を置く。一覧の上ではなく下に置くのは、基礎練習と
@@ -42,7 +42,7 @@ export function PracticeListGuides({
       />
       {ranks.length > 0 && (
         <View style={styles.section}>
-          <SectionTitle>{t("modes.journeyTitle")}</SectionTitle>
+          <SectionTitle>{t("relatedRanks")}</SectionTitle>
           <View style={styles.ranks}>
             {ranks.map((rank) => (
               <RankSummaryCard key={rank} rankSlug={rank} />

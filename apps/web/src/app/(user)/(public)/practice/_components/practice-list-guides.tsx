@@ -22,7 +22,7 @@ interface PracticeListGuidesProps {
  * 一覧のガイド
  *
  * Server Component。基礎練習の一覧の後ろに「関連するレッスン」と
- * 「点数計算 黒帯への道」を並べる。中身は絞り込みに合わせて変わり、
+ * 「関連する段級位」を並べる。中身は絞り込みに合わせて変わり、
  * 絞り込みが無ければ先頭だけを出す（決め方は features の `practiceListChapters` /
  * `practiceListRanks`）。どちらも末尾の中央に全体への導線（目次へ / 道場へ）を置く。
  *
@@ -46,7 +46,7 @@ export async function PracticeListGuides({ filter }: PracticeListGuidesProps) {
       />
       {ranks.length > 0 && (
         <section className="space-y-3">
-          <SectionTitle>{t("modes.journeyTitle")}</SectionTitle>
+          <SectionTitle>{t("relatedRanks")}</SectionTitle>
           <ol className="space-y-4">
             {ranks.map((rank) => (
               <li key={rank}>
