@@ -241,6 +241,23 @@ describe("ResultDisplay の内訳", () => {
     expect(openedModalTitle()).toBe("pageTitle");
   });
 
+  it("翻数の内訳の役名を押すと役一覧モーダルが開く（役の行が無い設定でも）", () => {
+    // renderWith は requireYaku を渡さないので、表に役のチップは出ない
+    renderWith({ isHanCorrect: false, isFuCorrect: true });
+    fireEvent.click(toggle());
+
+    fireEvent.click(screen.getByRole("button", { name: "混一色" }));
+
+    expect(openedModalTitle()).toBe("title");
+  });
+
+  it("符の内訳の理由は押せない（役一覧に無い）", () => {
+    renderWith({ isHanCorrect: true, isFuCorrect: false });
+    fireEvent.click(toggle());
+
+    expect(screen.queryByRole("button", { name: "副底" })).toBeNull();
+  });
+
   it("切り上げがあるときは切り上げ後の符だけを押せる（合計の符は点数表に無い）", () => {
     renderWith({ isHanCorrect: true, isFuCorrect: false });
     fireEvent.click(toggle());
