@@ -51,6 +51,7 @@ export default async function TryMentsuFuPage() {
               title={t("signUp.title")}
               description={t("signUp.description")}
               cta={t("signUp.cta")}
+              secondary={{ label: t("backToHome"), href: "/" }}
             />
             <section className={`flex flex-col ${SUB_LINK_GAP}`}>
               <div className="space-y-4">
@@ -66,11 +67,6 @@ export default async function TryMentsuFuPage() {
                 </Link>
               </div>
             </section>
-            <div className="text-center">
-              <Link href="/" className={`text-sm ${TEXT_LINK_CLASSES}`}>
-                {t("backToHome")}
-              </Link>
-            </div>
           </div>
         }
       />
