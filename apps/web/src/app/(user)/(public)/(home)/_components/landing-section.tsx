@@ -37,7 +37,7 @@ export function LandingSection({
           {icon}
         </div>
         <h2 className="text-3xl font-bold text-surface-900">{title}</h2>
-        <p className="max-w-2xl text-base font-medium md:text-lg leading-relaxed text-surface-500">
+        <p className="max-w-2xl text-base md:text-lg leading-relaxed text-surface-500">
           {description}
         </p>
         {children}
