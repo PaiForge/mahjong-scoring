@@ -16,7 +16,7 @@ import {
   type IpRateLimitConfig,
 } from "../rate-limit-ip";
 
-import { mobileJson } from "./response";
+import { mobileJson, mobileRateLimited } from "./response";
 
 /**
  * アプリ向け API の認証で弾く理由（意味はアプリと共有する `MobileApiErrorCode` の TSDoc）
@@ -187,7 +187,7 @@ function rateLimited(): {
 } {
   return {
     ok: false,
-    response: mobileJson({ error: "rateLimited" }, { status: 429 }),
+    response: mobileRateLimited(),
   };
 }
 

@@ -64,6 +64,14 @@ export function mobileDeleted(): NextResponse {
 }
 
 /**
+ * 回数の上限を超えた要求への 429 `rateLimited`
+ * アプリAPIレート制限応答
+ */
+export function mobileRateLimited(): NextResponse {
+  return mobileJson({ error: "rateLimited" }, { status: 429 });
+}
+
+/**
  * 本文の形が違う要求への 400 `invalidRequest`
  * アプリAPI不正要求応答
  */
