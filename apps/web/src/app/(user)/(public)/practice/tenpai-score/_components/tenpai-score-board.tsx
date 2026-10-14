@@ -27,7 +27,7 @@ import {
   canResumePractice,
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -136,10 +136,7 @@ function TenpaiScoreBoardInner() {
     parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
-  const showAnswerTime =
-    measureTime &&
-    gate?.kind === "open" &&
-    gate.benefits.includes(PlanBenefit.PracticeTools);
+  const showAnswerTime = showsAnswerTime(measureTime, gate);
 
   const handleBackToSetup = () => {
     toastOnArrival(TENPAI_SCORE_PRACTICE_HREF, t("exitToast"));

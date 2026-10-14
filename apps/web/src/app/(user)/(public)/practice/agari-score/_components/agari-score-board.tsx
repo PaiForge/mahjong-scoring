@@ -44,7 +44,7 @@ import {
   canResumePractice,
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 
 /** 出題条件を選ぶ設定画面。「終了」で戻る先 */
 const SETUP_HREF = "/practice/agari-score";
@@ -143,10 +143,7 @@ function AgariScoreBoardInner() {
 
   // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
   // 返した特典にも含まれているときだけ出す
-  const showAnswerTime =
-    measureTime &&
-    gate?.kind === "open" &&
-    gate.benefits.includes(PlanBenefit.PracticeTools);
+  const showAnswerTime = showsAnswerTime(measureTime, gate);
 
   const handleBackToSetup = useCallback(() => {
     // 他の練習（challenge-shell / training-shell）の「終了」と同じく、
