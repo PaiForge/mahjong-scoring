@@ -48,8 +48,9 @@ interface TryAttempt {
  *   TSDoc 参照）。回答フォームの選択肢だけはフォーム自身が設定を読むが、
  *   この手の正解には影響しない
  * - 「次の問題へ」の代わりに登録への誘導（{@link SignUpPanel}）を置く。
- *   フッターは「わからない」が、答え合わせ後は同じ位置で「もう一度解く」に
- *   替わる（並ぶ操作の数と位置を変えない）
+ *   フッターの「わからない」は解く前だけ出す。答え合わせのあとは解き直しを
+ *   置かず、行き先（`afterAnswer` のホームへ戻るリンクと練習の入口）だけを残す
+ *   — 同じ 1 問を解き直しても新しく分かることは無い
  *
  * 回答フォームはハイドレーション後に出す（それまで同じ形のスケルトン）。
  * フォームの選択肢が端末ローカルのルール設定で変わるため、サーバーの HTML
@@ -72,8 +73,6 @@ export function TryBoard({
   const isClient = useIsClient();
 
   const [attempt, setAttempt] = useState<TryAttempt | undefined>(undefined);
-  // 「もう一度解く」でフォームを作り直す（入力欄を空に戻す）ための key
-  const [attemptSeq, setAttemptSeq] = useState(0);
   const isAnswered = attempt !== undefined;
 
   // 開いた直後にグローバルヘッダとタイトル帯を画面外へ送り、盤面を最上部に
@@ -82,7 +81,7 @@ export function TryBoard({
   // 直接開いたときのフォールバック
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
-  // 回答・開示・やり直しのボタンはいずれも縦に長い盤面の下端にあるため、
+  // 回答・開示のボタンはいずれも縦に長い盤面の下端にあるため、
   // 和了形の点数計算と同じく表示が切り替わる操作のたびに盤面の先頭へ戻す
   const handleSubmit = useCallback((answer: UserAnswer) => {
     scrollToPracticeAnchor();
@@ -95,12 +94,6 @@ export function TryBoard({
   const handleReveal = useCallback(() => {
     scrollToPracticeAnchor();
     setAttempt({});
-  }, []);
-
-  const handleRetry = useCallback(() => {
-    scrollToPracticeAnchor();
-    setAttempt(undefined);
-    setAttemptSeq((seq) => seq + 1);
   }, []);
 
   return (
@@ -136,7 +129,6 @@ export function TryBoard({
             <QuestionPrompt>{tScore("board.questionPrompt")}</QuestionPrompt>
             {isClient ? (
               <ScorePracticeAnswerForm
-                key={attemptSeq}
                 onSubmit={handleSubmit}
                 isTsumo={TRY_QUESTION.isTsumo}
                 isOya={isOya(TRY_QUESTION.jikaze)}
@@ -147,17 +139,13 @@ export function TryBoard({
           </div>
         )}
 
-        <PracticeFooterActions>
-          {isAnswered ? (
-            <PracticeFooterAction onClick={handleRetry}>
-              {t("retry")}
-            </PracticeFooterAction>
-          ) : (
+        {!isAnswered && (
+          <PracticeFooterActions>
             <PracticeFooterAction onClick={handleReveal}>
               {tTraining("revealButton")}
             </PracticeFooterAction>
-          )}
-        </PracticeFooterActions>
+          </PracticeFooterActions>
+        )}
       </div>
       {isAnswered && afterAnswer}
     </>

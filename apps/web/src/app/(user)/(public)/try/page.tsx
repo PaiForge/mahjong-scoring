@@ -13,8 +13,8 @@
  *
  * @flow 問題を見る → 翻・符・点数を回答（または「わからない」で正解を開示）→
  * 答え合わせ → 「無料ユーザー登録」(/sign-up) か「登録せずに練習一覧を見る」
- * (/practice)。「もう一度解く」で同じ問題を解き直せる。答え合わせのあとに出る練習の
- * カードから各練習の説明ページへ / LP へ戻る
+ * (/practice)。答え合わせのあとに出る練習のカードから各練習の説明ページへ /
+ * LP へ戻る
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
