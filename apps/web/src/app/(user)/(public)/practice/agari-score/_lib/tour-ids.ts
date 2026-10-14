@@ -28,3 +28,18 @@ export const AGARI_SCORE_TOUR_ID = {
   /** 「わからない」（無回答のまま正解を開示する） */
   reveal: "score-reveal",
 } as const;
+
+/**
+ * 答え合わせの結果表のヘルプツアーが照らす要素の `data-tour-id`
+ * 結果表ツアー対象 ID
+ *
+ * 結果表（`ResultDisplay`）が正解の列の役・点数のセルに付ける。練習の
+ * 答え合わせは案内しない（上の {@link AGARI_SCORE_TOUR_ID} の説明）ため、
+ * 引くのは早見表の連動サンプル（`/reference/demo`）のツアーだけ。
+ */
+export const AGARI_SCORE_RESULT_TOUR_ID = {
+  /** 正解の役（押すと役一覧がその役で開く） */
+  yaku: "score-result-yaku",
+  /** 正解の点数（押すと正解のマスに印を付けた点数表が開く） */
+  score: "score-result-score",
+} as const;

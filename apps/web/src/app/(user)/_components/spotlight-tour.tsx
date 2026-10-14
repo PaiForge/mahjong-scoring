@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -61,7 +61,18 @@ export function spotlightTourLabels(
 interface SpotlightTourProps {
   readonly steps: readonly SpotlightStep[];
   readonly labels: SpotlightTourLabels;
+  /**
+   * 開いた直後に一度だけ自動で始めるか（既定 false）
+   *
+   * 「?」が最初の画面に入らないページ（開いた直後に盤面へスクロールする
+   * 早見表の連動サンプル）で使う。始めるのは {@link AUTO_START_DELAY_MS} 後で、
+   * 盤面へのスクロール（`useScrollToElement` の 100ms）が済んでから照らす
+   */
+  readonly autoStart?: boolean;
 }
+
+/** 自動で始めるまでの待ち。盤面へのスクロールの後に照らすため */
+const AUTO_START_DELAY_MS = 300;
 
 /**
  * 実画面の要素を順に照らして説明するヘルプツアーの「?」ボタン
@@ -78,7 +89,11 @@ interface SpotlightTourProps {
  * （practice/_components の `HelpTourModal`）とは役割が違う。
  * こちらは解いている最中に「この操作は何か」を実物の上で答える。
  */
-export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
+export function SpotlightTour({
+  steps,
+  labels,
+  autoStart = false,
+}: SpotlightTourProps) {
   const driverRef = useRef<ReturnType<typeof driver> | undefined>(undefined);
   const pathname = usePathname();
 
@@ -119,6 +134,14 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
     driverRef.current = instance;
     instance.drive();
   };
+
+  const startTourOnMount = useEffectEvent(startTour);
+
+  useEffect(() => {
+    if (!autoStart) return;
+    const timer = setTimeout(startTourOnMount, AUTO_START_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [autoStart]);
 
   return <HelpIconButton onClick={startTour} label={labels.label} />;
 }
