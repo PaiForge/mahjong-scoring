@@ -4,7 +4,7 @@
  * @description 初めて訪れたユーザー向けの始め方ガイド。基礎を学ぶ→練習で鍛える→
  * 早見表で確認する3ステップで点数計算の学習フローを案内する。LP の「はじめよう」
  * ボタンの遷移先。SEO 重視で SSR。
- * @flow 各ステップカードの CTA から体験(/try)・符の計算の体験(/try/mentsu-fu)・
+ * @flow 各ステップカードの CTA から体験(/try/agari-score)・符の計算の体験(/try/mentsu-fu)・
  * 学習(/lessons)へ遷移する。2 枚目のカードの補助リンクは練習一覧(/practice)へ。ページ下部からアカウント登録(/sign-up)へ誘導する。
  *
  * 「まずは体験」は和了形の点数計算（/practice/agari-score）ではなく固定 1 問の体験ページへ送る。
@@ -51,7 +51,7 @@ export default async function GettingStartedPage() {
             title={t("steps.tryout.title")}
             description={t("steps.tryout.description")}
             ctaLabel={t("steps.tryout.cta")}
-            ctaHref={`/try${PRACTICE_SCROLL_HASH}`}
+            ctaHref={`/try/agari-score${PRACTICE_SCROLL_HASH}`}
           />
           <StepCard
             icon={<PlayIcon className="size-7" />}

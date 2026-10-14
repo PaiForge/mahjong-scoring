@@ -13,7 +13,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
  * 1 問だけ試すページの下に置く、LP へ戻るリンクと練習の入口
  * 練習で試す導線
  *
- * 体験ページ（/try）と早見表の連動サンプル（/reference/demo）で共有する。
+ * 体験ページ（/try/agari-score）と早見表の連動サンプル（/reference/demo）で共有する。
  * どちらも LP から開く 1 問きりのページで、試したあとの行き先を持たない。
  *
  * 練習は、答え合わせで正解の点数を押すと点数表・翻数の内訳の役名を押すと

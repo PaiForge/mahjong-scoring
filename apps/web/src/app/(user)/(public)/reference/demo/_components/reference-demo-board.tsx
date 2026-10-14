@@ -8,7 +8,7 @@ import { useScrollToElement } from "@/app/(user)/(public)/practice/_hooks/use-sc
 import { PRACTICE_SCROLL_ANCHOR_ID } from "@/app/(user)/(public)/practice/_lib/scroll-anchor";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 import { ResultDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/result-display";
-import { TRY_QUESTION } from "@/app/(user)/(public)/try/_lib/try-question";
+import { TRY_QUESTION } from "@/app/(user)/(public)/try/agari-score/_lib/try-question";
 
 /**
  * 全問正解した回答（役もすべて選んだもの）
