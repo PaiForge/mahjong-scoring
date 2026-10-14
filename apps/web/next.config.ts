@@ -123,6 +123,14 @@ const nextConfig: NextConfig = {
         destination: "/dojo",
         permanent: true,
       },
+      // 和了形の点数計算の体験（/try）は、符の計算の体験（/try/mentsu-fu）と
+      // 階層を揃えて /try/agari-score に移した（2026-10）。sitemap に載っていた
+      // URL なので恒久リダイレクトで受ける
+      {
+        source: "/try",
+        destination: "/try/agari-score",
+        permanent: true,
+      },
     ];
   },
 };

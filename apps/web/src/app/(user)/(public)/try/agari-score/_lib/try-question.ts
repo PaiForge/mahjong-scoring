@@ -60,7 +60,7 @@ function buildTryQuestion(): ScoreQuestion {
 }
 
 /**
- * 体験ページ（`/try`）で出す固定の 1 問
+ * 体験ページ（`/try/agari-score`）で出す固定の 1 問
  * 体験問題
  *
  * 毎回同じ問題なのは意図したもの。体験の目的は「どんな練習か」を登録なしで

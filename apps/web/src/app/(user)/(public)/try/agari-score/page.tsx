@@ -28,7 +28,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { TryBoard } from "./_components/try-board";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("tryDemo", { path: "/try" });
+  return createNamespaceMetadata("tryDemo", { path: "/try/agari-score" });
 }
 
 export default async function TryPage() {
