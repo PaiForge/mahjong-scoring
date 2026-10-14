@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { isOya, type UserAnswer } from "@mahjong-scoring/core";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -147,10 +147,7 @@ export function AgariScoreBoard() {
 
   // 回答時間の計測（Pro の拡張機能）。設定のスイッチだけでなく、ゲートが
   // 返した特典にも含まれているときだけ出す
-  const showAnswerTime =
-    settings.measureTime &&
-    gate?.kind === "open" &&
-    gate.benefits.includes(PlanBenefit.PracticeTools);
+  const showAnswerTime = showsAnswerTime(settings.measureTime, gate);
 
   return (
     <View style={styles.root}>

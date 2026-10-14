@@ -1,4 +1,4 @@
-import { YAKUMAN_HAN } from "@mahjong-scoring/core";
+import { isYakumanHan } from "@mahjong-scoring/core";
 
 /**
  * {@link yakuHanLabel} が引く翻訳
@@ -23,5 +23,5 @@ type HanLabelTranslator = (
  * @param t - `yakuman` / `hanUnit` を持つ名前空間の翻訳関数
  */
 export function yakuHanLabel(han: number, t: HanLabelTranslator): string {
-  return han === YAKUMAN_HAN ? t("yakuman") : t("hanUnit", { count: han });
+  return isYakumanHan(han) ? t("yakuman") : t("hanUnit", { count: han });
 }

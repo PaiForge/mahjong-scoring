@@ -1,7 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { screen, waitFor } from "@testing-library/react";
+import { render } from "@/test/intl-render";
 import { beforeEach, expect, it, vi } from "vitest";
-import { messages } from "@mahjong-scoring/messages/ja";
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { PracticeEntryQuota } from "./practice-entry-quota";
 import { peekPracticeQuota } from "../_actions/begin-practice-question";
@@ -21,11 +20,7 @@ beforeEach(() => {
   vi.mocked(peekPracticeQuota).mockReset();
 });
 function show() {
-  return render(
-    <NextIntlClientProvider locale="ja" messages={messages}>
-      <PracticeEntryQuota menu="agari-score" />
-    </NextIntlClientProvider>,
-  );
+  return render(<PracticeEntryQuota menu="agari-score" />);
 }
 it("残量を消費せずに表示する", async () => {
   vi.mocked(peekPracticeQuota).mockResolvedValue(result);

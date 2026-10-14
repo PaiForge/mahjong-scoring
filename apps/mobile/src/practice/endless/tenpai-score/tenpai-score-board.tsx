@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
 import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/tenpai-score/cell-runs";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -194,10 +194,7 @@ export function TenpaiScoreBoard() {
 
   // 回答時間の計測（Pro の拡張機能）。設定のスイッチだけでなく、ゲートが
   // 返した特典にも含まれているときだけ出す。止めるのは答え合わせの段階
-  const showAnswerTime =
-    settings.measureTime &&
-    gate?.kind === "open" &&
-    gate.benefits.includes(PlanBenefit.PracticeTools);
+  const showAnswerTime = showsAnswerTime(settings.measureTime, gate);
 
   const renderBoard = () => {
     if (currentQuestion === undefined) return undefined;

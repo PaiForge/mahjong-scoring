@@ -31,7 +31,7 @@ import { getActiveBenefits } from "../entitlements/has-benefit";
 import { checkIpRateLimitGuard, IP_RATE_LIMITS } from "../rate-limit-ip";
 
 import { authorizeMobileRequest } from "./auth";
-import { mobileJson, mobileServerError } from "./response";
+import { mobileJson, mobileRateLimited, mobileServerError } from "./response";
 
 /** プラン・取引の記録の API 固有の失敗の理由ごとの HTTP ステータス */
 const PLAN_ERROR_STATUS = {
@@ -184,7 +184,7 @@ export async function handleReadPlanOffers(): Promise<NextResponse> {
       IP_RATE_LIMITS.readMobilePlanOffers,
     )
   ) {
-    return mobileJson({ error: "rateLimited" }, { status: 429 });
+    return mobileRateLimited();
   }
   return mobileJson<MobilePlanOffersResponse>({ offers: appleOffers() });
 }

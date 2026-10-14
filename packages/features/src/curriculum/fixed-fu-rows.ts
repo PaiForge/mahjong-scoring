@@ -1,5 +1,6 @@
 import {
   CHIITOITSU_FU,
+  MANGAN_MIN_HAN,
   PINFU_RON_FU,
   PINFU_TSUMO_FU,
   calculateKoScore,
@@ -31,7 +32,7 @@ export interface FixedFuTableShape {
  * 5翻以上は符によらず満貫以上で頭打ちになり、符の学習から外れる。
  * 固定符の表を4翻で止めるのはこのため（満貫以上は専用の章が受け持つ）。
  */
-const MAX_HAN_BEFORE_MANGAN = 4;
+const MAX_HAN_BEFORE_MANGAN = MANGAN_MIN_HAN - 1;
 
 /** 翻数の列を `min` から満貫の手前まで並べる */
 function hanColsFrom(min: number): readonly number[] {

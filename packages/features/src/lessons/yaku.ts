@@ -1,6 +1,6 @@
 import {
   YAKU_HAN_ENTRIES,
-  YAKUMAN_HAN,
+  isYakumanHan,
   type YakuHanEntry,
   compareNumbers,
 } from "@mahjong-scoring/core";
@@ -9,7 +9,7 @@ import type { LessonChoice, LessonQuestion, LessonQuiz } from "./quiz";
 
 /** 翻数を選択肢にする。役満は翻数ではなく「役満」として並べる */
 function hanChoice(han: number): LessonChoice {
-  return han === YAKUMAN_HAN ? { kind: "yakuman" } : { kind: "han", han };
+  return isYakumanHan(han) ? { kind: "yakuman" } : { kind: "han", han };
 }
 
 /**

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { screen } from "@testing-library/react";
+import { render } from "@/test/intl-render";
 
 import { messages } from "@mahjong-scoring/messages/ja";
 
@@ -18,13 +18,11 @@ function renderPanel(props: {
   moduleBreakdown?: Record<string, number>;
 }) {
   render(
-    <NextIntlClientProvider locale="ja" messages={messages}>
-      <HeatmapDetailPanel
-        selectedDate={props.selectedDate}
-        selectedTotal={props.selectedTotal ?? 0}
-        moduleBreakdown={props.moduleBreakdown}
-      />
-    </NextIntlClientProvider>,
+    <HeatmapDetailPanel
+      selectedDate={props.selectedDate}
+      selectedTotal={props.selectedTotal ?? 0}
+      moduleBreakdown={props.moduleBreakdown}
+    />,
   );
 }
 

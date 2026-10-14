@@ -1,4 +1,4 @@
-import type { PlanBenefit } from "../billing/plans";
+import { PlanBenefit } from "../billing/plans";
 import type { BeginPracticeQuestionResult } from "./answer";
 
 /**
@@ -47,4 +47,26 @@ export interface MenuQuotaState {
   readonly gate: PracticeQuotaGate | undefined;
   /** サーバーの返事を待っている間 true */
   readonly isChecking: boolean;
+}
+
+/**
+ * 盤面に回答時間を出すか
+ * 回答時間表示判定
+ *
+ * 回答時間の計測は Pro の拡張機能（`PracticeTools`）。設定のフラグだけでなく、
+ * サーバーが直前の出題許可で返した特典にも含まれているときだけ出す。和了形・
+ * 聴牌形の点数計算の盤面（web とアプリ）が同じ条件を引く。
+ *
+ * @param measureTime - 設定の「回答時間を計測する」
+ * @param gate - 直近の出題許可の結果（問い合わせ前は undefined）
+ */
+export function showsAnswerTime(
+  measureTime: boolean,
+  gate: PracticeQuotaGate | undefined,
+): boolean {
+  return (
+    measureTime &&
+    gate?.kind === "open" &&
+    gate.benefits.includes(PlanBenefit.PracticeTools)
+  );
 }
