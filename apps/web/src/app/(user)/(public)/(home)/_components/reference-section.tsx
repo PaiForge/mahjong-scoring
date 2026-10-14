@@ -14,7 +14,7 @@ export function ReferenceSection() {
       iconClassName="bg-amber-200 text-amber-800"
       title={t("referenceTitle")}
       description={t("referenceDescription")}
-      href="/reference"
+      href="/reference/demo"
       ctaLabel={t("referenceCta")}
       ctaVariant="secondary"
     />
