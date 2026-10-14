@@ -1,10 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  practiceListChapters,
-  practiceListRanks,
-  type PracticeListFilter,
-} from "@mahjong-scoring/features/practice/list-guides";
+import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { SectionTitle } from "../../components/section-title";
@@ -17,27 +14,29 @@ import { PracticeChapterSection } from "./practice-chapter-section";
  * 練習一覧の下に置くレッスンと段級位（web の `PracticeListGuides`）
  * 一覧のガイド
  *
- * 基礎練習の一覧の後ろに「関連するレッスン」と「関連する段級位」を並べる。
- * 中身は絞り込みに合わせて変わり、絞り込みが無ければ先頭だけを出す（決め方は
- * features の `practiceListChapters` / `practiceListRanks`）。どちらも末尾の中央に
+ * 基礎練習・実戦練習のカードの後ろに「関連するレッスン」と「関連する段級位」を
+ * 並べる。中身は呼び出し側が features の `list-guides` で決める（基礎練習は
+ * 絞り込みに合わせて変わる）。どちらも末尾の中央に
  * 全体への導線（目次へ / 道場へ）を置く。一覧の上ではなく下に置くのは、基礎練習と
  * 実戦練習を切り替えたときにカードの始まる位置をずらさないため。
  */
 export function PracticeListGuides({
-  filter,
+  chapters,
+  ranks,
 }: {
-  /** 一覧の絞り込み。undefined なら絞り込みなし */
-  readonly filter: PracticeListFilter | undefined;
+  /** 並べるレッスン（カリキュラムの順）。0 件なら節ごと出さない */
+  readonly chapters: readonly CurriculumChapterSlug[];
+  /** 並べる段級位（学習順）。0 件なら節ごと出さない */
+  readonly ranks: readonly RankSlug[];
 }) {
   const t = useTranslations("practice");
   const goToTab = useGoToTab();
-  const ranks = practiceListRanks(filter);
 
   return (
     <View style={styles.root}>
       <PracticeChapterSection
         title={t("requiredKnowledge")}
-        slugs={practiceListChapters(filter)}
+        slugs={chapters}
         tocLinkAlign="center"
       />
       {ranks.length > 0 && (

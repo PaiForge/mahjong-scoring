@@ -28,7 +28,13 @@ import {
   listedPracticeMenus,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
-import type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
+import {
+  practicalPracticeChapters,
+  practicalPracticeRanks,
+  practiceListChapters,
+  practiceListRanks,
+  type PracticeListFilter,
+} from "@mahjong-scoring/features/practice/list-guides";
 import {
   listedPracticeRanks,
   practiceRanks,
@@ -69,7 +75,12 @@ export default async function PracticePage() {
   ];
   const guides: readonly PracticeFilterGuide[] = guideFilters.map((filter) => ({
     filter,
-    content: <PracticeListGuides filter={filter} />,
+    content: (
+      <PracticeListGuides
+        chapters={practiceListChapters(filter)}
+        ranks={practiceListRanks(filter)}
+      />
+    ),
   }));
 
   return (
@@ -106,9 +117,15 @@ export default async function PracticePage() {
           </div>
         }
         practical={
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AgariScorePracticeBanner />
-            <TenpaiScorePracticeBanner />
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <AgariScorePracticeBanner />
+              <TenpaiScorePracticeBanner />
+            </div>
+            <PracticeListGuides
+              chapters={practicalPracticeChapters()}
+              ranks={practicalPracticeRanks()}
+            />
           </div>
         }
       />

@@ -1,8 +1,14 @@
 import {
+  chaptersInSection,
   sortChapterSlugs,
   type CurriculumChapterSlug,
 } from "../curriculum/registry";
-import { RANK_SLUGS, rankBySlug, type RankSlug } from "../ranks/registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  rankBySlug,
+  type RankSlug,
+} from "../ranks/registry";
 import {
   listedPracticeMenus,
   relatedChaptersForPractice,
@@ -97,4 +103,33 @@ export function practiceListRanks(
     RANK_SLUGS.filter((slug) => ranks.has(slug)),
     filter,
   );
+}
+
+/**
+ * 実戦練習（和了形・聴牌形の点数計算）の下に並べるレッスン
+ * 実戦練習のレッスン
+ *
+ * 「点数の計算」セクションの章。和了形の点数計算の説明ページが「関連する
+ * レッスン」に出すのと同じ集合で、どの章も本文からその練習へ送っている。
+ */
+export function practicalPracticeChapters(): readonly CurriculumChapterSlug[] {
+  return chaptersInSection("score");
+}
+
+/**
+ * 実戦練習の下に並べる段級位
+ * 実戦練習の段級位
+ *
+ * 前提章に「点数の計算」セクションの章を最初に持つ級から上のすべて
+ * （3級〜初段）。実戦練習は点数計算をひととおり身につけた先にあるので、
+ * どの級を取れば実戦の力になるかを並べる。前提章だけで判定しないのは、
+ * 初段が新しい章を持たず（合格基準は「どんな場合でも点数計算ができること」）、
+ * 前提章だけでは落ちるため。級ごとに書き並べず、レジストリから導く。
+ */
+export function practicalPracticeRanks(): readonly RankSlug[] {
+  const scoreChapters = new Set(practicalPracticeChapters());
+  const first = RANK_REGISTRY.findIndex((rank) =>
+    rank.learnChapterSlugs.some((slug) => scoreChapters.has(slug)),
+  );
+  return first === -1 ? [] : RANK_SLUGS.slice(first);
 }

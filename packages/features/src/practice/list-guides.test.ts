@@ -4,6 +4,8 @@ import { rankBySlug } from "../ranks/registry";
 import { PRACTICE_CATEGORIES } from "./catalog";
 import {
   PRACTICE_LIST_GUIDE_LIMIT,
+  practicalPracticeChapters,
+  practicalPracticeRanks,
   practiceListChapters,
   practiceListRanks,
 } from "./list-guides";
@@ -48,5 +50,22 @@ describe("practiceListRanks", () => {
 
   it("絞り込みが無いと、5級から先頭だけを返す", () => {
     expect(practiceListRanks(undefined)).toEqual(["kyu-5", "kyu-4", "kyu-3"]);
+  });
+});
+
+describe("practicalPracticeChapters", () => {
+  it("点数の計算の章を返す", () => {
+    expect(practicalPracticeChapters()).toContain("chiitoitsu-score");
+  });
+});
+
+describe("practicalPracticeRanks", () => {
+  it("点数の計算の章を前提に持つ最初の級から初段までを返す", () => {
+    expect(practicalPracticeRanks()).toEqual([
+      "kyu-3",
+      "kyu-2",
+      "kyu-1",
+      "dan-1",
+    ]);
   });
 });

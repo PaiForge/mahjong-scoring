@@ -7,7 +7,13 @@ import {
   listedPracticeMenus,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
-import type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
+import {
+  practicalPracticeChapters,
+  practicalPracticeRanks,
+  practiceListChapters,
+  practiceListRanks,
+  type PracticeListFilter,
+} from "@mahjong-scoring/features/practice/list-guides";
 import { isRankSlug } from "@mahjong-scoring/features/ranks/registry";
 import {
   listedPracticeRanks,
@@ -52,7 +58,8 @@ function toListFilter(value: FilterValue): PracticeListFilter | undefined {
  * @description
  * web の練習一覧と同じく「基礎練習 / 実戦練習」を切り替えて見せる。基礎練習は
  * カタログ（`PRACTICE_CATALOG`）の並びで練習カードを並べ、段級位・分野で絞り込める。
- * カードの下に、絞り込みに合わせた関連するレッスンと級（{@link PracticeListGuides}）を置く。実戦練習は終わりのない訓練（和了形の点数計算・
+ * カードの下に、絞り込みに合わせた関連するレッスンと級（{@link PracticeListGuides}）を置く。
+ * 実戦練習のカードの下にも、点数の計算のレッスンと 3級〜初段を同じ形で置く。実戦練習は終わりのない訓練（和了形の点数計算・
  * 聴牌形の点数計算）を問題のプレビュー付きのカードで出す。最後に選んだ方を端末に
  * 覚える。昇級試験はカードにしない（入口は道場）。モバイルに盤面が無い練習は
  * まだ出さない。基礎練習のカードの並びに広告カードを 1 枚混ぜる（絞り込みの
@@ -99,6 +106,7 @@ export default function PracticeListPage() {
       practiceRanks(menu.slug).some((rank) => rank === filter),
   );
   const adIndex = Math.min(AD_LIST_POSITION, visible.length);
+  const listFilter = toListFilter(filter);
 
   return (
     <Screen title={t("title")} inTabs>
@@ -142,12 +150,21 @@ export default function PracticeListPage() {
               <PracticeCard key={menu.slug} slug={menu.slug} />
             ))}
           </View>
-          <PracticeListGuides filter={toListFilter(filter)} />
+          <PracticeListGuides
+            chapters={practiceListChapters(listFilter)}
+            ranks={practiceListRanks(listFilter)}
+          />
         </View>
       ) : (
-        <View style={styles.list}>
-          <PracticalPracticeCard menu="agari-score" />
-          <PracticalPracticeCard menu="tenpai-score" />
+        <View style={styles.section}>
+          <View style={styles.list}>
+            <PracticalPracticeCard menu="agari-score" />
+            <PracticalPracticeCard menu="tenpai-score" />
+          </View>
+          <PracticeListGuides
+            chapters={practicalPracticeChapters()}
+            ranks={practicalPracticeRanks()}
+          />
         </View>
       )}
     </Screen>
