@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { CURRICULUM, CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
 import { PRACTICE_MENU_SLUGS, slugToMenuType } from "../practice-menu-types";
-import { RANK_REGISTRY, rankRequiringMenu } from "../ranks/registry";
+import {
+  RANK_REGISTRY,
+  RANK_SLUGS,
+  rankRequiringMenu,
+} from "../ranks/registry";
 import {
   isExamMenu,
   PRACTICE_CATALOG,
@@ -53,6 +57,27 @@ describe("PRACTICE_CATALOG", () => {
     expect(slugs).not.toContain("chiitoitsu-exam");
     expect(slugs).not.toContain("pinfu-exam");
     expect(slugs).not.toContain("fu-score-exam");
+  });
+
+  it("一覧は段級位の学習順に並び、同じ級の中はカタログの順を保つ", () => {
+    const listed = listedPracticeMenus();
+    const order = (menu: (typeof listed)[number]) =>
+      menu.rank === undefined
+        ? RANK_SLUGS.length
+        : RANK_SLUGS.indexOf(menu.rank);
+    for (const [index, menu] of listed.entries()) {
+      const prev = listed[index - 1];
+      if (prev === undefined) continue;
+      expect(order(prev), `${prev.slug} → ${menu.slug}`).toBeLessThanOrEqual(
+        order(menu),
+      );
+      if (order(prev) === order(menu)) {
+        expect(
+          PRACTICE_CATALOG.indexOf(prev),
+          `${prev.slug} → ${menu.slug}`,
+        ).toBeLessThan(PRACTICE_CATALOG.indexOf(menu));
+      }
+    }
   });
 
   it("前提章はカリキュラムに存在する章を指す", () => {
