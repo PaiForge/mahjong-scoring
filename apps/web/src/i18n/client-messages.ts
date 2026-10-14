@@ -43,6 +43,7 @@ export const SERVER_ONLY_MESSAGE_NAMESPACES = [
   "aboutThisApp",
   "whyScoringIsComplex",
   "gettingStarted",
+  "tryMentsuFu",
   // 教本の章の本文（確認問題の文言は `lessons` 側にあり、そちらはクライアントが引く）
   "tehaiFu",
   "ronToTsumo",
