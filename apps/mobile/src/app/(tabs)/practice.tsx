@@ -1,22 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
+  isPracticeCategory,
   listedPracticeMenus,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
+import type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
+import { isRankSlug } from "@mahjong-scoring/features/ranks/registry";
 import {
   listedPracticeRanks,
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import type { PracticeMode } from "@mahjong-scoring/features/practice/practice-mode";
-import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 import { NativeAdCard } from "../../ads/native-ad-card";
 import { useNativeAds } from "../../ads/use-native-ads";
-import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { FilterChips } from "../../components/filter-chips";
 import { ToggleGroup } from "../../components/toggle-group";
@@ -24,7 +25,7 @@ import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
 import { PracticalPracticeCard } from "../../practice/components/practical-practice-card";
 import { PracticeCard } from "../../practice/components/practice-card";
 import { practiceScreensFor } from "../../practice/registry";
-import { useGoToTab } from "../../hooks/use-go-to-tab";
+import { PracticeListGuides } from "../../practice/components/practice-list-guides";
 
 /** 絞り込みの値（`all` / 段級位スラッグ / カテゴリ）。web の `?rank=` / `?category=` に当たる */
 type FilterValue = string;
@@ -38,13 +39,20 @@ const ALL = "all";
  */
 const AD_LIST_POSITION = 2;
 
+/** 絞り込みの値を、一覧の下のガイドが読む形（web の `?rank=` / `?category=`）にする */
+function toListFilter(value: FilterValue): PracticeListFilter | undefined {
+  if (isRankSlug(value)) return { kind: "rank", value };
+  if (isPracticeCategory(value)) return { kind: "category", value };
+  return undefined;
+}
+
 /**
  * 練習一覧
  *
  * @description
  * web の練習一覧と同じく「基礎練習 / 実戦練習」を切り替えて見せる。基礎練習は
- * 黒帯への道（道場）への行のあと、カタログ（`PRACTICE_CATALOG`）の並びで練習
- * カードを並べ、段級位・分野で絞り込める。実戦練習は終わりのない訓練（和了形の点数計算・
+ * カタログ（`PRACTICE_CATALOG`）の並びで練習カードを並べ、段級位・分野で絞り込める。
+ * カードの下に、絞り込みに合わせた関連するレッスンと級（{@link PracticeListGuides}）を置く。実戦練習は終わりのない訓練（和了形の点数計算・
  * 聴牌形の点数計算）を問題のプレビュー付きのカードで出す。最後に選んだ方を端末に
  * 覚える。昇級試験はカードにしない（入口は道場）。モバイルに盤面が無い練習は
  * まだ出さない。基礎練習のカードの並びに広告カードを 1 枚混ぜる（絞り込みの
@@ -53,7 +61,6 @@ const AD_LIST_POSITION = 2;
 export default function PracticeListPage() {
   const t = useTranslations("practice");
   const tRanks = useTranslations("ranks");
-  const goToTab = useGoToTab();
   const mode = usePracticeModeStore((state) => state.mode);
   const setMode = usePracticeModeStore((state) => state.setMode);
   const { rank: rankParam } = useLocalSearchParams<{ rank?: string }>();
@@ -110,22 +117,6 @@ export default function PracticeListPage() {
       />
       {mode === "basic" ? (
         <View style={styles.section}>
-          <LinkRowList>
-            <LinkRow
-              onPress={() => goToTab(DOJO_PATH)}
-              leading={
-                <Text
-                  style={styles.emoji}
-                  accessibilityElementsHidden
-                  importantForAccessibility="no-hide-descendants"
-                >
-                  🥋
-                </Text>
-              }
-              title={t("modes.journeyTitle")}
-              description={t("modes.journeyDescription")}
-            />
-          </LinkRowList>
           <FilterChips
             accessibilityLabel={t("filter.label")}
             selected={filter}
@@ -151,6 +142,7 @@ export default function PracticeListPage() {
               <PracticeCard key={menu.slug} slug={menu.slug} />
             ))}
           </View>
+          <PracticeListGuides filter={toListFilter(filter)} />
         </View>
       ) : (
         <View style={styles.list}>
@@ -168,8 +160,5 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: 16,
-  },
-  emoji: {
-    fontSize: 16,
   },
 });
