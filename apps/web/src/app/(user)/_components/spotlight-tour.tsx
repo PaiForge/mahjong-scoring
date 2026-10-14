@@ -4,6 +4,8 @@ import { useEffect, useEffectEvent, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { safeLocalStorage } from "@/lib/safe-storage";
+
 import { HelpIconButton } from "./help-icon-button";
 
 /**
@@ -62,13 +64,16 @@ interface SpotlightTourProps {
   readonly steps: readonly SpotlightStep[];
   readonly labels: SpotlightTourLabels;
   /**
-   * 開いた直後に一度だけ自動で始めるか（既定 false）
+   * 渡すと、この端末で初めて開いたときに一度だけ自動で始める
    *
    * 「?」が最初の画面に入らないページ（開いた直後に盤面へスクロールする
-   * 早見表の連動サンプル）で使う。始めるのは {@link AUTO_START_DELAY_MS} 後で、
-   * 盤面へのスクロール（`useScrollToElement` の 100ms）が済んでから照らす
+   * 早見表の連動サンプル）で使う。値は localStorage のキーで、始めた時点で
+   * 印を書き、2 回目からは始めない（見たいときは「?」から開く）。毎回
+   * 始めると、知っている人には閉じる手間が増えるだけになる。始めるのは
+   * {@link AUTO_START_DELAY_MS} 後で、盤面へのスクロール
+   * （`useScrollToElement` の 100ms）が済んでから照らす
    */
-  readonly autoStart?: boolean;
+  readonly autoStartOnceKey?: string;
 }
 
 /** 自動で始めるまでの待ち。盤面へのスクロールの後に照らすため */
@@ -92,7 +97,7 @@ const AUTO_START_DELAY_MS = 300;
 export function SpotlightTour({
   steps,
   labels,
-  autoStart = false,
+  autoStartOnceKey,
 }: SpotlightTourProps) {
   const driverRef = useRef<ReturnType<typeof driver> | undefined>(undefined);
   const pathname = usePathname();
@@ -138,10 +143,14 @@ export function SpotlightTour({
   const startTourOnMount = useEffectEvent(startTour);
 
   useEffect(() => {
-    if (!autoStart) return;
-    const timer = setTimeout(startTourOnMount, AUTO_START_DELAY_MS);
+    if (autoStartOnceKey === undefined) return;
+    if (safeLocalStorage.getItem(autoStartOnceKey) !== null) return;
+    const timer = setTimeout(() => {
+      safeLocalStorage.setItem(autoStartOnceKey, "1");
+      startTourOnMount();
+    }, AUTO_START_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [autoStart]);
+  }, [autoStartOnceKey]);
 
   return <HelpIconButton onClick={startTour} label={labels.label} />;
 }
