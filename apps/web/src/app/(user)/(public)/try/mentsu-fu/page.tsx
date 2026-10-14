@@ -11,7 +11,8 @@
  * 知らない人の最初の 1 問に向く。
  *
  * @flow 面子を見て符を選ぶ（「ヒントを見る」で手がかり）→ 正誤と解説 →
- * レッスン（/lessons/mentsu-fu）・面子符の練習の説明ページ・練習一覧へ
+ * レッスン（/lessons/mentsu-fu）・アカウント登録・面子符の練習の説明ページ・
+ * 練習一覧・LP へ
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -21,6 +22,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
 import { CatalogPracticeCard } from "@/app/(user)/(public)/practice/_components/catalog-practice-card";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -45,6 +47,11 @@ export default async function TryMentsuFuPage() {
             <LinkButton href={chapterHref("mentsu-fu")} size="lg" fullWidth>
               {t("learnCta")}
             </LinkButton>
+            <SignUpPanel
+              title={t("signUp.title")}
+              description={t("signUp.description")}
+              cta={t("signUp.cta")}
+            />
             <section className={`flex flex-col ${SUB_LINK_GAP}`}>
               <div className="space-y-4">
                 <SectionTitle>{t("practiceTitle")}</SectionTitle>
@@ -59,6 +66,11 @@ export default async function TryMentsuFuPage() {
                 </Link>
               </div>
             </section>
+            <div className="text-center">
+              <Link href="/" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+                {t("backToHome")}
+              </Link>
+            </div>
           </div>
         }
       />
