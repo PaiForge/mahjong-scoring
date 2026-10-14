@@ -65,6 +65,22 @@ interface PracticeFilterProps {
    * 末尾に置く。
    */
   readonly adCard?: ReactNode;
+  /**
+   * 一覧の下に出す、絞り込みごとのガイド（サーバーで描画済み）。選択中の
+   * 絞り込みと同じ `filter` のものを 1 つだけ出す（`filter` を持たないものが
+   * 「すべて」の分）。該当が無ければ何も出さない。
+   *
+   * 中身は絞り込みで変わるが、決め方はサーバー側（`PracticeListGuides`）に
+   * 置きたいので、条件ごとに描いたものを全部受け取って選ぶだけにする。
+   * カードと同じく、プリレンダーされた HTML には「すべて」の分が載る。
+   */
+  readonly guides?: readonly PracticeFilterGuide[];
+}
+
+/** 絞り込み 1 つ分のガイド */
+export interface PracticeFilterGuide {
+  readonly filter?: PracticeListFilter;
+  readonly content: ReactNode;
 }
 
 /**
@@ -87,10 +103,14 @@ function FilteredList({
   filterLabel,
   listHeading,
   adCard,
+  guides,
   selected,
 }: FilteredListProps) {
   const visible = items.filter((item) => matchesPracticeFilter(selected, item));
   const adIndex = Math.min(AD_GRID_POSITION, visible.length);
+  const guide = guides?.find((item) =>
+    isSamePracticeFilter(item.filter, selected),
+  );
 
   return (
     <div className="space-y-6">
@@ -144,6 +164,8 @@ function FilteredList({
           <Fragment key={item.key}>{item.card}</Fragment>
         ))}
       </div>
+
+      {guide?.content}
     </div>
   );
 }

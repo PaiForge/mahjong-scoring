@@ -1,4 +1,5 @@
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
+import type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
 import type { PracticeCategory } from "@mahjong-scoring/features/practice/catalog";
 import {
   DEFAULT_VARIANT,
@@ -29,20 +30,7 @@ import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 export const PRACTICE_RANK_PARAM = "rank";
 export const PRACTICE_CATEGORY_PARAM = "category";
 
-/**
- * 練習一覧の絞り込み条件 — 段級位か分野のどちらか一方
- * 一覧の絞り込み
- *
- * @design 2 軸を掛け合わせない理由
- *
- * 級と分野は直交していない（4級 = 符の計算、5級 = 翻数 + 点数計算の一部）。
- * 2 軸の AND にすると 4級 × 翻数 のように 0 件になる組み合わせが過半を占め、
- * 操作の半分が空の一覧に着地する。選べるのは常に 1 つだけにして、どれを
- * 押しても必ず 1 件以上残るようにしている。
- */
-export type PracticeListFilter =
-  | { readonly kind: "rank"; readonly value: RankSlug }
-  | { readonly kind: "category"; readonly value: PracticeCategory };
+export type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
 
 /**
  * 練習一覧のパス。絞り込みを渡すとその条件で絞った状態で開く。

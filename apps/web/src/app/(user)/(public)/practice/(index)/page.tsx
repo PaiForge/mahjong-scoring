@@ -8,7 +8,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { NativeAdCard } from "@/app/(user)/(public)/_components/native-ad-card";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
@@ -21,12 +20,15 @@ import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
 import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
   PracticeFilter,
+  type PracticeFilterGuide,
   type PracticeFilterItem,
 } from "../_components/practice-filter";
+import { PracticeListGuides } from "../_components/practice-list-guides";
 import {
   listedPracticeMenus,
   PRACTICE_CATEGORIES,
 } from "@mahjong-scoring/features/practice/catalog";
+import type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
 import {
   listedPracticeRanks,
   practiceRanks,
@@ -54,6 +56,22 @@ export default async function PracticePage() {
     }),
   );
 
+  // 一覧の下のガイドは絞り込みの選択肢ごとに描いておき、選ばれた 1 つを
+  // クライアントが出す（カードと同じく、サーバーで searchParams を読まない）
+  const guideFilters: readonly (PracticeListFilter | undefined)[] = [
+    undefined,
+    ...listedPracticeRanks().map(
+      (rank) => ({ kind: "rank", value: rank }) as const,
+    ),
+    ...PRACTICE_CATEGORIES.map(
+      (category) => ({ kind: "category", value: category }) as const,
+    ),
+  ];
+  const guides: readonly PracticeFilterGuide[] = guideFilters.map((filter) => ({
+    filter,
+    content: <PracticeListGuides filter={filter} />,
+  }));
+
   return (
     <ContentContainer breadcrumb={[{ label: t("title") }]}>
       <PageTitle>{t("title")}</PageTitle>
@@ -61,19 +79,12 @@ export default async function PracticePage() {
       <PracticeModeSwitcher
         basic={
           <div className="space-y-6">
-            <LinkRowList>
-              <LinkRow
-                href="/dojo"
-                leading={<span aria-hidden="true">🥋</span>}
-                title={t("modes.journeyTitle")}
-                description={t("modes.journeyDescription")}
-              />
-            </LinkRowList>
             <PracticeFilter
               items={items}
               filterLabel={t("filter.label")}
               listHeading={t("filter.listHeading")}
               adCard={ad && <NativeAdCard creative={ad} />}
+              guides={guides}
               optionGroups={[
                 [{ label: t("filter.all") }],
                 // 級の並びはレジストリの順（5級 → 4級 の学習順）。一覧の

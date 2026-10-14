@@ -10,7 +10,11 @@ import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
 
 interface RankHeadingProps {
   readonly rankSlug: RankSlug;
-  readonly status: RankStatus;
+  /**
+   * 取得状態。省略すると状態の pill を出さない（本人の取得状況を読まない
+   * 静的なページ — 練習一覧 — で級を掲げるとき）
+   */
+  readonly status?: RankStatus;
   /** `ranks` 名前空間の翻訳関数（呼び出し側が引いたものを渡す） */
   readonly tRanks: (
     key: string,
@@ -60,7 +64,9 @@ export function RankHeading({
           })}
         </Link>
       </h3>
-      <RankStatusBadge status={status} tDojo={tDojo} />
+      {status !== undefined && (
+        <RankStatusBadge status={status} tDojo={tDojo} />
+      )}
     </div>
   );
 }
