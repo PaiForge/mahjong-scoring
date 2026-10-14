@@ -98,6 +98,16 @@ describe("ResultDisplay", () => {
     expect(openedModalTitle()).toBe("title");
   });
 
+  it("牌まで含んだ役牌の成立も、役一覧の「役牌」のカードに印を付ける", () => {
+    renderResult();
+
+    fireEvent.click(screen.getAllByText("役牌 白")[0]!);
+
+    const dialog = screen.getByRole("dialog");
+    const yakuhaiTitle = within(dialog).getByText("役牌", { exact: true });
+    expect(yakuhaiTitle.parentElement?.textContent).toContain("inThisHand");
+  });
+
   it("早見表に載らない状況役はタップ対象にしない", () => {
     renderResult();
 
@@ -239,6 +249,23 @@ describe("ResultDisplay の内訳", () => {
       screen.getByRole("button", { name: "6form.options.hanSuffix" }),
     );
     expect(openedModalTitle()).toBe("pageTitle");
+  });
+
+  it("翻数の内訳の役名を押すと役一覧モーダルが開く（役の行が無い設定でも）", () => {
+    // renderWith は requireYaku を渡さないので、表に役のチップは出ない
+    renderWith({ isHanCorrect: false, isFuCorrect: true });
+    fireEvent.click(toggle());
+
+    fireEvent.click(screen.getByRole("button", { name: "混一色" }));
+
+    expect(openedModalTitle()).toBe("title");
+  });
+
+  it("符の内訳の理由は押せない（役一覧に無い）", () => {
+    renderWith({ isHanCorrect: true, isFuCorrect: false });
+    fireEvent.click(toggle());
+
+    expect(screen.queryByRole("button", { name: "副底" })).toBeNull();
   });
 
   it("切り上げがあるときは切り上げ後の符だけを押せる（合計の符は点数表に無い）", () => {

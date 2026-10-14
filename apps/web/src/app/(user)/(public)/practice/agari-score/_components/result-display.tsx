@@ -22,6 +22,8 @@ import {
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
+import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
+import { useYakuCheatsheetState } from "@mahjong-scoring/features/yaku/use-yaku-cheatsheet-state";
 import { ResultBreakdownTable } from "./result-breakdown-table";
 import {
   BreakdownPanel,
@@ -30,6 +32,7 @@ import {
 import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { ScoreTableModal } from "./score-table-modal";
+import { AGARI_SCORE_RESULT_TOUR_ID } from "../_lib/tour-ids";
 import { SCORE_TABLE_LINK_CLASSES } from "../../_lib/score-table-link-classes";
 import { ReferenceLinkButton } from "../../_components/reference-link-button";
 import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
@@ -92,21 +95,10 @@ export function ResultDisplay({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
-  // 役一覧モーダル。役をタップしたときはその役へ着地させる（一覧全体を見たい
-  // ときは undefined のまま開く）。
-  const [yakuListFocus, setYakuListFocus] = useState<string | undefined>(
-    undefined,
-  );
-  const [isYakuListOpen, setIsYakuListOpen] = useState(false);
   // 点数表モーダル。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く）。
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
-
-  const openYakuList = (yakuName?: string) => {
-    setYakuListFocus(yakuName);
-    setIsYakuListOpen(true);
-  };
 
   const openScoreTable = (highlighted: boolean) => {
     setIsScoreTableHighlighted(highlighted);
@@ -129,6 +121,14 @@ export function ResultDisplay({
   const correctYakuNames = correctYakuJudgements.map(
     (judgement) => judgement.name,
   );
+  // 役一覧モーダル。成立役の印は早見表の項目名に解決してから付ける（「役牌 白」は
+  // 「役牌」のカードに印が付く）。役をタップしたときはその役へ着地させ、一覧全体を
+  // 見たいときは役を渡さずに先頭から開く。
+  const yakuList = useYakuCheatsheetState(correctYakuNames);
+  const openYakuList = (yakuName?: string) =>
+    yakuList.openAt(
+      yakuName === undefined ? undefined : resolveYakuCheatsheetName(yakuName),
+    );
 
   // 正解の支払いは共通の整形関数に寄せる（"オール" 等の表記を1箇所で管理）。
   // ロンにはユーザー回答セルと同じ「点」を付ける。
@@ -173,6 +173,7 @@ export function ResultDisplay({
                 total={yakuBreakdown.total}
                 suffix={t("form.options.hanSuffix")}
                 onOpenScoreTable={() => openScoreTable(true)}
+                onOpenYakuList={openYakuList}
               />
             ),
           },
@@ -244,7 +245,10 @@ export function ResultDisplay({
               ) : (
                 <ResultUnansweredCell />
               )}
-              <td className="space-y-1.5 py-2 text-right align-top">
+              <td
+                className="space-y-1.5 py-2 text-right align-top"
+                data-tour-id={AGARI_SCORE_RESULT_TOUR_ID.yaku}
+              >
                 <YakuJudgementChips
                   judgements={correctYakuJudgements}
                   align="end"
@@ -356,7 +360,10 @@ export function ResultDisplay({
             ) : (
               <ResultUnansweredCell />
             )}
-            <td className="space-y-1.5 py-2 text-right align-top">
+            <td
+              className="space-y-1.5 py-2 text-right align-top"
+              data-tour-id={AGARI_SCORE_RESULT_TOUR_ID.score}
+            >
               {/* 押せることが見て分かるよう、常時点線の下線を敷く。
                   点数は翻・符から出る最終的な答えなので、正解の値の中で
                   ここだけ一段大きくする（枠や色は足さない） */}
@@ -387,10 +394,10 @@ export function ResultDisplay({
       />
 
       <YakuCheatsheetModal
-        isOpen={isYakuListOpen}
-        onClose={() => setIsYakuListOpen(false)}
-        markedYakuNames={correctYakuNames}
-        focusedYakuName={yakuListFocus}
+        isOpen={yakuList.isOpen}
+        onClose={yakuList.close}
+        markedYakuNames={yakuList.markedYakuNames}
+        focusedYakuName={yakuList.focusedYakuName}
       />
     </div>
   );

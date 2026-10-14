@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { safeLocalStorage } from "@/lib/safe-storage";
+
 import { HelpIconButton } from "./help-icon-button";
 
 /**
@@ -61,7 +63,21 @@ export function spotlightTourLabels(
 interface SpotlightTourProps {
   readonly steps: readonly SpotlightStep[];
   readonly labels: SpotlightTourLabels;
+  /**
+   * 渡すと、この端末で初めて開いたときに一度だけ自動で始める
+   *
+   * 「?」が最初の画面に入らないページ（開いた直後に盤面へスクロールする
+   * 早見表の連動サンプル）で使う。値は localStorage のキーで、実際に始めた
+   * 時点で印を書き、2 回目からは始めない（見たいときは「?」から開く）。毎回
+   * 始めると、知っている人には閉じる手間が増えるだけになる。始めるのは
+   * {@link AUTO_START_DELAY_MS} 後で、盤面へのスクロール
+   * （`useScrollToElement` の 100ms）が済んでから照らす
+   */
+  readonly autoStartOnceKey?: string;
 }
+
+/** 自動で始めるまでの待ち。盤面へのスクロールの後に照らすため */
+const AUTO_START_DELAY_MS = 300;
 
 /**
  * 実画面の要素を順に照らして説明するヘルプツアーの「?」ボタン
@@ -78,7 +94,11 @@ interface SpotlightTourProps {
  * （practice/_components の `HelpTourModal`）とは役割が違う。
  * こちらは解いている最中に「この操作は何か」を実物の上で答える。
  */
-export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
+export function SpotlightTour({
+  steps,
+  labels,
+  autoStartOnceKey,
+}: SpotlightTourProps) {
   const driverRef = useRef<ReturnType<typeof driver> | undefined>(undefined);
   const pathname = usePathname();
 
@@ -89,7 +109,8 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
     };
   }, [pathname]);
 
-  const startTour = () => {
+  /** ツアーを始める。照らす要素が 1 つも無ければ始めず false を返す */
+  const startTour = (): boolean => {
     driverRef.current?.destroy();
 
     const resolved = steps.flatMap((step) => {
@@ -98,7 +119,23 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
       );
       return element ? [{ step, element }] : [];
     });
-    if (resolved.length === 0) return;
+    if (resolved.length === 0) return false;
+
+    // 照らした要素を押したら、ツアーを閉じてその操作を通す。driver.js は
+    // ツアーの間、照らした要素と吹き出し以外を押せなくし（`.driver-active *`
+    // に pointer-events: none）、暗幕を z-index 10000 で描く。閉じずにおくと、
+    // 押して開いたモーダル（z-50）が暗幕の下に出て、ツアーを終えるまで
+    // 操作できない。捕捉の段階で閉じるので、押した要素の処理より先に外れる
+    const closeOnActiveClick = (event: MouseEvent) => {
+      const active = instance.getActiveElement();
+      if (
+        active !== undefined &&
+        event.target instanceof Node &&
+        active.contains(event.target)
+      ) {
+        instance.destroy();
+      }
+    };
 
     const instance = driver({
       showProgress: resolved.length > 1,
@@ -115,10 +152,33 @@ export function SpotlightTour({ steps, labels }: SpotlightTourProps) {
           align: step.align ?? "start",
         },
       })),
+      onDestroyed: () => {
+        document.removeEventListener("click", closeOnActiveClick, true);
+      },
     });
     driverRef.current = instance;
+    document.addEventListener("click", closeOnActiveClick, true);
     instance.drive();
+    return true;
   };
 
-  return <HelpIconButton onClick={startTour} label={labels.label} />;
+  const startTourOnMount = useEffectEvent(startTour);
+
+  useEffect(() => {
+    if (autoStartOnceKey === undefined) return;
+    if (safeLocalStorage.getItem(autoStartOnceKey) !== null) return;
+    const timer = setTimeout(() => {
+      // 待つ間にモーダルを開いていたら、その上に暗幕を重ねない。印も書かず、
+      // 次に開いたときに改めて始める
+      if (document.querySelector('[role="dialog"]') !== null) return;
+      // 印は実際に始めたときだけ書く。照らす要素が無くて始まらなかったのに
+      // 書くと、一度も見ないまま 2 回目から始まらなくなる
+      if (startTourOnMount()) {
+        safeLocalStorage.setItem(autoStartOnceKey, "1");
+      }
+    }, AUTO_START_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [autoStartOnceKey]);
+
+  return <HelpIconButton onClick={() => startTour()} label={labels.label} />;
 }

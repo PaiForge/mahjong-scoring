@@ -22,6 +22,8 @@ import { DetailTable } from "../../components/detail-table";
  * ままだと問題ごとに同じ役の位置が変わり、制限時間の中で翻数を拾う目が迷う。
  *
  * 折りたたまない（与件が閉じていては解けない）。細い枠と淡い地で区切る。
+ * 役名は結果の翻数の内訳（`YakuBreakdown`）と違って役一覧を開く文字にしない
+ * — 制限時間の中でシートを開かせない。
  */
 export function YakuListDisplay({
   yakuDetails,
