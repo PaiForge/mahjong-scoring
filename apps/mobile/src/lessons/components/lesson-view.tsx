@@ -465,16 +465,6 @@ export function LessonView({
         <SectionTitle>
           {perfect ? t("doneTitle") : t("doneTitleReview")}
         </SectionTitle>
-        {/* 正答数は全問正解でも間違えても同じ場所・同じ書式の 1 行で出し、
-            その下の囲みで「できた」か「見直す」かを示す */}
-        <Text style={styles.score} testID="lesson-score">
-          {perfect
-            ? t("doneScorePerfect")
-            : t("doneScore", {
-                correct: correctCount,
-                total: questions.length,
-              })}
-        </Text>
         {perfect ? (
           // 合格と同じ success の囲み。レッスンの完了は小さな合格
           <View style={styles.achievement} testID="lesson-achievement">
@@ -488,10 +478,16 @@ export function LessonView({
             </View>
           </View>
         ) : (
-          // 間違えた問題があるときは「できるようになった」と言わず、見直しの
-          // 案内を中立の囲みで出す。完了の記録と次の一歩は全問正解と
-          // 同じ（理由は web の `LessonView`）
+          // 間違えた問題があるときは「できるようになった」と言わず、正答数と
+          // 見直しの案内を中立の囲みで出す。全問正解のときは正答数を出さない。
+          // 完了の記録と次の一歩は全問正解と同じ（理由は web の `LessonView`）
           <View style={styles.review} testID="lesson-review">
+            <Text style={styles.score} testID="lesson-score">
+              {t("doneScore", {
+                correct: correctCount,
+                total: questions.length,
+              })}
+            </Text>
             <Text style={styles.reviewAdvice}>{t("doneReviewAdvice")}</Text>
             <Button
               variant="neutral"
@@ -640,9 +636,9 @@ const styles = StyleSheet.create({
     color: verdictTextColors.correct,
   },
   score: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "700",
-    color: colors.surface700,
+    color: colors.surface900,
   },
   review: {
     borderWidth: borderWidth.panel,

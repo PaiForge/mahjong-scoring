@@ -238,9 +238,9 @@ describe("LessonView", () => {
       startQuiz();
       answerAll(["8,000", "12,000", "16,000"]);
 
-      expect(screen.getByTestId("lesson-score").textContent).toBe(
-        "doneScorePerfect",
-      );
+      // 全問正解なら正答数は出さず、できたことだけを出す
+      expect(screen.queryByTestId("lesson-score")).toBeNull();
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
       // 保存中は次へ進めない（押せないボタンで記録中と示す）
       expect(
         (screen.getByTestId("lesson-saving") as HTMLButtonElement).disabled,
