@@ -1,13 +1,11 @@
 import { screen } from "@testing-library/react";
 import { render } from "@/test/intl-render";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { setSearchParams } from "@/test/navigation-mock";
 import { PracticeModeSwitcher } from "./practice-mode-switcher";
-let query = "";
-vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(query),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 beforeEach(() => {
-  query = "";
+  setSearchParams("");
   localStorage.clear();
 });
 afterEach(() => {
@@ -35,14 +33,14 @@ it.each(["rank=kyu-4", "category=han", "mode=basic"])(
   "直接指定を保存済みモードより優先する: %s",
   (value) => {
     localStorage.setItem("practice-mode", "practical");
-    query = value;
+    setSearchParams(value);
     show();
     expect(screen.getByText("基礎一覧")).toBeTruthy();
     expect(localStorage.getItem("practice-mode")).toBe("basic");
   },
 );
 it("実戦への直接リンクで選択を保存する", () => {
-  query = "mode=practical";
+  setSearchParams("mode=practical");
   show();
   expect(
     screen.getByRole("link", { name: "実戦練習" }).getAttribute("aria-current"),
@@ -60,7 +58,7 @@ it("localStorage が使えないときは初回と同じ基礎練習を表示し
   expect(screen.getByText("基礎一覧")).toBeTruthy();
   unmount();
 
-  query = "mode=practical";
+  setSearchParams("mode=practical");
   show();
   expect(screen.getByText("実戦一覧")).toBeTruthy();
 });

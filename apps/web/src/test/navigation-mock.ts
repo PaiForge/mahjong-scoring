@@ -12,13 +12,15 @@
  * ```
  *
  * 遷移先を確かめたいテストは {@link routerPush} を、パスで表示が変わる
- * コンポーネントは {@link setPathname} を使う。一部だけ差し替えたい
+ * コンポーネントは {@link setPathname} を、URL クエリで表示が変わる
+ * コンポーネントは {@link setSearchParams} を使う。クエリはファイル内で
+ * 持ち越すので、変えるテストは `beforeEach` で戻すこと。一部だけ差し替えたい
  * テストは名前空間を展開して上書きする:
  *
  * ```ts
  * vi.mock("next/navigation", async () => ({
  *   ...(await import("@/test/navigation-mock")),
- *   useSearchParams: () => new URLSearchParams(currentQuery),
+ *   useParams: () => ({ slug: "jantou-fu" }),
  * }));
  * ```
  *
@@ -26,11 +28,25 @@
  */
 import { vi } from "vitest";
 
-const EMPTY_SEARCH_PARAMS = new URLSearchParams();
+let currentSearchParams = new URLSearchParams();
 
-/** 常に空のクエリを返す */
+/**
+ * `useSearchParams()` が返すクエリを差し替える（その URL を開いたことにする）
+ *
+ * @param query `?` を除いたクエリ文字列（`"variant=all"` 等。空文字で空のクエリ）
+ */
+export function setSearchParams(query: string): void {
+  currentSearchParams = new URLSearchParams(query);
+}
+
+/**
+ * {@link setSearchParams} で最後に設定したクエリを返す（既定は空）
+ *
+ * 次に差し替えるまで同じオブジェクトを返す（本物と同じく、URL が変わらない
+ * 間は参照が変わらない）。
+ */
 export function useSearchParams(): URLSearchParams {
-  return EMPTY_SEARCH_PARAMS;
+  return currentSearchParams;
 }
 
 /**

@@ -2,8 +2,7 @@ import { cleanup, act, fireEvent, screen } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-let currentQuery = "";
+import { setSearchParams } from "@/test/navigation-mock";
 
 // driver.js は実際には起動せず、「?」から渡った手順と drive() の呼び出しだけを見る
 const { driverMock, driveMock } = vi.hoisted(() => {
@@ -19,10 +18,7 @@ const { driverMock, driveMock } = vi.hoisted(() => {
 });
 vi.mock("driver.js", () => ({ driver: driverMock }));
 
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  useSearchParams: () => new URLSearchParams(currentQuery),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 役の欄（YakuSelect）は features の共有フックが use-intl から辞書を読む
 vi.mock("use-intl", async () => await import("@/test/intl-mock"));
@@ -50,7 +46,7 @@ const LAST_FREE = {
 
 /** クエリを与えて盤面をマウントする（問題生成は effect 内なので act で包む） */
 async function visit(query: string) {
-  currentQuery = query;
+  setSearchParams(query);
   await act(async () => {
     render(<AgariScoreBoard />);
   });
@@ -155,7 +151,7 @@ describe("AgariScoreBoard", () => {
   it("マウントしたままクエリが変わっても条件を入れ替える", async () => {
     const { rerender } = render(<AgariScoreBoard />);
     await act(async () => {
-      currentQuery = "yaku=pinfu";
+      setSearchParams("yaku=pinfu");
       rerender(<AgariScoreBoard />);
     });
     expect(useAgariScoreStore.getState().options.requiredYaku).toEqual([
@@ -163,7 +159,7 @@ describe("AgariScoreBoard", () => {
     ]);
 
     await act(async () => {
-      currentQuery = "yaku=chiitoitsu";
+      setSearchParams("yaku=chiitoitsu");
       rerender(<AgariScoreBoard />);
     });
     expect(useAgariScoreStore.getState().options.requiredYaku).toEqual([

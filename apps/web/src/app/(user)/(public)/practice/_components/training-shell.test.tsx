@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { setSearchParams } from "@/test/navigation-mock";
 import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 import { render, screen, fireEvent } from "@testing-library/react";
 
@@ -6,11 +7,7 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 // 「終了」とチャレンジ導線が出題設定（バリアント）を引き継ぐため、シェルは
 // 検索パラメータを読む
-let currentQuery = "";
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  useSearchParams: () => new URLSearchParams(currentQuery),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 // 模試の末尾は本番の受験ゲート（認証と段級位を読む）になる
 const { mockFetchViewerRankSlugs } = vi.hoisted(() => ({
@@ -122,7 +119,7 @@ describe("TrainingShell 回答後の停止", () => {
 
 describe("TrainingShell 終了", () => {
   it("終了リンクを押すとチャレンジと同じく終了トーストを預ける", () => {
-    currentQuery = "";
+    setSearchParams("");
     renderShell();
 
     fireEvent.click(screen.getByRole("link", { name: "exitButton" }));
@@ -135,7 +132,7 @@ describe("TrainingShell 終了", () => {
   it("今の出題設定を持って説明ページへ戻る", () => {
     // 説明ページの選択パネルは URL のバリアントを初期選択にする。
     // 落とすと、終了した瞬間に選んでいた設定が既定に戻る
-    currentQuery = "variant=oya_mangan_plus";
+    setSearchParams("variant=oya_mangan_plus");
     renderShell();
 
     const exit = screen.getByRole("link", { name: "exitButton" });
@@ -146,7 +143,7 @@ describe("TrainingShell 終了", () => {
 
   it("設定が未指定なら既定の設定を明示して説明ページへ戻る", () => {
     // 盤面は既定で出題していたので、戻った先の初期選択もそれに揃える
-    currentQuery = "";
+    setSearchParams("");
     renderShell();
 
     const exit = screen.getByRole("link", { name: "exitButton" });
@@ -158,7 +155,7 @@ describe("TrainingShell 終了", () => {
 
 describe("TrainingShell チャレンジ導線", () => {
   it("末尾にチャレンジへのボタンを出す（設定が未指定なら既定の設定）", () => {
-    currentQuery = "";
+    setSearchParams("");
     renderShell();
 
     const cta = screen.getByRole("link", { name: /challengeButton/ });
@@ -171,7 +168,7 @@ describe("TrainingShell チャレンジ導線", () => {
     // 絞った設定で練習していた人が、既定の設定のチャレンジに着地しないこと。
     // クエリを継ぎ足すのではなくパスを組み直す（既定が付いたパスに二重に
     // 付くと `?variant=a?variant=b` の不正値になり、既定に落ちていた）
-    currentQuery = "variant=oya_mangan_plus";
+    setSearchParams("variant=oya_mangan_plus");
     renderShell();
 
     const cta = screen.getByRole("link", { name: /challengeButton/ });
@@ -181,7 +178,7 @@ describe("TrainingShell チャレンジ導線", () => {
   });
 
   it("不正な設定は既定に正規化して渡す", () => {
-    currentQuery = "variant=bogus";
+    setSearchParams("variant=bogus");
     renderShell();
 
     const cta = screen.getByRole("link", { name: /challengeButton/ });
