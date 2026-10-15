@@ -1,4 +1,5 @@
 import { HaiKind } from "@mahjong-scoring/core";
+import { MENTSU_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import {
   exampleAnkan,
   exampleAnkou,
@@ -118,14 +119,10 @@ export async function MentsuFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={tableColumns.formatFu}
-        rows={[
-          { label: t("rowShuntsu"), fu: 0 },
-          { label: t("rowOpenSimpleKoutsu"), fu: 2 },
-          { label: t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu"), fu: 4 },
-          { label: t("rowClosedYaochuKoutsuOrOpenSimpleKantsu"), fu: 8 },
-          { label: t("rowClosedSimpleKantsuOrOpenYaochuKantsu"), fu: 16 },
-          { label: t("rowClosedYaochuKantsu"), fu: 32 },
-        ]}
+        rows={MENTSU_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </div>
   );

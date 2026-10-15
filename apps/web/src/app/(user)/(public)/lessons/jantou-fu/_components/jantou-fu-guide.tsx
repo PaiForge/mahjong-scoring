@@ -1,4 +1,5 @@
 import { HaiKind } from "@mahjong-scoring/core";
+import { JANTOU_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
@@ -101,12 +102,10 @@ export async function JantouFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={tableColumns.formatFu}
-        rows={[
-          { label: t("rowSangen"), fu: 2 },
-          { label: t("rowBakaze"), fu: 2 },
-          { label: t("rowJikaze"), fu: 2 },
-          { label: t("rowOther"), fu: 0 },
-        ]}
+        rows={JANTOU_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </div>
   );

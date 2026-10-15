@@ -1,4 +1,9 @@
 import { useTranslations } from "use-intl";
+import {
+  JANTOU_FU_SUMMARY_ROWS,
+  MACHI_FU_SUMMARY_ROWS,
+  MENTSU_FU_SUMMARY_ROWS,
+} from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import { HaiKind, type HaiKindId } from "@mahjong-scoring/core";
 import {
   exampleAnkan,
@@ -93,12 +98,10 @@ export function JantouFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={columns.formatFu}
-        rows={[
-          { label: t("rowSangen"), fu: 2 },
-          { label: t("rowBakaze"), fu: 2 },
-          { label: t("rowJikaze"), fu: 2 },
-          { label: t("rowOther"), fu: 0 },
-        ]}
+        rows={JANTOU_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </GuideBody>
   );
@@ -245,14 +248,10 @@ export function MentsuFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={columns.formatFu}
-        rows={[
-          { label: t("rowShuntsu"), fu: 0 },
-          { label: t("rowOpenSimpleKoutsu"), fu: 2 },
-          { label: t("rowClosedSimpleKoutsuOrOpenYaochuKoutsu"), fu: 4 },
-          { label: t("rowClosedYaochuKoutsuOrOpenSimpleKantsu"), fu: 8 },
-          { label: t("rowClosedSimpleKantsuOrOpenYaochuKantsu"), fu: 16 },
-          { label: t("rowClosedYaochuKantsu"), fu: 32 },
-        ]}
+        rows={MENTSU_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </GuideBody>
   );
@@ -352,13 +351,10 @@ export function MachiFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={columns.formatFu}
-        rows={[
-          { label: t("rowKanchan"), fu: 2 },
-          { label: t("rowPenchan"), fu: 2 },
-          { label: t("rowTanki"), fu: 2 },
-          { label: t("rowRyanmen"), fu: 0 },
-          { label: t("rowShanpon"), fu: 0 },
-        ]}
+        rows={MACHI_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </GuideBody>
   );
