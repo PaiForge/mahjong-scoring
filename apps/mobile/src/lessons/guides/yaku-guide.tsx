@@ -29,6 +29,7 @@ export function YakuGuide() {
         <GuideParagraph>{t("menzenNakiBody1")}</GuideParagraph>
         <GuideParagraph>{t("menzenNakiBody2")}</GuideParagraph>
         <GuideParagraph>{t("menzenNakiBody3")}</GuideParagraph>
+        <GuideParagraph>{t("menzenNakiBody4")}</GuideParagraph>
       </GuideSection>
 
       <GuideSection title={t("summaryTitle")}>

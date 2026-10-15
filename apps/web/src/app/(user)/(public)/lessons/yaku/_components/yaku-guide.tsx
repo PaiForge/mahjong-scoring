@@ -21,7 +21,8 @@ export async function YakuGuide() {
       <GuideSection title={t("menzenNakiTitle")}>
         <GuideParagraph preLine>{t("menzenNakiBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("menzenNakiBody2")}</GuideParagraph>
-        <GuideParagraph>{t("menzenNakiBody3")}</GuideParagraph>
+        <GuideParagraph preLine>{t("menzenNakiBody3")}</GuideParagraph>
+        <GuideParagraph>{t("menzenNakiBody4")}</GuideParagraph>
       </GuideSection>
 
       {/* 本文で挙げた役の門前と鳴きの翻数（各役名が早見表の該当カードへのリンク）＋ 残りの役は早見表へ */}
