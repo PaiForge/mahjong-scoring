@@ -396,36 +396,68 @@ export function LessonView({
     );
   }
 
+  const perfect = correctCount === questions.length;
+
   return (
     <LessonFollowUpProvider value={followUp}>
       <div className="space-y-8">
         <section className="space-y-4">
-          <SectionTitle>{t("doneTitle")}</SectionTitle>
-          {/* 合格（昇級試験の結果）と同じ success の囲み。レッスンの完了は
-            小さな合格で、確認問題の正解の ✓ と同じ記号・同じ色で「できた」を
-            示す。琥珀色（HighlightPanel）は教本のコラム・注意書きの記号なので
-            使わない — 補足に見える */}
-          <div
-            className="rounded-panel border border-success bg-success-subtle p-5 text-success-strong"
-            data-testid="lesson-achievement"
-          >
-            <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
-              <JudgementMark verdict="correct" tone="inherit" />
-              <span>{tLesson("achievement")}</span>
-            </p>
-            {/* 字下げは ✓（text-base の 1em = 16px）と gap-2（8px）の分。
-              達成の文の頭に揃える */}
-            <p className="mt-2 pl-6 text-sm" data-testid="lesson-score">
-              {correctCount === questions.length
-                ? t("doneScorePerfect", { total: questions.length })
-                : t("doneScore", {
-                    correct: correctCount,
-                    total: questions.length,
-                  })}
-            </p>
-          </div>
-          {/* 次の一歩は「できるようになったこと」の続きとして同じ節に置く。
-            節を分けると完了と次の一歩の間に見出しの区切りが入る */}
+          <SectionTitle>
+            {perfect ? t("doneTitle") : t("doneTitleReview")}
+          </SectionTitle>
+          {perfect ? (
+            // 合格（昇級試験の結果）と同じ success の囲み。レッスンの完了は
+            // 小さな合格で、確認問題の正解の ✓ と同じ記号・同じ色で「できた」を
+            // 示す。琥珀色（HighlightPanel）は教本のコラム・注意書きの記号なので
+            // 使わない — 補足に見える
+            <div
+              className="rounded-panel border border-success bg-success-subtle p-5 text-success-strong"
+              data-testid="lesson-achievement"
+            >
+              <p className="flex items-start gap-2 text-base font-bold leading-relaxed">
+                <JudgementMark verdict="correct" tone="inherit" />
+                <span>{tLesson("achievement")}</span>
+              </p>
+              {/* 字下げは ✓（text-base の 1em = 16px）と gap-2（8px）の分。
+                達成の文の頭に揃える */}
+              <p className="mt-2 pl-6 text-sm" data-testid="lesson-score">
+                {t("doneScorePerfect", { total: questions.length })}
+              </p>
+            </div>
+          ) : (
+            // 間違えた問題があるときは「できるようになった」と言わない。正答数と
+            // 見直しの案内を中立の囲みで出し、本文へ戻る導線をここに置く。
+            // 完了の記録と次の一歩は全問正解と同じ — 完了は「取り組んだ」印で、
+            // 習得の判定は昇級試験が持つ。同じ 3 問を解き直させても答えを
+            // 覚えるだけなので、全問正解を完了の条件にはしない
+            <div
+              className="space-y-3 rounded-panel border border-panel bg-surface-50 p-5"
+              data-testid="lesson-review"
+            >
+              <p
+                className="text-base font-bold text-surface-900"
+                data-testid="lesson-score"
+              >
+                {t("doneScore", {
+                  correct: correctCount,
+                  total: questions.length,
+                })}
+              </p>
+              <p className="text-sm leading-relaxed text-surface-700">
+                {t("doneReviewAdvice")}
+              </p>
+              <Button
+                variant="neutral"
+                fullWidth
+                onClick={handleReviewBody}
+                data-testid="lesson-done-review-body"
+              >
+                {t("reviewBody")}
+              </Button>
+            </div>
+          )}
+          {/* 次の一歩は結果の続きとして同じ節に置く。節を分けると結果と
+            次の一歩の間に見出しの区切りが入る */}
           <div className={`flex flex-col ${SUB_LINK_GAP}`}>
             <CompletionActions
               saveState={saveState}
@@ -434,19 +466,22 @@ export function LessonView({
               signInHref={buildSignInHref(chapterHref(slug))}
               onRetrySave={handleRetrySave}
             />
-            {/* 解き終えてから表を見返したい人へ。次の一歩の下に移動だけの
+            {/* 全問正解でも表を見返したい人へ。次の一歩の下に移動だけの
                 リンクで置き、主導線（次の一歩）とは押し間違えない間隔を取る。
-                戻った本文は完了済みの形（解き直しのリンクと練習・試験）になる */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleReviewBody}
-                className={`text-sm ${TEXT_LINK_CLASSES}`}
-                data-testid="lesson-done-review-body"
-              >
-                {t("reviewBody")}
-              </button>
-            </div>
+                戻った本文は完了済みの形（解き直しのリンクと練習・試験）になる。
+                間違えたときは結果の囲みの中に置くので出さない */}
+            {perfect && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleReviewBody}
+                  className={`text-sm ${TEXT_LINK_CLASSES}`}
+                  data-testid="lesson-done-review-body"
+                >
+                  {t("reviewBody")}
+                </button>
+              </div>
+            )}
           </div>
         </section>
 
