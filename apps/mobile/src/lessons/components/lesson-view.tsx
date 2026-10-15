@@ -502,6 +502,14 @@ export function LessonView({
           </Button>
         )}
         {goal}
+        {/* 解き終えてから表を見返したい人へ。次の一歩の下に移動だけのリンクで置く。
+            戻った本文は完了済みの形（解き直しのリンクと次のレッスン・練習）になる */}
+        <TextLink
+          onPress={() => goTo("learn")}
+          testID="lesson-done-review-body"
+        >
+          {t("reviewBody")}
+        </TextLink>
       </View>
 
       <ChapterRelatedLinks slug={slug} exclude={nextPractice} />
