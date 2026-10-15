@@ -28,11 +28,19 @@
     "menzenNakiBody1": "役には、鳴く（[[pon|ポン]]・[[chii|チー]]・[[minkan|明槓]]）と成立しなくなるものがあります。例えば、リーチ・[[pinfu|平和]]・一盃口・[[chiitoitsu|七対子]]などは、[[menzen|門前]]でのみ成立する役です。",
     "menzenNakiBody2": "また、鳴いても成立はするものの翻数が下がる役があります。この現象は一般的に「[[kuisagari|食い下がり]]」と呼ばれています。例えば、三色同順・一気通貫・混一色・清一色などは食い下がりの性質を持ちます。食い下がりの役は、鳴くと門前のときより1翻下がります。",
     "menzenNakiBody3": "一方で、断么九や対々和のように、鳴いても翻数が変わらない役もあります。",
-    "referenceLink": "役一覧（早見表）を見る",
-    "summaryTitle": "翻数別の役まとめ",
-    "summaryBody": "表の翻数は門前のときのものです。鳴いたときは、食い下がりの役だけ1翻引いて読みます。",
-    "colHan": "翻数",
-    "colYakuList": "役",
+    "referenceLink": "ほかの役の翻数は役一覧で見る",
+    "summaryTitle": "門前と鳴きの翻数の比較",
+    "summaryBody": "前の節で例に挙げた役を、門前のときと鳴いたときの翻数で並べます。鳴きの列の「✕」は、鳴くと成立しないことを表します。",
+    "colYaku": "役",
+    "colMenzen": "門前",
+    "colNaki": "鳴き",
+    "notEstablished": "✕",
+    "notEstablishedLabel": "成立しない",
+    "nakiKinds": {
+      "menzenOnly": "門前限定",
+      "kuisagari": "食い下がり",
+      "unchanged": "鳴いても同じ"
+    },
     "hanUnit": "{count}翻",
     "yakuman": "役満"
   }

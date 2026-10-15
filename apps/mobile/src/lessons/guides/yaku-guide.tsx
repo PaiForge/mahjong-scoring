@@ -6,13 +6,13 @@ import { TextLink } from "../../components/text-link";
 
 import { GuideBody, GuideSection } from "../components/guide-section";
 import { GuideParagraph } from "../components/guide-text";
-import { YakuHanTable } from "../components/score-tables";
+import { YakuNakiComparisonTable } from "../components/score-tables";
 
 /**
  * 役と翻数 — 役セクション（web の `YakuGuide`）
  *
- * 翻数別の役まとめ（各役名が役一覧のその役へのリンク）の下に、役一覧全体への
- * リンクを置く（web と同じ）。
+ * 本文で挙げた役の門前と鳴きの翻数の比較表（各役名が役一覧のその役への
+ * リンク）の下に、残りの役を見る役一覧全体へのリンクを置く（web と同じ）。
  */
 export function YakuGuide() {
   const t = useTranslations("yaku.learn");
@@ -33,7 +33,7 @@ export function YakuGuide() {
 
       <GuideSection title={t("summaryTitle")}>
         <GuideParagraph>{t("summaryBody")}</GuideParagraph>
-        <YakuHanTable />
+        <YakuNakiComparisonTable />
         <TextLink onPress={() => router.push(REFERENCE_YAKU_PATH)}>
           {t("referenceLink")}
         </TextLink>

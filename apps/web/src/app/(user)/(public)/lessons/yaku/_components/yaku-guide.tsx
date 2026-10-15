@@ -3,14 +3,14 @@ import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
-import { YakuHanTable } from "../../_components/yaku-han-table";
+import { YakuNakiComparisonTable } from "../../_components/yaku-naki-comparison-table";
 
 export async function YakuGuide() {
   const t = await getTranslations("yaku.learn");
 
   return (
     <div className="space-y-10">
-      {/* 役と翻数（前章までの流れと接続） */}
+      {/* 役と翻数 */}
       <GuideSection title={t("whatIsYakuTitle")}>
         <GuideParagraph>{t("whatIsYakuBody1")}</GuideParagraph>
         <GuideParagraph>{t("whatIsYakuBody2")}</GuideParagraph>
@@ -24,10 +24,10 @@ export async function YakuGuide() {
         <GuideParagraph>{t("menzenNakiBody3")}</GuideParagraph>
       </GuideSection>
 
-      {/* 翻数別の役まとめ（各役名が早見表の該当カードへのリンク）＋ 早見表全体へのリンク */}
+      {/* 本文で挙げた役の門前と鳴きの翻数（各役名が早見表の該当カードへのリンク）＋ 残りの役は早見表へ */}
       <GuideSection title={t("summaryTitle")}>
         <GuideParagraph>{t("summaryBody")}</GuideParagraph>
-        <YakuHanTable />
+        <YakuNakiComparisonTable />
 
         <Link
           href="/reference/yaku"
