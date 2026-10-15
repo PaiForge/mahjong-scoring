@@ -1,6 +1,7 @@
 "use server";
 
-import { logCurrentUserEvent } from "@/lib/activity-log";
+import { logActivityEvent } from "@/lib/activity-log";
+import { getOptionalVerifiedUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -13,9 +14,12 @@ import { createClient } from "@/lib/supabase/server";
  * サインアウトアクション
  */
 export async function signOutAction(): Promise<void> {
-  const supabase = await createClient();
+  const user = await getOptionalVerifiedUser();
+  if (user) {
+    logActivityEvent({ userId: user.id, action: "logout" });
+  }
 
-  await logCurrentUserEvent(supabase, "logout");
+  const supabase = await createClient();
 
   await supabase.auth.signOut();
 }
