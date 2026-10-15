@@ -19,43 +19,43 @@
     },
     "whyScoringIsComplex": {
       "title": "点数計算が複雑な理由",
-      "description": "なぜ点数計算が難しく感じるかを、公式から解説"
+      "description": "計算は公式どおりで単純。難しいのは場合分けの多さ"
     },
     "manganKoRon": {
       "title": "子のロン",
-      "description": "子が満貫以上をロンしたときの点数"
+      "description": "満貫8000点を基準に1.5・2・3・4倍"
     },
     "manganOyaRon": {
       "title": "親のロン",
-      "description": "親が満貫以上をロンしたときの点数"
+      "description": "満貫以上は子のロンの1.5倍"
     },
     "manganKoTsumo": {
       "title": "子のツモ",
-      "description": "子が満貫以上をツモしたときの点数"
+      "description": "満貫以上は子のロンの半分を親が、さらに半分を子が払う"
     },
     "manganOyaTsumo": {
       "title": "親のツモ",
-      "description": "親が満貫以上をツモしたときの点数"
+      "description": "満貫以上は親のロンを3で割り、子3人が同額を払う"
     },
     "jantouFu": {
       "title": "雀頭の符",
-      "description": "雀頭にかかる符を学ぶ"
+      "description": "符が付くのは三元牌と場風・自風だけ"
     },
     "mentsuFu": {
       "title": "面子の符",
-      "description": "各面子にかかる符を学ぶ"
+      "description": "符が付くのは刻子・槓子。明暗と么九牌かで決まる"
     },
     "machiFu": {
       "title": "待ちの符",
-      "description": "待ちの種類ごとの符を学ぶ"
+      "description": "嵌張・辺張・単騎だけが2符"
     },
     "tehaiFu": {
       "title": "手牌全体の符",
-      "description": "符計算の総まとめ"
+      "description": "符が付く6か所を足して10符単位に切り上げ"
     },
     "yaku": {
       "title": "役と翻数の数え方",
-      "description": "翻数を数えるための役の基本"
+      "description": "翻数は役とドラの合計。鳴くと消える役・下がる役がある"
     },
     "chiitoitsuScore": {
       "title": "七対子での点数計算",

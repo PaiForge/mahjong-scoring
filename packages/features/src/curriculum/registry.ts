@@ -12,7 +12,15 @@ import type {
  * 必要としない（`learn_chapter_reads` は `chapter_slug` を文字列として保持）。
  *
  * @design i18nKey — 章タイトル等の翻訳キーの名前空間
- * 実際の文言は `ja.json` の `learnCurriculum.chapters.*` に置く。
+ * 実際の文言は `packages/messages/src/ja/learn-curriculum.json` の
+ * `chapters.*` に置く。
+ *
+ * @design 章の説明文（`chapters.*.description`）は単独で読める要点にする
+ * 説明文は目次のほか、道場の行程・用語集の関連レッスン・アプリで、
+ * タイトルとだけ並べて使い回す。セクション名が上に無い場所もあるため、
+ * セクションに頼る前提（「満貫以上の」等）は文の中に書く（「満貫以上は
+ * 子のロンの1.5倍」）。タイトルの言い換え（「雀頭にかかる符を学ぶ」）は
+ * 書かず、そのレッスンで身につく要点を書く。
  */
 
 /** カリキュラムのセクション — 章をまとめる論理グループ */
