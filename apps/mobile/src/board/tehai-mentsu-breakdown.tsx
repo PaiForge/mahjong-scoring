@@ -17,7 +17,6 @@ import { colors } from "../lib/theme";
 import { FuroTiles } from "./furo-tiles";
 import { TehaiHand } from "./tehai-hand";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
-import { hasRonMinkou } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 
 function ClosedTiles({
@@ -94,7 +93,6 @@ export function TehaiMentsuBreakdown({
 
   const { breakdown } = selected;
   const showsCandidateTabs = candidates.length > 1;
-  const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
     <View style={styles.trigger}>
@@ -166,9 +164,6 @@ export function TehaiMentsuBreakdown({
               ];
             })}
           />
-          {showsRonMinkouNote && (
-            <Text style={styles.note}>{t("mentsuBreakdownMinkouNote")}</Text>
-          )}
         </View>
       </InfoModal>
     </View>
@@ -186,11 +181,6 @@ const styles = StyleSheet.create({
   tiles: {
     flexDirection: "row",
     alignItems: "flex-end",
-  },
-  note: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: colors.surface700,
   },
   segmentLabel: {
     flexDirection: "row",
