@@ -5,27 +5,14 @@ import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
+import {
+  HAI_SM_HEIGHT,
+  REFERENCE_HAND_WIDTH,
+} from "@mahjong-scoring/features/board/hand-layout";
 
-/** size="sm" の牌の高さ（px）。globals.css の .h-hai-sm と合わせる */
-export const HAI_SM_HEIGHT = 45;
-/** size="sm" の牌の幅（px）。globals.css の .w-hai-sm と合わせる */
-const HAI_SM_WIDTH = 32;
 /** 和了牌ラベルが牌の上に足す高さ（px）。text-[10px] leading-none + mb-0.5 */
 const AGARI_LABEL_HEIGHT = 12;
-/** 和了牌を純手牌から離す間隔（px）。`ml-4` */
-const AGARI_GAP = 16;
-
-/**
- * 行の高さの基準にする手の自然幅（px）
- * 基準手牌幅
- *
- * 門前の 13 枚に間隔を空けて和了牌を置いた、最も普通の並び。行の高さは
- * この幅が収まる倍率で決め、鳴きが多くてこれより広い手はその高さの中で
- * さらに縮める（{@link TehaiHand} 参照）。状況行（{@link import("../practice/_components/tehai-display").TehaiDisplay}）も
- * 同じ基準で高さを決め、手牌と行の高さの関係を一定に保つ。
- */
-export const REFERENCE_HAND_WIDTH =
-  13 * HAI_SM_WIDTH + AGARI_GAP + HAI_SM_WIDTH;
+// 和了牌の `ml-4` は AGARI_HAI_GAP（features/board/hand-layout）と同じ間隔
 
 interface TehaiHandProps {
   /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */

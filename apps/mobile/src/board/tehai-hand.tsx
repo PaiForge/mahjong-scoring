@@ -3,28 +3,18 @@ import { StyleSheet, Text, View } from "react-native";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
+import {
+  AGARI_HAI_GAP,
+  HAI_SM_HEIGHT,
+  REFERENCE_HAND_WIDTH,
+} from "@mahjong-scoring/features/board/hand-layout";
 
 import { AutoScale } from "../components/auto-scale";
 import { FuroTiles } from "./furo-tiles";
 import { colors } from "../lib/theme";
 
-/** size="sm" の牌の高さ（px）。ライブラリの `sm` の寸法 */
-export const HAI_SM_HEIGHT = 45;
-/** size="sm" の牌の幅（px） */
-const HAI_SM_WIDTH = 32;
 /** 和了牌ラベルが牌の上に足す高さ（px） */
 const AGARI_LABEL_HEIGHT = 12;
-/** 和了牌を純手牌から離す間隔（px） */
-const AGARI_GAP = 16;
-
-/**
- * 行の高さの基準にする手の自然幅（px）
- * 基準手牌幅
- *
- * 門前の 13 枚に間隔を空けて和了牌を置いた並び（web の `REFERENCE_HAND_WIDTH`）。
- */
-export const REFERENCE_HAND_WIDTH =
-  13 * HAI_SM_WIDTH + AGARI_GAP + HAI_SM_WIDTH;
 
 interface TehaiHandProps {
   /** 表示する手牌（純手牌 + 副露） */
@@ -107,7 +97,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   agari: {
-    marginLeft: AGARI_GAP,
+    marginLeft: AGARI_HAI_GAP,
     alignItems: "center",
   },
   agariLabel: {
