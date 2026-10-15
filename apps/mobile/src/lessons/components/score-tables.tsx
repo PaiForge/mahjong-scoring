@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import type { Role, YakuHanEntry } from "@mahjong-scoring/core";
+import type { Role, WinType, YakuHanEntry } from "@mahjong-scoring/core";
 import { buildExtraFuRows } from "@mahjong-scoring/features/curriculum/extra-fu-rows";
 import {
   buildFixedFuRows,
@@ -11,6 +11,7 @@ import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/ha
 import { hasYakuCheatsheetEntry } from "@mahjong-scoring/features/yaku/examples";
 import { buildNakiComparisonGroups } from "@mahjong-scoring/features/yaku/naki-comparison";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
+import { buildTenpaneRows } from "@mahjong-scoring/features/curriculum/tenpane-rows";
 
 import { DataTable } from "../../components/data-table";
 import { linkStyles } from "../../lib/link-styles";
@@ -118,6 +119,43 @@ export function ExtraFuTable({
           {t("fuUnit", { value: row.tsumoFu })}
         </StrongCell>,
         <StrongCell key="ron">{t("fuUnit", { value: row.ronFu })}</StrongCell>,
+      ])}
+    />
+  );
+}
+
+/**
+ * 符がテンパネする典型例の表（web の `TenpaneTable`）
+ * テンパネ典型例表
+ *
+ * 行は features の `buildTenpaneRows`（core の `mentsuTehaiFu` 由来）が組み立てる。
+ *
+ * @param winType ツモ / ロンのどちらの表か
+ */
+export function TenpaneTable({ winType }: { readonly winType: WinType }) {
+  const t = useTranslations("menzenMentsuScore.learn");
+  const rows = buildTenpaneRows(winType);
+  return (
+    <DataTable
+      columns={[
+        { label: t("tenpaneTable.colExample"), flex: 2 },
+        { label: t("tenpaneTable.colSum"), flex: 1.2, align: "center" },
+        { label: t("tenpaneTable.colFu"), flex: 1.2, align: "center" },
+      ]}
+      rows={rows.map((row) => [
+        <PlainCell key="example">{t(`tenpaneExamples.${row.key}`)}</PlainCell>,
+        <MutedCell key="sum" tone={500}>
+          {t("tenpaneTable.sum", {
+            start: row.startFu,
+            extra: row.extraFu,
+            total: row.totalFu,
+          })}
+        </MutedCell>,
+        <StrongCell key="fu">
+          {row.totalFu === row.fu
+            ? t("tenpaneTable.fuExact", { value: row.fu })
+            : t("tenpaneTable.fu", { value: row.fu })}
+        </StrongCell>,
       ])}
     />
   );

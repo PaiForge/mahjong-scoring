@@ -13,9 +13,17 @@ import { TehaiHand } from "../../board/tehai-hand";
 import { ChapterLink, richLineBreak } from "../components/chapter-link";
 import { ExampleCard } from "../components/example-card";
 import { GuideBody, GuideSection } from "../components/guide-section";
-import { GuideNote, GuideParagraph } from "../components/guide-text";
+import {
+  GuideNote,
+  GuideParagraph,
+  GuideSubsectionTitle,
+} from "../components/guide-text";
 import { GuideColumn } from "../components/highlight-panel";
-import { ExtraFuTable, FixedFuScoreTable } from "../components/score-tables";
+import {
+  ExtraFuTable,
+  FixedFuScoreTable,
+  TenpaneTable,
+} from "../components/score-tables";
 
 /** 七対子での点数計算 — 点数の計算セクション第 1 章（web の `ChiitoitsuScoreGuide`） */
 export function ChiitoitsuScoreGuide() {
@@ -99,20 +107,17 @@ export function MenzenMentsuScoreGuide() {
           })}
         </GuideParagraph>
         <GuideParagraph>{t("roundBody2")}</GuideParagraph>
-        <ExtraFuTable handShape="menzen" />
-        <GuideParagraph>{t("roundBody3")}</GuideParagraph>
-        <GuideParagraph>{t("roundBody4")}</GuideParagraph>
-      </GuideSection>
 
-      {/* コラム: 40符へ上がる境目 */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody1", { br: richLineBreak })}
-        </GuideParagraph>
-        <GuideParagraph>
-          {t.rich("columnBody2", { br: richLineBreak })}
-        </GuideParagraph>
-      </GuideColumn>
+        <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
+        <TenpaneTable winType="ron" />
+        <GuideParagraph>{t("ronNote")}</GuideParagraph>
+
+        <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
+        <TenpaneTable winType="tsumo" />
+        <GuideParagraph>{t("tsumoNote")}</GuideParagraph>
+
+        <GuideParagraph>{t("roundBody3")}</GuideParagraph>
+      </GuideSection>
     </GuideBody>
   );
 }
