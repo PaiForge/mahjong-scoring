@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 
+import { LightbulbIcon } from "@/app/(user)/_components/icons/lightbulb-icon";
 import { MentsuSet } from "@/app/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/(user)/_components/tile-set";
 import { TehaiDisplay } from "@/app/(user)/(public)/practice/_components/tehai-display";
@@ -164,9 +165,18 @@ export function LessonQuestionCard({
         {/* ヒントは選択肢に手を付ける前に見られる。答えそのものではなく
             倍率の言い方で、表を思い出す手がかりにする */}
         {showHint && !isAnswered && (
-          <p className="text-sm text-amber-900" data-testid="lesson-hint">
-            <span className="font-bold">{t("hintLabel")}: </span>
-            {tLesson(`questions.${question.key}.hint`)}
+          <p
+            className="flex items-start justify-center gap-1.5 text-sm text-amber-900"
+            data-testid="lesson-hint"
+          >
+            {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す */}
+            <span aria-hidden="true" className="mt-0.5 shrink-0">
+              <LightbulbIcon />
+            </span>
+            <span>
+              <span className="sr-only">{t("hintLabel")}: </span>
+              {tLesson(`questions.${question.key}.hint`)}
+            </span>
           </p>
         )}
         {isAnswered && (

@@ -32,6 +32,7 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
 import { Grid } from "../../components/grid";
+import { LightbulbIcon } from "../../components/icons/icons";
 import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
@@ -312,10 +313,20 @@ export function LessonView({
           <PromptTiles prompt={question.prompt} />
           {/* ヒントは答えそのものではなく、表を思い出す手がかり */}
           {showHint && !isAnswered && (
-            <Text style={styles.hint} testID="lesson-hint">
-              <Text style={styles.hintLabel}>{`${t("hintLabel")}: `}</Text>
-              {tLesson(`questions.${question.key}.hint`)}
-            </Text>
+            <View
+              style={styles.hint}
+              testID="lesson-hint"
+              accessible
+              accessibilityLabel={`${t("hintLabel")}: ${tLesson(`questions.${question.key}.hint`)}`}
+            >
+              {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す */}
+              <View style={styles.hintIcon}>
+                <LightbulbIcon size={16} color={lessonColors.amber900} />
+              </View>
+              <Text style={styles.hintText}>
+                {tLesson(`questions.${question.key}.hint`)}
+              </Text>
+            </View>
           )}
           {isAnswered && (
             <View
@@ -525,12 +536,18 @@ const styles = StyleSheet.create({
     color: colors.surface900,
   },
   hint: {
-    fontSize: 14,
-    textAlign: "center",
-    color: lessonColors.amber900,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: 6,
   },
-  hintLabel: {
-    fontWeight: "700",
+  hintIcon: {
+    marginTop: 1,
+  },
+  hintText: {
+    flexShrink: 1,
+    fontSize: 14,
+    color: lessonColors.amber900,
   },
   judgement: {
     flexDirection: "row",
