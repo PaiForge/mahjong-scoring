@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
@@ -15,6 +16,8 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 interface LeaderboardPreviewProps {
   readonly rows: readonly RankedLeaderboardRow[];
   readonly detailPath: string;
+  /** 「もっと見る」の下に続けて置くもの。上位が空でセクションごと出ないときは出さない */
+  readonly footer?: ReactNode;
 }
 
 /**
@@ -24,6 +27,7 @@ interface LeaderboardPreviewProps {
 export async function LeaderboardPreview({
   rows,
   detailPath,
+  footer,
 }: LeaderboardPreviewProps) {
   const t = await getTranslations("leaderboard");
 
@@ -56,6 +60,7 @@ export async function LeaderboardPreview({
           {t("viewMore")}
         </Link>
       </div>
+      {footer && <div className="pt-3">{footer}</div>}
     </div>
   );
 }
@@ -71,11 +76,16 @@ const PREVIEW_COUNT = 3;
  * 結果ページと練習の説明ページ（`renderLeaderboardPreview` 経由）で共有する。
  * 閲覧者がブロックした人は除く（順位は数え直さないので、上位が 1・2・4 位に
  * なることがある）。どちらの呼び出し元もリクエストごとに描くので cookie を読める。
+ *
+ * `guestFooter` は未ログインの閲覧者にだけ表の下へ続けて出す（結果ページの
+ * 登録 CTA）。ログイン状態はここで既に引いているので、呼び出し側で引き直さない。
  */
 export async function BoardLeaderboardPreview({
   board,
+  guestFooter,
 }: {
   readonly board: PracticeBoard;
+  readonly guestFooter?: ReactNode;
 }) {
   const user = await getOptionalUser();
   const [result, blockedIds] = await Promise.all([
@@ -91,6 +101,7 @@ export async function BoardLeaderboardPreview({
         PREVIEW_COUNT,
       )}
       detailPath={leaderboardHref("all-time", board)}
+      footer={user ? undefined : guestFooter}
     />
   );
 }

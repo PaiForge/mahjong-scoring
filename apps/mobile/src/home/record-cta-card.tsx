@@ -10,7 +10,7 @@ import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
 
 /** 記録の案内を置く画面。文言とボタンの `testID` の接頭辞を決める */
-export type RecordCtaPlacement = "home" | "mypage";
+export type RecordCtaPlacement = "home" | "mypage" | "result";
 
 /**
  * 記録の案内（web の練習の結果画面の登録 CTA `SignUpCta`）
@@ -35,6 +35,9 @@ export type RecordCtaPlacement = "home" | "mypage";
  * ゲストでもレッスンの完了は端末に残り行程にも出るので、「記録できる」とは
  * 言わない。マイページは自分の記録を見に来た人なので、ここに何が並ぶかを言い、
  * 画面がその見本（`MypagePreview`）を添える。
+ * チャレンジの結果画面は末尾（web ではランキングの上位の下）に置き、成績が
+ * 記録されることを言う。web の同じ位置の CTA は「ランキングに載る」と言うが、
+ * アプリはランキングの上位を見せないので触れない。
  *
  * 見出しは持たない。カードの文言がそのまま言い切っており、見出しを足しても
  * 同じことを繰り返すだけになる。

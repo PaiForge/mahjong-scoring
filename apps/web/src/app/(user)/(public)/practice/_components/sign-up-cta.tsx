@@ -28,35 +28,74 @@ export async function SignUpCta() {
   return (
     <ResultBlockSection>
       <SectionTitle>{t("signUpCta.sectionTitle")}</SectionTitle>
-      <div className="rounded-panel border border-panel bg-brand-subtle p-4 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-semibold text-surface-900">
-              {t("signUpCta.message")}
-            </p>
-            <p className="mt-1 text-sm text-surface-600">
-              {t("signUpCta.description")}
-            </p>
-          </div>
-          <div
-            className={`flex w-full flex-col items-center ${SUB_LINK_GAP} sm:w-auto sm:items-end`}
+      <SignUpCtaCard
+        message={t("signUpCta.message")}
+        description={t("signUpCta.description")}
+      />
+    </ResultBlockSection>
+  );
+}
+
+/**
+ * ランキングの下に置く未ログインユーザー向けの登録 CTA
+ * ランキング下の登録導線
+ *
+ * 結果画面を末尾までスクロールした人は、ページ上部の `SignUpCta` を
+ * 通り過ぎたあとに他の人の名前が並ぶ上位を見ている。その直後で
+ * 「自分も載る」ことを訴える。上部の CTA と同じカードで、文言だけ
+ * ランキングに寄せる（`challenge.signUpCta.leaderboard`）。
+ *
+ * 見出しを持たず、ランキングのセクションの末尾に続けて置く — 文言が
+ * 直上の表を指しているため、別のセクションに切り離すと何に載るのかが
+ * 離れる。アプリの結果画面はランキングを出さないので、同じ位置の案内は
+ * ランキングに触れない別の文言にしている（`recordCta.result`）。
+ */
+export async function LeaderboardSignUpCta() {
+  const t = await getTranslations("challenge");
+
+  return (
+    <SignUpCtaCard
+      message={t("signUpCta.leaderboard.message")}
+      description={t("signUpCta.leaderboard.description")}
+    />
+  );
+}
+
+/** 登録 CTA のカード（訴える文言・登録ボタン・ログインへのサブリンク） */
+async function SignUpCtaCard({
+  message,
+  description,
+}: {
+  readonly message: string;
+  readonly description: string;
+}) {
+  const t = await getTranslations("challenge");
+
+  return (
+    <div className="rounded-panel border border-panel bg-brand-subtle p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-semibold text-surface-900">{message}</p>
+          <p className="mt-1 text-sm text-surface-600">{description}</p>
+        </div>
+        <div
+          className={`flex w-full flex-col items-center ${SUB_LINK_GAP} sm:w-auto sm:items-end`}
+        >
+          <LinkButton
+            href="/sign-up"
+            fullWidth
+            className="whitespace-nowrap sm:w-auto"
           >
-            <LinkButton
-              href="/sign-up"
-              fullWidth
-              className="whitespace-nowrap sm:w-auto"
-            >
-              {t("signUpCta.cta")}
-            </LinkButton>
-            <Link
-              href="/sign-in"
-              className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
-            >
-              {t("signUpCta.signInLink")}
-            </Link>
-          </div>
+            {t("signUpCta.cta")}
+          </LinkButton>
+          <Link
+            href="/sign-in"
+            className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
+          >
+            {t("signUpCta.signInLink")}
+          </Link>
         </div>
       </div>
-    </ResultBlockSection>
+    </div>
   );
 }

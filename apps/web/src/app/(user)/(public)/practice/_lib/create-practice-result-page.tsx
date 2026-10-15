@@ -30,7 +30,7 @@ import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
 import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { RecordUnavailable } from "../_components/record-unavailable";
-import { SignUpCta } from "../_components/sign-up-cta";
+import { LeaderboardSignUpCta, SignUpCta } from "../_components/sign-up-cta";
 import {
   FINISH_REASON_PARAM,
   listedProblemCount,
@@ -194,7 +194,8 @@ interface PracticeResultPageProps {
  *      `RecordSection` / `SignUpCta` / `RecordUnavailable` のいずれかを描画
  *
  * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
- *    - `AsyncLeaderboardBlock`: `BoardLeaderboardPreview` で全期間の上位を描画
+ *    - `AsyncLeaderboardBlock`: `BoardLeaderboardPreview` で全期間の上位を描画。
+ *      未ログインならその下に `LeaderboardSignUpCta`（上位が空なら表ごと出さない）
  *    - 出すのは遊んだ範囲を含む練習のランキング（`resolveLeaderboardBoard`）。
  *      範囲を絞った回も「すべて」の上位を出す — 絞った範囲はランキングを
  *      持たないので、遊んだ土俵そのままでは何も出ず、範囲によって結果ページの
@@ -421,5 +422,10 @@ async function AsyncLeaderboardBlock({
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
   await debugResultDelay();
 
-  return <BoardLeaderboardPreview board={board} />;
+  return (
+    <BoardLeaderboardPreview
+      board={board}
+      guestFooter={<LeaderboardSignUpCta />}
+    />
+  );
 }
