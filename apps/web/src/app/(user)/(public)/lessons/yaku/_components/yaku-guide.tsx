@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { GuideNote } from "../../_components/guide-note";
+import { GuideFigure } from "../../_components/guide-figure";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { YakuNakiComparisonTable } from "../../_components/yaku-naki-comparison-table";
@@ -29,8 +29,9 @@ export async function YakuGuide() {
       {/* 本文で挙げた役の門前と鳴きの翻数（各役名が早見表の該当カードへのリンク）＋ 残りの役は早見表へ */}
       <GuideSection title={t("summaryTitle")}>
         <GuideParagraph>{t("summaryBody")}</GuideParagraph>
-        <YakuNakiComparisonTable />
-        <GuideNote>{t("summaryNote")}</GuideNote>
+        <GuideFigure caption={t("summaryNote")}>
+          <YakuNakiComparisonTable />
+        </GuideFigure>
 
         <Link
           href="/reference/yaku"

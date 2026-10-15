@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { GuideFigure } from "../../_components/guide-figure";
+
 interface PracticePreviewProps {
   /** 画面の下に添える説明（どの練習の、どんな画面か） */
   readonly caption: ReactNode;
@@ -22,16 +24,13 @@ interface PracticePreviewProps {
  */
 export function PracticePreview({ caption, children }: PracticePreviewProps) {
   return (
-    <figure className="space-y-2">
+    <GuideFigure caption={caption}>
       <div
         inert
         className="rounded-panel border border-panel bg-surface-50 p-4 sm:p-6"
       >
         {children}
       </div>
-      <figcaption className="text-xs leading-relaxed text-surface-500">
-        {caption}
-      </figcaption>
-    </figure>
+    </GuideFigure>
   );
 }

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { panelFrame } from "../../lib/panel-styles";
 import { colors } from "../../lib/theme";
+import { GuideFigure } from "./guide-figure";
 
 /**
  * 練習画面のプレビュー（web の `PracticePreview`）
@@ -24,7 +25,7 @@ export function PracticePreview({
   readonly children: ReactNode;
 }) {
   return (
-    <View style={styles.root}>
+    <GuideFigure caption={caption}>
       <View
         pointerEvents="none"
         accessibilityElementsHidden
@@ -33,23 +34,14 @@ export function PracticePreview({
       >
         {children}
       </View>
-      <Text style={styles.caption}>{caption}</Text>
-    </View>
+    </GuideFigure>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    gap: 8,
-  },
   frame: {
     ...panelFrame,
     backgroundColor: colors.surface50,
     padding: 16,
-  },
-  caption: {
-    fontSize: 13,
-    lineHeight: 20,
-    color: colors.surface500,
   },
 });
