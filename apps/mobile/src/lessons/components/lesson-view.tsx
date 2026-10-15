@@ -465,6 +465,16 @@ export function LessonView({
         <SectionTitle>
           {perfect ? t("doneTitle") : t("doneTitleReview")}
         </SectionTitle>
+        {/* 正答数は全問正解でも間違えても同じ場所・同じ書式の 1 行で出し、
+            その下の囲みで「できた」か「見直す」かを示す */}
+        <Text style={styles.score} testID="lesson-score">
+          {perfect
+            ? t("doneScorePerfect")
+            : t("doneScore", {
+                correct: correctCount,
+                total: questions.length,
+              })}
+        </Text>
         {perfect ? (
           // 合格と同じ success の囲み。レッスンの完了は小さな合格
           <View style={styles.achievement} testID="lesson-achievement">
@@ -476,21 +486,12 @@ export function LessonView({
                 {tLesson("achievement")}
               </Text>
             </View>
-            <Text style={styles.score} testID="lesson-score">
-              {t("doneScorePerfect", { total: questions.length })}
-            </Text>
           </View>
         ) : (
-          // 間違えた問題があるときは「できるようになった」と言わず、正答数と
-          // 見直しの案内を中立の囲みで出す。完了の記録と次の一歩は全問正解と
+          // 間違えた問題があるときは「できるようになった」と言わず、見直しの
+          // 案内を中立の囲みで出す。完了の記録と次の一歩は全問正解と
           // 同じ（理由は web の `LessonView`）
           <View style={styles.review} testID="lesson-review">
-            <Text style={styles.reviewScore} testID="lesson-score">
-              {t("doneScore", {
-                correct: correctCount,
-                total: questions.length,
-              })}
-            </Text>
             <Text style={styles.reviewAdvice}>{t("doneReviewAdvice")}</Text>
             <Button
               variant="neutral"
@@ -639,9 +640,9 @@ const styles = StyleSheet.create({
     color: verdictTextColors.correct,
   },
   score: {
-    paddingLeft: 24,
     fontSize: 14,
-    color: verdictTextColors.correct,
+    fontWeight: "700",
+    color: colors.surface700,
   },
   review: {
     borderWidth: borderWidth.panel,
@@ -650,11 +651,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface50,
     padding: 20,
     gap: 12,
-  },
-  reviewScore: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.surface900,
   },
   reviewAdvice: {
     fontSize: 15,

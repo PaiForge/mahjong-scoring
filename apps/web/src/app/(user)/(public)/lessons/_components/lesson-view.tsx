@@ -405,6 +405,19 @@ export function LessonView({
           <SectionTitle>
             {perfect ? t("doneTitle") : t("doneTitleReview")}
           </SectionTitle>
+          {/* 正答数は全問正解でも間違えても同じ場所・同じ書式の 1 行で出し、
+            その下の囲みで「できた」か「見直す」かを示す */}
+          <p
+            className="text-sm font-bold text-surface-700"
+            data-testid="lesson-score"
+          >
+            {perfect
+              ? t("doneScorePerfect")
+              : t("doneScore", {
+                  correct: correctCount,
+                  total: questions.length,
+                })}
+          </p>
           {perfect ? (
             // 合格（昇級試験の結果）と同じ success の囲み。レッスンの完了は
             // 小さな合格で、確認問題の正解の ✓ と同じ記号・同じ色で「できた」を
@@ -418,15 +431,10 @@ export function LessonView({
                 <JudgementMark verdict="correct" tone="inherit" />
                 <span>{tLesson("achievement")}</span>
               </p>
-              {/* 字下げは ✓（text-base の 1em = 16px）と gap-2（8px）の分。
-                達成の文の頭に揃える */}
-              <p className="mt-2 pl-6 text-sm" data-testid="lesson-score">
-                {t("doneScorePerfect", { total: questions.length })}
-              </p>
             </div>
           ) : (
-            // 間違えた問題があるときは「できるようになった」と言わない。正答数と
-            // 見直しの案内を中立の囲みで出し、本文へ戻る導線をここに置く。
+            // 間違えた問題があるときは「できるようになった」と言わない。見直しの
+            // 案内を中立の囲みで出し、本文へ戻る導線をここに置く。
             // 完了の記録と次の一歩は全問正解と同じ — 完了は「取り組んだ」印で、
             // 習得の判定は昇級試験が持つ。同じ 3 問を解き直させても答えを
             // 覚えるだけなので、全問正解を完了の条件にはしない
@@ -434,15 +442,6 @@ export function LessonView({
               className="space-y-3 rounded-panel border border-panel bg-surface-50 p-5"
               data-testid="lesson-review"
             >
-              <p
-                className="text-base font-bold text-surface-900"
-                data-testid="lesson-score"
-              >
-                {t("doneScore", {
-                  correct: correctCount,
-                  total: questions.length,
-                })}
-              </p>
               <p className="text-sm leading-relaxed text-surface-700">
                 {t("doneReviewAdvice")}
               </p>
