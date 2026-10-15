@@ -58,9 +58,6 @@ export async function FuroScoreGuide() {
           />
           <GuideNote>{t("columnExample")}</GuideNote>
         </ExampleCard>
-        <GuideParagraph>
-          {t.rich("columnBody2", { br: () => <br /> })}
-        </GuideParagraph>
       </GuideColumn>
     </div>
   );

@@ -158,9 +158,6 @@ export function FuroScoreGuide() {
           />
           <GuideNote>{t("columnExample")}</GuideNote>
         </ExampleCard>
-        <GuideParagraph>
-          {t.rich("columnBody2", { br: richLineBreak })}
-        </GuideParagraph>
       </GuideColumn>
     </GuideBody>
   );
