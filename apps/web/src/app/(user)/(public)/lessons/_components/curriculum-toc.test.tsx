@@ -299,10 +299,12 @@ describe("CurriculumToc", () => {
       '[data-testid="curriculum-next-badge"]',
     );
     expect(badge).not.toBeNull();
-    // Badge is the row's last child (right end), not inline with the title.
+    // Badge is the row's last child and sits in the right column, apart from
+    // the title column.
     expect(badge?.parentElement).toBe(nextRow);
     expect(nextRow?.lastElementChild).toBe(badge);
-    expect(nextRow?.querySelector("a")?.parentElement).not.toBe(nextRow);
+    expect(badge?.className).toContain("col-start-2");
+    expect(nextRow?.querySelector("a")?.className).toContain("col-start-1");
 
     // Same slot as the read check, so both marks line up in one column.
     const readRow = container.querySelector(

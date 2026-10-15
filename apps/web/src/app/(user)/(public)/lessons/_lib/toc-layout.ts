@@ -30,14 +30,20 @@ export const BULLET_CENTER_TOP_PX = 8;
 export const GUIDE_LINE_LEFT_PX = BULLET_CENTER_LEFT_PX - 1;
 
 /**
- * 章行の共通クラス。
+ * 章行の箱（位置の基準と余白）。
  * セクション bullet 中心 (left=8px) より右側に章タイトルが配置されるよう
  * `pl-7` (28px) でインデント。「次はここから」の amber 実線は破線ガイド線と
  * 同じ x 座標に absolute 配置するため、border-l は使わない。
  * 変更時は破線ガイド線の座標と視覚的にズレないか確認すること。
  */
-export const CHAPTER_ROW_BASE_CLASS =
-  "relative flex items-start gap-3 py-3 pl-7 pr-2";
+export const CHAPTER_ROW_BOX_CLASS = "relative py-3 pl-7 pr-2";
+
+/**
+ * 章行の共通クラス（中身を横 1 列に並べる行）。
+ * コラムの行とスケルトンが使う。レッスンの行はタイトルと説明文を縦に
+ * 積むため、{@link CHAPTER_ROW_BOX_CLASS} にグリッドを足して組む
+ */
+export const CHAPTER_ROW_BASE_CLASS = `${CHAPTER_ROW_BOX_CLASS} flex items-start gap-3`;
 
 /**
  * セクションラベルのプレースホルダ幅
