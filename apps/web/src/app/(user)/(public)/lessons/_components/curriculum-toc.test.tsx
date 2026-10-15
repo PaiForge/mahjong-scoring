@@ -49,6 +49,29 @@ describe("CurriculumToc", () => {
     );
   });
 
+  it("stretches each title link over its row while keeping the title as the link name", async () => {
+    const { container } = render(
+      await CurriculumToc({
+        headingLevel: 2,
+        section,
+        chapters,
+        completedSlugs: new Set(["why-scoring-is-complex"]),
+        nextSlug: "about-this-app",
+      }),
+    );
+    for (const row of container.querySelectorAll("li")) {
+      // The link's ::after fills the nearest positioned ancestor — the row.
+      expect(row.className).toContain("relative");
+      expect(row.className).toContain("group");
+      const anchor = row.querySelector("a");
+      expect(anchor?.className).toContain("after:absolute");
+      expect(anchor?.className).toContain("after:inset-0");
+      // The description and marks stay outside the link.
+      expect(anchor?.textContent).not.toContain("description");
+      expect(anchor?.querySelector("[data-testid]")).toBeNull();
+    }
+  });
+
   it("renders the dashed guide line", async () => {
     const { container } = render(
       await CurriculumToc({

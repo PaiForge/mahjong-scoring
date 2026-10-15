@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { CheckIcon } from "@/app/(user)/_components/icons/check-icon";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ROW_LINK_TITLE_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
   getChapterI18nPath,
@@ -55,6 +55,12 @@ interface CurriculumTocProps {
  * - コラム（`ChapterKind`）は一段弱く描く: 小さな「コラム」の札と小さな
  *   タイトルだけで、説明文・完了の印・「次はここから」を持たない。順路の
  *   レッスンの間に差し込んだ寄り道だと、行の重さで分かるようにする
+ *
+ * 行全体が押せる面になる。タイトルの `Link` の `::after` を行（`li`）いっぱいに
+ * 被せる（{@link STRETCHED_LINK_CLASSES}）— `<a>` で行ごと包むとリンク名が
+ * 「タイトル＋説明文＋札」の長い文になるため、リンク名はタイトルだけに保つ。
+ * 行の間に区切り線が無いので、hover / 押している間に行を淡く塗って押せる
+ * 範囲を見せる。
  *
  * バッジとチェックは同じ右端の位置に出す（完了したレッスンが「次」になることは
  * ないため排他）。行の中で状態を示す印は右端の 1 列に揃え、左側はタイトルと
@@ -113,7 +119,7 @@ export async function CurriculumToc({
                 <li
                   key={ch.slug}
                   id={anchored ? chapterTocAnchorId(ch.slug) : undefined}
-                  className={`${CHAPTER_ROW_BASE_CLASS} scroll-mt-24`}
+                  className={`${CHAPTER_ROW_BASE_CLASS} ${ROW_SURFACE_CLASSES} scroll-mt-24`}
                   data-chapter-slug={ch.slug}
                   data-column="true"
                 >
@@ -123,7 +129,7 @@ export async function CurriculumToc({
                   <Link
                     href={chapterHref(ch.slug)}
                     // 札（h-5）と同じ行の高さにして、1 行目の中心を揃える
-                    className={`min-w-0 text-xs leading-5 ${TEXT_LINK_CLASSES}`}
+                    className={`min-w-0 text-xs leading-5 ${ROW_LINK_TITLE_CLASSES} ${STRETCHED_LINK_CLASSES}`}
                   >
                     {t(`${getChapterI18nPath(ch)}.title`)}
                   </Link>
@@ -139,11 +145,17 @@ export async function CurriculumToc({
             // 2 行またいで置く。包む要素を挟まず <li> の直下に並べるためのグリッド。
             // 印が無い行は右の列を作らない（列の間の gap だけが残って本文が狭まる）。
             // scroll-mt は目次へのアンカー着地でヘッダの下に隠れないための逃がし
+            // 「次はここから」の行は地が琥珀なので、hover も同じ色相で一段濃くする
+            // （札の bg-amber-100 と同じ濃さにすると札が地に溶ける）
             const rowClass = `${CHAPTER_ROW_BOX_CLASS} grid gap-x-3 gap-y-2 scroll-mt-24 ${
               isNext || isDone
                 ? "grid-cols-[minmax(0,1fr)_auto]"
                 : "grid-cols-[minmax(0,1fr)]"
-            } ${isNext ? "bg-amber-50" : ""}`;
+            } ${
+              isNext
+                ? "group bg-amber-50 transition-colors hover:bg-amber-100/50 active:bg-amber-100/80"
+                : ROW_SURFACE_CLASSES
+            }`;
 
             return (
               <li
@@ -165,7 +177,7 @@ export async function CurriculumToc({
                 )}
                 <Link
                   href={chapterHref(ch.slug)}
-                  className={`col-start-1 row-start-1 text-sm font-bold ${TEXT_LINK_CLASSES}`}
+                  className={`col-start-1 row-start-1 text-sm font-bold ${ROW_LINK_TITLE_CLASSES} ${STRETCHED_LINK_CLASSES}`}
                 >
                   {t(`${path}.title`)}
                 </Link>
@@ -200,6 +212,25 @@ export async function CurriculumToc({
     </section>
   );
 }
+
+/**
+ * 行の面。`group` はタイトルの色を行の hover に追随させるため
+ * （{@link ROW_LINK_TITLE_CLASSES}）。hover は `LinkRow` と同じ淡さに揃え、
+ * 押している間だけ一段濃くする — タッチ端末には hover が無く、押した行が
+ * どれかをその場で見せる手掛かりはこれしか無い（`surface-50` は白地では
+ * ほぼ見えない）
+ */
+const ROW_SURFACE_CLASSES =
+  "group transition-colors hover:bg-surface-50 active:bg-surface-100";
+
+/**
+ * タイトルの `Link` を行いっぱいの押せる面に広げる。`::after` は位置の基準を
+ * 持つ最も近い祖先 = `li`（`CHAPTER_ROW_BOX_CLASS` の `relative`）に広がる。
+ * 札や完了の印は位置を持たないので、この面の下に描かれ押下を奪わない。
+ * キーボードのフォーカスリングもタイトルの周りではなく行の外周に出す
+ */
+const STRETCHED_LINK_CLASSES =
+  "after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset";
 
 /**
  * セクション（カテゴリ）ごとの配色
