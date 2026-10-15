@@ -51,7 +51,7 @@ export const SECTION_LABEL_WIDTH_CLASS: Readonly<
 > = {
   introduction: "w-20",
   mangan: "w-32",
-  yaku: "w-8",
+  yaku: "w-20",
   fu: "w-20",
   score: "w-24",
   memorization: "w-20",
