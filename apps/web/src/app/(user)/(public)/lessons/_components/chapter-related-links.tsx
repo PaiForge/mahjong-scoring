@@ -40,7 +40,7 @@ interface ChapterRelatedLinksProps {
  * - 昇級試験 — 試験を持つ章（CURRICULUM の `examSlug`）のみ。練習で腕試し →
  *   昇級試験、の順
  *
- * 練習も試験も無い章（基礎のセクション）では何も出さない。
+ * 練習も試験も無い章（「はじめに」のセクション）では何も出さない。
  */
 export async function ChapterRelatedLinks({ slug }: ChapterRelatedLinksProps) {
   const chapter = getChapterBySlug(slug);
