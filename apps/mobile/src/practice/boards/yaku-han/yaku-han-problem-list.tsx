@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
 import { yakuHanLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
@@ -37,15 +38,9 @@ export function YakuHanProblemList({
           outcome={outcome}
           correct={hanLabel(correctHan)}
           user={userHan === undefined ? undefined : hanLabel(userHan)}
-          difference={
-            userHan === undefined
-              ? undefined
-              : {
-                  correct: correctHan,
-                  user: userHan,
-                  format: (value) => t("hanOption", { count: value }),
-                }
-          }
+          difference={answerDifferenceOf(correctHan, userHan, (value) =>
+            t("hanOption", { count: value }),
+          )}
         />
       )}
     />

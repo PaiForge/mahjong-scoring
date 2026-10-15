@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
 import { restoreMentsu } from "@mahjong-scoring/features/results/mentsu-serialization";
 import type { MentsuFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-fu/types";
 
@@ -45,11 +46,7 @@ export function MentsuFuProblemList({
               outcome={result.outcome}
               correct={fuLabel(result.correctFu)}
               user={userFu === undefined ? undefined : fuLabel(userFu)}
-              difference={
-                userFu === undefined
-                  ? undefined
-                  : { correct: result.correctFu, user: userFu, format: fuLabel }
-              }
+              difference={answerDifferenceOf(result.correctFu, userFu, fuLabel)}
             />
           </View>
         );

@@ -1,5 +1,6 @@
 import { View } from "react-native";
 import { useTranslations } from "use-intl";
+import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
 import type { FuQuestionResult } from "@mahjong-scoring/features/results/fu-question-result";
 import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
 
@@ -54,15 +55,11 @@ export function FuProblemList({
                   ? undefined
                   : t("fuSuffix", { value: userFu })
               }
-              difference={
-                userFu === undefined
-                  ? undefined
-                  : {
-                      correct: result.correctFu,
-                      user: userFu,
-                      format: (value) => t("fuSuffix", { value }),
-                    }
-              }
+              difference={answerDifferenceOf(
+                result.correctFu,
+                userFu,
+                (value) => t("fuSuffix", { value }),
+              )}
             />
             <FuBreakdown
               details={result.fuDetails}
