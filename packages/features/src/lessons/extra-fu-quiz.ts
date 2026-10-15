@@ -23,9 +23,9 @@ export interface ExtraFuQuestionSource {
  * 積み上げた符から手牌の符を問う確認問題を組む
  * 積み上げ符の確認問題
  *
- * 符は core の `mentsuTehaiFu`（教本の対応表と同じ計算）から引き、選択肢は
- * 教本の対応表（`buildExtraFuRows`）に現れる符すべて。表で見た値が
- * そのまま選択肢に並ぶ。
+ * 符は core の `mentsuTehaiFu` から引き、選択肢は「積み上げた符 → 符」の
+ * 対応（`buildExtraFuRows`）に現れる符すべて。問ごとに選択肢を変えず、
+ * 門前なら 30〜60 符、副露なら 30〜50 符を並べる。
  *
  * @param handShape 門前手 / 副露した手
  * @param questions 出題順の問題

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import type { WinType } from "@mahjong-scoring/core";
+import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/hand-shape-param";
 
 import {
   DATA_TABLE_CELL_PADDING,
@@ -11,6 +12,8 @@ import {
 import { buildTenpaneRows } from "@mahjong-scoring/features/curriculum/tenpane-rows";
 
 interface TenpaneTableProps {
+  /** 門前手 / 副露した手のどちらの表か */
+  readonly handShape: FixedHandShape;
   /** ツモ / ロンのどちらの表か */
   readonly winType: WinType;
 }
@@ -23,9 +26,9 @@ interface TenpaneTableProps {
  * 例の文言は長く折り返すので行見出しセル（折り返さない）は使わず、計算と
  * 符の列だけを折り返さない。セルは狭い画面で列を詰める `dense` に揃える。
  */
-export async function TenpaneTable({ winType }: TenpaneTableProps) {
-  const t = await getTranslations("menzenMentsuScore.learn");
-  const rows = buildTenpaneRows(winType);
+export async function TenpaneTable({ handShape, winType }: TenpaneTableProps) {
+  const t = await getTranslations("learnCurriculum");
+  const rows = buildTenpaneRows(handShape, winType);
 
   return (
     <DataTable

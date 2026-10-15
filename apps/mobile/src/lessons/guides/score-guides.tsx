@@ -19,11 +19,7 @@ import {
   GuideSubsectionTitle,
 } from "../components/guide-text";
 import { GuideColumn } from "../components/highlight-panel";
-import {
-  ExtraFuTable,
-  FixedFuScoreTable,
-  TenpaneTable,
-} from "../components/score-tables";
+import { FixedFuScoreTable, TenpaneTable } from "../components/score-tables";
 
 /** 七対子での点数計算 — 点数の計算セクション第 1 章（web の `ChiitoitsuScoreGuide`） */
 export function ChiitoitsuScoreGuide() {
@@ -109,11 +105,11 @@ export function MenzenMentsuScoreGuide() {
         <GuideParagraph>{t("roundBody2")}</GuideParagraph>
 
         <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
-        <TenpaneTable winType="ron" />
+        <TenpaneTable handShape="menzen" winType="ron" />
         <GuideParagraph>{t("ronNote")}</GuideParagraph>
 
         <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
-        <TenpaneTable winType="tsumo" />
+        <TenpaneTable handShape="menzen" winType="tsumo" />
         <GuideParagraph>{t("tsumoNote")}</GuideParagraph>
       </GuideSection>
     </GuideBody>
@@ -136,11 +132,19 @@ export function FuroScoreGuide() {
       <GuideSection title={t("roundTitle")}>
         <GuideParagraph>{t("roundBody1")}</GuideParagraph>
         <GuideParagraph>{t("roundBody2")}</GuideParagraph>
-        <ExtraFuTable handShape="furo" />
+
+        <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
+        <TenpaneTable handShape="furo" winType="ron" />
+        <GuideParagraph>{t("ronNote")}</GuideParagraph>
+
+        <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
+        <TenpaneTable handShape="furo" winType="tsumo" />
+        <GuideParagraph>{t("tsumoNote")}</GuideParagraph>
+
         <GuideParagraph>{t("roundBody3")}</GuideParagraph>
       </GuideSection>
 
-      {/* コラム: 表の一番上の行（積み上げ0符のロン）の読み方 */}
+      {/* コラム: 規則の例外（積み上げ0符のロン = 食い平和形） */}
       <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
         <GuideParagraph>
           {t.rich("columnBody1", { br: richLineBreak })}
