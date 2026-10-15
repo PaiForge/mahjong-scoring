@@ -115,8 +115,6 @@ export function MenzenMentsuScoreGuide() {
         <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
         <TenpaneTable winType="tsumo" />
         <GuideParagraph>{t("tsumoNote")}</GuideParagraph>
-
-        <GuideParagraph>{t("roundBody3")}</GuideParagraph>
       </GuideSection>
     </GuideBody>
   );

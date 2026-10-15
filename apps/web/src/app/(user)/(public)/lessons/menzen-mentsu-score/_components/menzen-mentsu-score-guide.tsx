@@ -40,8 +40,6 @@ export async function MenzenMentsuScoreGuide() {
         <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
         <TenpaneTable winType="tsumo" />
         <GuideParagraph preLine>{t("tsumoNote")}</GuideParagraph>
-
-        <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
       </GuideSection>
     </div>
   );
