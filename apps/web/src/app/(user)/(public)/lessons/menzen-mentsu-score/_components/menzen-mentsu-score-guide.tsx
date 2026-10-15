@@ -1,10 +1,10 @@
 import { getTranslations } from "next-intl/server";
 
 import { ChapterLink } from "../../_components/chapter-link";
-import { GuideColumn } from "../../_components/guide-column";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
-import { ExtraFuTable } from "../../_components/extra-fu-table";
+import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
+import { TenpaneTable } from "./tenpane-table";
 
 /**
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
@@ -22,7 +22,7 @@ export async function MenzenMentsuScoreGuide() {
         <GuideParagraph preLine>{t("startBody4")}</GuideParagraph>
       </GuideSection>
 
-      {/* 積み上げた符を10で切るという1つの規則と、その対応表 */}
+      {/* 足して切り上げる数え方と、ロン・ツモそれぞれのテンパネの典型 */}
       <GuideSection title={t("roundTitle")}>
         <GuideParagraph preLine>
           {t.rich("roundBody1", {
@@ -33,21 +33,14 @@ export async function MenzenMentsuScoreGuide() {
         </GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
-        <ExtraFuTable handShape="menzen" />
+        <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
+        <TenpaneTable winType="ron" />
+        <GuideParagraph preLine>{t("ronNote")}</GuideParagraph>
 
-        <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
-        <GuideParagraph preLine>{t("roundBody4")}</GuideParagraph>
+        <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
+        <TenpaneTable winType="tsumo" />
+        <GuideParagraph preLine>{t("tsumoNote")}</GuideParagraph>
       </GuideSection>
-
-      {/* コラム: 40符へ上がる境目。刻子の有無ではなく積み上げ10符が境 */}
-      <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
-        <GuideParagraph>
-          {t.rich("columnBody1", { br: () => <br /> })}
-        </GuideParagraph>
-        <GuideParagraph>
-          {t.rich("columnBody2", { br: () => <br /> })}
-        </GuideParagraph>
-      </GuideColumn>
     </div>
   );
 }
