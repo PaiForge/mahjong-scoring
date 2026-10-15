@@ -18,7 +18,6 @@ import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { hasRonMinkou } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 
 interface TehaiMentsuBreakdownProps {
@@ -170,7 +169,6 @@ export function TehaiMentsuBreakdown({
 
   const { breakdown } = selected;
   const showsCandidateTabs = candidates.length > 1;
-  const showsRonMinkouNote = hasRonMinkou(breakdown.fourMentsu);
 
   return (
     <div className="flex justify-end">
@@ -250,7 +248,6 @@ export function TehaiMentsuBreakdown({
               ),
             )}
           </DataTable>
-          {showsRonMinkouNote && <p>{t("mentsuBreakdownMinkouNote")}</p>}
         </div>
       </InfoModal>
     </div>

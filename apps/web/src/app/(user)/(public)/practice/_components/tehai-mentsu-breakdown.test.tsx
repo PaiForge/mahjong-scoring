@@ -254,7 +254,7 @@ describe("TehaiMentsuBreakdown", () => {
       );
     });
 
-    it("ロンで完成した刻子は明刻子とし、その旨を注記する", () => {
+    it("ロンで完成した刻子は明刻子とする", () => {
       // 234m 456p 678s 白白白 + 中中 で白をロン（シャンポン）
       const tehai = sortTehai({
         closed: [
@@ -287,14 +287,6 @@ describe("TehaiMentsuBreakdown", () => {
       expect(screen.getByText("minkou")).toBeTruthy();
       // 鳴いていないので卓に晒す並びにはしない
       expect(breakdownTable().queryByTestId("furo")).toBeNull();
-      expect(screen.getByText("mentsuBreakdownMinkouNote")).toBeTruthy();
-    });
-
-    it("暗刻だけの手では明刻子の注記を出さない", () => {
-      render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
-      openModal();
-
-      expect(screen.queryByText("mentsuBreakdownMinkouNote")).toBeNull();
     });
 
     it("暗槓は暗槓子として、伏せ牌を含む並びで見せる", () => {

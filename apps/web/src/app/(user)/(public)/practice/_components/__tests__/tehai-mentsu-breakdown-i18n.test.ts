@@ -27,7 +27,6 @@ const REQUIRED_COMMON_KEYS = [
   "mentsuBreakdownColHai",
   "mentsuBreakdownColType",
   // 注記（ロンで完成した刻子の扱い）
-  "mentsuBreakdownMinkouNote",
 ] as const;
 
 describe("i18n integrity: common（面子分解モーダル）", () => {

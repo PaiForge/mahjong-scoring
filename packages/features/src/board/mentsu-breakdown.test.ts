@@ -2,7 +2,7 @@ import { MentsuType } from "@mahjong-scoring/core";
 import type { MentsuBreakdownRow } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { hasRonMinkou, mentsuBreakdownLabelKey } from "./mentsu-breakdown";
+import { mentsuBreakdownLabelKey } from "./mentsu-breakdown";
 
 /** 判定に効く項目だけを持つ行 */
 const row = (
@@ -33,13 +33,5 @@ describe("mentsuBreakdownLabelKey", () => {
     expect(mentsuBreakdownLabelKey(row(MentsuType.Kantsu, false, true))).toBe(
       "ankan",
     );
-  });
-});
-
-describe("hasRonMinkou", () => {
-  it("晒していない明刻（ロンで完成した刻子）だけを拾う", () => {
-    expect(hasRonMinkou([row(MentsuType.Koutsu, true, false)])).toBe(true);
-    expect(hasRonMinkou([row(MentsuType.Koutsu, true, true)])).toBe(false);
-    expect(hasRonMinkou([row(MentsuType.Koutsu, false, false)])).toBe(false);
   });
 });

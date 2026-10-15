@@ -27,13 +27,3 @@ export function mentsuBreakdownLabelKey(
       return row.isOpen ? "minkan" : "ankan";
   }
 }
-
-/**
- * 手牌の中にありながら明刻子として数える刻子（ロンで完成した刻子）を含むか
- * ロン明刻判定
- *
- * 含むときは面子分解に「ロンで完成した刻子は明刻」の注記を添える。
- */
-export function hasRonMinkou(rows: readonly MentsuBreakdownRow[]): boolean {
-  return rows.some((row) => row.isOpen && !row.isExposed);
-}
