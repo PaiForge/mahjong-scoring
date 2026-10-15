@@ -10,7 +10,7 @@ import { SectionTitle } from "../../components/section-title";
 import { ManganScoreCalculationHowToPlay } from "../../practice/boards/mangan-score-calculation/mangan-score-calculation-how-to-play";
 import { TenpaiScorePreview } from "../../practice/endless/tenpai-score/tenpai-score-preview";
 import { ChallengePreview } from "../components/challenge-preview";
-import { ChapterLink, InlineTextLink } from "../components/chapter-link";
+import { InlineTextLink } from "../components/chapter-link";
 import { GuideBody, GuideStack } from "../components/guide-section";
 import { GuideParagraph, GuideSubsectionTitle } from "../components/guide-text";
 import { PracticePreview } from "../components/practice-preview";
@@ -47,11 +47,7 @@ export function AboutThisAppGuide() {
       <GuideStack>
         <SectionTitle>{t("introTitle")}</SectionTitle>
         <GuideParagraph>{t("lead1")}</GuideParagraph>
-        <GuideParagraph>
-          {t.rich("lead2", {
-            link: () => <ChapterLink slug="why-scoring-is-hard-to-learn" />,
-          })}
-        </GuideParagraph>
+        <GuideParagraph>{t("lead2")}</GuideParagraph>
       </GuideStack>
 
       <GuideStack>
@@ -113,7 +109,6 @@ export function AboutThisAppGuide() {
       <GuideStack>
         <SectionTitle>{t("howToTitle")}</SectionTitle>
         <GuideParagraph>{t("howToBody")}</GuideParagraph>
-        <GuideParagraph>{t("closing")}</GuideParagraph>
       </GuideStack>
     </GuideBody>
   );

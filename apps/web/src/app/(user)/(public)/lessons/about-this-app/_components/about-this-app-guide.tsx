@@ -8,7 +8,6 @@ import {
   TENPAI_SCORE_PRACTICE_HREF,
   practiceHref,
 } from "@mahjong-scoring/features/routes";
-import { ChapterLink } from "../../_components/chapter-link";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
@@ -22,7 +21,7 @@ import { PracticePreview } from "./practice-preview";
  * やすいところ」への手当てになっている。その対応が先に読めるよう、各特徴の
  * 最初の段落でつまずきを、次の段落で手当てを書き、練習の実際の画面を添える。
  * つまずきそのものの話（作者の体験）はコラム `why-scoring-is-hard-to-learn` に
- * 分けてあり、導入からリンクする。
+ * 分けてある。
  */
 export async function AboutThisAppGuide() {
   const [t, tPractice, tTenpai] = await Promise.all([
@@ -50,11 +49,7 @@ export async function AboutThisAppGuide() {
     <div className="space-y-10">
       <GuideSection title={t("introTitle")}>
         <GuideParagraph preLine>{t("lead1")}</GuideParagraph>
-        <GuideParagraph>
-          {t.rich("lead2", {
-            link: () => <ChapterLink slug="why-scoring-is-hard-to-learn" />,
-          })}
-        </GuideParagraph>
+        <GuideParagraph>{t("lead2")}</GuideParagraph>
       </GuideSection>
 
       <GuideSection title={t("featuresTitle")}>
@@ -80,7 +75,7 @@ export async function AboutThisAppGuide() {
             <GuideSubsectionTitle number={2}>
               {t("feature2Title")}
             </GuideSubsectionTitle>
-            <GuideParagraph>{t("feature2Body1")}</GuideParagraph>
+            <GuideParagraph preLine>{t("feature2Body1")}</GuideParagraph>
             <GuideParagraph>{t("feature2Body2")}</GuideParagraph>
             <PracticePreview
               caption={caption(
@@ -97,8 +92,8 @@ export async function AboutThisAppGuide() {
             <GuideSubsectionTitle number={3}>
               {t("feature3Title")}
             </GuideSubsectionTitle>
-            <GuideParagraph>{t("feature3Body1")}</GuideParagraph>
-            <GuideParagraph>{t("feature3Body2")}</GuideParagraph>
+            <GuideParagraph preLine>{t("feature3Body1")}</GuideParagraph>
+            <GuideParagraph preLine>{t("feature3Body2")}</GuideParagraph>
             <PracticePreview
               caption={caption(
                 "feature3Preview",
@@ -114,7 +109,6 @@ export async function AboutThisAppGuide() {
 
       <GuideSection title={t("howToTitle")}>
         <GuideParagraph preLine>{t("howToBody")}</GuideParagraph>
-        <GuideParagraph>{t("closing")}</GuideParagraph>
       </GuideSection>
     </div>
   );
