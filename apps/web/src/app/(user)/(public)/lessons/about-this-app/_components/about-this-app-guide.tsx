@@ -49,7 +49,7 @@ export async function AboutThisAppGuide() {
     <div className="space-y-10">
       <GuideSection title={t("introTitle")}>
         <GuideParagraph preLine>{t("lead1")}</GuideParagraph>
-        <GuideParagraph>{t("lead2")}</GuideParagraph>
+        <GuideParagraph preLine>{t("lead2")}</GuideParagraph>
       </GuideSection>
 
       <GuideSection title={t("featuresTitle")}>
@@ -93,7 +93,8 @@ export async function AboutThisAppGuide() {
               {t("feature3Title")}
             </GuideSubsectionTitle>
             <GuideParagraph preLine>{t("feature3Body1")}</GuideParagraph>
-            <GuideParagraph preLine>{t("feature3Body2")}</GuideParagraph>
+            <GuideParagraph>{t("feature3Body2")}</GuideParagraph>
+            <GuideParagraph preLine>{t("feature3Body3")}</GuideParagraph>
             <PracticePreview
               caption={caption(
                 "feature3Preview",

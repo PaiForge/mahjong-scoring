@@ -93,6 +93,7 @@ export function AboutThisAppGuide() {
             </GuideSubsectionTitle>
             <GuideParagraph>{t("feature3Body1")}</GuideParagraph>
             <GuideParagraph>{t("feature3Body2")}</GuideParagraph>
+            <GuideParagraph>{t("feature3Body3")}</GuideParagraph>
             <PracticePreview
               caption={caption(
                 "feature3Preview",
