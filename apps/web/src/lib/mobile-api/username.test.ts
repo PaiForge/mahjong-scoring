@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  authorizeAs,
+  mockAuthorizeMobileRequest,
+} from "@/test/mobile-auth-mock";
 
 import { MOBILE_USERNAME_ERROR_CODES } from "@mahjong-scoring/features/account/mobile-api";
 
-const { mockAuthorize, mockRegister } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
+const { mockRegister } = vi.hoisted(() => ({
   mockRegister: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../users/register-username", () => ({
   registerUsernameForUser: mockRegister,
 }));
@@ -24,11 +27,7 @@ function postJson(body: unknown): Request {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: undefined,
-  });
+  authorizeAs({ userId: "user-1" });
   mockRegister.mockResolvedValue({ success: true });
 });
 
@@ -118,7 +117,10 @@ describe("handleRegisterUsername", () => {
 
   it("認証に失敗すれば本文を読まずにその応答を返す", async () => {
     const denied = new Response(null, { status: 401 });
-    mockAuthorize.mockResolvedValue({ ok: false, response: denied });
+    mockAuthorizeMobileRequest.mockResolvedValue({
+      ok: false,
+      response: denied,
+    });
 
     const response = await handleRegisterUsername(
       postJson({ username: "alice" }),

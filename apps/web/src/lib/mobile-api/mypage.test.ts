@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockProfile, mockHeatmap, mockRanks } = vi.hoisted(
-  () => ({
-    mockAuthorize: vi.fn(),
-    mockProfile: vi.fn(),
-    mockHeatmap: vi.fn(),
-    mockRanks: vi.fn(),
-  }),
-);
+const { mockProfile, mockHeatmap, mockRanks } = vi.hoisted(() => ({
+  mockProfile: vi.fn(),
+  mockHeatmap: vi.fn(),
+  mockRanks: vi.fn(),
+}));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../db/queries", () => ({ getProfileCardByUserId: mockProfile }));
 vi.mock("../db/get-exp-heatmap-data", () => ({
   getExpHeatmapData: mockHeatmap,
@@ -25,11 +23,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   // JST の 2026-10-10 09:00（UTC では前日をまたがない時刻）
   vi.useFakeTimers({ now: new Date("2026-10-10T09:00:00+09:00") });
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "bob" },
-  });
+  authorizeAs({ userId: "user-1", username: "bob" });
   mockProfile.mockResolvedValue({
     username: "bob",
     displayName: null,
@@ -97,11 +91,7 @@ describe("handleReadMypage", () => {
   });
 
   it("ユーザー名を決める前は読まずに 409 usernameRequired", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handleReadMypage(request());
 

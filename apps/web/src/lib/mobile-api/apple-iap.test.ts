@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
 import type {
   AppleTransaction,
@@ -7,13 +8,12 @@ import type {
 } from "../billing/apple/verifier";
 import { createFakeAppleVerifier } from "../billing/apple/verifier-fake";
 
-const { mockAuthorize, mockRecord, mockBuildPlan } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
+const { mockRecord, mockBuildPlan } = vi.hoisted(() => ({
   mockRecord: vi.fn(),
   mockBuildPlan: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../billing/apple/record", () => ({
   recordAppleTransaction: mockRecord,
 }));
@@ -67,11 +67,7 @@ const handle = (req: Request = request()) =>
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "bob" },
-  });
+  authorizeAs({ userId: "user-1", username: "bob" });
   mockRecord.mockResolvedValue({ outcome: "recorded", purchaseId: "p1" });
   mockBuildPlan.mockResolvedValue(PLAN);
 });
@@ -164,11 +160,7 @@ describe("handleRecordAppleTransaction", () => {
   });
 
   it("ユーザー名を決める前は 409 usernameRequired", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handle();
 

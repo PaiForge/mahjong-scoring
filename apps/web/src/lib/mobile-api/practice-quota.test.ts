@@ -1,16 +1,14 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockBenefits, mockConsume, mockReadUsage } = vi.hoisted(
-  () => ({
-    mockAuthorize: vi.fn(),
-    mockBenefits: vi.fn(),
-    mockConsume: vi.fn(),
-    mockReadUsage: vi.fn(),
-  }),
-);
+const { mockBenefits, mockConsume, mockReadUsage } = vi.hoisted(() => ({
+  mockBenefits: vi.fn(),
+  mockConsume: vi.fn(),
+  mockReadUsage: vi.fn(),
+}));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../entitlements/has-benefit", () => ({
   getActiveBenefits: mockBenefits,
 }));
@@ -50,11 +48,7 @@ beforeEach(() => {
     "APPLE_IAP_PRODUCT_ID_PRO_LIFETIME",
     "help.mahjong.score.pro.lifetime",
   );
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "bob" },
-  });
+  authorizeAs({ userId: "user-1", username: "bob" });
   mockBenefits.mockResolvedValue(new Set());
   mockConsume.mockResolvedValue({ allowed: true, remaining: 4 });
   mockReadUsage.mockResolvedValue(2);
@@ -135,11 +129,7 @@ describe("handleBeginPracticeQuota", () => {
   );
 
   it("ユーザー名を決める前は 409 usernameRequired", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handleBeginPracticeQuota(beginRequest());
 

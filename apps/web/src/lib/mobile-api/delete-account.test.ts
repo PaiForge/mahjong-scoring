@@ -1,15 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockHasToken, mockStore, mockRequest } = vi.hoisted(
-  () => ({
-    mockAuthorize: vi.fn(),
-    mockHasToken: vi.fn(),
-    mockStore: vi.fn(),
-    mockRequest: vi.fn(),
-  }),
-);
+const { mockHasToken, mockStore, mockRequest } = vi.hoisted(() => ({
+  mockHasToken: vi.fn(),
+  mockStore: vi.fn(),
+  mockRequest: vi.fn(),
+}));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../apple/refresh-tokens", () => ({
   hasAppleRefreshToken: mockHasToken,
   storeAppleAuthorizationCode: mockStore,
@@ -30,12 +28,7 @@ function post(body?: unknown): Request {
 }
 
 function signedInAs(appleSubject: string | undefined) {
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: undefined,
-    appleSubject,
-  });
+  authorizeAs({ userId: "user-1", appleSubject });
 }
 
 beforeEach(() => {

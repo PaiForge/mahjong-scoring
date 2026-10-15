@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockJourney, mockRecord } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
+const { mockJourney, mockRecord } = vi.hoisted(() => ({
   mockJourney: vi.fn(),
   mockRecord: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../journey/progress", () => ({ getJourneyInputOf: mockJourney }));
 vi.mock("../lessons/record-completions", async (importOriginal) => ({
   ...(await importOriginal<object>()),
@@ -25,11 +25,7 @@ function post(body: unknown): Request {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "alice" },
-  });
+  authorizeAs({ userId: "user-1", username: "alice" });
   mockRecord.mockResolvedValue(true);
 });
 

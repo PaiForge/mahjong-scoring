@@ -1,16 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockHidden, mockGetUserRanks, mockSaveVisibility } =
-  vi.hoisted(() => ({
-    mockAuthorize: vi.fn(),
-    mockHidden: vi.fn(),
-    mockGetUserRanks: vi.fn(),
-    mockSaveVisibility: vi.fn(),
-  }));
-
-vi.mock("./auth", () => ({
-  authorizeMobileRequest: mockAuthorize,
+const { mockHidden, mockGetUserRanks, mockSaveVisibility } = vi.hoisted(() => ({
+  mockHidden: vi.fn(),
+  mockGetUserRanks: vi.fn(),
+  mockSaveVisibility: vi.fn(),
 }));
+
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../db/leaderboard-visibility", () => ({
   isHiddenFromLeaderboard: mockHidden,
 }));
@@ -32,11 +29,7 @@ const URL_BASE = "https://example.test/api/mobile/v1/leaderboard";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "me" },
-    profile: { username: "me" },
-  });
+  authorizeAs({ userId: "me", username: "me" });
   mockHidden.mockResolvedValue(false);
   mockGetUserRanks.mockResolvedValue([]);
   mockSaveVisibility.mockResolvedValue({ written: true });
@@ -44,11 +37,7 @@ beforeEach(() => {
 
 /** ユーザー名を決める前の認証の結果 */
 function withoutUsername() {
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "me" },
-    profile: undefined,
-  });
+  authorizeAs({ userId: "me" });
 }
 
 function postVisibility(body: unknown) {
