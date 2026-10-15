@@ -3,7 +3,10 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import type { Announcement } from "@/lib/db";
 
-import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
+import {
+  ANNOUNCEMENT_LIST_DATE_OPTIONS,
+  formatPublishedDate,
+} from "@mahjong-scoring/features/announcements/format";
 
 interface AnnouncementTextListProps {
   readonly announcements: readonly Announcement[];
@@ -47,7 +50,7 @@ export function AnnouncementTextList({
                 {formatPublishedDate(
                   announcement.publishedAt,
                   locale,
-                  NUMERIC_DATE_OPTIONS,
+                  ANNOUNCEMENT_LIST_DATE_OPTIONS,
                 )}
               </time>
               <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -74,15 +77,3 @@ export function AnnouncementTextList({
     </ul>
   );
 }
-
-/**
- * 公開日の表示形式（`2026/08/20`）。
- *
- * 既定の `month: "short"`（2026年8月20日）は文字幅が日によって変わるため、
- * 日付を左端に縦に並べるこのリストでは桁揃えできる数字表記を使う。
- */
-const NUMERIC_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-};
