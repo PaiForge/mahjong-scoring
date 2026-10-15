@@ -5,7 +5,8 @@
  * 各役を翻数別に一覧表示するビジュアル早見表。一覧そのものは
  * `YakuCheatsheet` が持ち、点数訓練の答え合わせから開くモーダルと共有する。
  * 各カードは `yakuAnchorId` の id を持ち、教本（/lessons/yaku）から
- * 役名リンクで直接開いた状態に着地できる。
+ * 役名リンクで直接開いた状態に着地できる。一覧の上の切り替えで、鳴いたときの
+ * 扱い（門前限定・食い下がり・鳴いても同じ）で絞り込める。
  *
  * @flow
  * リファレンスハブ（/reference）の「役一覧」カードか、教本の翻数別まとめの
@@ -44,6 +45,7 @@ export default async function ReferenceYakuPage() {
       {/* 役のカードは 1 枚ずつ細枠を持つので、広告の行も細枠の 1 枚にする */}
       <YakuCheatsheet
         withAnchors
+        withNakiFilter
         ads={ads.map((ad) => (
           <LinkRowList key={ad.id}>
             <NativeAdRow creative={ad} />

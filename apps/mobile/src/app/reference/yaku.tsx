@@ -34,6 +34,7 @@ export default function ReferenceYakuScreen() {
       {/* 役のカードは 1 枚ずつ細枠を持つので、広告の行も細枠の 1 枚にする（web と同じ） */}
       <YakuCheatsheet
         focusedYakuName={focused}
+        withNakiFilter
         ads={ads.map((ad) => (
           <LinkRowList key={ad.id}>
             <NativeAdRow creative={ad} />

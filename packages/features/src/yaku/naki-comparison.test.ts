@@ -1,14 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isKuisagariEntry } from "@mahjong-scoring/core";
-import type { YakuHanEntry } from "@mahjong-scoring/core";
-
-import { NakiKind, buildNakiComparisonGroups } from "./naki-comparison";
-
-/** 役のデータから読める区分 */
-function classifyEntry(entry: YakuHanEntry): NakiKind {
-  if (entry.nakiHan === undefined) return NakiKind.MenzenOnly;
-  return isKuisagariEntry(entry) ? NakiKind.Kuisagari : NakiKind.Unchanged;
-}
+import { buildNakiComparisonGroups } from "./naki-comparison";
+import { NakiKind, classifyNakiKind } from "./naki-kind";
 
 describe("buildNakiComparisonGroups", () => {
   const groups = buildNakiComparisonGroups();
@@ -28,7 +20,7 @@ describe("buildNakiComparisonGroups", () => {
   it("各役は役のデータどおりの区分に置かれる", () => {
     for (const group of groups) {
       for (const entry of group.entries) {
-        expect(classifyEntry(entry), entry.name).toBe(group.kind);
+        expect(classifyNakiKind(entry), entry.name).toBe(group.kind);
       }
     }
   });

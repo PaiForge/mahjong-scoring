@@ -1,22 +1,7 @@
 import { YAKU_HAN_ENTRIES } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
 
-/**
- * 鳴いたときの翻数の変わり方の区分
- * 鳴き区分
- *
- * - `menzenOnly`: 門前限定（鳴くと成立しない）
- * - `kuisagari`: 食い下がり（鳴くと 1 翻下がる）
- * - `unchanged`: 鳴いても翻数が変わらない
- *
- * 辞書キー `yaku.learn.nakiKinds.<区分>` と同じ文字列を使う。
- */
-export const NakiKind = {
-  MenzenOnly: "menzenOnly",
-  Kuisagari: "kuisagari",
-  Unchanged: "unchanged",
-} as const;
-export type NakiKind = (typeof NakiKind)[keyof typeof NakiKind];
+import { NAKI_KIND_ORDER, type NakiKind } from "./naki-kind";
 
 /** 門前と鳴きの比較表の 1 区分 */
 export interface NakiComparisonGroup {
@@ -40,13 +25,6 @@ const NAKI_COMPARISON_YAKU_NAMES: Readonly<
   kuisagari: ["三色同順", "一気通貫", "混一色", "清一色"],
   unchanged: ["断么九", "対々和"],
 };
-
-/** 表に出す区分の順（本文が説明する順） */
-const NAKI_KIND_ORDER: readonly NakiKind[] = [
-  NakiKind.MenzenOnly,
-  NakiKind.Kuisagari,
-  NakiKind.Unchanged,
-];
 
 /**
  * 門前と鳴きの翻数の比較表の中身を組み立てる
