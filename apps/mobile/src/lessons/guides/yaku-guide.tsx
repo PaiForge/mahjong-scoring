@@ -23,7 +23,6 @@ export function YakuGuide() {
         <GuideParagraph>{t("whatIsYakuBody1")}</GuideParagraph>
         <GuideParagraph>{t("whatIsYakuBody2")}</GuideParagraph>
         <GuideParagraph>{t("whatIsYakuBody3")}</GuideParagraph>
-        <GuideParagraph>{t("whatIsYakuBody4")}</GuideParagraph>
       </GuideSection>
 
       <GuideSection title={t("menzenNakiTitle")}>
