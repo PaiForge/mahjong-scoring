@@ -26,7 +26,7 @@
   "doneTitleReview": "確認問題の結果",
   "doneReviewAdvice": "間違えた問題は本文で見直しておきましょう。",
   "doneScore": "{total} 問中 {correct} 問正解",
-  "doneScorePerfect": "全問正解🎉",
+  "doneScorePerfect": "全問正解",
   "saving": "完了を記録しています…",
   "continueHome": "次の一歩へ",
   "nextStep": {
