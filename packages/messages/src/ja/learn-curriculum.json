@@ -27,15 +27,15 @@
     },
     "manganOyaRon": {
       "title": "親のロン",
-      "description": "子のロンの1.5倍"
+      "description": "満貫以上は子のロンの1.5倍"
     },
     "manganKoTsumo": {
       "title": "子のツモ",
-      "description": "子のロンの半分を親が、さらに半分を子が払う"
+      "description": "満貫以上は子のロンの半分を親が、さらに半分を子が払う"
     },
     "manganOyaTsumo": {
       "title": "親のツモ",
-      "description": "親のロンを3で割り、子3人が同額を払う"
+      "description": "満貫以上は親のロンを3で割り、子3人が同額を払う"
     },
     "jantouFu": {
       "title": "雀頭の符",
