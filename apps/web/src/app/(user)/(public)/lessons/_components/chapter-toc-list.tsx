@@ -22,6 +22,9 @@ interface ChapterTocListProps {
  *
  * 「次はここから」バッジは出さない（`nextSlug` を渡さない）。進む順の案内は
  * レッスンの目次が持つ役割で、抜粋の側が別の順序を主張すると二重になる。
+ *
+ * セクション名は h3。抜粋はどこでも h2 の見出し（`SectionTitle`・LP の
+ * `LandingSection`）の下に置かれるため。
  */
 export async function ChapterTocList({
   slugs,
@@ -46,6 +49,7 @@ export async function ChapterTocList({
             chapters={sectionChapters}
             completedSlugs={completedSlugs}
             nextSlug={undefined}
+            headingLevel={3}
           />
         );
       })}

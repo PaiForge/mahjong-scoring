@@ -12,6 +12,7 @@ import {
 import {
   BULLET_CENTER_TOP_PX,
   CHAPTER_ROW_BASE_CLASS,
+  CHAPTER_ROW_BOX_CLASS,
   GUIDE_LINE_LEFT_PX,
   SECTION_BULLET_SIZE_CLASS,
 } from "../_lib/toc-layout";
@@ -28,6 +29,12 @@ interface CurriculumTocProps {
    * だけが付ける — 抜粋の側が付けると、同じ章が 2 度並ぶページで重複する
    */
   readonly anchored?: boolean;
+  /**
+   * セクション名の見出しレベル。目次のすぐ上にある見出しの 1 段下を渡す —
+   * `/lessons` は h1 の直下なので 2、抜粋（`ChapterTocList`・ダッシュボード）は
+   * `SectionTitle` 等の h2 の下に置かれるので 3
+   */
+  readonly headingLevel: 2 | 3;
 }
 
 /**
@@ -37,7 +44,10 @@ interface CurriculumTocProps {
  * ぶら下がる構造。破線ガイド線はセクション bullet の中心から最後の章までを
  * 縦に束ねる。
  *
- * - セクション bullet は `size-4`（カテゴリ色）＋右側にラベル（`<p>`、見出し要素は使わない）
+ * - セクション bullet は `size-4`（カテゴリ色）＋右側にセクション名の見出し
+ *   （`headingLevel`）。`<section>` にも `<ol>` にもラベルを付けない —
+ *   名前を持つ `<section>` はランドマーク（region）になり、目次のセクションの
+ *   数だけランドマークが並ぶ。見出しがあれば見出しの移動で辿れる
  * - 章は bullet なし / `pl-7` インデントで配置し「タイトル Link + description」を表示
  * - 「次はここから」バッジは行の右端、`aria-current="step"` も付与
  * - 完了したレッスンは行の右端に緑丸のチェック（白抜き・枠なし）
@@ -60,6 +70,7 @@ export async function CurriculumToc({
   completedSlugs,
   nextSlug,
   anchored = false,
+  headingLevel,
 }: CurriculumTocProps) {
   const t = await getTranslations("learnCurriculum");
   const tIndex = await getTranslations("learnCurriculum.index");
@@ -69,9 +80,10 @@ export async function CurriculumToc({
 
   const bulletColorClass = SECTION_CATEGORY_COLOR_CLASS[section];
   const sectionLabel = t(`sections.${section}`);
+  const Heading = headingLevel === 2 ? "h2" : "h3";
 
   return (
-    <section aria-label={sectionLabel}>
+    <section>
       <div className="relative">
         <span
           aria-hidden="true"
@@ -90,15 +102,11 @@ export async function CurriculumToc({
             data-section={section}
             className={`relative z-10 inline-block ${SECTION_BULLET_SIZE_CLASS} shrink-0 rounded-full border-2 border-panel ${bulletColorClass}`}
           />
-          <p className="text-sm font-bold tracking-wide text-surface-900">
+          <Heading className="text-sm font-bold tracking-wide text-surface-900">
             {sectionLabel}
-          </p>
+          </Heading>
         </div>
-        <ol
-          className="flex flex-col"
-          data-testid="curriculum-chapter-list"
-          aria-label={sectionLabel}
-        >
+        <ol className="flex flex-col" data-testid="curriculum-chapter-list">
           {chapters.map((ch) => {
             if (isColumnChapter(ch)) {
               return (
@@ -127,10 +135,15 @@ export async function CurriculumToc({
             const isNext = nextSlug === ch.slug;
             const path = getChapterI18nPath(ch);
 
+            // タイトルと説明文を左の列に縦に積み、印（次の札・完了）を右の列に
+            // 2 行またいで置く。包む要素を挟まず <li> の直下に並べるためのグリッド。
+            // 印が無い行は右の列を作らない（列の間の gap だけが残って本文が狭まる）。
             // scroll-mt は目次へのアンカー着地でヘッダの下に隠れないための逃がし
-            const rowClass = `${CHAPTER_ROW_BASE_CLASS} scroll-mt-24 ${
-              isNext ? "bg-amber-50" : ""
-            }`;
+            const rowClass = `${CHAPTER_ROW_BOX_CLASS} grid gap-x-3 gap-y-2 scroll-mt-24 ${
+              isNext || isDone
+                ? "grid-cols-[minmax(0,1fr)_auto]"
+                : "grid-cols-[minmax(0,1fr)]"
+            } ${isNext ? "bg-amber-50" : ""}`;
 
             return (
               <li
@@ -150,23 +163,21 @@ export async function CurriculumToc({
                     style={{ left: `${GUIDE_LINE_LEFT_PX}px` }}
                   />
                 )}
-                <span className="flex min-w-0 flex-1 flex-col gap-2">
-                  <Link
-                    href={chapterHref(ch.slug)}
-                    className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
-                  >
-                    {t(`${path}.title`)}
-                  </Link>
-                  {/* リンク色 (muted-foreground = surface-500) と並ぶため、
-                      説明文は同系のまま一段淡くして主従を付ける。 */}
-                  <span className="text-xs text-surface-400">
-                    {t(`${path}.description`)}
-                  </span>
-                </span>
+                <Link
+                  href={chapterHref(ch.slug)}
+                  className={`col-start-1 row-start-1 text-sm font-bold ${TEXT_LINK_CLASSES}`}
+                >
+                  {t(`${path}.title`)}
+                </Link>
+                {/* リンク色 (muted-foreground = surface-500) と並ぶため、
+                    説明文は同系のまま一段淡くして主従を付ける。 */}
+                <p className="col-start-1 row-start-2 text-xs text-surface-400">
+                  {t(`${path}.description`)}
+                </p>
                 {isNext && (
                   <span
                     data-testid="curriculum-next-badge"
-                    className="mt-0.5 inline-flex h-6 shrink-0 items-center rounded-md bg-amber-100 px-2 text-[11px] leading-none font-bold text-amber-900"
+                    className="col-start-2 row-span-2 row-start-1 mt-0.5 inline-flex h-6 items-center self-start rounded-md bg-amber-100 px-2 text-[11px] leading-none font-bold text-amber-900"
                   >
                     {tIndex("nextChapterBadge")}
                   </span>
@@ -176,7 +187,7 @@ export async function CurriculumToc({
                     role="img"
                     aria-label={tChapter("completedMark")}
                     data-testid="curriculum-achieved-mark"
-                    className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-success text-success-foreground"
+                    className="col-start-2 row-span-2 row-start-1 mt-0.5 inline-flex size-6 items-center justify-center self-start rounded-full bg-success text-success-foreground"
                   >
                     <CheckIcon className="size-3.5" />
                   </span>

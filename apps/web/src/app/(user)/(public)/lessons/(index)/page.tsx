@@ -83,6 +83,7 @@ export default async function LearnIndexPage() {
                 completedSlugs={completedSlugs}
                 nextSlug={next?.slug}
                 anchored
+                headingLevel={2}
               />
               {/* 広告はセクションの切れ目に 1 行ずつ（位置は
                   adIndexAfterGroup）。セクションの中（章の並び）には
