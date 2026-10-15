@@ -53,6 +53,7 @@ export async function ContinueLearningSection({
         chapters={[nextChapter]}
         completedSlugs={completedSlugs}
         nextSlug={nextChapter.slug}
+        headingLevel={3}
       />
 
       <CurriculumTocLink />

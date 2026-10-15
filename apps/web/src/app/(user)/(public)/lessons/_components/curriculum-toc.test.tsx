@@ -31,6 +31,7 @@ describe("CurriculumToc", () => {
   it("renders a <li> per chapter with a title link to /lessons/<slug>", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -51,6 +52,7 @@ describe("CurriculumToc", () => {
   it("renders the dashed guide line", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -66,6 +68,7 @@ describe("CurriculumToc", () => {
   it("marks read chapters with an achievement check icon", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set(["about-this-app"]),
@@ -91,6 +94,7 @@ describe("CurriculumToc", () => {
   it("highlights the next chapter with a data-next attribute", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -111,6 +115,7 @@ describe("CurriculumToc", () => {
   it("overlays an amber guide line on the next-chapter row aligned with the dashed line", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -143,6 +148,7 @@ describe("CurriculumToc", () => {
   it("does not apply a left border on chapter rows (amber line is absolute)", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -160,6 +166,7 @@ describe("CurriculumToc", () => {
   it('marks the next chapter row with aria-current="step"', async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -177,23 +184,45 @@ describe("CurriculumToc", () => {
     expect(otherRow?.getAttribute("aria-current")).toBeNull();
   });
 
-  it("labels the <ol> with the section label for assistive tech", async () => {
+  it("renders the section label as a heading of the given level", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 3,
         section,
         chapters,
         completedSlugs: new Set<string>(),
         nextSlug: undefined,
       }),
     );
-    const ol = container.querySelector("ol");
     // The mocked translator returns the key as-is.
-    expect(ol?.getAttribute("aria-label")).toBe("sections.introduction");
+    expect(container.querySelector("h3")?.textContent).toBe(
+      "sections.introduction",
+    );
+    expect(container.querySelector("h2")).toBeNull();
+  });
+
+  it("does not label the <section> or <ol> (the heading names the group)", async () => {
+    const { container } = render(
+      await CurriculumToc({
+        headingLevel: 2,
+        section,
+        chapters,
+        completedSlugs: new Set<string>(),
+        nextSlug: undefined,
+      }),
+    );
+    expect(container.querySelector("section")?.hasAttribute("aria-label")).toBe(
+      false,
+    );
+    expect(container.querySelector("ol")?.hasAttribute("aria-label")).toBe(
+      false,
+    );
   });
 
   it("renders the section label only once alongside the section bullet", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -221,6 +250,7 @@ describe("CurriculumToc", () => {
   it("renders exactly one section bullet regardless of chapter count", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -236,6 +266,7 @@ describe("CurriculumToc", () => {
   it("does not render a bullet inside individual chapter rows", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set<string>(),
@@ -253,6 +284,7 @@ describe("CurriculumToc", () => {
   it("places the next-chapter badge at the right end of the row, where the read check sits", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section,
         chapters,
         completedSlugs: new Set(["why-scoring-is-complex"]),
@@ -285,6 +317,7 @@ describe("CurriculumToc", () => {
   it("applies the section-specific bullet color class", async () => {
     const { container } = render(
       await CurriculumToc({
+        headingLevel: 2,
         section: "fu",
         chapters: [
           {
@@ -308,6 +341,7 @@ describe("CurriculumToc", () => {
 
   it("renders nothing when chapters is empty", async () => {
     const result = await CurriculumToc({
+      headingLevel: 2,
       section,
       chapters: [],
       completedSlugs: new Set<string>(),
@@ -328,6 +362,7 @@ describe("CurriculumToc", () => {
     it("札とタイトルだけを描き、説明文・完了の印・次の印を持たない", async () => {
       const { container } = render(
         await CurriculumToc({
+          headingLevel: 2,
           section,
           chapters: [chapters[0]!, column, chapters[1]!],
           // 完了済み・次として渡されても、コラムの行には印を出さない
