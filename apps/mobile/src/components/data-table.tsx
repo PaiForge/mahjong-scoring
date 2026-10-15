@@ -21,13 +21,25 @@ export interface DataTableColumn {
   readonly width?: number;
 }
 
+/**
+ * 区切りの行（web の表で `colSpan` で全列にまたがる小見出しの行）
+ *
+ * 行を区分ごとにまとめる表で、区分の名前を全幅に置く。
+ */
+export interface DataTableSectionRow {
+  readonly section: string;
+}
+
+/** 本体の 1 行。セルの並びか、区切りの行 */
+export type DataTableRow = readonly ReactNode[] | DataTableSectionRow;
+
 /** セルの余白の段階（web の `DataTableHeaderCell` の `density`） */
 export type DataTableDensity = "regular" | "dense";
 
 interface DataTableProps {
   readonly columns: readonly DataTableColumn[];
-  /** 行ごとのセル。文字列・数はそのまま Text にする */
-  readonly rows: readonly (readonly ReactNode[])[];
+  /** 行ごとのセル。文字列・数はそのまま Text にする。区切りの行も混ぜられる */
+  readonly rows: readonly DataTableRow[];
   /** セルの余白。列が多く狭い表（点数表など）は "dense" で詰める */
   readonly density?: DataTableDensity;
   /**
@@ -90,29 +102,35 @@ export function DataTable({
           );
         })}
       </View>
-      {rows.map((cells, r) => (
-        <View key={r} style={[styles.row, r > 0 && styles.divider]}>
-          {cells.map((cell, i) => (
-            <View
-              key={i}
-              style={[
-                cellStyle,
-                sizeOf(i),
-                { alignItems: justify(i) },
-                extraCellStyle?.(r, i),
-              ]}
-            >
-              {typeof cell === "string" || typeof cell === "number" ? (
-                <Text style={[styles.text, { textAlign: alignOf(i) }]}>
-                  {cell}
-                </Text>
-              ) : (
-                cell
-              )}
-            </View>
-          ))}
-        </View>
-      ))}
+      {rows.map((cells, r) =>
+        "section" in cells ? (
+          <View key={r} style={[styles.section, r > 0 && styles.divider]}>
+            <Text style={styles.sectionText}>{cells.section}</Text>
+          </View>
+        ) : (
+          <View key={r} style={[styles.row, r > 0 && styles.divider]}>
+            {cells.map((cell, i) => (
+              <View
+                key={i}
+                style={[
+                  cellStyle,
+                  sizeOf(i),
+                  { alignItems: justify(i) },
+                  extraCellStyle?.(r, i),
+                ]}
+              >
+                {typeof cell === "string" || typeof cell === "number" ? (
+                  <Text style={[styles.text, { textAlign: alignOf(i) }]}>
+                    {cell}
+                  </Text>
+                ) : (
+                  cell
+                )}
+              </View>
+            ))}
+          </View>
+        ),
+      )}
     </View>
   );
 }
@@ -133,6 +151,16 @@ const styles = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: colors.surface100,
+  },
+  section: {
+    backgroundColor: colors.surface50,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  sectionText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.surface600,
   },
   cell: {
     paddingHorizontal: 12,

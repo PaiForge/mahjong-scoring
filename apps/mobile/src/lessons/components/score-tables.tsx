@@ -1,11 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import {
-  YAKU_HAN_ENTRIES,
-  groupYakuHanEntriesByMenzenHan,
-  type Role,
-} from "@mahjong-scoring/core";
+import type { Role, YakuHanEntry } from "@mahjong-scoring/core";
 import { buildExtraFuRows } from "@mahjong-scoring/features/curriculum/extra-fu-rows";
 import {
   buildFixedFuRows,
@@ -13,6 +9,7 @@ import {
 } from "@mahjong-scoring/features/curriculum/fixed-fu-rows";
 import type { FixedHandShape } from "@mahjong-scoring/features/practice/score/hand-shape-param";
 import { hasYakuCheatsheetEntry } from "@mahjong-scoring/features/yaku/examples";
+import { buildNakiComparisonGroups } from "@mahjong-scoring/features/yaku/naki-comparison";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 
 import { DataTable } from "../../components/data-table";
@@ -20,7 +17,7 @@ import { linkStyles } from "../../lib/link-styles";
 import { colors } from "../../lib/theme";
 import { referenceYakuHref } from "../../reference/routes";
 import { TableCaption } from "./guide-text";
-import { MutedCell, RowHeaderCell, StrongCell } from "./table-cells";
+import { MutedCell, PlainCell, RowHeaderCell, StrongCell } from "./table-cells";
 import { TsumoScore } from "./tsumo-score";
 import { FU_CHECKLIST_ROWS } from "@mahjong-scoring/features/curriculum/fu-checklist-rows";
 
@@ -127,44 +124,58 @@ export function ExtraFuTable({
 }
 
 /**
- * 翻数別の役まとめ表（web の `YakuHanTable`）
- * 翻数別役一覧表
+ * 門前と鳴きの翻数の比較表（web の `YakuNakiComparisonTable`）
+ * 門前鳴き比較表
  *
- * 役と翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。各役名は役一覧の
- * その役へのリンクで、押すとその役が開いた状態で着地する。早見表に載らない
- * 状況役（立直・門前清自摸和）だけは素のテキスト（web と同じ）。役名は指で
- * 押せる間隔を空けて折り返す。
+ * 役ごとに門前と鳴いたときの翻数を並べ、3 区分を区切りの行で分ける。載せる
+ * 役と区分は `buildNakiComparisonGroups` が決める（web と同じ）。各役名は
+ * 役一覧のその役へのリンクで、早見表に載らない状況役（立直）だけは素のテキスト。
  */
-export function YakuHanTable() {
+export function YakuNakiComparisonTable() {
   const t = useTranslations("yaku.learn");
   const router = useRouter();
-  const groups = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES);
+  const groups = buildNakiComparisonGroups();
+  const nakiCell = (entry: YakuHanEntry) =>
+    entry.nakiHan === undefined ? (
+      <Text
+        key="naki"
+        accessibilityLabel={t("notEstablishedLabel")}
+        style={styles.notEstablished}
+      >
+        {t("notEstablished")}
+      </Text>
+    ) : (
+      <PlainCell key="naki">{yakuHanLabel(entry.nakiHan, t)}</PlainCell>
+    );
   return (
     <DataTable
       columns={[
-        { label: t("colHan"), flex: 1 },
-        { label: t("colYakuList"), flex: 3 },
+        { label: t("colYaku"), flex: 2 },
+        { label: t("colMenzen"), align: "center", flex: 1 },
+        { label: t("colNaki"), align: "center", flex: 1 },
       ]}
-      rows={groups.map((group) => [
-        <StrongCell key="han">{yakuHanLabel(group.han, t)}</StrongCell>,
-        <View key="list" style={styles.yakuList}>
-          {group.entries.map((entry) =>
-            hasYakuCheatsheetEntry(entry.name) ? (
-              <Text
-                key={entry.name}
-                onPress={() => router.push(referenceYakuHref(entry.name))}
-                accessibilityRole="link"
-                style={[styles.yaku, linkStyles.inline]}
-              >
-                {entry.name}
-              </Text>
-            ) : (
-              <Text key={entry.name} style={styles.yaku}>
-                {entry.name}
-              </Text>
-            ),
-          )}
-        </View>,
+      rows={groups.flatMap((group) => [
+        { section: t(`nakiKinds.${group.kind}`) },
+        ...group.entries.map((entry) => [
+          hasYakuCheatsheetEntry(entry.name) ? (
+            <Text
+              key="yaku"
+              onPress={() => router.push(referenceYakuHref(entry.name))}
+              accessibilityRole="link"
+              style={[styles.yaku, linkStyles.inline]}
+            >
+              {entry.name}
+            </Text>
+          ) : (
+            <Text key="yaku" style={styles.yaku}>
+              {entry.name}
+            </Text>
+          ),
+          <PlainCell key="menzen">
+            {yakuHanLabel(entry.menzenHan, t)}
+          </PlainCell>,
+          nakiCell(entry),
+        ]),
       ])}
     />
   );
@@ -203,16 +214,13 @@ const styles = StyleSheet.create({
   block: {
     gap: 8,
   },
-  yakuList: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    columnGap: 16,
-    rowGap: 4,
-  },
   yaku: {
-    paddingVertical: 2,
     fontSize: 14,
     color: colors.surface700,
+  },
+  notEstablished: {
+    fontSize: 14,
+    color: colors.surface400,
   },
   place: {
     gap: 2,
