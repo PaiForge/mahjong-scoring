@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatJstDateLong,
   formatJstDateTime,
+  formatJstDayKeyLong,
   jstCalendarDate,
   jstDayKey,
   jstDayStartIso,
@@ -117,5 +119,20 @@ describe("formatJstDateTime", () => {
     expect(formatJstDateTime(new Date("2026-10-01T15:05:00Z"))).toBe(
       "2026/10/02 00:05",
     );
+  });
+});
+
+describe("formatJstDateLong", () => {
+  it("JST の「年月日」にする", () => {
+    // UTC 15:00 は JST の翌日 0:00
+    expect(formatJstDateLong(new Date("2026-10-20T15:00:00Z"))).toBe(
+      "2026年10月21日",
+    );
+  });
+});
+
+describe("formatJstDayKeyLong", () => {
+  it("日付キーを「年月日」にする（月日は 0 埋めしない）", () => {
+    expect(formatJstDayKeyLong("2026-04-02")).toBe("2026年4月2日");
   });
 });

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { compareNumbers } from "@mahjong-scoring/core";
+import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
 import type { MobileMypageActivityDay } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
   isPracticeMenuType,
@@ -18,12 +19,6 @@ const BAR_MIN_HEIGHT = 4;
 function formatBarLabel(date: string): string {
   const [, month, day] = date.split("-");
   return `${Number(month)}/${Number(day)}`;
-}
-
-/** `YYYY-MM-DD` を「2026年10月10日」にする */
-function formatLongDate(date: string): string {
-  const [year, month, day] = date.split("-");
-  return `${Number(year)}年${Number(month)}月${Number(day)}日`;
 }
 
 /**
@@ -131,7 +126,7 @@ function DayDetail({ day }: { readonly day: MobileMypageActivityDay }) {
 
   return (
     <>
-      <Text style={styles.detailDate}>{formatLongDate(day.date)}</Text>
+      <Text style={styles.detailDate}>{formatJstDayKeyLong(day.date)}</Text>
       <Text style={styles.detailTotal}>
         {t("total")}: {day.exp} {expSuffix}
       </Text>
