@@ -488,6 +488,24 @@ describe("LessonView", () => {
       expect((choice("12,000") as HTMLButtonElement).disabled).toBe(false);
     });
 
+    it("完了画面の次の一歩の下から本文へ戻り、ブラウザで戻ると完了画面に戻る", async () => {
+      mockUseAuth.mockReturnValue(signedIn);
+      mockCompleteLesson.mockResolvedValue({ success: true });
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+      await screen.findByRole("link", { name: "nextLesson" });
+
+      fireEvent.click(screen.getByTestId("lesson-done-review-body"));
+      expect(screen.getByTestId("explanation")).toBeTruthy();
+      expect(screen.queryByTestId("lesson-achievement")).toBeNull();
+
+      await traverse("back");
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
+      // 戻っても記録し直さない
+      expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
+    });
+
     it("回答前はヒントと並べ、回答後も残す", () => {
       renderLesson();
       startQuiz();

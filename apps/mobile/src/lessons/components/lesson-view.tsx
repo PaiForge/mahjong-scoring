@@ -32,6 +32,7 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
 import { Grid } from "../../components/grid";
+import { LightbulbIcon } from "../../components/icons/icons";
 import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
@@ -312,10 +313,21 @@ export function LessonView({
           <PromptTiles prompt={question.prompt} />
           {/* ヒントは答えそのものではなく、表を思い出す手がかり */}
           {showHint && !isAnswered && (
-            <Text style={styles.hint} testID="lesson-hint">
-              <Text style={styles.hintLabel}>{`${t("hintLabel")}: `}</Text>
-              {tLesson(`questions.${question.key}.hint`)}
-            </Text>
+            <View
+              style={styles.hint}
+              testID="lesson-hint"
+              accessible
+              accessibilityLabel={`${t("hintLabel")}: ${tLesson(`questions.${question.key}.hint`)}`}
+            >
+              {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す。文字は控えめな灰、
+                  琥珀は電球だけ（濃い琥珀の文字は警告の色と同じで注意書きに見える） */}
+              <View style={styles.hintIcon}>
+                <LightbulbIcon size={16} color={lessonColors.amber600} />
+              </View>
+              <Text style={styles.hintText}>
+                {tLesson(`questions.${question.key}.hint`)}
+              </Text>
+            </View>
           )}
           {isAnswered && (
             <View
@@ -490,6 +502,14 @@ export function LessonView({
           </Button>
         )}
         {goal}
+        {/* 解き終えてから表を見返したい人へ。次の一歩の下に移動だけのリンクで置く。
+            戻った本文は完了済みの形（解き直しのリンクと次のレッスン・練習）になる */}
+        <TextLink
+          onPress={() => goTo("learn")}
+          testID="lesson-done-review-body"
+        >
+          {t("reviewBody")}
+        </TextLink>
       </View>
 
       <ChapterRelatedLinks slug={slug} exclude={nextPractice} />
@@ -525,12 +545,18 @@ const styles = StyleSheet.create({
     color: colors.surface900,
   },
   hint: {
-    fontSize: 14,
-    textAlign: "center",
-    color: lessonColors.amber900,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: 6,
   },
-  hintLabel: {
-    fontWeight: "700",
+  hintIcon: {
+    marginTop: 1,
+  },
+  hintText: {
+    flexShrink: 1,
+    fontSize: 14,
+    color: colors.mutedForeground,
   },
   judgement: {
     flexDirection: "row",

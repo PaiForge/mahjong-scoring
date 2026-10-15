@@ -146,7 +146,7 @@ type SaveState =
  * 1 段階ずつ戻れるようにする。完了画面から戻ると最後の問題を答えた状態、
  * 確認問題から戻ると本文で、本文の下のボタンは「確認問題に戻る（n / m 問目）」
  * になり、途中の問題（選んだ答え・ヒント・正答数ごと）から続ける。
- * 確認問題の下の「本文を読み返す」も同じで、本文の段階を履歴に積んで
+ * 確認問題の下と完了画面の次の一歩の下の「本文を読み返す」も同じで、本文の段階を履歴に積んで
  * 本文の先頭へ送る（読み返してからの「戻る」は解いていた問題へ戻る）。
  * 表を見返したくなるたびに最初から解き直させないため。解き終えたあとに
  * 本文まで戻って押したときだけ最初から解き直す（完了は記録済みなので、
@@ -426,13 +426,28 @@ export function LessonView({
           </div>
           {/* 次の一歩は「できるようになったこと」の続きとして同じ節に置く。
             節を分けると完了と次の一歩の間に見出しの区切りが入る */}
-          <CompletionActions
-            saveState={saveState}
-            next={next}
-            progressStep={followUp?.next}
-            signInHref={buildSignInHref(chapterHref(slug))}
-            onRetrySave={handleRetrySave}
-          />
+          <div className={`flex flex-col ${SUB_LINK_GAP}`}>
+            <CompletionActions
+              saveState={saveState}
+              next={next}
+              progressStep={followUp?.next}
+              signInHref={buildSignInHref(chapterHref(slug))}
+              onRetrySave={handleRetrySave}
+            />
+            {/* 解き終えてから表を見返したい人へ。次の一歩の下に移動だけの
+                リンクで置き、主導線（次の一歩）とは押し間違えない間隔を取る。
+                戻った本文は完了済みの形（解き直しのリンクと練習・試験）になる */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={handleReviewBody}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+                data-testid="lesson-done-review-body"
+              >
+                {t("reviewBody")}
+              </button>
+            </div>
+          </div>
         </section>
 
         {related}

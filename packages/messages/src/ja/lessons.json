@@ -60,7 +60,7 @@
     "questionPrompt": "点数を選んでください",
     "questions": {
       "mangan": {
-        "hint": "5 翻は満貫。基準の点数です。",
+        "hint": "基準となる点数を思い出しましょう。",
         "explanation": "5 翻は満貫で、子のロンは 8,000 点です。"
       },
       "haneman": {
