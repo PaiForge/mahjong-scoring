@@ -419,6 +419,7 @@ export function LessonView({
     );
   }
 
+  const perfect = correctCount === questions.length;
   // 道筋の順の一歩（ページの順序）と、本人の進み具合を踏まえた一歩
   const planned = stepAfterLesson(slug);
   const followUp = lessonFollowUp(slug, progress);
@@ -461,24 +462,43 @@ export function LessonView({
   return (
     <View style={styles.done}>
       <View style={styles.doneSection}>
-        <SectionTitle>{t("doneTitle")}</SectionTitle>
-        {/* 合格と同じ success の囲み。レッスンの完了は小さな合格 */}
-        <View style={styles.achievement} testID="lesson-achievement">
-          <View style={styles.achievementRow}>
-            <View style={styles.achievementMark}>
-              <JudgementMark verdict="correct" />
+        <SectionTitle>
+          {perfect ? t("doneTitle") : t("doneTitleReview")}
+        </SectionTitle>
+        {perfect ? (
+          // 合格と同じ success の囲み。レッスンの完了は小さな合格
+          <View style={styles.achievement} testID="lesson-achievement">
+            <View style={styles.achievementRow}>
+              <View style={styles.achievementMark}>
+                <JudgementMark verdict="correct" />
+              </View>
+              <Text style={styles.achievementText}>
+                {tLesson("achievement")}
+              </Text>
             </View>
-            <Text style={styles.achievementText}>{tLesson("achievement")}</Text>
           </View>
-          <Text style={styles.score} testID="lesson-score">
-            {correctCount === questions.length
-              ? t("doneScorePerfect", { total: questions.length })
-              : t("doneScore", {
-                  correct: correctCount,
-                  total: questions.length,
-                })}
-          </Text>
-        </View>
+        ) : (
+          // 間違えた問題があるときは「できるようになった」と言わず、正答数と
+          // 見直しの案内を中立の囲みで出す。全問正解のときは正答数を出さない。
+          // 完了の記録と次の一歩は全問正解と同じ（理由は web の `LessonView`）
+          <View style={styles.review} testID="lesson-review">
+            <Text style={styles.score} testID="lesson-score">
+              {t("doneScore", {
+                correct: correctCount,
+                total: questions.length,
+              })}
+            </Text>
+            <Text style={styles.reviewAdvice}>{t("doneReviewAdvice")}</Text>
+            <Button
+              variant="neutral"
+              fullWidth
+              onPress={() => goTo("learn")}
+              testID="lesson-done-review-body"
+            >
+              {t("reviewBody")}
+            </Button>
+          </View>
+        )}
         {usePlanned && previewSlug !== undefined ? (
           <NextLessonPreview slug={previewSlug} />
         ) : stepReachable ? (
@@ -502,14 +522,17 @@ export function LessonView({
           </Button>
         )}
         {goal}
-        {/* 解き終えてから表を見返したい人へ。次の一歩の下に移動だけのリンクで置く。
-            戻った本文は完了済みの形（解き直しのリンクと次のレッスン・練習）になる */}
-        <TextLink
-          onPress={() => goTo("learn")}
-          testID="lesson-done-review-body"
-        >
-          {t("reviewBody")}
-        </TextLink>
+        {/* 全問正解でも表を見返したい人へ。次の一歩の下に移動だけのリンクで置く。
+            戻った本文は完了済みの形（解き直しのリンクと次のレッスン・練習）になる。
+            間違えたときは結果の囲みの中に置くので出さない */}
+        {perfect && (
+          <TextLink
+            onPress={() => goTo("learn")}
+            testID="lesson-done-review-body"
+          >
+            {t("reviewBody")}
+          </TextLink>
+        )}
       </View>
 
       <ChapterRelatedLinks slug={slug} exclude={nextPractice} />
@@ -613,8 +636,21 @@ const styles = StyleSheet.create({
     color: verdictTextColors.correct,
   },
   score: {
-    paddingLeft: 24,
-    fontSize: 14,
-    color: verdictTextColors.correct,
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.surface900,
+  },
+  review: {
+    borderWidth: borderWidth.panel,
+    borderColor: colors.panel,
+    borderRadius: radius.panel,
+    backgroundColor: colors.surface50,
+    padding: 20,
+    gap: 12,
+  },
+  reviewAdvice: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: colors.surface700,
   },
 });

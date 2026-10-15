@@ -180,12 +180,11 @@ describe("LessonView", () => {
       });
     });
 
-    it("3 問解くとできたことを出し、登録への誘導と次の一歩へのリンクを出し、完了を持ち主なしで端末に預ける", async () => {
+    it("3 問解くと結果を出し、登録への誘導と次の一歩へのリンクを出し、完了を持ち主なしで端末に預ける", async () => {
       renderLesson();
       startQuiz();
       answerAll(["8,000", "12,000", "32,000"]);
 
-      expect(screen.getByText("achievement")).toBeTruthy();
       expect(screen.getByTestId("lesson-score").textContent).toBe("doneScore");
       // ログインしているかはサーバーが決めるので、未ログインでも記録を試みる
       expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
@@ -239,9 +238,9 @@ describe("LessonView", () => {
       startQuiz();
       answerAll(["8,000", "12,000", "16,000"]);
 
-      expect(screen.getByTestId("lesson-score").textContent).toBe(
-        "doneScorePerfect",
-      );
+      // 全問正解なら正答数は出さず、できたことだけを出す
+      expect(screen.queryByTestId("lesson-score")).toBeNull();
+      expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
       // 保存中は次へ進めない（押せないボタンで記録中と示す）
       expect(
         (screen.getByTestId("lesson-saving") as HTMLButtonElement).disabled,
@@ -504,6 +503,34 @@ describe("LessonView", () => {
       expect(screen.getByTestId("lesson-achievement")).toBeTruthy();
       // 戻っても記録し直さない
       expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
+    });
+
+    it("全問正解でなければ、できたことの代わりに見直しの案内を出し、そこから本文へ戻れる", () => {
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "32,000"]);
+
+      expect(screen.queryByTestId("lesson-achievement")).toBeNull();
+      expect(screen.queryByText("achievement")).toBeNull();
+      expect(screen.getByText("doneTitleReview")).toBeTruthy();
+      expect(screen.getByTestId("lesson-review").textContent).toContain(
+        "doneReviewAdvice",
+      );
+      // 完了は正答数に関わらず記録する
+      expect(mockCompleteLesson).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByTestId("lesson-done-review-body"));
+      expect(screen.getByTestId("explanation")).toBeTruthy();
+    });
+
+    it("全問正解なら、できたことを出す", () => {
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      expect(screen.getByText("doneTitle")).toBeTruthy();
+      expect(screen.getByText("achievement")).toBeTruthy();
+      expect(screen.queryByTestId("lesson-review")).toBeNull();
     });
 
     it("回答前はヒントと並べ、回答後も残す", () => {
