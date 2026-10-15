@@ -17,7 +17,11 @@ import { useDoraDisplayMode } from "../hooks/use-display-settings-store";
 import { borderWidth, colors, radius } from "../lib/theme";
 import { useBoardBleed, useBoardFlushTop } from "./board-bleed";
 import { RiichiStick } from "./riichi-stick";
-import { HAI_SM_HEIGHT, REFERENCE_HAND_WIDTH, TehaiHand } from "./tehai-hand";
+import { TehaiHand } from "./tehai-hand";
+import {
+  HAI_SM_HEIGHT,
+  REFERENCE_HAND_WIDTH,
+} from "@mahjong-scoring/features/board/hand-layout";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */

@@ -14,15 +14,24 @@
  */
 
 /**
+ * 端末に預けている記録付きチャレンジ 1 件を指す値
+ * 預けたチャレンジの参照
+ *
+ * サーバーのチャレンジの ID と、どの練習・どの出題設定で始めたか。
+ */
+export interface ChallengeRef {
+  readonly attemptId: string;
+  readonly slug: string;
+  readonly variant: string;
+}
+
+/**
  * 解いている途中の記録付きチャレンジ
  * 進行中のチャレンジ
  *
  * アプリが落ちても、次の起動で後始末できるように残す。
  */
-export interface ActiveChallenge {
-  readonly attemptId: string;
-  readonly slug: string;
-  readonly variant: string;
+export interface ActiveChallenge extends ChallengeRef {
   /**
    * 送ったが応答をまだ受け取っていない回答。同じ番号・同じ中身で送り直すと、
    * サーバーは採点し直さずに同じ応答を返す
@@ -37,11 +46,7 @@ export interface ActiveChallenge {
  * 終わったが確定（成績の記録）を受け取れていないチャレンジ
  * 確定待ちのチャレンジ
  */
-export interface PendingFinish {
-  readonly attemptId: string;
-  readonly slug: string;
-  readonly variant: string;
-}
+export type PendingFinish = ChallengeRef;
 
 /** 1 人のユーザーのために預けている記録 */
 export interface UserRecords {

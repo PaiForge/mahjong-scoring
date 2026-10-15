@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockBoards, mockAttempts, mockResults } = vi.hoisted(
-  () => ({
-    mockAuthorize: vi.fn(),
-    mockBoards: vi.fn(),
-    mockAttempts: vi.fn(),
-    mockResults: vi.fn(),
-  }),
-);
+const { mockBoards, mockAttempts, mockResults } = vi.hoisted(() => ({
+  mockBoards: vi.fn(),
+  mockAttempts: vi.fn(),
+  mockResults: vi.fn(),
+}));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock(
   "@/app/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries",
   () => ({
@@ -47,11 +45,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   // JST の 2026-10-10（土）09:00
   vi.useFakeTimers({ now: new Date("2026-10-10T09:00:00+09:00") });
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "bob" },
-  });
+  authorizeAs({ userId: "user-1", username: "bob" });
   mockBoards.mockResolvedValue([JANTOU, YAKU]);
   mockAttempts.mockResolvedValue({ current: [attempt], previous: [] });
   mockResults.mockResolvedValue({ items: [attempt], totalPages: 2 });
@@ -106,11 +100,7 @@ describe("handleReadRecords", () => {
   });
 
   it("ユーザー名を決める前は 409", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     expect((await handleReadRecords(get(""))).status).toBe(409);
     expect(mockBoards).not.toHaveBeenCalled();

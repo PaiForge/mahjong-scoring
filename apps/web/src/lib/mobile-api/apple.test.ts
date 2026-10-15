@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockStore } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
+const { mockStore } = vi.hoisted(() => ({
   mockStore: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../apple/refresh-tokens", () => ({
   storeAppleAuthorizationCode: mockStore,
 }));
@@ -22,12 +22,7 @@ function post(body: unknown): Request {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: undefined,
-    appleSubject: "apple-sub-1",
-  });
+  authorizeAs({ userId: "user-1", appleSubject: "apple-sub-1" });
   mockStore.mockResolvedValue("saved");
 });
 
@@ -42,12 +37,7 @@ describe("handleSaveAppleToken", () => {
   });
 
   it("Apple の連携を持たないユーザーは、預けずに断る", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-      appleSubject: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handleSaveAppleToken(
       post({ authorizationCode: "code-1" }),

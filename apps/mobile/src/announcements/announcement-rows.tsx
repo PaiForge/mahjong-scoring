@@ -1,21 +1,14 @@
 import { useRouter } from "expo-router";
 import { useLocale, useTimeZone, useTranslations } from "use-intl";
 import type { MobileAnnouncementSummary } from "@mahjong-scoring/features/announcements/mobile-api";
-import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
+import {
+  ANNOUNCEMENT_LIST_DATE_OPTIONS,
+  formatPublishedDate,
+} from "@mahjong-scoring/features/announcements/format";
 import { announcementHref } from "@mahjong-scoring/features/routes";
 
 import { Chip } from "../components/chip";
 import { LinkRow } from "../components/link-row";
-
-/**
- * 一覧の日付の形（`2026/08/20`。web の一覧と同じ数字表記）。日付は
- * 端末のタイムゾーンではなく辞書の Provider のもの（日本時間）で数える
- */
-const NUMERIC_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-};
 
 /**
  * お知らせ 1 行（web の `AnnouncementTextList` の 1 行）
@@ -41,7 +34,8 @@ export function AnnouncementRow({
       description={formatPublishedDate(
         announcement.publishedAt ?? null,
         locale,
-        { ...NUMERIC_DATE_OPTIONS, timeZone },
+        // 日付は端末のタイムゾーンではなく辞書の Provider のもの（日本時間）で数える
+        { ...ANNOUNCEMENT_LIST_DATE_OPTIONS, timeZone },
       )}
       trailing={
         announcement.pinned ? (

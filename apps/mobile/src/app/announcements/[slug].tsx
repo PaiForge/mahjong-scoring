@@ -2,7 +2,10 @@ import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useLocale, useTimeZone, useTranslations } from "use-intl";
-import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
+import {
+  ANNOUNCEMENT_DETAIL_DATE_OPTIONS,
+  formatPublishedDate,
+} from "@mahjong-scoring/features/announcements/format";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 import { fetchAnnouncement } from "../../announcements/announcements-api";
@@ -15,13 +18,6 @@ import { useAnnouncementRead } from "../../announcements/use-announcement-read";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
-
-/** 詳細の公開日の形（`2026年8月20日`。web の詳細と同じ） */
-const LONG_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-};
 
 /**
  * お知らせ詳細
@@ -67,7 +63,7 @@ function Announcement({ slug }: { readonly slug: string }) {
   const publishedDate = formatPublishedDate(
     announcement.publishedAt ?? null,
     locale,
-    { ...LONG_DATE_OPTIONS, timeZone },
+    { ...ANNOUNCEMENT_DETAIL_DATE_OPTIONS, timeZone },
   );
   return (
     <>

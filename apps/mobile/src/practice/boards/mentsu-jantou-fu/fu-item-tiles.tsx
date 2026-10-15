@@ -4,7 +4,7 @@ import { MentsuType } from "@mahjong-scoring/core";
 import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
 
 import { FuroTiles } from "../../../board/furo-tiles";
-import { HAI_SM_HEIGHT } from "../../../board/tehai-hand";
+import { HAI_SM_HEIGHT } from "@mahjong-scoring/features/board/hand-layout";
 
 /**
  * 牌の描き分けに必要な回答行の情報

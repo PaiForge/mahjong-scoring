@@ -14,7 +14,10 @@ import { MarkdownRenderer } from "@/app/(user)/_components/markdown-renderer";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createMetadata } from "@/app/_lib/metadata";
 
-import { formatPublishedDate } from "@mahjong-scoring/features/announcements/format";
+import {
+  ANNOUNCEMENT_DETAIL_DATE_OPTIONS,
+  formatPublishedDate,
+} from "@mahjong-scoring/features/announcements/format";
 import { getPublishedAnnouncement } from "@/lib/announcements/queries";
 
 export const revalidate = 86400;
@@ -55,11 +58,11 @@ export default async function AnnouncementDetailPage({ params }: Props) {
     notFound();
   }
 
-  const publishedDate = formatPublishedDate(announcement.publishedAt, locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const publishedDate = formatPublishedDate(
+    announcement.publishedAt,
+    locale,
+    ANNOUNCEMENT_DETAIL_DATE_OPTIONS,
+  );
 
   return (
     <ContentContainer

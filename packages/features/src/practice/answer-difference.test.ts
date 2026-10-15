@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDifference } from "./answer-difference";
+import { answerDifferenceOf, formatDifference } from "./answer-difference";
 
 const format = (value: number) => `${value}符`;
 
@@ -17,5 +17,19 @@ describe("formatDifference", () => {
     expect(formatDifference({ correct: 30, user: 30, format }, "なし")).toBe(
       "なし",
     );
+  });
+});
+
+describe("answerDifferenceOf", () => {
+  it("回答が無ければ過不足を組まない", () => {
+    expect(answerDifferenceOf(30, undefined, format)).toBeUndefined();
+  });
+
+  it("回答があれば正解・回答・単位の付け方を組む", () => {
+    expect(answerDifferenceOf(30, 40, format)).toEqual({
+      correct: 30,
+      user: 40,
+      format,
+    });
   });
 });

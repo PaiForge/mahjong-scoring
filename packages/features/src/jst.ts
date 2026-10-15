@@ -127,3 +127,44 @@ const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
 export function formatJstDateTime(instant: Date): string {
   return JST_DATE_TIME_FORMAT.format(instant);
 }
+
+const JST_DATE_LONG_FORMAT = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: JST_TIME_ZONE,
+});
+
+/**
+ * 日時を JST の「2026年10月2日」の形にする
+ * JST日付長形式表示
+ *
+ * 曜日や時刻は出さない。{@link formatJstDateTime} と同じく、実行環境の
+ * タイムゾーンに依らず JST の日付で整形する。
+ */
+export function formatJstDateLong(instant: Date): string {
+  return JST_DATE_LONG_FORMAT.format(instant);
+}
+
+/**
+ * JST の日付（`YYYY-MM-DD`）を「2026年10月2日」の形にする
+ * JST日付キー長形式表示
+ *
+ * 日付だけを持つ値（章の公開日・ヒートマップの日付キー）向けの
+ * {@link formatJstDateLong}。
+ */
+export function formatJstDayKeyLong(dayKey: string): string {
+  return formatJstDateLong(new Date(jstDayStartIso(dayKey)));
+}
+
+/**
+ * JST の日付（`YYYY-MM-DD`）を「10/2」の形にする
+ * JST日付キー月日表示
+ *
+ * 棒グラフの軸のように幅が限られる所で使う。文字列を分解するだけで
+ * ロケールにもタイムゾーンにも依らない。月日は 0 埋めしない。
+ */
+export function formatJstDayKeyMonthDay(dayKey: string): string {
+  const [, month, day] = dayKey.split("-");
+  return `${Number(month)}/${Number(day)}`;
+}

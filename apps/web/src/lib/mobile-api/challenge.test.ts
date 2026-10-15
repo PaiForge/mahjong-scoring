@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  authorizeAs,
+  mockAuthorizeMobileRequest,
+} from "@/test/mobile-auth-mock";
 import { NextResponse } from "next/server";
 
 const {
-  mockAuthorize,
   mockBegin,
   mockAnswer,
   mockPause,
@@ -12,7 +15,6 @@ const {
   mockExp,
   mockRankSlugs,
 } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
   mockBegin: vi.fn(),
   mockAnswer: vi.fn(),
   mockPause: vi.fn(),
@@ -23,7 +25,7 @@ const {
   mockRankSlugs: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../challenge/attempts", () => ({
   beginAttempt: mockBegin,
   answerAttempt: mockAnswer,
@@ -75,11 +77,7 @@ const STATUS = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: USER_ID },
-    profile: { username: "alice" },
-  });
+  authorizeAs({ userId: USER_ID, username: "alice" });
 });
 
 describe("handleBeginChallenge", () => {
@@ -106,7 +104,7 @@ describe("handleBeginChallenge", () => {
   });
 
   it("認証で弾かれたら、その応答をそのまま返す", async () => {
-    mockAuthorize.mockResolvedValue({
+    mockAuthorizeMobileRequest.mockResolvedValue({
       ok: false,
       response: NextResponse.json({ error: "unauthorized" }, { status: 401 }),
     });
@@ -193,7 +191,7 @@ describe("handleBeginChallenge", () => {
 describe("handleAnswerChallenge", () => {
   it("受け取った時刻を認証より前に取って渡す", async () => {
     let authorizedAt = 0;
-    mockAuthorize.mockImplementation(async () => {
+    mockAuthorizeMobileRequest.mockImplementation(async () => {
       authorizedAt = Date.now();
       await new Promise((resolve) => setTimeout(resolve, 5));
       return { ok: true, user: { id: USER_ID }, profile: undefined };

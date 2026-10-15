@@ -1,19 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { formatJstDayKeyMonthDay } from "@mahjong-scoring/features/jst";
 
 import type { HeatmapLayout } from "../_lib/heatmap-utils";
 
 const BAR_CHART_HEIGHT_PX = 140;
 const BAR_CHART_MIN_HEIGHT_PX = 4;
-
-/**
- * 'YYYY-MM-DD' を 'M/D' 形式に変換する（ロケール非依存）。
- */
-function formatBarLabel(dateStr: string): string {
-  const [, m, d] = dateStr.split("-");
-  return `${Number(m)}/${Number(d)}`;
-}
 
 interface HeatmapBarChartProps {
   readonly layout: HeatmapLayout;
@@ -55,7 +48,7 @@ export function HeatmapBarChart({
               )
             : BAR_CHART_MIN_HEIGHT_PX;
         const isSelected = dateStr === selectedDate;
-        const dateLabel = formatBarLabel(dateStr);
+        const dateLabel = formatJstDayKeyMonthDay(dateStr);
 
         return (
           <div

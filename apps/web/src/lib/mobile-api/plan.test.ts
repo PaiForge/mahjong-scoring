@@ -1,22 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  authorizeAs,
+  mockAuthorizeMobileRequest,
+} from "@/test/mobile-auth-mock";
 
 import type { Purchase } from "../db";
 
-const {
-  mockAuthorize,
-  mockListPurchases,
-  mockListGrants,
-  mockActiveBenefits,
-  mockClientIp,
-} = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
-  mockListPurchases: vi.fn(),
-  mockListGrants: vi.fn(),
-  mockActiveBenefits: vi.fn(),
-  mockClientIp: vi.fn(),
-}));
+const { mockListPurchases, mockListGrants, mockActiveBenefits, mockClientIp } =
+  vi.hoisted(() => ({
+    mockListPurchases: vi.fn(),
+    mockListGrants: vi.fn(),
+    mockActiveBenefits: vi.fn(),
+    mockClientIp: vi.fn(),
+  }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../billing/purchases", () => ({ listPurchases: mockListPurchases }));
 vi.mock("../entitlements/benefit-grants", () => ({
   listBenefitGrants: mockListGrants,
@@ -67,11 +65,7 @@ beforeEach(() => {
     "APPLE_IAP_PRODUCT_ID_PRO_LIFETIME",
     "help.mahjong.score.pro.lifetime",
   );
-  mockAuthorize.mockResolvedValue({
-    ok: true,
-    user: { id: "user-1" },
-    profile: { username: "bob" },
-  });
+  authorizeAs({ userId: "user-1", username: "bob" });
   mockListPurchases.mockResolvedValue([]);
   mockListGrants.mockResolvedValue([]);
   mockActiveBenefits.mockResolvedValue(new Set());
@@ -85,11 +79,7 @@ afterEach(() => {
 
 describe("handleReadPlan", () => {
   it("ユーザー名を決める前は読まずに 409 usernameRequired", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handleReadPlan(request());
 
@@ -183,7 +173,7 @@ describe("handleReadPlanOffers", () => {
       ],
     });
     expect(response.headers.get("access-control-allow-origin")).toBe("*");
-    expect(mockAuthorize).not.toHaveBeenCalled();
+    expect(mockAuthorizeMobileRequest).not.toHaveBeenCalled();
   });
 
   it("パスの Product ID が無ければ買い切りだけを返す", async () => {

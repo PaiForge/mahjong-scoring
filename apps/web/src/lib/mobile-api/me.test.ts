@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  authorizeAs,
+  mockAuthorizeMobileRequest,
+} from "@/test/mobile-auth-mock";
 
-const { mockAuthorize, mockGetProfileCard, mockLogError } = vi.hoisted(() => ({
-  mockAuthorize: vi.fn(),
+const { mockGetProfileCard, mockLogError } = vi.hoisted(() => ({
   mockGetProfileCard: vi.fn(),
   mockLogError: vi.fn(),
 }));
 
-vi.mock("./auth", () => ({ authorizeMobileRequest: mockAuthorize }));
+vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../db/queries", () => ({
   getProfileCardByUserId: mockGetProfileCard,
 }));
@@ -24,11 +27,7 @@ beforeEach(() => {
 
 describe("handleReadAccount", () => {
   it("ユーザー名を決めた本人にはプロフィールを付けて返す", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: { username: "alice" },
-    });
+    authorizeAs({ userId: "user-1", username: "alice" });
     mockGetProfileCard.mockResolvedValue({
       username: "alice",
       displayName: null,
@@ -44,11 +43,7 @@ describe("handleReadAccount", () => {
   });
 
   it("アバターが無ければ avatarUrl を付けない", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: { username: "alice" },
-    });
+    authorizeAs({ userId: "user-1", username: "alice" });
     mockGetProfileCard.mockResolvedValue({
       username: "alice",
       displayName: null,
@@ -64,11 +59,7 @@ describe("handleReadAccount", () => {
   });
 
   it("アバターを読めなくても失敗にせず、avatarUrl を付けずに返す", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: { username: "alice" },
-    });
+    authorizeAs({ userId: "user-1", username: "alice" });
     mockGetProfileCard.mockRejectedValue(new Error("db down"));
 
     const response = await handleReadAccount(get());
@@ -82,11 +73,7 @@ describe("handleReadAccount", () => {
   });
 
   it("ユーザー名を決める前はプロフィールを null で返す", async () => {
-    mockAuthorize.mockResolvedValue({
-      ok: true,
-      user: { id: "user-1" },
-      profile: undefined,
-    });
+    authorizeAs({ userId: "user-1" });
 
     const response = await handleReadAccount(get());
 
@@ -96,7 +83,10 @@ describe("handleReadAccount", () => {
 
   it("認証に失敗すればその応答を返す", async () => {
     const denied = new Response(null, { status: 401 });
-    mockAuthorize.mockResolvedValue({ ok: false, response: denied });
+    mockAuthorizeMobileRequest.mockResolvedValue({
+      ok: false,
+      response: denied,
+    });
 
     const response = await handleReadAccount(get());
 

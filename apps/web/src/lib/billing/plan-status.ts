@@ -6,7 +6,10 @@ import {
   PurchaseProvider,
 } from "@mahjong-scoring/features/billing/provider";
 import type { PurchaseState } from "@mahjong-scoring/features/billing/purchase-state";
-import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
+import {
+  formatJstDateLong,
+  JST_TIME_ZONE,
+} from "@mahjong-scoring/features/jst";
 
 /**
  * 購入記録と手動付与から導く「いまの状態」
@@ -162,10 +165,5 @@ export function formatPlanDateShort(date: Date): string {
 
 /** 日付を「2026年10月31日」の形にする（JST） */
 export function formatPlanDate(date: Date): string {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: JST_TIME_ZONE,
-  }).format(date);
+  return formatJstDateLong(date);
 }

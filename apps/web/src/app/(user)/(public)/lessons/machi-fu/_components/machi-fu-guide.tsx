@@ -1,4 +1,5 @@
 import { HaiKind } from "@mahjong-scoring/core";
+import { MACHI_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
@@ -99,13 +100,10 @@ export async function MachiFuGuide() {
         colType={t("colType")}
         colFu={t("colFu")}
         formatFu={tableColumns.formatFu}
-        rows={[
-          { label: t("rowKanchan"), fu: 2 },
-          { label: t("rowPenchan"), fu: 2 },
-          { label: t("rowTanki"), fu: 2 },
-          { label: t("rowRyanmen"), fu: 0 },
-          { label: t("rowShanpon"), fu: 0 },
-        ]}
+        rows={MACHI_FU_SUMMARY_ROWS.map((row) => ({
+          label: t(row.key),
+          fu: row.fu,
+        }))}
       />
     </div>
   );

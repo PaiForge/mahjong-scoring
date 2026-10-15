@@ -31,7 +31,11 @@ import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import {
+  mobileInvalidRequest,
+  mobileJson,
+  mobileServerError,
+} from "./response";
 
 /** 回答の本文の上限。回答は選んだ符・翻・点数や役の一覧で、数百バイトに収まる */
 const ANSWER_BODY_MAX_BYTES = 8 * 1024;
@@ -50,6 +54,11 @@ const answerSchema = z.object({
 });
 const pauseSchema = z.object({ paused: z.boolean() });
 const attemptIdSchema = z.string().uuid();
+
+/** パスの attemptId がチャレンジの ID の形（UUID）か */
+function isAttemptId(attemptId: string): boolean {
+  return attemptIdSchema.safeParse(attemptId).success;
+}
 
 /** チャレンジ固有の失敗の応答 */
 function challengeError(
@@ -151,8 +160,7 @@ export async function handleAnswerChallenge(
     ANSWER_BODY_MAX_BYTES,
   );
   if (!body.ok) return body.response;
-  if (!attemptIdSchema.safeParse(attemptId).success)
-    return challengeError("invalidRequest", 400);
+  if (!isAttemptId(attemptId)) return mobileInvalidRequest();
   try {
     const result = await answerAttempt(
       auth.user.id,
@@ -191,8 +199,7 @@ export async function handlePauseChallenge(
     SMALL_BODY_MAX_BYTES,
   );
   if (!body.ok) return body.response;
-  if (!attemptIdSchema.safeParse(attemptId).success)
-    return challengeError("invalidRequest", 400);
+  if (!isAttemptId(attemptId)) return mobileInvalidRequest();
   try {
     if (await pauseAttempt(auth.user.id, attemptId, body.data.paused))
       return mobileJson({ success: true });
@@ -219,8 +226,7 @@ export async function handleReadChallenge(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readChallenge");
   if (!auth.ok) return auth.response;
-  if (!attemptIdSchema.safeParse(attemptId).success)
-    return challengeError("invalidRequest", 400);
+  if (!isAttemptId(attemptId)) return mobileInvalidRequest();
   try {
     const status = await readAttemptStatus(auth.user.id, attemptId);
     if (!status) return challengeError("invalidChallenge", 404);
@@ -259,8 +265,7 @@ export async function handleReadUnanswered(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readChallenge");
   if (!auth.ok) return auth.response;
-  if (!attemptIdSchema.safeParse(attemptId).success)
-    return challengeError("invalidRequest", 400);
+  if (!isAttemptId(attemptId)) return mobileInvalidRequest();
   try {
     const result = await revealExpiredAttempt(auth.user.id, attemptId);
     if (result) return mobileJson<MobileUnansweredResponse>(result);
@@ -294,8 +299,7 @@ export async function handleFinishChallenge(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "finishChallenge");
   if (!auth.ok) return auth.response;
-  if (!attemptIdSchema.safeParse(attemptId).success)
-    return challengeError("invalidRequest", 400);
+  if (!isAttemptId(attemptId)) return mobileInvalidRequest();
   try {
     const result = await finishAttempt(auth.user.id, attemptId, false);
     if (result && "challengeResultId" in result) {

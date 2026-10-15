@@ -1,4 +1,4 @@
-import { JST_TIME_ZONE, jstDayStartIso } from "../jst";
+import { formatJstDayKeyLong } from "../jst";
 
 /**
  * 章の公開日（ISO 8601 の日付）を日本語表記にする
@@ -10,10 +10,5 @@ import { JST_TIME_ZONE, jstDayStartIso } from "../jst";
  * @param isoDate `CURRICULUM` の `publishedAt`
  */
 export function formatPublishedDate(isoDate: string): string {
-  return new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: JST_TIME_ZONE,
-  }).format(new Date(jstDayStartIso(isoDate)));
+  return formatJstDayKeyLong(isoDate);
 }

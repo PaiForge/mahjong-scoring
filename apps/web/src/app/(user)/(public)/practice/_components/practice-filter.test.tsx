@@ -1,12 +1,8 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { setSearchParams } from "@/test/navigation-mock";
 
-let currentQuery = "";
-
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  useSearchParams: () => new URLSearchParams(currentQuery),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 const { PracticeFilter } = await import("./practice-filter");
 
@@ -66,7 +62,7 @@ const OPTION_GROUPS = [
 ];
 
 function renderFilter(query: string, adCard?: React.ReactNode) {
-  currentQuery = query;
+  setSearchParams(query);
   return render(
     <PracticeFilter
       items={ITEMS}

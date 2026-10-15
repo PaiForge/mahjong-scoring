@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
 import { hanCountLabel } from "@mahjong-scoring/features/practice/han-count/han-options";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
@@ -58,15 +59,11 @@ export function HanCountProblemList({
               user={
                 userHan === undefined ? undefined : hanCountLabel(userHan, t)
               }
-              difference={
-                userHan === undefined
-                  ? undefined
-                  : {
-                      correct: result.correctHan,
-                      user: userHan,
-                      format: (value) => t("hanOption", { count: value }),
-                    }
-              }
+              difference={answerDifferenceOf(
+                result.correctHan,
+                userHan,
+                (value) => t("hanOption", { count: value }),
+              )}
             />
 
             {result.question && (

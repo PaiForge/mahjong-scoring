@@ -9,10 +9,10 @@ import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
-  TehaiHand,
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
-} from "../../_components/tehai-hand";
+} from "@mahjong-scoring/features/board/hand-layout";
+import { TehaiHand } from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
 import { RiichiStick } from "./riichi-stick";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
