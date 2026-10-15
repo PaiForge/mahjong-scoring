@@ -156,3 +156,15 @@ export function formatJstDateLong(instant: Date): string {
 export function formatJstDayKeyLong(dayKey: string): string {
   return formatJstDateLong(new Date(jstDayStartIso(dayKey)));
 }
+
+/**
+ * JST の日付（`YYYY-MM-DD`）を「10/2」の形にする
+ * JST日付キー月日表示
+ *
+ * 棒グラフの軸のように幅が限られる所で使う。文字列を分解するだけで
+ * ロケールにもタイムゾーンにも依らない。月日は 0 埋めしない。
+ */
+export function formatJstDayKeyMonthDay(dayKey: string): string {
+  const [, month, day] = dayKey.split("-");
+  return `${Number(month)}/${Number(day)}`;
+}

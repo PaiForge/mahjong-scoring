@@ -2,7 +2,10 @@ import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { compareNumbers } from "@mahjong-scoring/core";
-import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
+import {
+  formatJstDayKeyLong,
+  formatJstDayKeyMonthDay,
+} from "@mahjong-scoring/features/jst";
 import type { MobileMypageActivityDay } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
   isPracticeMenuType,
@@ -14,12 +17,6 @@ import { colors, radius } from "../lib/theme";
 
 const BAR_AREA_HEIGHT = 116;
 const BAR_MIN_HEIGHT = 4;
-
-/** `YYYY-MM-DD` を `M/D` にする（ロケール非依存） */
-function formatBarLabel(date: string): string {
-  const [, month, day] = date.split("-");
-  return `${Number(month)}/${Number(day)}`;
-}
 
 /**
  * 経験値のアクティビティ（web のマイページのスマホ幅の棒グラフと詳細）
@@ -86,7 +83,7 @@ export function ActivityChart({
               <Text
                 style={[styles.dateLabel, isSelected && styles.dateSelected]}
               >
-                {formatBarLabel(day.date)}
+                {formatJstDayKeyMonthDay(day.date)}
               </Text>
             </Pressable>
           );

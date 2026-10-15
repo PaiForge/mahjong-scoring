@@ -4,6 +4,7 @@ import {
   formatJstDateLong,
   formatJstDateTime,
   formatJstDayKeyLong,
+  formatJstDayKeyMonthDay,
   jstCalendarDate,
   jstDayKey,
   jstDayStartIso,
@@ -134,5 +135,12 @@ describe("formatJstDateLong", () => {
 describe("formatJstDayKeyLong", () => {
   it("日付キーを「年月日」にする（月日は 0 埋めしない）", () => {
     expect(formatJstDayKeyLong("2026-04-02")).toBe("2026年4月2日");
+  });
+});
+
+describe("formatJstDayKeyMonthDay", () => {
+  it("日付キーを「月/日」にする（0 埋めしない）", () => {
+    expect(formatJstDayKeyMonthDay("2026-04-02")).toBe("4/2");
+    expect(formatJstDayKeyMonthDay("2026-10-31")).toBe("10/31");
   });
 });
