@@ -1,5 +1,4 @@
 import "server-only";
-import type { SupabaseServerClient } from "./supabase/server";
 
 import { db, userActivityLog } from "./db";
 
@@ -28,24 +27,4 @@ export function logActivityEvent(event: ActivityEvent): void {
     })
     .then(() => {})
     .catch(() => {});
-}
-
-/**
- * 現在の認証ユーザーを取得し、そのユーザーに対するイベントを記録する。
- * 未認証時は何もしない。
- * 認証ユーザーのイベント記録
- *
- * ログイン・パスワード変更・ログアウトなど「直前に認証された本人」の
- * 操作ログで共有する。
- */
-export async function logCurrentUserEvent(
-  supabase: SupabaseServerClient,
-  action: string,
-): Promise<void> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    logActivityEvent({ userId: user.id, action });
-  }
 }

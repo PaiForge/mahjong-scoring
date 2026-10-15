@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { claimsToAuthUser, userToAuthUser } from "./auth-user";
 import { getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
@@ -35,11 +36,7 @@ export const getAuthenticatedUser = cache(async (): Promise<AuthUser> => {
   if (error || !claims) {
     redirect("/sign-in");
   }
-  return {
-    id: claims.sub,
-    email: claims.email,
-    provider: claims.app_metadata?.provider,
-  };
+  return claimsToAuthUser(claims);
 });
 
 /**
@@ -103,7 +100,7 @@ export const getOptionalUser = cache(
     const supabase = await createClient();
     const { data } = await supabase.auth.getClaims();
     const claims = data?.claims;
-    return claims ? { id: claims.sub, email: claims.email } : undefined;
+    return claims ? claimsToAuthUser(claims) : undefined;
   },
 );
 
@@ -123,7 +120,7 @@ export const getOptionalVerifiedUser = cache(
       data: { user },
     } = await supabase.auth.getUser();
     // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
-    return user ? { id: user.id, email: user.email } : undefined;
+    return user ? userToAuthUser(user) : undefined;
   },
 );
 

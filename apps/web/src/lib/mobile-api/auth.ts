@@ -6,6 +6,7 @@ import { createClient, isAuthRetryableFetchError } from "@supabase/supabase-js";
 import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
 
 import type { AuthUser } from "../auth";
+import { userToAuthUser } from "../auth-user";
 import { getClientIp } from "../client-ip";
 import { getAccountStanding } from "../ban";
 import { getProfileCoreByUserId } from "../db/queries";
@@ -87,11 +88,7 @@ async function verifyBearerToken(
       (identity) => identity.provider === "apple",
     );
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        provider: user.app_metadata.provider,
-      },
+      user: userToAuthUser(user),
       appleSubject: apple?.id,
     };
   }

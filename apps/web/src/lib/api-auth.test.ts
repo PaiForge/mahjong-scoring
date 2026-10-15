@@ -37,7 +37,9 @@ function sameOriginRequest(): Request {
 /** レートリミットも認証も通過し、BAN もされていない状態にする */
 function authorized() {
   mockCheckIpRateLimitGuard.mockReturnValue(undefined);
-  mockGetUser.mockResolvedValue({ data: { user: { id: "user-1" } } });
+  mockGetUser.mockResolvedValue({
+    data: { user: { id: "user-1", app_metadata: {} } },
+  });
   mockGetAccountStanding.mockResolvedValue("active");
 }
 

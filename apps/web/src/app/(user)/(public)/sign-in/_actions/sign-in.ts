@@ -1,7 +1,7 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
-import { logCurrentUserEvent } from "@/lib/activity-log";
+import { logActivityEvent } from "@/lib/activity-log";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
@@ -30,7 +30,7 @@ export async function signIn(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -39,7 +39,7 @@ export async function signIn(
     return { error: "invalidCredentials" };
   }
 
-  await logCurrentUserEvent(supabase, "login");
+  logActivityEvent({ userId: data.user.id, action: "login" });
 
   return { success: true };
 }

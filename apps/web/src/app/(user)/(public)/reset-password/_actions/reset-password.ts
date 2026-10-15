@@ -1,7 +1,7 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
-import { logCurrentUserEvent } from "@/lib/activity-log";
+import { logActivityEvent } from "@/lib/activity-log";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
@@ -35,13 +35,13 @@ export async function resetPassword(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.updateUser({ password });
+  const { data, error } = await supabase.auth.updateUser({ password });
 
   if (error) {
     return { error: "updateFailed" };
   }
 
-  await logCurrentUserEvent(supabase, "change_password");
+  logActivityEvent({ userId: data.user.id, action: "change_password" });
 
   return { success: true };
 }
