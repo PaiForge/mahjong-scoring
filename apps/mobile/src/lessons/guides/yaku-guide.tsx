@@ -5,7 +5,7 @@ import { REFERENCE_YAKU_PATH } from "@mahjong-scoring/features/routes";
 import { TextLink } from "../../components/text-link";
 
 import { GuideBody, GuideSection } from "../components/guide-section";
-import { GuideParagraph } from "../components/guide-text";
+import { GuideNote, GuideParagraph } from "../components/guide-text";
 import { YakuNakiComparisonTable } from "../components/score-tables";
 
 /**
@@ -35,6 +35,7 @@ export function YakuGuide() {
       <GuideSection title={t("summaryTitle")}>
         <GuideParagraph>{t("summaryBody")}</GuideParagraph>
         <YakuNakiComparisonTable />
+        <GuideNote>{t("summaryNote")}</GuideNote>
         <TextLink onPress={() => router.push(REFERENCE_YAKU_PATH)}>
           {t("referenceLink")}
         </TextLink>
