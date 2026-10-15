@@ -17,7 +17,6 @@ export const lessonColors = {
   amber200Solid: "#fde68a",
   amber500: "#f59e0b",
   amber600: "#d97706",
-  amber900: "#78350f",
 } as const;
 
 /**

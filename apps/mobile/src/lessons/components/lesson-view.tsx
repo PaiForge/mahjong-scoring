@@ -319,9 +319,10 @@ export function LessonView({
               accessible
               accessibilityLabel={`${t("hintLabel")}: ${tLesson(`questions.${question.key}.hint`)}`}
             >
-              {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す */}
+              {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す。文字は控えめな灰、
+                  琥珀は電球だけ（濃い琥珀の文字は警告の色と同じで注意書きに見える） */}
               <View style={styles.hintIcon}>
-                <LightbulbIcon size={16} color={lessonColors.amber900} />
+                <LightbulbIcon size={16} color={lessonColors.amber600} />
               </View>
               <Text style={styles.hintText}>
                 {tLesson(`questions.${question.key}.hint`)}
@@ -547,7 +548,7 @@ const styles = StyleSheet.create({
   hintText: {
     flexShrink: 1,
     fontSize: 14,
-    color: lessonColors.amber900,
+    color: colors.mutedForeground,
   },
   judgement: {
     flexDirection: "row",

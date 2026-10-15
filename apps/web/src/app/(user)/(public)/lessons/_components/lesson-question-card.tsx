@@ -166,11 +166,13 @@ export function LessonQuestionCard({
             倍率の言い方で、表を思い出す手がかりにする */}
         {showHint && !isAnswered && (
           <p
-            className="flex items-start justify-center gap-1.5 text-sm text-amber-900"
+            className="flex items-start justify-center gap-1.5 text-sm text-muted-foreground"
             data-testid="lesson-hint"
           >
-            {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す */}
-            <span aria-hidden="true" className="mt-0.5 shrink-0">
+            {/* 見出しの「ヒント:」は電球で示し、読み上げにだけ残す。
+                文字は控えめな灰で補足として引かせ、琥珀は電球だけに付ける
+                （琥珀の濃い文字は警告の色 warning-strong と同じ値で注意書きに見える） */}
+            <span aria-hidden="true" className="mt-0.5 shrink-0 text-amber-600">
               <LightbulbIcon />
             </span>
             <span>
