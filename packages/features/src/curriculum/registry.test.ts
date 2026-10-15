@@ -284,7 +284,7 @@ describe("getChapterI18nPath", () => {
   it("returns the i18nKey as-is when the prefix is absent", () => {
     const chapter = {
       slug: "about-this-app",
-      section: "foundation",
+      section: "introduction",
       order: 10,
       publishedAt: "2026-04-18",
       i18nKey: "chapters.aboutThisApp",

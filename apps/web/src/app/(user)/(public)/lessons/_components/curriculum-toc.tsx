@@ -200,7 +200,7 @@ export async function CurriculumToc({
 const SECTION_CATEGORY_COLOR_CLASS: Readonly<
   Record<CurriculumSection, string>
 > = {
-  foundation: "bg-surface-400",
+  introduction: "bg-surface-400",
   mangan: "bg-rose-500",
   fu: "bg-primary-500",
   yaku: "bg-amber-500",

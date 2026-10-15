@@ -17,7 +17,7 @@ import type {
 
 /** カリキュラムのセクション — 章をまとめる論理グループ */
 export const CURRICULUM_SECTIONS = [
-  "foundation",
+  "introduction",
   "mangan",
   "yaku",
   "fu",
@@ -110,7 +110,7 @@ const CURRICULUM_REGISTRY = [
   {
     slug: "about-this-app",
     publishedAt: "2026-04-18",
-    section: "foundation",
+    section: "introduction",
     order: 10,
     i18nKey: "learnCurriculum.chapters.aboutThisApp",
   },
@@ -119,7 +119,7 @@ const CURRICULUM_REGISTRY = [
     // 説明を先に読ませ、なぜその作りなのかを知りたい人だけが寄る読み物
     slug: "why-scoring-is-hard-to-learn",
     publishedAt: "2026-10-12",
-    section: "foundation",
+    section: "introduction",
     order: 15,
     kind: "column",
     i18nKey: "learnCurriculum.chapters.whyScoringIsHardToLearn",
@@ -127,7 +127,7 @@ const CURRICULUM_REGISTRY = [
   {
     slug: "why-scoring-is-complex",
     publishedAt: "2026-04-18",
-    section: "foundation",
+    section: "introduction",
     order: 20,
     i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
   },
@@ -285,7 +285,7 @@ const CURRICULUM_REGISTRY = [
     publishedAt: "2026-08-31",
     section: "memorization",
     // 点数の計算セクション（〜100）から番号を離す。記憶術セクションは
-    // 章を足していく前提なので、基礎側が伸びても番号がぶつからないようにする
+    // 章を足していく前提なので、手前のセクションが伸びても番号がぶつからないようにする
     order: 200,
     // 点数表早引きの満貫未満だけ。この章が減らすのはまさにその範囲の暗記量で、
     // 符×翻を1マスずつ引く練習がそのまま腕試しになる。子から覚えるのが定石
