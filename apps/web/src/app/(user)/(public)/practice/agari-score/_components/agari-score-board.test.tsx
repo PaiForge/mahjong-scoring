@@ -11,6 +11,9 @@ const { driverMock, driveMock } = vi.hoisted(() => {
   const driver = vi.fn((_config: { steps: readonly unknown[] }) => ({
     drive,
     destroy: vi.fn(),
+    // SpotlightTour はツアー中の click を捕捉してこれを引く。無いと後続の
+    // テストの click で未処理の例外になる
+    getActiveElement: vi.fn<() => Element | undefined>(),
   }));
   return { driverMock: driver, driveMock: drive };
 });
