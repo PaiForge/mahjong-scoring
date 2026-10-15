@@ -1,13 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { compareNumbers } from "@mahjong-scoring/core";
 
-import {
-  isPracticeMenuType,
-  menuTypeToMessageKey,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { menuTypeToMessageKey } from "@mahjong-scoring/features/practice-menu-types";
 import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
+import { buildExpBreakdown } from "@mahjong-scoring/features/mypage/exp-breakdown";
 
 interface HeatmapDetailPanelProps {
   readonly selectedDate: string | undefined;
@@ -30,30 +27,30 @@ export function HeatmapDetailPanel({
   const tMenu = useTranslations("practice.practices");
   const expSuffix = t("expSuffix");
 
-  /**
-   * menuType キーをラベル文字列に解決する。
-   *
-   * - 既知キー (`PracticeMenuType`) は i18n から取得（snake_case → camelCase 変換）。
-   *   `practice.practices.<key>` は `title` / `shortTitle` / `description` を持つ
-   *   オブジェクトなので、末端の `shortTitle` まで指定すること。オブジェクトを
-   *   指すキーを渡すと next-intl は訳文ではなくキーのパス
-   *   （`practice.practices.jantouFu`）をそのまま描画する
-   * - `'unknown'` は専用ラベル `noActivity` のコンテキスト外で出ないので `?` 表示
-   * - それ以外（= MODULE_WEIGHT に追加されたが i18n 未登録のキー）は
-   *   `console.warn` で開発者に通知しつつ `[?] key` と可視マーカーで描画する
-   */
-  function getMenuTypeLabel(moduleKey: string): string {
-    if (isPracticeMenuType(moduleKey)) {
-      return tMenu(`${menuTypeToMessageKey(moduleKey)}.shortTitle`);
-    }
-    if (moduleKey === "unknown") {
-      return `[?] ${moduleKey}`;
-    }
-    if (typeof console !== "undefined") {
-      console.warn("[mypageHeatmap] missing i18n for menuType:", moduleKey);
-    }
-    return `[?] ${moduleKey}`;
-  }
+  // 練習名の辞書は `practice.practices.<key>` が `title` / `shortTitle` /
+  // `description` を持つオブジェクトなので、末端の `shortTitle` まで指定する。
+  // オブジェクトを指すと next-intl は訳文ではなくキーのパスを描画する
+  const breakdown = moduleBreakdown
+    ? buildExpBreakdown(moduleBreakdown)
+    : undefined;
+  const lines = breakdown
+    ? [
+        ...breakdown.rows.map(({ menuType, exp }) => ({
+          key: menuType,
+          label: tMenu(`${menuTypeToMessageKey(menuType)}.shortTitle`),
+          exp,
+        })),
+        ...(breakdown.otherExp > 0
+          ? [
+              {
+                key: "other",
+                label: t("otherMenuTypes"),
+                exp: breakdown.otherExp,
+              },
+            ]
+          : []),
+      ]
+    : [];
 
   return (
     <div
@@ -69,21 +66,16 @@ export function HeatmapDetailPanel({
           <p className="mt-1 text-surface-600">
             {t("total")}: {selectedTotal} {expSuffix}
           </p>
-          {moduleBreakdown && Object.keys(moduleBreakdown).length > 0 ? (
+          {lines.length > 0 ? (
             <ul className="mt-2 space-y-1">
-              {Object.entries(moduleBreakdown)
-                .sort(([, a], [, b]) => compareNumbers(b, a))
-                .map(([moduleKey, exp]) => (
-                  <li
-                    key={moduleKey}
-                    className="flex justify-between text-surface-600"
-                  >
-                    <span>{getMenuTypeLabel(moduleKey)}</span>
-                    <span>
-                      {exp} {expSuffix}
-                    </span>
-                  </li>
-                ))}
+              {lines.map(({ key, label, exp }) => (
+                <li key={key} className="flex justify-between text-surface-600">
+                  <span>{label}</span>
+                  <span>
+                    {exp} {expSuffix}
+                  </span>
+                </li>
+              ))}
             </ul>
           ) : (
             <p className="mt-2 text-surface-500">{t("noActivity")}</p>

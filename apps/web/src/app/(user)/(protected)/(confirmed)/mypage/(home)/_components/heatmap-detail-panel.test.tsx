@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { screen } from "@testing-library/react";
 import { render } from "@/test/intl-render";
 
@@ -48,19 +48,19 @@ describe("HeatmapDetailPanel", () => {
     expect(screen.queryByText(/practice\.practices\./)).toBeNull();
   });
 
-  it("辞書に無い練習種別は可視マーカー付きで描画し警告する", () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-
+  it("レジストリに無い種別は「その他」に合算して末尾に出し、キーを露出しない", () => {
     renderPanel({
       selectedDate: "2026-08-31",
-      selectedTotal: 5,
-      moduleBreakdown: { not_a_menu: 5 },
+      selectedTotal: 38,
+      moduleBreakdown: { jantou_fu: 30, not_a_menu: 5, unknown: 3 },
     });
 
-    expect(screen.getByText("[?] not_a_menu")).toBeDefined();
-    expect(warn).toHaveBeenCalled();
-
-    warn.mockRestore();
+    const items = screen.getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual([
+      "雀頭の符30 経験値",
+      `${messages.mypage.heatmap.otherMenuTypes}8 経験値`,
+    ]);
+    expect(screen.queryByText(/not_a_menu|unknown/)).toBeNull();
   });
 
   it("日付未選択ならプレースホルダを表示する", () => {

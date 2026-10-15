@@ -1,16 +1,13 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { compareNumbers } from "@mahjong-scoring/core";
 import {
   formatJstDayKeyLong,
   formatJstDayKeyMonthDay,
 } from "@mahjong-scoring/features/jst";
+import { buildExpBreakdown } from "@mahjong-scoring/features/mypage/exp-breakdown";
 import type { MobileMypageActivityDay } from "@mahjong-scoring/features/mypage/mobile-api";
-import {
-  isPracticeMenuType,
-  menuTypeToMessageKey,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { menuTypeToMessageKey } from "@mahjong-scoring/features/practice-menu-types";
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors, radius } from "../lib/theme";
@@ -106,20 +103,28 @@ export function ActivityChart({
   );
 }
 
-/** 選んだ日の合計と練習ごとの内訳（経験値の多い順） */
+/**
+ * 選んだ日の合計と練習ごとの内訳（経験値の多い順）
+ *
+ * アプリが知らない練習種別（サーバーの方が新しい版で増えたもの）は名前を
+ * 出せないので、末尾の「その他」1 行にまとめる。落とすと内訳の和が合計と
+ * 合わなくなる
+ */
 function DayDetail({ day }: { readonly day: MobileMypageActivityDay }) {
   const t = useTranslations("mypage.heatmap");
   const tMenu = useTranslations("practice.practices");
   const expSuffix = t("expSuffix");
-  const breakdown = [...Object.entries(day.expByMenuType)].sort(
-    ([, a], [, b]) => compareNumbers(b, a),
-  );
-  // アプリが知らない練習種別（サーバーの方が新しい版）は名前を出せないので
-  // 内訳から外す。合計には含まれたまま
-  const labelOf = (menuType: string): string | undefined =>
-    isPracticeMenuType(menuType)
-      ? tMenu(`${menuTypeToMessageKey(menuType)}.shortTitle`)
-      : undefined;
+  const { rows, otherExp } = buildExpBreakdown(day.expByMenuType);
+  const lines = [
+    ...rows.map(({ menuType, exp }) => ({
+      key: menuType,
+      label: tMenu(`${menuTypeToMessageKey(menuType)}.shortTitle`),
+      exp,
+    })),
+    ...(otherExp > 0
+      ? [{ key: "other", label: t("otherMenuTypes"), exp: otherExp }]
+      : []),
+  ];
 
   return (
     <>
@@ -127,22 +132,18 @@ function DayDetail({ day }: { readonly day: MobileMypageActivityDay }) {
       <Text style={styles.detailTotal}>
         {t("total")}: {day.exp} {expSuffix}
       </Text>
-      {breakdown.length === 0 ? (
+      {lines.length === 0 ? (
         <Text style={styles.muted}>{t("noActivity")}</Text>
       ) : (
         <View style={styles.breakdown}>
-          {breakdown.flatMap(([menuType, exp]) => {
-            const label = labelOf(menuType);
-            if (label === undefined) return [];
-            return [
-              <View key={menuType} style={styles.breakdownRow}>
-                <Text style={styles.breakdownLabel}>{label}</Text>
-                <Text style={styles.breakdownValue}>
-                  {exp} {expSuffix}
-                </Text>
-              </View>,
-            ];
-          })}
+          {lines.map(({ key, label, exp }) => (
+            <View key={key} style={styles.breakdownRow}>
+              <Text style={styles.breakdownLabel}>{label}</Text>
+              <Text style={styles.breakdownValue}>
+                {exp} {expSuffix}
+              </Text>
+            </View>
+          ))}
         </View>
       )}
     </>
