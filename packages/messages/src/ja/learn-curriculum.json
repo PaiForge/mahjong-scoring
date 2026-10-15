@@ -4,7 +4,7 @@
     "introduction": "はじめに",
     "mangan": "満貫以上の計算",
     "fu": "符の計算",
-    "yaku": "役",
+    "yaku": "翻数の計算",
     "score": "点数計算基礎",
     "memorization": "点数記憶術"
   },
@@ -54,7 +54,7 @@
       "description": "符計算の総まとめ"
     },
     "yaku": {
-      "title": "役",
+      "title": "役と翻数の数え方",
       "description": "翻数を数えるための役の基本"
     },
     "chiitoitsuScore": {
