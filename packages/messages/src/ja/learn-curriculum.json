@@ -125,6 +125,23 @@
     "colScore": "点数",
     "colActualPay": "実際に払う"
   },
+  "tenpaneTable": {
+    "colExample": "例",
+    "colSum": "計算",
+    "colFu": "符",
+    "sum": "{start}＋{extra}＝{total}",
+    "fu": "{value}符",
+    "fuExact": "{value}符（ちょうど）"
+  },
+  "tenpaneExamples": {
+    "two": "嵌張・辺張・単騎の待ち、または役牌の雀頭（2符）",
+    "yaochuAnkou": "么九牌の暗刻1つ（8符）",
+    "yaochuAnkouPlusTwo": "么九牌の暗刻＋2符の待ちか雀頭（10符）",
+    "yaochuAnkouChunchanAnkou": "么九牌の暗刻＋中張牌の暗刻（12符）",
+    "chunchanAnkan": "中張牌の暗槓（16符）",
+    "yaochuAnkan": "么九牌の暗槓（32符）",
+    "yaochuMinkan": "么九牌の明槓（16符）"
+  },
   "halvingDiagram": {
     "ronLabel": "子のロン",
     "oyaLabel": "親が出す",

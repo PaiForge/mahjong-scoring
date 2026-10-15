@@ -4,7 +4,7 @@ import { ChapterLink } from "../../_components/chapter-link";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
-import { TenpaneTable } from "./tenpane-table";
+import { TenpaneTable } from "../../_components/tenpane-table";
 
 /**
  * 平和以外の門前面子手の点数計算 — 点数の計算セクション第3章
@@ -34,11 +34,11 @@ export async function MenzenMentsuScoreGuide() {
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
         <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
-        <TenpaneTable winType="ron" />
+        <TenpaneTable handShape="menzen" winType="ron" />
         <GuideParagraph preLine>{t("ronNote")}</GuideParagraph>
 
         <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
-        <TenpaneTable winType="tsumo" />
+        <TenpaneTable handShape="menzen" winType="tsumo" />
         <GuideParagraph preLine>{t("tsumoNote")}</GuideParagraph>
       </GuideSection>
     </div>

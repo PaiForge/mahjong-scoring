@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type { Role, WinType, YakuHanEntry } from "@mahjong-scoring/core";
-import { buildExtraFuRows } from "@mahjong-scoring/features/curriculum/extra-fu-rows";
 import {
   buildFixedFuRows,
   type FixedFuTableShape,
@@ -88,53 +87,23 @@ export function FixedFuScoreTable({
 }
 
 /**
- * 積み上げた符から符を引く対応表（web の `ExtraFuTable`）
- * 積み上げ符対応表
- *
- * 行は features の `buildExtraFuRows`（core の `mentsuTehaiFu` 由来）が組み立てる。
- *
- * @param handShape 門前手 / 副露した手のどちらの表か
- */
-export function ExtraFuTable({
-  handShape,
-}: {
-  readonly handShape: FixedHandShape;
-}) {
-  const t = useTranslations("learnCurriculum.scoreTable");
-  const rows = buildExtraFuRows(handShape);
-  return (
-    <DataTable
-      columns={[
-        { label: t("colExtraFu"), flex: 1.4 },
-        { label: t("tsumo"), align: "center" },
-        { label: t("ron"), align: "center" },
-      ]}
-      rows={rows.map((row) => [
-        <RowHeaderCell key="from">
-          {row.from === row.to
-            ? t("fuUnit", { value: row.from })
-            : t("fuRange", { from: row.from, to: row.to })}
-        </RowHeaderCell>,
-        <StrongCell key="tsumo">
-          {t("fuUnit", { value: row.tsumoFu })}
-        </StrongCell>,
-        <StrongCell key="ron">{t("fuUnit", { value: row.ronFu })}</StrongCell>,
-      ])}
-    />
-  );
-}
-
-/**
  * 符がテンパネする典型例の表（web の `TenpaneTable`）
  * テンパネ典型例表
  *
  * 行は features の `buildTenpaneRows`（core の `mentsuTehaiFu` 由来）が組み立てる。
  *
+ * @param handShape 門前手 / 副露した手のどちらの表か
  * @param winType ツモ / ロンのどちらの表か
  */
-export function TenpaneTable({ winType }: { readonly winType: WinType }) {
-  const t = useTranslations("menzenMentsuScore.learn");
-  const rows = buildTenpaneRows(winType);
+export function TenpaneTable({
+  handShape,
+  winType,
+}: {
+  readonly handShape: FixedHandShape;
+  readonly winType: WinType;
+}) {
+  const t = useTranslations("learnCurriculum");
+  const rows = buildTenpaneRows(handShape, winType);
   return (
     <DataTable
       columns={[

@@ -5,10 +5,11 @@ import { ExampleCard } from "@/app/(user)/_components/example-card";
 import { TehaiHand } from "../../../_components/tehai-hand";
 
 import { GuideColumn } from "../../_components/guide-column";
-import { ExtraFuTable } from "../../_components/extra-fu-table";
 import { GuideNote } from "../../_components/guide-note";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
+import { GuideSubsectionTitle } from "../../_components/guide-subsection-title";
+import { TenpaneTable } from "../../_components/tenpane-table";
 
 /**
  * 鳴いた手の点数計算 — 点数の計算セクション第4章
@@ -27,17 +28,23 @@ export async function FuroScoreGuide() {
         <GuideParagraph preLine>{t("startBody4")}</GuideParagraph>
       </GuideSection>
 
-      {/* 門前と同じ規則。ロンの出発点だけが20符に下がる */}
+      {/* 門前と同じ数え方。ロンの出発点だけが20符に下がる */}
       <GuideSection title={t("roundTitle")}>
         <GuideParagraph preLine>{t("roundBody1")}</GuideParagraph>
         <GuideParagraph preLine>{t("roundBody2")}</GuideParagraph>
 
-        <ExtraFuTable handShape="furo" />
+        <GuideSubsectionTitle>{t("ronTitle")}</GuideSubsectionTitle>
+        <TenpaneTable handShape="furo" winType="ron" />
+        <GuideParagraph preLine>{t("ronNote")}</GuideParagraph>
+
+        <GuideSubsectionTitle>{t("tsumoTitle")}</GuideSubsectionTitle>
+        <TenpaneTable handShape="furo" winType="tsumo" />
+        <GuideParagraph preLine>{t("tsumoNote")}</GuideParagraph>
 
         <GuideParagraph preLine>{t("roundBody3")}</GuideParagraph>
       </GuideSection>
 
-      {/* コラム: 表の一番上の行（積み上げ0符のロン）の読み方 */}
+      {/* コラム: 規則の例外（積み上げ0符のロン = 食い平和形） */}
       <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
         <GuideParagraph>
           {t.rich("columnBody1", { br: () => <br /> })}
