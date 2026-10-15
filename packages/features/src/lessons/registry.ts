@@ -20,7 +20,7 @@ import type { RankSlug } from "../ranks/registry";
  * チャレンジ（制限時間・ミス上限・記録）ともトレーニング（無制限・記録なし）
  * とも別物で、唯一残すのは「完了した」という事実（`lesson_completions`）。
  * これが行程（journey）で「学んだ」の印になる。確認問題を持たないレッスン
- * （基礎・点数記憶術の章）は章末のボタンで完了を記録し、同じ印になる。
+ * （はじめに・点数記憶術の章）は章末のボタンで完了を記録し、同じ印になる。
  *
  * @design slug は章の slug
  * レッスン = 章なので、ここの slug は `CurriculumChapterSlug` そのもの。

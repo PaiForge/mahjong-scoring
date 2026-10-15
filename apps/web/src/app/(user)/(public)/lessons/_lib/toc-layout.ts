@@ -49,7 +49,7 @@ export const CHAPTER_ROW_BASE_CLASS =
 export const SECTION_LABEL_WIDTH_CLASS: Readonly<
   Record<CurriculumSection, string>
 > = {
-  foundation: "w-12",
+  introduction: "w-20",
   mangan: "w-32",
   yaku: "w-8",
   fu: "w-20",

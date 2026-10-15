@@ -25,7 +25,7 @@ export const lessonColors = {
  * セクション配色
  */
 export const SECTION_COLORS: Readonly<Record<CurriculumSection, string>> = {
-  foundation: "#94a3b8",
+  introduction: "#94a3b8",
   mangan: "#f43f5e",
   fu: "#00904a",
   yaku: "#f59e0b",

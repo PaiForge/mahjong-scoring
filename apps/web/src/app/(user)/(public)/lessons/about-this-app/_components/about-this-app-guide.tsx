@@ -15,7 +15,7 @@ import { ChallengePreview } from "./challenge-preview";
 import { PracticePreview } from "./practice-preview";
 
 /**
- * このアプリについて — 基礎セクション第 1 章
+ * このアプリについて — 「はじめに」セクション第 1 章
  *
  * 結論（アプリの特徴）から書く。特徴は 3 つで、どれも「点数計算でつまずき
  * やすいところ」への手当てになっている。その対応が先に読めるよう、各特徴の

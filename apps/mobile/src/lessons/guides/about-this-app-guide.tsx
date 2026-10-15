@@ -16,7 +16,7 @@ import { GuideParagraph, GuideSubsectionTitle } from "../components/guide-text";
 import { PracticePreview } from "../components/practice-preview";
 
 /**
- * このアプリについて — 基礎セクション第 1 章（web の `AboutThisAppGuide`）
+ * このアプリについて — 「はじめに」セクション第 1 章（web の `AboutThisAppGuide`）
  *
  * 結論（アプリの特徴）から書き、特徴ごとに練習の実際の盤面を添える。
  * 作者のつまずきの話はコラム `why-scoring-is-hard-to-learn` に分けてある。

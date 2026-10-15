@@ -11,21 +11,21 @@ vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 const chapters: readonly CurriculumChapter[] = [
   {
     slug: "about-this-app",
-    section: "foundation",
+    section: "introduction",
     order: 10,
     publishedAt: "2026-04-18",
     i18nKey: "learnCurriculum.chapters.aboutThisApp",
   },
   {
     slug: "why-scoring-is-complex",
-    section: "foundation",
+    section: "introduction",
     order: 20,
     publishedAt: "2026-04-18",
     i18nKey: "learnCurriculum.chapters.whyScoringIsComplex",
   },
 ];
 
-const section: CurriculumSection = "foundation";
+const section: CurriculumSection = "introduction";
 
 describe("CurriculumToc", () => {
   it("renders a <li> per chapter with a title link to /lessons/<slug>", async () => {
@@ -188,7 +188,7 @@ describe("CurriculumToc", () => {
     );
     const ol = container.querySelector("ol");
     // The mocked translator returns the key as-is.
-    expect(ol?.getAttribute("aria-label")).toBe("sections.foundation");
+    expect(ol?.getAttribute("aria-label")).toBe("sections.introduction");
   });
 
   it("renders the section label only once alongside the section bullet", async () => {
@@ -208,13 +208,13 @@ describe("CurriculumToc", () => {
     );
     expect(bullets).toHaveLength(1);
     expect(bullets[0]?.parentElement?.textContent).toContain(
-      "sections.foundation",
+      "sections.introduction",
     );
 
     // Section label text must not be repeated inside each row.
     const rows = container.querySelectorAll("li");
     for (const row of rows) {
-      expect(row.textContent ?? "").not.toContain("sections.foundation");
+      expect(row.textContent ?? "").not.toContain("sections.introduction");
     }
   });
 
@@ -318,7 +318,7 @@ describe("CurriculumToc", () => {
   describe("コラム", () => {
     const column: CurriculumChapter = {
       slug: "why-scoring-is-hard-to-learn",
-      section: "foundation",
+      section: "introduction",
       order: 15,
       publishedAt: "2026-10-12",
       kind: "column",

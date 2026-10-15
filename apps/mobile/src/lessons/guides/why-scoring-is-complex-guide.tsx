@@ -8,7 +8,7 @@ import { GuideParagraph } from "../components/guide-text";
 import { HighlightPanel } from "../components/highlight-panel";
 
 /**
- * 点数計算が複雑な理由 — 基礎セクション第 2 章（web の `WhyScoringIsComplexGuide`）
+ * 点数計算が複雑な理由 — 「はじめに」セクション第 2 章（web の `WhyScoringIsComplexGuide`）
  *
  * web は公式と計算手順を KaTeX で組む。モバイルは同じ式を {@link Formula}
  * （文字の並び＋右肩の指数）で組み、手順の中の短い式は上付き文字で書く。
