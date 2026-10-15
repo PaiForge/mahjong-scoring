@@ -1,4 +1,4 @@
-import { useCallback, useRef, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
@@ -17,18 +17,32 @@ import {
 } from "@mahjong-scoring/features/yaku/examples";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
+import {
+  ALL_NAKI_KINDS,
+  NAKI_FILTER_OPTIONS,
+  matchesNakiFilter,
+  type NakiFilter,
+} from "@mahjong-scoring/features/yaku/naki-kind";
 
 import { TehaiHand } from "../board/tehai-hand";
 import { AccordionCard } from "../components/accordion-card";
 import { Chip } from "../components/chip";
+import { FilterChips } from "../components/filter-chips";
 import { useScrollIntoView } from "../components/scroll-into-view";
 import { SectionTitle } from "../components/section-title";
 import { colors } from "../lib/theme";
 
-/** 早見表に載せる役（除外役・例未定義を除く）を門前翻数ごとにまとめる */
-function groupByMenzenHan() {
+/**
+ * 早見表に載せる役（除外役・例未定義を除く）を門前翻数ごとにまとめる
+ *
+ * 絞り込みに当てはまる役が 1 つも無い翻数は、まとまりごと出さない。
+ */
+function groupByMenzenHan(filter: NakiFilter) {
   return groupYakuHanEntriesByMenzenHan(
-    YAKU_HAN_ENTRIES.filter((entry) => hasYakuCheatsheetEntry(entry.name)),
+    YAKU_HAN_ENTRIES.filter(
+      (entry) =>
+        hasYakuCheatsheetEntry(entry.name) && matchesNakiFilter(filter, entry),
+    ),
   );
 }
 
@@ -49,6 +63,7 @@ export function YakuCheatsheet({
   markedYakuNames,
   focusedYakuName,
   ads = [],
+  withNakiFilter = false,
 }: {
   /**
    * 「今見ている手で成立している役」として印を付ける役名。答え合わせから
@@ -59,8 +74,15 @@ export function YakuCheatsheet({
   readonly focusedYakuName?: string;
   /** まとまりの間に置く広告（描画済み。並び順どおり） */
   readonly ads?: readonly ReactNode[];
+  /**
+   * 鳴いたときの扱いで絞り込むチップを一覧の上に出すかどうか。役一覧の
+   * 画面でだけ出す（答え合わせのシートは正解の役へ着地させる用途で、
+   * 絞ると着地先が隠れうるため。web と同じ）
+   */
+  readonly withNakiFilter?: boolean;
 }) {
   const t = useTranslations("reference.yaku");
+  const [nakiFilter, setNakiFilter] = useState<NakiFilter>(ALL_NAKI_KINDS);
 
   // 開いた役が置かれたら一度だけ中央へ寄せる
   const scrollIntoView = useScrollIntoView();
@@ -90,7 +112,20 @@ export function YakuCheatsheet({
 
   return (
     <View style={styles.root}>
-      {groupByMenzenHan().map(({ han, entries }, groupIndex) => {
+      {withNakiFilter && (
+        <FilterChips
+          groups={[
+            NAKI_FILTER_OPTIONS.map((value) => ({
+              value,
+              label: t(`nakiFilters.${value}`),
+            })),
+          ]}
+          selected={nakiFilter}
+          onSelect={setNakiFilter}
+          accessibilityLabel={t("nakiFilterLabel")}
+        />
+      )}
+      {groupByMenzenHan(nakiFilter).map(({ han, entries }, groupIndex) => {
         const adIndex = adIndexAfterGroup(groupIndex);
         const ad = adIndex === undefined ? undefined : ads[adIndex];
         return (

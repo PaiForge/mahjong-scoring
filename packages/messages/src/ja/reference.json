@@ -17,7 +17,14 @@
     "exampleNaki": "鳴き",
     "exampleLabelSeparator": "・",
     "nakiNote": "※ ラベルのない役は鳴いても翻数が変わりません",
-    "inThisHand": "この手の役"
+    "inThisHand": "この手の役",
+    "nakiFilterLabel": "鳴いたときの扱いで絞り込む",
+    "nakiFilters": {
+      "all": "すべて",
+      "menzenOnly": "門前限定",
+      "kuisagari": "食い下がり",
+      "unchanged": "鳴いても同じ"
+    }
   },
   "glossary": {
     "title": "用語集",

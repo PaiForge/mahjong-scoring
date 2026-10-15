@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import {
   YAKU_HAN_ENTRIES,
@@ -11,6 +11,7 @@ import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
+import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import {
   YAKU_EXAMPLES,
   hasYakuCheatsheetEntry,
@@ -19,6 +20,12 @@ import type { YakuExampleSet } from "@mahjong-scoring/features/yaku/examples";
 import { YakuExampleList } from "./yaku-example-list";
 import { yakuAnchorId } from "@mahjong-scoring/features/yaku/anchors";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
+import {
+  ALL_NAKI_KINDS,
+  NAKI_FILTER_OPTIONS,
+  matchesNakiFilter,
+  type NakiFilter,
+} from "@mahjong-scoring/features/yaku/naki-kind";
 
 /** チートシートに表示する1役分の項目（役データと例示手牌を束ねる） */
 interface YakuCheatItem {
@@ -26,13 +33,20 @@ interface YakuCheatItem {
   readonly examples: readonly YakuExampleSet[];
 }
 
-/** チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する */
-function groupByMenzenHan(): readonly {
+/**
+ * チートシートに載せる役（除外役・例未定義を除く）を門前翻数ごとにグループ化する
+ *
+ * 絞り込みに当てはまる役が 1 つも無い翻数は、まとまりごと出さない。
+ */
+function groupByMenzenHan(filter: NakiFilter): readonly {
   readonly han: number;
   readonly items: readonly YakuCheatItem[];
 }[] {
   const groups = groupYakuHanEntriesByMenzenHan(
-    YAKU_HAN_ENTRIES.filter((entry) => hasYakuCheatsheetEntry(entry.name)),
+    YAKU_HAN_ENTRIES.filter(
+      (entry) =>
+        hasYakuCheatsheetEntry(entry.name) && matchesNakiFilter(filter, entry),
+    ),
   );
   return groups.map(({ han, entries }) => ({
     han,
@@ -76,6 +90,14 @@ interface YakuCheatsheetProps {
    * サーバーで引くため、役一覧ページが描画した要素を渡す。モーダルでは渡さない
    */
   readonly ads?: readonly ReactNode[];
+  /**
+   * 鳴いたときの扱い（門前限定・食い下がり・鳴いても同じ）で絞り込む
+   * 切り替えを一覧の上に出すかどうか
+   *
+   * 役一覧ページでだけ出す。答え合わせのモーダルは正解だった役へ直接
+   * 着地させる用途で、絞ると着地先の役が隠れうるため出さない。
+   */
+  readonly withNakiFilter?: boolean;
 }
 
 /**
@@ -96,10 +118,14 @@ export function YakuCheatsheet({
   markedYakuNames,
   focusedYakuName,
   ads = [],
+  withNakiFilter = false,
 }: YakuCheatsheetProps) {
   const t = useTranslations("reference.yaku");
+  // 絞り込みは URL に載せない。クエリを読むと静的なページが動的になるうえ、
+  // 共有して開き直したい状態でもないため
+  const [nakiFilter, setNakiFilter] = useState<NakiFilter>(ALL_NAKI_KINDS);
 
-  const groups = groupByMenzenHan();
+  const groups = groupByMenzenHan(nakiFilter);
 
   const groupLabel = (han: number) => yakuHanLabel(han, t);
 
@@ -129,6 +155,18 @@ export function YakuCheatsheet({
 
   return (
     <div className="space-y-8">
+      {withNakiFilter && (
+        <div role="group" aria-label={t("nakiFilterLabel")} className="flex">
+          <ToggleGroup
+            options={NAKI_FILTER_OPTIONS.map((value) => ({
+              value,
+              label: t(`nakiFilters.${value}`),
+            }))}
+            selected={nakiFilter}
+            onChange={setNakiFilter}
+          />
+        </div>
+      )}
       {groups.map((group, groupIndex) => {
         const adIndex = adIndexAfterGroup(groupIndex);
         const ad = adIndex === undefined ? undefined : ads[adIndex];
