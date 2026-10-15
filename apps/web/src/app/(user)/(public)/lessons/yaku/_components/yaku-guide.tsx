@@ -19,14 +19,14 @@ export async function YakuGuide() {
 
       {/* 門前と鳴き（食い下がり） */}
       <GuideSection title={t("menzenNakiTitle")}>
-        <GuideParagraph>{t("menzenNakiBody1")}</GuideParagraph>
-        <GuideParagraph>{t("menzenNakiBody2")}</GuideParagraph>
+        <GuideParagraph preLine>{t("menzenNakiBody1")}</GuideParagraph>
+        <GuideParagraph preLine>{t("menzenNakiBody2")}</GuideParagraph>
         <GuideParagraph>{t("menzenNakiBody3")}</GuideParagraph>
       </GuideSection>
 
       {/* 本文で挙げた役の門前と鳴きの翻数（各役名が早見表の該当カードへのリンク）＋ 残りの役は早見表へ */}
       <GuideSection title={t("summaryTitle")}>
-        <GuideParagraph>{t("summaryBody")}</GuideParagraph>
+        <GuideParagraph preLine>{t("summaryBody")}</GuideParagraph>
         <YakuNakiComparisonTable />
 
         <Link
