@@ -83,7 +83,7 @@ export function ExamIntroScreen({
       <View style={styles.startFrame}>
         {offersRealExam && (
           <>
-            <ExamStartGate slug={slug} />
+            <ExamStartGate slug={slug} goalFailureShownAbove />
             <StartCtaDivider label={tp("orDivider")} />
           </>
         )}
