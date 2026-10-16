@@ -47,6 +47,16 @@ describe("parseMobileMypageResponse", () => {
     ).toBe("kyu-5");
   });
 
+  it("未読の通知の件数を読む", () => {
+    expect(
+      parseMobileMypageResponse({
+        profile: { username: "bob" },
+        recentActivity: [],
+        unreadNotificationCount: 2,
+      })?.unreadNotificationCount,
+    ).toBe(2);
+  });
+
   it("形が違えば undefined", () => {
     expect(parseMobileMypageResponse({ profile: {} })).toBe(undefined);
   });

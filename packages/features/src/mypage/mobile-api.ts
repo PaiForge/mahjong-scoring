@@ -61,6 +61,11 @@ export interface MobileMypageResponse {
   readonly rankSlug?: RankSlug;
   /** 直近 {@link MOBILE_MYPAGE_ACTIVITY_DAYS} 日のアクティビティ（古い順） */
   readonly recentActivity: readonly MobileMypageActivityDay[];
+  /**
+   * 未読の通知の件数。web はヘッダーのベルに出す数で、アプリは iOS の
+   * マイページの「通知」の行に出す。古いサーバーは返さない（アプリは印を出さない）
+   */
+  readonly unreadNotificationCount?: number;
 }
 
 /**
@@ -99,6 +104,7 @@ const mypageSchema = z.object({
       expByMenuType: z.record(z.string(), z.number()),
     }),
   ),
+  unreadNotificationCount: z.number().optional(),
 });
 
 /**

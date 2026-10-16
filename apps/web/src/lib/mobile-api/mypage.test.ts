@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { authorizeAs } from "@/test/mobile-auth-mock";
 
-const { mockProfile, mockHeatmap, mockRanks } = vi.hoisted(() => ({
+const { mockProfile, mockHeatmap, mockRanks, mockUnread } = vi.hoisted(() => ({
   mockProfile: vi.fn(),
   mockHeatmap: vi.fn(),
   mockRanks: vi.fn(),
+  mockUnread: vi.fn(),
 }));
 
 vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
@@ -13,6 +14,9 @@ vi.mock("../db/get-exp-heatmap-data", () => ({
   getExpHeatmapData: mockHeatmap,
 }));
 vi.mock("../db/rank-queries", () => ({ getUserRankSlugs: mockRanks }));
+vi.mock("../notifications/queries", () => ({
+  countUnreadNotifications: mockUnread,
+}));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
 
 import { handleReadMypage } from "./mypage";
@@ -31,6 +35,7 @@ beforeEach(() => {
   });
   mockHeatmap.mockResolvedValue({ daily: {}, dailyByModule: {} });
   mockRanks.mockResolvedValue([]);
+  mockUnread.mockResolvedValue(0);
 });
 
 afterEach(() => {
@@ -88,6 +93,15 @@ describe("handleReadMypage", () => {
       avatarUrl: "https://example.test/a.webp",
     });
     expect(body.rankSlug).toBe("kyu-4");
+  });
+
+  it("本人の未読の通知の件数を返す", async () => {
+    mockUnread.mockResolvedValue(3);
+
+    const body = await (await handleReadMypage(request())).json();
+
+    expect(mockUnread).toHaveBeenCalledWith("user-1");
+    expect(body.unreadNotificationCount).toBe(3);
   });
 
   it("ユーザー名を決める前は読まずに 409 usernameRequired", async () => {

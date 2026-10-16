@@ -147,6 +147,8 @@ export const IP_RATE_LIMITS = {
   // アプリのマイレコード（ダッシュボードの選び直し・全履歴のページ送り）。
   // 期間や土俵を切り替えるたびに飛ぶ
   readMobileRecords: { maxRequests: 300, windowMs: 600_000 },
+  // アプリ（iOS）の通知の一覧。画面を開くたび・戻るたびと「さらに読み込む」で飛ぶ
+  readMobileNotifications: { maxRequests: 120, windowMs: 600_000 },
   // アプリのレッスン完了の記録（未送信分の送り直しを含む）
   completeLessons: { maxRequests: 60, windowMs: 600_000 },
   // アプリが Apple でログインした直後に認可コードを預ける。ログイン 1 回に
