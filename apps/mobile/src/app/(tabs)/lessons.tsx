@@ -4,9 +4,7 @@ import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import {
-  CURRICULUM,
   CURRICULUM_SECTIONS,
-  LESSON_CHAPTERS,
   chaptersBySection,
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
@@ -21,17 +19,11 @@ import {
   CurriculumProgressBar,
   CurriculumToc,
 } from "../../lessons/components/curriculum-toc";
-import { isLessonPorted } from "../../lessons/ported-lessons";
-
-/** モバイルで開けるレッスン（目次の順）。コラムは進捗に数えないので除く */
-const PORTED_LESSONS = LESSON_CHAPTERS.filter((chapter) =>
-  isLessonPorted(chapter.slug),
-);
-
-/** モバイルで開けないレッスン（「次はここから」の候補から外す） */
-const UNPORTED_SLUGS = CURRICULUM.filter(
-  (chapter) => !isLessonPorted(chapter.slug),
-).map((chapter) => chapter.slug);
+import {
+  countPortedCompleted,
+  PORTED_LESSONS,
+  UNPORTED_LESSON_SLUGS,
+} from "../../lessons/ported-lessons";
 
 /** セクション別の章（並びは変わらないので 1 回だけ組む） */
 const GROUPED = chaptersBySection();
@@ -52,10 +44,10 @@ const GROUPED = chaptersBySection();
 export default function LessonsTab() {
   const t = useTranslations("learnCurriculum.index");
   const completedSlugs = useCompletedLessons();
-  const next = pickNextChapter(new Set([...completedSlugs, ...UNPORTED_SLUGS]));
-  const completedCount = PORTED_LESSONS.filter((chapter) =>
-    completedSlugs.has(chapter.slug),
-  ).length;
+  const next = pickNextChapter(
+    new Set([...completedSlugs, ...UNPORTED_LESSON_SLUGS]),
+  );
+  const completedCount = countPortedCompleted(completedSlugs);
   const allCompleted = next === undefined;
   const ads = useNativeAds(MOBILE_AD_SLOTS.learnIndex);
 
