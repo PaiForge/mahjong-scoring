@@ -210,8 +210,8 @@ export const RANK_REGISTRY = [
     // 前提章は持たない（未作成）。教本に「60符以上」を扱う章がまだ無く、
     // 既存章の寄せ集めを前提として掲げると、読んでも埋まらない範囲が
     // 残ったまま「読み終えた」ことになる。章を書いたらここへ足すこと。
-    // 空である間はダッシュボードの試験カードが読了を待たずに出る
-    // （`dashboard/_lib/guidance.ts` の `selectReadyExamSlugs` 参照）
+    // 空である間は黒帯への道のこの級は学ぶ段も練習の段も持たず、
+    // 「次にやること」はすぐに試験を指す（`journey/journey.ts` の `buildJourneyPath` 参照）
     learnChapterSlugs: [],
   },
 ] as const satisfies readonly RankDefinitionEntry[];

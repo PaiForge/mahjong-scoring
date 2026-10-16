@@ -16,8 +16,8 @@ import { dispatchNotificationsRead } from "@/lib/notifications/read-event";
 import { formatJstDateTime } from "@mahjong-scoring/features/jst";
 
 import { markNotificationReadAction } from "../_actions/mark-read";
-import { notificationHref } from "../_lib/notification-link";
-import { buildNotificationMessage } from "../_lib/notification-message";
+import { notificationHref } from "@mahjong-scoring/features/notifications/link";
+import { buildNotificationMessage } from "@mahjong-scoring/features/notifications/message";
 import { NotificationTypeIcon } from "./notification-type-icon";
 
 interface NotificationItemProps {

@@ -4,7 +4,7 @@ import { XMarkIcon } from "@/app/(user)/_components/icons/x-mark-icon";
 import {
   NotificationType,
   isNotificationType,
-} from "@/lib/notifications/types";
+} from "@mahjong-scoring/features/notifications/types";
 
 interface NotificationTypeIconProps {
   readonly type: string;

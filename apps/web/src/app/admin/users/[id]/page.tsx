@@ -12,6 +12,7 @@ import {
   formatAdminDateTime,
 } from "@/app/admin/_lib/format-date";
 import { getOptionalUser } from "@/lib/auth";
+import { isKnownAuthProvider } from "@/lib/auth-provider";
 import { formatAmount } from "@/lib/billing/prices";
 import {
   benefitGrantStateOf,
@@ -157,7 +158,7 @@ export default async function AdminUserDetailPage({
                 : t("account.roles.user")}
             </InfoRow>
             <InfoRow label={t("account.provider")}>
-              {provider === "email" || provider === "google"
+              {isKnownAuthProvider(provider)
                 ? t(`account.providers.${provider}`)
                 : (provider ?? "-")}
             </InfoRow>

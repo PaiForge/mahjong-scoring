@@ -30,6 +30,7 @@ import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { TehaiDisplay } from "../../board/tehai-display";
+import { RecordCtaCard } from "../../home/record-cta-card";
 import { Button } from "../../components/button";
 import { Grid } from "../../components/grid";
 import { LightbulbIcon } from "../../components/icons/icons";
@@ -534,6 +535,11 @@ export function LessonView({
           </TextLink>
         )}
       </View>
+
+      {/* 記録が残らない人（ゲスト・ユーザー名が未設定）にだけ出る登録の案内。
+          web は未ログインの完了画面で次の一歩の代わりに登録の囲みを出すが、
+          アプリはゲストの完了も端末に残り次の一歩が使えるので、次の一歩の下に添える */}
+      <RecordCtaCard placement="lesson" />
 
       <ChapterRelatedLinks slug={slug} exclude={nextPractice} />
       {footer}

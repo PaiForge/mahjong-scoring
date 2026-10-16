@@ -10,7 +10,6 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import {
   PRACTICE_PATH,
-  myRecordHref,
   practiceHref,
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
@@ -25,10 +24,15 @@ import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
-import { useFinishExp, useFinishStatus } from "../../records/account-sync";
+import {
+  useFinishComparison,
+  useFinishExp,
+  useFinishStatus,
+} from "../../records/account-sync";
 import { useChallengeResultStore } from "../challenge-result-store";
-import { ExpGain } from "../components/exp-gain";
 import { MistakeRevealProvider } from "../components/mistake-reveal";
+import { PracticeRelatedChapters } from "../components/practice-chapter-section";
+import { RecordSection } from "../components/record-section";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
@@ -40,13 +44,22 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  *
  * @description
  * web の結果ページ（`ResultView`）と同じ並び: 結果（正解・不正解の帯）→
- * もう一度 / 設定を変更する → 練習一覧に戻る → 広告のカード → 問題別の結果 →
- * もう一度 → 記録の案内。web の末尾にある総合ランキングの上位は置かない（アプリでは他の利用者の
+ * あなたの記録（記録できた回だけ）→ もう一度 / 設定を変更する → 練習一覧に戻る →
+ * 広告のカード → 問題別の結果 → もう一度 → 記録の案内 → 関連するレッスン。
+ * web の末尾にある総合ランキングの上位は置かない（アプリでは他の利用者の
  * 名前・アバターを見せない。`app/leaderboard/index.tsx`）。その下にある web の登録 CTA の
  * 位置には、記録が残らない人（ゲスト・ユーザー名未設定）にだけ記録の案内
- * （`RecordCtaCard`）を置く。文言はランキングに触れない（`recordCta.result`）。ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で
- * 添える（送れなければ、次に通信できたときに送ると伝える）。自己ベストの
- * 比較はまだ出さない。
+ * （`RecordCtaCard`）を置く。文言はランキングに触れない（`recordCta.result`）。
+ *
+ * ログイン中のチャレンジは、結果の帯の下に成績を記録できたかを 1 行で添える
+ * （送れなければ、次に通信できたときに送ると伝える）。記録できたら web の
+ * 記録の節（{@link RecordSection}）と同じく、獲得経験値・今回 / 前回 /
+ * これまでのベスト（「自己ベスト更新！」「初めての記録」）・マイレコードへの
+ * 導線を結果の節の下に並べる。比較の値は確定の応答に載ってくる。
+ *
+ * 関連するレッスンは web と同じく最下部に置く（結果を見て復習したくなった
+ * 人の行き先で、次の行動の「もう一度」より前に出さない）。見出しと章は
+ * 説明画面と同じ（`PracticeRelatedChapters`）。
  *
  * 「もう一度」を問題別の結果の末尾にも置くのは、一覧で間違えた問題を読み終えた
  * 位置から、広告とボタン群まで戻らずに再挑戦できるようにするため（web と同じ）。
@@ -135,13 +148,13 @@ export function PracticeResultScreen({
             </Text>
           )}
           <RecordStatus attemptId={current?.recordedAttemptId} />
-          <RecordedExp attemptId={current?.recordedAttemptId} />
-          <MyRecordLink
-            attemptId={current?.recordedAttemptId}
-            menuType={menuType}
-            variant={variant}
-          />
         </View>
+
+        <RecordedSection
+          attemptId={current?.recordedAttemptId}
+          menuType={menuType}
+          variant={variant}
+        />
 
         <View style={styles.actions}>
           <View style={styles.buttons}>
@@ -170,6 +183,8 @@ export function PracticeResultScreen({
           )}
 
         <RecordCtaCard placement="result" />
+
+        <PracticeRelatedChapters slug={slug} />
       </MistakeRevealProvider>
     </Screen>
   );
@@ -191,22 +206,8 @@ function RecordStatus({
   );
 }
 
-/** 記録できたチャレンジに付いた経験値（ログイン中で、対象の練習だけ） */
-function RecordedExp({
-  attemptId,
-}: {
-  readonly attemptId: string | undefined;
-}) {
-  const exp = useFinishExp(attemptId);
-  if (exp === undefined) return undefined;
-  return <ExpGain exp={exp} />;
-}
-
-/**
- * 記録できたチャレンジから、その土俵を選んだマイレコードへ（web の結果ページの
- * 「マイレコードで推移を見る」）
- */
-function MyRecordLink({
+/** 記録できたチャレンジの記録の節（ログイン中で成績を記録できた回だけ） */
+function RecordedSection({
   attemptId,
   menuType,
   variant,
@@ -215,26 +216,21 @@ function MyRecordLink({
   readonly menuType: PracticeMenuType;
   readonly variant: string;
 }) {
-  const t = useTranslations("challenge.record");
-  const router = useRouter();
   const status = useFinishStatus(attemptId);
+  const exp = useFinishExp(attemptId);
+  const comparison = useFinishComparison(attemptId);
   if (status !== "recorded") return undefined;
   return (
-    <View style={styles.myRecord}>
-      <TextLink
-        testID="result-my-record"
-        onPress={() => router.push(myRecordHref({ menuType, variant }))}
-      >
-        {t("viewMyRecords")}
-      </TextLink>
-    </View>
+    <RecordSection
+      exp={exp}
+      comparison={comparison}
+      menuType={menuType}
+      variant={variant}
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  myRecord: {
-    alignItems: "center",
-  },
   recordStatus: {
     fontSize: 15,
     lineHeight: 24,

@@ -1,0 +1,54 @@
+# ログイン中（bob）の通知: マイページの「通知」の行の行末に未読の件数（dev seed では 2）が出て、
+# 開くと新しい順に 3 件（未読は太字 + 緑の点）と「未読 2 件」「すべて既読にする」が並ぶ。
+# 「すべて既読にする」で未読が消え、マイページへ戻ると件数の印も消える。
+# 既読にした状態は dev seed（`pnpm --filter web db:seed:dev`）を流し直すと戻る。
+# iOS だけの画面（Android はマイページに行が出ない）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-notifications"
+    direction: DOWN
+- assertVisible:
+    id: "notifications-unread-badge"
+- takeScreenshot: mypage-notifications-menu
+- tapOn:
+    id: "mypage-menu-notifications"
+- extendedWaitUntil:
+    visible: "未読 2 件"
+    timeout: 10000
+- assertVisible: ".*期限が切れ.*"
+- assertVisible: ".*購入が完了しました.*"
+- takeScreenshot: mypage-notifications-list
+- tapOn:
+    id: "notifications-mark-all-read"
+- extendedWaitUntil:
+    notVisible: "未読 2 件"
+    timeout: 10000
+- assertNotVisible:
+    id: "notifications-mark-all-read"
+- takeScreenshot: mypage-notifications-all-read
+- tapOn:
+    id: "screen-back"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-notifications"
+    direction: DOWN
+- assertNotVisible:
+    id: "notifications-unread-badge"

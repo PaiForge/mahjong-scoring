@@ -7,9 +7,10 @@ import {
   type TransactionClient,
 } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
+import type { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import type { NotificationMetadata } from "./metadata";
-import type { NotificationTargetType, NotificationType } from "./types";
+import type { NotificationTargetType } from "./types";
 
 /**
  * 通知の書き込み — 唯一の入口
@@ -24,7 +25,7 @@ import type { NotificationTargetType, NotificationType } from "./types";
 export interface NotificationInput {
   /** 受け取る人 */
   readonly userId: string;
-  /** 種別（`types.ts` に登録済みのもの） */
+  /** 種別（features の `notifications/types.ts` に登録済みのもの） */
   readonly type: NotificationType;
   /** 対象の表と行。「同じ事実には 1 通知」の鍵になる */
   readonly target: {

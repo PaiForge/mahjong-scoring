@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { ExpInfo } from "@mahjong-scoring/core";
 import type { MobileFinishChallengeResponse } from "@mahjong-scoring/features/challenge/mobile-api";
+import type { RecordView } from "@mahjong-scoring/features/challenge/record-view";
 import type { BuildJourneyInput } from "@mahjong-scoring/features/journey/journey";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
@@ -279,9 +280,16 @@ const useFinishStatusStore = create<{
   readonly byAttempt: Readonly<Record<string, FinishStatus>>;
   /** 記録できたチャレンジに付いた経験値（対象外の練習には無い） */
   readonly expByAttempt: Readonly<Record<string, ExpInfo>>;
+  /** 記録できたチャレンジの、過去の自分の記録との比較（読めなかった回には無い） */
+  readonly comparisonByAttempt: Readonly<Record<string, RecordView>>;
   /** 判定した昇級試験で付与した段級位（不合格・再挑戦なら空） */
   readonly grantedRanksByAttempt: Readonly<Record<string, readonly RankSlug[]>>;
-}>(() => ({ byAttempt: {}, expByAttempt: {}, grantedRanksByAttempt: {} }));
+}>(() => ({
+  byAttempt: {},
+  expByAttempt: {},
+  comparisonByAttempt: {},
+  grantedRanksByAttempt: {},
+}));
 
 function setFinishStatus(
   attemptId: string,
@@ -292,6 +300,16 @@ function setFinishStatus(
     byAttempt: { ...state.byAttempt, [attemptId]: status },
     ...(response !== undefined && "exp" in response && response.exp
       ? { expByAttempt: { ...state.expByAttempt, [attemptId]: response.exp } }
+      : {}),
+    ...(response !== undefined &&
+    "comparison" in response &&
+    response.comparison
+      ? {
+          comparisonByAttempt: {
+            ...state.comparisonByAttempt,
+            [attemptId]: response.comparison,
+          },
+        }
       : {}),
     ...(response !== undefined && "grantedRanks" in response
       ? {
@@ -328,6 +346,21 @@ export function useFinishExp(
 ): ExpInfo | undefined {
   return useFinishStatusStore((state) =>
     attemptId === undefined ? undefined : state.expByAttempt[attemptId],
+  );
+}
+
+/**
+ * 記録できたチャレンジの、過去の自分の記録との比較を読む
+ * 記録比較参照
+ *
+ * 確定の応答に載った値（web の結果ページの記録の節と同じ `RecordView`）。
+ * まだ記録できていない・比較を読めなかった・古いサーバーなら undefined。
+ */
+export function useFinishComparison(
+  attemptId: string | undefined,
+): RecordView | undefined {
+  return useFinishStatusStore((state) =>
+    attemptId === undefined ? undefined : state.comparisonByAttempt[attemptId],
   );
 }
 

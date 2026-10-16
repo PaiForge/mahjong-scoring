@@ -4,7 +4,7 @@ import {
   NOTIFICATION_TYPES,
   NotificationType,
   isNotificationType,
-} from "../types";
+} from "./types";
 
 describe("NotificationType", () => {
   it("種別の値は保存されるデータなので、既知の文字列のまま変わらない", () => {

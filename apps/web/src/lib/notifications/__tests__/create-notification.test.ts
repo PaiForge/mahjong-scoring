@@ -14,7 +14,9 @@ import {
   insertNotifications,
   notifyQuietly,
 } from "../create-notification";
-import { NotificationTargetType, NotificationType } from "../types";
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
+
+import { NotificationTargetType } from "../types";
 
 const INPUT = {
   userId: "u1",

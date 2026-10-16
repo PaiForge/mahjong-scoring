@@ -8,7 +8,9 @@ import {
   insertNotifications,
   type NotificationInput,
 } from "./create-notification";
-import { NotificationTargetType, NotificationType } from "./types";
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
+
+import { NotificationTargetType } from "./types";
 
 /**
  * Pro の期限切れの通知 — 日次バッチ

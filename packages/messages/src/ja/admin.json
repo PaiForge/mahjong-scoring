@@ -323,7 +323,8 @@
       "provider": "登録方法",
       "providers": {
         "email": "メール",
-        "google": "Google"
+        "google": "Google",
+        "apple": "Apple"
       },
       "emailConfirmedAt": "メール確認",
       "emailUnconfirmed": "未確認",

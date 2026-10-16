@@ -13,7 +13,7 @@ export interface AuthUser {
   readonly id: string;
   readonly email?: string;
   /**
-   * 最初にサインアップしたときのプロバイダ（`email` / `google`）。
+   * 最初にサインアップしたときのプロバイダ（`email` / `google` / `apple`）。
    * Supabase が JWT の `app_metadata.provider` に入れる値をそのまま持つ。
    * ログインプロバイダ
    */

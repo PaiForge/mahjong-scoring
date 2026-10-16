@@ -306,3 +306,22 @@ export function LightbulbIcon(props: IconProps) {
     </Outline>
   );
 }
+
+/** ベル（通知。web の `BellIcon` と同じ図形） */
+export function BellIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M15 17H5l1.4-1.4a2 2 0 00.6-1.4V10a5 5 0 0110 0v4.2a2 2 0 00.6 1.4L19 17h-4" />
+      <Path d="M10 20a2 2 0 004 0" />
+    </Outline>
+  );
+}
+
+/** 時計（通知の期限切れ。web の `ClockIcon` と同じ図形） */
+export function ClockIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18M12 7v5l3 2" />
+    </Outline>
+  );
+}

@@ -2,10 +2,11 @@
  * ローカル開発用のサイト内通知の投入
  * 通知シード
  *
- * ヘッダーのベル（未読数）と `/mypage/notifications` の一覧を、ログインするだけで
- * 確認できるよう、購入・付与のシードから導いた通知を入れる。アプリが本番で
- * 書くのと同じ種別・同じ対象（購入行・付与行）・同じ metadata にするため、
- * 文面の分岐（パス / 買い切り / 期限あり / 無期限）がそのまま見える。
+ * ヘッダーのベル（未読数）と `/mypage/notifications` の一覧（アプリは iOS の
+ * マイページの「通知」の行と同じパスの画面）を、ログインするだけで確認できる
+ * よう、購入・付与のシードから導いた通知を入れる。アプリが本番で書くのと
+ * 同じ種別・同じ対象（購入行・付与行）・同じ metadata にするため、文面の分岐
+ * （パス / 買い切り / 期限あり / 無期限）がそのまま見える。
  *
  * - bob   — 古いパスの購入完了（既読）と期限切れ（未読）、いまのパスの購入完了（未読）
  * - carol — 買い切りの購入完了（未読）
@@ -21,16 +22,15 @@
 import { inArray } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
+
 import {
   benefitGrants,
   notifications,
   purchases,
   type NewNotification,
 } from "../../src/lib/db/schema";
-import {
-  NotificationTargetType,
-  NotificationType,
-} from "../../src/lib/notifications/types";
+import { NotificationTargetType } from "../../src/lib/notifications/types";
 
 /** 投入先のユーザー（`ensureSeedUser` が返した id と username） */
 export interface NotificationSeedUser {

@@ -27,8 +27,8 @@ import { RankStageProgress } from "../dojo/rank-stage-progress";
  *
  * 枠は道場の級カードと同じ細枠 + 上端の帯色の帯（web と同じ）。
  *
- * 全級取得済み（`nextStep` が無い）なら何も描画しない。モバイルは段級位を
- * 持たないので実際には常に描画される。
+ * 全級取得済み（`nextStep` が無い）なら何も描画しない。そのときホームは
+ * 代わりに「レッスンの続き」「おすすめの練習」を出す（web と同じ）。
  */
 export function NextStepCard({ journey }: { readonly journey: Journey }) {
   const t = useTranslations("dashboard.nextStep");

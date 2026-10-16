@@ -30,6 +30,7 @@ import {
 } from "../../records/account-sync";
 import { useChallengeResultStore } from "../challenge-result-store";
 import { MistakeRevealProvider } from "../components/mistake-reveal";
+import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import { ExamResultSummary } from "../exam/exam-result-summary";
 import { PromotionBanner } from "../exam/promotion-banner";
 import type { PracticeScreens } from "../practice-screens";
@@ -42,8 +43,13 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * @description
  * web の試験の結果ページ（`ResultView` の試験の分岐）と同じ並び: 結果（合否・
  * 合格ラインまでの棒・ペース）→ 昇級バナー（付与されたときだけ）→ ボタン群 →
- * 広告のカード → 問題別の結果。試験は成績を記録しないので、練習の結果画面に
- * ある経験値・マイレコードへの導線は持たない。
+ * 広告のカード → 問題別の結果 → 前提となるレッスン。試験は成績を記録しないので、
+ * 練習の結果画面にある記録の節（経験値・過去の記録との比較・マイレコードへの
+ * 導線）は持たない。
+ *
+ * 前提となるレッスンは web と同じく最下部に置く（落ちた人が復習しに行く先で、
+ * 次の行動より前に出さない）。見出しと章は試験の説明画面・道場と同じ
+ * （`PracticeRelatedChapters`。その級の前提章をすべて並べる）。
  *
  * 合否の帯は手元の正解数で出し、段級位はサーバーの判定（確定の応答）で
  * 出す。判定を受け取れていない間は、合否の下にその旨を 1 行添える。
@@ -151,6 +157,8 @@ export function ExamResultScreen({
               {primaryButton}
             </View>
           )}
+
+        <PracticeRelatedChapters slug={slug} />
       </MistakeRevealProvider>
     </Screen>
   );

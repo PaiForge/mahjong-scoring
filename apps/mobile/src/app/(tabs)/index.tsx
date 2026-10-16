@@ -1,16 +1,21 @@
+import { useMemo } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { selectDashboardGuidance } from "@mahjong-scoring/features/dashboard/guidance";
 
 import { useAuth } from "../../auth/use-auth";
 import { UserIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
-import { useMobileJourney } from "../../dojo/use-mobile-journey";
+import { AgariScorePracticeSection } from "../../home/agari-score-practice-section";
+import { ContinueLearningSection } from "../../home/continue-learning-section";
 import { HomeAnnouncements } from "../../home/home-announcements";
 import { NextStepCard } from "../../home/next-step-card";
 import { RecordCtaCard } from "../../home/record-cta-card";
+import { UNPORTED_LESSON_SLUGS } from "../../lessons/ported-lessons";
 import { colors } from "../../lib/theme";
 import { UserAvatar } from "../../mypage/user-avatar";
+import { useAccountProgress } from "../../records/use-account-progress";
 
 /**
  * ヘッダー右のアバターの直径。人型のアイコン（24）より一回り大きくし、
@@ -24,14 +29,16 @@ const ENTRY_SIZE = 28;
  * @description
  * web のダッシュボード（ログイン済みの「/」）に当たる、起動時の画面。黒帯への
  * 道の中で今やること 1 つを「次にやること」に出す。全体の道筋は道場が持ち、
- * ホームは「今すること」だけを答える（候補を並べない）。
+ * ホームは「今すること」だけを答える（候補を並べない）。全級取得済みの人には
+ * 「次にやること」が無いので、代わりに「レッスンの続き」（未完了のレッスンが
+ * 残っていれば）と「おすすめの練習」（和了形の点数計算）を出す。出し分けは
+ * web と同じ features の `selectDashboardGuidance` が決める。
  *
  * web と違うもの:
  * - 進み具合はログイン中ならサーバーの記録と端末の未送信・ゲストの記録、
- *   ゲストなら端末の記録から出す（`useMobileJourney`）。web が全級取得後に
- *   出す「レッスンの続き」「おすすめの練習」はまだ持たない（全級取得済みの
- *   アカウントでは「次にやること」が出ない）
- * - お知らせは「次にやること」と記録の案内の後に置く（web は学習導線の後）
+ *   ゲストなら端末の記録から出す（`useAccountProgress`）。「レッスンの続き」は
+ *   モバイルで開けるレッスンだけから選ぶ（レッスンの目次と同じ）
+ * - お知らせは学習導線と記録の案内の後に置く（web は学習導線の後）
  * - マイページへの入口をヘッダー右に置く（web はヘッダーのアカウントの
  *   メニュー。モバイルはメニューを持たず、タブも OS の上限の 5 つで
  *   埋まっている）。マイページはゲストにも出す — 開くと記録の案内が出る。
@@ -45,7 +52,9 @@ const ENTRY_SIZE = 28;
  *   （`RecordCtaCard`）。今することを先に置き、案内はその後
  *
  * @flow
- * 1. 「次にやること」のボタンでレッスン / 練習 / 試験へ進む
+ * 1. 「次にやること」のボタンでレッスン / 練習 / 試験へ進む。全級取得済みなら
+ *    「レッスンの続き」の行でレッスン、「目次へ」でレッスンの目次、
+ *    「おすすめの練習」のカードで和了形の点数計算の説明へ
  * 2. 級の見出しで級の詳細、進み具合の各段でその段の一覧へ
  * 3. ゲストは記録の案内から登録・ログインへ、ユーザー名を決めていない人は
  *    ユーザー名の設定へ進む
@@ -54,7 +63,14 @@ const ENTRY_SIZE = 28;
 export default function HomeScreen() {
   const t = useTranslations("nav");
   const router = useRouter();
-  const journey = useMobileJourney();
+  const { input } = useAccountProgress();
+  const { journey, nextChapter, showAgariScorePractice } = useMemo(
+    () =>
+      selectDashboardGuidance(input, {
+        unavailableLessonSlugs: UNPORTED_LESSON_SLUGS,
+      }),
+    [input],
+  );
 
   return (
     <Screen
@@ -75,6 +91,13 @@ export default function HomeScreen() {
       }
     >
       <NextStepCard journey={journey} />
+      {nextChapter !== undefined && (
+        <ContinueLearningSection
+          completedSlugs={input.completedLessonSlugs}
+          nextChapter={nextChapter}
+        />
+      )}
+      {showAgariScorePractice && <AgariScorePracticeSection />}
       <RecordCtaCard placement="home" />
       <HomeAnnouncements />
     </Screen>

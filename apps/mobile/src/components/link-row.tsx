@@ -22,6 +22,11 @@ interface LinkRowProps {
   readonly trailing?: ReactNode;
   /** 読み上げの名前。省略時は行の中の文字をそのまま読む */
   readonly accessibilityLabel?: string;
+  /**
+   * 題名を太字にしない。並んだ行の一部だけを太字で目立たせるとき（未読の
+   * 通知だけを太字にする等）に、残りの行に渡す
+   */
+  readonly plainTitle?: boolean;
   /** Maestro のフローで引く印 */
   readonly testID?: string;
 }
@@ -40,6 +45,7 @@ export function LinkRow({
   leading,
   trailing,
   accessibilityLabel,
+  plainTitle = false,
   testID,
 }: LinkRowProps) {
   const framed = useContext(LinkRowFramedContext);
@@ -57,7 +63,15 @@ export function LinkRow({
     >
       {leading !== undefined && <View style={styles.side}>{leading}</View>}
       <View style={styles.body}>
-        <Text style={[styles.title, linkStyles.rowTitle]}>{title}</Text>
+        <Text
+          style={[
+            styles.title,
+            linkStyles.rowTitle,
+            plainTitle && styles.plainTitle,
+          ]}
+        >
+          {title}
+        </Text>
         {description !== undefined && (
           <Text style={styles.description}>{description}</Text>
         )}
@@ -136,6 +150,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 15,
+  },
+  plainTitle: {
+    fontWeight: "400",
   },
   description: {
     marginTop: 2,

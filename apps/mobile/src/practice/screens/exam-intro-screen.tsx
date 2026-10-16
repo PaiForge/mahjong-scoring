@@ -21,7 +21,7 @@ import { colors, radius } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
 import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
 import { StartCtaDivider } from "../components/practice-start-cta";
-import { PracticeChapterSection } from "../components/practice-chapter-section";
+import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
 
@@ -48,7 +48,6 @@ export function ExamIntroScreen({
 }) {
   const { namespace, menuType } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
-  const tDojo = useTranslations("dojo");
   const tRanks = useTranslations("ranks");
   const tExam = useTranslations("examTraining");
   const tp = useTranslations("practice");
@@ -108,12 +107,7 @@ export function ExamIntroScreen({
         </View>
       </View>
 
-      {rank !== undefined && (
-        <PracticeChapterSection
-          title={tDojo("chaptersTitle")}
-          slugs={rank.learnChapterSlugs}
-        />
-      )}
+      <PracticeRelatedChapters slug={slug} />
 
       {/* 前提のレッスンの下に「その級の練習」への行リンク。模試で間違えた人が
           次に行く先は、同じ範囲を数える練習でもある */}

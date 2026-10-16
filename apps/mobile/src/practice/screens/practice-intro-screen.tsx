@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
-import { relatedChaptersForPractice } from "@mahjong-scoring/features/practice/catalog";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -13,7 +12,7 @@ import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors, radius } from "../../lib/theme";
-import { PracticeChapterSection } from "../components/practice-chapter-section";
+import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import { PracticeStartCta } from "../components/practice-start-cta";
 import { VariantStartPanel } from "../components/variant-start-panel";
 import type { PracticeScreens } from "../practice-screens";
@@ -38,7 +37,6 @@ export function PracticeIntroScreen({
 }) {
   const { namespace, hasSetup } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
-  const tp = useTranslations("practice");
   const variant = useRouteVariant(slug);
   const { Demo } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceIntro);
@@ -68,10 +66,7 @@ export function PracticeIntroScreen({
         <PracticeStartCta slug={slug} variant={variant} />
       )}
 
-      <PracticeChapterSection
-        title={tp("requiredKnowledge")}
-        slugs={relatedChaptersForPractice(slug)}
-      />
+      <PracticeRelatedChapters slug={slug} />
 
       {/* 目次は枠を持たないので、広告の行も枠を描かない（web と同じ） */}
       {ad !== undefined && (

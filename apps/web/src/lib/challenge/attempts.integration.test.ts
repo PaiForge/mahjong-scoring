@@ -138,6 +138,8 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     });
     expect(await finishAttempt(owner, attempt.id, false)).toEqual({
       challengeResultId: "saved",
+      menuType: "machi_fu",
+      variant: "default",
     });
     expect(mocked.save).toHaveBeenCalledTimes(1);
   });
@@ -237,6 +239,8 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
     );
     expect(await finishAttempt(owner, attempt.id, false)).toEqual({
       challengeResultId: "saved",
+      menuType: "machi_fu",
+      variant: "default",
     });
   });
   it("カウントダウン・フィードバック・停止中は回答を拒否する", async () => {

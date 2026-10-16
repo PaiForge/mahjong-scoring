@@ -6,10 +6,8 @@ import { db, type BenefitGrant } from "@/lib/db";
 import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
 import { notifyQuietly } from "@/lib/notifications/create-notification";
-import {
-  NotificationTargetType,
-  NotificationType,
-} from "@/lib/notifications/types";
+import { NotificationTargetType } from "@/lib/notifications/types";
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import { requireAdminActor } from "../../_lib/auth";
 import { normalizeModerationReason } from "../_lib/moderation-reason";

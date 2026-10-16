@@ -1,30 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useTranslations } from "next-intl";
+import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
 import { resendEmail } from "../_actions/resend-email";
 import { resendEmailMessageKey } from "../_lib/resend-email-message";
 import { Button } from "@/app/(user)/_components/button";
 
-const COOLDOWN_SECONDS = 60;
-
 /**
- * 確認メール再送ボタン。60秒のクールダウン付き。
+ * 確認メール再送ボタン。60秒のクールダウン付き（アプリの確認メールの案内と共有）。
  * メール再送ボタン
  */
 export function ResendEmailButton({ email }: { readonly email: string }) {
   const t = useTranslations("verifyEmail");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [cooldown, setCooldown] = useState(0);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setTimeout(() => setCooldown((prev) => prev - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [cooldown]);
+  const { cooldown, start: startCooldown } = useResendCooldown();
 
   const handleResend = async () => {
     setIsLoading(true);
@@ -37,7 +30,7 @@ export function ResendEmailButton({ email }: { readonly email: string }) {
         setMessage(t(resendEmailMessageKey(result.error)));
       } else {
         setMessage(t("resendSuccess"));
-        setCooldown(COOLDOWN_SECONDS);
+        startCooldown();
       }
     } catch {
       setMessage(t("resendError"));

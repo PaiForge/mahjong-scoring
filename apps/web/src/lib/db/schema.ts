@@ -1318,9 +1318,9 @@ export type PracticeQuotaUsage = typeof practiceQuotaUsage.$inferSelect;
  *
  * @description
  * 有料プランの出来事（購入完了・Pro の期限切れ・運営からの付与・取り消し）を
- * ヘッダーのベルとマイページの通知一覧で本人に知らせる。種別は
- * `lib/notifications/types.ts` の `NotificationType` に列挙し、文面と遷移先は
- * 読み取り側（通知一覧）が種別から組み立てる。行は「何が起きたか」だけを持つ。
+ * ヘッダーのベルとマイページの通知一覧（アプリは iOS のマイページ）で本人に
+ * 知らせる。種別は features の `notifications/types.ts` の `NotificationType` に
+ * 列挙し、文面と遷移先は読み取り側（通知一覧）が種別から組み立てる。行は「何が起きたか」だけを持つ。
  *
  * @design `(user_id, type, target_type, target_id)` の一意インデックスで重複を防ぐ
  *
@@ -1357,7 +1357,7 @@ export const notifications = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     /** 受け取る人の auth.users(id)（FK は Supabase SQL で定義） */
     userId: uuid("user_id").notNull(),
-    /** 種別（`lib/notifications/types.ts` の `NotificationType`） */
+    /** 種別（features の `notifications/types.ts` の `NotificationType`） */
     type: varchar("type", { length: 50 }).notNull(),
     /** 対象の表（`NotificationTargetType`）。対象を持たない種別は NULL */
     targetType: varchar("target_type", { length: 50 }),
