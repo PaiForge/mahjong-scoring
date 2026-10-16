@@ -215,3 +215,12 @@ export const TENPAI_SCORE_PRACTICE_HREF = "/practice/tenpai-score";
  * web は購入状況のページ、アプリはプラン画面（状態・購入・復元・購入履歴）。
  */
 export const MYPAGE_PLAN_PATH = "/mypage/plan";
+
+/**
+ * 通知の一覧のパス
+ * 通知一覧パス
+ *
+ * web はヘッダーのベルとマイページの「通知」から、アプリ（iOS）はマイページの
+ * 「通知」の行から開く。
+ */
+export const MYPAGE_NOTIFICATIONS_PATH = "/mypage/notifications";

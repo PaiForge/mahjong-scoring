@@ -14,9 +14,11 @@ import { NotificationType, isNotificationType } from "./types";
  *
  * @design 遷移先は両プラットフォームにあるパスに限る
  *
- * web とアプリが同じこれを読むので、web にしか無いページ（料金の `/plan`・
- * 特商法・Stripe の画面）を返さない。そうした行き先が要る種別を足すときは、
- * アプリでは遷移先なしにする分岐をここではなくアプリ側に持たせること。
+ * web とアプリ（iOS）が同じこれを読むので、web にしか無いページ（料金の
+ * `/plan`・特商法・Stripe の画面）を返さない。アプリはそれらに触れない
+ * （App Store の審査ガイドライン 3.1.1。`apps/mobile/CLAUDE.md`）。そうした
+ * 行き先が要る種別を足すときは、web とアプリで行き先を分ける引数をここに足し、
+ * アプリでは遷移先なし（押せない行）にする。
  */
 export function notificationHref(type: string): string | undefined {
   if (!isNotificationType(type)) return undefined;

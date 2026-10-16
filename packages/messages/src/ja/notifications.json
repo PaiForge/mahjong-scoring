@@ -8,6 +8,8 @@
   "markAllReadFailed": "既読にできませんでした。時間をおいてもう一度お試しください。",
   "empty": "通知はまだありません",
   "emptyHint": "Pro プランの購入や期限切れなど、あなたに関わる出来事をここでお知らせします。",
+  "loadFailed": "通知を読み込めませんでした。",
+  "loadMore": "さらに読み込む",
   "messages": {
     "purchaseCompletedPass": "Pro（30 日パス）の購入が完了しました。{until} まで Pro の機能を使えます。",
     "purchaseCompletedLifetime": "Pro（買い切り）の購入が完了しました。Pro の機能をずっと使えます。",
