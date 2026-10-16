@@ -167,7 +167,7 @@ export function connectIap(): Promise<boolean> {
  * 商品の価格を読む。読めなかった商品は含まない（失敗は空配列）
  * 商品取得
  *
- * パス（Non-Renewing Subscription）も買い切り（Non-Consumable）も自動更新の
+ * パス（Consumable）も買い切り（Non-Consumable）も自動更新の
  * 購読ではないので、`all` で読んで ID で引く。
  */
 export async function fetchIapProducts(
@@ -316,9 +316,8 @@ export async function requestIapPurchase(
  * 購入一覧取得
  *
  * StoreKit の現在の権利（`Transaction.currentEntitlements`）で、買い切り
- * （Non-Consumable）とパス（Non-Renewing Subscription）の最新の取引が返る。
- * パスの期限は StoreKit が知らないので、期限切れのパスも返る（期限の判定は
- * サーバーが持つ）。
+ * （Non-Consumable）の取引が返る。パス（Consumable）は現在の権利に載らないので
+ * 返らない — パスはサーバーに記録済みで、ログインすれば戻る。
  */
 export async function listIapPurchases(): Promise<readonly IapPurchase[]> {
   if (!IAP_AVAILABLE) return [];

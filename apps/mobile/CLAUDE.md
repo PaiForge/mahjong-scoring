@@ -86,9 +86,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   最初にログインしたアカウントへ取り込み、「チャレンジを終えた練習」はサーバーへ送らず
   案内（行程）にだけ合わせる。昇級試験の本番は記録付きでしか始めず（ゲスト等は説明画面へ戻す）、
   確定の応答の `grantedRanks` で結果画面に昇級を出す。受験資格はサーバーが開始時に検査する
-- **iOS は Pro を App Store のアプリ内課金で売る。** 30 日パスは非更新サブスク、買い切りは
-  非消耗型。購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro は
-  アプリで、アプリで買った Pro は web で有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の
+- **iOS は Pro を App Store のアプリ内課金で売る。** 30 日パスは消耗型（購入シートのボタンを
+  「購入」にするため。理由は web の `record.ts` の `APPLE_PRODUCT_TYPES`）、買い切りは非消耗型。
+  購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、アプリで買った Pro は web で有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の
   `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
   回数制限のどれも出さない）。購入・復元・プラン画面は `src/billing/`。購入の同期
   （`usePurchaseSync`）がルートで動き、取引はサーバーが 2xx か 4xx を返したときだけ finish する

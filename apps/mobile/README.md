@@ -219,10 +219,15 @@ App Store Server API の鍵は持たない。取引の現在値の照会・通�
 アプリ（`help.mahjong.score`、Apple ID `6820905974` = `eas.json` の `ascAppId`）の
 Monetization > In-App Purchases で 2 商品を作る。
 
-| 売り方    | 種類                                        | Product ID                        |
-| --------- | ------------------------------------------- | --------------------------------- |
-| 30 日パス | Non-Renewing Subscription（非更新サブスク） | `help.mahjong.score.pro.pass30`   |
-| 買い切り  | Non-Consumable（非消耗型）                  | `help.mahjong.score.pro.lifetime` |
+| 売り方    | 種類                       | Product ID                          |
+| --------- | -------------------------- | ----------------------------------- |
+| 30 日パス | Consumable（消耗型）       | `help.mahjong.score.pro.pass30days` |
+| 買い切り  | Non-Consumable（非消耗型） | `help.mahjong.score.pro.lifetime`   |
+
+- 30 日パスを消耗型にしたのは、非更新サブスクだと購入シートのボタンが「サブスクリプションに登録」に
+  なるため（理由と差し戻されたときの戻し方は `apps/web/src/lib/billing/apple/record.ts` の
+  `APPLE_PRODUCT_TYPES`）。最初に作った非更新サブスクの `help.mahjong.score.pro.pass30` は消さずに
+  残してあり、審査には出さない
 
 - 価格は App Store の価格帯から選ぶ。アプリは StoreKit の表示価格（`displayPrice`）を
   出すので、価格を変えてもコードの変更は要らない。web の価格はアプリに出さない
@@ -243,7 +248,7 @@ web（Vercel と、手元で試すなら `apps/web/.env.local`）に入れる。
 
 | 変数名                              | 値                                                                              |
 | ----------------------------------- | ------------------------------------------------------------------------------- |
-| `APPLE_IAP_PRODUCT_ID_PRO_PASS`     | 入れない（入れると `help.mahjong.score.pro.pass30` をアプリで売る）             |
+| `APPLE_IAP_PRODUCT_ID_PRO_PASS`     | `help.mahjong.score.pro.pass30days`（任意。下の注を参照）                       |
 | `APPLE_IAP_PRODUCT_ID_PRO_LIFETIME` | `help.mahjong.score.pro.lifetime`                                               |
 | `APPLE_IAP_APP_APPLE_ID`            | `6820905974`（`eas.json` の `ascAppId`。Production の取引の検証に要る）         |
 | `APPLE_IAP_SANDBOX_USER_IDS`        | Sandbox の取引に特典を付けてよい user_id（カンマ区切りの UUID）。下の許可リスト |
@@ -251,10 +256,8 @@ web（Vercel と、手元で試すなら `apps/web/.env.local`）に入れる。
 - **買い切りの Product ID が無ければ「販売していない」扱い**。アプリはプラン画面に
   商品を出さず、iOS の回数制限も掛けない（払えないペイウォールを出さない）。web の回数制限は
   Stripe の Price ID で別に決まる
-- **30 日パスの Product ID は任意で、今は入れていない**。入れていなければアプリには買い切りだけが
-  並ぶ（web の Stripe ではパスも売る）。パスの購入シートのボタンが「サブスクリプションに登録」に
-  なるため、アプリでは売らないことにした（理由は `apps/web/src/lib/billing/apple/env.ts` の
-  `readAppleProductIds`）。App Store Connect の商品は残してあり、値を入れれば売り始める
+- **30 日パスの Product ID は任意**。入れていなければアプリには買い切りだけが並ぶ（web の Stripe
+  ではパスも売る）
 - `APPLE_IAP_APP_APPLE_ID` が無いと検証器を作れない。アプリからの取引は 503 になり、アプリは
   取引を完了せずに残して次の起動で送り直す。通知は 500 になり、Apple が数日にわたって再送する
 - `apps/web/.env.example` にもこの 4 つを足す（エージェントは `.env*` を読めないので人が足す）
