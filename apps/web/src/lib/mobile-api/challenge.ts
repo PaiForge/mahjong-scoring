@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import type {
   MobileAnswerChallengeResponse,
-  MobileChallengeEntry,
+  MobileBeginChallengeResponse,
   MobileChallengeErrorCode,
   MobileChallengeStatus,
   MobileFinishChallengeResponse,
@@ -17,6 +17,7 @@ import {
   type PracticeMenuType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 import {
   answerAttempt,
@@ -98,7 +99,8 @@ async function rejectionOf(
  * ID はアプリが決める。同じ ID・同じ中身の再送には作り直さずに同じ
  * チャレンジを返し、中身が違えば 409 `conflict`。昇級試験も同じ入口で
  * 始める。受験資格（級の順序）は `beginAttempt` が検査し、資格が無ければ
- * 403 `examLocked`（web の play ページの受験ガードに当たる）。
+ * 403 `examLocked`（web の play ページの受験ガードに当たる）。昇級試験の
+ * 応答には合格ライン（`goalCount`）を添える（`MobileBeginChallengeResponse`）。
  */
 export async function handleBeginChallenge(
   request: Request,
@@ -122,7 +124,13 @@ export async function handleBeginChallenge(
       settings,
       id,
     );
-    if (attempt) return mobileJson<MobileChallengeEntry>(attempt);
+    if (attempt) {
+      // 終了の判定（`finishedChallengeTime`）が読むのと同じ合格ライン
+      const goalCount = rankRequiringMenu(menuType)?.requirement.minScore;
+      return mobileJson<MobileBeginChallengeResponse>(
+        goalCount === undefined ? attempt : { ...attempt, goalCount },
+      );
+    }
     // 同じ ID の行があるのに返らなかった = 違う中身・確定済み
     if (await readAttemptStatus(auth.user.id, id))
       return challengeError("conflict", 409);

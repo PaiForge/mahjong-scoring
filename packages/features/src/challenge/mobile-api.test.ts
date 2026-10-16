@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  parseMobileBeginChallengeResponse,
   mobileChallengeApiPath,
   parseMobileAnswerResponse,
   parseMobileFinishResponse,
@@ -29,6 +30,33 @@ describe("parseMobileProgressResponse", () => {
     expect(parseMobileProgressResponse({ completedLessonSlugs: "x" })).toBe(
       undefined,
     );
+  });
+});
+
+describe("parseMobileBeginChallengeResponse", () => {
+  const entry = { id: "a", sequence: 0, question: {} };
+
+  it("合格ラインを読む", () => {
+    expect(
+      parseMobileBeginChallengeResponse({ ...entry, goalCount: 5 }),
+    ).toEqual({ ...entry, goalCount: 5 });
+  });
+
+  it("合格ラインの無い応答（練習・古いサーバー）も入口として読む", () => {
+    expect(parseMobileBeginChallengeResponse(entry)).toEqual(entry);
+  });
+
+  it("形が違う合格ラインは捨て、開始は失敗にしない", () => {
+    expect(
+      parseMobileBeginChallengeResponse({ ...entry, goalCount: "5" }),
+    ).toEqual(entry);
+    expect(
+      parseMobileBeginChallengeResponse({ ...entry, goalCount: 0 }),
+    ).toEqual(entry);
+  });
+
+  it("入口の形が違えば undefined", () => {
+    expect(parseMobileBeginChallengeResponse({ id: "a" })).toBeUndefined();
   });
 });
 

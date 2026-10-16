@@ -6,7 +6,7 @@ import {
   isMobileChallengeErrorCode,
   mobileChallengeApiPath,
   parseMobileAnswerResponse,
-  parseMobileChallengeEntry,
+  parseMobileBeginChallengeResponse,
   parseMobileChallengeStatus,
   parseMobileCompleteLessonsResponse,
   parseMobileFinishResponse,
@@ -14,7 +14,7 @@ import {
   parseMobileUnansweredResponse,
   type MobileAnswerChallengeResponse,
   type MobileBeginChallengeRequest,
-  type MobileChallengeEntry,
+  type MobileBeginChallengeResponse,
   type MobileChallengeErrorCode,
   type MobileChallengeStatus,
   type MobileCompleteLessonsResponse,
@@ -73,11 +73,11 @@ async function request<T>(
 export function beginRecordedChallenge(
   userId: string,
   body: MobileBeginChallengeRequest,
-): Promise<RecordsApiResult<MobileChallengeEntry>> {
+): Promise<RecordsApiResult<MobileBeginChallengeResponse>> {
   return request(
     MOBILE_CHALLENGES_API_PATH,
     { method: "POST", body, asUser: userId },
-    parseMobileChallengeEntry,
+    parseMobileBeginChallengeResponse,
   );
 }
 

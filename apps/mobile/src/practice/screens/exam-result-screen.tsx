@@ -87,7 +87,9 @@ export function ExamResultScreen({
 
   useHardwareBack(close);
 
-  const minScore = goalCount ?? 0;
+  // 試験で使った合格ライン（記録付きの回はサーバーの値）。結果が無い
+  // ときだけ手元のレジストリに戻る
+  const minScore = current?.goalCount ?? goalCount ?? 0;
   const passed =
     current !== undefined &&
     isExamPassed(current.finalResult.correctCount, minScore);

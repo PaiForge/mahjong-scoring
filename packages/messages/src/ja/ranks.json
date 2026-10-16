@@ -41,6 +41,9 @@
   "heading": "{rank} — {criterion}",
   "rankPassConditionsTitle": "{rank} 合格条件",
   "passConditions": "制限時間{timeLimit}秒以内に{minScore}問正解で合格（ミス{mistakeLimit}回で終了）",
+  "goalLoading": "合格条件を読み込んでいます",
+  "goalLoadFailed": "合格条件を読み込めませんでした。",
+  "goalRetry": "もう一度読み込む",
   "examGate": {
     "signUpButton": "アカウント登録に進む",
     "signUpNote": "この試験の受験にはアカウントが必要です。",
