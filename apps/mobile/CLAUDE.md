@@ -88,8 +88,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   確定の応答の `grantedRanks` で結果画面に昇級を出す。受験資格はサーバーが開始時に検査する
 - **iOS は Pro を App Store のアプリ内課金で売る。** 30 日パスは消耗型（購入シートのボタンを
   「購入」にするため。理由は web の `record.ts` の `APPLE_PRODUCT_TYPES`）、買い切りは非消耗型。
-  購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、アプリで買った Pro は web で有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の
-  `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
+  購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、アプリで買った Pro は web で
+  有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
   回数制限のどれも出さない）。購入・復元・プラン画面は `src/billing/`。購入の同期
   （`usePurchaseSync`）がルートで動き、取引はサーバーが 2xx か 4xx を返したときだけ finish する
   （理由は `purchase-sync.ts`）。アプリの中で web の価格・`/plan`・特商法・Stripe に触れず、購入履歴に
