@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { NotificationType } from "@/lib/notifications/types";
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import { NotificationTypeIcon } from "../notification-type-icon";
 

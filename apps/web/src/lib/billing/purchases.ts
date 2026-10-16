@@ -15,10 +15,8 @@ import {
   notifyQuietly,
   type NotificationInput,
 } from "@/lib/notifications/create-notification";
-import {
-  NotificationTargetType,
-  NotificationType,
-} from "@/lib/notifications/types";
+import { NotificationTargetType } from "@/lib/notifications/types";
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
 import {
   isFullyRefunded,

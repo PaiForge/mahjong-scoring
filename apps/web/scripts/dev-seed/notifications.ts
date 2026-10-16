@@ -21,16 +21,15 @@
 import { inArray } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
+import { NotificationType } from "@mahjong-scoring/features/notifications/types";
+
 import {
   benefitGrants,
   notifications,
   purchases,
   type NewNotification,
 } from "../../src/lib/db/schema";
-import {
-  NotificationTargetType,
-  NotificationType,
-} from "../../src/lib/notifications/types";
+import { NotificationTargetType } from "../../src/lib/notifications/types";
 
 /** 投入先のユーザー（`ensureSeedUser` が返した id と username） */
 export interface NotificationSeedUser {

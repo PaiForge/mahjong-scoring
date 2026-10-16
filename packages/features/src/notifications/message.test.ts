@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import { messages } from "@mahjong-scoring/messages/ja";
-import { NOTIFICATION_TYPES } from "@/lib/notifications/types";
-
-import { buildNotificationMessage } from "../notification-message";
+import { buildNotificationMessage } from "./message";
+import { NOTIFICATION_TYPES } from "./types";
 
 const DICTIONARY_KEYS = Object.keys(messages.notifications.messages);
 
@@ -31,6 +30,15 @@ describe("buildNotificationMessage", () => {
       key: "purchaseCompletedPass",
       values: { until: "2026年10月31日" },
     });
+  });
+
+  it("期限が日時として読めなければ期限を差し込まない文面", () => {
+    expect(
+      buildNotificationMessage("purchase_completed", {
+        kind: "pass",
+        expiresAt: "来月",
+      }),
+    ).toEqual({ key: "purchaseCompleted" });
   });
 
   it("買い切りの購入完了は期限を持たない文面", () => {
