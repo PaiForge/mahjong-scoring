@@ -58,7 +58,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `practice/[slug]` 等は `useDismissToHref`。`dismissTo` はルート名だけで照合する）。
   Android の戻るボタンは `useHardwareBack`（フォーカス中だけ購読する）
 - **ログインは web と同じ Supabase Auth（`src/auth/`）。** ゲストの入口はホーム・
-  マイページ・チャレンジの結果画面の記録の案内（`RecordCtaCard`）、ログアウト・退会はマイページの下のアカウントの
+  マイページ・チャレンジの結果画面・レッスンの完了の記録の案内（`RecordCtaCard`）、ログアウト・退会はマイページの下のアカウントの
   画面（web の `/mypage/account`。web はログアウトをヘッダーのメニューに置くが、アプリには無い）で、
   ログイン・登録・ユーザー名の設定・退会の画面は web と同じパスに置く。セッションは
   SecureStore、サーバーへの書き込みは web のアプリ向け API（`/api/mobile/v1/*`、
