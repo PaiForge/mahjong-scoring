@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
-import type { PracticeAttempt } from "@mahjong-scoring/features/journey/journey";
-import {
-  RANK_SLUGS,
-  type RankSlug,
-} from "@mahjong-scoring/features/ranks/registry";
-
-import { selectDashboardGuidance } from "../guidance";
+import { CURRICULUM_CHAPTER_SLUGS } from "../curriculum/registry";
+import type { PracticeAttempt } from "../journey/journey";
+import { RANK_SLUGS, type RankSlug } from "../ranks/registry";
+import { selectDashboardGuidance } from "./guidance";
 
 const NONE: ReadonlySet<string> = new Set();
 const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
@@ -96,5 +92,32 @@ describe("selectDashboardGuidance", () => {
       expect(guidance.nextChapter).toBeUndefined();
       expect(guidance.showAgariScorePractice).toBe(true);
     });
+
+    it("開けないレッスンは「レッスンの続き」の候補から飛ばす", () => {
+      const guidance = selectDashboardGuidance(
+        {
+          completedLessonSlugs: new Set(["about-this-app"]),
+          attemptedPractices: NO_ATTEMPTS,
+          achievedRankSlugs: RANK_SLUGS,
+        },
+        { unavailableLessonSlugs: ["why-scoring-is-complex"] },
+      );
+
+      expect(guidance.nextChapter?.slug).toBe("mangan-ko-ron");
+    });
+  });
+
+  it("開けないレッスンを渡しても行程（次にやること）は変わらない", () => {
+    const input = {
+      completedLessonSlugs: NONE,
+      attemptedPractices: NO_ATTEMPTS,
+      achievedRankSlugs: NO_RANKS,
+    };
+
+    expect(
+      selectDashboardGuidance(input, {
+        unavailableLessonSlugs: CURRICULUM_CHAPTER_SLUGS,
+      }).journey,
+    ).toEqual(selectDashboardGuidance(input).journey);
   });
 });
