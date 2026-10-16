@@ -4,6 +4,7 @@ import type { Fu } from "@mahjong-scoring/core";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import { HanRowsTable } from "../../_components/han-rows-table";
+import { ScoreTableReferenceLink } from "../../_components/score-table-reference-link";
 
 import { buildTsumoSplitRows } from "@mahjong-scoring/features/curriculum/tsumo-payment-rows";
 
@@ -47,6 +48,7 @@ export async function TsumoSplitTable({ fu, caption }: TsumoSplitTableProps) {
           },
         ]}
       />
+      <ScoreTableReferenceLink role="ko" winType="tsumo" />
     </div>
   );
 }
