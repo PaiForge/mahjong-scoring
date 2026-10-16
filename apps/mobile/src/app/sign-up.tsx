@@ -22,6 +22,7 @@ import {
   MIN_PASSWORD_LENGTH,
   validatePasswordPair,
 } from "@mahjong-scoring/features/account/password";
+import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
 import { AppleSignInSection } from "../auth/apple-sign-in-section";
 import { FormMessage } from "../auth/form-message";
@@ -110,7 +111,7 @@ export default function SignUpScreen() {
   };
 
   if (sentTo !== undefined) {
-    return <SentScreen email={sentTo} />;
+    return <SentScreen email={sentTo} onRestart={() => setSentTo(undefined)} />;
   }
 
   return (
@@ -183,20 +184,35 @@ export default function SignUpScreen() {
   );
 }
 
-/** 確認メールを送った後の案内。確認が済んだらログインへ戻ってもらう */
-function SentScreen({ email }: { readonly email: string }) {
+/**
+ * 確認メールを送った後の案内。確認が済んだらログインへ戻ってもらう
+ *
+ * 届かないときの案内と再送は web の確認待ちの画面（`/sign-up/verify-email`）と同じ:
+ * 打ち間違いなら登録からやり直す一文と、再送の後のクールダウン（`useResendCooldown`）。
+ * やり直しは同じ画面の登録のフォームへ戻す（入力した値は残し、誤りだけ直せる）。
+ */
+function SentScreen({
+  email,
+  onRestart,
+}: {
+  readonly email: string;
+  /** 登録のフォームへ戻る（メールアドレスの打ち間違いを直す） */
+  readonly onRestart: () => void;
+}) {
   const t = useTranslations("verifyEmail");
   const router = useRouter();
   const [resending, setResending] = useState(false);
+  const { cooldown, start: startCooldown } = useResendCooldown();
   const [resendResult, setResendResult] = useState<
     { readonly tone: "error" | "success"; readonly text: string } | undefined
   >(undefined);
 
   const resend = async () => {
-    if (!supabase || resending) return;
+    if (!supabase || resending || cooldown > 0) return;
     setResending(true);
     const { error } = await supabase.auth.resend({ type: "signup", email });
     setResending(false);
+    if (!error) startCooldown();
     setResendResult(
       error
         ? {
@@ -225,14 +241,26 @@ function SentScreen({ email }: { readonly email: string }) {
         <Text style={styles.troubleTitle}>{t("troubleTitle")}</Text>
         <Text style={styles.body}>{t("troubleDelay")}</Text>
         <Text style={styles.body}>{t("troubleSpam")}</Text>
+        <Text style={styles.body} testID="sign-up-sent-typo">
+          {t.rich("troubleTypo", {
+            signUp: (chunks) => (
+              <InlineTextLink onPress={onRestart}>{chunks}</InlineTextLink>
+            ),
+          })}
+        </Text>
         <Text style={styles.body}>{t("troubleResend")}</Text>
         <Button
           onPress={() => void resend()}
           variant="neutral"
-          disabled={resending}
+          disabled={resending || cooldown > 0}
           fullWidth
+          testID="sign-up-resend"
         >
-          {resending ? t("resendLoading") : t("resendButton")}
+          {resending
+            ? t("resendLoading")
+            : cooldown > 0
+              ? t("resendCooldown", { seconds: cooldown })
+              : t("resendButton")}
         </Button>
         {resendResult !== undefined && (
           <FormMessage tone={resendResult.tone}>
