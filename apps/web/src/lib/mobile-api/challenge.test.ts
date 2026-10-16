@@ -13,6 +13,7 @@ const {
   mockStatus,
   mockReveal,
   mockExp,
+  mockComparison,
   mockRankSlugs,
 } = vi.hoisted(() => ({
   mockBegin: vi.fn(),
@@ -22,6 +23,7 @@ const {
   mockStatus: vi.fn(),
   mockReveal: vi.fn(),
   mockExp: vi.fn(),
+  mockComparison: vi.fn(),
   mockRankSlugs: vi.fn(),
 }));
 
@@ -36,6 +38,9 @@ vi.mock("../challenge/attempts", () => ({
 }));
 vi.mock("../db/save-exp", () => ({
   getExpInfoByChallengeResultId: mockExp,
+}));
+vi.mock("../db/score-comparison-queries", () => ({
+  getScoreComparison: mockComparison,
 }));
 vi.mock("../db/rank-queries", () => ({ getUserRankSlugs: mockRankSlugs }));
 vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
@@ -290,32 +295,72 @@ describe("handleFinishChallenge", () => {
     progressPercent: 40,
   };
 
-  it("記録した成績の ID と付いた経験値を返す", async () => {
-    mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+  const RECORDED = {
+    challengeResultId: "result-1",
+    menuType: "jantou_fu",
+    variant: "default",
+  };
+
+  const run = (score: number, incorrectAnswers = 1) => ({
+    score,
+    incorrectAnswers,
+    timeTaken: 60,
+  });
+
+  it("記録した成績の ID・付いた経験値・過去の記録との比較を返す", async () => {
+    mockFinish.mockResolvedValue(RECORDED);
     mockExp.mockResolvedValue(EXP);
+    mockComparison.mockResolvedValue({
+      current: run(7),
+      previousBest: run(6),
+      previousLast: run(4),
+    });
 
     const response = await handleFinishChallenge(request(), ATTEMPT_ID);
 
     expect(await response.json()).toEqual({
       challengeResultId: "result-1",
       exp: EXP,
+      comparison: {
+        status: "newBest",
+        currentScore: 7,
+        previousBestScore: 6,
+        previousLastScore: 4,
+        diffFromLast: 3,
+      },
     });
     expect(mockFinish).toHaveBeenCalledWith(USER_ID, ATTEMPT_ID, false);
     expect(mockExp).toHaveBeenCalledWith(USER_ID, "result-1");
+    // 比べるのは今回と同じ土俵（練習種別とバリアント）の記録
+    expect(mockComparison).toHaveBeenCalledWith(
+      USER_ID,
+      "jantou_fu",
+      "default",
+      "result-1",
+    );
   });
 
-  it("経験値の対象外なら ID だけを返す", async () => {
-    mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+  it("初めての記録は比較に過去の値を持たない", async () => {
+    mockFinish.mockResolvedValue(RECORDED);
     mockExp.mockResolvedValue(undefined);
+    mockComparison.mockResolvedValue({
+      current: run(5),
+      previousBest: undefined,
+      previousLast: undefined,
+    });
 
     const response = await handleFinishChallenge(request(), ATTEMPT_ID);
 
-    expect(await response.json()).toEqual({ challengeResultId: "result-1" });
+    expect(await response.json()).toEqual({
+      challengeResultId: "result-1",
+      comparison: { status: "first", currentScore: 5 },
+    });
   });
 
-  it("経験値を読めなくても確定は成功にする（記録は済んでいる）", async () => {
-    mockFinish.mockResolvedValue({ challengeResultId: "result-1" });
+  it("経験値・比較を読めなくても確定は成功にする（記録は済んでいる）", async () => {
+    mockFinish.mockResolvedValue(RECORDED);
     mockExp.mockRejectedValue(new Error("db down"));
+    mockComparison.mockRejectedValue(new Error("db down"));
 
     const response = await handleFinishChallenge(request(), ATTEMPT_ID);
 

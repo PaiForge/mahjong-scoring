@@ -312,7 +312,9 @@ export async function finishAttempt(
     const now = clock();
     if (!row || isExamMenuType(row.state.menuType) !== exam) return undefined;
     if (row.consumed)
-      return row.state.outcome ? outcomeResult(row.state.outcome) : undefined;
+      return row.state.outcome
+        ? finishResult(row.state, row.state.outcome)
+        : undefined;
     const state = row.state;
     const timeTaken = finishedChallengeTime(state, now);
     if (timeTaken === undefined) return undefined;
@@ -321,8 +323,20 @@ export async function finishAttempt(
       .update(challengeAttempts)
       .set({ consumed: true, state: { ...state, outcome } })
       .where(eq(challengeAttempts.id, id));
-    return outcomeResult(outcome);
+    return finishResult(state, outcome);
   });
+}
+
+/**
+ * 確定結果を `finishAttempt` の戻り値にする。記録した練習には土俵（練習種別と
+ * バリアント）を添える — 呼び出し側が今回の成績を過去の記録と比べるとき
+ * （`getScoreComparison`）に、行を読み直さずに済むようにするため。
+ */
+function finishResult(state: ChallengeState, outcome: ChallengeOutcome) {
+  const result = outcomeResult(outcome);
+  return result !== undefined && "challengeResultId" in result
+    ? { ...result, menuType: state.menuType, variant: state.variant }
+    : result;
 }
 
 /** 確定した挑戦を記録し、その結果を返す（記録は呼び出し元のトランザクションで行う）。 */

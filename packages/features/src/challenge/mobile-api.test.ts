@@ -82,6 +82,34 @@ describe("parseMobileFinishResponse", () => {
     ).toBeUndefined();
   });
 
+  it("過去の記録との比較を読み、JSON で落ちた項目は undefined で埋める", () => {
+    expect(
+      parseMobileFinishResponse({
+        challengeResultId: "r1",
+        comparison: { status: "first", currentScore: 7 },
+      }),
+    ).toEqual({
+      challengeResultId: "r1",
+      comparison: {
+        status: "first",
+        currentScore: 7,
+        previousBestScore: undefined,
+        previousLastScore: undefined,
+        diffFromLast: undefined,
+      },
+    });
+  });
+
+  it("比較の形が違えば比較だけを捨て、記録は読む", () => {
+    expect(
+      parseMobileFinishResponse({
+        challengeResultId: "r1",
+        exp,
+        comparison: { status: "future-status", currentScore: 7 },
+      }),
+    ).toEqual({ challengeResultId: "r1", exp });
+  });
+
   it("昇級試験の応答は付与した段級位を読み、知らない段級位は落とす", () => {
     expect(
       parseMobileFinishResponse({ grantedRanks: ["kyu-4", "future-rank"] }),

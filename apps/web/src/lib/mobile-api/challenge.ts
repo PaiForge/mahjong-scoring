@@ -14,6 +14,7 @@ import type {
 import {
   isExamMenuType,
   isPracticeMenuType,
+  type PracticeMenuType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 
@@ -25,8 +26,11 @@ import {
   readAttemptStatus,
   revealExpiredAttempt,
 } from "../challenge/attempts";
+import { deriveRecordView } from "@/app/(user)/(public)/practice/_lib/derive-record-view";
+
 import { getUserRankSlugs } from "../db/rank-queries";
 import { getExpInfoByChallengeResultId } from "../db/save-exp";
+import { getScoreComparison } from "../db/score-comparison-queries";
 import { logExternalError } from "../log-error";
 
 import { authorizeMobileRequest } from "./auth";
@@ -284,8 +288,11 @@ export async function handleReadUnanswered(
  * チャレンジ確定API（アプリ向け）
  *
  * 成績はサーバーの状態からだけ作る（web の `savePracticeResult` と同じ）。
- * 確定済みへの再送には同じ ID を返す。付いた経験値も添える（web の結果
- * ページと同じく、成績の ID から付与の記録を引く。再送でも同じ値になる）。まだ終わっていなければ 409
+ * 確定済みへの再送には同じ ID を返す。付いた経験値と、同じ土俵の過去の
+ * 自分の記録との比較（「今回 / 前回 / これまでのベスト」）も添える。どちらも
+ * web の結果ページと同じく成績の ID から引く（`getExpInfoByChallengeResultId` /
+ * `getScoreComparison` → `deriveRecordView`）。比較は今回より後の記録を
+ * 混ぜないので、再送でも同じ値になる。まだ終わっていなければ 409
  * `notFinished`、1 問も答えずに終わった（記録が無い）なら 422。
  *
  * 昇級試験は成績を記録せず、合否を判定して付与した段級位を返す（web の
@@ -303,10 +310,14 @@ export async function handleFinishChallenge(
   try {
     const result = await finishAttempt(auth.user.id, attemptId, false);
     if (result && "challengeResultId" in result) {
-      const exp = await readExp(auth.user.id, result.challengeResultId);
+      const [exp, comparison] = await Promise.all([
+        readExp(auth.user.id, result.challengeResultId),
+        readComparison(auth.user.id, result),
+      ]);
       return mobileJson<MobileFinishChallengeResponse>({
         challengeResultId: result.challengeResultId,
         ...(exp ? { exp } : {}),
+        ...(comparison ? { comparison } : {}),
       });
     }
     const status = await readAttemptStatus(auth.user.id, attemptId);
@@ -328,6 +339,40 @@ export async function handleFinishChallenge(
       "処理に失敗",
       error,
     );
+  }
+}
+
+/**
+ * 今回の成績を同じ土俵の過去の自分の記録と比べる。読めなければ undefined
+ *
+ * 経験値（{@link readExp}）と同じく、ここで失敗しても確定を失敗にしない。
+ * 比較の無い応答はアプリが「過去の記録を読み込めませんでした」と断る
+ * （web の結果ページが比較の取得に失敗したときと同じ）。
+ */
+async function readComparison(
+  userId: string,
+  result: {
+    readonly challengeResultId: string;
+    readonly menuType: PracticeMenuType;
+    readonly variant: string;
+  },
+) {
+  try {
+    return deriveRecordView(
+      await getScoreComparison(
+        userId,
+        result.menuType,
+        result.variant,
+        result.challengeResultId,
+      ),
+    );
+  } catch (error) {
+    logExternalError(
+      "POST /api/mobile/v1/challenges/[id]/finish",
+      "過去の記録との比較の読み込みに失敗",
+      error,
+    );
+    return undefined;
   }
 }
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 import type { BuildJourneyInput, PracticeAttempt } from "../journey/journey";
 import { isPracticeMenuSlug } from "../practice-menu-types";
 import { isRankSlug, type RankSlug } from "../ranks/registry";
+import type { RecordView } from "./record-view";
 import type { ChallengeQuestion, ChallengeSettings } from "./types";
 
 /**
@@ -167,7 +168,10 @@ export type MobileUnansweredResponse =
  *
  * - 練習: 記録した成績の ID と、その成績で付いた経験値。`exp` は経験値の
  *   対象にならない練習と、経験値を読めなかったときに無い（成績の記録は
- *   済んでいる）
+ *   済んでいる）。`comparison` は同じ土俵の過去の自分の記録との比較（web の
+ *   結果ページの「今回 / 前回 / これまでのベスト」と同じ値）で、読めなかった
+ *   とき・古いサーバーでは無い。後から足した項目なので、アプリは無い応答も
+ *   読めなければならない
  * - 昇級試験: 今回の挑戦で付与した段級位（`grantedRanks`。不合格・既に
  *   持っている級の再挑戦では空）。試験は成績を記録しない（web の
  *   `submitExamResult` と同じ）
@@ -178,6 +182,7 @@ export type MobileFinishChallengeResponse =
   | {
       readonly challengeResultId: string;
       readonly exp?: ExpInfo;
+      readonly comparison?: RecordView;
     }
   | { readonly grantedRanks: readonly RankSlug[] };
 
@@ -300,10 +305,20 @@ const expInfoSchema = z.object({
   progressPercent: z.number(),
 });
 
+const recordViewSchema = z.object({
+  status: z.enum(["first", "newBest", "none"]),
+  currentScore: z.number().optional(),
+  previousBestScore: z.number().optional(),
+  previousLastScore: z.number().optional(),
+  diffFromLast: z.number().optional(),
+});
+
 const finishSchema = z.union([
   z.object({
     challengeResultId: z.string(),
     exp: expInfoSchema.optional(),
+    // 形が違う比較は捨てる（成績の記録は済んでいるので、確定を失敗にしない）
+    comparison: recordViewSchema.optional().catch(undefined),
   }),
   z.object({ grantedRanks: z.array(z.string()) }),
 ]);
@@ -318,9 +333,25 @@ export function parseMobileFinishResponse(
   const parsed = finishSchema.safeParse(body);
   if (!parsed.success) return undefined;
   // アプリが知らない段級位は落とす（サーバーがアプリより新しい版で増やしたとき）
-  return "grantedRanks" in parsed.data
-    ? { grantedRanks: parsed.data.grantedRanks.filter(isRankSlug) }
-    : parsed.data;
+  if ("grantedRanks" in parsed.data)
+    return { grantedRanks: parsed.data.grantedRanks.filter(isRankSlug) };
+  const { challengeResultId, exp, comparison } = parsed.data;
+  return {
+    challengeResultId,
+    ...(exp === undefined ? {} : { exp }),
+    ...(comparison === undefined
+      ? {}
+      : {
+          // JSON で落ちた undefined の項目を、表示値の形（キーを全部持つ）に戻す
+          comparison: {
+            status: comparison.status,
+            currentScore: comparison.currentScore,
+            previousBestScore: comparison.previousBestScore,
+            previousLastScore: comparison.previousLastScore,
+            diffFromLast: comparison.diffFromLast,
+          },
+        }),
+  };
 }
 
 const progressSchema = z.object({
