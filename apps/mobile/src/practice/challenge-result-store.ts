@@ -19,6 +19,12 @@ export interface ChallengeAttempt {
   /** 問題別の結果（盤面ごとの型。結果画面の一覧が盤面の型として読む） */
   readonly results: readonly unknown[];
   /**
+   * 終了の判定に使った合格ライン（昇級試験だけ）。記録付きの回はサーバーが
+   * 返した値で、結果画面の合否と合格ラインの表示もこれを読む（手元の
+   * レジストリで判定し直すと、サーバーが変えた合格ラインと食い違う）
+   */
+  readonly goalCount: number | undefined;
+  /**
    * サーバーで記録するチャレンジの ID。結果画面が確定の送信の状態
    * （`useFinishStatus`）を読む。ゲストのチャレンジ・1 問も答えずに
    * 終わったチャレンジでは無い

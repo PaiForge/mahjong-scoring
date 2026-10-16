@@ -85,10 +85,13 @@ export function createChallengePlayView<TResult = never>(
     const setAttempt = useChallengeResultStore((s) => s.setAttempt);
     const markAttempted = usePracticeAttemptStore((s) => s.markAttempted);
     const { scrollRef, scrollToTop } = useScrollToTop();
+    // 記録付きの回はサーバーの合格ラインで終える（手元の値は配布した
+    // 時点のもので、サーバーが変えていれば食い違う）
+    const sessionGoalCount = recorded?.goalCount ?? goalCount;
     const { gameSession, timerControl } = useTimedSession({
       mistakeLimit,
       timeLimit,
-      goalCount,
+      goalCount: sessionGoalCount,
       onDisplayChange: scrollToTop,
     });
     const { recordResult, presentQuestion, collect } =
@@ -119,6 +122,7 @@ export function createChallengePlayView<TResult = never>(
           finalResult,
           elapsedMs,
           results: collect(finalResult.reason === "timeUp"),
+          goalCount: sessionGoalCount,
           recordedAttemptId:
             recorded && finalResult.totalCount > 0
               ? recorded.attemptId
@@ -136,6 +140,7 @@ export function createChallengePlayView<TResult = never>(
         props.variant,
         collect,
         router,
+        sessionGoalCount,
       ],
     );
 

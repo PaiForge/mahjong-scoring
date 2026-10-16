@@ -76,6 +76,12 @@ export interface RecordedChallenge {
   readonly expire: (onExpired: () => void) => void;
   /** 送っている回答の応答を待つ */
   readonly settled: () => Promise<void>;
+  /**
+   * サーバーが終了と合否の判定に使う合格ライン（昇級試験だけ）。手元の
+   * レジストリより優先する（`MobileBeginChallengeResponse` 参照）。古い
+   * サーバーが返さなければ undefined
+   */
+  readonly goalCount: number | undefined;
 }
 
 const Context = createContext<RecordedChallenge | undefined>(undefined);
@@ -122,6 +128,7 @@ type Mode =
       readonly userId: string;
       readonly attemptId: string;
       readonly initial: ServerQuestion;
+      readonly goalCount: number | undefined;
     };
 
 /**
@@ -219,7 +226,8 @@ export function RecordedChallengeProvider({
     }).then((result) => {
       if (!active) return;
       if ("value" in result) {
-        setBegun({ kind: "ready", userId, attemptId, initial: result.value });
+        const { goalCount, ...initial } = result.value;
+        setBegun({ kind: "ready", userId, attemptId, initial, goalCount });
         return;
       }
       updateAccountRecords((records) =>
@@ -255,6 +263,7 @@ export function RecordedChallengeProvider({
       userId={mode.userId}
       attemptId={mode.attemptId}
       initial={mode.initial}
+      goalCount={mode.goalCount}
     >
       {children}
     </RecordedSession>
@@ -266,11 +275,13 @@ function RecordedSession({
   userId,
   attemptId,
   initial,
+  goalCount,
   children,
 }: {
   readonly userId: string;
   readonly attemptId: string;
   readonly initial: ServerQuestion;
+  readonly goalCount: number | undefined;
   readonly children: ReactNode;
 }) {
   const t = useTranslations("challenge.recording");
@@ -536,6 +547,7 @@ function RecordedSession({
         pause,
         expire,
         settled,
+        goalCount,
       }}
     >
       <QuestionHostProvider
