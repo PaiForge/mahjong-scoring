@@ -42,14 +42,16 @@ describe("examGoals", () => {
     });
   });
 
-  it("開き直すと、読み直すまで前の値を確定扱いにしない", async () => {
+  // スタックに残った画面へ戻ったとき・前面へ戻ったときも、フックは基準を
+  // その時点の requested に取り直して読み直す（`use-exam-goal.ts`）
+  it("表示し直すと、読み直すまで前の値を確定扱いにしない", async () => {
     const remote = controllableFetch();
     const { store, refresh } = createExamGoalsStore(remote.fetch);
     refresh();
     await remote.resolve(0, { goals: { [MENU]: 5 } });
 
     const reopened = store.getState().requested;
-    // 開き直した直後（読み直しを始める前）も、前の値は確定扱いにしない
+    // 表示し直した直後（読み直しを始める前）も、前の値は確定扱いにしない
     expect(deriveExamGoal(store.getState(), MENU, reopened)).toEqual({
       status: "loading",
       goal: 5,
