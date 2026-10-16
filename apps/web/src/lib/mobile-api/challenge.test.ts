@@ -5,6 +5,8 @@ import {
 } from "@/test/mobile-auth-mock";
 import { NextResponse } from "next/server";
 
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
+
 const {
   mockBegin,
   mockAnswer,
@@ -148,6 +150,29 @@ describe("handleBeginChallenge", () => {
       { renfonpaiAs4Fu: false },
       ATTEMPT_ID,
     );
+  });
+
+  it("昇級試験の応答には、サーバーが終了の判定に使う合格ラインを添える", async () => {
+    mockBegin.mockResolvedValue({ id: ATTEMPT_ID, sequence: 0, question: {} });
+
+    const response = await handleBeginChallenge(
+      post({ ...body, menuType: "fu_score_exam" }),
+    );
+
+    expect(await response.json()).toEqual({
+      id: ATTEMPT_ID,
+      sequence: 0,
+      question: {},
+      goalCount: rankRequiringMenu("fu_score_exam")?.requirement.minScore,
+    });
+  });
+
+  it("練習の応答には合格ラインが無い", async () => {
+    mockBegin.mockResolvedValue({ id: ATTEMPT_ID, sequence: 0, question: {} });
+
+    const response = await handleBeginChallenge(post(body));
+
+    expect(await response.json()).not.toHaveProperty("goalCount");
   });
 
   it("受験資格の無い昇級試験は 403 examLocked", async () => {

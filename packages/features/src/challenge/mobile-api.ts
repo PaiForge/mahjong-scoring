@@ -107,6 +107,23 @@ export interface MobileChallengeEntry {
   readonly question: ChallengeQuestion;
 }
 
+/**
+ * チャレンジ開始の応答
+ *
+ * 入口に、サーバーが終了と合否の判定に使う合格ライン（`goalCount`）を添える。
+ * 昇級試験だけが持ち（`RANK_REGISTRY` の `minScore`）、練習には無い。
+ *
+ * アプリは手元のレジストリより、この値を優先して終了と合否の表示に使う。
+ * アプリは配布した時点のレジストリを抱えたまま動くので、合格ラインを
+ * 変えたサーバーと食い違うと「4問で終わって合格と出るのに、サーバーは
+ * 5問に届いていないとして級を付けない」ことが起きる。サーバーの値を
+ * 読めばアプリを出し直さずに合格ラインを変えられる。後から足した項目
+ * なので、無い応答（古いサーバー）では手元の値に戻る。
+ */
+export interface MobileBeginChallengeResponse extends MobileChallengeEntry {
+  readonly goalCount?: number;
+}
+
 /** 回答の要求。`sequence` は回答した問題の番号 */
 export interface MobileAnswerChallengeRequest {
   readonly sequence: number;
@@ -225,15 +242,22 @@ const entrySchema = z.object({
   question: questionSchema,
 });
 
+const beginSchema = entrySchema.extend({
+  // 形が違う合格ラインは捨てて手元の値に戻る（開始そのものは失敗にしない）
+  goalCount: z.number().int().positive().optional().catch(undefined),
+});
+
 /**
- * チャレンジの入口（開始の応答）を検証する。形が違えば undefined
- * チャレンジ入口検証
+ * チャレンジ開始の応答を検証する。形が違えば undefined
+ * チャレンジ開始応答検証
  */
-export function parseMobileChallengeEntry(
+export function parseMobileBeginChallengeResponse(
   body: unknown,
-): MobileChallengeEntry | undefined {
-  const parsed = entrySchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+): MobileBeginChallengeResponse | undefined {
+  const parsed = beginSchema.safeParse(body);
+  if (!parsed.success) return undefined;
+  const { goalCount, ...entry } = parsed.data;
+  return goalCount === undefined ? entry : { ...entry, goalCount };
 }
 
 const answerSchema = z.union([
