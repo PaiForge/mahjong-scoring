@@ -26,6 +26,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
+import { isKnownAuthProvider } from "@/lib/auth-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypageAccount");
@@ -39,10 +40,9 @@ export default async function MypageAccountPage() {
   ]);
 
   const { provider } = user;
-  const providerLabel =
-    provider === "email" || provider === "google"
-      ? t(`login.providers.${provider}`)
-      : (provider ?? t("login.unknown"));
+  const providerLabel = isKnownAuthProvider(provider)
+    ? t(`login.providers.${provider}`)
+    : (provider ?? t("login.unknown"));
 
   return (
     <ContentContainer

@@ -6,7 +6,8 @@
     "provider": "ログイン方法",
     "providers": {
       "email": "メールアドレスとパスワード",
-      "google": "Google アカウント"
+      "google": "Google アカウント",
+      "apple": "Apple アカウント"
     },
     "unknown": "—"
   },
