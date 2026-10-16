@@ -40,17 +40,8 @@ const APPLE_PRODUCT_ID_ENV_NAMES: Readonly<
  * Product ID取得
  *
  * 買い切りは必須、30 日パスは任意。パスの Product ID を外すと、アプリには
- * 買い切りだけが並ぶ（web の Stripe のパスはそのまま売る）。
- *
- * @design アプリでは 30 日パスを売らない（2026-10）
- *
- * パスは Non-Renewing Subscription なので、App Store の購入シートのボタンが
- * 「サブスクリプションに登録」になり、自動更新しない売り方の意味が伝わらない。
- * ボタンの文言は商品の種類で決まり、アプリからは変えられない。消耗型
- * （Consumable）にすると「購入」になるが、期間で区切った利用権に消耗型を
- * 使うと審査で「IAP の種類が違う」と差し戻されうるので採らなかった。
- * App Store Connect の商品（`help.mahjong.score.pro.pass30`）は消さずに
- * 残してあり、環境変数を入れ直せば売り始められる。
+ * 買い切りだけが並ぶ（web の Stripe のパスはそのまま売る）。パスの商品の
+ * 種類（消耗型）とその理由は `record.ts` の `APPLE_PRODUCT_TYPES`。
  */
 export function readAppleProductIds():
   Readonly<Partial<Record<OfferKey, string>>> | undefined {

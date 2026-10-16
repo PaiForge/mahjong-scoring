@@ -44,7 +44,7 @@ export interface AppleTransaction {
   readonly originalTransactionId: string;
   readonly bundleId: string;
   readonly productId: string;
-  /** 商品の種類。`"Non-Consumable"` / `"Non-Renewing Subscription"` / その他 */
+  /** 商品の種類。`"Consumable"` / `"Non-Consumable"` / その他 */
   readonly type: string;
   /** `"PURCHASED"` / `"FAMILY_SHARED"` */
   readonly inAppOwnershipType: string;

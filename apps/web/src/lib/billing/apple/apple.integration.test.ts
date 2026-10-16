@@ -39,7 +39,7 @@ import type { AppleTransaction } from "./verifier";
 
 const owner = "11111111-1111-4111-8111-111111111111";
 const other = "22222222-2222-4222-8222-222222222222";
-const PASS_ID = "help.mahjong.score.pro.pass30";
+const PASS_ID = "help.mahjong.score.pro.pass30days";
 const LIFETIME_ID = "help.mahjong.score.pro.lifetime";
 
 let sequence = 0;
@@ -54,7 +54,7 @@ function transaction(
     originalTransactionId: id,
     bundleId: "help.mahjong.score",
     productId: PASS_ID,
-    type: "Non-Renewing Subscription",
+    type: "Consumable",
     inAppOwnershipType: "PURCHASED",
     purchaseDate: new Date(),
     appAccountToken: owner,
@@ -271,6 +271,7 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       [{ inAppOwnershipType: "FAMILY_SHARED" }, "familyShared"],
       [{ productId: "help.mahjong.score.other" }, "unknownProduct"],
       [{ type: "Non-Consumable" }, "unexpectedType"],
+      [{ type: "Non-Renewing Subscription" }, "unexpectedType"],
       [{ bundleId: "com.example.other" }, "unknownBundle"],
       [{ environment: "Sandbox" }, "sandboxNotAccepted"],
     ] as const)(
