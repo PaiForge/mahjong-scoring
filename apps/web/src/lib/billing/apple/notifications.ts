@@ -138,7 +138,7 @@ export async function dispatchAppleNotification(
  *
  * 購入の記録はアプリの送信（購入直後・復元）が主で、これは補完。アプリが
  * 送る前に落ちた・通信が切れたまま戻らなかったときにも記録が残るようにする。
- * Apple が単発の購入（Non-Consumable・Non-Renewing Subscription）でこの通知を
+ * Apple が単発の購入（Consumable・Non-Consumable・Non-Renewing Subscription）でこの通知を
  * 本番で送るようになったのは 2025-05-27 から。
  *
  * 記録する本人は取引の `appAccountToken`（アプリが購入時に渡した user_id）。
