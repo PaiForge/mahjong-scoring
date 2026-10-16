@@ -45,6 +45,10 @@ appId: help.mahjong.score
     timeout: 15000
 - assertVisible:
     id: "record-status"
+# 記録の節（今回 / 前回 / これまでのベスト）
+- assertVisible:
+    id: "record-section"
+- assertVisible: "今回"
 - takeScreenshot: challenge-result
 # 結果から、その土俵を選んだマイレコードへ
 - scrollUntilVisible:

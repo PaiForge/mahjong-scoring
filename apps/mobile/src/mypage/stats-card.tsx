@@ -4,20 +4,13 @@ import { useTranslations } from "use-intl";
 import {
   formatSignedDelta,
   signedDeltaTone,
-  type DeltaTone,
 } from "@mahjong-scoring/features/challenge/signed-delta";
 
 import { HelpIconButton } from "../components/help-icon-button";
 import { InfoModal } from "../components/info-modal";
+import { DELTA_TONE_COLORS } from "../lib/delta-tone-colors";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
-
-/** 増減の色（web の `DELTA_TONE_CLASSES`） */
-const DELTA_TONE_COLORS: Readonly<Record<DeltaTone, string>> = {
-  up: colors.success,
-  down: colors.destructive,
-  flat: colors.surface500,
-};
 
 /**
  * 統計値のカード（web のマイレコードの `StatsCard`）
