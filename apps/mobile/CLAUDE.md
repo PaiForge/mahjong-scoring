@@ -88,9 +88,11 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   確定の応答の `grantedRanks` で結果画面に昇級を出す。受験資格はサーバーが開始時に検査する
 - **iOS は Pro を App Store のアプリ内課金で売る。** 30 日パスは消耗型（購入シートのボタンを
   「購入」にするため。理由は web の `record.ts` の `APPLE_PRODUCT_TYPES`）、買い切りは非消耗型。
-  購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、アプリで買った Pro は web で
-  有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
-  回数制限のどれも出さない）。購入・復元・プラン画面は `src/billing/`。購入の同期
+  購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、
+  アプリで買った Pro は web で有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の
+  `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
+  回数制限のどれも出さない）。通知（`/mypage/notifications`）も種別がすべて Pro の出来事なので
+  iOS だけに出す。購入・復元・プラン画面は `src/billing/`。購入の同期
   （`usePurchaseSync`）がルートで動き、取引はサーバーが 2xx か 4xx を返したときだけ finish する
   （理由は `purchase-sync.ts`）。アプリの中で web の価格・`/plan`・特商法・Stripe に触れず、購入履歴に
   金額を出さない（審査ガイドライン 3.1.1）。回数制限は web と同じ表と規則で iOS だけに掛かり
@@ -215,6 +217,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     「本文を読み返す」で本文へ戻ると「確認問題に戻る（2 / 3 問目）」から同じ問題へ戻れる
   - `mypage-plan` — `bob@` のマイページの「Pro プラン」の行からプラン画面を開き、有効なパスの状態と
     購入履歴（有効・期限切れ）が並ぶ。iOS だけ
+  - `mypage-notifications` — `bob@` のマイページの「通知」の行に未読の件数が出て、開くと 3 件と
+    「未読 2 件」が並ぶ。「すべて既読にする」で未読が消え、戻ると件数の印も消える。既読は dev seed を
+    流し直すと戻る。iOS だけ
   - `practice-quota-guest` — ゲストの回数制限。和了形の点数計算を 1 問解くと最後の 1 問の案内、
     次へ進むとペイウォール。手元の web の `.env.local` に Apple の Product ID を 2 つ入れておく
   - `practice-quota-pro` — `bob@`（Pro）で和了形の点数計算の「回答時間を計測する」をオンにして始め、

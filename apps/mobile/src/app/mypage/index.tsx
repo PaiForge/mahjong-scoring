@@ -5,12 +5,14 @@ import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
+  MYPAGE_NOTIFICATIONS_PATH,
   MYPAGE_PLAN_PATH,
   PREFERENCES_PATH,
 } from "@mahjong-scoring/features/routes";
 
 import { IAP_AVAILABLE } from "../../billing/iap-availability";
 import {
+  BellIcon,
   ChartIcon,
   SettingsIcon,
   StarIcon,
@@ -32,6 +34,7 @@ import {
   MypageLoading,
 } from "../../mypage/mypage-gate";
 import { useMypageRead } from "../../mypage/use-mypage-read";
+import { UnreadCountBadge } from "../../notifications/unread-count-badge";
 import { SiteLinksSection } from "../../mypage/site-links-section";
 
 /**
@@ -48,10 +51,12 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  *   公開プロフィールに出る、他の利用者に見せる入力なので、アプリでは受け付けない
  *   （アプリで入力するのはユーザー名だけ）。web で設定したアバター・表示名は
  *   見出しに出す
- * - 通知の行は持たない（通知は今の種別がすべて web の Pro の出来事で、
- *   アプリには通知の画面が無い）。Pro プランの行は iOS だけ — Android は Pro を
- *   扱わない（購入・表示・回数制限のどれも出さない。Play Billing の実装は別の
- *   仕事）
+ * - Pro プランと通知の行は iOS だけ — Android は Pro を扱わない（購入・表示・
+ *   回数制限のどれも出さない。Play Billing の実装は別の仕事）。通知の種別は
+ *   今はすべて Pro の出来事（購入・期限切れ・付与・取り消し。App Store での
+ *   購入・取り消しも通知になる）なので、Pro を出さない Android には中身が無い
+ * - web のヘッダーのベル（未読の件数）は持たない。アプリのヘッダーには置かず、
+ *   未読の件数は「通知」の行の行末に出す（マイページを開くたびに読み直す）
  * - ランキングでの自分の順位への行を置く。アプリはランキングの詳細を持たず
  *   （他の利用者の名前・アバターを見せない）、練習の画面からランキングへの
  *   導線も無いので、入口をここに置く
@@ -73,8 +78,8 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  * @flow
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
- * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・アカウント・
- *    設定・web のページ（規約等）へ
+ * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・通知（iOS）・
+ *    アカウント・設定・web のページ（規約等）へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -113,7 +118,7 @@ function MypageBody({ mypage }: { readonly mypage: MobileMypageResponse }) {
         <SectionTitle>{t("activityTitle")}</SectionTitle>
         <ActivityChart days={mypage.recentActivity} />
       </View>
-      <MypageMenu />
+      <MypageMenu unreadNotificationCount={mypage.unreadNotificationCount} />
     </>
   );
 }
@@ -160,11 +165,18 @@ function MypagePreview() {
 }
 
 /**
- * マイページの各機能への行（web の `MyPageMenu` から通知・アカウントを除き、
- * ランキングでの順位を足したもの。Pro プランは iOS だけ。理由は画面の TSDoc）
+ * マイページの各機能への行（web の `MyPageMenu` からアカウントを除き、
+ * ランキングでの順位を足したもの。Pro プランと通知は iOS だけ。理由は画面の TSDoc）
+ *
+ * @param unreadNotificationCount - 未読の通知の件数。1 以上なら通知の行末に出す
  */
-function MypageMenu() {
+function MypageMenu({
+  unreadNotificationCount = 0,
+}: {
+  readonly unreadNotificationCount?: number;
+}) {
   const t = useTranslations("mypage");
+  const tNotifications = useTranslations("notifications");
   const router = useRouter();
   return (
     <LinkRowList>
@@ -189,6 +201,27 @@ function MypageMenu() {
           description={t("cards.plan.summary")}
           leading={<StarIcon size={22} color={colors.surface600} />}
           onPress={() => router.push(MYPAGE_PLAN_PATH)}
+        />
+      )}
+      {IAP_AVAILABLE && (
+        <LinkRow
+          testID="mypage-menu-notifications"
+          title={t("cards.notifications.title")}
+          description={t("cards.notifications.summary")}
+          leading={<BellIcon size={22} color={colors.surface600} />}
+          trailing={
+            unreadNotificationCount > 0 ? (
+              <UnreadCountBadge count={unreadNotificationCount} />
+            ) : undefined
+          }
+          accessibilityLabel={
+            unreadNotificationCount > 0
+              ? tNotifications("bellUnread", {
+                  count: unreadNotificationCount,
+                })
+              : undefined
+          }
+          onPress={() => router.push(MYPAGE_NOTIFICATIONS_PATH)}
         />
       )}
     </LinkRowList>
