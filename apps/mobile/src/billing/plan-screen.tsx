@@ -22,6 +22,7 @@ import {
   requestIapPurchase,
   type IapProduct,
 } from "./iap";
+import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
 import { usePlan } from "./use-plan";
 import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
 
@@ -63,6 +64,7 @@ function PlanBody({
   const t = useTranslations("mobilePlan");
   const recording = usePurchaseRecording();
   const onSale = plan.offers.length > 0;
+  const lineup = planLineupOf(plan.offers);
   return (
     <>
       {recording && <RecordingNotice />}
@@ -74,14 +76,23 @@ function PlanBody({
         <View style={styles.section}>
           <SectionTitle>{t("offers.title")}</SectionTitle>
           {plan.canPurchase ? (
-            <Offers userId={userId} offers={plan.offers} busy={recording} />
+            <Offers
+              userId={userId}
+              offers={plan.offers}
+              lineup={lineup}
+              busy={recording}
+            />
           ) : (
-            <Text style={styles.body}>{t("alreadyActive")}</Text>
+            <Text style={styles.body}>
+              {lineup === "lifetimeOnly"
+                ? t("alreadyActiveLifetimeOnly")
+                : t("alreadyActive")}
+            </Text>
           )}
         </View>
       )}
-      {onSale && <Notes />}
-      <Restore userId={userId} busy={recording} />
+      {onSale && <Notes lineup={lineup} />}
+      <Restore userId={userId} lineup={lineup} busy={recording} />
       <History purchases={plan.purchases} />
     </>
   );
@@ -165,14 +176,16 @@ function useIapProducts(
   return products;
 }
 
-/** 2 商品のカードと購入ボタン */
+/** 販売中の商品（30 日パス・買い切り、または買い切りだけ）のカードと購入ボタン */
 function Offers({
   userId,
   offers,
+  lineup,
   busy,
 }: {
   readonly userId: string;
   readonly offers: readonly MobilePlanOffer[];
+  readonly lineup: PlanLineup;
   /** 取引を記録している間。重ねて買わせない */
   readonly busy: boolean;
 }) {
@@ -205,7 +218,9 @@ function Offers({
 
   return (
     <View style={styles.offers}>
-      <Text style={styles.hint}>{t("shared")}</Text>
+      <Text style={styles.hint}>
+        {lineup === "lifetimeOnly" ? t("sharedLifetimeOnly") : t("shared")}
+      </Text>
       {offers.map(({ key, productId }) => {
         const price = products?.get(productId)?.displayPrice;
         return (
@@ -246,16 +261,9 @@ function Offers({
 }
 
 /** ご購入前に（購入の条件） */
-function Notes() {
+function Notes({ lineup }: { readonly lineup: PlanLineup }) {
   const t = useTranslations("mobilePlan.notes");
-  const keys = [
-    "noAutoRenew",
-    "pass",
-    "snapshot",
-    "noRefund",
-    "deletion",
-    "appleBilling",
-  ] as const;
+  const keys = planNoteKeysOf(lineup);
   return (
     <View style={styles.section}>
       <SectionTitle>{t("title")}</SectionTitle>
@@ -274,9 +282,11 @@ function Notes() {
 /** 購入を復元 */
 function Restore({
   userId,
+  lineup,
   busy,
 }: {
   readonly userId: string;
+  readonly lineup: PlanLineup;
   readonly busy: boolean;
 }) {
   const t = useTranslations("mobilePlan");
@@ -321,7 +331,11 @@ function Restore({
         >
           {t("restore.button")}
         </Button>
-        <Text style={styles.hint}>{t("restore.hint")}</Text>
+        <Text style={styles.hint}>
+          {lineup === "lifetimeOnly"
+            ? t("restore.hintLifetimeOnly")
+            : t("restore.hint")}
+        </Text>
       </View>
     </View>
   );
