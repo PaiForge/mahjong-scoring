@@ -6,6 +6,10 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import {
+  presentTehai,
+  type HandPresentation,
+} from "@mahjong-scoring/features/board/hand-presentation";
+import {
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
 } from "@mahjong-scoring/features/board/hand-layout";
@@ -34,6 +38,16 @@ interface TehaiHandProps {
   readonly agariLabelTone?: "dark" | "light";
   /** 自動スケール値の変化通知（コンテキスト牌などを同じ倍率で揃える用途） */
   readonly onScaleChange?: (scale: number) => void;
+  /**
+   * 純手牌と和了牌の見せ方（並びと上下）。省略時は理牌・正規の向き
+   *
+   * 添字はここで `tehai.closed` と `agariHai` から切り離した純手牌に対するもの。
+   * 呼び出し側も同じ元の手牌から同じ規則（`splitAgariHai`）で計算して渡す。
+   * このコンポーネントはコンテキスト・設定・特典を読まず、受け取ったものだけで
+   * 描く。手牌に合わない見せ方は全体を従来の表示に戻す（`presentTehai`）。
+   * 副露は変えない。
+   */
+  readonly presentation?: HandPresentation;
 }
 
 /**
@@ -66,15 +80,16 @@ export const TehaiHand = memo(function TehaiHandComponent({
   agariLabel,
   agariLabelTone = "dark",
   onScaleChange,
+  presentation,
 }: TehaiHandProps) {
   const { wrapperRef, contentRef, scale, referenceScale } = useAutoScale(
     [tehai, agariHai, agariLabel],
     { referenceWidth: REFERENCE_HAND_WIDTH },
   );
 
-  const { closedTiles, separatedAgariHai } = useMemo(
-    () => splitAgariHai(tehai.closed, agariHai),
-    [tehai.closed, agariHai],
+  const presented = useMemo(
+    () => presentTehai(splitAgariHai(tehai.closed, agariHai), presentation),
+    [tehai.closed, agariHai, presentation],
   );
 
   useEffect(() => {
@@ -95,11 +110,11 @@ export const TehaiHand = memo(function TehaiHandComponent({
         style={{ transformOrigin: "left bottom" }}
       >
         <div className="flex shrink-0">
-          {closedTiles.map((kindId, i) => (
-            <Hai key={i} hai={kindId} size="sm" />
+          {presented.closed.map((tile, i) => (
+            <Hai key={i} hai={tile.hai} size="sm" inverted={tile.inverted} />
           ))}
         </div>
-        {separatedAgariHai !== undefined && (
+        {presented.agari !== undefined && (
           <div className="ml-4 flex shrink-0 flex-col items-center">
             {agariLabel !== undefined && (
               <span
@@ -112,7 +127,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
                 {agariLabel}
               </span>
             )}
-            <Hai hai={separatedAgariHai} size="sm" highlighted />
+            <Hai
+              hai={presented.agari.hai}
+              size="sm"
+              highlighted
+              inverted={presented.agari.inverted}
+            />
           </div>
         )}
         {tehai.exposed.length > 0 && (
