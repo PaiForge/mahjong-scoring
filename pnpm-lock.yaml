@@ -45,8 +45,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/messages
       '@pai-forge/mahjong-react-ui':
-        specifier: ^0.6.0
-        version: 0.6.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^0.7.0
+        version: 0.7.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@react-native-async-storage/async-storage':
         specifier: 2.2.0
         version: 2.2.0(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.87.1(@babel/core@7.29.7))(@types/react@19.2.18)(react@19.2.8))
@@ -166,8 +166,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/messages
       '@pai-forge/mahjong-react-ui':
-        specifier: ^0.6.0
-        version: 0.6.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^0.7.0
+        version: 0.7.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@supabase/ssr':
         specifier: ^0.12.4
         version: 0.12.4(@supabase/supabase-js@2.112.2)
@@ -1881,8 +1881,8 @@ packages:
   '@oxc-project/types@0.151.0':
     resolution: {integrity: sha512-J1yXrIlNDZVzE3ada310xeAw7nH8yCAyLPuUIsjKatFPmfn5bS1oW+cM+QsGOtVWd5nhSpbwZWx/rue+r5Z+PA==}
 
-  '@pai-forge/mahjong-react-ui@0.6.0':
-    resolution: {integrity: sha512-rpNy7qhwZUMCMjxBe11Jp3CnmJ4yCgfOOtzlELZHdKi7Eumc8Sz8KhQuJ5mTLxzGshjzCSB7MGyGS3GbRPsTWQ==}
+  '@pai-forge/mahjong-react-ui@0.7.0':
+    resolution: {integrity: sha512-8IqaBlHOU++iP6+hF0V1GHHrGNfwr84TvK3AiwCi/91wPZC5aG4qq8AVKubIrYP+LvmW1yhAP6vcDAeP3fgwAA==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
@@ -8249,7 +8249,7 @@ snapshots:
 
   '@oxc-project/types@0.151.0': {}
 
-  '@pai-forge/mahjong-react-ui@0.6.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@pai-forge/mahjong-react-ui@0.7.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@pai-forge/riichi-mahjong': 1.1.0
       ajv: 8.20.0

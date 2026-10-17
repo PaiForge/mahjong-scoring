@@ -7,6 +7,11 @@ import { isOya } from "@mahjong-scoring/core";
 
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 盤面は手牌の見せ方を決める Provider の中にある。Provider がログイン状態を読む
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 vi.mock(
   "../../_actions/begin-practice-question",
   async () => await import("@/test/begin-practice-question-mock"),

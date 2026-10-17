@@ -5,8 +5,8 @@
     "title": "Pro でできること",
     "unlimitedTitle": "回数を気にせず練習",
     "unlimited": "和了形・聴牌形の点数計算が無制限",
-    "toolsTitle": "回答時間を計測",
-    "tools": "解答にかかった時間を確認",
+    "toolsTitle": "練習の表示と計測",
+    "tools": "回答時間の計測と、手牌の表示の調整（上下ランダム）",
     "freeLimits": "ログイン後の無料枠：和了形の点数計算は 1 日 {agari} 問／聴牌形の点数計算は 1 日 {tenpai} 問"
   },
   "offers": {

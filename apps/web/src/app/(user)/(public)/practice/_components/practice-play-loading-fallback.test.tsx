@@ -33,3 +33,24 @@ describe("PracticePlayLoadingFallback の残機", () => {
     expect(lifeSlotCount(container)).toBe(1);
   });
 });
+
+describe("PracticePlayLoadingFallback の列幅", () => {
+  it("既定は loading.tsx 向けの max-w-lg", () => {
+    const { container } = render(
+      <PracticePlayLoadingFallback practiceTitle="x" mistakeLimit={3} />,
+    );
+    expect(container.querySelector(".mx-auto.max-w-lg")).not.toBeNull();
+  });
+
+  it("play 画面の中の待ちは本体と同じ幅で描く", () => {
+    const { container } = render(
+      <PracticePlayLoadingFallback
+        practiceTitle="x"
+        mistakeLimit={3}
+        maxWidth="max-w-2xl"
+      />,
+    );
+    expect(container.querySelector(".mx-auto.max-w-2xl")).not.toBeNull();
+    expect(container.querySelector(".mx-auto.max-w-lg")).toBeNull();
+  });
+});

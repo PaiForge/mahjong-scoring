@@ -8,6 +8,7 @@ import type {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { HandPresentationNotice } from "./hand-presentation-notice";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
 import { PauseIcon } from "@/app/(user)/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
@@ -41,6 +42,15 @@ import {
 import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
 import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+
+/**
+ * チャレンジの列の既定の幅
+ * チャレンジ列幅
+ *
+ * 開始前の待ち画面（{@link import("./practice-play-loading-fallback").PracticePlayLoadingFallback}）も
+ * 同じ値で描き、待ち画面から本体に替わるときに列の幅を揃える。
+ */
+export const CHALLENGE_SHELL_MAX_WIDTH = "max-w-md";
 
 interface LifeIndicatorProps {
   readonly remainingLives: number;
@@ -90,7 +100,7 @@ interface ChallengeShellProps {
   readonly resultPath: string;
   /** 練習本体のUI */
   readonly children: ReactNode;
-  /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
+  /** 内部ラッパーの max-w クラス（既定: {@link CHALLENGE_SHELL_MAX_WIDTH}） */
   readonly maxWidth?: string;
   /**
    * 結果ページが問題別フィードバック一覧を表示するか。
@@ -135,7 +145,7 @@ export function ChallengeShell({
   timerControl,
   resultPath,
   children,
-  maxWidth = "max-w-md",
+  maxWidth = CHALLENGE_SHELL_MAX_WIDTH,
   hasProblemList = false,
   hasSetup = false,
   variant = "practice",
@@ -235,6 +245,7 @@ export function ChallengeShell({
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
+      <HandPresentationNotice />
 
       {/* カウントダウンのスモーク。
 

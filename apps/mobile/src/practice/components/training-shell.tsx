@@ -15,6 +15,7 @@ import { showToast } from "../../components/toast";
 import { colors } from "../../lib/theme";
 import { ScoreCounter } from "./score-counter";
 import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
+import { HandPresentationNotice } from "./hand-presentation-notice";
 
 interface TrainingShellProps {
   readonly title: string;
@@ -127,6 +128,8 @@ export function TrainingShell({
           </View>
         )}
       </View>
+
+      <HandPresentationNotice />
 
       <ScoreCounter
         correct={correctCount}

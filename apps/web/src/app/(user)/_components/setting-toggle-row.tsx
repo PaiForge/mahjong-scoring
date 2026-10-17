@@ -7,6 +7,7 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
+  TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 
 /** 設定項目を並べるカード */
@@ -88,6 +89,63 @@ export function SettingToggleRow({
           />
         </label>
       )}
+    </div>
+  );
+}
+
+interface SettingLockedRowProps {
+  /** 行の id（{@link SettingToggleRowProps.id} と同じ） */
+  readonly id?: string;
+  readonly title: string;
+  /** 補足説明。辞書側の改行をそのまま出す */
+  readonly description?: string;
+  /** 見出しの右に添える利用条件の印（「Pro」） */
+  readonly badge: string;
+  /** 利用条件の説明（「Pro プランで利用できます」） */
+  readonly note: string;
+  /** 利用できるようにする導線（料金ページ等） */
+  readonly link: { readonly href: string; readonly label: string };
+}
+
+/**
+ * 利用条件を満たすまで切り替えられない設定行
+ * 設定ロック行
+ *
+ * 押せないスイッチは「壊れている」に見えるため、スイッチの代わりに利用条件と
+ * 導線を出す。行の形は {@link SettingToggleRow} と揃える。
+ */
+export function SettingLockedRow({
+  id,
+  title,
+  description,
+  badge,
+  note,
+  link,
+}: SettingLockedRowProps) {
+  return (
+    <div
+      id={id}
+      className="scroll-mt-24 bg-surface-50 px-5 py-4 target:bg-brand-subtle"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="block text-sm font-medium text-surface-900">
+          {title}
+        </span>
+        <span className="inline-flex shrink-0 items-center rounded-md bg-surface-100 px-2 py-0.5 text-[11px] leading-none font-bold text-surface-600">
+          {badge}
+        </span>
+      </div>
+      {description !== undefined && (
+        <span className="mt-0.5 block whitespace-pre-line text-xs text-surface-500">
+          {description}
+        </span>
+      )}
+      <p className="mt-1 text-xs text-surface-600">{note}</p>
+      <div className="mt-1 text-right text-xs">
+        <Link href={link.href} className={`font-semibold ${TEXT_LINK_CLASSES}`}>
+          {link.label}
+        </Link>
+      </div>
     </div>
   );
 }

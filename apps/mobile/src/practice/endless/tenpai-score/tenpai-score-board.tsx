@@ -42,6 +42,9 @@ import { TenpaiScoreResult } from "./tenpai-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
 import { useTenpaiScoreStore } from "./use-tenpai-score-store";
 import { WaitCellGrid } from "./wait-cell-grid";
+import { HandPresentationNotice } from "../../components/hand-presentation-notice";
+import { PreparingScreenFrame } from "../../components/preparing-screen";
+import { HandPresentationProvider } from "../../hand-presentation-provider";
 
 /** 回答欄を出し分ける列（ツモ / ロン） */
 const COLUMNS = ["tsumo", "ron"] as const;
@@ -59,7 +62,7 @@ const COLUMNS = ["tsumo", "ron"] as const;
  * （`AgariScoreBoard`）と同じ。web が要素を照らすツアーの代わりに、
  * 見出しの「?」からいまの段階の操作を 1 枚ずつ説明する。
  */
-export function TenpaiScoreBoard() {
+function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const tq = useTranslations("practiceQuota");
@@ -408,6 +411,8 @@ export function TenpaiScoreBoard() {
           </View>
         )}
 
+        <HandPresentationNotice />
+
         <ScoreCounter
           correct={stats.correct}
           incorrect={stats.total - stats.correct}
@@ -464,3 +469,25 @@ const styles = StyleSheet.create({
     display: "none",
   },
 });
+
+/** 手牌の見せ方が決まるまでの画面（見出しと閉じるだけ） */
+function TenpaiScoreBoardPreparing() {
+  const t = useTranslations("tenpaiScore");
+  return <PreparingScreenFrame title={t("title")} />;
+}
+
+/**
+ * 手牌の見せ方を決めてから盤面を始める（無限訓練）
+ *
+ * 決まるまで盤面をマウントしない。出題の開始（出題条件の適用・回数制限の
+ * ゲート）は盤面の effect のまま、決まった後に盤面がマウントされたときに走る。
+ * スタックに残った画面へ戻るだけなら盤面も Provider もマウントされたままで、
+ * 初期化も見せ方の判定もやり直さない。
+ */
+export function TenpaiScoreBoard() {
+  return (
+    <HandPresentationProvider fallback={<TenpaiScoreBoardPreparing />}>
+      <TenpaiScoreBoardInner />
+    </HandPresentationProvider>
+  );
+}

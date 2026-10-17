@@ -65,9 +65,12 @@ export function useVerifiedChallenge() {
 /** 開始完了後に盤面をマウントし、その時点からカウントダウンを動かす。 */
 export function VerifiedChallengeProvider({
   slug,
+  maxWidth,
   children,
 }: {
   readonly slug: PracticeMenuSlug;
+  /** 開始を待つ間のスケルトンの列幅。本体の `ChallengeShell` と同じ値を渡す */
+  readonly maxWidth?: string;
   readonly children: ReactNode;
 }) {
   const t = useTranslations("challenge");
@@ -242,6 +245,7 @@ export function VerifiedChallengeProvider({
         practiceTitle={tMenu("title")}
         mistakeLimit={menu.mistakeLimit}
         boardHeight={BOARD_HEIGHT_BY_SLUG[slug]}
+        maxWidth={maxWidth}
       />
     );
   if (mode === "error")

@@ -8,7 +8,7 @@
     "bodyAnonymous": "ログインしていない場合、この練習は 1 日 {limit} 問までです。ログインすると 1 日 {signedInLimit} 問まで解けます。",
     "perksTitle": "Pro でできること",
     "perkUnlimited": "和了形・聴牌形の点数計算を回数制限なしで練習",
-    "perkTools": "回答時間の計測",
+    "perkTools": "回答時間の計測と手牌の表示の調整（上下ランダム）",
     "planCta": "Pro の料金・プランを見る",
     "noAutoRenew": "自動更新はありません",
     "signInCta": "ログインする",
