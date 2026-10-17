@@ -37,6 +37,7 @@ import { borderWidth, colors } from "../../lib/theme";
 import { QuizTimer } from "./quiz-timer";
 import { ScoreCounter } from "./score-counter";
 import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
+import { HandPresentationNotice } from "./hand-presentation-notice";
 
 interface ChallengeShellProps {
   readonly title: string;
@@ -235,6 +236,8 @@ export function ChallengeShell({
             </View>
           )}
         </View>
+
+        <HandPresentationNotice />
 
         <View style={styles.footer}>
           <ScoreCounter
