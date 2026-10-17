@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { jsonResponse } from "../test/api-client-mock";
+
 const mocks = vi.hoisted(() => ({
   sessionUserId: "user-a" as string | undefined,
   callMobileApi: vi.fn(),
@@ -25,20 +27,11 @@ vi.mock("./supabase-client", () => ({
   },
 }));
 // api-client は React Native を読むので、使う関数だけを置き換える
-vi.mock("./api-client", () => {
-  const errorOf = async (response: Response): Promise<unknown> => {
-    const body: unknown = await response.json().catch(() => undefined);
-    return typeof body === "object" && body !== null && "error" in body
-      ? body.error
-      : undefined;
-  };
-  return {
-    callMobileApi: mocks.callMobileApi,
-    notifyAccountDeleted: mocks.notifyAccountDeleted,
-    errorOf,
-    apiFailureOf: async () => "unknown",
-  };
-});
+vi.mock("./api-client", async () => ({
+  ...(await import("../test/api-client-mock")).apiClientMock,
+  callMobileApi: mocks.callMobileApi,
+  notifyAccountDeleted: mocks.notifyAccountDeleted,
+}));
 vi.mock("./use-deletion-notice", () => ({
   showDeletionNotice: mocks.showDeletionNotice,
 }));
@@ -48,14 +41,12 @@ vi.mock("./apple-sign-in", () => ({
 
 import { deleteOwnAccount } from "./account-api";
 
-function json(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), { status });
-}
-
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.sessionUserId = "user-a";
-  mocks.callMobileApi.mockResolvedValue(json(200, { status: "completed" }));
+  mocks.callMobileApi.mockResolvedValue(
+    jsonResponse(200, { status: "completed" }),
+  );
 });
 
 describe("deleteOwnAccount", () => {
@@ -75,7 +66,7 @@ describe("deleteOwnAccount", () => {
   it("応答を待つ間に別のユーザーへ切り替わっても、そのユーザーをログアウトさせず記録も消さない", async () => {
     mocks.callMobileApi.mockImplementation(async () => {
       mocks.sessionUserId = "user-b";
-      return json(200, { status: "pending" });
+      return jsonResponse(200, { status: "pending" });
     });
 
     await deleteOwnAccount();
@@ -87,8 +78,10 @@ describe("deleteOwnAccount", () => {
 
   it("Apple での確認を求められたら、得た認可コードを付けて送り直す", async () => {
     mocks.callMobileApi
-      .mockResolvedValueOnce(json(409, { error: "appleAuthorizationRequired" }))
-      .mockResolvedValueOnce(json(200, { status: "completed" }));
+      .mockResolvedValueOnce(
+        jsonResponse(409, { error: "appleAuthorizationRequired" }),
+      )
+      .mockResolvedValueOnce(jsonResponse(200, { status: "completed" }));
     mocks.requestAppleAuthorizationCode.mockResolvedValue({
       authorizationCode: "code-1",
     });
@@ -103,7 +96,7 @@ describe("deleteOwnAccount", () => {
 
   it("Apple のシートを閉じたら、退会もログアウトもしない", async () => {
     mocks.callMobileApi.mockResolvedValueOnce(
-      json(409, { error: "appleAuthorizationRequired" }),
+      jsonResponse(409, { error: "appleAuthorizationRequired" }),
     );
     mocks.requestAppleAuthorizationCode.mockResolvedValue("canceled");
 
@@ -115,8 +108,10 @@ describe("deleteOwnAccount", () => {
 
   it("別の Apple ID で確認したら appleRejected を返す", async () => {
     mocks.callMobileApi
-      .mockResolvedValueOnce(json(409, { error: "appleAuthorizationRequired" }))
-      .mockResolvedValueOnce(json(422, { error: "appleRejected" }));
+      .mockResolvedValueOnce(
+        jsonResponse(409, { error: "appleAuthorizationRequired" }),
+      )
+      .mockResolvedValueOnce(jsonResponse(422, { error: "appleRejected" }));
     mocks.requestAppleAuthorizationCode.mockResolvedValue({
       authorizationCode: "other",
     });
