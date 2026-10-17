@@ -6,6 +6,7 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { HandPresentationNotice } from "./hand-presentation-notice";
 import type {
   MenuKind,
   PracticeMenuSlug,
@@ -140,6 +141,7 @@ export function TrainingShell({
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle action={titleAction}>{title}</PageTitle>
+      <HandPresentationNotice />
 
       <div className={`mx-auto space-y-8 ${maxWidth}`}>
         {/* Game content area */}

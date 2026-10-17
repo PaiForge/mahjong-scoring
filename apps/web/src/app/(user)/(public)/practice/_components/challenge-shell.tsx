@@ -8,6 +8,7 @@ import type {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { HandPresentationNotice } from "./hand-presentation-notice";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
 import { PauseIcon } from "@/app/(user)/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
@@ -235,6 +236,7 @@ export function ChallengeShell({
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{title}</PageTitle>
+      <HandPresentationNotice />
 
       {/* カウントダウンのスモーク。
 
