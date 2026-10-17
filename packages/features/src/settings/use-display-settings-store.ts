@@ -51,7 +51,9 @@ export interface DisplaySettingsState {
  *
  * - `pending` — 読み込み中（読み込みを始める前も含む）
  * - `ready` — 読み込みが済んだ（保存値が無かった場合も含む）
- * - `failed` — 読み込みに失敗した。設定は既定値のまま
+ * - `failed` — 直近の読み込みに失敗した。設定の値はその読み込みの前のまま —
+ *   最初の読み込みなら既定値、読み込みが済んだ後の読み直し（`rehydrate()`）なら
+ *   前に読めた値が残る。どちらの場合も保存値を読めたとは見なさない
  *
  * メモリ上の初期値（既定値）と「保存値を読んだ結果が既定値だった」を区別する
  * ために持つ。zustand の `persist.hasHydrated()` / `onFinishHydration` は
