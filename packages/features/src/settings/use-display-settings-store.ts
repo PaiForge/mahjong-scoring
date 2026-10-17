@@ -14,6 +14,11 @@ import {
   passThroughHydration,
   type SettingsStoreOptions,
 } from "./settings-store-options";
+import {
+  DEFAULT_TILE_ORIENTATION,
+  normalizeTileOrientation,
+  type TileOrientationMode,
+} from "./tile-orientation";
 
 /** 表示設定ストアの状態と更新関数 */
 export interface DisplaySettingsState {
@@ -29,6 +34,79 @@ export interface DisplaySettingsState {
   /** 子のツモの点数を組の 1 つの select で選ぶか、子から・親からの 2 つで選ぶか */
   koTsumoInput: KoTsumoInputMode;
   setKoTsumoInput: (mode: KoTsumoInputMode) => void;
+  /**
+   * 練習の盤面で手牌の上下をランダムにするか（保存した希望）
+   *
+   * Pro の特典が無い間も保存値は消さない。有効な向きは
+   * `resolveHandPresentationSettings`（features の `board/hand-presentation.ts`）が
+   * 特典と合わせて決める。
+   */
+  tileOrientation: TileOrientationMode;
+  setTileOrientation: (mode: TileOrientationMode) => void;
+}
+
+/**
+ * 表示設定の永続値の読み込み状態
+ * 表示設定復元状態
+ *
+ * - `pending` — 読み込み中（読み込みを始める前も含む）
+ * - `ready` — 読み込みが済んだ（保存値が無かった場合も含む）
+ * - `failed` — 読み込みに失敗した。設定は既定値のまま
+ *
+ * メモリ上の初期値（既定値）と「保存値を読んだ結果が既定値だった」を区別する
+ * ために持つ。zustand の `persist.hasHydrated()` / `onFinishHydration` は
+ * 失敗を知らせないため、それだけでは区別できない。
+ */
+export type DisplaySettingsHydrationStatus = "pending" | "ready" | "failed";
+
+interface DisplaySettingsHydrationState {
+  readonly status: DisplaySettingsHydrationStatus;
+}
+
+/** 値がオブジェクト（配列を除く）か */
+function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** 永続値の中から、許される値のときだけ項目を取り出す */
+function pickOneOf<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+): T | undefined {
+  return allowed.find((candidate) => candidate === value);
+}
+
+/**
+ * 永続値を現在の状態へ重ねる
+ *
+ * 項目ごとに値を確かめ、欠損・未知の値・型違いは現在の値（既定値）のまま残す。
+ * 更新関数は永続値に含まれないが、壊れた永続値が同名のキーを持っていても
+ * 置き換えないよう、知っている項目だけを拾う。
+ */
+function mergeDisplaySettings(
+  persisted: unknown,
+  current: DisplaySettingsState,
+): DisplaySettingsState {
+  if (!isRecord(persisted)) return current;
+  const termLinks = persisted.termLinks;
+  return {
+    ...current,
+    doraDisplay:
+      pickOneOf<DoraDisplayMode>(persisted.doraDisplay, [
+        "indicator",
+        "actual",
+      ]) ?? current.doraDisplay,
+    termLinks: typeof termLinks === "boolean" ? termLinks : current.termLinks,
+    fuHanOrder:
+      pickOneOf<FuHanOrder>(persisted.fuHanOrder, ["fu-first", "han-first"]) ??
+      current.fuHanOrder,
+    koTsumoInput:
+      pickOneOf<KoTsumoInputMode>(persisted.koTsumoInput, [
+        "combined",
+        "split",
+      ]) ?? current.koTsumoInput,
+    tileOrientation: normalizeTileOrientation(persisted.tileOrientation),
+  };
 }
 
 /**
@@ -57,6 +135,12 @@ export function createDisplaySettingsStore({
   storage,
   useHydrated = passThroughHydration,
 }: SettingsStoreOptions) {
+  // 読み込み状態は永続化しない別のストアに持つ。persist の set を通すと
+  // 状態が変わるたびに保存先へ書き込みが走るため
+  const useHydrationStore = create<DisplaySettingsHydrationState>()(() => ({
+    status: "pending",
+  }));
+
   const useDisplaySettingsStore = create<DisplaySettingsState>()(
     persist(
       (set) => ({
@@ -68,12 +152,29 @@ export function createDisplaySettingsStore({
         setFuHanOrder: (fuHanOrder) => set({ fuHanOrder }),
         koTsumoInput: DEFAULT_KO_TSUMO_INPUT,
         setKoTsumoInput: (koTsumoInput) => set({ koTsumoInput }),
+        tileOrientation: DEFAULT_TILE_ORIENTATION,
+        setTileOrientation: (tileOrientation) => set({ tileOrientation }),
       }),
       {
-        // 既定の浅いマージ（永続値を初期state へ上書き）により、
-        // 将来キーを追加しても欠損フィールドは既定値で補完される。
+        // 項目ごとに確かめて重ねるため、将来キーを追加しても欠損フィールドは
+        // 既定値で補完される。
         name: "mahjong-display-settings",
         storage: createJSONStorage(storage),
+        merge: mergeDisplaySettings,
+        // 読み込みの開始と完了を別のストアへ写す。重なった rehydrate() の
+        // 古い完了は zustand が世代（hydrationVersion）で捨てるので、ここへは
+        // 最新の読み込みの結果だけが届く。保存先が無く読み込み自体が始まらない
+        // ときは pending のまま残る（待つ側が期限で諦める）
+        onRehydrateStorage: () => {
+          useHydrationStore.setState({ status: "pending" });
+          // 成功なら状態が、失敗なら state 無しでエラーが渡る
+          return (state, error) => {
+            useHydrationStore.setState({
+              status:
+                state !== undefined && error === undefined ? "ready" : "failed",
+            });
+          };
+        },
       },
     ),
   );
@@ -126,8 +227,34 @@ export function createDisplaySettingsStore({
     return useHydrated(koTsumoInput, DEFAULT_KO_TSUMO_INPUT);
   }
 
+  /**
+   * 手牌の向きの保存値取得フック
+   * 牌の向き保存値
+   *
+   * 保存した希望をそのまま返す（特典の有無は見ない）。設定画面のスイッチ用。
+   * ハイドレーション完了までは既定値を返す（`useHydrated` を渡した場合）。
+   */
+  function useTileOrientationSetting(): TileOrientationMode {
+    const tileOrientation = useDisplaySettingsStore((s) => s.tileOrientation);
+    return useHydrated(tileOrientation, DEFAULT_TILE_ORIENTATION);
+  }
+
+  /**
+   * 表示設定の永続値の読み込み状態取得フック
+   * 表示設定復元状態
+   *
+   * web はストアを作った時点で同期で読み終わり、モバイルは AsyncStorage の
+   * 読み込みが終わってから `ready` になる。読み込みに失敗すれば `failed`。
+   * 練習の盤面の見せ方を決める前に、保存値が読めたかを確かめるのに使う。
+   */
+  function useDisplaySettingsHydration(): DisplaySettingsHydrationStatus {
+    return useHydrationStore((s) => s.status);
+  }
+
   return {
     useDisplaySettingsStore,
+    useDisplaySettingsHydration,
+    useTileOrientationSetting,
     useDoraDisplayMode,
     useTermLinksEnabled,
     useFuHanOrder,

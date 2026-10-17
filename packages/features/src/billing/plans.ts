@@ -62,7 +62,12 @@
  *
  * - `unlimited_practice` — `practice/agari-score` と `practice/tenpai-score` の 1 日の
  *   回数制限を外す
- * - `practice_tools` — 同 2 練習の拡張機能（回答時間の計測など）
+ * - `practice_tools` — 練習の拡張機能。範囲は次の 2 つで、将来の有料機能を自動では含まない
+ *   - 回答時間の計測（`practice/agari-score` と `practice/tenpai-score`）
+ *   - 手牌の表示の調整（上下ランダム。練習の盤面。`board/hand-presentation.ts`）
+ *
+ *   手牌の表示は既存の購入（買い切り・App Store の購入を含む）と同じ権利で使えるよう、
+ *   新しい特典を作らずこの値を使う。権利を分ける必要が出たら特典を分ける
  */
 export const PlanBenefit = {
   UnlimitedPractice: "unlimited_practice",
