@@ -9,6 +9,8 @@ import {
 } from "@/app/(user)/_components/data-table";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
+import { ScoreTableReferenceLink } from "./score-table-reference-link";
+
 import {
   buildFixedFuRows,
   type FixedFuTableShape,
@@ -98,6 +100,7 @@ export async function FixedFuScoreTable({
           ))}
         </tr>
       </DataTable>
+      <ScoreTableReferenceLink role={role} winType="ron" />
     </div>
   );
 }

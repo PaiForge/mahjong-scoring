@@ -8,7 +8,7 @@ import type {
   Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { ReferenceLinkButton } from "./reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import {
   DataTable,
   DataTableHeaderCell,

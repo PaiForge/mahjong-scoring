@@ -31,10 +31,10 @@ import {
 } from "../../_components/breakdown-panel";
 import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { ScoreTableModal } from "./score-table-modal";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { AGARI_SCORE_RESULT_TOUR_ID } from "../_lib/tour-ids";
 import { SCORE_TABLE_LINK_CLASSES } from "../../_lib/score-table-link-classes";
-import { ReferenceLinkButton } from "../../_components/reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
@@ -87,6 +87,7 @@ export function ResultDisplay({
   embedded = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
+  const tScoreTable = useTranslations("scoreTable");
   const tCommon = useTranslations("common");
   const yakuOrder = useYakuOrder();
   const fuHanOrder = useFuHanOrder();
@@ -217,7 +218,7 @@ export function ResultDisplay({
                 // させたいときは内訳の答えの値（翻数・符）を押す
                 <ReferenceLinkButton
                   icon={<TableIcon className="size-3.5 shrink-0" />}
-                  label={t("result.viewScoreTable")}
+                  label={tScoreTable("viewScoreTable")}
                   hitArea="row"
                   onClick={() => openScoreTable(false)}
                 />
@@ -378,7 +379,7 @@ export function ResultDisplay({
               {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
               <ReferenceLinkButton
                 icon={<TableIcon className="size-3.5 shrink-0" />}
-                label={t("result.viewScoreTable")}
+                label={tScoreTable("viewScoreTable")}
                 onClick={() => openScoreTable(false)}
               />
             </td>
@@ -389,8 +390,8 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={isScoreTableOpen}
         onClose={() => setIsScoreTableOpen(false)}
-        focus={scoreTableFocus}
-        highlighted={isScoreTableHighlighted}
+        tab={scoreTableFocus}
+        highlight={isScoreTableHighlighted ? scoreTableFocus : undefined}
       />
 
       <YakuCheatsheetModal

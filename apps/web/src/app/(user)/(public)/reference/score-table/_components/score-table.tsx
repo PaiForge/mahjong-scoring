@@ -29,6 +29,11 @@ interface ScoreTableProps {
   /** focus なしでタブ初期値だけ指定する場合のロン/ツモ */
   readonly initialWinType?: WinType;
   /**
+   * focus なしで開くときの表示モード（符×翻 / 満貫以上）。
+   * 満貫以上の表を読む章から開くとき、同じ区分の表を最初から見せるために使う
+   */
+  readonly initialViewMode?: ScoreTableViewMode;
+  /**
    * セルタップでのぼかし切り替え（暗記用）を有効にするか。
    * 答え合わせの参照用モーダルでは誤タップで数字が消えないよう無効にする。
    */
@@ -52,17 +57,19 @@ export function ScoreTable({
   focus,
   initialRole = "ko",
   initialWinType = "ron",
+  initialViewMode = "normal",
   blurToggleEnabled = true,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
   const highlightRef = useRef<HTMLTableCellElement>(null);
 
   const focusTarget = useMemo(() => resolveScoreTableFocus(focus), [focus]);
+  const resolvedViewMode =
+    focus === undefined ? initialViewMode : focusTarget.viewMode;
 
   const [activeTab, setActiveTab] = useState<Role>(focus?.role ?? initialRole);
-  const [viewMode, setViewMode] = useState<ScoreTableViewMode>(
-    focusTarget.viewMode,
-  );
+  const [viewMode, setViewMode] =
+    useState<ScoreTableViewMode>(resolvedViewMode);
   const [winType, setWinType] = useState<WinType>(
     focus?.winType ?? initialWinType,
   );
@@ -76,16 +83,18 @@ export function ScoreTable({
     focus,
     initialRole,
     initialWinType,
+    initialViewMode,
   });
   if (
     !sameFocus(applied.focus, focus) ||
     applied.initialRole !== initialRole ||
-    applied.initialWinType !== initialWinType
+    applied.initialWinType !== initialWinType ||
+    applied.initialViewMode !== initialViewMode
   ) {
-    setApplied({ focus, initialRole, initialWinType });
+    setApplied({ focus, initialRole, initialWinType, initialViewMode });
     setActiveTab(focus?.role ?? initialRole);
     setWinType(focus?.winType ?? initialWinType);
-    setViewMode(focusTarget.viewMode);
+    setViewMode(resolvedViewMode);
   }
 
   const isKo = activeTab === "ko";

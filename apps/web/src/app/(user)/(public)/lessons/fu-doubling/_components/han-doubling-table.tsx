@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { type Role } from "@mahjong-scoring/core";
 
 import { HanRowsTable } from "../../_components/han-rows-table";
+import { ScoreTableReferenceLink } from "../../_components/score-table-reference-link";
 
 import { buildHanDoublingRows } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 
@@ -51,6 +52,7 @@ export async function HanDoublingTable({
           },
         ]}
       />
+      <ScoreTableReferenceLink role={role} winType="ron" />
     </div>
   );
 }

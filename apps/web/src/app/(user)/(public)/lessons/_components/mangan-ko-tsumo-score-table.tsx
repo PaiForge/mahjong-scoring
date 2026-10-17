@@ -21,6 +21,8 @@ const COLUMNS: readonly ManganTableColumn[] = [
 export function ManganKoTsumoScoreTable() {
   return (
     <ManganTableShell
+      role="ko"
+      winType="tsumo"
       columns={COLUMNS}
       showHan={false}
       renderCells={(row) => {
