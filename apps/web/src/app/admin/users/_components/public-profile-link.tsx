@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
 
 interface PublicProfileLinkProps {
   readonly username: string;
@@ -22,7 +23,7 @@ export async function PublicProfileLink({ username }: PublicProfileLinkProps) {
 
   return (
     <a
-      href={`/u/${encodeURIComponent(username)}`}
+      href={publicProfileHref(username)}
       target="_blank"
       rel="noopener noreferrer"
       title={t("usersTable.openPublicProfile")}
