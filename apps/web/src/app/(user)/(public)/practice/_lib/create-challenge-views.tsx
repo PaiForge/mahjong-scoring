@@ -12,7 +12,10 @@ import {
   resultStorageKeyFor,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { useSubmitExamOnFinish } from "@/app/(user)/(public)/exam/_hooks/use-submit-exam-on-finish";
-import { ChallengeShell } from "../_components/challenge-shell";
+import {
+  CHALLENGE_SHELL_MAX_WIDTH,
+  ChallengeShell,
+} from "../_components/challenge-shell";
 import { TrainingShell } from "../_components/training-shell";
 import { useStoredRecordedResults } from "../_hooks/use-stored-recorded-results";
 import { useSaveOnFinish } from "../_hooks/use-save-on-finish";
@@ -86,6 +89,8 @@ export function createChallengePlayView<
   config: ChallengePlayViewConfig<TResult, TProps, TState>,
 ): (props: TProps) => ReactNode {
   const { slug, maxWidth, renderBoard } = config;
+  // 開始前の待ち画面も本体と同じ列幅で描く（替わるときに幅が揺れない）
+  const columnWidth = maxWidth ?? CHALLENGE_SHELL_MAX_WIDTH;
   const {
     namespace,
     menuType,
@@ -180,7 +185,7 @@ export function createChallengePlayView<
   ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
   function VerifiedPlayView(props: TProps) {
     return (
-      <VerifiedChallengeProvider slug={slug}>
+      <VerifiedChallengeProvider slug={slug} maxWidth={columnWidth}>
         <ChallengePlayView {...props} />
       </VerifiedChallengeProvider>
     );
@@ -191,7 +196,13 @@ export function createChallengePlayView<
   return function PresentedPlayView(props: TProps) {
     return (
       <HandPresentationProvider
-        fallback={<PracticePlayFallback slug={slug} namespace={namespace} />}
+        fallback={
+          <PracticePlayFallback
+            slug={slug}
+            namespace={namespace}
+            maxWidth={columnWidth}
+          />
+        }
       >
         <VerifiedPlayView {...props} />
       </HandPresentationProvider>
@@ -206,9 +217,11 @@ function noop() {}
 function PracticePlayFallback({
   slug,
   namespace,
+  maxWidth,
 }: {
   readonly slug: PracticeMenuSlug;
   readonly namespace: ReturnType<typeof practiceMenuBySlug>["namespace"];
+  readonly maxWidth: string;
 }) {
   const t = useTranslations(namespace);
   return (
@@ -216,6 +229,7 @@ function PracticePlayFallback({
       practiceTitle={t("title")}
       mistakeLimit={practiceMenuBySlug(slug).mistakeLimit}
       boardHeight={BOARD_HEIGHT_BY_SLUG[slug]}
+      maxWidth={maxWidth}
     />
   );
 }

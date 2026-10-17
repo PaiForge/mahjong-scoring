@@ -334,8 +334,9 @@ export const HandPresentationContext =
  *
  * 練習の Provider が、確定した理由（{@link HandPresentationFallbackReason}）が
  * あるときだけ true を流す。同じ Provider の間は同じ値で、次の問題ごとに
- * 知らせ直さない。シェルが見出しの下に補足として出す（盤面の外。盤面の寸法は
- * 変えない）。確認のボタン・自動の再試行・練習のやり直しは持たない。
+ * 知らせ直さない。各アプリのシェルが盤面の外に補足として出す（盤面の寸法は
+ * 変えない）— web は見出しの直下、モバイルは盤面の下（盤面をヘッダーの直下に
+ * 付ける配置を崩さないため）。確認のボタン・自動の再試行・練習のやり直しは持たない。
  */
 export const HandPresentationNoticeContext = createContext(false);
 
