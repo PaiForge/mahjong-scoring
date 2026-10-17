@@ -34,7 +34,19 @@ describe("createTrainingView と手牌の見せ方", () => {
     expect(screen.getByText("exitButton")).toBeTruthy();
   });
 
-  it("模試は包まず、見せ方を待たずに盤面を出す", () => {
+  it("模試も見せ方が決まるまで盤面をマウントせず、待つ間も模試の見出しを出す", () => {
+    const TrainingView = createTrainingView({
+      slug: "mangan-exam",
+      renderBoard: () => <Board />,
+    });
+    render(<TrainingView />);
+    expect(screen.queryByText("board")).toBeNull();
+    // 本物と同じ「（模試）」付きの見出し（intl-mock はキーを返す）
+    expect(screen.getByText("pageTitle")).toBeTruthy();
+  });
+
+  it("模試も見せ方が決まれば盤面を出す", () => {
+    act(() => useDisplaySettingsStore.getState().setTileOrientation("upright"));
     const TrainingView = createTrainingView({
       slug: "mangan-exam",
       renderBoard: () => <Board />,

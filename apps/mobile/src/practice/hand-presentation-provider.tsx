@@ -50,7 +50,7 @@ interface HandPresentationProviderProps {
  * 決め直す。この機能のためにフォーカスの復帰で盤面を作り直さない。
  *
  * Android は Pro を扱わないので（`IAP_AVAILABLE`）、待たずに従来の向きで始める。
- * 練習のチャレンジ・トレーニングと無限訓練にだけ置き、昇級試験には置かない。
+ * 練習・昇級試験のチャレンジ・トレーニング（模試）と無限訓練に置く。
  */
 export function HandPresentationProvider({
   fallback,

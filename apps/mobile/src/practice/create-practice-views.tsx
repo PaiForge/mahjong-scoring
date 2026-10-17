@@ -201,10 +201,8 @@ export function createChallengePlayView<TResult = never>(
     );
   }
   RecordedPlayView.displayName = `RecordedPlayView(${slug})`;
-  if (kind === "exam") return RecordedPlayView;
-  // 練習のチャレンジだけ、手牌の見せ方を決めてから始める。記録付きチャレンジの
-  // 開始（RecordedChallengeProvider）より外側で包み、決まるまで開始させない。
-  // 昇級試験は包まない
+  // 手牌の見せ方を決めてから始める（練習も昇級試験も）。記録付きチャレンジの
+  // 開始（RecordedChallengeProvider）より外側で包み、決まるまで開始させない
   function PresentedPlayView(props: PracticeViewProps) {
     return (
       <HandPresentationProvider fallback={<PreparingScreen slug={slug} />}>
@@ -302,9 +300,7 @@ export function createTrainingView(
     );
   }
   TrainingView.displayName = `TrainingView(${slug})`;
-  if (kind === "exam") return TrainingView;
-  // 練習のトレーニングだけ包む（模試は包まない）。セッションと出題のフックを
-  // 持つ TrainingView より外側
+  // トレーニングも模試も包む。セッションと出題のフックを持つ TrainingView より外側
   function PresentedTrainingView(props: PracticeViewProps) {
     return (
       <HandPresentationProvider fallback={<PreparingScreen slug={slug} />}>
