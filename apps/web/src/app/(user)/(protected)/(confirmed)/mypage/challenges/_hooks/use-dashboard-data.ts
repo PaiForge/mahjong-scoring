@@ -12,8 +12,7 @@ import {
 import { getChallengeAttempts } from "../_actions/get-challenge-attempts";
 import {
   buildChartData,
-  computeAbsoluteChange,
-  computeStats,
+  computeStatsComparison,
   toAttemptRows,
 } from "@mahjong-scoring/features/my-record/stats";
 import {
@@ -104,29 +103,13 @@ export function useDashboardData({
     fetchAttempts();
   }, [fetchAttempts]);
 
-  const currentStats = useMemo(
-    () => computeStats(currentAttempts),
-    [currentAttempts],
-  );
-
-  const previousStats = useMemo(
-    () => computeStats(previousAttempts),
-    [previousAttempts],
-  );
-
-  const bestScoreComparison = useMemo(
-    () =>
-      computeAbsoluteChange(currentStats.bestScore, previousStats.bestScore),
-    [currentStats.bestScore, previousStats.bestScore],
-  );
-
-  const avgScoreComparison = useMemo(
-    () =>
-      computeAbsoluteChange(
-        currentStats.avgCompletionScore,
-        previousStats.avgCompletionScore,
-      ),
-    [currentStats.avgCompletionScore, previousStats.avgCompletionScore],
+  const {
+    current: currentStats,
+    bestChange,
+    avgChange,
+  } = useMemo(
+    () => computeStatsComparison(currentAttempts, previousAttempts),
+    [currentAttempts, previousAttempts],
   );
 
   const chartData: ChartDataPoint[] = useMemo(
@@ -149,8 +132,8 @@ export function useDashboardData({
     isLoading: isPending,
     availableBoards,
     currentStats,
-    bestScoreComparison,
-    avgScoreComparison,
+    bestScoreComparison: bestChange,
+    avgScoreComparison: avgChange,
     chartData,
     tableRows,
     hasMoreResults,

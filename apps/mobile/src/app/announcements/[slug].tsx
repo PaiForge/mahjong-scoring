@@ -9,10 +9,7 @@ import {
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 import { fetchAnnouncement } from "../../announcements/announcements-api";
-import {
-  AnnouncementLoadFailed,
-  AnnouncementLoading,
-} from "../../announcements/load-state";
+import { LoadFailed, LoadingIndicator } from "../../components/load-state";
 import { MarkdownBody } from "../../announcements/markdown-body";
 import { useAnnouncementRead } from "../../announcements/use-announcement-read";
 import { Screen } from "../../components/screen";
@@ -50,12 +47,15 @@ function Announcement({ slug }: { readonly slug: string }) {
     useCallback(() => fetchAnnouncement(slug), [slug]),
   );
 
-  if (state.kind === "loading") return <AnnouncementLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed") {
     return state.error === "notFound" ? (
       <NotFound />
     ) : (
-      <AnnouncementLoadFailed message={t("loadFailed")} onRetry={reload} />
+      <LoadFailed
+        message={t("loadFailed")}
+        retry={{ label: t("retry"), onPress: reload }}
+      />
     );
   }
 

@@ -23,6 +23,7 @@ import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 import { MyPageMenu } from "./_components/mypage-menu";
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage");
@@ -90,7 +91,7 @@ export default async function MyPage() {
             <div className="mt-1.5 flex flex-wrap items-center gap-1">
               {profile?.username && (
                 <Link
-                  href={`/u/${profile.username}`}
+                  href={publicProfileHref(profile.username)}
                   className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-100"
                 >
                   <span aria-hidden="true">👤</span>

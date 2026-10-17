@@ -1,4 +1,3 @@
-import { isMobileMypageErrorCode } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
   MOBILE_NOTIFICATIONS_READ_API_PATH,
   mobileNotificationsApiUrl,
@@ -7,28 +6,13 @@ import {
   type MobileNotificationsResponse,
 } from "@mahjong-scoring/features/notifications/mobile-api";
 
-import {
-  apiFailureOf,
-  callMobileApi,
-  errorOf,
-  type ApiFailure,
-} from "../auth/api-client";
+import { callMobileApi, type ApiFailure } from "../auth/api-client";
 import { readJson } from "../auth/read-json";
-import type { MypageApiFailure, MypageApiResult } from "../mypage/mypage-api";
-
-/**
- * 応答の 409 を `usernameRequired` に、それ以外の失敗を認証の理由に丸める
- *
- * 通知はマイページと同じくユーザー名を決めた人のもので、失敗の理由も
- * マイページと同じ集合（`useMypageRead` がそのまま扱える）。
- */
-async function failureOf(response: Response): Promise<MypageApiFailure> {
-  if (response.status === 409) {
-    const error = await errorOf(response);
-    return isMobileMypageErrorCode(error) ? error : "unknown";
-  }
-  return apiFailureOf(response);
-}
+import {
+  mypageFailureOf,
+  type MypageApiFailure,
+  type MypageApiResult,
+} from "../mypage/mypage-api";
 
 /**
  * 通知の一覧の 1 ページと未読数を読む
@@ -46,7 +30,7 @@ export async function fetchNotifications(
     asUser: userId,
   });
   if (typeof response === "string") return { error: response };
-  if (!response.ok) return { error: await failureOf(response) };
+  if (!response.ok) return { error: await mypageFailureOf(response) };
   const value = parseMobileNotificationsResponse(await readJson(response));
   return value ?? { error: "unknown" };
 }
@@ -69,6 +53,6 @@ export async function markNotificationsRead(
     asUser: userId,
   });
   if (typeof response === "string") return { error: response };
-  if (!response.ok) return { error: await failureOf(response) };
+  if (!response.ok) return { error: await mypageFailureOf(response) };
   return { success: true };
 }

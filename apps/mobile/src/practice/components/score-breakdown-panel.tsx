@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslations } from "use-intl";
 import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
 import { sumYakuHan } from "@mahjong-scoring/core";
@@ -8,6 +7,7 @@ import {
 } from "@mahjong-scoring/features/results/breakdown-tabs";
 
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 
 import { TableIcon } from "../../components/icons/icons";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
@@ -59,15 +59,9 @@ export function ScoreBreakdownPanel({
   const tScoreTable = useTranslations("scoreTable");
   // 値（翻数・符）を押したときだけ正解のセルをハイライトする
   // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
-  const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
-  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+  const scoreTable = useScoreTableModal();
   const openScoreTable =
-    scoreTableFocus === undefined
-      ? undefined
-      : (highlighted: boolean) => {
-          setIsScoreTableHighlighted(highlighted);
-          setIsScoreTableOpen(true);
-        };
+    scoreTableFocus === undefined ? undefined : scoreTable.open;
   const openHighlighted =
     openScoreTable === undefined ? undefined : () => openScoreTable(true);
   const fuHanOrder = useFuHanOrder();
@@ -135,10 +129,10 @@ export function ScoreBreakdownPanel({
       />
       {scoreTableFocus !== undefined && (
         <ScoreTableModal
-          isOpen={isScoreTableOpen}
-          onClose={() => setIsScoreTableOpen(false)}
+          isOpen={scoreTable.isOpen}
+          onClose={scoreTable.close}
           focus={scoreTableFocus}
-          highlighted={isScoreTableHighlighted}
+          highlighted={scoreTable.highlighted}
         />
       )}
     </>

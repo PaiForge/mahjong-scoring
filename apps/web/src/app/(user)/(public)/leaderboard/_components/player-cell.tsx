@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import type { RankedLeaderboardRow } from "@/lib/db/leaderboard-queries";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
 
 interface PlayerCellProps {
   readonly row: RankedLeaderboardRow;
@@ -16,7 +17,7 @@ export function PlayerCell({ row }: PlayerCellProps) {
 
   return (
     <Link
-      href={`/u/${row.username}`}
+      href={publicProfileHref(row.username)}
       className="flex items-center gap-3 min-w-0 rounded-lg transition-colors hover:bg-surface-100"
     >
       <UserAvatar avatarUrl={row.avatarUrl ?? null} name={name} size="sm" />

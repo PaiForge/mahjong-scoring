@@ -31,6 +31,23 @@ export type MypageApiFailure = ApiFailure | MobileMypageErrorCode;
 export type MypageApiResult<T> = T | { readonly error: MypageApiFailure };
 
 /**
+ * 応答の 409 を `usernameRequired` に、それ以外の失敗を認証の理由に丸める
+ * マイページ API 失敗理由
+ *
+ * マイページと、同じくユーザー名を決めた人のものである通知が使う（失敗の理由が
+ * 同じ集合なので、`useMypageRead` がどちらの結果もそのまま扱える）。
+ */
+export async function mypageFailureOf(
+  response: Response,
+): Promise<MypageApiFailure> {
+  if (response.status === 409) {
+    const error = await errorOf(response);
+    return isMobileMypageErrorCode(error) ? error : "unknown";
+  }
+  return apiFailureOf(response);
+}
+
+/**
  * GET を送り、成功なら応答を検証して返す
  *
  * 読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
@@ -43,11 +60,7 @@ async function read<T extends object>(
 ): Promise<MypageApiResult<T>> {
   const response = await callMobileApi(path, { asUser: userId });
   if (typeof response === "string") return { error: response };
-  if (response.status === 409) {
-    const error = await errorOf(response);
-    return { error: isMobileMypageErrorCode(error) ? error : "unknown" };
-  }
-  if (!response.ok) return { error: await apiFailureOf(response) };
+  if (!response.ok) return { error: await mypageFailureOf(response) };
   const value = parse(await readJson(response));
   return value ?? { error: "unknown" };
 }

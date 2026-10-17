@@ -1,33 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-
-/**
- * マウントからの経過ミリ秒。`running` が false になった時点で止まる
- * 経過時間
- *
- * 計測の起点はマウント。問題ごとに `key` を変えて付け直すことで、
- * 新しい問題で 0 から数え直す（状態のリセットを effect で書かない）。
- */
-function useElapsedMs(running: boolean): number {
-  const [startedAt] = useState(() => Date.now());
-  const [elapsedMs, setElapsedMs] = useState(0);
-
-  useEffect(() => {
-    if (!running) return;
-    const tick = () => setElapsedMs(Date.now() - startedAt);
-    tick();
-    const id = window.setInterval(tick, 100);
-    return () => {
-      window.clearInterval(id);
-      // 止まった瞬間の値で固定する（次の tick を待たない）
-      tick();
-    };
-  }, [running, startedAt]);
-
-  return elapsedMs;
-}
+import { formatElapsedSeconds } from "@mahjong-scoring/features/session/timer-display";
+import { useElapsedMs } from "@mahjong-scoring/features/session/use-elapsed-ms";
 
 interface AnswerTimeBadgeProps {
   /** 計測中か。回答すると false にして値を止める */
@@ -45,7 +20,7 @@ interface AnswerTimeBadgeProps {
 export function AnswerTimeBadge({ running }: AnswerTimeBadgeProps) {
   const t = useTranslations("practiceQuota");
   const elapsedMs = useElapsedMs(running);
-  const seconds = (elapsedMs / 1000).toFixed(1);
+  const seconds = formatElapsedSeconds(elapsedMs);
 
   return (
     <p className="text-center text-xs tabular-nums text-surface-500">

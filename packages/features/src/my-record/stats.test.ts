@@ -1,7 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getNavigablePreviousPeriod } from "./period";
-import { aggregateByDay, formatDate, formatShortDate } from "./stats";
+import {
+  aggregateByDay,
+  computeStatsComparison,
+  formatAvgScore,
+  formatDate,
+  formatShortDate,
+} from "./stats";
 import type { ChallengeAttempt } from "./types";
 
 describe("getNavigablePreviousPeriod", () => {
@@ -77,3 +83,37 @@ describe.each(["UTC", "Asia/Tokyo", "America/Los_Angeles"])(
     });
   },
 );
+
+describe("computeStatsComparison", () => {
+  it("今の期間の統計と前期間からの差を出す", () => {
+    const comparison = computeStatsComparison(
+      [
+        attempt("2026-08-17T00:00:00Z", 10),
+        attempt("2026-08-18T00:00:00Z", 20),
+      ],
+      [attempt("2026-08-10T00:00:00Z", 12)],
+    );
+
+    expect(comparison.current.bestScore).toBe(20);
+    expect(comparison.bestChange).toBe(8);
+    expect(comparison.avgChange).toBe(3);
+  });
+
+  it("前の期間に記録が無ければ増減は undefined", () => {
+    const comparison = computeStatsComparison(
+      [attempt("2026-08-17T00:00:00Z", 10)],
+      [],
+    );
+
+    expect(comparison.bestChange).toBeUndefined();
+    expect(comparison.avgChange).toBeUndefined();
+  });
+});
+
+describe("formatAvgScore", () => {
+  it("小数 1 桁で出し、値が無ければ - にする", () => {
+    expect(formatAvgScore(12.34)).toBe("12.3");
+    expect(formatAvgScore(10)).toBe("10.0");
+    expect(formatAvgScore(undefined)).toBe("-");
+  });
+});

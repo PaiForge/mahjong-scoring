@@ -80,6 +80,56 @@ export function computeAbsoluteChange(
   return current - previous;
 }
 
+/** 今の期間の統計と、前の期間からの増減 */
+export interface StatsComparison {
+  /** 今の期間の統計 */
+  readonly current: ReturnType<typeof computeStats>;
+  /** ベストスコアの前期間差 */
+  readonly bestChange: number | undefined;
+  /** 平均完走スコアの前期間差 */
+  readonly avgChange: number | undefined;
+}
+
+/**
+ * 今の期間と前の期間のチャレンジから、今の統計と前期間からの増減を出す
+ * 前期間比較
+ *
+ * マイレコードのダッシュボードの統計カード（web とモバイル）が読む。
+ */
+export function computeStatsComparison(
+  current: readonly ChallengeAttempt[],
+  previous: readonly ChallengeAttempt[],
+): StatsComparison {
+  const currentStats = computeStats(current);
+  const previousStats = computeStats(previous);
+  return {
+    current: currentStats,
+    bestChange: computeAbsoluteChange(
+      currentStats.bestScore,
+      previousStats.bestScore,
+    ),
+    avgChange: computeAbsoluteChange(
+      currentStats.avgCompletionScore,
+      previousStats.avgCompletionScore,
+    ),
+  };
+}
+
+/** 平均完走スコアを出す小数の桁数。増減もこの桁にそろえる */
+export const AVG_SCORE_FRACTION_DIGITS = 1;
+
+/**
+ * 平均完走スコアの表示（"12.3"）。比較できる値が無ければ "-"
+ * 平均スコア表示
+ *
+ * @param avgCompletionScore - 平均完走スコア
+ */
+export function formatAvgScore(avgCompletionScore: number | undefined): string {
+  return avgCompletionScore === undefined
+    ? "-"
+    : avgCompletionScore.toFixed(AVG_SCORE_FRACTION_DIGITS);
+}
+
 interface DailyAggregation {
   readonly date: string;
   readonly dateKey: string;

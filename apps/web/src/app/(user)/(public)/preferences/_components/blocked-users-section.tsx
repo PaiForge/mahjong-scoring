@@ -19,6 +19,7 @@ import {
 } from "@/app/_components/_lib/link-classes";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useAuth } from "@/app/_contexts/auth-context";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
 
 /**
  * 設定の「ブロックしたユーザー」
@@ -97,7 +98,7 @@ export function BlockedUsersSection() {
                 className="flex items-center justify-between gap-3 px-5 py-3"
               >
                 <Link
-                  href={`/u/${row.username}`}
+                  href={publicProfileHref(row.username)}
                   className={`group flex min-w-0 items-center gap-3 rounded-md ${FOCUS_RING_CLASSES}`}
                 >
                   <UserAvatar avatarUrl={row.avatarUrl} name={name} size="sm" />

@@ -28,11 +28,8 @@ import { DeletionNoticePanel } from "../../mypage/account-section";
 import { ActivityChart } from "../../mypage/activity-chart";
 import { ProfileHeading } from "../../mypage/profile-heading";
 import { fetchMypage } from "../../mypage/mypage-api";
-import {
-  MypageGate,
-  MypageLoadFailed,
-  MypageLoading,
-} from "../../mypage/mypage-gate";
+import { MypageGate, MypageLoadFailed } from "../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../components/load-state";
 import { useMypageRead } from "../../mypage/use-mypage-read";
 import { UnreadCountBadge } from "../../notifications/unread-count-badge";
 import { SiteLinksSection } from "../../mypage/site-links-section";
@@ -102,7 +99,7 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
   const { state, reload } = useMypageRead(
     useCallback(() => fetchMypage(userId), [userId]),
   );
-  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
   return <MypageBody mypage={state.value} />;

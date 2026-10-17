@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type {
@@ -45,6 +44,7 @@ import {
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
 import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
 interface ResultDisplayProps {
@@ -100,12 +100,7 @@ export function ResultDisplay({
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   // 点数表。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く。web と同じ）
-  const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
-  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
-  const openScoreTable = (highlighted: boolean) => {
-    setIsScoreTableHighlighted(highlighted);
-    setIsScoreTableOpen(true);
-  };
+  const scoreTable = useScoreTableModal();
 
   const judged =
     userAnswer !== undefined && result !== undefined
@@ -169,7 +164,7 @@ export function ResultDisplay({
                 items={yakuBreakdown.items}
                 total={yakuBreakdown.total}
                 suffix={t("form.options.hanSuffix")}
-                onOpenScoreTable={() => openScoreTable(true)}
+                onOpenScoreTable={() => scoreTable.open(true)}
                 onOpenYakuList={openYakuCheatsheet}
               />
             ),
@@ -187,7 +182,7 @@ export function ResultDisplay({
                 total={fuBreakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
-                onOpenScoreTable={() => openScoreTable(true)}
+                onOpenScoreTable={() => scoreTable.open(true)}
               />
             ),
           },
@@ -215,7 +210,7 @@ export function ResultDisplay({
                 <ReferenceLinkButton
                   icon={<TableIcon size={14} color={colors.mutedForeground} />}
                   label={tScoreTable("viewScoreTable")}
-                  onPress={() => openScoreTable(false)}
+                  onPress={() => scoreTable.open(false)}
                 />
               }
             />
@@ -312,7 +307,7 @@ export function ResultDisplay({
                 {/* 押せることが見て分かるよう、常時点線の下線を敷く。点数は
                     最終的な答えなので、正解の値の中でここだけ一段大きくする */}
                 <Pressable
-                  onPress={() => openScoreTable(true)}
+                  onPress={() => scoreTable.open(true)}
                   accessibilityRole="button"
                   accessibilityHint={t("result.openInScoreTable")}
                   hitSlop={6}
@@ -325,7 +320,7 @@ export function ResultDisplay({
                 <ReferenceLinkButton
                   icon={<TableIcon size={14} color={colors.mutedForeground} />}
                   label={tScoreTable("viewScoreTable")}
-                  onPress={() => openScoreTable(false)}
+                  onPress={() => scoreTable.open(false)}
                 />
               </>
             }
@@ -334,15 +329,15 @@ export function ResultDisplay({
       </ResultTableFrame>
 
       <ScoreTableModal
-        isOpen={isScoreTableOpen}
-        onClose={() => setIsScoreTableOpen(false)}
+        isOpen={scoreTable.isOpen}
+        onClose={scoreTable.close}
         focus={scoreTableFocusOf({
           isOya: isOya(question.jikaze),
           isTsumo: question.isTsumo,
           han: answer.han,
           fu: answer.fu,
         })}
-        highlighted={isScoreTableHighlighted}
+        highlighted={scoreTable.highlighted}
       />
       {yakuCheatsheetModal}
     </View>

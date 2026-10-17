@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { AccountDeletionStatus } from "./deletion-status";
+
 /**
  * アプリ向け API のパスの接頭辞（サイトの origin からの相対）
  * アプリAPI接頭辞
@@ -147,15 +149,9 @@ export function isMobileUsernameErrorCode(
  */
 export const MOBILE_DELETE_ACCOUNT_API_PATH = `${MOBILE_API_PREFIX}/account/delete`;
 
-/**
- * 退会の受付の応答
- *
- * - `completed` — 全工程を終えた
- * - `pending` — 受け付けたが、一部の工程がまだ終わっていない（サーバーが
- *   再開する。アプリはやり直さない）
- */
+/** 退会の受付の応答 */
 export interface MobileDeleteAccountResponse {
-  readonly status: "pending" | "completed";
+  readonly status: AccountDeletionStatus;
 }
 
 /**

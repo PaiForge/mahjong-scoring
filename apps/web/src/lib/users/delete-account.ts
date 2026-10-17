@@ -2,6 +2,8 @@ import "server-only";
 
 import { and, asc, eq, isNotNull, isNull, lt, or, sql } from "drizzle-orm";
 
+import type { AccountDeletionStatus } from "@mahjong-scoring/features/account/deletion-status";
+
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import {
   accountDeletions,
@@ -29,13 +31,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import { lockAccountForDeletion } from "./account-write-lock";
 
-/**
- * 退会の進み具合
- *
- * - `pending` — 受け付けたが、まだ終わっていない工程がある（サーバーが再開する）
- * - `completed` — 全工程を終えた
- */
-export type AccountDeletionStatus = "pending" | "completed";
+export type { AccountDeletionStatus };
 
 /**
  * 処理の貸し出しの長さ。その場の処理と cron が同じ要求を同時に進めない

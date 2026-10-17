@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { refreshAccount, useAuth } from "../auth/use-auth";
+import { LoadingIndicator } from "../components/load-state";
 import { TextLink } from "../components/text-link";
 import { RecordCtaCard } from "../home/record-cta-card";
 import { colors } from "../lib/theme";
@@ -30,10 +31,10 @@ export function MypageGate({
 }) {
   const { status, user, account, accountError } = useAuth();
   if (status === "signedOut") return <RecordCta preview={preview} />;
-  if (status !== "signedIn" || user === undefined) return <MypageLoading />;
+  if (status !== "signedIn" || user === undefined) return <LoadingIndicator />;
   if (account === undefined) {
     return accountError === undefined ? (
-      <MypageLoading />
+      <LoadingIndicator />
     ) : (
       <AccountLoadFailed banned={accountError === "banned"} />
     );
@@ -70,15 +71,6 @@ function AccountLoadFailed({ banned }: { readonly banned: boolean }) {
   );
 }
 
-/** 読み込み中（マイページの各画面で共通） */
-export function MypageLoading() {
-  return (
-    <View style={styles.loading}>
-      <ActivityIndicator color={colors.action} />
-    </View>
-  );
-}
-
 /**
  * 読み込めなかったとき（マイページの各画面で共通）
  *
@@ -107,10 +99,6 @@ const styles = StyleSheet.create({
   // この View の中には効かないため）
   content: {
     gap: 32,
-  },
-  loading: {
-    paddingVertical: 48,
-    alignItems: "center",
   },
   failed: {
     alignItems: "flex-start",

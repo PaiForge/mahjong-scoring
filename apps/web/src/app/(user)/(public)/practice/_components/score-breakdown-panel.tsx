@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
 import { sumYakuHan } from "@mahjong-scoring/core";
@@ -11,6 +10,7 @@ import {
   type BreakdownJudgement,
 } from "@mahjong-scoring/features/results/breakdown-tabs";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
@@ -66,17 +66,9 @@ export function ScoreBreakdownPanel({
 }: ScoreBreakdownPanelProps) {
   const t = useTranslations("challenge.scoreBreakdown");
   const tScoreTable = useTranslations("scoreTable");
-  const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
-  // 値（翻数・符）を押したときだけ正解のセルをハイライトする
-  // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
-  const [isScoreTableHighlighted, setIsScoreTableHighlighted] = useState(false);
+  const scoreTable = useScoreTableModal();
   const openScoreTable =
-    scoreTableFocus === undefined
-      ? undefined
-      : (highlighted: boolean) => {
-          setIsScoreTableHighlighted(highlighted);
-          setIsScoreTableOpen(true);
-        };
+    scoreTableFocus === undefined ? undefined : scoreTable.open;
   const openHighlighted =
     openScoreTable === undefined ? undefined : () => openScoreTable(true);
   const fuHanOrder = useFuHanOrder();
@@ -144,10 +136,10 @@ export function ScoreBreakdownPanel({
       />
       {scoreTableFocus !== undefined && (
         <ScoreTableModal
-          isOpen={isScoreTableOpen}
-          onClose={() => setIsScoreTableOpen(false)}
+          isOpen={scoreTable.isOpen}
+          onClose={scoreTable.close}
           tab={scoreTableFocus}
-          highlight={isScoreTableHighlighted ? scoreTableFocus : undefined}
+          highlight={scoreTable.highlighted ? scoreTableFocus : undefined}
         />
       )}
     </>

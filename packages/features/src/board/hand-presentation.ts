@@ -1,4 +1,4 @@
-import type { HaiKindId } from "@mahjong-scoring/core";
+import { mulberry32, type HaiKindId } from "@mahjong-scoring/core";
 
 import { PlanBenefit } from "../billing/plans";
 import {
@@ -126,22 +126,6 @@ function hashIntegers(values: readonly number[]): number {
 }
 
 /**
- * 決定的な擬似乱数列（mulberry32）。[0, 1) の値を返す関数を作る
- *
- * 状態は返した関数の中だけに閉じる。
- */
-function createRandom(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/**
  * 種と手牌から入力種を作る
  *
  * 列の長さ・和了牌の有無を明示し、[1,2]+[3] と [1]+[2,3] のような連結の
@@ -211,7 +195,7 @@ export function buildHandPresentation(
     orderMode === "unsorted"
       ? shuffledOrder(
           length,
-          createRandom(hashIntegers([handSeed, ORDER_STREAM])),
+          mulberry32(hashIntegers([handSeed, ORDER_STREAM])),
         )
       : identityOrder(length);
 
@@ -223,7 +207,7 @@ export function buildHandPresentation(
     };
   }
 
-  const random = createRandom(hashIntegers([handSeed, ORIENTATION_STREAM]));
+  const random = mulberry32(hashIntegers([handSeed, ORIENTATION_STREAM]));
   const closedInverted = Array.from({ length }, () => random() < 0.5);
   const agariInverted = random() < 0.5;
   return {

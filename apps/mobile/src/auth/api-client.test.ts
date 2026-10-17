@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { jsonResponse } from "../test/api-client-mock";
+
 const mocks = vi.hoisted(() => ({
   session: undefined as
     { user: { id: string }; access_token: string } | undefined,
@@ -28,10 +30,6 @@ const { callMobileApi, onAccountDeleted } = await import("./api-client");
 
 function session(accessToken: string) {
   return { user: { id: "user-a" }, access_token: accessToken };
-}
-
-function jsonResponse(status: number, body: unknown): Response {
-  return new Response(JSON.stringify(body), { status });
 }
 
 beforeEach(() => {

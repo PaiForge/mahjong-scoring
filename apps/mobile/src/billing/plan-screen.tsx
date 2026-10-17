@@ -14,7 +14,8 @@ import { SectionTitle } from "../components/section-title";
 import { showToast } from "../components/toast";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
-import { MypageLoadFailed, MypageLoading } from "../mypage/mypage-gate";
+import { LoadingIndicator } from "../components/load-state";
+import { MypageLoadFailed } from "../mypage/mypage-gate";
 import {
   IapErrorCode,
   fetchIapProducts,
@@ -48,7 +49,7 @@ import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
 export function PlanScreenBody({ userId }: { readonly userId: string }) {
   const t = useTranslations("mobilePlan");
   const { state, reload } = usePlan(userId);
-  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
   return <PlanBody userId={userId} plan={state.value} />;

@@ -27,6 +27,7 @@ import { buildSnsLinks } from "@mahjong-scoring/features/public-profile/sns-link
 
 import { BlockButton, UnblockButton } from "./_components/block-buttons";
 import { ReportButton } from "./_components/report-button";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
 
 interface Props {
   readonly params: Promise<{ username: string }>;
@@ -145,7 +146,9 @@ export default async function PublicProfilePage({ params }: Props) {
                 {t.rich("guestModerationNote", {
                   signIn: (chunks) => (
                     <Link
-                      href={buildSignInHref(`/u/${profile.username}`)}
+                      href={buildSignInHref(
+                        publicProfileHref(profile.username),
+                      )}
                       className={TEXT_LINK_CLASSES}
                     >
                       {chunks}

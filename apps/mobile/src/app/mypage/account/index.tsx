@@ -24,7 +24,7 @@ import { useAuth } from "../../../auth/use-auth";
 import { Screen } from "../../../components/screen";
 import { RecordCtaCard } from "../../../home/record-cta-card";
 import { SignedInAccount } from "../../../mypage/account-section";
-import { MypageLoading } from "../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../components/load-state";
 
 export default function MypageAccountScreen() {
   const t = useTranslations("mypageAccount");
@@ -34,7 +34,7 @@ export default function MypageAccountScreen() {
       {status === "signedIn" ? (
         <SignedInAccount />
       ) : status === "loading" ? (
-        <MypageLoading />
+        <LoadingIndicator />
       ) : (
         <RecordCtaCard placement="mypage" />
       )}
