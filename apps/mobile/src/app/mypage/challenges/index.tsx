@@ -34,11 +34,8 @@ import { TextLink } from "../../../components/text-link";
 import { colors } from "../../../lib/theme";
 import { AttemptTable } from "../../../mypage/attempt-table";
 import { fetchRecords } from "../../../mypage/mypage-api";
-import {
-  MypageGate,
-  MypageLoadFailed,
-  MypageLoading,
-} from "../../../mypage/mypage-gate";
+import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../components/load-state";
 import { ScoreChart } from "../../../mypage/score-chart";
 import { StatsCard } from "../../../mypage/stats-card";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
@@ -102,7 +99,7 @@ function Dashboard({
 
   // 表示する土俵をアプリが知らなかった（サーバーの方が新しい版）ときは
   // `board` が無く、土俵の選択欄が空のまま開く。選べばその土俵を読む
-  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
   if (state.value.boards.length === 0) return <NoRecords />;

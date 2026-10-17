@@ -11,11 +11,8 @@ import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { colors } from "../../lib/theme";
 import { useLoadMore } from "../../lib/use-load-more";
-import {
-  MypageGate,
-  MypageLoadFailed,
-  MypageLoading,
-} from "../../mypage/mypage-gate";
+import { MypageGate, MypageLoadFailed } from "../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../components/load-state";
 import { useMypageRead } from "../../mypage/use-mypage-read";
 import { NotificationRow } from "../../notifications/notification-row";
 import {
@@ -90,7 +87,7 @@ function Notifications({ userId }: { readonly userId: string }) {
   const [markingAll, setMarkingAll] = useState(false);
   const [markAllFailed, setMarkAllFailed] = useState(false);
 
-  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
 

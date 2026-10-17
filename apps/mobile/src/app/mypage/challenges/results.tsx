@@ -9,11 +9,8 @@ import { SectionTitle } from "../../../components/section-title";
 import { AttemptTable } from "../../../mypage/attempt-table";
 import { useLoadMore } from "../../../lib/use-load-more";
 import { fetchRecordResults } from "../../../mypage/mypage-api";
-import {
-  MypageGate,
-  MypageLoadFailed,
-  MypageLoading,
-} from "../../../mypage/mypage-gate";
+import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../components/load-state";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
 
 /**
@@ -50,7 +47,7 @@ function Results({ userId }: { readonly userId: string }) {
     (page: number) => fetchRecordResults(userId, page),
   );
 
-  if (state.kind === "loading") return <MypageLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
 

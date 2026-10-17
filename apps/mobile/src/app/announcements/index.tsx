@@ -7,10 +7,7 @@ import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { AnnouncementRow } from "../../announcements/announcement-rows";
 import { fetchAnnouncements } from "../../announcements/announcements-api";
-import {
-  AnnouncementLoadFailed,
-  AnnouncementLoading,
-} from "../../announcements/load-state";
+import { LoadFailed, LoadingIndicator } from "../../components/load-state";
 import { useAnnouncementRead } from "../../announcements/use-announcement-read";
 import { Button } from "../../components/button";
 import { LinkRowList } from "../../components/link-row";
@@ -54,10 +51,13 @@ function AnnouncementList() {
     fetchAnnouncements,
   );
 
-  if (state.kind === "loading") return <AnnouncementLoading />;
+  if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return (
-      <AnnouncementLoadFailed message={t("loadFailed")} onRetry={reload} />
+      <LoadFailed
+        message={t("loadFailed")}
+        retry={{ label: t("retry"), onPress: reload }}
+      />
     );
 
   return (
@@ -76,9 +76,7 @@ function AnnouncementList() {
           {ad !== undefined && <NativeAdRow creative={ad} />}
         </LinkRowList>
       )}
-      {error !== undefined && (
-        <AnnouncementLoadFailed message={t("loadFailed")} />
-      )}
+      {error !== undefined && <LoadFailed message={t("loadFailed")} />}
       {hasMore && (
         <Button
           variant="secondary"
