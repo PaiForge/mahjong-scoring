@@ -21,3 +21,15 @@ export function timerColorOf(progress: number): string {
   if (progress >= 0.6) return "#f59e0b";
   return "#22c55e";
 }
+
+/**
+ * 経過ミリ秒を 0.1 秒刻みの秒数にする（"7.5"）
+ * 回答時間表示
+ *
+ * web とモバイルの回答時間の表示が同じ桁で出すためにここに置く。
+ *
+ * @param elapsedMs - 経過ミリ秒
+ */
+export function formatElapsedSeconds(elapsedMs: number): string {
+  return (elapsedMs / 1000).toFixed(1);
+}
