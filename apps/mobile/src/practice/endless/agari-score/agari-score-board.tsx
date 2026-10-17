@@ -29,6 +29,9 @@ import { ResultDisplay } from "./result-display";
 import { AgariScoreOperationHelp } from "./agari-score-help";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { useAgariScoreStore } from "./use-agari-score-store";
+import { HandPresentationNotice } from "../../components/hand-presentation-notice";
+import { PreparingScreenFrame } from "../../components/preparing-screen";
+import { HandPresentationProvider } from "../../hand-presentation-provider";
 
 /**
  * 和了形の点数計算の盤面（web の `AgariScoreBoard`）
@@ -47,7 +50,7 @@ import { useAgariScoreStore } from "./use-agari-score-store";
  * 二重の判定）。正解で自動で次へ進むときの知らせはトーストの代わりに
  * {@link CorrectFlash} で出す。
  */
-export function AgariScoreBoard() {
+function AgariScoreBoardInner() {
   const t = useTranslations("agariScore");
   const tq = useTranslations("practiceQuota");
   const router = useRouter();
@@ -231,6 +234,8 @@ export function AgariScoreBoard() {
           </View>
         )}
 
+        <HandPresentationNotice />
+
         <ScoreCounter
           correct={stats.correct}
           incorrect={stats.total - stats.correct}
@@ -270,3 +275,25 @@ const styles = StyleSheet.create({
     gap: 4,
   },
 });
+
+/** 手牌の見せ方が決まるまでの画面（見出しと閉じるだけ） */
+function AgariScoreBoardPreparing() {
+  const t = useTranslations("agariScore");
+  return <PreparingScreenFrame title={t("title")} />;
+}
+
+/**
+ * 手牌の見せ方を決めてから盤面を始める（無限訓練）
+ *
+ * 決まるまで盤面をマウントしない。出題の開始（出題条件の適用・回数制限の
+ * ゲート）は盤面の effect のまま、決まった後に盤面がマウントされたときに走る。
+ * スタックに残った画面へ戻るだけなら盤面も Provider もマウントされたままで、
+ * 初期化も見せ方の判定もやり直さない。
+ */
+export function AgariScoreBoard() {
+  return (
+    <HandPresentationProvider fallback={<AgariScoreBoardPreparing />}>
+      <AgariScoreBoardInner />
+    </HandPresentationProvider>
+  );
+}

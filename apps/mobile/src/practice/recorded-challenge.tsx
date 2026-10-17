@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { randomUUID } from "expo-crypto";
 import { useTranslations } from "use-intl";
@@ -27,6 +27,7 @@ import type { ClockReading } from "@mahjong-scoring/features/session/use-timed-s
 import { refreshAccount, useAuth } from "../auth/use-auth";
 import { Button } from "../components/button";
 import { Screen } from "../components/screen";
+import { PreparingScreen } from "./components/preparing-screen";
 import { TextLink } from "../components/text-link";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
@@ -581,18 +582,6 @@ function RecordedSession({
   );
 }
 
-/** アカウントとサーバーを確かめている間 */
-function PreparingScreen({ slug }: { readonly slug: PracticeMenuSlug }) {
-  const t = useTranslations(practiceMenuBySlug(slug).namespace);
-  return (
-    <Screen title={t("title")} back backIcon="close">
-      <View style={styles.center}>
-        <ActivityIndicator color={colors.action} />
-      </View>
-    </Screen>
-  );
-}
-
 /** 記録付きでしか始めないチャレンジを始められなかった。説明画面へ置き換える */
 function BackToIntro({ slug }: { readonly slug: PracticeMenuSlug }) {
   const router = useRouter();
@@ -636,10 +625,6 @@ function OfflineScreen({
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-  },
-  center: {
-    paddingVertical: 48,
-    alignItems: "center",
   },
   overlay: {
     ...StyleSheet.absoluteFill,
