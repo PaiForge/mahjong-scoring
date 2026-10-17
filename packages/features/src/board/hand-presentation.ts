@@ -27,6 +27,11 @@ export type TileOrderMode = "sorted" | "unsorted";
  *
  * 練習の画面を開いたときに一度だけ決め、その画面の間は変えない
  * （`use-hand-presentation.ts` の Provider が確定する）。
+ *
+ * 記録（`leaderboard_key`・結果の保存）には載せない。出題・正解・採点は向きに
+ * 依らないので、逆さの牌を混ぜた回も通常の回と同じ記録の区分に積む。そのため
+ * 自己ベストや履歴から当時の見せ方は分からない（必要になったら記録のメタデータを
+ * 別に設ける）。
  */
 export interface HandPresentationSnapshot {
   /** 有効な向きの設定（特典が無ければ保存値に関わらず `upright`） */
