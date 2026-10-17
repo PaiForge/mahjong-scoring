@@ -64,8 +64,8 @@ export function ScoreProblemListWithLinks({
         <ScoreTableModal
           isOpen
           onClose={() => setScoreTableFocus(null)}
-          focus={scoreTableFocus}
-          highlighted
+          tab={scoreTableFocus}
+          highlight={scoreTableFocus}
         />
       )}
     </>

@@ -146,8 +146,8 @@ export function ScoreBreakdownPanel({
         <ScoreTableModal
           isOpen={isScoreTableOpen}
           onClose={() => setIsScoreTableOpen(false)}
-          focus={scoreTableFocus}
-          highlighted={isScoreTableHighlighted}
+          tab={scoreTableFocus}
+          highlight={isScoreTableHighlighted ? scoreTableFocus : undefined}
         />
       )}
     </>

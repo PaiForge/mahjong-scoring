@@ -389,8 +389,8 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={isScoreTableOpen}
         onClose={() => setIsScoreTableOpen(false)}
-        focus={scoreTableFocus}
-        highlighted={isScoreTableHighlighted}
+        tab={scoreTableFocus}
+        highlight={isScoreTableHighlighted ? scoreTableFocus : undefined}
       />
 
       <YakuCheatsheetModal

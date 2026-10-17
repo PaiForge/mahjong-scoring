@@ -6,8 +6,7 @@ import type { Role, WinType } from "@mahjong-scoring/core";
 import type { ScoreTableViewMode } from "@mahjong-scoring/features/score-table/score-grid";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { ReferenceModal } from "@/app/(user)/_components/reference-modal";
-import { ScoreTable } from "@/app/(user)/(public)/reference/score-table/_components/score-table";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 
 interface ScoreTableReferenceLinkProps {
   /** 開いたときの親子のタブ。直前の表と同じ親子にそろえる */
@@ -34,7 +33,7 @@ interface ScoreTableReferenceLinkProps {
 export function ScoreTableReferenceLink({
   role,
   winType,
-  viewMode = "normal",
+  viewMode,
 }: ScoreTableReferenceLinkProps) {
   const t = useTranslations("scoreTable");
   const [isOpen, setIsOpen] = useState(false);
@@ -48,18 +47,11 @@ export function ScoreTableReferenceLink({
       >
         {t("openReference")}
       </button>
-      <ReferenceModal
+      <ScoreTableModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={t("pageTitle")}
-      >
-        <ScoreTable
-          initialRole={role}
-          initialWinType={winType}
-          initialViewMode={viewMode}
-          blurToggleEnabled={false}
-        />
-      </ReferenceModal>
+        tab={{ role, winType, viewMode }}
+      />
     </div>
   );
 }

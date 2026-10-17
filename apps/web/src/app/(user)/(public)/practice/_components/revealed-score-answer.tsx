@@ -88,8 +88,8 @@ export function RevealedScoreAnswer({
         <ScoreTableModal
           isOpen={isScoreTableOpen}
           onClose={() => setIsScoreTableOpen(false)}
-          focus={scoreTableFocus}
-          highlighted
+          tab={scoreTableFocus}
+          highlight={scoreTableFocus}
         />
       )}
     </>
