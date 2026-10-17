@@ -87,6 +87,7 @@ export {
   clampHanToYakuman,
   isYakumanHan,
   isMangan,
+  isFuRelevant,
   getScoreLevelName,
   scoreTierForHan,
   hanRangeOf,

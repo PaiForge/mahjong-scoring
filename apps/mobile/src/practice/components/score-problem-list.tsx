@@ -52,8 +52,8 @@ interface ScoreProblemListProps {
  *
  * 詳細は「手牌 → 面子分解 → 答え合わせ → 符・翻数の内訳」の順。内訳を答え
  * 合わせの後に置くのは、開いても正解と自分の回答が内訳の下へ押し出されない
- * ようにするため（web と同じ）。符の内訳は満貫未満の問題だけが持つ（満貫以上は
- * 符が点数に効かない）。2 つは 1 つの入口から切り替え（{@link ScoreBreakdownPanel}）、
+ * ようにするため（web と同じ）。符の内訳は 4 翻以下の問題だけが持つ（符で満貫に
+ * 届いた手も含む。5 翻以上は符が点数に効かない）。2 つは 1 つの入口から切り替え（{@link ScoreBreakdownPanel}）、
  * 既定で閉じる。
  *
  * 正解の点数は押すとそのセルをハイライトした点数早見表を開く（web の
@@ -126,7 +126,7 @@ export function ScoreProblemList({
                     : formatAnswer(result.userAnswer, translate)
                 }
               />
-              {/* 符と翻数の内訳。符は満貫以上の問題に無く、どちらも保存を
+              {/* 符と翻数の内訳。符は 5 翻以上の問題に無く、どちらも保存を
                   始める前の旧データには無い */}
               <ScoreBreakdownPanel
                 fu={

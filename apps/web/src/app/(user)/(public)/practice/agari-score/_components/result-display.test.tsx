@@ -240,6 +240,53 @@ describe("ResultDisplay の内訳", () => {
     expect(screen.getByText("result.details.total")).toBeTruthy();
   });
 
+  it("符で満貫に届いた手（3翻70符）は、符の行が無くても符の内訳を出す", () => {
+    render(
+      <ResultDisplay
+        question={
+          {
+            ...fuQuestion,
+            answer: {
+              ...question.answer,
+              han: 3,
+              fu: 70,
+              scoreLevel: "Mangan",
+            },
+          } as unknown as ScoreQuestion
+        }
+        userAnswer={userAnswer}
+        result={result}
+      />,
+    );
+    // 満貫以上の要約行は従来どおり符を省く
+    expect(screen.queryByText("form.labels.fu")).toBeNull();
+
+    fireEvent.click(toggle());
+    fireEvent.click(screen.getByRole("button", { name: /^form\.labels\.fu / }));
+    expect(screen.getByText("副底")).toBeTruthy();
+  });
+
+  it("5翻以上の手は符が点数に効かないので符の内訳を出さない", () => {
+    render(
+      <ResultDisplay
+        question={
+          {
+            ...fuQuestion,
+            answer: { ...question.answer, han: 5, scoreLevel: "Mangan" },
+          } as unknown as ScoreQuestion
+        }
+        userAnswer={userAnswer}
+        result={result}
+      />,
+    );
+    fireEvent.click(toggle());
+
+    expect(
+      screen.queryByRole("button", { name: /^form\.labels\.fu / }),
+    ).toBeNull();
+    expect(screen.queryByText("副底")).toBeNull();
+  });
+
   it("内訳の答えの翻数・符を押すと点数表モーダルが開く", () => {
     renderWith({ isHanCorrect: false, isFuCorrect: true });
     fireEvent.click(toggle());

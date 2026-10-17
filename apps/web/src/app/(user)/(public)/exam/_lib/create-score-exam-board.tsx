@@ -2,7 +2,7 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { isMangan, isOya } from "@mahjong-scoring/core";
+import { isFuRelevant, isOya } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
@@ -42,12 +42,13 @@ import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
  * 同じ盤面を模試（`/exam/<級>/training`。時間無制限・記録なしのトレーニング）
  * でも描く。模試では回答後の停止中と「わからない」の開示中に、正解の点数を
  * 出題の直下に（練習の点数即答と同じ答え合わせ）、翻数の内訳
- * （{@link YakuBreakdown}）と、満貫未満なら符の内訳（{@link FuBreakdown}）を
+ * （{@link YakuBreakdown}）と、4 翻以下なら符の内訳（{@link FuBreakdown}）を
  * 回答欄の下に出す。試験は役一覧を出さないので、点数を間違えたとき
  * 「点数表の引き間違い」と「翻数・符の数え間違い」を内訳なしには
  * 切り分けられない。符を手牌から積み上げる級（1級・初段）では、面子分解だけ
- * では副底・門前加符・ツモ符・待ち符と切り上げが見えない。満貫以上では符が
- * 点数に効かないので出さない（結果ページの問題別詳細と同じ境目）。表と置き場所は翻数即答練習のトレーニング
+ * では副底・門前加符・ツモ符・待ち符と切り上げが見えない。5 翻以上では符が
+ * 点数に効かないので出さない（3 翻 70 符の満貫のように符で満貫に届いた手には
+ * 出す。結果ページの問題別詳細と同じ境目）。表と置き場所は翻数即答練習のトレーニング
  * （選択肢の下・閉じた状態から）と同じで、既に見た手を振り返る操作が画面で
  * 変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
  * （{@link buildYakumanCapNote}）。本番の試験では出さない — 読ませている間も
@@ -157,15 +158,15 @@ export function createScoreExamBoard(
           <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
         )}
 
-        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は満貫未満だけ
-            （満貫以上は符が点数に効かない）。問題ごとに作り直して閉じた
-            状態へ戻す */}
+        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
+            （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
+            出さない）。問題ごとに作り直して閉じた状態へ戻す */}
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
             fu={
               question.fuDetails !== undefined &&
-              !isMangan(question.answer.scoreLevel)
+              isFuRelevant(question.answer.han)
                 ? { details: question.fuDetails, answer: question.answer.fu }
                 : undefined
             }

@@ -1,4 +1,8 @@
-import { HaiKind, generateValidScoreQuestion } from "@mahjong-scoring/core";
+import {
+  HaiKind,
+  MANGAN_MIN_HAN,
+  generateValidScoreQuestion,
+} from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
 import { generateOrThrow } from "../test/generate-or-throw";
@@ -369,9 +373,27 @@ describe("toScoreQuestionSnapshot", () => {
     expect(parsed[0]?.question?.fuDetails).toEqual(question.fuDetails);
   });
 
-  it("満貫以上の出題は符が点数に効かないため符の内訳を保存しない", () => {
+  it("符で満貫に届いた出題（4翻以下）は満貫になった理由として符の内訳を保存する", () => {
+    const question = generateOrThrow(() => {
+      const candidate = generateValidScoreQuestion({
+        allowedRanges: ["manganPlus"],
+      });
+      return candidate !== undefined && candidate.answer.han < MANGAN_MIN_HAN
+        ? candidate
+        : undefined;
+    });
+    expect(question.fuDetails).toBeDefined();
+    expect(toScoreQuestionSnapshot(question).fuDetails).toEqual(
+      question.fuDetails,
+    );
+  });
+
+  it("5翻以上の出題は符が点数に効かないため符の内訳を保存しない", () => {
     const question = generateOrThrow(() =>
-      generateValidScoreQuestion({ allowedRanges: ["manganPlus"] }),
+      generateValidScoreQuestion({
+        allowedRanges: ["manganPlus"],
+        minHan: MANGAN_MIN_HAN,
+      }),
     );
     expect(question.fuDetails).toBeDefined();
     expect(toScoreQuestionSnapshot(question).fuDetails).toBeUndefined();
