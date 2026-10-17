@@ -1,12 +1,8 @@
 import { create } from "zustand";
+import type { AccountDeletionStatus } from "@mahjong-scoring/features/account/deletion-status";
 
-/**
- * 退会を受け付けた知らせ
- *
- * - `completed` — 全工程を終えた
- * - `pending` — 受け付けたが、一部の工程がまだ終わっていない（サーバーが続ける）
- */
-export type DeletionNotice = "completed" | "pending";
+/** 退会を受け付けた知らせ（受け付けた時点の退会の進み具合） */
+export type DeletionNotice = AccountDeletionStatus;
 
 const useDeletionNoticeStore = create<{
   readonly notice: DeletionNotice | undefined;
