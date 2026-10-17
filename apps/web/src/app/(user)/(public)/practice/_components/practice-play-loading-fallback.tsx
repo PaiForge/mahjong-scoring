@@ -25,6 +25,14 @@ interface PracticePlayLoadingFallbackProps {
   readonly mistakeLimit: number;
   /** 盤面エリアの高さ（既定 standard。{@link BOARD_AREA_HEIGHT} 参照） */
   readonly boardHeight?: PlayBoardHeight;
+  /**
+   * 列の max-w クラス（既定 `max-w-lg`）
+   *
+   * play 画面の中で出すとき（開始 API・手牌の見せ方の待ち）は、本体の
+   * `ChallengeShell` に渡すのと同じ値を渡す。`loading.tsx` からは本体の幅を
+   * 知りようがないので既定に頼る。
+   */
+  readonly maxWidth?: string;
 }
 
 /**
@@ -38,19 +46,21 @@ interface PracticePlayLoadingFallbackProps {
  * 縦に並ぶ。
  *
  * @remarks
- * 昇級試験の play は受験ガードが cookie を読むため動的ルートで、開始を押すたび
- * このフォールバックを通る。通常の練習の play は静的でプリフェッチされるため
- * 出番は少ないが、形は同じなので分けていない。
+ * 出る場所は 3 つ。昇級試験の play の `loading.tsx`（受験ガードが cookie を読む
+ * 動的ルートで、開始を押すたびに通る）と、play 画面の中の待ち 2 つ — 手牌の
+ * 見せ方の準備（`HandPresentationProvider`）と記録付きチャレンジの開始 API
+ * （`VerifiedChallengeProvider`）。後の 2 つは練習・試験のすべての play で出うる。
  *
- * 列の幅は `max-w-lg`。実物は練習ごとに `max-w-lg` / `max-w-2xl` と違うが、
- * `loading.tsx` からは知りようがない（play 画面の props であって
- * レジストリの持ち物ではない）。このフォールバックが実際に出るのは
- * 昇級試験の 5 つで、いずれも `max-w-lg` なので狭い方に寄せている。
+ * 列の幅は既定で `max-w-lg`。実物は練習ごとに違い、`loading.tsx` からは
+ * 知りようがない（play 画面の props であってレジストリの持ち物ではない）。
+ * `loading.tsx` が出るのは昇級試験の 5 つで、いずれも `max-w-lg` なので
+ * その値を既定にしている。play 画面の中の待ちは本体の幅を `maxWidth` で渡す。
  */
 export function PracticePlayLoadingFallback({
   practiceTitle,
   mistakeLimit,
   boardHeight = "scoreExam",
+  maxWidth = "max-w-lg",
 }: PracticePlayLoadingFallbackProps) {
   // 実物（`ChallengeShell`）と同じ位置まで送っておく。ここで送らないと、
   // 中身が届いた瞬間にグローバルヘッダとタイトル帯のぶん（実測 128px）
@@ -62,7 +72,7 @@ export function PracticePlayLoadingFallback({
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{practiceTitle}</PageTitle>
 
-      <div className="mx-auto max-w-lg">
+      <div className={`mx-auto ${maxWidth}`}>
         {/* 状態バー: 左に円形タイマーと一時停止、右に残機 */}
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-1">
