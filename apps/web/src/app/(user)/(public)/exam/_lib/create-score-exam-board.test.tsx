@@ -2,6 +2,7 @@ import { screen, fireEvent, cleanup, within } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
@@ -57,10 +58,13 @@ const NonManganBoard = createScoreExamBoard({
   scoreRange: "nonMangan",
 });
 
-/** 満貫以上だけを出す盤面（符が点数に効かない側） */
+/**
+ * 5 翻以上だけを出す盤面（符が点数に効かない側）。区分だけで絞ると
+ * 4 翻 40 符のような符で満貫に届いた手が混ざり、そちらは符の内訳を出す
+ */
 const ManganPlusBoard = createScoreExamBoard({
   translationNamespace: "x",
-  generateOptions: { allowedRanges: ["manganPlus"] },
+  generateOptions: { allowedRanges: ["manganPlus"], minHan: MANGAN_MIN_HAN },
   scoreRange: "all",
 });
 
@@ -209,7 +213,7 @@ describe("createScoreExamBoard", () => {
     expect(screen.getByRole("button", { name: "hanTab" })).toBeDefined();
   });
 
-  it("満貫以上の問題では符の内訳を出さない（符が点数に効かないため）", () => {
+  it("5翻以上の問題では符の内訳を出さない（符が点数に効かないため）", () => {
     renderHolding(ManganPlusBoard);
 
     fireEvent.click(screen.getByRole("button", { name: "toggle" }));

@@ -20,8 +20,8 @@ import { YakuBreakdownTable } from "./yaku-breakdown";
 
 interface ScoreBreakdownPanelProps {
   /**
-   * 符の内訳と正解の符。満貫以上の問題（符が点数に効かない）と、内訳を
-   * 保存する前の旧データでは渡さない
+   * 符の内訳と正解の符。5 翻以上の問題（符が点数に効かない）と、内訳を
+   * 保存する前の旧データでは渡さない。符で満貫に届いた 4 翻以下の問題には渡す
    */
   readonly fu?: {
     readonly details: readonly FuDetail[];

@@ -1,7 +1,7 @@
 import { orderFuHan, type FuHanOrder } from "../settings/fu-han-order";
 import {
   haiIdToMpsz,
-  isMangan,
+  isFuRelevant,
   isOya,
   judgeScoreTableAnswer,
   formatMpsz,
@@ -60,8 +60,9 @@ export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
    *
    * 結果ページで「なぜその符になるのか」を示すために持つ。要約行の
    * 「30符」だけでは、符を積み上げる級（1級・初段）で間違えた人が数え直せない。
-   * 満貫以上の問題では符が点数に効かないため持たない（要約行が符を省くのと
-   * 同じ境目）。この項目を保存する前の旧データにも存在しない。
+   * 5 翻以上の問題では符が点数に効かないため持たない。3 翻 70 符のように
+   * 符で満貫に届いた問題は、満貫になった理由を示すため持つ。この項目を
+   * 保存する前の旧データにも存在しない。
    */
   readonly fuDetails?: readonly FuDetail[];
   /**
@@ -125,7 +126,7 @@ export function toScoreQuestionSnapshot(
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMpsz),
     yakuDetails: question.yakuDetails ?? [],
     fuDetails:
-      question.fuDetails !== undefined && !isMangan(question.answer.scoreLevel)
+      question.fuDetails !== undefined && isFuRelevant(question.answer.han)
         ? question.fuDetails
         : undefined,
     ruleConfig: question.ruleConfig,

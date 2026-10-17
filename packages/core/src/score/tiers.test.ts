@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { clampHanToYakuman, isYakumanHan, YAKUMAN_HAN } from "./tiers";
+import {
+  clampHanToYakuman,
+  isFuRelevant,
+  isYakumanHan,
+  YAKUMAN_HAN,
+} from "./tiers";
 
 describe("clampHanToYakuman", () => {
   it("役満未満の翻数はそのまま返す", () => {
@@ -29,5 +34,18 @@ describe("isYakumanHan", () => {
   it("役満ちょうどと、それを超える翻数は役満", () => {
     expect(isYakumanHan(YAKUMAN_HAN)).toBe(true);
     expect(isYakumanHan(YAKUMAN_HAN * 2)).toBe(true);
+  });
+});
+
+describe("isFuRelevant", () => {
+  it("4翻以下は符が点数を左右する（符で満貫に届く手を含む）", () => {
+    expect(isFuRelevant(1)).toBe(true);
+    expect(isFuRelevant(3)).toBe(true);
+    expect(isFuRelevant(4)).toBe(true);
+  });
+
+  it("5翻以上は符によらず満貫以上なので符は効かない", () => {
+    expect(isFuRelevant(5)).toBe(false);
+    expect(isFuRelevant(YAKUMAN_HAN)).toBe(false);
   });
 });

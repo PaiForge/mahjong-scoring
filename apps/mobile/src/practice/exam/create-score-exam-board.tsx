@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { isMangan, isOya } from "@mahjong-scoring/core";
+import { isFuRelevant, isOya } from "@mahjong-scoring/core";
 import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
@@ -32,10 +32,11 @@ import { ScoreExamAnswerForm } from "./score-exam-answer-form";
  *
  * モバイルでは模試（時間無制限・記録なしのトレーニング）だけを開く。模試では
  * 回答後の停止中と「わからない」の開示中に、正解の点数を出題の直下に、
- * 面子分解と翻数の内訳、満貫未満なら符の内訳を回答欄の下に出す（試験は
+ * 面子分解と翻数の内訳、4 翻以下なら符の内訳を回答欄の下に出す（試験は
  * 役一覧を出さないので、点数を間違えたとき「点数表の引き間違い」と
- * 「翻数・符の数え間違い」を内訳なしには切り分けられない。満貫以上では符が
- * 点数に効かないので符の内訳は出さない）。
+ * 「翻数・符の数え間違い」を内訳なしには切り分けられない。5 翻以上では符が
+ * 点数に効かないので符の内訳は出さない。3 翻 70 符の満貫のように符で満貫に
+ * 届いた手には出す）。
  *
  * @remarks
  * ルール設定ストア（連風牌4符・切り上げ満貫）を読まないことがこの盤面の
@@ -110,15 +111,15 @@ export function createScoreExamBoard(
           <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
         )}
 
-        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は満貫未満だけ
-            （満貫以上は符が点数に効かない）。問題ごとに作り直して閉じた
-            状態へ戻す */}
+        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
+            （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
+            出さない）。問題ごとに作り直して閉じた状態へ戻す */}
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
             fu={
               question.fuDetails !== undefined &&
-              !isMangan(question.answer.scoreLevel)
+              isFuRelevant(question.answer.han)
                 ? { details: question.fuDetails, answer: question.answer.fu }
                 : undefined
             }

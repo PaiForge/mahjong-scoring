@@ -9,6 +9,7 @@ import type {
 } from "@mahjong-scoring/core";
 import {
   allowsDoubleYakuman,
+  isFuRelevant,
   isMangan,
   isOya,
   getScoreLevelName,
@@ -151,13 +152,16 @@ export function ResultDisplay({
   const getHanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
-  // 満貫以上は符の行を出さないので、符の内訳も出さない
+  // 満貫以上は符の行を出さない（符を答えさせる設定を除く）
   const showsFu = !isManganOrAbove || requireFuForMangan;
+  // 符の内訳は、符で満貫に届いた手（3 翻 70 符等）では符の行が無くても出す。
+  // 満貫になった理由が符にあるため。5 翻以上は符が点数に効かない
+  const showsFuBreakdown = showsFu || isFuRelevant(answer.han);
   const breakdownTabs = resolveBreakdownTabs(
     fuHanOrder,
     {
       han: yakuBreakdown !== undefined,
-      fu: showsFu && fuBreakdown !== undefined,
+      fu: showsFuBreakdown && fuBreakdown !== undefined,
     },
     judged?.result,
   );
