@@ -329,6 +329,25 @@ export const HandPresentationContext =
   createContext<HandPresentationContextValue>(HAND_PRESENTATION_OFF);
 
 /**
+ * 見せ方を確かめられずに既定へ落としたことを、画面へ知らせるコンテキスト
+ * 手牌表示案内コンテキスト
+ *
+ * 練習の Provider が、確定した理由（{@link HandPresentationFallbackReason}）が
+ * あるときだけ true を流す。同じ Provider の間は同じ値で、次の問題ごとに
+ * 知らせ直さない。シェルが見出しの下に補足として出す（盤面の外。盤面の寸法は
+ * 変えない）。確認のボタン・自動の再試行・練習のやり直しは持たない。
+ */
+export const HandPresentationNoticeContext = createContext(false);
+
+/**
+ * 既定へ落とした案内を出すかを引くフック
+ * 手牌表示案内フック
+ */
+export function useHandPresentationNotice(): boolean {
+  return useContext(HandPresentationNoticeContext);
+}
+
+/**
  * 確定した見せ方をコンテキストの値にする
  * 手牌表示コンテキスト値生成
  *

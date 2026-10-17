@@ -26,6 +26,10 @@ import type {
 import { practiceResultHref } from "@mahjong-scoring/features/routes";
 import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
 import { challengeViewSettings } from "@mahjong-scoring/features/practice/challenge-view-settings";
+import { HandPresentationProvider } from "../_components/hand-presentation-provider";
+import { PracticePlayLoadingFallback } from "../_components/practice-play-loading-fallback";
+import { PlayBoardSkeleton } from "../_components/play-board-skeleton";
+import { BOARD_HEIGHT_BY_SLUG } from "./board-area-height";
 
 /**
  * チャレンジ本体ビューの生成設定
@@ -174,13 +178,47 @@ export function createChallengePlayView<
     );
   }
   ChallengePlayView.displayName = `ChallengePlayView(${slug})`;
-  return function VerifiedPlayView(props: TProps) {
+  function VerifiedPlayView(props: TProps) {
     return (
       <VerifiedChallengeProvider slug={slug}>
         <ChallengePlayView {...props} />
       </VerifiedChallengeProvider>
     );
+  }
+  if (variant === "exam") return VerifiedPlayView;
+  // 練習のチャレンジだけ、手牌の見せ方を決めてから始める。チャレンジの開始
+  // （VerifiedChallengeProvider の開始 API）より外側で包み、決まるまで開始させない。
+  // 待つ間は開始 API の待ちと同じスケルトンを出す。昇級試験は包まない
+  return function PresentedPlayView(props: TProps) {
+    return (
+      <HandPresentationProvider
+        fallback={<PracticePlayFallback slug={slug} namespace={namespace} />}
+      >
+        <VerifiedPlayView {...props} />
+      </HandPresentationProvider>
+    );
   };
+}
+
+/** 何もしない（押せない操作の置き場所用） */
+function noop() {}
+
+/** 練習のチャレンジの見せ方が決まるまでのスケルトン（開始 API の待ちと同じ） */
+function PracticePlayFallback({
+  slug,
+  namespace,
+}: {
+  readonly slug: PracticeMenuSlug;
+  readonly namespace: ReturnType<typeof practiceMenuBySlug>["namespace"];
+}) {
+  const t = useTranslations(namespace);
+  return (
+    <PracticePlayLoadingFallback
+      practiceTitle={t("title")}
+      mistakeLimit={practiceMenuBySlug(slug).mistakeLimit}
+      boardHeight={BOARD_HEIGHT_BY_SLUG[slug]}
+    />
+  );
 }
 
 /**
@@ -307,5 +345,45 @@ export function createTrainingView<
     );
   }
   TrainingView.displayName = `TrainingView(${slug})`;
-  return TrainingView;
+  if (variant === "exam") return TrainingView;
+
+  /**
+   * 見せ方が決まるまでのトレーニング画面
+   *
+   * 出題の生成待ちと同じ形（シェル + 盤面のスケルトン）。盤面とセッションの
+   * フックは持たない
+   */
+  function TrainingFallback() {
+    const t = useTranslations(namespace);
+    return (
+      <TrainingShell
+        title={t("title")}
+        slug={slug}
+        titleAction={help}
+        correctCount={0}
+        totalCount={0}
+        challengeRules={{ timeLimit, mistakeLimit }}
+        maxWidth={maxWidth}
+        // 本体は常に「わからない」を持つ（生成待ちの間は押せない）。同じ行を
+        // 押せない状態で置き、盤面の下の高さを揃える
+        onReveal={noop}
+        revealDisabled
+        hasSubmitButton={hasSubmitButton}
+      >
+        <PlayBoardSkeleton
+          boardHeight={BOARD_HEIGHT_BY_SLUG[slug] ?? "scoreExam"}
+        />
+      </TrainingShell>
+    );
+  }
+
+  // 練習のトレーニングだけ包む（模試は包まない）。出題の生成・セッションの
+  // フックを持つ TrainingView より外側
+  return function PresentedTrainingView(props: TProps) {
+    return (
+      <HandPresentationProvider fallback={<TrainingFallback />}>
+        <TrainingView {...props} />
+      </HandPresentationProvider>
+    );
+  };
 }
