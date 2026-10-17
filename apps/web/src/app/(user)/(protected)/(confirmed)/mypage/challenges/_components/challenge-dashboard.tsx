@@ -13,6 +13,10 @@ import {
   getNavigablePreviousPeriod,
   getPreviousPeriodLabel,
 } from "@mahjong-scoring/features/my-record/period";
+import {
+  AVG_SCORE_FRACTION_DIGITS,
+  formatAvgScore,
+} from "@mahjong-scoring/features/my-record/stats";
 import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
 import {
   DATE_PERIOD_VALUES,
@@ -199,17 +203,13 @@ export function ChallengeDashboard({
             />
             <StatsCard
               label={t("avgScore")}
-              value={
-                currentStats.avgCompletionScore !== undefined
-                  ? currentStats.avgCompletionScore.toFixed(1)
-                  : "-"
-              }
+              value={formatAvgScore(currentStats.avgCompletionScore)}
               info={t("avgScoreInfo")}
               comparison={{
                 change: avgScoreComparison,
                 label: comparisonLabel,
-                // 値自身が `toFixed(1)` のため、増減も小数第 1 位で揃える
-                fractionDigits: 1,
+                // 値自身と同じ桁で増減を出す
+                fractionDigits: AVG_SCORE_FRACTION_DIGITS,
               }}
             />
           </div>

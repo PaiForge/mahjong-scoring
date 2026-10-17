@@ -12,8 +12,9 @@ import {
 import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
 import {
   buildChartData,
-  computeAbsoluteChange,
-  computeStats,
+  AVG_SCORE_FRACTION_DIGITS,
+  computeStatsComparison,
+  formatAvgScore,
 } from "@mahjong-scoring/features/my-record/stats";
 import {
   DATE_PERIOD_VALUES,
@@ -150,21 +151,10 @@ function Records({
   const goToTab = useGoToTab();
   const { boards, board, current, previous } = records;
 
-  const stats = useMemo(() => {
-    const currentStats = computeStats(current);
-    const previousStats = computeStats(previous);
-    return {
-      current: currentStats,
-      bestChange: computeAbsoluteChange(
-        currentStats.bestScore,
-        previousStats.bestScore,
-      ),
-      avgChange: computeAbsoluteChange(
-        currentStats.avgCompletionScore,
-        previousStats.avgCompletionScore,
-      ),
-    };
-  }, [current, previous]);
+  const stats = useMemo(
+    () => computeStatsComparison(current, previous),
+    [current, previous],
+  );
   const chartData = useMemo(
     () => buildChartData(current, previous),
     [current, previous],
@@ -220,17 +210,13 @@ function Records({
           />
           <StatsCard
             label={t("avgScore")}
-            value={
-              stats.current.avgCompletionScore === undefined
-                ? "-"
-                : stats.current.avgCompletionScore.toFixed(1)
-            }
+            value={formatAvgScore(stats.current.avgCompletionScore)}
             info={t("avgScoreInfo")}
             comparison={{
               change: stats.avgChange,
               label: comparisonLabel,
-              // 値自身が小数第 1 位のため、増減もそろえる
-              fractionDigits: 1,
+              // 値自身と同じ桁で増減を出す
+              fractionDigits: AVG_SCORE_FRACTION_DIGITS,
             }}
           />
         </View>
