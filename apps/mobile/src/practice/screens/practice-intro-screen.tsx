@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import {
@@ -10,8 +10,7 @@ import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
 import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
-import { colors, radius } from "../../lib/theme";
+import { HowToPlaySection } from "../components/how-to-play-section";
 import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import { PracticeStartCta } from "../components/practice-start-cta";
 import { VariantStartPanel } from "../components/variant-start-panel";
@@ -43,22 +42,7 @@ export function PracticeIntroScreen({
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
-      {Demo === undefined ? (
-        <Text style={styles.description}>{t("description")}</Text>
-      ) : (
-        <View style={styles.howToPlay}>
-          <SectionTitle>{t("howToPlay.title")}</SectionTitle>
-          <Text style={styles.lead}>{t("howToPlay.lead")}</Text>
-          <View
-            style={styles.demo}
-            pointerEvents="none"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <Demo />
-          </View>
-        </View>
-      )}
+      <HowToPlaySection namespace={namespace} Demo={Demo} />
 
       {hasSetup ? (
         <VariantStartPanel slug={slug} initialVariant={variant} />
@@ -81,25 +65,5 @@ export function PracticeIntroScreen({
 const styles = StyleSheet.create({
   content: {
     gap: 32,
-  },
-  description: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.surface500,
-  },
-  howToPlay: {
-    gap: 12,
-  },
-  lead: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
-  demo: {
-    borderWidth: 1,
-    borderColor: colors.panel,
-    borderRadius: radius.panel,
-    backgroundColor: colors.surface50,
-    padding: 16,
   },
 });

@@ -15,12 +15,12 @@ import { Button, buttonForeground } from "../../components/button";
 import { InfinityIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
 import { practiceListHrefForRank } from "../../dojo/dojo-routes";
-import { colors, radius } from "../../lib/theme";
+import { colors } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
 import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
 import { StartCtaDivider } from "../components/practice-start-cta";
+import { HowToPlaySection } from "../components/how-to-play-section";
 import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
@@ -61,22 +61,7 @@ export function ExamIntroScreen({
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
-      {Demo === undefined ? (
-        <Text style={styles.description}>{t("description")}</Text>
-      ) : (
-        <View style={styles.howToPlay}>
-          <SectionTitle>{t("howToPlay.title")}</SectionTitle>
-          <Text style={styles.lead}>{t("howToPlay.lead")}</Text>
-          <View
-            style={styles.demo}
-            pointerEvents="none"
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <Demo />
-          </View>
-        </View>
-      )}
+      <HowToPlaySection namespace={namespace} Demo={Demo} />
 
       <ExamConditions slug={slug} />
 
@@ -132,26 +117,6 @@ export function ExamIntroScreen({
 const styles = StyleSheet.create({
   content: {
     gap: 32,
-  },
-  description: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.surface500,
-  },
-  howToPlay: {
-    gap: 12,
-  },
-  lead: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
-  demo: {
-    borderWidth: 1,
-    borderColor: colors.panel,
-    borderRadius: radius.panel,
-    backgroundColor: colors.surface50,
-    padding: 16,
   },
   startFrame: {
     gap: 20,
