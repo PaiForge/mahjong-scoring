@@ -31,10 +31,10 @@ import {
 } from "../../_components/breakdown-panel";
 import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { ScoreTableModal } from "./score-table-modal";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { AGARI_SCORE_RESULT_TOUR_ID } from "../_lib/tour-ids";
 import { SCORE_TABLE_LINK_CLASSES } from "../../_lib/score-table-link-classes";
-import { ReferenceLinkButton } from "../../_components/reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";

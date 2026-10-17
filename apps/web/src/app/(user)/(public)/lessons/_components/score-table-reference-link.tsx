@@ -6,7 +6,7 @@ import type { Role, WinType } from "@mahjong-scoring/core";
 import type { ScoreTableViewMode } from "@mahjong-scoring/features/score-table/score-grid";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import { ReferenceModal } from "@/app/(user)/(public)/practice/agari-score/_components/reference-modal";
+import { ReferenceModal } from "@/app/(user)/_components/reference-modal";
 import { ScoreTable } from "@/app/(user)/(public)/reference/score-table/_components/score-table";
 
 interface ScoreTableReferenceLinkProps {

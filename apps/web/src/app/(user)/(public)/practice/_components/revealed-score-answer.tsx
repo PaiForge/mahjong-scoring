@@ -12,7 +12,7 @@ import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
-import { ScoreTableModal } from "../agari-score/_components/score-table-modal";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { SCORE_TABLE_LINK_CLASSES } from "../_lib/score-table-link-classes";
 
 interface RevealedScoreAnswerProps {

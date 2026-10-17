@@ -12,9 +12,9 @@ import {
 } from "@mahjong-scoring/features/results/breakdown-tabs";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
-import { ScoreTableModal } from "../agari-score/_components/score-table-modal";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
-import { ReferenceLinkButton } from "./reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import { FuBreakdownTable } from "./fu-breakdown";
 import { YakuBreakdownTable } from "./yaku-breakdown";
 
