@@ -10,6 +10,7 @@ import {
 import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-highlight";
 import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
+import { ScoreTableReferenceLink } from "../../_components/score-table-reference-link";
 
 import {
   buildFuPairRows,
@@ -115,6 +116,7 @@ export async function FuPairScoreTable({
         {renderRow(pair.low, rows.low)}
         {renderRow(pair.high, rows.high)}
       </DataTable>
+      <ScoreTableReferenceLink role={role} winType={winType} />
     </div>
   );
 }

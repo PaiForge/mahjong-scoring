@@ -22,6 +22,8 @@ export const PREFERENCE_ANCHORS = {
   fuHanOrder: "fu-han-order",
   /** 子のツモの点数を「子から」「親から」の 2 つに分けて選ぶか */
   koTsumoInput: "ko-tsumo-input",
+  /** 練習の盤面で手牌の上下をランダムにするか（Pro） */
+  tileOrientation: "tile-orientation",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;

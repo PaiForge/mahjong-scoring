@@ -1,6 +1,7 @@
 {
   "pageTitle": "点数早見表",
   "pageDescription": "親・子のロン／ツモ点数を符×翻の一覧で確認できます",
+  "viewScoreTable": "点数表を確認",
   "ko": "子",
   "oya": "親",
   "ron": "ロン",

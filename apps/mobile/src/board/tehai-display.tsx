@@ -7,6 +7,8 @@ import { getKazeName, isOya } from "@mahjong-scoring/core";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
+import { useHandPresentation } from "@mahjong-scoring/features/board/use-hand-presentation";
 
 import { AutoScale } from "../components/auto-scale";
 import { HelpIconButton } from "../components/help-icon-button";
@@ -72,6 +74,9 @@ function DoraGroup({
  * （場・自風・親子・リーチ・ドラ）を 1 行で並べ、下段に手牌を置く。
  * 状況行も折り返さず、手牌と同じ倍率まで縮めて幅に収める。ドラの「?」で
  * ドラの見方（表示牌かドラそのものか）を説明し、設定へ送る。
+ *
+ * 練習の画面では手牌の見せ方（上下ランダム）を `HandPresentationContext` から
+ * 引き、純手牌と和了牌にだけ当てる（web と同じ。副露・ドラ表示牌は変えない）。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
@@ -95,6 +100,13 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   );
   const hasDoraTiles = doraTiles.length > 0 || uraDoraTiles.length > 0;
   const oya = isOya(context.jikaze);
+
+  // TehaiHand と同じ元の手牌・同じ規則で切り離す
+  const split = useMemo(
+    () => splitAgariHai(tehai.closed, context.agariHai),
+    [tehai.closed, context.agariHai],
+  );
+  const presentation = useHandPresentation(split);
 
   return (
     <View
@@ -151,6 +163,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
               : t("ron")
         }
         onScaleChange={setScale}
+        presentation={presentation}
       />
 
       <InfoModal

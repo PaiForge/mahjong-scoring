@@ -333,13 +333,13 @@ describe("ResultDisplay の内訳", () => {
 
     // 点数の行にも同じ導線がある
     expect(
-      screen.getAllByRole("button", { name: "result.viewScoreTable" }),
+      screen.getAllByRole("button", { name: "viewScoreTable" }),
     ).toHaveLength(1);
 
     fireEvent.click(toggle());
 
     expect(
-      screen.getAllByRole("button", { name: "result.viewScoreTable" }),
+      screen.getAllByRole("button", { name: "viewScoreTable" }),
     ).toHaveLength(2);
   });
 

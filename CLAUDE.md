@@ -386,6 +386,11 @@ loading.tsx を一緒に足すこと。逆に静的にしたら両方を外す�
   `defineDemoHand`）、テストで手牌を組み立てる関数。表示側（`TehaiHand`）は受け取った順に並べる
 - `(a, b) => a - b` を `sort` / `toSorted` に渡すことは ESLint（ルートの `eslint.config.mjs`）が
   弾く。牌かどうかを lint で見分けられないため。数値は core の `compareNumbers` で並べる
+- 問題・採点・解説のデータは理牌済みのまま持つ。練習の盤面の**表示だけ**を
+  `packages/features/src/board/hand-presentation.ts`（上下の向きと並びの置換）で変えられる。
+  置換は理牌済みの並びに対する添字で、牌の順の定義をアプリに複製しない。盤面（`TehaiDisplay`）
+  だけがコンテキストから見せ方を引き、`TehaiHand` は props で受ける。待ち牌の選択・回答・
+  面子の内訳に見せ方の添字を流さない
 
 ## 牌画像（@pai-forge/mahjong-react-ui）
 

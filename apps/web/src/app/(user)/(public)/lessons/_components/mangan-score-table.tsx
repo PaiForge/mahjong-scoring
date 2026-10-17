@@ -32,6 +32,8 @@ const COLUMNS: readonly ManganTableColumn[] = [
 export function ManganScoreTable({ role }: ManganScoreTableProps) {
   return (
     <ManganTableShell
+      role={role}
+      winType="ron"
       columns={COLUMNS}
       renderCells={(row, t) => [
         formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya),

@@ -12,9 +12,9 @@ import {
 } from "@mahjong-scoring/features/results/breakdown-tabs";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
-import { ScoreTableModal } from "../agari-score/_components/score-table-modal";
+import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
-import { ReferenceLinkButton } from "./reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import { FuBreakdownTable } from "./fu-breakdown";
 import { YakuBreakdownTable } from "./yaku-breakdown";
 
@@ -65,7 +65,7 @@ export function ScoreBreakdownPanel({
   scoreTableFocus,
 }: ScoreBreakdownPanelProps) {
   const t = useTranslations("challenge.scoreBreakdown");
-  const tChallenge = useTranslations("challenge");
+  const tScoreTable = useTranslations("scoreTable");
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   // 値（翻数・符）を押したときだけ正解のセルをハイライトする
   // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
@@ -135,7 +135,7 @@ export function ScoreBreakdownPanel({
           openScoreTable === undefined ? undefined : (
             <ReferenceLinkButton
               icon={<TableIcon className="size-3.5 shrink-0" />}
-              label={tChallenge("viewScoreTable")}
+              label={tScoreTable("viewScoreTable")}
               hitArea="row"
               onClick={() => openScoreTable(false)}
             />
@@ -146,8 +146,8 @@ export function ScoreBreakdownPanel({
         <ScoreTableModal
           isOpen={isScoreTableOpen}
           onClose={() => setIsScoreTableOpen(false)}
-          focus={scoreTableFocus}
-          highlighted={isScoreTableHighlighted}
+          tab={scoreTableFocus}
+          highlight={isScoreTableHighlighted ? scoreTableFocus : undefined}
         />
       )}
     </>

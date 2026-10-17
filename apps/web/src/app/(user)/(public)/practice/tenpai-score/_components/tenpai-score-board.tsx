@@ -49,6 +49,8 @@ import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-
 import { TENPAI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreBoardSkeleton } from "./tenpai-score-board-skeleton";
+import { HandPresentationNotice } from "../../_components/hand-presentation-notice";
+import { HandPresentationProvider } from "../../_components/hand-presentation-provider";
 import { TenpaiScoreResult } from "./tenpai-score-result";
 import { TenpaiScoreSpotlightTour } from "./tenpai-score-spotlight-tour";
 import { TenpaiDisplay } from "./tenpai-display";
@@ -249,6 +251,7 @@ function TenpaiScoreBoardInner() {
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{t("title")}</PageTitle>
+      <HandPresentationNotice />
 
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
         {/* 裏ドラは待ちを答えるまで伏せる。
@@ -486,7 +489,11 @@ function TenpaiScoreBoardInner() {
 export function TenpaiScoreBoard() {
   return (
     <Suspense fallback={<TenpaiScoreBoardSkeleton />}>
-      <TenpaiScoreBoardInner />
+      {/* 手牌の見せ方が決まるまで盤面をマウントしない。出題の開始・再開の
+          判定（クエリの適用・回数制限のゲート）は盤面の effect のまま */}
+      <HandPresentationProvider fallback={<TenpaiScoreBoardSkeleton />}>
+        <TenpaiScoreBoardInner />
+      </HandPresentationProvider>
     </Suspense>
   );
 }

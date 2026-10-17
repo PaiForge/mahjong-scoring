@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { HIGH_SCORES } from "@mahjong-scoring/core";
+import { HIGH_SCORES, type Role, type WinType } from "@mahjong-scoring/core";
 
 import {
   DATA_TABLE_ALIGN_CLASS,
@@ -10,6 +10,8 @@ import {
 } from "@/app/(user)/_components/data-table";
 
 import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
+
+import { ScoreTableReferenceLink } from "./score-table-reference-link";
 
 /** 満貫以上早見表の1行分のデータ */
 export type ManganTableRow = (typeof HIGH_SCORES)[number];
@@ -24,6 +26,10 @@ export interface ManganTableColumn {
 }
 
 interface ManganTableShellProps {
+  /** 表の点数の親子。右下の早見表リンクが開くタブに使う */
+  readonly role: Role;
+  /** 表の点数のロンツモ。右下の早見表リンクが開くタブに使う */
+  readonly winType: WinType;
   readonly columns: readonly ManganTableColumn[];
   /** 翻数列を表示するか（既定: 表示する） */
   readonly showHan?: boolean;
@@ -54,6 +60,8 @@ interface ManganTableShellProps {
  * 7px の横スクロールが残る（実測）。
  */
 export async function ManganTableShell({
+  role,
+  winType,
   columns,
   showHan = true,
   renderCells,
@@ -62,56 +70,63 @@ export async function ManganTableShell({
   const tScore = await getTranslations("scoreTable");
 
   return (
-    <DataTable
-      header={
-        <>
-          <DataTableHeaderCell align="left" density="dense">
-            {t("colType")}
-          </DataTableHeaderCell>
-          {showHan && (
-            <DataTableHeaderCell align="right" density="dense">
-              {t("colHan")}
+    <div className="space-y-2">
+      <DataTable
+        header={
+          <>
+            <DataTableHeaderCell align="left" density="dense">
+              {t("colType")}
             </DataTableHeaderCell>
-          )}
-          {columns.map((column) => (
-            <DataTableHeaderCell
-              key={column.headerKey}
-              align={column.align}
-              density="dense"
-            >
-              {t(column.headerKey)}
-            </DataTableHeaderCell>
-          ))}
-        </>
-      }
-    >
-      {HIGH_SCORES.map((row) => (
-        <tr key={row.nameKey} className="bg-white">
-          <td
-            className={`${DATA_TABLE_CELL_PADDING.dense} font-medium text-surface-900`}
-          >
-            {tScore(row.nameKey)}
-          </td>
-          {showHan && (
-            <td
-              className={`${DATA_TABLE_CELL_PADDING.dense} text-right text-surface-600`}
-            >
-              {HAN_DISPLAY[row.nameKey]}
-            </td>
-          )}
-          {renderCells(row, t).map((cell, index) => {
-            const column = columns[index];
-            return (
-              <td
+            {showHan && (
+              <DataTableHeaderCell align="right" density="dense">
+                {t("colHan")}
+              </DataTableHeaderCell>
+            )}
+            {columns.map((column) => (
+              <DataTableHeaderCell
                 key={column.headerKey}
-                className={`${DATA_TABLE_CELL_PADDING.dense} ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
+                align={column.align}
+                density="dense"
               >
-                {cell}
+                {t(column.headerKey)}
+              </DataTableHeaderCell>
+            ))}
+          </>
+        }
+      >
+        {HIGH_SCORES.map((row) => (
+          <tr key={row.nameKey} className="bg-white">
+            <td
+              className={`${DATA_TABLE_CELL_PADDING.dense} font-medium text-surface-900`}
+            >
+              {tScore(row.nameKey)}
+            </td>
+            {showHan && (
+              <td
+                className={`${DATA_TABLE_CELL_PADDING.dense} text-right text-surface-600`}
+              >
+                {HAN_DISPLAY[row.nameKey]}
               </td>
-            );
-          })}
-        </tr>
-      ))}
-    </DataTable>
+            )}
+            {renderCells(row, t).map((cell, index) => {
+              const column = columns[index];
+              return (
+                <td
+                  key={column.headerKey}
+                  className={`${DATA_TABLE_CELL_PADDING.dense} ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
+                >
+                  {cell}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </DataTable>
+      <ScoreTableReferenceLink
+        role={role}
+        winType={winType}
+        viewMode="high_score"
+      />
+    </div>
   );
 }

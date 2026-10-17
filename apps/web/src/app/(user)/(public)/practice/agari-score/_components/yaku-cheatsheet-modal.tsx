@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { YakuCheatsheet } from "@/app/(user)/(public)/reference/yaku/_components/yaku-cheatsheet";
-import { ReferenceModal } from "./reference-modal";
+import { ReferenceModal } from "@/app/(user)/_components/reference-modal";
 
 interface YakuCheatsheetModalProps {
   readonly isOpen: boolean;

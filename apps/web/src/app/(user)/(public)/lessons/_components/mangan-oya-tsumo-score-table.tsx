@@ -19,6 +19,8 @@ const COLUMNS: readonly ManganTableColumn[] = [
 export function ManganOyaTsumoScoreTable() {
   return (
     <ManganTableShell
+      role="oya"
+      winType="tsumo"
       columns={COLUMNS}
       showHan={false}
       renderCells={(row) => {

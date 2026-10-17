@@ -8,7 +8,7 @@ import type {
   Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
-import { ReferenceLinkButton } from "./reference-link-button";
+import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import {
   DataTable,
   DataTableHeaderCell,
@@ -124,8 +124,10 @@ function ClosedTiles({
  * 明暗を書き分ける。符内訳が「明刻子」と呼んでいる面子をここで単に
  * 「刻子」と出すと、同じ手牌の説明が2箇所で食い違って見える。
  *
- * 分解の上には分ける前の手牌を盤面と同じ並び（{@link TehaiHand}）で置き、
- * 盤面までスクロールして戻らなくても何を分けたのかが読めるようにする。
+ * 分解の上には分ける前の手牌を理牌した並び・正規の向き（{@link TehaiHand}）で置き、
+ * 盤面までスクロールして戻らなくても何を分けたのかが読めるようにする。練習の
+ * 盤面が手牌の上下をランダムにしていても、ここは見せ方を当てない（解説は
+ * 面子の並びを読むためのもので、見せ方のコンテキストを読まない）。
  * 主役は分解なので、手牌は折り返さず幅に収まる倍率まで縮めてよい。
  *
  * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して

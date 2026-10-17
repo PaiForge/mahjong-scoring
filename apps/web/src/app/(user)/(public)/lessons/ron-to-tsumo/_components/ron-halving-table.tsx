@@ -4,6 +4,7 @@ import type { Fu } from "@mahjong-scoring/core";
 import { TsumoScore } from "@/app/(user)/(public)/reference/score-table/_components/tsumo-score";
 
 import { HanRowsTable } from "../../_components/han-rows-table";
+import { ScoreTableReferenceLink } from "../../_components/score-table-reference-link";
 
 import { buildRonHalvingRows } from "@mahjong-scoring/features/curriculum/ron-halving-rows";
 
@@ -52,6 +53,7 @@ export async function RonHalvingTable({ fu, caption }: RonHalvingTableProps) {
           },
         ]}
       />
+      <ScoreTableReferenceLink role="ko" winType="tsumo" />
     </div>
   );
 }

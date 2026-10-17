@@ -20,6 +20,11 @@ vi.mock("driver.js", () => ({ driver: driverMock }));
 
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 盤面は手牌の見せ方を決める Provider の中にある。Provider がログイン状態を読む
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 // 役の欄（YakuSelect）は features の共有フックが use-intl から辞書を読む
 vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 vi.mock(
