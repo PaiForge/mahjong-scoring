@@ -59,7 +59,7 @@ interface HandPresentationProviderProps {
  * 設定を既定値で描くため、その一時的な `upright` を保存値と取り違えないよう、
  * 準備前は復元中として渡す。
  *
- * 練習のチャレンジ・トレーニングと無限訓練にだけ置く。昇級試験（本番・模試）・
+ * 練習・昇級試験のチャレンジ（本番）・トレーニング（模試）と無限訓練に置く。
  * 説明・結果・レッスンには置かない（見せ方は従来のまま）。
  */
 export function HandPresentationProvider({

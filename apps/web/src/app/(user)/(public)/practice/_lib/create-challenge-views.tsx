@@ -185,10 +185,9 @@ export function createChallengePlayView<
       </VerifiedChallengeProvider>
     );
   }
-  if (variant === "exam") return VerifiedPlayView;
-  // 練習のチャレンジだけ、手牌の見せ方を決めてから始める。チャレンジの開始
+  // 手牌の見せ方を決めてから始める（練習も昇級試験も）。チャレンジの開始
   // （VerifiedChallengeProvider の開始 API）より外側で包み、決まるまで開始させない。
-  // 待つ間は開始 API の待ちと同じスケルトンを出す。昇級試験は包まない
+  // 待つ間は開始 API の待ちと同じスケルトンを出す
   return function PresentedPlayView(props: TProps) {
     return (
       <HandPresentationProvider
@@ -203,7 +202,7 @@ export function createChallengePlayView<
 /** 何もしない（押せない操作の置き場所用） */
 function noop() {}
 
-/** 練習のチャレンジの見せ方が決まるまでのスケルトン（開始 API の待ちと同じ） */
+/** チャレンジの見せ方が決まるまでのスケルトン（開始 API の待ちと同じ） */
 function PracticePlayFallback({
   slug,
   namespace,
@@ -345,7 +344,6 @@ export function createTrainingView<
     );
   }
   TrainingView.displayName = `TrainingView(${slug})`;
-  if (variant === "exam") return TrainingView;
 
   /**
    * 見せ方が決まるまでのトレーニング画面
@@ -355,10 +353,16 @@ export function createTrainingView<
    */
   function TrainingFallback() {
     const t = useTranslations(namespace);
+    const tExamTraining = useTranslations("examTraining");
     return (
       <TrainingShell
-        title={t("title")}
+        title={
+          variant === "exam"
+            ? tExamTraining("pageTitle", { title: t("title") })
+            : t("title")
+        }
         slug={slug}
+        variant={variant}
         titleAction={help}
         correctCount={0}
         totalCount={0}
@@ -377,8 +381,8 @@ export function createTrainingView<
     );
   }
 
-  // 練習のトレーニングだけ包む（模試は包まない）。出題の生成・セッションの
-  // フックを持つ TrainingView より外側
+  // トレーニングも模試も包む。出題の生成・セッションのフックを持つ
+  // TrainingView より外側
   return function PresentedTrainingView(props: TProps) {
     return (
       <HandPresentationProvider fallback={<TrainingFallback />}>

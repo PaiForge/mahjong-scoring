@@ -95,7 +95,7 @@ const MOBILE_FRAME_CLASSES = {
  * 練習の画面では手牌の見せ方（上下ランダム）を `HandPresentationContext` から
  * 引き、純手牌と和了牌にだけ当てる（副露・ドラ表示牌は変えない）。見せ方は
  * 表示だけのもので、問題の手牌（理牌済み）は書き換えない。Provider の外
- * （説明・結果・レッスン・試験）では従来の表示になる。
+ * （説明・結果・レッスン）では従来の表示になる。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
