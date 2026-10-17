@@ -87,6 +87,7 @@ export function ResultDisplay({
   embedded = false,
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
+  const tScoreTable = useTranslations("scoreTable");
   const tCommon = useTranslations("common");
   const yakuOrder = useYakuOrder();
   const fuHanOrder = useFuHanOrder();
@@ -217,7 +218,7 @@ export function ResultDisplay({
                 // させたいときは内訳の答えの値（翻数・符）を押す
                 <ReferenceLinkButton
                   icon={<TableIcon className="size-3.5 shrink-0" />}
-                  label={t("result.viewScoreTable")}
+                  label={tScoreTable("viewScoreTable")}
                   hitArea="row"
                   onClick={() => openScoreTable(false)}
                 />
@@ -378,7 +379,7 @@ export function ResultDisplay({
               {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
               <ReferenceLinkButton
                 icon={<TableIcon className="size-3.5 shrink-0" />}
-                label={t("result.viewScoreTable")}
+                label={tScoreTable("viewScoreTable")}
                 onClick={() => openScoreTable(false)}
               />
             </td>

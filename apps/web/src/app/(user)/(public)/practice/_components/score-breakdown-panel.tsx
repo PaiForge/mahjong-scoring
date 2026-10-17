@@ -65,7 +65,7 @@ export function ScoreBreakdownPanel({
   scoreTableFocus,
 }: ScoreBreakdownPanelProps) {
   const t = useTranslations("challenge.scoreBreakdown");
-  const tChallenge = useTranslations("challenge");
+  const tScoreTable = useTranslations("scoreTable");
   const [isScoreTableOpen, setIsScoreTableOpen] = useState(false);
   // 値（翻数・符）を押したときだけ正解のセルをハイライトする
   // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
@@ -135,7 +135,7 @@ export function ScoreBreakdownPanel({
           openScoreTable === undefined ? undefined : (
             <ReferenceLinkButton
               icon={<TableIcon className="size-3.5 shrink-0" />}
-              label={tChallenge("viewScoreTable")}
+              label={tScoreTable("viewScoreTable")}
               hitArea="row"
               onClick={() => openScoreTable(false)}
             />
