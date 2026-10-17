@@ -28,6 +28,8 @@ import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { AgariScoreBoardSkeleton } from "./agari-score-board-skeleton";
+import { HandPresentationNotice } from "../../_components/hand-presentation-notice";
+import { HandPresentationProvider } from "../../_components/hand-presentation-provider";
 import { GenerationFailedNotice } from "./generation-failed-notice";
 import { ResultDisplay } from "./result-display";
 import { ScoreCounter } from "../../_components/score-counter";
@@ -229,6 +231,7 @@ function AgariScoreBoardInner() {
     // 次へのたびに盤面が画面最上部へ来る（タイトルはスクロールで画面外へ送る）。
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
       <PageTitle>{t("title")}</PageTitle>
+      <HandPresentationNotice />
 
       {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
           レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
@@ -348,7 +351,11 @@ function AgariScoreBoardInner() {
 export function AgariScoreBoard() {
   return (
     <Suspense fallback={<AgariScoreBoardSkeleton />}>
-      <AgariScoreBoardInner />
+      {/* 手牌の見せ方が決まるまで盤面をマウントしない。出題の開始・再開の
+          判定（クエリの適用・回数制限のゲート）は盤面の effect のまま */}
+      <HandPresentationProvider fallback={<AgariScoreBoardSkeleton />}>
+        <AgariScoreBoardInner />
+      </HandPresentationProvider>
     </Suspense>
   );
 }

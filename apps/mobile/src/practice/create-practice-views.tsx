@@ -31,6 +31,8 @@ import {
   RecordedChallengeProvider,
   useRecordedChallenge,
 } from "./recorded-challenge";
+import { HandPresentationProvider } from "./hand-presentation-provider";
+import { PreparingScreen } from "./components/preparing-screen";
 
 /** 練習の画面が受け取る props（URL の `?variant=` を正規化した値） */
 export interface PracticeViewProps {
@@ -199,7 +201,17 @@ export function createChallengePlayView<TResult = never>(
     );
   }
   RecordedPlayView.displayName = `RecordedPlayView(${slug})`;
-  return RecordedPlayView;
+  // 手牌の見せ方を決めてから始める（練習も昇級試験も）。記録付きチャレンジの
+  // 開始（RecordedChallengeProvider）より外側で包み、決まるまで開始させない
+  function PresentedPlayView(props: PracticeViewProps) {
+    return (
+      <HandPresentationProvider fallback={<PreparingScreen slug={slug} />}>
+        <RecordedPlayView {...props} />
+      </HandPresentationProvider>
+    );
+  }
+  PresentedPlayView.displayName = `PresentedPlayView(${slug})`;
+  return PresentedPlayView;
 }
 
 interface TrainingViewConfig {
@@ -288,5 +300,14 @@ export function createTrainingView(
     );
   }
   TrainingView.displayName = `TrainingView(${slug})`;
-  return TrainingView;
+  // トレーニングも模試も包む。セッションと出題のフックを持つ TrainingView より外側
+  function PresentedTrainingView(props: PracticeViewProps) {
+    return (
+      <HandPresentationProvider fallback={<PreparingScreen slug={slug} />}>
+        <TrainingView {...props} />
+      </HandPresentationProvider>
+    );
+  }
+  PresentedTrainingView.displayName = `PresentedTrainingView(${slug})`;
+  return PresentedTrainingView;
 }

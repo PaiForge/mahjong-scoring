@@ -31,7 +31,7 @@
     "@mahjong-scoring/core": "workspace:*",
     "@mahjong-scoring/features": "workspace:*",
     "@mahjong-scoring/messages": "workspace:*",
-    "@pai-forge/mahjong-react-ui": "^0.6.0",
+    "@pai-forge/mahjong-react-ui": "^0.7.0",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.2",
     "driver.js": "^1.8.0",

@@ -4,6 +4,10 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import {
+  presentTehai,
+  type HandPresentation,
+} from "@mahjong-scoring/features/board/hand-presentation";
+import {
   AGARI_HAI_GAP,
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
@@ -27,6 +31,14 @@ interface TehaiHandProps {
   readonly agariLabelTone?: "dark" | "light";
   /** 自動縮小の倍率の通知（状況行のドラ牌を同じ倍率に揃える） */
   readonly onScaleChange?: (scale: number) => void;
+  /**
+   * 純手牌と和了牌の見せ方（並びと上下）。省略時は理牌・正規の向き
+   *
+   * web の `TehaiHand` と同じ契約。添字はここで `tehai.closed` と `agariHai` から
+   * 切り離した純手牌に対するもので、コンテキスト・設定・特典は読まない。
+   * 手牌に合わない見せ方は全体を従来の表示に戻す（`presentTehai`）。
+   */
+  readonly presentation?: HandPresentation;
 }
 
 /**
@@ -43,10 +55,11 @@ export const TehaiHand = memo(function TehaiHandComponent({
   agariLabel,
   agariLabelTone = "dark",
   onScaleChange,
+  presentation,
 }: TehaiHandProps) {
-  const { closedTiles, separatedAgariHai } = useMemo(
-    () => splitAgariHai(tehai.closed, agariHai),
-    [tehai.closed, agariHai],
+  const presented = useMemo(
+    () => presentTehai(splitAgariHai(tehai.closed, agariHai), presentation),
+    [tehai.closed, agariHai, presentation],
   );
 
   return (
@@ -56,11 +69,11 @@ export const TehaiHand = memo(function TehaiHandComponent({
       onScaleChange={onScaleChange}
     >
       <View style={styles.group} pointerEvents="none">
-        {closedTiles.map((kindId, i) => (
-          <Hai key={i} hai={kindId} size="sm" />
+        {presented.closed.map((tile, i) => (
+          <Hai key={i} hai={tile.hai} size="sm" inverted={tile.inverted} />
         ))}
       </View>
-      {separatedAgariHai !== undefined && (
+      {presented.agari !== undefined && (
         <View style={styles.agari} pointerEvents="none">
           {agariLabel !== undefined && (
             <Text
@@ -77,7 +90,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
               {agariLabel}
             </Text>
           )}
-          <Hai hai={separatedAgariHai} size="sm" highlighted />
+          <Hai
+            hai={presented.agari.hai}
+            size="sm"
+            highlighted
+            inverted={presented.agari.inverted}
+          />
         </View>
       )}
       {tehai.exposed.length > 0 && (

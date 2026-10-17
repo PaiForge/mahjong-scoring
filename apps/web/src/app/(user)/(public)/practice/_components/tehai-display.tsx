@@ -24,6 +24,8 @@ import {
 } from "@/app/(user)/(public)/preferences/_lib/anchors";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
+import { useHandPresentation } from "@mahjong-scoring/features/board/use-hand-presentation";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -89,6 +91,11 @@ const MOBILE_FRAME_CLASSES = {
  *
  * 文言はすべて common から引く。盤面はどの練習でも同じものを見せる以上、
  * 練習ごとの辞書に同じ語を持たせる理由がない。
+ *
+ * 練習の画面では手牌の見せ方（上下ランダム）を `HandPresentationContext` から
+ * 引き、純手牌と和了牌にだけ当てる（副露・ドラ表示牌は変えない）。見せ方は
+ * 表示だけのもので、問題の手牌（理牌済み）は書き換えない。Provider の外
+ * （説明・結果・レッスン）では従来の表示になる。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tehai,
@@ -109,6 +116,14 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
     () => resolveBoardDora(context, doraDisplay),
     [context, doraDisplay],
   );
+
+  // TehaiHand と同じ元の手牌・同じ規則で切り離す（切り離した配列を
+  // 和了牌入りとして渡し直さない）
+  const split = useMemo(
+    () => splitAgariHai(tehai.closed, context.agariHai),
+    [tehai.closed, context.agariHai],
+  );
+  const presentation = useHandPresentation(split);
 
   const handleScaleChange = useCallback(
     (next: number) => {
@@ -196,6 +211,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
               : t("ron")
         }
         onScaleChange={handleScaleChange}
+        presentation={presentation}
       />
 
       <InfoModal

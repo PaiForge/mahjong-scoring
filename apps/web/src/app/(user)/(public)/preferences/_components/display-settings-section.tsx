@@ -4,11 +4,18 @@ import { useTranslations } from "next-intl";
 
 import {
   SettingLinkRow,
+  SettingLockedRow,
   SettingsCard,
   SettingToggleRow,
 } from "@/app/(user)/_components/setting-toggle-row";
+import { useAuth } from "@/app/_contexts/auth-context";
+import {
+  PLAN_PAGE_HREF,
+  PlanBenefit,
+} from "@mahjong-scoring/features/billing/plans";
 import {
   useDisplaySettingsStore,
+  useTileOrientationSetting,
   useDoraDisplayMode,
   useFuHanOrder,
   useKoTsumoInput,
@@ -34,6 +41,17 @@ export function DisplaySettingsSection() {
   const setFuHanOrder = useDisplaySettingsStore((s) => s.setFuHanOrder);
   const koTsumoInput = useKoTsumoInput();
   const setKoTsumoInput = useDisplaySettingsStore((s) => s.setKoTsumoInput);
+  const tileOrientation = useTileOrientationSetting();
+  const setTileOrientation = useDisplaySettingsStore(
+    (s) => s.setTileOrientation,
+  );
+  // 上下ランダムは Pro の特典。ここでは「スイッチを出すか料金ページへの導線を
+  // 出すか」の見た目だけを決める（練習の盤面は開始時に特典を読み直して決める）。
+  // 特典が無い間も保存値は書き換えない
+  const { user, isLoading, profile, isProfileLoading } = useAuth();
+  const hasPracticeTools =
+    profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
+  const isBenefitPending = isLoading || (user !== null && isProfileLoading);
 
   return (
     <SettingsCard>
@@ -76,6 +94,28 @@ export function DisplaySettingsSection() {
         checked={koTsumoInput === "split"}
         onChange={(checked) => setKoTsumoInput(checked ? "split" : "combined")}
       />
+
+      {isBenefitPending || hasPracticeTools ? (
+        <SettingToggleRow
+          id={PREFERENCE_ANCHORS.tileOrientation}
+          title={t("tileOrientationTitle")}
+          description={t("tileOrientationDescription")}
+          checked={tileOrientation === "random"}
+          onChange={(checked) =>
+            setTileOrientation(checked ? "random" : "upright")
+          }
+          loading={isBenefitPending}
+        />
+      ) : (
+        <SettingLockedRow
+          id={PREFERENCE_ANCHORS.tileOrientation}
+          title={t("tileOrientationTitle")}
+          description={t("tileOrientationDescription")}
+          badge={t("tileOrientationPro.badge")}
+          note={t("tileOrientationPro.note")}
+          link={{ href: PLAN_PAGE_HREF, label: t("tileOrientationPro.link") }}
+        />
+      )}
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
       <SettingLinkRow
         href={YAKU_ORDER_PATH}
