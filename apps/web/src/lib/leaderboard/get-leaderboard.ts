@@ -10,7 +10,7 @@ import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-type
 import { LEADERBOARD_CACHE_TAG } from "../cache-tags";
 import type { RankedLeaderboardRow } from "../db/leaderboard-queries";
 import { logExternalError } from "../log-error";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "../pagination";
+import { clampPage, DEFAULT_PAGE_SIZE, getPaginationData } from "../pagination";
 
 import { getQueriesForPeriod } from "./period-queries";
 
@@ -24,6 +24,8 @@ export const LEADERBOARD_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 export interface LeaderboardResult {
   readonly rows: readonly RankedLeaderboardRow[];
   readonly totalCount: number;
+  /** 行が属するページ（範囲外を要求したら最後のページに丸めた後の番号） */
+  readonly page: number;
   /** 閲覧者がこのページにいないときの、閲覧者の順位の行 */
   readonly currentUserRank: RankedLeaderboardRow | undefined;
 }
@@ -37,6 +39,7 @@ export interface LeaderboardResult {
 export const EMPTY_LEADERBOARD: LeaderboardResult = {
   rows: [],
   totalCount: 0,
+  page: 1,
   currentUserRank: undefined,
 };
 
@@ -73,6 +76,9 @@ function getCachedRanking(
  * キャッシュから引き、閲覧者の順位だけを閲覧者ごとに引く。ブロックした人の
  * 除外は呼び出し側が行う（`withoutBlocked`。順位は数え直さない）。
  *
+ * 範囲外のページ（20 人しかいないのに `?page=9`）は最後のページに丸め、
+ * そのページの行と番号（`page`）を返す。
+ *
  * 土俵・期間・ページが不正なら空。DB の失敗は記録して undefined を返し、
  * 空で描くか失敗として返すかは呼び出し側が決める。
  *
@@ -91,20 +97,37 @@ export async function getLeaderboard(
     return EMPTY_LEADERBOARD;
   }
 
-  const { limit, offset } = getPaginationData(page, 0, LEADERBOARD_PAGE_SIZE);
+  const requested = getPaginationData(page, 0, LEADERBOARD_PAGE_SIZE);
 
   // 一覧と「自分の順位」で同じ「今」を使う。別々に現在時刻を読むと、
   // 月替わりの瞬間に一覧が前月・自分の順位が当月（またはその逆）になる。
   const now = new Date();
 
   try {
-    const { rows, total } = await getCachedRanking(
+    // 件数は行と同じ 1 回の取得で返るため、要求されたページのまま引き、
+    // 範囲外だったと分かったときだけ最後のページを引き直す。そのまま返すと
+    // OFFSET の先の空配列を掴み、挑戦者がいるのに「記録なし」の表になる
+    const first = await getCachedRanking(
       board,
       period,
-      offset,
-      limit,
+      requested.offset,
+      requested.limit,
       now,
     );
+    const lastPage = getPaginationData(
+      1,
+      first.total,
+      LEADERBOARD_PAGE_SIZE,
+    ).totalPages;
+    const { currentPage, limit, offset } = getPaginationData(
+      clampPage(page, lastPage),
+      first.total,
+      LEADERBOARD_PAGE_SIZE,
+    );
+    const { rows, total } =
+      currentPage === requested.currentPage
+        ? first
+        : await getCachedRanking(board, period, offset, limit, now);
 
     const leaderboardRows: RankedLeaderboardRow[] = rows.map((r, i) => ({
       ...r,
@@ -124,7 +147,12 @@ export async function getLeaderboard(
       );
     }
 
-    return { rows: leaderboardRows, totalCount: total, currentUserRank };
+    return {
+      rows: leaderboardRows,
+      totalCount: total,
+      page: currentPage,
+      currentUserRank,
+    };
   } catch (error) {
     logExternalError("getLeaderboard", "DB query failed", error);
     return undefined;

@@ -48,7 +48,11 @@ beforeEach(() => {
   authorizeAs({ userId: "user-1", username: "bob" });
   mockBoards.mockResolvedValue([JANTOU, YAKU]);
   mockAttempts.mockResolvedValue({ current: [attempt], previous: [] });
-  mockResults.mockResolvedValue({ items: [attempt], totalPages: 2 });
+  mockResults.mockResolvedValue({
+    items: [attempt],
+    totalPages: 2,
+    currentPage: 2,
+  });
 });
 
 afterEach(() => {
@@ -114,7 +118,7 @@ describe("handleReadRecords", () => {
 });
 
 describe("handleReadRecordResults", () => {
-  it("土俵とページで引き、範囲外のページは最後に丸める", async () => {
+  it("土俵とページで引き、丸めた後のページ番号を返す", async () => {
     const response = await handleReadRecordResults(
       get("/results?menu=jantou_fu&page=9"),
     );

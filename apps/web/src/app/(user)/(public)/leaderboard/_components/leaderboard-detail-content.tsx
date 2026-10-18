@@ -10,7 +10,6 @@ import { LeaderboardTable } from "./leaderboard-table";
 interface LeaderboardDetailContentProps {
   readonly currentUserId: string | undefined;
   readonly data: LeaderboardResult;
-  readonly currentPage: number;
   /** 閲覧者が自分でランキング非表示にしているか */
   readonly viewerHidden: boolean;
 }
@@ -25,11 +24,10 @@ interface LeaderboardDetailContentProps {
 export function LeaderboardDetailContent({
   currentUserId,
   data,
-  currentPage,
   viewerHidden,
 }: LeaderboardDetailContentProps) {
   const { totalPages } = getPaginationData(
-    currentPage,
+    data.page,
     data.totalCount,
     LEADERBOARD_PAGE_SIZE,
   );
@@ -43,7 +41,7 @@ export function LeaderboardDetailContent({
         viewerHidden={viewerHidden}
       />
       <LeaderboardPagination
-        currentPage={currentPage}
+        currentPage={data.page}
         totalPages={totalPages}
         totalCount={data.totalCount}
       />

@@ -21,7 +21,7 @@ import {
   fetchChallengeAttempts,
   getChallengeResultsPaginated,
 } from "@/app/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries";
-import { clampPage, parsePageParam } from "../pagination";
+import { parsePageParam } from "../pagination";
 
 import { authorizeMobileRequest } from "./auth";
 import { usernameRequired } from "./mypage";
@@ -105,14 +105,15 @@ export async function handleReadRecordResults(
   const query = queryOf(request);
   const requestedPage = parsePageParam(query.page);
   try {
-    const { items, totalPages } = await getChallengeResultsPaginated(
-      auth.user.id,
-      requestedPage,
-      resolveRequestedBoard(query),
-    );
+    const { items, totalPages, currentPage } =
+      await getChallengeResultsPaginated(
+        auth.user.id,
+        requestedPage,
+        resolveRequestedBoard(query),
+      );
     return mobileJson<MobileRecordResultsResponse>({
       items: items,
-      page: clampPage(requestedPage, totalPages),
+      page: currentPage,
       totalPages,
     });
   } catch (error) {
