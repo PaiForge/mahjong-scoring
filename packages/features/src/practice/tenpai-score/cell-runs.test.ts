@@ -62,6 +62,19 @@ describe("groupAdjacentCells", () => {
     expect(runs.every((run) => run.cells[0].isTsumo)).toBe(true);
   });
 
+  it("グループが undefined のマスを挟むと同じグループでもつながらない", () => {
+    const question = seedQuestion(3);
+    const [, middle] = question.waits;
+    const runs = groupAdjacentCells(question, (cell) =>
+      cell.agariHai === middle.agariHai ? undefined : "same",
+    ).filter((run) => run.cells[0].isTsumo);
+
+    expect(runs.map((run) => run.cells.length)).toEqual([
+      1,
+      question.waits.length - 2,
+    ]);
+  });
+
   it("indexRuns は塊を先頭のマスで引き、先頭以外を absorbed に入れる", () => {
     const question = seedQuestion(2);
     const runs = groupAdjacentCells(question, () => "same");

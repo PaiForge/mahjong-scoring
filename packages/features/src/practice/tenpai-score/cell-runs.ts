@@ -79,29 +79,21 @@ export function groupAdjacentCells<G extends string>(
   question: Readonly<TenpaiScoreQuestion>,
   groupOf: (cell: MachiCellRef) => G | undefined,
 ): readonly CellRun<G>[] {
-  const runs: CellRun<G>[] = [];
-  for (const isTsumo of [true, false]) {
-    let run: MachiCellRef[] = [];
-    let runGroup: G | undefined;
-    const flush = () => {
-      if (runGroup !== undefined && run.length > 0) {
-        runs.push({ group: runGroup, cells: run });
+  return [true, false].flatMap((isTsumo) => {
+    const column = question.waits.map((wait) => {
+      const cell: MachiCellRef = { agariHai: wait.agariHai, isTsumo };
+      return { cell, group: groupOf(cell) };
+    });
+    // 1 つ上のマスが同じ塊なら、直前の塊はそのマスで終わっている
+    return column.reduce<readonly CellRun<G>[]>((runs, { cell, group }, i) => {
+      if (group === undefined) return runs;
+      const last = runs.at(-1);
+      if (last !== undefined && column[i - 1]?.group === group) {
+        return [...runs.slice(0, -1), { group, cells: [...last.cells, cell] }];
       }
-      run = [];
-      runGroup = undefined;
-    };
-    for (const wait of question.waits) {
-      const cell = { agariHai: wait.agariHai, isTsumo };
-      const group = groupOf(cell);
-      if (group === undefined || group !== runGroup) flush();
-      if (group !== undefined) {
-        run.push(cell);
-        runGroup = group;
-      }
-    }
-    flush();
-  }
-  return runs;
+      return [...runs, { group, cells: [cell] }];
+    }, []);
+  });
 }
 
 /**
