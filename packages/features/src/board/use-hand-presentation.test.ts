@@ -407,7 +407,11 @@ describe("useHandPresentation", () => {
     [HaiKind.ManZu1, HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.Ton, HaiKind.Ton],
     HaiKind.Ton,
   );
-  const snapshot = { orientation: "random", sessionSeed: 7 } as const;
+  const snapshot = {
+    orientation: "random",
+    order: "sorted",
+    sessionSeed: 7,
+  } as const;
 
   function renderWith(
     value:
@@ -435,6 +439,6 @@ describe("useHandPresentation", () => {
   it("on では確定した見せ方を理牌のまま計算する", () => {
     expect(
       renderWith(toHandPresentationContextValue(snapshot)).result.current,
-    ).toEqual(buildHandPresentation(split, snapshot, "sorted"));
+    ).toEqual(buildHandPresentation(split, snapshot));
   });
 });

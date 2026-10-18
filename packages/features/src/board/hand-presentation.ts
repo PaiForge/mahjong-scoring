@@ -1,25 +1,26 @@
 import { mulberry32, type HaiKindId } from "@mahjong-scoring/core";
 
 import { PlanBenefit } from "../billing/plans";
+import { DEFAULT_TILE_ORDER, type TileOrderMode } from "../settings/tile-order";
 import {
   DEFAULT_TILE_ORIENTATION,
   type TileOrientationMode,
 } from "../settings/tile-orientation";
 import type { SplitTehai } from "./agari-hai";
 
-/**
- * 手牌の並べ方
- * 牌の並び順モード
- *
- * - `sorted` — 理牌したまま（いまの盤面はすべてこれ）
- * - `unsorted` — 理牌済みの純手牌をランダムに並べ直す
- *
- * `unsorted` は「配られた順を再現する」ものではない。問題は理牌済みの手牌しか
- * 持たず、配牌の順を出すには別のデータ（配った順の記録）が要る。ここで作れるのは
- * 理牌済みの並びの置換だけなので、意味もそれに限る。設定の UI と保存はまだ無く、
- * 呼び出しは常に `sorted` を渡す（置換の計算と検査だけを先に持っておく）。
- */
-export type TileOrderMode = "sorted" | "unsorted";
+/** 有効な見せ方の設定 */
+export interface HandPresentationSettings {
+  /** 有効な向きの設定（特典が無ければ保存値に関わらず `upright`） */
+  readonly orientation: TileOrientationMode;
+  /** 有効な並べ方の設定（特典が無ければ保存値に関わらず `sorted`） */
+  readonly order: TileOrderMode;
+}
+
+/** 従来の表示（すべて正規の向き・理牌したまま） */
+export const DEFAULT_HAND_PRESENTATION_SETTINGS: HandPresentationSettings = {
+  orientation: DEFAULT_TILE_ORIENTATION,
+  order: DEFAULT_TILE_ORDER,
+};
 
 /**
  * 確定した手牌の見せ方
@@ -28,14 +29,15 @@ export type TileOrderMode = "sorted" | "unsorted";
  * 練習の画面を開いたときに一度だけ決め、その画面の間は変えない
  * （`use-hand-presentation.ts` の Provider が確定する）。
  *
- * 記録（`leaderboard_key`・結果の保存）には載せない。出題・正解・採点は向きに
- * 依らないので、逆さの牌を混ぜた回も通常の回と同じ記録の区分に積む。そのため
- * 自己ベストや履歴から当時の見せ方は分からない（必要になったら記録のメタデータを
- * 別に設ける）。
+ * 記録（`leaderboard_key`・結果の保存）には載せない。出題・正解・採点は向きにも
+ * 並びにも依らず、解答を補助する情報も足さない（一般に読む負荷を増やす表示設定）
+ * ので、逆さの牌を混ぜた回・理牌しない回も通常の回と同じ記録の区分に積む。
+ * 昇級試験の本番にも同じく適用する（試験だけ外すと設定・模試・本番の挙動が
+ * 食い違う）。個々の手・利用者で必ず難しくなる保証ではない。自己ベストや履歴から
+ * 当時の見せ方は分からない。見せ方ごとに区分を分けると母集団が割れ、記録の
+ * メタデータに残すには保存と表示の変更が要るため、どちらもいまは採らない。
  */
-export interface HandPresentationSnapshot {
-  /** 有効な向きの設定（特典が無ければ保存値に関わらず `upright`） */
-  readonly orientation: TileOrientationMode;
+export interface HandPresentationSnapshot extends HandPresentationSettings {
   /**
    * 実行環境（web のドキュメント・アプリの JS ランタイム）で共通の種
    *
@@ -69,32 +71,27 @@ export interface HandPresentation {
   readonly agariInverted: boolean;
 }
 
-/** 有効な見せ方の設定 */
-export interface HandPresentationSettings {
-  readonly orientation: TileOrientationMode;
-}
-
 /**
  * 保存した設定と特典から、有効な見せ方を決める
  * 手牌表示設定解決
  *
- * 上下ランダムは Pro の `practice_tools` 特典（回答時間の計測と同じ特典を
- * 再利用する。買い切り・App Store の購入も含め、既存の購入者が同じ権利で使える。
- * 権利を分ける理由がまだ無いので新しい特典は作らない）。特典が無ければ
- * 保存値が `random` でも `upright` に落とす。保存値は書き換えない —
- * Pro を買い直せば元の設定に戻る。
+ * 上下ランダム・理牌しないはどちらも Pro の `practice_tools` 特典（回答時間の
+ * 計測と同じ特典を再利用する。買い切り・App Store の購入も含め、既存の購入者が
+ * 同じ権利で使える。権利を分ける理由がまだ無いので新しい特典は作らない）。
+ * 特典が無ければ保存値に関わらず両方とも既定に落とす（片方だけ落とす経路は
+ * 無い）。保存値は書き換えない — Pro を買い直せば元の設定に戻る。
  *
- * @param saved 保存した向きの設定
+ * @param saved 保存した向きと並べ方の希望
  * @param benefits 閲覧者が持つ特典
  */
 export function resolveHandPresentationSettings(
-  saved: TileOrientationMode,
+  saved: HandPresentationSettings,
   benefits: readonly PlanBenefit[],
 ): HandPresentationSettings {
-  if (saved === "random" && benefits.includes(PlanBenefit.PracticeTools)) {
-    return { orientation: "random" };
+  if (!benefits.includes(PlanBenefit.PracticeTools)) {
+    return DEFAULT_HAND_PRESENTATION_SETTINGS;
   }
-  return { orientation: DEFAULT_TILE_ORIENTATION };
+  return { orientation: saved.orientation, order: saved.order };
 }
 
 /** FNV-1a の初期値と素数（32bit） */
@@ -178,21 +175,23 @@ function shuffledOrder(length: number, random: () => number): number[] {
  * 順序と向きは同じ入力種から別々の系列で決める。向きの系列は並べ方に依らず、
  * 各牌の上下は独立に 1/2。`random` でも全牌が正規の向きになることはある。
  *
+ * 並べ方は置換を作る側と表示側で値の出所を 1 つにするため、引数ではなく
+ * `snapshot.order` から読む。偶然ほぼ理牌どおりの並びになることは許容し、
+ * 「理牌と違う並び」になるまで引き直さない（決定性と単純さを優先）。
+ *
  * @param split 和了牌を切り離した手牌（`splitAgariHai` の結果）
  * @param snapshot 確定した見せ方
- * @param orderMode 並べ方（いまの呼び出しは常に `sorted`）
  */
 export function buildHandPresentation(
   split: SplitTehai,
   snapshot: HandPresentationSnapshot,
-  orderMode: TileOrderMode,
 ): HandPresentation {
   const length = split.closedTiles.length;
   const hasAgari = split.separatedAgariHai !== undefined;
   const handSeed = deriveHandSeed(split, snapshot.sessionSeed);
 
   const closedOrder =
-    orderMode === "unsorted"
+    snapshot.order === "unsorted"
       ? shuffledOrder(
           length,
           mulberry32(hashIntegers([handSeed, ORDER_STREAM])),

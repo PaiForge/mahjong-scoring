@@ -206,7 +206,11 @@ export function useHandPresentationPreparation(
     decidedRef.current = true;
     setPreparation({
       status: "ready",
-      snapshot: { orientation, sessionSeed: obtainRuntimeSeed() },
+      snapshot: {
+        orientation,
+        order: "sorted",
+        sessionSeed: obtainRuntimeSeed(),
+      },
       fallbackReason,
     });
   };
@@ -271,8 +275,10 @@ export function useHandPresentationPreparation(
         return;
       }
       decide(
-        resolveHandPresentationSettings(savedOrientation, result.benefits)
-          .orientation,
+        resolveHandPresentationSettings(
+          { orientation: savedOrientation, order: "sorted" },
+          result.benefits,
+        ).orientation,
         undefined,
       );
     };
@@ -379,7 +385,11 @@ export function useHandPresentation(
     () =>
       orientation === undefined || sessionSeed === undefined
         ? undefined
-        : buildHandPresentation(split, { orientation, sessionSeed }, "sorted"),
+        : buildHandPresentation(split, {
+            orientation,
+            order: "sorted",
+            sessionSeed,
+          }),
     [split, orientation, sessionSeed],
   );
 }
