@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 import { Chip } from "../../../components/chip";
 import { colors } from "../../../lib/theme";
@@ -27,7 +28,7 @@ export function YakuHanPrompt({
     <View style={styles.root}>
       <View style={styles.badgeRow}>
         <Chip tone={isMenzen ? "primary" : "amber"}>
-          {isMenzen ? t("menzen") : t("naki")}
+          {yakuHanStateLabel(isMenzen, t)}
         </Chip>
       </View>
       <Text style={styles.yakuName}>{yakuName}</Text>

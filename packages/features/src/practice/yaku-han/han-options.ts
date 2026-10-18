@@ -24,3 +24,19 @@ export function yakuHanLabel(
 ): string {
   return isYakumanHan(han) ? t("yakuman") : t("hanOption", { count: han });
 }
+
+/**
+ * 出題の手が門前か鳴きかの表記（「門前」か「鳴き」）
+ * 役翻数状態表記
+ *
+ * 出題のバッジと問題別一覧で同じ表記にするため、web とモバイルの両方から
+ * ここを引く。
+ *
+ * @param t - `menzen` / `naki` キーを持つ翻訳関数（yakuHanChallenge）
+ */
+export function yakuHanStateLabel(
+  isMenzen: boolean,
+  t: (key: string) => string,
+): string {
+  return isMenzen ? t("menzen") : t("naki");
+}
