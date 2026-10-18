@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
 import { useAuth } from "../auth/use-auth";
+import { Divider } from "../components/divider";
 import { IAP_AVAILABLE } from "../billing/iap-availability";
 import { usePlan } from "../billing/use-plan";
 import {
@@ -145,6 +146,8 @@ function PracticeToolsRowsFor({
         }
         testID="preferences-tile-orientation"
       />
+      {/* SettingsCard はこの行群を1つの子として扱うため、内部の区切りはここに置く */}
+      <Divider tone="row" />
       <PracticeToolsToggleRow
         access={access}
         title={t("tileOrderTitle")}
