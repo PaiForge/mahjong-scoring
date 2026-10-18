@@ -23,14 +23,8 @@ import {
 } from "@mahjong-scoring/features/challenge/mobile-api";
 import type { BuildJourneyInput } from "@mahjong-scoring/features/journey/journey";
 
-import {
-  apiFailureOf,
-  callMobileApi,
-  errorOf,
-  type ApiFailure,
-  type MobileApiInit,
-} from "../auth/api-client";
-import { readJson } from "../auth/read-json";
+import type { ApiFailure, MobileApiInit } from "../auth/api-client";
+import { domainFailureOf, requestMobileApi } from "../auth/request-mobile-api";
 
 /**
  * 記録の API の失敗
@@ -45,25 +39,14 @@ export type RecordsApiResult<T> =
   { readonly value: T } | { readonly error: RecordsApiFailure };
 
 /** 要求を送り、成功なら応答を検証して返す */
-async function request<T>(
+function request<T>(
   path: string,
   init: MobileApiInit & { readonly asUser: string },
   parse: (body: unknown) => T | undefined,
 ): Promise<RecordsApiResult<T>> {
-  const response = await callMobileApi(path, init);
-  if (typeof response === "string") return { error: response };
-  if (response.ok) {
-    const value = parse(await readJson(response));
-    return value === undefined ? { error: "unknown" } : { value };
-  }
-  if (response.status >= 500 && response.status !== 503)
-    return { error: "serverError" };
-  const error = await errorOf(response.clone());
-  return {
-    error: isMobileChallengeErrorCode(error)
-      ? error
-      : await apiFailureOf(response),
-  };
+  return requestMobileApi(path, init, parse, (response) =>
+    domainFailureOf(response, isMobileChallengeErrorCode),
+  );
 }
 
 /**
