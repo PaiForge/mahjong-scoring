@@ -16,7 +16,8 @@ import {
 
 import { BeltPill } from "../../components/belt-pill";
 import { BookIcon, ChevronRightIcon } from "../../components/icons/icons";
-import { colors, radius } from "../../lib/theme";
+import { colors } from "../../lib/theme";
+import { linkCard } from "../../lib/link-card-styles";
 import { PracticeCardVisual } from "./practice-card-visual";
 
 /**
@@ -96,23 +97,9 @@ export function PracticeCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderColor: colors.panel,
-    borderRadius: radius.panel,
-    backgroundColor: colors.white,
-    padding: 20,
-    gap: 16,
-  },
-  pressed: {
-    backgroundColor: colors.surface50,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 8,
-  },
+  card: linkCard.card,
+  pressed: linkCard.pressed,
+  header: linkCard.header,
   headerLinks: {
     flexDirection: "row",
     alignItems: "center",
@@ -130,20 +117,7 @@ const styles = StyleSheet.create({
   learnPressed: {
     backgroundColor: colors.surface100,
   },
-  title: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  detail: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.action,
-  },
+  title: linkCard.title,
+  footer: linkCard.footer,
+  detail: linkCard.footerLabel,
 });

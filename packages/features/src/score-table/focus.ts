@@ -4,6 +4,7 @@ import {
   isOya as isOyaJikaze,
   isRole,
   isWinType,
+  roleOf,
   scoreTierForHan,
 } from "@mahjong-scoring/core";
 import type { Fu, Role, ScoreQuestion, WinType } from "@mahjong-scoring/core";
@@ -121,7 +122,7 @@ interface ScoreTableFocusSource {
   readonly isTsumo: boolean;
   readonly han: number;
   /** 符。満貫以上で符が点数に効かない出題は undefined */
-  readonly fu: number | undefined;
+  readonly fu?: number | undefined;
 }
 
 /**
@@ -142,7 +143,7 @@ export function scoreTableFocusOf({
   fu,
 }: ScoreTableFocusSource): ScoreTableFocus {
   return {
-    role: isOya ? "oya" : "ko",
+    role: roleOf(isOya),
     winType: isTsumo ? "tsumo" : "ron",
     han,
     fu: fu !== undefined && isFu(fu) ? fu : undefined,

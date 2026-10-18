@@ -17,6 +17,17 @@ export function isRole(value: string): value is Role {
   return value === "oya" || value === "ko";
 }
 
+/**
+ * 親かどうかから立場を求める
+ * 立場判定
+ *
+ * 出題・結果は親子を真偽値（`isOya`）で持つ。点数表の位置や URL のトークンに
+ * 渡すときは `Role` に直す。`isOya ? "oya" : "ko"` を各所に書かない。
+ */
+export function roleOf(isOya: boolean): Role {
+  return isOya ? "oya" : "ko";
+}
+
 /** WinType 型ガード */
 export function isWinType(value: string): value is WinType {
   return value === "tsumo" || value === "ron";

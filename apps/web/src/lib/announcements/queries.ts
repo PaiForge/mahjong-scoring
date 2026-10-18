@@ -43,7 +43,7 @@ export async function getPublishedAnnouncementsPaginated(
             END
         ) AS rn
       FROM ${announcements}
-      WHERE ${announcements.status} = 'published'
+      WHERE ${announcements.status} = ${AnnouncementStatus.Published}
     ) ranked
     WHERE rn = 1
     ORDER BY pinned_at DESC NULLS LAST, published_at DESC

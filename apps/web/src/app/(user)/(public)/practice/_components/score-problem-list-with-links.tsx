@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { isFu } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { ScoreProblemList } from "./score-problem-list";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import {
+  scoreTableFocusOf,
+  type ScoreTableFocus,
+} from "@mahjong-scoring/features/score-table/focus";
 
 interface ScoreProblemListWithLinksProps {
   readonly results: readonly ScoreQuestionResult[];
@@ -43,17 +45,7 @@ export function ScoreProblemListWithLinks({
           <button
             type="button"
             className={TEXT_LINK_CLASSES}
-            onClick={() =>
-              setScoreTableFocus({
-                role: result.isOya ? "oya" : "ko",
-                winType: result.isTsumo ? "tsumo" : "ron",
-                han: result.han,
-                fu:
-                  result.fu !== undefined && isFu(result.fu)
-                    ? result.fu
-                    : undefined,
-              })
-            }
+            onClick={() => setScoreTableFocus(scoreTableFocusOf(result))}
           >
             {formatScoreAnswer(answer, t)}
           </button>
