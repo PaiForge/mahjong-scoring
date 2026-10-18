@@ -15,6 +15,11 @@ import {
   type SettingsStoreOptions,
 } from "./settings-store-options";
 import {
+  DEFAULT_TILE_ORDER,
+  normalizeTileOrder,
+  type TileOrderMode,
+} from "./tile-order";
+import {
   DEFAULT_TILE_ORIENTATION,
   normalizeTileOrientation,
   type TileOrientationMode,
@@ -43,6 +48,14 @@ export interface DisplaySettingsState {
    */
   tileOrientation: TileOrientationMode;
   setTileOrientation: (mode: TileOrientationMode) => void;
+  /**
+   * 練習の盤面で手牌を理牌せずに並べるか（保存した希望）
+   *
+   * 上下ランダムとは独立した項目（片方だけ欲しい人が選べるよう、「見せ方」の
+   * 1 つの選択にまとめない）。保存値と特典の扱いは `tileOrientation` と同じ。
+   */
+  tileOrder: TileOrderMode;
+  setTileOrder: (mode: TileOrderMode) => void;
 }
 
 /**
@@ -108,6 +121,7 @@ function mergeDisplaySettings(
         "split",
       ]) ?? current.koTsumoInput,
     tileOrientation: normalizeTileOrientation(persisted.tileOrientation),
+    tileOrder: normalizeTileOrder(persisted.tileOrder),
   };
 }
 
@@ -156,6 +170,8 @@ export function createDisplaySettingsStore({
         setKoTsumoInput: (koTsumoInput) => set({ koTsumoInput }),
         tileOrientation: DEFAULT_TILE_ORIENTATION,
         setTileOrientation: (tileOrientation) => set({ tileOrientation }),
+        tileOrder: DEFAULT_TILE_ORDER,
+        setTileOrder: (tileOrder) => set({ tileOrder }),
       }),
       {
         // 項目ごとに確かめて重ねるため、将来キーを追加しても欠損フィールドは
@@ -242,6 +258,18 @@ export function createDisplaySettingsStore({
   }
 
   /**
+   * 手牌の並べ方の保存値取得フック
+   * 牌の並び順保存値
+   *
+   * 保存した希望をそのまま返す（特典の有無は見ない）。設定画面のスイッチ用。
+   * ハイドレーション完了までは既定値を返す（`useHydrated` を渡した場合）。
+   */
+  function useTileOrderSetting(): TileOrderMode {
+    const tileOrder = useDisplaySettingsStore((s) => s.tileOrder);
+    return useHydrated(tileOrder, DEFAULT_TILE_ORDER);
+  }
+
+  /**
    * 表示設定の永続値の読み込み状態取得フック
    * 表示設定復元状態
    *
@@ -257,6 +285,7 @@ export function createDisplaySettingsStore({
     useDisplaySettingsStore,
     useDisplaySettingsHydration,
     useTileOrientationSetting,
+    useTileOrderSetting,
     useDoraDisplayMode,
     useTermLinksEnabled,
     useFuHanOrder,

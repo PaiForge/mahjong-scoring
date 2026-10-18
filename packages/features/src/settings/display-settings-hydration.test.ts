@@ -111,6 +111,73 @@ describe("表示設定の手牌の向き", () => {
   });
 });
 
+describe("表示設定の手牌の並べ方", () => {
+  it("既定は sorted で、保存名は変えない", () => {
+    const { data, storage } = createMemoryStorage();
+    const { useDisplaySettingsStore } = createDisplaySettingsStore({
+      storage: () => storage,
+    });
+    expect(useDisplaySettingsStore.getState().tileOrder).toBe("sorted");
+
+    act(() => useDisplaySettingsStore.getState().setTileOrder("unsorted"));
+    const persisted = JSON.parse(data.get(NAME) ?? "{}");
+    expect(persisted.state.tileOrder).toBe("unsorted");
+  });
+
+  it("項目が無い既存の保存値（上下ランダムだけの頃）は sorted にし、向きを残す", () => {
+    const { storage } = createMemoryStorage(
+      saved({ tileOrientation: "random", doraDisplay: "actual" }),
+    );
+    const { useDisplaySettingsStore } = createDisplaySettingsStore({
+      storage: () => storage,
+    });
+    const state = useDisplaySettingsStore.getState();
+    expect(state.tileOrder).toBe("sorted");
+    expect(state.tileOrientation).toBe("random");
+    expect(state.doraDisplay).toBe("actual");
+  });
+
+  it.each([["shuffled"], [1], [null], [{ mode: "unsorted" }]])(
+    "未知の値・型違い（%j）は sorted",
+    (value) => {
+      const { storage } = createMemoryStorage(saved({ tileOrder: value }));
+      const { useDisplaySettingsStore } = createDisplaySettingsStore({
+        storage: () => storage,
+      });
+      expect(useDisplaySettingsStore.getState().tileOrder).toBe("sorted");
+    },
+  );
+
+  it("保存した unsorted を復元し、読み取りフックは希望をそのまま返す", () => {
+    const { storage } = createMemoryStorage(saved({ tileOrder: "unsorted" }));
+    const { useDisplaySettingsStore, useTileOrderSetting } =
+      createDisplaySettingsStore({ storage: () => storage });
+    expect(useDisplaySettingsStore.getState().tileOrder).toBe("unsorted");
+    const { result } = renderHook(() => useTileOrderSetting());
+    expect(result.current).toBe("unsorted");
+  });
+
+  it("片方のトグルを操作しても他方の保存値は変わらない", () => {
+    const { data, storage } = createMemoryStorage(
+      saved({ tileOrientation: "random", tileOrder: "unsorted" }),
+    );
+    const { useDisplaySettingsStore } = createDisplaySettingsStore({
+      storage: () => storage,
+    });
+    act(() => useDisplaySettingsStore.getState().setTileOrder("sorted"));
+    expect(JSON.parse(data.get(NAME) ?? "{}").state).toMatchObject({
+      tileOrientation: "random",
+      tileOrder: "sorted",
+    });
+    act(() => useDisplaySettingsStore.getState().setTileOrientation("upright"));
+    act(() => useDisplaySettingsStore.getState().setTileOrder("unsorted"));
+    expect(JSON.parse(data.get(NAME) ?? "{}").state).toMatchObject({
+      tileOrientation: "upright",
+      tileOrder: "unsorted",
+    });
+  });
+});
+
 describe("表示設定の復元状態", () => {
   it("同期の保存先（localStorage 相当）はストアを作った時点で ready", () => {
     const { storage } = createMemoryStorage(
