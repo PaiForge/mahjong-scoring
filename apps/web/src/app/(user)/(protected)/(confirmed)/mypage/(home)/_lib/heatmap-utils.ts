@@ -132,28 +132,23 @@ export function getMonthLabelsForWeeks(
 
 /** フラットな日付配列から週（最大 7 日ずつの列）を構築する。 */
 export function buildWeeks(allDates: string[]): (string | null)[][] {
-  const weeks: (string | null)[][] = [];
-  let currentWeek: (string | null)[] = [];
+  // 週の始まり = 先頭の日と日曜日（0=Sunday）
+  const weekStarts = allDates.flatMap((dateStr, i) =>
+    i === 0 || new Date(dateStr + "T00:00:00Z").getUTCDay() === 0 ? [i] : [],
+  );
+  const weeks = weekStarts.map((start, w) =>
+    allDates.slice(start, weekStarts[w + 1]),
+  );
 
-  for (const dateStr of allDates) {
-    const date = new Date(dateStr + "T00:00:00Z");
-    const dayOfWeek = date.getUTCDay(); // 0=Sunday
-
-    if (dayOfWeek === 0 && currentWeek.length > 0) {
-      weeks.push(currentWeek);
-      currentWeek = [];
-    }
-    currentWeek.push(dateStr);
-  }
-
-  if (currentWeek.length > 0) {
-    while (currentWeek.length < 7) {
-      currentWeek.push(null);
-    }
-    weeks.push(currentWeek);
-  }
-
-  return weeks;
+  // 最後の週だけ 7 日に満たない分を null で埋める
+  return weeks.map((week, w) =>
+    w === weeks.length - 1
+      ? [
+          ...week,
+          ...Array.from({ length: Math.max(0, 7 - week.length) }, () => null),
+        ]
+      : week,
+  );
 }
 
 /** Date を 'YYYY-MM-DD' にフォーマットする。 */
