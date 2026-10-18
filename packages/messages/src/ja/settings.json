@@ -42,8 +42,6 @@
   "leaderboardVisibilityFailedToast": "設定を保存できませんでした。しばらくしてからもう一度お試しください。",
   "blockedUsersTitle": "ブロックしたユーザー",
   "blockedUsersDescription": "ブロックした人は、あなたが見るランキングと公開プロフィールに表示されません。",
-  "blockedUsersEmpty": "ブロックしているユーザーはいません。",
-  "blockedUsersLoadFailed": "読み込めませんでした。しばらくしてからもう一度お試しください。",
   "unblock": "解除",
   "unblockedToast": "@{username} のブロックを解除しました。",
   "unblockFailedToast": "解除できませんでした。しばらくしてからもう一度お試しください。",
