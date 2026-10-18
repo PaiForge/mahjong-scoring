@@ -10,9 +10,16 @@
  * `use-hand-presentation.ts` が最初の確定で 1 度だけ採る）。
  */
 import { act, screen, waitFor } from "@testing-library/react";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  generateValidScoreQuestion,
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+import {
   HaiKind,
   type HaiKindId,
   type ScoreQuestion,
@@ -25,7 +32,9 @@ import {
 } from "@mahjong-scoring/features/board/hand-presentation";
 import { tehaiContextOf } from "@mahjong-scoring/features/board/score-question-context";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
-import { EXAM_GENERATE_OPTIONS } from "@mahjong-scoring/features/exam/score/types";
+import { buildDemoTehai } from "@mahjong-scoring/features/board/demo-tehai";
+import { exampleMinkou } from "@mahjong-scoring/features/board/example-mentsu";
+import { TENPAI_SCORE_DEMO_QUESTION } from "@mahjong-scoring/features/practice/tenpai-score/demo-question";
 import { getHaiName } from "@pai-forge/mahjong-react-ui";
 
 import { publicChallengeQuestion } from "@/lib/challenge/questions";
@@ -136,10 +145,12 @@ function wrap(ui: React.ReactElement) {
   );
 }
 
-const realRandom = Math.random;
-
 beforeAll(() => {
   vi.spyOn(Math, "random").mockReturnValue(0.5);
+});
+
+afterAll(() => {
+  vi.mocked(Math.random).mockRestore();
 });
 
 beforeEach(() => {
@@ -193,28 +204,18 @@ describe("理牌しない盤面の並び（web）", () => {
   });
 
   it("副露は鳴いた順のまま、純手牌だけ並べ直す", async () => {
-    const exposed = [
-      {
-        type: "Koutsu" as const,
-        hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku] as const,
-        furo: { type: "Pon" as const, from: 1 as const },
-      },
-    ];
-    const closed = CLOSED.slice(0, 11);
-    await renderBoard(
-      <TehaiDisplay
-        tehai={{ closed, exposed } as never}
-        context={{ ...CONTEXT, agariHai: HaiKind.Ton }}
-      />,
+    // 2副露を牌種の理牌順とは逆に置き、順序の入れ替えも検出する。
+    const tehai = buildDemoTehai(
+      [...CLOSED.slice(0, 6), HaiKind.Chun, HaiKind.Chun],
+      [exampleMinkou(HaiKind.Haku), exampleMinkou(HaiKind.Ton)],
     );
+    await renderBoard(<TehaiDisplay tehai={tehai} context={CONTEXT} />);
     const names = tileNames();
-    expect(names.slice(-3)).toEqual(["白", "白", "白"]);
-    const closedNames = names.slice(0, 10);
-    expect(names[10]).toBe("東");
-    expect([...closedNames].sort()).toEqual(
-      closed
-        .slice(0, 10)
-        .map((hai) => getHaiName(hai))
+    expect(names.slice(-6)).toEqual(["白", "白", "白", "東", "東", "東"]);
+    expect(names[7]).toBe("中");
+    expect([...names.slice(0, 7)].sort()).toEqual(
+      splitAgariHai(tehai.closed, CONTEXT.agariHai)
+        .closedTiles.map((hai) => getHaiName(hai))
         .sort(),
     );
   });
@@ -263,38 +264,29 @@ describe("理牌しない盤面の並び（web）", () => {
   });
 
   it("聴牌形（tenpai-score）は裏ドラを開いても並びが変わらない", async () => {
-    const question = {
-      tehai: { closed: CLOSED.slice(0, 13), exposed: [] },
-      bakaze: HaiKind.Ton,
-      jikaze: HaiKind.Nan,
-      isRiichi: true,
-      doraMarkers: [HaiKind.PinZu1],
-      uraDoraMarkers: [HaiKind.SouZu1],
-    } as never;
+    const question = TENPAI_SCORE_DEMO_QUESTION;
+    const sortedNames = question.tehai.closed.map((hai) => getHaiName(hai));
     const view = await renderBoard(
       <TenpaiDisplay question={question} showUraDora={false} />,
     );
-    const handBefore = tileNames().filter((name) =>
-      SORTED_NAMES.includes(name),
-    );
-    expect(handBefore).not.toEqual(SORTED_NAMES);
+    const handBefore = tileNames().filter((name) => sortedNames.includes(name));
+    expect(handBefore).not.toEqual(sortedNames);
     view.rerender(wrap(<TenpaiDisplay question={question} showUraDora />));
-    const handAfter = tileNames().filter((name) => SORTED_NAMES.includes(name));
+    const handAfter = tileNames().filter((name) => sortedNames.includes(name));
     expect(handAfter).toEqual(handBefore);
   });
 
   it("記録付きチャレンジで公開問題から採点済みの問題へ差し替えても並びは変わらない", async () => {
-    // 問題の生成だけは本物の乱数で行う（固定の値では生成が終わらない）
-    vi.mocked(Math.random).mockImplementation(realRandom);
-    const answered = generateValidScoreQuestion(EXAM_GENERATE_OPTIONS, 500);
-    vi.mocked(Math.random).mockReturnValue(0.5);
-    if (answered === undefined) throw new Error("問題を生成できない");
+    const answered = TENPAI_SCORE_DEMO_QUESTION.waits[0]?.ron;
+    if (answered === undefined) throw new Error("固定問題に待ちがない");
     const hidden = publicChallengeQuestion(answered, "score_calculation");
     const board = (question: ScoreQuestion) => (
       <TehaiDisplay tehai={question.tehai} context={tehaiContextOf(question)} />
     );
-    if (!("tehai" in hidden)) throw new Error("点数の問題ではない");
-    const view = await renderBoard(board(hidden as ScoreQuestion));
+    if (!("isTsumo" in hidden) || !("tehai" in hidden)) {
+      throw new Error("点数の問題ではない");
+    }
+    const view = await renderBoard(board(hidden));
     const before = tileNames();
     view.rerender(wrap(board(answered)));
     expect(tileNames()).toEqual(before);
