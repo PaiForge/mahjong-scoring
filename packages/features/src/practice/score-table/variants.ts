@@ -1,4 +1,7 @@
-import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
+import {
+  MANGAN_MIN_HAN,
+  type ScoreTableGeneratorOptions,
+} from "@mahjong-scoring/core";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 
 /** バリアントが決める出題の絞り込み（親子・点数帯。ツモ/ロンは常に両方） */
@@ -48,4 +51,35 @@ export function scoreTableGeneratorOptions(
     kiriageMangan,
     excludeKiriageBoundary: !isTraining,
   };
+}
+
+/** 遊び方デモの代表値に使う満貫未満のセル（子・ロン・3翻30符） */
+const NON_MANGAN_DEMO = { han: 3, fu: 30 } as const;
+
+/** 遊び方デモで提示する出題（ロン固定） */
+export interface ScoreTableDemoPrompt {
+  readonly isOya: boolean;
+  readonly han: number;
+  /** 満貫以上の例では符を持たない（点数が符に依存しないため） */
+  readonly fu: number | undefined;
+}
+
+/**
+ * バリアントに合わせた遊び方デモの出題を決める
+ * 点数表 遊び方デモの出題
+ *
+ * 何を見せるかはバリアントの絞り込み（{@link SCORE_TABLE_VARIANT_OPTIONS}）から
+ * 導く — 親だけのバリアントでは親、満貫以上だけのバリアントでは符の無い満貫の例。
+ * どちらでもないバリアントは代表値（子・ロン・3翻30符）。web とアプリの
+ * 遊び方デモが同じ例を出すよう、判定をここに 1 つだけ持つ。
+ */
+export function scoreTableDemoPromptOf(
+  variant: PracticeVariantOf<"score-table">,
+): ScoreTableDemoPrompt {
+  const { roles, ranges } = SCORE_TABLE_VARIANT_OPTIONS[variant];
+  const isOya = roles?.length === 1 && roles[0] === "oya";
+  const isManganPlusOnly = ranges?.includes("nonMangan") !== true;
+  return isManganPlusOnly
+    ? { isOya, han: MANGAN_MIN_HAN, fu: undefined }
+    : { isOya, han: NON_MANGAN_DEMO.han, fu: NON_MANGAN_DEMO.fu };
 }
