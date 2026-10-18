@@ -58,7 +58,7 @@ export default async function AdminDashboardPage({
             {newUsers.total}
           </p>
           <p className="text-xs text-surface-500">
-            {startDate} ~ {endDate} (UTC)
+            {startDate} ~ {endDate}
           </p>
         </section>
 

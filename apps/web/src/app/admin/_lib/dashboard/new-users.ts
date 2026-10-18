@@ -9,7 +9,7 @@ import { type DailyCount, aggregateByDay } from "./aggregate-by-day";
  *
  * Supabase Admin API は日付範囲フィルタに非対応のため、`/admin/users` でも使う
  * 共通ページャ `listAllAuthUsers` で全ユーザーを取得し、`aggregateByDay`
- *（独自テスト済みの純粋関数）で UTC 日単位にバケットする。
+ *（独自テスト済みの純粋関数）で JST 日単位にバケットする。
  *
  * // TODO: ユーザー数が ~5000 を超えたら DB レベルの集計に置き換える。
  */
