@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import type {
   MobileDeleteAccountErrorCode,
+  MobileDeleteAccountRequest,
   MobileDeleteAccountResponse,
 } from "@mahjong-scoring/features/account/mobile-api";
 
@@ -23,7 +24,7 @@ import { mobileJson } from "./response";
 const BODY_MAX_BYTES = 2 * 1024;
 
 // 本文は省略できる（Apple の連携が無い・トークンを持っているとき）
-const bodySchema = z.preprocess(
+const bodySchema: z.ZodType<MobileDeleteAccountRequest> = z.preprocess(
   (body) => body ?? {},
   z.object({
     appleAuthorizationCode: z.string().min(1).max(1024).optional(),

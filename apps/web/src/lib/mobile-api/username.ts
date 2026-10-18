@@ -3,7 +3,10 @@ import "server-only";
 import type { NextResponse } from "next/server";
 import { z } from "zod";
 
-import type { MobileUsernameErrorCode } from "@mahjong-scoring/features/account/mobile-api";
+import type {
+  MobileRegisterUsernameRequest,
+  MobileUsernameErrorCode,
+} from "@mahjong-scoring/features/account/mobile-api";
 
 import { registerUsernameForUser } from "../users/register-username";
 
@@ -27,7 +30,7 @@ const BODY_MAX_BYTES = 4 * 1024;
 
 // 表示名は受け付けない（未知のキーとして捨てる）。理由は契約の
 // `MobileRegisterUsernameRequest`
-const bodySchema = z.object({
+const bodySchema: z.ZodType<MobileRegisterUsernameRequest> = z.object({
   username: z.string().max(FIELD_MAX_LENGTH),
 });
 

@@ -4,11 +4,14 @@ import type { NextResponse } from "next/server";
 import { z } from "zod";
 
 import type {
+  MobileAnswerChallengeRequest,
   MobileAnswerChallengeResponse,
+  MobileBeginChallengeRequest,
   MobileBeginChallengeResponse,
   MobileChallengeErrorCode,
   MobileChallengeStatus,
   MobileFinishChallengeResponse,
+  MobilePauseChallengeRequest,
   MobileUnansweredResponse,
 } from "@mahjong-scoring/features/challenge/mobile-api";
 import {
@@ -47,17 +50,19 @@ const ANSWER_BODY_MAX_BYTES = 8 * 1024;
 /** 回答以外の本文の上限 */
 const SMALL_BODY_MAX_BYTES = 1024;
 
-const beginSchema = z.object({
+const beginSchema: z.ZodType<MobileBeginChallengeRequest> = z.object({
   id: z.string().uuid(),
   menuType: z.string(),
   variant: z.string(),
   settings: z.object({ renfonpaiAs4Fu: z.boolean() }),
 });
-const answerSchema = z.object({
+const answerSchema: z.ZodType<MobileAnswerChallengeRequest> = z.object({
   sequence: z.number().int().nonnegative(),
   answer: z.unknown(),
 });
-const pauseSchema = z.object({ paused: z.boolean() });
+const pauseSchema: z.ZodType<MobilePauseChallengeRequest> = z.object({
+  paused: z.boolean(),
+});
 const attemptIdSchema = z.string().uuid();
 
 /** パスの attemptId がチャレンジの ID の形（UUID）か */

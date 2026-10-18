@@ -3,9 +3,13 @@ import "server-only";
 import type { NextResponse } from "next/server";
 import { z } from "zod";
 
-import type { MobilePracticeQuotaResponse } from "@mahjong-scoring/features/billing/mobile-api";
+import type {
+  MobilePracticeQuotaRequest,
+  MobilePracticeQuotaResponse,
+} from "@mahjong-scoring/features/billing/mobile-api";
 import {
   isQuotaMenu,
+  QUOTA_MENUS,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
 
@@ -24,7 +28,10 @@ import {
 
 const BODY_MAX_BYTES = 1024;
 
-const beginSchema = z.object({ menu: z.string() });
+// 回数制限の対象でない練習名は、本文の形が違うときと同じ理由（400）で弾く
+const beginSchema: z.ZodType<MobilePracticeQuotaRequest> = z.object({
+  menu: z.enum(QUOTA_MENUS),
+});
 
 /** web の答えからアプリ向けの形へ。アプリ向け API は常にログイン済みなので `signedIn` を落とす */
 function mobileQuotaResponseOf({
@@ -66,8 +73,6 @@ export async function handleBeginPracticeQuota(
   const body = await parseMobileBody(request, beginSchema, BODY_MAX_BYTES);
   if (!body.ok) return body.response;
   const { menu } = body.data;
-  // 回数制限の対象でない練習名は、本文の形が違うときと同じ理由で弾く
-  if (!isQuotaMenu(menu)) return mobileInvalidRequest();
   try {
     return mobileQuotaResponseOf(
       await beginUserQuota(auth.user.id, menu, new Date(), isAppleIapOnSale()),
