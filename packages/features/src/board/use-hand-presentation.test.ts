@@ -7,7 +7,11 @@ import { HaiKind } from "@mahjong-scoring/core";
 
 import { PlanBenefit } from "../billing/plans";
 import { splitAgariHai } from "./agari-hai";
-import { buildHandPresentation } from "./hand-presentation";
+import {
+  buildHandPresentation,
+  DEFAULT_HAND_PRESENTATION_SETTINGS,
+  presentTehai,
+} from "./hand-presentation";
 import {
   HAND_PRESENTATION_DEADLINE_MS,
   HAND_PRESENTATION_OFF,
@@ -48,6 +52,7 @@ function baseInputs(
     supported: true,
     settingsStatus: "ready",
     savedOrientation: "random",
+    savedOrder: "sorted",
     auth: { kind: "signedIn", userId: "a" },
     fetchBenefits: () => Promise.resolve(PRO),
     ...overrides,
@@ -127,7 +132,7 @@ describe("useHandPresentationPreparation の判定順", () => {
     });
   });
 
-  it("希望が upright なら認証も特典も待たない", () => {
+  it("向きも並べ方も既定を希望していれば認証も特典も待たない", () => {
     const fetchBenefits = vi.fn(() => Promise.resolve(PRO));
     const { result } = renderPreparation(
       baseInputs({
@@ -373,6 +378,267 @@ describe("useHandPresentationPreparation の要求", () => {
   });
 });
 
+/** Pro の見せ方の希望の組み合わせ（どれでも認証と特典を待つ） */
+const PRO_WISHES = [
+  { name: "向きだけ", savedOrientation: "random", savedOrder: "sorted" },
+  { name: "並べ方だけ", savedOrientation: "upright", savedOrder: "unsorted" },
+  { name: "両方", savedOrientation: "random", savedOrder: "unsorted" },
+] as const;
+
+const DEFAULT_SNAPSHOT = DEFAULT_HAND_PRESENTATION_SETTINGS;
+
+describe.each(PRO_WISHES)(
+  "Pro の見せ方の希望（$name）",
+  ({ savedOrientation, savedOrder }) => {
+    const wish = (overrides: Partial<HandPresentationInputs> = {}) =>
+      baseInputs({ savedOrientation, savedOrder, ...overrides });
+
+    it("認証の読み込み中は待ち、特典を読まない", () => {
+      const fetchBenefits = vi.fn(() => Promise.resolve(PRO));
+      const { result } = renderPreparation(
+        wish({ auth: { kind: "loading" }, fetchBenefits }),
+      );
+      expect(result.current.status).toBe("pending");
+      expect(fetchBenefits).not.toHaveBeenCalled();
+    });
+
+    it("特典ありなら希望どおり", async () => {
+      const { fetchBenefits, calls } = createDeferredFetcher();
+      const { result } = renderPreparation(wish({ fetchBenefits }));
+      expect(result.current.status).toBe("pending");
+      await act(async () => calls[0]?.resolve(PRO));
+      expect(result.current).toMatchObject({
+        status: "ready",
+        snapshot: { orientation: savedOrientation, order: savedOrder },
+        fallbackReason: undefined,
+      });
+    });
+
+    it("特典なし・未ログインは両方既定（案内なし）", async () => {
+      const free = renderPreparation(
+        wish({ fetchBenefits: () => Promise.resolve(FREE) }),
+      );
+      const signedOut = renderPreparation(
+        wish({ auth: { kind: "signedOut" } }),
+      );
+      await flush();
+      for (const { result } of [free, signedOut]) {
+        expect(result.current).toMatchObject({
+          status: "ready",
+          snapshot: DEFAULT_SNAPSHOT,
+          fallbackReason: undefined,
+        });
+      }
+    });
+
+    it("取得不能・reject・同期の例外は両方既定（案内あり）", async () => {
+      const rendered = [
+        renderPreparation(
+          wish({ fetchBenefits: () => Promise.resolve({ ok: false }) }),
+        ),
+        renderPreparation(
+          wish({ fetchBenefits: () => Promise.reject(new Error("x")) }),
+        ),
+        renderPreparation(
+          wish({
+            fetchBenefits: () => {
+              throw new Error("sync");
+            },
+          }),
+        ),
+      ];
+      await flush();
+      for (const { result } of rendered) {
+        expect(result.current).toMatchObject({
+          snapshot: DEFAULT_SNAPSHOT,
+          fallbackReason: "benefitsUnavailable",
+        });
+      }
+    });
+
+    it("期限で認証待ちは authTimeout、特典待ちは benefitsTimeout（両方既定）", () => {
+      const auth = renderPreparation(wish({ auth: { kind: "loading" } }));
+      const benefits = renderPreparation(
+        wish({ fetchBenefits: createDeferredFetcher().fetchBenefits }),
+      );
+      act(() => vi.advanceTimersByTime(HAND_PRESENTATION_DEADLINE_MS));
+      expect(auth.result.current).toMatchObject({
+        snapshot: DEFAULT_SNAPSHOT,
+        fallbackReason: "authTimeout",
+      });
+      expect(benefits.result.current).toMatchObject({
+        snapshot: DEFAULT_SNAPSHOT,
+        fallbackReason: "benefitsTimeout",
+      });
+    });
+
+    it("期限の後・タイマーの遅れの後に届いた成功は採らない", async () => {
+      const late = createDeferredFetcher();
+      const lateRender = renderPreparation(
+        wish({ fetchBenefits: late.fetchBenefits }),
+      );
+      act(() => vi.advanceTimersByTime(HAND_PRESENTATION_DEADLINE_MS));
+      const decided = lateRender.result.current;
+      await act(async () => late.calls[0]?.resolve(PRO));
+      expect(lateRender.result.current).toBe(decided);
+
+      const delayed = createDeferredFetcher();
+      const delayedRender = renderPreparation(
+        wish({ fetchBenefits: delayed.fetchBenefits }),
+      );
+      vi.setSystemTime(Date.now() + HAND_PRESENTATION_DEADLINE_MS + 100);
+      await act(async () => delayed.calls[0]?.resolve(PRO));
+      expect(delayedRender.result.current).toMatchObject({
+        snapshot: DEFAULT_SNAPSHOT,
+        fallbackReason: "benefitsTimeout",
+      });
+    });
+
+    it("入力が変わっても期限を延ばさない", () => {
+      const { fetchBenefits } = createDeferredFetcher();
+      const { result, rerender } = renderPreparation(
+        wish({ settingsStatus: "pending", fetchBenefits }),
+      );
+      act(() => vi.advanceTimersByTime(2000));
+      rerender(wish({ auth: { kind: "loading" }, fetchBenefits }));
+      act(() => vi.advanceTimersByTime(999));
+      rerender(wish({ fetchBenefits }));
+      expect(result.current.status).toBe("pending");
+      act(() => vi.advanceTimersByTime(1));
+      expect(result.current).toMatchObject({
+        fallbackReason: "benefitsTimeout",
+      });
+    });
+
+    it("A → B → A と変わったら、最初の A の応答は採らない", async () => {
+      const { fetchBenefits, calls } = createDeferredFetcher();
+      const { result, rerender } = renderPreparation(wish({ fetchBenefits }));
+      rerender(
+        wish({ auth: { kind: "signedIn", userId: "b" }, fetchBenefits }),
+      );
+      rerender(wish({ fetchBenefits }));
+      await act(async () => calls[0]?.resolve(PRO));
+      await act(async () => calls[1]?.resolve(PRO));
+      expect(result.current.status).toBe("pending");
+      await act(async () => calls[2]?.resolve(FREE));
+      expect(result.current).toMatchObject({ snapshot: DEFAULT_SNAPSHOT });
+    });
+
+    it("アンマウント後の応答は無視する", async () => {
+      const { fetchBenefits, calls } = createDeferredFetcher();
+      const { result, unmount } = renderPreparation(wish({ fetchBenefits }));
+      unmount();
+      await act(async () => calls[0]?.resolve(PRO));
+      expect(result.current.status).toBe("pending");
+    });
+
+    it("StrictMode でも生きている要求の応答を受け取り、期限は延びない", async () => {
+      const { fetchBenefits, calls } = createDeferredFetcher();
+      const { result } = renderPreparation(wish({ fetchBenefits }), {
+        strict: true,
+      });
+      await act(async () => calls.at(-1)?.resolve(PRO));
+      expect(result.current).toMatchObject({
+        snapshot: { orientation: savedOrientation, order: savedOrder },
+      });
+
+      const timed = renderPreparation(wish({ auth: { kind: "loading" } }), {
+        strict: true,
+      });
+      act(() => vi.advanceTimersByTime(HAND_PRESENTATION_DEADLINE_MS));
+      expect(timed.result.current).toMatchObject({
+        fallbackReason: "authTimeout",
+      });
+    });
+
+    it("対象外のプラットフォームは待たず、特典も読まずに両方既定", () => {
+      const fetchBenefits = vi.fn(() => Promise.resolve(PRO));
+      const { result } = renderPreparation(
+        wish({
+          supported: false,
+          settingsStatus: "pending",
+          auth: { kind: "loading" },
+          fetchBenefits,
+        }),
+      );
+      expect(result.current).toMatchObject({
+        status: "ready",
+        snapshot: DEFAULT_SNAPSHOT,
+        fallbackReason: undefined,
+      });
+      expect(fetchBenefits).not.toHaveBeenCalled();
+    });
+
+    it("確定後の設定・権利・ログインの変化では両軸とも変えない", async () => {
+      const { result, rerender } = renderPreparation(wish());
+      await flush();
+      const decided = result.current;
+      expect(decided).toMatchObject({
+        snapshot: { orientation: savedOrientation, order: savedOrder },
+      });
+      rerender(
+        baseInputs({ savedOrientation: "upright", savedOrder: "sorted" }),
+      );
+      rerender(wish({ fetchBenefits: () => Promise.resolve(FREE) }));
+      rerender(wish({ auth: { kind: "signedOut" } }));
+      act(() => vi.advanceTimersByTime(HAND_PRESENTATION_DEADLINE_MS * 2));
+      expect(result.current).toBe(decided);
+    });
+  },
+);
+
+describe("useHandPresentationPreparation の取得中の希望の変化", () => {
+  it("random + sorted → random + unsorted では古い要求を捨て、今の希望を採る", async () => {
+    const { fetchBenefits, calls } = createDeferredFetcher();
+    const { result, rerender } = renderPreparation(
+      baseInputs({ fetchBenefits }),
+    );
+    rerender(baseInputs({ savedOrder: "unsorted", fetchBenefits }));
+    expect(calls).toHaveLength(2);
+    await act(async () => calls[0]?.resolve(PRO));
+    expect(result.current.status).toBe("pending");
+    await act(async () => calls[1]?.resolve(PRO));
+    expect(result.current).toMatchObject({
+      snapshot: { orientation: "random", order: "unsorted" },
+    });
+  });
+
+  it("取得中に両方既定へ戻すと即確定し、遅い成功で Pro の見せ方に戻らない", async () => {
+    const { fetchBenefits, calls } = createDeferredFetcher();
+    const { result, rerender } = renderPreparation(
+      baseInputs({ savedOrder: "unsorted", fetchBenefits }),
+    );
+    rerender(
+      baseInputs({
+        savedOrientation: "upright",
+        savedOrder: "sorted",
+        fetchBenefits,
+      }),
+    );
+    const decided = result.current;
+    expect(decided).toMatchObject({
+      status: "ready",
+      snapshot: DEFAULT_SNAPSHOT,
+      fallbackReason: undefined,
+    });
+    await act(async () => calls[0]?.resolve(PRO));
+    expect(result.current).toBe(decided);
+  });
+
+  it("再マウントでは今の希望を採る", async () => {
+    const first = renderPreparation(baseInputs());
+    await flush();
+    first.unmount();
+    const second = renderPreparation(
+      baseInputs({ savedOrientation: "upright", savedOrder: "unsorted" }),
+    );
+    await flush();
+    expect(second.result.current).toMatchObject({
+      snapshot: { orientation: "upright", order: "unsorted" },
+    });
+  });
+});
+
 describe("useHandPresentationPreparation の確定後", () => {
   it("確定後の設定・権利・ログインの変化では変えない", async () => {
     const { result, rerender } = renderPreparation(baseInputs());
@@ -436,9 +702,25 @@ describe("useHandPresentation", () => {
     expect(renderWith(HAND_PRESENTATION_OFF).result.current).toBeUndefined();
   });
 
-  it("on では確定した見せ方を理牌のまま計算する", () => {
+  it("on では確定した見せ方を計算する（sorted なら理牌のまま）", () => {
     expect(
       renderWith(toHandPresentationContextValue(snapshot)).result.current,
     ).toEqual(buildHandPresentation(split, snapshot));
+  });
+
+  it("コンテキストの order を使う（sorted を直書きしない）", () => {
+    // 種 2 は理牌と違う並び（3,0,2,1）になる。種 7 は偶然恒等置換になる
+    const unsorted = {
+      ...snapshot,
+      order: "unsorted",
+      sessionSeed: 2,
+    } as const;
+    const presentation = renderWith(toHandPresentationContextValue(unsorted))
+      .result.current;
+    expect(presentation).toEqual(buildHandPresentation(split, unsorted));
+    expect(presentation?.closedOrder).toEqual([3, 0, 2, 1]);
+    expect(
+      presentTehai(split, presentation).closed.map((tile) => tile.hai),
+    ).not.toEqual(split.closedTiles);
   });
 });
