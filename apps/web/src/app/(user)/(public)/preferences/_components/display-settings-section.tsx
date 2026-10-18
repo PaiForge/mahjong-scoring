@@ -15,6 +15,7 @@ import {
 } from "@mahjong-scoring/features/billing/plans";
 import {
   useDisplaySettingsStore,
+  useTileOrderSetting,
   useTileOrientationSetting,
   useDoraDisplayMode,
   useFuHanOrder,
@@ -45,7 +46,9 @@ export function DisplaySettingsSection() {
   const setTileOrientation = useDisplaySettingsStore(
     (s) => s.setTileOrientation,
   );
-  // 上下ランダムは Pro の特典。ここでは「スイッチを出すか料金ページへの導線を
+  const tileOrder = useTileOrderSetting();
+  const setTileOrder = useDisplaySettingsStore((s) => s.setTileOrder);
+  // 上下ランダム・理牌しないは Pro の特典。ここでは「スイッチを出すか料金ページへの導線を
   // 出すか」の見た目だけを決める（練習の盤面は開始時に特典を読み直して決める）。
   // 特典が無い間も保存値は書き換えない
   const { user, isLoading, profile, isProfileLoading } = useAuth();
@@ -108,6 +111,14 @@ export function DisplaySettingsSection() {
         onChange={(checked) =>
           setTileOrientation(checked ? "random" : "upright")
         }
+        access={practiceToolsAccess}
+      />
+      <PracticeToolsToggleRow
+        id={PREFERENCE_ANCHORS.tileOrder}
+        title={t("tileOrderTitle")}
+        description={t("tileOrderDescription")}
+        checked={tileOrder === "unsorted"}
+        onChange={(checked) => setTileOrder(checked ? "unsorted" : "sorted")}
         access={practiceToolsAccess}
       />
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}

@@ -24,6 +24,8 @@ export const PREFERENCE_ANCHORS = {
   koTsumoInput: "ko-tsumo-input",
   /** 練習の盤面で手牌の上下をランダムにするか（Pro） */
   tileOrientation: "tile-orientation",
+  /** 練習の盤面で手牌を理牌せずに並べるか（Pro） */
+  tileOrder: "tile-order",
   /** ランキングに自分を表示しないか */
   leaderboardVisibility: "leaderboard-visibility",
 } as const;
