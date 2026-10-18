@@ -1,5 +1,4 @@
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type {
@@ -8,14 +7,10 @@ import type {
   MachiCellAnswer,
   TenpaiScoreQuestion,
   MachiSelectionJudgement,
-  ScoreQuestion,
 } from "@mahjong-scoring/core";
 import { sortHaiCodes } from "@mahjong-scoring/core";
-import {
-  cellKeyOf,
-  listCellRefs,
-  type MachiCellRef,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { cellQuestionOf } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { useTenpaiScoreResultFocus } from "@mahjong-scoring/features/practice/tenpai-score/use-tenpai-score-result-focus";
 import { correctCellAnswerOf } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import {
   machiTileMark,
@@ -102,20 +97,17 @@ export function TenpaiScoreResult({
   const tCells = useTranslations("tenpaiScore.cells");
   const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const cells = listCellRefs(question);
-  const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
+  const {
+    cells,
+    focused,
+    setFocused,
+    focusedKey,
+    focusedQuestion,
+    focusedAnswer,
+    focusedResult,
+  } = useTenpaiScoreResultFocus(question, cellAnswers, cellResults);
   // 選んだ順ではなく牌の順に並べ、正解の列と横に見比べられるようにする
   const answeredMachi = sortHaiCodes([...selectedMachi]);
-
-  const cellQuestionOf = (cell: MachiCellRef): ScoreQuestion | undefined => {
-    const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
-    return cell.isTsumo ? wait?.tsumo : wait?.ron;
-  };
-
-  const focusedKey = cellKeyOf(focused);
-  const focusedQuestion = cellQuestionOf(focused);
-  const focusedAnswer = cellAnswers[focusedKey];
-  const focusedResult = cellResults?.[focusedKey];
 
   return (
     <View style={styles.root}>
@@ -185,7 +177,7 @@ export function TenpaiScoreResult({
             onFocusCell={setFocused}
             correctAnswerLinesOf={(cell) =>
               formatAnswerLines(
-                correctCellAnswerOf(cellQuestionOf(cell)),
+                correctCellAnswerOf(cellQuestionOf(question, cell)),
                 cell.isTsumo,
               )
             }

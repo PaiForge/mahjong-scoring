@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type {
   HaiKindId,
@@ -8,7 +7,6 @@ import type {
   MachiCellAnswer,
   TenpaiScoreQuestion,
   MachiSelectionJudgement,
-  ScoreQuestion,
 } from "@mahjong-scoring/core";
 import { sortHaiCodes } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
@@ -22,11 +20,8 @@ import {
   machiTileMark,
   type MachiTileMark,
 } from "@mahjong-scoring/features/practice/tenpai-score/machi-tile-mark";
-import {
-  cellKeyOf,
-  listCellRefs,
-  type MachiCellRef,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { cellQuestionOf } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
+import { useTenpaiScoreResultFocus } from "@mahjong-scoring/features/practice/tenpai-score/use-tenpai-score-result-focus";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { WaitCellTabs, cellTabId } from "./wait-cell-tabs";
 
@@ -117,22 +112,18 @@ export function TenpaiScoreResult({
   const tCells = useTranslations("tenpaiScore.cells");
   const tScore = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const cells = listCellRefs(question);
-  const [focused, setFocused] = useState<MachiCellRef>(cells[0]);
+  const {
+    cells,
+    focused,
+    setFocused,
+    focusedKey,
+    focusedQuestion,
+    focusedAnswer,
+    focusedResult,
+  } = useTenpaiScoreResultFocus(question, cellAnswers, cellResults);
   // 選んだ順ではなく牌の順に並べる。正解の列（出題の並び = 牌の順）と
   // 同じ並びになり、2 列を横に見比べられる
   const answeredMachi = sortHaiCodes([...selectedMachi]);
-
-  const cellQuestionOf = (cell: MachiCellRef): ScoreQuestion | undefined => {
-    const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
-    return cell.isTsumo ? wait?.tsumo : wait?.ron;
-  };
-
-  const focusedCell = focused;
-  const focusedKey = cellKeyOf(focusedCell);
-  const focusedQuestion = cellQuestionOf(focusedCell);
-  const focusedAnswer = cellAnswers[focusedKey];
-  const focusedResult = cellResults?.[focusedKey];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -230,11 +221,11 @@ export function TenpaiScoreResult({
           <WaitCellTabs
             cells={cells}
             cellResults={cellResults}
-            focused={focusedCell}
+            focused={focused}
             onFocusCell={setFocused}
             correctAnswerLinesOf={(cell) =>
               formatAnswerLines(
-                correctCellAnswerOf(cellQuestionOf(cell)),
+                correctCellAnswerOf(cellQuestionOf(question, cell)),
                 cell.isTsumo,
               )
             }
@@ -249,7 +240,7 @@ export function TenpaiScoreResult({
           <div
             id={DETAIL_PANEL_ID}
             role="tabpanel"
-            aria-labelledby={cellTabId(focusedCell)}
+            aria-labelledby={cellTabId(focused)}
             className="rounded-b-lg border border-panel bg-white p-3 sm:p-4"
           >
             {focusedQuestion ? (
