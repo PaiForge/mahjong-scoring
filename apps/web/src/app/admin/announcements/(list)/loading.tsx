@@ -25,7 +25,7 @@ export default function AnnouncementsLoading() {
               <SkeletonBar className="h-5 w-32" />
               <SkeletonBar className="h-5 w-16" tone={100} />
             </div>
-            <TableSkeleton columns={5} rows={2} compact />
+            <TableSkeleton columns={5} rows={2} />
           </section>
         ))}
       </div>

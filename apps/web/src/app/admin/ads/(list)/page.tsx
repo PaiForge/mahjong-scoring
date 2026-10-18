@@ -28,6 +28,7 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { AdminTabs } from "@/app/admin/_components/admin-tabs";
 import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { TableHead } from "@/app/admin/_components/table-head";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   AD_PLATFORMS,
@@ -192,22 +193,9 @@ export default async function AdminAdsPage({
             ) : (
               <div className="admin-table">
                 <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-surface-200 text-xs text-surface-500">
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("order")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("title")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("status")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("actions")}
-                      </th>
-                    </tr>
-                  </thead>
+                  <TableHead
+                    labels={[t("order"), t("title"), t("status"), t("actions")]}
+                  />
                   <tbody>
                     {inSlot.map(({ row, copy }, index) => (
                       <tr key={row.id} className="border-t border-surface-200">
