@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -11,9 +11,8 @@ import {
 import { Button } from "@/app/(user)/_components/button";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 
-/** {@link BlockButton} の文言（`publicProfile` は辞書をクライアントに渡さないので、ページが訳して渡す） */
-export interface BlockButtonLabels {
-  readonly block: string;
+/** {@link BlockConfirmDialog} の文言（`publicProfile` は辞書をクライアントに渡さないので、ページが訳して渡す） */
+export interface BlockConfirmLabels {
   readonly confirmTitle: string;
   readonly confirmMessage: string;
   readonly confirm: string;
@@ -24,25 +23,28 @@ export interface BlockButtonLabels {
 
 /**
  * 公開プロフィールの「ブロックする」
- * ブロックボタン
+ * ブロック確認ダイアログ
  *
- * 押すと何が起きるか（相手に通知されない・設定から解除できる）を確認の
- * ダイアログで読ませてから書く。済んだらページを描き直し、ブロック中の
- * 案内に切り替わる。
+ * 開閉は呼び出し側（`ProfileActionsMenu`）が持つ。何が起きるか（相手に
+ * 通知されない・設定から解除できる）を読ませてから書く。済んだらページを
+ * 描き直し、ブロック中の案内に切り替わる。
  */
-export function BlockButton({
+export function BlockConfirmDialog({
   username,
   labels,
+  isOpen,
+  onClose,
 }: {
   readonly username: string;
-  readonly labels: BlockButtonLabels;
+  readonly labels: BlockConfirmLabels;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
 }) {
   const router = useRouter();
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const confirm = () => {
-    setIsConfirming(false);
+    onClose();
     startTransition(async () => {
       const result = await blockUserAction(username);
       if ("error" in result) {
@@ -55,26 +57,16 @@ export function BlockButton({
   };
 
   return (
-    <>
-      <Button
-        variant="neutral"
-        size="sm"
-        onClick={() => setIsConfirming(true)}
-        disabled={isPending}
-      >
-        {labels.block}
-      </Button>
-      <ConfirmationModal
-        isOpen={isConfirming}
-        onClose={() => setIsConfirming(false)}
-        onConfirm={confirm}
-        title={labels.confirmTitle}
-        message={labels.confirmMessage}
-        confirmText={labels.confirm}
-        cancelText={labels.cancel}
-        confirmVariant="danger"
-      />
-    </>
+    <ConfirmationModal
+      isOpen={isOpen}
+      onClose={onClose}
+      onConfirm={confirm}
+      title={labels.confirmTitle}
+      message={labels.confirmMessage}
+      confirmText={labels.confirm}
+      cancelText={labels.cancel}
+      confirmVariant="danger"
+    />
   );
 }
 

@@ -17,7 +17,6 @@ import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { publicProfileHref } from "@/lib/users/public-profile-href";
 
@@ -26,23 +25,27 @@ import { publicProfileHref } from "@/lib/users/public-profile-href";
  * ブロック一覧セクション
  *
  * ブロックした人を新しい順に並べ、その場で解除させる。ブロックは公開
- * プロフィールのボタンからしかできないので、ここに「追加」は無い。
+ * プロフィールの「…」メニューからしかできないので、ここに「追加」は無い。
  * ランキング非表示の設定（`PrivacySettingsSection`）と同じく、ページを
  * 静的に保つため一覧は描画後に Server Action から取る。
+ *
+ * ブロックした人が 1 人もいなければ（読み込み中・読み込みに失敗したときも）
+ * 何も描かない。ブロックはネガティブな機能で、使ったことの無い人に設定の
+ * たびに見せる理由が無いため。ページの末尾にあるので、後から現れても
+ * 上の項目は動かない。読み込みに失敗しても、公開プロフィールのブロック中の
+ * 案内から 1 人ずつ解除できる。
  */
 export function BlockedUsersSection() {
   const t = useTranslations("settings");
   const { user, isLoading: isAuthLoading } = useAuth();
-  const [users, setUsers] = useState<
-    readonly BlockedUserView[] | "failed" | undefined
-  >(undefined);
+  const [users, setUsers] = useState<readonly BlockedUserView[]>([]);
   const [, startTransition] = useTransition();
 
   useEffect(() => {
     let cancelled = false;
     if (!isAuthLoading && user) {
       void getBlockedUsersAction().then((rows) => {
-        if (!cancelled) setUsers(rows ?? "failed");
+        if (!cancelled) setUsers(rows ?? []);
       });
     }
     return () => {
@@ -51,7 +54,6 @@ export function BlockedUsersSection() {
   }, [user, isAuthLoading]);
 
   const unblock = (username: string) => {
-    if (!Array.isArray(users)) return;
     const previous = users;
     setUsers(previous.filter((row) => row.username !== username));
     startTransition(async () => {
@@ -65,6 +67,8 @@ export function BlockedUsersSection() {
     });
   };
 
+  if (users.length === 0) return null;
+
   return (
     <SettingsCard>
       <div className="px-5 py-4">
@@ -75,56 +79,41 @@ export function BlockedUsersSection() {
           {t("blockedUsersDescription")}
         </span>
       </div>
-      {users === undefined ? (
-        // 未ログインはゲートが覆うので、読み込み中と同じ帯で高さだけ保つ
-        <div className="px-5 py-4">
-          <SkeletonBar className="h-5 w-40" tone={100} />
-        </div>
-      ) : users === "failed" ? (
-        <p className="px-5 py-4 text-sm text-surface-500">
-          {t("blockedUsersLoadFailed")}
-        </p>
-      ) : users.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-surface-500">
-          {t("blockedUsersEmpty")}
-        </p>
-      ) : (
-        <ul className="divide-y divide-surface-100">
-          {users.map((row) => {
-            const name = row.displayName ?? row.username;
-            return (
-              <li
-                key={row.username}
-                className="flex items-center justify-between gap-3 px-5 py-3"
+      <ul className="divide-y divide-surface-100">
+        {users.map((row) => {
+          const name = row.displayName ?? row.username;
+          return (
+            <li
+              key={row.username}
+              className="flex items-center justify-between gap-3 px-5 py-3"
+            >
+              <Link
+                href={publicProfileHref(row.username)}
+                className={`group flex min-w-0 items-center gap-3 rounded-md ${FOCUS_RING_CLASSES}`}
               >
-                <Link
-                  href={publicProfileHref(row.username)}
-                  className={`group flex min-w-0 items-center gap-3 rounded-md ${FOCUS_RING_CLASSES}`}
-                >
-                  <UserAvatar avatarUrl={row.avatarUrl} name={name} size="sm" />
-                  <span className="min-w-0">
-                    <span
-                      className={`block truncate text-sm ${ROW_LINK_TITLE_CLASSES}`}
-                    >
-                      {name}
-                    </span>
-                    <span className="block truncate text-xs text-surface-500">
-                      @{row.username}
-                    </span>
+                <UserAvatar avatarUrl={row.avatarUrl} name={name} size="sm" />
+                <span className="min-w-0">
+                  <span
+                    className={`block truncate text-sm ${ROW_LINK_TITLE_CLASSES}`}
+                  >
+                    {name}
                   </span>
-                </Link>
-                <Button
-                  variant="neutral"
-                  size="sm"
-                  onClick={() => unblock(row.username)}
-                >
-                  {t("unblock")}
-                </Button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  <span className="block truncate text-xs text-surface-500">
+                    @{row.username}
+                  </span>
+                </span>
+              </Link>
+              <Button
+                variant="neutral"
+                size="sm"
+                onClick={() => unblock(row.username)}
+              >
+                {t("unblock")}
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
     </SettingsCard>
   );
 }
