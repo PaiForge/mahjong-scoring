@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
+import { toJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
 import type { AnnouncementInput } from "../validation";
 import { resolvePinnedAt, toAnnouncementRow } from "../announcement-row";
@@ -19,7 +21,7 @@ function input(overrides: Partial<AnnouncementInput> = {}): AnnouncementInput {
     content: "本文",
     locale: "ja",
     status: "published",
-    publishedAt: "2026-08-01T00:00:00.000Z",
+    publishedAt: "2026-08-01T09:00",
     pinned: false,
     ...overrides,
   };
@@ -54,12 +56,6 @@ describe("toAnnouncementRow", () => {
       locale: "ja",
       status: "published",
     });
-  });
-
-  it("publishedAt の ISO 文字列を Date にする", () => {
-    expect(toAnnouncementRow(input(), CREATING).publishedAt).toEqual(
-      new Date("2026-08-01T00:00:00.000Z"),
-    );
   });
 
   it("publishedAt が null なら null のまま渡す", () => {
@@ -98,3 +94,44 @@ describe("toAnnouncementRow", () => {
     );
   });
 });
+
+// 公開日時は datetime-local の値（タイムゾーンを持たない）で届く。サーバーの
+// タイムゾーン（Vercel は UTC）に依らず JST の壁時計として読むことを、TZ を
+// 回して確かめる
+describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
+  "toAnnouncementRow の公開日時（サーバーのタイムゾーンが %s）",
+  (tz) => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("datetime-local の値を JST の瞬間にする", () => {
+      vi.stubEnv("TZ", tz);
+      expect(
+        toAnnouncementRow(input({ publishedAt: "2026-08-01T09:00" }), CREATING)
+          .publishedAt,
+      ).toEqual(new Date("2026-08-01T00:00:00Z"));
+    });
+
+    it("JST の 0 時台は UTC の前日の瞬間になる", () => {
+      vi.stubEnv("TZ", tz);
+      expect(
+        toAnnouncementRow(input({ publishedAt: "2026-08-01T00:30" }), CREATING)
+          .publishedAt,
+      ).toEqual(new Date("2026-07-31T15:30:00Z"));
+    });
+
+    // 編集画面は保存値を toJstDateTimeLocal で入力欄に入れ、フォームはその値を
+    // 触らずに送り返す。触らずに保存しても公開日時が動かないこと
+    it("編集画面の初期値をそのまま保存すると同じ瞬間に戻る", () => {
+      vi.stubEnv("TZ", tz);
+      const stored = new Date("2026-08-01T00:30:00Z");
+      expect(
+        toAnnouncementRow(
+          input({ publishedAt: toJstDateTimeLocal(stored) }),
+          CREATING,
+        ).publishedAt,
+      ).toEqual(stored);
+    });
+  },
+);

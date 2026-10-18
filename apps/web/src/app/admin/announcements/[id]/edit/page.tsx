@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import { toJstDateTimeLocal } from "@mahjong-scoring/features/jst";
+
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { announcements, db } from "@/lib/db";
@@ -48,7 +50,7 @@ export default async function EditAnnouncementPage({ params }: Props) {
           locale: announcement.locale,
           status: announcement.status ?? AnnouncementStatus.Draft,
           publishedAt: announcement.publishedAt
-            ? announcement.publishedAt.toISOString()
+            ? toJstDateTimeLocal(announcement.publishedAt)
             : null,
           pinned: announcement.pinnedAt !== null,
         }}

@@ -1,5 +1,7 @@
 import { revalidatePath } from "next/cache";
 
+import { parseJstDateTimeLocal } from "@mahjong-scoring/features/jst";
+
 import type { AnnouncementInput } from "./validation";
 
 /**
@@ -71,7 +73,9 @@ export function toAnnouncementRow(
     locale: data.locale,
     status: data.status,
     pinnedAt: resolvePinnedAt(data.pinned, currentPinnedAt, now),
-    publishedAt: data.publishedAt ? new Date(data.publishedAt) : null,
+    publishedAt: data.publishedAt
+      ? parseJstDateTimeLocal(data.publishedAt)
+      : null,
   };
 }
 

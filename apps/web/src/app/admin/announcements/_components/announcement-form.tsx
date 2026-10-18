@@ -5,6 +5,8 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
+import { toJstDateTimeLocal } from "@mahjong-scoring/features/jst";
+
 import { SUPPORTED_LOCALES } from "@/i18n/locales";
 import { AnnouncementStatus } from "@/lib/announcement-status";
 
@@ -20,6 +22,7 @@ export interface AnnouncementFormDefaults {
   content: string;
   locale: string;
   status: string;
+  /** 公開日時（JST の datetime-local の値。`toJstDateTimeLocal` で作る） */
   publishedAt: string | null;
   pinned: boolean;
 }
@@ -31,16 +34,6 @@ interface Props {
   readonly defaultSlug?: string;
   readonly defaultLocale?: string;
   readonly lockSlug?: boolean;
-}
-
-/** Date / ISO 文字列を datetime-local 入力値（ローカルタイム）に変換 */
-function toDatetimeLocal(value: string | null | undefined): string {
-  if (!value) {
-    return "";
-  }
-  const d = new Date(value);
-  const offsetMs = d.getTimezoneOffset() * 60000;
-  return new Date(d.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
 export function AnnouncementForm({
@@ -64,15 +57,17 @@ export function AnnouncementForm({
   const [status, setStatus] = useState(
     defaultValues?.status ?? AnnouncementStatus.Draft,
   );
+  // 入力欄の値は JST の壁時計のまま持ち、瞬間への変換はサーバーに任せる。
+  // ブラウザで `new Date()` に通すと端末のタイムゾーンで読まれる
   const [publishedAtLocal, setPublishedAtLocal] = useState(
-    toDatetimeLocal(defaultValues?.publishedAt),
+    defaultValues?.publishedAt ?? "",
   );
   const [pinned, setPinned] = useState(defaultValues?.pinned ?? false);
 
   const handleStatusChange = (next: string) => {
     setStatus(next);
     if (next === AnnouncementStatus.Published && publishedAtLocal === "") {
-      setPublishedAtLocal(toDatetimeLocal(new Date().toISOString()));
+      setPublishedAtLocal(toJstDateTimeLocal(new Date()));
     }
   };
 
@@ -84,9 +79,7 @@ export function AnnouncementForm({
         content,
         locale,
         status,
-        publishedAt: publishedAtLocal
-          ? new Date(publishedAtLocal).toISOString()
-          : null,
+        publishedAt: publishedAtLocal || null,
         pinned,
       };
 
@@ -188,7 +181,7 @@ export function AnnouncementForm({
         </div>
         <div className="min-w-0 flex-1">
           <label className="mb-1 block text-sm font-medium text-surface-700">
-            {t("publishedAt")}
+            {t("publishedAtInput")}
           </label>
           <input
             type="datetime-local"

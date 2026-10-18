@@ -1,3 +1,5 @@
+import { parseJstDateTimeLocal } from "@mahjong-scoring/features/jst";
+
 import { isSupportedLocale } from "@/i18n/locales";
 import {
   AnnouncementStatus,
@@ -11,7 +13,11 @@ export interface AnnouncementInput {
   readonly content: string;
   readonly locale: string;
   readonly status: string;
-  /** 公開日時（ISO文字列）。フォームの未入力は null で表現される */
+  /**
+   * 公開日時。`<input type="datetime-local">` の値（`YYYY-MM-DDTHH:mm`）を
+   * そのまま受け取り、サーバーが JST の壁時計として読む（`parseJstDateTimeLocal`）。
+   * フォームの未入力は null で表現される
+   */
   readonly publishedAt: string | null;
   readonly pinned: boolean;
 }
@@ -26,7 +32,8 @@ export type AnnouncementValidationError =
   | "errorContentRequired"
   | "errorLocaleInvalid"
   | "errorStatusInvalid"
-  | "errorPublishedAtRequired";
+  | "errorPublishedAtRequired"
+  | "errorPublishedAtInvalid";
 
 /**
  * 各フィールドの最大長。
@@ -73,6 +80,9 @@ export function validateAnnouncement(
   }
   if (data.status === AnnouncementStatus.Published && !data.publishedAt) {
     return "errorPublishedAtRequired";
+  }
+  if (data.publishedAt && !parseJstDateTimeLocal(data.publishedAt)) {
+    return "errorPublishedAtInvalid";
   }
   return undefined;
 }
