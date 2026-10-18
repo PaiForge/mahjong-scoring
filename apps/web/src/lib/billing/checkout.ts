@@ -1,13 +1,11 @@
 import { and, eq, isNull } from "drizzle-orm";
 import "server-only";
-import type Stripe from "stripe";
 
+import { billingCheckouts, db, type TransactionClient } from "@/lib/db";
 import {
-  billingCheckouts,
-  db,
-  type BillingCheckout,
-  type TransactionClient,
-} from "@/lib/db";
+  checkoutSessionOutcome,
+  checkoutSessionParams,
+} from "./checkout-session";
 import { hasUnexpiredPurchase, lockBillingCustomer } from "./checkout-state";
 import {
   isReservationTooLateForSession,
@@ -18,7 +16,6 @@ import { getOfferPriceId } from "./env";
 import {
   PLANS,
   PurchaseKind,
-  PLAN_PAGE_HREF,
   type OfferKey,
 } from "@mahjong-scoring/features/billing/plans";
 import { recordPurchaseFromCheckoutSession } from "./purchases";
@@ -148,22 +145,31 @@ async function reserveAndActivate(
           { expand: ["line_items"] },
         )
       : await stripe.checkout.sessions.create(
-          checkoutParams(attempt, customerId),
+          checkoutSessionParams(attempt, customerId),
           { idempotencyKey: `checkout:${attempt.id}` },
         );
     await tx
       .update(billingCheckouts)
       .set({ stripeCheckoutSessionId: session.id })
       .where(eq(billingCheckouts.id, attempt.id));
-    if (session.status === "expired") {
-      await settle(tx, attempt.id);
-      return { error: "checkoutExpired" } as const;
+    const outcome = checkoutSessionOutcome(session, attempt, offerKey);
+    switch (outcome.kind) {
+      case "expired":
+        await settle(tx, attempt.id);
+        return { error: "checkoutExpired" } as const;
+      case "completed":
+        return { completed: session } as const;
+      case "inProgress":
+        return { error: "checkoutInProgress" } as const;
+      case "missingUrl":
+        throw new Error("Checkout has no URL");
+      case "redirect":
+        return { url: outcome.url };
+      default: {
+        const exhaustive: never = outcome;
+        return exhaustive;
+      }
     }
-    if (session.status === "complete") return { completed: session } as const;
-    if (attempt.offer !== offerKey)
-      return { error: "checkoutInProgress" } as const;
-    if (!session.url) throw new Error("Checkout has no URL");
-    return { url: session.url };
   });
   if ("completed" in result && result.completed) {
     // ロックを解放してから同じ購入記録関数へ。Webhook が遅れていても回復する。
@@ -172,23 +178,6 @@ async function reserveAndActivate(
   }
   if ("url" in result && result.url) return { url: result.url };
   return { error: result.error ?? "checkoutPending" };
-}
-
-function checkoutParams(
-  attempt: BillingCheckout,
-  customer: string,
-): Stripe.Checkout.SessionCreateParams {
-  return {
-    customer,
-    mode: "payment",
-    line_items: [{ price: attempt.stripePriceId, quantity: 1 }],
-    allowed_payment_method_types: ["card"],
-    locale: "ja",
-    expires_at: Math.floor(attempt.expiresAt.getTime() / 1000),
-    success_url: `${attempt.origin}/api/stripe/checkout/complete?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${attempt.origin}${PLAN_PAGE_HREF}`,
-    metadata: { billingCheckoutId: attempt.id },
-  };
 }
 
 async function settle(tx: TransactionClient, id: string): Promise<void> {
