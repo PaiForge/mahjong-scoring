@@ -1,10 +1,7 @@
 import { useTranslations } from "use-intl";
 import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
-import { sumYakuHan } from "@mahjong-scoring/core";
-import {
-  resolveBreakdownTabs,
-  type BreakdownJudgement,
-} from "@mahjong-scoring/features/results/breakdown-tabs";
+import type { BreakdownJudgement } from "@mahjong-scoring/features/results/breakdown-tabs";
+import { buildScoreBreakdownTabs } from "@mahjong-scoring/features/results/score-breakdown-tabs";
 
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
@@ -66,49 +63,39 @@ export function ScoreBreakdownPanel({
     openScoreTable === undefined ? undefined : () => openScoreTable(true);
   const fuHanOrder = useFuHanOrder();
 
-  const hasYaku = yakuDetails !== undefined && yakuDetails.length > 0;
-  const { kinds, initial } = resolveBreakdownTabs(
+  const { tabs, initial } = buildScoreBreakdownTabs(
     fuHanOrder,
-    { han: hasYaku, fu: fu !== undefined },
+    fu,
+    yakuDetails,
     judgement,
   );
 
-  const sections = kinds.flatMap((kind): BreakdownPanelSection[] => {
-    if (kind === "fu" && fu !== undefined) {
-      return [
-        {
-          kind,
-          tabLabel: t("fuTab", { value: fu.answer }),
+  const sections = tabs.map((tab): BreakdownPanelSection =>
+    tab.kind === "fu"
+      ? {
+          kind: tab.kind,
+          tabLabel: t("fuTab", { value: tab.fu.answer }),
           content: (
             <FuBreakdownTable
-              details={fu.details}
-              answer={fu.answer}
+              details={tab.fu.details}
+              answer={tab.fu.answer}
               translationNamespace="challenge.fuBreakdown"
               onOpenScoreTable={openHighlighted}
             />
           ),
-        },
-      ];
-    }
-    if (kind === "han" && yakuDetails !== undefined) {
-      return [
-        {
-          kind,
-          tabLabel: t("hanTab", {
-            count: sumYakuHan(yakuDetails),
-          }),
+        }
+      : {
+          kind: tab.kind,
+          tabLabel: t("hanTab", { count: tab.hanTotal }),
           content: (
             <YakuBreakdownTable
-              yakuDetails={yakuDetails}
+              yakuDetails={tab.yakuDetails}
               note={yakuNote}
               onOpenScoreTable={openHighlighted}
             />
           ),
         },
-      ];
-    }
-    return [];
-  });
+  );
 
   return (
     <>

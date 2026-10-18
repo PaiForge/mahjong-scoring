@@ -1,4 +1,8 @@
-import type { HaiKindId, TenpaiScoreQuestion } from "@mahjong-scoring/core";
+import type {
+  HaiKindId,
+  ScoreQuestion,
+  TenpaiScoreQuestion,
+} from "@mahjong-scoring/core";
 import { machiCellKey } from "@mahjong-scoring/core";
 
 /**
@@ -43,4 +47,21 @@ export function listCellRefs(
   return [true, false].flatMap((isTsumo) =>
     question.waits.map((wait) => ({ agariHai: wait.agariHai, isTsumo })),
   );
+}
+
+/**
+ * マスの出題（その待ちでツモ / ロンしたときの点数計算）を引く
+ * マスの出題
+ *
+ * 役が無くロンできないマスなど、出題を持たないマスでは undefined。
+ *
+ * @param question - 聴牌形の出題
+ * @param cell - マス
+ */
+export function cellQuestionOf(
+  question: Readonly<TenpaiScoreQuestion>,
+  cell: MachiCellRef,
+): ScoreQuestion | undefined {
+  const wait = question.waits.find((w) => w.agariHai === cell.agariHai);
+  return cell.isTsumo ? wait?.tsumo : wait?.ron;
 }

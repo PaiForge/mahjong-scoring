@@ -9,20 +9,16 @@
  * このモジュールは純粋。
  */
 
-import { JST_OFFSET_MS } from "../jst";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { jstCalendarDate, jstStartOfDay } from "../jst";
 
 /**
  * JST でのその日の終わり（翌日 0:00 JST）
  * JST日終わり
  *
  * 未ログインの cookie の有効期限に使う。期限が来れば cookie 自体が消え、
- * 枠が戻る。`jstDayKey` と同じ 9 時間のずらしで日を切る。
+ * 枠が戻る。`jstDayKey` と同じ 9 時間のずらしで日を切る（`jstCalendarDate`）。
  */
 export function jstEndOfDay(now: Date): Date {
-  const shifted = now.getTime() + JST_OFFSET_MS;
-  const startOfJstDayUtc =
-    Math.floor(shifted / DAY_MS) * DAY_MS - JST_OFFSET_MS;
-  return new Date(startOfJstDayUtc + DAY_MS);
+  const { year, month, day } = jstCalendarDate(now);
+  return jstStartOfDay(year, month, day + 1);
 }

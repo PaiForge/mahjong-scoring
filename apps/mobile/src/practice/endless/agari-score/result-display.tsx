@@ -12,7 +12,10 @@ import {
 } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
+import {
+  buildScoreResultDisplay,
+  resolveScoreResultBreakdown,
+} from "@mahjong-scoring/features/results/score-result-display";
 
 import { BookIcon, TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
@@ -21,7 +24,6 @@ import { linkStyles } from "../../../lib/link-styles";
 import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
 import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
-import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "../../../hooks/use-display-settings-store";
 import {
   BreakdownPanel,
@@ -37,7 +39,6 @@ import {
   ResultUnansweredValue,
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
-import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
@@ -134,56 +135,44 @@ export function ResultDisplay({
   );
 
   // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
-  const { row: showsFu, breakdown: showsFuBreakdown } = resolveFuVisibility(
+  const {
+    showsFu,
+    tabs: breakdownTabs,
+    initial: initialBreakdown,
+  } = resolveScoreResultBreakdown(
     answer,
-    { requireFuForMangan },
+    { yakuBreakdown, fuBreakdown },
+    { order: fuHanOrder, requireFuForMangan, judgement: judged?.result },
   );
-  const breakdownTabs = resolveBreakdownTabs(
-    fuHanOrder,
-    {
-      han: yakuBreakdown !== undefined,
-      fu: showsFuBreakdown && fuBreakdown !== undefined,
-    },
-    judged?.result,
-  );
-  const breakdownSections = breakdownTabs.kinds.flatMap(
-    (kind): BreakdownPanelSection[] => {
-      if (kind === "han" && yakuBreakdown) {
-        return [
-          {
+  const breakdownSections = breakdownTabs.map(
+    ({ kind, breakdown }): BreakdownPanelSection =>
+      kind === "han"
+        ? {
             kind,
             tabLabel: `${t("form.labels.han")} ${hanDisplay(answer.han)}`,
             content: (
               <ResultBreakdownTable
-                items={yakuBreakdown.items}
-                total={yakuBreakdown.total}
+                items={breakdown.items}
+                total={breakdown.total}
                 suffix={t("form.options.hanSuffix")}
                 onOpenScoreTable={() => scoreTable.open(true)}
                 onOpenYakuList={openYakuCheatsheet}
               />
             ),
-          },
-        ];
-      }
-      if (kind === "fu" && fuBreakdown) {
-        return [
-          {
+          }
+        : {
             kind,
             tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
             content: (
               <ResultBreakdownTable
-                items={fuBreakdown.items}
-                total={fuBreakdown.total}
+                items={breakdown.items}
+                total={breakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
                 onOpenScoreTable={() => scoreTable.open(true)}
               />
             ),
           },
-        ];
-      }
-      return [];
-    },
   );
 
   return (
@@ -195,7 +184,7 @@ export function ResultDisplay({
             <BreakdownPanel
               title={t("result.details.toggle")}
               sections={breakdownSections}
-              initialKind={breakdownTabs.initial}
+              initialKind={initialBreakdown}
               surface="sunken"
               testID="result-breakdown"
               action={

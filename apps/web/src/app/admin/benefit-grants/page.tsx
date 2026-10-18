@@ -4,6 +4,7 @@ import { createSearchParamsCache, parseAsInteger } from "nuqs/server";
 import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
+import { TableHead } from "@/app/admin/_components/table-head";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -58,18 +59,7 @@ export default async function AdminBenefitGrantsPage({
 
       <div className="admin-table">
         <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-surface-200">
-              {COLUMN_KEYS.map((key) => (
-                <th
-                  key={key}
-                  className="px-4 py-3 font-medium whitespace-nowrap"
-                >
-                  {t(`table.${key}`)}
-                </th>
-              ))}
-            </tr>
-          </thead>
+          <TableHead labels={COLUMN_KEYS.map((key) => t(`table.${key}`))} />
           <tbody>
             {grants.length === 0 ? (
               <TableEmptyRow

@@ -15,7 +15,10 @@ import {
 } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import { buildScoreResultDisplay } from "@mahjong-scoring/features/results/score-result-display";
+import {
+  buildScoreResultDisplay,
+  resolveScoreResultBreakdown,
+} from "@mahjong-scoring/features/results/score-result-display";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
 import { useYakuCheatsheetState } from "@mahjong-scoring/features/yaku/use-yaku-cheatsheet-state";
 import { ResultBreakdownTable } from "./result-breakdown-table";
@@ -23,7 +26,6 @@ import {
   BreakdownPanel,
   type BreakdownPanelSection,
 } from "../../_components/breakdown-panel";
-import { resolveBreakdownTabs } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { AGARI_SCORE_RESULT_TOUR_ID } from "../_lib/tour-ids";
@@ -33,7 +35,6 @@ import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
-import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
@@ -136,56 +137,44 @@ export function ResultDisplay({
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
   // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
-  const { row: showsFu, breakdown: showsFuBreakdown } = resolveFuVisibility(
+  const {
+    showsFu,
+    tabs: breakdownTabs,
+    initial: initialBreakdown,
+  } = resolveScoreResultBreakdown(
     answer,
-    { requireFuForMangan },
+    { yakuBreakdown, fuBreakdown },
+    { order: fuHanOrder, requireFuForMangan, judgement: judged?.result },
   );
-  const breakdownTabs = resolveBreakdownTabs(
-    fuHanOrder,
-    {
-      han: yakuBreakdown !== undefined,
-      fu: showsFuBreakdown && fuBreakdown !== undefined,
-    },
-    judged?.result,
-  );
-  const breakdownSections = breakdownTabs.kinds.flatMap(
-    (kind): BreakdownPanelSection[] => {
-      if (kind === "han" && yakuBreakdown) {
-        return [
-          {
+  const breakdownSections = breakdownTabs.map(
+    ({ kind, breakdown }): BreakdownPanelSection =>
+      kind === "han"
+        ? {
             kind,
             tabLabel: `${t("form.labels.han")} ${getHanDisplay(answer.han)}`,
             content: (
               <ResultBreakdownTable
-                items={yakuBreakdown.items}
-                total={yakuBreakdown.total}
+                items={breakdown.items}
+                total={breakdown.total}
                 suffix={t("form.options.hanSuffix")}
                 onOpenScoreTable={() => scoreTable.open(true)}
                 onOpenYakuList={openYakuList}
               />
             ),
-          },
-        ];
-      }
-      if (kind === "fu" && fuBreakdown) {
-        return [
-          {
+          }
+        : {
             kind,
             tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
             content: (
               <ResultBreakdownTable
-                items={fuBreakdown.items}
-                total={fuBreakdown.total}
+                items={breakdown.items}
+                total={breakdown.total}
                 suffix={t("form.options.fuSuffix")}
                 roundedTotal={answer.fu}
                 onOpenScoreTable={() => scoreTable.open(true)}
               />
             ),
           },
-        ];
-      }
-      return [];
-    },
   );
 
   return (
@@ -198,7 +187,7 @@ export function ResultDisplay({
             <BreakdownPanel
               title={t("result.details.toggle")}
               sections={breakdownSections}
-              initialKind={breakdownTabs.initial}
+              initialKind={initialBreakdown}
               surface="sunken"
               action={
                 // 点数の行の「点数表を確認」と同じ導線。正解の位置へ着地

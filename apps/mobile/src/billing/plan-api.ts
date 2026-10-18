@@ -12,13 +12,8 @@ import {
   type MobilePlanResponse,
 } from "@mahjong-scoring/features/billing/mobile-api";
 
-import {
-  apiFailureOf,
-  callMobileApi,
-  errorOf,
-  type ApiFailure,
-  type MobileApiInit,
-} from "../auth/api-client";
+import type { ApiFailure, MobileApiInit } from "../auth/api-client";
+import { domainFailureOf, requestMobileApi } from "../auth/request-mobile-api";
 import { SITE_URL } from "../lib/app-site-url";
 import { readJson } from "../auth/read-json";
 
@@ -48,28 +43,19 @@ export type PlanApiResult<T> =
  * 回数制限の API（`practice/quota/quota-api.ts`）も同じ理由の集合を返すので、
  * これを通す。
  */
-export async function requestPlanApi<T>(
+export function requestPlanApi<T>(
   path: string,
   init: MobileApiInit & { readonly asUser: string },
   parse: (body: unknown) => T | undefined,
 ): Promise<PlanApiResult<T>> {
-  const response = await callMobileApi(path, init);
-  if (typeof response === "string") return { error: response };
-  if (response.ok) {
-    const value = parse(await readJson(response));
-    return value === undefined ? { error: "unknown" } : { value };
-  }
-  const error = await errorOf(response.clone());
-  if (isMobilePlanErrorCode(error)) return { error };
-  if (response.status >= 500 && response.status !== 503)
-    return { error: "serverError" };
-  const failure = await apiFailureOf(response);
-  return {
-    error:
-      failure === "unknown" && response.status >= 400 && response.status < 500
-        ? "rejected"
-        : failure,
-  };
+  return requestMobileApi(path, init, parse, async (response) => {
+    const failure = await domainFailureOf(response, isMobilePlanErrorCode);
+    return failure === "unknown" &&
+      response.status >= 400 &&
+      response.status < 500
+      ? "rejected"
+      : failure;
+  });
 }
 
 /**

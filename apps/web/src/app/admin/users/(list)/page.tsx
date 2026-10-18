@@ -19,6 +19,7 @@ import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav
 
 import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
+import { TableHead } from "@/app/admin/_components/table-head";
 
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
@@ -77,28 +78,16 @@ export default async function AdminUsersPage({
 
       <div className="admin-table">
         <table className="w-full text-left text-sm">
-          <thead>
-            <tr className="border-b border-surface-200">
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.email")}
-              </th>
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.username")}
-              </th>
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.displayName")}
-              </th>
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.status")}
-              </th>
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.createdAt")}
-              </th>
-              <th className="px-4 py-3 font-medium whitespace-nowrap">
-                {t("usersTable.detail")}
-              </th>
-            </tr>
-          </thead>
+          <TableHead
+            labels={[
+              t("usersTable.email"),
+              t("usersTable.username"),
+              t("usersTable.displayName"),
+              t("usersTable.status"),
+              t("usersTable.createdAt"),
+              t("usersTable.detail"),
+            ]}
+          />
           <tbody>
             {users.length === 0 ? (
               <TableEmptyRow

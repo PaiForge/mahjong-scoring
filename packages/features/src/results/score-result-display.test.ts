@@ -1,7 +1,10 @@
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { buildScoreResultDisplay } from "./score-result-display";
+import {
+  buildScoreResultDisplay,
+  resolveScoreResultBreakdown,
+} from "./score-result-display";
 
 /** 答え合わせに要る項目だけを持つ出題（手牌・点数は組み立てに関与しない） */
 function questionOf(
@@ -124,5 +127,62 @@ describe("buildScoreResultDisplay の内訳", () => {
       buildScoreResultDisplay(questionOf({ fuDetails: [] }), [], ORDER)
         .fuBreakdown,
     ).toEqual({ items: [], total: 0 });
+  });
+});
+
+describe("resolveScoreResultBreakdown", () => {
+  const yakuBreakdown = { items: [{ name: "立直", value: 1 }], total: 1 };
+  const fuBreakdown = { items: [{ name: "副底", value: 20 }], total: 20 };
+  const display = { yakuBreakdown, fuBreakdown };
+  const options = {
+    order: "han-first",
+    requireFuForMangan: false,
+    judgement: undefined,
+  } as const;
+
+  it("満貫未満は符の行を出し、翻数・符の内訳を表記順に並べる", () => {
+    expect(
+      resolveScoreResultBreakdown(
+        { han: 3, scoreLevel: "Normal" },
+        display,
+        options,
+      ),
+    ).toEqual({
+      showsFu: true,
+      tabs: [
+        { kind: "han", breakdown: yakuBreakdown },
+        { kind: "fu", breakdown: fuBreakdown },
+      ],
+      initial: "han",
+    });
+  });
+
+  it("符で満貫に届いた手は符の行を出さず、内訳だけ出す", () => {
+    const layout = resolveScoreResultBreakdown(
+      { han: 3, scoreLevel: "Mangan" },
+      display,
+      options,
+    );
+    expect(layout.showsFu).toBe(false);
+    expect(layout.tabs.map((tab) => tab.kind)).toEqual(["han", "fu"]);
+  });
+
+  it("5 翻以上は符の内訳を出さない", () => {
+    expect(
+      resolveScoreResultBreakdown(
+        { han: 5, scoreLevel: "Mangan" },
+        display,
+        options,
+      ).tabs.map((tab) => tab.kind),
+    ).toEqual(["han"]);
+  });
+
+  it("片方だけ間違えたら、開いたときにその内訳を選ぶ", () => {
+    expect(
+      resolveScoreResultBreakdown({ han: 3, scoreLevel: "Normal" }, display, {
+        ...options,
+        judgement: { isHanCorrect: true, isFuCorrect: false },
+      }).initial,
+    ).toBe("fu");
   });
 });

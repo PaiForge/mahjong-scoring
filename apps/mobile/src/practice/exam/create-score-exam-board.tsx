@@ -1,11 +1,10 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
+import { buildScoreExamBreakdown } from "@mahjong-scoring/features/exam/score-exam-breakdown";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
@@ -118,20 +117,7 @@ export function createScoreExamBoard(
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
-            fu={
-              question.fuDetails !== undefined &&
-              resolveFuVisibility(question.answer, {
-                requireFuForMangan: false,
-              }).breakdown
-                ? { details: question.fuDetails, answer: question.answer.fu }
-                : undefined
-            }
-            yakuDetails={question.yakuDetails}
-            yakuNote={buildYakumanCapNote(
-              question.yakuDetails,
-              question.answer.yakumanMultiplier,
-              tBreakdown,
-            )}
+            {...buildScoreExamBreakdown(question, tBreakdown)}
             scoreTableFocus={scoreTableFocusOfQuestion(question)}
           />
         )}

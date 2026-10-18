@@ -2,7 +2,7 @@ import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
 /** `challenge.yakuBreakdown` の翻訳関数（`han` の件数補間を含む） */
-type YakuBreakdownTranslator = (
+export type YakuBreakdownTranslator = (
   key: string,
   values?: Record<string, number>,
 ) => string;
