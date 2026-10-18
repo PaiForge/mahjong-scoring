@@ -4,6 +4,13 @@ import type {
   YakuSelectionJudgement,
 } from "@mahjong-scoring/core";
 
+import type { FuHanOrder } from "../settings/fu-han-order";
+import {
+  resolveBreakdownTabs,
+  type BreakdownJudgement,
+  type BreakdownKind,
+} from "./breakdown-tabs";
+import { resolveFuVisibility } from "./fu-visibility";
 import { orderYakuDetails } from "./order-yaku-details";
 
 /** 内訳の 1 行（役名・符の理由と、その翻数・符） */
@@ -76,6 +83,64 @@ export function buildScoreResultDisplay(
         ? undefined
         : buildFuItems(question.fuDetails),
   };
+}
+
+/** 答え合わせの内訳の切り替え 1 つ分（翻数の内訳 / 符の内訳） */
+export interface ScoreResultBreakdownTab {
+  readonly kind: BreakdownKind;
+  readonly breakdown: ScoreResultBreakdown;
+}
+
+/** 答え合わせの符の行と内訳の切り替え */
+export interface ScoreResultBreakdownLayout {
+  /** 符の行（正解の符と回答の符）を出すか */
+  readonly showsFu: boolean;
+  /** 内訳の切り替え。表記順に並ぶ。内訳が 1 つも無ければ空 */
+  readonly tabs: readonly ScoreResultBreakdownTab[];
+  /** 開いたときに選ぶ種類 */
+  readonly initial: BreakdownKind | undefined;
+}
+
+/**
+ * 点数計算の答え合わせで、符の行を出すかと内訳の切り替えを決める
+ * 点数計算結果内訳
+ *
+ * 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
+ * （{@link resolveFuVisibility}）。並びと開いたときの選択は
+ * {@link resolveBreakdownTabs}。web・モバイルの `ResultDisplay` が共有し、
+ * 各タブの見出しと表はプラットフォームの部品が組み立てる。
+ *
+ * @param answer - 正解の点数計算結果
+ * @param display - {@link buildScoreResultDisplay} の戻り値
+ * @param options.order - 符と翻の表記順
+ * @param options.requireFuForMangan - 満貫以上でも符を答えさせる設定か
+ * @param options.judgement - 翻数・符の正誤。無回答の正解開示では undefined
+ */
+export function resolveScoreResultBreakdown(
+  answer: Pick<ScoreQuestion["answer"], "han" | "scoreLevel">,
+  display: Pick<ScoreResultDisplay, "yakuBreakdown" | "fuBreakdown">,
+  options: {
+    readonly order: FuHanOrder;
+    readonly requireFuForMangan: boolean;
+    readonly judgement: BreakdownJudgement | undefined;
+  },
+): ScoreResultBreakdownLayout {
+  const { row: showsFu, breakdown: showsFuBreakdown } = resolveFuVisibility(
+    answer,
+    { requireFuForMangan: options.requireFuForMangan },
+  );
+  const fuBreakdown = showsFuBreakdown ? display.fuBreakdown : undefined;
+  const { yakuBreakdown } = display;
+  const { kinds, initial } = resolveBreakdownTabs(
+    options.order,
+    { han: yakuBreakdown !== undefined, fu: fuBreakdown !== undefined },
+    options.judgement,
+  );
+  const tabs = kinds.flatMap((kind): ScoreResultBreakdownTab[] => {
+    const breakdown = kind === "han" ? yakuBreakdown : fuBreakdown;
+    return breakdown === undefined ? [] : [{ kind, breakdown }];
+  });
+  return { showsFu, tabs, initial };
 }
 
 function buildFuItems(
