@@ -3,8 +3,8 @@
  *
  * @description ユーザー名で誰でも閲覧できる公開プロフィール。アバター・表示名・自己紹介・SNS リンクを表示する（SSR / SEO 対象）。退会・BAN・存在しないユーザーは 404。
  * 閲覧者がブロックした人は 404 にせず、ブロック中である旨と解除のボタンだけを出す（解除の入口を残すため）。
- * 末尾に通報とブロックのボタンを置く。未ログインならログインが要る旨、自分のページなら何も置かない。
- * @flow マイページの「公開プロフィール」リンク・ランキングの行 → /u/[username] → ブロック → ブロック中の案内
+ * 通報とブロックはアバターの右上の「…」メニューに収める（`ProfileActionsMenu`）。ログインしていて他人のページのときだけ置く。
+ * @flow マイページの「公開プロフィール」リンク・ランキングの行 → /u/[username] → 「…」→ ブロック → ブロック中の案内
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -16,18 +16,14 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { UserAvatar } from "@/app/(user)/_components/user-avatar";
 import { createMetadata } from "@/app/_lib/metadata";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { getOptionalUser } from "@/lib/auth";
 import { isBlocking } from "@/lib/blocks/blocks";
 import { getPublicProfileByUsername } from "@/lib/db/queries";
-import { buildSignInHref } from "@/lib/redirect";
-import Link from "next/link";
 
 import { buildSnsLinks } from "@mahjong-scoring/features/public-profile/sns-links";
 
-import { BlockButton, UnblockButton } from "./_components/block-buttons";
-import { ReportButton } from "./_components/report-button";
-import { publicProfileHref } from "@/lib/users/public-profile-href";
+import { UnblockButton } from "./_components/block-dialogs";
+import { ProfileActionsMenu } from "./_components/profile-actions-menu";
 
 interface Props {
   readonly params: Promise<{ username: string }>;
@@ -95,7 +91,26 @@ export default async function PublicProfilePage({ params }: Props) {
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
-        <div className="flex flex-col items-center gap-2 text-center">
+        <div className="relative flex flex-col items-center gap-2 text-center">
+          {viewer !== undefined && !isOwnProfile && (
+            <div className="absolute right-0 top-0">
+              <ProfileActionsMenu
+                username={profile.username}
+                labels={{
+                  menu: t("moreActions"),
+                  block: t("block"),
+                  confirmTitle: t("blockConfirmTitle", {
+                    username: profile.username,
+                  }),
+                  confirmMessage: t("blockConfirmMessage"),
+                  confirm: t("blockConfirm"),
+                  cancel: t("cancel"),
+                  blockedToast: t("blockedToast"),
+                  failedToast: t("blockFailedToast"),
+                }}
+              />
+            </div>
+          )}
           <UserAvatar avatarUrl={profile.avatarUrl} name={name} size="lg" />
           <div>
             {profile.displayName && (
@@ -137,45 +152,6 @@ export default async function PublicProfilePage({ params }: Props) {
               ))}
             </ul>
           </section>
-        )}
-
-        {!isOwnProfile && (
-          <div className="flex flex-col items-center gap-3 border-t border-panel pt-6">
-            {viewer === undefined ? (
-              <p className="text-sm text-surface-500">
-                {t.rich("guestModerationNote", {
-                  signIn: (chunks) => (
-                    <Link
-                      href={buildSignInHref(
-                        publicProfileHref(profile.username),
-                      )}
-                      className={TEXT_LINK_CLASSES}
-                    >
-                      {chunks}
-                    </Link>
-                  ),
-                })}
-              </p>
-            ) : (
-              <div className="flex gap-3">
-                <ReportButton username={profile.username} />
-                <BlockButton
-                  username={profile.username}
-                  labels={{
-                    block: t("block"),
-                    confirmTitle: t("blockConfirmTitle", {
-                      username: profile.username,
-                    }),
-                    confirmMessage: t("blockConfirmMessage"),
-                    confirm: t("blockConfirm"),
-                    cancel: t("cancel"),
-                    blockedToast: t("blockedToast"),
-                    failedToast: t("blockFailedToast"),
-                  }}
-                />
-              </div>
-            )}
-          </div>
         )}
       </div>
     </ContentContainer>
