@@ -110,8 +110,12 @@ export const PLAN_KEYS = ["pro"] as const;
 const planKeySet: ReadonlySet<string> = new Set(PLAN_KEYS);
 export type PlanKey = (typeof PLAN_KEYS)[number];
 
-/** 売り方のキー（環境変数名・Checkout の引数・辞書キーで同じ文字列を使う） */
-export const OFFER_KEYS = ["pass", "lifetime"] as const;
+/**
+ * 売り方のキー（環境変数名・Checkout の引数・辞書キーで同じ文字列を使う）
+ *
+ * 売り方の種類（{@link PurchaseKind}）と同じ語彙で、料金ページの並び順を持つ。
+ */
+export const OFFER_KEYS = [PurchaseKind.Pass, PurchaseKind.Lifetime] as const;
 
 const offerKeySet: ReadonlySet<string> = new Set(OFFER_KEYS);
 export type OfferKey = (typeof OFFER_KEYS)[number];
