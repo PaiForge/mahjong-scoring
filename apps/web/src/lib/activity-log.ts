@@ -1,6 +1,7 @@
 import "server-only";
 
 import { db, userActivityLog } from "./db";
+import { logExternalError } from "./log-error";
 
 interface ActivityEvent {
   readonly userId: string;
@@ -12,8 +13,8 @@ interface ActivityEvent {
 
 /**
  * ユーザーアクティビティイベントを記録する。
- * fire-and-forget 方式で、失敗時はサイレントに無視する。
- * メイン処理を阻害しないことを最優先とする。
+ * fire-and-forget 方式で、失敗してもメイン処理には伝えない（阻害しないことを
+ * 最優先とする）。失敗はログにだけ残し、書き込みが落ち続けても気づけるようにする。
  * アクティビティイベント記録
  */
 export function logActivityEvent(event: ActivityEvent): void {
@@ -26,5 +27,11 @@ export function logActivityEvent(event: ActivityEvent): void {
       metadata: event.metadata ?? {},
     })
     .then(() => {})
-    .catch(() => {});
+    .catch((error: unknown) => {
+      logExternalError(
+        "logActivityEvent",
+        `failed to record ${event.action}`,
+        error,
+      );
+    });
 }
