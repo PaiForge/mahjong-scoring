@@ -16,7 +16,7 @@ vi.mock("../users/delete-account", () => ({
   requestAccountDeletion: mockRequest,
 }));
 vi.mock("../activity-log", () => ({ logActivityEvent: vi.fn() }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleDeleteAccount } from "./delete-account";
 

@@ -5,7 +5,10 @@ import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-di
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
-import { yakuHanLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import {
+  yakuHanLabel,
+  yakuHanStateLabel,
+} from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 interface YakuHanProblemListProps {
   readonly results: readonly YakuHanQuestionResult[];
@@ -24,7 +27,7 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
 
   // 門前限定役も含め常に付ける（出題時のバッジと表示を揃える）
   const stateLabel = (r: YakuHanQuestionResult) =>
-    `（${r.isMenzen ? t("menzen") : t("naki")}）`;
+    `（${yakuHanStateLabel(r.isMenzen, t)}）`;
 
   return (
     <ProblemListAccordion

@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   MOBILE_LESSON_COMPLETIONS_MAX,
+  type MobileCompleteLessonsRequest,
   type MobileCompleteLessonsResponse,
   type MobileProgressResponse,
 } from "@mahjong-scoring/features/challenge/mobile-api";
@@ -19,9 +20,11 @@ import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
 import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
-const completeLessonsSchema = z.object({
-  slugs: z.array(z.string().max(100)).max(MOBILE_LESSON_COMPLETIONS_MAX),
-});
+const completeLessonsSchema: z.ZodType<MobileCompleteLessonsRequest> = z.object(
+  {
+    slugs: z.array(z.string().max(100)).max(MOBILE_LESSON_COMPLETIONS_MAX),
+  },
+);
 
 /**
  * 本人の進み具合（黒帯への道の材料）を返す（アプリ向け）

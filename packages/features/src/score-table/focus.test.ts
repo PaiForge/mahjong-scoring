@@ -1,8 +1,10 @@
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
 import {
   parseScoreTableFocusFromParams,
   resolveScoreTableFocus,
+  scoreTableFocusOfQuestion,
 } from "./focus";
 
 describe("parseScoreTableFocusFromParams", () => {
@@ -183,6 +185,40 @@ describe("resolveScoreTableFocus", () => {
       viewMode: "normal",
       normalCell: undefined,
       highScoreKey: undefined,
+    });
+  });
+});
+
+describe("scoreTableFocusOfQuestion", () => {
+  type Source = Pick<ScoreQuestion, "jikaze" | "isTsumo" | "answer">;
+  const answerOf = (han: number, fu: number | undefined) =>
+    ({ han, fu }) as unknown as ScoreQuestion["answer"];
+
+  it("自風が東ならば親、ツモならツモのタブを指す", () => {
+    const question: Source = {
+      jikaze: 27,
+      isTsumo: true,
+      answer: answerOf(3, 40),
+    };
+    expect(scoreTableFocusOfQuestion(question)).toEqual({
+      role: "oya",
+      winType: "tsumo",
+      han: 3,
+      fu: 40,
+    });
+  });
+
+  it("自風が東以外のロンは子のロン。符を持たない満貫以上は符を外す", () => {
+    const question: Source = {
+      jikaze: 28,
+      isTsumo: false,
+      answer: answerOf(6, undefined),
+    };
+    expect(scoreTableFocusOfQuestion(question)).toEqual({
+      role: "ko",
+      winType: "ron",
+      han: 6,
+      fu: undefined,
     });
   });
 });

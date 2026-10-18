@@ -3,12 +3,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  isOya,
   type ScoreQuestion,
   type ScoreTableAnswer,
 } from "@mahjong-scoring/core";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
@@ -108,12 +107,7 @@ export function RevealedScoreQuestionAnswer({
     <RevealedScoreAnswer
       answer={paymentToScoreTableAnswer(question.answer.payment)}
       translationNamespace={translationNamespace}
-      scoreTableFocus={scoreTableFocusOf({
-        isOya: isOya(question.jikaze),
-        isTsumo: question.isTsumo,
-        han: question.answer.han,
-        fu: question.answer.fu,
-      })}
+      scoreTableFocus={scoreTableFocusOfQuestion(question)}
     />
   );
 }

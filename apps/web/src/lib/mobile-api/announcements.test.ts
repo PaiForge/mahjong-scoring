@@ -11,7 +11,7 @@ vi.mock("../announcements/queries", () => ({
   getPublishedAnnouncementsPaginated: mockPage,
   getPublishedAnnouncement: mockOne,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   handleReadAnnouncement,

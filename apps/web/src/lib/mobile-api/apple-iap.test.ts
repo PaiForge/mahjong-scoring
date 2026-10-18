@@ -21,7 +21,7 @@ vi.mock("./plan", async (importOriginal) => ({
   ...(await importOriginal<typeof import("./plan")>()),
   buildMobilePlanResponse: mockBuildPlan,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleRecordAppleTransaction } from "./apple-iap";
 

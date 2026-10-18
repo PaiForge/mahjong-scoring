@@ -12,7 +12,7 @@ vi.mock("../lessons/record-completions", async (importOriginal) => ({
   ...(await importOriginal<object>()),
   recordLessonCompletions: mockRecord,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleCompleteLessons, handleReadProgress } from "./progress";
 

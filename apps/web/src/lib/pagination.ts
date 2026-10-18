@@ -20,6 +20,20 @@ export function parsePageParam(raw: string | string[] | undefined): number {
   return Number.isFinite(page) && page > 0 ? page : 1;
 }
 
+/**
+ * 要求されたページ番号を 1〜最終ページに丸める
+ * ページ番号丸め
+ *
+ * 件数が減った後の古いリンク（3 件しかないのに `?page=9`）を最終ページに
+ * 寄せる。件数が 0 でも 1 ページ目を返す。
+ *
+ * @param requested - 要求されたページ番号（1始まり）
+ * @param totalPages - 総ページ数（0 は 1 ページ扱い）
+ */
+export function clampPage(requested: number, totalPages: number): number {
+  return Math.max(1, Math.min(requested, totalPages));
+}
+
 /** ページネーション算出結果 */
 interface PaginationData {
   currentPage: number;

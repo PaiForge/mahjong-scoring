@@ -17,7 +17,7 @@ vi.mock("../db/rank-queries", () => ({ getUserRankSlugs: mockRanks }));
 vi.mock("../notifications/queries", () => ({
   countUnreadNotifications: mockUnread,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleReadMypage } from "./mypage";
 

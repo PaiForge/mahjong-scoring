@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 interface YakuHanPromptProps {
   /** 出題する役名 */
@@ -41,7 +42,7 @@ export function YakuHanPrompt({ yakuName, isMenzen }: YakuHanPromptProps) {
             : "bg-amber-100 text-amber-900"
         }`}
       >
-        {isMenzen ? t("menzen") : t("naki")}
+        {yakuHanStateLabel(isMenzen, t)}
       </span>
       <p className="text-3xl font-bold text-surface-900">{yakuName}</p>
     </div>

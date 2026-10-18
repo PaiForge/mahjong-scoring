@@ -3,7 +3,11 @@ import "server-only";
 
 import { db, notifications } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
+import {
+  clampPage,
+  DEFAULT_PAGE_SIZE,
+  getPaginationData,
+} from "@/lib/pagination";
 
 import {
   parseNotificationMetadata,
@@ -71,7 +75,7 @@ export async function listNotifications(
       NOTIFICATIONS_PAGE_SIZE,
     ).totalPages;
     const { totalPages, currentPage, limit, offset } = getPaginationData(
-      Math.min(page, lastPage),
+      clampPage(page, lastPage),
       totalCount,
       NOTIFICATIONS_PAGE_SIZE,
     );

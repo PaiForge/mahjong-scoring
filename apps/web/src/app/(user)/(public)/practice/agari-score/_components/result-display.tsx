@@ -6,13 +6,7 @@ import type {
   UserAnswer,
   JudgementResult,
 } from "@mahjong-scoring/core";
-import {
-  allowsDoubleYakuman,
-  isFuRelevant,
-  isMangan,
-  isOya,
-  getScoreLevelName,
-} from "@mahjong-scoring/core";
+import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import {
@@ -39,7 +33,8 @@ import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
@@ -95,7 +90,6 @@ export function ResultDisplay({
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   // 点数表モーダル。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く）。
@@ -136,21 +130,16 @@ export function ResultDisplay({
 
   // 点数表モーダルに渡す「正解の位置」。満貫以上（5翻〜）では符は
   // 使われず、区分行のハイライトに解決される（resolveScoreTableFocus）。
-  const scoreTableFocus: ScoreTableFocus = {
-    role: isOya(question.jikaze) ? "oya" : "ko",
-    winType: question.isTsumo ? "tsumo" : "ron",
-    han: answer.han,
-    fu: answer.fu,
-  };
+  const scoreTableFocus = scoreTableFocusOfQuestion(question);
 
   const getHanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
-  // 満貫以上は符の行を出さない（符を答えさせる設定を除く）
-  const showsFu = !isManganOrAbove || requireFuForMangan;
-  // 符の内訳は、符で満貫に届いた手（3 翻 70 符等）では符の行が無くても出す。
-  // 満貫になった理由が符にあるため。5 翻以上は符が点数に効かない
-  const showsFuBreakdown = showsFu || isFuRelevant(answer.han);
+  // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
+  const { row: showsFu, breakdown: showsFuBreakdown } = resolveFuVisibility(
+    answer,
+    { requireFuForMangan },
+  );
   const breakdownTabs = resolveBreakdownTabs(
     fuHanOrder,
     {

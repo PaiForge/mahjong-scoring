@@ -23,7 +23,7 @@ vi.mock("../entitlements/has-benefit", () => ({
   getActiveBenefits: mockActiveBenefits,
 }));
 vi.mock("../client-ip", () => ({ getClientIp: mockClientIp }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { _resetStore } from "../rate-limit-ip";
 import { handleReadPlan, handleReadPlanOffers } from "./plan";

@@ -45,7 +45,7 @@ vi.mock("../db/score-comparison-queries", () => ({
   getScoreComparison: mockComparison,
 }));
 vi.mock("../db/rank-queries", () => ({ getUserRankSlugs: mockRankSlugs }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   handleAnswerChallenge,

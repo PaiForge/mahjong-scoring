@@ -30,7 +30,7 @@ vi.mock("@/lib/billing/apple/notifications", async (importOriginal) => ({
 }));
 vi.mock("@/lib/billing/apple/record", () => ({}));
 vi.mock("@/lib/billing/apple/revoke", () => ({}));
-vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 
 import { POST } from "./route";
 

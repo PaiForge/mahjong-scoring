@@ -22,7 +22,9 @@ import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 /** 設定の本文の上限。`{"hidden":false}` が収まれば足りる */
 const VISIBILITY_BODY_MAX_BYTES = 256;
 
-const visibilityBodySchema = z.object({ hidden: z.boolean() });
+const visibilityBodySchema: z.ZodType<MobileLeaderboardVisibility> = z.object({
+  hidden: z.boolean(),
+});
 
 /** 期間が無いときの 404 */
 function notFound(): NextResponse {

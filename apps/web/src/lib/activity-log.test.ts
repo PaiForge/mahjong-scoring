@@ -8,7 +8,7 @@ vi.mock("./db", () => ({
   db: { insert: vi.fn(() => ({ values: holder.values })) },
   userActivityLog: { _name: "user_activity_log" },
 }));
-vi.mock("./log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("./log-error", async () => await import("@/test/log-error-mock"));
 
 import { logActivityEvent } from "./activity-log";
 import { logExternalError } from "./log-error";

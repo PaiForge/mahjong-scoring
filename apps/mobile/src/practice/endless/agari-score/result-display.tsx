@@ -5,13 +5,7 @@ import type {
   ScoreQuestion,
   UserAnswer,
 } from "@mahjong-scoring/core";
-import {
-  allowsDoubleYakuman,
-  getScoreLevelName,
-  isFuRelevant,
-  isMangan,
-  isOya,
-} from "@mahjong-scoring/core";
+import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
 import {
   formatHan,
   formatPayment,
@@ -43,7 +37,8 @@ import {
   ResultUnansweredValue,
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
-import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
@@ -96,7 +91,6 @@ export function ResultDisplay({
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const isManganOrAbove = isMangan(answer.scoreLevel);
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   // 点数表。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く。web と同じ）
@@ -139,11 +133,11 @@ export function ResultDisplay({
     <ResultUnansweredValue />
   );
 
-  // 満貫以上は符の行を出さない（符を答えさせる設定を除く）
-  const showsFu = !isManganOrAbove || requireFuForMangan;
-  // 符の内訳は、符で満貫に届いた手（3 翻 70 符等）では符の行が無くても出す。
-  // 満貫になった理由が符にあるため。5 翻以上は符が点数に効かない
-  const showsFuBreakdown = showsFu || isFuRelevant(answer.han);
+  // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
+  const { row: showsFu, breakdown: showsFuBreakdown } = resolveFuVisibility(
+    answer,
+    { requireFuForMangan },
+  );
   const breakdownTabs = resolveBreakdownTabs(
     fuHanOrder,
     {
@@ -331,12 +325,7 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={scoreTable.isOpen}
         onClose={scoreTable.close}
-        focus={scoreTableFocusOf({
-          isOya: isOya(question.jikaze),
-          isTsumo: question.isTsumo,
-          han: answer.han,
-          fu: answer.fu,
-        })}
+        focus={scoreTableFocusOfQuestion(question)}
         highlighted={scoreTable.highlighted}
       />
       {yakuCheatsheetModal}

@@ -25,7 +25,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/cache-tags", () => ({ purgeLeaderboardCache: vi.fn() }));
-vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 vi.mock("@/lib/apple/refresh-tokens", () => ({
   revokeAppleLinkForDeletion: mocks.appleRevoke,
 }));

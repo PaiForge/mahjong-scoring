@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { isFuRelevant, isOya } from "@mahjong-scoring/core";
-import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
@@ -113,13 +113,16 @@ export function createScoreExamBoard(
 
         {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
             （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
-            出さない）。問題ごとに作り直して閉じた状態へ戻す */}
+            出さない）。試験は符を答えさせない。問題ごとに作り直して閉じた
+            状態へ戻す */}
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
             fu={
               question.fuDetails !== undefined &&
-              isFuRelevant(question.answer.han)
+              resolveFuVisibility(question.answer, {
+                requireFuForMangan: false,
+              }).breakdown
                 ? { details: question.fuDetails, answer: question.answer.fu }
                 : undefined
             }
@@ -129,12 +132,7 @@ export function createScoreExamBoard(
               question.answer.yakumanMultiplier,
               tBreakdown,
             )}
-            scoreTableFocus={scoreTableFocusOf({
-              isOya: isOya(question.jikaze),
-              isTsumo: question.isTsumo,
-              han: question.answer.han,
-              fu: question.answer.fu,
-            })}
+            scoreTableFocus={scoreTableFocusOfQuestion(question)}
           />
         )}
       </View>

@@ -4,17 +4,17 @@ import {
   mockAuthorizeMobileRequest,
 } from "@/test/mobile-auth-mock";
 
-const { mockGetProfileCard, mockLogError } = vi.hoisted(() => ({
+const { mockGetProfileCard } = vi.hoisted(() => ({
   mockGetProfileCard: vi.fn(),
-  mockLogError: vi.fn(),
 }));
 
 vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../db/queries", () => ({
   getProfileCardByUserId: mockGetProfileCard,
 }));
-vi.mock("../log-error", () => ({ logExternalError: mockLogError }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
+import { logExternalError } from "../log-error";
 import { handleReadAccount } from "./me";
 
 function get(): Request {
@@ -69,7 +69,7 @@ describe("handleReadAccount", () => {
       userId: "user-1",
       profile: { username: "alice" },
     });
-    expect(mockLogError).toHaveBeenCalled();
+    expect(logExternalError).toHaveBeenCalled();
   });
 
   it("ユーザー名を決める前はプロフィールを null で返す", async () => {

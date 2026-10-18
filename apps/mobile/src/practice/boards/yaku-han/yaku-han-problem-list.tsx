@@ -1,6 +1,9 @@
 import { useTranslations } from "use-intl";
 import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
-import { yakuHanLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import {
+  yakuHanLabel,
+  yakuHanStateLabel,
+} from "@mahjong-scoring/features/practice/yaku-han/han-options";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 import { AnswerComparison } from "../../components/answer-comparison";
@@ -24,7 +27,7 @@ export function YakuHanProblemList({
 
   // 門前限定役も含め常に付ける（出題時のバッジと表示を揃える）
   const stateLabel = (r: YakuHanQuestionResult) =>
-    `（${r.isMenzen ? t("menzen") : t("naki")}）`;
+    `（${yakuHanStateLabel(r.isMenzen, t)}）`;
 
   return (
     <ProblemListAccordion

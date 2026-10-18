@@ -14,7 +14,7 @@ import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
-import { parsePageParam } from "@/lib/pagination";
+import { clampPage, parsePageParam } from "@/lib/pagination";
 
 import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 import { getChallengeResultsPaginated } from "../_lib/queries";
@@ -48,7 +48,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
     board,
   );
 
-  const currentPage = Math.max(1, Math.min(page, totalPages || 1));
+  const currentPage = clampPage(page, totalPages);
 
   const buildHref = (p: number) => {
     const urlParams = new URLSearchParams();
