@@ -8,7 +8,11 @@
 import { and, count, desc, eq, gte, lt, notInArray } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
+import {
+  clampPage,
+  DEFAULT_PAGE_SIZE,
+  getPaginationData,
+} from "@/lib/pagination";
 import {
   isPracticeMenuType,
   isPracticeVariant,
@@ -40,12 +44,19 @@ type ChallengeAttemptRow = Pick<
 /**
  * ページネーション付きでチャレンジ結果を取得する
  * チャレンジ結果ページネーション取得
+ *
+ * 範囲外のページ（3 件しかないのに `?page=9`）は最後のページに丸め、
+ * `currentPage` に丸めた後のページ番号を返す。
  */
 export async function getChallengeResultsPaginated(
   userId: string,
   page: number = 1,
   board?: PracticeBoard,
-): Promise<{ items: ChallengeAttempt[]; totalPages: number }> {
+): Promise<{
+  items: ChallengeAttempt[];
+  totalPages: number;
+  currentPage: number;
+}> {
   const conditions = [
     eq(challengeResults.userId, userId),
     notInArray(challengeResults.menuType, EXCLUDED_MENU_TYPES),
@@ -59,34 +70,42 @@ export async function getChallengeResultsPaginated(
 
   const whereClause = and(...conditions);
 
-  // 件数と行を並行して引くため、行の取得に必要な limit / offset だけ先に算出し、
-  // 総ページ数は件数が揃ってから同じヘルパーで求める。
-  const { limit, offset } = getPaginationData(page, 0, DEFAULT_PAGE_SIZE);
-
-  const [countResult, rows] = await Promise.all([
-    db
-      .select({ count: count() })
-      .from(challengeResults)
-      .where(whereClause)
-      .then(([result]) => result),
+  const selectRows = (offset: number, limit: number) =>
     db
       .select(CHALLENGE_ATTEMPT_COLUMNS)
       .from(challengeResults)
       .where(whereClause)
       .orderBy(desc(challengeResults.createdAt))
       .limit(limit)
-      .offset(offset),
-  ]);
+      .offset(offset);
 
-  const { totalPages } = getPaginationData(
-    page,
-    countResult.count,
+  // 件数と行は並行して引く（ほとんどの要求は範囲内で、往復が 1 回で済む）。
+  // 行の取得に要る limit / offset は要求されたページから先に出す。範囲外の
+  // ページだったと件数で分かったら、丸めたページの行を引き直す — そのまま
+  // 返すと OFFSET の先の空配列を掴み、表示だけ丸めた「記録なし」になる
+  const requested = getPaginationData(page, 0, DEFAULT_PAGE_SIZE);
+  const [[countResult], requestedRows] = await Promise.all([
+    db.select({ count: count() }).from(challengeResults).where(whereClause),
+    selectRows(requested.offset, requested.limit),
+  ]);
+  const totalCount = countResult?.count ?? 0;
+
+  const lastPage = getPaginationData(
+    1,
+    totalCount,
+    DEFAULT_PAGE_SIZE,
+  ).totalPages;
+  const { totalPages, currentPage, limit, offset } = getPaginationData(
+    clampPage(page, lastPage),
+    totalCount,
     DEFAULT_PAGE_SIZE,
   );
+  const rows =
+    currentPage === requested.currentPage
+      ? requestedRows
+      : await selectRows(offset, limit);
 
-  const items = toChallengeAttempts(rows);
-
-  return { items, totalPages };
+  return { items: toChallengeAttempts(rows), totalPages, currentPage };
 }
 
 /**
