@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   formatJstDateLong,
@@ -10,6 +10,8 @@ import {
   jstDayStartIso,
   jstStartOfDay,
   jstStartOfMonth,
+  parseJstDateTimeLocal,
+  toJstDateTimeLocal,
 } from "./jst";
 
 describe("jstCalendarDate", () => {
@@ -144,3 +146,78 @@ describe("formatJstDayKeyMonthDay", () => {
     expect(formatJstDayKeyMonthDay("2026-10-31")).toBe("10/31");
   });
 });
+
+describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
+  "datetime-local の変換（実行環境のタイムゾーンが %s）",
+  (tz) => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    describe("toJstDateTimeLocal", () => {
+      it("端末の時刻ではなく JST の壁時計で返す", () => {
+        vi.stubEnv("TZ", tz);
+        expect(toJstDateTimeLocal(new Date("2026-10-19T10:00:00+09:00"))).toBe(
+          "2026-10-19T10:00",
+        );
+      });
+
+      it("UTC では前日の瞬間も JST の日付で返す", () => {
+        vi.stubEnv("TZ", tz);
+        expect(toJstDateTimeLocal(new Date("2026-12-31T15:30:00Z"))).toBe(
+          "2027-01-01T00:30",
+        );
+      });
+
+      it("秒以下は切り捨てる", () => {
+        vi.stubEnv("TZ", tz);
+        expect(
+          toJstDateTimeLocal(new Date("2026-10-19T10:00:59.999+09:00")),
+        ).toBe("2026-10-19T10:00");
+      });
+    });
+
+    describe("parseJstDateTimeLocal", () => {
+      it("JST の壁時計として読む", () => {
+        vi.stubEnv("TZ", tz);
+        expect(parseJstDateTimeLocal("2026-10-19T10:00")).toEqual(
+          new Date("2026-10-19T10:00:00+09:00"),
+        );
+      });
+
+      it("JST の 0 時台は UTC の前日の瞬間になる", () => {
+        vi.stubEnv("TZ", tz);
+        expect(parseJstDateTimeLocal("2027-01-01T00:30")).toEqual(
+          new Date("2026-12-31T15:30:00Z"),
+        );
+      });
+
+      it("秒付きの値も読む", () => {
+        vi.stubEnv("TZ", tz);
+        expect(parseJstDateTimeLocal("2026-10-19T10:00:30")).toEqual(
+          new Date("2026-10-19T10:00:30+09:00"),
+        );
+      });
+
+      it("toJstDateTimeLocal と往復して同じ瞬間に戻る", () => {
+        vi.stubEnv("TZ", tz);
+        const instant = new Date("2026-03-08T02:30:00+09:00");
+        expect(parseJstDateTimeLocal(toJstDateTimeLocal(instant))).toEqual(
+          instant,
+        );
+      });
+
+      it.each([
+        "",
+        "2026-10-19",
+        "2026-10-19T10:00:00.000Z",
+        "2026-10-19T10:00+09:00",
+        "2026-02-30T10:00",
+        "2026-10-19T24:00",
+      ])("形が違う・存在しない日時（%j）は null", (value) => {
+        vi.stubEnv("TZ", tz);
+        expect(parseJstDateTimeLocal(value)).toBeNull();
+      });
+    });
+  },
+);

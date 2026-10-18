@@ -1,3 +1,5 @@
+import { JST_TIME_ZONE } from "../jst";
+
 /**
  * 一覧の公開日の表示形式（`2026/08/20`）
  * お知らせ一覧日付形式
@@ -35,6 +37,10 @@ const DEFAULT_OPTIONS: Intl.DateTimeFormatOptions = {
  * 未公開（null）の場合は undefined。
  * 公開日フォーマット
  *
+ * 日付は JST で切る。web はサーバーコンポーネントで描き、Vercel のサーバーは
+ * UTC なので、タイムゾーンを渡さないと JST の 0〜9 時に公開したお知らせが
+ * 前日の日付で出る。`options.timeZone` を渡せばそちらが勝つ。
+ *
  * @param publishedAt - 公開日時
  * @param locale - ロケール
  * @param options - 表示オプション（既定は year/month:short/day）
@@ -45,5 +51,8 @@ export function formatPublishedDate(
   options: Intl.DateTimeFormatOptions = DEFAULT_OPTIONS,
 ): string | undefined {
   if (!publishedAt) return undefined;
-  return new Date(publishedAt).toLocaleDateString(locale, options);
+  return new Date(publishedAt).toLocaleDateString(locale, {
+    timeZone: JST_TIME_ZONE,
+    ...options,
+  });
 }
