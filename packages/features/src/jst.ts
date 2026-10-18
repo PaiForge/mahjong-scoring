@@ -107,6 +107,40 @@ export function jstDayStartIso(dayKey: string): string {
   return `${dayKey}T00:00:00+09:00`;
 }
 
+/**
+ * 瞬間を JST の `<input type="datetime-local">` の値（`YYYY-MM-DDTHH:mm`）にする
+ * JST日時入力値
+ *
+ * datetime-local の値はタイムゾーンを持たず、ブラウザは端末のローカル時刻として
+ * 読み書きする（`getTimezoneOffset` で直す / `new Date("YYYY-MM-DDTHH:mm")` で
+ * 読む）。それでは JST 以外の端末で開いた入力欄だけが、JST で表示する一覧と
+ * 別の時刻を見せる。入力欄の値は常に JST の壁時計として扱い、瞬間との変換は
+ * この関数と {@link parseJstDateTimeLocal} だけで行う。秒以下は切り捨てる。
+ */
+export function toJstDateTimeLocal(instant: Date): string {
+  return new Date(instant.getTime() + JST_OFFSET_MS).toISOString().slice(0, 16);
+}
+
+/** datetime-local の値の形。`step` を秒単位にした入力欄は秒まで送ってくる */
+const DATE_TIME_LOCAL_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/;
+
+/**
+ * JST の datetime-local の値（`YYYY-MM-DDTHH:mm[:ss]`）を瞬間にする
+ * JST日時入力値解析
+ *
+ * {@link toJstDateTimeLocal} の逆向き。実行環境のタイムゾーンに依らず JST の
+ * 壁時計として読む。形が違う値・存在しない日時（2 月 30 日など）は `null`。
+ */
+export function parseJstDateTimeLocal(value: string): Date | null {
+  if (!DATE_TIME_LOCAL_PATTERN.test(value)) return null;
+  const withSeconds = value.length === 16 ? `${value}:00` : value;
+  const instant = new Date(`${withSeconds}+09:00`);
+  if (Number.isNaN(instant.getTime())) return null;
+  // Date は 2 月 30 日を 3 月 2 日へ繰り上げて受け取るので、戻して突き合わせる
+  if (toJstDateTimeLocal(instant) !== value.slice(0, 16)) return null;
+  return instant;
+}
+
 const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
   year: "numeric",
   month: "2-digit",
