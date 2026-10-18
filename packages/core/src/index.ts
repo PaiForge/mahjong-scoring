@@ -182,7 +182,7 @@ export type {
 } from "./problem/score-table/types";
 
 // === Core: 立場・和了方法 ===
-export { isRole, isWinType, paymentKindOf } from "./core/roles";
+export { isRole, isWinType, paymentKindOf, roleOf } from "./core/roles";
 export type { PaymentKind, Role, WinType } from "./core/roles";
 
 // === Challenge ===

@@ -1,3 +1,4 @@
+import { roleOf } from "@mahjong-scoring/core";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 
 /**
@@ -7,7 +8,7 @@ import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/scor
 export function buildReferenceUrl(
   result: Pick<ScoreQuestionResult, "isOya" | "isTsumo" | "han" | "fu">,
 ): string {
-  const role = result.isOya ? "oya" : "ko";
+  const role = roleOf(result.isOya);
   const winType = result.isTsumo ? "tsumo" : "ron";
   const base = `/reference/score-table?role=${role}&winType=${winType}&han=${result.han}`;
   // 満貫以上は符に依存しないため fu を持たない。その場合は fu パラメータを付けない。
