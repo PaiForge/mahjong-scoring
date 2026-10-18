@@ -7,14 +7,13 @@ import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/quest
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { ScoreBreakdownPanel } from "@/app/(user)/(public)/practice/_components/score-breakdown-panel";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
-import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { buildYakumanCapNote } from "@mahjong-scoring/features/results/yakuman-cap-note";
+import { buildScoreExamBreakdown } from "@mahjong-scoring/features/exam/score-exam-breakdown";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
@@ -51,7 +50,7 @@ import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
  * 出す。結果ページの問題別詳細と同じ境目）。表と置き場所は翻数即答練習のトレーニング
  * （選択肢の下・閉じた状態から）と同じで、既に見た手を振り返る操作が画面で
  * 変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
- * （{@link buildYakumanCapNote}）。本番の試験では出さない — 読ませている間も
+ * （{@link buildScoreExamBreakdown}）。本番の試験では出さない — 読ませている間も
  * タイマーが進むうえ、内訳は結果ページの問題別詳細が引き受ける。
  * 模試の答え合わせでは、開示した正解の点数を押すとそのセルをハイライトした
  * 点数早見表がモーダルで開く（点数表早引き練習と同じ導線）。点数を間違えたとき、
@@ -160,20 +159,7 @@ export function createScoreExamBoard(
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
-            fu={
-              question.fuDetails !== undefined &&
-              resolveFuVisibility(question.answer, {
-                requireFuForMangan: false,
-              }).breakdown
-                ? { details: question.fuDetails, answer: question.answer.fu }
-                : undefined
-            }
-            yakuDetails={question.yakuDetails}
-            yakuNote={buildYakumanCapNote(
-              question.yakuDetails,
-              question.answer.yakumanMultiplier,
-              tBreakdown,
-            )}
+            {...buildScoreExamBreakdown(question, tBreakdown)}
             scoreTableFocus={scoreTableFocus}
           />
         )}
