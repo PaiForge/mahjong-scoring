@@ -71,7 +71,7 @@ describe("handleReadAnnouncements", () => {
     expect(await response.json()).toMatchObject({ page: 3 });
   });
 
-  it("お知らせが無ければ 1 ページ目・総ページ数 0", async () => {
+  it("お知らせが無ければ 1 ページ目・総ページ数 1", async () => {
     mockCount.mockResolvedValue(0);
     mockPage.mockResolvedValue([]);
 
@@ -80,8 +80,18 @@ describe("handleReadAnnouncements", () => {
     expect(await response.json()).toEqual({
       items: [],
       page: 1,
-      totalPages: 0,
+      totalPages: 1,
     });
+  });
+
+  it("お知らせが無いときの範囲外のページも 1 ページ目", async () => {
+    mockCount.mockResolvedValue(0);
+    mockPage.mockResolvedValue([]);
+
+    const response = await handleReadAnnouncements(get("?page=9"));
+
+    expect(mockPage).toHaveBeenCalledWith("ja", 20, 0);
+    expect(await response.json()).toMatchObject({ page: 1, totalPages: 1 });
   });
 
   it("DB の失敗は 500 serverError", async () => {

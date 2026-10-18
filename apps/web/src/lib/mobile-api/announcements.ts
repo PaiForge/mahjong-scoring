@@ -43,9 +43,12 @@ export async function handleReadAnnouncements(
   try {
     const totalCount = await getPublishedAnnouncementCount();
     const pageSize = ANNOUNCEMENTS_PER_PAGE;
-    const totalPages = Math.ceil(totalCount / pageSize);
-    const page = clampPage(requestedPage, totalPages);
-    const { limit, offset } = getPaginationData(page, totalCount, pageSize);
+    const lastPage = getPaginationData(1, totalCount, pageSize).totalPages;
+    const { currentPage, totalPages, limit, offset } = getPaginationData(
+      clampPage(requestedPage, lastPage),
+      totalCount,
+      pageSize,
+    );
     const rows = await getPublishedAnnouncementsPaginated(
       DEFAULT_LOCALE,
       limit,
@@ -58,7 +61,7 @@ export async function handleReadAnnouncements(
         publishedAt: isoOf(row.publishedAt),
         pinned: row.pinnedAt !== null,
       })),
-      page,
+      page: currentPage,
       totalPages,
     });
   } catch (error) {

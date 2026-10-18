@@ -59,7 +59,11 @@ export interface MobileAnnouncementsResponse {
   readonly items: readonly MobileAnnouncementSummary[];
   /** 返したページ番号（範囲外を要求したら最後のページに丸める） */
   readonly page: number;
-  /** 総ページ数。お知らせが無ければ 0 */
+  /**
+   * 総ページ数。お知らせが無くても 1（他の一覧の API と同じ）。以前は 0 を
+   * 返していたが、アプリは「返したページ < 総ページ数」で次を読むかを決める
+   * だけなので、どちらでも読み足しは出ない
+   */
   readonly totalPages: number;
 }
 
