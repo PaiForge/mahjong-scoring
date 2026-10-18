@@ -160,10 +160,16 @@ function AgariScoreBoardInner() {
   // 回答・開示・次へ進むのボタンはいずれも縦に長い盤面の下端にあり、押した位置の
   // ままだと手牌も結果表示も画面外に残る。他の練習（セッションフック）と同じく、
   // 表示が切り替わる操作のたびに練習の先頭へ戻す。
+  //
+  // 確認中（サーバーの返事待ち）は何もしない。ボタンの disabled と二重だが、
+  // ゲート（`gates.request`）は重なった要求を弾かず、返事を捨てるだけなので、
+  // 要求が重なるとログイン済みの無料枠が 1 回の操作で 2 回減る。他の 3 盤面
+  // （聴牌形・アプリの両方）と同じく処理側でも止める
   const handleNext = useCallback(() => {
+    if (isChecking) return;
     scrollToPracticeAnchor();
     void requestQuestion();
-  }, [requestQuestion]);
+  }, [isChecking, requestQuestion]);
 
   // 「わからない」: 無回答のまま正解を開示する（統計には入らない）。
   // 旧仕様のスキップ（開示なしで次問題へ）は、開示後の「次の問題へ」連打で代替できる
