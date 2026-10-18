@@ -9,7 +9,8 @@ import { TehaiDisplay } from "../../../board/tehai-display";
  * 聴牌形表示
  *
  * 盤面は全練習共通の {@link TehaiDisplay} に委譲する。和了牌とツモ・ロンは
- * まだ無いので渡さない（13 枚が理牌されて並ぶ）。
+ * まだ無いので渡さない（13 枚すべてが純手牌として並び、理牌しない設定ならその
+ * 13 枚を並べ直す。裏ドラを開いても並びは変わらない）。
  */
 export function TenpaiDisplay({
   question,

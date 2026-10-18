@@ -9,15 +9,15 @@ import {
 
 import type { PlanBenefit } from "../billing/plans";
 import type { DisplaySettingsHydrationStatus } from "../settings/use-display-settings-store";
-import {
-  DEFAULT_TILE_ORIENTATION,
-  type TileOrientationMode,
-} from "../settings/tile-orientation";
+import type { TileOrderMode } from "../settings/tile-order";
+import type { TileOrientationMode } from "../settings/tile-orientation";
 import type { SplitTehai } from "./agari-hai";
 import {
   buildHandPresentation,
+  DEFAULT_HAND_PRESENTATION_SETTINGS,
   resolveHandPresentationSettings,
   type HandPresentation,
+  type HandPresentationSettings,
   type HandPresentationSnapshot,
 } from "./hand-presentation";
 
@@ -60,9 +60,9 @@ export type HandPresentationBenefitsFetcher = (
 /** 準備の入力 */
 export interface HandPresentationInputs {
   /**
-   * 上下ランダムを扱うプラットフォームか
+   * Pro の見せ方（上下ランダム・理牌しない）を扱うプラットフォームか
    *
-   * false（Android）なら設定も認証も待たずに `upright` で確定する。
+   * false（Android）なら設定も認証も待たずに既定（`upright` + `sorted`）で確定する。
    */
   readonly supported: boolean;
   /**
@@ -74,18 +74,28 @@ export interface HandPresentationInputs {
   readonly settingsStatus: DisplaySettingsHydrationStatus;
   /** 保存した向きの希望（復元済みのときだけ意味を持つ） */
   readonly savedOrientation: TileOrientationMode;
+  /**
+   * 保存した並べ方の希望（復元済みのときだけ意味を持つ）
+   *
+   * 向きとまとめたオブジェクトにしない — effect の依存を参照の変わらない
+   * プリミティブに保つため。
+   */
+  readonly savedOrder: TileOrderMode;
   readonly auth: HandPresentationAuth;
   readonly fetchBenefits: HandPresentationBenefitsFetcher;
 }
 
 /**
- * 既定の向きに落とした理由
+ * 既定の見せ方に落とした理由
+ *
+ * 落とすときは向きも並べ方も既定（`upright` + `sorted`）にし、案内は 1 つだけ出す。
+ * どちらも同じ特典で決まるので、片方だけ確かめられる状況は無い。
  *
  * - `settingsFailed` — 表示設定を読めなかった（希望は不明）
  * - `settingsTimeout` — 表示設定の読み込みが期限までに終わらなかった（希望は不明）
- * - `authTimeout` — random を希望しているが、ログイン状態が期限までに分からなかった
- * - `benefitsUnavailable` — random を希望しているが、特典を読めなかった
- * - `benefitsTimeout` — random を希望しているが、特典の取得が期限までに終わらなかった
+ * - `authTimeout` — Pro の見せ方を希望しているが、ログイン状態が期限までに分からなかった
+ * - `benefitsUnavailable` — Pro の見せ方を希望しているが、特典を読めなかった
+ * - `benefitsTimeout` — Pro の見せ方を希望しているが、特典の取得が期限までに終わらなかった
  */
 export type HandPresentationFallbackReason =
   | "settingsFailed"
@@ -122,13 +132,27 @@ function obtainRuntimeSeed(): number {
   return runtimeSeed;
 }
 
+/**
+ * Pro の見せ方を 1 つでも希望しているか
+ *
+ * 希望していれば認証と特典を待ち、していなければ待たずに既定で確定する。
+ */
+function wantsProPresentation(
+  orientation: TileOrientationMode,
+  order: TileOrderMode,
+): boolean {
+  return orientation === "random" || order === "unsorted";
+}
+
 /** 期限が来たときに、待っていた段階から既定へ落とす理由を決める */
 function reasonAtDeadline(
   inputs: HandPresentationInputs,
 ): HandPresentationFallbackReason | undefined {
   if (inputs.settingsStatus === "pending") return "settingsTimeout";
   if (inputs.settingsStatus === "failed") return "settingsFailed";
-  if (inputs.savedOrientation === "upright") return undefined;
+  if (!wantsProPresentation(inputs.savedOrientation, inputs.savedOrder)) {
+    return undefined;
+  }
   if (inputs.auth.kind === "loading") return "authTimeout";
   if (inputs.auth.kind === "signedOut") return undefined;
   return "benefitsTimeout";
@@ -147,12 +171,13 @@ function reasonAtDeadline(
  *
  * 決める順:
  *
- * 1. 対象外のプラットフォームは待たずに `upright`
- * 2. 設定の復元を待つ。失敗したら `upright`（案内あり）
- * 3. 希望が `upright` なら認証も特典も待たずに確定
- * 4. 希望が `random` ならログイン状態を待つ。未ログインは `upright`
- * 5. ログイン中ならそのユーザーの特典を 1 度だけ読み、`practice_tools` があれば `random`
- * 6. 読めない・reject・期限切れは `upright`（案内あり）
+ * 1. 対象外のプラットフォームは待たずに既定（`upright` + `sorted`）
+ * 2. 設定の復元を待つ。失敗したら既定（案内あり）
+ * 3. 向きも並べ方も既定を希望していれば、認証も特典も待たずに確定
+ * 4. Pro の見せ方（`random` か `unsorted`）を希望していればログイン状態を待つ。
+ *    未ログインは既定
+ * 5. ログイン中ならそのユーザーの特典を 1 度だけ読み、`practice_tools` があれば希望どおり
+ * 6. 読めない・reject・期限切れは向きも並べ方も既定（案内あり）
  *
  * 特典は回数制限（quota）の応答とは別に、この開始時点の読み取りで決める。
  * 回答時間の表示（ゲートの特典に追随）と食い違う回があることは許容する。
@@ -160,11 +185,13 @@ function reasonAtDeadline(
  *
  * 期限は入力が変わっても延ばさない。タイマーが遅れて走った場合（バックグラウンド等）
  * にも期限の後の応答を採らないよう、応答を受け取った時点でも期限を確かめる。
- * 遅れて届いた成功で、既定へ落とした向きと案内を取り消さない — 練習の途中で
+ * 遅れて届いた成功で、既定へ落とした見せ方と案内を取り消さない — 練習の途中で
  * 盤面の見え方が変わるため。
  *
- * 準備中にユーザーが変わったら古い要求の応答を捨てて読み直す。ID の一致だけで
- * なく effect の世代でも見分けるため、A → B → A と戻っても最初の A の応答は採らない。
+ * 準備中にユーザーか希望（向き・並べ方）が変わったら古い要求の応答を捨てて
+ * 読み直す。ID の一致だけでなく effect の世代でも見分けるため、A → B → A と
+ * 戻っても最初の A の応答は採らない。希望が変わったときに古い保存値で確定しない
+ * よう、effect の依存には希望の有無ではなく向きと並べ方の保存値をそれぞれ置く。
  *
  * @param inputs 設定・認証・特典の取得の具体（各アプリの Provider が渡す）
  */
@@ -180,8 +207,14 @@ export function useHandPresentationPreparation(
   const latestInputsRef = useRef(inputs);
   const requestGenerationRef = useRef(0);
 
-  const { supported, settingsStatus, savedOrientation, auth, fetchBenefits } =
-    inputs;
+  const {
+    supported,
+    settingsStatus,
+    savedOrientation,
+    savedOrder,
+    auth,
+    fetchBenefits,
+  } = inputs;
   const authKind = auth.kind;
   const userId = auth.kind === "signedIn" ? auth.userId : undefined;
 
@@ -199,14 +232,18 @@ export function useHandPresentationPreparation(
     deadlineRef.current !== undefined && Date.now() >= deadlineRef.current;
 
   const decide = (
-    orientation: TileOrientationMode,
+    settings: HandPresentationSettings,
     fallbackReason: HandPresentationFallbackReason | undefined,
   ) => {
     if (decidedRef.current) return;
     decidedRef.current = true;
     setPreparation({
       status: "ready",
-      snapshot: { orientation, sessionSeed: obtainRuntimeSeed() },
+      snapshot: {
+        orientation: settings.orientation,
+        order: settings.order,
+        sessionSeed: obtainRuntimeSeed(),
+      },
       fallbackReason,
     });
   };
@@ -218,7 +255,7 @@ export function useHandPresentationPreparation(
     const timer = setTimeout(
       () => {
         decide(
-          DEFAULT_TILE_ORIENTATION,
+          DEFAULT_HAND_PRESENTATION_SETTINGS,
           reasonAtDeadline(latestInputsRef.current),
         );
       },
@@ -232,27 +269,27 @@ export function useHandPresentationPreparation(
     if (decidedRef.current) return;
     if (isExpired()) {
       decide(
-        DEFAULT_TILE_ORIENTATION,
+        DEFAULT_HAND_PRESENTATION_SETTINGS,
         reasonAtDeadline(latestInputsRef.current),
       );
       return;
     }
     if (!supported) {
-      decide(DEFAULT_TILE_ORIENTATION, undefined);
+      decide(DEFAULT_HAND_PRESENTATION_SETTINGS, undefined);
       return;
     }
     if (settingsStatus === "pending") return;
     if (settingsStatus === "failed") {
-      decide(DEFAULT_TILE_ORIENTATION, "settingsFailed");
+      decide(DEFAULT_HAND_PRESENTATION_SETTINGS, "settingsFailed");
       return;
     }
-    if (savedOrientation === "upright") {
-      decide(DEFAULT_TILE_ORIENTATION, undefined);
+    if (!wantsProPresentation(savedOrientation, savedOrder)) {
+      decide(DEFAULT_HAND_PRESENTATION_SETTINGS, undefined);
       return;
     }
     if (authKind === "loading") return;
     if (userId === undefined) {
-      decide(DEFAULT_TILE_ORIENTATION, undefined);
+      decide(DEFAULT_HAND_PRESENTATION_SETTINGS, undefined);
       return;
     }
 
@@ -263,16 +300,18 @@ export function useHandPresentationPreparation(
     const settle = (result: HandPresentationBenefitsResult) => {
       if (!isCurrent()) return;
       if (isExpired()) {
-        decide(DEFAULT_TILE_ORIENTATION, "benefitsTimeout");
+        decide(DEFAULT_HAND_PRESENTATION_SETTINGS, "benefitsTimeout");
         return;
       }
       if (!result.ok) {
-        decide(DEFAULT_TILE_ORIENTATION, "benefitsUnavailable");
+        decide(DEFAULT_HAND_PRESENTATION_SETTINGS, "benefitsUnavailable");
         return;
       }
       decide(
-        resolveHandPresentationSettings(savedOrientation, result.benefits)
-          .orientation,
+        resolveHandPresentationSettings(
+          { orientation: savedOrientation, order: savedOrder },
+          result.benefits,
+        ),
         undefined,
       );
     };
@@ -292,6 +331,7 @@ export function useHandPresentationPreparation(
     supported,
     settingsStatus,
     savedOrientation,
+    savedOrder,
     authKind,
     userId,
     fetchBenefits,
@@ -365,7 +405,7 @@ export function toHandPresentationContextValue(
  * 手牌表示フック
  *
  * 盤面（`TehaiDisplay`）だけが呼ぶ。コンテキストが `off` なら undefined
- * （従来の表示）。並べ方は常に `sorted`（理牌しない設定はまだ無い）。
+ * （従来の表示）。
  *
  * @param split 元の手牌から和了牌を切り離したもの（`splitAgariHai` の結果）
  */
@@ -374,12 +414,15 @@ export function useHandPresentation(
 ): HandPresentation | undefined {
   const context = useContext(HandPresentationContext);
   const orientation = context.kind === "on" ? context.orientation : undefined;
+  const order = context.kind === "on" ? context.order : undefined;
   const sessionSeed = context.kind === "on" ? context.sessionSeed : undefined;
   return useMemo(
     () =>
-      orientation === undefined || sessionSeed === undefined
+      orientation === undefined ||
+      order === undefined ||
+      sessionSeed === undefined
         ? undefined
-        : buildHandPresentation(split, { orientation, sessionSeed }, "sorted"),
-    [split, orientation, sessionSeed],
+        : buildHandPresentation(split, { orientation, order, sessionSeed }),
+    [split, orientation, order, sessionSeed],
   );
 }

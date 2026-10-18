@@ -49,7 +49,7 @@ interface HandPresentationProviderProps {
  * 前面へ戻る・画面にフォーカスが戻るだけでは決め直さない。練習を閉じて開き直すと
  * 決め直す。この機能のためにフォーカスの復帰で盤面を作り直さない。
  *
- * Android は Pro を扱わないので（`IAP_AVAILABLE`）、待たずに従来の向きで始める。
+ * Android は Pro を扱わないので（`IAP_AVAILABLE`）、待たずに従来の見せ方（正規の向き・理牌した順）で始める。
  * 練習・昇級試験のチャレンジ・トレーニング（模試）と無限訓練に置く。
  */
 export function HandPresentationProvider({
@@ -58,6 +58,7 @@ export function HandPresentationProvider({
 }: HandPresentationProviderProps) {
   const hydration = useDisplaySettingsHydration();
   const savedOrientation = useDisplaySettingsStore((s) => s.tileOrientation);
+  const savedOrder = useDisplaySettingsStore((s) => s.tileOrder);
   const { status, user } = useAuth();
   const userId = user?.id;
   const auth = useMemo(
@@ -69,6 +70,7 @@ export function HandPresentationProvider({
     supported: IAP_AVAILABLE,
     settingsStatus: hydration,
     savedOrientation,
+    savedOrder,
     auth,
     fetchBenefits: fetchUserBenefits,
   });

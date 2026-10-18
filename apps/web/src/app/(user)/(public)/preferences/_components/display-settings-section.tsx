@@ -15,6 +15,7 @@ import {
 } from "@mahjong-scoring/features/billing/plans";
 import {
   useDisplaySettingsStore,
+  useTileOrderSetting,
   useTileOrientationSetting,
   useDoraDisplayMode,
   useFuHanOrder,
@@ -45,13 +46,20 @@ export function DisplaySettingsSection() {
   const setTileOrientation = useDisplaySettingsStore(
     (s) => s.setTileOrientation,
   );
-  // 上下ランダムは Pro の特典。ここでは「スイッチを出すか料金ページへの導線を
+  const tileOrder = useTileOrderSetting();
+  const setTileOrder = useDisplaySettingsStore((s) => s.setTileOrder);
+  // 上下ランダム・理牌しないは Pro の特典。ここでは「スイッチを出すか料金ページへの導線を
   // 出すか」の見た目だけを決める（練習の盤面は開始時に特典を読み直して決める）。
   // 特典が無い間も保存値は書き換えない
   const { user, isLoading, profile, isProfileLoading } = useAuth();
   const hasPracticeTools =
     profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
   const isBenefitPending = isLoading || (user !== null && isProfileLoading);
+  const practiceToolsAccess: PracticeToolsAccess = isBenefitPending
+    ? "pending"
+    : hasPracticeTools
+      ? "granted"
+      : "locked";
 
   return (
     <SettingsCard>
@@ -95,27 +103,24 @@ export function DisplaySettingsSection() {
         onChange={(checked) => setKoTsumoInput(checked ? "split" : "combined")}
       />
 
-      {isBenefitPending || hasPracticeTools ? (
-        <SettingToggleRow
-          id={PREFERENCE_ANCHORS.tileOrientation}
-          title={t("tileOrientationTitle")}
-          description={t("tileOrientationDescription")}
-          checked={tileOrientation === "random"}
-          onChange={(checked) =>
-            setTileOrientation(checked ? "random" : "upright")
-          }
-          loading={isBenefitPending}
-        />
-      ) : (
-        <SettingLockedRow
-          id={PREFERENCE_ANCHORS.tileOrientation}
-          title={t("tileOrientationTitle")}
-          description={t("tileOrientationDescription")}
-          badge={t("tileOrientationPro.badge")}
-          note={t("tileOrientationPro.note")}
-          link={{ href: PLAN_PAGE_HREF, label: t("tileOrientationPro.link") }}
-        />
-      )}
+      <PracticeToolsToggleRow
+        id={PREFERENCE_ANCHORS.tileOrientation}
+        title={t("tileOrientationTitle")}
+        description={t("tileOrientationDescription")}
+        checked={tileOrientation === "random"}
+        onChange={(checked) =>
+          setTileOrientation(checked ? "random" : "upright")
+        }
+        access={practiceToolsAccess}
+      />
+      <PracticeToolsToggleRow
+        id={PREFERENCE_ANCHORS.tileOrder}
+        title={t("tileOrderTitle")}
+        description={t("tileOrderDescription")}
+        checked={tileOrder === "unsorted"}
+        onChange={(checked) => setTileOrder(checked ? "unsorted" : "sorted")}
+        access={practiceToolsAccess}
+      />
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}
       <SettingLinkRow
         href={YAKU_ORDER_PATH}
@@ -123,5 +128,61 @@ export function DisplaySettingsSection() {
         description={t("yakuOrderDescription")}
       />
     </SettingsCard>
+  );
+}
+
+/**
+ * Pro の特典（`practice_tools`）の行の出し分け
+ *
+ * - `pending` — 特典の読み込み中。押せないスイッチを出す
+ * - `granted` — 特典あり。スイッチを出す
+ * - `locked` — 特典なし。スイッチの代わりに利用条件と料金ページへの導線を出す
+ */
+type PracticeToolsAccess = "pending" | "granted" | "locked";
+
+interface PracticeToolsToggleRowProps {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly checked: boolean;
+  readonly onChange: (checked: boolean) => void;
+  readonly access: PracticeToolsAccess;
+}
+
+/**
+ * Pro の特典で使える設定のトグル行
+ *
+ * 特典が無い間も保存値は書き換えない（鍵の行は値を触らない）。
+ */
+function PracticeToolsToggleRow({
+  id,
+  title,
+  description,
+  checked,
+  onChange,
+  access,
+}: PracticeToolsToggleRowProps) {
+  const t = useTranslations("settings");
+  if (access === "locked") {
+    return (
+      <SettingLockedRow
+        id={id}
+        title={title}
+        description={description}
+        badge={t("practiceToolsPro.badge")}
+        note={t("practiceToolsPro.note")}
+        link={{ href: PLAN_PAGE_HREF, label: t("practiceToolsPro.link") }}
+      />
+    );
+  }
+  return (
+    <SettingToggleRow
+      id={id}
+      title={title}
+      description={description}
+      checked={checked}
+      onChange={onChange}
+      loading={access === "pending"}
+    />
   );
 }

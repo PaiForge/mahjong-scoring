@@ -7,6 +7,7 @@ export const {
   useDisplaySettingsStore,
   useDisplaySettingsHydration,
   useTileOrientationSetting,
+  useTileOrderSetting,
   useDoraDisplayMode,
   useTermLinksEnabled,
   useFuHanOrder,

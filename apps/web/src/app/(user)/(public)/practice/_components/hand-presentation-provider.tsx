@@ -56,7 +56,7 @@ interface HandPresentationProviderProps {
  * features の `useHandPresentationPreparation`。
  *
  * 保存値はクライアントの準備が済んでから読む。サーバー描画とハイドレーション中は
- * 設定を既定値で描くため、その一時的な `upright` を保存値と取り違えないよう、
+ * 設定を既定値で描くため、その一時的な `upright` / `sorted` を保存値と取り違えないよう、
  * 準備前は復元中として渡す。
  *
  * 練習・昇級試験のチャレンジ（本番）・トレーニング（模試）と無限訓練に置く。
@@ -69,6 +69,7 @@ export function HandPresentationProvider({
   const isClient = useIsClient();
   const hydration = useDisplaySettingsHydration();
   const savedOrientation = useDisplaySettingsStore((s) => s.tileOrientation);
+  const savedOrder = useDisplaySettingsStore((s) => s.tileOrder);
   const { user, isLoading } = useAuth();
   const userId = user?.id;
   const auth = useMemo<HandPresentationAuth>(() => {
@@ -81,6 +82,7 @@ export function HandPresentationProvider({
     supported: true,
     settingsStatus: isClient ? hydration : "pending",
     savedOrientation,
+    savedOrder,
     auth,
     fetchBenefits: fetchViewerBenefits,
   });
