@@ -2,13 +2,13 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { isFuRelevant, isOya } from "@mahjong-scoring/core";
+import { isFuRelevant } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { ScoreBreakdownPanel } from "@/app/(user)/(public)/practice/_components/score-breakdown-panel";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
-import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
@@ -112,12 +112,7 @@ export function createScoreExamBoard(
       );
     }
 
-    const scoreTableFocus = scoreTableFocusOf({
-      isOya: isOya(question.jikaze),
-      isTsumo: question.isTsumo,
-      han: question.answer.han,
-      fu: question.answer.fu,
-    });
+    const scoreTableFocus = scoreTableFocusOfQuestion(question);
 
     return (
       <div className="space-y-6">

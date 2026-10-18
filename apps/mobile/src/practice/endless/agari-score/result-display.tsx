@@ -10,7 +10,6 @@ import {
   getScoreLevelName,
   isFuRelevant,
   isMangan,
-  isOya,
 } from "@mahjong-scoring/core";
 import {
   formatHan,
@@ -43,7 +42,7 @@ import {
   ResultUnansweredValue,
 } from "./result-table-frame";
 import { ScoreTableModal } from "./score-table-modal";
-import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
@@ -331,12 +330,7 @@ export function ResultDisplay({
       <ScoreTableModal
         isOpen={scoreTable.isOpen}
         onClose={scoreTable.close}
-        focus={scoreTableFocusOf({
-          isOya: isOya(question.jikaze),
-          isTsumo: question.isTsumo,
-          han: answer.han,
-          fu: answer.fu,
-        })}
+        focus={scoreTableFocusOfQuestion(question)}
         highlighted={scoreTable.highlighted}
       />
       {yakuCheatsheetModal}

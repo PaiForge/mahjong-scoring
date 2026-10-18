@@ -10,7 +10,6 @@ import {
   allowsDoubleYakuman,
   isFuRelevant,
   isMangan,
-  isOya,
   getScoreLevelName,
 } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
@@ -39,7 +38,7 @@ import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
 import { JudgementMark } from "../../_components/judgement-mark";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
@@ -136,12 +135,7 @@ export function ResultDisplay({
 
   // 点数表モーダルに渡す「正解の位置」。満貫以上（5翻〜）では符は
   // 使われず、区分行のハイライトに解決される（resolveScoreTableFocus）。
-  const scoreTableFocus: ScoreTableFocus = {
-    role: isOya(question.jikaze) ? "oya" : "ko",
-    winType: question.isTsumo ? "tsumo" : "ron",
-    han: answer.han,
-    fu: answer.fu,
-  };
+  const scoreTableFocus = scoreTableFocusOfQuestion(question);
 
   const getHanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });

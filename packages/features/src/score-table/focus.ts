@@ -1,11 +1,12 @@
 import {
   clampHanToYakuman,
   isFu,
+  isOya as isOyaJikaze,
   isRole,
   isWinType,
   scoreTierForHan,
 } from "@mahjong-scoring/core";
-import type { Fu, Role, WinType } from "@mahjong-scoring/core";
+import type { Fu, Role, ScoreQuestion, WinType } from "@mahjong-scoring/core";
 
 import { HAN_COLS } from "./han-cols";
 import type { ScoreTableViewMode } from "./score-grid";
@@ -146,4 +147,23 @@ export function scoreTableFocusOf({
     han,
     fu: fu !== undefined && isFu(fu) ? fu : undefined,
   };
+}
+
+/**
+ * 点数計算の問題から、その正解の点数表のハイライト位置を組み立てる
+ * 問題の点数表位置生成
+ *
+ * 親子は自風、ロンツモは問題の和了方、翻と符は正解から引く。試験の盤面・
+ * 答え合わせ・和了形の結果が同じ問題から同じセルに着地するよう、変換を
+ * ここに 1 つだけ持つ（{@link scoreTableFocusOf}）。
+ */
+export function scoreTableFocusOfQuestion(
+  question: Pick<ScoreQuestion, "jikaze" | "isTsumo" | "answer">,
+): ScoreTableFocus {
+  return scoreTableFocusOf({
+    isOya: isOyaJikaze(question.jikaze),
+    isTsumo: question.isTsumo,
+    han: question.answer.han,
+    fu: question.answer.fu,
+  });
 }
