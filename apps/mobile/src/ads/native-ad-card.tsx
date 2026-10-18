@@ -5,6 +5,7 @@ import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 import { Chip } from "../components/chip";
 import { ChevronRightIcon } from "../components/icons/icons";
 import { colors, radius } from "../lib/theme";
+import { linkCard } from "../lib/link-card-styles";
 import { nativeAdAccessibilityLabel, openNativeAd } from "./open-native-ad";
 import {
   CardVisualBand,
@@ -92,31 +93,11 @@ function CreativeVisual({ creative }: { readonly creative: NativeAdView }) {
   );
 }
 
-// 枠・余白・文字は練習カード（`PracticeCard`）と同じ値
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderColor: colors.panel,
-    borderRadius: radius.panel,
-    backgroundColor: colors.white,
-    padding: 20,
-    gap: 16,
-  },
-  pressed: {
-    backgroundColor: colors.surface50,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 8,
-  },
-  title: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
+  card: linkCard.card,
+  pressed: linkCard.pressed,
+  header: linkCard.header,
+  title: linkCard.title,
   body: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -143,14 +124,6 @@ const styles = StyleSheet.create({
   icon: {
     fontSize: 36,
   },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  cta: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.action,
-  },
+  footer: linkCard.footer,
+  cta: linkCard.footerLabel,
 });
