@@ -69,5 +69,5 @@ appId: help.mahjong.score
 - tapOn:
     id: "preferences-tile-order-locked"
 - extendedWaitUntil:
-    visible: "Pro"
+    visible: "現在の状態"
     timeout: 10000
