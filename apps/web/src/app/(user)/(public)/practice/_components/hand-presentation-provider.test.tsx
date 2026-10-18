@@ -2,10 +2,12 @@ import { act, screen, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
 import { renderToString } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { HaiKind, type HaiKindId } from "@mahjong-scoring/core";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
-import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 
+import {
+  PRESENTATION_CLOSED,
+  PRESENTATION_CONTEXT,
+  proViewerProfile,
+} from "@/test/hand-presentation-fixtures";
 import { render } from "@/test/tile-image-render";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
@@ -27,40 +29,6 @@ const { HandPresentationNotice } = await import("./hand-presentation-notice");
 const { TehaiDisplay } = await import("./tehai-display");
 
 const mockFetchViewerProfile = vi.mocked(fetchViewerProfile);
-
-const CLOSED: readonly HaiKindId[] = [
-  HaiKind.ManZu1,
-  HaiKind.ManZu2,
-  HaiKind.ManZu3,
-  HaiKind.PinZu4,
-  HaiKind.PinZu5,
-  HaiKind.PinZu6,
-  HaiKind.SouZu7,
-  HaiKind.SouZu8,
-  HaiKind.SouZu9,
-  HaiKind.Ton,
-  HaiKind.Ton,
-  HaiKind.Ton,
-  HaiKind.Chun,
-  HaiKind.Chun,
-];
-
-const CONTEXT: TehaiContext = {
-  bakaze: HaiKind.Ton,
-  jikaze: HaiKind.Nan,
-  doraMarkers: [],
-  agariHai: HaiKind.Chun,
-  isTsumo: true,
-};
-
-function proProfile() {
-  return {
-    avatarUrl: null,
-    name: "bob",
-    benefits: [PlanBenefit.PracticeTools],
-    unreadNotificationCount: 0,
-  };
-}
 
 /** 盤面に描かれた牌画像の角度（transform）の一覧 */
 function tileTransforms(): string[] {
@@ -92,8 +60,9 @@ describe("HandPresentationProvider（web）", () => {
   it("決まるまで子をマウントせず、子の effect（開始・出題）も走らない", async () => {
     act(() => useDisplaySettingsStore.getState().setTileOrientation("random"));
     useAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
-    let resolveProfile: (value: ReturnType<typeof proProfile>) => void = () =>
-      undefined;
+    let resolveProfile: (
+      value: ReturnType<typeof proViewerProfile>,
+    ) => void = () => undefined;
     mockFetchViewerProfile.mockReturnValue(
       new Promise((resolve) => {
         resolveProfile = resolve;
@@ -112,7 +81,7 @@ describe("HandPresentationProvider（web）", () => {
     expect(screen.getByText("skeleton")).toBeTruthy();
     expect(started).not.toHaveBeenCalled();
 
-    await act(async () => resolveProfile(proProfile()));
+    await act(async () => resolveProfile(proViewerProfile()));
     expect(screen.getByText("board")).toBeTruthy();
     expect(screen.queryByText("skeleton")).toBeNull();
     expect(started).toHaveBeenCalledTimes(1);
@@ -131,13 +100,13 @@ describe("HandPresentationProvider（web）", () => {
   it("random + Pro なら盤面の純手牌と和了牌の向きを変え、案内は出さない", async () => {
     act(() => useDisplaySettingsStore.getState().setTileOrientation("random"));
     useAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
-    mockFetchViewerProfile.mockResolvedValue(proProfile());
+    mockFetchViewerProfile.mockResolvedValue(proViewerProfile());
     render(
       <HandPresentationProvider fallback={<p>skeleton</p>}>
         <HandPresentationNotice />
         <TehaiDisplay
-          tehai={{ closed: CLOSED, exposed: [] }}
-          context={CONTEXT}
+          tehai={{ closed: PRESENTATION_CLOSED, exposed: [] }}
+          context={PRESENTATION_CONTEXT}
         />
       </HandPresentationProvider>,
     );
@@ -154,12 +123,15 @@ describe("HandPresentationProvider（web）", () => {
   it("random でも特典が無ければ従来の向き", async () => {
     act(() => useDisplaySettingsStore.getState().setTileOrientation("random"));
     useAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
-    mockFetchViewerProfile.mockResolvedValue({ ...proProfile(), benefits: [] });
+    mockFetchViewerProfile.mockResolvedValue({
+      ...proViewerProfile(),
+      benefits: [],
+    });
     render(
       <HandPresentationProvider fallback={<p>skeleton</p>}>
         <TehaiDisplay
-          tehai={{ closed: CLOSED, exposed: [] }}
-          context={CONTEXT}
+          tehai={{ closed: PRESENTATION_CLOSED, exposed: [] }}
+          context={PRESENTATION_CONTEXT}
         />
       </HandPresentationProvider>,
     );
@@ -184,14 +156,14 @@ describe("HandPresentationProvider（web）", () => {
   it("確定後に設定・ログインが変わっても盤面の向きとマウントを保つ", async () => {
     act(() => useDisplaySettingsStore.getState().setTileOrientation("random"));
     useAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
-    mockFetchViewerProfile.mockResolvedValue(proProfile());
+    mockFetchViewerProfile.mockResolvedValue(proViewerProfile());
     const mounted = vi.fn();
     function Child() {
       useEffect(() => mounted(), []);
       return (
         <TehaiDisplay
-          tehai={{ closed: CLOSED, exposed: [] }}
-          context={CONTEXT}
+          tehai={{ closed: PRESENTATION_CLOSED, exposed: [] }}
+          context={PRESENTATION_CONTEXT}
         />
       );
     }
@@ -217,12 +189,12 @@ describe("HandPresentationProvider（web）", () => {
   it("同じ手牌なら Provider を作り直しても同じ配置（同じドキュメントの種）", async () => {
     act(() => useDisplaySettingsStore.getState().setTileOrientation("random"));
     useAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
-    mockFetchViewerProfile.mockResolvedValue(proProfile());
+    mockFetchViewerProfile.mockResolvedValue(proViewerProfile());
     const ui = (
       <HandPresentationProvider fallback={<p>skeleton</p>}>
         <TehaiDisplay
-          tehai={{ closed: CLOSED, exposed: [] }}
-          context={CONTEXT}
+          tehai={{ closed: PRESENTATION_CLOSED, exposed: [] }}
+          context={PRESENTATION_CONTEXT}
         />
       </HandPresentationProvider>
     );
