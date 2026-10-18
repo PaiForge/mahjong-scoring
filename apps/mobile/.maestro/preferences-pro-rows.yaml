@@ -1,0 +1,73 @@
+# 設定の Pro の 2 行（手牌の上下をランダムにする・手牌を理牌せずに表示する）。iOS だけ
+# Pro の bob はどちらもスイッチで、片方を押しても他方は変わらない。無料の alice は
+# どちらも鍵の行で、押すとプラン画面へ送られる
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-settings"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-settings"
+- scrollUntilVisible:
+    element:
+      id: "preferences-tile-order"
+    direction: DOWN
+- assertVisible:
+    id: "preferences-tile-orientation"
+- assertNotVisible:
+    id: "preferences-tile-order-locked"
+- tapOn:
+    id: "preferences-tile-order"
+- takeScreenshot: preferences-pro-rows-pro
+# 無料のユーザーでは 2 行とも鍵
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: alice@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-settings"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-settings"
+- scrollUntilVisible:
+    element:
+      id: "preferences-tile-order-locked"
+    direction: DOWN
+- assertVisible:
+    id: "preferences-tile-orientation-locked"
+- takeScreenshot: preferences-pro-rows-free
+- tapOn:
+    id: "preferences-tile-order-locked"
+- extendedWaitUntil:
+    visible: "Pro"
+    timeout: 10000

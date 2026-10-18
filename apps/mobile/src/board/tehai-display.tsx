@@ -75,7 +75,7 @@ function DoraGroup({
  * 状況行も折り返さず、手牌と同じ倍率まで縮めて幅に収める。ドラの「?」で
  * ドラの見方（表示牌かドラそのものか）を説明し、設定へ送る。
  *
- * 練習の画面では手牌の見せ方（上下ランダム）を `HandPresentationContext` から
+ * 練習の画面では手牌の見せ方（上下ランダム・理牌しない）を `HandPresentationContext` から
  * 引き、純手牌と和了牌にだけ当てる（web と同じ。副露・ドラ表示牌は変えない）。
  */
 export const TehaiDisplay = memo(function TehaiDisplayComponent({

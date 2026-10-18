@@ -12,6 +12,7 @@ import {
 } from "../components/setting-toggle-row";
 import {
   useDisplaySettingsStore,
+  useTileOrderSetting,
   useTileOrientationSetting,
   useDoraDisplayMode,
   useFuHanOrder,
@@ -80,7 +81,7 @@ export function DisplaySettingsSection() {
         checked={koTsumoInput === "split"}
         onChange={(checked) => setKoTsumoInput(checked ? "split" : "combined")}
       />
-      {/* Pro は iOS だけで扱う（Android は行を出さず、盤面も常に正規の向き） */}
+      {/* Pro は iOS だけで扱う（Android は行を出さず、盤面も常に正規の向き・理牌した順） */}
       {IAP_AVAILABLE && <PracticeToolsRows />}
       {/* 36役を並び替える UI は設定画面に置くと長すぎるため専用画面へ渡す */}
       <SettingLinkRow
@@ -130,15 +131,29 @@ function PracticeToolsRowsFor({
   const setTileOrientation = useDisplaySettingsStore(
     (s) => s.setTileOrientation,
   );
+  const tileOrder = useTileOrderSetting();
+  const setTileOrder = useDisplaySettingsStore((s) => s.setTileOrder);
   return (
-    <PracticeToolsToggleRow
-      access={access}
-      title={t("tileOrientationTitle")}
-      description={t("tileOrientationDescription")}
-      checked={tileOrientation === "random"}
-      onChange={(checked) => setTileOrientation(checked ? "random" : "upright")}
-      testID="preferences-tile-orientation"
-    />
+    <>
+      <PracticeToolsToggleRow
+        access={access}
+        title={t("tileOrientationTitle")}
+        description={t("tileOrientationDescription")}
+        checked={tileOrientation === "random"}
+        onChange={(checked) =>
+          setTileOrientation(checked ? "random" : "upright")
+        }
+        testID="preferences-tile-orientation"
+      />
+      <PracticeToolsToggleRow
+        access={access}
+        title={t("tileOrderTitle")}
+        description={t("tileOrderDescription")}
+        checked={tileOrder === "unsorted"}
+        onChange={(checked) => setTileOrder(checked ? "unsorted" : "sorted")}
+        testID="preferences-tile-order"
+      />
+    </>
   );
 }
 
