@@ -43,5 +43,5 @@
     "placeholder": "選択してください",
     "emptySelection": "まだ選んでいません"
   },
-  "handPresentationFallbackNotice": "表示設定を確認できなかったため、今回は通常の向きで開始しました。変更を反映するには、練習を開き直してください。"
+  "handPresentationFallbackNotice": "表示設定を確認できなかったため、今回は手牌を通常の向き・理牌した順で表示しています。変更を反映するには、練習を開き直してください。"
 }
