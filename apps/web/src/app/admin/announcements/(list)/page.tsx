@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
+import { TableHead } from "@/app/admin/_components/table-head";
 import { formatAdminDateTime } from "@/app/admin/_lib/format-date";
 import { type Announcement, announcements, db } from "@/lib/db";
 import { AnnouncementStatus } from "@/lib/announcement-status";
@@ -67,25 +68,15 @@ export default async function AdminAnnouncementsPage() {
               </header>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="border-b border-surface-200 text-xs text-surface-500">
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("locale")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("title")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("status")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("publishedAt")}
-                      </th>
-                      <th className="px-4 py-2 font-medium whitespace-nowrap">
-                        {t("actions")}
-                      </th>
-                    </tr>
-                  </thead>
+                  <TableHead
+                    labels={[
+                      t("locale"),
+                      t("title"),
+                      t("status"),
+                      t("publishedAt"),
+                      t("actions"),
+                    ]}
+                  />
                   <tbody>
                     {variants.map((a) => (
                       <tr key={a.id} className="border-t border-surface-200">
