@@ -107,6 +107,7 @@ describe("getLeaderboard", () => {
       expect(result).toEqual({
         rows: [],
         totalCount: 0,
+        page: 1,
         currentUserRank: undefined,
       });
     });
@@ -117,6 +118,7 @@ describe("getLeaderboard", () => {
       expect(result).toEqual({
         rows: [],
         totalCount: 0,
+        page: 1,
         currentUserRank: undefined,
       });
     });
@@ -127,6 +129,7 @@ describe("getLeaderboard", () => {
       expect(result).toEqual({
         rows: [],
         totalCount: 0,
+        page: 1,
         currentUserRank: undefined,
       });
     });
@@ -137,6 +140,7 @@ describe("getLeaderboard", () => {
       expect(result).toEqual({
         rows: [],
         totalCount: 0,
+        page: 1,
         currentUserRank: undefined,
       });
     });
@@ -235,6 +239,67 @@ describe("getLeaderboard", () => {
       const result = await getLeaderboard(JANTOU_FU, "monthly", 3);
 
       expect(result?.rows[0]).toMatchObject({ rank: 41, userId: "user-41" });
+    });
+
+    it("件数を超えるページは最後のページに丸め、その行を引き直す（空の OFFSET を返さない）", async () => {
+      mockGetRanking
+        .mockResolvedValueOnce(buildPage({ rows: [], total: 25 }))
+        .mockResolvedValueOnce(
+          buildPage({
+            rows: [
+              {
+                userId: "user-21",
+                username: "last",
+                score: 5,
+                incorrectAnswers: 0,
+                timeTaken: 50,
+                displayName: undefined,
+                avatarUrl: undefined,
+              },
+            ],
+            total: 25,
+          }),
+        );
+
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 9);
+
+      expect(mockGetRanking).toHaveBeenNthCalledWith(
+        1,
+        "jantou_fu",
+        "default",
+        160,
+        20,
+      );
+      expect(mockGetRanking).toHaveBeenNthCalledWith(
+        2,
+        "jantou_fu",
+        "default",
+        20,
+        20,
+      );
+      expect(result?.page).toBe(2);
+      expect(result?.rows[0]).toMatchObject({ rank: 21, userId: "user-21" });
+    });
+
+    it("範囲内のページは引き直さない", async () => {
+      const result = await getLeaderboard(JANTOU_FU, "all-time", 1);
+
+      expect(mockGetRanking).toHaveBeenCalledTimes(1);
+      expect(result?.page).toBe(1);
+    });
+
+    it("誰もいなければ 1 ページ目の空のランキング", async () => {
+      mockGetRanking.mockResolvedValue(buildPage({ rows: [], total: 0 }));
+
+      const result = await getLeaderboard(JANTOU_FU, "monthly", 9);
+
+      expect(mockGetRanking).toHaveBeenLastCalledWith(
+        "jantou_fu",
+        "default",
+        0,
+        20,
+      );
+      expect(result).toMatchObject({ rows: [], totalCount: 0, page: 1 });
     });
   });
 

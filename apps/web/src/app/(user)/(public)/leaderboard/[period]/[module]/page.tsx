@@ -140,7 +140,6 @@ async function DetailContent({
       currentUserId={currentUserId}
       // ブロックした人の行は除くが、順位・件数・ページ送りは共有の集計のまま
       data={{ ...data, rows: withoutBlocked(data.rows, blockedIds) }}
-      currentPage={page}
       viewerHidden={viewerHidden}
     />
   );
