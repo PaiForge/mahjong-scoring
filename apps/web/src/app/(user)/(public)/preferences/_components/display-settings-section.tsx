@@ -111,9 +111,9 @@ export function DisplaySettingsSection() {
           id={PREFERENCE_ANCHORS.tileOrientation}
           title={t("tileOrientationTitle")}
           description={t("tileOrientationDescription")}
-          badge={t("tileOrientationPro.badge")}
-          note={t("tileOrientationPro.note")}
-          link={{ href: PLAN_PAGE_HREF, label: t("tileOrientationPro.link") }}
+          badge={t("practiceToolsPro.badge")}
+          note={t("practiceToolsPro.note")}
+          link={{ href: PLAN_PAGE_HREF, label: t("practiceToolsPro.link") }}
         />
       )}
       {/* 36役を並び替える UI は設定ページに置くと長すぎるため専用ページへ渡す */}

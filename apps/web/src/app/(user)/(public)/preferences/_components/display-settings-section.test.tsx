@@ -54,7 +54,7 @@ describe("DisplaySettingsSection の手牌の向き", () => {
     });
     render(<DisplaySettingsSection />);
     expect(screen.queryByLabelText("tileOrientationTitle")).toBeNull();
-    const link = screen.getByText("tileOrientationPro.link");
+    const link = screen.getByText("practiceToolsPro.link");
     expect(link.closest("a")?.getAttribute("href")).toBe("/plan");
     expect(useDisplaySettingsStore.getState().tileOrientation).toBe("random");
   });
@@ -68,7 +68,7 @@ describe("DisplaySettingsSection の手牌の向き", () => {
     });
     render(<DisplaySettingsSection />);
     expect(screen.queryByLabelText("tileOrientationTitle")).toBeNull();
-    expect(screen.queryByText("tileOrientationPro.link")).toBeNull();
+    expect(screen.queryByText("practiceToolsPro.link")).toBeNull();
     expect(screen.getByText("tileOrientationTitle")).toBeTruthy();
   });
 });

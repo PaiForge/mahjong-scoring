@@ -160,8 +160,8 @@ function LockedTileOrientationRow({ href }: { readonly href: string }) {
   return (
     <SettingLockedRow
       title={t("tileOrientationTitle")}
-      badge={t("tileOrientationPro.badge")}
-      note={t("tileOrientationPro.note")}
+      badge={t("practiceToolsPro.badge")}
+      note={t("practiceToolsPro.note")}
       onPress={() => router.push(href)}
       testID="preferences-tile-orientation-locked"
     />
