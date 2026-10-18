@@ -9,7 +9,7 @@ vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock("../apple/refresh-tokens", () => ({
   storeAppleAuthorizationCode: mockStore,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleSaveAppleToken } from "./apple";
 

@@ -20,7 +20,7 @@ vi.mock("../notifications/queries", () => ({
   markNotificationRead: mockMarkOne,
   markAllNotificationsRead: mockMarkAll,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   handleMarkNotificationsRead,

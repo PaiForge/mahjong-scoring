@@ -21,7 +21,7 @@ const mocked = vi.hoisted(() => ({
   encryptionKey: Buffer.alloc(32),
 }));
 
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 vi.mock("./apple-id-api", () => ({
   exchangeAppleAuthorizationCode: mocked.exchange,
   revokeAppleRefreshToken: mocked.revoke,

@@ -17,7 +17,7 @@ vi.mock("../leaderboard/user-ranks", () => ({
 vi.mock("../users/leaderboard-visibility", () => ({
   saveLeaderboardVisibility: mockSaveVisibility,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   handleReadLeaderboardRanks,

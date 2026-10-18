@@ -23,7 +23,7 @@ vi.mock("./mypage", async () => {
       mobileJson({ error: "usernameRequired" }, { status: 409 }),
   };
 });
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleReadRecordResults, handleReadRecords } from "./records";
 

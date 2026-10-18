@@ -18,7 +18,7 @@ vi.mock("../practice-quota/consume-user-quota", () => ({
 vi.mock("../practice-quota/read-user-quota", () => ({
   readUserQuotaUsage: mockReadUsage,
 }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   handleBeginPracticeQuota,

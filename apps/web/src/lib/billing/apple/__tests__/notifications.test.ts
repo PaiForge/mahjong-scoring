@@ -14,7 +14,7 @@ vi.mock("../revoke", () => ({
   revokeAppleTransaction: mockRevoke,
   reverseAppleRevocation: mockReverse,
 }));
-vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 
 import {
   dispatchAppleNotification,
