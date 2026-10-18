@@ -49,6 +49,19 @@ const LAST_FREE = {
   benefits: [],
 } as const;
 
+/**
+ * React が DOM ノードに控えている props から onClick を取り出す。disabled の
+ * ボタンは React が click を捨てるので、処理そのものを呼ぶときに使う
+ */
+function reactOnClickOf(node: Element): () => void {
+  const key = Object.keys(node).find((k) => k.startsWith("__reactProps$"));
+  const props = key
+    ? (node as unknown as Record<string, { onClick?: () => void }>)[key]
+    : undefined;
+  if (!props?.onClick) throw new Error("onClick が付いていない");
+  return props.onClick;
+}
+
 /** クエリを与えて盤面をマウントする（問題生成は effect 内なので act で包む） */
 async function visit(query: string) {
   setSearchParams(query);
@@ -92,6 +105,41 @@ describe("AgariScoreBoard", () => {
     await visit("ranges=non");
     expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
     expect(beginPracticeQuestion).toHaveBeenCalledWith("agari-score");
+  });
+
+  // ゲートは重なった要求を弾かず返事を捨てるだけなので、要求が 2 回届けば
+  // ログイン済みの無料枠は 2 回減る。ボタンの disabled が外れても（部品の
+  // 差し替え等）処理側で止まることを確かめる。React は DOM の属性ではなく
+  // props の disabled を見て click を捨てるので、属性を外して押しても
+  // 処理に届かない。ボタンに付いた onClick を直接呼んで、処理自身が
+  // 確認中を弾くことを見る
+  it("返事を待つ間に「次の問題へ」を重ねて押しても、無料枠の消費は 1 回だけ聞く", async () => {
+    await visit("");
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(1);
+    act(() => {
+      useAgariScoreStore.getState().revealAnswer();
+    });
+
+    let release: (() => void) | undefined;
+    beginPracticeQuestion.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          release = () => resolve({ ...LAST_FREE, remaining: 2 });
+        }),
+    );
+    const next = screen.getByRole("button", { name: "result.next" });
+    fireEvent.click(next);
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(2);
+    expect(next).toHaveProperty("disabled", true);
+
+    act(() => {
+      reactOnClickOf(next)();
+    });
+    expect(beginPracticeQuestion).toHaveBeenCalledTimes(2);
+
+    await act(async () => release?.());
+    expect(useAgariScoreStore.getState().isAnswered).toBe(false);
+    expect(screen.getByText("board.questionPrompt")).toBeDefined();
   });
 
   it("クエリの出題条件をストアへ移してから問題を作る", async () => {
