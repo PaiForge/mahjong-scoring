@@ -20,6 +20,7 @@ import {
   planStatusOf,
   purchaseProviderOf,
   purchaseStateOf,
+  type PlanStatus,
 } from "@/lib/billing/plan-status";
 import {
   PLAN_PAGE_HREF,
@@ -32,6 +33,43 @@ import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypagePlan");
+}
+
+type PlanTranslator = Awaited<ReturnType<typeof getTranslations<"mypagePlan">>>;
+
+/**
+ * プラン状況の見出しと補足の文言
+ * プラン状況の文言
+ *
+ * `PlanStatus` の種類を足したら、ここが網羅性の検査で落ちる（見出しが空の
+ * まま描画されない）。
+ */
+function describePlanStatus(
+  plan: PlanStatus,
+  t: PlanTranslator,
+): { readonly heading: string; readonly hint: string } {
+  switch (plan.kind) {
+    case "lifetime":
+      return { heading: t("status.lifetime"), hint: t("status.lifetimeHint") };
+    case "pass":
+      return {
+        heading: t("status.pass", { until: formatPlanDate(plan.until) }),
+        hint: t("status.passHint"),
+      };
+    case "granted":
+      return {
+        heading: plan.until
+          ? t("status.grantedUntil", { until: formatPlanDate(plan.until) })
+          : t("status.granted"),
+        hint: t("status.grantedHint"),
+      };
+    case "free":
+      return { heading: t("status.free"), hint: t("status.freeHint") };
+    default: {
+      const exhaustive: never = plan;
+      return exhaustive;
+    }
+  }
 }
 
 interface MypagePlanPageProps {
@@ -77,6 +115,7 @@ export default async function MypagePlanPage({
     blocksNewPurchase(purchase, now),
   );
   const providers = new Set(purchases.map(purchaseProviderOf));
+  const statusCopy = describePlanStatus(plan, t);
 
   return (
     <ContentContainer
@@ -102,23 +141,9 @@ export default async function MypagePlanPage({
         <section className="space-y-4">
           <SectionTitle>{t("status.title")}</SectionTitle>
           <div className="space-y-3 rounded-panel border border-panel bg-white p-5">
-            <p className="text-lg font-bold">
-              {plan.kind === "lifetime" && t("status.lifetime")}
-              {plan.kind === "pass" &&
-                t("status.pass", { until: formatPlanDate(plan.until) })}
-              {plan.kind === "granted" &&
-                (plan.until
-                  ? t("status.grantedUntil", {
-                      until: formatPlanDate(plan.until),
-                    })
-                  : t("status.granted"))}
-              {plan.kind === "free" && t("status.free")}
-            </p>
+            <p className="text-lg font-bold">{statusCopy.heading}</p>
             <p className="text-sm leading-relaxed text-surface-600">
-              {plan.kind === "lifetime" && t("status.lifetimeHint")}
-              {plan.kind === "pass" && t("status.passHint")}
-              {plan.kind === "granted" && t("status.grantedHint")}
-              {plan.kind === "free" && t("status.freeHint")}
+              {statusCopy.hint}
             </p>
             {canPurchase && (
               <LinkButton href={PLAN_PAGE_HREF} size="lg" fullWidth>

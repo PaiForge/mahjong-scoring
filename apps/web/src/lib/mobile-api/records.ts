@@ -10,9 +10,11 @@ import {
   getPeriodRange,
   getPreviousPeriodRange,
 } from "@mahjong-scoring/features/my-record/period";
-import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
+import {
+  resolveRequestedBoard,
+  selectRecordBoard,
+} from "@mahjong-scoring/features/my-record/requested-board";
 import { isDatePeriod } from "@mahjong-scoring/features/my-record/types";
-import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
 import {
   fetchAvailableBoards,
@@ -52,12 +54,7 @@ export async function handleReadRecords(
   const requested = resolveRequestedBoard(query);
   try {
     const boards = await fetchAvailableBoards(userId);
-    const board =
-      boards.find(
-        (candidate) =>
-          requested !== undefined &&
-          practiceBoardKey(candidate) === practiceBoardKey(requested),
-      ) ?? boards[0];
+    const board = selectRecordBoard(boards, requested);
     if (board === undefined) {
       return mobileJson<MobileRecordsResponse>({
         boards,

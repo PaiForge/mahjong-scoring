@@ -24,6 +24,7 @@ vi.mock("../period-queries", () => ({
   })),
 }));
 
+import { getQueriesForPeriod } from "../period-queries";
 import { getUserRanks } from "../user-ranks";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -72,6 +73,12 @@ describe("getUserRanks", () => {
     expect(mockGetUserRankedRow).toHaveBeenCalledTimes(
       LEADERBOARD_BOARDS.length,
     );
+  });
+
+  it("渡した時刻で期間を決める", async () => {
+    const now = new Date("2026-10-31T15:00:00Z");
+    await getUserRanks("user-1", "monthly", now);
+    expect(getQueriesForPeriod).toHaveBeenCalledWith("monthly", now);
   });
 
   it("1 つの土俵の取得が失敗しても他の土俵の順位は返す", async () => {

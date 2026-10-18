@@ -22,8 +22,10 @@ import {
   getPreviousPeriodRange,
 } from "@mahjong-scoring/features/my-record/period";
 import { fetchAvailableBoards, fetchChallengeAttempts } from "../_lib/queries";
-import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
-import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
+import {
+  resolveRequestedBoard,
+  selectRecordBoard,
+} from "@mahjong-scoring/features/my-record/requested-board";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage.challenges");
@@ -50,19 +52,12 @@ export default async function ChallengesPage({
 
   // `?menu=&variant=` の指定を初期選択にする。記録の無い土俵・未知の値は
   // 既定に落とす（空のダッシュボードを開かせない）
-  const requested = resolveRequestedBoard(await searchParams);
-  const requestedBoard =
-    requested === undefined
-      ? undefined
-      : availableBoards.find(
-          (board) => practiceBoardKey(board) === practiceBoardKey(requested),
-        );
-
   // ダッシュボードの初期選択。プリフェッチする土俵とクライアントの初期選択が
   // 食い違うと、初回描画だけ別の土俵のデータが出るため同じ値を両方に渡す
-  const initialBoard =
-    requestedBoard ??
-    (availableBoards.length > 0 ? availableBoards[0] : undefined);
+  const initialBoard = selectRecordBoard(
+    availableBoards,
+    resolveRequestedBoard(await searchParams),
+  );
 
   let initialAttempts: {
     current: Awaited<ReturnType<typeof fetchChallengeAttempts>>["current"];

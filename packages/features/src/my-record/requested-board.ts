@@ -1,4 +1,8 @@
-import { DEFAULT_VARIANT, isPracticeMenuType } from "../practice-menu-types";
+import {
+  DEFAULT_VARIANT,
+  isPracticeMenuType,
+  practiceBoardKey,
+} from "../practice-menu-types";
 
 import { isMyRecordBoard } from "./menu-scope";
 import type { PracticeBoard } from "../practice-menu-types";
@@ -30,4 +34,27 @@ export function resolveRequestedBoard(
     variant: typeof variant === "string" ? variant : DEFAULT_VARIANT,
   };
   return isMyRecordBoard(board) ? board : undefined;
+}
+
+/**
+ * 記録のある土俵の中から、表示する土俵を選ぶ
+ * 表示土俵選択
+ *
+ * 要求された土俵に記録があればそれ、無ければ（要求なし・記録の無い土俵）
+ * 先頭の土俵に落とす — 空のダッシュボードを開かせない。記録が 1 件も
+ * 無ければ undefined。web のマイレコードとアプリ向け API で同じ規則にする。
+ *
+ * @param boards 記録のある土俵（表示順）
+ * @param requested 要求された土俵（`resolveRequestedBoard` の結果）
+ */
+export function selectRecordBoard(
+  boards: readonly PracticeBoard[],
+  requested: PracticeBoard | undefined,
+): PracticeBoard | undefined {
+  const requestedKey =
+    requested === undefined ? undefined : practiceBoardKey(requested);
+  return (
+    boards.find((board) => practiceBoardKey(board) === requestedKey) ??
+    boards[0]
+  );
 }

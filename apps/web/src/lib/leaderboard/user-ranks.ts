@@ -40,15 +40,14 @@ export interface UserRankInfo extends PracticeBoard {
  *
  * @param userId - 本人の ID
  * @param period - 期間
+ * @param now - 期間（月間の対象月）を決める時刻
  */
 export async function getUserRanks(
   userId: string,
   period: LeaderboardPeriod,
+  now: Date = new Date(),
 ): Promise<readonly UserRankInfo[]> {
-  const { getUserRankedRow, cacheKey } = getQueriesForPeriod(
-    period,
-    new Date(),
-  );
+  const { getUserRankedRow, cacheKey } = getQueriesForPeriod(period, now);
 
   const fetchRank = async (
     board: PracticeBoard,
