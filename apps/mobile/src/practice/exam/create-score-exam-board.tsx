@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { isFuRelevant } from "@mahjong-scoring/core";
+import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
@@ -113,13 +113,16 @@ export function createScoreExamBoard(
 
         {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
             （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
-            出さない）。問題ごとに作り直して閉じた状態へ戻す */}
+            出さない）。試験は符を答えさせない。問題ごとに作り直して閉じた
+            状態へ戻す */}
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
             fu={
               question.fuDetails !== undefined &&
-              isFuRelevant(question.answer.han)
+              resolveFuVisibility(question.answer, {
+                requireFuForMangan: false,
+              }).breakdown
                 ? { details: question.fuDetails, answer: question.answer.fu }
                 : undefined
             }

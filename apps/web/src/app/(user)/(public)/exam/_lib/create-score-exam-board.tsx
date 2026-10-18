@@ -2,12 +2,12 @@
 
 import type { ComponentType } from "react";
 import { useTranslations } from "next-intl";
-import { isFuRelevant } from "@mahjong-scoring/core";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
 import { ScoreBreakdownPanel } from "@/app/(user)/(public)/practice/_components/score-breakdown-panel";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
+import { resolveFuVisibility } from "@mahjong-scoring/features/results/fu-visibility";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreQuestionBoard } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
@@ -155,13 +155,16 @@ export function createScoreExamBoard(
 
         {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
             （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
-            出さない）。問題ごとに作り直して閉じた状態へ戻す */}
+            出さない）。試験は符を答えさせない。問題ごとに作り直して閉じた
+            状態へ戻す */}
         {showBreakdown && (
           <ScoreBreakdownPanel
             key={questionIndex}
             fu={
               question.fuDetails !== undefined &&
-              isFuRelevant(question.answer.han)
+              resolveFuVisibility(question.answer, {
+                requireFuForMangan: false,
+              }).breakdown
                 ? { details: question.fuDetails, answer: question.answer.fu }
                 : undefined
             }
