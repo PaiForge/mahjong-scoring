@@ -121,7 +121,7 @@ interface ScoreTableFocusSource {
   readonly isTsumo: boolean;
   readonly han: number;
   /** 符。満貫以上で符が点数に効かない出題は undefined */
-  readonly fu: number | undefined;
+  readonly fu?: number | undefined;
 }
 
 /**
