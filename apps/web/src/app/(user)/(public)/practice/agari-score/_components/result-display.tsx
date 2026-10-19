@@ -53,6 +53,11 @@ interface ResultDisplayProps {
    */
   readonly answerSummary?: string;
   readonly requireYaku?: boolean;
+  /**
+   * 翻数と符を答えさせたか。答えさせていないときも正解の翻数・符の行は
+   * 出す（点数の根拠として読ませる）が、「あなたの回答」は未回答の印にする
+   */
+  readonly requireHanFu?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
   /** 既に白い枠を持つ面の中に置くか（{@link ResultTableFrame} の `embedded`） */
@@ -79,6 +84,7 @@ export function ResultDisplay({
   result,
   answerSummary,
   requireYaku = false,
+  requireHanFu = true,
   exactHan = false,
   requireFuForMangan = false,
   embedded = false,
@@ -101,6 +107,8 @@ export function ResultDisplay({
     userAnswer !== undefined && result !== undefined
       ? { answer: userAnswer, result }
       : undefined;
+  // 翻数・符の行の「あなたの回答」。答えさせていない設定では判定を見せない
+  const judgedHanFu = requireHanFu ? judged : undefined;
 
   // 役の振り分けと内訳の並び・合計はモバイルと共有する
   const {
@@ -249,15 +257,19 @@ export function ResultDisplay({
             <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
               {t("form.labels.han")}
             </td>
-            {judged ? (
+            {judgedHanFu ? (
               <td
-                className={`py-2 pr-4 text-right ${judged.result.isHanCorrect ? "text-success" : "text-destructive"}`}
+                className={`py-2 pr-4 text-right ${judgedHanFu.result.isHanCorrect ? "text-success" : "text-destructive"}`}
               >
-                {getHanDisplay(judged.answer.han)}{" "}
+                {judgedHanFu.answer.han === undefined
+                  ? "-"
+                  : getHanDisplay(judgedHanFu.answer.han)}{" "}
                 <JudgementMark
-                  verdict={judged.result.isHanCorrect ? "correct" : "incorrect"}
+                  verdict={
+                    judgedHanFu.result.isHanCorrect ? "correct" : "incorrect"
+                  }
                   label={tCommon(
-                    judged.result.isHanCorrect ? "correct" : "incorrect",
+                    judgedHanFu.result.isHanCorrect ? "correct" : "incorrect",
                   )}
                 />
               </td>
@@ -286,18 +298,18 @@ export function ResultDisplay({
               <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
                 {t("form.labels.fu")}
               </td>
-              {judged ? (
+              {judgedHanFu ? (
                 <td
-                  className={`py-2 pr-4 text-right ${judged.result.isFuCorrect ? "text-success" : "text-destructive"}`}
+                  className={`py-2 pr-4 text-right ${judgedHanFu.result.isFuCorrect ? "text-success" : "text-destructive"}`}
                 >
-                  {judged.answer.fu ?? "-"}
+                  {judgedHanFu.answer.fu ?? "-"}
                   {t("form.options.fuSuffix")}{" "}
                   <JudgementMark
                     verdict={
-                      judged.result.isFuCorrect ? "correct" : "incorrect"
+                      judgedHanFu.result.isFuCorrect ? "correct" : "incorrect"
                     }
                     label={tCommon(
-                      judged.result.isFuCorrect ? "correct" : "incorrect",
+                      judgedHanFu.result.isFuCorrect ? "correct" : "incorrect",
                     )}
                   />
                 </td>

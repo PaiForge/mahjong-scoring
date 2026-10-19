@@ -10,6 +10,7 @@ import type { ScoreSettingsState } from "@mahjong-scoring/features/settings/use-
 export type ScoreSettingsValues = Pick<
   ScoreSettingsState,
   | "requireYaku"
+  | "requireHanFu"
   | "exactHan"
   | "requireFuForMangan"
   | "targetScoreRanges"
@@ -31,6 +32,7 @@ export function readModeFlags(
 ): ScorePracticeModeFlags {
   return {
     requireYaku: settings.requireYaku,
+    requireHanFu: settings.requireHanFu,
     exactHan: settings.exactHan,
     requireFuForMangan: settings.requireFuForMangan,
   };

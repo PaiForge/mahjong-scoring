@@ -101,6 +101,7 @@ export function TenpaiScoreHelpTour() {
             cellResults={results}
             formatAnswerLines={formatAnswerLines}
             requireYaku={false}
+            requireHanFu
             exactHan={false}
             requireFuForMangan={false}
             onNext={noop}

@@ -69,7 +69,8 @@ function TenpaiScoreBoardInner() {
   const router = useRouter();
   const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
-  const { requireYaku, exactHan, requireFuForMangan } = readModeFlags(settings);
+  const { requireYaku, requireHanFu, exactHan, requireFuForMangan } =
+    readModeFlags(settings);
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const [flashSignal, setFlashSignal] = useState(0);
@@ -163,6 +164,7 @@ function TenpaiScoreBoardInner() {
     scrollToTop();
     submitCells({
       requireYaku,
+      requireHanFu,
       exactHan,
       requireFuForMangan,
       allowDoubleYakuman,
@@ -319,6 +321,7 @@ function TenpaiScoreBoardInner() {
                     isTsumo={isTsumo}
                     isOya={isOyaQuestion}
                     requireYaku={requireYaku}
+                    requireHanFu={requireHanFu}
                     exactHan={exactHan}
                     requireFuForMangan={requireFuForMangan}
                     submitLabel={t("cells.assign")}
@@ -370,6 +373,7 @@ function TenpaiScoreBoardInner() {
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
             requireYaku={requireYaku}
+            requireHanFu={requireHanFu}
             exactHan={exactHan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}

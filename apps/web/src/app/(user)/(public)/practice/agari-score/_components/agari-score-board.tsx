@@ -139,8 +139,10 @@ function AgariScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, exactHan, requireFuForMangan, measureTime } =
-    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const { measureTime, ...mode } = parseModeFlagsFromParams(
+    new URLSearchParams(searchParams.toString()),
+  );
+  const { requireYaku, requireHanFu, exactHan, requireFuForMangan } = mode;
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
@@ -181,7 +183,12 @@ function AgariScoreBoardInner() {
   const handleSubmit = useCallback(
     (answer: UserAnswer) => {
       scrollToPracticeAnchor();
-      submitAnswer(answer, requireYaku, exactHan, requireFuForMangan);
+      submitAnswer(answer, {
+        requireYaku,
+        requireHanFu,
+        exactHan,
+        requireFuForMangan,
+      });
 
       if (autoAdvanceOnCorrect) {
         const state = useAgariScoreStore.getState();
@@ -196,6 +203,7 @@ function AgariScoreBoardInner() {
       submitAnswer,
       requestQuestion,
       requireYaku,
+      requireHanFu,
       exactHan,
       requireFuForMangan,
       autoAdvanceOnCorrect,
@@ -228,7 +236,7 @@ function AgariScoreBoardInner() {
   // クライアントマウント前・問題生成前はどちらも本体と同形のスケルトンを表示し、
   // 実コンテンツへの差し替え時にレイアウトシフト（CLS）が起きないようにする。
   if (!isClient || !currentQuestion) {
-    return <AgariScoreBoardSkeleton />;
+    return <AgariScoreBoardSkeleton requireHanFu={requireHanFu} />;
   }
 
   return (
@@ -268,6 +276,7 @@ function AgariScoreBoardInner() {
                 userAnswer={userAnswer}
                 result={judgementResult}
                 requireYaku={requireYaku}
+                requireHanFu={requireHanFu}
                 exactHan={exactHan}
                 requireFuForMangan={requireFuForMangan}
               />
@@ -303,6 +312,7 @@ function AgariScoreBoardInner() {
               isTsumo={currentQuestion.isTsumo}
               isOya={isOya(currentQuestion.jikaze)}
               requireYaku={requireYaku}
+              requireHanFu={requireHanFu}
               exactHan={exactHan}
               requireFuForMangan={requireFuForMangan}
             />

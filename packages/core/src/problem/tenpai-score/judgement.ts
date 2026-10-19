@@ -1,5 +1,5 @@
 import type { HaiKindId } from "@pai-forge/riichi-mahjong";
-import { judgeAnswer } from "../score/judgement";
+import { judgeAnswer, type ScoreJudgementMode } from "../score/judgement";
 import type {
   JudgementResult,
   ScoreQuestion,
@@ -64,14 +64,9 @@ export type MachiCellAnswer =
  * マスの判定に使う出題モード
  * マス判定モード
  *
- * 和了形の点数計算の `judgeAnswer` に渡すフラグと同じ。
+ * 和了形の点数計算の `judgeAnswer` に渡す判定モードと同じ。
  */
-export interface MachiCellJudgementMode {
-  readonly requireYaku: boolean;
-  readonly exactHan: boolean;
-  readonly requireFuForMangan: boolean;
-  readonly allowDoubleYakuman: boolean;
-}
+export type MachiCellJudgementMode = ScoreJudgementMode;
 
 /**
  * マス 1 つの回答を判定する
@@ -100,14 +95,7 @@ export function judgeMachiCellAnswer(
       isYakuCorrect: isCorrect,
     };
   }
-  return judgeAnswer(
-    cell,
-    answer.answer,
-    mode.requireYaku,
-    mode.exactHan,
-    mode.requireFuForMangan,
-    mode.allowDoubleYakuman,
-  );
+  return judgeAnswer(cell, answer.answer, mode);
 }
 
 /**

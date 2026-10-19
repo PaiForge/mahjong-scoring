@@ -67,9 +67,9 @@ export interface ScoreQuestion {
  * ユーザー回答
  */
 export interface UserAnswer {
-  /** 翻数 */
-  readonly han: number;
-  /** 符（満貫以上の場合は undefined） */
+  /** 翻数（翻数と符を問わない出題では undefined） */
+  readonly han: number | undefined;
+  /** 符（満貫以上・翻数と符を問わない出題では undefined） */
   readonly fu: number | undefined;
   /** 点数（ロンまたは親ツモの場合） */
   readonly score?: number;

@@ -377,8 +377,19 @@ describe("AgariScoreBoard", () => {
     const tourIdsOf = (steps: readonly DriverStep[]) =>
       steps.map((step) => step.element.getAttribute("data-tour-id"));
 
-    it("「?」を押すと盤面・各欄・回答・開示の順に照らす", async () => {
+    it("既定の設定では翻数・符の欄が無く、盤面・点数・回答・開示の順に照らす", async () => {
       await visit("");
+
+      expect(tourIdsOf(startTour())).toEqual([
+        AGARI_SCORE_TOUR_ID.board,
+        AGARI_SCORE_TOUR_ID.score,
+        AGARI_SCORE_TOUR_ID.submit,
+        AGARI_SCORE_TOUR_ID.reveal,
+      ]);
+    });
+
+    it("翻数と符も答える設定では盤面・各欄・回答・開示の順に照らす", async () => {
+      await visit("han_fu=1");
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
@@ -391,7 +402,7 @@ describe("AgariScoreBoard", () => {
     });
 
     it("役の回答を求める設定では役の欄も照らす", async () => {
-      await visit("mode=with_yaku");
+      await visit("mode=with_yaku&han_fu=1");
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
@@ -415,8 +426,8 @@ describe("AgariScoreBoard", () => {
 
     // 翻数と符の説明は出題設定で変わる。設定と違う操作を案内すると、
     // 従った人が回答できなくなる
-    it("既定の設定では満貫以上を区分で答え、符が不要と案内する", async () => {
-      await visit("");
+    it("翻数と符を答える既定の設定では満貫以上を区分で答え、符が不要と案内する", async () => {
+      await visit("han_fu=1");
 
       const descriptions = startTour().map((s) => s.popover.description);
       expect(descriptions).toContain("han.description");
@@ -424,7 +435,7 @@ describe("AgariScoreBoard", () => {
     });
 
     it("5翻以上も翻数で答え、満貫でも符を答える設定では、それに合わせて案内する", async () => {
-      await visit("exact_han=1&fu_mangan=1");
+      await visit("han_fu=1&exact_han=1&fu_mangan=1");
 
       const descriptions = startTour().map((s) => s.popover.description);
       expect(descriptions).toContain("han.descriptionExact");

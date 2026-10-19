@@ -108,16 +108,18 @@ export function AgariScoreHelpTour() {
  * 和了形の点数計算の画面の操作（play 画面の「?」。web の `AgariScoreSpotlightTour`）
  * 和了形の点数計算の操作ヘルプ
  *
- * 盤面と回答欄の各項目に何を入れるかを 1 枚ずつ説明する。役の欄は設定で
- * 役の回答を求めるときだけ説明し、翻数と符の説明は出題設定に合わせて
+ * 盤面と回答欄の各項目に何を入れるかを 1 枚ずつ説明する。役・翻数・符の欄は
+ * 設定でその回答を求めるときだけ説明し、翻数と符の説明は出題設定に合わせて
  * 文言を切り替える — 設定と違う操作を案内すると、従った人が回答できなくなる。
  */
 export function AgariScoreOperationHelp({
   requireYaku,
+  requireHanFu,
   exactHan,
   requireFuForMangan,
 }: {
   readonly requireYaku: boolean;
+  readonly requireHanFu: boolean;
   readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
 }) {
@@ -138,18 +140,24 @@ export function AgariScoreOperationHelp({
           },
         ]
       : []),
-    {
-      key: "han",
-      title: t("han.title"),
-      description: t(exactHan ? "han.descriptionExact" : "han.description"),
-    },
-    {
-      key: "fu",
-      title: t("fu.title"),
-      description: t(
-        requireFuForMangan ? "fu.descriptionRequired" : "fu.description",
-      ),
-    },
+    ...(requireHanFu
+      ? [
+          {
+            key: "han",
+            title: t("han.title"),
+            description: t(
+              exactHan ? "han.descriptionExact" : "han.description",
+            ),
+          },
+          {
+            key: "fu",
+            title: t("fu.title"),
+            description: t(
+              requireFuForMangan ? "fu.descriptionRequired" : "fu.description",
+            ),
+          },
+        ]
+      : []),
     {
       key: "score",
       title: t("score.title"),

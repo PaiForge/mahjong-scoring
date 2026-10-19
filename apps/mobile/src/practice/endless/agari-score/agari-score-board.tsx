@@ -58,7 +58,8 @@ function AgariScoreBoardInner() {
   // 盤面を開いたときの設定で通す（途中で変わる経路は無いが、出題条件と
   // 判定モードを 1 問ごとに読み直さない）
   const [settings] = useState(() => useAgariScoreSettingsStore.getState());
-  const { requireYaku, exactHan, requireFuForMangan } = readModeFlags(settings);
+  const mode = readModeFlags(settings);
+  const { requireYaku, requireHanFu, exactHan, requireFuForMangan } = mode;
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const [flashSignal, setFlashSignal] = useState(0);
   const {
@@ -116,7 +117,7 @@ function AgariScoreBoardInner() {
 
   const handleSubmit = (answer: UserAnswer) => {
     scrollToTop();
-    submitAnswer(answer, requireYaku, exactHan, requireFuForMangan);
+    submitAnswer(answer, mode);
     if (
       autoAdvanceOnCorrect &&
       useAgariScoreStore.getState().judgementResult?.isCorrect
@@ -165,6 +166,7 @@ function AgariScoreBoardInner() {
           isAnswered ? undefined : (
             <AgariScoreOperationHelp
               requireYaku={requireYaku}
+              requireHanFu={requireHanFu}
               exactHan={exactHan}
               requireFuForMangan={requireFuForMangan}
             />
@@ -190,6 +192,7 @@ function AgariScoreBoardInner() {
                       userAnswer={userAnswer}
                       result={judgementResult}
                       requireYaku={requireYaku}
+                      requireHanFu={requireHanFu}
                       exactHan={exactHan}
                       requireFuForMangan={requireFuForMangan}
                     />
@@ -212,6 +215,7 @@ function AgariScoreBoardInner() {
                     isTsumo={currentQuestion.isTsumo}
                     isOya={isOya(currentQuestion.jikaze)}
                     requireYaku={requireYaku}
+                    requireHanFu={requireHanFu}
                     exactHan={exactHan}
                     requireFuForMangan={requireFuForMangan}
                   />

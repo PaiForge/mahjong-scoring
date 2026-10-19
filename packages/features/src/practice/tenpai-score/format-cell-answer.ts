@@ -32,13 +32,15 @@ export function formatCellAnswerLines(
 ): readonly string[] {
   if (answer.kind === "noYaku") return [options.noYakuLabel];
   const { answer: user } = answer;
-  const han = formatHan(user.han, options);
+  // 翻数と符を問わない出題の回答は翻数・符を持たないので、点数の行だけになる
+  const han = user.han !== undefined ? formatHan(user.han, options) : undefined;
   const fu =
     user.fu !== undefined
       ? `${user.fu}${options.t("form.options.fuSuffix")}`
       : undefined;
   const payment = formatPayment(user, options.isOyaTsumo, options);
-  return [[han, fu].filter(Boolean).join(" "), payment];
+  const hanFu = [han, fu].filter(Boolean).join(" ");
+  return hanFu === "" ? [payment] : [hanFu, payment];
 }
 
 /**

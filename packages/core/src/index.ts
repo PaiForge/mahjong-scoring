@@ -79,10 +79,12 @@ export type {
 } from "./problem/score/build-question";
 export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
 export {
+  DEFAULT_SCORE_JUDGEMENT_MODE,
   judgeAnswer,
   judgeYakuName,
   judgeYakuSelection,
 } from "./problem/score/judgement";
+export type { ScoreJudgementMode } from "./problem/score/judgement";
 export {
   clampHanToYakuman,
   isYakumanHan,

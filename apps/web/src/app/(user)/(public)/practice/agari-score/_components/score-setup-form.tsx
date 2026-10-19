@@ -91,6 +91,8 @@ export function ScoreSetupForm({
   const {
     requireYaku,
     setRequireYaku,
+    requireHanFu,
+    setRequireHanFu,
     exactHan,
     setExactHan,
     requireFuForMangan,
@@ -137,11 +139,15 @@ export function ScoreSetupForm({
     if (requireYaku) {
       params.set("mode", "with_yaku");
     }
-    if (exactHan) {
-      params.set("exact_han", "1");
-    }
-    if (requireFuForMangan) {
-      params.set("fu_mangan", "1");
+    // 5翻以上の答え方と満貫以上の符は、翻数と符を答えるときだけ意味を持つ
+    if (requireHanFu) {
+      params.set("han_fu", "1");
+      if (exactHan) {
+        params.set("exact_han", "1");
+      }
+      if (requireFuForMangan) {
+        params.set("fu_mangan", "1");
+      }
     }
     // Pro でなければ付けない。保存された値は Pro になったときに生きる
     if (measureTime && hasPracticeTools) {
@@ -180,31 +186,30 @@ export function ScoreSetupForm({
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
   if (!mounted || isBenefitPending) {
-    // 本体と同じ構造（設定カード＝トグル5行、2カラムのチェックボックスカード、
+    // 本体と同じ構造（設定カード＝トグル行、2カラムのチェックボックスカード、
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
     // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
+    // 翻数と符の下位の 2 行（5翻以上・満貫以上の符）は、既定（翻数と符を
+    // 答えない）では出ないので数えない。
     // 枠は実 UI と同じ細枠（border-panel）のまま、面を灰色にする。枠は
     // border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Settings card: トグル5行 */}
+        {/* Settings card: トグル行 */}
         <div className="overflow-hidden rounded-panel border border-panel bg-surface-50">
           <div className="flex flex-col">
-            {[
-              "requireYaku",
-              "exactHan",
-              "requireFu",
-              "autoAdvanceOnCorrect",
-            ].map((key) => (
-              <div
-                key={key}
-                className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
-              >
-                <SkeletonBar className="h-4 w-32" tone={100} />
-                <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
-              </div>
-            ))}
+            {["requireYaku", "requireHanFu", "autoAdvanceOnCorrect"].map(
+              (key) => (
+                <div
+                  key={key}
+                  className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
+                >
+                  <SkeletonBar className="h-4 w-32" tone={100} />
+                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
+                </div>
+              ),
+            )}
             <div className="px-5 py-3.5">
               <div className="flex h-5 items-center justify-between">
                 <SkeletonBar className="h-4 w-32" tone={100} />
@@ -254,17 +259,27 @@ export function ScoreSetupForm({
             label={t("setup.requireYaku")}
           />
           <SettingToggle
-            checked={exactHan}
-            onChange={setExactHan}
-            label={t("setup.exactHan")}
-            onInfoClick={() => setShowExactHanInfo(true)}
-            infoAriaLabel={tCommon("showDetailInfo")}
+            checked={requireHanFu}
+            onChange={setRequireHanFu}
+            label={t("setup.requireHanFu")}
           />
-          <SettingToggle
-            checked={requireFuForMangan}
-            onChange={setRequireFuForMangan}
-            label={t("setup.requireFu")}
-          />
+          {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
+          {requireHanFu && (
+            <>
+              <SettingToggle
+                checked={exactHan}
+                onChange={setExactHan}
+                label={t("setup.exactHan")}
+                onInfoClick={() => setShowExactHanInfo(true)}
+                infoAriaLabel={tCommon("showDetailInfo")}
+              />
+              <SettingToggle
+                checked={requireFuForMangan}
+                onChange={setRequireFuForMangan}
+                label={t("setup.requireFu")}
+              />
+            </>
+          )}
           <SettingToggle
             checked={autoAdvanceOnCorrect}
             onChange={setAutoAdvanceOnCorrect}

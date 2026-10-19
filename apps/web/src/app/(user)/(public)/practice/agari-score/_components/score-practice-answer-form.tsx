@@ -32,6 +32,8 @@ interface ScorePracticeAnswerFormProps {
   readonly isTsumo: boolean;
   readonly isOya: boolean;
   readonly requireYaku?: boolean;
+  /** 翻数と符も答えさせるか。false なら翻数・符の欄を出さず、点数だけを問う */
+  readonly requireHanFu?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
   /** 回答ボタンの文言。既定は「回答する」 */
@@ -85,6 +87,7 @@ export function ScorePracticeAnswerForm({
   isTsumo,
   isOya,
   requireYaku = false,
+  requireHanFu = true,
   exactHan = false,
   requireFuForMangan = false,
   submitLabel,
@@ -127,6 +130,7 @@ export function ScorePracticeAnswerForm({
     isTsumo,
     isOya,
     requireYaku,
+    requireHanFu,
     requireFuForMangan,
     kiriageMangan,
     allowDoubleYakuman,
@@ -213,57 +217,63 @@ export function ScorePracticeAnswerForm({
         return reserveYakuRow ? <YakuLabelRow action={noYakuButton} /> : null;
       })()}
 
-      {/* Han input */}
-      <div data-tour-id={AGARI_SCORE_TOUR_ID.han}>
-        <label
-          htmlFor={hanId}
-          className="mb-2 block text-sm font-bold text-surface-700"
-        >
-          {t("form.labels.han")}
-        </label>
-        <select
-          id={hanId}
-          value={han ?? ""}
-          onChange={handleHanChange}
-          disabled={disabled}
-          required
-          className={selectClass(han !== undefined)}
-        >
-          {hanOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Han / Fu input
+          翻数と符を問わない設定では欄ごと出さない（実戦では点数だけを申告する）。
+          点数の選択肢は翻数で絞られず、取りうる全点数になる */}
+      {requireHanFu && (
+        <div data-tour-id={AGARI_SCORE_TOUR_ID.han}>
+          <label
+            htmlFor={hanId}
+            className="mb-2 block text-sm font-bold text-surface-700"
+          >
+            {t("form.labels.han")}
+          </label>
+          <select
+            id={hanId}
+            value={han ?? ""}
+            onChange={handleHanChange}
+            disabled={disabled}
+            required
+            className={selectClass(han !== undefined)}
+          >
+            {hanOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Fu input
           満貫以上で符が不要になっても、select を 1 行の注記に差し替えず disabled の
           まま残す。差し替えるとブロックの高さが約 58px 縮み、翻数を選んだ直後に
           触る「点数」と回答ボタンが指の下でせり上がる。注記は select の唯一の
           option として同じ箱に描くため、高さは要素が同一であることで一致する。 */}
-      <div data-tour-id={AGARI_SCORE_TOUR_ID.fu}>
-        <label
-          htmlFor={fuId}
-          className="mb-2 block text-sm font-bold text-surface-700"
-        >
-          {t("form.labels.fu")}
-        </label>
-        <select
-          id={fuId}
-          value={isFuRequired ? (fu ?? "") : ""}
-          onChange={handleFuChange}
-          disabled={disabled || !isFuRequired}
-          required={isFuRequired}
-          className={selectClass(isFuRequired ? fu !== undefined : true)}
-        >
-          {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
+      {requireHanFu && (
+        <div data-tour-id={AGARI_SCORE_TOUR_ID.fu}>
+          <label
+            htmlFor={fuId}
+            className="mb-2 block text-sm font-bold text-surface-700"
+          >
+            {t("form.labels.fu")}
+          </label>
+          <select
+            id={fuId}
+            value={isFuRequired ? (fu ?? "") : ""}
+            onChange={handleFuChange}
+            disabled={disabled || !isFuRequired}
+            required={isFuRequired}
+            className={selectClass(isFuRequired ? fu !== undefined : true)}
+          >
+            {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Score input
           子ツモの分割入力は「点数」ラベル 1 つに対し select が 2 つあるため、

@@ -13,6 +13,7 @@ import { expectSampled, generateOne } from "../../test/sampling";
 
 const MODE: MachiCellJudgementMode = {
   requireYaku: false,
+  requireHanFu: true,
   exactHan: true,
   requireFuForMangan: false,
   allowDoubleYakuman: false,

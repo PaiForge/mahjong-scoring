@@ -55,6 +55,11 @@ interface ResultDisplayProps {
    */
   readonly answerSummary?: string;
   readonly requireYaku?: boolean;
+  /**
+   * 翻数と符を答えさせたか。答えさせていないときも正解の翻数・符の行は
+   * 出す（点数の根拠として読ませる）が、「あなたの回答」は未回答の印にする
+   */
+  readonly requireHanFu?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
   /** 既に白い枠を持つ面の中に置くか（{@link ResultTableFrame} の `embedded`） */
@@ -81,6 +86,7 @@ export function ResultDisplay({
   result,
   answerSummary,
   requireYaku = false,
+  requireHanFu = true,
   exactHan = false,
   requireFuForMangan = false,
   embedded = false,
@@ -101,6 +107,8 @@ export function ResultDisplay({
     userAnswer !== undefined && result !== undefined
       ? { answer: userAnswer, result }
       : undefined;
+  // 翻数・符の行の「あなたの回答」。答えさせていない設定では判定を見せない
+  const judgedHanFu = requireHanFu ? judged : undefined;
 
   // 役の振り分けと内訳の並び・合計は web と共有する
   const {
@@ -123,10 +131,14 @@ export function ResultDisplay({
   const hanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
 
-  const hanAnswer = judged ? (
+  const hanAnswer = judgedHanFu ? (
     <JudgedValue
-      value={hanDisplay(judged.answer.han)}
-      isCorrect={judged.result.isHanCorrect}
+      value={
+        judgedHanFu.answer.han === undefined
+          ? "-"
+          : hanDisplay(judgedHanFu.answer.han)
+      }
+      isCorrect={judgedHanFu.result.isHanCorrect}
     />
   ) : answerSummary !== undefined ? (
     <JudgedValue value={answerSummary} isCorrect={false} />
@@ -253,10 +265,10 @@ export function ResultDisplay({
             <ResultRow
               label={t("form.labels.fu")}
               answer={
-                judged ? (
+                judgedHanFu ? (
                   <JudgedValue
-                    value={`${judged.answer.fu ?? "-"}${t("form.options.fuSuffix")}`}
-                    isCorrect={judged.result.isFuCorrect}
+                    value={`${judgedHanFu.answer.fu ?? "-"}${t("form.options.fuSuffix")}`}
+                    isCorrect={judgedHanFu.result.isFuCorrect}
                   />
                 ) : (
                   <ResultUnansweredValue />

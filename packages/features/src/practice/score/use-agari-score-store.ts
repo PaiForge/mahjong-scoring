@@ -6,6 +6,7 @@ import type {
   QuestionGeneratorOptions,
   RuleSettings,
 } from "@mahjong-scoring/core";
+import type { ScorePracticeModeFlags } from "./generator-options";
 import {
   allowsDoubleYakuman,
   generateValidScoreQuestion,
@@ -71,12 +72,7 @@ interface AgariScoreActions {
     options: Partial<QuestionGeneratorOptions>,
   ) => void;
   /** 回答を送信 */
-  submitAnswer: (
-    answer: UserAnswer,
-    requireYaku?: boolean,
-    exactHan?: boolean,
-    requireFuForMangan?: boolean,
-  ) => void;
+  submitAnswer: (answer: UserAnswer, mode: ScorePracticeModeFlags) => void;
   /** 次の問題へ */
   /**
    * 無回答のまま正解を開示する（「わからない」）
@@ -147,24 +143,17 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
       }));
     },
 
-    submitAnswer: (
-      answer: UserAnswer,
-      requireYaku = false,
-      exactHan = false,
-      requireFuForMangan = false,
-    ) => {
+    submitAnswer: (answer: UserAnswer, mode: ScorePracticeModeFlags) => {
       const { currentQuestion, stats } = get();
       if (!currentQuestion) return;
 
-      const result = judgeAnswer(
-        currentQuestion,
-        answer,
-        requireYaku,
-        exactHan,
-        requireFuForMangan,
+      const result = judgeAnswer(currentQuestion, answer, {
+        ...mode,
         // ダブル役満採用時は 26 翻を役満へ丸めずに別の答えとして判定する
-        allowsDoubleYakuman(toYakumanRuleConfig(getRuleSettings())),
-      );
+        allowDoubleYakuman: allowsDoubleYakuman(
+          toYakumanRuleConfig(getRuleSettings()),
+        ),
+      });
 
       set({
         userAnswer: answer,

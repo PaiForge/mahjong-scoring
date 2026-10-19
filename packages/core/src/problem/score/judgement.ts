@@ -176,61 +176,104 @@ function getSimplifiedHan(han: number, allowDoubleYakuman: boolean): number {
 }
 
 /**
+ * 回答の判定モード
+ * 回答判定モード
+ *
+ * どの欄を問うかと、ルールによって正解が変わる部分を決める。省いた項目は
+ * {@link DEFAULT_SCORE_JUDGEMENT_MODE} の値になる。
+ */
+export interface ScoreJudgementMode {
+  /** 役の判定を必須とするかどうか */
+  readonly requireYaku: boolean;
+  /**
+   * 翻数と符を問うかどうか。問わない（false）ときは点数だけで判定し、
+   * 翻数・符は常に正解扱いにする（実戦では点数だけを申告するため）
+   */
+  readonly requireHanFu: boolean;
+  /**
+   * 5翻以上も翻数で判定するかどうか。既定（false）では満貫・跳満…の
+   * 区分が合っていれば正解とする
+   */
+  readonly exactHan: boolean;
+  /** 満貫以上でも符の判定を必須とするかどうか */
+  readonly requireFuForMangan: boolean;
+  /**
+   * ダブル役満を採用したルールでの出題かどうか。採用時は 26 翻を役満
+   * （13翻）へ丸めずに別の答えとして判定する
+   */
+  readonly allowDoubleYakuman: boolean;
+}
+
+/** 判定モードの既定値（翻・符・点数を問い、役は問わない） */
+export const DEFAULT_SCORE_JUDGEMENT_MODE: ScoreJudgementMode = {
+  requireYaku: false,
+  requireHanFu: true,
+  exactHan: false,
+  requireFuForMangan: false,
+  allowDoubleYakuman: false,
+};
+
+/**
+ * 翻数の判定
+ * 翻数一致判定
+ */
+function judgeHan(
+  answer: ScoreQuestion["answer"],
+  userHan: number,
+  { exactHan, allowDoubleYakuman }: ScoreJudgementMode,
+): boolean {
+  if (exactHan) return userHan === answer.han;
+
+  // 区分で判定: 4翻以下でも満貫になる場合（60符3翻等）は「満貫（5翻扱い）」も正解とする
+  if (
+    isMangan(answer.scoreLevel) &&
+    answer.han < MANGAN_MIN_HAN &&
+    userHan === MANGAN_MIN_HAN
+  ) {
+    return true;
+  }
+  if (userHan >= MANGAN_MIN_HAN || answer.han >= MANGAN_MIN_HAN) {
+    return (
+      getSimplifiedHan(userHan, allowDoubleYakuman) ===
+      getSimplifiedHan(answer.han, allowDoubleYakuman)
+    );
+  }
+  return userHan === answer.han;
+}
+
+/**
  * ユーザーの回答を判定する
  * ユーザー回答判定
  *
+ * 問わない欄（役・翻数・符）は常に正解扱いにする。
+ *
  * @param question - 問題
  * @param userAnswer - ユーザーの回答
- * @param requireYaku - 役の判定を必須とするかどうか
- * @param exactHan - 5翻以上も翻数で判定するかどうか。既定（false）では
- *   満貫・跳満…の区分が合っていれば正解とする
- * @param requireFuForMangan - 満貫以上でも符の判定を必須とするかどうか
- * @param allowDoubleYakuman - ダブル役満を採用したルールでの出題かどうか。
- *   採用時は 26 翻を役満（13翻）へ丸めずに別の答えとして判定する
+ * @param mode - 判定モード。省いた項目は {@link DEFAULT_SCORE_JUDGEMENT_MODE}
  */
 export function judgeAnswer(
   question: Readonly<ScoreQuestion>,
   userAnswer: Readonly<UserAnswer>,
-  requireYaku: boolean = false,
-  exactHan: boolean = false,
-  requireFuForMangan: boolean = false,
-  allowDoubleYakuman: boolean = false,
+  mode: Partial<ScoreJudgementMode> = {},
 ): JudgementResult {
+  const resolved = { ...DEFAULT_SCORE_JUDGEMENT_MODE, ...mode };
   const { answer } = question;
-  const isManganOrAbove = isMangan(answer.scoreLevel);
 
-  // 翻の判定
-  let isHanCorrect = userAnswer.han === answer.han;
-
-  if (!exactHan) {
-    // 区分で判定: 4翻以下でも満貫になる場合（60符3翻等）は「満貫（5翻扱い）」も正解とする
-    if (
-      isManganOrAbove &&
-      answer.han < MANGAN_MIN_HAN &&
-      userAnswer.han === MANGAN_MIN_HAN
-    ) {
-      isHanCorrect = true;
-    } else if (
-      userAnswer.han >= MANGAN_MIN_HAN ||
-      answer.han >= MANGAN_MIN_HAN
-    ) {
-      isHanCorrect =
-        getSimplifiedHan(userAnswer.han, allowDoubleYakuman) ===
-        getSimplifiedHan(answer.han, allowDoubleYakuman);
-    }
-  }
+  const isHanCorrect =
+    !resolved.requireHanFu ||
+    (userAnswer.han !== undefined &&
+      judgeHan(answer, userAnswer.han, resolved));
 
   // 符の判定（満貫以上で符入力不要の場合は常に正解扱い）
   const isFuCorrect =
-    (isManganOrAbove && !requireFuForMangan) || userAnswer.fu === answer.fu;
+    !resolved.requireHanFu ||
+    (isMangan(answer.scoreLevel) && !resolved.requireFuForMangan) ||
+    userAnswer.fu === answer.fu;
 
-  // 点数の判定
   const isScoreCorrect = judgeScore(answer.payment, userAnswer);
 
-  // 役の判定（役回答が必須でない場合は常に正解）
-  const isYakuCorrect = requireYaku
-    ? judgeYaku(question, userAnswer.yakus)
-    : true;
+  const isYakuCorrect =
+    !resolved.requireYaku || judgeYaku(question, userAnswer.yakus);
 
   const isCorrect =
     isHanCorrect && isFuCorrect && isScoreCorrect && isYakuCorrect;

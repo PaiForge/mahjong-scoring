@@ -57,6 +57,7 @@ export function parseModeFlagsFromParams(
 ): ScorePracticeModeFlags {
   return {
     requireYaku: params.get("mode") === "with_yaku",
+    requireHanFu: params.get("han_fu") === "1",
     exactHan: params.get("exact_han") === "1",
     requireFuForMangan: params.get("fu_mangan") === "1",
     measureTime: params.get("measure") === "1",

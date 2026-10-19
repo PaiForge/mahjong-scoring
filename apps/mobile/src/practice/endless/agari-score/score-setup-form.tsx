@@ -79,6 +79,8 @@ export function ScoreSetupForm({
   const {
     requireYaku,
     setRequireYaku,
+    requireHanFu,
+    setRequireHanFu,
     exactHan,
     setExactHan,
     requireFuForMangan,
@@ -124,21 +126,31 @@ export function ScoreSetupForm({
           onChange={setRequireYaku}
         />
         <SettingToggleRow
-          title={t("setup.exactHan")}
-          checked={exactHan}
-          onChange={setExactHan}
-          titleAction={
-            <HelpIconButton
-              onPress={() => setShowExactHanInfo(true)}
-              label={tCommon("showDetailInfo")}
+          title={t("setup.requireHanFu")}
+          checked={requireHanFu}
+          onChange={setRequireHanFu}
+        />
+        {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
+        {requireHanFu && (
+          <>
+            <SettingToggleRow
+              title={t("setup.exactHan")}
+              checked={exactHan}
+              onChange={setExactHan}
+              titleAction={
+                <HelpIconButton
+                  onPress={() => setShowExactHanInfo(true)}
+                  label={tCommon("showDetailInfo")}
+                />
+              }
             />
-          }
-        />
-        <SettingToggleRow
-          title={t("setup.requireFu")}
-          checked={requireFuForMangan}
-          onChange={setRequireFuForMangan}
-        />
+            <SettingToggleRow
+              title={t("setup.requireFu")}
+              checked={requireFuForMangan}
+              onChange={setRequireFuForMangan}
+            />
+          </>
+        )}
         <SettingToggleRow
           title={tSettings("autoAdvanceOnCorrectTitle")}
           checked={autoAdvanceOnCorrect}

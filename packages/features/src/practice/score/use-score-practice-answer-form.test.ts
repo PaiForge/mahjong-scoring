@@ -20,6 +20,7 @@ function render(
         isTsumo: false,
         isOya: false,
         requireYaku: false,
+        requireHanFu: true,
         requireFuForMangan: false,
         kiriageMangan: false,
         allowDoubleYakuman: false,
@@ -58,6 +59,25 @@ describe("useScorePracticeAnswerForm", () => {
     act(() => result.current.submit());
     expect(onSubmit).toHaveBeenCalledWith({
       han: 5,
+      fu: undefined,
+      score: 8000,
+      yakus: [],
+    });
+  });
+
+  it("翻数と符を問わない設定では点数だけで送れ、翻数・符を持たせない", () => {
+    const { result, onSubmit } = render(
+      { han: 3, fu: 40, score: 5200, yakus: [] },
+      { requireHanFu: false },
+    );
+    expect(result.current.han).toBeUndefined();
+    expect(result.current.isFuRequired).toBe(false);
+    expect(result.current.isComplete).toBe(true);
+
+    act(() => result.current.setScore(8000));
+    act(() => result.current.submit());
+    expect(onSubmit).toHaveBeenCalledWith({
+      han: undefined,
       fu: undefined,
       score: 8000,
       yakus: [],

@@ -25,9 +25,14 @@ const { useTenpaiScoreStore } =
 const { cellKeyOf } =
   await import("@mahjong-scoring/features/practice/tenpai-score/cell-ref");
 const { _resetPracticeQuota } = await import("../../_hooks/use-practice-quota");
+const { setSearchParams } = await import("@/test/navigation-mock");
 
-/** 盤面を mount し、待ちを正解して点数の回答（cells）まで進める */
+/**
+ * 盤面を mount し、待ちを正解して点数の回答（cells）まで進める。
+ * 回答欄の振る舞いを翻数・符の欄で確かめるため、翻数と符も答える設定で開く
+ */
 async function visitCells() {
+  setSearchParams("han_fu=1");
   await act(async () => {
     render(<TenpaiScoreBoard />);
   });
