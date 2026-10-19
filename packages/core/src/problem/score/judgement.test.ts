@@ -20,7 +20,7 @@ function makeQuestion(overrides: {
     fu = 30,
     scoreLevel = ScoreLevel.Normal,
     payment = { type: "ron" as const, amount: 2000 },
-    yakuDetails,
+    yakuDetails = [],
   } = overrides;
 
   return {
@@ -517,12 +517,12 @@ describe("judgeAnswer", () => {
       expect(result.isYakuCorrect).toBe(true);
     });
 
-    it("yakuDetails が undefined で空の yakus なら正解", () => {
+    it("役の内訳が空で空の yakus なら正解", () => {
       const question = makeQuestion({
         han: 2,
         fu: 30,
         payment: { type: "ron", amount: 2000 },
-        yakuDetails: undefined,
+        yakuDetails: [],
       });
       const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: [] };
       const result = judgeAnswer(question, answer, { requireYaku: true });
@@ -580,10 +580,10 @@ describe("judgeYakuSelection", () => {
     ).toEqual([{ name: "断么九", state: "correct" }]);
   });
 
-  it("yakuDetails が undefined なら選んだ役はすべて incorrect", () => {
+  it("役の内訳が空なら選んだ役はすべて incorrect", () => {
     expect(
       judgeYakuSelection(
-        { yakuDetails: undefined, bakaze: HaiKind.Ton, jikaze: HaiKind.Nan },
+        { yakuDetails: [], bakaze: HaiKind.Ton, jikaze: HaiKind.Nan },
         ["平和"],
       ),
     ).toEqual([{ name: "平和", state: "incorrect" }]);

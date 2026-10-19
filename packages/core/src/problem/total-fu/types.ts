@@ -16,7 +16,7 @@ export interface TotalFuQuestion {
    * 和了状況。符の算出に使ったルール設定（連風牌の雀頭符）も持ち、面子分解の
    * 候補を正解と同じ設定で評価できるようにする
    */
-  readonly context: AgariContext & { readonly ruleConfig?: RuleConfig };
+  readonly context: AgariContext & { readonly ruleConfig: RuleConfig };
   /** 正解の符（10符単位に切り上げ済み。七対子は25符、平和ツモは20符） */
   readonly answer: Fu;
   /**

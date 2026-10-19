@@ -108,7 +108,7 @@ export function generateScoreQuestion(
   if (built.isErr()) return undefined;
   const question = built.value;
   const finalAnswer = question.answer;
-  const yakuDetails = question.yakuDetails ?? [];
+  const { yakuDetails } = question;
 
   // 4. 役満ルールの採否で正解が割れる手の除外
   //     役満役を含む手に限り、全ルール有効として数え直したときに役満2個分
