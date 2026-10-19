@@ -12,10 +12,8 @@
  *
  * 何度実行しても宣言された状態に戻す（他のシードと同じ扱い）。管理画面で
  * 編集した内容は次の実行で戻る。シード以外の広告には触れない。
- *
- * 以前のサンプル広告（id が `00000000-0000-4000-8…` のもの）は消す。
  */
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import { copyToTranslationRows } from "../../src/lib/ads/copy";
@@ -34,9 +32,6 @@ export const DEV_TRACKING_IDS: Record<AdPlatform, string> = {
   mobile: "localdev-app-22",
 };
 
-/** 以前のサンプル広告の id の接頭辞 */
-const LEGACY_SAMPLE_ID_PREFIX = "00000000-0000-4000-8";
-
 /**
  * 本番シードの広告とローカル用のトラッキング ID を入れ直す（冪等）
  *
@@ -45,12 +40,6 @@ const LEGACY_SAMPLE_ID_PREFIX = "00000000-0000-4000-8";
 export async function reseedAdCreatives(
   db: PostgresJsDatabase,
 ): Promise<number> {
-  // 翻訳は外部キーの cascade で一緒に消える
-  await db
-    .delete(adCreatives)
-    // id は uuid 型で LIKE を持たないため、文字列にして比べる
-    .where(sql`${adCreatives.id}::text LIKE ${`${LEGACY_SAMPLE_ID_PREFIX}%`}`);
-
   for (const platform of AD_PLATFORMS) {
     const trackingId = DEV_TRACKING_IDS[platform];
     await db
