@@ -1,7 +1,10 @@
+import type { ReactNode } from "react";
+
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
 import {
   SETTING_CARD_BODY_CLASS,
+  SETTING_CARD_FLUSH_BODY_CLASS,
   SETTING_CARD_FRAME_SHAPE_CLASS,
   SETTING_CARD_HEADER_SHAPE_CLASS,
 } from "./setting-card";
@@ -15,6 +18,11 @@ const SKELETON_HEADER_CLASS = `${SETTING_CARD_HEADER_SHAPE_CLASS} border-surface
 interface SettingCardSkeletonProps {
   /** カード内に確保するチェックボックス行の数（既定 2） */
   readonly rows?: number;
+  /**
+   * チェックボックス行の代わりに描く中身。トグル行のカード（`flush`）の
+   * スケルトンは行の形が違うので、呼び出し側が行を渡す
+   */
+  readonly children?: ReactNode;
 }
 
 /**
@@ -30,20 +38,27 @@ interface SettingCardSkeletonProps {
  * 読み込み中の画面が実物より賑やかに見えるため）。枠は border-box なので、
  * 色だけ替えても寸法は実物と一致したまま。
  */
-export function SettingCardSkeleton({ rows = 2 }: SettingCardSkeletonProps) {
+export function SettingCardSkeleton({
+  rows = 2,
+  children,
+}: SettingCardSkeletonProps) {
   return (
     <div className={SKELETON_FRAME_CLASS}>
       <div className={SKELETON_HEADER_CLASS}>
         <SkeletonBar className="mx-auto h-4 w-20" />
       </div>
-      <div className={SETTING_CARD_BODY_CLASS}>
-        {Array.from({ length: rows }, (_, i) => (
-          <div key={i} className="flex items-center gap-3 px-2 py-1.5">
-            <SkeletonBar radius="sm" className="size-5" tone={100} />
-            <SkeletonBar className="h-4 w-16" tone={100} />
-          </div>
-        ))}
-      </div>
+      {children === undefined ? (
+        <div className={SETTING_CARD_BODY_CLASS}>
+          {Array.from({ length: rows }, (_, i) => (
+            <div key={i} className="flex items-center gap-3 px-2 py-1.5">
+              <SkeletonBar radius="sm" className="size-5" tone={100} />
+              <SkeletonBar className="h-4 w-16" tone={100} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={SETTING_CARD_FLUSH_BODY_CLASS}>{children}</div>
+      )}
     </div>
   );
 }

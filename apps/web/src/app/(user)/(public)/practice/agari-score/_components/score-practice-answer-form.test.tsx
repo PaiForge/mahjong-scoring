@@ -45,7 +45,7 @@ describe("ScorePracticeAnswerForm", () => {
     expect(fu.textContent).toBe("form.messages.fuNotRequired");
   });
 
-  it("「満貫以上も符を入力」が有効なら満貫以上でも符を選べる", () => {
+  it("「満貫以上も符を回答する」が有効なら満貫以上でも符を選べる", () => {
     renderForm({ requireFuForMangan: true });
 
     selectHan(MANGAN_MIN_HAN);

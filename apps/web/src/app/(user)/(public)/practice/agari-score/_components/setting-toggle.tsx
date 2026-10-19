@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
@@ -34,6 +35,36 @@ interface SettingToggleProps {
   readonly infoAriaLabel?: string;
   /** 指定するとスイッチを出さず、利用条件と料金ページへの導線を出す */
   readonly locked?: SettingToggleLock;
+  /**
+   * 上の行の細目として描く（{@link SettingToggleGroup} の中に置く）。
+   * 区切り線を引かず、文字を一段小さく淡くする
+   */
+  readonly nested?: boolean;
+}
+
+/**
+ * 親のトグルの細目をまとめる囲み
+ * 設定の細目
+ *
+ * 親の行の直下に置き、淡い地と左の縦線で「上の行に付いている」ことを示す。
+ * 親の行との間に区切り線は引かない（親の行は `isLast` にする）。中の行は
+ * `nested` にする。インデントだけだと行頭が揃っていないように見えるため、
+ * 縦線と地で塊にする。
+ */
+export function SettingToggleGroup({
+  isLast = false,
+  children,
+}: {
+  readonly isLast?: boolean;
+  readonly children: ReactNode;
+}) {
+  return (
+    <div
+      className={`bg-surface-50 pb-2 ${isLast ? "" : "border-b border-surface-100"}`}
+    >
+      <div className="ml-6 border-l-2 border-surface-200">{children}</div>
+    </div>
+  );
 }
 
 export function SettingToggle({
@@ -45,6 +76,7 @@ export function SettingToggle({
   onInfoClick,
   infoAriaLabel,
   locked,
+  nested = false,
 }: SettingToggleProps) {
   if (locked) {
     // 操作できない行なので hover の反応は付けない。淡い背景で区切るが、
@@ -74,12 +106,21 @@ export function SettingToggle({
     );
   }
 
+  const rowClasses = nested
+    ? "py-2.5 pl-4 pr-5 hover:bg-surface-100"
+    : `px-5 py-3.5 hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`;
+  const labelClasses = nested
+    ? "text-[13px] text-surface-600"
+    : "text-sm text-surface-700";
+
   return (
     <div
-      className={`group flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`}
+      className={`group flex items-center justify-between transition-colors ${rowClasses}`}
     >
       <span className="flex items-center gap-1.5">
-        <label className="cursor-pointer select-none text-sm font-medium text-surface-700 group-hover:text-surface-900">
+        <label
+          className={`cursor-pointer select-none font-medium group-hover:text-surface-900 ${labelClasses}`}
+        >
           {title || label}
         </label>
         {onInfoClick && (

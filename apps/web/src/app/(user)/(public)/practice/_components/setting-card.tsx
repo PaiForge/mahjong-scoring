@@ -14,9 +14,13 @@ export const SETTING_CARD_FRAME_CLASS = `${SETTING_CARD_FRAME_SHAPE_CLASS} borde
 export const SETTING_CARD_HEADER_SHAPE_CLASS = "border-b px-4 py-3";
 export const SETTING_CARD_HEADER_CLASS = `${SETTING_CARD_HEADER_SHAPE_CLASS} border-panel bg-surface-50`;
 export const SETTING_CARD_BODY_CLASS = "flex flex-col gap-3 p-3";
+/** 余白を行に任せる本体。トグル行は自分の余白と区切り線を持つ */
+export const SETTING_CARD_FLUSH_BODY_CLASS = "flex flex-col";
 
 interface SettingCardProps {
   readonly title: string;
+  /** 本体の余白と行間を外す（トグル行を並べるとき） */
+  readonly flush?: boolean;
   readonly children: ReactNode;
 }
 
@@ -24,10 +28,14 @@ interface SettingCardProps {
  * 出題設定のカード
  * 設定カード
  *
- * 見出し帯 + 縦並びのチェックボックス群。点数計算・点数表早引きの
- * 設定パネルで共通。
+ * 見出し帯 + 縦並びのチェックボックス群（`flush` ならトグル行）。
+ * 点数計算・点数表早引きの設定パネルで共通。
  */
-export function SettingCard({ title, children }: SettingCardProps) {
+export function SettingCard({
+  title,
+  flush = false,
+  children,
+}: SettingCardProps) {
   return (
     <div className={SETTING_CARD_FRAME_CLASS}>
       <div className={SETTING_CARD_HEADER_CLASS}>
@@ -35,7 +43,13 @@ export function SettingCard({ title, children }: SettingCardProps) {
           {title}
         </h3>
       </div>
-      <div className={SETTING_CARD_BODY_CLASS}>{children}</div>
+      <div
+        className={
+          flush ? SETTING_CARD_FLUSH_BODY_CLASS : SETTING_CARD_BODY_CLASS
+        }
+      >
+        {children}
+      </div>
     </div>
   );
 }
