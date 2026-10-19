@@ -64,8 +64,12 @@ const entrySchema = z.object({
   userId: z.string().min(1).optional(),
 });
 
+/**
+ * ストレージに入れる形。版は持たない — 形を変えたら古い預かりは読めず
+ * 空として扱われ、同じレッスンをホームがもう一度案内するだけで済む
+ * （預かりは 24 時間で捨てる一時的なもの）。知らないキーは zod が落とす
+ */
 const storedSchema = z.object({
-  version: z.literal(1),
   entries: z.array(entrySchema),
 });
 
@@ -115,7 +119,7 @@ export function parsePendingLessonCompletions(
 export function serializePendingLessonCompletions(
   entries: readonly PendingLessonCompletion[],
 ): string {
-  return JSON.stringify({ version: 1, entries });
+  return JSON.stringify({ entries });
 }
 
 /**
