@@ -12,7 +12,8 @@ import { MultiSelect } from "../../../components/multi-select";
 import { TextLink } from "../../../components/text-link";
 import {
   SettingLockedRow,
-  SettingsCard,
+  SettingRows,
+  SettingToggleGroup,
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
@@ -119,47 +120,59 @@ export function ScoreSetupForm({
 
   return (
     <View style={styles.form}>
-      <SettingsCard>
-        <SettingToggleRow
-          title={t("setup.requireYaku")}
-          checked={requireYaku}
-          onChange={setRequireYaku}
-        />
-        <SettingToggleRow
-          title={t("setup.requireHanFu")}
-          checked={requireHanFu}
-          onChange={setRequireHanFu}
-        />
-        {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
-        {requireHanFu && (
-          <>
+      <SettingCard title={t("setup.answerItems")} flush>
+        <SettingRows>
+          <SettingToggleRow
+            title={t("setup.requireYaku")}
+            checked={requireYaku}
+            onChange={setRequireYaku}
+          />
+          {/* 細目を開いても親の行との間に線を引かない（親と細目を 1 行として数える） */}
+          <View>
             <SettingToggleRow
-              title={t("setup.exactHan")}
-              checked={exactHan}
-              onChange={setExactHan}
-              titleAction={
-                <HelpIconButton
-                  onPress={() => setShowExactHanInfo(true)}
-                  label={tCommon("showDetailInfo")}
+              title={t("setup.requireHanFu")}
+              checked={requireHanFu}
+              onChange={setRequireHanFu}
+            />
+            {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
+            {requireHanFu && (
+              <SettingToggleGroup>
+                <SettingToggleRow
+                  title={t("setup.exactHan")}
+                  checked={exactHan}
+                  onChange={setExactHan}
+                  nested={true}
+                  titleAction={
+                    <HelpIconButton
+                      onPress={() => setShowExactHanInfo(true)}
+                      label={tCommon("showDetailInfo")}
+                    />
+                  }
                 />
-              }
-            />
-            <SettingToggleRow
-              title={t("setup.requireFu")}
-              checked={requireFuForMangan}
-              onChange={setRequireFuForMangan}
-            />
-          </>
-        )}
-        <SettingToggleRow
-          title={tSettings("autoAdvanceOnCorrectTitle")}
-          checked={autoAdvanceOnCorrect}
-          onChange={setAutoAdvanceOnCorrect}
-        />
-        {IAP_AVAILABLE && (
-          <MeasureTimeRow checked={measureTime} onChange={setMeasureTime} />
-        )}
-      </SettingsCard>
+                <SettingToggleRow
+                  title={t("setup.requireFu")}
+                  checked={requireFuForMangan}
+                  onChange={setRequireFuForMangan}
+                  nested={true}
+                />
+              </SettingToggleGroup>
+            )}
+          </View>
+        </SettingRows>
+      </SettingCard>
+
+      <SettingCard title={t("setup.practiceAids")} flush>
+        <SettingRows>
+          <SettingToggleRow
+            title={tSettings("autoAdvanceOnCorrectTitle")}
+            checked={autoAdvanceOnCorrect}
+            onChange={setAutoAdvanceOnCorrect}
+          />
+          {IAP_AVAILABLE && (
+            <MeasureTimeRow checked={measureTime} onChange={setMeasureTime} />
+          )}
+        </SettingRows>
+      </SettingCard>
 
       <SettingCard title={t("setup.questionMode")}>
         <SmallCheckbox

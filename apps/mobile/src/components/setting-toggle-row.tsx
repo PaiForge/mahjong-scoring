@@ -13,15 +13,45 @@ import { ChevronRightIcon, LockClosedIcon } from "./icons/icons";
  * 押せる面ではないので影は持たない。
  */
 export function SettingsCard({ children }: { readonly children: ReactNode }) {
-  const rows = Children.toArray(children);
   return (
     <View style={styles.card}>
-      {rows.map((child, i) => (
-        <Fragment key={i}>
-          {i > 0 && <View style={styles.divider} />}
-          {child}
-        </Fragment>
-      ))}
+      <SettingRows>{children}</SettingRows>
+    </View>
+  );
+}
+
+/**
+ * 設定項目を淡い実線で区切って縦に積む（{@link SettingsCard} の中身）
+ *
+ * 枠を別に持つカード（見出し帯付きの `SettingCard`）の中にトグル行を並べるときに使う。
+ * `false` の子は数えない。
+ */
+export function SettingRows({ children }: { readonly children: ReactNode }) {
+  const rows = Children.toArray(children);
+  return rows.map((child, i) => (
+    <Fragment key={i}>
+      {i > 0 && <View style={styles.divider} />}
+      {child}
+    </Fragment>
+  ));
+}
+
+/**
+ * 親のトグルの細目をまとめる囲み（web の `SettingToggleGroup`）
+ * 設定の細目
+ *
+ * 親の行の直下に置き、淡い地と左の縦線で「上の行に付いている」ことを示す。
+ * {@link SettingRows} の中では親の行との間に区切り線が入るため、親の行と
+ * 一緒に 1 つの子として渡す（`<View>` で包む）。中の行は `nested` にする。
+ */
+export function SettingToggleGroup({
+  children,
+}: {
+  readonly children: ReactNode;
+}) {
+  return (
+    <View style={styles.group}>
+      <View style={styles.groupRail}>{children}</View>
     </View>
   );
 }
@@ -48,6 +78,11 @@ interface SettingToggleRowProps {
   readonly disabled?: boolean;
   /** Maestro のフローで引く印 */
   readonly testID?: string;
+  /**
+   * 上の行の細目として描く（{@link SettingToggleGroup} の中に置く）。
+   * 余白を詰め、文字を一段小さく淡くする
+   */
+  readonly nested?: boolean;
 }
 
 /**
@@ -78,6 +113,7 @@ export function SettingToggleRow({
   titleAction,
   disabled = false,
   testID,
+  nested = false,
 }: SettingToggleRowProps) {
   // 描画の間ずっと同じ値を使う（ref ではなく state の初期化で 1 度だけ作る）
   const [position] = useState(() => new Animated.Value(checked ? 1 : 0));
@@ -107,14 +143,18 @@ export function SettingToggleRow({
       accessibilityLabel={title}
       accessibilityState={{ checked, disabled }}
       testID={testID}
-      style={styles.row}
+      style={[styles.row, nested && styles.nestedRow]}
     >
       <View style={styles.body}>
         {titleAction === undefined ? (
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, nested && styles.nestedTitle]}>
+            {title}
+          </Text>
         ) : (
           <View style={styles.titleRow}>
-            <Text style={styles.title}>{title}</Text>
+            <Text style={[styles.title, nested && styles.nestedTitle]}>
+              {title}
+            </Text>
             {titleAction}
           </View>
         )}
@@ -228,6 +268,23 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
+  },
+  nestedRow: {
+    paddingLeft: 16,
+    paddingVertical: 12,
+  },
+  nestedTitle: {
+    fontSize: 14,
+    color: colors.surface600,
+  },
+  group: {
+    backgroundColor: colors.surface50,
+    paddingBottom: 8,
+  },
+  groupRail: {
+    marginLeft: 24,
+    borderLeftWidth: 2,
+    borderLeftColor: colors.surface200,
   },
   pressed: {
     backgroundColor: colors.surface50,

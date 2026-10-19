@@ -7,13 +7,17 @@ import { colors, radius } from "../../../lib/theme";
  * 出題設定のカード（web の `SettingCard`）
  * 設定カード
  *
- * 見出し帯 + 縦並びのチェックボックス群。押せる面ではないので影は持たない。
+ * 見出し帯 + 縦並びのチェックボックス群（`flush` ならトグル行）。押せる面では
+ * ないので影は持たない。
  */
 export function SettingCard({
   title,
+  flush = false,
   children,
 }: {
   readonly title: string;
+  /** 本体の余白と行間を外す（トグル行を並べるとき。行が自分の余白を持つ） */
+  readonly flush?: boolean;
   readonly children: ReactNode;
 }) {
   return (
@@ -21,7 +25,7 @@ export function SettingCard({
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
       </View>
-      <View style={styles.body}>{children}</View>
+      <View style={flush ? undefined : styles.body}>{children}</View>
     </View>
   );
 }
