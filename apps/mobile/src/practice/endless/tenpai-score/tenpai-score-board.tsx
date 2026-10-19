@@ -394,7 +394,10 @@ function TenpaiScoreBoardInner() {
         // 段階ごとに、その画面にある要素の説明を開ける（答え合わせでは出さない）
         titleAction={
           phase === "result" ? undefined : (
-            <TenpaiScoreOperationHelp phase={phase} />
+            <TenpaiScoreOperationHelp
+              phase={phase}
+              requireHanFu={requireHanFu}
+            />
           )
         }
         contentStyle={styles.content}

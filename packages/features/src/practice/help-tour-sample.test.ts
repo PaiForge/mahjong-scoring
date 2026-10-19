@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  answerFieldsOf,
   buildTenpaiHelpCells,
   generateTenpaiHelpSample,
+  helpSampleAnswer,
   HELP_TOUR_ALL_CORRECT,
   tenpaiHelpCellFormatters,
   tenpaiHelpProgress,
@@ -32,6 +34,44 @@ describe("buildTenpaiHelpCells", () => {
     for (const cell of cells) {
       expect(results[cellKeyOf(cell)]).toBe(HELP_TOUR_ALL_CORRECT);
     }
+  });
+
+  it("翻数と符を問わない設定では、点数の回答から翻数・符を外す", () => {
+    const question = generateTenpaiHelpSample();
+    if (!question) throw new Error("サンプルを作れなかった");
+
+    const { answers } = buildTenpaiHelpCells(question, { requireHanFu: false });
+
+    for (const answer of Object.values(answers)) {
+      if (answer.kind !== "score") continue;
+      expect(answer.answer.han).toBeUndefined();
+      expect(answer.answer.fu).toBeUndefined();
+    }
+    expect(Object.values(answers).some((a) => a.kind === "score")).toBe(true);
+  });
+});
+
+describe("helpSampleAnswer", () => {
+  const answer = { han: 3, fu: 40, score: 5200, yakus: [] };
+
+  it("翻数と符も答える設定ではそのまま返す", () => {
+    expect(helpSampleAnswer(answer, true)).toBe(answer);
+  });
+
+  it("翻数と符を問わない設定では翻数・符を外し、点数は残す", () => {
+    expect(helpSampleAnswer(answer, false)).toEqual({
+      han: undefined,
+      fu: undefined,
+      score: 5200,
+      yakus: [],
+    });
+  });
+});
+
+describe("answerFieldsOf", () => {
+  it("辞書の select に渡す答え方を返す", () => {
+    expect(answerFieldsOf(true)).toEqual({ fields: "hanFu" });
+    expect(answerFieldsOf(false)).toEqual({ fields: "scoreOnly" });
   });
 });
 

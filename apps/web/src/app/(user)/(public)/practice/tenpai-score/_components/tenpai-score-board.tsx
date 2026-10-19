@@ -296,7 +296,7 @@ function TenpaiScoreBoardInner() {
               >
                 {t("machi.prompt")}
               </QuestionPrompt>
-              <TenpaiScoreSpotlightTour />
+              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
             </div>
 
             <div data-tour-id={TENPAI_SCORE_TOUR_ID.picker}>
@@ -339,7 +339,7 @@ function TenpaiScoreBoardInner() {
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-              <TenpaiScoreSpotlightTour />
+              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
             </div>
 
             <WaitCellGrid

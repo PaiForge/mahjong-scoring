@@ -300,6 +300,7 @@ function AgariScoreBoardInner() {
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
               <AgariScoreSpotlightTour
+                requireHanFu={requireHanFu}
                 exactHan={exactHan}
                 requireFuForMangan={requireFuForMangan}
               />
