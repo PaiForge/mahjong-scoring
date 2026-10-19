@@ -23,6 +23,7 @@ function questionOf(
       scoreLevel: "Normal",
       payment: { type: "ron", amount: 7700 },
     },
+    yakuDetails: [],
     ...overrides,
   } as unknown as ScoreQuestion;
 }
@@ -86,10 +87,7 @@ describe("buildScoreResultDisplay の内訳", () => {
     });
   });
 
-  it("翻数の内訳が無い・空のときは出さない", () => {
-    expect(
-      buildScoreResultDisplay(questionOf({}), [], ORDER).yakuBreakdown,
-    ).toBeUndefined();
+  it("翻数の内訳が空のときは出さない", () => {
     expect(
       buildScoreResultDisplay(questionOf({ yakuDetails: [] }), [], ORDER)
         .yakuBreakdown,

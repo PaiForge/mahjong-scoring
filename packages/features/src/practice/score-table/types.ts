@@ -20,7 +20,8 @@ export { parseQuestionResults } from "@mahjong-scoring/features/results/score-qu
  * 点数表問題結果生成
  *
  * 点数系の共通の結果型に載せるが、出題が手牌を持たないため
- * `question`（手牌の再表示用スナップショット）は付かない。
+ * `question`（手牌の再表示用スナップショット）と、役の内訳が無い以上
+ * 使い道の無い `yakumanMultiplier`（役満止まりの注記の材料）は付かない。
  *
  * @param userAnswer - ユーザーの回答。時間切れで答えられなかった問題は undefined
  */

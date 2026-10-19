@@ -1,5 +1,5 @@
 import { clampHanToYakuman } from "@mahjong-scoring/core";
-import type { ScoreQuestion, YakuDetail } from "@mahjong-scoring/core";
+import type { ScoreQuestion } from "@mahjong-scoring/core";
 
 import {
   PRACTICE_SLUG,
@@ -12,7 +12,6 @@ import { createSessionStorageParser } from "@mahjong-scoring/features/results/cr
 import {
   hanAnswerResultSchema,
   toAnswerOutcome,
-  yakuDetailSchema,
   type HanAnswerResult,
 } from "@mahjong-scoring/features/results/result-schemas";
 import type { ScoreQuestionSnapshot } from "@mahjong-scoring/features/results/score-question-result";
@@ -29,20 +28,13 @@ export const RESULT_STORAGE_KEY = resultStorageKeyFor(PRACTICE_SLUG.hanCount);
  * 翻数出題スナップショット
  *
  * 点数系練習と共通の出題スナップショット（{@link ScoreQuestionSnapshot}）に、
- * 手牌の再表示と役の内訳表示に要るぶんを足したもの。ツモ・ロンの別を
- * この中に置いているのは、点数系と違って結果の直下に持たないため
- * （翻数の正誤だけでは和了の形が復元できない）。
+ * ツモ・ロンの別を足したもの。この中に置いているのは、点数系と違って結果の
+ * 直下に持たないため（翻数の正誤だけでは和了の形が復元できない）。
+ * 役の内訳（丸め前の翻数の根拠）は共通のスナップショットが持つ。
  */
 export interface HanCountQuestionSnapshot extends ScoreQuestionSnapshot {
   /** ツモ和了かどうか */
   readonly isTsumo: boolean;
-  /**
-   * 役の内訳（ドラ・裏ドラを含む）
-   *
-   * 各役の翻数を合計すると丸め前の翻数になる。結果ページで「なぜその翻数に
-   * なるのか」を示すために持つ。
-   */
-  readonly yakuDetails: readonly YakuDetail[];
 }
 
 /**
@@ -52,11 +44,8 @@ export interface HanCountQuestionSnapshot extends ScoreQuestionSnapshot {
 export interface HanCountQuestionResult extends HanAnswerResult {
   /** 正解の翻数（13翻以上の手は役満=13翻に丸めて記録する） */
   readonly correctHan: number;
-  /**
-   * 出題内容。結果ページで手牌と役の内訳を再表示するために持つ。
-   * この項目を保存する前の旧データには存在しないため任意
-   */
-  readonly question?: HanCountQuestionSnapshot;
+  /** 出題内容。結果ページで手牌と役の内訳を再表示するために持つ */
+  readonly question: HanCountQuestionSnapshot;
 }
 
 /**
@@ -83,7 +72,6 @@ export function toHanCountQuestionResult(
     question: {
       ...toScoreQuestionSnapshot(question),
       isTsumo: question.isTsumo,
-      yakuDetails: question.yakuDetails ?? [],
     },
   };
 }
@@ -92,28 +80,20 @@ export function toHanCountQuestionResult(
  * 値が HanCountQuestionSnapshot として妥当か検証するスキーマ
  * 翻数出題スナップショットスキーマ
  *
- * 点数系共通のスナップショットに、この練習だけが必須にしている 2 つ
- * （ツモ・ロンの別と役の内訳）を重ねる。
+ * 点数系共通のスナップショットに、この練習だけが持つツモ・ロンの別を重ねる。
  */
 const questionSnapshotSchema: z.ZodType<HanCountQuestionSnapshot> =
   z.intersection(
     scoreQuestionSnapshotSchema,
-    z.object({
-      isTsumo: z.boolean(),
-      yakuDetails: z.array(yakuDetailSchema),
-    }),
+    z.object({ isTsumo: z.boolean() }),
   );
 
 /**
  * sessionStorage から取得した値が HanCountQuestionResult として妥当か検証する
  * 翻数問題結果バリデーション
- *
- * 出題スナップショットは保存を始める前の旧データに存在しないため任意。
  */
 const questionResultSchema: z.ZodType<HanCountQuestionResult> =
-  hanAnswerResultSchema.extend({
-    question: questionSnapshotSchema.optional(),
-  });
+  hanAnswerResultSchema.extend({ question: questionSnapshotSchema });
 
 /**
  * sessionStorage から問題結果を安全にパースする

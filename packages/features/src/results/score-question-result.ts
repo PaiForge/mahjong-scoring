@@ -44,34 +44,32 @@ export interface ScoreQuestionSnapshot extends QuestionTilesSnapshot {
   /** ドラ表示牌（MPSZ） */
   readonly doraMarkers: readonly string[];
   /** リーチ有無 */
-  readonly isRiichi?: boolean;
-  /** 裏ドラ表示牌（MPSZ） */
+  readonly isRiichi: boolean;
+  /** 裏ドラ表示牌（MPSZ）。リーチしている問題だけが持つ */
   readonly uraDoraMarkers?: readonly string[];
   /**
    * 役の内訳（ドラ・裏ドラを含む）
    *
    * 各役の翻数を合計すると出題の翻数になる（出題側で揃えている。core の
    * `han-consistency.test.ts` 参照）。結果ページで「なぜその翻数になるのか」を
-   * 示すために持つ。この項目を保存する前の旧データには存在しないため任意。
+   * 示すために持つ。
    */
-  readonly yakuDetails?: readonly YakuDetail[];
+  readonly yakuDetails: readonly YakuDetail[];
   /**
    * 符の内訳（切り上げ前。副底から待ち符まで）
    *
    * 結果ページで「なぜその符になるのか」を示すために持つ。要約行の
    * 「30符」だけでは、符を積み上げる級（1級・初段）で間違えた人が数え直せない。
    * 5 翻以上の問題では符が点数に効かないため持たない。3 翻 70 符のように
-   * 符で満貫に届いた問題は、満貫になった理由を示すため持つ。この項目を
-   * 保存する前の旧データにも存在しない。
+   * 符で満貫に届いた問題は、満貫になった理由を示すため持つ。
    */
   readonly fuDetails?: readonly FuDetail[];
   /**
    * 採点に使ったルール設定
    *
    * 結果ページの面子分解で候補を正解と同じ設定で評価するために持つ。
-   * この項目を保存する前の旧データには存在しないため任意。
    */
-  readonly ruleConfig?: RuleConfig;
+  readonly ruleConfig: RuleConfig;
 }
 
 /**
@@ -98,13 +96,14 @@ export interface ScoreQuestionResult {
    *
    * 翻数の内訳の合計が正解の支払いより大きいとき（役満に役牌・リーチの翻が
    * 乗った手、合算しない設定の複合役満）に「26翻 → 役満」の注記を出すために
-   * 持つ。この項目を保存する前の旧データには存在しないため任意で、無い場合は
-   * 注記を諦める
+   * 持つ。点数表早引きの結果は持たない（出題が翻数と符だけで役満単位を
+   * 持たず、注記の元になる役の内訳も無い）
    */
   readonly yakumanMultiplier?: number;
   /**
    * 出題内容。結果ページで手牌・ドラを再表示するために持つ。
-   * この項目を保存する前の旧データには存在しないため任意
+   * 点数表早引きの結果は持たない（出題が手牌を持たない。
+   * `practice/score-table/types.ts`）
    */
   readonly question?: ScoreQuestionSnapshot;
 }
@@ -124,7 +123,7 @@ export function toScoreQuestionSnapshot(
     doraMarkers: question.doraMarkers.map(haiIdToMpsz),
     isRiichi: question.isRiichi,
     uraDoraMarkers: question.uraDoraMarkers?.map(haiIdToMpsz),
-    yakuDetails: question.yakuDetails ?? [],
+    yakuDetails: question.yakuDetails,
     fuDetails:
       question.fuDetails !== undefined && isFuRelevant(question.answer.han)
         ? question.fuDetails
@@ -171,26 +170,27 @@ export function toScoreQuestionResult(
  * MPSZ として解釈できるかまでは見ない（表示時のパースが失敗したら
  * 手牌の再表示だけを諦める）。ここでは形だけを確かめる。
  *
- * リーチ・裏ドラ・役と符の内訳は、それらを保存し始める前の旧データに存在しない
- * ため任意フィールドとして見る。
+ * 裏ドラ表示牌はリーチしている問題だけが、符の内訳は 5 翻未満の問題だけが
+ * 持つため任意フィールドとして見る。
  */
 export const scoreQuestionSnapshotSchema: z.ZodType<ScoreQuestionSnapshot> =
   z.object({
     ...questionTilesSnapshotSchema.shape,
     doraMarkers: z.array(z.string()),
-    isRiichi: z.boolean().optional(),
+    isRiichi: z.boolean(),
     uraDoraMarkers: z.array(z.string()).optional(),
-    yakuDetails: z.array(yakuDetailSchema).optional(),
+    yakuDetails: z.array(yakuDetailSchema),
     fuDetails: z.array(fuDetailSchema).optional(),
-    ruleConfig: ruleConfigSchema.optional(),
+    ruleConfig: ruleConfigSchema,
   });
 
 /**
  * sessionStorage から取得した値が ScoreQuestionResult として妥当か検証する
  * 問題結果バリデーション
  *
- * 符は満貫以上の問題で省略され、出題スナップショットは保存を始める前の旧
- * データに存在しないため、どちらも任意フィールドとして見る。
+ * 符は満貫以上の問題で、回答は時間切れの問題で、出題スナップショットと
+ * 役満単位は点数表早引きの結果で省略されるため、いずれも任意フィールド
+ * として見る。
  */
 const questionResultSchema: z.ZodType<ScoreQuestionResult> = z.object({
   isOya: z.boolean(),
@@ -219,17 +219,14 @@ export const parseQuestionResults: (
  *
  * MPSZ のパースに失敗した場合は undefined を返し、手牌の再表示だけを諦める
  * （正誤と回答の比較はスナップショットに依存しないため表示できる）。
- * スナップショットを保存する前の旧データも同様に undefined になる。
  *
  * ツモ・ロンの別を引数で受け取るのは、練習によって置き場所が違うため
  * （点数系は結果の直下、翻数即答はスナップショットの中）。
  */
 export function restoreScoreQuestion(
-  snapshot: ScoreQuestionSnapshot | undefined,
+  snapshot: ScoreQuestionSnapshot,
   isTsumo: boolean,
 ): ScoreQuestionDisplayData | undefined {
-  if (!snapshot) return undefined;
-
   const tiles = parseQuestionTiles(snapshot);
   if (!tiles) return undefined;
 

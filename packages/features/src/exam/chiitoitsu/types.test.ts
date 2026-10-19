@@ -35,7 +35,7 @@ describe("EXAM_GENERATE_OPTIONS", () => {
       const question = generateValidScoreQuestion(EXAM_GENERATE_OPTIONS);
       expect(question).toBeDefined();
       expect(question!.answer.fu).toBe(CHIITOITSU_FU);
-      expect(question!.yakuDetails?.map((yaku) => yaku.name)).toContain(
+      expect(question!.yakuDetails.map((yaku) => yaku.name)).toContain(
         "七対子",
       );
     }

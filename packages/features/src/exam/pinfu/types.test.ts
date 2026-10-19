@@ -43,7 +43,7 @@ describe("EXAM_GENERATE_OPTIONS", () => {
       );
       expect(question).toBeDefined();
       expect(question!.answer.fu).toBe(question!.isTsumo ? 20 : 30);
-      expect(question!.yakuDetails?.map((yaku) => yaku.name)).toContain("平和");
+      expect(question!.yakuDetails.map((yaku) => yaku.name)).toContain("平和");
     }
   });
 

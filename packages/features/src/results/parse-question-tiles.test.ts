@@ -26,12 +26,12 @@ describe("parseQuestionTiles", () => {
     });
   });
 
-  it("1.x の表記で保存された手牌は例外にせず undefined にする", () => {
-    // riichi-mahjong 0.x の頃に保存した結果（方向注釈の無い副露）。
+  it("解釈できない手牌（Extended MPSZ 1.x の表記）は例外にせず undefined にする", () => {
+    // 方向注釈の無い副露。スキーマは文字列であることしか見ないので、
     // 手牌の再表示だけを諦め、正誤の一覧は表示できるようにする
-    const legacy = { ...SNAPSHOT, tehai: "234m67888s[234s][678m]" };
-    expect(() => parseQuestionTiles(legacy)).not.toThrow();
-    expect(parseQuestionTiles(legacy)).toBeUndefined();
+    const unreadable = { ...SNAPSHOT, tehai: "234m67888s[234s][678m]" };
+    expect(() => parseQuestionTiles(unreadable)).not.toThrow();
+    expect(parseQuestionTiles(unreadable)).toBeUndefined();
   });
 
   it("赤 5 の表記は 5 として読む", () => {

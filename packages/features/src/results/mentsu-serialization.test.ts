@@ -31,7 +31,7 @@ describe("serializedMentsuSchema", () => {
     );
   });
 
-  it("鳴いた牌を持たない旧形式の副露は弾く", () => {
+  it("鳴いた牌を持たない副露は弾く", () => {
     // riichi-mahjong 0.x の Furo（鳴き元だけ）で保存された結果
     const legacy = {
       tiles: "555p",
