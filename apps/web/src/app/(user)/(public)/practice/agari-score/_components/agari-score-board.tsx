@@ -139,10 +139,13 @@ function AgariScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { measureTime, ...mode } = parseModeFlagsFromParams(
-    new URLSearchParams(searchParams.toString()),
-  );
-  const { requireYaku, requireHanFu, exactHan, requireFuForMangan } = mode;
+  const {
+    requireYaku,
+    requireHanFu,
+    exactHan,
+    requireFuForMangan,
+    measureTime,
+  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   // 回答時間の計測（Pro の拡張機能）。設定のフラグだけでなく、サーバーが
