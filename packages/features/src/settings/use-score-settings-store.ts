@@ -49,6 +49,23 @@ export interface ScoreSettingsState {
  * 和了形の点数計算と聴牌形の点数計算は同じ設定項目を持つが、片方で変えた
  * 設定がもう片方に及ばないよう、練習ごとに別の保存名で持つ。
  *
+ * @design 保存値の版は持たず、移行もしない
+ * persist の `version` と `migrate` は使わない（他の端末ローカル設定ストアと
+ * 同じ。方針は {@link SettingsStoreOptions} を参照）。項目を足すときは既定値を
+ * 書くだけでよく、保存値に無い項目は浅いマージが既定値で補う。項目の意味や
+ * 型を変えるときは項目のキー名か保存名を変え、古い保存値は読まずに捨てる。
+ * `version` を上げて `migrate` を書き始めないこと — 移行の分岐は読む人に
+ * 「どの版の値が来るか」を考えさせ、項目を足すたびに「版を上げるべきか」の
+ * 判断を生む。
+ *
+ * 以前はこのストアだけが `version: 2` と `migrate`（点数帯の表記の変換と
+ * 「自動で次へ」の廃止）を持っていた。利用者がいないうちに外したので、
+ * その頃に保存した端末（開発者の端末）では、保存値の版が合わず既定値で始まる。
+ * zustand は `migrate` の無い版違いの保存値を書き戻さないため、設定を一度
+ * 書き込むまでは読み込みのたびに console.error（"State loaded from storage
+ * couldn't be migrated …"）が出る。どれかの設定を切り替えるか保存名のキーを
+ * 消せば止まる。
+ *
  * @param name - 保存名（web では localStorage のキー）
  * @param options - 保存先
  */
@@ -82,33 +99,6 @@ export function createScoreSettingsStore(
       {
         name,
         storage: createJSONStorage(storage),
-        // v0 は点数帯を snake_case（"non_mangan" / "mangan_plus"）で保存していた。
-        // 型を core の ScoreRange（camelCase）へ統一したため、保存済みの値を
-        // 変換する。変換しないと全チェックが外れ、練習を開始できなくなる。
-        // v1 までは「正解時に自動で次へ」（`autoNext`）もここに持っていた。
-        // トレーニング設定（`autoAdvanceOnCorrect`）と同じ意味の設定が練習ごとに
-        // 別々に保存されていたため、トレーニング設定の 1 つに寄せて捨てる。
-        version: 2,
-        migrate: (persisted, version) => {
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- zustand の migrate は保存値を unknown で受けて S を返す契約。保存するのは自分の partialize 済みの値なので形は信じ、旧版の項目だけ直す
-          const state = persisted as ScoreSettingsState & {
-            autoNext?: boolean;
-          };
-          const { autoNext: _dropped, ...rest } = state;
-          if (version >= 1) return rest;
-
-          const legacy: Readonly<Record<string, ScoreRange | undefined>> = {
-            non_mangan: "nonMangan",
-            mangan_plus: "manganPlus",
-          };
-
-          return {
-            ...rest,
-            targetScoreRanges: (rest.targetScoreRanges ?? []).map(
-              (range) => legacy[range] ?? range,
-            ),
-          };
-        },
       },
     ),
   );

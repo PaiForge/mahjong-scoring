@@ -108,33 +108,13 @@ describe("表示設定の子ツモの入力方式", () => {
   });
 });
 
-describe("点数練習の設定ストアの移行", () => {
-  it("v1 の保存値から「自動で次へ」を落とし、他の値は残す", () => {
-    // 「自動で次へ」はトレーニング設定に一本化した。旧キーを残すと、
-    // 書き込みのたびに使われない値が保存され続ける
+describe("点数練習の設定ストア", () => {
+  it("項目を足す前の保存値は既定値で補い、版の移行を挟まない", () => {
+    // 保存値の版は持たない方針。足した項目（requireHanFu）は浅いマージで
+    // 既定値になり、保存済みの項目はそのまま残る
     const { data, storage } = createMemoryStorage({
       "score-settings": JSON.stringify({
-        state: { autoNext: true, requireYaku: true },
-        version: 1,
-      }),
-    });
-    const useStore = createScoreSettingsStore("score-settings", {
-      storage: () => storage,
-    });
-
-    expect(useStore.getState()).not.toHaveProperty("autoNext");
-    expect(useStore.getState().requireYaku).toBe(true);
-
-    act(() => useStore.getState().setExactHan(true));
-    const saved = JSON.parse(data.get("score-settings") ?? "{}");
-    expect(saved.state).not.toHaveProperty("autoNext");
-    expect(saved.version).toBe(2);
-  });
-
-  it("v0 の点数帯の表記も引き続き直す", () => {
-    const { storage } = createMemoryStorage({
-      "score-settings": JSON.stringify({
-        state: { autoNext: true, targetScoreRanges: ["non_mangan"] },
+        state: { requireYaku: true },
         version: 0,
       }),
     });
@@ -142,7 +122,12 @@ describe("点数練習の設定ストアの移行", () => {
       storage: () => storage,
     });
 
-    expect(useStore.getState().targetScoreRanges).toEqual(["nonMangan"]);
-    expect(useStore.getState()).not.toHaveProperty("autoNext");
+    expect(useStore.getState().requireYaku).toBe(true);
+    expect(useStore.getState().requireHanFu).toBe(false);
+
+    act(() => useStore.getState().setExactHan(true));
+    const saved = JSON.parse(data.get("score-settings") ?? "{}");
+    expect(saved.state.requireYaku).toBe(true);
+    expect(saved.version).toBe(0);
   });
 });
