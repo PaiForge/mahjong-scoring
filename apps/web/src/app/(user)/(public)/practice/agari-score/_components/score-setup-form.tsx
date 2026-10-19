@@ -26,7 +26,7 @@ import {
   ROLE_TOKEN_OYA,
 } from "../../_lib/role-params";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
-import { SettingToggle } from "./setting-toggle";
+import { SettingToggle, SettingToggleGroup } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -190,40 +190,35 @@ export function ScoreSetupForm({
     // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
     // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
     // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
-    // 翻数と符の下位の 2 行（5翻以上・満貫以上の符）は、既定（翻数と符を
+    // 翻数と符の細目の 2 行（5翻以上・満貫以上の符）は、既定（翻数と符を
     // 答えない）では出ないので数えない。
     // 枠は実 UI と同じ細枠（border-panel）のまま、面を灰色にする。枠は
     // border-box なので寸法は実 UI と一致したまま。
     return (
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* Settings card: トグル行 */}
-        <div className="overflow-hidden rounded-panel border border-panel bg-surface-50">
-          <div className="flex flex-col">
-            {["requireYaku", "requireHanFu", "autoAdvanceOnCorrect"].map(
-              (key) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between border-b border-surface-100 px-5 py-3.5"
-                >
-                  <SkeletonBar className="h-4 w-32" tone={100} />
-                  <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
-                </div>
-              ),
-            )}
-            <div className="px-5 py-3.5">
-              <div className="flex h-5 items-center justify-between">
-                <SkeletonBar className="h-4 w-32" tone={100} />
-                <SkeletonBar radius="full" className="h-4 w-10" tone={100} />
-              </div>
-              <div className="mt-1 flex h-4 items-center">
-                <SkeletonBar className="h-3 w-40" tone={100} />
-              </div>
-              <div className="mt-1 flex h-4 items-center justify-end">
-                <SkeletonBar className="h-3 w-20" tone={100} />
-              </div>
+        {/* 回答する項目: トグル 2 行 */}
+        <SettingCardSkeleton>
+          {["requireYaku", "requireHanFu"].map((key, i) => (
+            <ToggleRowSkeleton key={key} isLast={i === 1} />
+          ))}
+        </SettingCardSkeleton>
+
+        {/* 練習の補助: トグル 1 行 + 回答時間の計測のロック行 */}
+        <SettingCardSkeleton>
+          <ToggleRowSkeleton />
+          <div className="px-5 py-3.5">
+            <div className="flex h-5 items-center justify-between">
+              <SkeletonBar className="h-4 w-32" tone={100} />
+              <SkeletonBar radius="full" className="h-4 w-10" tone={100} />
+            </div>
+            <div className="mt-1 flex h-4 items-center">
+              <SkeletonBar className="h-3 w-40" tone={100} />
+            </div>
+            <div className="mt-1 flex h-4 items-center justify-end">
+              <SkeletonBar className="h-3 w-20" tone={100} />
             </div>
           </div>
-        </div>
+        </SettingCardSkeleton>
 
         {/* Grid: 出題モード / 点数範囲 の2カード（ヘッダー＋チェックボックス2行） */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -251,63 +246,68 @@ export function ScoreSetupForm({
     // 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
     // レスポンシブ値に揃える。SectionTitle との間隔も親（page.tsx）の space-y が担う。
     <div className="space-y-4 sm:space-y-6 md:space-y-8">
-      <div className="overflow-hidden rounded-panel border border-panel bg-white">
-        <div className="flex flex-col">
-          <SettingToggle
-            checked={requireYaku}
-            onChange={setRequireYaku}
-            label={t("setup.requireYaku")}
-          />
-          <SettingToggle
-            checked={requireHanFu}
-            onChange={setRequireHanFu}
-            label={t("setup.requireHanFu")}
-          />
-          {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
-          {requireHanFu && (
-            <>
-              <SettingToggle
-                checked={exactHan}
-                onChange={setExactHan}
-                label={t("setup.exactHan")}
-                onInfoClick={() => setShowExactHanInfo(true)}
-                infoAriaLabel={tCommon("showDetailInfo")}
-              />
-              <SettingToggle
-                checked={requireFuForMangan}
-                onChange={setRequireFuForMangan}
-                label={t("setup.requireFu")}
-              />
-            </>
-          )}
-          <SettingToggle
-            checked={autoAdvanceOnCorrect}
-            onChange={setAutoAdvanceOnCorrect}
-            title={tSettings("autoAdvanceOnCorrectTitle")}
-            label={tSettings("autoAdvanceOnCorrectTitle")}
-          />
-          {/* 回答時間の計測は Pro の拡張機能。Pro でなければスイッチの代わりに
-              利用条件と料金ページへの導線を出す（押せないスイッチは「壊れている」に見える）。
-              未ログインでも導線は料金ページに統一する（機能と料金を見てから
-              購入に要るログイン・登録へ進む順序にするため） */}
-          <SettingToggle
-            checked={measureTime && hasPracticeTools}
-            onChange={setMeasureTime}
-            label={t("setup.measureTime")}
-            isLast={true}
-            locked={
-              hasPracticeTools
-                ? undefined
-                : {
-                    badge: t("setup.measureTimePro.badge"),
-                    note: t("setup.measureTimePro.note"),
-                    linkLabel: t("setup.measureTimePro.link"),
-                    href: PLAN_PAGE_HREF,
-                  }
-            }
-          />
-        </div>
-      </div>
+      <SettingCard title={t("setup.answerItems")} flush>
+        <SettingToggle
+          checked={requireYaku}
+          onChange={setRequireYaku}
+          label={t("setup.requireYaku")}
+        />
+        {/* 細目を開いても親の行との間に線を引かない（細目の囲みが続く） */}
+        <SettingToggle
+          checked={requireHanFu}
+          onChange={setRequireHanFu}
+          label={t("setup.requireHanFu")}
+          isLast={true}
+        />
+        {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
+        {requireHanFu && (
+          <SettingToggleGroup isLast={true}>
+            <SettingToggle
+              checked={exactHan}
+              onChange={setExactHan}
+              label={t("setup.exactHan")}
+              onInfoClick={() => setShowExactHanInfo(true)}
+              infoAriaLabel={tCommon("showDetailInfo")}
+              nested={true}
+            />
+            <SettingToggle
+              checked={requireFuForMangan}
+              onChange={setRequireFuForMangan}
+              label={t("setup.requireFu")}
+              nested={true}
+            />
+          </SettingToggleGroup>
+        )}
+      </SettingCard>
+
+      <SettingCard title={t("setup.practiceAids")} flush>
+        <SettingToggle
+          checked={autoAdvanceOnCorrect}
+          onChange={setAutoAdvanceOnCorrect}
+          title={tSettings("autoAdvanceOnCorrectTitle")}
+          label={tSettings("autoAdvanceOnCorrectTitle")}
+        />
+        {/* 回答時間の計測は Pro の拡張機能。Pro でなければスイッチの代わりに
+            利用条件と料金ページへの導線を出す（押せないスイッチは「壊れている」に見える）。
+            未ログインでも導線は料金ページに統一する（機能と料金を見てから
+            購入に要るログイン・登録へ進む順序にするため） */}
+        <SettingToggle
+          checked={measureTime && hasPracticeTools}
+          onChange={setMeasureTime}
+          label={t("setup.measureTime")}
+          isLast={true}
+          locked={
+            hasPracticeTools
+              ? undefined
+              : {
+                  badge: t("setup.measureTimePro.badge"),
+                  note: t("setup.measureTimePro.note"),
+                  linkLabel: t("setup.measureTimePro.link"),
+                  href: PLAN_PAGE_HREF,
+                }
+          }
+        />
+      </SettingCard>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Question mode */}
@@ -396,6 +396,18 @@ export function ScoreSetupForm({
       >
         {t("setup.exactHanInfo")}
       </InfoModal>
+    </div>
+  );
+}
+
+/** トグル行（{@link SettingToggle}）の読み込み中の形 */
+function ToggleRowSkeleton({ isLast = false }: { readonly isLast?: boolean }) {
+  return (
+    <div
+      className={`flex items-center justify-between px-5 py-3.5 ${isLast ? "" : "border-b border-surface-100"}`}
+    >
+      <SkeletonBar className="h-4 w-32" tone={100} />
+      <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
     </div>
   );
 }
