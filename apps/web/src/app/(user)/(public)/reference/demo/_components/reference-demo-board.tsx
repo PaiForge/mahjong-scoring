@@ -19,7 +19,7 @@ import { TRY_QUESTION } from "@/app/(user)/(public)/try/agari-score/_lib/try-que
  */
 const SAMPLE_ANSWER: UserAnswer = {
   ...scoreAnswerToUserAnswer(TRY_QUESTION.answer),
-  yakus: (TRY_QUESTION.yakuDetails ?? []).map((detail) => detail.name),
+  yakus: TRY_QUESTION.yakuDetails.map((detail) => detail.name),
 };
 
 const SAMPLE_RESULT = judgeAnswer(TRY_QUESTION, SAMPLE_ANSWER);

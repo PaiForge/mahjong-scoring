@@ -34,29 +34,28 @@ export type ScoreBreakdownTab =
  * プラットフォームの部品が組み立てる。
  *
  * @param order - 符と翻の表記順
- * @param fu - 符の内訳と正解の符。符を出さない問題・旧データでは undefined
- * @param yakuDetails - 役の内訳。旧データでは undefined
+ * @param fu - 符の内訳と正解の符。符を出さない問題（5 翻以上）では undefined
+ * @param yakuDetails - 役の内訳
  * @param judgement - 翻数・符の正誤。無回答なら undefined
  */
 export function buildScoreBreakdownTabs(
   order: FuHanOrder,
   fu: ScoreBreakdownFu | undefined,
-  yakuDetails: readonly YakuDetail[] | undefined,
+  yakuDetails: readonly YakuDetail[],
   judgement: BreakdownJudgement | undefined,
 ): {
   readonly tabs: readonly ScoreBreakdownTab[];
   readonly initial: BreakdownKind | undefined;
 } {
-  const hasYaku = yakuDetails !== undefined && yakuDetails.length > 0;
   const { kinds, initial } = resolveBreakdownTabs(
     order,
-    { han: hasYaku, fu: fu !== undefined },
+    { han: yakuDetails.length > 0, fu: fu !== undefined },
     judgement,
   );
 
   const tabs = kinds.flatMap((kind): ScoreBreakdownTab[] => {
     if (kind === "fu" && fu !== undefined) return [{ kind, fu }];
-    if (kind === "han" && yakuDetails !== undefined) {
+    if (kind === "han") {
       return [{ kind, yakuDetails, hanTotal: sumYakuHan(yakuDetails) }];
     }
     return [];

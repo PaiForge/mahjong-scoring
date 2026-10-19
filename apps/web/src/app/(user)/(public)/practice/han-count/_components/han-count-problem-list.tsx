@@ -40,7 +40,7 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
       renderDetail={(result) => {
         const question = restoreScoreQuestion(
           result.question,
-          result.question?.isTsumo ?? false,
+          result.question.isTsumo,
         );
         const { userHan } = result;
 
@@ -70,12 +70,10 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
               )}
             />
 
-            {result.question && (
-              <HanBreakdown
-                yakuDetails={result.question.yakuDetails}
-                correctHan={result.correctHan}
-              />
-            )}
+            <HanBreakdown
+              yakuDetails={result.question.yakuDetails}
+              correctHan={result.correctHan}
+            />
           </div>
         );
       }}

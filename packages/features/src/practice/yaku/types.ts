@@ -55,8 +55,7 @@ export interface YakuQuestionResult extends QuestionTilesSnapshot {
   /**
    * 裏ドラ表示牌（1 枚 1 要素の MPSZ）
    *
-   * リーチしている問題だけが持つ。この項目を保存する前の旧データにも
-   * 存在しないため任意。
+   * リーチしている問題だけが持つ。
    */
   readonly uraDoraMarkers?: readonly string[];
   /** 成立していた役 */

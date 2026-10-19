@@ -157,21 +157,24 @@ export type DemoScoreQuestionOptions = {
  * デモ出題生成
  *
  * 手牌は {@link buildDemoTehai} で検証する（牌姿を書き間違えると投げる）。
- * 正解（`answer`）は描画に要らないため持たず、`ScoreQuestion` への
- * 型付けはリポジトリのテスト同様 `as unknown as` で行う。
+ * 正解（`answer`）と採点に使ったルール設定（`ruleConfig`）は描画に要らない
+ * ため持たず、`ScoreQuestion` への型付けはリポジトリのテスト同様
+ * `as unknown as` で行う。役の内訳は盤面がそのまま読むので、渡されなければ
+ * 空にする（役一覧を提示しない出題形式）。
  */
 export function buildDemoScoreQuestion(
   options: DemoScoreQuestionOptions,
 ): ScoreQuestion {
-  const { hand = DEMO_MENTSU_HAND, ...rest } = options;
+  const { hand = DEMO_MENTSU_HAND, yakuDetails = [], ...rest } = options;
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- 描画専用のデモ出題。正解（answer）を持たない形を ScoreQuestion に型付けするための意図的な断定（上の TSDoc 参照）
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- 描画専用のデモ出題。正解（answer）とルール設定を持たない形を ScoreQuestion に型付けするための意図的な断定（上の TSDoc 参照）
   return {
     tehai: buildDemoTehai(hand.closed),
     agariHai: hand.agariHai,
     isTsumo: hand.isTsumo,
     jikaze: HaiKind.Nan,
     bakaze: HaiKind.Ton,
+    yakuDetails,
     ...rest,
   } as unknown as ScoreQuestion;
 }

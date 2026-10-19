@@ -43,7 +43,7 @@ export interface ScoreQuestion {
    * 宣言していても役満の手では `yakuDetails` に立直と裏ドラが入らず、点数にも
    * 効かない（役満は通常役と複合しない。`build-question.ts` 参照）
    */
-  readonly isRiichi?: boolean;
+  readonly isRiichi: boolean;
   /** 裏ドラ表示牌（リーチしている手だけが持つ） */
   readonly uraDoraMarkers?: readonly HaiKindId[];
   /**
@@ -51,15 +51,20 @@ export interface ScoreQuestion {
    *
    * 正解と同じ設定で面子分解の候補を評価するために持つ。設定は端末ローカル
    * なので、出題時の値を問題に残さないと表示側が既定ルールに戻り、正解が
-   * 50符でも候補が 40符になる。保存を始める前の結果データには無いため任意
+   * 50符でも候補が 40符になる
    */
-  readonly ruleConfig?: RuleConfig;
+  readonly ruleConfig: RuleConfig;
   /** 正解の点数計算結果 */
   readonly answer: ScoreResult;
-  /** 符計算の内訳 */
+  /**
+   * 符計算の内訳
+   *
+   * ライブラリが構造解釈の詳細（`ScoreResult.detail`）を返さなかった手では
+   * 持たない
+   */
   readonly fuDetails?: readonly FuDetail[];
-  /** 役の内訳 */
-  readonly yakuDetails?: readonly YakuDetail[];
+  /** 役の内訳（ドラ・裏ドラを含む。役満の手は役満役だけ） */
+  readonly yakuDetails: readonly YakuDetail[];
 }
 
 /**

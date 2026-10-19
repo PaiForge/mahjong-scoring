@@ -48,12 +48,12 @@ function judgeScore(
  * 役の判定に要る出題の一部（役の内訳と局面の風）
  * 役判定の入力
  *
- * 内訳が無い出題（保存を始める前の旧データ）も受けるため `yakuDetails` は
- * 任意。風は場風牌 / 自風牌を選択肢の名前に引き直すのに要る。
+ * 風は場風牌 / 自風牌を選択肢の名前に引き直すのに要る。
  */
-export type YakuJudgementSource = Pick<ScoreQuestion, "bakaze" | "jikaze"> & {
-  readonly yakuDetails?: ScoreQuestion["yakuDetails"];
-};
+export type YakuJudgementSource = Pick<
+  ScoreQuestion,
+  "bakaze" | "jikaze" | "yakuDetails"
+>;
 
 /** 内訳が場風・自風の役牌を名乗るときの名前（core/yaku-names の対応表が唯一の定義） */
 const BAKAZE_NAME = getYakuNameJa("Bakaze");
@@ -76,7 +76,7 @@ const JIKAZE_NAME = getYakuNameJa("Jikaze");
 function expectedYakuNames(
   source: Readonly<YakuJudgementSource>,
 ): readonly string[] {
-  const resolved = (source.yakuDetails ?? [])
+  const resolved = source.yakuDetails
     .filter(({ name }) => !IGNORE_YAKU_FOR_JUDGEMENT.includes(name))
     .flatMap(({ name }) => {
       const display = resolveKazeYakuName(name, source);

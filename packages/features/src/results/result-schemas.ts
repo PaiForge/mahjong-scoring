@@ -56,9 +56,8 @@ export const haiKindIdSchema: z.ZodType<HaiKindId> = z.custom<HaiKindId>(
 /**
  * 副露の種別・出所・鳴いた牌
  *
- * 鳴いた牌（加槓では加槓牌も）は必須。これを持たない旧形式の保存データ
- * （riichi-mahjong 0.x の `Furo`）はここで弾かれ、その要素ごと捨てられる。
- * チーの出所は上家に限る（`Furo` の型と同じ）。
+ * 鳴いた牌（加槓では加槓牌も）は必須。持たない値はここで弾かれ、その要素
+ * ごと捨てられる。チーの出所は上家に限る（`Furo` の型と同じ）。
  */
 export const furoSchema: z.ZodType<Furo> = z.discriminatedUnion("type", [
   z.object({

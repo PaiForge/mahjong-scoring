@@ -38,9 +38,9 @@ export interface FuQuestionResult
   readonly fuDetails: readonly FuDetail[];
   /**
    * 採点に使ったルール設定（連風牌の雀頭符）。結果ページの面子分解で
-   * 候補を正解と同じ設定で評価するために持つ。保存を始める前の旧データには無い
+   * 候補を正解と同じ設定で評価するために持つ
    */
-  readonly ruleConfig?: RuleConfig;
+  readonly ruleConfig: RuleConfig;
 }
 
 /**
@@ -79,7 +79,7 @@ const questionResultSchema: z.ZodType<FuQuestionResult> =
     ...questionTilesSnapshotSchema.shape,
     isTsumo: z.boolean(),
     fuDetails: z.array(fuDetailSchema),
-    ruleConfig: ruleConfigSchema.optional(),
+    ruleConfig: ruleConfigSchema,
   });
 
 /**

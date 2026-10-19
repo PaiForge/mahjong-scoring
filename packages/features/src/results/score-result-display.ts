@@ -63,7 +63,7 @@ export function buildScoreResultDisplay(
 ): ScoreResultDisplay {
   const yakuJudgements = judgeYakuSelection(question, userYakus ?? []);
 
-  const yakuItems = orderYakuDetails(question.yakuDetails ?? [], yakuOrder).map(
+  const yakuItems = orderYakuDetails(question.yakuDetails, yakuOrder).map(
     (detail) => ({ name: detail.name, value: detail.han }),
   );
 

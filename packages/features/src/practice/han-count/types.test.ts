@@ -6,11 +6,29 @@ import { buildDemoScoreQuestion } from "@mahjong-scoring/features/board/demo-sco
 import { parseHanCountResults, toHanCountQuestionResult } from "./types";
 
 describe("parseHanCountResults", () => {
+  /** 翻数問題結果の出題スナップショットの有効なデータ */
+  const validSnapshot = {
+    tehai: "234567m345p55678s",
+    agariHai: "3p",
+    bakaze: "1z",
+    jikaze: "2z",
+    doraMarkers: ["1m"],
+    isRiichi: true,
+    uraDoraMarkers: ["5s"],
+    isTsumo: true,
+    yakuDetails: [
+      { name: "立直", han: 1 },
+      { name: "ドラ", han: 2 },
+    ],
+    ruleConfig: { doubleWindJantouFu: 2, kiriageMangan: false },
+  };
+
   /** 翻数問題結果の有効なデータ */
   const validResult = {
     correctHan: 3,
     userHan: 3,
     outcome: "correct",
+    question: validSnapshot,
   };
 
   // --- 正常系 ---
@@ -25,7 +43,7 @@ describe("parseHanCountResults", () => {
   // --- 境界値 ---
 
   it("han=1（最小翻数）を含む結果をパースできる", () => {
-    const result = { correctHan: 1, userHan: 1, outcome: "correct" };
+    const result = { ...validResult, correctHan: 1, userHan: 1 };
     const raw = [result];
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
@@ -33,7 +51,7 @@ describe("parseHanCountResults", () => {
   });
 
   it("han=13（役満相当）を含む結果をパースできる", () => {
-    const result = { correctHan: 13, userHan: 13, outcome: "correct" };
+    const result = { ...validResult, correctHan: 13, userHan: 13 };
     const raw = [result];
     const results = parseHanCountResults(raw);
     expect(results).toHaveLength(1);
@@ -92,58 +110,36 @@ describe("parseHanCountResults", () => {
   // --- 出題スナップショット ---
 
   describe("question スナップショット", () => {
-    const validSnapshot = {
-      tehai: "234567m345p55678s",
-      agariHai: "3p",
-      bakaze: "1z",
-      jikaze: "2z",
-      doraMarkers: ["1m"],
-      isRiichi: true,
-      uraDoraMarkers: ["5s"],
-      isTsumo: true,
-      yakuDetails: [
-        { name: "\u7acb\u76f4", han: 1 },
-        { name: "\u30c9\u30e9", han: 2 },
-      ],
-    };
-
-    it("\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u4ed8\u304d\u306e\u7d50\u679c\u3092\u30d1\u30fc\u30b9\u3067\u304d\u308b", () => {
-      const raw = [{ ...validResult, question: validSnapshot }];
-      const results = parseHanCountResults(raw);
-      expect(results).toHaveLength(1);
-      expect(results[0]?.question).toEqual(validSnapshot);
+    it("スナップショットを持たない要素はフィルタされる", () => {
+      const invalid = { ...validResult };
+      Reflect.deleteProperty(invalid, "question");
+      expect(parseHanCountResults([invalid])).toEqual([]);
     });
 
-    it("\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u305f\u306a\u3044\u65e7\u30c7\u30fc\u30bf\u3082\u30d1\u30fc\u30b9\u3067\u304d\u308b", () => {
-      const results = parseHanCountResults([validResult]);
-      expect(results).toHaveLength(1);
-      expect(results[0]?.question).toBeUndefined();
-    });
-
-    it("isTsumo \u3092\u6b20\u304f\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
+    it("isTsumo を欠くスナップショットを持つ要素はフィルタされる", () => {
       const question = { ...validSnapshot };
       Reflect.deleteProperty(question, "isTsumo");
       const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
-    it("yakuDetails \u3092\u6b20\u304f\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
+    it("yakuDetails を欠くスナップショットを持つ要素はフィルタされる", () => {
       const question = { ...validSnapshot };
       Reflect.deleteProperty(question, "yakuDetails");
       const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
-    it("yakuDetails \u306e\u7ffb\u6570\u304c\u6570\u5024\u3067\u306a\u3044\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
+    it("yakuDetails の翻数が数値でない要素はフィルタされる", () => {
       const question = {
         ...validSnapshot,
-        yakuDetails: [{ name: "\u7acb\u76f4", han: "1" }],
+        yakuDetails: [{ name: "立直", han: "1" }],
       };
       const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
     });
 
-    it("\u624b\u724c\u304c\u6587\u5b57\u5217\u3067\u306a\u3044\u30b9\u30ca\u30c3\u30d7\u30b7\u30e7\u30c3\u30c8\u3092\u6301\u3064\u8981\u7d20\u306f\u30d5\u30a3\u30eb\u30bf\u3055\u308c\u308b", () => {
+    it("手牌が文字列でないスナップショットを持つ要素はフィルタされる", () => {
       const question = { ...validSnapshot, tehai: 42 };
       const raw = [{ ...validResult, question }];
       expect(parseHanCountResults(raw)).toEqual([]);
@@ -152,10 +148,10 @@ describe("parseHanCountResults", () => {
 });
 
 /**
- * \u7ffb\u6570\u5373\u7b54\u306e\u51fa\u984c\u3092\u7d44\u307f\u7acb\u3066\u308b
+ * 翻数即答の出題を組み立てる
  *
- * `buildDemoScoreQuestion` \u306f\u63cf\u753b\u7528\u306e\u30c7\u30e2\u51fa\u984c\u3067 `answer` \u3092\u6301\u305f\u306a\u3044\u305f\u3081\u3001
- * \u7ffb\u6570\u3068\u5f79\u306e\u5185\u8a33\u3092\u3053\u3053\u3067\u8db3\u3059\u3002
+ * `buildDemoScoreQuestion` は描画用のデモ出題で `answer` とルール設定を
+ * 持たないため、翻数・役の内訳・ルール設定をここで足す。
  */
 function buildQuestion(
   han: number,
@@ -168,54 +164,55 @@ function buildQuestion(
     }),
     answer: { han },
     yakuDetails,
+    ruleConfig: {},
   } as unknown as ScoreQuestion;
 }
 
 describe("toHanCountQuestionResult", () => {
-  it("\u51fa\u984c\u3068\u56de\u7b54\u304b\u3089\u7d50\u679c\u3092\u7d44\u307f\u7acb\u3066\u308b", () => {
+  it("出題と回答から結果を組み立てる", () => {
     const question = buildQuestion(3, [
-      { name: "\u5e73\u548c", han: 1 },
-      { name: "\u30c9\u30e9", han: 2 },
+      { name: "平和", han: 1 },
+      { name: "ドラ", han: 2 },
     ]);
     const result = toHanCountQuestionResult(question, 3);
 
     expect(result.correctHan).toBe(3);
     expect(result.userHan).toBe(3);
     expect(result.outcome).toBe("correct");
-    expect(result.question?.isTsumo).toBe(true);
-    expect(result.question?.yakuDetails).toEqual([
-      { name: "\u5e73\u548c", han: 1 },
-      { name: "\u30c9\u30e9", han: 2 },
+    expect(result.question.isTsumo).toBe(true);
+    expect(result.question.yakuDetails).toEqual([
+      { name: "平和", han: 1 },
+      { name: "ドラ", han: 2 },
     ]);
   });
 
-  it("\u8aa4\u7b54\u3092 outcome=incorrect \u3068\u3057\u3066\u8a18\u9332\u3059\u308b", () => {
-    const question = buildQuestion(3, [{ name: "\u5e73\u548c", han: 3 }]);
+  it("誤答を outcome=incorrect として記録する", () => {
+    const question = buildQuestion(3, [{ name: "平和", han: 3 }]);
     expect(toHanCountQuestionResult(question, 2).outcome).toBe("incorrect");
   });
 
-  it("13\u7ffb\u4ee5\u4e0a\u306e\u6b63\u89e3\u306f\u5f79\u6e80\uff0813\u7ffb\uff09\u306b\u4e38\u3081\u3066\u5224\u5b9a\u3059\u308b", () => {
+  it("13翻以上の正解は役満（13翻）に丸めて判定する", () => {
     const question = buildQuestion(16, [
-      { name: "\u56db\u6697\u523b", han: 13 },
-      { name: "\u30c9\u30e9", han: 3 },
+      { name: "四暗刻", han: 13 },
+      { name: "ドラ", han: 3 },
     ]);
     const result = toHanCountQuestionResult(question, 13);
 
     expect(result.correctHan).toBe(13);
     expect(result.outcome).toBe("correct");
-    // \u4e38\u3081\u524d\u306e\u7ffb\u6570\u306f\u5185\u8a33\u306e\u5408\u8a08\u3068\u3057\u3066\u6b8b\u308b
-    expect(
-      result.question?.yakuDetails.reduce((sum, d) => sum + d.han, 0),
-    ).toBe(16);
+    // 丸め前の翻数は内訳の合計として残る
+    expect(result.question.yakuDetails.reduce((sum, d) => sum + d.han, 0)).toBe(
+      16,
+    );
   });
 
-  it("\u7d44\u307f\u7acb\u3066\u305f\u7d50\u679c\u306f\u30d1\u30fc\u30b5\u30fc\u306e\u30d0\u30ea\u30c7\u30fc\u30b7\u30e7\u30f3\u3092\u901a\u904e\u3059\u308b", () => {
-    const question = buildQuestion(2, [{ name: "\u65ad\u5e7a\u4e5d", han: 2 }]);
+  it("組み立てた結果はパーサーのバリデーションを通過する", () => {
+    const question = buildQuestion(2, [{ name: "断幺九", han: 2 }]);
     const raw = [toHanCountQuestionResult(question, 2)];
     const results = parseHanCountResults(raw);
 
     expect(results).toHaveLength(1);
-    expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
+    expect(results[0]?.question.tehai).toBe("234567m345p55678s");
   });
 
   it("回答なし（時間切れ）は outcome=timeUp で記録し、パースを通過する", () => {

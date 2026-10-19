@@ -65,7 +65,7 @@ export function HanCountBoard({
 
       {showBreakdown && (
         <HanBreakdown
-          yakuDetails={question.yakuDetails ?? []}
+          yakuDetails={question.yakuDetails}
           correctHan={correctHan}
         />
       )}

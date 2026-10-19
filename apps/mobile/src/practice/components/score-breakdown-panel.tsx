@@ -35,15 +35,15 @@ export function ScoreBreakdownPanel({
   testID,
 }: {
   /**
-   * 符の内訳と正解の符。5 翻以上の問題（符が点数に効かない）と、内訳を
-   * 保存する前の旧データでは渡さない。符で満貫に届いた 4 翻以下の問題には渡す
+   * 符の内訳と正解の符。5 翻以上の問題（符が点数に効かない）では渡さない。
+   * 符で満貫に届いた 4 翻以下の問題には渡す
    */
   readonly fu?: {
     readonly details: readonly FuDetail[];
     readonly answer: number;
   };
-  /** 役の内訳（ドラ・裏ドラを含む）。保存する前の旧データでは渡さない */
-  readonly yakuDetails?: readonly YakuDetail[];
+  /** 役の内訳（ドラ・裏ドラを含む） */
+  readonly yakuDetails: readonly YakuDetail[];
   /** 翻数の合計の後に効く丸めの補足（役満止まりなど） */
   readonly yakuNote?: string;
   /** 翻数・符の正誤。分かる画面だけが渡し、開いたときに間違えたほうを選ぶ */

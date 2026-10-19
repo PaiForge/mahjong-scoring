@@ -235,6 +235,11 @@ describe("parseQuestionResults", () => {
       doraMarkers: ["1m"],
       isRiichi: true,
       uraDoraMarkers: ["5s"],
+      yakuDetails: [
+        { name: "立直", han: 1 },
+        { name: "清一色", han: 6 },
+      ],
+      ruleConfig: { doubleWindJantouFu: 2, kiriageMangan: false },
     };
 
     it("スナップショット付きの結果をパースできる", () => {
@@ -244,38 +249,31 @@ describe("parseQuestionResults", () => {
       expect(results[0]?.question).toEqual(validSnapshot);
     });
 
-    it("isRiichi と uraDoraMarkers が無いスナップショットも許容される", () => {
-      const snapshot = {
-        tehai: validSnapshot.tehai,
-        agariHai: validSnapshot.agariHai,
-        bakaze: validSnapshot.bakaze,
-        jikaze: validSnapshot.jikaze,
-        doraMarkers: validSnapshot.doraMarkers,
-      };
-      const raw = [{ ...validResult, question: snapshot }];
+    it("スナップショットを持たない結果（点数表早引き）もパースできる", () => {
+      const results = parseQuestionResults([validResult]);
+      expect(results).toHaveLength(1);
+      expect(results[0]?.question).toBeUndefined();
+    });
+
+    it("uraDoraMarkers が無い（リーチしていない）スナップショットも許容される", () => {
+      const { uraDoraMarkers: _omitted, ...snapshot } = validSnapshot;
+      const raw = [
+        { ...validResult, question: { ...snapshot, isRiichi: false } },
+      ];
       const results = parseQuestionResults(raw);
       expect(results).toHaveLength(1);
     });
 
-    it("役の内訳を持つスナップショットをパースできる", () => {
-      const snapshot = {
-        ...validSnapshot,
-        yakuDetails: [
-          { name: "立直", han: 1 },
-          { name: "清一色", han: 6 },
-        ],
-      };
-      const raw = [{ ...validResult, question: snapshot }];
-      const results = parseQuestionResults(raw);
-      expect(results[0]?.question?.yakuDetails).toEqual(snapshot.yakuDetails);
-    });
-
-    it("役の内訳が無いスナップショット（旧データ）も許容される", () => {
-      const raw = [{ ...validResult, question: validSnapshot }];
-      const results = parseQuestionResults(raw);
-      expect(results).toHaveLength(1);
-      expect(results[0]?.question?.yakuDetails).toBeUndefined();
-    });
+    it.each(["isRiichi", "yakuDetails", "ruleConfig"] as const)(
+      "%s が欠落したスナップショットを持つ要素はフィルタされる",
+      (key) => {
+        const snapshot = { ...validSnapshot };
+        Reflect.deleteProperty(snapshot, key);
+        expect(
+          parseQuestionResults([{ ...validResult, question: snapshot }]),
+        ).toEqual([]);
+      },
+    );
 
     it("役の内訳の形が壊れているスナップショットを持つ要素はフィルタされる", () => {
       const invalid = {
@@ -337,8 +335,8 @@ describe("toScoreQuestionSnapshot", () => {
       doraMarkers: ["1m"],
       isRiichi: true,
       uraDoraMarkers: ["9p"],
-      // 役の内訳は結果ページの翻数内訳に使う。持たない出題では空配列
-      yakuDetails: question.yakuDetails ?? [],
+      // 役の内訳は結果ページの翻数内訳に使う。デモ出題は役一覧を持たないので空
+      yakuDetails: [],
     });
   });
 
@@ -349,14 +347,16 @@ describe("toScoreQuestionSnapshot", () => {
     const snapshot = toScoreQuestionSnapshot(question);
 
     expect(snapshot.ruleConfig).toEqual(question.ruleConfig);
-    expect(snapshot.ruleConfig?.doubleWindJantouFu).toBe(4);
+    expect(snapshot.ruleConfig.doubleWindJantouFu).toBe(4);
 
     const parsed = parseQuestionResults([
       { ...toScoreQuestionResult(question, undefined) },
     ]);
-    expect(parsed[0]?.question?.ruleConfig).toEqual(question.ruleConfig);
+    const restored = parsed[0]?.question;
+    expect(restored?.ruleConfig).toEqual(question.ruleConfig);
+    expect(restored).toBeDefined();
     expect(
-      restoreScoreQuestion(parsed[0]?.question, question.isTsumo)?.ruleConfig,
+      restoreScoreQuestion(restored!, question.isTsumo)?.ruleConfig,
     ).toEqual(question.ruleConfig);
   });
 
@@ -400,10 +400,9 @@ describe("toScoreQuestionSnapshot", () => {
   });
 
   it("変換結果はパーサーのバリデーションを通過する", () => {
-    const question = buildDemoScoreQuestion({
-      doraMarkers: [HaiKind.SouZu1],
-      isRiichi: false,
-    });
+    const question = generateOrThrow(() =>
+      generateValidScoreQuestion({ allowedRanges: ["manganPlus"] }),
+    );
     const result = {
       isOya: false,
       isTsumo: true,
@@ -411,12 +410,13 @@ describe("toScoreQuestionSnapshot", () => {
       correctAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
       userAnswer: { type: "koTsumo", fromKo: 2000, fromOya: 4000 },
       outcome: "correct",
+      yakumanMultiplier: 0,
       question: toScoreQuestionSnapshot(question),
     };
     // JSON.stringify が undefined の任意項目を落とした形が実際の保存形
-    const results = parseQuestionResults([result]);
+    const results = parseQuestionResults([JSON.parse(JSON.stringify(result))]);
     expect(results).toHaveLength(1);
-    expect(results[0]?.question?.tehai).toBe("234567m345p55678s");
+    expect(results[0]?.question?.tehai).toBe(result.question.tehai);
   });
 });
 

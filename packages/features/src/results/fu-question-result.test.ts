@@ -23,6 +23,7 @@ const validResult = {
     { reason: "副底", fu: 20 },
     { reason: "ツモ", fu: 2 },
   ],
+  ruleConfig: { doubleWindJantouFu: 2 },
 };
 
 describe("parseFuQuestionResults", () => {
@@ -53,6 +54,11 @@ describe("parseFuQuestionResults", () => {
   it("fuDetails の形が違う要素は除外する", () => {
     const broken = { ...validResult, fuDetails: [{ reason: "副底" }] };
     expect(parseFuQuestionResults([broken])).toEqual([]);
+  });
+
+  it("ruleConfig を欠く要素は除外する", () => {
+    const { ruleConfig: _omitted, ...missingRuleConfig } = validResult;
+    expect(parseFuQuestionResults([missingRuleConfig])).toEqual([]);
   });
 });
 

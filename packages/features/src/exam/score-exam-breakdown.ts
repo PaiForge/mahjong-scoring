@@ -9,10 +9,10 @@ import {
 
 /** 昇級試験の答え合わせの内訳（`ScoreBreakdownPanel` に渡す値） */
 export interface ScoreExamBreakdown {
-  /** 符の内訳と正解の符。符を出さない問題・旧データでは undefined */
+  /** 符の内訳と正解の符。符を出さない問題（5 翻以上）では undefined */
   readonly fu: ScoreBreakdownFu | undefined;
-  /** 役の内訳。旧データでは undefined */
-  readonly yakuDetails: readonly YakuDetail[] | undefined;
+  /** 役の内訳 */
+  readonly yakuDetails: readonly YakuDetail[];
   /** 翻数の合計の後に効く丸めの補足（役満止まりなど） */
   readonly yakuNote: string | undefined;
 }

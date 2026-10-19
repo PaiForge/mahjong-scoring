@@ -18,21 +18,20 @@ export type YakuBreakdownTranslator = (
  * の `note` に渡す。結果ページの問題別詳細と模試の答え合わせの両方から使い、
  * 同じ手に別の注記が付かないようにする。
  *
- * 打ち止め先は役満単位（`yakumanMultiplier`）から導く。単位を保存する前の
- * 旧データでは判定できないため注記を出さない。
+ * 打ち止め先は役満単位（`yakumanMultiplier`）から導く。点数表早引きの結果は
+ * 役満単位を持たない（出題が翻数と符だけ）ため、無ければ注記を出さない。
  *
- * @param yakuDetails - 役の内訳（ドラ・裏ドラを含む）。旧データでは無い
- * @param yakumanMultiplier - 支払いが役満何個分か（0 = 役満役なし）。旧データでは無い
+ * @param yakuDetails - 役の内訳（ドラ・裏ドラを含む）
+ * @param yakumanMultiplier - 支払いが役満何個分か（0 = 役満役なし）。
+ *   点数表早引きの結果では undefined
  * @param t - `challenge.yakuBreakdown` の翻訳関数
  */
 export function buildYakumanCapNote(
-  yakuDetails: readonly YakuDetail[] | undefined,
+  yakuDetails: readonly YakuDetail[],
   yakumanMultiplier: number | undefined,
   t: YakuBreakdownTranslator,
 ): string | undefined {
-  if (yakumanMultiplier === undefined || yakuDetails === undefined) {
-    return undefined;
-  }
+  if (yakumanMultiplier === undefined) return undefined;
   const rawTotal = sumYakuHan(yakuDetails);
 
   // 支払いに対応する翻数（役満13翻 × 単位。数え役満は役満1つ分）

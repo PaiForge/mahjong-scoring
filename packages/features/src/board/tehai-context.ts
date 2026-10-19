@@ -30,7 +30,8 @@ export type TehaiContext = KazeContext &
     readonly uraDoraMarkers?: readonly HaiKindId[];
     /**
      * 採点に使ったルール設定。面子分解の候補を正解と同じ設定で評価する
-     * ために出題から引き継ぐ。保存を始める前の結果データには無い
+     * ために出題から引き継ぐ。ルール設定を持たない練習（役判定・面子と
+     * 雀頭の符）の盤面は省く
      */
     readonly ruleConfig?: RuleConfig;
   };
