@@ -45,7 +45,7 @@ const EXCLUDED_FILES: ReadonlyMap<string, string> = new Map([
   ],
   [
     "packages/features/src/results/parse-question-tiles.test.ts",
-    "1.x の表記で保存された旧データを読み捨てることのテスト",
+    "1.x の表記を読み捨てることのテスト",
   ],
   [
     "packages/core/src/problem/score/mpsz-serializer.ts",

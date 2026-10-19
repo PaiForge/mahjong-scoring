@@ -47,8 +47,8 @@ interface ScoreProblemListProps {
  * 点数問題一覧
  *
  * web の `ScoreProblemList` の移植。各問を開閉カードで並べ、正誤と正解・
- * ユーザー回答の詳細を確認できる。出題スナップショットが保存されている
- * 場合は出題時と同じ手牌表示も再現する。
+ * ユーザー回答の詳細を確認できる。出題スナップショットを持つ結果（点数表
+ * 早引き以外）は、出題時と同じ手牌表示も再現する。
  *
  * 詳細は「手牌 → 面子分解 → 答え合わせ → 符・翻数の内訳」の順。内訳を答え
  * 合わせの後に置くのは、開いても正解と自分の回答が内訳の下へ押し出されない
@@ -81,12 +81,9 @@ export function ScoreProblemList({
         outcome={(r) => r.outcome}
         renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
         renderDetail={(result) => {
-          const question = restoreScoreQuestion(
-            result.question,
-            result.isTsumo,
-          );
-          const yakuDetails = result.question?.yakuDetails;
-          const fuDetails = result.question?.fuDetails;
+          const snapshot = result.question;
+          const question =
+            snapshot && restoreScoreQuestion(snapshot, result.isTsumo);
 
           return (
             <View style={styles.detail}>
@@ -126,27 +123,29 @@ export function ScoreProblemList({
                     : formatAnswer(result.userAnswer, translate)
                 }
               />
-              {/* 符と翻数の内訳。符は 5 翻以上の問題に無く、どちらも保存を
-                  始める前の旧データには無い */}
-              <ScoreBreakdownPanel
-                fu={
-                  fuDetails !== undefined && result.fu !== undefined
-                    ? { details: fuDetails, answer: result.fu }
-                    : undefined
-                }
-                yakuDetails={yakuDetails}
-                yakuNote={buildYakumanCapNote(
-                  yakuDetails,
-                  result.yakumanMultiplier,
-                  (key, values) => tBreakdown(key, values),
-                )}
-                scoreTableFocus={scoreTableFocusOf({
-                  isOya: result.isOya,
-                  isTsumo: result.isTsumo,
-                  han: result.han,
-                  fu: result.fu,
-                })}
-              />
+              {/* 符と翻数の内訳。符は 5 翻以上の問題に無く、出題を持たない
+                  点数表早引きにはどちらも無い */}
+              {snapshot !== undefined && (
+                <ScoreBreakdownPanel
+                  fu={
+                    snapshot.fuDetails !== undefined && result.fu !== undefined
+                      ? { details: snapshot.fuDetails, answer: result.fu }
+                      : undefined
+                  }
+                  yakuDetails={snapshot.yakuDetails}
+                  yakuNote={buildYakumanCapNote(
+                    snapshot.yakuDetails,
+                    result.yakumanMultiplier,
+                    (key, values) => tBreakdown(key, values),
+                  )}
+                  scoreTableFocus={scoreTableFocusOf({
+                    isOya: result.isOya,
+                    isTsumo: result.isTsumo,
+                    han: result.han,
+                    fu: result.fu,
+                  })}
+                />
+              )}
             </View>
           );
         }}

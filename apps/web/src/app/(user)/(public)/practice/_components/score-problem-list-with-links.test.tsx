@@ -7,18 +7,24 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 符の内訳の文字列は features の共有フックが use-intl から引く
 vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
-/** 符の内訳だけを確かめる出題（手牌の再表示はパースできなくてよい） */
+/**
+ * 符の内訳だけを確かめる出題（手牌の再表示はパースできなくてよい）。役の
+ * 内訳は空にして、内訳の入口を開いたとき符の内訳が選ばれるようにする
+ */
 const SNAPSHOT_WITH_FU = {
   tehai: "",
   agariHai: "",
   bakaze: "1z",
   jikaze: "2z",
   doraMarkers: [],
+  isRiichi: false,
+  yakuDetails: [],
   fuDetails: [
     { reason: "副底", fu: 20 },
     { reason: "門前ロン", fu: 10 },
     { reason: "嵌張待ち", fu: 2 },
   ],
+  ruleConfig: {},
 };
 
 describe("ScoreProblemListWithLinks", () => {
@@ -82,10 +88,23 @@ describe("ScoreProblemListWithLinks", () => {
     ).toBeTruthy();
   });
 
-  it("符の内訳を持たない問題（満貫以上・旧データ）では出さない", () => {
+  it("符の内訳を持たない問題（5 翻以上）では符の内訳を出さない", () => {
+    const { fuDetails: _omitted, ...snapshotWithoutFu } = SNAPSHOT_WITH_FU;
     render(
       <ScoreProblemListWithLinks
-        results={[makeScoreQuestionResult()]}
+        results={[
+          makeScoreQuestionResult({
+            han: 5,
+            fu: undefined,
+            question: {
+              ...snapshotWithoutFu,
+              yakuDetails: [
+                { name: "混一色", han: 3 },
+                { name: "ドラ", han: 2 },
+              ],
+            },
+          }),
+        ]}
         translationNamespace="fuScoreExamChallenge"
       />,
     );
@@ -93,9 +112,21 @@ describe("ScoreProblemListWithLinks", () => {
     fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
 
     // 翻数の内訳はあっても、符の内訳は切り替えに並ばない
-    const toggle = screen.queryByRole("button", { name: "toggle" });
-    if (toggle) fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
     expect(screen.queryByRole("button", { name: "fuTab" })).toBeNull();
     expect(screen.queryByText("副底")).toBeNull();
+  });
+
+  it("出題を持たない結果（点数表早引き）では内訳の入口を出さない", () => {
+    render(
+      <ScoreProblemListWithLinks
+        results={[makeScoreQuestionResult()]}
+        translationNamespace="scoreTableChallenge"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /No\.1/ }));
+
+    expect(screen.queryByRole("button", { name: "toggle" })).toBeNull();
   });
 });

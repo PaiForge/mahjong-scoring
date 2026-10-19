@@ -38,7 +38,8 @@ interface ScoreProblemListProps {
  * 点数問題一覧
  *
  * 各問をアコーディオン形式で表示し、正誤と正解・ユーザー回答の詳細を確認できる。
- * 出題スナップショットが保存されている場合は、出題時と同じ手牌表示も再現する。
+ * 出題スナップショットを持つ結果（点数表早引き以外）は、出題時と同じ手牌
+ * 表示も再現する。
  *
  * 詳細は「手牌 → 面子分解 → 答え合わせ → 符・翻数の内訳（符と翻の根拠）」の
  * 順に並べる。内訳を答え合わせの後に置くのは、トレーニングの答え合わせ
@@ -72,7 +73,9 @@ export function ScoreProblemList({
       outcome={(r) => r.outcome}
       renderSummary={(result) => scoreResultSummary(result, t, fuHanOrder)}
       renderDetail={(result) => {
-        const question = restoreScoreQuestion(result.question, result.isTsumo);
+        const snapshot = result.question;
+        const question =
+          snapshot && restoreScoreQuestion(snapshot, result.isTsumo);
 
         return (
           <div className="space-y-3">
@@ -91,28 +94,29 @@ export function ScoreProblemList({
               }
             />
 
-            {/* 符と翻数の内訳。符は 5 翻以上の問題に無く、どちらも保存を
-                始める前の旧データには無い */}
-            <ScoreBreakdownPanel
-              fu={
-                result.question?.fuDetails !== undefined &&
-                result.fu !== undefined
-                  ? { details: result.question.fuDetails, answer: result.fu }
-                  : undefined
-              }
-              yakuDetails={result.question?.yakuDetails}
-              yakuNote={buildYakumanCapNote(
-                result.question?.yakuDetails,
-                result.yakumanMultiplier,
-                tBreakdown,
-              )}
-              scoreTableFocus={scoreTableFocusOf({
-                isOya: result.isOya,
-                isTsumo: result.isTsumo,
-                han: result.han,
-                fu: result.fu,
-              })}
-            />
+            {/* 符と翻数の内訳。符は 5 翻以上の問題に無く、出題を持たない
+                点数表早引きにはどちらも無い */}
+            {snapshot !== undefined && (
+              <ScoreBreakdownPanel
+                fu={
+                  snapshot.fuDetails !== undefined && result.fu !== undefined
+                    ? { details: snapshot.fuDetails, answer: result.fu }
+                    : undefined
+                }
+                yakuDetails={snapshot.yakuDetails}
+                yakuNote={buildYakumanCapNote(
+                  snapshot.yakuDetails,
+                  result.yakumanMultiplier,
+                  tBreakdown,
+                )}
+                scoreTableFocus={scoreTableFocusOf({
+                  isOya: result.isOya,
+                  isTsumo: result.isTsumo,
+                  han: result.han,
+                  fu: result.fu,
+                })}
+              />
+            )}
           </div>
         );
       }}
