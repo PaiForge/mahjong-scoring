@@ -9,6 +9,16 @@ import {
 import { expectSampled } from "../../test/sampling";
 
 /**
+ * 点数帯を満貫未満に固定して生成する（点数帯は必須。満貫以上を確かめる
+ * テストは `ranges` を上書きする）
+ */
+function generate(
+  options: Partial<ScoreTableGeneratorOptions> = {},
+): ScoreTableQuestion {
+  return generateScoreTableQuestion({ ranges: ["nonMangan"], ...options });
+}
+
+/**
  * 条件に合う問題が生成されるまで試行する
  *
  * 親子・ツモロンはランダムに決まるため、特定の組み合わせを検証するには
@@ -16,11 +26,11 @@ import { expectSampled } from "../../test/sampling";
  * {@link expectSampled} が失敗させる。
  */
 function findQuestion(
-  options: Readonly<ScoreTableGeneratorOptions>,
+  options: Partial<ScoreTableGeneratorOptions>,
   predicate: (question: ScoreTableQuestion) => boolean,
   attempts = 200,
 ): ScoreTableQuestion {
-  return expectSampled(() => generateScoreTableQuestion(options), {
+  return expectSampled(() => generate(options), {
     need: 1,
     attempts,
     where: predicate,
@@ -37,7 +47,7 @@ function sampleWhere(
   predicate: (question: ScoreTableQuestion) => boolean,
   need = 20,
 ): readonly ScoreTableQuestion[] {
-  return expectSampled(() => generateScoreTableQuestion(), {
+  return expectSampled(() => generate(), {
     need,
     attempts: 600,
     where: predicate,
@@ -53,10 +63,10 @@ function sampleWhere(
  */
 function expectNoInvalidCells(
   attempts: number,
-  options?: Readonly<ScoreTableGeneratorOptions>,
+  options?: Partial<ScoreTableGeneratorOptions>,
 ): void {
   for (let i = 0; i < attempts; i++) {
-    const question = generateScoreTableQuestion(options);
+    const question = generate(options);
     const winType = question.isTsumo ? "tsumo" : "ron";
     expect(question.fu).toBeDefined();
     if (question.fu === undefined) continue;
@@ -65,14 +75,14 @@ function expectNoInvalidCells(
 }
 
 describe("generateScoreTableQuestion", () => {
-  describe("デフォルトオプションでの問題生成", () => {
+  describe("満貫未満・他は既定のオプションでの問題生成", () => {
     it("問題が生成できること", () => {
-      const question = generateScoreTableQuestion();
+      const question = generate();
       expect(question).toBeDefined();
     });
 
     it("id が UUID 文字列であること", () => {
-      const question = generateScoreTableQuestion();
+      const question = generate();
       expect(typeof question.id).toBe("string");
       expect(question.id).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -80,18 +90,18 @@ describe("generateScoreTableQuestion", () => {
     });
 
     it("isOya が boolean であること", () => {
-      const question = generateScoreTableQuestion();
+      const question = generate();
       expect(typeof question.isOya).toBe("boolean");
     });
 
     it("isTsumo が boolean であること", () => {
-      const question = generateScoreTableQuestion();
+      const question = generate();
       expect(typeof question.isTsumo).toBe("boolean");
     });
 
     it("han が 1〜3 の範囲であること", () => {
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion();
+        const question = generate();
         expect(question.han).toBeGreaterThanOrEqual(1);
         expect(question.han).toBeLessThanOrEqual(3);
       }
@@ -100,7 +110,7 @@ describe("generateScoreTableQuestion", () => {
     it("fu が ALL_FU_VALUES のいずれかで 20〜60 の範囲であること", () => {
       const validFu = [20, 25, 30, 40, 50, 60];
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion();
+        const question = generate();
         expect(validFu).toContain(question.fu);
       }
     });
@@ -202,7 +212,7 @@ describe("generateScoreTableQuestion", () => {
   describe("カスタムオプション", () => {
     it("minHan/maxHan/minFu/maxFu を固定すると常にその値が生成されること", () => {
       for (let i = 0; i < 50; i++) {
-        const question = generateScoreTableQuestion({
+        const question = generate({
           minHan: 2,
           maxHan: 2,
           minFu: 30,
@@ -215,7 +225,7 @@ describe("generateScoreTableQuestion", () => {
 
     it("翻数範囲を広げた場合その範囲内で生成されること", () => {
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({
+        const question = generate({
           minHan: 1,
           maxHan: 3,
           minFu: 30,
@@ -282,14 +292,14 @@ describe("generateScoreTableQuestion", () => {
   describe("役割・和了方法の絞り込み", () => {
     it("roles を ko に限定すると常に子が生成されること", () => {
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({ roles: ["ko"] });
+        const question = generate({ roles: ["ko"] });
         expect(question.isOya).toBe(false);
       }
     });
 
     it("wins を ron に限定すると常にロンが生成されること", () => {
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({ wins: ["ron"] });
+        const question = generate({ wins: ["ron"] });
         expect(question.isTsumo).toBe(false);
       }
     });
@@ -298,7 +308,7 @@ describe("generateScoreTableQuestion", () => {
   describe("満貫以上の出題（ranges: manganPlus）", () => {
     it("翻数が 5〜13、符は undefined であること", () => {
       for (let i = 0; i < 100; i++) {
-        const question = generateScoreTableQuestion({ ranges: ["manganPlus"] });
+        const question = generate({ ranges: ["manganPlus"] });
         expect(question.han).toBeGreaterThanOrEqual(5);
         expect(question.han).toBeLessThanOrEqual(13);
         expect(question.fu).toBeUndefined();
@@ -308,7 +318,7 @@ describe("generateScoreTableQuestion", () => {
     it("子ロン満貫(5翻)は 8000、跳満(6翻)は 12000 であること", () => {
       const scores = new Map<number, number>();
       for (let i = 0; i < 500 && scores.size < 2; i++) {
-        const q = generateScoreTableQuestion({
+        const q = generate({
           roles: ["ko"],
           wins: ["ron"],
           ranges: ["manganPlus"],
@@ -423,7 +433,7 @@ describe("オプション: excludeKiriageBoundary", () => {
   it("true の場合、30符4翻・60符3翻を出題しない", () => {
     const options = { maxHan: 4, excludeKiriageBoundary: true } as const;
     for (let i = 0; i < 500; i++) {
-      expect(isBoundary(generateScoreTableQuestion(options))).toBe(false);
+      expect(isBoundary(generate(options))).toBe(false);
     }
   });
 

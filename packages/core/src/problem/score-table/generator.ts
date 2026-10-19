@@ -175,20 +175,19 @@ function buildManganPlusCombinations(
  * @param options - 役割・和了方法・点数帯・翻数/符範囲のオプション
  */
 export function generateScoreTableQuestion(
-  options?: Readonly<ScoreTableGeneratorOptions>,
+  options: Readonly<ScoreTableGeneratorOptions>,
 ): ScoreTableQuestion {
-  const minHan = options?.minHan ?? 1;
-  const maxHan = options?.maxHan ?? 3;
-  const minFu = options?.minFu ?? 20;
-  const maxFu = options?.maxFu ?? 60;
-  const roles = options?.roles ?? ["oya", "ko"];
-  const wins = options?.wins ?? ["tsumo", "ron"];
-  // 後方互換: 未指定時は満貫未満のみ（従来の振る舞い）
-  const ranges = options?.ranges ?? ["nonMangan"];
-  const kiriageMangan = options?.kiriageMangan ?? false;
-  const excludeKiriageBoundary = options?.excludeKiriageBoundary ?? false;
-  const idGen = options?.idGen ?? defaultIdGenerator;
-  const rng = options?.rng ?? defaultRandomSource;
+  const minHan = options.minHan ?? 1;
+  const maxHan = options.maxHan ?? 3;
+  const minFu = options.minFu ?? 20;
+  const maxFu = options.maxFu ?? 60;
+  const roles = options.roles ?? ["oya", "ko"];
+  const wins = options.wins ?? ["tsumo", "ron"];
+  const { ranges } = options;
+  const kiriageMangan = options.kiriageMangan ?? false;
+  const excludeKiriageBoundary = options.excludeKiriageBoundary ?? false;
+  const idGen = options.idGen ?? defaultIdGenerator;
+  const rng = options.rng ?? defaultRandomSource;
 
   const pairs = enumerateRoleWinPairs(
     roles.length > 0 ? roles : ["oya", "ko"],

@@ -25,7 +25,11 @@ vi.mock("@mahjong-scoring/core", async (importOriginal) => {
   };
 });
 
+import type { ScoreTableGeneratorOptions } from "@mahjong-scoring/core";
 import { useScoreTableQuestion } from "./use-score-table-question";
+
+/** 出題条件（生成はモックするので中身は使わない。レンダーをまたいで同じ参照を渡す） */
+const OPTIONS: ScoreTableGeneratorOptions = { ranges: ["nonMangan"] };
 
 describe("useScoreTableQuestion", () => {
   beforeEach(() => {
@@ -35,7 +39,7 @@ describe("useScoreTableQuestion", () => {
 
   it("advance で次の問題に進む", () => {
     hanQueue = [1, 2];
-    const { result } = renderHook(() => useScoreTableQuestion());
+    const { result } = renderHook(() => useScoreTableQuestion(OPTIONS));
     expect(result.current.question?.han).toBe(1);
 
     act(() => result.current.advance());
@@ -45,7 +49,7 @@ describe("useScoreTableQuestion", () => {
   it("直前と同一表示の問題は引き直し、必ず別の問題に進む", () => {
     // 初期=5、advance で 5（同一→引き直し）×2 のあと 7 を返す
     hanQueue = [5, 5, 5, 7];
-    const { result } = renderHook(() => useScoreTableQuestion());
+    const { result } = renderHook(() => useScoreTableQuestion(OPTIONS));
     expect(result.current.question?.han).toBe(5);
 
     act(() => result.current.advance());
