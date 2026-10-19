@@ -72,8 +72,8 @@ export interface ScoreTableGeneratorOptions {
   readonly roles?: readonly Role[];
   /** 出題する和了方法。既定: ツモ・ロンの両方 */
   readonly wins?: readonly WinType[];
-  /** 出題する点数帯。既定: 満貫未満のみ（後方互換のため） */
-  readonly ranges?: readonly ScoreRange[];
+  /** 出題する点数帯 */
+  readonly ranges: readonly ScoreRange[];
   /** 30符4翻・60符3翻を満貫に切り上げるか（切り上げ満貫、既定 false） */
   readonly kiriageMangan?: boolean;
   /**

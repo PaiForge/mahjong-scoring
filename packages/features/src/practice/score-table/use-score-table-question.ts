@@ -22,7 +22,7 @@ import { useGeneratedQuestion } from "../use-generated-question";
  * @param generatorOptions 出題条件（親子・ツモロン・点数帯の絞り込み）
  */
 export function useScoreTableQuestion(
-  generatorOptions?: ScoreTableGeneratorOptions,
+  generatorOptions: ScoreTableGeneratorOptions,
 ): { question: ScoreTableQuestion | undefined; advance: () => void } {
   const generate = useCallback(
     () => generateScoreTableQuestion(generatorOptions),
