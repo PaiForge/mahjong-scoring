@@ -14,10 +14,13 @@ import {
 } from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
 import {
+  answerFieldsOf,
   generateAgariHelpSample,
+  helpSampleAnswer,
   HELP_TOUR_ALL_CORRECT,
 } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
+import { useAgariScoreSettingsStore } from "../_hooks/use-agari-score-settings-store";
 
 /**
  * 和了形の点数計算 ヘルプツアー
@@ -26,7 +29,8 @@ import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-t
  * 設定画面の PageTitle 右端に置く「?」ボタン。押すと、初回利用者向けに
  * 「開始する」後のプレイ画面（問題 → 回答 → 結果）を実コンポーネントで
  * プレビューするカルーセルモーダル（{@link HelpTourModal}）を開く。この層は
- * サンプル問題の生成とスライドの中身だけを持つ。
+ * サンプル問題の生成とスライドの中身だけを持つ。回答欄と答え合わせは、
+ * 同じ画面の設定（翻数と符も回答するか）に合わせて描く。
  *
  * @flow
  * 1. PageTitle の「?」ボタンを押すとモーダルが開く（初回開封時にサンプル問題を生成）
@@ -42,6 +46,7 @@ export function AgariScoreHelpTour() {
   const { isOpen, sample, open, close } = useHelpTourSample(
     generateAgariHelpSample,
   );
+  const requireHanFu = useAgariScoreSettingsStore((s) => s.requireHanFu);
 
   const slides = useMemo((): readonly HelpTourSlide[] => {
     if (!sample) return [];
@@ -55,13 +60,14 @@ export function AgariScoreHelpTour() {
       {
         key: "answer",
         title: t("help.slides.answer.title"),
-        caption: t("help.slides.answer.caption"),
+        caption: t("help.slides.answer.caption", answerFieldsOf(requireHanFu)),
         node: (
           <ScorePracticeAnswerForm
             onSubmit={noop}
             disabled
             isTsumo={sample.isTsumo}
             isOya={isOya(sample.jikaze)}
+            requireHanFu={requireHanFu}
           />
         ),
       },
@@ -74,8 +80,12 @@ export function AgariScoreHelpTour() {
           <div className="space-y-4 sm:space-y-6">
             <ResultDisplay
               question={sample}
-              userAnswer={scoreAnswerToUserAnswer(sample.answer)}
+              userAnswer={helpSampleAnswer(
+                scoreAnswerToUserAnswer(sample.answer),
+                requireHanFu,
+              )}
               result={HELP_TOUR_ALL_CORRECT}
+              requireHanFu={requireHanFu}
             />
             <Button size="lg" fullWidth onClick={noop}>
               {t("result.next")}
@@ -84,7 +94,7 @@ export function AgariScoreHelpTour() {
         ),
       },
     ];
-  }, [sample, t]);
+  }, [sample, t, requireHanFu]);
 
   return (
     <>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { answerFieldsOf } from "@mahjong-scoring/features/practice/help-tour-sample";
 import {
   SpotlightTour,
   spotlightTourLabels,
@@ -9,6 +10,8 @@ import {
 import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
 interface ScoreSpotlightTourProps {
+  /** 翻数と符も答える設定か。答えないときは翻数・符の欄が無く、点数の説明も言い分ける */
+  readonly requireHanFu: boolean;
   /** 満貫以上を翻数ではなく区分（満貫・跳満…）で答える設定か */
   readonly exactHan: boolean;
   /** 満貫以上でも符を答える設定か */
@@ -22,8 +25,8 @@ interface ScoreSpotlightTourProps {
  * 出題文の横の「?」を押すと、盤面と回答欄の各項目を順に照らして 1〜2 文で
  * 説明する。設定画面の「?」（`AgariScoreHelpTour`）が開始前に流れを通しで見せる
  * のに対し、こちらは解いている最中に「この欄に何を入れるか」を実物の上で
- * 答える。役の欄は設定で役の回答を求めるときだけあり、無ければツアーが
- * 飛ばす。翻数と符の説明は出題設定で選択肢と必須の有無が変わるので、
+ * 答える。役・翻数・符の欄は設定でその回答を求めるときだけあり、無ければ
+ * ツアーが飛ばす。翻数・符・点数の説明は出題設定で選択肢と必須の有無が変わるので、
  * 設定に合わせて文言を切り替える — 設定と違う操作を案内すると、従った
  * 人が回答できなくなる。
  *
@@ -32,6 +35,7 @@ interface ScoreSpotlightTourProps {
  * （出題文ごと「?」が閉じる）。
  */
 export function AgariScoreSpotlightTour({
+  requireHanFu,
   exactHan,
   requireFuForMangan,
 }: ScoreSpotlightTourProps) {
@@ -63,7 +67,7 @@ export function AgariScoreSpotlightTour({
     {
       targetId: AGARI_SCORE_TOUR_ID.score,
       title: t("score.title"),
-      description: t("score.description"),
+      description: t("score.description", answerFieldsOf(requireHanFu)),
     },
     {
       targetId: AGARI_SCORE_TOUR_ID.submit,

@@ -68,6 +68,7 @@ interface TenpaiScoreResultProps {
     isTsumo: boolean,
   ) => readonly string[];
   readonly requireYaku: boolean;
+  readonly requireHanFu: boolean;
   readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
   readonly onNext: () => void;
@@ -89,6 +90,7 @@ export function TenpaiScoreResult({
   cellResults,
   formatAnswerLines,
   requireYaku,
+  requireHanFu,
   exactHan,
   requireFuForMangan,
   onNext,
@@ -203,6 +205,7 @@ export function TenpaiScoreResult({
                       : undefined
                   }
                   requireYaku={requireYaku}
+                  requireHanFu={requireHanFu}
                   exactHan={exactHan}
                   requireFuForMangan={requireFuForMangan}
                   embedded
@@ -217,6 +220,7 @@ export function TenpaiScoreResult({
                 userAnswer={focusedAnswer}
                 result={focusedResult}
                 requireYaku={requireYaku}
+                requireHanFu={requireHanFu}
                 exactHan={exactHan}
               />
             )}

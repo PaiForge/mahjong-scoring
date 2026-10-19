@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { answerFieldsOf } from "@mahjong-scoring/features/practice/help-tour-sample";
 import {
   SpotlightTour,
   spotlightTourLabels,
@@ -19,9 +20,16 @@ import { TENPAI_SCORE_TOUR_ID } from "../_lib/tour-ids";
  * 無い要素はツアーが飛ばす。答え合わせは案内しない — マスを選ぶタブと、
  * 選んだタブの内訳しかなく、説明する操作が無い。マスの段階の回答欄は、マスを選ぶ前も無効状態で
  * 描いてあるので常に案内できる（「役なし」はロンのマスを選んだときだけ
- * 回答欄に現れるため、回答欄の説明の中で触れる）。
+ * 回答欄に現れるため、回答欄の説明の中で触れる）。回答欄の説明は、翻数と符も
+ * 答える設定かで「翻・符・点数」と「点数」を言い分ける。
+ *
+ * @param requireHanFu - 翻数と符も答える設定か
  */
-export function TenpaiScoreSpotlightTour() {
+export function TenpaiScoreSpotlightTour({
+  requireHanFu,
+}: {
+  readonly requireHanFu: boolean;
+}) {
   const t = useTranslations("tenpaiScore.tour");
 
   const steps: readonly SpotlightStep[] = [
@@ -52,7 +60,7 @@ export function TenpaiScoreSpotlightTour() {
     {
       targetId: TENPAI_SCORE_TOUR_ID.answerForm,
       title: t("answerForm.title"),
-      description: t("answerForm.description"),
+      description: t("answerForm.description", answerFieldsOf(requireHanFu)),
       side: "top",
     },
     {

@@ -3,7 +3,9 @@ import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya } from "@mahjong-scoring/core";
 import {
+  answerFieldsOf,
   generateAgariHelpSample,
+  helpSampleAnswer,
   HELP_TOUR_ALL_CORRECT,
 } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
@@ -11,6 +13,7 @@ import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payme
 
 import { Button } from "../../../components/button";
 import { HelpIconButton } from "../../../components/help-icon-button";
+import { useAgariScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import {
   HelpTourSheet,
   type HelpTourStep,
@@ -30,7 +33,8 @@ const HEADER_HELP_FONT_SIZE = 17;
  * 和了形の点数計算ヘルプツアー
  *
  * 開始後の画面（問題 → 回答 → 結果）を実物のコンポーネントで 1 枚ずつ見せる。
- * サンプル問題は初めて開いたときに 1 度だけ作って固定する。
+ * サンプル問題は初めて開いたときに 1 度だけ作って固定する。回答欄と答え合わせは、
+ * 同じ画面の設定（翻数と符も回答するか）に合わせて描く。
  */
 export function AgariScoreHelpTour() {
   const t = useTranslations("agariScore");
@@ -38,6 +42,7 @@ export function AgariScoreHelpTour() {
   const { isOpen, sample, open, close } = useHelpTourSample(
     generateAgariHelpSample,
   );
+  const requireHanFu = useAgariScoreSettingsStore((s) => s.requireHanFu);
 
   const steps = useMemo((): readonly HelpTourStep[] => {
     if (sample === undefined) return [];
@@ -51,13 +56,17 @@ export function AgariScoreHelpTour() {
       {
         key: "answer",
         title: t("help.slides.answer.title"),
-        description: t("help.slides.answer.caption"),
+        description: t(
+          "help.slides.answer.caption",
+          answerFieldsOf(requireHanFu),
+        ),
         node: (
           <ScorePracticeAnswerForm
             onSubmit={noop}
             disabled
             isTsumo={sample.isTsumo}
             isOya={isOya(sample.jikaze)}
+            requireHanFu={requireHanFu}
           />
         ),
       },
@@ -69,8 +78,12 @@ export function AgariScoreHelpTour() {
           <View style={styles.result}>
             <ResultDisplay
               question={sample}
-              userAnswer={scoreAnswerToUserAnswer(sample.answer)}
+              userAnswer={helpSampleAnswer(
+                scoreAnswerToUserAnswer(sample.answer),
+                requireHanFu,
+              )}
               result={HELP_TOUR_ALL_CORRECT}
+              requireHanFu={requireHanFu}
             />
             <Button size="lg" fullWidth onPress={noop}>
               {t("result.next")}
@@ -79,7 +92,7 @@ export function AgariScoreHelpTour() {
         ),
       },
     ];
-  }, [sample, t]);
+  }, [sample, t, requireHanFu]);
 
   return (
     <>
@@ -108,16 +121,18 @@ export function AgariScoreHelpTour() {
  * 和了形の点数計算の画面の操作（play 画面の「?」。web の `AgariScoreSpotlightTour`）
  * 和了形の点数計算の操作ヘルプ
  *
- * 盤面と回答欄の各項目に何を入れるかを 1 枚ずつ説明する。役の欄は設定で
- * 役の回答を求めるときだけ説明し、翻数と符の説明は出題設定に合わせて
+ * 盤面と回答欄の各項目に何を入れるかを 1 枚ずつ説明する。役・翻数・符の欄は
+ * 設定でその回答を求めるときだけ説明し、翻数と符の説明は出題設定に合わせて
  * 文言を切り替える — 設定と違う操作を案内すると、従った人が回答できなくなる。
  */
 export function AgariScoreOperationHelp({
   requireYaku,
+  requireHanFu,
   exactHan,
   requireFuForMangan,
 }: {
   readonly requireYaku: boolean;
+  readonly requireHanFu: boolean;
   readonly exactHan: boolean;
   readonly requireFuForMangan: boolean;
 }) {
@@ -138,22 +153,28 @@ export function AgariScoreOperationHelp({
           },
         ]
       : []),
-    {
-      key: "han",
-      title: t("han.title"),
-      description: t(exactHan ? "han.descriptionExact" : "han.description"),
-    },
-    {
-      key: "fu",
-      title: t("fu.title"),
-      description: t(
-        requireFuForMangan ? "fu.descriptionRequired" : "fu.description",
-      ),
-    },
+    ...(requireHanFu
+      ? [
+          {
+            key: "han",
+            title: t("han.title"),
+            description: t(
+              exactHan ? "han.descriptionExact" : "han.description",
+            ),
+          },
+          {
+            key: "fu",
+            title: t("fu.title"),
+            description: t(
+              requireFuForMangan ? "fu.descriptionRequired" : "fu.description",
+            ),
+          },
+        ]
+      : []),
     {
       key: "score",
       title: t("score.title"),
-      description: t("score.description"),
+      description: t("score.description", answerFieldsOf(requireHanFu)),
     },
     {
       key: "submit",

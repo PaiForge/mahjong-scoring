@@ -59,6 +59,7 @@ describe("parseModeFlagsFromParams", () => {
     const result = parseModeFlagsFromParams(new URLSearchParams());
     expect(result).toEqual({
       requireYaku: false,
+      requireHanFu: false,
       exactHan: false,
       requireFuForMangan: false,
       measureTime: false,
@@ -67,10 +68,13 @@ describe("parseModeFlagsFromParams", () => {
 
   it("各パラメータを個別に読み取る", () => {
     const result = parseModeFlagsFromParams(
-      new URLSearchParams("mode=with_yaku&exact_han=1&fu_mangan=1&measure=1"),
+      new URLSearchParams(
+        "mode=with_yaku&han_fu=1&exact_han=1&fu_mangan=1&measure=1",
+      ),
     );
     expect(result).toEqual({
       requireYaku: true,
+      requireHanFu: true,
       exactHan: true,
       requireFuForMangan: true,
       measureTime: true,
@@ -79,10 +83,13 @@ describe("parseModeFlagsFromParams", () => {
 
   it("値が異なる場合は false になる", () => {
     const result = parseModeFlagsFromParams(
-      new URLSearchParams("mode=normal&exact_han=0&fu_mangan=0&measure=0"),
+      new URLSearchParams(
+        "mode=normal&han_fu=0&exact_han=0&fu_mangan=0&measure=0",
+      ),
     );
     expect(result).toEqual({
       requireYaku: false,
+      requireHanFu: false,
       exactHan: false,
       requireFuForMangan: false,
       measureTime: false,

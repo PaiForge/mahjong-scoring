@@ -48,6 +48,8 @@ export interface UseScorePracticeAnswerFormParams {
   readonly isOya: boolean;
   /** 役も答えさせるか */
   readonly requireYaku: boolean;
+  /** 翻数と符も答えさせるか（答えさせないときは点数だけを問う） */
+  readonly requireHanFu: boolean;
   /** 満貫以上でも符を答えさせるか */
   readonly requireFuForMangan: boolean;
   /** 端末のルール設定の切り上げ満貫 */
@@ -74,7 +76,10 @@ export interface UseScorePracticeAnswerFormResult extends FormFields {
   readonly setKoTsumoPayment: (payment: KoTsumoPayment) => void;
   /** 子ツモをまとめた select で選ばれている組 */
   readonly koTsumoPayment: KoTsumoPayment | undefined;
-  /** 符を答えさせるか（満貫以上は符が点数に効かないので、設定が無ければ問わない） */
+  /**
+   * 符を答えさせるか（翻数と符を問わない設定では問わない。満貫以上は符が
+   * 点数に効かないので、設定が無ければ問わない）
+   */
   readonly isFuRequired: boolean;
   readonly availableScores: AvailableScores;
   /** 親ツモか（点数の選択肢に「オール」を添える） */
@@ -105,6 +110,7 @@ export function useScorePracticeAnswerForm({
   isTsumo,
   isOya,
   requireYaku,
+  requireHanFu,
   requireFuForMangan,
   kiriageMangan,
   allowDoubleYakuman,
@@ -131,9 +137,12 @@ export function useScorePracticeAnswerForm({
       setFields((prev) => ({ ...prev, [key]: value }));
     };
 
-  const { han, fu, yakus } = fields;
+  const { fu, yakus } = fields;
+  // 翻数を問わないときは、入力欄に残った値（prefill 等）も無いものとして扱う。
+  // 点数の選択肢を翻数で絞らず、取りうる全点数から選ばせるため
+  const han = requireHanFu ? fields.han : undefined;
   const isMangan = han !== undefined && han >= MANGAN_MIN_HAN;
-  const isFuRequired = !isMangan || requireFuForMangan;
+  const isFuRequired = requireHanFu && (!isMangan || requireFuForMangan);
 
   const availableScores = useMemo(
     () =>
@@ -151,16 +160,20 @@ export function useScorePracticeAnswerForm({
   const { score, scoreFromKo, scoreFromOya } = selection;
 
   const isComplete =
-    han !== undefined &&
+    (!requireHanFu || han !== undefined) &&
     (!isFuRequired || fu !== undefined) &&
     selection.isComplete;
 
   const submit = () => {
-    if (han === undefined) return;
+    if (requireHanFu && han === undefined) return;
     if (isFuRequired && fu === undefined) return;
 
     const submitYakus = requireYaku ? [...yakus] : [];
-    const submitFu = isFuRequired ? fu : isMangan ? undefined : fu;
+    const submitFu = isFuRequired
+      ? fu
+      : isMangan || !requireHanFu
+        ? undefined
+        : fu;
 
     if (availableScores.type !== "single") {
       if (scoreFromKo === undefined || scoreFromOya === undefined) return;
@@ -179,6 +192,7 @@ export function useScorePracticeAnswerForm({
 
   return {
     ...fields,
+    han,
     score,
     scoreFromKo,
     scoreFromOya,

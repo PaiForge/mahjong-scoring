@@ -9,6 +9,13 @@ export interface ScoreSettingsState {
   /** 役も回答するかどうか */
   requireYaku: boolean;
   setRequireYaku: (enabled: boolean) => void;
+  /**
+   * 翻数と符も回答するかどうか。実戦では点数だけを申告するため、既定では
+   * 点数だけを答える。5翻以上の答え方（`exactHan`）と満貫以上の符
+   * （`requireFuForMangan`）は、これが有効なときだけ意味を持つ
+   */
+  requireHanFu: boolean;
+  setRequireHanFu: (enabled: boolean) => void;
   /** 5翻以上も翻数で回答するかどうか（既定では満貫・跳満…の区分で回答する） */
   exactHan: boolean;
   setExactHan: (enabled: boolean) => void;
@@ -54,6 +61,8 @@ export function createScoreSettingsStore(
       (set) => ({
         requireYaku: false,
         setRequireYaku: (requireYaku) => set({ requireYaku }),
+        requireHanFu: false,
+        setRequireHanFu: (requireHanFu) => set({ requireHanFu }),
         exactHan: false,
         setExactHan: (exactHan) => set({ exactHan }),
         requireFuForMangan: false,

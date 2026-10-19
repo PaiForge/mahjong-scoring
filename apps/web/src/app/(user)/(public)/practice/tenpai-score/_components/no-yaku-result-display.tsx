@@ -47,6 +47,8 @@ interface NoYakuResultDisplayProps {
   /** マスの判定。開示では undefined */
   readonly result: JudgementResult | undefined;
   readonly requireYaku: boolean;
+  /** 翻数と符を答えさせたか。答えさせていなければ回答の翻数・符は未回答の印にする */
+  readonly requireHanFu: boolean;
   readonly exactHan: boolean;
 }
 
@@ -71,6 +73,7 @@ export function NoYakuResultDisplay({
   userAnswer,
   result,
   requireYaku,
+  requireHanFu,
   exactHan,
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
@@ -82,6 +85,7 @@ export function NoYakuResultDisplay({
     userAnswer?.kind === "score" && result !== undefined
       ? { answer: userAnswer.answer, result }
       : undefined;
+  const scoreAnswerHanFu = requireHanFu ? scoreAnswer : undefined;
   const noYakuResult =
     userAnswer?.kind === "noYaku" && result !== undefined ? result : undefined;
 
@@ -128,10 +132,14 @@ export function NoYakuResultDisplay({
         <tbody>
           <tr>
             {labelCell(tScore("form.labels.han"))}
-            {scoreAnswer ? (
+            {scoreAnswerHanFu ? (
               <JudgedCell
-                value={hanDisplay(scoreAnswer.answer.han)}
-                isCorrect={scoreAnswer.result.isHanCorrect}
+                value={
+                  scoreAnswerHanFu.answer.han === undefined
+                    ? "-"
+                    : hanDisplay(scoreAnswerHanFu.answer.han)
+                }
+                isCorrect={scoreAnswerHanFu.result.isHanCorrect}
               />
             ) : noYakuResult ? (
               <JudgedCell
@@ -147,10 +155,10 @@ export function NoYakuResultDisplay({
         <tbody>
           <tr>
             {labelCell(tScore("form.labels.fu"))}
-            {scoreAnswer ? (
+            {scoreAnswerHanFu ? (
               <JudgedCell
-                value={`${scoreAnswer.answer.fu ?? "-"}${tScore("form.options.fuSuffix")}`}
-                isCorrect={scoreAnswer.result.isFuCorrect}
+                value={`${scoreAnswerHanFu.answer.fu ?? "-"}${tScore("form.options.fuSuffix")}`}
+                isCorrect={scoreAnswerHanFu.result.isFuCorrect}
               />
             ) : (
               <ResultUnansweredCell />

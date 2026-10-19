@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
+  answerFieldsOf,
   buildTenpaiHelpCells,
   generateTenpaiHelpSample,
   tenpaiHelpCellFormatters,
@@ -11,6 +12,7 @@ import {
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
 import { HelpIconButton } from "../../../components/help-icon-button";
+import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import {
   HelpTourSheet,
   type HelpTourStep,
@@ -35,7 +37,8 @@ const HEADER_HELP_FONT_SIZE = 17;
  *
  * 1 問の中の 3 段階（待ち牌を選ぶ → マスに点数を当てはめる → 答え合わせ）を
  * 実物のコンポーネントで 1 枚ずつ見せる。マスの 1 枚はツモ列を回答済み、
- * ロン列を選択中の途中経過で見せる（web と同じ）。
+ * ロン列を選択中の途中経過で見せる（web と同じ）。マスの回答と答え合わせは、
+ * 同じ画面の設定（翻数と符も回答するか）に合わせて描く。
  */
 export function TenpaiScoreHelpTour() {
   const t = useTranslations("tenpaiScore");
@@ -44,11 +47,14 @@ export function TenpaiScoreHelpTour() {
   const { isOpen, sample, open, close } = useHelpTourSample(
     generateTenpaiHelpSample,
   );
+  const requireHanFu = useTenpaiScoreSettingsStore((s) => s.requireHanFu);
 
   const steps = useMemo((): readonly HelpTourStep[] => {
     if (sample === undefined) return [];
     const waits = sample.waits.map((wait) => wait.agariHai);
-    const { answers, results } = buildTenpaiHelpCells(sample);
+    const { answers, results } = buildTenpaiHelpCells(sample, {
+      requireHanFu,
+    });
     const { formatAnswer, formatAnswerLines } = tenpaiHelpCellFormatters(
       sample,
       { t: tScore, noYakuLabel: t("cells.noYakuShort") },
@@ -74,7 +80,10 @@ export function TenpaiScoreHelpTour() {
       {
         key: "cells",
         title: t("help.slides.cells.title"),
-        description: t("help.slides.cells.caption"),
+        description: t(
+          "help.slides.cells.caption",
+          answerFieldsOf(requireHanFu),
+        ),
         node: (
           <View style={styles.sample}>
             <TenpaiDisplay question={sample} showUraDora />
@@ -101,6 +110,7 @@ export function TenpaiScoreHelpTour() {
             cellResults={results}
             formatAnswerLines={formatAnswerLines}
             requireYaku={false}
+            requireHanFu={requireHanFu}
             exactHan={false}
             requireFuForMangan={false}
             onNext={noop}
@@ -108,7 +118,7 @@ export function TenpaiScoreHelpTour() {
         ),
       },
     ];
-  }, [sample, t, tScore]);
+  }, [sample, t, tScore, requireHanFu]);
 
   return (
     <>
@@ -139,11 +149,15 @@ export function TenpaiScoreHelpTour() {
  *
  * いまの段階の画面にある要素だけを 1 枚ずつ説明する（待ち牌の段階と、マスに
  * 当てはめる段階で中身が変わる。答え合わせの段階では「?」を出さない）。
+ * 回答欄の説明は、翻数と符も答える設定かで「翻・符・点数」と「点数」を言い分ける。
  */
 export function TenpaiScoreOperationHelp({
   phase,
+  requireHanFu,
 }: {
   readonly phase: "machi" | "cells";
+  /** 翻数と符も答える設定か */
+  readonly requireHanFu: boolean;
 }) {
   const t = useTranslations("tenpaiScore.tour");
   const keys =
@@ -153,7 +167,9 @@ export function TenpaiScoreOperationHelp({
   return (
     <OperationHelp
       namespace="tenpaiScore.tour"
-      steps={operationHelpSteps(t, keys)}
+      steps={operationHelpSteps(t, keys, {
+        answerForm: answerFieldsOf(requireHanFu),
+      })}
     />
   );
 }

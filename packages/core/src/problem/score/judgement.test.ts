@@ -208,7 +208,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 8000 },
       });
       const answer: UserAnswer = { han: 5, fu: 30, score: 8000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -221,7 +221,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 12000 },
       });
       const answer: UserAnswer = { han: 6, fu: 30, score: 12000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -234,7 +234,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 16000 },
       });
       const answer: UserAnswer = { han: 8, fu: 30, score: 16000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -247,7 +247,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 24000 },
       });
       const answer: UserAnswer = { han: 11, fu: 30, score: 24000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -260,7 +260,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 32000 },
       });
       const answer: UserAnswer = { han: 13, fu: 30, score: 32000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -276,7 +276,9 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 64000 },
         });
         const answer: UserAnswer = { han: 13, fu: 30, score: 64000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, false, false, true);
+        const result = judgeAnswer(question, answer, {
+          allowDoubleYakuman: true,
+        });
 
         expect(result.isHanCorrect).toBe(false);
       });
@@ -289,7 +291,9 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 64000 },
         });
         const answer: UserAnswer = { han: 26, fu: 30, score: 64000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, false, false, true);
+        const result = judgeAnswer(question, answer, {
+          allowDoubleYakuman: true,
+        });
 
         expect(result.isHanCorrect).toBe(true);
       });
@@ -302,7 +306,9 @@ describe("judgeAnswer", () => {
           payment: { type: "ron", amount: 32000 },
         });
         const answer: UserAnswer = { han: 26, fu: 30, score: 32000, yakus: [] };
-        const result = judgeAnswer(question, answer, false, false, false, true);
+        const result = judgeAnswer(question, answer, {
+          allowDoubleYakuman: true,
+        });
 
         expect(result.isHanCorrect).toBe(false);
       });
@@ -315,7 +321,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 3900 },
       });
       const answer: UserAnswer = { han: 4, fu: 30, score: 3900, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(false);
     });
@@ -328,7 +334,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 8000 },
       });
       const answer: UserAnswer = { han: 5, fu: 60, score: 8000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false);
+      const result = judgeAnswer(question, answer);
 
       expect(result.isHanCorrect).toBe(true);
     });
@@ -343,7 +349,7 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 12000 },
       });
       const answer: UserAnswer = { han: 6, fu: 30, score: 12000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, true);
+      const result = judgeAnswer(question, answer, { exactHan: true });
 
       expect(result.isHanCorrect).toBe(false);
     });
@@ -378,9 +384,69 @@ describe("judgeAnswer", () => {
         payment: { type: "ron", amount: 8000 },
       });
       const answer: UserAnswer = { han: 5, fu: 40, score: 8000, yakus: [] };
-      const result = judgeAnswer(question, answer, false, false, true);
+      const result = judgeAnswer(question, answer, {
+        requireFuForMangan: true,
+      });
 
       expect(result.isFuCorrect).toBe(false);
+      expect(result.isCorrect).toBe(false);
+    });
+  });
+
+  describe("requireHanFu = false", () => {
+    it("翻数・符を答えなくても点数が合えば正解", () => {
+      const question = makeQuestion({
+        han: 3,
+        fu: 30,
+        payment: { type: "ron", amount: 3900 },
+      });
+      const answer: UserAnswer = {
+        han: undefined,
+        fu: undefined,
+        score: 3900,
+        yakus: [],
+      };
+      const result = judgeAnswer(question, answer, { requireHanFu: false });
+
+      expect(result.isHanCorrect).toBe(true);
+      expect(result.isFuCorrect).toBe(true);
+      expect(result.isCorrect).toBe(true);
+    });
+
+    it("点数が違えば不正解", () => {
+      const question = makeQuestion({
+        han: 3,
+        fu: 30,
+        payment: { type: "ron", amount: 3900 },
+      });
+      const answer: UserAnswer = {
+        han: undefined,
+        fu: undefined,
+        score: 5200,
+        yakus: [],
+      };
+      const result = judgeAnswer(question, answer, { requireHanFu: false });
+
+      expect(result.isCorrect).toBe(false);
+    });
+  });
+
+  describe("requireHanFu = true（既定）", () => {
+    it("翻数を答えていなければ isHanCorrect が false", () => {
+      const question = makeQuestion({
+        han: 3,
+        fu: 30,
+        payment: { type: "ron", amount: 3900 },
+      });
+      const answer: UserAnswer = {
+        han: undefined,
+        fu: 30,
+        score: 3900,
+        yakus: [],
+      };
+      const result = judgeAnswer(question, answer);
+
+      expect(result.isHanCorrect).toBe(false);
       expect(result.isCorrect).toBe(false);
     });
   });
@@ -399,7 +465,7 @@ describe("judgeAnswer", () => {
 
     it("requireYaku=false の場合、役は常に正解扱い", () => {
       const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: [] };
-      const result = judgeAnswer(TANYAO_PINFU, answer, false);
+      const result = judgeAnswer(TANYAO_PINFU, answer);
 
       expect(result.isYakuCorrect).toBe(true);
     });
@@ -411,7 +477,7 @@ describe("judgeAnswer", () => {
         score: 2000,
         yakus: ["断么九", "平和"],
       };
-      const result = judgeAnswer(TANYAO_PINFU, answer, true);
+      const result = judgeAnswer(TANYAO_PINFU, answer, { requireYaku: true });
 
       expect(result.isYakuCorrect).toBe(true);
     });
@@ -423,7 +489,7 @@ describe("judgeAnswer", () => {
         score: 2000,
         yakus: ["断么九"],
       };
-      const result = judgeAnswer(TANYAO_PINFU, answer, true);
+      const result = judgeAnswer(TANYAO_PINFU, answer, { requireYaku: true });
 
       expect(result.isYakuCorrect).toBe(false);
     });
@@ -446,7 +512,7 @@ describe("judgeAnswer", () => {
         score: 3900,
         yakus: ["断么九", "平和"],
       };
-      const result = judgeAnswer(question, answer, true);
+      const result = judgeAnswer(question, answer, { requireYaku: true });
 
       expect(result.isYakuCorrect).toBe(true);
     });
@@ -459,7 +525,7 @@ describe("judgeAnswer", () => {
         yakuDetails: undefined,
       });
       const answer: UserAnswer = { han: 2, fu: 30, score: 2000, yakus: [] };
-      const result = judgeAnswer(question, answer, true);
+      const result = judgeAnswer(question, answer, { requireYaku: true });
 
       expect(result.isYakuCorrect).toBe(true);
     });
@@ -579,10 +645,15 @@ describe("judgeAnswer の役の判定（風牌）", () => {
       score: 2600,
       yakus: ["役牌 東"],
     };
-    expect(judgeAnswer(question, answer, true).isYakuCorrect).toBe(true);
     expect(
-      judgeAnswer(question, { ...answer, yakus: ["役牌 南"] }, true)
-        .isYakuCorrect,
+      judgeAnswer(question, answer, { requireYaku: true }).isYakuCorrect,
+    ).toBe(true);
+    expect(
+      judgeAnswer(
+        question,
+        { ...answer, yakus: ["役牌 南"] },
+        { requireYaku: true },
+      ).isYakuCorrect,
     ).toBe(false);
   });
 });

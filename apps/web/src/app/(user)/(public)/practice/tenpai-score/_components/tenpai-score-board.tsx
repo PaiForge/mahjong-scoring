@@ -134,8 +134,13 @@ function TenpaiScoreBoardInner() {
     void requestQuestion();
   }, [isClient, searchParams, requestQuestion, refreshGate]);
 
-  const { requireYaku, exactHan, requireFuForMangan, measureTime } =
-    parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const {
+    requireYaku,
+    requireHanFu,
+    exactHan,
+    requireFuForMangan,
+    measureTime,
+  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
 
   const showAnswerTime = showsAnswerTime(measureTime, gate);
@@ -184,6 +189,7 @@ function TenpaiScoreBoardInner() {
     scrollToPracticeAnchor();
     submitCells({
       requireYaku,
+      requireHanFu,
       exactHan,
       requireFuForMangan,
       allowDoubleYakuman,
@@ -290,7 +296,7 @@ function TenpaiScoreBoardInner() {
               >
                 {t("machi.prompt")}
               </QuestionPrompt>
-              <TenpaiScoreSpotlightTour />
+              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
             </div>
 
             <div data-tour-id={TENPAI_SCORE_TOUR_ID.picker}>
@@ -333,7 +339,7 @@ function TenpaiScoreBoardInner() {
           <div className="space-y-4">
             <div className="flex items-center justify-center gap-1.5">
               <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-              <TenpaiScoreSpotlightTour />
+              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
             </div>
 
             <WaitCellGrid
@@ -381,6 +387,7 @@ function TenpaiScoreBoardInner() {
                     isTsumo={isTsumo}
                     isOya={isOyaQuestion}
                     requireYaku={requireYaku}
+                    requireHanFu={requireHanFu}
                     exactHan={exactHan}
                     requireFuForMangan={requireFuForMangan}
                     submitLabel={t("cells.assign")}
@@ -440,6 +447,7 @@ function TenpaiScoreBoardInner() {
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
             requireYaku={requireYaku}
+            requireHanFu={requireHanFu}
             exactHan={exactHan}
             requireFuForMangan={requireFuForMangan}
             onNext={handleNext}

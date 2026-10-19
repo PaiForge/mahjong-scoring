@@ -95,6 +95,18 @@ describe("formatCellAnswerLines", () => {
     ).toEqual(["満貫", "8000点"]);
   });
 
+  it("翻数と符を問わない出題の回答（翻数・符が無い）は支払いの 1 行だけ", () => {
+    expect(
+      formatCellAnswerLines(
+        {
+          kind: "score",
+          answer: { han: undefined, fu: undefined, score: 5200, yakus: [] },
+        },
+        { ...base, isOyaTsumo: false },
+      ),
+    ).toEqual(["5200点"]);
+  });
+
   it("役なしは 1 行", () => {
     expect(
       formatCellAnswerLines({ kind: "noYaku" }, { ...base, isOyaTsumo: false }),

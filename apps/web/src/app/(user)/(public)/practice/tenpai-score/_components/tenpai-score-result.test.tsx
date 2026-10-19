@@ -32,6 +32,7 @@ vi.mock("@pai-forge/mahjong-react-ui", () => ({
 
 const MODE: MachiCellJudgementMode = {
   requireYaku: false,
+  requireHanFu: true,
   exactHan: true,
   requireFuForMangan: false,
   allowDoubleYakuman: false,
@@ -120,6 +121,7 @@ function renderResult(
       cellResults={cellResults}
       formatAnswerLines={formatLinesForTest}
       requireYaku={false}
+      requireHanFu={true}
       exactHan={true}
       requireFuForMangan={false}
       onNext={vi.fn()}
@@ -157,7 +159,7 @@ function wrongAnswerFor(correct: MachiCellAnswer): MachiCellAnswer {
   return correct.kind === "score"
     ? {
         kind: "score",
-        answer: { ...correct.answer, han: correct.answer.han + 1 },
+        answer: { ...correct.answer, han: (correct.answer.han ?? 0) + 1 },
       }
     : SAME_ANSWER;
 }

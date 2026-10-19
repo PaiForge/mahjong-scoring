@@ -13,15 +13,20 @@ const HEADER_HELP_FONT_SIZE = 17;
  *
  * @param t - 手順を持つ名前空間の `t`
  * @param keys - 説明する順のキー
+ * @param descriptionValues - 説明の文言に渡す ICU の引数（キーごと。設定で
+ *   言い分ける説明だけが持つ）
  */
 export function operationHelpSteps(
-  t: (key: string) => string,
+  t: (key: string, values?: Readonly<Record<string, string>>) => string,
   keys: readonly string[],
+  descriptionValues: Readonly<
+    Partial<Record<string, Readonly<Record<string, string>>>>
+  > = {},
 ): readonly HelpTourStep[] {
   return keys.map((key) => ({
     key,
     title: t(`${key}.title`),
-    description: t(`${key}.description`),
+    description: t(`${key}.description`, descriptionValues[key]),
   }));
 }
 

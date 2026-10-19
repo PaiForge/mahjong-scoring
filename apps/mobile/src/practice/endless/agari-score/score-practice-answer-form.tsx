@@ -31,6 +31,8 @@ interface ScorePracticeAnswerFormProps {
   readonly isTsumo: boolean;
   readonly isOya: boolean;
   readonly requireYaku?: boolean;
+  /** 翻数と符も答えさせるか。false なら翻数・符の欄を出さず、点数だけを問う */
+  readonly requireHanFu?: boolean;
   readonly exactHan?: boolean;
   readonly requireFuForMangan?: boolean;
   /** 回答ボタンの文言。既定は「回答する」 */
@@ -75,6 +77,7 @@ export function ScorePracticeAnswerForm({
   isTsumo,
   isOya,
   requireYaku = false,
+  requireHanFu = true,
   exactHan = false,
   requireFuForMangan = false,
   submitLabel,
@@ -112,6 +115,7 @@ export function ScorePracticeAnswerForm({
     isTsumo,
     isOya,
     requireYaku,
+    requireHanFu,
     requireFuForMangan,
     kiriageMangan,
     allowDoubleYakuman,
@@ -154,35 +158,40 @@ export function ScorePracticeAnswerForm({
         <YakuLabelRow action={noYakuButton} />
       ) : undefined}
 
-      <View>
-        <Text style={styles.label}>{t("form.labels.han")}</Text>
-        <SelectField
-          options={hanOptions}
-          value={han}
-          onChange={setHan}
-          placeholder={t("form.placeholders.select")}
-          accessibilityLabel={t("form.labels.han")}
-          disabled={disabled}
-          testID="han-select"
-        />
-      </View>
+      {/* 翻数と符を問わない設定では欄ごと出さない（実戦では点数だけを申告する） */}
+      {requireHanFu && (
+        <View>
+          <Text style={styles.label}>{t("form.labels.han")}</Text>
+          <SelectField
+            options={hanOptions}
+            value={han}
+            onChange={setHan}
+            placeholder={t("form.placeholders.select")}
+            accessibilityLabel={t("form.labels.han")}
+            disabled={disabled}
+            testID="han-select"
+          />
+        </View>
+      )}
 
       {/* 満貫以上で符が不要になっても欄は残し、注記を欄の中に出す */}
-      <View>
-        <Text style={styles.label}>{t("form.labels.fu")}</Text>
-        <SelectField
-          options={isFuRequired ? fuOptions : []}
-          value={isFuRequired ? fu : undefined}
-          onChange={setFu}
-          placeholder={
-            isFuRequired
-              ? t("form.placeholders.select")
-              : t("form.messages.fuNotRequired")
-          }
-          accessibilityLabel={t("form.labels.fu")}
-          disabled={disabled || !isFuRequired}
-        />
-      </View>
+      {requireHanFu && (
+        <View>
+          <Text style={styles.label}>{t("form.labels.fu")}</Text>
+          <SelectField
+            options={isFuRequired ? fuOptions : []}
+            value={isFuRequired ? fu : undefined}
+            onChange={setFu}
+            placeholder={
+              isFuRequired
+                ? t("form.placeholders.select")
+                : t("form.messages.fuNotRequired")
+            }
+            accessibilityLabel={t("form.labels.fu")}
+            disabled={disabled || !isFuRequired}
+          />
+        </View>
+      )}
 
       {/* 組の欄は「300/500」だけでは並び順が分からない初学者のため、
           ラベルに「子から / 親から」の順を添える */}
