@@ -49,12 +49,10 @@ describe("parsePendingLessonCompletions", () => {
     expect(parsePendingLessonCompletions(undefined, NOW)).toEqual([]);
     expect(parsePendingLessonCompletions("", NOW)).toEqual([]);
     expect(parsePendingLessonCompletions("{not json", NOW)).toEqual([]);
-    expect(
-      parsePendingLessonCompletions('{"version":2,"entries":[]}', NOW),
-    ).toEqual([]);
+    expect(parsePendingLessonCompletions('{"entries":{}}', NOW)).toEqual([]);
     expect(
       parsePendingLessonCompletions(
-        '{"version":1,"entries":[{"slug":"mangan-ko-ron"}]}',
+        '{"entries":[{"slug":"mangan-ko-ron"}]}',
         NOW,
       ),
     ).toEqual([]);
