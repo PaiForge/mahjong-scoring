@@ -153,6 +153,35 @@ describe("ResultDisplay の無回答", () => {
   });
 });
 
+describe("ResultDisplay の翻数と符を問わない設定", () => {
+  // 符の行が出るよう、符を持つ 4 翻 40 符にする
+  const fuQuestion = {
+    ...question,
+    answer: { ...question.answer, han: 4 },
+  } as unknown as ScoreQuestion;
+  const scoreOnlyAnswer: UserAnswer = {
+    han: undefined,
+    fu: undefined,
+    score: 12000,
+    yakus: [],
+  };
+
+  it("翻数・符の行の「あなたの回答」は未回答の印にし、点数の行だけ判定を出す", () => {
+    render(
+      <ResultDisplay
+        question={fuQuestion}
+        userAnswer={scoreOnlyAnswer}
+        result={{ ...result, isYakuCorrect: true, isCorrect: true }}
+        requireHanFu={false}
+      />,
+    );
+
+    // 翻数・符の 2 行（役の行は役を問わないので無い）
+    expect(screen.getAllByText("result.unanswered")).toHaveLength(2);
+    expect(screen.getAllByRole("img", { name: "correct" })).toHaveLength(1);
+  });
+});
+
 describe("ResultDisplay の内訳", () => {
   // 跳満の question では符の行が出ないので、符を持つ 4 翻 40 符にする
   const fuQuestion = {
