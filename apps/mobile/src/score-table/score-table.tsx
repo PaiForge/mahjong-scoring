@@ -155,7 +155,7 @@ export function ScoreTable({
 
   const body = (
     <View style={styles.body}>
-      {/* ツモの2段表示（子は上下、親は ALL）の読み方を表の直前で補う */}
+      {/* ツモの2段表示（子は上下、親はオール）の読み方を表の直前で補う */}
       {winType === "tsumo" && (
         <Text style={styles.note}>
           {isKo ? t("tsumoNote.ko") : t("tsumoNote.oya")}
