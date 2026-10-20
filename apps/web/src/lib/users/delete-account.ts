@@ -104,31 +104,33 @@ export async function requestAccountDeletion(
  * 他の処理（その場の処理と cron）が貸し出しを持っている間は何もせず、
  * 今の進み具合だけを返す。
  *
- * @param now - 貸し出しを取る時刻（貸し出しの期限切れの判定と記録に使う）
+ * @param clock - 時計。貸し出しを取る時刻と、各工程を終えた時刻の記録に使う。
+ *   工程は外部サービスを待つので 1 つの時刻ではなく関数で受け、終えた時点で
+ *   読む。テストが時刻を固定するために差し替える
  */
 export async function processAccountDeletion(
   userId: string,
-  now: Date = new Date(),
+  clock: () => Date = () => new Date(),
 ): Promise<AccountDeletionStatus> {
-  const leased = await leaseDeletion(userId, now);
+  const leased = await leaseDeletion(userId, clock());
   if (!leased) return (await getAccountDeletionStatus(userId)) ?? "pending";
 
   try {
     if (!leased.dataDeletedAt) {
       await deleteAccountData(userId);
-      await markStep(userId, { dataDeletedAt: new Date() });
+      await markStep(userId, { dataDeletedAt: clock() });
     }
     if (!leased.storageDeletedAt) {
       await deleteAvatarFiles(userId);
-      await markStep(userId, { storageDeletedAt: new Date() });
+      await markStep(userId, { storageDeletedAt: clock() });
     }
     if (!leased.authDeletedAt) {
       await softDeleteAuthUser(userId);
-      await markStep(userId, { authDeletedAt: new Date() });
+      await markStep(userId, { authDeletedAt: clock() });
     }
     // 済みの記録は取り消しの側が書く（保存と競合しないよう行をロックして）
     if (!leased.appleRevokedAt) await revokeAppleLinkForDeletion(userId);
-    return await markCompleted(userId);
+    return await markCompleted(userId, clock());
   } catch (error) {
     logExternalError("processAccountDeletion", "deletion step failed", error);
     await markStep(userId, {
@@ -218,10 +220,14 @@ async function leaseDeletion(
  * しまわないよう、Apple の工程が済んでいるときだけ書く。書けなければ
  * 貸し出しを返して `pending`（cron が取り消しからやり直す）。
  */
-async function markCompleted(userId: string): Promise<AccountDeletionStatus> {
+async function markCompleted(
+  userId: string,
+  completedAt: Date,
+): Promise<AccountDeletionStatus> {
   const [completed] = await db
     .update(accountDeletions)
-    .set({ completedAt: new Date(), lastAttemptAt: null, lastError: null })
+    .set({ completedAt, lastAttemptAt: null, lastError: null })
+
     .where(
       and(
         eq(accountDeletions.userId, userId),
