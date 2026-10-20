@@ -35,7 +35,7 @@ export function useSubmitExamOnFinish(
 
       try {
         const result = await submitExamResult(challenge.id);
-        if (!result.success) {
+        if ("error" in result) {
           logExternalError("submitExamResult", menuType, result.error);
           return undefined;
         }

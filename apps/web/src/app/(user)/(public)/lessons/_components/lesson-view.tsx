@@ -226,7 +226,7 @@ export function LessonView({
       setSaveState("saving");
       try {
         const result = await completeLesson(slug);
-        if (!result.success) {
+        if ("error" in result) {
           // レジストリに無い slug（静的生成されたページでは起きない）か BAN。
           // どちらも失敗として見せ、預けない（同期しても捨てられるか
           // 弾かれるだけ）

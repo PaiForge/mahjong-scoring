@@ -1,4 +1,5 @@
 "use server";
+import type { ActionResult } from "@/lib/action-types";
 import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
@@ -12,8 +13,8 @@ import { resolveRecorder } from "@/lib/resolve-recorder";
  */
 export type SaveResultErrorCode =
   | Exclude<AuthGateErrorCode, "unauthorized">
-  | "invalid_result"
-  | "unexpected_error";
+  | "invalidResult"
+  | "unexpectedError";
 
 /**
  * `savePracticeResult` の戻り値
@@ -23,17 +24,17 @@ export type SaveResultErrorCode =
  *   確定済みの挑戦への再送も、記録し直さずに同じ ID を返す。
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
- * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
- * - `{ success: false, error: 'invalid_result' }`: 記録できる挑戦ではない。
+ * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
+ * - `{ error: 'invalidResult' }`: 記録できる挑戦ではない。
  *   存在しない・他人の挑戦、昇級試験の挑戦、まだ終わっていない
  *   挑戦（時間切れにもミス上限にも達していない）、1 問も回答していない挑戦。
- * - `{ success: false, error: 'unexpected_error' }`: DB エラー等。挑戦の確定も
+ * - `{ error: 'unexpectedError' }`: DB エラー等。挑戦の確定も
  *   ロールバックされるため、同じ挑戦 ID で再送できる。
  */
-export type SaveResultResponse =
-  | { readonly success: true; readonly challengeResultId: string }
-  | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: SaveResultErrorCode };
+export type SaveResultResponse = ActionResult<
+  SaveResultErrorCode,
+  { readonly challengeResultId: string } | { readonly skipped: "anonymous" }
+>;
 
 /**
  * サーバーで採点済みの挑戦を確定し、challenge_results / challenge_best_scores に
@@ -68,13 +69,13 @@ export async function savePracticeResult(
   try {
     const recorder = await resolveRecorder();
     if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
-    if ("error" in recorder) return { success: false, error: recorder.error };
+    if ("error" in recorder) return { error: recorder.error };
     const result = await finishAttempt(recorder.user.id, attemptId, false);
     if (!result || !("challengeResultId" in result))
-      return { success: false, error: "invalid_result" };
+      return { error: "invalidResult" };
     return { success: true, challengeResultId: result.challengeResultId };
   } catch (error) {
     logExternalError("savePracticeResult", "finish failed", error);
-    return { success: false, error: "unexpected_error" };
+    return { error: "unexpectedError" };
   }
 }

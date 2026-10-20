@@ -84,7 +84,7 @@ export function PendingLessonSync({ userId }: PendingLessonSyncProps) {
         const result = await completeLessons(pendingSlugs);
         if (handled.current) return;
         handled.current = true;
-        if (!result.success) {
+        if ("error" in result) {
           // BAN。預かりは残すが、押しても通らない再試行は出さない
           setOutcome("blocked");
           return;

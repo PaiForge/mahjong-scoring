@@ -62,10 +62,10 @@ beforeEach(() => {
 });
 
 describe("completeLesson", () => {
-  it("未知の slug は invalid_slug で拒否し、認証も DB も読まない", async () => {
+  it("未知の slug は invalidSlug で拒否し、認証も DB も読まない", async () => {
     const result = await completeLesson("not-a-lesson");
 
-    expect(result).toEqual({ success: false, error: "invalid_slug" });
+    expect(result).toEqual({ error: "invalidSlug" });
     expect(mockAuthenticateAndCheckBan).not.toHaveBeenCalled();
     expect(mockInsert).not.toHaveBeenCalled();
   });
@@ -85,7 +85,7 @@ describe("completeLesson", () => {
 
     const result = await completeLesson("mangan-ko-ron");
 
-    expect(result).toEqual({ success: false, error: "banned" });
+    expect(result).toEqual({ error: "banned" });
     expect(mockInsert).not.toHaveBeenCalled();
     expect(mockRevalidatePath).not.toHaveBeenCalled();
     expect(mockFetchJourneyInput).not.toHaveBeenCalled();
@@ -181,7 +181,7 @@ describe("completeLessons", () => {
 
     const result = await completeLessons(["mangan-ko-ron"]);
 
-    expect(result).toEqual({ success: false, error: "banned" });
+    expect(result).toEqual({ error: "banned" });
     expect(mockInsert).not.toHaveBeenCalled();
     expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
