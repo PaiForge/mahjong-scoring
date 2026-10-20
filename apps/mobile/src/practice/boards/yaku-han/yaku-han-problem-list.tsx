@@ -1,5 +1,5 @@
 import { useTranslations } from "use-intl";
-import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
+import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import {
   yakuHanLabel,
   yakuHanStateLabel,
@@ -39,9 +39,7 @@ export function YakuHanProblemList({
         <AnswerComparison
           translationNamespace="yakuHanChallenge"
           outcome={outcome}
-          correct={hanLabel(correctHan)}
-          user={userHan === undefined ? undefined : hanLabel(userHan)}
-          difference={answerDifferenceOf(correctHan, userHan, (value) =>
+          {...numericAnswerComparison(correctHan, userHan, hanLabel, (value) =>
             t("hanOption", { count: value }),
           )}
         />

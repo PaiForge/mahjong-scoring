@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
+import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
@@ -41,9 +41,7 @@ export function YakuHanProblemList({ results }: YakuHanProblemListProps) {
         <AnswerComparison
           translationNamespace="yakuHanChallenge"
           outcome={outcome}
-          correct={hanLabel(correctHan)}
-          user={userHan === undefined ? undefined : hanLabel(userHan)}
-          difference={answerDifferenceOf(correctHan, userHan, (value) =>
+          {...numericAnswerComparison(correctHan, userHan, hanLabel, (value) =>
             t("hanOption", { count: value }),
           )}
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
+import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import { Furo } from "@pai-forge/mahjong-react-ui";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
@@ -45,9 +45,7 @@ export function MentsuFuProblemList({ results }: MentsuFuProblemListProps) {
             <AnswerComparison
               translationNamespace="mentsuFu"
               outcome={result.outcome}
-              correct={fuLabel(result.correctFu)}
-              user={userFu === undefined ? undefined : fuLabel(userFu)}
-              difference={answerDifferenceOf(result.correctFu, userFu, fuLabel)}
+              {...numericAnswerComparison(result.correctFu, userFu, fuLabel)}
             />
           </div>
         );

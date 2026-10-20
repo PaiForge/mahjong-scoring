@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
+import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
@@ -59,13 +59,10 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
             <AnswerComparison
               translationNamespace="hanCountChallenge"
               outcome={result.outcome}
-              correct={hanCountLabel(result.correctHan, t)}
-              user={
-                userHan === undefined ? undefined : hanCountLabel(userHan, t)
-              }
-              difference={answerDifferenceOf(
+              {...numericAnswerComparison(
                 result.correctHan,
                 userHan,
+                (value) => hanCountLabel(value, t),
                 (value) => t("hanOption", { count: value }),
               )}
             />
