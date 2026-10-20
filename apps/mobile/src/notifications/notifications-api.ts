@@ -7,7 +7,7 @@ import {
 } from "@mahjong-scoring/features/notifications/mobile-api";
 
 import { callMobileApi, type ApiFailure } from "../auth/api-client";
-import { readJson } from "../auth/read-json";
+import { readMobileApi } from "../auth/request-mobile-api";
 import {
   mypageFailureOf,
   type MypageApiFailure,
@@ -22,17 +22,16 @@ import {
  *
  * @param page - 1 始まりのページ番号
  */
-export async function fetchNotifications(
+export function fetchNotifications(
   userId: string,
   page: number,
 ): Promise<MypageApiResult<MobileNotificationsResponse>> {
-  const response = await callMobileApi(mobileNotificationsApiUrl(page), {
-    asUser: userId,
-  });
-  if (typeof response === "string") return { error: response };
-  if (!response.ok) return { error: await mypageFailureOf(response) };
-  const value = parseMobileNotificationsResponse(await readJson(response));
-  return value ?? { error: "unknown" };
+  return readMobileApi(
+    mobileNotificationsApiUrl(page),
+    { asUser: userId },
+    parseMobileNotificationsResponse,
+    mypageFailureOf,
+  );
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
   HelpTourButton,
@@ -128,11 +129,7 @@ export function TenpaiScoreHelpTour() {
         onClose={close}
         title={t("help.title")}
         slides={slides}
-        labels={{
-          close: tCommon("close"),
-          prev: t("help.prev"),
-          next: t("help.next"),
-        }}
+        labels={practiceHelpTourLabels(t, tCommon)}
       />
     </>
   );

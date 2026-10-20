@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
   answerFieldsOf,
@@ -132,12 +133,7 @@ export function TenpaiScoreHelpTour() {
         onClose={close}
         title={t("help.title")}
         steps={steps}
-        labels={{
-          prev: t("help.prev"),
-          next: t("help.next"),
-          close: tCommon("close"),
-          progress: (current, total) => t("tour.progress", { current, total }),
-        }}
+        labels={practiceHelpTourLabels(t, tCommon)}
       />
     </>
   );

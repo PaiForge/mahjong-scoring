@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   mockRecordModerationAction,
-  mockRequireAdminActor,
   mockRevalidatePath,
   mockRevalidateTag,
   mockTransaction,
   setupAdminActor,
+  setupNotAdmin,
 } from "@/test/admin-action-mocks";
 
 const { mockUpdateSet, mockUpdateWhere, mockUpdateUserById } = vi.hoisted(
@@ -59,7 +59,7 @@ beforeEach(() => {
 
 describe("banUser", () => {
   it("管理者でなければ unauthorized で Auth にも DB にも触らない", async () => {
-    mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
+    setupNotAdmin();
 
     expect(await banUser("u1", "理由")).toEqual({ error: "unauthorized" });
     expect(mockUpdateUserById).not.toHaveBeenCalled();

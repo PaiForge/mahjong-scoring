@@ -7,6 +7,7 @@ import {
   type WinType,
 } from "@mahjong-scoring/core";
 
+import { HAN_COLS } from "../score-table/han-cols";
 import { sumMenzenHan } from "./agari-quiz";
 import type { LessonChoice, LessonQuestion, LessonQuiz } from "./quiz";
 
@@ -42,9 +43,6 @@ const QUESTIONS: readonly {
     yaku: [PINFU, MENZEN_TSUMO, "断么九"],
   },
 ];
-
-/** 表の翻数の列（平和のみの 1 翻から満貫の手前まで） */
-const HAN_COLS = [1, 2, 3, 4] as const;
 
 /** 和了方法ごとの平和の符 */
 function pinfuFu(winType: WinType): Fu {

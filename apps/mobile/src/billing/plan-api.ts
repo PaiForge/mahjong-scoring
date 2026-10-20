@@ -13,9 +13,8 @@ import {
 } from "@mahjong-scoring/features/billing/mobile-api";
 
 import type { ApiFailure, MobileApiInit } from "../auth/api-client";
+import { readPublicMobileApi } from "../auth/read-public-mobile-api";
 import { domainFailureOf, requestMobileApi } from "../auth/request-mobile-api";
-import { SITE_URL } from "../lib/app-site-url";
-import { readJson } from "../auth/read-json";
 
 /**
  * プラン・取引の記録の API の失敗
@@ -81,14 +80,11 @@ export function fetchPlan(
 export async function fetchPlanOffers(): Promise<
   readonly MobilePlanOffer[] | undefined
 > {
-  try {
-    const response = await fetch(`${SITE_URL}${MOBILE_PLAN_OFFERS_API_PATH}`);
-    if (!response.ok) return undefined;
-    const parsed = parseMobilePlanOffersResponse(await readJson(response));
-    return parsed?.offers;
-  } catch {
-    return undefined;
-  }
+  const parsed = await readPublicMobileApi(
+    MOBILE_PLAN_OFFERS_API_PATH,
+    parseMobilePlanOffersResponse,
+  );
+  return parsed?.offers;
 }
 
 /**

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { answerDifferenceOf } from "@mahjong-scoring/features/practice/answer-difference";
+import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
 import { AnswerComparison } from "./answer-comparison";
 import { ProblemListAccordion } from "./problem-list-accordion";
@@ -57,16 +57,8 @@ export function FuProblemList({
             <AnswerComparison
               translationNamespace={translationNamespace}
               outcome={result.outcome}
-              correct={t("fuSuffix", { value: result.correctFu })}
-              user={
-                userFu === undefined
-                  ? undefined
-                  : t("fuSuffix", { value: userFu })
-              }
-              difference={answerDifferenceOf(
-                result.correctFu,
-                userFu,
-                (value) => t("fuSuffix", { value }),
+              {...numericAnswerComparison(result.correctFu, userFu, (value) =>
+                t("fuSuffix", { value }),
               )}
             />
 

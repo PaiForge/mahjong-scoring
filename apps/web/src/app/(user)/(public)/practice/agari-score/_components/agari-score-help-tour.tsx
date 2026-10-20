@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { isOya } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { QuestionDisplay } from "./question-display";
@@ -104,11 +105,7 @@ export function AgariScoreHelpTour() {
         onClose={close}
         title={t("help.title")}
         slides={slides}
-        labels={{
-          close: tCommon("close"),
-          prev: t("help.prev"),
-          next: t("help.next"),
-        }}
+        labels={practiceHelpTourLabels(t, tCommon)}
       />
     </>
   );

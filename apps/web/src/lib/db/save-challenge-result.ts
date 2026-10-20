@@ -5,16 +5,33 @@ import { expHeatmapCacheTag } from "./get-exp-heatmap-data";
 import { db } from "./index";
 import { excludedRanksBetter } from "./ranking-order";
 import { grantChallengeExp } from "./save-exp";
-import { challengeBestScores, challengeResults } from "./schema";
+import {
+  challengeBestScores,
+  challengeResults,
+  type NewChallengeResult,
+} from "./schema";
 
-export interface ChallengeResultInput {
-  readonly userId: string;
-  readonly menuType: string;
-  readonly leaderboardKey: string;
-  readonly score: number;
-  readonly incorrectAnswers: number;
-  readonly timeTaken: number;
-}
+/**
+ * 書き込む 1 回のチャレンジの成績
+ * チャレンジ結果入力
+ *
+ * `challenge_results` / `challenge_best_scores` が共有する成績の列
+ * （`scoreTupleColumns`）そのもの。DB に既定値がある `incorrectAnswers` も
+ * 呼び出し側が必ず渡す（挑戦の確定時には確定しているため）。
+ */
+export type ChallengeResultInput = Readonly<
+  Required<
+    Pick<
+      NewChallengeResult,
+      | "userId"
+      | "menuType"
+      | "leaderboardKey"
+      | "score"
+      | "incorrectAnswers"
+      | "timeTaken"
+    >
+  >
+>;
 
 export interface SaveChallengeResultReturn {
   /** 挿入された `challenge_results.id`。結果ページでの EXP 再取得に使用。 */

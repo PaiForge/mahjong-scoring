@@ -46,3 +46,43 @@ export function answerDifferenceOf(
 ): AnswerDifference | undefined {
   return user === undefined ? undefined : { correct, user, format };
 }
+
+/**
+ * 答え合わせの対比に渡す、正解と回答の文言と過不足
+ * 回答対比の値
+ *
+ * `AnswerComparison`（web / アプリ）の `correct` / `user` / `difference` に
+ * そのまま広げる。
+ */
+export interface NumericAnswerComparison {
+  readonly correct: string;
+  /** 回答が無ければ undefined（対比は無回答として描く） */
+  readonly user: string | undefined;
+  /** 回答が無ければ undefined（過不足を出さない） */
+  readonly difference: AnswerDifference | undefined;
+}
+
+/**
+ * 数値の正解と回答から、答え合わせの対比に渡す 3 つを組む
+ * 回答対比生成
+ *
+ * 符・翻数の問題リストはどれも「正解の文言・回答の文言（無回答なら無し）・
+ * 過不足（無回答なら無し）」の 3 つを同じ規則で組むので、ここに 1 つ置く。
+ *
+ * @param correct 正解の値
+ * @param user 回答の値（無回答なら undefined）
+ * @param label 値を文言にする（`(30) => "30符"` など）
+ * @param differenceFormat 過不足の値に単位を付ける。省くと `label` と同じ
+ */
+export function numericAnswerComparison(
+  correct: number,
+  user: number | undefined,
+  label: (value: number) => string,
+  differenceFormat: (value: number) => string = label,
+): NumericAnswerComparison {
+  return {
+    correct: label(correct),
+    user: user === undefined ? undefined : label(user),
+    difference: answerDifferenceOf(correct, user, differenceFormat),
+  };
+}

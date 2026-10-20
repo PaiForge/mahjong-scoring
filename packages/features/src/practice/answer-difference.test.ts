@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { answerDifferenceOf, formatDifference } from "./answer-difference";
+import {
+  answerDifferenceOf,
+  formatDifference,
+  numericAnswerComparison,
+} from "./answer-difference";
 
 const format = (value: number) => `${value}符`;
 
@@ -27,6 +31,30 @@ describe("answerDifferenceOf", () => {
 
   it("回答があれば正解・回答・単位の付け方を組む", () => {
     expect(answerDifferenceOf(30, 40, format)).toEqual({
+      correct: 30,
+      user: 40,
+      format,
+    });
+  });
+});
+
+describe("numericAnswerComparison", () => {
+  it("回答が無ければ回答の文言も過不足も組まない", () => {
+    expect(numericAnswerComparison(30, undefined, format)).toEqual({
+      correct: "30符",
+      user: undefined,
+      difference: undefined,
+    });
+  });
+
+  it("回答があれば文言と過不足を組む。過不足の単位は別に指定できる", () => {
+    const hanOption = (value: number) => `${value}翻分`;
+    expect(numericAnswerComparison(3, 4, format, hanOption)).toEqual({
+      correct: "3符",
+      user: "4符",
+      difference: { correct: 3, user: 4, format: hanOption },
+    });
+    expect(numericAnswerComparison(30, 40, format).difference).toEqual({
       correct: 30,
       user: 40,
       format,

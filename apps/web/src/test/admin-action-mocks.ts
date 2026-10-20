@@ -32,8 +32,8 @@ import { vi } from "vitest";
  * });
  * ```
  *
- * 拒否される側（管理者でない等）を見たいテストは、`setupAdminActor()` の
- * あとに該当のモックだけ上書きすること。
+ * 拒否される側を見たいテストは、`setupAdminActor()` のあとに該当のモックだけ
+ * 上書きする。管理者でない状態は {@link setupNotAdmin} で作る。
  *
  * このモジュールはテスト専用。
  */
@@ -92,4 +92,15 @@ export function setupAdminActor(tx: unknown): void {
   mockTransaction.mockImplementation(
     async (fn: (transaction: unknown) => Promise<void>) => fn(tx),
   );
+}
+
+/**
+ * 管理者でない（`requireAdminActor` が `unauthorized` を返す）状態にする
+ * 管理者拒否設定
+ *
+ * `setupAdminActor()` のあとに呼ぶ。拒否の形（`{ error: "unauthorized" }`）を
+ * 各テストが書き写さないよう、ここで 1 つ持つ。
+ */
+export function setupNotAdmin(): void {
+  mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
 }
