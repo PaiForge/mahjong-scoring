@@ -156,7 +156,7 @@ describe("PendingLessonSync", () => {
 
   it("BAN で拒まれたら預かりを残し、再試行の注記も出さない", async () => {
     rememberPendingLessonCompletion("mangan-ko-ron");
-    mockCompleteLessons.mockResolvedValue({ success: false, error: "banned" });
+    mockCompleteLessons.mockResolvedValue({ error: "banned" });
 
     const { container } = render(<PendingLessonSync userId="u1" />);
     await flush();

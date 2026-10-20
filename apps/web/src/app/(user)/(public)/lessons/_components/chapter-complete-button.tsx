@@ -80,7 +80,7 @@ export function ChapterCompleteButton({ slug }: ChapterCompleteButtonProps) {
     setSaving(true);
     try {
       const result = await completeLesson(slug);
-      if (!result.success) {
+      if ("error" in result) {
         toast.error(t("updateFailedToast"));
         return;
       }

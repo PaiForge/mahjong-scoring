@@ -347,10 +347,7 @@ describe("LessonView", () => {
     });
 
     it("BAN で拒まれたら失敗として見せ、端末に預けない", async () => {
-      mockCompleteLesson.mockResolvedValueOnce({
-        success: false,
-        error: "banned",
-      });
+      mockCompleteLesson.mockResolvedValueOnce({ error: "banned" });
       const errorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => undefined);

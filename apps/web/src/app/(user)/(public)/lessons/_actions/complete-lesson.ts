@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import type { ActionResult } from "@/lib/action-types";
+import type { AuthGateErrorCode } from "@/lib/auth";
 import {
   partitionLessonSlugs,
   recordLessonCompletions,
@@ -25,6 +27,30 @@ import {
 } from "@mahjong-scoring/features/lessons/follow-up";
 
 /**
+ * `completeLesson` が返しうるエラーコード
+ * レッスン完了エラーコード
+ *
+ * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
+ * 含まない（{@link resolveRecorder}）。`"invalidSlug"` は UI のバグ（静的生成された
+ * レッスンのページからは起きない）なので i18n キーは持たない。各コードの意味は
+ * {@link CompleteLessonResult} を参照。
+ */
+export type CompleteLessonErrorCode =
+  Exclude<AuthGateErrorCode, "unauthorized"> | "invalidSlug";
+
+/**
+ * `completeLessons` が返しうるエラーコード
+ * レッスン同期エラーコード
+ *
+ * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
+ * 含まない。スラッグの誤りはエラーにせず `rejected` で返す。
+ */
+export type CompleteLessonsErrorCode = Exclude<
+  AuthGateErrorCode,
+  "unauthorized"
+>;
+
+/**
  * レッスン完了 Server Action の戻り値
  * レッスン完了結果
  *
@@ -37,14 +63,14 @@ import {
  *   エラーではなく「期待された no-op」。レッスンは未ログインでも最後まで
  *   受けられ、残らないのは完了の印だけ。クライアントは完了を端末に預け、
  *   ログイン後のホームで同期する
- * - `{ success: false, error: 'invalid_slug' }`: カリキュラムに存在しない slug
- * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
+ * - `{ error: 'invalidSlug' }`: カリキュラムに存在しない slug
+ * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   端末にも預けない（同期しても同じく弾かれるだけ）
  */
-export type CompleteLessonResult =
-  | { readonly success: true; readonly followUp?: LessonFollowUp }
-  | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: "invalid_slug" | "banned" };
+export type CompleteLessonResult = ActionResult<
+  CompleteLessonErrorCode,
+  { readonly followUp?: LessonFollowUp } | { readonly skipped: "anonymous" }
+>;
 
 /**
  * 複数レッスンの完了を同期する Server Action の戻り値
@@ -54,17 +80,17 @@ export type CompleteLessonResult =
  *   （既に記録済みのものも含む）スラッグ、`rejected` はレジストリに無く
  *   捨てたもの。クライアントはどちらも預かりから外す
  * - `{ success: true, skipped: 'anonymous' }`: 未ログイン。預かりはそのまま残す
- * - `{ success: false, error: 'banned' }`: BAN されたユーザー。記録しない。
+ * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   預かりは残す（BAN が解かれたら次のホームで記録できる）
  */
-export type CompleteLessonsResult =
+export type CompleteLessonsResult = ActionResult<
+  CompleteLessonsErrorCode,
   | {
-      readonly success: true;
       readonly completed: readonly CurriculumChapterSlug[];
       readonly rejected: readonly string[];
     }
-  | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: "banned" };
+  | { readonly skipped: "anonymous" }
+>;
 
 /**
  * 認証済みユーザーの完了を冪等に記録し、完了を読む画面を捨てる
@@ -100,9 +126,9 @@ async function recordCompletions(
  * 間違えた問題もその場で解説を読んで進める設計のため（`lesson_completions` の
  * TSDoc 参照）。
  *
- * - 不正な slug・コラムの slug は `{ success: false, error: 'invalid_slug' }` で拒否
+ * - 不正な slug・コラムの slug は `{ error: 'invalidSlug' }` で拒否
  * - 未認証は `{ success: true, skipped: 'anonymous' }` で静かにスキップ
- * - BAN は `{ success: false, error: 'banned' }` で拒否
+ * - BAN は `{ error: 'banned' }` で拒否
  * - 既に完了済みでも `ON CONFLICT DO NOTHING` で冪等
  *
  * @param slug 対象レッスン（章）のスラッグ
@@ -111,12 +137,12 @@ export async function completeLesson(
   slug: string,
 ): Promise<CompleteLessonResult> {
   if (!isLessonChapterSlug(slug)) {
-    return { success: false, error: "invalid_slug" };
+    return { error: "invalidSlug" };
   }
 
   const recorder = await resolveRecorder();
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
-  if ("error" in recorder) return { success: false, error: recorder.error };
+  if ("error" in recorder) return { error: recorder.error };
   const { user } = recorder;
 
   // 退会を受け付けた後は、入口で弾いたとき（未認証）と同じく記録しない
@@ -174,7 +200,7 @@ export async function completeLessons(
 
   const recorder = await resolveRecorder();
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
-  if ("error" in recorder) return { success: false, error: recorder.error };
+  if ("error" in recorder) return { error: recorder.error };
   const { user } = recorder;
 
   if (!(await recordCompletions(user.id, completed)))
