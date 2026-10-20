@@ -61,6 +61,25 @@ describe("useScrollToElement", () => {
     expect(scrollIntoView.mock.instances).toContain(target);
   });
 
+  it("対象の要素が無ければ何もしない", () => {
+    renderHook(() => useScrollToElement("missing-target"));
+    flushFrame();
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("次のフレームより前にアンマウントしたら送り直さない", () => {
+    // Suspense のフォールバックが本体に差し替わるときに通る経路。予約した
+    // フレームを残すと、消えた側のスクロールが本体の描画後に走る
+    const { unmount } = renderHook(() => useScrollToElement(ELEMENT_ID));
+    scrollIntoView.mockClear();
+
+    unmount();
+    flushFrame();
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
   it("再レンダリングでは繰り返しスクロールしない", () => {
     const { rerender } = renderHook(() => useScrollToElement(ELEMENT_ID));
     flushFrame();
