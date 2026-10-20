@@ -3,11 +3,7 @@ import "server-only";
 
 import { db, notifications } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
-import {
-  clampPage,
-  DEFAULT_PAGE_SIZE,
-  getPaginationData,
-} from "@/lib/pagination";
+import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
 
 import {
   parseNotificationMetadata,
@@ -68,17 +64,12 @@ export async function listNotifications(
       .select({ count: count() })
       .from(notifications)
       .where(where);
-    const totalCount = countResult?.count ?? 0;
-    const lastPage = getPaginationData(
-      1,
-      totalCount,
-      NOTIFICATIONS_PAGE_SIZE,
-    ).totalPages;
-    const { totalPages, currentPage, limit, offset } = getPaginationData(
-      clampPage(page, lastPage),
-      totalCount,
+    const { totalPages, currentPage, limit, offset } = resolvePagination(
+      page,
+      countResult?.count ?? 0,
       NOTIFICATIONS_PAGE_SIZE,
     );
+
     const rows = await db
       .select({
         id: notifications.id,

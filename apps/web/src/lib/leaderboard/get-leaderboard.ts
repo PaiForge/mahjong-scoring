@@ -10,7 +10,11 @@ import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-type
 import { LEADERBOARD_CACHE_TAG } from "../cache-tags";
 import type { RankedLeaderboardRow } from "../db/leaderboard-queries";
 import { logExternalError } from "../log-error";
-import { clampPage, DEFAULT_PAGE_SIZE, getPaginationData } from "../pagination";
+import {
+  DEFAULT_PAGE_SIZE,
+  getPaginationData,
+  resolvePagination,
+} from "../pagination";
 
 import { getQueriesForPeriod } from "./period-queries";
 
@@ -114,16 +118,12 @@ export async function getLeaderboard(
       requested.limit,
       now,
     );
-    const lastPage = getPaginationData(
-      1,
-      first.total,
-      LEADERBOARD_PAGE_SIZE,
-    ).totalPages;
-    const { currentPage, limit, offset } = getPaginationData(
-      clampPage(page, lastPage),
+    const { currentPage, limit, offset } = resolvePagination(
+      page,
       first.total,
       LEADERBOARD_PAGE_SIZE,
     );
+
     const { rows, total } =
       currentPage === requested.currentPage
         ? first
