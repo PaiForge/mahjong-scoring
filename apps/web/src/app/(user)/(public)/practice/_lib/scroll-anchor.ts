@@ -2,10 +2,10 @@
  * 練習セッション（play / training）のスクロール先アンカー。
  * 練習スクロールアンカー
  *
- * `ContentContainer` の `id` に付与し、説明ページ・結果ページからの遷移リンクに
- * ハッシュ（`#practice-session`）として付けることで、クライアント遷移でも
- * ブラウザのネイティブスクロールでグローバルヘッダを画面外へ送る。
- * `useScrollToElement` は直接読み込み時のフォールバックとして併用する。
+ * `ContentContainer` の `id` に付与する。開いた直後にここへ送るのは
+ * `useScrollToElement`（マウント時の layout effect）で、説明ページ・結果ページ
+ * からの遷移リンクに付けるハッシュ（`#practice-session`）は、Next の遷移時の
+ * スクロールが同じ要素へ向くようにする補助。
  */
 export const PRACTICE_SCROLL_ANCHOR_ID = "practice-session";
 

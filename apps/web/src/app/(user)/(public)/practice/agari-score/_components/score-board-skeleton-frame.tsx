@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { useScrollToElement } from "../../_hooks/use-scroll-to-element";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../../_lib/scroll-anchor";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
@@ -29,6 +30,11 @@ export function ScoreBoardSkeletonFrame({
   children,
 }: ScoreBoardSkeletonFrameProps) {
   const t = useTranslations(translationNamespace);
+
+  // 本体と同じ位置まで送っておく。盤面より外側の Suspense と手牌の見せ方の
+  // 待ち（`HandPresentationProvider`）がこのスケルトンを先に出すため、盤面の
+  // スクロールを待つと、ヘッダのぶん下の位置で一度描かれてから跳ね上がる
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>

@@ -84,9 +84,11 @@ function AgariScoreBoardInner() {
   // 初期化していないことを表す
   const appliedQueryRef = useRef<string | undefined>(undefined);
 
-  // 練習開始直後（最初の問題が用意されたら）、グローバルヘッダ分のオフセットを
-  // 解消して問題を画面上部へ表示する
-  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
+  // 練習開始直後、グローバルヘッダ分のオフセットを解消して問題を画面上部へ
+  // 表示する。問題ができるのを待たない — スケルトン・無料枠の案内・生成失敗の
+  // 表示もスクロール先の id を本体と同じ位置に持つので、最初に描く画面から
+  // 送っておけば、問題に差し替わるときに跳ねない
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   // 出題条件はストア（モジュールスコープで、ページを離れても破棄されない）へ
   // 移し替えてから問題を作る。判定を「クエリが変わったか」で行うのが要点:

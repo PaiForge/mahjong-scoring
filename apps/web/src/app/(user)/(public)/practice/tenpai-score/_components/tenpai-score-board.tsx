@@ -96,7 +96,8 @@ function TenpaiScoreBoardInner() {
   const appliedQueryRef = useRef<string | undefined>(undefined);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
-  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID, Boolean(currentQuestion));
+  // 問題ができるのを待たずに送る（理由は agari-score-board と同じ）
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   // 出題条件の適用はクエリの変化で判定する（理由は和了形の点数計算の盤面と同じ:
   // 問題の有無で見ると前回の問題が残ったまま条件が無視され、マウント一度きり

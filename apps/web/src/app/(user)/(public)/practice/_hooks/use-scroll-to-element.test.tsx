@@ -7,8 +7,9 @@ const ELEMENT_ID = "scroll-target";
 
 /**
  * jsdom はレイアウトを持たないので、対象要素へ scrollIntoView が呼ばれたか
- * だけを検証する。StrictMode 下でも効くことが本題（マウント直後に effect を
- * 一度捨てて呼び直す挙動で、以前は一度もスクロールしなくなっていた）。
+ * だけを検証する。本題は 2 つ — 描画を待たずにマウントの時点で送ること
+ * （待つとスケルトンが送る前の位置で一度描かれる）と、Next の遷移時の
+ * スクロールに戻されたぶんを次のフレームで送り直すこと。
  */
 describe("useScrollToElement", () => {
   let target: HTMLElement;
@@ -30,54 +31,63 @@ describe("useScrollToElement", () => {
     vi.useRealTimers();
   });
 
-  it("マウント後に対象要素へスクロールする", () => {
-    renderHook(() => useScrollToElement(ELEMENT_ID));
+  function flushFrame() {
     act(() => {
-      vi.advanceTimersByTime(100);
+      vi.advanceTimersToNextFrame();
     });
+  }
+
+  it("マウントした時点で、タイマーを待たずに対象要素へスクロールする", () => {
+    renderHook(() => useScrollToElement(ELEMENT_ID));
 
     expect(scrollIntoView.mock.instances).toContain(target);
   });
 
-  it("StrictMode でもスクロールする", () => {
-    renderHook(() => useScrollToElement(ELEMENT_ID), { wrapper: StrictMode });
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
+  it("次のフレームでもう一度スクロールする", () => {
+    renderHook(() => useScrollToElement(ELEMENT_ID));
+    scrollIntoView.mockClear();
+
+    flushFrame();
 
     expect(scrollIntoView.mock.instances).toContain(target);
+  });
+
+  it("StrictMode でも次のフレームのスクロールが残る", () => {
+    renderHook(() => useScrollToElement(ELEMENT_ID), { wrapper: StrictMode });
+    scrollIntoView.mockClear();
+
+    flushFrame();
+
+    expect(scrollIntoView.mock.instances).toContain(target);
+  });
+
+  it("対象の要素が無ければ何もしない", () => {
+    renderHook(() => useScrollToElement("missing-target"));
+    flushFrame();
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it("次のフレームより前にアンマウントしたら送り直さない", () => {
+    // Suspense のフォールバックが本体に差し替わるときに通る経路。予約した
+    // フレームを残すと、消えた側のスクロールが本体の描画後に走る
+    const { unmount } = renderHook(() => useScrollToElement(ELEMENT_ID));
+    scrollIntoView.mockClear();
+
+    unmount();
+    flushFrame();
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
   });
 
   it("再レンダリングでは繰り返しスクロールしない", () => {
     const { rerender } = renderHook(() => useScrollToElement(ELEMENT_ID));
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
+    flushFrame();
     scrollIntoView.mockClear();
 
     rerender();
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
+    flushFrame();
 
     expect(scrollIntoView).not.toHaveBeenCalled();
-  });
-
-  it("enabled が false の間はスクロールせず、true になってからスクロールする", () => {
-    const { rerender } = renderHook(
-      ({ enabled }) => useScrollToElement(ELEMENT_ID, enabled),
-      { initialProps: { enabled: false } },
-    );
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-    expect(scrollIntoView).not.toHaveBeenCalled();
-
-    rerender({ enabled: true });
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-
-    expect(scrollIntoView.mock.instances).toContain(target);
   });
 });
