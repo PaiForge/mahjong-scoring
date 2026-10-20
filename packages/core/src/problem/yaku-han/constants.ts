@@ -82,8 +82,15 @@ export const YAKU_HAN_ENTRIES: readonly YakuHanEntry[] = [
  * - "all": すべて（役満を含む）
  *
  * 役翻数出題範囲
+ *
+ * 値の一覧は {@link YAKU_HAN_RANGES} が唯一の定義で、型はそこから導出する。
+ * 型と一覧を別々に書くと、範囲を足したときに正規化（{@link normalizeYakuHanRange}）
+ * だけが古いまま残り、新しい値が不正値として既定値に丸められる。
  */
-export type YakuHanRange = "no-kuisagari" | "kuisagari" | "all";
+export type YakuHanRange = (typeof YAKU_HAN_RANGES)[number];
+
+/** 役翻数練習の出題範囲の一覧（{@link YakuHanRange} の全値） */
+export const YAKU_HAN_RANGES = ["no-kuisagari", "kuisagari", "all"] as const;
 
 /** デフォルトの出題範囲 */
 export const DEFAULT_YAKU_HAN_RANGE: YakuHanRange = "all";
@@ -171,10 +178,9 @@ export function getYakuHanEntries(
 
 /** 文字列を妥当な YakuHanRange に正規化する（不正値は既定値にフォールバック） */
 export function normalizeYakuHanRange(value: string | undefined): YakuHanRange {
-  if (value === "no-kuisagari" || value === "kuisagari" || value === "all") {
-    return value;
-  }
-  return DEFAULT_YAKU_HAN_RANGE;
+  return (
+    YAKU_HAN_RANGES.find((range) => range === value) ?? DEFAULT_YAKU_HAN_RANGE
+  );
 }
 
 /**

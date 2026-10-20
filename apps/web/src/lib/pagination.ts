@@ -34,7 +34,35 @@ export function clampPage(requested: number, totalPages: number): number {
   return Math.max(1, Math.min(requested, totalPages));
 }
 
+/**
+ * 要求されたページを件数で確定し、そのページの取り出し位置を返す
+ * ページ確定
+ *
+ * 範囲外のページ（3 件しかないのに `?page=9`）は最終ページに丸め、
+ * 件数が 0 でも 1 ページ目にする。「件数を知ってからページを決める」側
+ * （通知・チャレンジ履歴・ランキング・アプリのお知らせ）はこれを通し、
+ * 丸めの規則を取得関数ごとに書き起こさない — 書き起こすと規則を直した
+ * ときに片側だけが直る。
+ *
+ * @param requestedPage - 要求されたページ番号（1始まり。上限に丸める前の値）
+ * @param totalCount - 全件数
+ * @param pageSize - 1ページあたりの表示件数
+ */
+export function resolvePagination(
+  requestedPage: number,
+  totalCount: number,
+  pageSize = DEFAULT_PAGE_SIZE,
+): PaginationData {
+  const lastPage = getPaginationData(1, totalCount, pageSize).totalPages;
+  return getPaginationData(
+    clampPage(requestedPage, lastPage),
+    totalCount,
+    pageSize,
+  );
+}
+
 /** ページネーション算出結果 */
+
 interface PaginationData {
   currentPage: number;
   totalPages: number;

@@ -19,20 +19,16 @@ import type {
   ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
+import { decideChallengeAnswer } from "./answer-decision";
 import {
-  askedChallengeQuestions,
   generateChallengeQuestion,
-  gradeChallengeAnswer,
   publicChallengeQuestion,
 } from "./questions";
 import {
-  answeredChallenge,
-  canAnswerChallenge,
   canPauseChallenge,
   challengeElapsed,
   challengeRemainingMs,
   finishedChallengeTime,
-  isChallengeTimeUp,
   pausedChallenge,
   startedChallenge,
 } from "./transitions";
@@ -162,12 +158,11 @@ function resumableEntry(
 /**
  * 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。
  *
- * 直前の問題への再送は、採点し直さずに受け付けたときと同じ応答を返す。
- * 応答が通信で失われると、クライアントは次の問題を知らないまま同じ番号で
- * 送り直すしかないため。同じ番号に別の回答が来たら拒否する（答えを
- * 見てからの差し替えになる）。
+ * 再送・差し替え・期限切れ・採点の規則は {@link decideChallengeAnswer}
+ * （純粋）が持ち、ここはロックと、受け付けた状態の UPDATE だけを持つ。
  *
  * サーバー時計の起点（`respondedAt`）は UPDATE の直前に取る。起点を行に
+
  * 書くので、UPDATE と COMMIT の時間は起点より後に掛かり、固定の猶予
  * （`RESPONSE_GRACE_MS`）の中から消費される（実測値はそちらの TSDoc）。
  *
@@ -194,70 +189,35 @@ export async function answerAttempt(
     return undefined;
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
-    const now = receivedAt;
     if (!row) return undefined;
-    const last = row.state.lastAnswer;
-    if (last && last.sequence === sequence)
-      return isDeepStrictEqual(last.answer, toJsonValue(answer))
-        ? {
-            correct: last.correct,
-            answered: last.answered,
-            question: publicChallengeQuestion(
-              row.state.question,
-              row.state.menuType,
-            ),
-            sequence: row.state.sequence,
-            elapsedMs: last.elapsedMs,
-          }
-        : undefined;
-    if (row.consumed) return undefined;
-    if (isChallengeTimeUp(row.state, now)) return { expired: true as const };
-    if (!canAnswerChallenge(row.state, sequence, now)) return undefined;
-    const correct = gradeChallengeAnswer(
-      row.state.menuType,
-      row.state.question,
+    const decision = decideChallengeAnswer(
+      row,
+      sequence,
       answer,
-    );
-    const askedQuestions = askedChallengeQuestions(row.state);
-    const next = generateChallengeQuestion(
-      row.state.menuType,
-      row.state.variant,
-      row.state.settings,
-      askedQuestions,
-    );
-    if (!next) return undefined;
-    const answered = answeredChallenge(
-      row.state,
-      correct,
-      next,
       receivedAt,
-      clock(),
+      clock,
     );
-    const state: ChallengeState = {
-      ...answered,
-      ...(askedQuestions && { askedQuestions }),
-      lastAnswer: {
-        sequence,
-        answer: toJsonValue(answer),
-        correct,
-        answered: row.state.question,
-        elapsedMs: answered.elapsedMs,
-      },
-    };
-    await tx
-      .update(challengeAttempts)
-      .set({ state })
-      .where(eq(challengeAttempts.id, id));
-    return {
-      correct,
-      answered: row.state.question,
-      question: publicChallengeQuestion(next, state.menuType),
-      sequence: state.sequence,
-      // 採点時点の経過時間。画面の時計をこれに合わせ直す（猶予の間は止まっている）
-      elapsedMs: state.elapsedMs,
-    };
+    switch (decision.kind) {
+      case "replay":
+        return decision.response;
+      case "rejected":
+        return undefined;
+      case "expired":
+        return { expired: true as const };
+      case "accepted":
+        await tx
+          .update(challengeAttempts)
+          .set({ state: decision.state })
+          .where(eq(challengeAttempts.id, id));
+        return decision.response;
+      default: {
+        const exhaustive: never = decision;
+        return exhaustive;
+      }
+    }
   });
 }
+
 /**
  * 一時停止・再開もサーバー時計に記録する。
  *
@@ -429,16 +389,6 @@ export async function readAttemptStatus(
       ? outcomeResult(state.outcome ?? { kind: "unrecorded" })
       : undefined,
   };
-}
-
-/**
- * 回答を JSON に直した形
- *
- * 回答は jsonb に入って戻ってくる。値が undefined のキーは JSON に載らず
- * jsonb で消えるので、比べる前に両方をこの形に揃える。
- */
-function toJsonValue(value: unknown): unknown {
-  return value === undefined ? null : JSON.parse(JSON.stringify(value));
 }
 
 /**

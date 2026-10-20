@@ -9,10 +9,11 @@ import { and, count, desc, eq, gte, lt, notInArray } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import {
-  clampPage,
   DEFAULT_PAGE_SIZE,
   getPaginationData,
+  resolvePagination,
 } from "@/lib/pagination";
+
 import {
   isPracticeMenuType,
   isPracticeVariant,
@@ -88,18 +89,12 @@ export async function getChallengeResultsPaginated(
     db.select({ count: count() }).from(challengeResults).where(whereClause),
     selectRows(requested.offset, requested.limit),
   ]);
-  const totalCount = countResult?.count ?? 0;
-
-  const lastPage = getPaginationData(
-    1,
-    totalCount,
-    DEFAULT_PAGE_SIZE,
-  ).totalPages;
-  const { totalPages, currentPage, limit, offset } = getPaginationData(
-    clampPage(page, lastPage),
-    totalCount,
+  const { totalPages, currentPage, limit, offset } = resolvePagination(
+    page,
+    countResult?.count ?? 0,
     DEFAULT_PAGE_SIZE,
   );
+
   const rows =
     currentPage === requested.currentPage
       ? requestedRows

@@ -3,35 +3,57 @@ import type { MobileChallengeStatus } from "@mahjong-scoring/features/challenge/
 import type { RecordsApiFailure, RecordsApiResult } from "./records-api";
 
 /**
+ * 失敗をどう扱うか
+ * 失敗の種別
+ *
+ * - `retryable` — 通信や一時的な障害。同じ要求を後で送り直せばよい
+ * - `settled` — サーバーが答えを出した（まだ終わっていない・記録できない・
+ *   見つからない）。もう送っても変わらない
+ * - `unsettled` — ログインが変わった・切れた等。後で送れば通るかも
+ *   しれないので残すが、今は送り直さない
+ */
+type FailureKind = "retryable" | "settled" | "unsettled";
+
+/**
+ * 失敗ごとの扱いの表
+ *
+ * `===` の羅列ではなく全コードを持つ表にしているのは、API に失敗の理由を
+ * 足したとき、ここに扱いを書き足すまで型エラーになるようにするため。
+ * 羅列だと新しい理由が黙って「未確定・再送不可」に落ちる。
+ */
+const FAILURE_KINDS: Readonly<Record<RecordsApiFailure, FailureKind>> = {
+  network: "retryable",
+  serverError: "retryable",
+  authUnavailable: "retryable",
+  rateLimited: "retryable",
+  notFinished: "settled",
+  invalidChallenge: "settled",
+  conflict: "settled",
+  invalidRequest: "settled",
+  examLocked: "settled",
+  unauthorized: "unsettled",
+  deleted: "unsettled",
+  banned: "unsettled",
+  userChanged: "unsettled",
+  unknown: "unsettled",
+};
+
+/**
  * 失敗のうち、通信や一時的な障害で、同じ要求を後で送り直せばよいもの
  * 再送可能な失敗
  */
 export function isRetryableFailure(error: RecordsApiFailure): boolean {
-  return (
-    error === "network" ||
-    error === "serverError" ||
-    error === "authUnavailable" ||
-    error === "rateLimited"
-  );
+  return FAILURE_KINDS[error] === "retryable";
 }
 
 /**
  * 確定の失敗が「もう送っても変わらない」ものか
  * 確定済みの失敗
  *
- * 通信・一時的な障害、ログインが変わった・切れたものは、後で送れば
- * 通るかもしれないので残す。サーバーが答えを出したもの（まだ終わって
- * いない・記録できない・見つからない）は確定したものとして扱う。
+ * 扱いの分け方は {@link FAILURE_KINDS}。
  */
 export function isSettled(error: RecordsApiFailure): boolean {
-  if (isRetryableFailure(error)) return false;
-  return (
-    error === "notFinished" ||
-    error === "invalidChallenge" ||
-    error === "conflict" ||
-    error === "invalidRequest" ||
-    error === "examLocked"
-  );
+  return FAILURE_KINDS[error] === "settled";
 }
 
 /**

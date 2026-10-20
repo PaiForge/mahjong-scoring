@@ -357,4 +357,17 @@ describe("processAccountDeletion", () => {
     expect(await processAccountDeletion(USER)).toBe("pending");
     expect(mocks.dataDeletes).not.toHaveBeenCalled();
   });
+
+  it("各工程を終えた時刻と完了の時刻は渡した時計から取る", async () => {
+    mocks.storageRemove.mockResolvedValueOnce({ error: { message: "x" } });
+    await requestAccountDeletion(USER);
+
+    const fixed = new Date("2026-10-21T00:00:00Z");
+    expect(await processAccountDeletion(USER, () => fixed)).toBe("completed");
+    expect(state.row).toMatchObject({
+      storageDeletedAt: fixed,
+      authDeletedAt: fixed,
+      completedAt: fixed,
+    });
+  });
 });

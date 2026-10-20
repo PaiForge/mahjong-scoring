@@ -15,7 +15,7 @@ import {
   getPublishedAnnouncementCount,
   getPublishedAnnouncementsPaginated,
 } from "../announcements/queries";
-import { clampPage, getPaginationData, parsePageParam } from "../pagination";
+import { parsePageParam, resolvePagination } from "../pagination";
 
 import { mobileJson, mobileServerError } from "./response";
 
@@ -42,13 +42,12 @@ export async function handleReadAnnouncements(
   );
   try {
     const totalCount = await getPublishedAnnouncementCount();
-    const pageSize = ANNOUNCEMENTS_PER_PAGE;
-    const lastPage = getPaginationData(1, totalCount, pageSize).totalPages;
-    const { currentPage, totalPages, limit, offset } = getPaginationData(
-      clampPage(requestedPage, lastPage),
+    const { currentPage, totalPages, limit, offset } = resolvePagination(
+      requestedPage,
       totalCount,
-      pageSize,
+      ANNOUNCEMENTS_PER_PAGE,
     );
+
     const rows = await getPublishedAnnouncementsPaginated(
       DEFAULT_LOCALE,
       limit,
