@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   mockNotify,
   mockRecordModerationAction,
-  mockRequireAdminActor,
   mockRevalidatePath,
   mockTransaction,
   setupAdminActor,
+  setupNotAdmin,
 } from "@/test/admin-action-mocks";
 
 const { mockInsertBenefitGrant } = vi.hoisted(() => ({
@@ -57,7 +57,7 @@ beforeEach(() => {
 
 describe("grantBenefits", () => {
   it("管理者でなければ unauthorized で何も書かない", async () => {
-    mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
+    setupNotAdmin();
 
     expect(await grantBenefits("u1", "days30", "理由")).toEqual({
       error: "unauthorized",

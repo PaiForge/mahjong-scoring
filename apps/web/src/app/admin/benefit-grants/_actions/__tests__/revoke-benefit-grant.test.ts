@@ -3,10 +3,10 @@ import {
   mockGetClientIp,
   mockNotify,
   mockRecordModerationAction,
-  mockRequireAdminActor,
   mockRevalidatePath,
   mockTransaction,
   setupAdminActor,
+  setupNotAdmin,
 } from "@/test/admin-action-mocks";
 
 const { mockRevokeBenefitGrant } = vi.hoisted(() => ({
@@ -58,7 +58,7 @@ beforeEach(() => {
 
 describe("revokeBenefitGrantAction", () => {
   it("管理者でなければ unauthorized", async () => {
-    mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
+    setupNotAdmin();
 
     expect(await revokeBenefitGrantAction("g1", "理由")).toEqual({
       error: "unauthorized",
