@@ -16,13 +16,8 @@ import {
 import type { DatePeriod } from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
-import {
-  apiFailureOf,
-  callMobileApi,
-  errorOf,
-  type ApiFailure,
-} from "../auth/api-client";
-import { readJson } from "../auth/read-json";
+import { apiFailureOf, errorOf, type ApiFailure } from "../auth/api-client";
+import { readMobileApi } from "../auth/request-mobile-api";
 
 /** マイページ・マイレコードの API の失敗 */
 export type MypageApiFailure = ApiFailure | MobileMypageErrorCode;
@@ -53,16 +48,12 @@ export async function mypageFailureOf(
  * 読んでいる間に別のユーザーへ切り替わったら送らない（`asUser`）。
  * 409 はユーザー名を決めていない（`usernameRequired`）。
  */
-async function read<T extends object>(
+function read<T extends object>(
   userId: string,
   path: string,
   parse: (body: unknown) => T | undefined,
 ): Promise<MypageApiResult<T>> {
-  const response = await callMobileApi(path, { asUser: userId });
-  if (typeof response === "string") return { error: response };
-  if (!response.ok) return { error: await mypageFailureOf(response) };
-  const value = parse(await readJson(response));
-  return value ?? { error: "unknown" };
+  return readMobileApi(path, { asUser: userId }, parse, mypageFailureOf);
 }
 
 /**

@@ -14,7 +14,7 @@ import {
   callMobileApi,
   type ApiFailure,
 } from "../auth/api-client";
-import { readJson } from "../auth/read-json";
+import { readMobileApi } from "../auth/request-mobile-api";
 
 /** ランキングの API の失敗 */
 export type LeaderboardApiFailure = ApiFailure | MobileLeaderboardErrorCode;
@@ -23,30 +23,35 @@ export type LeaderboardApiFailure = ApiFailure | MobileLeaderboardErrorCode;
 export type LeaderboardApiResult<T> =
   T | { readonly error: LeaderboardApiFailure };
 
-/** 応答を読み、成功なら検証して返す */
-async function readResponse<T extends object>(
-  response: Response | ApiFailure,
+/** 失敗の応答を理由に丸める。404 は期間が無い（`notFound`） */
+function leaderboardFailureOf(
+  response: Response,
+): Promise<LeaderboardApiFailure> {
+  return response.status === 404
+    ? Promise.resolve("notFound")
+    : apiFailureOf(response);
+}
+
+/** GET を本人の名義で送り、成功なら応答を検証して返す */
+function read<T extends object>(
+  userId: string,
+  path: string,
   parse: (body: unknown) => T | undefined,
 ): Promise<LeaderboardApiResult<T>> {
-  if (typeof response === "string") return { error: response };
-  if (response.status === 404) return { error: "notFound" };
-  if (!response.ok) return { error: await apiFailureOf(response) };
-  const value = parse(await readJson(response));
-  return value ?? { error: "unknown" };
+  return readMobileApi(path, { asUser: userId }, parse, leaderboardFailureOf);
 }
 
 /**
  * 本人の全土俵の順位を読む（ログイン中だけ）
  * ランキング順位取得
  */
-export async function fetchLeaderboardRanks(
+export function fetchLeaderboardRanks(
   userId: string,
   period: LeaderboardPeriod,
 ): Promise<LeaderboardApiResult<MobileLeaderboardRanksResponse>> {
-  return readResponse(
-    await callMobileApi(mobileLeaderboardRanksApiUrl(period), {
-      asUser: userId,
-    }),
+  return read(
+    userId,
+    mobileLeaderboardRanksApiUrl(period),
     parseMobileLeaderboardRanksResponse,
   );
 }
@@ -55,13 +60,12 @@ export async function fetchLeaderboardRanks(
  * ランキングに表示しない設定を読む（ログイン中だけ）
  * ランキング非表示設定取得
  */
-export async function fetchLeaderboardVisibility(
+export function fetchLeaderboardVisibility(
   userId: string,
 ): Promise<LeaderboardApiResult<MobileLeaderboardVisibility>> {
-  return readResponse(
-    await callMobileApi(MOBILE_LEADERBOARD_VISIBILITY_API_PATH, {
-      asUser: userId,
-    }),
+  return read(
+    userId,
+    MOBILE_LEADERBOARD_VISIBILITY_API_PATH,
     parseMobileLeaderboardVisibility,
   );
 }

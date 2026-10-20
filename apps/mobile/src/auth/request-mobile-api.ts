@@ -39,6 +39,29 @@ export async function requestMobileApi<T, F>(
 }
 
 /**
+ * 要求を送り、成功なら応答の値をそのまま、失敗なら `{ error }` を返す
+ * アプリAPI要求（値をそのまま）
+ *
+ * {@link requestMobileApi} と同じ規則で、読み取りの API（マイページ・通知・
+ * ランキング）が返す `T | { error }` の形に開く。成功の値を `value` に包まない
+ * ので、画面側は `"error" in result` だけで分けられる。
+ *
+ * @param path - API のパス
+ * @param init - 要求の指定。名義（`asUser`）を必ず渡す
+ * @param parse - 成功の本文を契約の形に検証する。形が違えば undefined
+ * @param failureOf - 失敗の応答を理由に丸める
+ */
+export async function readMobileApi<T extends object, F>(
+  path: string,
+  init: MobileApiInit & { readonly asUser: string },
+  parse: (body: unknown) => T | undefined,
+  failureOf: (response: Response) => Promise<F>,
+): Promise<T | { readonly error: ApiFailure | F }> {
+  const result = await requestMobileApi(path, init, parse, failureOf);
+  return "value" in result ? result.value : result;
+}
+
+/**
  * 失敗の応答を、API 固有の理由・サーバーの一時的な失敗・共通の理由の順に丸める
  * アプリAPI失敗の丸め
  *
