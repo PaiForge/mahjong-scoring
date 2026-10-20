@@ -71,7 +71,7 @@ interface SpotlightTourProps {
    * 時点で印を書き、2 回目からは始めない（見たいときは「?」から開く）。毎回
    * 始めると、知っている人には閉じる手間が増えるだけになる。始めるのは
    * {@link AUTO_START_DELAY_MS} 後で、盤面へのスクロール
-   * （`useScrollToElement` の 100ms）が済んでから照らす
+   * （`useScrollToElement`）が済んでから照らす
    */
   readonly autoStartOnceKey?: string;
 }
