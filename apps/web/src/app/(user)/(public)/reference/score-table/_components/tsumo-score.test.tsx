@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { render } from "@/test/intl-render";
 import { TsumoScore } from "./tsumo-score";
 
 describe("TsumoScore", () => {
@@ -14,13 +15,14 @@ describe("TsumoScore", () => {
     expect(container.textContent).toContain("/");
   });
 
-  it("親ツモは点数の下に ALL を添える（∀ は使わない）", () => {
+  it("親ツモは点数の下に、回答と同じ「オール」を添える（∀ や ALL にしない）", () => {
     const { container } = render(
       <TsumoScore payment={{ type: "oyaTsumo", all: 2000 }} />,
     );
 
     expect(screen.getByText("2000")).toBeDefined();
-    expect(screen.getByText("ALL")).toBeDefined();
+    expect(screen.getByText("オール")).toBeDefined();
     expect(container.textContent).not.toContain("∀");
+    expect(container.textContent).not.toContain("ALL");
   });
 });

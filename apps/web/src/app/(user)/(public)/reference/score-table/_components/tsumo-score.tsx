@@ -1,6 +1,7 @@
 "use client";
 
 import type { TsumoPayment } from "@mahjong-scoring/core";
+import { useTranslations } from "next-intl";
 
 /**
  * ツモ点数の2段表示
@@ -9,8 +10,15 @@ import type { TsumoPayment } from "@mahjong-scoring/core";
  * 符×翻の表は狭い画面（特にモーダル）で1行に「400/700」を収めきれず、
  * 折り返すと数字が2行に割れて読めなくなる。そこで縦に積むことを前提にし、
  * 子ツモは区切り線で分数のように上段＝子から・下段＝親からを示し、
- * 親ツモは点数の下に小さく ALL を添える（∀ は初見で意味が取れないため）。
+ * 親ツモは点数の下に小さく「オール」を添える。
  * 上下が何を指すかは表の上の凡例が受け持つ。
+ *
+ * 「オール」は辞書（`scoreTable.all`）から引く。練習の回答・答え合わせ
+ * （`formatScoreAnswer`）と教本の本文が親ツモを「オール」と呼ぶので、表だけ
+ * 別の語にしない。点数表によくある「∀」は初見で意味が取れず、英字の「ALL」は
+ * 回答で見る語と一致しないうえ辞書を迂回する（以前は ALL を直書きしていたが、
+ * 10px の「オール」は 1 列 70px の表に収まり、幅の理由も無かった）。
+ * アプリ（`apps/mobile`）の同名コンポーネントも同じ理由で同じキーを引く。
  */
 export function TsumoScore({
   payment,
@@ -26,6 +34,7 @@ export function TsumoScore({
    */
   readonly dimFromKo?: boolean;
 }) {
+  const t = useTranslations("scoreTable");
   if (payment.type === "koTsumo") {
     return (
       <span className="inline-flex flex-col items-stretch leading-tight">
@@ -42,7 +51,7 @@ export function TsumoScore({
   return (
     <span className="inline-flex flex-col items-center leading-tight">
       <span>{payment.all}</span>
-      <span className="text-[0.625rem] font-bold opacity-60">ALL</span>
+      <span className="text-[0.625rem] font-bold opacity-60">{t("all")}</span>
     </span>
   );
 }
