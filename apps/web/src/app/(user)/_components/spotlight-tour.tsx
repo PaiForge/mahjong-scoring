@@ -70,13 +70,16 @@ interface SpotlightTourProps {
    * 早見表の連動サンプル）で使う。値は localStorage のキーで、実際に始めた
    * 時点で印を書き、2 回目からは始めない（見たいときは「?」から開く）。毎回
    * 始めると、知っている人には閉じる手間が増えるだけになる。始めるのは
-   * {@link AUTO_START_DELAY_MS} 後で、盤面へのスクロール
-   * （`useScrollToElement`）が済んでから照らす
+   * {@link AUTO_START_DELAY_MS} 後で、盤面を一度見てから案内が被さる
    */
   readonly autoStartOnceKey?: string;
 }
 
-/** 自動で始めるまでの待ち。盤面へのスクロールの後に照らすため */
+/**
+ * 自動で始めるまでの待ち。開いた瞬間に暗幕が被さらず、盤面を一度見てから
+ * 案内が始まるようにするため。盤面へのスクロール（`useScrollToElement`）は
+ * 最初の描画より前に済むので、位置合わせのために待つ必要は無い
+ */
 const AUTO_START_DELAY_MS = 300;
 
 /**
