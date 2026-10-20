@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 
-import { HAN_OPTIONS, hanCountLabel } from "./han-options";
+import { HAN_COUNT_OPTIONS, hanCountLabel } from "./han-options";
 
 /** テスト用の翻訳関数（ja.json の hanCountChallenge と同じ体裁を返す） */
 function t(key: string, values?: Record<string, number>): string {
@@ -10,11 +10,11 @@ function t(key: string, values?: Record<string, number>): string {
   throw new Error(`未知の翻訳キー: ${key}`);
 }
 
-describe("HAN_OPTIONS", () => {
+describe("HAN_COUNT_OPTIONS", () => {
   it("1翻から役満までの連番になっている", () => {
-    expect(HAN_OPTIONS[0]).toBe(1);
-    expect(HAN_OPTIONS[HAN_OPTIONS.length - 1]).toBe(YAKUMAN_HAN);
-    expect(HAN_OPTIONS).toHaveLength(YAKUMAN_HAN);
+    expect(HAN_COUNT_OPTIONS[0]).toBe(1);
+    expect(HAN_COUNT_OPTIONS[HAN_COUNT_OPTIONS.length - 1]).toBe(YAKUMAN_HAN);
+    expect(HAN_COUNT_OPTIONS).toHaveLength(YAKUMAN_HAN);
   });
 });
 

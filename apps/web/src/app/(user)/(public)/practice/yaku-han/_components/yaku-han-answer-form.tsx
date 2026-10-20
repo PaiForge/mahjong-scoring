@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  HAN_OPTIONS,
+  YAKU_HAN_OPTIONS,
   yakuHanLabel,
 } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
@@ -28,7 +28,7 @@ export function YakuHanAnswerForm(props: YakuHanAnswerFormProps) {
   return (
     <HanChoiceAnswerForm
       {...props}
-      options={HAN_OPTIONS}
+      options={YAKU_HAN_OPTIONS}
       translationNamespace="yakuHanChallenge"
       columnsClassName="grid-cols-4 sm:grid-cols-7"
       renderLabel={yakuHanLabel}
