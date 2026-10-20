@@ -39,17 +39,13 @@ describe("submitExamResult", () => {
   });
   it("BAN中は書き込まない", async () => {
     mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
-    expect(await submitExamResult("attempt-id")).toEqual({
-      success: false,
-      error: "banned",
-    });
+    expect(await submitExamResult("attempt-id")).toEqual({ error: "banned" });
     expect(finish).not.toHaveBeenCalled();
   });
   it("無効・未終了・使用済みの挑戦は成功扱いにしない", async () => {
     finish.mockResolvedValue(undefined);
     expect(await submitExamResult("invalid")).toEqual({
-      success: false,
-      error: "invalid_result",
+      error: "invalidResult",
     });
   });
 });

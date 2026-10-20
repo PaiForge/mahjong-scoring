@@ -1,4 +1,5 @@
 "use server";
+import type { ActionResult } from "@/lib/action-types";
 import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
@@ -13,8 +14,8 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
  */
 export type SubmitExamErrorCode =
   | Exclude<AuthGateErrorCode, "unauthorized">
-  | "invalid_result"
-  | "unexpected_error";
+  | "invalidResult"
+  | "unexpectedError";
 
 /**
  * `submitExamResult` の戻り値
@@ -27,17 +28,18 @@ export type SubmitExamErrorCode =
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す（未ログインでは挑戦が始まらない
  *   ため、通常は起きない）。
- * - `{ success: false, error: 'banned' }`: BAN されたユーザー。採点しない。
- * - `{ success: false, error: 'invalid_result' }`: 採点できる試験の挑戦ではない。
+ * - `{ error: 'banned' }`: BAN されたユーザー。採点しない。
+ * - `{ error: 'invalidResult' }`: 採点できる試験の挑戦ではない。
  *   存在しない・他人の挑戦、試験でない練習の挑戦、まだ終わって
  *   いない挑戦（時間切れにもミス上限にも達していない）。
- * - `{ success: false, error: 'unexpected_error' }`: DB エラー等。挑戦の確定も
+ * - `{ error: 'unexpectedError' }`: DB エラー等。挑戦の確定も
  *   ロールバックされるため、同じ挑戦 ID で再送できる。
  */
-export type SubmitExamResponse =
-  | { readonly success: true; readonly grantedRanks: readonly RankSlug[] }
-  | { readonly success: true; readonly skipped: "anonymous" }
-  | { readonly success: false; readonly error: SubmitExamErrorCode };
+export type SubmitExamResponse = ActionResult<
+  SubmitExamErrorCode,
+  | { readonly grantedRanks: readonly RankSlug[] }
+  | { readonly skipped: "anonymous" }
+>;
 
 /**
  * サーバーで採点済みの試験の挑戦を確定し、合格なら段級位を付与する Server Action
@@ -68,13 +70,13 @@ export async function submitExamResult(
   try {
     const recorder = await resolveRecorder();
     if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
-    if ("error" in recorder) return { success: false, error: recorder.error };
+    if ("error" in recorder) return { error: recorder.error };
     const result = await finishAttempt(recorder.user.id, attemptId, true);
     if (!result || !("grantedRanks" in result))
-      return { success: false, error: "invalid_result" };
+      return { error: "invalidResult" };
     return { success: true, grantedRanks: result.grantedRanks };
   } catch (error) {
     logExternalError("submitExamResult", "finish failed", error);
-    return { success: false, error: "unexpected_error" };
+    return { error: "unexpectedError" };
   }
 }

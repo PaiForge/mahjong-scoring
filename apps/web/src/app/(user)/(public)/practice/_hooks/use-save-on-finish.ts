@@ -43,7 +43,7 @@ export function useSaveOnFinish(
 
       try {
         const result = await savePracticeResult(challenge.id);
-        if (!result.success) {
+        if ("error" in result) {
           logExternalError("savePracticeResult", menuType, result.error);
           return undefined;
         }
