@@ -116,13 +116,9 @@ function enumerateRoleWinPairs(
   roles: readonly Role[],
   wins: readonly WinType[],
 ): ReadonlyArray<{ isOya: boolean; isTsumo: boolean }> {
-  const pairs: { isOya: boolean; isTsumo: boolean }[] = [];
-  for (const role of roles) {
-    for (const win of wins) {
-      pairs.push({ isOya: role === "oya", isTsumo: win === "tsumo" });
-    }
-  }
-  return pairs;
+  return roles.flatMap((role) =>
+    wins.map((win) => ({ isOya: role === "oya", isTsumo: win === "tsumo" })),
+  );
 }
 
 /**
@@ -156,13 +152,14 @@ function buildNonManganCombinations(
 function buildManganPlusCombinations(
   pairs: ReadonlyArray<{ isOya: boolean; isTsumo: boolean }>,
 ): readonly QuestionParams[] {
-  const combinations: QuestionParams[] = [];
-  for (const { isOya, isTsumo } of pairs) {
-    for (const han of MANGAN_PLUS_HAN_VALUES) {
-      combinations.push({ isOya, isTsumo, han, range: "manganPlus" });
-    }
-  }
-  return combinations;
+  return pairs.flatMap(({ isOya, isTsumo }) =>
+    MANGAN_PLUS_HAN_VALUES.map((han): QuestionParams => ({
+      isOya,
+      isTsumo,
+      han,
+      range: "manganPlus",
+    })),
+  );
 }
 
 /**
