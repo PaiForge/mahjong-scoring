@@ -6,8 +6,7 @@ import {
 } from "@mahjong-scoring/features/ads/native-ad";
 import { parseNativeAdsResponse } from "@mahjong-scoring/features/ads/parse-native-ads-response";
 
-import { readJson } from "../auth/read-json";
-import { SITE_URL } from "../lib/app-site-url";
+import { readPublicMobileApi } from "../auth/read-public-mobile-api";
 
 /**
  * スロットの広告を web の広告配信 API から読む
@@ -23,17 +22,12 @@ export function useNativeAds(slot: MobileAdSlot): readonly NativeAdView[] {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`${SITE_URL}${nativeAdsApiPath(slot)}`, {
+    // 通信できない・中断した・形が合わないときは undefined で、広告を出さないだけでよい
+    void readPublicMobileApi(nativeAdsApiPath(slot), parseNativeAdsResponse, {
       signal: controller.signal,
-    })
-      .then(async (response) => {
-        if (!response.ok) return;
-        const parsed = parseNativeAdsResponse(await readJson(response));
-        if (parsed !== undefined) setAds(parsed.ads);
-      })
-      .catch(() => {
-        // 通信できない・中断した。広告を出さないだけでよい
-      });
+    }).then((parsed) => {
+      if (parsed !== undefined) setAds(parsed.ads);
+    });
     return () => controller.abort();
   }, [slot]);
 
