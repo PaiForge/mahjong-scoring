@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import {
-  HAN_OPTIONS,
+  HAN_COUNT_OPTIONS,
   hanCountLabel,
 } from "@mahjong-scoring/features/practice/han-count/han-options";
 
@@ -72,7 +72,7 @@ export function HanCountHowToPlay() {
 
       {/* Han options（出題時と同じ未選択の並び） */}
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-        {HAN_OPTIONS.map((han) => (
+        {HAN_COUNT_OPTIONS.map((han) => (
           <DemoChoiceCell key={han} className="text-sm font-semibold">
             {hanCountLabel(han, t)}
           </DemoChoiceCell>

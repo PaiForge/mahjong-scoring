@@ -2,7 +2,7 @@
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
 import {
-  HAN_OPTIONS,
+  HAN_COUNT_OPTIONS,
   hanCountLabel,
 } from "@mahjong-scoring/features/practice/han-count/han-options";
 
@@ -27,7 +27,7 @@ export function HanCountAnswerForm(props: HanCountAnswerFormProps) {
   return (
     <HanChoiceAnswerForm
       {...props}
-      options={HAN_OPTIONS}
+      options={HAN_COUNT_OPTIONS}
       translationNamespace="hanCountChallenge"
       columnsClassName="grid-cols-4 sm:grid-cols-5"
       renderLabel={hanCountLabel}
