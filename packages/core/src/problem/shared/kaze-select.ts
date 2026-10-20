@@ -14,11 +14,12 @@ export function selectJikaze(
   includeChild: boolean,
   rng: RandomSource,
 ): Kazehai {
-  let candidates: readonly Kazehai[] = KAZEHAI;
-  if (!includeParent) candidates = candidates.filter((k) => k !== HaiKind.Ton);
-  if (!includeChild) candidates = candidates.filter((k) => k === HaiKind.Ton);
-  if (candidates.length === 0) candidates = KAZEHAI;
-  return randomChoice(candidates, rng);
+  const candidates = KAZEHAI.filter(
+    (kaze) =>
+      (includeParent || kaze !== HaiKind.Ton) &&
+      (includeChild || kaze === HaiKind.Ton),
+  );
+  return randomChoice(candidates.length > 0 ? candidates : KAZEHAI, rng);
 }
 
 /**
