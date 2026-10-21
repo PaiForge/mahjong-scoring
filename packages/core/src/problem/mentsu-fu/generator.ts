@@ -1,6 +1,7 @@
 import type { MentsuFuQuestion } from "./types";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
-import { createRandomMentsu, type MentsuWeights } from "./mentsu-factory";
+import { createRandomMentsu } from "./mentsu-factory";
+import type { MentsuWeights } from "../shared/pick-mentsu-type";
 
 /** 面子符練習の出題重み（20% 順子, 50% 刻子, 残り30% 槓子） */
 const MENTSU_FU_WEIGHTS: MentsuWeights = { shuntsu: 0.2, koutsu: 0.5 };

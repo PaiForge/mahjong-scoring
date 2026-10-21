@@ -5,8 +5,7 @@ import { createClient, isAuthRetryableFetchError } from "@supabase/supabase-js";
 
 import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
 
-import type { AuthUser } from "../auth";
-import { userToAuthUser } from "../auth-user";
+import { type AuthUser, userToAuthUser } from "../auth-user";
 import { getClientIp } from "../client-ip";
 import { getAccountStanding } from "../ban";
 import { getProfileCoreByUserId } from "../db/queries";

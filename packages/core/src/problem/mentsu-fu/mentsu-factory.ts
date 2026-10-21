@@ -6,7 +6,7 @@ import {
   type Koutsu,
   type Kantsu,
 } from "@pai-forge/riichi-mahjong";
-import { pickMentsuType } from "../shared/pick-mentsu-type";
+import { pickMentsuType, type MentsuWeights } from "../shared/pick-mentsu-type";
 import { SUIT_BASES } from "../../core/constants";
 import {
   randomBool,
@@ -115,17 +115,6 @@ export function createRandomKantsu(
   const fu = calculateMentsuFu({ isKantsu: true, isOpen, isYaochu });
 
   return { mentsu, fu };
-}
-
-/**
- * 面子種別の確率重み
- * 面子生成重み
- */
-export interface MentsuWeights {
-  /** 順子の確率（0〜1） */
-  readonly shuntsu: number;
-  /** 刻子の確率（0〜1、残りが槓子） */
-  readonly koutsu: number;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { authenticateAndCheckBan } from "./auth";
-import type { AuthGateErrorCode, AuthUser } from "./auth";
+import type { AuthGateErrorCode } from "./auth";
+import type { AuthUser } from "./auth-user";
 import { enforceIpRateLimit } from "./rate-limit-ip";
 import type { IP_RATE_LIMITS, RateLimitErrorCode } from "./rate-limit-ip";
 

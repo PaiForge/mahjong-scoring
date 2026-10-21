@@ -3,7 +3,17 @@ import {
   defaultRandomSource,
   type RandomSource,
 } from "../../core/random";
-import type { MentsuWeights } from "../mentsu-fu/mentsu-factory";
+
+/**
+ * 面子種別の確率重み
+ * 面子生成重み
+ */
+export interface MentsuWeights {
+  /** 順子の確率（0〜1） */
+  readonly shuntsu: number;
+  /** 刻子の確率（0〜1、残りが槓子） */
+  readonly koutsu: number;
+}
 
 /** 面子の種別 */
 export type MentsuKind = "shuntsu" | "koutsu" | "kantsu";

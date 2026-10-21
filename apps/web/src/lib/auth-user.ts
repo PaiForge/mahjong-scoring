@@ -1,6 +1,19 @@
 import type { JwtPayload, User } from "@supabase/supabase-js";
 
-import type { AuthUser } from "./auth";
+/**
+ * 認証済みユーザーの最小情報。JWT クレームから取得する（id = sub クレーム）。
+ * 認証済みユーザー情報
+ */
+export interface AuthUser {
+  readonly id: string;
+  readonly email?: string;
+  /**
+   * 最初にサインアップしたときのプロバイダ（`email` / `google` / `apple`）。
+   * Supabase が JWT の `app_metadata.provider` に入れる値をそのまま持つ。
+   * ログインプロバイダ
+   */
+  readonly provider?: string;
+}
 
 /**
  * JWT のクレームから {@link AuthUser} を組み立てる。
