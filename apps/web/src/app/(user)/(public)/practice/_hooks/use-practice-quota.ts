@@ -11,8 +11,6 @@ import {
   peekPracticeQuota,
 } from "../_actions/begin-practice-question";
 
-export type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
-
 export interface PracticeQuotaControl {
   /**
    * 1 問始める。サーバーに無料枠の消費を聞き、許可されたら `generate` を呼ぶ。

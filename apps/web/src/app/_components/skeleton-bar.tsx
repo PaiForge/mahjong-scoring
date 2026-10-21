@@ -41,10 +41,10 @@ const RADIUS_CLASS = {
 } as const;
 
 /** スケルトンの濃さ。数字が大きいほど濃い */
-export type SkeletonTone = keyof typeof TONE_CLASS;
+type SkeletonTone = keyof typeof TONE_CLASS;
 
 /** スケルトンの角丸。実描画の形に合わせて選ぶ */
-export type SkeletonRadius = keyof typeof RADIUS_CLASS;
+type SkeletonRadius = keyof typeof RADIUS_CLASS;
 
 interface SkeletonBarProps {
   /** この矩形固有のクラス（高さ・幅・余白など）。角丸は `radius` で指定する */

@@ -10,7 +10,7 @@ import { feedbackFrameStyle } from "../feedback-styles";
  * セッションの同名の値をそのまま渡す。`lastAnswerCorrect` が undefined の間
  * （未回答・無回答の正解開示中）は色を付けない（web の `SelectFeedbackState`）。
  */
-export interface SelectFeedbackState {
+interface SelectFeedbackState {
   readonly showFeedback: boolean;
   readonly lastAnswerCorrect: boolean | undefined;
 }

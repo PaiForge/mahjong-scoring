@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
 
 /** 名前と値の1行 */
-export interface DetailTableRow {
+interface DetailTableRow {
   /** 行の見出し（役名・符の理由・「正解」など）。役一覧を開くボタンにもなる */
   readonly label: ReactNode;
   /** 表示する値。単位まで含めた文字列か、牌・チップ・リンクを含む要素 */

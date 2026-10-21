@@ -28,7 +28,7 @@ import { adminButtonClasses } from "../../_lib/button-classes";
 import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
 /** 編集時の初期値（`AdCreativeInput` から slot を除いたもの） */
-export type AdCreativeFormDefaults = Omit<AdCreativeInput, "slot">;
+type AdCreativeFormDefaults = Omit<AdCreativeInput, "slot">;
 
 interface Props {
   readonly mode: "create" | "edit";

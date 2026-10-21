@@ -15,7 +15,7 @@ import { challengeResults } from "./schema";
  * スコアだけでなくミス数・所要時間も持つ。「自己ベスト更新」の判定が
  * ランキングと同じ順序規則（{@link rankingOrder}）で行われるため。
  */
-export type ScoreRecord = RankingValues;
+type ScoreRecord = RankingValues;
 
 /**
  * 今回の記録と過去の自己記録の比較サマリ

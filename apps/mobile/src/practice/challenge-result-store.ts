@@ -11,7 +11,7 @@ import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-t
  * 載せるには大きすぎるため、アプリのメモリに置いて結果画面が読む。
  * 永続化はしない（アプリを閉じれば消える — web のタブを閉じたときと同じ）。
  */
-export interface ChallengeAttempt {
+interface ChallengeAttempt {
   readonly slug: PracticeMenuSlug;
   readonly variant: string;
   readonly finalResult: FinalResult;

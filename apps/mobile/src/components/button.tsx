@@ -14,7 +14,7 @@ import { PressableSurface } from "./pressable-surface";
 export type ButtonVariant = "primary" | "secondary" | "neutral" | "danger";
 
 /** 大きさ（web の `ButtonSize` と同じ段階） */
-export type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps {
   readonly onPress: () => void;

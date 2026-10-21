@@ -26,15 +26,15 @@ export interface DataTableColumn {
  *
  * 行を区分ごとにまとめる表で、区分の名前を全幅に置く。
  */
-export interface DataTableSectionRow {
+interface DataTableSectionRow {
   readonly section: string;
 }
 
 /** 本体の 1 行。セルの並びか、区切りの行 */
-export type DataTableRow = readonly ReactNode[] | DataTableSectionRow;
+type DataTableRow = readonly ReactNode[] | DataTableSectionRow;
 
 /** セルの余白の段階（web の `DataTableHeaderCell` の `density`） */
-export type DataTableDensity = "regular" | "dense";
+type DataTableDensity = "regular" | "dense";
 
 interface DataTableProps {
   readonly columns: readonly DataTableColumn[];

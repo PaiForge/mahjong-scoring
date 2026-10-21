@@ -5,13 +5,13 @@
  * - `secondary` — キャンセル・補助の操作（1px の枠）
  * - `danger` — BAN など取り返しにくい操作（赤の塗り）
  */
-export type AdminButtonVariant = "primary" | "secondary" | "danger";
+type AdminButtonVariant = "primary" | "secondary" | "danger";
 
 /**
  * - `sm` — 表の行やセクションの中に並ぶ操作のきっかけ（BAN・付与・取り消し）
  * - `md` — フォームの送信・モーダルの確定・ページの主操作
  */
-export type AdminButtonSize = "sm" | "md";
+type AdminButtonSize = "sm" | "md";
 
 const VARIANT_CLASSES: Readonly<Record<AdminButtonVariant, string>> = {
   primary:

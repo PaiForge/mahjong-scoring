@@ -19,7 +19,7 @@
  *
  * サーバーのチャレンジの ID と、どの練習・どの出題設定で始めたか。
  */
-export interface ChallengeRef {
+interface ChallengeRef {
   readonly attemptId: string;
   readonly slug: string;
   readonly variant: string;

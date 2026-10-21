@@ -27,7 +27,7 @@ const TALL_HEIGHT_RATIO = 0.85;
  *   画面の 85%、Android は全画面（Material 3 のシートは半分と全画面の 2 段
  *   しか持たず、半分では一覧が窮屈）
  */
-export type BottomSheetSize = "content" | "tall";
+type BottomSheetSize = "content" | "tall";
 
 interface BottomSheetProps {
   readonly isOpen: boolean;

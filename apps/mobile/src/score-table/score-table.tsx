@@ -46,7 +46,7 @@ interface ScoreTableProps {
 }
 
 /** 点数早見表を組む部品 */
-export interface ScoreTableParts {
+interface ScoreTableParts {
   /** 親子・ロンツモ・表示モードの切り替え */
   readonly controls: ReactNode;
   /** ツモの凡例・表・切り上げ満貫の注記 */
