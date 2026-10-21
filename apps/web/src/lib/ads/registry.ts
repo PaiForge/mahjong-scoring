@@ -119,7 +119,7 @@ interface AdSlotConfig {
  * 状況が違う画面（練習を終えた人 / 試験を終えた人 / 章を読み終えた人）は
  * 最初から別のスロットにしておく。
  */
-export const AD_SLOTS = {
+const AD_SLOTS = {
   "practice-grid-native-ad": {
     kind: "native_card",
     surfaces: [{ route: "/practice", href: "/practice" }],

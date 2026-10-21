@@ -38,7 +38,7 @@ export interface NotificationPage {
 }
 
 /** 1 ページの件数 */
-export const NOTIFICATIONS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
+const NOTIFICATIONS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 /** この人に見せる通知の条件。一覧・未読数・既読化が共有する */
 function visibleTo(userId: string, ...conditions: SQL[]): SQL | undefined {

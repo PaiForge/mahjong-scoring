@@ -12,7 +12,7 @@ export type AnnouncementStatus =
   (typeof AnnouncementStatus)[keyof typeof AnnouncementStatus];
 
 /** 公開状態の一覧（入力の検証と選択肢の並び） */
-export const ANNOUNCEMENT_STATUSES: readonly AnnouncementStatus[] =
+const ANNOUNCEMENT_STATUSES: readonly AnnouncementStatus[] =
   Object.values(AnnouncementStatus);
 
 /**

@@ -71,7 +71,7 @@ interface BeltColorClasses {
  * 成功や警告のような状態を表さない。教本のセクション色
  * （`SECTION_CATEGORY_COLOR_CLASS`）と同じ扱いで、同じ書き方に揃えている。
  */
-export const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
+const RANK_BELT_CLASSES: Readonly<Record<RankSlug, BeltColorClasses>> = {
   "kyu-5": {
     bg: "bg-orange-500",
     border: "border-orange-500",

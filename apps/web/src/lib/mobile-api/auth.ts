@@ -136,7 +136,7 @@ function isAuthServiceFailure(error: unknown): boolean {
  *
  * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も通す
  */
-export async function authenticateMobileRequest(
+async function authenticateMobileRequest(
   request: Request,
   {
     forAccountDeletion = false,

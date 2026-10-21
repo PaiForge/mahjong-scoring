@@ -169,7 +169,7 @@ export async function processPendingAccountDeletions(): Promise<{
  * 退会の進み具合を読む。退会を受け付けていなければ undefined
  * 退会状態取得
  */
-export async function getAccountDeletionStatus(
+async function getAccountDeletionStatus(
   userId: string,
 ): Promise<AccountDeletionStatus | undefined> {
   const [row] = await db
