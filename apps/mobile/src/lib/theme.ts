@@ -118,6 +118,3 @@ export const floatingShadow = {
   shadowRadius: 24,
   elevation: 12,
 } as const;
-
-/** 余白（Tailwind の 4px 刻み） */
-export const space = (n: number): number => n * 4;

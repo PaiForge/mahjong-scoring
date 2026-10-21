@@ -31,7 +31,7 @@ interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQue
  * 問題の提示と回答判定のみを行う。チャレンジ・トレーニング両モードで共有する。
  * 自前の枠を持たない出題なので、出題を囲む枠が正誤の色を返す。
  */
-export function ScoreTableBoard({
+function ScoreTableBoard({
   question,
   onAdvance,
   showFeedback,

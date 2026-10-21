@@ -32,7 +32,7 @@ function rotatedIndex(furo: Furo | undefined, length: number): number {
 }
 
 /** 牌の裏面（暗槓の両端に伏せて置く） */
-export function TileBack({ size = "sm" }: { readonly size?: HaiSize }) {
+function TileBack({ size = "sm" }: { readonly size?: HaiSize }) {
   const source = useTileImage("back");
   const { width, height } = getHaiSizePixels(size);
   return (

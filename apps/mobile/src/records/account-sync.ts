@@ -73,7 +73,7 @@ export function markAttemptLive(attemptId: string): () => void {
  * 読んでいる間に別のユーザーへ切り替わったら、結果を捨てる（呼び出し側が
  * 今のユーザーかを確かめる必要は無い — `asUser` で送り、違えば送らない）。
  */
-export async function refreshServerProgress(userId: string): Promise<void> {
+async function refreshServerProgress(userId: string): Promise<void> {
   const result = await fetchProgress(userId);
   if ("value" in result)
     useServerProgressStore.setState({ userId, input: result.value });

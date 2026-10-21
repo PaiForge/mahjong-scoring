@@ -12,8 +12,5 @@ import { MOBILE_SETTINGS_STORE_OPTIONS } from "./settings-store-options";
  * ここにあるゲストの完了は、端末で 1 度だけ最初にログインしたアカウントへ
  * 取り込む。
  */
-export const {
-  useLessonCompletionStore,
-  useCompletedLessonSlugs,
-  useLessonCompleted,
-} = createLessonCompletionStore(MOBILE_SETTINGS_STORE_OPTIONS);
+export const { useLessonCompletionStore, useCompletedLessonSlugs } =
+  createLessonCompletionStore(MOBILE_SETTINGS_STORE_OPTIONS);

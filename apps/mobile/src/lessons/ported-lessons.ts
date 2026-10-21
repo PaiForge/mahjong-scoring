@@ -14,7 +14,7 @@ import {
  * 足したときに本文を書くまでの間の受け皿）。本文は `guide-registry.tsx` が
  * この slug ごとに持つ。
  */
-export const PORTED_LESSON_SLUGS = [
+const PORTED_LESSON_SLUGS = [
   "about-this-app",
   "why-scoring-is-hard-to-learn",
   "why-scoring-is-complex",
