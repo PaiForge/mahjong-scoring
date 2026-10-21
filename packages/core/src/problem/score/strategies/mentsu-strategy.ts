@@ -16,7 +16,7 @@ import {
   generateWeightedMentsu,
   generateToitsu,
 } from "../utils/shape-generator";
-import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
+import type { MentsuWeights } from "../../shared/pick-mentsu-type";
 
 /** 点数計算練習の面子重み（順子: 65%, 刻子: 30%, 残り5% 槓子） */
 const SCORE_MENTSU_WEIGHTS: MentsuWeights = { shuntsu: 0.65, koutsu: 0.3 };

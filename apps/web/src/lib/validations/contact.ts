@@ -27,7 +27,7 @@ export const CONTACT_LIMITS = {
  */
 const NO_NEWLINES = /^[^\r\n]*$/;
 
-export const contactFormSchema = z.object({
+const contactFormSchema = z.object({
   name: z
     .string()
     .min(1, "nameRequired")
@@ -49,7 +49,7 @@ export const contactFormSchema = z.object({
 export type ContactFormData = z.infer<typeof contactFormSchema>;
 
 /** i18n キー（`contact.errors` 名前空間）と対応するバリデーションエラー */
-export const CONTACT_VALIDATION_ERROR_KEYS = [
+const CONTACT_VALIDATION_ERROR_KEYS = [
   "nameRequired",
   "nameMaxLength",
   "nameInvalid",
@@ -72,7 +72,7 @@ export type ContactValidationErrorKey =
  * 文字列が問い合わせバリデーションのエラーキーかを判定する型ガード。
  * 問い合わせエラーキー判定
  */
-export function isContactValidationErrorKey(
+function isContactValidationErrorKey(
   key: string,
 ): key is ContactValidationErrorKey {
   return contactValidationErrorKeySet.has(key);

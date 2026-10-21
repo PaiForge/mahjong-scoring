@@ -38,7 +38,7 @@ type ReadUploadedImageResult =
  *
  * 上限はアバターと広告画像で共通（バケットの file_size_limit と一致させている）。
  */
-export async function readUploadedImageFile(
+async function readUploadedImageFile(
   request: Request,
 ): Promise<ReadUploadedImageFileResult> {
   let formData: FormData;

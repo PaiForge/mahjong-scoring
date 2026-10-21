@@ -4,7 +4,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, radius } from "../lib/theme";
 
 /** チップ 1 つ */
-export interface FilterChipOption<T extends string> {
+interface FilterChipOption<T extends string> {
   readonly value: T;
   readonly label: string;
 }

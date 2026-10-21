@@ -13,7 +13,7 @@ import { BottomSheet } from "./bottom-sheet";
 import { ChevronDownIcon } from "./icons/icons";
 
 /** 選択肢 1 つ（値と表示名） */
-export interface SelectOption<TValue extends string | number> {
+interface SelectOption<TValue extends string | number> {
   readonly value: TValue;
   readonly label: string;
 }

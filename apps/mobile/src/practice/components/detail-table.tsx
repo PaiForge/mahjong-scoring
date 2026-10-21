@@ -6,7 +6,7 @@ import { linkStyles } from "../../lib/link-styles";
 import { borderWidth, colors } from "../../lib/theme";
 
 /** 内訳の表の 1 行 */
-export interface DetailTableRow {
+interface DetailTableRow {
   readonly label: ReactNode;
   readonly value: ReactNode;
   readonly tone?: JudgementVerdict;

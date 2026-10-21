@@ -14,7 +14,7 @@ import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
 import { ScoreTableReferenceLink } from "./score-table-reference-link";
 
 /** 満貫以上早見表の1行分のデータ */
-export type ManganTableRow = (typeof HIGH_SCORES)[number];
+type ManganTableRow = (typeof HIGH_SCORES)[number];
 
 /** 種類・翻数に続く列の定義 */
 export interface ManganTableColumn {

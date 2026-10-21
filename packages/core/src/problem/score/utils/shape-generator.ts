@@ -18,7 +18,7 @@ import {
 } from "../../../core/random";
 import { validateHaiKindId } from "../../../core/type-guards";
 import type { HaiUsageTracker } from "../../../core/hai-tracker";
-import type { MentsuWeights } from "../../mentsu-fu/mentsu-factory";
+import type { MentsuWeights } from "../../shared/pick-mentsu-type";
 import { pickAvailableHai } from "../../shared/tile-random";
 
 /**

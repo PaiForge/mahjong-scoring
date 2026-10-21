@@ -31,12 +31,11 @@ export const PRACTICE_START_CTA_BLOCK_CLASS =
 export const PRACTICE_START_CTA_HINT_CLASS = "text-xs text-surface-400";
 
 /** OR 区切りの行 */
-export const PRACTICE_START_CTA_DIVIDER_CLASS =
+const PRACTICE_START_CTA_DIVIDER_CLASS =
   "flex w-full items-center gap-3 text-xs text-surface-400";
 
 /** OR 区切りの線 */
-export const PRACTICE_START_CTA_DIVIDER_LINE_CLASS =
-  "flex-1 border-t border-panel";
+const PRACTICE_START_CTA_DIVIDER_LINE_CLASS = "flex-1 border-t border-panel";
 
 /**
  * 2 つの開始導線を分ける OR 区切りの行

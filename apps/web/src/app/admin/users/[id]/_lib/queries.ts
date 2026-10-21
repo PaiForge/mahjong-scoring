@@ -25,7 +25,7 @@ import type {
 } from "@/lib/db";
 
 /** モデレーション履歴の表示件数。全件は監査ログ（`?user=`）で見る */
-export const MODERATION_HISTORY_LIMIT = 20;
+const MODERATION_HISTORY_LIMIT = 20;
 
 /** 管理画面のユーザー詳細に並べる 1 ユーザー分のデータ */
 export interface UserDetail {

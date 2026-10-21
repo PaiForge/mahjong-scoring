@@ -7,7 +7,7 @@ import { SelectOptionList, type SelectOption } from "./select-option-list";
 import { SelectValueBox } from "./select-value-box";
 
 /** 選択欄の文言（開く入口の名前・一覧の見出し・閉じるボタン） */
-export interface MultiSelectLabels {
+interface MultiSelectLabels {
   readonly add: string;
   readonly title: string;
   readonly done: string;

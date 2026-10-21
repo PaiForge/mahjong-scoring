@@ -18,9 +18,6 @@ export type ApiResult<T> =
 /** レートリミット時に返るエラーコード（`authorizeApiRequest` が 429 で返す） */
 export const API_ERROR_RATE_LIMITED = "rateLimited";
 
-/** 未認証時に返るエラーコード（`authorizeApiRequest` が 401 で返す） */
-export const API_ERROR_UNAUTHORIZED = "unauthorized";
-
 /** BAN 済みユーザーの操作時に返るエラーコード（`authorizeApiRequest` が 403 で返す） */
 export const API_ERROR_BANNED = "banned";
 

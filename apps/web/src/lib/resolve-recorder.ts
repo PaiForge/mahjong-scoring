@@ -1,6 +1,7 @@
 import "server-only";
 
-import { authenticateAndCheckBan, type AuthUser } from "@/lib/auth";
+import { authenticateAndCheckBan } from "@/lib/auth";
+import type { AuthUser } from "@/lib/auth-user";
 
 /**
  * 記録を書いてよい本人を決める

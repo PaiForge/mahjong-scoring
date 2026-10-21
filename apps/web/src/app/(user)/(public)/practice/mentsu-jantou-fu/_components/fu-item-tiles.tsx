@@ -8,7 +8,7 @@ import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
  * 牌の描き分けに必要な回答行の情報
  * 符行牌情報
  */
-export type FuItemTilesSource = Pick<
+type FuItemTilesSource = Pick<
   MentsuJantouFuItem,
   "tiles" | "type" | "isOpen" | "originalMentsu"
 >;

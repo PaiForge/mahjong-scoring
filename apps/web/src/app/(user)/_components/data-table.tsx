@@ -14,7 +14,7 @@ export const DATA_TABLE_ALIGN_CLASS = {
 } as const;
 
 /** データテーブルのセル配置 */
-export type DataTableAlign = keyof typeof DATA_TABLE_ALIGN_CLASS;
+type DataTableAlign = keyof typeof DATA_TABLE_ALIGN_CLASS;
 
 /**
  * セルの余白クラスの対応表
@@ -30,7 +30,7 @@ export const DATA_TABLE_CELL_PADDING = {
 } as const;
 
 /** データテーブルのセル余白 */
-export type DataTableDensity = keyof typeof DATA_TABLE_CELL_PADDING;
+type DataTableDensity = keyof typeof DATA_TABLE_CELL_PADDING;
 
 interface DataTableHeaderCellProps {
   /** セルの配置（既定は表の text-align に従う） */

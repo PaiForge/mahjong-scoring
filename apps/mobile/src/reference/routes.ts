@@ -1,7 +1,7 @@
 import { REFERENCE_YAKU_PATH } from "@mahjong-scoring/features/routes";
 
 /** 役一覧で開いておく役を受け取るクエリの名前 */
-export const YAKU_FOCUS_PARAM = "yaku";
+const YAKU_FOCUS_PARAM = "yaku";
 
 /**
  * 役一覧の特定の役へのパス（モバイル）

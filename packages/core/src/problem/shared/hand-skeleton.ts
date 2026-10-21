@@ -18,8 +18,8 @@ import type { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   createRandomMentsu,
   type MentsuResult,
-  type MentsuWeights,
 } from "../mentsu-fu/mentsu-factory";
+import type { MentsuWeights } from "./pick-mentsu-type";
 
 /** 面子・雀頭生成のリトライ上限 */
 const MAX_RETRY = 50;

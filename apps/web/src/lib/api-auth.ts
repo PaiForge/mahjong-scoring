@@ -2,7 +2,8 @@ import type { NextResponse } from "next/server";
 
 import { jsonPrivate } from "./api-response";
 
-import { authenticateAndCheckBan, type AuthUser } from "./auth";
+import { authenticateAndCheckBan } from "./auth";
+import type { AuthUser } from "./auth-user";
 import { isValidOrigin } from "./csrf";
 import { getClientIp } from "./client-ip";
 import {

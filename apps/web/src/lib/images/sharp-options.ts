@@ -14,7 +14,7 @@
  * 圧縮爆弾への防御。極端に圧縮の効く巨大寸法の画像はバイト数の上限を素通りし、
  * 展開すると GB 級のメモリを要求する。バイト数の検査だけでは防げない。
  */
-export const MAX_DECODE_PIXELS = 50_000_000;
+const MAX_DECODE_PIXELS = 50_000_000;
 
 /**
  * すべての `sharp(input, ...)` に渡す入力オプション。
@@ -27,7 +27,7 @@ export const MAX_DECODE_PIXELS = 50_000_000;
  * WebP / GIF は フレーム数 × 幅 × 高さ のメモリを食い、下のピクセル予算が
  * 「合計」ではなく「1 フレームあたり」の予算に落ちてしまう。
  */
-export const SHARP_INPUT_OPTIONS = { failOn: "error", pages: 1 } as const;
+const SHARP_INPUT_OPTIONS = { failOn: "error", pages: 1 } as const;
 
 /**
  * {@link SHARP_INPUT_OPTIONS} にピクセル予算を足したもの。

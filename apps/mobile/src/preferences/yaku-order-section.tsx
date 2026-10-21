@@ -124,7 +124,7 @@ interface YakuOrderSectionProps {
 }
 
 /** 役の並び順の画面を組む部品 */
-export interface YakuOrderSectionParts {
+interface YakuOrderSectionParts {
   readonly description: ReactNode;
   readonly toolbar: ReactNode;
   readonly list: ReactNode;

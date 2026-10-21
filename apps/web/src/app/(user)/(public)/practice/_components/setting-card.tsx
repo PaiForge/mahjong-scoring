@@ -10,9 +10,9 @@ import type { ReactNode } from "react";
  */
 export const SETTING_CARD_FRAME_SHAPE_CLASS =
   "flex flex-col overflow-hidden rounded-panel border";
-export const SETTING_CARD_FRAME_CLASS = `${SETTING_CARD_FRAME_SHAPE_CLASS} border-panel bg-white`;
+const SETTING_CARD_FRAME_CLASS = `${SETTING_CARD_FRAME_SHAPE_CLASS} border-panel bg-white`;
 export const SETTING_CARD_HEADER_SHAPE_CLASS = "border-b px-4 py-3";
-export const SETTING_CARD_HEADER_CLASS = `${SETTING_CARD_HEADER_SHAPE_CLASS} border-panel bg-surface-50`;
+const SETTING_CARD_HEADER_CLASS = `${SETTING_CARD_HEADER_SHAPE_CLASS} border-panel bg-surface-50`;
 export const SETTING_CARD_BODY_CLASS = "flex flex-col gap-3 p-3";
 /** 余白を行に任せる本体。トグル行は自分の余白と区切り線を持つ */
 export const SETTING_CARD_FLUSH_BODY_CLASS = "flex flex-col";

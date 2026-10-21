@@ -11,7 +11,7 @@ import { challengeBestScores, challengeResults, profiles } from "./schema";
  * リーダーボード行
  * ランキング表示用の1行分のデータ
  */
-export interface LeaderboardRow {
+interface LeaderboardRow {
   readonly userId: string;
   readonly username: string;
   readonly score: number;
@@ -36,14 +36,6 @@ export interface RankedLeaderboardRow extends LeaderboardRow {
 export interface LeaderboardPage {
   readonly rows: readonly LeaderboardRow[];
   readonly total: number;
-}
-
-/**
- * 順位結果
- * ユーザーの順位情報
- */
-export interface RankResult {
-  readonly rank: number;
 }
 
 /**

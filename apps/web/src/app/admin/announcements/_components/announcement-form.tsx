@@ -16,7 +16,7 @@ import { updateAnnouncement } from "../_actions/update-announcement";
 import { adminButtonClasses } from "../../_lib/button-classes";
 import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
 
-export interface AnnouncementFormDefaults {
+interface AnnouncementFormDefaults {
   slug: string;
   title: string;
   content: string;

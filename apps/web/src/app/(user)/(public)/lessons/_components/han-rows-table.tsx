@@ -9,7 +9,7 @@ import {
 } from "@/app/(user)/_components/data-table";
 
 /** 翻を行に取る表の 1 列ぶんの定義 */
-export interface HanRowsTableColumn<TRow> {
+interface HanRowsTableColumn<TRow> {
   /** ヘッダーセルの中身 */
   readonly header: ReactNode;
   /** その行のセルの中身 */

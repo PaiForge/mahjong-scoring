@@ -18,7 +18,7 @@ import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
  * 描画の崩れに見えるため。Pro の設定が複数になったら、独立したカードに
  * まとめる形を検討する。
  */
-export interface SettingToggleLock {
+interface SettingToggleLock {
   readonly badge: string;
   readonly note: string;
   readonly linkLabel: string;

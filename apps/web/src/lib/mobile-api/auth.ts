@@ -5,8 +5,7 @@ import { createClient, isAuthRetryableFetchError } from "@supabase/supabase-js";
 
 import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
 
-import type { AuthUser } from "../auth";
-import { userToAuthUser } from "../auth-user";
+import { type AuthUser, userToAuthUser } from "../auth-user";
 import { getClientIp } from "../client-ip";
 import { getAccountStanding } from "../ban";
 import { getProfileCoreByUserId } from "../db/queries";
@@ -136,7 +135,7 @@ function isAuthServiceFailure(error: unknown): boolean {
  *
  * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も通す
  */
-export async function authenticateMobileRequest(
+async function authenticateMobileRequest(
   request: Request,
   {
     forAccountDeletion = false,

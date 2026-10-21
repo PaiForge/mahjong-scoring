@@ -111,7 +111,7 @@ export function buildApplePurchaseRow({
  * @param purchaseDate - 取引の購入日時
  * @param unexpiredPurchases - 本人の未取消・期限内か永久の購入（Sandbox を除く）
  */
-export function applePassStartsAt(
+function applePassStartsAt(
   purchaseDate: Date,
   unexpiredPurchases: readonly Pick<Purchase, "expiresAt">[],
 ): Date {

@@ -1,24 +1,9 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { claimsToAuthUser, userToAuthUser } from "./auth-user";
+import { type AuthUser, claimsToAuthUser, userToAuthUser } from "./auth-user";
 import { getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
-
-/**
- * 認証済みユーザーの最小情報。JWT クレームから取得する（id = sub クレーム）。
- * 認証済みユーザー情報
- */
-export interface AuthUser {
-  readonly id: string;
-  readonly email?: string;
-  /**
-   * 最初にサインアップしたときのプロバイダ（`email` / `google` / `apple`）。
-   * Supabase が JWT の `app_metadata.provider` に入れる値をそのまま持つ。
-   * ログインプロバイダ
-   */
-  readonly provider?: string;
-}
 
 /**
  * 認証済みユーザーを返す。未認証の場合はサインインページへリダイレクト。
@@ -43,7 +28,7 @@ export const getAuthenticatedUser = cache(async (): Promise<AuthUser> => {
  * 認証済みユーザーとプロフィールを返す。未認証の場合はサインインページへリダイレクト。
  * 認証済みユーザー+プロフィール取得
  */
-export const getAuthenticatedProfile = cache(async () => {
+const getAuthenticatedProfile = cache(async () => {
   const user = await getAuthenticatedUser();
   const profile = await getProfileByUserId(user.id);
   return { user, profile };
