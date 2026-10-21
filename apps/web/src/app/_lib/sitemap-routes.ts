@@ -62,7 +62,7 @@ export const LEARN_SITEMAP_ENTRIES: readonly {
 }));
 
 /** レッスン（章）ページのパス一覧（`/lessons/<slug>`） */
-export const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
+const LEARN_SITEMAP_PATHS: readonly string[] = LEARN_SITEMAP_ENTRIES.map(
   (entry) => entry.path,
 );
 

@@ -5,7 +5,6 @@ import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { ChevronRightIcon } from "./icons/chevron-right-icon";
 
 /**
@@ -129,45 +128,6 @@ export function LinkRow({
           <ChevronRightIcon />
         </span>
       </Link>
-    </li>
-  );
-}
-
-interface LinkRowSkeletonProps {
-  /** タイトルのプレースホルダ幅（Tailwind の `w-*` クラス） */
-  readonly titleWidthClassName?: string;
-  /** 行末のプレースホルダ幅。行末要素を持たないリストでは省く */
-  readonly trailingWidthClassName?: string;
-}
-
-/**
- * `LinkRow` の読み込み中プレースホルダ
- * 行リンクスケルトン
- *
- * 枠と余白（`ROW_ITEM_CLASSES` / `ROW_INNER_CLASSES`）を実物と共有するため、
- * 片方だけ余白を触っても行の高さがずれない。
- *
- * 矩形の高さはタイトルの行ボックス（`text-sm` = 20px）に合わせる。実物の
- * 行頭・行末も同じ行ボックスに中央揃えされるため、これで 1 行の高さが一致する。
- * 行頭に絵文字を持つリスト（`text-base` = 24px）はここでは扱わない。
- */
-export function LinkRowSkeleton({
-  titleWidthClassName = "w-40",
-  trailingWidthClassName,
-}: LinkRowSkeletonProps) {
-  return (
-    <li className={ROW_ITEM_CLASSES}>
-      <div className={`items-center ${ROW_INNER_CLASSES}`}>
-        <span className="min-w-0 flex-1">
-          <SkeletonBar className={`h-5 ${titleWidthClassName}`} tone={100} />
-        </span>
-        {trailingWidthClassName !== undefined && (
-          <SkeletonBar
-            className={`h-5 shrink-0 ${trailingWidthClassName}`}
-            tone={100}
-          />
-        )}
-      </div>
     </li>
   );
 }

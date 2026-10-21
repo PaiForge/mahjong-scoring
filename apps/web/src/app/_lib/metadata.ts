@@ -11,7 +11,7 @@ import { messages } from "@mahjong-scoring/messages/ja";
 export const SITE_NAME = messages.metadata.siteName;
 
 /** サイトのキャッチコピー（トップページのタイトル等に使用） */
-export const SITE_TAGLINE = messages.metadata.siteTagline;
+const SITE_TAGLINE = messages.metadata.siteTagline;
 
 /** サイトの説明文（meta description のデフォルト） */
 export const SITE_DESCRIPTION = messages.metadata.siteDescription;

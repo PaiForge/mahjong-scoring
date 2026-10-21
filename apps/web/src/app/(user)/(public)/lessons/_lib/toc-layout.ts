@@ -20,7 +20,7 @@ export const SECTION_BULLET_SIZE_CLASS = "size-4";
  * セクション bullet の中心までの水平・垂直オフセット（`size-4` の半分 = 8px）。
  * bullet は見出し行の 1 行目に上余白なしで乗るため、垂直方向も単純に半分でよい。
  */
-export const BULLET_CENTER_LEFT_PX = 8;
+const BULLET_CENTER_LEFT_PX = 8;
 export const BULLET_CENTER_TOP_PX = 8;
 
 /**

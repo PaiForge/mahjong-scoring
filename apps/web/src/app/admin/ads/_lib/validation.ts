@@ -117,7 +117,7 @@ const MAX_HAND_TILES = 14;
  * 表記は入力のまま保存し、正規形（`formatMpsz`）には揃えない。帯は表記の
  * 順に牌を並べるので、揃えると管理者が決めた並びが変わる。
  */
-export function isValidAdHand(value: string): boolean {
+function isValidAdHand(value: string): boolean {
   if (value.length > AD_CREATIVE_LIMITS.hand) return false;
   if (value.includes("0")) return false;
   const tehai = parseTehai(value);

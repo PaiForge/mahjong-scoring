@@ -14,8 +14,7 @@
  * `h-*` で近似せずに実物と揃えるための共有点（{@link TOGGLE_ITEM_METRICS_CLASSES}
  * と対で使う）。
  */
-export const TOGGLE_GROUP_CONTAINER_METRICS_CLASSES =
-  "flex rounded-md border p-0.5";
+const TOGGLE_GROUP_CONTAINER_METRICS_CLASSES = "flex rounded-md border p-0.5";
 
 /** 外枠 */
 export const TOGGLE_GROUP_CONTAINER_CLASSES = `${TOGGLE_GROUP_CONTAINER_METRICS_CLASSES} border-panel bg-surface-50`;
@@ -28,7 +27,7 @@ export const TOGGLE_GROUP_CONTAINER_CLASSES = `${TOGGLE_GROUP_CONTAINER_METRICS_
  * （点数早見表）がモバイル幅では 1 行に収まらず、グループが 2 段に
  * 折り返してしまうため。
  */
-export const TOGGLE_ITEM_METRICS_CLASSES =
+const TOGGLE_ITEM_METRICS_CLASSES =
   "whitespace-nowrap rounded-sm px-2 py-1 text-xs font-bold sm:px-3";
 
 /**
