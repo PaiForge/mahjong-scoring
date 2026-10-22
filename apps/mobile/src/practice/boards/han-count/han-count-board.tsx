@@ -8,6 +8,7 @@ import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { HanBreakdown } from "./han-breakdown";
+import { AnswerReviewPanel } from "../../components/answer-review-panel";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import { useHanCountAnswer } from "@mahjong-scoring/features/practice/han-count/use-han-count-answer";
 import { useGeneratedScoreQuestion } from "@mahjong-scoring/features/practice/use-generated-score-question";
@@ -58,16 +59,17 @@ export function HanCountBoard({
       />
 
       {/* 面子分解は正解開示の一部。回答中に見せると答えが割れるため止まって
-          いる間だけ出す。置き場所が末尾なのは、開示の瞬間に回答欄を動かさないため */}
+          いる間だけ出す。置き場所が末尾なのは、開示の瞬間に回答欄を動かさないため。
+          内訳と 1 枚の面に入れ、直下の「次の問題へ」と境目を付ける */}
       {showBreakdown && (
-        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-      )}
-
-      {showBreakdown && (
-        <HanBreakdown
-          yakuDetails={question.yakuDetails}
-          correctHan={correctHan}
-        />
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+          <HanBreakdown
+            yakuDetails={question.yakuDetails}
+            correctHan={correctHan}
+            surface="sunken"
+          />
+        </AnswerReviewPanel>
       )}
     </View>
   );

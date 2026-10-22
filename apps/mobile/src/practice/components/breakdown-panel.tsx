@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { BreakdownKind } from "@mahjong-scoring/features/results/breakdown-tabs";
+import type { BreakdownSurface } from "@mahjong-scoring/features/results/breakdown-props";
 
 import { ChevronDownIcon } from "../../components/icons/icons";
 import { ToggleGroup } from "../../components/toggle-group";
@@ -49,11 +50,12 @@ export function BreakdownPanel({
   /** 開いたときに選ぶ内訳。省略時は先頭 */
   readonly initialKind?: BreakdownKind;
   /**
-   * 内訳の表を載せる面（既定 `raised`）。`raised` は白地に淡い枠（灰の地や
-   * 面を持たない盤面の末尾に置くとき）、`sunken` は枠なしの淡い灰（白い面 =
-   * 答え合わせの表の枠の中に置くとき。白い枠を入れ子にしない）
+   * 内訳の表を載せる面（既定 `raised`）。`raised` は白地に淡い枠（灰の地に
+   * 置くとき）、`sunken` は枠なしの淡い灰（白い面 = 答え合わせの表の枠や
+   * トレーニングの答え合わせの資料の面 {@link import("./answer-review-panel").AnswerReviewPanel}
+   * の中に置くとき。白い枠を入れ子にしない）
    */
-  readonly surface?: "raised" | "sunken";
+  readonly surface?: BreakdownSurface;
   /**
    * 内訳の面の下・右端に添える導線（「点数表を確認」の補助リンク）。どの
    * 内訳を選んでいても同じものを出す — 点数表は翻と符の組で引くもので、

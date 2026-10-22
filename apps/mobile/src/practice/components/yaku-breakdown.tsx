@@ -24,23 +24,24 @@ import type {
  * 入口）で、内訳が翻数だけなので切り替えは出ない。
  *
  * 早見表に載る役の名前は押せて、押すと役一覧のシートをその役で開く
- * （web と同じ）。
+ * （web と同じ）。開いた表の面（`surface`）は置く側が決める。
  */
-export function YakuBreakdown(props: YakuBreakdownProps) {
+export function YakuBreakdown({ surface, ...tableProps }: YakuBreakdownProps) {
   const t = useTranslations("challenge.scoreBreakdown");
 
-  if (props.yakuDetails.length === 0) return undefined;
+  if (tableProps.yakuDetails.length === 0) return undefined;
 
-  const total = sumYakuHan(props.yakuDetails);
+  const total = sumYakuHan(tableProps.yakuDetails);
 
   return (
     <BreakdownPanel
       title={t("toggle")}
+      surface={surface}
       sections={[
         {
           kind: "han",
           tabLabel: t("hanTab", { count: total }),
-          content: <YakuBreakdownTable {...props} />,
+          content: <YakuBreakdownTable {...tableProps} />,
         },
       ]}
     />

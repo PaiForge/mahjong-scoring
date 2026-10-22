@@ -27,4 +27,25 @@ describe("FuBreakdown", () => {
     expect(screen.getByText("副底")).toBeTruthy();
     expect(screen.getByText("嵌張待ち")).toBeTruthy();
   });
+
+  it("surface を渡すと開いた表の面に反映する（白い面の中では沈めた灰）", () => {
+    render(
+      <FuBreakdown
+        details={DETAILS}
+        answer={30}
+        translationNamespace="x"
+        surface="sunken"
+      />,
+    );
+    const toggle = screen.getByRole("button", { name: "toggle" });
+    fireEvent.click(toggle);
+
+    // 開いた中身（aria-controls の先）は内訳が 1 種類なので表の面だけ
+    const panel = document.getElementById(
+      toggle.getAttribute("aria-controls")!,
+    );
+    const surface = panel?.firstElementChild;
+    expect(surface?.className).toContain("bg-surface-50");
+    expect(surface?.className).not.toContain("border");
+  });
 });

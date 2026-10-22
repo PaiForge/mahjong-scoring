@@ -100,6 +100,25 @@ describe("TrainingShell 回答後の停止", () => {
     expect(reserved.parentElement?.hasAttribute("inert")).toBe(true);
   });
 
+  it("回答ボタンを持たない盤面では「次の問題へ」を盤面から一段離す", () => {
+    // 末尾が答え合わせの資料の面（面子分解・「内訳を確認」の押せる行）なので、
+    // 行を狙って下に落ちた指がボタンに届かないよう 24px 空ける
+    const onProceed = vi.fn();
+    renderShell({ isHolding: true, onProceed });
+
+    const next = screen.getByRole("button", { name: "nextButton" });
+    expect(next.parentElement?.className).toContain("mt-6");
+  });
+
+  it("回答ボタンを持つ盤面では回答ボタンと同じ間隔（mt-4）で入れ替わる", () => {
+    const onProceed = vi.fn();
+    renderShell({ isHolding: true, onProceed, hasSubmitButton: true });
+
+    const next = screen.getByRole("button", { name: "nextButton" });
+    expect(next.parentElement?.className).toContain("mt-4");
+    expect(next.parentElement?.className).not.toContain("mt-6");
+  });
+
   it("回答ボタンを持つ盤面では場所を取らない（回答ボタンと入れ替わる）", () => {
     renderShell({ onProceed: vi.fn(), hasSubmitButton: true });
 

@@ -17,18 +17,19 @@ import type {
  *
  * 器は点数系と同じ {@link BreakdownPanel}（「内訳を確認」の 1 行の入口）で、
  * 内訳が符だけなので切り替えは出ない。点数表への導線は持たない（符だけでは
- * 点数表の行が決まらない）。
+ * 点数表の行が決まらない）。開いた表の面（`surface`）は置く側が決める。
  */
-export function FuBreakdown(props: FuBreakdownProps) {
+export function FuBreakdown({ surface, ...tableProps }: FuBreakdownProps) {
   const t = useTranslations("challenge.scoreBreakdown");
   return (
     <BreakdownPanel
       title={t("toggle")}
+      surface={surface}
       sections={[
         {
           kind: "fu",
-          tabLabel: t("fuTab", { value: props.answer }),
-          content: <FuBreakdownTable {...props} />,
+          tabLabel: t("fuTab", { value: tableProps.answer }),
+          content: <FuBreakdownTable {...tableProps} />,
         },
       ]}
     />

@@ -40,23 +40,27 @@ import type {
  *
  * 器は点数系の答え合わせと同じ {@link BreakdownPanel}（「内訳を確認」の
  * 1 行の入口で、既定で閉じる）。内訳が翻数だけなので切り替えは出ない
- * （符の内訳も同じ）。
+ * （符の内訳も同じ）。開いた表の面（`surface`）は置く側が決める。
  */
-export function YakuBreakdown(props: YakuBreakdownProps<ReactNode>) {
+export function YakuBreakdown({
+  surface,
+  ...tableProps
+}: YakuBreakdownProps<ReactNode>) {
   const t = useTranslations("challenge.scoreBreakdown");
 
-  if (props.yakuDetails.length === 0) return undefined;
+  if (tableProps.yakuDetails.length === 0) return undefined;
 
-  const total = sumYakuHan(props.yakuDetails);
+  const total = sumYakuHan(tableProps.yakuDetails);
 
   return (
     <BreakdownPanel
       title={t("toggle")}
+      surface={surface}
       sections={[
         {
           kind: "han",
           tabLabel: t("hanTab", { count: total }),
-          content: <YakuBreakdownTable {...props} />,
+          content: <YakuBreakdownTable {...tableProps} />,
         },
       ]}
     />

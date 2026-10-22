@@ -91,6 +91,12 @@ interface TrainingShellProps {
    * 持たない盤面（選択肢をタップした瞬間に確定する練習・自動送信の select）
    * には入れ替わる相手が無い。停止していない間もボタン 1 つ分の場所を空けて
    * おき、「次の問題へ」が現れた瞬間にカウンタ以下が押し下げられないようにする。
+   *
+   * 盤面との間隔も分かれる。持つ盤面は回答ボタンと同じ位置（`mt-4`）で
+   * 入れ替わる。持たない盤面は末尾が答え合わせの資料の面
+   * （{@link import("./answer-review-panel").AnswerReviewPanel}。面子分解・
+   * 「内訳を確認」の押せる行）なので、一段広い `mt-6`（24px）を取り、
+   * 資料の行を狙って下に落ちた指がボタンに届かないようにする。
    */
   readonly hasSubmitButton?: boolean;
 }
@@ -153,7 +159,7 @@ export function TrainingShell({
               不可視のまま置いて場所を取る（現れた瞬間に下が動かないため） */}
           {(showsProceed || !hasSubmitButton) && (
             <div
-              className={`mt-4 ${showsProceed ? "" : "invisible"}`}
+              className={`${hasSubmitButton ? "mt-4" : "mt-6"} ${showsProceed ? "" : "invisible"}`}
               inert={!showsProceed}
               aria-hidden={!showsProceed}
             >

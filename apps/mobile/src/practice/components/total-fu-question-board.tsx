@@ -12,6 +12,7 @@ import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
+import { AnswerReviewPanel } from "./answer-review-panel";
 import { FuBreakdown } from "./fu-breakdown";
 import { FuChoiceGrid } from "./fu-choice-grid";
 import { QuestionPlaceholder } from "./question-placeholder";
@@ -22,7 +23,8 @@ import { QuestionPrompt } from "./question-prompt";
  *
  * 手牌の合計符の練習と符の昇級試験で共有する。出題の作り方と辞書の名前空間
  * だけを受け取る。面子分解と符の内訳は答えが割れるので、トレーニングの
- * 答え合わせ中だけ出す。
+ * 答え合わせ中だけ、1 枚の面（{@link AnswerReviewPanel}）に入れて出す
+ * （直下の「次の問題へ」と境目を付ける）。
  */
 export function TotalFuQuestionBoard({
   generateQuestion,
@@ -70,17 +72,18 @@ export function TotalFuQuestionBoard({
         translationNamespace={translationNamespace}
       />
       {(isRevealed || isHolding) && (
-        <TehaiMentsuBreakdown
-          tehai={question.tehai}
-          context={question.context}
-        />
-      )}
-      {(isRevealed || isHolding) && (
-        <FuBreakdown
-          details={question.fuDetails}
-          answer={question.answer}
-          translationNamespace={translationNamespace}
-        />
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown
+            tehai={question.tehai}
+            context={question.context}
+          />
+          <FuBreakdown
+            details={question.fuDetails}
+            answer={question.answer}
+            translationNamespace={translationNamespace}
+            surface="sunken"
+          />
+        </AnswerReviewPanel>
       )}
     </View>
   );

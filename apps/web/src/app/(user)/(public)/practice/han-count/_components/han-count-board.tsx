@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import type { useGeneratedScoreQuestion } from "@mahjong-scoring/features/practice/use-generated-score-question";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
+import { AnswerReviewPanel } from "../../_components/answer-review-panel";
 import { HanBreakdown } from "./han-breakdown";
 import { HanCountAnswerForm } from "./han-count-answer-form";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
@@ -37,7 +38,9 @@ type HanCountBoardProps = RecordingPracticeBoardProps<HanCountQuestionResult> &
  * 置き場所は選択肢グリッドの下で、閉じた状態から始める。手牌も選択肢の色も
  * 動かさないまま下に 1 行増えるだけで済み、開いても伸びるのは下方向だけ
  * （読んでいる最中に読んでいるものが動かない）。開閉の見た目と操作は結果ページの
- * 問題別詳細と同じ ▶ で、内訳を見る操作が画面によって変わらない。
+ * 問題別詳細と同じ ▶ で、内訳を見る操作が画面によって変わらない。面子分解と
+ * 内訳は 1 枚の面（{@link AnswerReviewPanel}）に入れ、直下の「次の問題へ」と
+ * 境目を付ける。
  */
 export function HanCountBoard({
   question,
@@ -89,14 +92,14 @@ export function HanCountBoard({
           止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
           手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
       {showBreakdown && (
-        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-      )}
-
-      {showBreakdown && (
-        <HanBreakdown
-          yakuDetails={question.yakuDetails}
-          correctHan={correctHan}
-        />
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+          <HanBreakdown
+            yakuDetails={question.yakuDetails}
+            correctHan={correctHan}
+            surface="sunken"
+          />
+        </AnswerReviewPanel>
       )}
     </div>
   );
