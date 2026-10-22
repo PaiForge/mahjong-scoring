@@ -23,7 +23,7 @@ import { createNamespaceMetadata, SITE_NAME } from "@/app/_lib/metadata";
 
 import {
   LegalArticle,
-  LegalLastUpdated,
+  LegalClosing,
   LegalLink,
   LegalList,
   LegalParagraph,
@@ -191,21 +191,7 @@ export default async function TermsPage() {
           <LegalParagraph>{t("governingLaw.body")}</LegalParagraph>
         </LegalSection>
 
-        <LegalSection title={t("revision.title")}>
-          <LegalParagraph>{t("revision.body")}</LegalParagraph>
-        </LegalSection>
-
-        <LegalSection title={t("contact.title")}>
-          <LegalParagraph>
-            {t.rich("contact.body", {
-              contact: (chunks) => (
-                <LegalLink href="/contact">{chunks}</LegalLink>
-              ),
-            })}
-          </LegalParagraph>
-        </LegalSection>
-
-        <LegalLastUpdated date={LAST_UPDATED} />
+        <LegalClosing namespace="terms" lastUpdated={LAST_UPDATED} />
       </LegalArticle>
     </ContentContainer>
   );

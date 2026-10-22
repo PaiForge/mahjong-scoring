@@ -108,3 +108,43 @@ export async function LegalLastUpdated({ date }: { readonly date: string }) {
     </p>
   );
 }
+
+/**
+ * 規約の末尾（改定・お問い合わせ・最終更新日）
+ * 規約末尾
+ *
+ * 利用規約とプライバシーポリシーは同じ 3 節で終わる。節の文言は各ページの
+ * 名前空間の `revision.*` / `contact.*` から引き、お問い合わせの文中リンクは
+ * `/contact` へ張る。
+ *
+ * @param namespace - ページの辞書の名前空間
+ * @param lastUpdated - 改定日（`YYYY-MM-DD`。{@link LegalLastUpdated}）
+ */
+export async function LegalClosing({
+  namespace,
+  lastUpdated,
+}: {
+  readonly namespace: "terms" | "privacy";
+  readonly lastUpdated: string;
+}) {
+  const t = await getTranslations(namespace);
+  return (
+    <>
+      <LegalSection title={t("revision.title")}>
+        <LegalParagraph>{t("revision.body")}</LegalParagraph>
+      </LegalSection>
+
+      <LegalSection title={t("contact.title")}>
+        <LegalParagraph>
+          {t.rich("contact.body", {
+            contact: (chunks) => (
+              <LegalLink href="/contact">{chunks}</LegalLink>
+            ),
+          })}
+        </LegalParagraph>
+      </LegalSection>
+
+      <LegalLastUpdated date={lastUpdated} />
+    </>
+  );
+}
