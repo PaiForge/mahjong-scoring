@@ -4,7 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCountdown } from "./use-countdown";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 import { ANSWER_FEEDBACK_DURATION_MS } from "../challenge/challenge-result-bounds";
-import type { FinishReason } from "../challenge/finish-reason";
+import {
+  finalResultOf,
+  finishReasonAfterAnswer,
+  type FinalResult,
+} from "./finish-decision";
+
+export type { FinalResult } from "./finish-decision";
 
 /** チャレンジのセッション管理の設定 */
 export interface UseTimedSessionOptions {
@@ -30,27 +36,6 @@ export interface UseTimedSessionOptions {
    * プラットフォームごとに違うので、フックは「切り替わった」ことだけを伝える。
    */
   readonly onDisplayChange?: () => void;
-}
-
-/**
- * ゲーム終了時の確定結果
- * 終了スナップショット
- *
- * ref から取得するため、React の state バッチングやレンダーサイクルに依存せず
- * 終了時点の正確な値を保持する。
- */
-export interface FinalResult {
-  readonly correctCount: number;
-  readonly incorrectCount: number;
-  readonly totalCount: number;
-  /** 終わった理由。時間切れなら出題中の問題が答えられないまま残っている */
-  readonly reason: FinishReason;
-  /**
-   * 終わった時刻（`Date.now()`）。この回（チャレンジ 1 回分）の ID として、
-   * 結果一覧の保存（`useRecordedResults`）と結果ページの URL
-   * （`useFinishRedirect` の `?run=`）の両方に同じ値を渡す
-   */
-  readonly finishedAt: number;
 }
 
 /** ゲームロジック状態（タイマー値を含まない、ユーザー操作時のみ変化） */
@@ -165,15 +150,16 @@ export function useTimedSession({
   const handleTimeLimitReached = useCallback(() => {
     if (isFinishedRef.current) return;
     isFinishedRef.current = true;
-    const correct = correctCountRef.current;
-    const incorrect = incorrectCountRef.current;
-    setFinalResult({
-      correctCount: correct,
-      incorrectCount: incorrect,
-      totalCount: correct + incorrect,
-      reason: "timeUp",
-      finishedAt: Date.now(),
-    });
+    setFinalResult(
+      finalResultOf(
+        {
+          correctCount: correctCountRef.current,
+          incorrectCount: incorrectCountRef.current,
+        },
+        "timeUp",
+        Date.now(),
+      ),
+    );
     setIsFinished(true);
   }, []);
 
@@ -193,39 +179,28 @@ export function useTimedSession({
       setShowFeedback(true);
       setLastAnswerCorrect(correct);
 
-      const newCorrectCount = correct
-        ? correctCountRef.current + 1
-        : correctCountRef.current;
-      const newIncorrectCount = correct
-        ? incorrectCountRef.current
-        : incorrectCountRef.current + 1;
-
-      correctCountRef.current = newCorrectCount;
-      incorrectCountRef.current = newIncorrectCount;
+      const counts = {
+        correctCount: correctCountRef.current + (correct ? 1 : 0),
+        incorrectCount: incorrectCountRef.current + (correct ? 0 : 1),
+      };
+      correctCountRef.current = counts.correctCount;
+      incorrectCountRef.current = counts.incorrectCount;
 
       if (correct) {
         setCorrectCount((c) => c + 1);
       } else {
-        setIncorrectCount(newIncorrectCount);
+        setIncorrectCount(counts.incorrectCount);
       }
 
-      const finishReason: FinishReason | undefined =
-        newIncorrectCount >= mistakeLimit
-          ? "mistakeLimit"
-          : goalCount !== undefined && newCorrectCount >= goalCount
-            ? "goalReached"
-            : undefined;
+      const finishReason = finishReasonAfterAnswer(counts, {
+        mistakeLimit,
+        goalCount,
+      });
       if (finishReason !== undefined) {
         feedbackTimeoutRef.current = setTimeout(() => {
           if (isFinishedRef.current) return;
           isFinishedRef.current = true;
-          setFinalResult({
-            correctCount: newCorrectCount,
-            incorrectCount: newIncorrectCount,
-            totalCount: newCorrectCount + newIncorrectCount,
-            reason: finishReason,
-            finishedAt: Date.now(),
-          });
+          setFinalResult(finalResultOf(counts, finishReason, Date.now()));
           setIsFinished(true);
           setShowFeedback(false);
         }, feedbackDurationMs);
