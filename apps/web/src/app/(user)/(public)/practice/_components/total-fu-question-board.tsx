@@ -8,6 +8,7 @@ import { QuestionGeneratingPlaceholder } from "./question-generating-placeholder
 import { TehaiDisplay } from "./tehai-display";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { FuBreakdown } from "./fu-breakdown";
+import { AnswerReviewPanel } from "./answer-review-panel";
 import { QuestionPrompt } from "./question-prompt";
 import { useFuChoiceBoard } from "@mahjong-scoring/features/practice/use-fu-choice-board";
 import { useTrainingMode } from "@mahjong-scoring/features/practice/use-training-mode";
@@ -43,7 +44,9 @@ interface TotalFuQuestionBoardProps extends RecordingPracticeBoardProps<FuQuesti
  * だけ、回答した問題と「わからない」で開示した問題に対して表示する。
  * チャレンジ・本番の試験では出さない — 制限時間内に解き続ける形式で読む間も
  * なく次の問題へ変わるうえ、試験では内訳が答え合わせそのものになる。
- * 振り返りは結果ページの問題別フィードバック一覧で行う。
+ * 振り返りは結果ページの問題別フィードバック一覧で行う。面子分解と内訳は
+ * 1 枚の面（{@link AnswerReviewPanel}）に入れ、直下の「次の問題へ」と
+ * 境目を付ける。
  *
  * @remarks
  * ルール設定ストアを読まないこと。試験の盤面もこの部品で描くため、端末ローカルの
@@ -109,18 +112,18 @@ export function TotalFuQuestionBoard({
           止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
           手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
       {(isRevealed || isHolding) && (
-        <TehaiMentsuBreakdown
-          tehai={question.tehai}
-          context={question.context}
-        />
-      )}
-
-      {(isRevealed || isHolding) && (
-        <FuBreakdown
-          details={question.fuDetails}
-          answer={question.answer}
-          translationNamespace={translationNamespace}
-        />
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown
+            tehai={question.tehai}
+            context={question.context}
+          />
+          <FuBreakdown
+            details={question.fuDetails}
+            answer={question.answer}
+            translationNamespace={translationNamespace}
+            surface="sunken"
+          />
+        </AnswerReviewPanel>
       )}
     </div>
   );
