@@ -12,12 +12,10 @@ vi.mock("../apple/refresh-tokens", () => ({
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleSaveAppleToken } from "./apple";
+import { postJsonRequest } from "@/test/request";
 
 function post(body: unknown): Request {
-  return new Request("https://example.test", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return postJsonRequest("https://example.test", body);
 }
 
 beforeEach(() => {

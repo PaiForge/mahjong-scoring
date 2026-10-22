@@ -24,6 +24,7 @@ vi.mock("./plan", async (importOriginal) => ({
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleRecordAppleTransaction } from "./apple-iap";
+import { postJsonRequest } from "@/test/request";
 
 const TRANSACTION: AppleTransaction = {
   transactionId: "2000000000000001",
@@ -56,10 +57,7 @@ const verifier = createFakeAppleVerifier({
 });
 
 function request(body: unknown = { jws: "jws-valid" }) {
-  return new Request("https://example.test", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return postJsonRequest("https://example.test", body);
 }
 
 const handle = (req: Request = request()) =>

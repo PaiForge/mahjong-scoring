@@ -26,6 +26,7 @@ import {
   handleMarkNotificationsRead,
   handleReadNotifications,
 } from "./notifications";
+import { postJsonRequest } from "@/test/request";
 
 const URL_BASE = "https://example.test/api/mobile/v1/notifications";
 const NOTIFICATION_ID = "11111111-1111-4111-8111-111111111111";
@@ -45,10 +46,8 @@ function withoutUsername() {
 }
 
 function postRead(body: unknown) {
-  return new Request(`${URL_BASE}/read`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+  return postJsonRequest(`${URL_BASE}/read`, body, {
+    "Content-Type": "application/json",
   });
 }
 

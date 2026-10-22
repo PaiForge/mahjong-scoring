@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind, validateTehai14 } from "@pai-forge/riichi-mahjong";
+import { HaiKind } from "@pai-forge/riichi-mahjong";
 import {
   calculateTotalFu,
   generateTotalFuQuestion,
   generateTotalFuQuestionInRange,
 } from "./generator";
+import { agariTehai } from "../../test/tehai";
 import { totalFuChoices } from "./range";
 import { mulberry32 } from "../../core/random";
 import {
@@ -13,7 +14,6 @@ import {
   PINFU_RON_FU,
   PINFU_TSUMO_FU,
 } from "../../score/constants";
-import { parseTehai } from "../score/mpsz-serializer";
 import {
   expectGeneratesEventually,
   expectSampled,
@@ -187,12 +187,6 @@ describe("generateTotalFuQuestionInRange", () => {
 });
 
 describe("calculateTotalFu", () => {
-  /** MPSZ の 14 枚を和了形の手牌にする */
-  function agariTehai(mpsz: string) {
-    const tehai = parseTehai(mpsz);
-    if (tehai === undefined) throw new Error(mpsz);
-    return validateTehai14(tehai)._unsafeUnwrap();
-  }
   const kaze = { bakaze: HaiKind.Ton, jikaze: HaiKind.Nan };
 
   it("七対子はツモでもロンでも固定の符", () => {

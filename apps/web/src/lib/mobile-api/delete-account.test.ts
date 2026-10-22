@@ -19,12 +19,10 @@ vi.mock("../activity-log", () => ({ logActivityEvent: vi.fn() }));
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleDeleteAccount } from "./delete-account";
+import { postJsonRequest } from "@/test/request";
 
 function post(body?: unknown): Request {
-  return new Request("https://example.test", {
-    method: "POST",
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  return postJsonRequest("https://example.test", body);
 }
 
 function signedInAs(appleSubject: string | undefined) {

@@ -4,23 +4,21 @@ import {
   mockRevalidatePath,
   mockRevalidateTag,
   mockTransaction,
+  createUpdateTxMock,
   setupAdminActor,
   setupNotAdmin,
+  type UpdateTxMock,
 } from "@/test/admin-action-mocks";
 
 const {
   mockSelectLimit,
   mockDbUpdateSet,
   mockDbUpdateWhere,
-  mockTxUpdateSet,
-  mockTxUpdateWhere,
   mockUpdateUserById,
 } = vi.hoisted(() => ({
   mockSelectLimit: vi.fn(),
   mockDbUpdateSet: vi.fn(),
   mockDbUpdateWhere: vi.fn(),
-  mockTxUpdateSet: vi.fn(),
-  mockTxUpdateWhere: vi.fn(),
   mockUpdateUserById: vi.fn(),
 }));
 
@@ -67,19 +65,17 @@ import { unbanUser } from "../unban-user";
 const bannedAt = new Date("2026-01-01T00:00:00+09:00");
 
 /** トランザクション内の `tx.update(profiles).set(...).where(...)` を受ける偽の tx */
-const txUpdateChain = { set: mockTxUpdateSet, where: mockTxUpdateWhere };
-const TX = { update: vi.fn(() => txUpdateChain) };
+let updateTx: UpdateTxMock;
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  setupAdminActor(TX);
+  updateTx = createUpdateTxMock();
+  setupAdminActor(updateTx.tx);
   mockUpdateUserById.mockResolvedValue({ error: null });
   mockSelectLimit.mockResolvedValue([{ bannedAt }]);
   mockDbUpdateSet.mockReturnValue({ where: mockDbUpdateWhere });
   mockDbUpdateWhere.mockResolvedValue(undefined);
-  mockTxUpdateSet.mockReturnValue(txUpdateChain);
-  mockTxUpdateWhere.mockResolvedValue(undefined);
 });
 
 describe("unbanUser", () => {
@@ -109,8 +105,8 @@ describe("unbanUser", () => {
     expect(mockUpdateUserById.mock.invocationCallOrder[0]).toBeLessThan(
       mockTransaction.mock.invocationCallOrder[0] ?? 0,
     );
-    expect(mockTxUpdateSet).toHaveBeenCalledTimes(1);
-    expect(mockRecordModerationAction).toHaveBeenCalledWith(TX, {
+    expect(updateTx.set).toHaveBeenCalledTimes(1);
+    expect(mockRecordModerationAction).toHaveBeenCalledWith(updateTx.tx, {
       actorId: "admin-1",
       action: "unban",
       targetId: "u1",
@@ -129,7 +125,7 @@ describe("unbanUser", () => {
       ban_duration: "none",
     });
     expect(mockRecordModerationAction).toHaveBeenCalledWith(
-      TX,
+      updateTx.tx,
       expect.objectContaining({ action: "unban", targetId: "provisional-1" }),
     );
   });
