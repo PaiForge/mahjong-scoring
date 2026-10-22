@@ -11,10 +11,13 @@ import { SUPPORTED_LOCALES } from "@/i18n/locales";
 import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { createAnnouncement } from "../_actions/create-announcement";
-import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
 import { updateAnnouncement } from "../_actions/update-announcement";
 import { adminButtonClasses } from "../../_lib/button-classes";
-import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";
+import {
+  AnnouncementBodyFields,
+  AnnouncementIdentityFields,
+  AnnouncementPublishFields,
+} from "./announcement-fields";
 
 interface AnnouncementFormDefaults {
   slug: string;
@@ -99,109 +102,29 @@ export function AnnouncementForm({
     });
   };
 
-  const inputClass = `w-full ${ADMIN_INPUT_CLASSES}`;
-
   return (
     <div className="admin-panel max-w-3xl space-y-5 p-5 sm:p-7">
-      <div className="flex flex-wrap gap-4">
-        <div className="min-w-0 flex-1">
-          <label className="mb-1 block text-sm font-medium text-surface-700">
-            {t("slug")}
-          </label>
-          <input
-            type="text"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            placeholder={t("slugPlaceholder")}
-            readOnly={lockSlug}
-            maxLength={ANNOUNCEMENT_LIMITS.slug}
-            className={`${inputClass} ${lockSlug ? "cursor-not-allowed bg-surface-100" : ""}`}
-          />
-        </div>
-        <div className="w-32">
-          <label className="mb-1 block text-sm font-medium text-surface-700">
-            {t("locale")}
-          </label>
-          <select
-            value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-            className={inputClass}
-          >
-            {SUPPORTED_LOCALES.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-surface-700">
-          {t("title")}
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t("titlePlaceholder")}
-          maxLength={ANNOUNCEMENT_LIMITS.title}
-          className={inputClass}
-        />
-      </div>
-
-      <div>
-        <label className="mb-1 block text-sm font-medium text-surface-700">
-          {t("content")}
-        </label>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder={t("contentPlaceholder")}
-          rows={16}
-          className={`${inputClass} resize-y font-mono`}
-        />
-      </div>
-
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="w-40">
-          <label className="mb-1 block text-sm font-medium text-surface-700">
-            {t("status")}
-          </label>
-          <select
-            value={status}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className={inputClass}
-          >
-            <option value={AnnouncementStatus.Draft}>{t("statusDraft")}</option>
-            <option value={AnnouncementStatus.Published}>
-              {t("statusPublished")}
-            </option>
-          </select>
-        </div>
-        <div className="min-w-0 flex-1">
-          <label className="mb-1 block text-sm font-medium text-surface-700">
-            {t("publishedAtInput")}
-          </label>
-          <input
-            type="datetime-local"
-            value={publishedAtLocal}
-            onChange={(e) => setPublishedAtLocal(e.target.value)}
-            className={inputClass}
-          />
-        </div>
-      </div>
-
-      <label className="flex items-center gap-2 text-sm text-surface-700">
-        <input
-          type="checkbox"
-          checked={pinned}
-          onChange={(e) => setPinned(e.target.checked)}
-          className="size-4 rounded border-surface-300"
-        />
-        {t("pinned")}
-        <span className="text-xs text-surface-400">{t("pinnedHint")}</span>
-      </label>
+      <AnnouncementIdentityFields
+        slug={slug}
+        locale={locale}
+        lockSlug={lockSlug}
+        onSlugChange={setSlug}
+        onLocaleChange={setLocale}
+      />
+      <AnnouncementBodyFields
+        title={title}
+        content={content}
+        onTitleChange={setTitle}
+        onContentChange={setContent}
+      />
+      <AnnouncementPublishFields
+        status={status}
+        publishedAtLocal={publishedAtLocal}
+        pinned={pinned}
+        onStatusChange={handleStatusChange}
+        onPublishedAtChange={setPublishedAtLocal}
+        onPinnedChange={setPinned}
+      />
 
       <div className="flex gap-3 pt-2">
         <button

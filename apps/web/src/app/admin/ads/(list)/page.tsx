@@ -28,31 +28,20 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { AdminTabs } from "@/app/admin/_components/admin-tabs";
 import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { TableHead } from "@/app/admin/_components/table-head";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   AD_PLATFORMS,
   AD_SLOT_VALUES,
-  counterpartSlot,
   isAdSlot,
-  kindForSlot,
-  placementsForSlot,
   platformForSlot,
-  surfacesForSlot,
 } from "@/lib/ads/registry";
 
 import { resolveAdHref } from "@/lib/ads/amazon";
 
-import { CreativeRowActions } from "../_components/creative-row-actions";
-import { adsListHref, adsSlotHref } from "../_lib/list-href";
+import { AdSlotSection } from "../_components/ad-slot-section";
+import { adsListHref } from "../_lib/list-href";
 import { TrackingIdForm } from "../_components/tracking-id-form";
-import {
-  adminCreativeLabel,
-  getAllAdCreatives,
-  getAmazonTrackingIds,
-} from "../_lib/queries";
-import { adminChipClasses } from "../../_lib/chip-classes";
-import { adminButtonClasses } from "../../_lib/button-classes";
+import { getAllAdCreatives, getAmazonTrackingIds } from "../_lib/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -124,136 +113,14 @@ export default async function AdminAdsPage({
         hiddenAsinCount={hiddenAsinCount}
       />
 
-      {slots.map((slot) => {
-        const counterpart = counterpartSlot(slot);
-        const inSlot = creatives.filter((c) => c.row.slot === slot);
-        // 画面に出るのは掲載中のうち並び順の先頭から枠数まで
-        const placements = placementsForSlot(slot);
-        const displayedIds = new Set(
-          inSlot
-            .filter((c) => isServable(c.row))
-            .slice(0, placements)
-            .map((c) => c.row.id),
-        );
-
-        return (
-          <section key={slot} id={slot} className="admin-panel scroll-mt-6">
-            <header className="flex flex-wrap items-start justify-between gap-3 border-b border-surface-200 px-4 py-3">
-              <div className="space-y-1">
-                <code className="text-sm font-semibold text-surface-800">
-                  {slot}
-                </code>
-                <p className="text-xs text-surface-500">
-                  {t("slotKind")}: {t(`kinds.${kindForSlot(slot)}`)}
-                  {placements > 1 && (
-                    <> / {t("placements", { count: placements })}</>
-                  )}
-                </p>
-                <p className="text-xs text-surface-500">
-                  {t("surfaces")}:{" "}
-                  {surfacesForSlot(slot).map((surface, i) => (
-                    <span key={surface.route}>
-                      {i > 0 && ", "}
-                      {surface.href !== undefined ? (
-                        <Link href={surface.href} className={TEXT_LINK_CLASSES}>
-                          {surface.route}
-                        </Link>
-                      ) : (
-                        // アプリの画面は href を持たない（ブラウザで開けない）。
-                        // 置かれる位置は対の web のスロットの掲載先で見る
-                        surface.route
-                      )}
-                    </span>
-                  ))}
-                </p>
-                <p className="text-xs text-surface-500">
-                  {t(`counterpart.${platform}`)}:{" "}
-                  {counterpart === undefined ? (
-                    t("counterpartNone")
-                  ) : (
-                    <Link
-                      href={adsSlotHref(counterpart)}
-                      className={`font-mono ${TEXT_LINK_CLASSES}`}
-                    >
-                      {counterpart}
-                    </Link>
-                  )}
-                </p>
-              </div>
-              <Link
-                href={`/admin/ads/new?slot=${encodeURIComponent(slot)}`}
-                className={adminButtonClasses()}
-              >
-                {t("new")}
-              </Link>
-            </header>
-
-            {inSlot.length === 0 ? (
-              <p className="px-4 py-3 text-sm text-surface-400">{t("empty")}</p>
-            ) : (
-              <div className="admin-table">
-                <table className="w-full text-left text-sm">
-                  <TableHead
-                    labels={[t("order"), t("title"), t("status"), t("actions")]}
-                  />
-                  <tbody>
-                    {inSlot.map(({ row, copy }, index) => (
-                      <tr key={row.id} className="border-t border-surface-200">
-                        <td className="px-4 py-3 text-surface-500">
-                          {index + 1}
-                        </td>
-                        <td className="px-4 py-3 text-surface-900">
-                          <span className="mr-2" aria-hidden="true">
-                            {row.icon}
-                          </span>
-                          {adminCreativeLabel(copy)}
-                          <div className="font-mono text-xs text-surface-400">
-                            {row.id}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span
-                            className={adminChipClasses(
-                              row.isActive ? "success" : "neutral",
-                            )}
-                          >
-                            {row.isActive
-                              ? t("statusActive")
-                              : t("statusInactive")}
-                          </span>
-                          {displayedIds.has(row.id) && (
-                            <span
-                              className={`ml-2 ${adminChipClasses("warning")}`}
-                            >
-                              {t("displayed")}
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-3">
-                            <Link
-                              href={`/admin/ads/${row.id}/edit`}
-                              className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-                            >
-                              {t("edit")}
-                            </Link>
-                            <CreativeRowActions
-                              creativeId={row.id}
-                              isActive={row.isActive}
-                              isFirst={index === 0}
-                              isLast={index === inSlot.length - 1}
-                            />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        );
-      })}
+      {slots.map((slot) => (
+        <AdSlotSection
+          key={slot}
+          slot={slot}
+          creatives={creatives.filter((c) => c.row.slot === slot)}
+          isServable={isServable}
+        />
+      ))}
     </div>
   );
 }
