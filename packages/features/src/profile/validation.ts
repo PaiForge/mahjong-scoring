@@ -27,6 +27,28 @@ const INSTAGRAM_USERNAME_PATTERN = /^[a-zA-Z0-9._]+$/;
 const YOUTUBE_HANDLE_PATTERN = /^[a-zA-Z0-9._-]+$/;
 
 /**
+ * SNS のアカウント名の欄ごとの規則（長さの上限は {@link PROFILE_LIMITS}）
+ * SNS アカウント名規則
+ */
+const SNS_HANDLE_RULES = [
+  {
+    field: "xUsername",
+    pattern: X_USERNAME_PATTERN,
+    error: "xUsernameInvalid",
+  },
+  {
+    field: "instagramUsername",
+    pattern: INSTAGRAM_USERNAME_PATTERN,
+    error: "instagramUsernameInvalid",
+  },
+  {
+    field: "youtubeHandle",
+    pattern: YOUTUBE_HANDLE_PATTERN,
+    error: "youtubeHandleInvalid",
+  },
+] as const;
+
+/**
  * フォームからの生入力（すべて文字列）
  * プロフィール生入力
  *
@@ -119,38 +141,24 @@ export function normalizeAndValidateProfile(
     return { ok: false, error: "bioProhibited" };
   }
 
-  const xUsername = normalizeHandle(input.xUsername);
-  if (
-    xUsername &&
-    (xUsername.length > PROFILE_LIMITS.xUsername ||
-      !X_USERNAME_PATTERN.test(xUsername))
-  ) {
-    return { ok: false, error: "xUsernameInvalid" };
-  }
-
-  const instagramUsername = normalizeHandle(input.instagramUsername);
-  if (
-    instagramUsername &&
-    (instagramUsername.length > PROFILE_LIMITS.instagramUsername ||
-      !INSTAGRAM_USERNAME_PATTERN.test(instagramUsername))
-  ) {
-    return { ok: false, error: "instagramUsernameInvalid" };
-  }
-
-  const youtubeHandle = normalizeHandle(input.youtubeHandle);
-  if (
-    youtubeHandle &&
-    (youtubeHandle.length > PROFILE_LIMITS.youtubeHandle ||
-      !YOUTUBE_HANDLE_PATTERN.test(youtubeHandle))
-  ) {
-    return { ok: false, error: "youtubeHandleInvalid" };
+  const handles = {
+    xUsername: normalizeHandle(input.xUsername),
+    instagramUsername: normalizeHandle(input.instagramUsername),
+    youtubeHandle: normalizeHandle(input.youtubeHandle),
+  };
+  for (const rule of SNS_HANDLE_RULES) {
+    const handle = handles[rule.field];
+    if (
+      handle &&
+      (handle.length > PROFILE_LIMITS[rule.field] || !rule.pattern.test(handle))
+    ) {
+      return { ok: false, error: rule.error };
+    }
   }
 
   // SNS のアカウント名は形式を満たしても公開プロフィールに出るので、語句も見る。
   // どの欄かは 3 つまとめて 1 つの誤りで返す（欄ごとに分けるほど起きない）
-  if (
-    [xUsername, instagramUsername, youtubeHandle].some(containsProhibitedWord)
-  ) {
+  if (Object.values(handles).some(containsProhibitedWord)) {
     return { ok: false, error: "snsProhibited" };
   }
 
@@ -159,9 +167,9 @@ export function normalizeAndValidateProfile(
     value: {
       displayName: displayName || null,
       bio: bio || null,
-      xUsername: xUsername || null,
-      instagramUsername: instagramUsername || null,
-      youtubeHandle: youtubeHandle || null,
+      xUsername: handles.xUsername || null,
+      instagramUsername: handles.instagramUsername || null,
+      youtubeHandle: handles.youtubeHandle || null,
     },
   };
 }
