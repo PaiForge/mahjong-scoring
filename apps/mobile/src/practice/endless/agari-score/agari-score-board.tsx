@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya, type UserAnswer } from "@mahjong-scoring/core";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
@@ -10,20 +9,17 @@ import { BoardBleedProvider } from "../../../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
-import { showToast } from "../../../components/toast";
-import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useAgariScoreSettingsStore } from "../../../hooks/use-score-settings-store";
-import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-store";
 import { QuestionDisplay } from "../../components/question-display";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
 import { AnswerTimeBadge } from "../../quota/answer-time-badge";
 import { PracticeQuotaPaywall } from "../../quota/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "../../quota/practice-quota-remaining";
-import { usePracticeQuota } from "../../quota/use-practice-quota";
 import { CorrectFlash } from "../correct-flash";
 import { EndlessFooterActions } from "../endless-footer-actions";
 import { GenerationFailedNotice } from "../generation-failed-notice";
+import { useEndlessBoardShell } from "../use-endless-board-shell";
 import { readGeneratorOptions, readModeFlags } from "./practice-conditions";
 import { ResultDisplay } from "./result-display";
 import { AgariScoreOperationHelp } from "./agari-score-help";
@@ -52,16 +48,11 @@ import { HandPresentationProvider } from "../../hand-presentation-provider";
  */
 function AgariScoreBoardInner() {
   const t = useTranslations("agariScore");
-  const tq = useTranslations("practiceQuota");
-  const router = useRouter();
-  const scrollRef = useRef<ScrollView>(null);
   // 盤面を開いたときの設定で通す（途中で変わる経路は無いが、出題条件と
   // 判定モードを 1 問ごとに読み直さない）
   const [settings] = useState(() => useAgariScoreSettingsStore.getState());
   const mode = readModeFlags(settings);
   const { requireYaku, requireHanFu, exactHan, requireFuForMangan } = mode;
-  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
-  const [flashSignal, setFlashSignal] = useState(0);
   const {
     currentQuestion,
     userAnswer,
@@ -73,47 +64,32 @@ function AgariScoreBoardInner() {
     submitAnswer,
     revealAnswer,
   } = useAgariScoreStore();
-  // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う
-  const { requestQuestion, requestFirstQuestion, isChecking, gate } =
-    usePracticeQuota("agari-score", () =>
-      useAgariScoreStore.getState().generateNewQuestion(),
-    );
-
-  useEffect(() => {
-    if (gate?.kind === "rateLimited") showToast(tq("rateLimited"));
-  }, [gate, tq]);
-
-  useJudgementHaptics(stats.correct, stats.total - stats.correct);
-
-  // 出題条件をストアへ移し、成績と前回の問題を消してから最初の問題を作る
-  useEffect(() => {
+  // 出題条件をストアへ移し、成績と前回の問題を消す（最初の問題の前に 1 度）
+  const start = useCallback(() => {
     const options = readGeneratorOptions(settings, true);
     const store = useAgariScoreStore.getState();
     store.applyPracticeQuery(JSON.stringify(options), options);
-    void requestFirstQuestion();
-  }, [settings, requestFirstQuestion]);
-
-  // 回答・開示・次へのボタンは縦に長い盤面の下端にあるので、押すたびに先頭へ戻す
-  const scrollToTop = () =>
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
-
-  // 終えたことを知らせてから設定画面へ戻す（web と同じ。文言はこの練習のもの —
-  // チャレンジでもトレーニングでもないため）
-  const handleBackToSetup = () => {
-    router.dismissTo(AGARI_SCORE_PRACTICE_HREF);
-    showToast(t("exitToast"));
-  };
-
-  const handleNext = () => {
-    if (isChecking) return;
-    scrollToTop();
-    void requestQuestion();
-  };
-
-  const handleReveal = () => {
-    scrollToTop();
-    revealAnswer();
-  };
+  }, [settings]);
+  const {
+    scrollRef,
+    scrollToTop,
+    flashSignal,
+    autoAdvanceOnCorrect,
+    isChecking,
+    gate,
+    handleBackToSetup,
+    handleNext,
+    handleReveal,
+    celebrateAndAdvance,
+  } = useEndlessBoardShell({
+    menu: "agari-score",
+    exitHref: AGARI_SCORE_PRACTICE_HREF,
+    exitToast: t("exitToast"),
+    stats,
+    generate: () => useAgariScoreStore.getState().generateNewQuestion(),
+    start,
+    revealAnswer,
+  });
 
   const handleSubmit = (answer: UserAnswer) => {
     scrollToTop();
@@ -122,8 +98,7 @@ function AgariScoreBoardInner() {
       autoAdvanceOnCorrect &&
       useAgariScoreStore.getState().judgementResult?.isCorrect
     ) {
-      setFlashSignal((prev) => prev + 1);
-      void requestQuestion();
+      celebrateAndAdvance();
     }
   };
 
