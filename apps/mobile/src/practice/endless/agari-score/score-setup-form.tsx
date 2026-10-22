@@ -1,19 +1,14 @@
-import { useMemo, useState, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, type ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 
 import { Button } from "../../../components/button";
-import { HelpIconButton } from "../../../components/help-icon-button";
 import { PlayIcon } from "../../../components/icons/icons";
 import { InfoModal } from "../../../components/info-modal";
-import { MultiSelect } from "../../../components/multi-select";
-import { TextLink } from "../../../components/text-link";
 import {
   SettingLockedRow,
   SettingRows,
-  SettingToggleGroup,
   SettingToggleRow,
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
@@ -21,12 +16,12 @@ import { useTrainingSettingsStore } from "../../../hooks/use-training-settings-s
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
-import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
 import { colors } from "../../../lib/theme";
 import { useAuth } from "../../../auth/use-auth";
 import { IAP_AVAILABLE } from "../../../billing/iap-availability";
 import { usePlan } from "../../../billing/use-plan";
 import { SettingCard } from "./setting-card";
+import { AnswerItemsCard, TargetYakuCard } from "./setup-cards";
 import { SmallCheckbox } from "./small-checkbox";
 
 interface ScoreSetupFormProps {
@@ -64,7 +59,6 @@ export function ScoreSetupForm({
 }: ScoreSetupFormProps) {
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const tPicker = useTranslations("common.yakuPicker");
   const tSettings = useTranslations("settings");
   // 「正解したら自動で次へ」はトレーニングと共通の設定（web と同じ）。練習ごとの
   // 保存先（settingsStore）には持たず、設定画面と同じ値を読み書きする
@@ -75,17 +69,9 @@ export function ScoreSetupForm({
     (s) => s.setAutoAdvanceOnCorrect,
   );
   const router = useRouter();
-  const yakuLabelOf = useYakuLabel();
   const [showExactHanInfo, setShowExactHanInfo] = useState(false);
+  const settings = useSettingsStore();
   const {
-    requireYaku,
-    setRequireYaku,
-    requireHanFu,
-    setRequireHanFu,
-    exactHan,
-    setExactHan,
-    requireFuForMangan,
-    setRequireFuForMangan,
     targetScoreRanges,
     setTargetScoreRanges,
     includeParent,
@@ -96,19 +82,7 @@ export function ScoreSetupForm({
     setTargetYaku,
     measureTime,
     setMeasureTime,
-  } = useSettingsStore();
-
-  // 並びは allowlist の定義順（実戦出現率順）で固定し、役の並び替え設定は
-  // 適用しない（web と同じ。選択肢が少なく、2 画面で並びが揃わない混乱の
-  // ほうが大きいため）
-  const yakuFilterOptions = useMemo(
-    () =>
-      SCORE_FILTERABLE_YAKU.map((name) => ({
-        value: name,
-        label: yakuLabelOf(name),
-      })),
-    [yakuLabelOf],
-  );
+  } = settings;
 
   const isDisabled =
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
@@ -120,46 +94,10 @@ export function ScoreSetupForm({
 
   return (
     <View style={styles.form}>
-      <SettingCard title={t("setup.answerItems")} flush>
-        <SettingRows>
-          <SettingToggleRow
-            title={t("setup.requireYaku")}
-            checked={requireYaku}
-            onChange={setRequireYaku}
-          />
-          {/* 細目を開いても親の行との間に線を引かない（親と細目を 1 行として数える） */}
-          <View>
-            <SettingToggleRow
-              title={t("setup.requireHanFu")}
-              checked={requireHanFu}
-              onChange={setRequireHanFu}
-            />
-            {/* 翻数と符の答え方の細目。翻数と符を答えないときは意味が無いので出さない */}
-            {requireHanFu && (
-              <SettingToggleGroup>
-                <SettingToggleRow
-                  title={t("setup.exactHan")}
-                  checked={exactHan}
-                  onChange={setExactHan}
-                  nested={true}
-                  titleAction={
-                    <HelpIconButton
-                      onPress={() => setShowExactHanInfo(true)}
-                      label={tCommon("showDetailInfo")}
-                    />
-                  }
-                />
-                <SettingToggleRow
-                  title={t("setup.requireFu")}
-                  checked={requireFuForMangan}
-                  onChange={setRequireFuForMangan}
-                  nested={true}
-                />
-              </SettingToggleGroup>
-            )}
-          </View>
-        </SettingRows>
-      </SettingCard>
+      <AnswerItemsCard
+        settings={settings}
+        onShowExactHanInfo={() => setShowExactHanInfo(true)}
+      />
 
       <SettingCard title={t("setup.practiceAids")} flush>
         <SettingRows>
@@ -204,36 +142,8 @@ export function ScoreSetupForm({
         />
       </SettingCard>
 
-      {/* 選んだ役のいずれかが成立する手牌に絞る（空 = 絞り込みなし）。
-          選択肢は生成器が安定して作れる役（SCORE_FILTERABLE_YAKU）に限る */}
       {showYakuFilter && (
-        <SettingCard title={t("setup.targetYaku")}>
-          <MultiSelect
-            options={yakuFilterOptions}
-            value={targetYaku}
-            onChange={setTargetYaku}
-            placeholder={t("setup.yakuFilterPlaceholder")}
-            labels={{
-              add: tPicker("add"),
-              title: tPicker("title"),
-              done: tPicker("done"),
-            }}
-          />
-          {targetYaku.length >= 2 && (
-            <Text style={styles.note}>{t("setup.yakuFilterNote")}</Text>
-          )}
-          {/* 選んだ役を 1 つずつ × で外す手間を省く。外すと「指定しない」に戻る */}
-          {targetYaku.length > 0 && (
-            <View style={styles.clearRow}>
-              <TextLink
-                onPress={() => setTargetYaku([])}
-                testID="setup-target-yaku-clear"
-              >
-                {t("setup.yakuFilterClear")}
-              </TextLink>
-            </View>
-          )}
-        </SettingCard>
+        <TargetYakuCard targetYaku={targetYaku} onChange={setTargetYaku} />
       )}
 
       <Button
@@ -337,12 +247,5 @@ function LockedMeasureTimeRow({ href }: { readonly href: string }) {
 const styles = StyleSheet.create({
   form: {
     gap: 16,
-  },
-  note: {
-    fontSize: 12,
-    color: colors.surface500,
-  },
-  clearRow: {
-    alignItems: "flex-end",
   },
 });
