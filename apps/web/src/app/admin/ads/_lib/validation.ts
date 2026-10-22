@@ -3,7 +3,7 @@ import { parseTehai } from "@mahjong-scoring/core";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
 import { extractAsin } from "@/lib/ads/amazon";
 import type { StoredCopy } from "@/lib/ads/copy";
-import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
+import { isAdSlot, kindForSlot, type AdSlot } from "@/lib/ads/registry";
 
 /** 管理フォームから受け取る広告の入力値 */
 export interface AdCreativeInput {
@@ -168,71 +168,112 @@ function toStoredCopy(
 export function validateAdCreative(
   data: AdCreativeInput,
   imageUrlPrefix: string,
-):
-  | { readonly ok: true; readonly value: ValidAdCreative }
-  | { readonly ok: false; readonly error: AdCreativeValidationError } {
-  if (!isAdSlot(data.slot)) return { ok: false, error: "errorSlotInvalid" };
+): Validation<ValidAdCreative> {
+  const { slot } = data;
+  if (!isAdSlot(slot)) return { ok: false, error: "errorSlotInvalid" };
+  const link = validateLink(data);
+  if (!link.ok) return link;
+  const visual = validateVisual(data, slot, imageUrlPrefix);
+  if (!visual.ok) return visual;
+  const copy = validateCopy(data);
+  if (!copy.ok) return copy;
+  return {
+    ok: true,
+    value: {
+      slot,
+      ...link.value,
+      isActive: data.isActive,
+      ...visual.value,
+      copy: copy.value,
+    },
+  };
+}
 
+/** 検証の結果。失敗は i18n キーのエラーで返す */
+type Validation<T> =
+  | { readonly ok: true; readonly value: T }
+  | { readonly ok: false; readonly error: AdCreativeValidationError };
+
+function invalid(error: AdCreativeValidationError): Validation<never> {
+  return { ok: false, error };
+}
+
+/**
+ * リンク（ASIN か URL のどちらか一方）
+ * 広告リンク検証
+ */
+function validateLink(
+  data: AdCreativeInput,
+): Validation<Pick<ValidAdCreative, "asin" | "href">> {
   const asinInput = data.asin.trim();
   const asin = asinInput === "" ? undefined : extractAsin(asinInput);
-  if (asinInput !== "" && asin === undefined) {
-    return { ok: false, error: "errorAsinInvalid" };
-  }
+  if (asinInput !== "" && asin === undefined)
+    return invalid("errorAsinInvalid");
   const href = asin === undefined ? data.href.trim() : undefined;
   if (href !== undefined && !isValidAdHref(href)) {
-    return { ok: false, error: "errorHrefInvalid" };
+    return invalid("errorHrefInvalid");
   }
+  return { ok: true, value: { asin, href } };
+}
 
+/**
+ * 見た目（絵文字・画像と代替テキスト・手牌）。どれか 1 つは要る
+ * 広告の見た目検証
+ */
+function validateVisual(
+  data: AdCreativeInput,
+  slot: AdSlot,
+  imageUrlPrefix: string,
+): Validation<
+  Pick<ValidAdCreative, "icon" | "imageUrl" | "imageAlt" | "hand">
+> {
   const icon = data.icon.trim();
   const imageUrl = data.imageUrl.trim();
   const imageAlt = data.imageAlt.trim();
   const hand = data.hand.trim();
-  if (hand !== "" && kindForSlot(data.slot) !== "native_card") {
-    return { ok: false, error: "errorHandNotForRow" };
+  if (hand !== "" && kindForSlot(slot) !== "native_card") {
+    return invalid("errorHandNotForRow");
   }
   if (icon === "" && imageUrl === "" && hand === "") {
-    return { ok: false, error: "errorVisualRequired" };
+    return invalid("errorVisualRequired");
   }
-  if (hand !== "" && !isValidAdHand(hand)) {
-    return { ok: false, error: "errorHandInvalid" };
-  }
-  if (icon.length > AD_CREATIVE_LIMITS.icon) {
-    return { ok: false, error: "errorIconTooLong" };
-  }
+  if (hand !== "" && !isValidAdHand(hand)) return invalid("errorHandInvalid");
+  if (icon.length > AD_CREATIVE_LIMITS.icon) return invalid("errorIconTooLong");
   if (imageUrl !== "" && !isAdImageUrl(imageUrl, imageUrlPrefix)) {
-    return { ok: false, error: "errorImageInvalid" };
+    return invalid("errorImageInvalid");
   }
   if (
     imageUrl !== "" &&
     (imageAlt === "" || imageAlt.length > AD_CREATIVE_LIMITS.imageAlt)
   ) {
-    return { ok: false, error: "errorImageAltRequired" };
+    return invalid("errorImageAltRequired");
   }
+  return {
+    ok: true,
+    value: {
+      icon: icon === "" ? undefined : icon,
+      imageUrl: imageUrl === "" ? undefined : imageUrl,
+      imageAlt: imageUrl === "" ? undefined : imageAlt,
+      hand: hand === "" ? undefined : hand,
+    },
+  };
+}
 
+/**
+ * 文言（ロケールごとのタイトルと説明。既定ロケールのタイトルは必須）
+ * 広告文言検証
+ */
+function validateCopy(
+  data: AdCreativeInput,
+): Validation<ValidAdCreative["copy"]> {
   const title = toStoredCopy(data.title, AD_CREATIVE_LIMITS.title);
   const description = toStoredCopy(
     data.description,
     AD_CREATIVE_LIMITS.description,
   );
   if (title === "tooLong" || description === "tooLong") {
-    return { ok: false, error: "errorCopyTooLong" };
+    return invalid("errorCopyTooLong");
   }
-  if (title[DEFAULT_LOCALE] === undefined) {
-    return { ok: false, error: "errorTitleRequired" };
-  }
-
-  return {
-    ok: true,
-    value: {
-      slot: data.slot,
-      asin,
-      href,
-      isActive: data.isActive,
-      icon: icon === "" ? undefined : icon,
-      imageUrl: imageUrl === "" ? undefined : imageUrl,
-      imageAlt: imageUrl === "" ? undefined : imageAlt,
-      hand: hand === "" ? undefined : hand,
-      copy: { title, description },
-    },
-  };
+  if (title[DEFAULT_LOCALE] === undefined) return invalid("errorTitleRequired");
+  return { ok: true, value: { title, description } };
 }
