@@ -7,6 +7,7 @@ import {
   isPracticeMenuType,
   isPracticeVariant,
   isExamMenuType,
+  type PracticeMenuType,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
@@ -58,52 +59,85 @@ function attemptEntry(id: string, state: ChallengeState) {
     question: publicChallengeQuestion(state.question, state.menuType),
   };
 }
+/** 開始の要求のうち省略できる項目 */
+export interface BeginAttemptOptions {
+  /**
+   * 呼び出し側が決めた挑戦 ID（UUID）。渡すと開始が冪等になる: 同じ ID の
+   * 再送には、作り直さずに既存の挑戦を返す。応答が通信で失われたアプリが、
+   * 挑戦を 2 つ作らずに同じ挑戦へ戻るため。他人の行と ID がぶつかった
+   * （推測で送られた）ときは開始しない。省略すると DB が ID を決める（web はこちら）
+   */
+  readonly requestedId?: unknown;
+  /**
+   * 時計。受験資格を確かめ出題を作った後に読むので、時刻ではなく関数で受ける
+   */
+  readonly clock?: () => number;
+}
+
+/** 検証を通った開始の要求 */
+interface BeginRequest {
+  readonly menuType: PracticeMenuType;
+  readonly variant: string;
+  readonly settings: ChallengeSettings;
+  /** 呼び出し側が決めた挑戦 ID。無ければ DB が決める */
+  readonly id: string | undefined;
+}
+
+/** 開始の要求の形を検証する。練習・バリアント・設定・ID のどれかが不正なら undefined */
+function parseBeginRequest(
+  menuType: unknown,
+  variant: unknown,
+  settings: unknown,
+  requestedId: unknown,
+): BeginRequest | undefined {
+  if (
+    !isPracticeMenuType(menuType) ||
+    typeof variant !== "string" ||
+    !isPracticeVariant(menuType, variant)
+  )
+    return undefined;
+  const parsed = settingsSchema.safeParse(settings);
+  if (!parsed.success) return undefined;
+  const base = { menuType, variant, settings: parsed.data };
+  if (requestedId === undefined) return { ...base, id: undefined };
+  return typeof requestedId === "string" && uuid.safeParse(requestedId).success
+    ? { ...base, id: requestedId }
+    : undefined;
+}
+
 /**
  * 認証済み本人の挑戦を開始する。出題と条件をDBに固定する。
  *
- * @param requestedId - 呼び出し側が決めた挑戦 ID（UUID）。渡すと開始が
- *   冪等になる: 同じ ID の再送には、作り直さずに既存の挑戦を返す。応答が
- *   通信で失われたアプリが、挑戦を 2 つ作らずに同じ挑戦へ戻るため。
- *   他人の行と ID がぶつかった（推測で送られた）ときは開始しない。
- *   省略すると DB が ID を決める（web はこちら）
- * @param clock - 時計。受験資格を確かめ出題を作った後に読むので、時刻ではなく
- *   関数で受ける
+ * 省略できる項目（冪等にする挑戦 ID・時計）は {@link BeginAttemptOptions}。
  */
 export async function beginAttempt(
   userId: string,
   menuType: unknown,
   variant: unknown,
   settings: unknown,
-  requestedId?: unknown,
-  clock: () => number = Date.now,
+  options: BeginAttemptOptions = {},
 ) {
-  const parsed = settingsSchema.safeParse(settings);
-  if (
-    !isPracticeMenuType(menuType) ||
-    typeof variant !== "string" ||
-    !isPracticeVariant(menuType, variant) ||
-    !parsed.success ||
-    (requestedId !== undefined && !uuid.safeParse(requestedId).success)
-  )
-    return undefined;
-  const id = typeof requestedId === "string" ? requestedId : undefined;
+  const { requestedId, clock = Date.now } = options;
+  const request = parseBeginRequest(menuType, variant, settings, requestedId);
+  if (!request) return undefined;
+  const { id } = request;
   if (id !== undefined) {
     const existing = await readOwnAttempt(userId, id);
-    if (existing)
-      return resumableEntry(existing, menuType, variant, parsed.data);
+    if (existing) return resumableEntry(existing, request);
   }
   if (
-    isExamMenuType(menuType) &&
-    evaluateExamEligibility(menuType, await getUserRankSlugs(userId))?.kind ===
-      "locked"
+    isExamMenuType(request.menuType) &&
+    evaluateExamEligibility(request.menuType, await getUserRankSlugs(userId))
+      ?.kind === "locked"
   )
     return undefined;
-  const question = generateChallengeQuestion(menuType, variant, parsed.data);
-  if (!question) return undefined;
-  const state = startedChallenge(
-    { menuType, variant, settings: parsed.data, question },
-    clock(),
+  const question = generateChallengeQuestion(
+    request.menuType,
+    request.variant,
+    request.settings,
   );
+  if (!question) return undefined;
+  const state = startedChallenge({ ...request, question }, clock());
   // 退会を受け付けた後には挑戦を作らない（受付と競合しても、ロックで直列になる）
   const row = await db.transaction(async (tx) => {
     if (!(await lockAccountForWrite(tx, userId))) return "deleting" as const;
@@ -118,9 +152,7 @@ export async function beginAttempt(
   if (row) return attemptEntry(row.id, state);
   // 同じ ID の並行した開始に先を越された。勝った側の挑戦を返す
   const raced = id === undefined ? undefined : await readOwnAttempt(userId, id);
-  return raced
-    ? resumableEntry(raced, menuType, variant, parsed.data)
-    : undefined;
+  return raced ? resumableEntry(raced, request) : undefined;
 }
 /** 本人の挑戦行を読む（ロックしない）。他人の id では見つからない扱いになる。 */
 async function readOwnAttempt(userId: string, id: string) {
@@ -142,19 +174,32 @@ async function readOwnAttempt(userId: string, id: string) {
  */
 function resumableEntry(
   row: typeof challengeAttempts.$inferSelect,
-  menuType: string,
-  variant: string,
-  settings: ChallengeSettings,
+  request: Pick<BeginRequest, "menuType" | "variant" | "settings">,
 ) {
   if (
     row.consumed ||
-    row.state.menuType !== menuType ||
-    row.state.variant !== variant ||
-    !isDeepStrictEqual(row.state.settings, settings)
+    row.state.menuType !== request.menuType ||
+    row.state.variant !== request.variant ||
+    !isDeepStrictEqual(row.state.settings, request.settings)
   )
     return undefined;
   return attemptEntry(row.id, row.state);
 }
+/** 回答の要求のうち省略できる項目 */
+export interface AnswerAttemptOptions {
+  /**
+   * 回答のリクエストを受け取った時刻。認証や行ロックの前に取ったものを渡す。
+   * ここから応答を組むまでの処理時間は競技時間に数えない（{@link answeredChallenge}）。
+   * 省略すると呼び出した時刻
+   */
+  readonly receivedAt?: number;
+  /**
+   * 時計。応答の起点（`respondedAt`）を UPDATE の直前に読むので、時刻ではなく
+   * 関数で受ける
+   */
+  readonly clock?: () => number;
+}
+
 /**
  * 本人の行をロックし、一度だけ回答を受け付ける。正解開示と次問発行は受付後。
  *
@@ -166,20 +211,16 @@ function resumableEntry(
  * 書くので、UPDATE と COMMIT の時間は起点より後に掛かり、固定の猶予
  * （`RESPONSE_GRACE_MS`）の中から消費される（実測値はそちらの TSDoc）。
  *
- * @param receivedAt - 回答のリクエストを受け取った時刻。認証や行ロックの前に
- *   取ったものを渡す。ここから応答を組むまでの処理時間は競技時間に数えない
- *   （{@link answeredChallenge}）
- * @param clock - 時計。応答の起点（`respondedAt`）を UPDATE の直前に読むので、
- *   時刻ではなく関数で受ける
+ * 省略できる項目（受け取った時刻・時計）は {@link AnswerAttemptOptions}。
  */
 export async function answerAttempt(
   userId: string,
   id: unknown,
   sequence: unknown,
   answer: unknown,
-  receivedAt: number = Date.now(),
-  clock: () => number = Date.now,
+  options: AnswerAttemptOptions = {},
 ) {
+  const { receivedAt = Date.now(), clock = Date.now } = options;
   if (
     !uuid.safeParse(id).success ||
     typeof id !== "string" ||

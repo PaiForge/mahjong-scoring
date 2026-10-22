@@ -107,7 +107,7 @@ describe("handleBeginChallenge", () => {
       "jantou_fu",
       "default",
       { renfonpaiAs4Fu: false },
-      ATTEMPT_ID,
+      { requestedId: ATTEMPT_ID },
     );
   });
 
@@ -149,7 +149,7 @@ describe("handleBeginChallenge", () => {
       "fu_exam",
       "default",
       { renfonpaiAs4Fu: false },
-      ATTEMPT_ID,
+      { requestedId: ATTEMPT_ID },
     );
   });
 
@@ -231,7 +231,7 @@ describe("handleAnswerChallenge", () => {
 
     await handleAnswerChallenge(post({ sequence: 0, answer: 30 }), ATTEMPT_ID);
 
-    const receivedAt = mockAnswer.mock.calls[0]?.[4];
+    const receivedAt = mockAnswer.mock.calls[0]?.[4]?.receivedAt;
     expect(receivedAt).toBeLessThanOrEqual(authorizedAt);
   });
 

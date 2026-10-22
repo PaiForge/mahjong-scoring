@@ -169,7 +169,13 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
   it("呼び出し側の ID で開始すると、再送は同じ挑戦を返す", async () => {
     const id = "33333333-3333-4333-8333-333333333333";
     const begin = () =>
-      beginAttempt(owner, "machi_fu", "default", { renfonpaiAs4Fu: false }, id);
+      beginAttempt(
+        owner,
+        "machi_fu",
+        "default",
+        { renfonpaiAs4Fu: false },
+        { requestedId: id },
+      );
     const [a, b] = await Promise.all([begin(), begin()]);
     expect(a).toMatchObject({ id, sequence: 0 });
     expect(b).toEqual(a);
@@ -184,12 +190,18 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
   it("他人の挑戦 ID・別の練習や別の設定の ID では開始しない", async () => {
     const id = "44444444-4444-4444-8444-444444444444";
     const settings = { renfonpaiAs4Fu: false };
-    await beginAttempt(owner, "machi_fu", "default", settings, id);
+    await beginAttempt(owner, "machi_fu", "default", settings, {
+      requestedId: id,
+    });
     expect(
-      await beginAttempt(other, "machi_fu", "default", settings, id),
+      await beginAttempt(other, "machi_fu", "default", settings, {
+        requestedId: id,
+      }),
     ).toBeUndefined();
     expect(
-      await beginAttempt(owner, "jantou_fu", "default", settings, id),
+      await beginAttempt(owner, "jantou_fu", "default", settings, {
+        requestedId: id,
+      }),
     ).toBeUndefined();
     // 同じ ID でルール設定だけ違う要求も再送ではなく競合
     expect(
@@ -198,11 +210,13 @@ describe.skipIf(!url)("challenge transactions (PostgreSQL)", () => {
         "machi_fu",
         "default",
         { renfonpaiAs4Fu: true },
-        id,
+        { requestedId: id },
       ),
     ).toBeUndefined();
     expect(
-      await beginAttempt(owner, "machi_fu", "default", settings, "not-a-uuid"),
+      await beginAttempt(owner, "machi_fu", "default", settings, {
+        requestedId: "not-a-uuid",
+      }),
     ).toBeUndefined();
   });
   it("挑戦の状態は本人にだけ、正解を伏せて返す", async () => {

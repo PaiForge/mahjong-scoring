@@ -83,7 +83,7 @@ describe("answerChallenge", () => {
         "attempt-1",
         0,
         2,
-        1_000_000,
+        { receivedAt: 1_000_000 },
       );
     } finally {
       vi.useRealTimers();

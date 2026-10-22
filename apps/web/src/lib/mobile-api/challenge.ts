@@ -127,7 +127,7 @@ export async function handleBeginChallenge(
       menuType,
       variant,
       settings,
-      id,
+      { requestedId: id },
     );
     if (attempt) {
       // 終了の判定（`finishedChallengeTime`）が読むのと同じ合格ライン
@@ -184,7 +184,7 @@ export async function handleAnswerChallenge(
       attemptId,
       body.data.sequence,
       body.data.answer,
-      receivedAt,
+      { receivedAt },
     );
     if (result) return mobileJson<MobileAnswerChallengeResponse>(result);
     return await rejectionOf(auth.user.id, attemptId, "conflict");
