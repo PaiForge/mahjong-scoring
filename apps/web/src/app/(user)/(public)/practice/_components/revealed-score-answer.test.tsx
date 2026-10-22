@@ -15,6 +15,9 @@ vi.mock("next-intl", () => ({
   },
 }));
 
+// 点数表モーダルの切り替え（features のフック）が use-intl の辞書を引く
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
+
 const { RevealedScoreAnswer } = await import("./revealed-score-answer");
 
 describe("RevealedScoreAnswer", () => {
