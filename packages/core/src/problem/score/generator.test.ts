@@ -5,11 +5,19 @@ import {
   getYakumanMultiplier,
   isMenzen,
 } from "@pai-forge/riichi-mahjong";
-import { generateScoreQuestion, generateValidScoreQuestion } from "./generator";
+import {
+  crossesRuleBoundary,
+  generateScoreQuestion,
+  generateValidScoreQuestion,
+  matchesScoreFilters,
+  resolveScoreGeneratorOptions,
+} from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
 import { listTehaiHais } from "../../core/hai-count";
 import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
+import { isScoreLevelAllowed } from "./build-question";
+import type { ScoreRange } from "./types";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
 import { isKiriageManganTarget } from "../../score/calculator";
@@ -570,5 +578,108 @@ describe("RandomSource の注入", () => {
     }
 
     expect(hands.size).toBeGreaterThan(1);
+  });
+});
+
+describe("resolveScoreGeneratorOptions", () => {
+  it("省略した項目に既定値を埋め、渡した項目はそのまま持つ", () => {
+    const resolved = resolveScoreGeneratorOptions({
+      includeFuro: false,
+      minHan: 3,
+    });
+    expect(resolved.includeFuro).toBe(false);
+    expect(resolved.minHan).toBe(3);
+    expect(resolved.requireFuro).toBe(false);
+    expect(resolved.includeChiitoi).toBe(false);
+    expect(resolved.allowedRanges).toEqual(["nonMangan", "manganPlus"]);
+    expect(resolved.requiredYaku).toBeUndefined();
+    expect(resolved.allowedFu).toBeUndefined();
+  });
+});
+
+describe("matchesScoreFilters", () => {
+  const question = generateValidScoreQuestion({ rng: seededRandom(1) });
+  if (!question) throw new Error("テスト用の問題を生成できなかった");
+  const { answer, yakuDetails } = question;
+  const permissive = resolveScoreGeneratorOptions({});
+  /** 問題の点数帯を含まない点数帯 */
+  const otherRange: readonly ScoreRange[] = isScoreLevelAllowed(
+    answer.scoreLevel,
+    ["nonMangan"],
+  )
+    ? ["manganPlus"]
+    : ["nonMangan"];
+
+  it("既定の条件はライブラリが組み立てた問題を通す", () => {
+    expect(matchesScoreFilters(question, permissive)).toBe(true);
+  });
+
+  it("点数帯・最小翻数・符・役のどれか 1 つでも外れると落とす", () => {
+    expect(
+      matchesScoreFilters(question, {
+        ...permissive,
+        allowedRanges: otherRange,
+      }),
+    ).toBe(false);
+    expect(
+      matchesScoreFilters(question, { ...permissive, minHan: answer.han + 1 }),
+    ).toBe(false);
+    expect(
+      matchesScoreFilters(question, {
+        ...permissive,
+        allowedFu: [answer.fu === 20 ? 30 : 20],
+      }),
+    ).toBe(false);
+    expect(
+      matchesScoreFilters(question, {
+        ...permissive,
+        requiredYaku: ["存在しない役"],
+      }),
+    ).toBe(false);
+  });
+
+  it("役の絞り込みは OR で、空の配列は絞り込まない", () => {
+    expect(
+      matchesScoreFilters(question, {
+        ...permissive,
+        requiredYaku: ["存在しない役", yakuDetails[0].name],
+      }),
+    ).toBe(true);
+    expect(
+      matchesScoreFilters(question, { ...permissive, requiredYaku: [] }),
+    ).toBe(true);
+  });
+});
+
+describe("crossesRuleBoundary", () => {
+  it("境界の除外を立てていなければ何も落とさない", () => {
+    const question = generateValidScoreQuestion({ rng: seededRandom(1) });
+    if (!question) throw new Error("テスト用の問題を生成できなかった");
+    expect(
+      crossesRuleBoundary(question, {
+        excludeYakumanRuleBoundary: false,
+        excludeKiriageBoundary: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("切り上げ満貫の境界（30符4翻・60符3翻）を除外で落とす", () => {
+    const [boundary] = expectSampled(generateScoreQuestion, {
+      need: 1,
+      attempts: 5000,
+      where: (q) => isKiriageManganTarget(q.answer),
+    });
+    expect(
+      crossesRuleBoundary(boundary, {
+        excludeYakumanRuleBoundary: false,
+        excludeKiriageBoundary: true,
+      }),
+    ).toBe(true);
+    expect(
+      crossesRuleBoundary(boundary, {
+        excludeYakumanRuleBoundary: false,
+        excludeKiriageBoundary: false,
+      }),
+    ).toBe(false);
   });
 });
