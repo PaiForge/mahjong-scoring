@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, memo, useEffect, useCallback } from "react";
+import { type ReactNode, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import type {
   MenuKind,
@@ -10,7 +10,6 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { HandPresentationNotice } from "./hand-presentation-notice";
 import { BoardOverlay } from "@/app/(user)/_components/board-overlay";
-import { PauseIcon } from "@/app/(user)/_components/icons/pause-icon";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { ScoreCounter } from "./score-counter";
 import type {
@@ -32,7 +31,7 @@ import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-r
 import { practiceHref } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
 import { readVariantFromLocation } from "../_lib/variant-param";
-import { QuizTimer } from "./quiz-timer";
+import { ChallengeStatusBar } from "./challenge-status-bar";
 import { QuitConfirmModal } from "./quit-confirm-modal";
 import { ResultPageSkeleton } from "./result-page-skeleton";
 import {
@@ -52,34 +51,7 @@ import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
  */
 export const CHALLENGE_SHELL_MAX_WIDTH = "max-w-md";
 
-interface LifeIndicatorProps {
-  readonly remainingLives: number;
-  readonly mistakeLimit: number;
-}
-
-/**
- * ライフ表示（ハートアイコン）
- *
- * チャレンジの画面を練習の外で見せる場所（「このアプリについて」の
- * プレビュー）も同じものを描くため公開している。
- */
-export const LifeIndicator = memo(function LifeIndicatorComponent({
-  remainingLives,
-  mistakeLimit,
-}: LifeIndicatorProps) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: mistakeLimit }, (_, i) => (
-        <span
-          key={i}
-          className={`text-base ${i < remainingLives ? "text-red-500" : "text-surface-200"}`}
-        >
-          &#9829;
-        </span>
-      ))}
-    </div>
-  );
-});
+export { LifeIndicator } from "./challenge-status-bar";
 
 interface ChallengeShellProps {
   /**
@@ -271,32 +243,16 @@ export function ChallengeShell({
       )}
 
       <div className={`mx-auto ${maxWidth}`}>
-        {/* Status bar */}
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-1">
-            <QuizTimer
-              timeRemaining={remainingSeconds}
-              progress={elapsedMs / 1000 / gameSession.timeLimit}
-            />
-            <button
-              type="button"
-              onClick={gameSession.togglePause}
-              disabled={gameSession.isCountingDown || gameSession.isFinished}
-              className="rounded-md p-1 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-700 disabled:opacity-40 disabled:pointer-events-none"
-              aria-label={gameSession.isPaused ? tc("resume") : tc("pause")}
-            >
-              {gameSession.isPaused ? (
-                <PlayIcon className="size-4" />
-              ) : (
-                <PauseIcon className="size-4" />
-              )}
-            </button>
-          </div>
-          <LifeIndicator
-            remainingLives={gameSession.remainingLives}
-            mistakeLimit={gameSession.mistakeLimit}
-          />
-        </div>
+        <ChallengeStatusBar
+          remainingSeconds={remainingSeconds}
+          elapsedMs={elapsedMs}
+          timeLimit={gameSession.timeLimit}
+          isPaused={gameSession.isPaused}
+          pauseDisabled={gameSession.isCountingDown || gameSession.isFinished}
+          onTogglePause={gameSession.togglePause}
+          remainingLives={gameSession.remainingLives}
+          mistakeLimit={gameSession.mistakeLimit}
+        />
 
         {/* Game content area - overlay scoped here to keep status bar accessible.
 
