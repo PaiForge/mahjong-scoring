@@ -7,7 +7,7 @@ import { ScoreCalculationQuestionBoard } from "../../_components/score-calculati
 import { YakuListDisplay } from "./yaku-list-display";
 import type { ManganScoreCalculationQuestionResult } from "@mahjong-scoring/features/practice/mangan-score-calculation/types";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
-import { ruleBoundaryExclusions } from "@mahjong-scoring/features/challenge/rule-boundary";
+import { manganScoreCalculationGenerateOptions } from "@mahjong-scoring/features/practice/score-calculation/generate-options";
 
 type ManganScoreCalculationBoardProps =
   RecordingPracticeBoardProps<ManganScoreCalculationQuestionResult>;
@@ -17,21 +17,16 @@ type ManganScoreCalculationBoardProps =
  *
  * 出題状態と回答ロジックを内包し、チャレンジ・トレーニング両モードで共有する。
  * 盤面の構図は点数計算と共通の {@link ScoreCalculationQuestionBoard}。
- * 満貫以上だけを出題し、手牌の直下に役一覧を添える。
+ * 満貫以上だけを出題し（{@link manganScoreCalculationGenerateOptions}）、
+ * 手牌の直下に役一覧を添える。
  */
 export function ManganScoreCalculationBoard(
   props: ManganScoreCalculationBoardProps,
 ) {
   const { isTraining = false } = props;
   const yakumanRules = useYakumanRules();
-  // チャレンジ（記録あり）では、ルール設定の採否で正解が割れる手を出題から
-  // 落とす（理由は `_lib/rule-boundary.ts`）
   const generateOptions = useMemo(
-    () => ({
-      allowedRanges: ["manganPlus" as const],
-      yakumanRules,
-      ...ruleBoundaryExclusions(isTraining),
-    }),
+    () => manganScoreCalculationGenerateOptions(yakumanRules, isTraining),
     [yakumanRules, isTraining],
   );
 
