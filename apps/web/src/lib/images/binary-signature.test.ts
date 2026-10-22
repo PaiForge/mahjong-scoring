@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { validateImageBinarySignature } from "./binary-signature";
-import { IMAGE_SIGNATURES, matchesSignature } from "./magic-bytes";
+import {
+  IMAGE_SIGNATURES,
+  matchesSignature,
+  type ByteSignature,
+} from "./magic-bytes";
 
 /** 先頭バイト列から 16 バイトの ArrayBuffer を作る */
-function bufferOf(parts: readonly { offset: number; bytes: number[] }[]) {
+function bufferOf(parts: readonly ByteSignature[]) {
   const arr = new Uint8Array(16);
   for (const { offset, bytes } of parts) arr.set(bytes, offset);
   return arr.buffer;
