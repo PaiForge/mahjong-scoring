@@ -41,6 +41,11 @@ interface TrainingShellProps {
    *
    * 持たない盤面（選択肢を押して答える）は「次の問題へ」の場所を常に取っておき、
    * 現れた瞬間に下が動かないようにする（web の `TrainingShell` と同じ）。
+   *
+   * 盤面との間隔も分かれる（web と同じ）。持つ盤面は回答ボタンと同じ位置
+   * （16px）で入れ替わる。持たない盤面は末尾が答え合わせの資料の面
+   * （`AnswerReviewPanel`。面子分解・「内訳を確認」の押せる行）なので一段広い
+   * 24px を取り、資料の行を狙って下に落ちた指がボタンに届かないようにする。
    */
   readonly hasSubmitButton?: boolean;
   /**
@@ -115,7 +120,11 @@ export function TrainingShell({
         <BoardBleedProvider flushTop>{children}</BoardBleedProvider>
         {(isHolding || !hasSubmitButton) && (
           <View
-            style={[styles.next, !isHolding && styles.hidden]}
+            style={[
+              styles.next,
+              !hasSubmitButton && styles.nextAfterReview,
+              !isHolding && styles.hidden,
+            ]}
             pointerEvents={isHolding ? "auto" : "none"}
             accessibilityElementsHidden={!isHolding}
             importantForAccessibility={
@@ -194,6 +203,9 @@ const styles = StyleSheet.create({
   },
   next: {
     marginTop: 16,
+  },
+  nextAfterReview: {
+    marginTop: 24,
   },
   hidden: {
     opacity: 0,
