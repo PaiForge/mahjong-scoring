@@ -1,27 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { ScoreTableAnswer } from "@mahjong-scoring/core";
 
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { RevealedScoreAnswer } from "../../_components/revealed-score-answer";
 import { scoreTableFocusOf } from "@mahjong-scoring/features/score-table/focus";
-
-interface ScoreTablePromptProps {
-  readonly isOya: boolean;
-  readonly isTsumo: boolean;
-  readonly han: number;
-  /** 符。満貫以上は点数が符に依存しないため省く */
-  readonly fu?: number;
-  /**
-   * 開示する正解。指定時は出題文の行をこれに差し替える
-   * （トレーニングの「わからない」と不正解のあと）。正解の点数は押すと
-   * この条件のセルをハイライトした点数早見表が開く
-   */
-  readonly revealedAnswer?: ScoreTableAnswer;
-}
+import type { ScoreTablePromptProps } from "@mahjong-scoring/features/practice/score-table/board-props";
 
 /**
  * 点数表早引きの出題提示（親子・ツモロン・符・翻）

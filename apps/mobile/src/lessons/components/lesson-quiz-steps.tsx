@@ -3,16 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { InsetRing } from "../../components/inset-ring";
 import { borderWidth, colors } from "../../lib/theme";
+import type { LessonQuizStepsProps } from "@mahjong-scoring/features/lessons/quiz-steps-props";
 
 const CIRCLE_SIZE = 32;
-
-interface LessonQuizStepsProps {
-  /** 今解いている問題（0 始まり） */
-  readonly current: number;
-  readonly total: number;
-  /** 読み上げる進み具合（「2 / 5 問目」）。丸の並びは 1 つの要素として読む */
-  readonly label: string;
-}
 
 /**
  * 確認問題の進み具合を 1 → 2 → 3 … の丸と線で示すステップ表示

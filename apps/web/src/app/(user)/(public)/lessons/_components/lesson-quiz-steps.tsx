@@ -1,11 +1,4 @@
-interface LessonQuizStepsProps {
-  /** 今解いている問題（0 始まり） */
-  readonly current: number;
-  readonly total: number;
-  /** 並び全体の名前（「2 / 5 問目」）。読み上げで今どこかを先に伝える */
-  readonly label: string;
-}
-
+import type { LessonQuizStepsProps } from "@mahjong-scoring/features/lessons/quiz-steps-props";
 /**
  * 確認問題の進み具合を 1 → 2 → 3 … の丸と線で示すステップ表示
  * 確認問題ステップ

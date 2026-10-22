@@ -4,8 +4,6 @@ import { useTranslations } from "next-intl";
 import type {
   HaiKindId,
   MentsuBreakdownCandidate,
-  MentsuBreakdownContext,
-  Tehai,
 } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
@@ -19,16 +17,7 @@ import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
-
-interface TehaiMentsuBreakdownProps {
-  /** 分割する手牌（和了牌を含む14枚。純手牌 + 副露） */
-  readonly tehai: Pick<Tehai, "closed" | "exposed">;
-  /**
-   * 和了状況。分割の解決（= 点数計算と同じ構造選択）に使う。
-   * 出題がドラ表示牌を持つならそれも渡す（候補の順位を採点と揃えるため）
-   */
-  readonly context: MentsuBreakdownContext;
-}
+import type { TehaiMentsuBreakdownProps } from "@mahjong-scoring/features/board/tehai-mentsu-breakdown-props";
 
 /**
  * 面子・雀頭1つ分の行

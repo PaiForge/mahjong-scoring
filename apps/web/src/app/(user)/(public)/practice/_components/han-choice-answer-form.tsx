@@ -7,29 +7,11 @@ import { useQuestionScopedSelection } from "@mahjong-scoring/features/practice/u
 import { ChoiceButton } from "./choice-button";
 import { getFeedbackStyles } from "../_lib/feedback-styles";
 import { QuestionPrompt } from "./question-prompt";
+import type { HanChoiceAnswerFormBaseProps } from "@mahjong-scoring/features/practice/han-choice-answer-form-props";
 
-interface HanChoiceAnswerFormProps {
-  /** 表示する翻数の選択肢 */
-  readonly options: readonly number[];
-  /** 正解の翻数 */
-  readonly correctHan: number;
-  /** フォームリセット用のインデックス（問題が変わるたびにインクリメントされる） */
-  readonly questionIndex: number;
-  /** フィードバック表示中かどうか */
-  readonly showFeedback: boolean;
-  readonly onSubmit: (han: number) => void;
-  readonly disabled?: boolean;
-  /** `selectHan` キーを持つ翻訳名前空間（例: "yakuHanChallenge"） */
-  readonly translationNamespace: string;
+interface HanChoiceAnswerFormProps extends HanChoiceAnswerFormBaseProps {
   /** グリッドの列数クラス（例: "grid-cols-4 sm:grid-cols-7"） */
   readonly columnsClassName: string;
-  /**
-   * 選択肢の表示ラベル。翻訳関数を受け取り、役満などの特別表記を各練習が決める。
-   */
-  readonly renderLabel: (
-    han: number,
-    t: (key: string, values?: Record<string, number>) => string,
-  ) => string;
 }
 
 /**
