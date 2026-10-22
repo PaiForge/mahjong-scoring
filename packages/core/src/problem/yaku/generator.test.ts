@@ -1,12 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { generateYakuQuestion } from "./generator";
+import { HaiKind } from "@pai-forge/riichi-mahjong";
+import { generateYakuQuestion, toYakuAnswerNames } from "./generator";
 import { countKantsu } from "../shared/count-kantsu";
 import { countHaiInTehai, listTehaiHais } from "../../core/hai-count";
 import {
   expectAgariHaiNotKantsuKind,
   expectHaiUsageWithinLimit,
 } from "../../test/tile-usage";
-import { getKazeYakuhaiDisplayName, SELECTABLE_YAKU } from "./constants";
+import {
+  getKazeYakuhaiDisplayName,
+  SELECTABLE_YAKU,
+  YAKU_NAME_MAP,
+} from "./constants";
 import type { YakuQuestion } from "./types";
 import { YAKU_OPTION_GROUPS } from "../../core/yaku-names";
 import { defaultIdGenerator } from "../../core/id";
@@ -263,5 +268,53 @@ describe("generateYakuQuestion", () => {
         expect(question.correctYakuNames).not.toContain(excluded);
       }
     }
+  });
+});
+
+describe("toYakuAnswerNames", () => {
+  const context = {
+    bakaze: HaiKind.Ton,
+    jikaze: HaiKind.Nan,
+    isRiichi: false,
+  };
+
+  it("場風・自風は局面の風の役牌名に引き直し、選択肢に無い役は落とす", () => {
+    const names = toYakuAnswerNames(
+      [
+        ["Bakaze", 1],
+        ["Jikaze", 1],
+        ["Dora", 2],
+        ["Tanyao", 1],
+      ],
+      context,
+    );
+    expect(names).toEqual([
+      getKazeYakuhaiDisplayName(HaiKind.Ton),
+      getKazeYakuhaiDisplayName(HaiKind.Nan),
+      YAKU_NAME_MAP.Tanyao,
+    ]);
+  });
+
+  it("連風牌（場風＝自風）は 1 つにまとめる", () => {
+    const names = toYakuAnswerNames(
+      [
+        ["Bakaze", 1],
+        ["Jikaze", 1],
+      ],
+      { ...context, jikaze: HaiKind.Ton },
+    );
+    expect(names).toEqual([getKazeYakuhaiDisplayName(HaiKind.Ton)]);
+  });
+
+  it("立直は後付けし、役満の手には足さない", () => {
+    expect(
+      toYakuAnswerNames([["Tanyao", 1]], { ...context, isRiichi: true }),
+    ).toEqual([YAKU_NAME_MAP.Tanyao, "立直"]);
+    expect(
+      toYakuAnswerNames([["Suuankou", YAKUMAN_HAN]], {
+        ...context,
+        isRiichi: true,
+      }),
+    ).toEqual([YAKU_NAME_MAP.Suuankou]);
   });
 });

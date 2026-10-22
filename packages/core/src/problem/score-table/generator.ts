@@ -1,5 +1,9 @@
 import type { Fu } from "@pai-forge/riichi-mahjong";
-import { randomChoice, defaultRandomSource } from "../../core/random";
+import {
+  randomChoice,
+  defaultRandomSource,
+  type RandomSource,
+} from "../../core/random";
 import {
   calculateKoScore,
   calculateOyaScore,
@@ -19,7 +23,8 @@ import type {
   ScoreTableAnswer,
   ScoreTableGeneratorOptions,
 } from "./types";
-import { defaultIdGenerator } from "../../core/id";
+import { defaultIdGenerator, type IdGenerator } from "../../core/id";
+import type { ScoreRange } from "../score/types";
 
 /** 満貫以上で出題する翻数。満貫から役満までの各値が HIGH_SCORES のいずれかの帯に対応する */
 const MANGAN_PLUS_HAN_VALUES: readonly number[] = Array.from(
@@ -162,6 +167,74 @@ function buildManganPlusCombinations(
   );
 }
 
+/** 既定値を埋めた出題条件（各項目の意味は {@link ScoreTableGeneratorOptions}） */
+interface ResolvedScoreTableOptions {
+  readonly minHan: number;
+  readonly maxHan: number;
+  readonly minFu: number;
+  readonly maxFu: number;
+  readonly roles: readonly Role[];
+  readonly wins: readonly WinType[];
+  readonly ranges: readonly ScoreRange[];
+  readonly kiriageMangan: boolean;
+  readonly excludeKiriageBoundary: boolean;
+  readonly idGen: IdGenerator;
+  readonly rng: RandomSource;
+}
+
+/**
+ * 出題条件の既定値を埋める。空の配列で渡された役割・和了方法は全部に戻す
+ * 点数表出題条件解決
+ */
+function resolveScoreTableOptions(
+  options: Readonly<ScoreTableGeneratorOptions>,
+): ResolvedScoreTableOptions {
+  const roles = options.roles ?? [];
+  const wins = options.wins ?? [];
+  return {
+    minHan: options.minHan ?? 1,
+    maxHan: options.maxHan ?? 3,
+    minFu: options.minFu ?? 20,
+    maxFu: options.maxFu ?? 60,
+    roles: roles.length > 0 ? roles : ["oya", "ko"],
+    wins: wins.length > 0 ? wins : ["tsumo", "ron"],
+    ranges: options.ranges,
+    kiriageMangan: options.kiriageMangan ?? false,
+    excludeKiriageBoundary: options.excludeKiriageBoundary ?? false,
+    idGen: options.idGen ?? defaultIdGenerator,
+    rng: options.rng ?? defaultRandomSource,
+  };
+}
+
+/**
+ * 出題しうるセル（親子 × ツモロン × 翻数 × 符）を点数帯ごとに列挙する
+ * 出題セル列挙
+ */
+function enumerateCombinations(
+  options: ResolvedScoreTableOptions,
+): readonly QuestionParams[] {
+  const pairs = enumerateRoleWinPairs(options.roles, options.wins);
+  const combinations: QuestionParams[] = [];
+  if (options.ranges.includes("nonMangan")) {
+    const hanRange = Array.from(
+      { length: options.maxHan - options.minHan + 1 },
+      (_, i) => options.minHan + i,
+    );
+    combinations.push(
+      ...buildNonManganCombinations(
+        pairs,
+        hanRange,
+        getFuCandidates(options.minFu, options.maxFu),
+        options.excludeKiriageBoundary,
+      ),
+    );
+  }
+  if (options.ranges.includes("manganPlus")) {
+    combinations.push(...buildManganPlusCombinations(pairs));
+  }
+  return combinations;
+}
+
 /**
  * 点数表早引き練習の問題を生成する
  * 点数表問題ジェネレータ
@@ -174,52 +247,21 @@ function buildManganPlusCombinations(
 export function generateScoreTableQuestion(
   options: Readonly<ScoreTableGeneratorOptions>,
 ): ScoreTableQuestion {
-  const minHan = options.minHan ?? 1;
-  const maxHan = options.maxHan ?? 3;
-  const minFu = options.minFu ?? 20;
-  const maxFu = options.maxFu ?? 60;
-  const roles = options.roles ?? ["oya", "ko"];
-  const wins = options.wins ?? ["tsumo", "ron"];
-  const { ranges } = options;
-  const kiriageMangan = options.kiriageMangan ?? false;
-  const excludeKiriageBoundary = options.excludeKiriageBoundary ?? false;
-  const idGen = options.idGen ?? defaultIdGenerator;
-  const rng = options.rng ?? defaultRandomSource;
+  const resolved = resolveScoreTableOptions(options);
+  const combinations = enumerateCombinations(resolved);
 
-  const pairs = enumerateRoleWinPairs(
-    roles.length > 0 ? roles : ["oya", "ko"],
-    wins.length > 0 ? wins : ["tsumo", "ron"],
+  const { isOya, isTsumo, han, fu, range } = randomChoice(
+    combinations,
+    resolved.rng,
   );
-
-  const combinations: QuestionParams[] = [];
-  if (ranges.includes("nonMangan")) {
-    const hanRange = Array.from(
-      { length: maxHan - minHan + 1 },
-      (_, i) => minHan + i,
-    );
-    const fuCandidates = getFuCandidates(minFu, maxFu);
-    combinations.push(
-      ...buildNonManganCombinations(
-        pairs,
-        hanRange,
-        fuCandidates,
-        excludeKiriageBoundary,
-      ),
-    );
-  }
-  if (ranges.includes("manganPlus")) {
-    combinations.push(...buildManganPlusCombinations(pairs));
-  }
-
-  const { isOya, isTsumo, han, fu, range } = randomChoice(combinations, rng);
   // 満貫未満は必ず符を持つ。fu の有無で型を絞り込み、型アサーションを避ける。
   const correctAnswer =
     range === "nonMangan" && fu !== undefined
-      ? buildCorrectAnswer(isOya, isTsumo, han, fu, kiriageMangan)
+      ? buildCorrectAnswer(isOya, isTsumo, han, fu, resolved.kiriageMangan)
       : buildManganCorrectAnswer(isOya, isTsumo, han);
 
   return {
-    id: idGen(),
+    id: resolved.idGen(),
     isOya,
     isTsumo,
     han,
