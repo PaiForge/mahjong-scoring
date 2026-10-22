@@ -10,9 +10,12 @@ import {
   validateTehai14,
 } from "@pai-forge/riichi-mahjong";
 import {
+  fitsAnswerOptions,
   generateTenpaiScoreQuestion,
   generateValidTenpaiScoreQuestion,
+  hasKaraWait,
 } from "./generator";
+import { finalizeTehai13 } from "../shared/hand-skeleton";
 import type { TenpaiScoreQuestion } from "./types";
 import { buildScoreQuestion } from "../score/build-question";
 import { parseTehai } from "../score/mpsz-serializer";
@@ -329,5 +332,62 @@ describe("generateTenpaiScoreQuestion", () => {
 describe("generateValidTenpaiScoreQuestion", () => {
   it("リトライして問題を返す", () => {
     expect(generateValidTenpaiScoreQuestion()).toBeDefined();
+  });
+});
+
+describe("hasKaraWait", () => {
+  // 111m 666m 888p 999p 4z の双碰待ち（待ちは 6m と 4z）
+  const tehai = (() => {
+    const parsed = parseTehai("111666m888999p4z");
+    if (parsed === undefined) throw new Error("MPSZ を読めない");
+    return finalizeTehai13(parsed.closed, parsed.exposed);
+  })();
+  if (!tehai) throw new Error("聴牌形を組めない");
+  const waits = [HaiKind.ManZu6, HaiKind.Pei];
+
+  it("手牌と表示牌で 4 枚見えていない待ちだけなら純カラではない", () => {
+    expect(hasKaraWait(tehai, waits, [HaiKind.PinZu7])).toBe(false);
+  });
+
+  it("手牌の 3 枚と表示牌の 1 枚で 4 枚見えた待ちは純カラ", () => {
+    expect(hasKaraWait(tehai, waits, [HaiKind.ManZu6])).toBe(true);
+  });
+
+  it("手牌に 1 枚の待ちは表示牌 3 枚で純カラになる", () => {
+    expect(
+      hasKaraWait(tehai, waits, [HaiKind.Pei, HaiKind.Pei, HaiKind.Pei]),
+    ).toBe(true);
+    expect(hasKaraWait(tehai, waits, [HaiKind.Pei, HaiKind.Pei])).toBe(false);
+  });
+});
+
+describe("fitsAnswerOptions", () => {
+  const question = generateValidTenpaiScoreQuestion({ rng: seededRandom(3) });
+  if (!question) throw new Error("テスト用の問題を生成できなかった");
+  const scored = question.waits.map((wait) => ({
+    ...wait,
+    agariTehai: question.waits[0].tsumo.tehai,
+  }));
+
+  it("両方の点数帯を許せば生成器が通した問題は収まる", () => {
+    expect(fitsAnswerOptions(scored, ["nonMangan", "manganPlus"])).toBe(true);
+  });
+
+  it("どの待ちのどの和了方法も外れないときだけ true", () => {
+    const levels = listCells(question).map((cell) => cell.answer.scoreLevel);
+    const allNormal = levels.every((level) => level === ScoreLevel.Normal);
+    const allMangan = levels.every((level) => level !== ScoreLevel.Normal);
+    expect(fitsAnswerOptions(scored, ["nonMangan"])).toBe(allNormal);
+    expect(fitsAnswerOptions(scored, ["manganPlus"])).toBe(allMangan);
+  });
+
+  it("役なしのロン（undefined）は判定の対象から外す", () => {
+    const withNoYakuRon = scored.map((wait) => ({ ...wait, ron: undefined }));
+    const tsumoLevels = question.waits.map(
+      (wait) => wait.tsumo.answer.scoreLevel,
+    );
+    expect(fitsAnswerOptions(withNoYakuRon, ["nonMangan"])).toBe(
+      tsumoLevels.every((level) => level === ScoreLevel.Normal),
+    );
   });
 });
