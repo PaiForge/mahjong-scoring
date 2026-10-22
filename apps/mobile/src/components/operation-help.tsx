@@ -5,7 +5,7 @@ import { HelpIconButton } from "./help-icon-button";
 import { HelpTourSheet, type HelpTourStep } from "./help-tour-sheet";
 
 /** 見出しの横の「?」の大きさ（見出しの文字に合わせる） */
-const HEADER_HELP_FONT_SIZE = 17;
+export const HEADER_HELP_FONT_SIZE = 17;
 
 /**
  * 辞書のキーの列を、`<key>.title` / `<key>.description` を引いた手順に変える

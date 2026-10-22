@@ -2,18 +2,14 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { isOya } from "@mahjong-scoring/core";
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { QuestionDisplay } from "./question-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 import { ResultDisplay } from "./result-display";
 import { Button } from "@/app/(user)/_components/button";
-import {
-  HelpTourButton,
-  HelpTourModal,
-} from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
+import { PracticeHelpTour } from "../../_components/practice-help-tour";
 import {
   answerFieldsOf,
   generateAgariHelpSample,
@@ -98,15 +94,13 @@ export function AgariScoreHelpTour() {
   }, [sample, t, requireHanFu]);
 
   return (
-    <>
-      <HelpTourButton onClick={open} label={t("help.label")} />
-      <HelpTourModal
-        isOpen={isOpen}
-        onClose={close}
-        title={t("help.title")}
-        slides={slides}
-        labels={practiceHelpTourLabels(t, tCommon)}
-      />
-    </>
+    <PracticeHelpTour
+      t={t}
+      tCommon={tCommon}
+      isOpen={isOpen}
+      onOpen={open}
+      onClose={close}
+      slides={slides}
+    />
   );
 }

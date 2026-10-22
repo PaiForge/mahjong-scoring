@@ -2,13 +2,9 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
-import {
-  HelpTourButton,
-  HelpTourModal,
-} from "../../_components/help-tour-modal";
 import type { HelpTourSlide } from "../../_components/help-tour-modal";
+import { PracticeHelpTour } from "../../_components/practice-help-tour";
 import {
   answerFieldsOf,
   buildTenpaiHelpCells,
@@ -122,15 +118,13 @@ export function TenpaiScoreHelpTour() {
   }, [sample, t, tScore, requireHanFu]);
 
   return (
-    <>
-      <HelpTourButton onClick={open} label={t("help.label")} />
-      <HelpTourModal
-        isOpen={isOpen}
-        onClose={close}
-        title={t("help.title")}
-        slides={slides}
-        labels={practiceHelpTourLabels(t, tCommon)}
-      />
-    </>
+    <PracticeHelpTour
+      t={t}
+      tCommon={tCommon}
+      isOpen={isOpen}
+      onOpen={open}
+      onClose={close}
+      slides={slides}
+    />
   );
 }
