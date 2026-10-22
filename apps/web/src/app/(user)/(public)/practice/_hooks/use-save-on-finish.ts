@@ -1,13 +1,11 @@
 "use client";
 
-import { useVerifiedChallenge } from "./use-verified-challenge";
-import { useCallback } from "react";
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
-import { logExternalError } from "@/lib/log-error";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
 } from "./use-finish-redirect";
+import { useFinishAction } from "./use-finish-action";
 import { savePracticeResult } from "../_actions/save-practice-result";
 
 /**
@@ -20,43 +18,21 @@ import { savePracticeResult } from "../_actions/save-practice-result";
  * 保存先の土俵（`leaderboardKey`）は終了時の引数 `variant` — URL の
  * `?variant=` を `useFinishRedirect` が読んで渡してくる。
  *
- * 認証チェックは Server Action 側が行う（cookie ベースの Supabase サーバークライアントが
- * 唯一の信頼できる認証ソース）。クライアント側で認証状態を先読みしない。
- * 過去に認証コンテキストの初期ロード中にチャレンジが終了した場合の競合条件で、
- * 認証済みユーザーが匿名扱いされて EXP 付与がスキップされるバグを 2 回起こしたため、
- * **クライアント側の事前認証チェックは意図的に一切行わない**。
- *
- * Server Action は匿名ユーザーからの呼び出しを `{ success: true, skipped: 'anonymous' }`
- * として返し、このフックはそれを `undefined` に変換してサイレントに no-op する。
- * これにより匿名ユーザーに対する `console.error` のノイズも発生しない。
+ * 認証の扱い（クライアント側で先読みしない・匿名のスキップは無言の no-op）は
+ * {@link useFinishAction}。
  *
  * @param menuType 練習種別（練習メニュー種別）
  */
 export function useSaveOnFinish(
   menuType: PracticeMenuType,
 ): (args: FinishCallbackArgs) => Promise<FinishCallbackResult | undefined> {
-  const challenge = useVerifiedChallenge();
-  return useCallback(
-    async (args: FinishCallbackArgs) => {
-      if (args.totalCount === 0 || !challenge) return undefined;
-      await challenge.settled();
-
-      try {
-        const result = await savePracticeResult(challenge.id);
-        if ("error" in result) {
-          logExternalError("savePracticeResult", menuType, result.error);
-          return undefined;
-        }
-        if ("skipped" in result) {
-          // 匿名ユーザー: 期待される no-op（エラーではない）
-          return undefined;
-        }
-        return { grant: result.challengeResultId };
-      } catch (error: unknown) {
-        logExternalError("savePracticeResult", menuType, error);
-        return undefined;
-      }
-    },
-    [menuType, challenge],
-  );
+  return useFinishAction(menuType, SAVE_PRACTICE_RESULT);
 }
+
+const SAVE_PRACTICE_RESULT = {
+  action: savePracticeResult,
+  name: "savePracticeResult",
+  toResult: (result: { readonly challengeResultId: string }) => ({
+    grant: result.challengeResultId,
+  }),
+};

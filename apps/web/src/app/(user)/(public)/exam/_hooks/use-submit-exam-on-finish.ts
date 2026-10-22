@@ -1,13 +1,12 @@
 "use client";
 
-import { useVerifiedChallenge } from "../../practice/_hooks/use-verified-challenge";
-import { useCallback } from "react";
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
-import { logExternalError } from "@/lib/log-error";
+import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
 } from "../../practice/_hooks/use-finish-redirect";
+import { useFinishAction } from "../../practice/_hooks/use-finish-action";
 import { submitExamResult } from "../_actions/submit-exam-result";
 
 /**
@@ -18,36 +17,20 @@ import { submitExamResult } from "../_actions/submit-exam-result";
  * `onFinish`）に置く、試験用の対。走行は記録しないので結果ページに渡すのは
  * 付与された段級位（`promoted`）だけで、EXP 取得用の `grant` は返さない。
  *
- * 認証の扱いも `useSaveOnFinish` と同じ — クライアント側で認証状態を
- * 先読みせず、Server Action の匿名スキップを `undefined` に変換して
- * サイレントに no-op する。
+ * 認証の扱いも `useSaveOnFinish` と同じ（{@link useFinishAction}）。
  *
  * @param menuType 試験の練習種別
  */
 export function useSubmitExamOnFinish(
   menuType: PracticeMenuType,
 ): (args: FinishCallbackArgs) => Promise<FinishCallbackResult | undefined> {
-  const challenge = useVerifiedChallenge();
-  return useCallback(
-    async (args: FinishCallbackArgs) => {
-      if (args.totalCount === 0 || !challenge) return undefined;
-      await challenge.settled();
-
-      try {
-        const result = await submitExamResult(challenge.id);
-        if ("error" in result) {
-          logExternalError("submitExamResult", menuType, result.error);
-          return undefined;
-        }
-        if ("skipped" in result) {
-          return undefined;
-        }
-        return { promoted: result.grantedRanks };
-      } catch (error: unknown) {
-        logExternalError("submitExamResult", menuType, error);
-        return undefined;
-      }
-    },
-    [menuType, challenge],
-  );
+  return useFinishAction(menuType, SUBMIT_EXAM_RESULT);
 }
+
+const SUBMIT_EXAM_RESULT = {
+  action: submitExamResult,
+  name: "submitExamResult",
+  toResult: (result: { readonly grantedRanks: readonly RankSlug[] }) => ({
+    promoted: result.grantedRanks,
+  }),
+};
