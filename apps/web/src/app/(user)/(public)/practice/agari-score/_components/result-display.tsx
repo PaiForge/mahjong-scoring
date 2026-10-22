@@ -4,35 +4,22 @@ import { useTranslations } from "next-intl";
 import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
-import {
-  formatHan,
-  formatPayment,
-} from "@mahjong-scoring/features/practice/score/format-answer";
+import { formatHan } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import {
-  buildScoreResultDisplay,
-  resolveScoreResultBreakdown,
-} from "@mahjong-scoring/features/results/score-result-display";
+import { resolveScoreResultView } from "@mahjong-scoring/features/results/score-result-view";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
 import { useYakuCheatsheetState } from "@mahjong-scoring/features/yaku/use-yaku-cheatsheet-state";
-import { ResultBreakdownTable } from "./result-breakdown-table";
-import {
-  BreakdownPanel,
-  type BreakdownPanelSection,
-} from "../../_components/breakdown-panel";
+import { BreakdownPanel } from "../../_components/breakdown-panel";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
-import { AGARI_SCORE_RESULT_TOUR_ID } from "../_lib/tour-ids";
-import { SCORE_TABLE_LINK_CLASSES } from "../../_lib/score-table-link-classes";
 import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
-import { ResultTableFrame, ResultUnansweredCell } from "./result-table-frame";
-import { JudgementMark } from "../../_components/judgement-mark";
+import { ResultTableFrame } from "./result-table-frame";
+import { FuRow, HanRow, ScoreRow, YakuRow } from "./result-display-rows";
+import { useResultBreakdownSections } from "./use-result-breakdown-sections";
 import { YakuCheatsheetModal } from "./yaku-cheatsheet-modal";
-import { YakuJudgementChips } from "./yaku-judgement-chips";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
-import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import type { ResultDisplayProps } from "@mahjong-scoring/features/results/result-display-props";
 
@@ -63,35 +50,33 @@ export function ResultDisplay({
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
   const tScoreTable = useTranslations("scoreTable");
-  const tCommon = useTranslations("common");
-  const yakuOrder = useYakuOrder();
-  const fuHanOrder = useFuHanOrder();
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   // 点数表モーダル。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く）。
   const scoreTable = useScoreTableModal();
 
-  // 判定付きの回答。無回答の開示では両方無い
-  const judged =
-    userAnswer !== undefined && result !== undefined
-      ? { answer: userAnswer, result }
-      : undefined;
-  // 翻数・符の行の「あなたの回答」。答えさせていない設定では判定を見せない
-  const judgedHanFu = requireHanFu ? judged : undefined;
-
-  // 役の振り分けと内訳の並び・合計はモバイルと共有する
+  // 役の振り分け・内訳の並び・符の行の有無・判定の見せ方はモバイルと共有する
   const {
+    judged,
+    judgedHanFu,
     answeredYakuJudgements,
     correctYakuJudgements,
-    yakuBreakdown,
-    fuBreakdown,
-  } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
-  const correctYakuNames = correctYakuJudgements.map(
-    (judgement) => judgement.name,
-  );
+    correctYakuNames,
+    showsFu,
+    breakdownTabs,
+    initialBreakdown,
+  } = resolveScoreResultView({
+    question,
+    userAnswer,
+    result,
+    requireHanFu,
+    requireFuForMangan,
+    yakuOrder: useYakuOrder(),
+    fuHanOrder: useFuHanOrder(),
+  });
+
   // 役一覧モーダル。成立役の印は早見表の項目名に解決してから付ける（「役牌 白」は
   // 「役牌」のカードに印が付く）。役をタップしたときはその役へ着地させ、一覧全体を
   // 見たいときは役を渡さずに先頭から開く。
@@ -113,49 +98,19 @@ export function ResultDisplay({
   // 使われず、区分行のハイライトに解決される（resolveScoreTableFocus）。
   const scoreTableFocus = scoreTableFocusOfQuestion(question);
 
-  const getHanDisplay = (hanValue: number) =>
+  const hanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
+  const scoreLevelName = exactHan
+    ? getScoreLevelName(answer.scoreLevel)
+    : undefined;
 
-  // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
-  const {
-    showsFu,
+  const breakdownSections = useResultBreakdownSections({
     tabs: breakdownTabs,
-    initial: initialBreakdown,
-  } = resolveScoreResultBreakdown(
     answer,
-    { yakuBreakdown, fuBreakdown },
-    { order: fuHanOrder, requireFuForMangan, judgement: judged?.result },
-  );
-  const breakdownSections = breakdownTabs.map(
-    ({ kind, breakdown }): BreakdownPanelSection =>
-      kind === "han"
-        ? {
-            kind,
-            tabLabel: `${t("form.labels.han")} ${getHanDisplay(answer.han)}`,
-            content: (
-              <ResultBreakdownTable
-                items={breakdown.items}
-                total={breakdown.total}
-                suffix={t("form.options.hanSuffix")}
-                onOpenScoreTable={() => scoreTable.open(true)}
-                onOpenYakuList={openYakuList}
-              />
-            ),
-          }
-        : {
-            kind,
-            tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
-            content: (
-              <ResultBreakdownTable
-                items={breakdown.items}
-                total={breakdown.total}
-                suffix={t("form.options.fuSuffix")}
-                roundedTotal={answer.fu}
-                onOpenScoreTable={() => scoreTable.open(true)}
-              />
-            ),
-          },
-  );
+    hanDisplay,
+    onOpenScoreTable: () => scoreTable.open(true),
+    onOpenYakuList: openYakuList,
+  });
 
   return (
     <div className="space-y-4">
@@ -183,168 +138,27 @@ export function ResultDisplay({
           ) : undefined
         }
       >
-        {/* Yaku */}
         {requireYaku && (
-          <tbody>
-            <tr>
-              <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-                {t("form.labels.yaku")}
-              </td>
-              {judged ? (
-                <td className="py-2 pr-4 text-right align-top">
-                  <YakuJudgementChips
-                    judgements={answeredYakuJudgements}
-                    align="end"
-                    emptyLabel={t("result.details.none")}
-                    onSelect={openYakuList}
-                  />
-                </td>
-              ) : (
-                <ResultUnansweredCell />
-              )}
-              <td
-                className="space-y-1.5 py-2 text-right align-top"
-                data-tour-id={AGARI_SCORE_RESULT_TOUR_ID.yaku}
-              >
-                <YakuJudgementChips
-                  judgements={correctYakuJudgements}
-                  align="end"
-                  emptyLabel={t("result.details.none")}
-                  onSelect={openYakuList}
-                />
-                {/* 役をタップしても開けるが、それが分かるように一覧への導線も置く */}
-                <ReferenceLinkButton
-                  icon={<BookIcon className="size-3.5 shrink-0" />}
-                  label={t("result.viewYakuList")}
-                  onClick={() => openYakuList()}
-                />
-              </td>
-            </tr>
-          </tbody>
+          <YakuRow
+            judged={judged}
+            answeredYakuJudgements={answeredYakuJudgements}
+            correctYakuJudgements={correctYakuJudgements}
+            onOpenYakuList={openYakuList}
+          />
         )}
-
-        {/* Han */}
-        <tbody>
-          <tr>
-            <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
-              {t("form.labels.han")}
-            </td>
-            {judgedHanFu ? (
-              <td
-                className={`py-2 pr-4 text-right ${judgedHanFu.result.isHanCorrect ? "text-success" : "text-destructive"}`}
-              >
-                {judgedHanFu.answer.han === undefined
-                  ? "-"
-                  : getHanDisplay(judgedHanFu.answer.han)}{" "}
-                <JudgementMark
-                  verdict={
-                    judgedHanFu.result.isHanCorrect ? "correct" : "incorrect"
-                  }
-                  label={tCommon(
-                    judgedHanFu.result.isHanCorrect ? "correct" : "incorrect",
-                  )}
-                />
-              </td>
-            ) : answerSummary !== undefined ? (
-              <td className="py-2 pr-4 text-right text-destructive">
-                {answerSummary}{" "}
-                <JudgementMark
-                  verdict="incorrect"
-                  label={tCommon("incorrect")}
-                />
-              </td>
-            ) : (
-              <ResultUnansweredCell />
-            )}
-            <td className="py-2 text-right font-bold text-surface-800">
-              {getHanDisplay(answer.han)}
-              {exactHan && scoreLevelName && ` (${scoreLevelName})`}
-            </td>
-          </tr>
-        </tbody>
-
-        {/* Fu */}
-        {showsFu && (
-          <tbody>
-            <tr>
-              <td className="whitespace-nowrap py-2 pr-4 text-surface-600">
-                {t("form.labels.fu")}
-              </td>
-              {judgedHanFu ? (
-                <td
-                  className={`py-2 pr-4 text-right ${judgedHanFu.result.isFuCorrect ? "text-success" : "text-destructive"}`}
-                >
-                  {judgedHanFu.answer.fu ?? "-"}
-                  {t("form.options.fuSuffix")}{" "}
-                  <JudgementMark
-                    verdict={
-                      judgedHanFu.result.isFuCorrect ? "correct" : "incorrect"
-                    }
-                    label={tCommon(
-                      judgedHanFu.result.isFuCorrect ? "correct" : "incorrect",
-                    )}
-                  />
-                </td>
-              ) : (
-                <ResultUnansweredCell />
-              )}
-              <td className="py-2 text-right font-bold text-surface-800">
-                {answer.fu}
-                {t("form.options.fuSuffix")}
-              </td>
-            </tr>
-          </tbody>
-        )}
-
-        {/* Score。翻・符から出る最終的な答えなので、上の区切りを一段濃くし、
-            上下の余白を広げて途中の値（翻・符）と分ける。数字をさらに大きく
-            しないのは、ツモの支払い（「1300・2600」等）が列に収まらなくなるため */}
-        <tbody className="border-surface-300! [&>tr>td]:pt-4 [&>tr>td]:pb-3">
-          <tr>
-            <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-              {t("form.labels.score")}
-            </td>
-            {judged ? (
-              <td
-                className={`py-2 pr-4 text-right align-top ${judged.result.isScoreCorrect ? "text-success" : "text-destructive"}`}
-              >
-                {formatPayment(judged.answer, false, { t })}{" "}
-                <JudgementMark
-                  verdict={
-                    judged.result.isScoreCorrect ? "correct" : "incorrect"
-                  }
-                  label={tCommon(
-                    judged.result.isScoreCorrect ? "correct" : "incorrect",
-                  )}
-                />
-              </td>
-            ) : (
-              <ResultUnansweredCell />
-            )}
-            <td
-              className="space-y-1.5 py-2 text-right align-top"
-              data-tour-id={AGARI_SCORE_RESULT_TOUR_ID.score}
-            >
-              {/* 押せることが見て分かるよう、常時点線の下線を敷く。
-                  点数は翻・符から出る最終的な答えなので、正解の値の中で
-                  ここだけ一段大きくする（枠や色は足さない） */}
-              <button
-                type="button"
-                onClick={() => scoreTable.open(true)}
-                title={t("result.openInScoreTable")}
-                className={`ml-auto block text-right text-base font-bold text-surface-900 ${SCORE_TABLE_LINK_CLASSES}`}
-              >
-                {paymentDescription}
-              </button>
-              {/* 点数をタップしても開けるが、それが分かるように表への導線も置く */}
-              <ReferenceLinkButton
-                icon={<TableIcon className="size-3.5 shrink-0" />}
-                label={tScoreTable("viewScoreTable")}
-                onClick={() => scoreTable.open(false)}
-              />
-            </td>
-          </tr>
-        </tbody>
+        <HanRow
+          judgedHanFu={judgedHanFu}
+          answerSummary={answerSummary}
+          correctHan={answer.han}
+          scoreLevelName={scoreLevelName || undefined}
+          hanDisplay={hanDisplay}
+        />
+        {showsFu && <FuRow judgedHanFu={judgedHanFu} correctFu={answer.fu} />}
+        <ScoreRow
+          judged={judged}
+          paymentDescription={paymentDescription}
+          onOpenScoreTable={scoreTable.open}
+        />
       </ResultTableFrame>
 
       <ScoreTableModal

@@ -7,10 +7,7 @@ import {
 } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
-import {
-  buildScoreResultDisplay,
-  resolveScoreResultBreakdown,
-} from "@mahjong-scoring/features/results/score-result-display";
+import { resolveScoreResultView } from "@mahjong-scoring/features/results/score-result-view";
 
 import { BookIcon, TableIcon } from "../../../components/icons/icons";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
@@ -20,11 +17,8 @@ import { colors } from "../../../lib/theme";
 import { ReferenceLinkButton } from "../../components/reference-link-button";
 import { useYakuCheatsheetModal } from "../../use-yaku-cheatsheet-modal";
 import { useFuHanOrder } from "../../../hooks/use-display-settings-store";
-import {
-  BreakdownPanel,
-  type BreakdownPanelSection,
-} from "../../components/breakdown-panel";
-import { ResultBreakdownTable } from "./result-breakdown-table";
+import { BreakdownPanel } from "../../components/breakdown-panel";
+import { useResultBreakdownSections } from "./use-result-breakdown-sections";
 import {
   CorrectValue,
   JudgedValue,
@@ -66,8 +60,6 @@ export function ResultDisplay({
 }: ResultDisplayProps) {
   const t = useTranslations("agariScore");
   const tScoreTable = useTranslations("scoreTable");
-  const yakuOrder = useYakuOrder();
-  const fuHanOrder = useFuHanOrder();
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
@@ -76,24 +68,28 @@ export function ResultDisplay({
   // ハイライトする（表への補助リンクからは素の表を開く。web と同じ）
   const scoreTable = useScoreTableModal();
 
-  const judged =
-    userAnswer !== undefined && result !== undefined
-      ? { answer: userAnswer, result }
-      : undefined;
-  // 翻数・符の行の「あなたの回答」。答えさせていない設定では判定を見せない
-  const judgedHanFu = requireHanFu ? judged : undefined;
-
-  // 役の振り分けと内訳の並び・合計は web と共有する
+  // 役の振り分け・内訳の並び・符の行の有無・判定の見せ方は web と共有する
   const {
+    judged,
+    judgedHanFu,
     answeredYakuJudgements,
     correctYakuJudgements,
-    yakuBreakdown,
-    fuBreakdown,
-  } = buildScoreResultDisplay(question, userAnswer?.yakus, yakuOrder);
+    correctYakuNames,
+    showsFu,
+    breakdownTabs,
+    initialBreakdown,
+  } = resolveScoreResultView({
+    question,
+    userAnswer,
+    result,
+    requireHanFu,
+    requireFuForMangan,
+    yakuOrder: useYakuOrder(),
+    fuHanOrder: useFuHanOrder(),
+  });
   // 役一覧は成立していた役に印を付け、押した役まで送って開く
-  const { openYakuCheatsheet, yakuCheatsheetModal } = useYakuCheatsheetModal(
-    correctYakuJudgements.map((judgement) => judgement.name),
-  );
+  const { openYakuCheatsheet, yakuCheatsheetModal } =
+    useYakuCheatsheetModal(correctYakuNames);
 
   const paymentDescription = formatScoreAnswer(
     paymentToScoreTableAnswer(answer.payment),
@@ -119,46 +115,13 @@ export function ResultDisplay({
     <ResultUnansweredValue />
   );
 
-  // 満貫以上は符の行を出さず、符で満貫に届いた手は内訳だけ出す
-  const {
-    showsFu,
+  const breakdownSections = useResultBreakdownSections({
     tabs: breakdownTabs,
-    initial: initialBreakdown,
-  } = resolveScoreResultBreakdown(
     answer,
-    { yakuBreakdown, fuBreakdown },
-    { order: fuHanOrder, requireFuForMangan, judgement: judged?.result },
-  );
-  const breakdownSections = breakdownTabs.map(
-    ({ kind, breakdown }): BreakdownPanelSection =>
-      kind === "han"
-        ? {
-            kind,
-            tabLabel: `${t("form.labels.han")} ${hanDisplay(answer.han)}`,
-            content: (
-              <ResultBreakdownTable
-                items={breakdown.items}
-                total={breakdown.total}
-                suffix={t("form.options.hanSuffix")}
-                onOpenScoreTable={() => scoreTable.open(true)}
-                onOpenYakuList={openYakuCheatsheet}
-              />
-            ),
-          }
-        : {
-            kind,
-            tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
-            content: (
-              <ResultBreakdownTable
-                items={breakdown.items}
-                total={breakdown.total}
-                suffix={t("form.options.fuSuffix")}
-                roundedTotal={answer.fu}
-                onOpenScoreTable={() => scoreTable.open(true)}
-              />
-            ),
-          },
-  );
+    hanDisplay,
+    onOpenScoreTable: () => scoreTable.open(true),
+    onOpenYakuList: openYakuCheatsheet,
+  });
 
   return (
     <View>
