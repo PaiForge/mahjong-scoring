@@ -4,6 +4,17 @@ import type { ScoreTableFocus } from "../score-table/focus";
 import type { BreakdownJudgement } from "./breakdown-tabs";
 
 /**
+ * 内訳の表を載せる面（`BreakdownPanel` の `surface`。web とアプリで共有）
+ * 内訳の面
+ *
+ * - `raised` — 白地に淡い枠。灰の地（結果一覧のアコーディオンの本文）や
+ *   面を持たない場所に置くとき
+ * - `sunken` — 枠なしの淡い灰。白い面（答え合わせの表の枠・答え合わせの資料の面）
+ *   の中に置くとき。白い枠を入れ子にせず、「本体」と「その説明」を地の色で分ける
+ */
+export type BreakdownSurface = "raised" | "sunken";
+
+/**
  * 合計符の内訳表示（`FuBreakdown`）の props（web とアプリで共有）
  * 符内訳props
  *
@@ -19,6 +30,8 @@ export interface FuBreakdownProps {
    * `breakdownTotal` / `roundedUp` / `fuSuffix` を持つ翻訳名前空間（例: "totalFu"）
    */
   readonly translationNamespace: string;
+  /** 開いた内訳の表を載せる面（既定 `raised`）。白い面の中に置くときは `sunken` */
+  readonly surface?: BreakdownSurface;
 }
 
 /**
@@ -28,7 +41,10 @@ export interface FuBreakdownProps {
  * 翻数の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
  * 置く側が持つので表だけを使う。
  */
-export interface FuBreakdownTableProps extends FuBreakdownProps {
+export interface FuBreakdownTableProps extends Omit<
+  FuBreakdownProps,
+  "surface"
+> {
   /**
    * 答えの符（切り上げ後、切り上げが無ければ合計）を押したときの処理。
    * 渡すとその値が点数表を開くボタンになる
@@ -56,15 +72,18 @@ export interface YakuBreakdownProps<TNote = string> {
    * 符の内訳の「切り上げ後 40符」と同じく、合計の下に結論として据える
    */
   readonly conclusion?: { readonly label: string; readonly value: string };
+  /** 開いた内訳の表を載せる面（既定 `raised`）。白い面の中に置くときは `sunken` */
+  readonly surface?: BreakdownSurface;
 }
 
 /**
  * 翻数の内訳の表（開閉の器なし。`YakuBreakdownTable`）の props
  * 翻内訳表props
  */
-export interface YakuBreakdownTableProps<
-  TNote = string,
-> extends YakuBreakdownProps<TNote> {
+export interface YakuBreakdownTableProps<TNote = string> extends Omit<
+  YakuBreakdownProps<TNote>,
+  "surface"
+> {
   /** 合計の翻数を押したときの処理。渡すとその値が点数表を開くボタンになる */
   readonly onOpenScoreTable?: () => void;
 }

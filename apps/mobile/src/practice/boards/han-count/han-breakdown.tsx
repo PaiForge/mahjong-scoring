@@ -1,4 +1,5 @@
 import type { YakuDetail } from "@mahjong-scoring/core";
+import type { BreakdownSurface } from "@mahjong-scoring/features/results/breakdown-props";
 import { useYakumanRounding } from "@mahjong-scoring/features/practice/han-count/use-yakuman-rounding";
 
 import { YakuBreakdown } from "../../components/yaku-breakdown";
@@ -14,14 +15,23 @@ import { YakuBreakdown } from "../../components/yaku-breakdown";
 export function HanBreakdown({
   yakuDetails,
   correctHan,
+  surface,
 }: {
   /** 役の内訳（ドラ・裏ドラを含む） */
   readonly yakuDetails: readonly YakuDetail[];
   /** 正解の翻数（役満に丸めた後） */
   readonly correctHan: number;
+  /** 開いた内訳の表を載せる面（既定 `raised`）。白い面の中に置くときは `sunken` */
+  readonly surface?: BreakdownSurface;
 }) {
   // 役満への丸め（出す条件と文言）は web と共有する
   const conclusion = useYakumanRounding(yakuDetails, correctHan);
 
-  return <YakuBreakdown yakuDetails={yakuDetails} conclusion={conclusion} />;
+  return (
+    <YakuBreakdown
+      yakuDetails={yakuDetails}
+      conclusion={conclusion}
+      surface={surface}
+    />
+  );
 }

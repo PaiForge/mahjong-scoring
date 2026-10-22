@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useId, useState } from "react";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import type { BreakdownKind } from "@mahjong-scoring/features/results/breakdown-tabs";
+import type { BreakdownSurface } from "@mahjong-scoring/features/results/breakdown-props";
 
 /** 切り替えの 1 枠（翻数の内訳 / 符の内訳） */
 export interface BreakdownPanelSection {
@@ -24,12 +25,12 @@ interface BreakdownPanelProps {
   /**
    * 内訳の表を載せる面（既定 `raised`）
    *
-   * - `raised` — 白地に淡い枠。灰の地（結果一覧のアコーディオンの本文）や
-   *   面を持たない盤面の末尾に置くとき
-   * - `sunken` — 枠なしの淡い灰。白い面（答え合わせの表の枠）の中に置くとき。
-   *   白い枠を入れ子にせず、「比較表」と「その説明」を地の色で分ける
+   * - `raised` — 白地に淡い枠。灰の地（結果一覧のアコーディオンの本文）に置くとき
+   * - `sunken` — 枠なしの淡い灰。白い面（答え合わせの表の枠・トレーニングの
+   *   答え合わせの資料の面 {@link import("./answer-review-panel").AnswerReviewPanel}）
+   *   の中に置くとき。白い枠を入れ子にせず、「比較表」と「その説明」を地の色で分ける
    */
-  readonly surface?: "raised" | "sunken";
+  readonly surface?: BreakdownSurface;
   /**
    * 内訳の面の下・右端に添える導線（「点数表を確認」の補助リンク）
    *
@@ -40,7 +41,7 @@ interface BreakdownPanelProps {
   readonly action?: ReactNode;
 }
 
-const SURFACE_CLASSES: Readonly<Record<"raised" | "sunken", string>> = {
+const SURFACE_CLASSES: Readonly<Record<BreakdownSurface, string>> = {
   raised: "rounded-panel border border-panel bg-white p-3",
   sunken: "rounded-panel bg-surface-50 p-3",
 };
@@ -79,6 +80,12 @@ const SURFACE_CLASSES: Readonly<Record<"raised" | "sunken", string>> = {
  * 補助リンクではなく「この答え合わせの続きを開く」行に見せる。開いても
  * 入口は同じ位置に残り、その下に切り替えと内訳が続く。閉じている間は
  * 中身を描画しない。
+ *
+ * 入口を面無しで「次の問題へ」の直上に置かないこと。44px の行と全幅のボタンが
+ * 余白だけで隣り合うと、入口の文字を狙って下に落ちた指をボタンが受けて問題が
+ * 進む（模試で実際に起きた）。トレーニングの盤面の末尾では
+ * {@link import("./answer-review-panel").AnswerReviewPanel} に入れ、
+ * 点数系では答え合わせの表の面（`ResultTableFrame` の `footer`）に入れる。
  */
 export function BreakdownPanel({
   title,

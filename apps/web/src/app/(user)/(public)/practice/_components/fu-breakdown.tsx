@@ -23,19 +23,20 @@ import type {
  * 1 行の入口で、既定で閉じる）。内訳が符だけなので切り替えは出ない。
  * 符だけを答える練習でも、点数系と内訳の開き方・見え方を変えない。
  * 点数表への導線は持たない — 点数表は翻と符の組で引くもので、符だけでは
- * 引く行が決まらない。
+ * 引く行が決まらない。開いた表の面（`surface`）は置く側が決める。
  */
-export function FuBreakdown(props: FuBreakdownProps) {
+export function FuBreakdown({ surface, ...tableProps }: FuBreakdownProps) {
   const t = useTranslations("challenge.scoreBreakdown");
 
   return (
     <BreakdownPanel
       title={t("toggle")}
+      surface={surface}
       sections={[
         {
           kind: "fu",
-          tabLabel: t("fuTab", { value: props.answer }),
-          content: <FuBreakdownTable {...props} />,
+          tabLabel: t("fuTab", { value: tableProps.answer }),
+          content: <FuBreakdownTable {...tableProps} />,
         },
       ]}
     />
