@@ -132,3 +132,28 @@ export function limitedAnswer(
     benefits: audience.benefits,
   };
 }
+
+/**
+ * 宛先と販売の有無から「1 問始めてよいか」の答えを組み立てる
+ * 出題許可の答え
+ *
+ * 無制限（{@link isUnlimited}）なら数えずに通し、そうでなければ宛先の
+ * 1 日の上限（{@link dailyLimit}）を引いて、その上限での判定を
+ * `usageOf` に聞く。出題開始と残数問い合わせ、ログイン済みと未ログインの
+ * 4 つの経路が同じ順で答えるための入口。数え方（DB・cookie）と失敗したときに
+ * 止めるか通すかは `usageOf` が持つ。
+ *
+ * @param proOnSale - 呼び出した経路で Pro を販売しているか
+ * @param usageOf - 上限を受けて回数を判定する（消費する・見るだけ・fail-open）
+ */
+export async function quotaAnswer(
+  proOnSale: boolean,
+  audience: QuotaAudience,
+  menu: QuotaMenu,
+  usageOf: (limit: number) => Promise<QuotaUsage>,
+): Promise<BeginPracticeQuestionResult> {
+  if (isUnlimited(proOnSale, audience.benefits))
+    return unlimitedAnswer(audience);
+  const limit = dailyLimit(menu, audience);
+  return limitedAnswer(audience, limit, await usageOf(limit));
+}

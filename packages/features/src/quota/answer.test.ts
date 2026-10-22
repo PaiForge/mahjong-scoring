@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { PlanBenefit } from "../billing/plans";
 
@@ -10,6 +10,7 @@ import {
   isUnlimited,
   limitedAnswer,
   peekUsage,
+  quotaAnswer,
   unlimitedAnswer,
 } from "./answer";
 
@@ -108,5 +109,31 @@ describe("limitedAnswer", () => {
       signedIn: true,
       benefits: ["practice_tools"],
     });
+  });
+});
+
+describe("quotaAnswer", () => {
+  it("無制限なら回数を判定せずに通す", async () => {
+    const usageOf = vi.fn();
+    const audience = {
+      signedIn: true,
+      benefits: [PlanBenefit.UnlimitedPractice],
+    };
+    await expect(
+      quotaAnswer(true, audience, "agari-score", usageOf),
+    ).resolves.toStrictEqual(unlimitedAnswer(audience));
+    expect(usageOf).not.toHaveBeenCalled();
+  });
+
+  it("数えるときは宛先の 1 日の上限で判定を聞き、その答えを組み立てる", async () => {
+    const audience = { signedIn: false, benefits: [] };
+    const usageOf = vi.fn(async (limit: number) => peekUsage(limit, 1));
+    const limit = dailyLimit("agari-score", audience);
+    await expect(
+      quotaAnswer(true, audience, "agari-score", usageOf),
+    ).resolves.toStrictEqual(
+      limitedAnswer(audience, limit, peekUsage(limit, 1)),
+    );
+    expect(usageOf).toHaveBeenCalledWith(limit);
   });
 });
