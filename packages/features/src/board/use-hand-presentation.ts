@@ -401,6 +401,26 @@ export function toHandPresentationContextValue(
 }
 
 /**
+ * 準備の結果をコンテキストの値にするフック
+ * 手牌表示コンテキスト値フック
+ *
+ * 各アプリの Provider が、準備が `ready` になった時点の見せ方を
+ * {@link HandPresentationContext} に流す値へ写す。準備中は undefined で、
+ * Provider は子をマウントせずフォールバックを出す。
+ */
+export function useHandPresentationContextValue(
+  preparation: HandPresentationPreparation,
+): HandPresentationContextValue | undefined {
+  return useMemo(
+    () =>
+      preparation.status === "ready"
+        ? toHandPresentationContextValue(preparation.snapshot)
+        : undefined,
+    [preparation],
+  );
+}
+
+/**
  * 盤面の手牌の見せ方を引くフック
  * 手牌表示フック
  *

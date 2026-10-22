@@ -4,7 +4,7 @@ import { useMemo, type ReactNode } from "react";
 import {
   HandPresentationContext,
   HandPresentationNoticeContext,
-  toHandPresentationContextValue,
+  useHandPresentationContextValue,
   useHandPresentationPreparation,
   type HandPresentationAuth,
   type HandPresentationBenefitsResult,
@@ -87,13 +87,7 @@ export function HandPresentationProvider({
     fetchBenefits: fetchViewerBenefits,
   });
 
-  const value = useMemo(
-    () =>
-      preparation.status === "ready"
-        ? toHandPresentationContextValue(preparation.snapshot)
-        : undefined,
-    [preparation],
-  );
+  const value = useHandPresentationContextValue(preparation);
 
   if (preparation.status === "pending" || value === undefined) return fallback;
   return (
