@@ -1,17 +1,6 @@
-import type {
-  ScoreTableQuestion,
-  ScoreTableUserAnswer,
-} from "@mahjong-scoring/core";
+import type { ScoreTableAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
 import { ScoreAnswerForm } from "../../components/score-answer-form";
-
-interface ScoreTableAnswerFormProps {
-  readonly question: ScoreTableQuestion;
-  readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
-  readonly disabled?: boolean;
-  /** トレーニングモードか。トレーニングだけが端末のルール設定で選択肢を変える */
-  readonly isTraining?: boolean;
-}
 
 /**
  * 点数表早引き練習の回答フォーム

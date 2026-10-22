@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { koTsumoPaymentKey } from "@mahjong-scoring/core";
-import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
-import { type ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import type { ScoreAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
 import { Button } from "../../components/button";
 import { useKoTsumoInput } from "../../hooks/use-display-settings-store";
@@ -16,70 +15,14 @@ import {
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
-interface ScoreAnswerFormProps {
-  /** 親かどうか */
-  readonly isOya: boolean;
-  /** ツモかどうか */
-  readonly isTsumo: boolean;
-  /** 翻数 */
-  readonly han: number;
-  readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
-  readonly disabled?: boolean;
-  /** i18n の翻訳ネームスペース */
-  readonly translationNamespace: string;
-  /**
-   * 正誤フィードバック表示中か（セッションから受け取る）。
-   * 回答した選択欄の枠と地を正誤の色にする。
-   */
-  readonly showFeedback?: boolean;
-  /** 直前の回答が正解だったか（未回答・無回答の正解開示中は undefined） */
-  readonly lastAnswerCorrect?: boolean;
-  /**
-   * 点数の選択肢をこの範囲に固定する（省略時は翻数から絞る）。
-   * 出題が範囲を固定している練習（昇級試験）が渡す。
-   */
-  readonly scoreRange?: ScoreOptionRange;
-  /**
-   * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）
-   * 選択即送信
-   *
-   * 単一選択・子ツモの組は値が選ばれた時点、子ツモの分割入力は 2 つとも
-   * 選ばれた時点で送信する。
-   * 有効時は送信ボタンを表示しない。選択欄は 1 つの値しか持てず、選び直しも
-   * 送信前に済むため、確定のボタンは「同じ答えをもう一度言う」だけの 1 タップに
-   * なる（web の同名 prop と同じ理由。点数を選んで答える盤面はすべて有効）。
-   */
-  readonly autoSubmit?: boolean;
-  /**
-   * ダブル役満を採用したルールでの出題か。採用時はダブル役満の点数
-   * （子64000点等）を選択肢に足す（既定 false）。
-   */
-  readonly allowDoubleYakuman?: boolean;
-  /**
-   * 選択肢を端末のルール設定（切り上げ満貫・ダブル役満）に依らない集合に
-   * 固定する（既定 false）
-   * ルール固定
-   *
-   * チャレンジと昇級試験が立てる。設定で選択肢の個数が変わると同じ土俵の
-   * 中で有利不利が出るため（features の `challenge/rule-boundary.ts`）。
-   * true のとき `allowDoubleYakuman` は無視され、切り上げ満貫も無効として絞り込む。
-   */
-  readonly fixedRules?: boolean;
-}
-
 /**
  * 点数系練習共通の回答フォーム
  * 点数回答フォーム
  *
- * web の `ScoreAnswerForm` の移植。点数のみを選択欄で回答する。翻・符・
- * 親子・ツモロンの判定は呼び出し元が行う。子ツモは表示設定に従い、
- * 「300/500」のような組の 1 つの欄か、「子から / 親から」の 2 つの欄で答える。回答直後は選択欄自身の枠と地の
- * 色で正誤を返し、正解の点数は出さない（トレーニングでは
- * {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す）。
- *
- * @remarks
- * 問題が変わったときの入力リセットは、呼び出し元が `key` に問題の識別子を
- * 渡して再マウントさせることで行う。
+ * web の `ScoreAnswerForm` の移植。props の意味と設計（選択即送信・ルール
+ * 固定）は features の {@link ScoreAnswerFormProps} にある。ここはピッカーでの
+ * 描画だけを持つ。回答直後の正誤は選択欄自身の枠と地の色で返し、トレーニングの
+ * 正解は {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す。
  */
 export function ScoreAnswerForm({
   isOya,
