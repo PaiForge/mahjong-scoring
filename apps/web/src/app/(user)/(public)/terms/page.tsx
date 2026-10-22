@@ -191,7 +191,7 @@ export default async function TermsPage() {
           <LegalParagraph>{t("governingLaw.body")}</LegalParagraph>
         </LegalSection>
 
-        <LegalClosing namespace="terms" lastUpdated={LAST_UPDATED} />
+        <LegalClosing page="terms" lastUpdated={LAST_UPDATED} />
       </LegalArticle>
     </ContentContainer>
   );

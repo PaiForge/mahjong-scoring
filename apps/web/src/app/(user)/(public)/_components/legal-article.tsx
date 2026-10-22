@@ -117,17 +117,17 @@ export async function LegalLastUpdated({ date }: { readonly date: string }) {
  * 名前空間の `revision.*` / `contact.*` から引き、お問い合わせの文中リンクは
  * `/contact` へ張る。
  *
- * @param namespace - ページの辞書の名前空間
+ * @param page - どちらの規約か（辞書の名前空間と同じ名前）
  * @param lastUpdated - 改定日（`YYYY-MM-DD`。{@link LegalLastUpdated}）
  */
 export async function LegalClosing({
-  namespace,
+  page,
   lastUpdated,
 }: {
-  readonly namespace: "terms" | "privacy";
+  readonly page: "terms" | "privacy";
   readonly lastUpdated: string;
 }) {
-  const t = await getTranslations(namespace);
+  const t = await getTranslations(page);
   return (
     <>
       <LegalSection title={t("revision.title")}>

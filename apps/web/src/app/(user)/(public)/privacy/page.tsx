@@ -215,7 +215,7 @@ export default async function PrivacyPage() {
           </LegalList>
         </LegalSection>
 
-        <LegalClosing namespace="privacy" lastUpdated={LAST_UPDATED} />
+        <LegalClosing page="privacy" lastUpdated={LAST_UPDATED} />
       </LegalArticle>
     </ContentContainer>
   );
