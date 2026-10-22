@@ -1,28 +1,18 @@
-import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { allowsDoubleYakuman, koTsumoPaymentKey } from "@mahjong-scoring/core";
-import {
-  practiceFuOptions,
-  practiceHanOptions,
-} from "@mahjong-scoring/features/practice/score/answer-options";
-import {
-  koTsumoPaymentOfKey,
-  koTsumoSelectOptions,
-  scoreSelectOptions,
-} from "@mahjong-scoring/features/practice/score/score-select-options";
+import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 
 import { Button } from "../../../components/button";
-import { SelectField } from "../../../components/select-field";
 import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "../../../hooks/use-rule-settings-store";
 import { useKoTsumoInput } from "../../../hooks/use-display-settings-store";
 import { colors } from "../../../lib/theme";
-import { ScoreOptionSelect } from "../../components/score-option-select";
+import { HanFuFields } from "./han-fu-fields";
+import { ScoreField } from "./score-field";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 
 /**
@@ -51,27 +41,7 @@ export function ScorePracticeAnswerForm({
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const koTsumoInput = useKoTsumoInput();
-  const {
-    han,
-    fu,
-    yakus,
-    score,
-    scoreFromKo,
-    scoreFromOya,
-    koTsumoPayment,
-    setHan,
-    setFu,
-    setYakus,
-    setScore,
-    setScoreFromKo,
-    setScoreFromOya,
-    setKoTsumoPayment,
-    isFuRequired,
-    availableScores,
-    isOyaTsumo,
-    isComplete,
-    submit,
-  } = useScorePracticeAnswerForm({
+  const form = useScorePracticeAnswerForm({
     onSubmit,
     isTsumo,
     isOya,
@@ -83,12 +53,6 @@ export function ScorePracticeAnswerForm({
     koTsumoInput,
     prefill,
   });
-
-  const hanOptions = useMemo(
-    () => practiceHanOptions(t, exactHan, allowDoubleYakuman),
-    [t, exactHan, allowDoubleYakuman],
-  );
-  const fuOptions = useMemo(() => practiceFuOptions(t), [t]);
 
   // 「役なし」はロンにしか無い回答なので、渡されたときだけ「役」の行の右端に置く
   const noYakuButton = noYaku && (
@@ -110,8 +74,8 @@ export function ScorePracticeAnswerForm({
     <View style={styles.form}>
       {requireYaku ? (
         <YakuSelect
-          value={yakus}
-          onChange={setYakus}
+          value={form.yakus}
+          onChange={form.setYakus}
           disabled={disabled}
           labelAction={noYakuButton}
         />
@@ -121,106 +85,21 @@ export function ScorePracticeAnswerForm({
 
       {/* 翻数と符を問わない設定では欄ごと出さない（実戦では点数だけを申告する） */}
       {requireHanFu && (
-        <View>
-          <Text style={styles.label}>{t("form.labels.han")}</Text>
-          <SelectField
-            options={hanOptions}
-            value={han}
-            onChange={setHan}
-            placeholder={t("form.placeholders.select")}
-            accessibilityLabel={t("form.labels.han")}
-            disabled={disabled}
-            testID="han-select"
-          />
-        </View>
+        <HanFuFields
+          form={form}
+          exactHan={exactHan}
+          allowDoubleYakuman={allowDoubleYakuman}
+          disabled={disabled}
+        />
       )}
 
-      {/* 満貫以上で符が不要になっても欄は残し、注記を欄の中に出す */}
-      {requireHanFu && (
-        <View>
-          <Text style={styles.label}>{t("form.labels.fu")}</Text>
-          <SelectField
-            options={isFuRequired ? fuOptions : []}
-            value={isFuRequired ? fu : undefined}
-            onChange={setFu}
-            placeholder={
-              isFuRequired
-                ? t("form.placeholders.select")
-                : t("form.messages.fuNotRequired")
-            }
-            accessibilityLabel={t("form.labels.fu")}
-            disabled={disabled || !isFuRequired}
-          />
-        </View>
-      )}
-
-      {/* 組の欄は「300/500」だけでは並び順が分からない初学者のため、
-          ラベルに「子から / 親から」の順を添える */}
-      <View>
-        <Text style={styles.label}>
-          {availableScores.type === "single"
-            ? t("form.labels.score")
-            : t("form.labels.koTsumoScore")}
-        </Text>
-        {availableScores.type === "koTsumoSplit" ? (
-          <View style={styles.koTsumoRow}>
-            <View style={styles.koTsumoColumn}>
-              <ScoreOptionSelect
-                value={scoreFromKo?.toString()}
-                onChange={(v) => setScoreFromKo(Number(v))}
-                options={scoreSelectOptions(availableScores.koScores)}
-                placeholder={t("form.placeholders.fromKo")}
-                accessibilityLabel={t("form.placeholders.fromKo")}
-                disabled={disabled}
-              />
-            </View>
-            <Text style={styles.slash}>/</Text>
-            <View style={styles.koTsumoColumn}>
-              <ScoreOptionSelect
-                value={scoreFromOya?.toString()}
-                onChange={(v) => setScoreFromOya(Number(v))}
-                options={scoreSelectOptions(availableScores.oyaScores)}
-                placeholder={t("form.placeholders.fromOya")}
-                accessibilityLabel={t("form.placeholders.fromOya")}
-                disabled={disabled}
-              />
-            </View>
-          </View>
-        ) : availableScores.type === "koTsumoCombined" ? (
-          <ScoreOptionSelect
-            value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
-            onChange={(key) => {
-              const payment = koTsumoPaymentOfKey(
-                availableScores.payments,
-                key,
-              );
-              if (payment) setKoTsumoPayment(payment);
-            }}
-            options={koTsumoSelectOptions(availableScores.payments)}
-            placeholder={t("form.placeholders.select")}
-            accessibilityLabel={t("form.labels.koTsumoScore")}
-            disabled={disabled}
-          />
-        ) : (
-          <ScoreOptionSelect
-            value={score?.toString()}
-            onChange={(v) => setScore(Number(v))}
-            options={scoreSelectOptions(
-              availableScores.scores,
-              isOyaTsumo ? t("form.options.all") : "",
-            )}
-            placeholder={t("form.placeholders.select")}
-            accessibilityLabel={t("form.labels.score")}
-            disabled={disabled}
-          />
-        )}
-      </View>
+      <ScoreField form={form} disabled={disabled} />
 
       <Button
-        onPress={submit}
+        onPress={form.submit}
         size="lg"
         fullWidth
-        disabled={disabled || !isComplete}
+        disabled={disabled || !form.isComplete}
       >
         {submitLabel ?? t("form.buttons.answer")}
       </Button>
@@ -231,25 +110,6 @@ export function ScorePracticeAnswerForm({
 const styles = StyleSheet.create({
   form: {
     gap: 20,
-  },
-  label: {
-    marginBottom: 8,
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.surface700,
-  },
-  koTsumoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  koTsumoColumn: {
-    flex: 1,
-  },
-  slash: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: colors.surface500,
   },
   noYaku: {
     fontSize: 13,
