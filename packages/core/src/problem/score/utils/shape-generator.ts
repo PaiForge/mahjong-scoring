@@ -21,6 +21,38 @@ import type { HaiUsageTracker } from "../../../core/hai-tracker";
 import type { MentsuWeights } from "../../shared/pick-mentsu-type";
 import { pickAvailableHai } from "../../shared/tile-random";
 
+/** 順子を構成する 3 枚（先頭から昇順） */
+type ShuntsuHais = readonly [HaiKindId, HaiKindId, HaiKindId];
+
+/**
+ * 先頭の牌種から順子の 3 枚を組む（数牌の範囲を外れれば undefined）
+ * 順子の牌組
+ */
+function shuntsuHaisFrom(start: number): ShuntsuHais | undefined {
+  const first = validateHaiKindId(start);
+  const second = validateHaiKindId(start + 1);
+  const third = validateHaiKindId(start + 2);
+  if (first.isErr() || second.isErr() || third.isErr()) return undefined;
+  return [first.value, second.value, third.value];
+}
+
+/**
+ * 3 枚とも残っている順子の先頭牌を列挙する（萬子・筒子・索子の 1〜7）
+ * 順子候補列挙
+ */
+function listAvailableShuntsuStarts(tracker: HaiUsageTracker): HaiKindId[] {
+  const starts: HaiKindId[] = [];
+  for (const suitBase of SUIT_BASES) {
+    for (let num = 0; num < 7; num++) {
+      const hais = shuntsuHaisFrom(suitBase + num);
+      if (hais && hais.every((hai) => tracker.canUse(hai))) {
+        starts.push(hais[0]);
+      }
+    }
+  }
+  return starts;
+}
+
 /**
  * 順子を生成する（数牌のみ）
  * 順子生成
@@ -34,55 +66,20 @@ export function generateShuntsu(
   furo: boolean = false,
   rng: RandomSource = defaultRandomSource,
 ): Shuntsu | undefined {
-  const bases: number[] = [];
+  const starts = listAvailableShuntsuStarts(tracker);
+  if (starts.length === 0) return undefined;
 
-  for (const suitBase of SUIT_BASES) {
-    for (let num = 0; num < 7; num++) {
-      const start = suitBase + num;
-      const h2 = start + 1;
-      const h3 = start + 2;
-
-      const startResult = validateHaiKindId(start);
-      const h2Result = validateHaiKindId(h2);
-      const h3Result = validateHaiKindId(h3);
-
-      if (
-        startResult.isOk() &&
-        h2Result.isOk() &&
-        h3Result.isOk() &&
-        tracker.canUse(startResult.value) &&
-        tracker.canUse(h2Result.value) &&
-        tracker.canUse(h3Result.value)
-      ) {
-        bases.push(start);
-      }
-    }
+  const hais = shuntsuHaisFrom(randomChoice(starts, rng));
+  if (!hais) return undefined;
+  for (const hai of hais) {
+    if (tracker.use(hai).isErr()) return undefined;
   }
 
-  if (bases.length === 0) return undefined;
-
-  const startValue = randomChoice(bases, rng);
-  const startResult = validateHaiKindId(startValue);
-  const h2Result = validateHaiKindId(startValue + 1);
-  const h3Result = validateHaiKindId(startValue + 2);
-
-  if (startResult.isErr() || h2Result.isErr() || h3Result.isErr())
-    return undefined;
-
-  const start = startResult.value;
-  const h2 = h2Result.value;
-  const h3 = h3Result.value;
-
-  if (tracker.use(start).isErr()) return undefined;
-  if (tracker.use(h2).isErr()) return undefined;
-  if (tracker.use(h3).isErr()) return undefined;
-
-  const hais = [start, h2, h3] as const;
   return furo
     ? {
         type: MentsuType.Shuntsu,
         hais,
-        furo: { type: FuroType.Chi, from: Tacha.Kamicha, nakiHai: start },
+        furo: { type: FuroType.Chi, from: Tacha.Kamicha, nakiHai: hais[0] },
       }
     : { type: MentsuType.Shuntsu, hais };
 }
