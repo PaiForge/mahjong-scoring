@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { allowsDoubleYakuman, koTsumoPaymentKey } from "@mahjong-scoring/core";
-import type { UserAnswer } from "@mahjong-scoring/core";
 import {
   practiceFuOptions,
   practiceHanOptions,
@@ -12,6 +11,7 @@ import {
   koTsumoSelectOptions,
   scoreSelectOptions,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
+import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 
 import { Button } from "../../../components/button";
@@ -25,51 +25,12 @@ import { colors } from "../../../lib/theme";
 import { ScoreOptionSelect } from "../../components/score-option-select";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 
-interface ScorePracticeAnswerFormProps {
-  readonly onSubmit: (answer: UserAnswer) => void;
-  readonly disabled?: boolean;
-  readonly isTsumo: boolean;
-  readonly isOya: boolean;
-  readonly requireYaku?: boolean;
-  /** 翻数と符も答えさせるか。false なら翻数・符の欄を出さず、点数だけを問う */
-  readonly requireHanFu?: boolean;
-  readonly exactHan?: boolean;
-  readonly requireFuForMangan?: boolean;
-  /** 回答ボタンの文言。既定は「回答する」 */
-  readonly submitLabel?: string;
-  /**
-   * 「役」のラベル行を役の回答が不要でも出す。「役なし」のボタンの置き場を
-   * ツモ・ロンの別によらず確保し、フォームの高さを変えないため
-   * （聴牌形の点数計算が立てる）
-   */
-  readonly reserveYakuRow?: boolean;
-  /**
-   * 「役なし（ロンできない）」を回答として選べるようにする。押した時点で
-   * `onSelect` を呼び、回答ボタンを経由させない（理由は web の同名 prop）
-   */
-  readonly noYaku?: {
-    readonly label: string;
-    readonly onSelect: () => void;
-  };
-  /**
-   * 入力欄に読み込んでおく回答。まだ何も入力していない間だけ効く
-   * （聴牌形の点数計算で回答済みのマスを選択に加えたとき。web の同名 prop）
-   */
-  readonly prefill?: UserAnswer;
-}
-
 /**
  * 点数計算の無限訓練の回答フォーム（web の `ScorePracticeAnswerForm`）
  * 回答フォーム
  *
- * 役（設定で求めるとき）・翻数・符・点数を選んで回答する。満貫以上で符が
- * 不要になっても符の欄は消さず無効にして残す（欄が消えると、翻数を選んだ
- * 直後に触る点数と回答ボタンが指の下でせり上がるため。web と同じ）。
- * 入力が揃うまで回答ボタンは押せない。
- *
- * @remarks
- * 問題が変わったときの入力リセットは、呼び出し元が `key` を変えて
- * 再マウントさせることで行う。
+ * props の意味と振る舞い（判定モード・符の欄を残す理由・役なし・読み込んで
+ * おく回答）は features の {@link ScorePracticeAnswerFormProps}。
  */
 export function ScorePracticeAnswerForm({
   onSubmit,
