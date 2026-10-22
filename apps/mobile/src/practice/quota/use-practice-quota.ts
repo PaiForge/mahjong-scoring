@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useFocusEffect } from "expo-router";
 import type { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import {
@@ -16,6 +16,11 @@ import {
   PRACTICE_QUOTA_LIMITS,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
+import {
+  usePracticeQuotaControl,
+  type PracticeQuotaControl as SharedPracticeQuotaControl,
+  type PracticeQuotaSource,
+} from "@mahjong-scoring/features/quota/use-practice-quota-control";
 import { createPracticeQuotaGate } from "@mahjong-scoring/features/quota/use-practice-quota-gate";
 
 import { supabase } from "../../auth/supabase-client";
@@ -230,25 +235,23 @@ export function readPracticeQuotaGate(
 /**
  * 盤面の回数制限の操作（{@link usePracticeQuota} の戻り値）
  * 回数制限操作
+ *
+ * web と共有する操作（features の `PracticeQuotaControl`）に、開いた直後の
+ * 1 問を足したもの。
  */
-export interface PracticeQuotaControl {
-  /**
-   * 1 問始める。枠の消費を聞き、許可されたら `generate` を呼ぶ。許可されな
-   * ければ `gate` が `blocked` になり、呼び出し側はペイウォールを出す
-   */
-  readonly requestQuestion: () => Promise<void>;
+export interface PracticeQuotaControl extends SharedPracticeQuotaControl {
   /**
    * 盤面を開いたときの最初の 1 問。前の練習のゲート（ペイウォール等）を
    * 消してから聞く — 消さないと、返事が届くまで前回のペイウォールが出る
    */
   readonly requestFirstQuestion: () => Promise<void>;
-  /** 残数と特典を消費せずに取り直す。失敗・レート制限のときは今の `gate` を保つ */
-  readonly refreshGate: () => Promise<void>;
-  /** 返事を待っている間 true。「次の問題へ」はこの間押せなくする */
-  readonly isChecking: boolean;
-  /** 直近の結果。まだ一度も聞いていなければ undefined */
-  readonly gate: PracticeQuotaGate | undefined;
 }
+
+/** 出題許可の問い合わせ先（{@link askQuota}。答えの出どころは 3 つ） */
+const source: PracticeQuotaSource = {
+  ask: (menu) => askQuota(menu, "begin"),
+  peek: peekPracticeQuotaAnswer,
+};
 
 /**
  * 和了形・聴牌形の点数計算の回数制限のゲート（web の `usePracticeQuota`）
@@ -256,24 +259,9 @@ export interface PracticeQuotaControl {
  *
  * 問題の生成（端末の中・同期）の前に回数制限の問い合わせを 1 回挟む。盤面は
  * 「生成する」の代わりに `requestQuestion()` を呼ぶだけで、答えの出どころ
- * （サーバー・端末・販売していない間の無制限）を知らない。
- *
- * @design 通信の失敗は許可して通す（fail-open）
- *
- * サーバーに届かないときは問題を生成する。練習が止まる方が、無料枠を 1 問
- * 多く使われるより損が大きい。サーバーが明示的に「上限」「レート制限」と
- * 答えたときだけ止める。
- *
- * @design 古い返事は捨てる
- *
- * 連打や自動で次へで要求が重なったとき、後から始めた要求の返事だけを採用する。
- * 先の返事で生成し、後の返事でも生成すると 1 回の操作で 2 問進む。
- *
- * @design アンマウント後の返事は捨てない
- *
- * 返事を待つ間に盤面を離れても、サーバーはもう 1 問ぶん消費している。
- * 届いた返事で問題を生成してストアに入れる（生成先の練習ストアもこの
- * ゲートもモジュールスコープなので、盤面が無くても書ける）。
+ * （サーバー・端末・販売していない間の無制限。{@link askQuota}）を知らない。
+ * 設計（fail-open・古い返事を捨てる・アンマウント後の返事を捨てない）は
+ * features の `createPracticeQuotaGate` と {@link usePracticeQuotaControl}。
  *
  * @design 盤面に戻ってきたときの問題の引き継ぎ（web の `canResumePractice`）は持たない
  *
@@ -292,25 +280,13 @@ export function usePracticeQuota(
   menu: QuotaMenu,
   generate: () => void,
 ): PracticeQuotaControl {
-  const { gate, isChecking } = gates.useMenuState(menu);
-  const generateRef = useRef(generate);
-
-  // 最新の generate を効果の中で控える（描画中に ref へ書かない）
-  useEffect(() => {
-    generateRef.current = generate;
-  });
-
-  const requestQuestion = useCallback(
-    () => requestPracticeQuestion(menu, () => generateRef.current()),
-    [menu],
-  );
+  const control = usePracticeQuotaControl(gates, menu, source, generate);
+  const { requestQuestion, refreshGate } = control;
 
   const requestFirstQuestion = useCallback(() => {
     gates.clear(menu);
     return requestQuestion();
   }, [menu, requestQuestion]);
-
-  const refreshGate = useCallback(() => refreshPracticeQuota(menu), [menu]);
 
   // 開いた直後のフォーカスは最初の問題の要求と重なるので飛ばす
   const focusedOnce = useRef(false);
@@ -327,11 +303,5 @@ export function usePracticeQuota(
     }, [menu, requestQuestion, refreshGate]),
   );
 
-  return {
-    requestQuestion,
-    requestFirstQuestion,
-    refreshGate,
-    isChecking,
-    gate,
-  };
+  return { ...control, requestFirstQuestion };
 }
