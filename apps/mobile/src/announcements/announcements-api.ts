@@ -10,6 +10,7 @@ import {
 
 import { SITE_URL } from "../lib/app-site-url";
 import { readJson } from "../auth/read-json";
+import type { MobileApiValue } from "../auth/request-mobile-api";
 
 /**
  * お知らせの API の失敗
@@ -21,8 +22,10 @@ export type AnnouncementApiFailure =
   MobileAnnouncementErrorCode | "network" | "unknown";
 
 /** 読み取りの結果。失敗なら理由 */
-export type AnnouncementApiResult<T> =
-  T | { readonly error: AnnouncementApiFailure };
+export type AnnouncementApiResult<T> = MobileApiValue<
+  T,
+  AnnouncementApiFailure
+>;
 
 /**
  * GET を送り、成功なら応答を検証して返す
