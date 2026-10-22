@@ -52,9 +52,7 @@ vi.mock("@react-native-async-storage/async-storage", () => ({
 import {
   _resetPracticeQuota,
   peekPracticeQuotaAnswer,
-  readPracticeQuotaGate,
-  refreshPracticeQuota,
-  requestPracticeQuestion,
+  practiceQuotaSource,
 } from "./use-practice-quota";
 import { invalidatePlan } from "../../billing/use-plan";
 
@@ -69,14 +67,12 @@ const ALLOWED: Reply = {
   },
 };
 
-/** 外から resolve できる Promise */
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((r) => {
-    resolve = r;
-  });
-  return { promise, resolve };
-}
+/**
+ * 問い合わせ先の答えだけを確かめる。答えをゲートへ写す規則（fail-open・
+ * 古い返事の破棄・取り直し）は features の `createPracticeQuotaGate` のテスト
+ */
+const ask = (menu: "agari-score" | "tenpai-score" = "agari-score") =>
+  practiceQuotaSource.ask(menu);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -93,18 +89,20 @@ describe("答えの出どころ", () => {
   it("アプリ内課金の無い端末では回数を数えず無制限", async () => {
     mocks.iapAvailable = false;
     mocks.userId = "user-a";
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
+    const outcome = await ask();
 
-    expect(generate).toHaveBeenCalledTimes(1);
     expect(mocks.beginPracticeQuota).not.toHaveBeenCalled();
     expect(mocks.fetchPlan).not.toHaveBeenCalled();
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "open",
-      remaining: "unlimited",
-      limit: "unlimited",
-      benefits: [],
+    expect(outcome).toEqual({
+      kind: "answer",
+      answer: {
+        allowed: true,
+        remaining: "unlimited",
+        limit: "unlimited",
+        signedIn: true,
+        benefits: [],
+      },
     });
   });
 
@@ -114,27 +112,29 @@ describe("答えの出どころ", () => {
     mocks.fetchPlan.mockResolvedValue({
       value: { benefits: [PlanBenefit.PracticeTools] },
     });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
+    const outcome = await ask();
 
-    expect(generate).toHaveBeenCalledTimes(1);
     expect(mocks.beginPracticeQuota).not.toHaveBeenCalled();
     expect(mocks.fetchPlan).toHaveBeenCalledWith("user-a");
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "open",
-      remaining: "unlimited",
-      limit: "unlimited",
-      benefits: [PlanBenefit.PracticeTools],
+    expect(outcome).toEqual({
+      kind: "answer",
+      answer: {
+        allowed: true,
+        remaining: "unlimited",
+        limit: "unlimited",
+        signedIn: true,
+        benefits: [PlanBenefit.PracticeTools],
+      },
     });
 
     // 2 問目は /plan を読まない
-    await requestPracticeQuestion("agari-score", generate);
+    await ask();
     expect(mocks.fetchPlan).toHaveBeenCalledTimes(1);
 
     // プランが変わった合図の後は読み直す
     invalidatePlan();
-    await requestPracticeQuestion("agari-score", generate);
+    await ask();
     expect(mocks.fetchPlan).toHaveBeenCalledTimes(2);
   });
 
@@ -142,83 +142,86 @@ describe("答えの出どころ", () => {
     mocks.offers = [];
     mocks.userId = "user-a";
 
-    await requestPracticeQuestion("agari-score", vi.fn());
-    await requestPracticeQuestion("agari-score", vi.fn());
+    await ask();
+    const outcome = await ask();
 
     expect(mocks.fetchPlan).toHaveBeenCalledTimes(2);
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      benefits: [],
-    });
+    expect(outcome).toMatchObject({ answer: { benefits: [] } });
   });
 
   it("販売していないゲストは特典なしの無制限", async () => {
     mocks.offers = [];
-    await requestPracticeQuestion("agari-score", vi.fn());
+
+    const outcome = await ask();
+
     expect(mocks.fetchPlan).not.toHaveBeenCalled();
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      kind: "open",
-      remaining: "unlimited",
-      benefits: [],
+    expect(outcome).toMatchObject({
+      kind: "answer",
+      answer: {
+        allowed: true,
+        remaining: "unlimited",
+        signedIn: false,
+        benefits: [],
+      },
     });
   });
 
   it("ログイン中はサーバーで数える", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue(ALLOWED);
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
+    const outcome = await ask();
 
     expect(mocks.beginPracticeQuota).toHaveBeenCalledWith(
       "user-a",
       "agari-score",
     );
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "open",
-      remaining: 2,
-      limit: 5,
-      benefits: [PlanBenefit.PracticeTools],
+    expect(outcome).toEqual({
+      kind: "answer",
+      answer: {
+        allowed: true,
+        remaining: 2,
+        limit: 5,
+        signedIn: true,
+        benefits: [PlanBenefit.PracticeTools],
+      },
     });
   });
 
-  it("ログイン中にサーバーが上限と答えたらペイウォール（宛先はログイン中）", async () => {
+  it("ログイン中にサーバーが上限と答えたらそのまま（宛先はログイン中）", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue({
       value: { allowed: false, remaining: 0, limit: 5, benefits: [] },
     });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
+    const outcome = await ask();
 
-    expect(generate).not.toHaveBeenCalled();
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "blocked",
-      limit: 5,
-      signedIn: true,
-      benefits: [],
+    expect(outcome).toEqual({
+      kind: "answer",
+      answer: {
+        allowed: false,
+        remaining: 0,
+        limit: 5,
+        signedIn: true,
+        benefits: [],
+      },
     });
   });
 
-  it("ゲストは端末で数え、上限（1 問）の次でペイウォール", async () => {
-    const generate = vi.fn();
-
-    await requestPracticeQuestion("agari-score", generate);
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "open",
-      remaining: 0,
-      limit: 1,
-      benefits: [],
+  it("ゲストは端末で数え、上限（1 問）の次で止める", async () => {
+    expect(await ask()).toEqual({
+      kind: "answer",
+      answer: {
+        allowed: true,
+        remaining: 0,
+        limit: 1,
+        signedIn: false,
+        benefits: [],
+      },
     });
 
-    await requestPracticeQuestion("agari-score", generate);
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "blocked",
-      limit: 1,
-      signedIn: false,
-      benefits: [],
+    expect(await ask()).toMatchObject({
+      answer: { allowed: false, remaining: 0, limit: 1, signedIn: false },
     });
     expect(mocks.beginPracticeQuota).not.toHaveBeenCalled();
   });
@@ -226,176 +229,68 @@ describe("答えの出どころ", () => {
   it("ユーザー名を決めていなければゲストと同じ数え方に落とす", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue({ error: "usernameRequired" });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("tenpai-score", generate);
-    await requestPracticeQuestion("tenpai-score", generate);
-
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("tenpai-score")).toEqual({
-      kind: "blocked",
-      limit: 1,
-      signedIn: true,
-      benefits: [],
+    expect(await ask("tenpai-score")).toMatchObject({
+      answer: { allowed: true, remaining: 0, limit: 1, signedIn: true },
+    });
+    expect(await ask("tenpai-score")).toMatchObject({
+      answer: { allowed: false, remaining: 0, limit: 1, signedIn: true },
     });
   });
 
-  it("通信が失敗したら生成し、gate は unverified（fail-open）", async () => {
+  it("通信が失敗したら確かめられなかった扱い（unverified）", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue({ error: "network" });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
-
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "unverified",
-    });
+    expect(await ask()).toEqual({ kind: "unverified" });
   });
 
-  it("サーバーが要求を受け付けない 4xx（rejected）でも生成する（fail-open）", async () => {
+  it("サーバーが要求を受け付けない 4xx（rejected）も確かめられなかった扱い", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue({ error: "rejected" });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
-
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "unverified",
-    });
+    expect(await ask()).toEqual({ kind: "unverified" });
   });
 
-  it("問い合わせ自体が例外を投げても生成する", async () => {
+  it("問い合わせ自体が例外を投げたらそのまま投げる（ゲートが fail-open に畳む）", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockRejectedValue(new Error("boom"));
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
-
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "unverified",
-    });
+    await expect(ask()).rejects.toThrow("boom");
   });
 
-  it("レート制限は生成せず rateLimited", async () => {
+  it("レート制限は rateLimited", async () => {
     mocks.userId = "user-a";
     mocks.beginPracticeQuota.mockResolvedValue({ error: "rateLimited" });
-    const generate = vi.fn();
 
-    await requestPracticeQuestion("agari-score", generate);
-
-    expect(generate).not.toHaveBeenCalled();
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "rateLimited",
-    });
+    expect(await ask()).toEqual({ kind: "rateLimited" });
   });
 });
 
-describe("要求の重なり", () => {
-  it("後の返事だけを使う（先の返事で生成しない）", async () => {
+describe("残数の読み込み", () => {
+  it("ログイン中は消費しない問い合わせで読み、失敗・レート制限なら undefined", async () => {
     mocks.userId = "user-a";
-    const first = deferred<Reply>();
-    const second = deferred<Reply>();
-    mocks.beginPracticeQuota
-      .mockReturnValueOnce(first.promise)
-      .mockReturnValueOnce(second.promise);
-    const generate = vi.fn();
-
-    const p1 = requestPracticeQuestion("agari-score", generate);
-    const p2 = requestPracticeQuestion("agari-score", generate);
-    // 問い合わせはセッションを読んでから送るので、送られるまで待つ
-    await vi.waitFor(() =>
-      expect(mocks.beginPracticeQuota).toHaveBeenCalledTimes(2),
-    );
-
-    second.resolve({ value: { ...ALLOWED.value, remaining: 1 } });
-    await p2;
-    expect(generate).toHaveBeenCalledTimes(1);
-
-    first.resolve(ALLOWED);
-    await p1;
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      kind: "open",
-      remaining: 1,
-    });
-  });
-
-  it("古い通信失敗は新しい特典判定を消さない", async () => {
-    mocks.userId = "user-a";
-    const stale = deferred<Reply>();
-    mocks.beginPracticeQuota
-      .mockReturnValueOnce(stale.promise)
-      .mockResolvedValueOnce(ALLOWED);
-    const generate = vi.fn();
-
-    const p1 = requestPracticeQuestion("agari-score", generate);
-    await requestPracticeQuestion("agari-score", generate);
-    stale.resolve({ error: "network" });
-    await p1;
-
-    expect(generate).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      kind: "open",
-      benefits: [PlanBenefit.PracticeTools],
-    });
-  });
-});
-
-describe("残数の取り直し", () => {
-  it("消費せずに残数と特典を取り直し、残り 0 でも open のまま", async () => {
-    mocks.userId = "user-a";
-    mocks.beginPracticeQuota.mockResolvedValue(ALLOWED);
-    await requestPracticeQuestion("agari-score", vi.fn());
     mocks.peekPracticeQuota.mockResolvedValueOnce({
       value: { allowed: false, remaining: 0, limit: 5, benefits: [] },
     });
 
-    await refreshPracticeQuota("agari-score");
-
-    expect(mocks.beginPracticeQuota).toHaveBeenCalledTimes(1);
-    expect(readPracticeQuotaGate("agari-score")).toEqual({
-      kind: "open",
+    expect(await peekPracticeQuotaAnswer("agari-score")).toEqual({
+      allowed: false,
       remaining: 0,
       limit: 5,
+      signedIn: true,
       benefits: [],
     });
-  });
-
-  it("失敗・レート制限のときは今の gate を保つ", async () => {
-    mocks.userId = "user-a";
-    mocks.beginPracticeQuota.mockResolvedValue(ALLOWED);
-    await requestPracticeQuestion("agari-score", vi.fn());
+    expect(mocks.peekPracticeQuota).toHaveBeenCalledWith(
+      "user-a",
+      "agari-score",
+    );
+    expect(mocks.beginPracticeQuota).not.toHaveBeenCalled();
 
     mocks.peekPracticeQuota.mockResolvedValueOnce({ error: "network" });
-    await refreshPracticeQuota("agari-score");
+    expect(await peekPracticeQuotaAnswer("agari-score")).toBeUndefined();
     mocks.peekPracticeQuota.mockResolvedValueOnce({ error: "rateLimited" });
-    await refreshPracticeQuota("agari-score");
-
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      kind: "open",
-      remaining: 2,
-    });
-  });
-
-  it("取り直している間に新しい出題が始まったら、その返事を上書きしない", async () => {
-    mocks.userId = "user-a";
-    const peek = deferred<Reply>();
-    mocks.peekPracticeQuota.mockReturnValueOnce(peek.promise);
-    mocks.beginPracticeQuota.mockResolvedValue({
-      value: { ...ALLOWED.value, remaining: 1 },
-    });
-
-    const refreshing = refreshPracticeQuota("agari-score");
-    await requestPracticeQuestion("agari-score", vi.fn());
-    peek.resolve(ALLOWED);
-    await refreshing;
-
-    expect(readPracticeQuotaGate("agari-score")).toMatchObject({
-      remaining: 1,
-    });
+    expect(await peekPracticeQuotaAnswer("agari-score")).toBeUndefined();
   });
 
   it("ゲストの残数は消費せずに端末の数から読む", async () => {
@@ -405,7 +300,7 @@ describe("残数の取り直し", () => {
       limit: 1,
       signedIn: false,
     });
-    await requestPracticeQuestion("agari-score", vi.fn());
+    await ask();
     expect(await peekPracticeQuotaAnswer("agari-score")).toMatchObject({
       allowed: false,
       remaining: 0,
@@ -413,5 +308,12 @@ describe("残数の取り直し", () => {
     expect(await peekPracticeQuotaAnswer("agari-score")).toMatchObject({
       remaining: 0,
     });
+  });
+
+  it("問い合わせが投げても undefined（盤面は今の表示を保つ）", async () => {
+    mocks.userId = "user-a";
+    mocks.peekPracticeQuota.mockRejectedValueOnce(new Error("boom"));
+
+    expect(await peekPracticeQuotaAnswer("agari-score")).toBeUndefined();
   });
 });

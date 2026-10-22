@@ -8,10 +8,7 @@ import {
   type QuotaAudience,
   type QuotaUsage,
 } from "@mahjong-scoring/features/quota/answer";
-import type {
-  PracticeQuotaGate,
-  QuotaOutcome,
-} from "@mahjong-scoring/features/quota/gate";
+import type { QuotaOutcome } from "@mahjong-scoring/features/quota/gate";
 import {
   PRACTICE_QUOTA_LIMITS,
   type QuotaMenu,
@@ -32,8 +29,6 @@ import {
   peekStoredGuestQuota,
 } from "./guest-quota-storage";
 import { beginPracticeQuota, peekPracticeQuota } from "./quota-api";
-
-export type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
 
 /**
  * 練習ごとのゲートの状態（設計は `createPracticeQuotaGate`。web と同じ）。
@@ -177,28 +172,11 @@ async function askQuota(
 }
 
 /**
- * 1 問始める。枠を 1 つ消費し、許可されたら `generate` を呼ぶ
- * 出題要求
- *
- * 盤面のフック（{@link usePracticeQuota}）の `requestQuestion` の中身。
- * 設計（fail-open・古い返事を捨てる・アンマウント後の返事を捨てない）は
- * フックの TSDoc。
- *
- * @param generate - 許可されたときに呼ぶ生成処理。返事が届いた時点で呼ぶ
- */
-export function requestPracticeQuestion(
-  menu: QuotaMenu,
-  generate: () => void,
-): Promise<void> {
-  return gates.request(menu, () => askQuota(menu, "begin"), generate);
-}
-
-/**
  * 今日の残りと特典を消費せずに読む。確かめられなければ undefined
  * 残数読み込み
  *
- * 盤面の表示の取り直し（{@link refreshPracticeQuota}）と、練習一覧のカードの
- * 残数が同じ経路で読む。
+ * 盤面の表示の取り直し（{@link practiceQuotaSource} の `peek`）と、練習一覧の
+ * カードの残数が同じ経路で読む。
  */
 export async function peekPracticeQuotaAnswer(
   menu: QuotaMenu,
@@ -210,26 +188,6 @@ export async function peekPracticeQuotaAnswer(
     console.warn("practice quota peek failed:", error);
     return undefined;
   }
-}
-
-/**
- * 残数と特典を消費せずに取り直し、ゲートに写す
- * 残数再取得
- *
- * 盤面のフックの `refreshGate` の中身。失敗・レート制限のときは今の
- * ゲートを保つ。取り直している間に新しい出題が始まったら、その返事の方が
- * 新しいのでこちらは捨てる（連番は進めない）。表示している問題はもう
- * 許可済みなので、残りが 0 でも `open`（「この問題で最後」）。
- */
-export function refreshPracticeQuota(menu: QuotaMenu): Promise<void> {
-  return gates.refresh(menu, () => peekPracticeQuotaAnswer(menu));
-}
-
-/** 練習のいまのゲート（テストと盤面の外から読む） */
-export function readPracticeQuotaGate(
-  menu: QuotaMenu,
-): PracticeQuotaGate | undefined {
-  return gates.read(menu).gate;
 }
 
 /**
@@ -247,8 +205,16 @@ export interface PracticeQuotaControl extends SharedPracticeQuotaControl {
   readonly requestFirstQuestion: () => Promise<void>;
 }
 
-/** 出題許可の問い合わせ先（{@link askQuota}。答えの出どころは 3 つ） */
-const source: PracticeQuotaSource = {
+/**
+ * 出題許可の問い合わせ先（{@link askQuota}。答えの出どころは 3 つ）
+ * 回数制限問い合わせ先
+ *
+ * 盤面のフック（{@link usePracticeQuota}）が共有フックに渡すもの。
+ * ゲートへの写し方（fail-open・古い返事の破棄・取り直し）は features の
+ * `createPracticeQuotaGate` が持つので、このモジュールが確かめるのは
+ * 問い合わせ先の答えまで（テストはこれを直接呼ぶ）。
+ */
+export const practiceQuotaSource: PracticeQuotaSource = {
   ask: (menu) => askQuota(menu, "begin"),
   peek: peekPracticeQuotaAnswer,
 };
@@ -280,7 +246,12 @@ export function usePracticeQuota(
   menu: QuotaMenu,
   generate: () => void,
 ): PracticeQuotaControl {
-  const control = usePracticeQuotaControl(gates, menu, source, generate);
+  const control = usePracticeQuotaControl(
+    gates,
+    menu,
+    practiceQuotaSource,
+    generate,
+  );
   const { requestQuestion, refreshGate } = control;
 
   const requestFirstQuestion = useCallback(() => {
