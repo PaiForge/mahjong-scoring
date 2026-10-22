@@ -14,6 +14,13 @@ import { useTranslations } from "use-intl";
 import type { MobileChallengeStatus } from "@mahjong-scoring/features/challenge/mobile-api";
 import type { ChallengeQuestion } from "@mahjong-scoring/features/challenge/types";
 import {
+  resolveRecordedChallengeMode,
+  type RecordedChallengeMode,
+  type ServerQuestion,
+} from "./recorded-challenge-mode";
+import { useReconnectPrompt } from "./use-reconnect-prompt";
+import { useServerPauseSync } from "./use-server-pause-sync";
+import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
@@ -42,11 +49,10 @@ import { isRetryableFailure } from "../records/failure-policy";
 import {
   answerRecordedChallenge,
   beginRecordedChallenge,
-  pauseRecordedChallenge,
   readRecordedChallenge,
   readUnansweredQuestion,
-  type RecordsApiResult,
 } from "../records/records-api";
+import { wait, withRetries } from "../records/with-retries";
 import { updateAccountRecords } from "../records/use-account-records-store";
 
 /**
@@ -95,43 +101,6 @@ export function useRecordedChallenge(): RecordedChallenge | undefined {
   return useContext(Context);
 }
 
-/** 通信の失敗を送り直す間隔（ミリ秒）。尽きたら利用者に再接続を任せる */
-const RETRY_DELAYS_MS = [500, 1000, 2000] as const;
-
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/** 通信の失敗だけを、間を空けて数回送り直す */
-async function withRetries<T>(
-  send: () => Promise<RecordsApiResult<T>>,
-): Promise<RecordsApiResult<T>> {
-  let result = await send();
-  for (const delay of RETRY_DELAYS_MS) {
-    if (!("error" in result) || !isRetryableFailure(result.error)) break;
-    await wait(delay);
-    result = await send();
-  }
-  return result;
-}
-
-interface ServerQuestion {
-  readonly question: ChallengeQuestion;
-  readonly sequence: number;
-}
-
-type Mode =
-  | { readonly kind: "checking" }
-  | { readonly kind: "local" }
-  | { readonly kind: "offline" }
-  | {
-      readonly kind: "ready";
-      readonly userId: string;
-      readonly attemptId: string;
-      readonly initial: ServerQuestion;
-      readonly goalCount: number | undefined;
-    };
-
 /**
  * 記録付きのチャレンジを始め、盤面に出題と採点を渡す
  * 記録付きチャレンジ提供
@@ -164,54 +133,24 @@ export function RecordedChallengeProvider({
   readonly children: ReactNode;
 }) {
   const auth = useAuth();
-  const recordable =
-    auth.status === "signedIn" &&
-    auth.user !== undefined &&
-    auth.account?.profile !== undefined &&
-    auth.account.profile !== null;
-  const waitingForAccount =
-    auth.status === "loading" ||
-    (auth.status === "signedIn" &&
-      auth.account === undefined &&
-      auth.accountError === undefined);
-  // アカウントの状態を読めなかった（通信の失敗）。記録できる人かが
-  // 分からないので、始められない扱いにする
-  const accountUnreachable =
-    auth.status === "signedIn" &&
-    auth.accountError !== undefined &&
-    auth.accountError !== "banned";
-
-  // サーバーが開始に答えた結果（記録付きで始めた・始められなかった・断られた）
-  const [begun, setBegun] = useState<Mode | undefined>(undefined);
-  // 始め方（記録付き・端末で採点）は 1 度決めたら変えない。解いている
-  // 途中でアカウントの読み直しが通信で失敗しても、盤面を差し替えない
-  const [frozen, setFrozen] = useState<Mode | undefined>(undefined);
+  // サーバーが開始に答えた結果と、1 度決めた始め方（`resolveRecordedChallengeMode`）
+  const [begun, setBegun] = useState<RecordedChallengeMode | undefined>(
+    undefined,
+  );
+  const [frozen, setFrozen] = useState<RecordedChallengeMode | undefined>(
+    undefined,
+  );
   const [generation, setGeneration] = useState(0);
   // 始める ID は画面ごとに 1 つ。もう一度試すときも同じ ID で送る（サーバーは
   // 同じチャレンジを返す）
   const attemptIdRef = useRef<string | undefined>(undefined);
-  const userId = auth.user?.id;
-  const shouldBegin =
-    !frozen &&
-    !begun &&
-    !waitingForAccount &&
-    !accountUnreachable &&
-    recordable &&
-    userId !== undefined;
-
-  const mode: Mode =
-    frozen ??
-    begun ??
-    (waitingForAccount || shouldBegin
-      ? { kind: "checking" }
-      : accountUnreachable
-        ? { kind: "offline" }
-        : { kind: "local" });
+  const { mode, shouldBegin, userId, accountUnreachable } =
+    resolveRecordedChallengeMode(auth, { begun, frozen });
   if (!frozen && (mode.kind === "ready" || mode.kind === "local"))
     setFrozen(mode);
 
   useEffect(() => {
-    if (!shouldBegin) return;
+    if (!shouldBegin || userId === undefined) return;
     let active = true;
     const attemptId = (attemptIdRef.current ??= randomUUID());
     const { menuType } = practiceMenuBySlug(slug);
@@ -288,15 +227,8 @@ function RecordedSession({
   const t = useTranslations("challenge.recording");
   const [current, setCurrent] = useState(initial);
   const [grading, setGrading] = useState(false);
-  const [resuming, setResuming] = useState(false);
   const [clock, setClock] = useState<ClockReading | undefined>(undefined);
-  const [reconnect, setReconnect] = useState<
-    | {
-        readonly message: "connectionLost" | "resumeConnectionLost";
-        readonly onPress: () => void;
-      }
-    | undefined
-  >(undefined);
+  const { reconnect, waitForReconnect } = useReconnectPrompt();
   const next = useRef<ServerQuestion | undefined>(undefined);
   const pending = useRef<Promise<void> | undefined>(undefined);
   const busy = useRef(false);
@@ -305,13 +237,6 @@ function RecordedSession({
   const unanswered = useRef<
     ((question: ChallengeQuestion) => void) | undefined
   >(undefined);
-  /** 画面が止まっているか（サーバーへ伝えたい一時停止の状態） */
-  const wantPaused = useRef(false);
-  /** サーバーが受け付けたと確かめた一時停止の状態 */
-  const serverPaused = useRef(false);
-  /** 一時停止・再開をサーバーへ伝えている処理（同時に 1 本だけ） */
-  const pauseSync = useRef<Promise<void> | undefined>(undefined);
-
   // 解いている間は起動時の後始末の対象から外し、閉じたら（中止・終了）
   // 進行中の預かりを捨てる。終えたチャレンジは確定待ちへ移してあるので
   // ここでは消えない
@@ -339,21 +264,6 @@ function RecordedSession({
     setCurrent(following);
   }, []);
 
-  /** 再接続の案内を出し、押されるまで待つ */
-  const waitForReconnect = useCallback(
-    (message: "connectionLost" | "resumeConnectionLost") =>
-      new Promise<void>((resolve) => {
-        setReconnect({
-          message,
-          onPress: () => {
-            setReconnect(undefined);
-            resolve();
-          },
-        });
-      }),
-    [],
-  );
-
   /**
    * サーバーの状態を読み、今の問題と時計を合わせ直す。読めなければ undefined
    *
@@ -370,7 +280,6 @@ function RecordedSession({
     const { value } = status;
     if (!next.current && value.sequence !== current.sequence)
       setCurrent({ question: value.question, sequence: value.sequence });
-    serverPaused.current = value.paused;
     setClock({
       elapsedMs: value.finished
         ? value.elapsedMs + Math.max(0, value.remainingMs)
@@ -380,64 +289,14 @@ function RecordedSession({
     return value;
   }, [userId, attemptId, current.sequence]);
 
-  /**
-   * サーバーの一時停止を、画面の状態（`wantPaused`）に合わせる
-   *
-   * 停止・再開は 1 本の処理で順に送り、送るのはその時点の画面の状態だけ
-   * （連打しても届く順が入れ替わらない）。止める要求が届かなくても画面は
-   * 止めておく（サーバーの時計は進み、再開のときに合わせる）。再開は
-   * サーバーが動き出したと確かめるまで回答を受け付けず、届かなければ
-   * 再接続の案内を出す（サーバーが止まったままだと回答が断られる）。
-   */
-  const syncPause = useCallback(async (): Promise<void> => {
-    let attempts = 0;
-    while (serverPaused.current !== wantPaused.current) {
-      await pending.current;
-      const desired = wantPaused.current;
-      const sent = await withRetries(() =>
-        pauseRecordedChallenge(userId, attemptId, desired),
-      );
-      const unreachable = "error" in sent && isRetryableFailure(sent.error);
-      if (desired) {
-        // 届かなくても止まったものとして扱う。再開のときに送り直し、
-        // サーバーの時計に合わせる
-        serverPaused.current = true;
-        continue;
-      }
-      // 再開: 受け付けられても断られても、サーバーの今の状態を読んで合わせる
-      const status = unreachable ? undefined : await resync();
-      if (status?.finished) {
-        // 時間切れは `resync` が時計に写した。送るものはもう無い
-        serverPaused.current = wantPaused.current;
-        return;
-      }
-      if (status === undefined || (status.paused && ++attempts >= 3)) {
-        attempts = 0;
-        await waitForReconnect("resumeConnectionLost");
-      }
-    }
-  }, [userId, attemptId, resync, waitForReconnect]);
-
-  /**
-   * 一時停止の同期を始める（走っていれば、その処理が最新の状態まで送る）
-   *
-   * 画面の操作と時計を止める（`resuming`）のは再開を送るときだけ。止める要求は
-   * 届くのを待たずに画面を止めており、送っている間に押せなくする理由が無い
-   * （中止の確認を開いた瞬間に画面全体を押せなくすることにもなる）。
-   */
-  const startPauseSync = useCallback(
-    function start(): void {
-      if (!wantPaused.current) setResuming(true);
-      if (pauseSync.current) return;
-      pauseSync.current = syncPause().finally(() => {
-        pauseSync.current = undefined;
-        setResuming(false);
-        // 終わる直前に状態が変わっていたら、もう 1 度送る
-        if (serverPaused.current !== wantPaused.current) start();
-      });
-    },
-    [syncPause],
-  );
+  const { resuming, pause, isSyncing, recoverFromServerPaused } =
+    useServerPauseSync({
+      userId,
+      attemptId,
+      pending,
+      resync,
+      waitForReconnect,
+    });
 
   const grade = useCallback(
     (answer: unknown, onGraded: (question: ChallengeQuestion) => void) => {
@@ -446,7 +305,7 @@ function RecordedSession({
         next.current ||
         expiring.current ||
         serverExpired.current ||
-        pauseSync.current
+        isSyncing()
       )
         return false;
       busy.current = true;
@@ -467,11 +326,7 @@ function RecordedSession({
           }
           // 受け付けられなかった（別の端末で進んだ・止まったまま等）。
           // サーバーに合わせ、止まっていたら動かし直す
-          const status = await resync();
-          if (status?.paused && !wantPaused.current) {
-            serverPaused.current = true;
-            startPauseSync();
-          }
+          recoverFromServerPaused(await resync());
           return;
         }
         updateAccountRecords((records) =>
@@ -493,15 +348,15 @@ function RecordedSession({
       });
       return true;
     },
-    [current, userId, attemptId, resync, startPauseSync, waitForReconnect],
-  );
-
-  const pause = useCallback(
-    (paused: boolean) => {
-      wantPaused.current = paused;
-      startPauseSync();
-    },
-    [startPauseSync],
+    [
+      current,
+      userId,
+      attemptId,
+      resync,
+      recoverFromServerPaused,
+      waitForReconnect,
+      isSyncing,
+    ],
   );
 
   const settled = useCallback(async () => {
