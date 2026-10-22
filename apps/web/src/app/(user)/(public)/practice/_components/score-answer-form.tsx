@@ -3,11 +3,10 @@
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { koTsumoPaymentKey } from "@mahjong-scoring/core";
-import type { ScoreTableUserAnswer } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { useKoTsumoInput } from "@/app/_hooks/use-display-settings-store";
-import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
+import type { ScoreAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 import {
   koTsumoPaymentOfKey,
   koTsumoSelectOptions,
@@ -16,90 +15,16 @@ import {
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
 
-interface ScoreAnswerFormProps {
-  /** 親かどうか */
-  readonly isOya: boolean;
-  /** ツモかどうか */
-  readonly isTsumo: boolean;
-  /** 翻数 */
-  readonly han: number;
-  readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
-  readonly disabled?: boolean;
-  /** i18n の翻訳ネームスペース */
-  readonly translationNamespace: string;
-  /**
-   * 正誤フィードバック表示中か（セッションから受け取る）。
-   * 回答した select の枠と地を正誤の色にする。
-   */
-  readonly showFeedback?: boolean;
-  /** 直前の回答が正解だったか（未回答・無回答の正解開示中は undefined） */
-  readonly lastAnswerCorrect?: boolean;
-  /**
-   * 点数の選択肢をこの範囲に固定する（省略時は翻数から絞る）。
-   * 出題が範囲を固定している練習（昇級試験）が渡す。
-   */
-  readonly scoreRange?: ScoreOptionRange;
-  /**
-   * 選択完了時に自動送信する（「回答する」ボタンを押さずに送信扱いにする）。
-   * 単一選択・子ツモの組の select は値が選ばれた時点、子ツモの分割入力は
-   * 2つとも選ばれた時点で送信する。
-   * 有効時は送信ボタンを表示しない。
-   * 選択即送信
-   *
-   * 点数を select で答える盤面（点数表早引き・点数即答・昇級試験）は
-   * すべて有効にしている。select は 1 つの値しか持てず、選び直しもボタンを
-   * 押す前に済むため、確定のボタンが「同じ答えをもう一度言う」だけの
-   * 1 タップになる。制限時間の中ではその 1 タップがそのまま持ち時間を削り、
-   * 画面によってボタンの有無が変わると同じ select の回答なのに作法が変わる。
-   * 子ツモの分割入力（表示設定）は「子から / 親から」の 2 つが揃うまで
-   * 送信しないので、1 つ目は 2 つ目を選ぶ前なら直せる。
-   *
-   * 想定する操作はスマホのタップと、デスクトップでもマウス・タッチパッド。
-   * キーボード操作（Windows / Linux の Chrome では閉じた select に矢印キーを
-   * 押すと開かずに値が変わり、最初の 1 回で送信される）とスクリーンリーダー
-   * （選択肢を読み上げながら辿る操作が同じく送信になる。WCAG 3.2.2 の
-   * 観点で望ましくない）は、現時点では意図的にケアしていない。対応するなら
-   * `keydown` で矢印キー由来の変更を送信対象から外す形になる。
-   * iOS Safari のピッカーは実機で確認済みで、選び終えた値で 1 回送信される。
-   */
-  readonly autoSubmit?: boolean;
-  /**
-   * ダブル役満を採用したルールでの出題か。採用時はダブル役満の点数
-   * （子64000点等）を選択肢に足す。端末のルール設定で選択肢が変わっては
-   * ならない出題（昇級試験）は渡さない（既定 false）。
-   */
-  readonly allowDoubleYakuman?: boolean;
-  /**
-   * 選択肢を端末のルール設定（切り上げ満貫・ダブル役満）に依らない集合に
-   * 固定する（既定 false）。
-   * ルール固定
-   *
-   * 記録が残るチャレンジと昇級試験が立てる。設定で選択肢の個数が変わると
-   * 同じ土俵の中で有利不利が出るため（`_lib/rule-boundary.ts` 参照）。
-   * true のとき `allowDoubleYakuman` は無視され、切り上げ満貫も無効として
-   * 絞り込む。
-   */
-  readonly fixedRules?: boolean;
-}
-
 /**
  * 点数系練習共通の回答フォーム
  * 点数回答フォーム
  *
- * 点数のみを select で回答する。翻・符・親子・ツモロンの判定は呼び出し元が行う。
- * 子ツモは表示設定（`koTsumoInput`）に従い、「300/500」のような組の 1 つの
- * select か、「子から / 親から」の 2 つの select で答える。
- *
- * 回答直後は select 自身の枠と地の色で正誤を返す
+ * props の意味と設計（選択即送信・ルール固定）は features の
+ * {@link ScoreAnswerFormProps} にある。ここは select での描画だけを持つ。
+ * 回答直後の正誤は select 自身の枠と地の色で返す
  * （{@link import("../_lib/select-class").getSelectClass} 参照）。
- * 選択肢を1つずつ染め分けられない代わりに、押した select がそのまま答えになる。
- * 正解の点数は出さない — 答え合わせは結果ページの問題別フィードバック一覧の役目で、
- * トレーニングでは {@link import("./revealed-score-answer").RevealedScoreAnswer} が
+ * トレーニングの正解は {@link import("./revealed-score-answer").RevealedScoreAnswer} が
  * 別に出す。
- *
- * @remarks
- * 問題が変わったときの入力リセットは、呼び出し元が `key` に問題の識別子を
- * 渡して再マウントさせることで行う（`useEffect` での state リセットはしない）。
  */
 export function ScoreAnswerForm({
   isOya,

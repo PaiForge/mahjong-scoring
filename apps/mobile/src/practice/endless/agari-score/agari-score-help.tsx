@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { isOya } from "@mahjong-scoring/core";
 import {
   answerFieldsOf,
@@ -13,21 +12,15 @@ import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-t
 import { scoreAnswerToUserAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
 import { Button } from "../../../components/button";
-import { HelpIconButton } from "../../../components/help-icon-button";
 import { useAgariScoreSettingsStore } from "../../../hooks/use-score-settings-store";
-import {
-  HelpTourSheet,
-  type HelpTourStep,
-} from "../../../components/help-tour-sheet";
+import type { HelpTourStep } from "../../../components/help-tour-sheet";
 import { OperationHelp } from "../../../components/operation-help";
+import { PracticeHelpTour } from "../../components/practice-help-tour";
 import { QuestionDisplay } from "../../components/question-display";
 import { ResultDisplay } from "./result-display";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
 
 const noop = () => {};
-
-/** 見出しの「?」の大きさ（ヘッダーの見出しの文字に合わせる） */
-const HEADER_HELP_FONT_SIZE = 17;
 
 /**
  * 和了形の点数計算の進め方（設定画面の「?」。web の `AgariScoreHelpTour`）
@@ -96,20 +89,14 @@ export function AgariScoreHelpTour() {
   }, [sample, t, requireHanFu]);
 
   return (
-    <>
-      <HelpIconButton
-        onPress={open}
-        label={t("help.label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
-      />
-      <HelpTourSheet
-        isOpen={isOpen}
-        onClose={close}
-        title={t("help.title")}
-        steps={steps}
-        labels={practiceHelpTourLabels(t, tCommon)}
-      />
-    </>
+    <PracticeHelpTour
+      t={t}
+      tCommon={tCommon}
+      isOpen={isOpen}
+      onOpen={open}
+      onClose={close}
+      steps={steps}
+    />
   );
 }
 

@@ -1,13 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type {
-  HaiKindId,
-  JudgementResult,
-  MachiCellAnswer,
-  TenpaiScoreQuestion,
-  MachiSelectionJudgement,
-} from "@mahjong-scoring/core";
+import type { HaiKindId } from "@mahjong-scoring/core";
 import { sortHaiCodes } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Button } from "@/app/(user)/_components/button";
@@ -24,30 +18,10 @@ import { cellQuestionOf } from "@mahjong-scoring/features/practice/tenpai-score/
 import { useTenpaiScoreResultFocus } from "@mahjong-scoring/features/practice/tenpai-score/use-tenpai-score-result-focus";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { WaitCellTabs, cellTabId } from "./wait-cell-tabs";
+import type { TenpaiScoreResultProps } from "@mahjong-scoring/features/practice/tenpai-score/result-props";
 
 /** 内訳パネルの id。タブ（`aria-controls`）から引く */
 const DETAIL_PANEL_ID = "tenpai-score-result-detail";
-
-interface TenpaiScoreResultProps {
-  readonly question: TenpaiScoreQuestion;
-  /** 選んだ待ち牌（あなたの回答）。判定前に開示したときは空 */
-  readonly selectedMachi: readonly HaiKindId[];
-  /** 待ち牌の判定。「わからない」で待ちを答える前に開示したときは undefined */
-  readonly machiJudgement: MachiSelectionJudgement | undefined;
-  readonly cellAnswers: Readonly<Record<string, MachiCellAnswer>>;
-  /** マスごとの判定。「わからない」での開示では undefined */
-  readonly cellResults: Readonly<Record<string, JudgementResult>> | undefined;
-  /** 回答を「翻・符」「支払い」の行に分ける（`formatCellAnswerLines`） */
-  readonly formatAnswerLines: (
-    answer: MachiCellAnswer,
-    isTsumo: boolean,
-  ) => readonly string[];
-  readonly requireYaku: boolean;
-  readonly requireHanFu: boolean;
-  readonly exactHan: boolean;
-  readonly requireFuForMangan: boolean;
-  readonly onNext: () => void;
-}
 
 interface MarkedHaiProps {
   readonly hai: HaiKindId;

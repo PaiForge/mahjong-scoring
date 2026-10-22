@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
 import type { UserAnswer } from "@mahjong-scoring/core";
@@ -16,21 +15,18 @@ import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import { BoardBleedProvider } from "../../../board/board-bleed";
 import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
-import { showToast } from "../../../components/toast";
-import { useJudgementHaptics } from "../../../hooks/use-judgement-haptics";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
-import { useAutoAdvanceOnCorrect } from "../../../hooks/use-training-settings-store";
 import { colors, radius } from "../../../lib/theme";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
 import { AnswerTimeBadge } from "../../quota/answer-time-badge";
 import { PracticeQuotaPaywall } from "../../quota/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "../../quota/practice-quota-remaining";
-import { usePracticeQuota } from "../../quota/use-practice-quota";
 import { CorrectFlash } from "../correct-flash";
 import { EndlessFooterActions } from "../endless-footer-actions";
 import { GenerationFailedNotice } from "../generation-failed-notice";
+import { useEndlessBoardShell } from "../use-endless-board-shell";
 import {
   readGeneratorOptions,
   readModeFlags,
@@ -65,15 +61,10 @@ const COLUMNS = ["tsumo", "ron"] as const;
 function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
-  const tq = useTranslations("practiceQuota");
-  const router = useRouter();
-  const scrollRef = useRef<ScrollView>(null);
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
   const { requireYaku, requireHanFu, exactHan, requireFuForMangan } =
     readModeFlags(settings);
-  const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const [flashSignal, setFlashSignal] = useState(0);
   const {
     currentQuestion,
     phase,
@@ -94,49 +85,34 @@ function TenpaiScoreBoardInner() {
     submitCells,
     revealAnswer,
   } = useTenpaiScoreStore();
-  // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う
-  const { requestQuestion, requestFirstQuestion, isChecking, gate } =
-    usePracticeQuota("tenpai-score", () =>
-      useTenpaiScoreStore.getState().generateNewQuestion(),
-    );
-
-  useEffect(() => {
-    if (gate?.kind === "rateLimited") showToast(tq("rateLimited"));
-  }, [gate, tq]);
-
-  useJudgementHaptics(stats.correct, stats.total - stats.correct);
-
-  // 出題条件をストアへ移し、成績と前回の問題を消してから最初の問題を作る。
+  // 出題条件をストアへ移し、成績と前回の問題を消す（最初の問題の前に 1 度）。
   // 待ちごとに役が変わる出題なので、役の絞り込みは持たない（web と同じ）
-  useEffect(() => {
+  const start = useCallback(() => {
     const { allowedRanges, includeParent, includeChild, includeFuro } =
       readGeneratorOptions(settings, false);
     const options = { allowedRanges, includeParent, includeChild, includeFuro };
     const store = useTenpaiScoreStore.getState();
     store.applyPracticeQuery(JSON.stringify(options), options);
-    void requestFirstQuestion();
-  }, [settings, requestFirstQuestion]);
-
-  const scrollToTop = () =>
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
-
-  // 終えたことを知らせてから設定画面へ戻す（web と同じ。文言はこの練習のもの —
-  // チャレンジでもトレーニングでもないため）
-  const handleBackToSetup = () => {
-    router.dismissTo(TENPAI_SCORE_PRACTICE_HREF);
-    showToast(t("exitToast"));
-  };
-
-  const handleNext = () => {
-    if (isChecking) return;
-    scrollToTop();
-    void requestQuestion();
-  };
-
-  const handleReveal = () => {
-    scrollToTop();
-    revealAnswer();
-  };
+  }, [settings]);
+  const {
+    scrollRef,
+    scrollToTop,
+    flashSignal,
+    autoAdvanceOnCorrect,
+    gate,
+    handleBackToSetup,
+    handleNext,
+    handleReveal,
+    celebrateAndAdvance,
+  } = useEndlessBoardShell({
+    menu: "tenpai-score",
+    exitHref: TENPAI_SCORE_PRACTICE_HREF,
+    exitToast: t("exitToast"),
+    stats,
+    generate: () => useTenpaiScoreStore.getState().generateNewQuestion(),
+    start,
+    revealAnswer,
+  });
 
   const handleSubmitMachi = () => {
     scrollToTop();
@@ -170,8 +146,7 @@ function TenpaiScoreBoardInner() {
       allowDoubleYakuman,
     });
     if (autoAdvanceOnCorrect && useTenpaiScoreStore.getState().isAllCorrect) {
-      setFlashSignal((prev) => prev + 1);
-      void requestQuestion();
+      celebrateAndAdvance();
     }
   };
 

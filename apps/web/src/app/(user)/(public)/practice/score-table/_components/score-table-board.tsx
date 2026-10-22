@@ -1,19 +1,10 @@
 "use client";
 
-import type { ScoreTableQuestion } from "@mahjong-scoring/core";
 import { FeedbackFrame } from "../../_components/feedback-frame";
 import { ScoreTablePrompt } from "./score-table-prompt";
 import { ScoreTableAnswerForm } from "./score-table-answer-form";
-import type { ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
-import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useScoreTableAnswer } from "@mahjong-scoring/features/practice/score-table/use-score-table-answer";
-
-interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
-  /** 現在の問題 */
-  readonly question: ScoreTableQuestion;
-  /** 次の問題へ進む（回答後の遷移に使用） */
-  readonly onAdvance: () => void;
-}
+import type { ScoreTableBoardProps } from "@mahjong-scoring/features/practice/score-table/board-props";
 
 /**
  * 点数表早引きの出題盤面（条件の提示と点数の回答）

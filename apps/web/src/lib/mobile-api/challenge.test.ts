@@ -54,16 +54,17 @@ import {
   handlePauseChallenge,
   handleReadChallenge,
 } from "./challenge";
+import { postJsonRequest } from "@/test/request";
 
 const ATTEMPT_ID = "6f1c2c1e-8a4e-4c3e-9b1a-2d7c0f0e5a11";
 const USER_ID = "user-1";
 
 function post(body: unknown): Request {
-  return new Request("https://example.test/api/mobile/v1/challenges", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: typeof body === "string" ? body : JSON.stringify(body),
-  });
+  return postJsonRequest(
+    "https://example.test/api/mobile/v1/challenges",
+    body,
+    { "content-type": "application/json" },
+  );
 }
 
 const STATUS = {

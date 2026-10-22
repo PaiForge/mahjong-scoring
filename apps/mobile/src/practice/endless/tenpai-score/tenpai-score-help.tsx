@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 import { judgeMachiSelection } from "@mahjong-scoring/core";
 import {
   answerFieldsOf,
@@ -12,25 +11,19 @@ import {
 } from "@mahjong-scoring/features/practice/help-tour-sample";
 import { useHelpTourSample } from "@mahjong-scoring/features/practice/use-help-tour-sample";
 
-import { HelpIconButton } from "../../../components/help-icon-button";
 import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
-import {
-  HelpTourSheet,
-  type HelpTourStep,
-} from "../../../components/help-tour-sheet";
+import type { HelpTourStep } from "../../../components/help-tour-sheet";
 import {
   OperationHelp,
   operationHelpSteps,
 } from "../../../components/operation-help";
+import { PracticeHelpTour } from "../../components/practice-help-tour";
 import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreResult } from "./tenpai-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
 import { WaitCellGrid } from "./wait-cell-grid";
 
 const noop = () => {};
-
-/** 見出しの「?」の大きさ（ヘッダーの見出しの文字に合わせる） */
-const HEADER_HELP_FONT_SIZE = 17;
 
 /**
  * 聴牌形の点数計算の進め方（設定画面の「?」。web の `TenpaiScoreHelpTour`）
@@ -122,20 +115,14 @@ export function TenpaiScoreHelpTour() {
   }, [sample, t, tScore, requireHanFu]);
 
   return (
-    <>
-      <HelpIconButton
-        onPress={open}
-        label={t("help.label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
-      />
-      <HelpTourSheet
-        isOpen={isOpen}
-        onClose={close}
-        title={t("help.title")}
-        steps={steps}
-        labels={practiceHelpTourLabels(t, tCommon)}
-      />
-    </>
+    <PracticeHelpTour
+      t={t}
+      tCommon={tCommon}
+      isOpen={isOpen}
+      onOpen={open}
+      onClose={close}
+      steps={steps}
+    />
   );
 }
 

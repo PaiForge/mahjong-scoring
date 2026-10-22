@@ -24,14 +24,12 @@ import {
   handleBeginPracticeQuota,
   handlePeekPracticeQuota,
 } from "./practice-quota";
+import { postJsonRequest } from "@/test/request";
 
 function beginRequest(body: unknown = { menu: "agari-score" }) {
-  return new Request(
+  return postJsonRequest(
     "https://example.test/api/mobile/v1/practice-quota/begin",
-    {
-      method: "POST",
-      body: JSON.stringify(body),
-    },
+    body,
   );
 }
 

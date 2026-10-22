@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
@@ -14,16 +8,7 @@ import { useScrollIntoView } from "../../components/scroll-into-view";
 import { colors } from "../../lib/theme";
 import { JudgementMark } from "./judgement-mark";
 import { useRegisterMistakeReveal } from "./mistake-reveal";
-
-interface ProblemListAccordionProps<T> {
-  readonly results: readonly T[];
-  /** `<namespace>.result.*` を引く辞書の名前空間 */
-  readonly translationNamespace: string;
-  readonly outcome: (result: T) => AnswerOutcome;
-  /** 見出しに添える 1 行の要約（文字列） */
-  readonly renderSummary?: (result: T, index: number) => string | undefined;
-  readonly renderDetail: (result: T, index: number) => ReactNode;
-}
+import type { ProblemListAccordionProps } from "@mahjong-scoring/features/results/problem-list-accordion-props";
 
 /**
  * 問題別の結果一覧（web の `ProblemListAccordion`）
@@ -44,7 +29,7 @@ export function ProblemListAccordion<T>({
   outcome: outcomeOf,
   renderSummary,
   renderDetail,
-}: ProblemListAccordionProps<T>) {
+}: ProblemListAccordionProps<T, string | undefined>) {
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
   const scrollIntoView = useScrollIntoView();

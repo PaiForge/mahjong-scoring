@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type { ScoreTableQuestion } from "@mahjong-scoring/core";
 import type { PracticeVariantOf } from "@mahjong-scoring/features/practice-menu-types";
 import { type ScoreTableQuestionResult } from "@mahjong-scoring/features/practice/score-table/types";
 
@@ -15,13 +14,7 @@ import { useRuleSettingsStore } from "../../../hooks/use-rule-settings-store";
 import { scoreTableGeneratorOptions } from "@mahjong-scoring/features/practice/score-table/variants";
 import { useScoreTableAnswer } from "@mahjong-scoring/features/practice/score-table/use-score-table-answer";
 import { useScoreTableQuestion } from "@mahjong-scoring/features/practice/score-table/use-score-table-question";
-
-interface ScoreTableBoardProps extends RecordingPracticeBoardProps<ScoreTableQuestionResult> {
-  /** 現在の問題 */
-  readonly question: ScoreTableQuestion;
-  /** 次の問題へ進む（回答後の遷移に使用） */
-  readonly onAdvance: () => void;
-}
+import type { ScoreTableBoardProps } from "@mahjong-scoring/features/practice/score-table/board-props";
 
 /**
  * 点数表早引きの出題盤面（条件の提示と点数の回答）

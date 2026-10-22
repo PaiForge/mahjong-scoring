@@ -3,7 +3,6 @@
 import { useMemo, useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
 import { allowsDoubleYakuman, koTsumoPaymentKey } from "@mahjong-scoring/core";
-import type { UserAnswer } from "@mahjong-scoring/core";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
@@ -19,6 +18,7 @@ import {
   koTsumoSelectOptions,
   scoreSelectOptions,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
+import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import { getSelectClass } from "../../_lib/select-class";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
@@ -26,57 +26,12 @@ import { Button } from "@/app/(user)/_components/button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
 
-interface ScorePracticeAnswerFormProps {
-  readonly onSubmit: (answer: UserAnswer) => void;
-  readonly disabled?: boolean;
-  readonly isTsumo: boolean;
-  readonly isOya: boolean;
-  readonly requireYaku?: boolean;
-  /** 翻数と符も答えさせるか。false なら翻数・符の欄を出さず、点数だけを問う */
-  readonly requireHanFu?: boolean;
-  readonly exactHan?: boolean;
-  readonly requireFuForMangan?: boolean;
-  /** 回答ボタンの文言。既定は「回答する」 */
-  readonly submitLabel?: string;
-  /**
-   * 「役」のラベル行を役の回答が不要でも出す。「役なし」のチェックボックスの
-   * 置き場をツモ・ロンの別によらず確保し、フォームの高さを変えないため
-   * （聴牌形の点数計算が立てる。和了形の点数計算は役の回答が必要なときだけ行が出る）
-   */
-  readonly reserveYakuRow?: boolean;
-  /**
-   * 「役なし（ロンできない）」を回答として選べるようにする。指定すると「役」の
-   * ラベル行の右端にリンク風のボタンを出し、押した時点で `onSelect` を呼ぶ。
-   * 役なしは押した瞬間に回答として完結する（翻・符・点数に入れるものが
-   * 無い）ので、回答ボタンを経由させない — チェックボックスにして回答
-   * ボタンで確定させる形は、チェックだけで答えたつもりになるうえ、選択中の
-   * マスを足すとフォームが作り直されてチェックが黙って外れた。ロンにしか
-   * 無い回答なので、ツモのマスを答えるときは渡さない（`reserveYakuRow` と
-   * 組めば行の高さは変わらず、ラベル行の右側が空くだけ）
-   */
-  readonly noYaku?: {
-    readonly label: string;
-    readonly onSelect: () => void;
-  };
-  /**
-   * 入力欄に読み込んでおく回答。まだ何も入力していない間だけ効く
-   *
-   * 聴牌形の点数計算で「回答済みのマスを選択に加える」と、そのマスの回答が
-   * ここに渡り、翻・符・点数（役）が入った状態になる — 同じ点数の待ちを
-   * 後からまとめ直すときや、まとめて答えた符だけ直すときに、同じ内容を
-   * select で入れ直さずに済む。値が変わるたびに欄を合わせる（1 種類に
-   * 定まらなくなって undefined になれば空に戻す）が、ユーザーが 1 度でも
-   * 欄を触ったあとは無視する — 入力の途中で回答済みのマスを誤タップした
-   * 拍子に、入れかけの内容が置き換わってはいけない。触った記録は
-   * mount ごと（親が key で作り直すたび）にリセットされる
-   */
-  readonly prefill?: UserAnswer;
-}
-
 /**
  * 回答フォームコンポーネント
  * 回答フォーム
  *
+ * props の意味（判定モード・役なし・読み込んでおく回答）は features の
+ * {@link ScorePracticeAnswerFormProps}。
  * 各欄には和了形の点数計算のヘルプツアーが照らす印（`AGARI_SCORE_TOUR_ID`）を付ける。
  * 聴牌形の点数計算もこのフォームを使うが、そちらのツアーはフォーム全体を
  * 1 つの対象として照らすので、欄ごとの印は引かれない。

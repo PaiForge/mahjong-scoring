@@ -1,28 +1,10 @@
 "use client";
 
-import { isOya } from "@mahjong-scoring/core";
-import type {
-  ScoreQuestion,
-  ScoreTableUserAnswer,
-} from "@mahjong-scoring/core";
 import { ScoreAnswerForm } from "@/app/(user)/(public)/practice/_components/score-answer-form";
-import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/get-available-scores";
-
-interface ScoreExamAnswerFormProps {
-  readonly question: ScoreQuestion;
-  /** フォームリセット用のインデックス（問題が変わるたびにインクリメントされる） */
-  readonly questionIndex: number;
-  readonly onSubmit: (answer: ScoreTableUserAnswer) => void;
-  readonly disabled?: boolean;
-  /** 正誤フィードバック表示中か（セッションから受け取る） */
-  readonly showFeedback?: boolean;
-  /** 直前の回答が正解だったか（未回答は undefined） */
-  readonly lastAnswerCorrect?: boolean;
-  /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
-  readonly translationNamespace: string;
-  /** 選択肢を固定する範囲。出題条件と揃える（{@link ScoreExamAnswerForm} 参照） */
-  readonly scoreRange: ScoreOptionRange;
-}
+import {
+  type ScoreExamAnswerFormProps,
+  scoreAnswerTargetOf,
+} from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
 /**
  * 昇級試験（点数計算）共通の回答フォーム
@@ -30,17 +12,8 @@ interface ScoreExamAnswerFormProps {
  *
  * 点数のみを select で回答する。役も符も表示しないため、手牌から翻数（試験に
  * よっては符も）を自力で数え、点数表を引くところまでを受験者が通しで行う。
- *
- * 選択肢は必ず `scoreRange` で固定する（点数帯に絞る試験は帯を、絞らない試験は
- * `"all"` を渡す）。翻数から絞ると選択肢の個数がそのまま翻数のヒントになり、
- * さらに切り上げ満貫が効く境界（30符4翻など）では端末ローカルのルール設定で
- * 選択肢が受験者ごとに変わってしまう。合格ラインは全受験者に同じ 1 本なので、
- * 選択肢は端末設定に依存してはならない（`fixedRules`）。
- * 例外は表示設定の子ツモの入力方式（組の 1 つの select か、子から / 親からの
- * 2 つか）で、これはルール設定ではなく答え方の形なので試験でも従う。入力方式に
- * よる難易度差を許容する判断は features の `settings/ko-tsumo-input.ts` に書いた。
- *
- * 親子・ツモロンの別は出題（`question`）から導くので、呼び出し側は渡さない。
+ * 選択肢を `scoreRange` と `fixedRules` で固定する理由は features の
+ * {@link ScoreExamAnswerFormProps} にある。
  *
  * 選択が揃った時点で送信し、「回答する」ボタンは置かない（理由は
  * {@link ScoreAnswerForm} の `autoSubmit`。点数を select で答える練習と
@@ -61,9 +34,7 @@ export function ScoreExamAnswerForm({
 }: ScoreExamAnswerFormProps) {
   return (
     <ScoreAnswerForm
-      isOya={isOya(question.jikaze)}
-      isTsumo={question.isTsumo}
-      han={question.answer.han}
+      {...scoreAnswerTargetOf(question)}
       key={questionIndex}
       onSubmit={onSubmit}
       disabled={disabled}

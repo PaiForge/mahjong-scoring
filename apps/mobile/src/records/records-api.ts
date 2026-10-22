@@ -24,7 +24,11 @@ import {
 import type { BuildJourneyInput } from "@mahjong-scoring/features/journey/journey";
 
 import type { ApiFailure, MobileApiInit } from "../auth/api-client";
-import { domainFailureOf, requestMobileApi } from "../auth/request-mobile-api";
+import {
+  domainFailureOf,
+  requestMobileApi,
+  type MobileApiResult,
+} from "../auth/request-mobile-api";
 
 /**
  * 記録の API の失敗
@@ -35,8 +39,7 @@ export type RecordsApiFailure =
   ApiFailure | MobileChallengeErrorCode | "serverError";
 
 /** 記録の API の結果 */
-export type RecordsApiResult<T> =
-  { readonly value: T } | { readonly error: RecordsApiFailure };
+export type RecordsApiResult<T> = MobileApiResult<T, RecordsApiFailure>;
 
 /** 要求を送り、成功なら応答を検証して返す */
 function request<T>(

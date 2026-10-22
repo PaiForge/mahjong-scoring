@@ -24,6 +24,7 @@ import {
   handleReadLeaderboardVisibility,
   handleUpdateLeaderboardVisibility,
 } from "./leaderboard";
+import { postJsonRequest } from "@/test/request";
 
 const URL_BASE = "https://example.test/api/mobile/v1/leaderboard";
 
@@ -41,10 +42,8 @@ function withoutUsername() {
 }
 
 function postVisibility(body: unknown) {
-  return new Request(`${URL_BASE}/visibility`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+  return postJsonRequest(`${URL_BASE}/visibility`, body, {
+    "Content-Type": "application/json",
   });
 }
 

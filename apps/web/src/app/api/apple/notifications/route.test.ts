@@ -33,6 +33,7 @@ vi.mock("@/lib/billing/apple/revoke", () => ({}));
 vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 
 import { POST } from "./route";
+import { postJsonRequest } from "@/test/request";
 
 const NOTIFICATION: AppleNotification = {
   notificationUuid: "uuid-1",
@@ -64,10 +65,7 @@ const verifier = createFakeAppleVerifier({
 });
 
 function request(body: unknown = { signedPayload: "signed-valid" }) {
-  return new Request("http://localhost/api/apple/notifications", {
-    method: "POST",
-    body: typeof body === "string" ? body : JSON.stringify(body),
-  });
+  return postJsonRequest("http://localhost/api/apple/notifications", body);
 }
 
 beforeEach(() => {

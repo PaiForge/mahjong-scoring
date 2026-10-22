@@ -1,9 +1,6 @@
 import { useTranslations } from "use-intl";
-import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
-import type { BreakdownJudgement } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { buildScoreBreakdownTabs } from "@mahjong-scoring/features/results/score-breakdown-tabs";
 
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 
 import { TableIcon } from "../../components/icons/icons";
@@ -14,6 +11,7 @@ import { ReferenceLinkButton } from "./reference-link-button";
 import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
 import { FuBreakdownTable } from "./fu-breakdown";
 import { YakuBreakdownTable } from "./yaku-breakdown";
+import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results/breakdown-props";
 
 /**
  * 点数系の答え合わせに添える翻数・符の内訳（web の `ScoreBreakdownPanel`）
@@ -33,25 +31,7 @@ export function ScoreBreakdownPanel({
   judgement,
   scoreTableFocus,
   testID,
-}: {
-  /**
-   * 符の内訳と正解の符。5 翻以上の問題（符が点数に効かない）では渡さない。
-   * 符で満貫に届いた 4 翻以下の問題には渡す
-   */
-  readonly fu?: {
-    readonly details: readonly FuDetail[];
-    readonly answer: number;
-  };
-  /** 役の内訳（ドラ・裏ドラを含む） */
-  readonly yakuDetails: readonly YakuDetail[];
-  /** 翻数の合計の後に効く丸めの補足（役満止まりなど） */
-  readonly yakuNote?: string;
-  /** 翻数・符の正誤。分かる画面だけが渡し、開いたときに間違えたほうを選ぶ */
-  readonly judgement?: BreakdownJudgement;
-  /** この問題の正解の位置（親子・ロンツモ・翻・符）。渡すと点数表を開ける */
-  readonly scoreTableFocus?: ScoreTableFocus;
-  readonly testID?: string;
-}) {
+}: ScoreBreakdownPanelProps & { readonly testID?: string }) {
   const t = useTranslations("challenge.scoreBreakdown");
   const tScoreTable = useTranslations("scoreTable");
   // 値（翻数・符）を押したときだけ正解のセルをハイライトする

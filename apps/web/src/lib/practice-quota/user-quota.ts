@@ -7,12 +7,9 @@ import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
 import { consumeUserQuota } from "./consume-user-quota";
 import {
-  dailyLimit,
   failOpenUsage,
-  isUnlimited,
-  limitedAnswer,
   peekUsage,
-  unlimitedAnswer,
+  quotaAnswer,
   type BeginPracticeQuestionResult,
   type QuotaAudience,
   type QuotaUsage,
@@ -67,13 +64,8 @@ export async function beginUserQuota(
   proOnSale: boolean,
 ): Promise<BeginPracticeQuestionResult> {
   const audience = await readUserAudience(userId, now);
-  if (isUnlimited(proOnSale, audience.benefits))
-    return unlimitedAnswer(audience);
-  const limit = dailyLimit(menu, audience);
-  return limitedAnswer(
-    audience,
-    limit,
-    await consumeOrFailOpen(userId, menu, now, limit),
+  return quotaAnswer(proOnSale, audience, menu, (limit) =>
+    consumeOrFailOpen(userId, menu, now, limit),
   );
 }
 
@@ -94,12 +86,7 @@ export async function peekUserQuota(
   proOnSale: boolean,
 ): Promise<BeginPracticeQuestionResult> {
   const audience = await readUserAudience(userId, now);
-  if (isUnlimited(proOnSale, audience.benefits))
-    return unlimitedAnswer(audience);
-  const limit = dailyLimit(menu, audience);
-  return limitedAnswer(
-    audience,
-    limit,
+  return quotaAnswer(proOnSale, audience, menu, async (limit) =>
     peekUsage(limit, await readUserQuotaUsage(userId, menu, jstDayKey(now))),
   );
 }

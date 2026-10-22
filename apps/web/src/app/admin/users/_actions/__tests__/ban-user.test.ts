@@ -4,17 +4,15 @@ import {
   mockRevalidatePath,
   mockRevalidateTag,
   mockTransaction,
+  createUpdateTxMock,
   setupAdminActor,
   setupNotAdmin,
+  type UpdateTxMock,
 } from "@/test/admin-action-mocks";
 
-const { mockUpdateSet, mockUpdateWhere, mockUpdateUserById } = vi.hoisted(
-  () => ({
-    mockUpdateSet: vi.fn(),
-    mockUpdateWhere: vi.fn(),
-    mockUpdateUserById: vi.fn(),
-  }),
-);
+const { mockUpdateUserById } = vi.hoisted(() => ({
+  mockUpdateUserById: vi.fn(),
+}));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
 vi.mock(
@@ -45,16 +43,14 @@ vi.mock("../../_lib/moderation", async (importOriginal) => ({
 import { banUser } from "../ban-user";
 
 /** トランザクション内の `tx.update(profiles).set(...).where(...)` を受ける偽の tx */
-const updateChain = { set: mockUpdateSet, where: mockUpdateWhere };
-const TX = { update: vi.fn(() => updateChain) };
+let updateTx: UpdateTxMock;
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  setupAdminActor(TX);
+  updateTx = createUpdateTxMock();
+  setupAdminActor(updateTx.tx);
   mockUpdateUserById.mockResolvedValue({ error: null });
-  mockUpdateSet.mockReturnValue(updateChain);
-  mockUpdateWhere.mockResolvedValue(undefined);
 });
 
 describe("banUser", () => {
@@ -98,8 +94,8 @@ describe("banUser", () => {
     expect(mockUpdateUserById.mock.invocationCallOrder[0]).toBeLessThan(
       mockTransaction.mock.invocationCallOrder[0] ?? 0,
     );
-    expect(mockUpdateSet).toHaveBeenCalledWith({ bannedAt: expect.any(Date) });
-    expect(mockRecordModerationAction).toHaveBeenCalledWith(TX, {
+    expect(updateTx.set).toHaveBeenCalledWith({ bannedAt: expect.any(Date) });
+    expect(mockRecordModerationAction).toHaveBeenCalledWith(updateTx.tx, {
       actorId: "admin-1",
       action: "ban",
       targetId: "u1",
@@ -113,14 +109,14 @@ describe("banUser", () => {
 
   it("仮登録（プロフィール無し）でも成功する — profiles の更新は 0 行で BAN は Auth にだけ残る", async () => {
     // 0 行更新は drizzle ではエラーにならない。既存の行が無くても同じ経路を通る
-    mockUpdateWhere.mockResolvedValue(undefined);
+    updateTx.where.mockResolvedValue(undefined);
 
     expect(await banUser("provisional-1", "理由")).toEqual({ success: true });
     expect(mockUpdateUserById).toHaveBeenCalledWith("provisional-1", {
       ban_duration: "876000h",
     });
     expect(mockRecordModerationAction).toHaveBeenCalledWith(
-      TX,
+      updateTx.tx,
       expect.objectContaining({ action: "ban", targetId: "provisional-1" }),
     );
   });

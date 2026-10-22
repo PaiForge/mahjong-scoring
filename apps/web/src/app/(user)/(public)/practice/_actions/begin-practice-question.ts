@@ -11,12 +11,9 @@ import {
 } from "@/lib/practice-quota/anonymous-quota-cookie";
 import {
   consumeUsage,
-  dailyLimit,
   failOpenUsage,
-  isUnlimited,
-  limitedAnswer,
   peekUsage,
-  unlimitedAnswer,
+  quotaAnswer,
   type BeginPracticeQuestionResult,
   type QuotaAudience,
   type QuotaUsage,
@@ -77,12 +74,15 @@ export async function beginPracticeQuestion(
     };
   }
 
-  if (isUnlimited(isPlanOnSale("pro"), ANONYMOUS_AUDIENCE.benefits)) {
-    return { success: true, ...unlimitedAnswer(ANONYMOUS_AUDIENCE) };
-  }
-  const limit = dailyLimit(menu, ANONYMOUS_AUDIENCE);
-  const usage = await consumeForAnonymous(menu, now, limit);
-  return { success: true, ...limitedAnswer(ANONYMOUS_AUDIENCE, limit, usage) };
+  return {
+    success: true,
+    ...(await quotaAnswer(
+      isPlanOnSale("pro"),
+      ANONYMOUS_AUDIENCE,
+      menu,
+      (limit) => consumeForAnonymous(menu, now, limit),
+    )),
+  };
 }
 
 /**
@@ -118,12 +118,15 @@ export async function peekPracticeQuota(
     };
   }
 
-  if (isUnlimited(isPlanOnSale("pro"), ANONYMOUS_AUDIENCE.benefits)) {
-    return { success: true, ...unlimitedAnswer(ANONYMOUS_AUDIENCE) };
-  }
-  const limit = dailyLimit(menu, ANONYMOUS_AUDIENCE);
-  const usage = await peekForAnonymous(menu, now, limit);
-  return { success: true, ...limitedAnswer(ANONYMOUS_AUDIENCE, limit, usage) };
+  return {
+    success: true,
+    ...(await quotaAnswer(
+      isPlanOnSale("pro"),
+      ANONYMOUS_AUDIENCE,
+      menu,
+      (limit) => peekForAnonymous(menu, now, limit),
+    )),
+  };
 }
 
 /** 未ログインの宛先。特典を持たない */

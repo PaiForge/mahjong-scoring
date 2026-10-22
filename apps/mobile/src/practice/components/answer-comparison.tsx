@@ -1,21 +1,8 @@
-import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
-import type { AnswerDifference } from "@mahjong-scoring/features/practice/answer-difference";
 import { buildAnswerComparisonTable } from "@mahjong-scoring/features/practice/answer-comparison-table";
-import type { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
 import { DetailTable } from "./detail-table";
-
-interface AnswerComparisonProps {
-  /** `<namespace>.result.correctAnswer` / `yourAnswer` を引く辞書の名前空間 */
-  readonly translationNamespace: string;
-  readonly correct: ReactNode;
-  readonly user: ReactNode;
-  readonly outcome: AnswerOutcome | undefined;
-  /** 数で答える練習の過不足 */
-  readonly difference?: AnswerDifference;
-  readonly showTitle?: boolean;
-}
+import type { AnswerComparisonProps } from "@mahjong-scoring/features/results/answer-comparison-props";
 
 /**
  * 正解とあなたの回答の対比（web の `AnswerComparison`）

@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi, type Mock } from "vitest";
 
 /**
  * 管理者の Server Action（BAN・特典の付与と取り消し）のテスト用スタブ
@@ -103,4 +103,31 @@ export function setupAdminActor(tx: unknown): void {
  */
 export function setupNotAdmin(): void {
   mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
+}
+
+/** `tx.update(table).set(...).where(...)` を受ける偽のトランザクション */
+export interface UpdateTxMock {
+  /** `setupAdminActor()` と `recordModerationAction` の検証に渡す tx */
+  readonly tx: { readonly update: Mock };
+  /** `set(...)` の呼び出し。引数の検証に使う */
+  readonly set: Mock;
+  /** `where(...)` の呼び出し。失敗させたいテストは `mockRejectedValue` で上書きする */
+  readonly where: Mock;
+}
+
+/**
+ * 1 つの表を更新するトランザクションの偽物を作る
+ * 更新トランザクションモック
+ *
+ * BAN・BAN 解除のように `tx.update(profiles).set(...).where(...)` を 1 回だけ
+ * 発行する Server Action のテストで使う。`set` は自分の連鎖を返し、`where` は
+ * 何も返さずに解決する。各テストの `beforeEach` で作り直す。
+ */
+export function createUpdateTxMock(): UpdateTxMock {
+  const set = vi.fn();
+  const where = vi.fn();
+  const chain = { set, where };
+  set.mockReturnValue(chain);
+  where.mockResolvedValue(undefined);
+  return { tx: { update: vi.fn(() => chain) }, set, where };
 }

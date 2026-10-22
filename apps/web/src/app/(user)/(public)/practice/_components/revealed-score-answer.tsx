@@ -2,32 +2,14 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  type ScoreQuestion,
-  type ScoreTableAnswer,
-} from "@mahjong-scoring/core";
+import { type ScoreQuestion } from "@mahjong-scoring/core";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { SCORE_TABLE_LINK_CLASSES } from "../_lib/score-table-link-classes";
-
-interface RevealedScoreAnswerProps {
-  /** 開示する正解の点数 */
-  readonly answer: ScoreTableAnswer;
-  /** `revealedAnswer` / `pointSuffix` / `all` キーを持つ翻訳名前空間 */
-  readonly translationNamespace: string;
-  /**
-   * 正解を押したときに開く点数表の位置（親子・ロンツモ・翻・符）
-   *
-   * 渡すと正解の点数が押せる文字になり、そのセルをハイライトした点数早見表を
-   * モーダルで開く（{@link import("@mahjong-scoring/features/score-table/focus").scoreTableFocusOf}
-   * で組む）。渡さなければただの文字。
-   */
-  readonly scoreTableFocus?: ScoreTableFocus;
-}
+import type { RevealedScoreAnswerProps } from "@mahjong-scoring/features/results/revealed-score-answer-props";
 
 /**
  * トレーニングで開示する正解の点数

@@ -12,6 +12,15 @@ export type MobileApiResult<T, F> =
   { readonly value: T } | { readonly error: F };
 
 /**
+ * アプリ向け API の結果（成功なら値をそのまま、失敗なら理由）
+ * アプリAPI結果（値そのまま）
+ *
+ * {@link readMobileApi} が返す形。読み取りの API（お知らせ・ランキング・
+ * マイページ）はこれを失敗の集合だけ変えた別名で持つ。
+ */
+export type MobileApiValue<T, F> = T | { readonly error: F };
+
+/**
  * 要求を送り、成功なら応答を検証して返す
  * アプリAPI要求
  *
@@ -56,7 +65,7 @@ export async function readMobileApi<T extends object, F>(
   init: MobileApiInit & { readonly asUser: string },
   parse: (body: unknown) => T | undefined,
   failureOf: (response: Response) => Promise<F>,
-): Promise<T | { readonly error: ApiFailure | F }> {
+): Promise<MobileApiValue<T, ApiFailure | F>> {
   const result = await requestMobileApi(path, init, parse, failureOf);
   return "value" in result ? result.value : result;
 }

@@ -2,11 +2,8 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import type { FuDetail, YakuDetail } from "@mahjong-scoring/core";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import type { BreakdownJudgement } from "@mahjong-scoring/features/results/breakdown-tabs";
 import { buildScoreBreakdownTabs } from "@mahjong-scoring/features/results/score-breakdown-tabs";
-import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
@@ -14,28 +11,7 @@ import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
 import { ReferenceLinkButton } from "@/app/(user)/_components/reference-link-button";
 import { FuBreakdownTable } from "./fu-breakdown";
 import { YakuBreakdownTable } from "./yaku-breakdown";
-
-interface ScoreBreakdownPanelProps {
-  /**
-   * 符の内訳と正解の符。5 翻以上の問題（符が点数に効かない）では渡さない。
-   * 符で満貫に届いた 4 翻以下の問題には渡す
-   */
-  readonly fu?: {
-    readonly details: readonly FuDetail[];
-    readonly answer: number;
-  };
-  /** 役の内訳（ドラ・裏ドラを含む） */
-  readonly yakuDetails: readonly YakuDetail[];
-  /** 翻数の合計の後に効く丸めの補足（役満止まりなど） */
-  readonly yakuNote?: ReactNode;
-  /** 翻数・符の正誤。分かる画面だけが渡し、開いたときに間違えたほうを選ぶ */
-  readonly judgement?: BreakdownJudgement;
-  /**
-   * この問題の正解の位置（親子・ロンツモ・翻・符）。渡すと内訳の答えの値と
-   * 内訳の下の「点数表を確認」から点数表をモーダルで開ける
-   */
-  readonly scoreTableFocus?: ScoreTableFocus;
-}
+import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results/breakdown-props";
 
 /**
  * 点数系の答え合わせに添える翻数・符の内訳
@@ -60,7 +36,7 @@ export function ScoreBreakdownPanel({
   yakuNote,
   judgement,
   scoreTableFocus,
-}: ScoreBreakdownPanelProps) {
+}: ScoreBreakdownPanelProps<ReactNode>) {
   const t = useTranslations("challenge.scoreBreakdown");
   const tScoreTable = useTranslations("scoreTable");
   const scoreTable = useScoreTableModal();

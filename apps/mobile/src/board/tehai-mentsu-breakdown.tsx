@@ -4,8 +4,6 @@ import { Hai } from "@pai-forge/mahjong-react-ui";
 import type {
   HaiKindId,
   MentsuBreakdownCandidate,
-  MentsuBreakdownContext,
-  Tehai,
 } from "@mahjong-scoring/core";
 
 import { DataTable } from "../components/data-table";
@@ -18,6 +16,7 @@ import { FuroTiles } from "./furo-tiles";
 import { TehaiHand } from "./tehai-hand";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
+import type { TehaiMentsuBreakdownProps } from "@mahjong-scoring/features/board/tehai-mentsu-breakdown-props";
 
 function ClosedTiles({
   hais,
@@ -55,11 +54,7 @@ function ClosedTiles({
 export function TehaiMentsuBreakdown({
   tehai,
   context,
-}: {
-  readonly tehai: Pick<Tehai, "closed" | "exposed">;
-  /** 和了状況。出題がドラ表示牌を持つならそれも渡す（候補の順位を採点と揃える） */
-  readonly context: MentsuBreakdownContext;
-}) {
+}: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
   const {
     candidates,

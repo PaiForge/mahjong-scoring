@@ -17,13 +17,13 @@ import type { DatePeriod } from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
 import { apiFailureOf, errorOf, type ApiFailure } from "../auth/api-client";
-import { readMobileApi } from "../auth/request-mobile-api";
+import { readMobileApi, type MobileApiValue } from "../auth/request-mobile-api";
 
 /** マイページ・マイレコードの API の失敗 */
 export type MypageApiFailure = ApiFailure | MobileMypageErrorCode;
 
 /** 読み取りの結果。失敗なら理由 */
-export type MypageApiResult<T> = T | { readonly error: MypageApiFailure };
+export type MypageApiResult<T> = MobileApiValue<T, MypageApiFailure>;
 
 /**
  * 応答の 409 を `usernameRequired` に、それ以外の失敗を認証の理由に丸める

@@ -2,7 +2,7 @@ import { useMemo, type ReactNode } from "react";
 import {
   HandPresentationContext,
   HandPresentationNoticeContext,
-  toHandPresentationContextValue,
+  useHandPresentationContextValue,
   useHandPresentationPreparation,
   type HandPresentationBenefitsResult,
 } from "@mahjong-scoring/features/board/use-hand-presentation";
@@ -75,13 +75,7 @@ export function HandPresentationProvider({
     fetchBenefits: fetchUserBenefits,
   });
 
-  const value = useMemo(
-    () =>
-      preparation.status === "ready"
-        ? toHandPresentationContextValue(preparation.snapshot)
-        : undefined,
-    [preparation],
-  );
+  const value = useHandPresentationContextValue(preparation);
 
   if (preparation.status === "pending" || value === undefined) return fallback;
   return (

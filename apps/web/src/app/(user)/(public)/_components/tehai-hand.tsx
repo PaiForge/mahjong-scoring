@@ -1,54 +1,19 @@
 "use client";
 
 import { memo, useEffect, useMemo } from "react";
-import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
-import {
-  presentTehai,
-  type HandPresentation,
-} from "@mahjong-scoring/features/board/hand-presentation";
+import { presentTehai } from "@mahjong-scoring/features/board/hand-presentation";
 import {
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
 } from "@mahjong-scoring/features/board/hand-layout";
+import type { TehaiHandProps } from "@mahjong-scoring/features/board/tehai-hand-props";
 
 /** 和了牌ラベルが牌の上に足す高さ（px）。text-[10px] leading-none + mb-0.5 */
 const AGARI_LABEL_HEIGHT = 12;
 // 和了牌の `ml-4` は AGARI_HAI_GAP（features/board/hand-layout）と同じ間隔
-
-interface TehaiHandProps {
-  /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
-  readonly tehai: Pick<Tehai, "closed" | "exposed">;
-  /**
-   * 和了牌。渡すと純手牌から1枚抜き、間隔を空けて右側に開示する。
-   * 和了形ではない手牌（役の早見表など）では省略する。
-   */
-  readonly agariHai?: HaiKindId;
-  /**
-   * 和了牌に添えるラベル（「ツモ」「ロン」）。訳語は呼び出し側で解決する。
-   * この共有コンポーネントは牌の並びだけを負い、辞書の名前空間を知らない。
-   */
-  readonly agariLabel?: string;
-  /**
-   * 和了ラベルを載せる面の明暗。既定は濃い出題盤面（TehaiDisplay）。
-   * 早見表のような明るい面に置くときだけ "light" を渡す。
-   */
-  readonly agariLabelTone?: "dark" | "light";
-  /** 自動スケール値の変化通知（コンテキスト牌などを同じ倍率で揃える用途） */
-  readonly onScaleChange?: (scale: number) => void;
-  /**
-   * 純手牌と和了牌の見せ方（並びと上下）。省略時は理牌・正規の向き
-   *
-   * 添字はここで `tehai.closed` と `agariHai` から切り離した純手牌に対するもの。
-   * 呼び出し側も同じ元の手牌から同じ規則（`splitAgariHai`）で計算して渡す。
-   * このコンポーネントはコンテキスト・設定・特典を読まず、受け取ったものだけで
-   * 描く。手牌に合わない見せ方は全体を従来の表示に戻す（`presentTehai`）。
-   * 副露は変えない。
-   */
-  readonly presentation?: HandPresentation;
-}
 
 /**
  * 手牌の牌画像表示（純手牌 + 和了牌 + 副露 + 横幅自動スケール）

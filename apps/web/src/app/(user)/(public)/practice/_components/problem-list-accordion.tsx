@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useEffect, useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AccordionCard } from "@/app/(user)/_components/accordion-card";
@@ -8,18 +7,7 @@ import { ClockIcon } from "@/app/(user)/_components/icons/clock-icon";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 import { registerMistakeReveal } from "../_lib/mistake-reveal";
 import { JudgementMark } from "./judgement-mark";
-
-interface ProblemListAccordionProps<T> {
-  readonly results: readonly T[];
-  /** i18n の翻訳ネームスペース（result.problemDetails, result.correct, result.incorrect を含む） */
-  readonly translationNamespace: string;
-  /** 1 問の顛末（正解・不正解・時間切れ）を取り出す関数 */
-  readonly outcome: (result: T) => AnswerOutcome;
-  /** ヘッダー右側に表示するサマリーテキスト（任意） */
-  readonly renderSummary?: (result: T, index: number) => ReactNode;
-  /** 展開時の詳細コンテンツ */
-  readonly renderDetail: (result: T, index: number) => ReactNode;
-}
+import type { ProblemListAccordionProps } from "@mahjong-scoring/features/results/problem-list-accordion-props";
 
 /**
  * 練習共通の問題別アコーディオン一覧

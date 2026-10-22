@@ -14,14 +14,13 @@ import {
   callMobileApi,
   type ApiFailure,
 } from "../auth/api-client";
-import { readMobileApi } from "../auth/request-mobile-api";
+import { readMobileApi, type MobileApiValue } from "../auth/request-mobile-api";
 
 /** ランキングの API の失敗 */
 export type LeaderboardApiFailure = ApiFailure | MobileLeaderboardErrorCode;
 
 /** 読み取りの結果。失敗なら理由 */
-export type LeaderboardApiResult<T> =
-  T | { readonly error: LeaderboardApiFailure };
+export type LeaderboardApiResult<T> = MobileApiValue<T, LeaderboardApiFailure>;
 
 /** 失敗の応答を理由に丸める。404 は期間が無い（`notFound`） */
 function leaderboardFailureOf(

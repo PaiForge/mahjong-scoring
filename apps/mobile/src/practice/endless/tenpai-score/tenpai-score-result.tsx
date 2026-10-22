@@ -1,13 +1,7 @@
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type {
-  HaiKindId,
-  JudgementResult,
-  MachiCellAnswer,
-  TenpaiScoreQuestion,
-  MachiSelectionJudgement,
-} from "@mahjong-scoring/core";
+import type { HaiKindId } from "@mahjong-scoring/core";
 import { sortHaiCodes } from "@mahjong-scoring/core";
 import { cellQuestionOf } from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
 import { useTenpaiScoreResultFocus } from "@mahjong-scoring/features/practice/tenpai-score/use-tenpai-score-result-focus";
@@ -25,6 +19,7 @@ import { ResultDisplay } from "../agari-score/result-display";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { PANEL_BORDER, WaitCellTabs } from "./wait-cell-tabs";
+import type { TenpaiScoreResultProps } from "@mahjong-scoring/features/practice/tenpai-score/result-props";
 
 /**
  * 判定の印を付けた牌 1 枚
@@ -51,27 +46,6 @@ function MarkedHai({
       <Hai hai={hai} size="xs" />
     </View>
   );
-}
-
-interface TenpaiScoreResultProps {
-  readonly question: TenpaiScoreQuestion;
-  /** 選んだ待ち牌（あなたの回答）。判定前に開示したときは空 */
-  readonly selectedMachi: readonly HaiKindId[];
-  /** 待ち牌の判定。「わからない」で待ちを答える前に開示したときは undefined */
-  readonly machiJudgement: MachiSelectionJudgement | undefined;
-  readonly cellAnswers: Readonly<Record<string, MachiCellAnswer>>;
-  /** マスごとの判定。「わからない」での開示では undefined */
-  readonly cellResults: Readonly<Record<string, JudgementResult>> | undefined;
-  /** 回答を「翻・符」「支払い」の行に分ける（`formatCellAnswerLines`） */
-  readonly formatAnswerLines: (
-    answer: MachiCellAnswer,
-    isTsumo: boolean,
-  ) => readonly string[];
-  readonly requireYaku: boolean;
-  readonly requireHanFu: boolean;
-  readonly exactHan: boolean;
-  readonly requireFuForMangan: boolean;
-  readonly onNext: () => void;
 }
 
 /**

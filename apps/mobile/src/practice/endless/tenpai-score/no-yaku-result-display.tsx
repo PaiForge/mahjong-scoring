@@ -1,10 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type {
-  JudgementResult,
-  MachiCellAnswer,
-  UserAnswer,
-} from "@mahjong-scoring/core";
+import type { UserAnswer } from "@mahjong-scoring/core";
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import {
   formatHan,
@@ -21,6 +17,7 @@ import {
   ResultTableFrame,
   ResultUnansweredValue,
 } from "../agari-score/result-table-frame";
+import type { NoYakuResultDisplayProps } from "@mahjong-scoring/features/practice/tenpai-score/result-props";
 
 /**
  * 役が無くロンできないマスの答え合わせ（web の `NoYakuResultDisplay`）
@@ -37,16 +34,7 @@ export function NoYakuResultDisplay({
   requireYaku,
   requireHanFu,
   exactHan,
-}: {
-  /** マスへの回答。「わからない」での開示では undefined */
-  readonly userAnswer: MachiCellAnswer | undefined;
-  /** マスの判定。開示では undefined */
-  readonly result: JudgementResult | undefined;
-  readonly requireYaku: boolean;
-  /** 翻数と符を答えさせたか。答えさせていなければ回答の翻数・符は未回答の印にする */
-  readonly requireHanFu: boolean;
-  readonly exactHan: boolean;
-}) {
+}: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());

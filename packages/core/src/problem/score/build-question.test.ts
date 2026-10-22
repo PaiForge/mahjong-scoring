@@ -1,20 +1,9 @@
 import { describe, expect, it } from "vitest";
-import {
-  HaiKind,
-  validateTehai14,
-  type HaiKindId,
-} from "@pai-forge/riichi-mahjong";
+import { HaiKind, type HaiKindId } from "@pai-forge/riichi-mahjong";
 import { buildScoreQuestion } from "./build-question";
-import { parseTehai } from "./mpsz-serializer";
+import { agariTehai } from "../../test/tehai";
 import { ScoreLevel } from "../../core/constants";
 import { YAKUMAN_HAN } from "../../score/tiers";
-
-/** MPSZ の 14 枚を和了形の手牌にする */
-function agariTehai(mpsz: string) {
-  const tehai = parseTehai(mpsz);
-  if (tehai === undefined) throw new Error(mpsz);
-  return validateTehai14(tehai)._unsafeUnwrap();
-}
 
 describe("buildScoreQuestion", () => {
   // 四暗刻の形（白の単騎）。白をツモれば四暗刻、中をロンすると中の刻子が
