@@ -1,15 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
-import type { UserAnswer } from "@mahjong-scoring/core";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { useAutoAdvanceOnCorrect } from "@/app/_hooks/use-training-settings-store";
-import { Button } from "@/app/(user)/_components/button";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
@@ -18,43 +16,30 @@ import {
   PRACTICE_SCROLL_ANCHOR_ID,
   scrollToPracticeAnchor,
 } from "../../_lib/scroll-anchor";
-import { QuestionPrompt } from "../../_components/question-prompt";
 import { ScoreCounter } from "../../_components/score-counter";
 import { AnswerTimeBadge } from "../../_components/answer-time-badge";
 import { PracticeQuotaPaywall } from "../../_components/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "../../_components/practice-quota-remaining";
-import {
-  canResumePractice,
-  usePracticeQuota,
-} from "../../_hooks/use-practice-quota";
+import { usePracticeQuota } from "../../_hooks/use-practice-quota";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
 } from "../../_components/practice-footer-actions";
-import {
-  parseGeneratorOptionsFromParams,
-  parseModeFlagsFromParams,
-} from "../../agari-score/_lib/parse-practice-params";
-import { ScorePracticeAnswerForm } from "../../agari-score/_components/score-practice-answer-form";
+import { parseModeFlagsFromParams } from "../../agari-score/_lib/parse-practice-params";
 import { GenerationFailedNotice } from "../../agari-score/_components/generation-failed-notice";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
-import {
-  cellKeyOf,
-  listCellRefs,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
 import { useTenpaiScoreStore } from "../_hooks/use-tenpai-score-store";
-import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/tenpai-score/cell-runs";
+import { useTenpaiScoreQuery } from "../_hooks/use-tenpai-score-query";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import { TENPAI_SCORE_TOUR_ID } from "../_lib/tour-ids";
-import { MachiPicker } from "./machi-picker";
 import { TenpaiScoreBoardSkeleton } from "./tenpai-score-board-skeleton";
 import { HandPresentationNotice } from "../../_components/hand-presentation-notice";
 import { HandPresentationProvider } from "../../_components/hand-presentation-provider";
+import { TenpaiCellsPhase } from "./tenpai-cells-phase";
+import { TenpaiMachiPhase } from "./tenpai-machi-phase";
 import { TenpaiScoreResult } from "./tenpai-score-result";
-import { TenpaiScoreSpotlightTour } from "./tenpai-score-spotlight-tour";
 import { TenpaiDisplay } from "./tenpai-display";
-import { WaitCellGrid } from "./wait-cell-grid";
 
 function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
@@ -93,57 +78,16 @@ function TenpaiScoreBoardInner() {
   useEffect(() => {
     if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
   }, [gate, tq]);
-  const appliedQueryRef = useRef<string | undefined>(undefined);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
 
   // 問題ができるのを待たずに送る（理由は agari-score-board と同じ）
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
+  useTenpaiScoreQuery({ isClient, searchParams, requestQuestion, refreshGate });
 
-  // 出題条件の適用はクエリの変化で判定する（理由は和了形の点数計算の盤面と同じ:
-  // 問題の有無で見ると前回の問題が残ったまま条件が無視され、マウント一度きり
-  // ではクエリだけ変わる遷移に追随できず、生成失敗時には初期化が止まらない）。
-  // ストアの `appliedQuery` が同じなら盤面を離れて戻ってきただけなので、
-  // 解答中の問題を引き継いで無料枠を消費し直さない（これも和了形の点数計算と同じ）
-  useEffect(() => {
-    if (!isClient) return;
-
-    const query = searchParams.toString();
-    if (appliedQueryRef.current === query) return;
-    appliedQueryRef.current = query;
-
-    const store = useTenpaiScoreStore.getState();
-    if (
-      store.appliedQuery === query &&
-      canResumePractice("tenpai-score", {
-        hasQuestion: store.currentQuestion !== undefined,
-        generationFailed: store.generationFailed,
-      })
-    ) {
-      if (store.currentQuestion) void refreshGate();
-      return;
-    }
-
-    const { allowedRanges, includeParent, includeChild, includeFuro } =
-      parseGeneratorOptionsFromParams(new URLSearchParams(query));
-    // 前回の問題もサーバーの返事を待つ前に消す（理由は和了形の点数計算の盤面と同じ）
-    store.applyPracticeQuery(query, {
-      allowedRanges,
-      includeParent,
-      includeChild,
-      includeFuro,
-    });
-    void requestQuestion();
-  }, [isClient, searchParams, requestQuestion, refreshGate]);
-
-  const {
-    requireYaku,
-    requireHanFu,
-    exactHan,
-    requireFuForMangan,
-    measureTime,
-  } = parseModeFlagsFromParams(new URLSearchParams(searchParams.toString()));
+  const { measureTime, ...modeFlags } = parseModeFlagsFromParams(
+    new URLSearchParams(searchParams.toString()),
+  );
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
-
   const showAnswerTime = showsAnswerTime(measureTime, gate);
 
   const handleBackToSetup = () => {
@@ -162,46 +106,11 @@ function TenpaiScoreBoardInner() {
     revealAnswer();
   };
 
-  const handleSubmitMachi = () => {
-    scrollToPracticeAnchor();
-    submitMachi();
-  };
-
-  const handleProceed = () => {
-    scrollToPracticeAnchor();
-    proceedToCells();
-  };
-
-  // 当てはめると表の塊が組み変わり、最後の 1 つなら選択が解けて回答欄も
-  // 消え、下にあった「回答する」が欄の高さぶん上へ跳ぶ。押した位置に留まる
-  // と表もボタンも画面外になるので、他の切り替え操作と同じく盤面の先頭へ
-  // 戻す（当てはめた結果の塊と、続けて回答中になったマスが表の中に見える）
-  const handleAssignScore = (answer: UserAnswer) => {
-    scrollToPracticeAnchor();
-    assignAnswer({ kind: "score", answer });
-  };
-
-  const handleAssignNoYaku = () => {
-    scrollToPracticeAnchor();
-    assignAnswer({ kind: "noYaku" });
-  };
-
   const handleSubmitCells = () => {
-    scrollToPracticeAnchor();
-    submitCells({
-      requireYaku,
-      requireHanFu,
-      exactHan,
-      requireFuForMangan,
-      allowDoubleYakuman,
-    });
-
-    if (autoAdvanceOnCorrect) {
-      const state = useTenpaiScoreStore.getState();
-      if (state.isAllCorrect) {
-        toast.success(t("board.correct"), { duration: 1500 });
-        void requestQuestion();
-      }
+    submitCells({ ...modeFlags, allowDoubleYakuman });
+    if (autoAdvanceOnCorrect && useTenpaiScoreStore.getState().isAllCorrect) {
+      toast.success(t("board.correct"), { duration: 1500 });
+      void requestQuestion();
     }
   };
 
@@ -234,26 +143,11 @@ function TenpaiScoreBoardInner() {
   const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
     t: tScore,
     noYakuLabel: t("cells.noYakuShort"),
-    exactHan,
+    exactHan: modeFlags.exactHan,
     allowDoubleYakuman,
     isOya: isOyaQuestion,
   });
-
-  const cells = listCellRefs(currentQuestion);
-  const remaining = cells.filter(
-    (cell) => !(cellKeyOf(cell) in cellAnswers),
-  ).length;
-  // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
-  const selectedIsTsumo = selectedCells[0]?.isTsumo;
-  const isSelecting = selectedIsTsumo !== undefined;
   const isAnswering = phase !== "result";
-  // 選択中の回答済みマスの回答が 1 種類に定まるなら、その回答を欄に読み込む
-  // （役なしは欄に入れるものが無いので読み込まない）。ストアが持つ回答の
-  // 参照をそのまま渡す — 欄は参照の変化で読み込み直すので、render のたびに
-  // 作り直すと入力のたびに読み込みが走る
-  const sharedAnswer = sharedAnswerOfCells(selectedCells, cellAnswers);
-  const prefill =
-    sharedAnswer?.kind === "score" ? sharedAnswer.answer : undefined;
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
@@ -272,170 +166,30 @@ function TenpaiScoreBoardInner() {
         />
 
         {phase === "machi" && (
-          <div className="space-y-4">
-            {/* 出題文の右端にヘルプツアーの「?」を添える。説明する操作は
-                この下に並ぶので、ページの見出しより入口として近い */}
-            <div className="flex items-center justify-center gap-1.5">
-              <QuestionPrompt
-                replacement={
-                  machiJudgement && (
-                    <p
-                      className={`text-center text-sm font-bold ${
-                        machiJudgement.isCorrect
-                          ? "text-success"
-                          : "text-destructive"
-                      }`}
-                    >
-                      {machiJudgement.isCorrect
-                        ? t("machi.correct", {
-                            count: machiJudgement.correct.length,
-                          })
-                        : t("machi.incorrect")}
-                    </p>
-                  )
-                }
-              >
-                {t("machi.prompt")}
-              </QuestionPrompt>
-              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
-            </div>
-
-            <div data-tour-id={TENPAI_SCORE_TOUR_ID.picker}>
-              <MachiPicker
-                selected={selectedMachi}
-                onToggle={toggleMachi}
-                judgement={machiJudgement}
-              />
-            </div>
-
-            {/* 選択数の行は判定後も高さを残す。消すとボタンとフッターが
-                判定の瞬間に上へずれる */}
-            <div className="space-y-2">
-              <p className="min-h-4 text-center text-xs leading-4 text-surface-500">
-                {machiJudgement
-                  ? ""
-                  : t("machi.selectedCount", { count: selectedMachi.length })}
-              </p>
-              <div data-tour-id={TENPAI_SCORE_TOUR_ID.machiSubmit}>
-                {machiJudgement ? (
-                  <Button size="lg" fullWidth onClick={handleProceed}>
-                    {t("machi.proceed")}
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    fullWidth
-                    onClick={handleSubmitMachi}
-                    disabled={selectedMachi.length === 0}
-                  >
-                    {t("machi.submit")}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          <TenpaiMachiPhase
+            selectedMachi={selectedMachi}
+            machiJudgement={machiJudgement}
+            requireHanFu={modeFlags.requireHanFu}
+            onToggle={toggleMachi}
+            onSubmit={submitMachi}
+            onProceed={proceedToCells}
+          />
         )}
 
         {phase === "cells" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-center gap-1.5">
-              <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-              <TenpaiScoreSpotlightTour requireHanFu={requireHanFu} />
-            </div>
-
-            <WaitCellGrid
-              question={currentQuestion}
-              cellAnswers={cellAnswers}
-              selectedCells={selectedCells}
-              formatAnswer={formatAnswer}
-              onToggleCell={toggleCell}
-            />
-
-            {/* 回答欄はマスを選んだときだけ見せる。選ぶ前から無効の欄を置くと
-                「押すと欄が出る」という因果が見えず、何を選べば答えられるのか
-                が伝わらない。選んだマスは表の色（琥珀）と塊で分かるので、
-                「選択中: n マス」の見出しは持たない。ヘルプツアーは選択が無い間
-                この欄を飛ばす（data-tour-id は見えている欄にだけ付ける）。
-                欄は列（ツモ / ロン）ごとに 1 つずつ、1 問の間ずっと mount した
-                まま hidden で出し入れする — 回答の形（支払いの形・役なしの
-                有無）が列で違うため欄は分けるが、入力は当てはめるまでどの
-                マスにも入っていないので、選択を解いた・別の列を押したの拍子に
-                欄を作り直すと誤タップ 1 回で入力が失われる。作り直すのは
-                当てはめて回答がマスに移ったとき（draftSeq）と次の問題
-                （questionSeq）だけ。
-                回答済みのマスを選択に加えると、その回答を欄に読み込む
-                （prefill）。まとめて答えた 2 マスに 3 つめを後から合流させる
-                とき、塊を押す → 当てはめる の 2 タップで済み、同じ翻・符・
-                点数を入れ直さない。塊は回答の同一性で作られるので、合流した
-                3 マスは当てはめた瞬間に 1 枚になる。読み込むのは欄が未入力の
-                間だけで、入力の途中で回答済みのマスを押しても入力は守られる
-                （欄が判定する） */}
-            {(["tsumo", "ron"] as const).map((column) => {
-              const isTsumo = column === "tsumo";
-              const isShown = selectedIsTsumo === isTsumo;
-              return (
-                <div
-                  key={column}
-                  hidden={!isShown}
-                  className="rounded-lg bg-surface-50 p-4"
-                  data-tour-id={
-                    isShown ? TENPAI_SCORE_TOUR_ID.answerForm : undefined
-                  }
-                >
-                  <ScorePracticeAnswerForm
-                    key={`${questionSeq}:${draftSeq[column]}`}
-                    onSubmit={handleAssignScore}
-                    isTsumo={isTsumo}
-                    isOya={isOyaQuestion}
-                    requireYaku={requireYaku}
-                    requireHanFu={requireHanFu}
-                    exactHan={exactHan}
-                    requireFuForMangan={requireFuForMangan}
-                    submitLabel={t("cells.assign")}
-                    prefill={isShown ? prefill : undefined}
-                    // 「役なし」はロンにしか無い回答なので、ロンの欄にだけ出す。
-                    // 置き場の「役」の行は常に出し、ツモとロンで高さを変えない
-                    reserveYakuRow
-                    noYaku={
-                      isTsumo
-                        ? undefined
-                        : {
-                            label: t("cells.noYaku"),
-                            onSelect: handleAssignNoYaku,
-                          }
-                    }
-                  />
-                </div>
-              );
-            })}
-
-            {/* 「回答する」はマスを選んでいる間（回答中）も押させない。
-                回答中は入力の途中で、押せると入力を捨てて古い回答で答え合わせに
-                進んでしまう。何をすれば押せるかを注記で言う。未回答が残る限り
-                その数を出す — 当てはめると次の未回答のマスが続けて回答中になる
-                ため、残数と選択中は常に重なる。あと何マスかの方が先に要る情報
-                で、「当てはめるか解く」は全マス埋めた後に押せない理由を説明する
-                ためだけに要る */}
-            <div className="space-y-2">
-              {(isSelecting || remaining > 0) && (
-                <p className="text-center text-xs text-surface-500">
-                  {remaining > 0
-                    ? t("cells.remaining", { count: remaining })
-                    : t("cells.selecting")}
-                </p>
-              )}
-              <div data-tour-id={TENPAI_SCORE_TOUR_ID.cellsSubmit}>
-                <Button
-                  size="lg"
-                  fullWidth
-                  onClick={handleSubmitCells}
-                  disabled={remaining > 0 || isSelecting}
-                >
-                  {t("cells.submit")}
-                </Button>
-              </div>
-            </div>
-          </div>
+          <TenpaiCellsPhase
+            question={currentQuestion}
+            cellAnswers={cellAnswers}
+            selectedCells={selectedCells}
+            questionSeq={questionSeq}
+            draftSeq={draftSeq}
+            modeFlags={modeFlags}
+            isOya={isOyaQuestion}
+            formatAnswer={formatAnswer}
+            onToggleCell={toggleCell}
+            onAssign={assignAnswer}
+            onSubmit={handleSubmitCells}
+          />
         )}
 
         {phase === "result" && (
@@ -447,10 +201,7 @@ function TenpaiScoreBoardInner() {
             cellAnswers={cellAnswers}
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
-            requireYaku={requireYaku}
-            requireHanFu={requireHanFu}
-            exactHan={exactHan}
-            requireFuForMangan={requireFuForMangan}
+            {...modeFlags}
             onNext={handleNext}
           />
         )}

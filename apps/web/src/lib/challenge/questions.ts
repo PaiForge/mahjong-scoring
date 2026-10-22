@@ -1,45 +1,18 @@
 import "server-only";
 
 import {
-  generateJantouFuQuestion,
-  generateMachiFuQuestion,
-  generateMentsuFuQuestion,
-  generateMentsuJantouFuQuestion,
-  generateTotalFuQuestion,
-  generateTotalFuQuestionInRange,
-  generateYakuQuestion,
-  generateYakuHanQuestion,
-  generateScoreTableQuestion,
-  generateValidScoreQuestion,
-  retryGenerate,
   clampHanToYakuman,
   judgeScoreTableAnswer,
 } from "@mahjong-scoring/core";
 import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-types";
-import { resolvePracticeVariant } from "@mahjong-scoring/features/practice-menu-types";
-import { SCORE_TABLE_VARIANT_OPTIONS } from "@mahjong-scoring/features/practice/score-table/variants";
-import { TOTAL_FU_VARIANT_RANGES } from "@mahjong-scoring/features/practice/total-fu/variants";
-import { YAKU_HAN_VARIANT_RANGES } from "@mahjong-scoring/features/practice/yaku-han/variants";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import { scoreTableAnswerSchema } from "@mahjong-scoring/features/results/result-schemas";
-import { EXAM_GENERATE_OPTIONS as mangan } from "@mahjong-scoring/features/exam/mangan/types";
-import { EXAM_GENERATE_OPTIONS as fu } from "@mahjong-scoring/features/exam/fu/types";
-import { EXAM_GENERATE_OPTIONS as chiitoitsu } from "@mahjong-scoring/features/exam/chiitoitsu/types";
-import { EXAM_GENERATE_OPTIONS as pinfu } from "@mahjong-scoring/features/exam/pinfu/types";
-import { EXAM_GENERATE_OPTIONS as fuScore } from "@mahjong-scoring/features/exam/fu-score/types";
-import { EXAM_GENERATE_OPTIONS as score } from "@mahjong-scoring/features/exam/score/types";
-import type { YakuHanQuestion } from "@mahjong-scoring/core";
 import type {
   ChallengeQuestion,
   ChallengeSettings,
   ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
-
-function isYakuHanQuestion(
-  question: ChallengeQuestion,
-): question is YakuHanQuestion {
-  return "yakuName" in question && "correctHan" in question;
-}
+import { CHALLENGE_QUESTION_GENERATORS } from "./generators";
 
 /**
  * 次問の生成に渡す出題履歴（今の問題までを含む）
@@ -65,85 +38,24 @@ export function generateChallengeQuestion(
   settings: ChallengeSettings,
   asked: readonly ChallengeQuestion[] = [],
 ): ChallengeQuestion | undefined {
-  switch (menu) {
-    case "jantou_fu":
-      return generateJantouFuQuestion(settings);
-    case "machi_fu":
-      return generateMachiFuQuestion();
-    case "mentsu_fu":
-      return generateMentsuFuQuestion();
-    case "mentsu_jantou_fu":
-      return retryGenerate(() => generateMentsuJantouFuQuestion(settings), 100);
-    case "total_fu":
-      return generateTotalFuQuestionInRange(
-        TOTAL_FU_VARIANT_RANGES[resolvePracticeVariant("total-fu", variant)],
-        settings,
-      );
-    case "fu_exam":
-      return retryGenerate(() => generateTotalFuQuestion(fu), 100);
-    case "yaku":
-      return retryGenerate(generateYakuQuestion, 100);
-    case "yaku_han":
-      return generateYakuHanQuestion(
-        YAKU_HAN_VARIANT_RANGES[resolvePracticeVariant("yaku-han", variant)],
-        asked.filter(isYakuHanQuestion),
-      );
-    case "score_table":
-      return generateScoreTableQuestion({
-        ...SCORE_TABLE_VARIANT_OPTIONS[
-          resolvePracticeVariant("score-table", variant)
-        ],
-        excludeKiriageBoundary: true,
-      });
-    case "han_count":
-      return generateValidScoreQuestion();
-    case "mangan_exam":
-      return generateValidScoreQuestion(mangan, 500);
-    case "chiitoitsu_exam":
-      return generateValidScoreQuestion(chiitoitsu, 500);
-    case "pinfu_exam":
-      return generateValidScoreQuestion(pinfu, 500);
-    case "fu_score_exam":
-      return generateValidScoreQuestion(fuScore, 500);
-    case "score_exam":
-      return generateValidScoreQuestion(score, 500);
-    case "mangan_score_calculation":
-      return generateValidScoreQuestion(
-        { ...score, allowedRanges: ["manganPlus"] },
-        500,
-      );
-    case "score_calculation":
-      return generateValidScoreQuestion(score, 500);
-    default: {
-      const exhaustive: never = menu;
-      return exhaustive;
-    }
-  }
+  return CHALLENGE_QUESTION_GENERATORS[menu]({ variant, settings, asked });
 }
 
-/** 回答は選択値のみ受け取り、サーバーに保管した正解と比較する。 */
+/**
+ * 回答は選択値のみ受け取り、サーバーに保管した正解と比較する。
+ *
+ * 問題の形（選択肢・符の項目列・役名の集合・翻数・点数）ごとに採点を分ける。
+ * 形はフィールドの有無で見分ける（問題は JSON で行に保管され、型の印を持たない）。
+ */
 export function gradeChallengeAnswer(
   menu: PracticeMenuType,
   question: ChallengeQuestion,
   answer: unknown,
 ): boolean {
-  if ("choices" in question)
-    return (
-      typeof answer === "number" && question.choices[answer]?.isCorrect === true
-    );
-  if ("items" in question)
-    return (
-      Array.isArray(answer) &&
-      answer.length === question.items.length &&
-      question.items.every((item, i) => answer[i] === item.fu)
-    );
+  if ("choices" in question) return gradeChoice(question.choices, answer);
+  if ("items" in question) return gradeFuItems(question.items, answer);
   if ("correctYakuNames" in question)
-    return (
-      Array.isArray(answer) &&
-      answer.length === question.correctYakuNames.length &&
-      new Set(answer).size === answer.length &&
-      question.correctYakuNames.every((name) => answer.includes(name))
-    );
+    return gradeYakuNames(question.correctYakuNames, answer);
   if ("correctHan" in question) return answer === question.correctHan;
   if ("answer" in question && typeof question.answer === "number")
     return answer === question.answer;
@@ -153,6 +65,50 @@ export function gradeChallengeAnswer(
     menu === "han_count"
   )
     return answer === clampHanToYakuman(question.answer.han);
+  return gradeScoreTable(question, answer);
+}
+
+/** 選択肢の番号で答える問題（雀頭符・面子符・待ち符・役翻数の一部） */
+function gradeChoice(
+  choices: readonly { readonly isCorrect: boolean }[],
+  answer: unknown,
+): boolean {
+  return typeof answer === "number" && choices[answer]?.isCorrect === true;
+}
+
+/** 項目ごとの符を順に答える問題（面子と雀頭の符）。長さと各項目の一致 */
+function gradeFuItems(
+  items: readonly { readonly fu: number }[],
+  answer: unknown,
+): boolean {
+  return (
+    Array.isArray(answer) &&
+    answer.length === items.length &&
+    items.every((item, i) => answer[i] === item.fu)
+  );
+}
+
+/** 成立する役の集合を答える問題。重複を認めず、過不足なく一致したときだけ正解 */
+function gradeYakuNames(
+  correctYakuNames: readonly string[],
+  answer: unknown,
+): boolean {
+  return (
+    Array.isArray(answer) &&
+    answer.length === correctYakuNames.length &&
+    new Set(answer).size === answer.length &&
+    correctYakuNames.every((name) => answer.includes(name))
+  );
+}
+
+/**
+ * 点数（親子・ツモロンの支払い）を答える問題。点数表早引きは `correctAnswer`
+ * を、点数計算は `answer.payment` を点数表の答えの形に直して比べる
+ */
+function gradeScoreTable(
+  question: ChallengeQuestion,
+  answer: unknown,
+): boolean {
   const parsed = scoreTableAnswerSchema.safeParse(answer);
   if (!parsed.success) return false;
   if ("correctAnswer" in question)

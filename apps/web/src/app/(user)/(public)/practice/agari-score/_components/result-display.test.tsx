@@ -10,6 +10,8 @@ import type {
 import { ResultDisplay } from "./result-display";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 点数表モーダルの切り替え（features のフック）が use-intl の辞書を引く
+vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 /**
  * 白・混一色・三暗刻が成立した子のロン（メンツモを1つ余分に選んだ回答）。

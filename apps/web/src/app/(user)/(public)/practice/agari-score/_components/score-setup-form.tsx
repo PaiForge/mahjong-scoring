@@ -2,7 +2,6 @@
 
 import { useState, useMemo, type ReactNode } from "react";
 import { SettingCard } from "../../_components/setting-card";
-import { SettingCardSkeleton } from "../../_components/setting-card-skeleton";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -14,21 +13,11 @@ import { useTrainingSettingsStore } from "@/app/_hooks/use-training-settings-sto
 import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { MultiSelect } from "@/app/(user)/_components/multi-select";
 import { useYakuLabel } from "@mahjong-scoring/features/yaku/use-yaku-options";
-import { yakuTokenOf, YAKU_PARAM } from "../_lib/yaku-filter-params";
-import {
-  RANGE_PARAM,
-  RANGE_TOKEN_MANGAN_PLUS,
-  RANGE_TOKEN_NON_MANGAN,
-} from "../../_lib/range-params";
-import {
-  ROLE_PARAM,
-  ROLE_TOKEN_KO,
-  ROLE_TOKEN_OYA,
-} from "../../_lib/role-params";
+import { buildScorePracticeQuery } from "../_lib/build-practice-query";
 import { useIsClient } from "../../../../../_hooks/use-is-client";
 import { SettingToggle, SettingToggleGroup } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
-import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { ScoreSetupFormSkeleton } from "./score-setup-form-skeleton";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
@@ -135,42 +124,21 @@ export function ScoreSetupForm({
   );
 
   const handleStart = () => {
-    const params = new URLSearchParams();
-    if (requireYaku) {
-      params.set("mode", "with_yaku");
-    }
-    // 5翻以上の答え方と満貫以上の符は、翻数と符を答えるときだけ意味を持つ
-    if (requireHanFu) {
-      params.set("han_fu", "1");
-      if (exactHan) {
-        params.set("exact_han", "1");
-      }
-      if (requireFuForMangan) {
-        params.set("fu_mangan", "1");
-      }
-    }
-    // Pro でなければ付けない。保存された値は Pro になったときに生きる
-    if (measureTime && hasPracticeTools) {
-      params.set("measure", "1");
-    }
-    if (targetScoreRanges.length > 0 && targetScoreRanges.length < 2) {
-      if (targetScoreRanges.includes("nonMangan"))
-        params.append(RANGE_PARAM, RANGE_TOKEN_NON_MANGAN);
-      if (targetScoreRanges.includes("manganPlus"))
-        params.append(RANGE_PARAM, RANGE_TOKEN_MANGAN_PLUS);
-    }
-    if (includeParent) params.append(ROLE_PARAM, ROLE_TOKEN_OYA);
-    if (includeChild) params.append(ROLE_PARAM, ROLE_TOKEN_KO);
-    if (showYakuFilter) {
-      for (const name of targetYaku) {
-        const token = yakuTokenOf(name);
-        if (token !== undefined) params.append(YAKU_PARAM, token);
-      }
-    }
-
     onStart();
-
-    const queryString = params.toString();
+    const queryString = buildScorePracticeQuery(
+      {
+        requireYaku,
+        requireHanFu,
+        exactHan,
+        requireFuForMangan,
+        measureTime,
+        targetScoreRanges,
+        includeParent,
+        includeChild,
+        targetYaku,
+      },
+      { hasPracticeTools, includeYakuFilter: showYakuFilter },
+    );
     router.push(queryString ? `${playPath}?${queryString}` : playPath);
   };
 
@@ -186,59 +154,10 @@ export function ScoreSetupForm({
     targetScoreRanges.length === 0 || (!includeParent && !includeChild);
 
   if (!mounted || isBenefitPending) {
-    // 本体と同じ構造（設定カード＝トグル行、2カラムのチェックボックスカード、
-    // フル幅ボタン）でスケルトンを描画し、実 UI 表示時の CLS を防ぐ。
-    // 最後の行（回答時間の計測）は Pro でない閲覧者が多数なので、ロック行の
-    // 高さ（見出し・利用条件・料金ページへのリンクの 3 段）に合わせる。
-    // 翻数と符の細目の 2 行（5翻以上・満貫以上の符）は、既定（翻数と符を
-    // 答えない）では出ないので数えない。
-    // 枠は実 UI と同じ細枠（border-panel）のまま、面を灰色にする。枠は
-    // border-box なので寸法は実 UI と一致したまま。
     return (
-      <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        {/* 回答する項目: トグル 2 行 */}
-        <SettingCardSkeleton>
-          {["requireYaku", "requireHanFu"].map((key, i) => (
-            <ToggleRowSkeleton key={key} isLast={i === 1} />
-          ))}
-        </SettingCardSkeleton>
-
-        {/* 練習の補助: トグル 1 行 + 回答時間の計測のロック行 */}
-        <SettingCardSkeleton>
-          <ToggleRowSkeleton />
-          <div className="px-5 py-3.5">
-            <div className="flex h-5 items-center justify-between">
-              <SkeletonBar className="h-4 w-32" tone={100} />
-              <SkeletonBar radius="full" className="h-4 w-10" tone={100} />
-            </div>
-            <div className="mt-1 flex h-4 items-center">
-              <SkeletonBar className="h-3 w-40" tone={100} />
-            </div>
-            <div className="mt-1 flex h-4 items-center justify-end">
-              <SkeletonBar className="h-3 w-20" tone={100} />
-            </div>
-          </div>
-        </SettingCardSkeleton>
-
-        {/* Grid: 出題モード / 点数範囲 の2カード（ヘッダー＋チェックボックス2行） */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {["questionMode", "targetScore"].map((key) => (
-            <SettingCardSkeleton key={key} />
-          ))}
-        </div>
-
-        {/* 出題する役カード（ヘッダー＋MultiSelect の追加ボタン相当） */}
-        {showYakuFilter && <SettingCardSkeleton />}
-
-        {/* Full-width start button（Button size="lg" の実寸 = 枠込み 46px） */}
-        <div>
-          <SkeletonBar radius="lg" className="h-[46px] w-full" />
-        </div>
-
-        {/* 注記は静的なテキストなのでスケルトンでもそのまま描く
-            （mounted の前後で高さが変わらない） */}
+      <ScoreSetupFormSkeleton showYakuFilter={showYakuFilter}>
         {children}
-      </div>
+      </ScoreSetupFormSkeleton>
     );
   }
 
@@ -396,18 +315,6 @@ export function ScoreSetupForm({
       >
         {t("setup.exactHanInfo")}
       </InfoModal>
-    </div>
-  );
-}
-
-/** トグル行（{@link SettingToggle}）の読み込み中の形 */
-function ToggleRowSkeleton({ isLast = false }: { readonly isLast?: boolean }) {
-  return (
-    <div
-      className={`flex items-center justify-between px-5 py-3.5 ${isLast ? "" : "border-b border-surface-100"}`}
-    >
-      <SkeletonBar className="h-4 w-32" tone={100} />
-      <SkeletonBar radius="full" className="h-6 w-11" tone={100} />
     </div>
   );
 }

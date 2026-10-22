@@ -1,24 +1,15 @@
 import { useCallback, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
-import type { UserAnswer } from "@mahjong-scoring/core";
-import {
-  cellKeyOf,
-  listCellRefs,
-} from "@mahjong-scoring/features/practice/tenpai-score/cell-ref";
-import { sharedAnswerOfCells } from "@mahjong-scoring/features/practice/tenpai-score/cell-runs";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
-import { Button } from "../../../components/button";
 import { Screen } from "../../../components/screen";
 import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
 import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
-import { colors, radius } from "../../../lib/theme";
-import { QuestionPrompt } from "../../components/question-prompt";
 import { ScoreCounter } from "../../components/score-counter";
 import { AnswerTimeBadge } from "../../quota/answer-time-badge";
 import { PracticeQuotaPaywall } from "../../quota/practice-quota-paywall";
@@ -31,19 +22,17 @@ import {
   readGeneratorOptions,
   readModeFlags,
 } from "../agari-score/practice-conditions";
-import { ScorePracticeAnswerForm } from "../agari-score/score-practice-answer-form";
-import { MachiPicker } from "./machi-picker";
+import { CellsPhase } from "./cells-phase";
+import { MachiPhase } from "./machi-phase";
 import { TenpaiScoreOperationHelp } from "./tenpai-score-help";
 import { TenpaiScoreResult } from "./tenpai-score-result";
 import { TenpaiDisplay } from "./tenpai-display";
 import { useTenpaiScoreStore } from "./use-tenpai-score-store";
-import { WaitCellGrid } from "./wait-cell-grid";
 import { HandPresentationNotice } from "../../components/hand-presentation-notice";
 import { PreparingScreenFrame } from "../../components/preparing-screen";
 import { HandPresentationProvider } from "../../hand-presentation-provider";
 
 /** 回答欄を出し分ける列（ツモ / ロン） */
-const COLUMNS = ["tsumo", "ron"] as const;
 
 /**
  * 聴牌形の点数計算の盤面（web の `TenpaiScoreBoard`）
@@ -62,8 +51,7 @@ function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
-  const { requireYaku, requireHanFu, exactHan, requireFuForMangan } =
-    readModeFlags(settings);
+  const modeFlags = readModeFlags(settings);
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const {
     currentQuestion,
@@ -114,37 +102,8 @@ function TenpaiScoreBoardInner() {
     revealAnswer,
   });
 
-  const handleSubmitMachi = () => {
-    scrollToTop();
-    submitMachi();
-  };
-
-  const handleProceed = () => {
-    scrollToTop();
-    proceedToCells();
-  };
-
-  // 当てはめると表の塊が組み変わり、回答欄も入れ替わる。押した位置に
-  // 留まると表もボタンも画面外になるので、盤面の先頭へ戻す
-  const handleAssignScore = (answer: UserAnswer) => {
-    scrollToTop();
-    assignAnswer({ kind: "score", answer });
-  };
-
-  const handleAssignNoYaku = () => {
-    scrollToTop();
-    assignAnswer({ kind: "noYaku" });
-  };
-
   const handleSubmitCells = () => {
-    scrollToTop();
-    submitCells({
-      requireYaku,
-      requireHanFu,
-      exactHan,
-      requireFuForMangan,
-      allowDoubleYakuman,
-    });
+    submitCells({ ...modeFlags, allowDoubleYakuman });
     if (autoAdvanceOnCorrect && useTenpaiScoreStore.getState().isAllCorrect) {
       celebrateAndAdvance();
     }
@@ -183,21 +142,10 @@ function TenpaiScoreBoardInner() {
     const { formatAnswer, formatAnswerLines } = cellAnswerFormatters({
       t: tScore,
       noYakuLabel: t("cells.noYakuShort"),
-      exactHan,
+      exactHan: modeFlags.exactHan,
       allowDoubleYakuman,
       isOya: isOyaQuestion,
     });
-
-    const remaining = listCellRefs(currentQuestion).filter(
-      (cell) => !(cellKeyOf(cell) in cellAnswers),
-    ).length;
-    // 選択中のマスは同じ列に限られる（ストアが保証する）ので先頭で列が決まる
-    const selectedIsTsumo = selectedCells[0]?.isTsumo;
-    const isSelecting = selectedIsTsumo !== undefined;
-    // 選択中の回答済みマスの回答が 1 種類に定まるなら、その回答を欄に読み込む
-    const sharedAnswer = sharedAnswerOfCells(selectedCells, cellAnswers);
-    const prefill =
-      sharedAnswer?.kind === "score" ? sharedAnswer.answer : undefined;
 
     return (
       <View style={styles.board}>
@@ -208,134 +156,31 @@ function TenpaiScoreBoardInner() {
         />
 
         {phase === "machi" && (
-          <View style={styles.stage}>
-            <QuestionPrompt
-              replacement={
-                machiJudgement && (
-                  <Text
-                    style={[
-                      styles.verdict,
-                      {
-                        color: machiJudgement.isCorrect
-                          ? colors.success
-                          : colors.destructive,
-                      },
-                    ]}
-                  >
-                    {machiJudgement.isCorrect
-                      ? t("machi.correct", {
-                          count: machiJudgement.correct.length,
-                        })
-                      : t("machi.incorrect")}
-                  </Text>
-                )
-              }
-            >
-              {t("machi.prompt")}
-            </QuestionPrompt>
-
-            <MachiPicker
-              selected={selectedMachi}
-              onToggle={toggleMachi}
-              judgement={machiJudgement}
-            />
-
-            {/* 選択数の行は判定後も高さを残す（消すとボタンが上へずれる） */}
-            <View style={styles.submitBlock}>
-              <Text style={styles.note}>
-                {machiJudgement
-                  ? ""
-                  : t("machi.selectedCount", { count: selectedMachi.length })}
-              </Text>
-              {machiJudgement ? (
-                <Button size="lg" fullWidth onPress={handleProceed}>
-                  {t("machi.proceed")}
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  fullWidth
-                  onPress={handleSubmitMachi}
-                  disabled={selectedMachi.length === 0}
-                >
-                  {t("machi.submit")}
-                </Button>
-              )}
-            </View>
-          </View>
+          <MachiPhase
+            selectedMachi={selectedMachi}
+            machiJudgement={machiJudgement}
+            scrollToTop={scrollToTop}
+            onToggle={toggleMachi}
+            onSubmit={submitMachi}
+            onProceed={proceedToCells}
+          />
         )}
 
         {phase === "cells" && (
-          <View style={styles.stage}>
-            <QuestionPrompt>{t("cells.prompt")}</QuestionPrompt>
-
-            <WaitCellGrid
-              question={currentQuestion}
-              cellAnswers={cellAnswers}
-              selectedCells={selectedCells}
-              formatAnswer={formatAnswer}
-              onToggleCell={toggleCell}
-            />
-
-            {/* 回答欄はマスを選んだときだけ見せる。列（ツモ / ロン）ごとに 1 つ
-                ずつ、1 問の間ずっと mount したまま出し入れする — 選択を解いた・
-                別の列を押したの拍子に作り直すと、誤タップ 1 回で入力が失われる。
-                作り直すのは当てはめたとき（draftSeq）と次の問題（questionSeq）
-                だけ（web と同じ） */}
-            {COLUMNS.map((column) => {
-              const isTsumo = column === "tsumo";
-              const isShown = selectedIsTsumo === isTsumo;
-              return (
-                <View
-                  key={column}
-                  style={[styles.formPanel, !isShown && styles.hidden]}
-                >
-                  <ScorePracticeAnswerForm
-                    key={`${questionSeq}:${draftSeq[column]}`}
-                    onSubmit={handleAssignScore}
-                    isTsumo={isTsumo}
-                    isOya={isOyaQuestion}
-                    requireYaku={requireYaku}
-                    requireHanFu={requireHanFu}
-                    exactHan={exactHan}
-                    requireFuForMangan={requireFuForMangan}
-                    submitLabel={t("cells.assign")}
-                    prefill={isShown ? prefill : undefined}
-                    // 「役なし」はロンにしか無い回答なので、ロンの欄にだけ出す
-                    reserveYakuRow
-                    noYaku={
-                      isTsumo
-                        ? undefined
-                        : {
-                            label: t("cells.noYaku"),
-                            onSelect: handleAssignNoYaku,
-                          }
-                    }
-                  />
-                </View>
-              );
-            })}
-
-            {/* 「回答する」はマスを選んでいる間も押させない（入力の途中で古い
-                回答のまま答え合わせに進まないため）。押せない理由を注記で言う */}
-            <View style={styles.submitBlock}>
-              {(isSelecting || remaining > 0) && (
-                <Text style={styles.note}>
-                  {remaining > 0
-                    ? t("cells.remaining", { count: remaining })
-                    : t("cells.selecting")}
-                </Text>
-              )}
-              <Button
-                size="lg"
-                fullWidth
-                onPress={handleSubmitCells}
-                disabled={remaining > 0 || isSelecting}
-              >
-                {t("cells.submit")}
-              </Button>
-            </View>
-          </View>
+          <CellsPhase
+            question={currentQuestion}
+            cellAnswers={cellAnswers}
+            selectedCells={selectedCells}
+            questionSeq={questionSeq}
+            draftSeq={draftSeq}
+            modeFlags={modeFlags}
+            isOya={isOyaQuestion}
+            formatAnswer={formatAnswer}
+            scrollToTop={scrollToTop}
+            onToggleCell={toggleCell}
+            onAssign={assignAnswer}
+            onSubmit={handleSubmitCells}
+          />
         )}
 
         {phase === "result" && (
@@ -347,10 +192,7 @@ function TenpaiScoreBoardInner() {
             cellAnswers={cellAnswers}
             cellResults={cellResults}
             formatAnswerLines={formatAnswerLines}
-            requireYaku={requireYaku}
-            requireHanFu={requireHanFu}
-            exactHan={exactHan}
-            requireFuForMangan={requireFuForMangan}
+            {...modeFlags}
             onNext={handleNext}
           />
         )}
@@ -371,7 +213,7 @@ function TenpaiScoreBoardInner() {
           phase === "result" ? undefined : (
             <TenpaiScoreOperationHelp
               phase={phase}
-              requireHanFu={requireHanFu}
+              requireHanFu={modeFlags.requireHanFu}
             />
           )
         }
@@ -421,34 +263,8 @@ const styles = StyleSheet.create({
   board: {
     gap: 24,
   },
-  stage: {
-    gap: 16,
-  },
   quota: {
     gap: 4,
-  },
-  verdict: {
-    textAlign: "center",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  submitBlock: {
-    gap: 8,
-  },
-  note: {
-    minHeight: 16,
-    textAlign: "center",
-    fontSize: 12,
-    lineHeight: 16,
-    color: colors.surface500,
-  },
-  formPanel: {
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface50,
-    padding: 16,
-  },
-  hidden: {
-    display: "none",
   },
 });
 

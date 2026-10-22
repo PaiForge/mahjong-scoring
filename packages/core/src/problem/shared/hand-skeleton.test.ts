@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 import { MentsuType, type HaiKindId } from "@pai-forge/riichi-mahjong";
 
 import { HaiUsageTracker } from "../../core/hai-tracker";
+import { validateHaiKindId } from "../../core/type-guards";
 import {
   generateMentsuSet,
   generatePairTile,
+  reserveMentsuHais,
   pickRonAgariHai,
 } from "./hand-skeleton";
 import type { MentsuResult } from "../mentsu-fu/mentsu-factory";
@@ -141,5 +143,31 @@ describe("pickRonAgariHai", () => {
     for (let i = 0; i < 100; i++) picked.add(pickRonAgariHai(list, 0));
 
     expect(picked.has(19)).toBe(true);
+  });
+});
+
+describe("reserveMentsuHais", () => {
+  const hai = (value: number): HaiKindId => {
+    const result = validateHaiKindId(value);
+    if (result.isErr()) throw new Error(`牌種 ${value} が不正`);
+    return result.value;
+  };
+
+  it("残っていれば全枚数を確保する", () => {
+    const tracker = new HaiUsageTracker();
+    expect(reserveMentsuHais(tracker, [hai(0), hai(0), hai(0)])).toBe(
+      "reserved",
+    );
+    expect(tracker.canUse(hai(0), 1)).toBe(true);
+    expect(tracker.canUse(hai(0), 2)).toBe(false);
+  });
+
+  it("同じ牌種が足りなければ 1 枚も使わずに unavailable", () => {
+    const tracker = new HaiUsageTracker();
+    expect(tracker.use(hai(0), 3).isOk()).toBe(true);
+    expect(reserveMentsuHais(tracker, [hai(0), hai(0)])).toBe("unavailable");
+    // 2 枚目で足りないことを個別の canUse では見逃す（1 枚ずつなら使える）が、
+    // まとめて確かめるので最初の 1 枚も使っていない
+    expect(tracker.canUse(hai(0), 1)).toBe(true);
   });
 });

@@ -1,30 +1,20 @@
 "use client";
 
-import { useMemo, useCallback, useId } from "react";
 import { useTranslations } from "next-intl";
-import { allowsDoubleYakuman, koTsumoPaymentKey } from "@mahjong-scoring/core";
+import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
 import { useKoTsumoInput } from "@/app/_hooks/use-display-settings-store";
-import {
-  practiceFuOptions,
-  practiceHanOptions,
-} from "@mahjong-scoring/features/practice/score/answer-options";
-import {
-  koTsumoPaymentOfKey,
-  koTsumoSelectOptions,
-  scoreSelectOptions,
-} from "@mahjong-scoring/features/practice/score/score-select-options";
 import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
-import { getSelectClass } from "../../_lib/select-class";
-import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { Button } from "@/app/(user)/_components/button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
+import { HanFuFields } from "./han-fu-fields";
+import { ScoreField } from "./score-field";
 
 /**
  * 回答フォームコンポーネント
@@ -51,36 +41,11 @@ export function ScorePracticeAnswerForm({
   prefill,
 }: ScorePracticeAnswerFormProps) {
   const t = useTranslations("agariScore");
-  // ラベルと select を紐付ける id（読み上げで「翻数」「符」「点数」を名前として得るため）
-  const hanId = useId();
-  const fuId = useId();
-  const scoreId = useId();
-  const scoreLabelId = useId();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const koTsumoInput = useKoTsumoInput();
-  const {
-    han,
-    fu,
-    yakus,
-    score,
-    scoreFromKo,
-    scoreFromOya,
-    koTsumoPayment,
-    setHan,
-    setFu,
-    setYakus,
-    setScore,
-    setScoreFromKo,
-    setScoreFromOya,
-    setKoTsumoPayment,
-    isFuRequired,
-    availableScores,
-    isOyaTsumo,
-    isComplete,
-    submit,
-  } = useScorePracticeAnswerForm({
+  const form = useScorePracticeAnswerForm({
     onSubmit,
     isTsumo,
     isOya,
@@ -93,224 +58,59 @@ export function ScorePracticeAnswerForm({
     prefill,
   });
 
-  const hanOptions = useMemo(
-    () => [
-      { value: "", label: t("form.placeholders.select") },
-      ...practiceHanOptions(t, exactHan, allowDoubleYakuman),
-    ],
-    [exactHan, allowDoubleYakuman, t],
-  );
-
-  /** 符が不要なとき、符の select にそのまま描く注記（箱の高さを保つため） */
-  const fuNotRequiredOptions = useMemo(
-    () => [{ value: "", label: t("form.messages.fuNotRequired") }],
-    [t],
-  );
-
-  const fuOptions = useMemo(
-    () => [
-      { value: "", label: t("form.placeholders.select") },
-      ...practiceFuOptions(t),
-    ],
-    [t],
-  );
-
-  const handleHanChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = e.target.value;
-      setHan(value === "" ? undefined : Number(value));
-    },
-    [setHan],
-  );
-
-  const handleFuChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = e.target.value;
-      setFu(value === "" ? undefined : Number(value));
-    },
-    [setFu],
-  );
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submit();
+    form.submit();
   };
 
-  const selectClass = getSelectClass;
+  // 「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に添える
+  // （渡されたときだけ）。リンク風のボタンで、押した瞬間に回答が確定する。
+  // 役の回答が不要な設定でも reserveYakuRow ならラベル行だけを出し、ツモと
+  // ロンでフォームの高さが変わらないようにする
+  const noYakuButton = noYaku && (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={noYaku.onSelect}
+      className={`text-xs ${TEXT_LINK_CLASSES}`}
+    >
+      {noYaku.label}
+    </button>
+  );
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Yaku input
-          「役なし」はロンにしか無い回答なので、「役」のラベル行の右端に
-          添える（渡されたときだけ）。リンク風のボタンで、押した瞬間に回答が
-          確定する。役の回答が不要な設定でも
-          reserveYakuRow ならラベル行だけを出し、ツモとロンでフォームの
-          高さが変わらないようにする */}
-      {(() => {
-        const noYakuButton = noYaku && (
-          <button
-            type="button"
+      {requireYaku ? (
+        <div data-tour-id={AGARI_SCORE_TOUR_ID.yaku}>
+          <YakuSelect
+            value={form.yakus}
+            onChange={form.setYakus}
             disabled={disabled}
-            onClick={noYaku.onSelect}
-            className={`text-xs ${TEXT_LINK_CLASSES}`}
-          >
-            {noYaku.label}
-          </button>
-        );
-        if (requireYaku) {
-          return (
-            <div data-tour-id={AGARI_SCORE_TOUR_ID.yaku}>
-              <YakuSelect
-                value={yakus}
-                onChange={setYakus}
-                disabled={disabled}
-                labelAction={noYakuButton}
-              />
-            </div>
-          );
-        }
-        return reserveYakuRow ? <YakuLabelRow action={noYakuButton} /> : null;
-      })()}
+            labelAction={noYakuButton}
+          />
+        </div>
+      ) : (
+        reserveYakuRow && <YakuLabelRow action={noYakuButton} />
+      )}
 
-      {/* Han / Fu input
-          翻数と符を問わない設定では欄ごと出さない（実戦では点数だけを申告する）。
+      {/* 翻数と符を問わない設定では欄ごと出さない（実戦では点数だけを申告する）。
           点数の選択肢は翻数で絞られず、取りうる全点数になる */}
       {requireHanFu && (
-        <div data-tour-id={AGARI_SCORE_TOUR_ID.han}>
-          <label
-            htmlFor={hanId}
-            className="mb-2 block text-sm font-bold text-surface-700"
-          >
-            {t("form.labels.han")}
-          </label>
-          <select
-            id={hanId}
-            value={han ?? ""}
-            onChange={handleHanChange}
-            disabled={disabled}
-            required
-            className={selectClass(han !== undefined)}
-          >
-            {hanOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <HanFuFields
+          form={form}
+          exactHan={exactHan}
+          allowDoubleYakuman={allowDoubleYakuman}
+          disabled={disabled}
+        />
       )}
 
-      {/* Fu input
-          満貫以上で符が不要になっても、select を 1 行の注記に差し替えず disabled の
-          まま残す。差し替えるとブロックの高さが約 58px 縮み、翻数を選んだ直後に
-          触る「点数」と回答ボタンが指の下でせり上がる。注記は select の唯一の
-          option として同じ箱に描くため、高さは要素が同一であることで一致する。 */}
-      {requireHanFu && (
-        <div data-tour-id={AGARI_SCORE_TOUR_ID.fu}>
-          <label
-            htmlFor={fuId}
-            className="mb-2 block text-sm font-bold text-surface-700"
-          >
-            {t("form.labels.fu")}
-          </label>
-          <select
-            id={fuId}
-            value={isFuRequired ? (fu ?? "") : ""}
-            onChange={handleFuChange}
-            disabled={disabled || !isFuRequired}
-            required={isFuRequired}
-            className={selectClass(isFuRequired ? fu !== undefined : true)}
-          >
-            {(isFuRequired ? fuOptions : fuNotRequiredOptions).map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
+      <ScoreField form={form} disabled={disabled} />
 
-      {/* Score input
-          子ツモの分割入力は「点数」ラベル 1 つに対し select が 2 つあるため、
-          ラベルは group の名前として使い、各 select は「子」「親」で名付ける。
-          組の select は「300/500」だけでは並び順が分からない初学者のため、
-          ラベルに「子から / 親から」の順を添える。 */}
-      <div data-tour-id={AGARI_SCORE_TOUR_ID.score}>
-        <label
-          htmlFor={
-            availableScores.type === "koTsumoSplit" ? undefined : scoreId
-          }
-          id={scoreLabelId}
-          className="mb-2 block text-sm font-bold text-surface-700"
-        >
-          {availableScores.type === "single"
-            ? t("form.labels.score")
-            : t("form.labels.koTsumoScore")}
-        </label>
-        {availableScores.type === "koTsumoSplit" ? (
-          <div
-            role="group"
-            aria-labelledby={scoreLabelId}
-            className="flex items-center gap-2"
-          >
-            <div className="flex-1">
-              <ScoreOptionSelect
-                value={scoreFromKo?.toString()}
-                onChange={(v) => setScoreFromKo(Number(v))}
-                options={scoreSelectOptions(availableScores.koScores)}
-                placeholder={t("form.placeholders.fromKo")}
-                ariaLabel={t("form.placeholders.fromKo")}
-                disabled={disabled}
-              />
-            </div>
-            <span className="font-medium text-surface-500">/</span>
-            <div className="flex-1">
-              <ScoreOptionSelect
-                value={scoreFromOya?.toString()}
-                onChange={(v) => setScoreFromOya(Number(v))}
-                options={scoreSelectOptions(availableScores.oyaScores)}
-                placeholder={t("form.placeholders.fromOya")}
-                ariaLabel={t("form.placeholders.fromOya")}
-                disabled={disabled}
-              />
-            </div>
-          </div>
-        ) : availableScores.type === "koTsumoCombined" ? (
-          <ScoreOptionSelect
-            id={scoreId}
-            value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
-            onChange={(key) => {
-              const payment = koTsumoPaymentOfKey(
-                availableScores.payments,
-                key,
-              );
-              if (payment) setKoTsumoPayment(payment);
-            }}
-            options={koTsumoSelectOptions(availableScores.payments)}
-            placeholder={t("form.placeholders.select")}
-            disabled={disabled}
-          />
-        ) : (
-          <ScoreOptionSelect
-            id={scoreId}
-            value={score?.toString()}
-            onChange={(v) => setScore(Number(v))}
-            options={scoreSelectOptions(
-              availableScores.scores,
-              isOyaTsumo ? t("form.options.all") : "",
-            )}
-            placeholder={t("form.placeholders.select")}
-            disabled={disabled}
-          />
-        )}
-      </div>
-
-      {/* Submit */}
       <Button
         type="submit"
         size="lg"
         fullWidth
-        disabled={disabled || !isComplete}
+        disabled={disabled || !form.isComplete}
         data-tour-id={AGARI_SCORE_TOUR_ID.submit}
       >
         {submitLabel ?? t("form.buttons.answer")}

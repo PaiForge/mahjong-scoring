@@ -47,6 +47,37 @@ interface HandStructure {
   };
 }
 
+/** 和了牌の候補（どの面子・雀頭を完成させる牌か） */
+interface AgariCandidate {
+  readonly hai: HaiKindId;
+  readonly target: HandStructure["agariTarget"];
+}
+
+/**
+ * 和了牌の候補を列挙する
+ * 和了牌候補列挙
+ *
+ * 副露した面子と槓子は候補にしない（鳴いた時点で確定しており、槓子は 4 枚を
+ * 使い切る）。雀頭は 2 枚ぶん載せ、面子の牌と同じ重みで選ばれるようにする。
+ */
+function listAgariCandidates(
+  mentsuList: readonly MentsuShape[],
+  pair: HaiKindId,
+): readonly AgariCandidate[] {
+  const fromMentsu = mentsuList.flatMap(
+    (m, index): readonly AgariCandidate[] =>
+      m.isFuro || m.type === MentsuType.Kantsu
+        ? []
+        : m.hais.map((hai) => ({ hai, target: { type: "mentsu", index } })),
+  );
+  const pairTarget = { type: "pair", index: 0 } as const;
+  return [
+    ...fromMentsu,
+    { hai: pair, target: pairTarget },
+    { hai: pair, target: pairTarget },
+  ];
+}
+
 /**
  * 面子手生成結果
  * 面子手生成結果
@@ -106,33 +137,11 @@ export function generateMentsuTehai(
   if (toitsuHai === undefined) return undefined;
   closedHais.push(toitsuHai, toitsuHai);
 
-  // 和了牌の候補を収集
-  const candidates: {
-    readonly hai: HaiKindId;
-    readonly target: {
-      readonly type: "mentsu" | "pair";
-      readonly index: number;
-    };
-  }[] = [];
-
-  // 面子からの候補
-  for (let idx = 0; idx < structuralMentsu.length; idx++) {
-    const m = structuralMentsu[idx];
-    if (!m.isFuro && m.type !== MentsuType.Kantsu) {
-      for (const hai of m.hais) {
-        candidates.push({ hai, target: { type: "mentsu", index: idx } });
-      }
-    }
-  }
-
-  // 雀頭からの候補
-  candidates.push(
-    { hai: toitsuHai, target: { type: "pair", index: 0 } },
-    { hai: toitsuHai, target: { type: "pair", index: 0 } },
-  );
-
   // 和了牌を決定
-  const selected = randomChoice(candidates, rng);
+  const selected = randomChoice(
+    listAgariCandidates(structuralMentsu, toitsuHai),
+    rng,
+  );
   const agariHai = selected.hai;
   const agariTarget = selected.target;
 

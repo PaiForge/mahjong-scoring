@@ -27,6 +27,91 @@ export interface FuDetail {
   readonly fu: number;
 }
 
+/** 面子手の構造（面子符・雀頭符の内訳はここからしか復元できない） */
+type MentsuHandStructure = Extract<
+  ScoreDetail["structure"],
+  { readonly type: "Mentsu" }
+>;
+
+/**
+ * 内訳が定型で決まる手（七対子・国士無双・平和ツモ）の内訳。該当しなければ undefined
+ * 特例の符内訳
+ */
+function specialFuDetails(
+  detail: Readonly<ScoreDetail>,
+  isTsumo: boolean,
+): FuDetail[] | undefined {
+  const { fuResult, structure } = detail;
+  if (structure.type === "Chiitoitsu") return [{ reason: "七対子", fu: 25 }];
+  // 国士無双（便宜上）
+  if (structure.type === "Kokushi") return [{ reason: "副底", fu: FUTEI_FU }];
+  // 平和ツモの特例（符合計が20符の場合）
+  if (fuResult.total === FUTEI_FU && isTsumo) {
+    return [{ reason: "平和ツモ", fu: FUTEI_FU }];
+  }
+  return undefined;
+}
+
+/** 和了符（ツモ / 門前加符）。付かなければ undefined */
+function agariFuDetail(agari: number, isTsumo: boolean): FuDetail | undefined {
+  if (agari <= 0) return undefined;
+  return isTsumo
+    ? { reason: "ツモ", fu: agari }
+    : { reason: "門前加符", fu: agari };
+}
+
+/**
+ * 面子符（個別の面子の内訳を構造から復元する）
+ * 面子符内訳
+ *
+ * 明暗の判定はライブラリの符計算ロジックと同一で、置き場所から引く
+ * （{@link isOpenMentsuAt}）。
+ */
+function mentsuFuDetails(
+  structure: MentsuHandStructure,
+  isTsumo: boolean,
+): FuDetail[] {
+  const details: FuDetail[] = [];
+  for (const [index, mentsu] of structure.fourMentsu.entries()) {
+    if (mentsu.type === MentsuType.Shuntsu) continue;
+    const isYao = isYaochu(mentsu.hais[0]);
+    const isOpen = isOpenMentsuAt(structure, index, isTsumo);
+    const fu = calculateMentsuFu({
+      isKantsu: mentsu.type === MentsuType.Kantsu,
+      isOpen,
+      isYaochu: isYao,
+    });
+    const typeLabel = mentsu.type === MentsuType.Kantsu ? "槓子" : "刻子";
+    details.push({
+      reason: `${yaochuLabel(isYao)}${openLabel(isOpen)}${typeLabel}`,
+      fu,
+    });
+  }
+  return details;
+}
+
+/** 雀頭符（役牌の理由を添える） */
+function jantouFuDetail(
+  structure: MentsuHandStructure,
+  fu: number,
+  bakaze: Kazehai,
+  jikaze: Kazehai,
+): FuDetail {
+  const reasons = jantouFuReasons(structure.jantou.hais[0], bakaze, jikaze);
+  return { reason: `雀頭(${reasons.join("・")})`, fu };
+}
+
+/** 待ち符。付かなければ undefined */
+function machiFuDetail(
+  machi: number,
+  machiType: ScoreDetail["machiType"],
+): FuDetail | undefined {
+  if (machi <= 0) return undefined;
+  const machiLabel =
+    machiType !== undefined ? MACHI_LABELS[machiType] : undefined;
+  return { reason: machiLabel ?? "待ち", fu: machi };
+}
+
 /**
  * ライブラリの ScoreDetail から表示用の FuDetail[] を構築する
  *
@@ -48,80 +133,31 @@ export function convertScoreDetailToFuDetails(
     readonly jikaze: Kazehai;
   },
 ): FuDetail[] {
+  const special = specialFuDetails(detail, config.isTsumo);
+  if (special) return special;
+
   const { fuResult, structure, machiType } = detail;
   const { details } = fuResult;
+  const mentsuHand = structure.type === "Mentsu" ? structure : undefined;
 
-  // 七対子
-  if (structure.type === "Chiitoitsu") {
-    return [{ reason: "七対子", fu: 25 }];
-  }
-
-  // 国士無双（便宜上）
-  if (structure.type === "Kokushi") {
-    return [{ reason: "副底", fu: FUTEI_FU }];
-  }
-
-  // 平和ツモの特例（符合計が20符の場合）
-  if (fuResult.total === FUTEI_FU && config.isTsumo) {
-    return [{ reason: "平和ツモ", fu: FUTEI_FU }];
-  }
-
-  const result: FuDetail[] = [];
-
-  // 副底
-  result.push({ reason: "副底", fu: details.base });
-
-  // 和了符
-  if (details.agari > 0) {
-    if (config.isTsumo) {
-      result.push({ reason: "ツモ", fu: details.agari });
-    } else {
-      result.push({ reason: "門前加符", fu: details.agari });
-    }
-  }
-
-  // 面子符（個別の面子の内訳を構造から復元）
-  if (details.mentsu > 0 && structure.type === "Mentsu") {
-    for (const [index, mentsu] of structure.fourMentsu.entries()) {
-      if (mentsu.type === MentsuType.Shuntsu) continue;
-
-      const isYao = isYaochu(mentsu.hais[0]);
-
-      // 明暗の判定（ライブラリの符計算ロジックと同一。置き場所から引く）
-      const isOpen = isOpenMentsuAt(structure, index, config.isTsumo);
-
-      const fu = calculateMentsuFu({
-        isKantsu: mentsu.type === MentsuType.Kantsu,
-        isOpen,
-        isYaochu: isYao,
-      });
-
-      const typeLabel = mentsu.type === MentsuType.Kantsu ? "槓子" : "刻子";
-
-      result.push({
-        reason: `${yaochuLabel(isYao)}${openLabel(isOpen)}${typeLabel}`,
-        fu,
-      });
-    }
-  }
-
-  // 雀頭符
-  if (details.jantou > 0 && structure.type === "Mentsu") {
-    const pair = structure.jantou.hais[0];
-    const reasons = jantouFuReasons(pair, config.bakaze, config.jikaze);
-
-    result.push({
-      reason: `雀頭(${reasons.join("・")})`,
-      fu: details.jantou,
-    });
-  }
-
-  // 待ち符
-  if (details.machi > 0) {
-    const machiLabel =
-      machiType !== undefined ? MACHI_LABELS[machiType] : undefined;
-    result.push({ reason: machiLabel ?? "待ち", fu: details.machi });
-  }
+  const result: FuDetail[] = [
+    { reason: "副底", fu: details.base },
+    ...optional(agariFuDetail(details.agari, config.isTsumo)),
+    ...(details.mentsu > 0 && mentsuHand
+      ? mentsuFuDetails(mentsuHand, config.isTsumo)
+      : []),
+    ...(details.jantou > 0 && mentsuHand
+      ? [
+          jantouFuDetail(
+            mentsuHand,
+            details.jantou,
+            config.bakaze,
+            config.jikaze,
+          ),
+        ]
+      : []),
+    ...optional(machiFuDetail(details.machi, machiType)),
+  ];
 
   // 喰い平和の特例（合計20符を30符に切り上げ）
   const rawSum = result.reduce((acc, d) => acc + d.fu, 0);
@@ -130,4 +166,9 @@ export function convertScoreDetailToFuDetails(
   }
 
   return result;
+}
+
+/** 付かない内訳（undefined）を配列の展開で落とすための包み */
+function optional(detail: FuDetail | undefined): readonly FuDetail[] {
+  return detail === undefined ? [] : [detail];
 }

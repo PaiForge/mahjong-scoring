@@ -6,11 +6,7 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
-import {
-  API_ERROR_BANNED,
-  API_ERROR_RATE_LIMITED,
-  callApi,
-} from "@/lib/api-client";
+import { callApi } from "@/lib/api-client";
 import { ConfirmationModal } from "@/app/(user)/_components/confirmation-modal";
 import {
   FOCUS_RING_CLASSES,
@@ -18,12 +14,11 @@ import {
 } from "@/app/_components/_lib/link-classes";
 import { XMarkIcon } from "@/app/(user)/_components/icons/x-mark-icon";
 import { useAuth } from "@/app/_contexts/auth-context";
-import { prepareImageForUpload } from "@/lib/client-images/prepare-image-for-upload";
-import { logExternalError } from "@/lib/log-error";
 import {
-  AVATAR_MAX_FILE_SIZE,
-  isAllowedImageMimeType,
-} from "@/lib/images/policy";
+  avatarRemoveErrorKey,
+  avatarUploadErrorKey,
+  prepareAvatarFile,
+} from "../_lib/avatar-file";
 
 /**
  * アバターアップロード。ファイル選択時に即アップロードし、表示を差し替える。
@@ -46,47 +41,26 @@ export function AvatarUpload({
 
   const isBusy = isUploading || isRemoving;
 
+  const resetInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const original = e.target.files?.[0];
     if (!original) return;
 
     setError(null);
-
-    // 検証の前に正規化する。iPhone 既定の HEIC を JPEG へ変換し、大きすぎる
-    // 画像はブラウザ側で縮小する。すでに web 対応形式かつ上限内ならそのまま返る。
-    const prepared = await prepareImageForUpload(original);
+    const prepared = await prepareAvatarFile(original);
     if (!prepared.ok) {
-      // 記録する価値があるのはこちらのパイプラインが壊れたときだけ。
-      // ブラウザがデコードできないファイルを選ぶのはユーザーの操作であって
-      // バグではない。
-      if (prepared.reason === "encodeFailed") {
-        logExternalError(
-          "AvatarUpload",
-          `画像の変換に失敗しました (${original.type || "unknown"}, ${original.size}B)`,
-          prepared.reason,
-        );
-      }
-      setError(t("avatarConversionFailed"));
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-    const file = prepared.file;
-
-    if (!isAllowedImageMimeType(file.type)) {
-      setError(t("avatarInvalidType"));
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-    if (file.size > AVATAR_MAX_FILE_SIZE) {
-      setError(t("avatarTooLarge"));
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setError(t(prepared.error));
+      resetInput();
       return;
     }
 
     setIsUploading(true);
     try {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", prepared.file);
 
       const result = await callApi<{ avatarUrl: string }>(
         "/api/profile/avatar",
@@ -94,17 +68,7 @@ export function AvatarUpload({
       );
 
       if (!result.ok) {
-        setError(
-          result.error === "tooLarge"
-            ? t("avatarTooLarge")
-            : result.error === "invalidType" || result.error === "invalidImage"
-              ? t("avatarInvalidType")
-              : result.error === API_ERROR_RATE_LIMITED
-                ? t("rateLimited")
-                : result.error === API_ERROR_BANNED
-                  ? t("banned")
-                  : t("avatarUploadFailed"),
-        );
+        setError(t(avatarUploadErrorKey(result.error)));
         return;
       }
 
@@ -114,9 +78,7 @@ export function AvatarUpload({
       toast.success(t("avatarUploaded"));
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      resetInput();
     }
   };
 
@@ -128,13 +90,7 @@ export function AvatarUpload({
       const result = await callApi("/api/profile/avatar", { method: "DELETE" });
 
       if (!result.ok) {
-        setError(
-          result.error === API_ERROR_RATE_LIMITED
-            ? t("rateLimited")
-            : result.error === API_ERROR_BANNED
-              ? t("banned")
-              : t("avatarRemoveFailed"),
-        );
+        setError(t(avatarRemoveErrorKey(result.error)));
         return;
       }
 

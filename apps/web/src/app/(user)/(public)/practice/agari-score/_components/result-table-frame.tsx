@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { JudgementMark } from "../../_components/judgement-mark";
 
 /**
  * 結果表の「あなたの回答」の未回答セル
@@ -134,5 +135,35 @@ export function ResultTableFrame({
         <div className="mt-3 border-t border-surface-200">{footer}</div>
       )}
     </div>
+  );
+}
+
+/**
+ * 結果表の「あなたの回答」の判定付きのセル
+ * 判定付きセル
+ *
+ * 値の後ろに正誤の印（✓ / ✗）を添え、色も正誤で変える。翻数・符・点数の行で同じ形
+ */
+export function ResultJudgedCell({
+  isCorrect,
+  alignTop = false,
+  children,
+}: {
+  readonly isCorrect: boolean;
+  /** 複数行になりうる値（点数）で上揃えにする */
+  readonly alignTop?: boolean;
+  readonly children: ReactNode;
+}) {
+  const tCommon = useTranslations("common");
+  return (
+    <td
+      className={`py-2 pr-4 text-right ${alignTop ? "align-top " : ""}${isCorrect ? "text-success" : "text-destructive"}`}
+    >
+      {children}{" "}
+      <JudgementMark
+        verdict={isCorrect ? "correct" : "incorrect"}
+        label={tCommon(isCorrect ? "correct" : "incorrect")}
+      />
+    </td>
   );
 }

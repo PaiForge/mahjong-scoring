@@ -52,7 +52,7 @@ export async function answerChallenge(
   const receivedAt = Date.now();
   const auth = await authenticateAndCheckBan();
   if ("error" in auth) return undefined;
-  return answerAttempt(auth.user.id, id, sequence, answer, receivedAt);
+  return answerAttempt(auth.user.id, id, sequence, answer, { receivedAt });
 }
 /** 挑戦の一時停止・再開。 */
 export async function pauseChallenge(id: unknown, paused: unknown) {

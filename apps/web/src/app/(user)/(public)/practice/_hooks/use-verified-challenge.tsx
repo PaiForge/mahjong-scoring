@@ -3,7 +3,6 @@ import {
   createContext,
   useContext,
   useCallback,
-  useEffect,
   useRef,
   useState,
   type ReactNode,
@@ -17,11 +16,10 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { useRuleSettingsStore } from "../../../../_hooks/use-rule-settings-store";
 import { PracticePlayLoadingFallback } from "../_components/practice-play-loading-fallback";
 import { BOARD_HEIGHT_BY_SLUG } from "../_lib/board-area-height";
-import { readVariantFromLocation } from "../_lib/variant-param";
 import { QuestionHostProvider } from "@mahjong-scoring/features/practice/use-question-host";
+import { useChallengeStart } from "./use-challenge-start";
 
 interface VerifiedChallenge {
   readonly id: string;
@@ -76,15 +74,14 @@ export function VerifiedChallengeProvider({
   const t = useTranslations("challenge");
   const menu = practiceMenuBySlug(slug);
   const tMenu = useTranslations(menu.namespace);
-  const [generation, setGeneration] = useState(0);
-  const [state, setState] = useState<{
-    id: string;
-    question: ChallengeQuestion;
-    sequence: number;
-  }>();
-  const [mode, setMode] = useState<"loading" | "ready" | "anonymous" | "error">(
-    "loading",
-  );
+  const {
+    mode,
+    setMode,
+    state,
+    setState,
+    generation,
+    restart: restartStart,
+  } = useChallengeStart(slug);
   const [busy, setBusy] = useState(false);
   const [grading, setGrading] = useState(false);
   const [clock, setClock] = useState<ClockReading | undefined>(undefined);
@@ -104,6 +101,7 @@ export function VerifiedChallengeProvider({
     },
     [],
   );
+  /** 採点の途中の状態を捨てて、開始からやり直す */
   const restart = useCallback(() => {
     expiring.current = false;
     serverExpired.current = false;
@@ -111,33 +109,8 @@ export function VerifiedChallengeProvider({
     setGrading(false);
     setClock(undefined);
     next.current = undefined;
-    setMode("loading");
-    setGeneration((value) => value + 1);
-  }, []);
-  useEffect(() => {
-    let active = true;
-    const { menuType } = practiceMenuBySlug(slug);
-    const { renfonpaiAs4Fu } = useRuleSettingsStore.getState();
-    void actions()
-      .then((api) =>
-        api.beginChallenge(menuType, readVariantFromLocation(slug), {
-          renfonpaiAs4Fu,
-        }),
-      )
-      .then((result) => {
-        if (!active) return;
-        if ("attempt" in result && result.attempt) {
-          setState(result.attempt);
-          setMode("ready");
-        } else setMode(result.error === "unauthorized" ? "anonymous" : "error");
-      })
-      .catch(() => {
-        if (active) setMode("error");
-      });
-    return () => {
-      active = false;
-    };
-  }, [slug, generation]);
+    restartStart();
+  }, [restartStart]);
   const advance = useCallback(() => {
     const following = next.current;
     if (!following) return;
@@ -145,7 +118,7 @@ export function VerifiedChallengeProvider({
     setState((previous) =>
       previous ? { ...previous, ...following } : previous,
     );
-  }, []);
+  }, [setState]);
   const grade = useCallback(
     (
       answer: unknown,
@@ -191,7 +164,7 @@ export function VerifiedChallengeProvider({
         });
       return true;
     },
-    [state],
+    [state, setMode, setState],
   );
   const pause = useCallback(
     async (paused: boolean) => {
@@ -233,7 +206,7 @@ export function VerifiedChallengeProvider({
         onExpired();
       })().catch(() => setMode("error"));
     },
-    [state],
+    [state, setMode],
   );
   // サーバーが挑戦を作る往復の間は、昇級試験の loading.tsx と同じ形の
   // スケルトンを出す。盤面がブラウザ内で生成されていた頃はシェルが即座に

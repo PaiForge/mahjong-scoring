@@ -98,21 +98,9 @@ export async function deleteOwnAccount(): Promise<
   const userId = (await supabase?.auth.getSession())?.data.session?.user.id;
   if (userId === undefined) return { error: "unauthorized" };
 
-  let response = await sendDeletion(userId, {});
-  if (
-    typeof response !== "string" &&
-    response.status === 409 &&
-    (await errorOf(response.clone())) === "appleAuthorizationRequired"
-  ) {
-    const apple = await requestAppleAuthorizationCode();
-    if (apple === "canceled") return { error: "appleCanceled" };
-    if (apple === "notSupported") return { error: "appleNotSupported" };
-    if (apple === "failed") return { error: "appleRejected" };
-    response = await sendDeletion(userId, {
-      appleAuthorizationCode: apple.authorizationCode,
-    });
-  }
+  const response = await sendDeletionWithAppleRetry(userId);
   if (typeof response === "string") return { error: response };
+  if ("error" in response) return response;
   if (!response.ok) {
     const error = await errorOf(response.clone());
     return {
@@ -121,19 +109,53 @@ export async function deleteOwnAccount(): Promise<
         : await apiFailureOf(response),
     };
   }
-  const body = await readJson(response);
-  const status =
-    typeof body === "object" &&
-    body !== null &&
-    "status" in body &&
-    body.status === "completed"
-      ? "completed"
-      : "pending";
+  const status = deletionStatusOf(await readJson(response));
   const current = (await supabase?.auth.getSession())?.data.session?.user.id;
   if (current === userId) await supabase?.auth.signOut({ scope: "local" });
   notifyAccountDeleted(userId);
   showDeletionNotice(status);
   return { success: true, status };
+}
+
+/**
+ * 退会を送り、サーバーが Apple の再認可を求めたら 1 度だけ付けて送り直す
+ * 退会送信（Apple 再認可つき）
+ *
+ * Apple の確認で止めた・使えない・断られたときは、送り直さずその理由を返す。
+ */
+async function sendDeletionWithAppleRetry(
+  userId: string,
+): Promise<
+  | Awaited<ReturnType<typeof sendDeletion>>
+  | { readonly error: DeleteAccountFailure }
+> {
+  const response = await sendDeletion(userId, {});
+  if (
+    typeof response === "string" ||
+    response.status !== 409 ||
+    (await errorOf(response.clone())) !== "appleAuthorizationRequired"
+  ) {
+    return response;
+  }
+  const apple = await requestAppleAuthorizationCode();
+  if (apple === "canceled") return { error: "appleCanceled" };
+  if (apple === "notSupported") return { error: "appleNotSupported" };
+  if (apple === "failed") return { error: "appleRejected" };
+  return sendDeletion(userId, {
+    appleAuthorizationCode: apple.authorizationCode,
+  });
+}
+
+/** 受付の応答から、工程が全部済んだ（completed）か残っている（pending）かを読む */
+function deletionStatusOf(
+  body: unknown,
+): MobileDeleteAccountResponse["status"] {
+  return typeof body === "object" &&
+    body !== null &&
+    "status" in body &&
+    body.status === "completed"
+    ? "completed"
+    : "pending";
 }
 
 function sendDeletion(

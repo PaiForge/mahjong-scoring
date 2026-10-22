@@ -40,71 +40,92 @@ async function handleSuccessfulAuth(
   return NextResponse.redirect(`${origin}${safeNext}`);
 }
 
+/** 認証に失敗したときの着地（汎用の失敗の文言） */
+function redirectToAuthError(origin: string): NextResponse {
+  return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
+}
+
+/**
+ * GoTrue がメールリンク検証エラーを返したとき（使用済み・期限切れ等。
+ * 例: ?error=access_denied&error_code=otp_expired）。
+ * 既にセッションがある＝認証済みならマイページへ。そうでなければ
+ * 「リンク無効」を明示し、汎用の認証失敗メッセージで誤解させない。
+ */
+async function handleEmailLinkError(origin: string): Promise<NextResponse> {
+  const user = await getOptionalUser();
+  if (user) return NextResponse.redirect(`${origin}/mypage`);
+  return NextResponse.redirect(`${origin}/sign-in?error=email_link_invalid`);
+}
+
+/** メール確認 OTP の検証（サインアップフロー） */
+async function handleSignupOtp(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  tokenHash: string,
+  origin: string,
+  safeNext: string,
+): Promise<NextResponse> {
+  const { error, data } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "signup",
+  });
+  if (!error && data.session) {
+    return handleSuccessfulAuth(data.session.user.id, origin, safeNext);
+  }
+  return redirectToAuthError(origin);
+}
+
+/** パスワードリカバリ OTP の検証 */
+async function handleRecoveryOtp(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  tokenHash: string,
+  origin: string,
+): Promise<NextResponse> {
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: "recovery",
+  });
+  if (!error) return NextResponse.redirect(`${origin}/reset-password`);
+  return redirectToAuthError(origin);
+}
+
+/**
+ * OAuth / PKCE コード交換。PKCE リカバリフロー（redirectTo に ?type=recovery
+ * が含まれる場合）はコード交換後にパスワードリセットへ
+ */
+async function handleCodeExchange(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  code: string,
+  type: string | null,
+  origin: string,
+  safeNext: string,
+): Promise<NextResponse> {
+  const { error, data } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) return redirectToAuthError(origin);
+  if (type === "recovery") {
+    return NextResponse.redirect(`${origin}/reset-password`);
+  }
+  return handleSuccessfulAuth(data.session.user.id, origin, safeNext);
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
-  const authError = searchParams.get("error");
-  const errorCode = searchParams.get("error_code");
   const safeNext =
     sanitizeInternalRedirect(searchParams.get("next")) ?? "/mypage";
 
-  // GoTrue がメールリンク検証エラーを返すケース（使用済み・期限切れ等。
-  // 例: ?error=access_denied&error_code=otp_expired）。
-  // 既にセッションがある＝認証済みならマイページへ。
-  // そうでなければ「リンク無効」を明示し、汎用の認証失敗メッセージで誤解させない。
-  if (authError || errorCode) {
-    const user = await getOptionalUser();
-    if (user) {
-      return NextResponse.redirect(`${origin}/mypage`);
-    }
-    return NextResponse.redirect(`${origin}/sign-in?error=email_link_invalid`);
+  if (searchParams.get("error") || searchParams.get("error_code")) {
+    return handleEmailLinkError(origin);
   }
 
   const supabase = await createClient();
-
-  // メール確認 OTP の検証（サインアップフロー）
   if (tokenHash && type === "signup") {
-    const { error, data } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: "signup",
-    });
-
-    if (!error && data.session) {
-      return handleSuccessfulAuth(data.session.user.id, origin, safeNext);
-    }
-
-    return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
+    return handleSignupOtp(supabase, tokenHash, origin, safeNext);
   }
-
-  // パスワードリカバリ OTP の検証
   if (tokenHash && type === "recovery") {
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: tokenHash,
-      type: "recovery",
-    });
-
-    if (!error) {
-      return NextResponse.redirect(`${origin}/reset-password`);
-    }
-
-    return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
+    return handleRecoveryOtp(supabase, tokenHash, origin);
   }
-
-  // OAuth / PKCE コード交換
-  if (code) {
-    const { error, data } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (!error) {
-      // PKCE リカバリフロー: redirectTo に ?type=recovery が含まれる場合
-      if (type === "recovery") {
-        return NextResponse.redirect(`${origin}/reset-password`);
-      }
-
-      return handleSuccessfulAuth(data.session.user.id, origin, safeNext);
-    }
-  }
-
-  return NextResponse.redirect(`${origin}/sign-in?error=auth_callback_error`);
+  if (code) return handleCodeExchange(supabase, code, type, origin, safeNext);
+  return redirectToAuthError(origin);
 }

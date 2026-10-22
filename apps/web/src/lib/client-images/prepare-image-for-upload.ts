@@ -24,6 +24,11 @@
  *   キャンバスを無言で読み出し失敗にする。原寸（48MP 級）は確保せず、
  *   出力キャンバスは縮小後のサイズ（長辺 ≤ {@link MAX_LONG_EDGE}）に留める。
  */
+import {
+  IMAGE_SIGNATURES,
+  SIGNED_IMAGE_KINDS,
+  matchesSignature,
+} from "@/lib/images/magic-bytes";
 import { IMAGE_MIME_TO_EXTENSION } from "@/lib/images/policy";
 
 /** 長辺の上限。これを超える画像は縮小する */
@@ -36,6 +41,9 @@ export const TARGET_MAX_BYTES = 1_800_000;
 const QUALITY_LADDER = [0.85, 0.72, 0.6, 0.5] as const;
 
 export type SniffedImageKind = "heic" | "jpeg" | "png" | "webp" | "other";
+
+/** ISO-BMFF の `ftyp` ボックス（"ftyp" がオフセット 4 から並ぶ） */
+const FTYP_SIGNATURE = [{ offset: 4, bytes: [0x66, 0x74, 0x79, 0x70] }];
 
 // iOS などの HEIF エンコーダが出力するメジャーブランド
 const HEIF_BRANDS = new Set([
@@ -56,51 +64,12 @@ const HEIF_BRANDS = new Set([
  * 画像形式スニフ
  */
 export function sniffImageKind(bytes: Uint8Array): SniffedImageKind {
-  // JPEG: FF D8 FF
-  if (
-    bytes.length >= 3 &&
-    bytes[0] === 0xff &&
-    bytes[1] === 0xd8 &&
-    bytes[2] === 0xff
-  ) {
-    return "jpeg";
-  }
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (
-    bytes.length >= 8 &&
-    bytes[0] === 0x89 &&
-    bytes[1] === 0x50 &&
-    bytes[2] === 0x4e &&
-    bytes[3] === 0x47 &&
-    bytes[4] === 0x0d &&
-    bytes[5] === 0x0a &&
-    bytes[6] === 0x1a &&
-    bytes[7] === 0x0a
-  ) {
-    return "png";
-  }
-  // WebP: "RIFF" .... "WEBP"
-  if (
-    bytes.length >= 12 &&
-    bytes[0] === 0x52 &&
-    bytes[1] === 0x49 &&
-    bytes[2] === 0x46 &&
-    bytes[3] === 0x46 &&
-    bytes[8] === 0x57 &&
-    bytes[9] === 0x45 &&
-    bytes[10] === 0x42 &&
-    bytes[11] === 0x50
-  ) {
-    return "webp";
-  }
+  const signed = SIGNED_IMAGE_KINDS.find((kind) =>
+    matchesSignature(bytes, IMAGE_SIGNATURES[kind]),
+  );
+  if (signed !== undefined) return signed;
   // HEIC/HEIF: ISO-BMFF の `ftyp` ボックス（4..8 バイト）+ HEIF 系ブランド
-  if (
-    bytes.length >= 12 &&
-    bytes[4] === 0x66 && // f
-    bytes[5] === 0x74 && // t
-    bytes[6] === 0x79 && // y
-    bytes[7] === 0x70 // p
-  ) {
+  if (matchesSignature(bytes, FTYP_SIGNATURE) && bytes.length >= 12) {
     const brand = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]);
     if (HEIF_BRANDS.has(brand)) return "heic";
   }

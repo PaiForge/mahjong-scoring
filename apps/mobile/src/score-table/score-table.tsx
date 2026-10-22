@@ -1,19 +1,15 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { type Role, type WinType } from "@mahjong-scoring/core";
 
-import {
-  resolveScoreTableFocus,
-  type ScoreTableFocus,
-} from "@mahjong-scoring/features/score-table/focus";
-import {
-  buildScoreGrid,
-  type ScoreTableViewMode,
-} from "@mahjong-scoring/features/score-table/score-grid";
+import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { buildScoreGrid } from "@mahjong-scoring/features/score-table/score-grid";
+import { useScoreTableOptions } from "@mahjong-scoring/features/score-table/use-score-table-options";
+import { useScoreTableSelection } from "@mahjong-scoring/features/score-table/use-score-table-selection";
 
 import { useScrollIntoView } from "../components/scroll-into-view";
-import { ToggleGroup, type ToggleOption } from "../components/toggle-group";
+import { ToggleGroup } from "../components/toggle-group";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
 import { HighScoreTable } from "./high-score-table";
@@ -57,7 +53,8 @@ interface ScoreTableParts {
  * 点数早見表のコンテナ（web の `ScoreTable`）
  * 点数早見表
  *
- * 親子・ツモロン・表示モードの切り替え状態と点数グリッドの計算を持ち、
+ * 親子・ツモロン・表示モードの切り替え状態（features の `useScoreTableSelection`）と
+ * 点数グリッドの計算を持ち、
  * 表本体の描画は NormalScoreTable / HighScoreTable に委譲する。
  * 練習の答え合わせから開いたときは `focus` で正解のセルを指す（web と同じ）。
  */
@@ -69,24 +66,27 @@ export function ScoreTable({
   renderLayout,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
-  const focusTarget = useMemo(() => resolveScoreTableFocus(focus), [focus]);
-  const [activeTab, setActiveTab] = useState<Role>(focus?.role ?? initialRole);
-  const [winType, setWinType] = useState<WinType>(
-    focus?.winType ?? initialWinType,
-  );
-  const [viewMode, setViewMode] = useState<ScoreTableViewMode>(
-    focusTarget.viewMode,
-  );
-  const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
+  const {
+    focusTarget,
+    activeTab,
+    setActiveTab,
+    winType,
+    setWinType,
+    viewMode,
+    setViewMode,
+    isKo,
+    isFocusView,
+    hiddenCells,
+    toggleCell,
+  } = useScoreTableSelection({
+    focus,
+    initialRole,
+    initialWinType,
+    initialViewMode: "normal",
+  });
+  const { roleOptions, winTypeOptions, viewModeOptions } =
+    useScoreTableOptions();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const isKo = activeTab === "ko";
-
-  // ハイライトは focus と同じ親子・ロンツモの表を見ているときだけ出す
-  // （タブを切り替えた表では focus のセルは「その和了の点数」ではないため）
-  const isFocusView =
-    focus !== undefined &&
-    activeTab === focus.role &&
-    winType === focus.winType;
 
   // 注目セルが置かれたら一度だけ中央へ寄せる（タブを行き来して戻っても
   // 動かさない — 読んでいる位置を奪わないため）
@@ -106,23 +106,7 @@ export function ScoreTable({
     [activeTab, winType, kiriageMangan],
   );
 
-  const toggleCell = useCallback((id: string) => {
-    setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
   const onToggleCell = blurToggleEnabled ? toggleCell : undefined;
-
-  const roleOptions: readonly ToggleOption<Role>[] = [
-    { value: "ko", label: t("ko") },
-    { value: "oya", label: t("oya") },
-  ];
-  const winTypeOptions: readonly ToggleOption<WinType>[] = [
-    { value: "ron", label: t("ron") },
-    { value: "tsumo", label: t("tsumo") },
-  ];
-  const viewModeOptions: readonly ToggleOption<ScoreTableViewMode>[] = [
-    { value: "normal", label: t("fuHan") },
-    { value: "high_score", label: `${t("mangan")}+` },
-  ];
 
   const controls = (
     <View style={styles.controlsWrap}>

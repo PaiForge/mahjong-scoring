@@ -1,4 +1,4 @@
-import { detectYaku, isMenzen } from "@pai-forge/riichi-mahjong";
+import { detectYaku, isMenzen, type Kazehai } from "@pai-forge/riichi-mahjong";
 import type { YakuQuestion } from "./types";
 import {
   YAKU_NAME_MAP,
@@ -25,6 +25,44 @@ import {
 
 /** 役練習用の面子生成重み（50%順子, 30%刻子, 20%槓子） */
 const YAKU_MENTSU_WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
+
+/**
+ * ライブラリが返した役を、回答の選択肢と同じ日本語の役名に直す
+ * 役名の回答語彙化
+ *
+ * - 場風・自風はライブラリが "Bakaze" / "Jikaze" で返す。この練習は
+ *   「役牌 東」のように風ごとの選択肢で答えさせるため、局面の風に引き直す。
+ *   連風牌（場風＝自風）は両方が同じ表示名になるので 1 つにまとめる
+ *   （役「名」の選択のみを問い、翻数は問わない）
+ * - 選択肢に無い役（{@link EXCLUDED_YAKU_FROM_ANSWER}）は落とす
+ * - 立直はライブラリが判定しないので後付けする。役満は通常役と複合しないので、
+ *   役満の手には足さない。リーチ棒は盤面に出たまま（isRiichi は宣言の有無）で
+ *   正解にだけ乗らない — 「役満にリーチは複合しない」と答えさせる出題になる
+ *
+ * @param yakuResult - `detectYaku` の結果（役名と翻数の組）
+ */
+export function toYakuAnswerNames(
+  yakuResult: readonly (readonly [string, number])[],
+  context: {
+    readonly bakaze: Kazehai;
+    readonly jikaze: Kazehai;
+    readonly isRiichi: boolean;
+  },
+): string[] {
+  const names: string[] = [];
+  for (const [yakuName] of yakuResult) {
+    if (EXCLUDED_YAKU_FROM_ANSWER.has(yakuName)) continue;
+    const jaName =
+      yakuName === "Bakaze"
+        ? getKazeYakuhaiDisplayName(context.bakaze)
+        : yakuName === "Jikaze"
+          ? getKazeYakuhaiDisplayName(context.jikaze)
+          : YAKU_NAME_MAP[yakuName];
+    if (jaName && !names.includes(jaName)) names.push(jaName);
+  }
+  if (context.isRiichi && !hasYakumanYaku(yakuResult)) names.push("立直");
+  return names;
+}
 
 /**
  * 役選択練習の問題を生成する
@@ -76,37 +114,11 @@ export function generateYakuQuestion(
     isTsumo,
   });
 
-  const yakuNames: string[] = [];
-
-  // ライブラリ返却の役名を日本語に変換
-  for (const [yakuName] of yakuResult) {
-    if (EXCLUDED_YAKU_FROM_ANSWER.has(yakuName)) continue;
-
-    // 場風・自風はライブラリが "Bakaze" / "Jikaze" で返す。この練習は
-    // 「役牌 東」のように風ごとの選択肢で答えさせるため、局面の風に
-    // 引き直す。連風牌（場風＝自風）は両方が同じ表示名になるので 1 つに
-    // まとめる（役「名」の選択のみを問い、翻数は問わない）
-    const jaName =
-      yakuName === "Bakaze"
-        ? getKazeYakuhaiDisplayName(bakaze)
-        : yakuName === "Jikaze"
-          ? getKazeYakuhaiDisplayName(jikaze)
-          : YAKU_NAME_MAP[yakuName];
-    if (jaName && !yakuNames.includes(jaName)) {
-      yakuNames.push(jaName);
-    }
-  }
-
-  // 立直の追加（ライブラリは立直を判定しない）。役満は通常役と複合しないので、
-  // 役満の手には足さない。リーチ棒は盤面に出たまま（isRiichi は宣言の有無）で
-  // 正解にだけ乗らない — 「役満にリーチは複合しない」と答えさせる出題になる
-  if (isRiichi && !hasYakumanYaku(yakuResult)) {
-    yakuNames.push("立直");
-  }
-
-  // 門前清自摸和はライブラリが返すはずだが念のため確認
-  // （detectYaku に isTsumo を渡しているので返るはず）
-
+  const yakuNames = toYakuAnswerNames(yakuResult, {
+    bakaze,
+    jikaze,
+    isRiichi,
+  });
   // 役がない場合はリトライ
   if (yakuNames.length === 0) return undefined;
 

@@ -8,7 +8,11 @@ import {
   type Tehai14,
 } from "@pai-forge/riichi-mahjong";
 import { countHaiInTehai } from "../../core/hai-count";
-import { defaultRandomSource, randomBool } from "../../core/random";
+import {
+  defaultRandomSource,
+  randomBool,
+  type RandomSource,
+} from "../../core/random";
 import { doubleWindJantouFu } from "../../rules/settings";
 import { isFu } from "../../score/constants";
 import { retryGenerate } from "../retry-generate";
@@ -18,7 +22,7 @@ import {
   type RiichiInput,
 } from "../score/build-question";
 import { generateMentsuTehai } from "../score/strategies/mentsu-strategy";
-import type { ScoreQuestion } from "../score/types";
+import type { ScoreQuestion, ScoreRange } from "../score/types";
 import { generateDoraMarkers } from "../shared/dora-utils";
 import { finalizeTehai13, finalizeTehai14 } from "../shared/hand-skeleton";
 import { selectBakaze, selectJikaze } from "../shared/kaze-select";
@@ -69,6 +73,184 @@ interface ScoredWait {
   readonly ron: ScoreQuestion | undefined;
 }
 
+/** 既定値を埋めた出題条件（各項目の意味は {@link TenpaiScoreGeneratorOptions}） */
+interface ResolvedOptions {
+  readonly includeFuro: boolean;
+  readonly includeParent: boolean;
+  readonly includeChild: boolean;
+  readonly renfonpaiAs4Fu: boolean;
+  readonly kiriageMangan: boolean;
+  readonly yakumanRules: TenpaiScoreGeneratorOptions["yakumanRules"];
+  readonly allowedRanges: readonly ScoreRange[];
+  readonly rng: RandomSource;
+}
+
+function resolveOptions(options: TenpaiScoreGeneratorOptions): ResolvedOptions {
+  return {
+    includeFuro: options.includeFuro ?? true,
+    includeParent: options.includeParent ?? true,
+    includeChild: options.includeChild ?? true,
+    renfonpaiAs4Fu: options.renfonpaiAs4Fu ?? false,
+    kiriageMangan: options.kiriageMangan ?? false,
+    yakumanRules: options.yakumanRules,
+    allowedRanges: options.allowedRanges ?? ["nonMangan", "manganPlus"],
+    rng: options.rng ?? defaultRandomSource,
+  };
+}
+
+/** 待ち牌 1 つと、それを足した和了形 */
+interface WaitShape {
+  readonly agariHai: HaiKindId;
+  readonly agariTehai: Tehai14;
+}
+
+/** 聴牌形と、その待ちごとの和了形 */
+interface TenpaiShape {
+  readonly tehai: Tehai13;
+  readonly waits: readonly WaitShape[];
+  /** 門前かどうかは待ちによらない（副露は聴牌形が持つ） */
+  readonly menzen: boolean;
+}
+
+/**
+ * 1. 和了形を作って和了牌を抜き、聴牌形にする。2. 待ち牌を列挙する
+ * 聴牌形抽選
+ *
+ * 生成器が選んだ和了牌以外の待ちも拾う。待ちが {@link MIN_WAIT_COUNT} に
+ * 届かない形は出題しない。
+ */
+function drawTenpaiShape(
+  includeFuro: boolean,
+  rng: RandomSource,
+): TenpaiShape | undefined {
+  const generated = generateMentsuTehai(includeFuro, rng);
+  if (!generated) return undefined;
+  const tehai = toTenpaiTehai(generated.tehai, generated.agariHai);
+  if (!tehai) return undefined;
+  // 和了牌を抜いた形は聴牌のはずだが、前提が崩れたら黙って出題しない
+  const shanten = calculateShanten(tehai, false, false);
+  if (shanten.isErr() || shanten.value !== 0) return undefined;
+
+  const waitHais = getUkeire(tehai);
+  if (waitHais.length < MIN_WAIT_COUNT) return undefined;
+  const waits: WaitShape[] = [];
+  for (const agariHai of waitHais) {
+    const agariTehai = toAgariTehai(tehai, agariHai);
+    if (!agariTehai) return undefined;
+    waits.push({ agariHai, agariTehai });
+  }
+  return { tehai, waits, menzen: isMenzen(waits[0].agariTehai) };
+}
+
+/**
+ * 表示牌に取られて 4 枚目が無い待ち（純カラ）を持つか
+ * 純カラ判定
+ *
+ * 待ち牌は手牌の外にあるので、手牌の中の枚数と表示牌（表・裏）に出ている
+ * 枚数の合計が 4 なら、その待ちでは和了れない。
+ */
+export function hasKaraWait(
+  tehai: Tehai13,
+  waitHais: readonly HaiKindId[],
+  visibleMarkers: readonly HaiKindId[],
+): boolean {
+  return waitHais.some(
+    (hai) =>
+      countHaiInTehai(tehai, hai) +
+        visibleMarkers.filter((marker) => marker === hai).length >=
+      4,
+  );
+}
+
+/** 聴牌形に決めた局面 */
+interface TenpaiScene {
+  readonly jikaze: TenpaiScoreQuestion["jikaze"];
+  readonly bakaze: TenpaiScoreQuestion["bakaze"];
+  readonly doraMarkers: readonly HaiKindId[];
+  readonly uraDoraMarkers: readonly HaiKindId[] | undefined;
+  /** リーチを立てたい（門前の 20%）。役なしのロン待ちがあれば立てない */
+  readonly wantsRiichi: boolean;
+}
+
+/**
+ * 3. 局面の決定。ドラ表示牌は聴牌形から引く（待ち牌は手牌の外）
+ * 局面抽選
+ */
+function drawTenpaiScene(
+  shape: TenpaiShape,
+  options: ResolvedOptions,
+): TenpaiScene | undefined {
+  const { includeParent, includeChild, rng } = options;
+  const jikaze = selectJikaze(includeParent, includeChild, rng);
+  const bakaze = selectBakaze(jikaze, false, rng);
+  const wantsRiichi = shape.menzen && randomBool(0.2, rng);
+  const markers = generateDoraMarkers(shape.tehai, wantsRiichi, rng);
+  if (!markers) return undefined;
+  const { doraMarkers, uraDoraMarkers } = markers;
+  const visibleMarkers = [...doraMarkers, ...(uraDoraMarkers ?? [])];
+  const waitHais = shape.waits.map((wait) => wait.agariHai);
+  if (hasKaraWait(shape.tehai, waitHais, visibleMarkers)) return undefined;
+  return { jikaze, bakaze, doraMarkers, uraDoraMarkers, wantsRiichi };
+}
+
+/**
+ * 4. 待ちごとにツモ・ロンを採点する
+ * 待ち採点
+ *
+ * ツモでも和了れない待ち（副露手の役なし）とトリプル役満以上は出題しない。
+ * ロンの役なしは `ron` を undefined にして残す。
+ */
+function scoreWaits(
+  shape: TenpaiShape,
+  scene: TenpaiScene,
+  ruleConfig: RuleConfig,
+  riichi: RiichiInput | undefined,
+): readonly ScoredWait[] | undefined {
+  const score = (wait: WaitShape, isTsumo: boolean) =>
+    buildScoreQuestion({
+      tehai: wait.agariTehai,
+      agariHai: wait.agariHai,
+      isTsumo,
+      jikaze: scene.jikaze,
+      bakaze: scene.bakaze,
+      doraMarkers: scene.doraMarkers,
+      ruleConfig,
+      riichi,
+    });
+  const scored: ScoredWait[] = [];
+  for (const wait of shape.waits) {
+    const tsumo = score(wait, true);
+    if (tsumo.isErr()) return undefined;
+    const ron = score(wait, false);
+    if (ron.isErr() && ron.error !== "noYaku") return undefined;
+    scored.push({
+      agariHai: wait.agariHai,
+      agariTehai: wait.agariTehai,
+      tsumo: tsumo.value,
+      ron: ron.isOk() ? ron.value : undefined,
+    });
+  }
+  return scored;
+}
+
+/**
+ * 5. すべての待ち・和了方法が点数帯と符の選択肢に収まるか
+ * 出題条件判定
+ */
+export function fitsAnswerOptions(
+  scoredWaits: readonly ScoredWait[],
+  allowedRanges: readonly ScoreRange[],
+): boolean {
+  return scoredWaits.every((wait) =>
+    [wait.tsumo, wait.ron].every(
+      (question) =>
+        question === undefined ||
+        (isScoreLevelAllowed(question.answer.scoreLevel, allowedRanges) &&
+          isFu(question.answer.fu)),
+    ),
+  );
+}
+
 /**
  * 聴牌形の点数計算の問題を 1 つ生成する（生成不可能な場合は undefined を返す）
  * 聴牌形の点数計算問題生成
@@ -100,126 +282,38 @@ interface ScoredWait {
 export function generateTenpaiScoreQuestion(
   options: TenpaiScoreGeneratorOptions = {},
 ): TenpaiScoreQuestion | undefined {
-  const {
-    includeFuro = true,
-    includeParent = true,
-    includeChild = true,
-    renfonpaiAs4Fu = false,
-    kiriageMangan = false,
-    yakumanRules,
-    allowedRanges = ["nonMangan", "manganPlus"],
-    rng = defaultRandomSource,
-  } = options;
-
-  // 1. 和了形を作って和了牌を抜き、聴牌形にする
-  const generated = generateMentsuTehai(includeFuro, rng);
-  if (!generated) return undefined;
-  const tehai = toTenpaiTehai(generated.tehai, generated.agariHai);
-  if (!tehai) return undefined;
-  //    和了牌を抜いた形は聴牌のはずだが、前提が崩れたら黙って出題しない
-  const shanten = calculateShanten(tehai, false, false);
-  if (shanten.isErr() || shanten.value !== 0) return undefined;
-
-  // 2. 待ち牌の列挙。生成器が選んだ和了牌以外の待ちも拾う
-  const waitHais = getUkeire(tehai);
-  if (waitHais.length < MIN_WAIT_COUNT) return undefined;
-  const agariTehais: Tehai14[] = [];
-  for (const hai of waitHais) {
-    const agariTehai = toAgariTehai(tehai, hai);
-    if (!agariTehai) return undefined;
-    agariTehais.push(agariTehai);
-  }
-  //    門前かどうかは待ちによらない（副露は聴牌形が持つ）
-  const menzen = isMenzen(agariTehais[0]);
-
-  // 3. 局面の決定。ドラ表示牌は聴牌形から引く（待ち牌は手牌の外）
-  const jikaze = selectJikaze(includeParent, includeChild, rng);
-  const bakaze = selectBakaze(jikaze, false, rng);
-  const wantsRiichi = menzen && randomBool(0.2, rng);
-  const markers = generateDoraMarkers(tehai, wantsRiichi, rng);
-  if (!markers) return undefined;
-  const { doraMarkers, uraDoraMarkers } = markers;
-  //    表示牌に取られて 4 枚目が無い待ち（純カラ）を持つ形は出題しない
-  const visibleMarkers = [...doraMarkers, ...(uraDoraMarkers ?? [])];
-  for (const hai of waitHais) {
-    const visible =
-      countHaiInTehai(tehai, hai) +
-      visibleMarkers.filter((marker) => marker === hai).length;
-    if (visible >= 4) return undefined;
-  }
+  const resolved = resolveOptions(options);
+  const shape = drawTenpaiShape(resolved.includeFuro, resolved.rng);
+  if (!shape) return undefined;
+  const scene = drawTenpaiScene(shape, resolved);
+  if (!scene) return undefined;
 
   const ruleConfig: RuleConfig = {
-    doubleWindJantouFu: doubleWindJantouFu(renfonpaiAs4Fu),
-    kiriageMangan,
-    ...yakumanRules,
+    doubleWindJantouFu: doubleWindJantouFu(resolved.renfonpaiAs4Fu),
+    kiriageMangan: resolved.kiriageMangan,
+    ...resolved.yakumanRules,
   };
 
-  // 4. 待ちごとにツモ・ロンを採点する。まずリーチ無しで採点し、役なしの
-  //    ロン待ちがあるかを見る（上記の理由でリーチと両立しない）
-  const score = (
-    agariTehai: Tehai14,
-    agariHai: HaiKindId,
-    isTsumo: boolean,
-    riichi: RiichiInput | undefined,
-  ) =>
-    buildScoreQuestion({
-      tehai: agariTehai,
-      agariHai,
-      isTsumo,
-      jikaze,
-      bakaze,
-      doraMarkers,
-      ruleConfig,
-      riichi,
-    });
-
-  const scoreAll = (
-    riichi: RiichiInput | undefined,
-  ): readonly ScoredWait[] | undefined => {
-    const scored: ScoredWait[] = [];
-    for (const [i, agariHai] of waitHais.entries()) {
-      const agariTehai = agariTehais[i];
-      const tsumo = score(agariTehai, agariHai, true, riichi);
-      //   ツモでも和了れない待ち（副露手の役なし）とトリプル役満以上は出題しない
-      if (tsumo.isErr()) return undefined;
-      const ron = score(agariTehai, agariHai, false, riichi);
-      if (ron.isErr() && ron.error !== "noYaku") return undefined;
-      scored.push({
-        agariHai,
-        agariTehai,
-        tsumo: tsumo.value,
-        ron: ron.isOk() ? ron.value : undefined,
-      });
-    }
-    return scored;
-  };
-
-  const withoutRiichi = scoreAll(undefined);
+  // まずリーチ無しで採点し、役なしのロン待ちがあるかを見る（上記の理由で
+  // リーチと両立しない）
+  const withoutRiichi = scoreWaits(shape, scene, ruleConfig, undefined);
   if (!withoutRiichi) return undefined;
   const hasNoYakuRon = withoutRiichi.some((wait) => wait.ron === undefined);
-
   const riichi: RiichiInput | undefined =
-    wantsRiichi && uraDoraMarkers && !hasNoYakuRon
-      ? { uraDoraMarkers }
+    scene.wantsRiichi && scene.uraDoraMarkers && !hasNoYakuRon
+      ? { uraDoraMarkers: scene.uraDoraMarkers }
       : undefined;
-  const scoredWaits = riichi ? scoreAll(riichi) : withoutRiichi;
+  const scoredWaits = riichi
+    ? scoreWaits(shape, scene, ruleConfig, riichi)
+    : withoutRiichi;
   if (!scoredWaits) return undefined;
-
-  // 5. すべての待ち・和了方法が点数帯と符の選択肢に収まることを確認する
-  for (const wait of scoredWaits) {
-    for (const question of [wait.tsumo, wait.ron]) {
-      if (!question) continue;
-      if (!isScoreLevelAllowed(question.answer.scoreLevel, allowedRanges))
-        return undefined;
-      if (!isFu(question.answer.fu)) return undefined;
-    }
-  }
+  if (!fitsAnswerOptions(scoredWaits, resolved.allowedRanges)) return undefined;
 
   return {
-    tehai,
-    jikaze,
-    bakaze,
-    doraMarkers,
+    tehai: shape.tehai,
+    jikaze: scene.jikaze,
+    bakaze: scene.bakaze,
+    doraMarkers: scene.doraMarkers,
     isRiichi: riichi !== undefined,
     uraDoraMarkers: riichi?.uraDoraMarkers,
     waits: scoredWaits.map(({ agariHai, tsumo, ron }) => ({

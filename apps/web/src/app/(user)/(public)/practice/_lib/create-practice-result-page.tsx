@@ -12,16 +12,12 @@ import type {
 import {
   isExamMenuType,
   practiceMenuBySlug,
-  resolvePracticeVariant,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
 import { getScoreComparison } from "@/lib/db/score-comparison-queries";
 import { getOptionalUser } from "@/lib/auth";
 
-import {
-  isRankSlug,
-  rankRequiringMenu,
-} from "@mahjong-scoring/features/ranks/registry";
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { ExamResultSummary } from "@/app/(user)/(public)/exam/_components/exam-result-summary";
 
 import { RecordSection } from "../_components/record-section";
@@ -31,15 +27,8 @@ import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
 import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
 import { RecordUnavailable } from "../_components/record-unavailable";
 import { LeaderboardSignUpCta, SignUpCta } from "../_components/sign-up-cta";
-import {
-  FINISH_REASON_PARAM,
-  listedProblemCount,
-  parseFinishReason,
-} from "@mahjong-scoring/features/challenge/finish-reason";
-import {
-  RUN_PARAM,
-  parseRunId,
-} from "@mahjong-scoring/features/challenge/challenge-run";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
+import { parseResultSearchParams } from "./parse-result-search-params";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
@@ -48,7 +37,6 @@ import {
 } from "@mahjong-scoring/features/routes";
 import { PracticeRelatedChapters } from "../_components/practice-related-chapters";
 import { practiceSetupHref } from "./practice-web-routes";
-import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
 import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 
@@ -234,47 +222,21 @@ export function createPracticeResultPage(
     ]);
     const practiceTitle = t("title");
 
-    // 走った土俵。play 画面の `useFinishRedirect` が `?variant=` で付ける。
-    // 未指定・不正値は既定に落ちる（盤面・保存と同じ正規化）
-    const rawVariant = resolvedSearchParams[VARIANT_PARAM];
-    const variant = resolvePracticeVariant(
-      slug,
-      typeof rawVariant === "string" ? rawVariant : undefined,
-    );
+    const {
+      variant,
+      grantId,
+      promotedSlugs,
+      correct: safeCorrect,
+      total: safeTotal,
+      elapsedMs: safeElapsedMs,
+      finishReason,
+      runId,
+    } = parseResultSearchParams(resolvedSearchParams, slug);
     const variantLabel = hasSetup
       ? tp("variantLabel", { label: t(`variants.${variant}.label`) })
       : undefined;
     // 上位を出すランキング。範囲を絞った回は「すべて」に寄る
     const leaderboardBoard = resolveLeaderboardBoard(slug, variant);
-
-    const rawGrant = resolvedSearchParams.grant;
-    const grantId = typeof rawGrant === "string" ? rawGrant : undefined;
-
-    // 昇級バナー: promoted=<slug>（複数可）。未知のスラッグはここで落とし、
-    // 実在検証（本人が保持しているか）は PromotionBanner 側で行う
-    const rawPromoted = resolvedSearchParams.promoted;
-    const promotedSlugs = (
-      Array.isArray(rawPromoted)
-        ? rawPromoted
-        : typeof rawPromoted === "string"
-          ? [rawPromoted]
-          : []
-    ).filter(isRankSlug);
-
-    const rawCorrect = resolvedSearchParams.correct;
-    const rawTotal = resolvedSearchParams.total;
-    const rawTime = resolvedSearchParams.time;
-    const correct = Number(typeof rawCorrect === "string" ? rawCorrect : 0);
-    const total = Number(typeof rawTotal === "string" ? rawTotal : 0);
-    // 回答に使った時間（ms）。play 画面の `useFinishRedirect` が付ける
-    const elapsedMs = Number(typeof rawTime === "string" ? rawTime : 0);
-    const safeCorrect = Number.isFinite(correct) ? correct : 0;
-    const safeTotal = Number.isFinite(total) ? total : 0;
-    const finishReason = parseFinishReason(
-      resolvedSearchParams[FINISH_REASON_PARAM],
-    );
-    const safeElapsedMs = Number.isFinite(elapsedMs) ? elapsedMs : 0;
-    const runId = parseRunId(resolvedSearchParams[RUN_PARAM]);
 
     return (
       <ResultView
