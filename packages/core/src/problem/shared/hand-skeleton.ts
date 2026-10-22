@@ -102,6 +102,57 @@ export function buildTehai14(
 }
 
 /**
+ * 面子の牌をトラッカーに確保した結果
+ * 面子確保結果
+ *
+ * - `reserved`: すべて確保した
+ * - `unavailable`: 残り枚数が足りず、トラッカーは変えていない
+ * - `failed`: 確保できると確認した後の `use` が失敗した（起きないはずの失敗）
+ */
+export type ReserveOutcome = "reserved" | "unavailable" | "failed";
+
+/**
+ * 面子の牌をまとめてトラッカーに確保する
+ * 面子確保
+ *
+ * 同じ牌種が複数枚あるとき（刻子・槓子）は枚数をまとめて `canUse` で確かめる。
+ * canUse で確保できると確認済みだが、use の Result を捨てると上限超過を
+ * 検知できないまま牌が5枚使われた手牌ができてしまう。起きないはずの失敗も
+ * 握り潰さず `failed` で返し、呼び出し側が生成そのものを諦める。
+ */
+export function reserveMentsuHais(
+  tracker: HaiUsageTracker,
+  hais: readonly HaiKindId[],
+): ReserveOutcome {
+  const counts = new Map<HaiKindId, number>();
+  for (const hai of hais) counts.set(hai, (counts.get(hai) ?? 0) + 1);
+  for (const [hai, count] of counts) {
+    if (!tracker.canUse(hai, count)) return "unavailable";
+  }
+  return hais.every((hai) => tracker.use(hai, 1).isOk())
+    ? "reserved"
+    : "failed";
+}
+
+/**
+ * 使える面子を所定回数まで引き直して 1 つ確保する。揃わなければ undefined
+ * 面子抽選
+ */
+function drawAvailableMentsu(
+  tracker: HaiUsageTracker,
+  weights: Readonly<MentsuWeights>,
+  rng: RandomSource,
+): MentsuResult | undefined {
+  for (let retry = 0; retry < MAX_RETRY; retry++) {
+    const result = createRandomMentsu(weights, rng);
+    const outcome = reserveMentsuHais(tracker, result.mentsu.hais);
+    if (outcome === "reserved") return result;
+    if (outcome === "failed") return undefined;
+  }
+  return undefined;
+}
+
+/**
  * トラッカーで使用可能性を確認しながら、重み付きランダム面子を count 個生成する
  * 面子セット生成
  *
@@ -120,41 +171,11 @@ export function generateMentsuSet(
   rng: RandomSource = defaultRandomSource,
 ): MentsuResult[] | undefined {
   const results: MentsuResult[] = [];
-
   for (let i = 0; i < count; i++) {
-    let found: MentsuResult | undefined;
-
-    for (let retry = 0; retry < MAX_RETRY; retry++) {
-      const result = createRandomMentsu(weights, rng);
-      const tiles = result.mentsu.hais;
-
-      const tempCount = new Map<HaiKindId, number>();
-      for (const t of tiles) tempCount.set(t, (tempCount.get(t) ?? 0) + 1);
-
-      let possible = true;
-      for (const [t, c] of tempCount.entries()) {
-        if (!tracker.canUse(t, c)) {
-          possible = false;
-          break;
-        }
-      }
-
-      if (possible) {
-        // canUse で確保できると確認済みだが、use の Result を捨てると
-        // 上限超過を検知できないまま牌が5枚使われた手牌ができてしまう。
-        // 起きないはずの失敗も握り潰さず、生成そのものを諦める。
-        for (const t of tiles) {
-          if (tracker.use(t, 1).isErr()) return undefined;
-        }
-        found = result;
-        break;
-      }
-    }
-
+    const found = drawAvailableMentsu(tracker, weights, rng);
     if (!found) return undefined;
     results.push(found);
   }
-
   return results;
 }
 
