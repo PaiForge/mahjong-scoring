@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { resolveScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreTableFocus } from "@mahjong-scoring/features/score-table/focus";
+import { useScoreTableOptions } from "@mahjong-scoring/features/score-table/use-score-table-options";
+import { useScoreTableSelection } from "@mahjong-scoring/features/score-table/use-score-table-selection";
 import {
   buildScoreGrid,
   type ScoreTableViewMode,
@@ -44,14 +45,11 @@ interface ScoreTableProps {
  * 点数早見表のコンテナ
  * 点数早見表
  *
- * 親子・ツモロン・表示モードの切り替え状態と点数グリッドの計算を持ち、
- * 表本体の描画は NormalScoreTable / HighScoreTable に委譲する。
- * ページ（クエリパラメータ）からもモーダル（練習の答え合わせ）からも
- * 使えるよう、注目対象は props の focus で受け取る。
- *
- * focus / 初期タブは後から届いてもよい（ページは静的生成で、URL のクエリは
- * hydration 後にしか読めない）。届いたらタブ・表示モード・ハイライトを
- * 合わせ直し、そのセルへスクロールする。
+ * 親子・ツモロン・表示モードの切り替え状態（features の
+ * `useScoreTableSelection`）と点数グリッドの計算を持ち、表本体の描画は
+ * NormalScoreTable / HighScoreTable に委譲する。ページ（クエリパラメータ）
+ * からもモーダル（練習の答え合わせ）からも使えるよう、注目対象は props の
+ * focus で受け取る。focus が後から届いたらそのセルへスクロールする。
  */
 export function ScoreTable({
   focus,
@@ -62,54 +60,32 @@ export function ScoreTable({
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
   const highlightRef = useRef<HTMLTableCellElement>(null);
-
-  const focusTarget = useMemo(() => resolveScoreTableFocus(focus), [focus]);
-  const resolvedViewMode =
-    focus === undefined ? initialViewMode : focusTarget.viewMode;
-
-  const [activeTab, setActiveTab] = useState<Role>(focus?.role ?? initialRole);
-  const [viewMode, setViewMode] =
-    useState<ScoreTableViewMode>(resolvedViewMode);
-  const [winType, setWinType] = useState<WinType>(
-    focus?.winType ?? initialWinType,
-  );
-  const [hiddenCells, setHiddenCells] = useState<Record<string, boolean>>({});
-
-  // focus / 初期タブが後から変わったら state を追随させる。レンダー中の setState は
-  // 「props の変化に state を合わせる」React の定石（effect で行うと変更前の表が
-  // 1 フレーム見える）。同じ内容の focus が別オブジェクトで来ても reset しないよう
-  // 値で比べる。
-  const [applied, setApplied] = useState({
+  const {
+    focusTarget,
+    activeTab,
+    setActiveTab,
+    winType,
+    setWinType,
+    viewMode,
+    setViewMode,
+    isKo,
+    isFocusView,
+    hiddenCells,
+    toggleCell,
+  } = useScoreTableSelection({
     focus,
     initialRole,
     initialWinType,
     initialViewMode,
   });
-  if (
-    !sameFocus(applied.focus, focus) ||
-    applied.initialRole !== initialRole ||
-    applied.initialWinType !== initialWinType ||
-    applied.initialViewMode !== initialViewMode
-  ) {
-    setApplied({ focus, initialRole, initialWinType, initialViewMode });
-    setActiveTab(focus?.role ?? initialRole);
-    setWinType(focus?.winType ?? initialWinType);
-    setViewMode(resolvedViewMode);
-  }
+  const { roleOptions, winTypeOptions, viewModeOptions } =
+    useScoreTableOptions();
 
-  const isKo = activeTab === "ko";
   // ルール設定は端末ローカル（localStorage）。サーバーと hydration 中は既定値で描いて
   // 表の数字を初期 HTML に載せたまま、hydration 後に設定値へ追随させる
   const isClient = useIsClient();
   const kiriageMangan =
     useRuleSettingsStore((s) => s.kiriageMangan) && isClient;
-
-  // ハイライトは focus と同じ親子・ロンツモの表を見ているときだけ出す
-  // （タブを切り替えた表では focus のセルは「その和了の点数」ではないため）
-  const isFocusView =
-    focus !== undefined &&
-    activeTab === focus.role &&
-    winType === focus.winType;
 
   /** 符・翻の点数計算結果グリッド（activeTab / winType / 切り上げ満貫設定に依存） */
   const scoreGrid = useMemo(
@@ -130,36 +106,7 @@ export function ScoreTable({
     }
   }, [focusTarget]);
 
-  const toggleCell = useCallback((id: string) => {
-    setHiddenCells((prev) => ({ ...prev, [id]: !prev[id] }));
-  }, []);
-
-  const roleOptions = useMemo(
-    (): readonly { readonly value: Role; readonly label: string }[] => [
-      { value: "ko", label: t("ko") },
-      { value: "oya", label: t("oya") },
-    ],
-    [t],
-  );
-
-  const winTypeOptions = useMemo(
-    (): readonly { readonly value: WinType; readonly label: string }[] => [
-      { value: "ron", label: t("ron") },
-      { value: "tsumo", label: t("tsumo") },
-    ],
-    [t],
-  );
-
-  const viewModeOptions = useMemo(
-    (): readonly {
-      readonly value: ScoreTableViewMode;
-      readonly label: string;
-    }[] => [
-      { value: "normal", label: t("fuHan") },
-      { value: "high_score", label: `${t("mangan")}+` },
-    ],
-    [t],
-  );
+  const onToggleCell = blurToggleEnabled ? toggleCell : undefined;
 
   return (
     <div className="w-full relative">
@@ -203,7 +150,7 @@ export function ScoreTable({
             hiddenCells={hiddenCells}
             highlight={isFocusView ? focusTarget.normalCell : undefined}
             highlightRef={highlightRef}
-            onToggleCell={blurToggleEnabled ? toggleCell : undefined}
+            onToggleCell={onToggleCell}
           />
         ) : (
           <HighScoreTable
@@ -212,7 +159,7 @@ export function ScoreTable({
             hiddenCells={hiddenCells}
             highlightKey={isFocusView ? focusTarget.highScoreKey : undefined}
             highlightRef={highlightRef}
-            onToggleCell={blurToggleEnabled ? toggleCell : undefined}
+            onToggleCell={onToggleCell}
           />
         )}
       </div>
@@ -224,19 +171,5 @@ export function ScoreTable({
         </div>
       )}
     </div>
-  );
-}
-
-/** focus を値で比べる（undefined 同士は同じ） */
-function sameFocus(
-  a: ScoreTableFocus | undefined,
-  b: ScoreTableFocus | undefined,
-): boolean {
-  if (a === undefined || b === undefined) return a === b;
-  return (
-    a.role === b.role &&
-    a.winType === b.winType &&
-    a.han === b.han &&
-    a.fu === b.fu
   );
 }
