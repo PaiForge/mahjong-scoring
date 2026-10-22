@@ -1,11 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type {
-  JudgementResult,
-  MachiCellAnswer,
-  UserAnswer,
-} from "@mahjong-scoring/core";
+import type { UserAnswer } from "@mahjong-scoring/core";
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
 import { JudgementMark } from "../../_components/judgement-mark";
@@ -17,6 +13,7 @@ import {
   ResultTableFrame,
   ResultUnansweredCell,
 } from "../../agari-score/_components/result-table-frame";
+import type { NoYakuResultDisplayProps } from "@mahjong-scoring/features/practice/tenpai-score/result-props";
 
 interface JudgedCellProps {
   readonly value: string;
@@ -39,17 +36,6 @@ function JudgedCell({ value, isCorrect }: JudgedCellProps) {
       />
     </td>
   );
-}
-
-interface NoYakuResultDisplayProps {
-  /** マスへの回答。「わからない」での開示では undefined */
-  readonly userAnswer: MachiCellAnswer | undefined;
-  /** マスの判定。開示では undefined */
-  readonly result: JudgementResult | undefined;
-  readonly requireYaku: boolean;
-  /** 翻数と符を答えさせたか。答えさせていなければ回答の翻数・符は未回答の印にする */
-  readonly requireHanFu: boolean;
-  readonly exactHan: boolean;
 }
 
 /**

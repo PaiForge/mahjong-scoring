@@ -1,30 +1,14 @@
 "use client";
 
-import type { FuDetail } from "@mahjong-scoring/core";
 import { useTranslations } from "next-intl";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
-
-interface FuBreakdownProps {
-  /** 切り上げ前の符の内訳 */
-  readonly details: readonly FuDetail[];
-  /** 切り上げ後の符（正解） */
-  readonly answer: number;
-  /**
-   * `breakdownTotal` / `roundedUp` / `fuSuffix` を持つ翻訳名前空間（例: "totalFu"）
-   */
-  readonly translationNamespace: string;
-}
-
-interface FuBreakdownTableProps extends FuBreakdownProps {
-  /**
-   * 答えの符（切り上げ後、切り上げが無ければ合計）を押したときの処理。
-   * 渡すとその値が点数表を開くボタンになる
-   */
-  readonly onOpenScoreTable?: () => void;
-}
+import type {
+  FuBreakdownProps,
+  FuBreakdownTableProps,
+} from "@mahjong-scoring/features/results/breakdown-props";
 
 /**
  * 合計符の内訳表示

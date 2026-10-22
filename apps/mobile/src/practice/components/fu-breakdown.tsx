@@ -1,15 +1,12 @@
 import { useTranslations } from "use-intl";
-import type { FuDetail } from "@mahjong-scoring/core";
 import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 
 import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
-
-interface FuBreakdownProps {
-  readonly details: readonly FuDetail[];
-  readonly answer: number;
-  readonly translationNamespace: string;
-}
+import type {
+  FuBreakdownProps,
+  FuBreakdownTableProps,
+} from "@mahjong-scoring/features/results/breakdown-props";
 
 /**
  * 符の内訳（web の `FuBreakdown`）
@@ -50,13 +47,7 @@ export function FuBreakdownTable({
   answer,
   translationNamespace,
   onOpenScoreTable,
-}: FuBreakdownProps & {
-  /**
-   * 答えの符（切り上げ後、切り上げが無ければ合計）を押したときの処理。
-   * 渡すとその値が点数表を開く
-   */
-  readonly onOpenScoreTable?: () => void;
-}) {
+}: FuBreakdownTableProps) {
   const tChallenge = useTranslations("challenge");
   // 行・合計・切り上げ後の文字列は web と共有する
   const { rows, total, rounded } = useFuBreakdown(

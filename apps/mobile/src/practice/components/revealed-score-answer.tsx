@@ -1,33 +1,15 @@
 import { useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  type ScoreQuestion,
-  type ScoreTableAnswer,
-} from "@mahjong-scoring/core";
-import {
-  scoreTableFocusOfQuestion,
-  type ScoreTableFocus,
-} from "@mahjong-scoring/features/score-table/focus";
+import { type ScoreQuestion } from "@mahjong-scoring/core";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 
 import { linkStyles } from "../../lib/link-styles";
 import { colors } from "../../lib/theme";
 import { ScoreTableModal } from "../endless/agari-score/score-table-modal";
-
-interface RevealedScoreAnswerProps {
-  /** 開示する正解の点数 */
-  readonly answer: ScoreTableAnswer;
-  /** `revealedAnswer` / `pointSuffix` / `all` キーを持つ翻訳名前空間 */
-  readonly translationNamespace: string;
-  /**
-   * 正解を押したときに開く点数表の位置（親子・ロンツモ・翻・符）。渡すと
-   * 正解の点数が押せる語になり、そのセルをハイライトした点数早見表を開く
-   * （`scoreTableFocusOf` で組む）。渡さなければただの文字
-   */
-  readonly scoreTableFocus?: ScoreTableFocus;
-}
+import type { RevealedScoreAnswerProps } from "@mahjong-scoring/features/results/revealed-score-answer-props";
 
 /**
  * トレーニングで開示する正解の点数

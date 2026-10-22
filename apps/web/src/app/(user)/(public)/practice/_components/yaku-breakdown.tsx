@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import type { YakuDetail } from "@mahjong-scoring/core";
 import { sumYakuHan } from "@mahjong-scoring/core";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -12,23 +11,10 @@ import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
-
-interface YakuBreakdownProps {
-  /** 役の内訳（ドラ・裏ドラを含む） */
-  readonly yakuDetails: readonly YakuDetail[];
-  /** 合計の後に効く丸めの補足（役満止まりなど）。持たない画面もある */
-  readonly note?: ReactNode;
-  /**
-   * 合計がそのまま答えにならないときの答えの行（翻数即答の「13翻以上は 役満」）。
-   * 符の内訳の「切り上げ後 40符」と同じく、合計の下に結論として据える
-   */
-  readonly conclusion?: { readonly label: string; readonly value: string };
-}
-
-interface YakuBreakdownTableProps extends YakuBreakdownProps {
-  /** 合計の翻数を押したときの処理。渡すとその値が点数表を開くボタンになる */
-  readonly onOpenScoreTable?: () => void;
-}
+import type {
+  YakuBreakdownProps,
+  YakuBreakdownTableProps,
+} from "@mahjong-scoring/features/results/breakdown-props";
 
 /**
  * 翻数の内訳表示
@@ -56,7 +42,7 @@ interface YakuBreakdownTableProps extends YakuBreakdownProps {
  * 1 行の入口で、既定で閉じる）。内訳が翻数だけなので切り替えは出ない
  * （符の内訳も同じ）。
  */
-export function YakuBreakdown(props: YakuBreakdownProps) {
+export function YakuBreakdown(props: YakuBreakdownProps<ReactNode>) {
   const t = useTranslations("challenge.scoreBreakdown");
 
   if (props.yakuDetails.length === 0) return undefined;
@@ -90,7 +76,7 @@ export function YakuBreakdownTable({
   note,
   conclusion,
   onOpenScoreTable,
-}: YakuBreakdownTableProps) {
+}: YakuBreakdownTableProps<ReactNode>) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
   const yakuOrder = useYakuOrder();

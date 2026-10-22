@@ -1,10 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import type {
-  JudgementResult,
-  ScoreQuestion,
-  UserAnswer,
-} from "@mahjong-scoring/core";
 import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
 import {
   formatHan,
@@ -42,29 +37,7 @@ import { ScoreTableModal } from "./score-table-modal";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
-
-interface ResultDisplayProps {
-  readonly question: ScoreQuestion;
-  /** ユーザーの回答。無回答の正解開示（「わからない」）では undefined */
-  readonly userAnswer?: UserAnswer;
-  /** 判定結果。無回答の正解開示（「わからない」）では undefined */
-  readonly result?: JudgementResult;
-  /**
-   * 翻・符・点数の形を取らない回答の一言（聴牌形の点数計算の「役なし」）。
-   * `userAnswer` の代わりに「あなたの回答」列の翻数の行へ ✗ 付きで出す
-   */
-  readonly answerSummary?: string;
-  readonly requireYaku?: boolean;
-  /**
-   * 翻数と符を答えさせたか。答えさせていないときも正解の翻数・符の行は
-   * 出す（点数の根拠として読ませる）が、「あなたの回答」は未回答の印にする
-   */
-  readonly requireHanFu?: boolean;
-  readonly exactHan?: boolean;
-  readonly requireFuForMangan?: boolean;
-  /** 既に白い枠を持つ面の中に置くか（{@link ResultTableFrame} の `embedded`） */
-  readonly embedded?: boolean;
-}
+import type { ResultDisplayProps } from "@mahjong-scoring/features/results/result-display-props";
 
 /**
  * 回答結果表示（web の `ResultDisplay`）
