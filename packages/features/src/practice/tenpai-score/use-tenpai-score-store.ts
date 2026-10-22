@@ -11,9 +11,7 @@ import type {
 } from "@mahjong-scoring/core";
 import {
   generateValidTenpaiScoreQuestion,
-  judgeMachiCellAnswer,
   judgeMachiSelection,
-  machiCellKey,
   toYakumanRuleConfig,
 } from "@mahjong-scoring/core";
 
@@ -23,6 +21,7 @@ import {
   type MachiCellRef,
   type TenpaiScorePhase,
 } from "./cell-ref";
+import { judgeAllCells } from "./judge-cells";
 
 interface TenpaiScoreState {
   /** 現在の問題 */
@@ -280,28 +279,12 @@ export function createTenpaiScoreStore(getRuleSettings: () => RuleSettings) {
         get();
       if (!currentQuestion || phase !== "cells") return;
 
-      const results: Record<string, JudgementResult> = {};
-      let allCellsCorrect = true;
-      for (const wait of currentQuestion.waits) {
-        for (const isTsumo of [true, false]) {
-          const key = machiCellKey(wait.agariHai, isTsumo);
-          const answer = cellAnswers[key];
-          // 未回答のマスは答えていないので不正解扱い（画面は全マス回答まで
-          // 送信させないため、通常ここには来ない）
-          const result = answer
-            ? judgeMachiCellAnswer(
-                isTsumo ? wait.tsumo : wait.ron,
-                answer,
-                mode,
-              )
-            : judgeMachiCellAnswer(wait.tsumo, { kind: "noYaku" }, mode);
-          results[key] = result;
-          if (!result.isCorrect) allCellsCorrect = false;
-        }
-      }
-
-      const isAllCorrect =
-        (machiJudgement?.isCorrect ?? false) && allCellsCorrect;
+      const { results, allCorrect } = judgeAllCells(
+        currentQuestion,
+        cellAnswers,
+        mode,
+      );
+      const isAllCorrect = (machiJudgement?.isCorrect ?? false) && allCorrect;
       set({
         phase: "result",
         cellResults: results,
