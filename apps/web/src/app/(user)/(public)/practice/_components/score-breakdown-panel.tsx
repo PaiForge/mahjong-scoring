@@ -18,8 +18,8 @@ import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results
  * 点数内訳パネル
  *
  * 符の内訳（{@link FuBreakdownTable}）と翻数の内訳（{@link YakuBreakdownTable}）を
- * 1 つの入口から切り替えて読ませる（器は {@link BreakdownPanel}）。昇級試験の
- * 答え合わせと結果ページの問題別詳細で使う。以前は 2 つの開閉を縦に積んで
+ * 1 つの入口から切り替えて読ませる（器は {@link BreakdownPanel}）。模試と
+ * 点数の練習のトレーニングの答え合わせ、結果ページの問題別詳細で使う。以前は 2 つの開閉を縦に積んで
  * いたが、両方開くと手牌・答え合わせの間が内訳で埋まった。
  *
  * 文言は共通の `challenge` 名前空間から引く（翻数の内訳と同じ理由で、練習

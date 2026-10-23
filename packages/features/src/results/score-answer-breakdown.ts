@@ -17,6 +17,21 @@ export interface ScoreAnswerBreakdown {
   readonly yakuNote: string | undefined;
 }
 
+/**
+ * 答え合わせの内訳に開くものが 1 つでもあるか
+ * 答え合わせ内訳有無
+ *
+ * 役一覧が与件で 5 翻以上の手（満貫以上の点数計算の大半）では符も翻数も
+ * 無く、`ScoreBreakdownPanel` は何も描かない。面子分解も持たない手
+ * （国士無双等）で答え合わせの資料の面が空の枠にならないよう、置く前に
+ * これで確かめる。
+ */
+export function hasScoreAnswerBreakdown(
+  breakdown: ScoreAnswerBreakdown,
+): boolean {
+  return breakdown.fu !== undefined || breakdown.yakuDetails.length > 0;
+}
+
 /** 内訳のうち、出題の側で既に見えているもの */
 export interface ScoreAnswerBreakdownOptions {
   /**

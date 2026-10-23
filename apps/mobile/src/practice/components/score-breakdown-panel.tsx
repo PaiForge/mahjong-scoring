@@ -18,7 +18,8 @@ import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results
  * 点数内訳パネル
  *
  * 符の内訳と翻数の内訳を 1 つの入口から切り替えて読ませる（器は
- * {@link BreakdownPanel}）。昇級試験の答え合わせと結果の問題別詳細で使う。
+ * {@link BreakdownPanel}）。模試と点数の練習のトレーニングの答え合わせ、結果の
+ * 問題別詳細で使う。
  * 文言は共通の `challenge` 名前空間から引く。
  *
  * `scoreTableFocus` を渡すと、内訳の答えの値（翻数の合計・符）が正解のセルを

@@ -1,7 +1,10 @@
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { buildScoreAnswerBreakdown } from "./score-answer-breakdown";
+import {
+  buildScoreAnswerBreakdown,
+  hasScoreAnswerBreakdown,
+} from "./score-answer-breakdown";
 
 const FU_DETAILS = [{ reason: "副底", fu: 20 }];
 const YAKU_DETAILS = [{ name: "立直", han: 1 }];
@@ -61,5 +64,43 @@ describe("buildScoreAnswerBreakdown", () => {
       yakuDetails: [],
       yakuNote: undefined,
     });
+  });
+});
+
+describe("hasScoreAnswerBreakdown", () => {
+  it("役一覧が与件で 5 翻以上の手は符も翻数も無い", () => {
+    expect(
+      hasScoreAnswerBreakdown(
+        buildScoreAnswerBreakdown(
+          questionOf({ han: 5, scoreLevel: "Mangan" }),
+          t,
+          { yakuGiven: true },
+        ),
+      ),
+    ).toBe(false);
+  });
+
+  it("役一覧が与件でも 4 翻以下なら符の内訳がある", () => {
+    expect(
+      hasScoreAnswerBreakdown(
+        buildScoreAnswerBreakdown(
+          questionOf({ han: 3, scoreLevel: "Mangan" }),
+          t,
+          { yakuGiven: true },
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("役を出さない練習は 5 翻以上でも翻数の内訳がある", () => {
+    expect(
+      hasScoreAnswerBreakdown(
+        buildScoreAnswerBreakdown(
+          questionOf({ han: 5, scoreLevel: "Mangan" }),
+          t,
+          { yakuGiven: false },
+        ),
+      ),
+    ).toBe(true);
   });
 });
