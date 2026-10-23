@@ -9,7 +9,7 @@ import { AnnouncementRow } from "../../announcements/announcement-rows";
 import { fetchAnnouncements } from "../../announcements/announcements-api";
 import { LoadFailed, LoadingIndicator } from "../../components/load-state";
 import { useAnnouncementRead } from "../../announcements/use-announcement-read";
-import { Button } from "../../components/button";
+import { LoadMoreButton } from "../../components/load-more-button";
 import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
@@ -77,17 +77,13 @@ function AnnouncementList() {
         </LinkRowList>
       )}
       {error !== undefined && <LoadFailed message={t("loadFailed")} />}
-      {hasMore && (
-        <Button
-          variant="secondary"
-          fullWidth
-          testID="announcements-more"
-          disabled={loading}
-          onPress={loadMore}
-        >
-          {t("loadMore")}
-        </Button>
-      )}
+      <LoadMoreButton
+        hasMore={hasMore}
+        loading={loading}
+        onPress={loadMore}
+        label={t("loadMore")}
+        testID="announcements-more"
+      />
     </View>
   );
 }

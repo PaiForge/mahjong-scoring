@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 
-import { Button } from "../../../components/button";
+import { LoadMoreButton } from "../../../components/load-more-button";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { AttemptTable } from "../../../mypage/attempt-table";
@@ -66,17 +66,13 @@ function Results({ userId }: { readonly userId: string }) {
         boardLabelOf={(attempt) => boardLabel(attempt, tRoot)}
       />
       {error !== undefined && <MypageLoadFailed message={t("loadFailed")} />}
-      {hasMore && (
-        <Button
-          variant="secondary"
-          fullWidth
-          testID="my-record-results-more"
-          disabled={loading}
-          onPress={loadMore}
-        >
-          {t("loadMore")}
-        </Button>
-      )}
+      <LoadMoreButton
+        hasMore={hasMore}
+        loading={loading}
+        onPress={loadMore}
+        label={t("loadMore")}
+        testID="my-record-results-more"
+      />
     </View>
   );
 }

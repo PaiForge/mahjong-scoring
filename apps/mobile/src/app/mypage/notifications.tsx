@@ -7,6 +7,7 @@ import type { MobileNotification } from "@mahjong-scoring/features/notifications
 import { FormMessage } from "../../auth/form-message";
 import { IAP_AVAILABLE } from "../../billing/iap-availability";
 import { Button } from "../../components/button";
+import { LoadMoreButton } from "../../components/load-more-button";
 import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { colors } from "../../lib/theme";
@@ -156,17 +157,13 @@ function Notifications({ userId }: { readonly userId: string }) {
         </LinkRowList>
       )}
       {error !== undefined && <MypageLoadFailed message={t("loadFailed")} />}
-      {hasMore && (
-        <Button
-          variant="secondary"
-          fullWidth
-          testID="notifications-more"
-          disabled={loading}
-          onPress={loadMore}
-        >
-          {t("loadMore")}
-        </Button>
-      )}
+      <LoadMoreButton
+        hasMore={hasMore}
+        loading={loading}
+        onPress={loadMore}
+        label={t("loadMore")}
+        testID="notifications-more"
+      />
     </View>
   );
 }
