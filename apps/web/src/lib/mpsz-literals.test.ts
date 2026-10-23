@@ -32,14 +32,6 @@ const SOURCE_DIRS = [
  */
 const EXCLUDED_FILES: ReadonlyMap<string, string> = new Map([
   [
-    "apps/web/scripts/_lib/legacy-mpsz.mts",
-    "旧表記（1.x）から 2.0 への変換。入力として 1.x の表記を例示する",
-  ],
-  [
-    "apps/web/scripts/_lib/legacy-mpsz.test.ts",
-    "旧表記の変換のテスト。1.x の表記と変換できない表記を入力に使う",
-  ],
-  [
     "apps/web/src/app/admin/ads/_lib/__tests__/validation.test.ts",
     "広告の手牌の入力検証のテスト。拒否する表記を入力に使う",
   ],
