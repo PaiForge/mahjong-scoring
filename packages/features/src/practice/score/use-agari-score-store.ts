@@ -88,6 +88,16 @@ interface AgariScoreActions {
 /** 和了形の点数計算のストアの状態と操作 */
 export type AgariScoreStore = AgariScoreState & AgariScoreActions;
 
+/** 1 問を解き始める前の回答の状態（出題・設定の適用・問題の差し替えで戻す） */
+const INITIAL_ANSWERING: Pick<
+  AgariScoreState,
+  "userAnswer" | "judgementResult" | "isAnswered"
+> = {
+  userAnswer: undefined,
+  judgementResult: undefined,
+  isAnswered: false,
+};
+
 /**
  * 和了形の点数計算のストアを作る
  * 点数練習ストア生成
@@ -101,9 +111,7 @@ export type AgariScoreStore = AgariScoreState & AgariScoreActions;
 export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
   return create<AgariScoreStore>((set, get) => ({
     currentQuestion: undefined,
-    userAnswer: undefined,
-    judgementResult: undefined,
-    isAnswered: false,
+    ...INITIAL_ANSWERING,
     generationFailed: false,
     questionSeq: 0,
     options: {
@@ -135,9 +143,7 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
       );
       set((state) => ({
         currentQuestion: question,
-        userAnswer: undefined,
-        judgementResult: undefined,
-        isAnswered: false,
+        ...INITIAL_ANSWERING,
         generationFailed: question === undefined,
         questionSeq: state.questionSeq + 1,
       }));
@@ -182,9 +188,7 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
         appliedQuery: query,
         stats: { total: 0, correct: 0 },
         currentQuestion: undefined,
-        userAnswer: undefined,
-        judgementResult: undefined,
-        isAnswered: false,
+        ...INITIAL_ANSWERING,
         generationFailed: false,
         questionSeq: state.questionSeq + 1,
       }));
@@ -193,9 +197,7 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
     setQuestion: (question: ScoreQuestion | undefined) => {
       set((state) => ({
         currentQuestion: question,
-        userAnswer: undefined,
-        judgementResult: undefined,
-        isAnswered: false,
+        ...INITIAL_ANSWERING,
         // 設定画面へ戻る前のクリア（setQuestion(undefined)）は失敗ではない
         generationFailed: false,
         // 直接入れた問題はどの条件のものでもない。「開始」で空に戻した後は
