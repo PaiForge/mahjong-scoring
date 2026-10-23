@@ -97,9 +97,10 @@ describe("取引の完了", () => {
     mocks.getAvailablePurchases.mockResolvedValue([
       { ...PURCHASE, transactionId: "2000000000000002" },
     ]);
-    const [listed] = await listIapPurchases();
+    const listed = await listIapPurchases();
+    if (!listed.ok) throw new Error("一覧を読めなかった");
 
-    await finishIapPurchase(listed);
+    await finishIapPurchase(listed.purchases[0]);
 
     expect(mocks.finishTransaction).not.toHaveBeenCalled();
   });
@@ -131,5 +132,29 @@ describe("取引の完了", () => {
 
     expect(mocks.finishTransaction).toHaveBeenCalledTimes(1);
     unsubscribe();
+  });
+});
+
+describe("購入の一覧", () => {
+  it("読めた購入を返す", async () => {
+    mocks.getAvailablePurchases.mockResolvedValue([PURCHASE]);
+
+    await expect(listIapPurchases()).resolves.toEqual({
+      ok: true,
+      purchases: [
+        {
+          transactionId: PURCHASE.transactionId,
+          productId: PURCHASE.productId,
+          jws: "jws",
+        },
+      ],
+    });
+  });
+
+  it("一覧の取得に失敗したら、購入なしではなく失敗を返す", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    mocks.getAvailablePurchases.mockRejectedValueOnce(new Error("offline"));
+
+    await expect(listIapPurchases()).resolves.toEqual({ ok: false });
   });
 });

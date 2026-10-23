@@ -153,8 +153,10 @@ async function recordPurchase(
  * 後日、ログアウト中に届く経路がある。
  */
 async function sweepPurchases(userId: string): Promise<void> {
-  const purchases = await listIapPurchases();
-  for (const purchase of purchases) {
+  const listed = await listIapPurchases();
+  // 読めなければ何もしない。未完了の取引は次の起動で StoreKit が配り直す
+  if (!listed.ok) return;
+  for (const purchase of listed.purchases) {
     await recordPurchase(userId, purchase, false);
   }
 }
@@ -165,13 +167,18 @@ async function sweepPurchases(userId: string): Promise<void> {
  *
  * 1 件ずつ順に送り、全部終わったらプラン画面に読み直させる。結果は画面が
  * 出す知らせ 1 つにまとめて返す（{@link summarizeRestore}）。
+ *
+ * 端末の購入を読めなかった（StoreKit に接続できない・一覧の取得に失敗）ときは
+ * 送らずに `failed` — 「復元できる購入は無かった」ではなく「復元できなかった」
+ * と知らせ、通信できる状態でやり直してもらう。
  */
 export async function restoreIapPurchases(
   userId: string,
 ): Promise<RestoreSummary> {
-  const purchases = await listIapPurchases();
+  const listed = await listIapPurchases();
+  if (!listed.ok) return "failed";
   const results: TransactionResult[] = [];
-  for (const purchase of purchases) {
+  for (const purchase of listed.purchases) {
     results.push(await submitPurchase(userId, purchase));
   }
   invalidatePlan();

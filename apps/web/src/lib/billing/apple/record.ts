@@ -1,7 +1,6 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
 import "server-only";
 
-import { APPLE_APP_BUNDLE_ID } from "@mahjong-scoring/features/account/apple";
 import { PLANS, PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 
 import {
@@ -25,27 +24,9 @@ import { PurchaseRevokeReason } from "../revoke-reason";
 import { offerKeyOfAppleProductId, readAppleSandboxUserIds } from "./env";
 import { AppleNotificationType } from "./notification-events";
 import { buildApplePurchaseRow, type AppleRevocation } from "./purchase-row";
+import { rejectionOf, type AppleRecordRejection } from "./rejection";
 import { lockAppleTransaction } from "./transaction-lock";
-import { AppleEnvironment, type AppleTransaction } from "./verifier";
-
-/**
- * 取引を記録しない理由
- * 記録の拒否理由
- *
- * - `unknownBundle` — 別のアプリの取引
- * - `unknownProduct` — 環境変数の Product ID のどれでもない
- * - `unexpectedType` — 商品の種類が売り方と合わない（パスは Consumable、
- *   買い切りは Non-Consumable）
- * - `familyShared` — Family Sharing で共有された取引（両商品とも共有を OFF に
- *   しているので通常は来ない）
- * - `sandboxNotAccepted` — Sandbox の取引で、本人が許可リストにいない
- */
-export type AppleRecordRejection =
-  | "unknownBundle"
-  | "unknownProduct"
-  | "unexpectedType"
-  | "familyShared"
-  | "sandboxNotAccepted";
+import type { AppleTransaction } from "./verifier";
 
 /**
  * App Store の取引の記録の結果
@@ -66,37 +47,6 @@ export type AppleRecordResult =
   | { readonly outcome: "rejected"; readonly reason: AppleRecordRejection }
   /** 退会を受け付けたユーザー。何も書いていない */
   | { readonly outcome: "accountUnavailable" };
-
-/**
- * 売り方ごとに期待する商品の種類（`AppleTransaction.type`）
- *
- * `Record<PurchaseKind, …>` にして、売り方の種類を足したときにここへの追記を
- * コンパイラに要求させる。
- *
- * @design 30 日パスは消耗型（Consumable）で売る（2026-10）
- *
- * 期間で区切った利用権の本来の種類は Non-Renewing Subscription だが、それだと
- * App Store の購入シートのボタンが「サブスクリプションに登録」になり、自動更新
- * しない売り方の意味が伝わらない（文言は商品の種類で決まり、アプリからは
- * 変えられない）。消耗型ならボタンは「購入」になる。期間はもともとサーバーが
- * 持つ（`buildApplePurchaseRow` が `expiresAt` を決める）ので、種類を変えても特典の
- * 判定は変わらない。違いは 2 つで、どちらも受け入れる:
- *
- * - StoreKit の現在の権利（`Transaction.currentEntitlements`）に消耗型は
- *   載らないので、アプリの「購入を復元」はパスを戻さない。パスはサーバーに
- *   記録済みで、ログインすれば戻る（プラン画面の案内もそう書いている）
- * - 期間で区切った利用権に消耗型を使うと、審査で「IAP の種類が違う」と
- *   差し戻されうる。差し戻されたら、非更新サブスクの旧商品
- *   （`help.mahjong.score.pro.pass30`。消さずに残してある）へ環境変数を
- *   戻し、ここを Non-Renewing Subscription に戻す
- */
-const APPLE_PRODUCT_TYPES: Readonly<Record<PurchaseKind, string>> = {
-  [PurchaseKind.Pass]: "Consumable",
-  [PurchaseKind.Lifetime]: "Non-Consumable",
-};
-
-/** 自分の購入として受け入れる所有の種類（Family Sharing の共有ではない） */
-const PURCHASED_OWNERSHIP = "PURCHASED";
 
 /**
  * 検証済みの App Store の取引を、ユーザーの購入として記録する
@@ -145,7 +95,12 @@ export async function recordAppleTransaction(
 ): Promise<AppleRecordResult> {
   const offerKey = offerKeyOfAppleProductId(transaction.productId);
   const offer = offerKey === undefined ? undefined : PLANS.pro.offers[offerKey];
-  const rejection = rejectionOf(userId, transaction, offer?.kind);
+  const rejection = rejectionOf(
+    userId,
+    transaction,
+    offer?.kind,
+    readAppleSandboxUserIds(),
+  );
   if (rejection !== undefined || offer === undefined)
     return { outcome: "rejected", reason: rejection ?? "unknownProduct" };
 
@@ -203,29 +158,6 @@ export async function recordAppleTransaction(
   );
   if (notification) await notifyQuietly(notification);
   return result;
-}
-
-/**
- * DB を見ずに決まる拒否の理由。受け入れるなら undefined
- *
- * 判定の順は {@link recordAppleTransaction} の規則 1・2 のとおり。
- */
-function rejectionOf(
-  userId: string,
-  transaction: AppleTransaction,
-  kind: PurchaseKind | undefined,
-): AppleRecordRejection | undefined {
-  if (transaction.bundleId !== APPLE_APP_BUNDLE_ID) return "unknownBundle";
-  if (kind === undefined) return "unknownProduct";
-  if (transaction.type !== APPLE_PRODUCT_TYPES[kind]) return "unexpectedType";
-  if (transaction.inAppOwnershipType !== PURCHASED_OWNERSHIP)
-    return "familyShared";
-  if (
-    transaction.environment === AppleEnvironment.Sandbox &&
-    !readAppleSandboxUserIds().has(userId.toLowerCase())
-  )
-    return "sandboxNotAccepted";
-  return undefined;
 }
 
 /** 取引 ID の購入行（通知を組む列）を読む */

@@ -139,18 +139,36 @@ export function planStatusOf(
   }
 
   // 開始済みの購入と付与だけを現在の状態に含める。開始待ちは履歴に表示する。
-  // 種類は最後の期限を持つ方（パス / 付与）
-  let latest:
-    { readonly kind: "pass" | "granted"; readonly until: Date } | undefined;
-  const consider = (kind: "pass" | "granted", expiresAt: Date | null) => {
-    if (!expiresAt || expiresAt <= now) return;
-    if (!latest || expiresAt > latest.until)
-      latest = { kind, until: expiresAt };
-  };
-  for (const purchase of validPurchases) consider("pass", purchase.expiresAt);
-  for (const grant of activeGrants) consider("granted", grant.expiresAt);
-
+  // 種類は最後の期限を持つ方（パス / 付与）。期限が同じならパス（先に並べた方）
+  const timed: readonly TimedPlanStatus[] = [
+    ...validPurchases.map((purchase) =>
+      timedStatus("pass", purchase.expiresAt, now),
+    ),
+    ...activeGrants.map((grant) =>
+      timedStatus("granted", grant.expiresAt, now),
+    ),
+  ].filter((status) => status !== undefined);
+  const latest = timed.reduce<TimedPlanStatus | undefined>(
+    (best, status) =>
+      best === undefined || status.until > best.until ? status : best,
+    undefined,
+  );
   return latest ?? { kind: "free" };
+}
+
+/** 期限付きの状態（パスか期限付きの付与） */
+interface TimedPlanStatus {
+  readonly kind: "pass" | "granted";
+  readonly until: Date;
+}
+
+/** 期限が `now` より後なら期限付きの状態、無期限か期限切れなら undefined */
+function timedStatus(
+  kind: TimedPlanStatus["kind"],
+  expiresAt: Date | null,
+  now: Date,
+): TimedPlanStatus | undefined {
+  return expiresAt && expiresAt > now ? { kind, until: expiresAt } : undefined;
 }
 
 /** 日付を「2026/10/31」の形にする（JST）。表の列幅を取らない */
