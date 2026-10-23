@@ -1,14 +1,7 @@
 import "server-only";
-import { isDeepStrictEqual } from "node:util";
 import { and, eq } from "drizzle-orm";
-import { z } from "zod";
 import { db, challengeAttempts, type TransactionClient } from "../db";
-import {
-  isPracticeMenuType,
-  isPracticeVariant,
-  isExamMenuType,
-  type PracticeMenuType,
-} from "@mahjong-scoring/features/practice-menu-types";
+import { isExamMenuType } from "@mahjong-scoring/features/practice-menu-types";
 import { getUserRankSlugs } from "../db/rank-queries";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { gradeExamRun } from "../db/rank-evaluation";
@@ -16,26 +9,25 @@ import { saveChallengeResult } from "../db/save-challenge-result";
 import { lockAccountForWrite } from "../users/account-write-lock";
 import type {
   ChallengeOutcome,
-  ChallengeSettings,
   ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
-import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import { decideChallengeAnswer } from "./answer-decision";
 import {
-  generateChallengeQuestion,
-  publicChallengeQuestion,
-} from "./questions";
+  attemptEntry,
+  attemptStatus,
+  finishResult,
+  isAttemptId,
+  parseBeginRequest,
+  resumableEntry,
+} from "./attempt-views";
+import { generateChallengeQuestion } from "./questions";
 import {
   canPauseChallenge,
-  challengeElapsed,
   challengeRemainingMs,
   finishedChallengeTime,
   pausedChallenge,
   startedChallenge,
 } from "./transitions";
-
-const uuid = z.string().uuid();
-const settingsSchema = z.object({ renfonpaiAs4Fu: z.boolean() });
 /** 本人の挑戦行を更新用にロックして読む。他人の id では見つからない扱いになる。 */
 async function lockOwnAttempt(
   tx: TransactionClient,
@@ -51,14 +43,6 @@ async function lockOwnAttempt(
     .for("update");
   return row;
 }
-/** 開始・復帰の応答で見せる挑戦の入口。出題は正解を伏せる。 */
-function attemptEntry(id: string, state: ChallengeState) {
-  return {
-    id,
-    sequence: state.sequence,
-    question: publicChallengeQuestion(state.question, state.menuType),
-  };
-}
 /** 開始の要求のうち省略できる項目 */
 export interface BeginAttemptOptions {
   /**
@@ -72,37 +56,6 @@ export interface BeginAttemptOptions {
    * 時計。受験資格を確かめ出題を作った後に読むので、時刻ではなく関数で受ける
    */
   readonly clock?: () => number;
-}
-
-/** 検証を通った開始の要求 */
-interface BeginRequest {
-  readonly menuType: PracticeMenuType;
-  readonly variant: string;
-  readonly settings: ChallengeSettings;
-  /** 呼び出し側が決めた挑戦 ID。無ければ DB が決める */
-  readonly id: string | undefined;
-}
-
-/** 開始の要求の形を検証する。練習・バリアント・設定・ID のどれかが不正なら undefined */
-function parseBeginRequest(
-  menuType: unknown,
-  variant: unknown,
-  settings: unknown,
-  requestedId: unknown,
-): BeginRequest | undefined {
-  if (
-    !isPracticeMenuType(menuType) ||
-    typeof variant !== "string" ||
-    !isPracticeVariant(menuType, variant)
-  )
-    return undefined;
-  const parsed = settingsSchema.safeParse(settings);
-  if (!parsed.success) return undefined;
-  const base = { menuType, variant, settings: parsed.data };
-  if (requestedId === undefined) return { ...base, id: undefined };
-  return typeof requestedId === "string" && uuid.safeParse(requestedId).success
-    ? { ...base, id: requestedId }
-    : undefined;
 }
 
 /**
@@ -164,27 +117,6 @@ async function readOwnAttempt(userId: string, id: string) {
     );
   return row;
 }
-/**
- * 開始の再送で既存の挑戦を返せるなら、その入口を返す。
- *
- * 同じ ID で別の練習・バリアント・ルール設定を送った要求は再送ではなく
- * 競合なので返さない。設定まで比べるのは、違う設定で始めたつもりの
- * 端末に、サーバーが固定した別の設定の挑戦を渡すと、端末の表示と
- * サーバーの採点の条件が食い違うため。確定済みの挑戦にも返さない。
- */
-function resumableEntry(
-  row: typeof challengeAttempts.$inferSelect,
-  request: Pick<BeginRequest, "menuType" | "variant" | "settings">,
-) {
-  if (
-    row.consumed ||
-    row.state.menuType !== request.menuType ||
-    row.state.variant !== request.variant ||
-    !isDeepStrictEqual(row.state.settings, request.settings)
-  )
-    return undefined;
-  return attemptEntry(row.id, row.state);
-}
 /** 回答の要求のうち省略できる項目 */
 export interface AnswerAttemptOptions {
   /**
@@ -222,8 +154,7 @@ export async function answerAttempt(
 ) {
   const { receivedAt = Date.now(), clock = Date.now } = options;
   if (
-    !uuid.safeParse(id).success ||
-    typeof id !== "string" ||
+    !isAttemptId(id) ||
     !Number.isInteger(sequence) ||
     typeof sequence !== "number"
   )
@@ -271,12 +202,7 @@ export async function pauseAttempt(
   paused: unknown,
   clock: () => number = Date.now,
 ): Promise<boolean> {
-  if (
-    typeof id !== "string" ||
-    !uuid.safeParse(id).success ||
-    typeof paused !== "boolean"
-  )
-    return false;
+  if (!isAttemptId(id) || typeof paused !== "boolean") return false;
   return db.transaction(async (tx) => {
     const row = await lockOwnAttempt(tx, userId, id);
     const now = clock();
@@ -305,7 +231,7 @@ export async function finishAttempt(
   exam: boolean,
   clock: () => number = Date.now,
 ) {
-  if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
+  if (!isAttemptId(id)) return undefined;
   return db.transaction(async (tx) => {
     // 成績・EXP・段級位を書く。退会を受け付けた後には書かない
     if (!(await lockAccountForWrite(tx, userId))) return undefined;
@@ -326,18 +252,6 @@ export async function finishAttempt(
       .where(eq(challengeAttempts.id, id));
     return finishResult(state, outcome);
   });
-}
-
-/**
- * 確定結果を `finishAttempt` の戻り値にする。記録した練習には土俵（練習種別と
- * バリアント）を添える — 呼び出し側が今回の成績を過去の記録と比べるとき
- * （`getScoreComparison`）に、行を読み直さずに済むようにするため。
- */
-function finishResult(state: ChallengeState, outcome: ChallengeOutcome) {
-  const result = outcomeResult(outcome);
-  return result !== undefined && "challengeResultId" in result
-    ? { ...result, menuType: state.menuType, variant: state.variant }
-    : result;
 }
 
 /** 確定した挑戦を記録し、その結果を返す（記録は呼び出し元のトランザクションで行う）。 */
@@ -373,27 +287,6 @@ async function recordOutcome(
   return { kind: "recorded", challengeResultId };
 }
 
-/** 確定結果を `finishAttempt` の戻り値の形にする。何も記録しなかったら undefined。 */
-function outcomeResult(
-  outcome: ChallengeOutcome,
-):
-  | { readonly grantedRanks: readonly RankSlug[] }
-  | { readonly challengeResultId: string }
-  | undefined {
-  switch (outcome.kind) {
-    case "graded":
-      return { grantedRanks: outcome.grantedRanks };
-    case "recorded":
-      return { challengeResultId: outcome.challengeResultId };
-    case "unrecorded":
-      return undefined;
-    default: {
-      const exhaustive: never = outcome;
-      return exhaustive;
-    }
-  }
-}
-
 /**
  * 本人の挑戦の今の状態。通信が切れた・アプリが落ちたクライアントが、
  * 手元の状態を捨ててサーバーに合わせ直すために読む。
@@ -409,27 +302,10 @@ export async function readAttemptStatus(
   id: unknown,
   clock: () => number = Date.now,
 ) {
-  if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
+  if (!isAttemptId(id)) return undefined;
   const row = await readOwnAttempt(userId, id);
   if (!row) return undefined;
-  const { state } = row;
-  const now = clock();
-  return {
-    ...attemptEntry(row.id, state),
-    menuType: state.menuType,
-    variant: state.variant,
-    // 採点の条件。復帰した端末は手元の設定ではなくこれで表示し直す
-    settings: state.settings,
-    score: state.score,
-    incorrectAnswers: state.incorrectAnswers,
-    elapsedMs: challengeElapsed(state, now),
-    remainingMs: challengeRemainingMs(state, now),
-    paused: state.paused,
-    finished: row.consumed,
-    outcome: row.consumed
-      ? outcomeResult(state.outcome ?? { kind: "unrecorded" })
-      : undefined,
-  };
+  return attemptStatus(row, clock());
 }
 
 /**
@@ -443,7 +319,7 @@ export async function revealExpiredAttempt(
   id: unknown,
   clock: () => number = Date.now,
 ) {
-  if (typeof id !== "string" || !uuid.safeParse(id).success) return undefined;
+  if (!isAttemptId(id)) return undefined;
   const row = await readOwnAttempt(userId, id);
   if (!row || row.consumed || row.state.paused) return undefined;
   const remainingMs = challengeRemainingMs(row.state, clock());
