@@ -25,6 +25,7 @@ import {
   lessonFollowUp,
   type LessonFollowUp,
 } from "@mahjong-scoring/features/lessons/follow-up";
+import { DOJO_PATH, LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * `completeLesson` が返しうるエラーコード
@@ -107,9 +108,9 @@ async function recordCompletions(
   if (slugs.length === 0) return true;
   if (!(await recordLessonCompletions(userId, slugs))) return false;
 
-  revalidatePath("/lessons");
+  revalidatePath(LESSONS_PATH);
   revalidatePath("/dashboard");
-  revalidatePath("/dojo");
+  revalidatePath(DOJO_PATH);
   return true;
 }
 

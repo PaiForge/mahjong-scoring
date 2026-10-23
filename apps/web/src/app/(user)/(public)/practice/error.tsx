@@ -1,6 +1,7 @@
 "use client";
 
 import { ErrorFallback } from "@/app/(user)/_components/error-fallback";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 練習機能のエラー境界
@@ -23,7 +24,7 @@ export default function PracticeError({
       logTag="Practice"
       title="練習を読み込めませんでした"
       description="一時的な問題が発生した可能性があります。もう一度お試しください。"
-      backHref="/practice"
+      backHref={PRACTICE_PATH}
       backLabel="練習一覧へ戻る"
     />
   );

@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 
 import { LandingSection } from "./landing-section";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 export function PracticeSection() {
   const t = useTranslations("landing");
@@ -14,7 +15,7 @@ export function PracticeSection() {
       iconClassName="bg-brand-subtle text-brand-subtle-foreground"
       title={t("practiceTitle")}
       description={t("practiceDescription")}
-      href="/practice"
+      href={PRACTICE_PATH}
       ctaLabel={t("practiceCta")}
       ctaVariant="primary"
     />

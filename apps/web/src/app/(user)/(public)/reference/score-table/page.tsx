@@ -4,6 +4,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableFromQuery } from "./_components/score-table-from-query";
+import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 点数早見表
@@ -35,7 +36,7 @@ export default async function ReferenceScoreTablePage() {
   return (
     <ContentContainer
       breadcrumb={[
-        { label: tHub("title"), href: "/reference" },
+        { label: tHub("title"), href: REFERENCE_PATH },
         { label: t("pageTitle") },
       ]}
     >

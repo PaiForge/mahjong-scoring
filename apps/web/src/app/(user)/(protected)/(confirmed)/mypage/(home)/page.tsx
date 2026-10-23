@@ -24,6 +24,7 @@ import { MyPageMenu } from "./_components/mypage-menu";
 import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
 import { publicProfileHref } from "@/lib/users/public-profile-href";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage");
@@ -81,7 +82,7 @@ export default async function MyPage() {
                 <BeltPill
                   slug={currentRank.slug}
                   label={tRanks(`names.${currentRank.slug}`)}
-                  href="/dojo"
+                  href={DOJO_PATH}
                 />
               )}
             </div>

@@ -24,6 +24,7 @@ import {
 
 import { MarkAllReadButton } from "./_components/mark-all-read-button";
 import { NotificationItem } from "./_components/notification-item";
+import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("notifications");
@@ -49,7 +50,9 @@ export default async function NotificationsPage({
     ]);
 
   const buildHref = (p: number) =>
-    p > 1 ? `/mypage/notifications?page=${p}` : "/mypage/notifications";
+    p > 1
+      ? `${MYPAGE_NOTIFICATIONS_PATH}?page=${p}`
+      : MYPAGE_NOTIFICATIONS_PATH;
 
   return (
     <ContentContainer

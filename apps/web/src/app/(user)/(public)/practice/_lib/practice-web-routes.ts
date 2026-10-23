@@ -6,7 +6,7 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { variantQuery } from "@mahjong-scoring/features/routes";
+import { PRACTICE_PATH, variantQuery } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 
 /**
@@ -39,10 +39,10 @@ export type { PracticeListFilter } from "@mahjong-scoring/features/practice/list
  * @param filter 絞り込み条件。省略すると絞り込みなし
  */
 export function practiceListHref(filter?: PracticeListFilter): string {
-  if (filter === undefined) return "/practice";
+  if (filter === undefined) return PRACTICE_PATH;
   const param =
     filter.kind === "rank" ? PRACTICE_RANK_PARAM : PRACTICE_CATEGORY_PARAM;
-  return `/practice?${param}=${filter.value}`;
+  return `${PRACTICE_PATH}?${param}=${filter.value}`;
 }
 
 /**

@@ -9,6 +9,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { buildSignInHref } from "@/lib/redirect";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 会員限定ゲート（スモーク）
@@ -19,7 +20,7 @@ import { buildSignInHref } from "@/lib/redirect";
  */
 export function MembersOnlyGate({
   children,
-  redirectTo = "/preferences",
+  redirectTo = PREFERENCES_PATH,
 }: {
   readonly children: ReactNode;
   /** サインイン後に戻す先。設定の子ページから開いたときはそのページへ返す */

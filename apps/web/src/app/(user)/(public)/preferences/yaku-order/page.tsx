@@ -15,7 +15,10 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { MembersOnlyGate } from "../_components/members-only-gate";
 import { YakuOrderSection } from "../_components/yaku-order-section";
-import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
+import {
+  PREFERENCES_PATH,
+  YAKU_ORDER_PATH,
+} from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("settings.yakuOrder", "pageTitle");
@@ -28,7 +31,7 @@ export default async function YakuOrderPage() {
   return (
     <ContentContainer
       breadcrumb={[
-        { label: t("pageTitle"), href: "/preferences" },
+        { label: t("pageTitle"), href: PREFERENCES_PATH },
         { label: tYakuOrder("pageTitle") },
       ]}
     >

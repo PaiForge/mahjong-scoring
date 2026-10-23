@@ -27,7 +27,7 @@ import { CatalogPracticeCard } from "@/app/(user)/(public)/practice/_components/
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { chapterHref } from "@mahjong-scoring/features/routes";
+import { chapterHref, PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 import { MentsuFuTryBoard } from "./_components/mentsu-fu-try-board";
 
@@ -64,7 +64,7 @@ export default async function TryMentsuFuPage() {
               </div>
               <div className="text-center">
                 <Link
-                  href="/practice"
+                  href={PRACTICE_PATH}
                   className={`text-sm ${TEXT_LINK_CLASSES}`}
                 >
                   {t("browsePractices")}

@@ -5,6 +5,8 @@ import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
+  LEADERBOARD_PATH,
+  MY_RECORD_PATH,
   MYPAGE_NOTIFICATIONS_PATH,
   MYPAGE_PLAN_PATH,
   PREFERENCES_PATH,
@@ -182,14 +184,14 @@ function MypageMenu({
         title={t("cards.challenges.title")}
         description={t("cards.challenges.summary")}
         leading={<ChartIcon size={22} color={colors.surface600} />}
-        onPress={() => router.push("/mypage/challenges")}
+        onPress={() => router.push(MY_RECORD_PATH)}
       />
       <LinkRow
         testID="mypage-menu-ranks"
         title={t("cards.ranks.title")}
         description={t("cards.ranks.summary")}
         leading={<TrophyIcon size={22} color={colors.surface600} />}
-        onPress={() => router.push("/leaderboard")}
+        onPress={() => router.push(LEADERBOARD_PATH)}
       />
       {IAP_AVAILABLE && (
         <LinkRow

@@ -7,6 +7,11 @@ import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-i
 import { OutlineIcon } from "@/app/(user)/_components/icons/outline-icon";
 import { UserIcon } from "@/app/(user)/_components/icons/user-icon";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import {
+  MYPAGE_NOTIFICATIONS_PATH,
+  MYPAGE_PLAN_PATH,
+  MY_RECORD_PATH,
+} from "@mahjong-scoring/features/routes";
 
 function PlanIcon() {
   return (
@@ -17,9 +22,9 @@ function PlanIcon() {
 }
 
 const items = [
-  { key: "challenges", href: "/mypage/challenges", icon: ChartIcon },
-  { key: "plan", href: "/mypage/plan", icon: PlanIcon },
-  { key: "notifications", href: "/mypage/notifications", icon: BellIcon },
+  { key: "challenges", href: MY_RECORD_PATH, icon: ChartIcon },
+  { key: "plan", href: MYPAGE_PLAN_PATH, icon: PlanIcon },
+  { key: "notifications", href: MYPAGE_NOTIFICATIONS_PATH, icon: BellIcon },
   { key: "account", href: "/mypage/account", icon: UserIcon },
 ] as const;
 

@@ -61,9 +61,10 @@ import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
 import { RankProgressBar } from "../_components/rank-progress-bar";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("dojo", { path: "/dojo" });
+  return createNamespaceMetadata("dojo", { path: DOJO_PATH });
 }
 
 export default async function DojoPage() {

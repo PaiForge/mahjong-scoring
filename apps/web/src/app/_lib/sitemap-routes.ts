@@ -5,11 +5,23 @@ import {
   glossaryTermHref,
 } from "@mahjong-scoring/features/glossary/routes";
 
-import { chapterHref } from "@mahjong-scoring/features/routes";
+import {
+  AGARI_SCORE_PRACTICE_HREF,
+  ANNOUNCEMENTS_PATH,
+  chapterHref,
+  DOJO_PATH,
+  LEADERBOARD_PATH,
+  LESSONS_PATH,
+  PRACTICE_PATH,
+  REFERENCE_PATH,
+  REFERENCE_YAKU_PATH,
+  TENPAI_SCORE_PRACTICE_HREF,
+} from "@mahjong-scoring/features/routes";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 import { rankHref } from "@mahjong-scoring/features/routes";
 import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 
 /**
  * sitemap の静的ルート定義
@@ -25,23 +37,27 @@ export const STATIC_SITEMAP_ROUTE_DEFS = [
   { url: "/getting-started", changeFrequency: "monthly", priority: 0.9 },
   { url: "/try/agari-score", changeFrequency: "monthly", priority: 0.8 },
   { url: "/try/mentsu-fu", changeFrequency: "monthly", priority: 0.7 },
-  { url: "/lessons", changeFrequency: "weekly", priority: 0.9 },
-  { url: "/practice", changeFrequency: "weekly", priority: 0.9 },
-  { url: "/dojo", changeFrequency: "monthly", priority: 0.8 },
-  { url: "/reference", changeFrequency: "weekly", priority: 0.8 },
+  { url: LESSONS_PATH, changeFrequency: "weekly", priority: 0.9 },
+  { url: PRACTICE_PATH, changeFrequency: "weekly", priority: 0.9 },
+  { url: DOJO_PATH, changeFrequency: "monthly", priority: 0.8 },
+  { url: REFERENCE_PATH, changeFrequency: "weekly", priority: 0.8 },
   // 和了形の点数計算。slug が練習レジストリ外のため PRACTICE_SITEMAP_PATHS で導出されない
-  { url: "/practice/agari-score", changeFrequency: "monthly", priority: 0.8 },
-  { url: "/practice/tenpai-score", changeFrequency: "monthly", priority: 0.8 },
+  { url: AGARI_SCORE_PRACTICE_HREF, changeFrequency: "monthly", priority: 0.8 },
+  {
+    url: TENPAI_SCORE_PRACTICE_HREF,
+    changeFrequency: "monthly",
+    priority: 0.8,
+  },
   { url: "/reference/score-table", changeFrequency: "monthly", priority: 0.7 },
-  { url: "/reference/yaku", changeFrequency: "monthly", priority: 0.7 },
+  { url: REFERENCE_YAKU_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: GLOSSARY_PATH, changeFrequency: "monthly", priority: 0.7 },
   { url: "/reference/demo", changeFrequency: "monthly", priority: 0.5 },
-  { url: "/announcements", changeFrequency: "daily", priority: 0.5 },
-  { url: "/leaderboard", changeFrequency: "daily", priority: 0.4 },
+  { url: ANNOUNCEMENTS_PATH, changeFrequency: "daily", priority: 0.5 },
+  { url: LEADERBOARD_PATH, changeFrequency: "daily", priority: 0.4 },
   { url: "/terms", changeFrequency: "yearly", priority: 0.2 },
   { url: "/privacy", changeFrequency: "yearly", priority: 0.2 },
   { url: "/contact", changeFrequency: "yearly", priority: 0.3 },
-  { url: "/plan", changeFrequency: "monthly", priority: 0.6 },
+  { url: PLAN_PAGE_HREF, changeFrequency: "monthly", priority: 0.6 },
   { url: "/tokushoho", changeFrequency: "yearly", priority: 0.2 },
   { url: "/company", changeFrequency: "yearly", priority: 0.2 },
 ] as const;

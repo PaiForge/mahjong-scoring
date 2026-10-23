@@ -17,6 +17,7 @@ import {
 } from "@mahjong-scoring/features/leaderboard/boards";
 import { LeaderboardModuleRow } from "./leaderboard-module-row";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
+import { LEADERBOARD_PATH } from "@mahjong-scoring/features/routes";
 
 interface LeaderboardTopContentProps {
   readonly period: LeaderboardPeriod;
@@ -79,7 +80,7 @@ export async function LeaderboardTopContent({
               key={value}
               href={
                 value === "all-time"
-                  ? "/leaderboard"
+                  ? LEADERBOARD_PATH
                   : "/leaderboard?period=monthly"
               }
               aria-current={period === value ? "page" : undefined}

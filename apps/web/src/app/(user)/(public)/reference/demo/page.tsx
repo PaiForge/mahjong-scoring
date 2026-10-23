@@ -24,6 +24,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 import { ReferenceDemoBoard } from "./_components/reference-demo-board";
 import { ReferenceDemoSpotlightTour } from "./_components/reference-demo-spotlight-tour";
+import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("reference.demo", {
@@ -42,7 +43,7 @@ export default async function ReferenceDemoPage() {
       id={PRACTICE_SCROLL_ANCHOR_ID}
       fillViewport
       breadcrumb={[
-        { label: tHub("title"), href: "/reference" },
+        { label: tHub("title"), href: REFERENCE_PATH },
         { label: t("title") },
       ]}
     >

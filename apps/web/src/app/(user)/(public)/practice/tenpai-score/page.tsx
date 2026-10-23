@@ -23,13 +23,14 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { TenpaiScoreHelpTour } from "./_components/tenpai-score-help-tour";
 import { TenpaiScoreSetupForm } from "./_components/tenpai-score-setup-form";
+import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   // slug "tenpai-score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
   // createPracticeMetadata を使えない。パスをここで明示する（リテラルで書くのは
   // seo-coverage.test.ts がソースの文字列で canonical を検査するため）。
   return createNamespaceMetadata("tenpaiScore", {
-    path: "/practice/tenpai-score",
+    path: TENPAI_SCORE_PRACTICE_HREF,
   });
 }
 

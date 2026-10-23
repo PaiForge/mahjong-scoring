@@ -1,8 +1,9 @@
 import type { BreadcrumbItem } from "@/app/(user)/_components/breadcrumb";
+import { DOJO_PATH, PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /** 結果ページのパンくず・戻り導線の親一覧（練習一覧または道場） */
 export interface ResultBreadcrumbParent {
-  readonly href: "/practice" | "/dojo";
+  readonly href: typeof PRACTICE_PATH | typeof DOJO_PATH;
   /** ラベル（`<namespace>.title`）を引く翻訳 namespace */
   readonly namespace: "practice" | "dojo";
 }
@@ -22,8 +23,8 @@ export function resultBreadcrumbParent(
   introHref: string | undefined,
 ): ResultBreadcrumbParent {
   return introHref?.startsWith("/exam") === true
-    ? { href: "/dojo", namespace: "dojo" }
-    : { href: "/practice", namespace: "practice" };
+    ? { href: DOJO_PATH, namespace: "dojo" }
+    : { href: PRACTICE_PATH, namespace: "practice" };
 }
 
 interface ResultBreadcrumbArgs {

@@ -26,6 +26,7 @@ import {
   LegalParagraph,
   LegalSection,
 } from "../_components/legal-article";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 
 /** 項目の並び。辞書のキーと一致させる */
 const PLAIN_SECTIONS = [
@@ -77,7 +78,9 @@ export default async function TokushohoPage() {
         <LegalSection title={t("price.title")}>
           <LegalParagraph>
             {t.rich("price.value", {
-              plan: (chunks) => <LegalLink href="/plan">{chunks}</LegalLink>,
+              plan: (chunks) => (
+                <LegalLink href={PLAN_PAGE_HREF}>{chunks}</LegalLink>
+              ),
             })}
           </LegalParagraph>
         </LegalSection>

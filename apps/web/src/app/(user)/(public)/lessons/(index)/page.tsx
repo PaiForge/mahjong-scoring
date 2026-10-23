@@ -38,12 +38,13 @@ import {
   pickNextChapter,
 } from "@mahjong-scoring/features/curriculum/registry";
 import { fetchCompletedLessonSlugs } from "../_lib/lesson-progress";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("learnCurriculum.index", {
     title: "pageTitle",
     description: "pageDescription",
-    path: "/lessons",
+    path: LESSONS_PATH,
   });
 }
 

@@ -13,6 +13,7 @@ import {
   TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * ヘッダー右側のアカウント表示。
@@ -130,7 +131,7 @@ export function AuthNavItem() {
           {t("mypage")}
         </DeferredPrefetchLink>
         <DeferredPrefetchLink
-          href="/preferences"
+          href={PREFERENCES_PATH}
           role="menuitem"
           onClick={() => setIsOpen(false)}
           className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"

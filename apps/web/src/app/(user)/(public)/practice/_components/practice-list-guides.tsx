@@ -8,6 +8,7 @@ import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { PracticeChapterSection } from "./practice-chapter-section";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 interface PracticeListGuidesProps {
   /** 並べるレッスン（カリキュラムの順）。0 件なら節ごと出さない */
@@ -57,7 +58,7 @@ export async function PracticeListGuides({
           </ol>
           <div className="text-center">
             <Link
-              href="/dojo"
+              href={DOJO_PATH}
               className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
             >
               {t("modes.dojoLink")}

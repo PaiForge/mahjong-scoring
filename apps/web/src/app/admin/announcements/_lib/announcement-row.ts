@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { parseJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
 import type { AnnouncementInput } from "./validation";
+import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * お知らせ行を組み立てるのに必要な、入力値以外の文脈
@@ -85,6 +86,6 @@ export function toAnnouncementRow(
  */
 export function revalidateAnnouncementPaths(slug: string): void {
   revalidatePath("/admin/announcements");
-  revalidatePath("/announcements");
+  revalidatePath(ANNOUNCEMENTS_PATH);
   revalidatePath(`/announcements/${slug}`);
 }

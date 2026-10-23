@@ -9,6 +9,7 @@ import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import { NOTIFICATIONS_READ_EVENT } from "@/lib/notifications/read-event";
 
 import { BellIcon } from "./icons/bell-icon";
+import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
 
 /** これを超える未読数は「99+」にまとめる（バッジが横に伸びないように） */
 const MAX_BADGE_COUNT = 99;
@@ -51,7 +52,7 @@ export function NotificationBell() {
     // 押す頻度が低い導線なので viewport でのプリフェッチは切る。通知ページは
     // 動的で、ヘッダーに常にあるベルを毎ページ先読みするとその分サーバーを叩く
     <Link
-      href="/mypage/notifications"
+      href={MYPAGE_NOTIFICATIONS_PATH}
       prefetch={false}
       aria-label={label}
       title={label}

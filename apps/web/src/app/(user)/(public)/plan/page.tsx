@@ -9,15 +9,23 @@ import { InfinityIcon } from "@/app/(user)/_components/icons/infinity-icon";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
-import { OFFER_KEYS, PLANS } from "@mahjong-scoring/features/billing/plans";
+import {
+  OFFER_KEYS,
+  PLAN_PAGE_HREF,
+  PLANS,
+} from "@mahjong-scoring/features/billing/plans";
 import { formatAmount, getOfferPrices } from "@/lib/billing/prices";
 import { PRACTICE_QUOTA_LIMITS } from "@mahjong-scoring/features/quota/limits";
 
 import { OfferPurchaseButton } from "./_components/offer-purchase-button";
+import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   // パスはリテラルで書く（seo-coverage.test が canonical の宣言を文字列で検査する）
-  return createNamespaceMetadata("plan", { title: "pageTitle", path: "/plan" });
+  return createNamespaceMetadata("plan", {
+    title: "pageTitle",
+    path: PLAN_PAGE_HREF,
+  });
 }
 
 /**
@@ -170,7 +178,7 @@ export default async function PlanPage() {
         </section>
 
         <p className="text-center text-sm">
-          <Link href="/mypage/plan" className={TEXT_LINK_CLASSES}>
+          <Link href={MYPAGE_PLAN_PATH} className={TEXT_LINK_CLASSES}>
             {t("manageLink")}
           </Link>
         </p>

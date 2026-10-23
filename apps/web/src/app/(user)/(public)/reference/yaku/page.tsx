@@ -21,10 +21,14 @@ import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { YakuCheatsheet } from "./_components/yaku-cheatsheet";
+import {
+  REFERENCE_PATH,
+  REFERENCE_YAKU_PATH,
+} from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("reference.yaku", {
-    path: "/reference/yaku",
+    path: REFERENCE_YAKU_PATH,
   });
 }
 
@@ -36,7 +40,7 @@ export default async function ReferenceYakuPage() {
   return (
     <ContentContainer
       breadcrumb={[
-        { label: tHub("title"), href: "/reference" },
+        { label: tHub("title"), href: REFERENCE_PATH },
         { label: t("title") },
       ]}
     >

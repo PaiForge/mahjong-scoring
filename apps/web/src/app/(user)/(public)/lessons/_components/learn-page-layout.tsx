@@ -36,6 +36,7 @@ import { ChapterRelatedLinks } from "./chapter-related-links";
 import { LessonView } from "./lesson-view";
 import { NextLessonPreview } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 interface LearnPageLayoutProps {
   /** 対象章のスラッグ。辞書ネームスペースもここから導出する */
@@ -141,7 +142,7 @@ export async function LearnPageLayout({
       id={quizLesson ? LESSON_SCROLL_ANCHOR_ID : undefined}
       fillViewport={quizLesson !== undefined}
       breadcrumb={[
-        { label: tLearn("pageTitle"), href: "/lessons" },
+        { label: tLearn("pageTitle"), href: LESSONS_PATH },
         { label: t("pageTitle") },
       ]}
     >

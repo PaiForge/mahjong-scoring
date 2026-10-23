@@ -27,6 +27,7 @@ import { PRACTICE_SCROLL_HASH } from "@/app/(user)/(public)/practice/_lib/scroll
 import { SignUpPanel } from "@/app/(user)/_components/sign-up-panel";
 
 import { StepCard } from "./_components/step-card";
+import { LESSONS_PATH, PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("gettingStarted", {
@@ -61,7 +62,7 @@ export default async function GettingStartedPage() {
             ctaLabel={t("steps.practice.cta")}
             ctaHref="/try/mentsu-fu"
             subLabel={t("steps.practice.sub")}
-            subHref="/practice"
+            subHref={PRACTICE_PATH}
           />
           <StepCard
             icon={<BookIcon className="size-7" />}
@@ -69,7 +70,7 @@ export default async function GettingStartedPage() {
             title={t("steps.learn.title")}
             description={t("steps.learn.description")}
             ctaLabel={t("steps.learn.cta")}
-            ctaHref="/lessons"
+            ctaHref={LESSONS_PATH}
           />
         </div>
 

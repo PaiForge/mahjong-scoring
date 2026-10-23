@@ -20,6 +20,8 @@ import { practiceMenuBySlug } from "@mahjong-scoring/features/practice-menu-type
 import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
 import { practiceListHref } from "../_lib/practice-web-routes";
 import {
+  DOJO_PATH,
+  PRACTICE_PATH,
   practicePlayHref,
   practiceTrainingHref,
 } from "@mahjong-scoring/features/routes";
@@ -74,8 +76,8 @@ export async function PracticeIntroContent({
   const isExam = isExamMenu(slug);
   // 昇級試験は練習一覧のカードにならず道場から入るため、親も道場にする
   const parent = isExam
-    ? { label: tDojo("title"), href: "/dojo" }
-    : { label: tp("title"), href: "/practice" };
+    ? { label: tDojo("title"), href: DOJO_PATH }
+    : { label: tp("title"), href: PRACTICE_PATH };
 
   // 段級位への導線（ページ末尾）に使う
   const examRank = isExam

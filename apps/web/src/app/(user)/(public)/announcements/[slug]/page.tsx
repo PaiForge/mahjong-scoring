@@ -19,6 +19,7 @@ import {
   formatPublishedDate,
 } from "@mahjong-scoring/features/announcements/format";
 import { getPublishedAnnouncement } from "@/lib/announcements/queries";
+import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 export const revalidate = 86400;
 
@@ -67,7 +68,7 @@ export default async function AnnouncementDetailPage({ params }: Props) {
   return (
     <ContentContainer
       breadcrumb={[
-        { label: t("pageTitle"), href: "/announcements" },
+        { label: t("pageTitle"), href: ANNOUNCEMENTS_PATH },
         { label: announcement.title },
       ]}
     >

@@ -28,6 +28,7 @@ import {
   isLeaderboardPeriod,
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
+import { LEADERBOARD_PATH } from "@mahjong-scoring/features/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ function parsePeriod(value: string | undefined): LeaderboardPeriod {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createTitleOnlyMetadata("leaderboard", "title", "/leaderboard");
+  return createTitleOnlyMetadata("leaderboard", "title", LEADERBOARD_PATH);
 }
 
 export default async function LeaderboardIndexPage({

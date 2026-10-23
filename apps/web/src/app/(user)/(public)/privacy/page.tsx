@@ -23,6 +23,7 @@ import {
   LegalParagraph,
   LegalSection,
 } from "../_components/legal-article";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 /** 改定日。文面を変えたら更新する */
 const LAST_UPDATED = "2026-10-10";
@@ -146,7 +147,7 @@ export default async function PrivacyPage() {
           <LegalParagraph>
             {t.rich("publicInfo.body", {
               preferences: (chunks) => (
-                <LegalLink href="/preferences">{chunks}</LegalLink>
+                <LegalLink href={PREFERENCES_PATH}>{chunks}</LegalLink>
               ),
             })}
           </LegalParagraph>
