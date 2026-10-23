@@ -1,5 +1,9 @@
-import { MentsuType } from "@mahjong-scoring/core";
-import type { MentsuBreakdownRow } from "@mahjong-scoring/core";
+import { MentsuType, resolveMentsuBreakdowns } from "@mahjong-scoring/core";
+import type {
+  MentsuBreakdownContext,
+  MentsuBreakdownRow,
+  Tehai,
+} from "@mahjong-scoring/core";
 
 /**
  * 面子分解の行の種別名の辞書キー
@@ -26,4 +30,20 @@ export function mentsuBreakdownLabelKey(
     case MentsuType.Kantsu:
       return row.isOpen ? "minkan" : "ankan";
   }
+}
+
+/**
+ * 手牌が面子分解の表（`TehaiMentsuBreakdown`）を持つか
+ * 面子分解有無
+ *
+ * 面子手でない和了（七対子・国士無双）には分解が無く、`TehaiMentsuBreakdown`
+ * は何も描かない。面子分解だけを入れる面（答え合わせの資料の面）は、空の
+ * 枠を出さないよう置く前にこれで確かめる。候補の解決は表と同じ関数
+ * （`resolveMentsuBreakdowns`）なので、表が出る条件と食い違わない。
+ */
+export function hasMentsuBreakdown(
+  tehai: Pick<Tehai, "closed" | "exposed">,
+  context: MentsuBreakdownContext,
+): boolean {
+  return resolveMentsuBreakdowns(tehai, context).length > 0;
 }
