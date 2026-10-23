@@ -312,25 +312,44 @@ export async function requestIapPurchase(
 }
 
 /**
- * 端末の Apple ID が持つ購入を読む（復元）。失敗は空配列
+ * 端末の購入の一覧を読んだ結果
+ * 購入一覧結果
+ *
+ * 「購入が無い」（`ok` で空）と「読めなかった」（`ok` でない）を分ける。
+ * 空配列 1 つで表すと、通信や StoreKit の失敗が「復元できる購入は無かった」と
+ * 本人に伝わる（{@link listIapPurchases}）。
+ */
+export type IapPurchaseList =
+  | { readonly ok: true; readonly purchases: readonly IapPurchase[] }
+  | { readonly ok: false };
+
+/**
+ * 端末の Apple ID が持つ購入を読む（復元）
  * 購入一覧取得
  *
  * StoreKit の現在の権利（`Transaction.currentEntitlements`）で、買い切り
  * （Non-Consumable）の取引が返る。パス（Consumable）は現在の権利に載らないので
  * 返らない — パスはサーバーに記録済みで、ログインすれば戻る。
+ *
+ * アプリ内課金の無い端末（Android）は購入なし。StoreKit に接続できない・
+ * 一覧を読めないときは失敗（{@link IapPurchaseList}）。読む側が「復元できなかった」
+ * と「復元できる購入が無かった」を出し分けるため、空配列に潰さない。
  */
-export async function listIapPurchases(): Promise<readonly IapPurchase[]> {
-  if (!IAP_AVAILABLE) return [];
-  if (!(await connectIap())) return [];
+export async function listIapPurchases(): Promise<IapPurchaseList> {
+  if (!IAP_AVAILABLE) return { ok: true, purchases: [] };
+  if (!(await connectIap())) return { ok: false };
   try {
     const purchases = await getAvailablePurchases();
-    return purchases.flatMap((purchase) => {
-      const mapped = toIapPurchase(purchase, "list");
-      return mapped === undefined ? [] : [mapped];
-    });
+    return {
+      ok: true,
+      purchases: purchases.flatMap((purchase) => {
+        const mapped = toIapPurchase(purchase, "list");
+        return mapped === undefined ? [] : [mapped];
+      }),
+    };
   } catch (error) {
     console.warn("[iap] 購入の一覧の取得に失敗", errorOf(error));
-    return [];
+    return { ok: false };
   }
 }
 
