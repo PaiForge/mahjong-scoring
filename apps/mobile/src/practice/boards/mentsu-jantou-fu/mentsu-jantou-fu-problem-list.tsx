@@ -5,7 +5,11 @@ import {
   restoreItem,
   type RestoredItem,
 } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/restore-item";
-import type { MentsuJantouFuQuestionResult } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
+import {
+  countCorrectItems,
+  isItemCorrect,
+  type MentsuJantouFuQuestionResult,
+} from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
@@ -25,7 +29,7 @@ function ItemRow({
   const t = useTranslations("mentsuJantouFu");
   const tCommon = useTranslations("common");
   const { userFu } = item;
-  const correct = userFu === item.correctFu;
+  const correct = isItemCorrect(item);
 
   return (
     <View
@@ -99,9 +103,7 @@ export function MentsuJantouFuProblemList({
         result.outcome === AnswerOutcome.TimeUp
           ? undefined
           : t("result.correctItemCount", {
-              correct: result.items.filter(
-                (item) => item.userFu === item.correctFu,
-              ).length,
+              correct: countCorrectItems(result.items),
               total: result.items.length,
             })
       }
