@@ -5,7 +5,9 @@ import { type YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku
 
 import { TehaiDisplay } from "../../../board/tehai-display";
 import { TehaiMentsuBreakdown } from "../../../board/tehai-mentsu-breakdown";
+import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { AnswerReviewPanel } from "../../components/answer-review-panel";
 import { ChallengeSubmitButton } from "../../components/challenge-submit-button";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
@@ -106,12 +108,17 @@ export function YakuBoard({
       </ChallengeSubmitButton>
 
       {/* 面子分解は正解開示の一部。回答中に見せると答えが割れるため止まって
-          いる間だけ出す。置き場所が末尾なのは、開示の瞬間に回答欄を動かさないため */}
-      {showAnswer && (
-        <TehaiMentsuBreakdown
-          tehai={question.tehai}
-          context={question.context}
-        />
+          いる間だけ出す。置き場所が末尾なのは、開示の瞬間に回答欄を動かさないため。
+          停止中は回答ボタンが引っ込み、この面の直下にシェルの「次の問題へ」が
+          続くので、答え合わせの資料の面（AnswerReviewPanel）に入れて枠で境目を
+          付ける。分解を持たない手（七対子・国士無双）では面ごと出さない（web と同じ） */}
+      {showAnswer && hasMentsuBreakdown(question.tehai, question.context) && (
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown
+            tehai={question.tehai}
+            context={question.context}
+          />
+        </AnswerReviewPanel>
       )}
     </View>
   );

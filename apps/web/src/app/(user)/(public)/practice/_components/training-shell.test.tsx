@@ -110,13 +110,14 @@ describe("TrainingShell 回答後の停止", () => {
     expect(next.parentElement?.className).toContain("mt-6");
   });
 
-  it("回答ボタンを持つ盤面では回答ボタンと同じ間隔（mt-4）で入れ替わる", () => {
+  it("回答ボタンを持つ盤面でも「次の問題へ」を盤面から一段離す", () => {
+    // 停止中は回答ボタンが引っ込み、その場所に面子分解の面が入るので、
+    // 持たない盤面と同じく末尾が資料の面になる
     const onProceed = vi.fn();
     renderShell({ isHolding: true, onProceed, hasSubmitButton: true });
 
     const next = screen.getByRole("button", { name: "nextButton" });
-    expect(next.parentElement?.className).toContain("mt-4");
-    expect(next.parentElement?.className).not.toContain("mt-6");
+    expect(next.parentElement?.className).toContain("mt-6");
   });
 
   it("回答ボタンを持つ盤面では場所を取らない（回答ボタンと入れ替わる）", () => {

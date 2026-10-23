@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AnswerReviewPanel } from "../../_components/answer-review-panel";
 import { ChallengeSubmitButton } from "../../_components/challenge-submit-button";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
@@ -13,6 +14,7 @@ import { toAnswerOutcome } from "@mahjong-scoring/features/results/result-schema
 import type { YakuQuestionResult } from "@mahjong-scoring/features/practice/yaku/types";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import { useYakuBoard } from "@mahjong-scoring/features/practice/yaku/use-yaku-board";
+import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 
 interface YakuBoardProps extends RecordingPracticeBoardProps<YakuQuestionResult> {
   /** 直前の回答が正解だったか。トレーニングの答え合わせの色に使う */
@@ -122,12 +124,17 @@ export function YakuBoard({
 
       {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
           止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
-          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
-      {showAnswer && (
-        <TehaiMentsuBreakdown
-          tehai={question.tehai}
-          context={question.context}
-        />
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため。
+          停止中は回答ボタンが引っ込み、この面の直下にシェルの「次の問題へ」が
+          続くので、答え合わせの資料の面（AnswerReviewPanel）に入れて枠で
+          境目を付ける。分解を持たない手（七対子・国士無双）では面ごと出さない */}
+      {showAnswer && hasMentsuBreakdown(question.tehai, question.context) && (
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown
+            tehai={question.tehai}
+            context={question.context}
+          />
+        </AnswerReviewPanel>
       )}
     </div>
   );

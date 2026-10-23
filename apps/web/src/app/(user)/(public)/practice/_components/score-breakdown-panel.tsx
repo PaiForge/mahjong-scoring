@@ -29,6 +29,9 @@ import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results
  * ハイライトした点数表を開くボタンになり、内訳の下に「点数表を確認」を添える。
  * 内訳で翻・符を数え直した人が、その組から点数を引く次の一歩まで同じ場所で
  * 確かめられる。
+ *
+ * 開いた表の面（`surface`）は置く側が決める（符・翻数の内訳と同じ）。模試の
+ * 答え合わせの資料の面（白い枠）の中では `sunken` にして白い枠を入れ子にしない。
  */
 export function ScoreBreakdownPanel({
   fu,
@@ -36,6 +39,7 @@ export function ScoreBreakdownPanel({
   yakuNote,
   judgement,
   scoreTableFocus,
+  surface,
 }: ScoreBreakdownPanelProps<ReactNode>) {
   const t = useTranslations("challenge.scoreBreakdown");
   const tScoreTable = useTranslations("scoreTable");
@@ -86,6 +90,7 @@ export function ScoreBreakdownPanel({
         title={t("toggle")}
         sections={sections}
         initialKind={initial}
+        surface={surface}
         action={
           openScoreTable === undefined ? undefined : (
             <ReferenceLinkButton

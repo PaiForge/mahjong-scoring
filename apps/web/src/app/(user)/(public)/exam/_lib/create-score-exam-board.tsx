@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { QuestionGeneratingPlaceholder } from "@/app/(user)/(public)/practice/_components/question-generating-placeholder";
 import { QuestionPrompt } from "@/app/(user)/(public)/practice/_components/question-prompt";
 import { TehaiMentsuBreakdown } from "@/app/(user)/(public)/practice/_components/tehai-mentsu-breakdown";
+import { AnswerReviewPanel } from "@/app/(user)/(public)/practice/_components/answer-review-panel";
 import { ScoreBreakdownPanel } from "@/app/(user)/(public)/practice/_components/score-breakdown-panel";
 import { RevealedScoreAnswer } from "@/app/(user)/(public)/practice/_components/revealed-score-answer";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
@@ -48,8 +49,8 @@ import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
  * では副底・門前加符・ツモ符・待ち符と切り上げが見えない。5 翻以上では符が
  * 点数に効かないので出さない（3 翻 70 符の満貫のように符で満貫に届いた手には
  * 出す。結果ページの問題別詳細と同じ境目）。表と置き場所は翻数即答練習のトレーニング
- * （選択肢の下・閉じた状態から）と同じで、既に見た手を振り返る操作が画面で
- * 変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
+ * （面子分解と一緒に答え合わせの資料の面 {@link AnswerReviewPanel} に入れ、
+ * 閉じた状態から）と同じで、既に見た手を振り返る操作が画面で変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
  * （{@link buildScoreExamBreakdown}）。本番の試験では出さない — 読ませている間も
  * タイマーが進むうえ、内訳は結果ページの問題別詳細が引き受ける。
  * 模試の答え合わせでは、開示した正解の点数を押すとそのセルをハイライトした
@@ -145,23 +146,25 @@ export function createScoreExamBoard(
           scoreRange={scoreRange}
         />
 
-        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため
-            止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
-            手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
-        {showBreakdown && (
-          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-        )}
-
-        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
+        {/* 面子分解と内訳は正解開示の一部。回答中に見せると符の答えが割れるため
+            止まっている間だけ、1 枚の面（AnswerReviewPanel）に入れて出す
+            （結果ページの問題詳細と同じ材料）。置き場所が手牌の直下ではなく
+            末尾なのは、開示の瞬間に回答欄を動かさないため。面の直下には
+            シェルの「次の問題へ」が続くので、枠で境目を付ける。
+            符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
             （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
             出さない）。試験は符を答えさせない。問題ごとに作り直して閉じた
             状態へ戻す */}
         {showBreakdown && (
-          <ScoreBreakdownPanel
-            key={questionIndex}
-            {...buildScoreExamBreakdown(question, tBreakdown)}
-            scoreTableFocus={scoreTableFocus}
-          />
+          <AnswerReviewPanel>
+            <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+            <ScoreBreakdownPanel
+              key={questionIndex}
+              {...buildScoreExamBreakdown(question, tBreakdown)}
+              scoreTableFocus={scoreTableFocus}
+              surface="sunken"
+            />
+          </AnswerReviewPanel>
         )}
       </div>
     );

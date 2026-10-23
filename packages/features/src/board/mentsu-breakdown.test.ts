@@ -1,8 +1,12 @@
-import { MentsuType } from "@mahjong-scoring/core";
+import { HaiKind, MentsuType } from "@mahjong-scoring/core";
 import type { MentsuBreakdownRow } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { mentsuBreakdownLabelKey } from "./mentsu-breakdown";
+import { DEMO_CHIITOITSU_HAND, DEMO_MENTSU_HAND } from "./demo-score-question";
+import {
+  hasMentsuBreakdown,
+  mentsuBreakdownLabelKey,
+} from "./mentsu-breakdown";
 
 /** 判定に効く項目だけを持つ行 */
 const row = (
@@ -33,5 +37,29 @@ describe("mentsuBreakdownLabelKey", () => {
     expect(mentsuBreakdownLabelKey(row(MentsuType.Kantsu, false, true))).toBe(
       "ankan",
     );
+  });
+});
+
+describe("hasMentsuBreakdown", () => {
+  const context = { bakaze: HaiKind.Ton, jikaze: HaiKind.Nan } as const;
+
+  it("面子手は分解を持つ", () => {
+    const { closed, agariHai, isTsumo } = DEMO_MENTSU_HAND;
+    expect(
+      hasMentsuBreakdown(
+        { closed, exposed: [] },
+        { ...context, agariHai, isTsumo },
+      ),
+    ).toBe(true);
+  });
+
+  it("七対子は分解を持たない", () => {
+    const { closed, agariHai, isTsumo } = DEMO_CHIITOITSU_HAND;
+    expect(
+      hasMentsuBreakdown(
+        { closed, exposed: [] },
+        { ...context, agariHai, isTsumo },
+      ),
+    ).toBe(false);
   });
 });

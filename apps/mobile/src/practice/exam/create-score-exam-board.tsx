@@ -8,6 +8,7 @@ import { buildScoreExamBreakdown } from "@mahjong-scoring/features/exam/score-ex
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import { AnswerReviewPanel } from "../components/answer-review-panel";
 import { ScoreBreakdownPanel } from "../components/score-breakdown-panel";
 import { QuestionDisplay } from "../components/question-display";
 import { QuestionPlaceholder } from "../components/question-placeholder";
@@ -104,22 +105,24 @@ export function createScoreExamBoard(
           scoreRange={scoreRange}
         />
 
-        {/* 面子分解は正解開示の一部。回答中に見せると符の答えが割れるため
-            止まっている間だけ出す。末尾に置くのは開示の瞬間に回答欄を動かさないため */}
-        {showBreakdown && (
-          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-        )}
-
-        {/* 符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
+        {/* 面子分解と内訳は正解開示の一部。回答中に見せると符の答えが割れるため
+            止まっている間だけ、1 枚の面（AnswerReviewPanel）に入れて出す。末尾に
+            置くのは開示の瞬間に回答欄を動かさないため。面の直下にはシェルの
+            「次の問題へ」が続くので、枠で境目を付ける（web と同じ）。
+            符と翻数の内訳は 1 つの入口から切り替える。符は 4 翻以下だけ
             （符で満貫に届いた手は出し、5 翻以上は符が点数に効かないので
             出さない）。試験は符を答えさせない。問題ごとに作り直して閉じた
             状態へ戻す */}
         {showBreakdown && (
-          <ScoreBreakdownPanel
-            key={questionIndex}
-            {...buildScoreExamBreakdown(question, tBreakdown)}
-            scoreTableFocus={scoreTableFocusOfQuestion(question)}
-          />
+          <AnswerReviewPanel>
+            <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+            <ScoreBreakdownPanel
+              key={questionIndex}
+              {...buildScoreExamBreakdown(question, tBreakdown)}
+              scoreTableFocus={scoreTableFocusOfQuestion(question)}
+              surface="sunken"
+            />
+          </AnswerReviewPanel>
         )}
       </View>
     );

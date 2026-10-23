@@ -6,12 +6,14 @@ import type { ScoreOptionRange } from "@mahjong-scoring/features/practice/score/
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
+import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import {
   useScoreQuestionBoard,
   type ScoreQuestionGenerateOptions,
 } from "@mahjong-scoring/features/practice/use-score-question-board";
 import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/use-training-mode";
+import { AnswerReviewPanel } from "./answer-review-panel";
 import { QuestionDisplay } from "./question-display";
 import { QuestionPlaceholder } from "./question-placeholder";
 import { QuestionPrompt } from "./question-prompt";
@@ -104,9 +106,13 @@ export function ScoreCalculationQuestionBoard({
 
       {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
           止まっている間だけ出す。置き場所が手牌の直下ではなく末尾なのは、
-          開示の瞬間に回答欄を動かさないため */}
-      {showBreakdown && (
-        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+          開示の瞬間に回答欄を動かさないため。直下にシェルの「次の問題へ」が
+          続くので、答え合わせの資料の面（AnswerReviewPanel）に入れて枠で境目を
+          付ける。分解を持たない手（七対子・国士無双）では面ごと出さない */}
+      {showBreakdown && hasMentsuBreakdown(question.tehai, question) && (
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+        </AnswerReviewPanel>
       )}
     </View>
   );

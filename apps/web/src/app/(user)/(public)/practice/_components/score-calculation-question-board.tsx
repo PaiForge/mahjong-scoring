@@ -7,6 +7,8 @@ import { QuestionGeneratingPlaceholder } from "./question-generating-placeholder
 import { QuestionPrompt } from "./question-prompt";
 import { RevealedScoreQuestionAnswer } from "./revealed-score-answer";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
+import { AnswerReviewPanel } from "./answer-review-panel";
+import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { ScoreChallengeAnswerForm } from "./score-challenge-answer-form";
 import {
   useScoreQuestionBoard,
@@ -120,9 +122,14 @@ export function ScoreCalculationQuestionBoard({
 
       {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
           止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
-          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため */}
-      {showBreakdown && (
-        <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+          手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため。
+          直下にシェルの「次の問題へ」が続くので、答え合わせの資料の面
+          （AnswerReviewPanel）に入れて枠で境目を付ける。分解を持たない手
+          （七対子・国士無双）では面ごと出さない（空の枠を置かない） */}
+      {showBreakdown && hasMentsuBreakdown(question.tehai, question) && (
+        <AnswerReviewPanel>
+          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+        </AnswerReviewPanel>
       )}
     </div>
   );
