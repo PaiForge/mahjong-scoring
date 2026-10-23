@@ -149,13 +149,7 @@ describe("LessonView の済みの印", () => {
     renderPage();
     await flush();
 
-    fireEvent.click(screen.getByRole("button", { name: "startQuiz" }));
-    for (const [i, points] of ["8,000", "12,000", "16,000"].entries()) {
-      fireEvent.click(screen.getByRole("button", { name: points }));
-      fireEvent.click(
-        screen.getByRole("button", { name: i === 2 ? "finish" : "next" }),
-      );
-    }
+    await finishSignedIn();
 
     await screen.findByRole("link", { name: "nextLesson" });
     // 完了画面は達成の表示があるので印は出さない
@@ -173,13 +167,7 @@ describe("LessonView の済みの印", () => {
     renderPage(<p data-testid="goal" />);
     await flush();
 
-    fireEvent.click(screen.getByRole("button", { name: "startQuiz" }));
-    for (const [i, points] of ["8,000", "12,000", "16,000"].entries()) {
-      fireEvent.click(screen.getByRole("button", { name: points }));
-      fireEvent.click(
-        screen.getByRole("button", { name: i === 2 ? "finish" : "next" }),
-      );
-    }
+    await finishSignedIn();
 
     const button = await screen.findByRole("link", { name: "nextLesson" });
     const goal = screen.getByTestId("goal");
