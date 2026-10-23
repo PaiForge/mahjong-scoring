@@ -75,7 +75,7 @@ interface TrainingShellProps {
    * 回答後の停止中。盤面の直下に「次の問題へ」ボタンを表示する
    *
    * 開示中と違ってフッターのリンクではなくボタンで出すのは、答え合わせのあと
-   * 必ず通る導線であり、回答ボタンと同じ位置で受けるため。
+   * 必ず通る導線であり、読み終えた資料の直下で受けるため。
    */
   readonly isHolding?: boolean;
   /** 停止状態から次問題へ進む（「次の問題へ」が呼ぶ） */
@@ -83,20 +83,22 @@ interface TrainingShellProps {
   /**
    * 盤面が自前の回答ボタン（「回答する」）を持つか（既定 false）
    *
-   * 持つ盤面は停止中に回答ボタンを引っ込め、シェルが同じ位置に
-   * 「次の問題へ」を出す。ボタン同士が入れ替わるので高さは変わらない
-   * （{@link import("./challenge-submit-button").ChallengeSubmitButton} /
+   * 持つ盤面は停止中に回答ボタンを引っ込め、シェルが「次の問題へ」を出す
+   * （無効化した回答ボタンと二段に並べない。
+   * {@link import("./challenge-submit-button").ChallengeSubmitButton} /
    * {@link import("./score-answer-form").ScoreAnswerForm} 参照）。
    *
    * 持たない盤面（選択肢をタップした瞬間に確定する練習・自動送信の select）
-   * には入れ替わる相手が無い。停止していない間もボタン 1 つ分の場所を空けて
+   * には引っ込む相手が無い。停止していない間もボタン 1 つ分の場所を空けて
    * おき、「次の問題へ」が現れた瞬間にカウンタ以下が押し下げられないようにする。
    *
-   * 盤面との間隔も分かれる。持つ盤面は回答ボタンと同じ位置（`mt-4`）で
-   * 入れ替わる。持たない盤面は末尾が答え合わせの資料の面
-   * （{@link import("./answer-review-panel").AnswerReviewPanel}。面子分解・
-   * 「内訳を確認」の押せる行）なので、一段広い `mt-6`（24px）を取り、
-   * 資料の行を狙って下に落ちた指がボタンに届かないようにする。
+   * 盤面との間隔はどちらも `mt-6`（24px）。停止中はどの盤面も末尾が答え合わせの
+   * 資料の面（{@link import("./answer-review-panel").AnswerReviewPanel}。
+   * 面子分解・「内訳を確認」の押せる行）になる — 持つ盤面も、引っ込んだ
+   * 回答ボタンの場所に面子分解の面が入る。面とボタンの間を一段広く取り、
+   * 資料の行を狙って下に落ちた指がボタンに届かないようにする（以前は持つ
+   * 盤面を回答ボタンと同じ `mt-4` で入れ替えていたが、間に面子分解の行が
+   * 入るので「同じ位置」にはならず、行とボタンが 16px で隣り合っていた）。
    */
   readonly hasSubmitButton?: boolean;
 }
@@ -159,7 +161,7 @@ export function TrainingShell({
               不可視のまま置いて場所を取る（現れた瞬間に下が動かないため） */}
           {(showsProceed || !hasSubmitButton) && (
             <div
-              className={`${hasSubmitButton ? "mt-4" : "mt-6"} ${showsProceed ? "" : "invisible"}`}
+              className={`mt-6 ${showsProceed ? "" : "invisible"}`}
               inert={!showsProceed}
               aria-hidden={!showsProceed}
             >
