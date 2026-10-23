@@ -23,6 +23,7 @@ import type { ScoreBreakdownPanelProps } from "@mahjong-scoring/features/results
  *
  * `scoreTableFocus` を渡すと、内訳の答えの値（翻数の合計・符）が正解のセルを
  * ハイライトした点数表を開き、内訳の下に「点数表を確認」（素の表）を添える。
+ * 開いた表の面（`surface`）は置く側が決める（符・翻数の内訳と同じ）。
  */
 export function ScoreBreakdownPanel({
   fu,
@@ -30,6 +31,7 @@ export function ScoreBreakdownPanel({
   yakuNote,
   judgement,
   scoreTableFocus,
+  surface,
   testID,
 }: ScoreBreakdownPanelProps & { readonly testID?: string }) {
   const t = useTranslations("challenge.scoreBreakdown");
@@ -83,6 +85,7 @@ export function ScoreBreakdownPanel({
         title={t("toggle")}
         sections={sections}
         initialKind={initial}
+        surface={surface}
         testID={testID}
         action={
           openScoreTable === undefined ? undefined : (

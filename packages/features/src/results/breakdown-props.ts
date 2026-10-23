@@ -117,4 +117,6 @@ export interface ScoreBreakdownPanelProps<TNote = string> {
    * 内訳の下の「点数表を確認」から点数表をモーダルで開ける
    */
   readonly scoreTableFocus?: ScoreTableFocus;
+  /** 開いた内訳の表を載せる面（既定 `raised`）。白い面の中に置くときは `sunken` */
+  readonly surface?: BreakdownSurface;
 }
