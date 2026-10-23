@@ -63,3 +63,28 @@ export function buildScoreBreakdownTabs(
 
   return { tabs, initial };
 }
+
+/** `challenge.scoreBreakdown` の辞書を引く翻訳関数のうち、切り替えの見出しの 2 語 */
+export type ScoreBreakdownTranslator = (
+  key: "fuTab" | "hanTab",
+  values: Record<string, number>,
+) => string;
+
+/**
+ * 点数内訳パネルの切り替えの見出し（「符 30符」「翻数 3翻」）
+ * 点数内訳切り替え見出し
+ *
+ * 符は正解の符、翻数は丸めの前の合計を添える。web・モバイルの
+ * `ScoreBreakdownPanel` が同じ文言を出す。
+ *
+ * @param tab - {@link buildScoreBreakdownTabs} の切り替え 1 つ
+ * @param t - `challenge.scoreBreakdown` 名前空間の翻訳関数
+ */
+export function scoreBreakdownTabLabel(
+  tab: ScoreBreakdownTab,
+  t: ScoreBreakdownTranslator,
+): string {
+  return tab.kind === "fu"
+    ? t("fuTab", { value: tab.fu.answer })
+    : t("hanTab", { count: tab.hanTotal });
+}

@@ -143,6 +143,78 @@ export function resolveScoreResultBreakdown(
   return { showsFu, tabs, initial };
 }
 
+/** `agariScore` の辞書を引く翻訳関数のうち、内訳の区画の見出しと単位の 4 語 */
+export type ScoreResultBreakdownTranslator = (
+  key:
+    | "form.labels.han"
+    | "form.labels.fu"
+    | "form.options.hanSuffix"
+    | "form.options.fuSuffix",
+) => string;
+
+/** 答え合わせの内訳の区画 1 つ分（見出しと、表に渡す値） */
+export interface ScoreResultBreakdownSection {
+  readonly kind: BreakdownKind;
+  /** 切り替えの見出し。「翻数 3翻」「符 40符」のように正解の値を添える */
+  readonly tabLabel: string;
+  readonly table: {
+    readonly items: readonly ScoreResultDetailItem[];
+    /** 内訳の合計（切り上げ・役満への丸めの前） */
+    readonly total: number;
+    /** 行と合計の単位（翻 / 符） */
+    readonly suffix: string;
+    /** 符だけ: 切り上げ後の符（合計と違うときに添える） */
+    readonly roundedTotal: number | undefined;
+    /** 翻数だけ: 役の名前を押すと役一覧をその役で開く */
+    readonly opensYakuList: boolean;
+  };
+}
+
+/**
+ * 答え合わせの内訳の切り替えを、展開エリアに並べる区画に組む
+ * 点数計算結果内訳区画
+ *
+ * 見出しは正解の値を添え、翻数の表は役一覧へ、符の表は切り上げ後の符を持つ。
+ * 表の描画は web・モバイルの `ResultBreakdownTable` で、ここは渡す値だけを決める。
+ *
+ * @param tabs - {@link resolveScoreResultBreakdown} の `tabs`
+ * @param answer - 正解の翻数と符
+ * @param hanDisplay - 翻数の表記（役満の呼び方を含む）
+ * @param t - `agariScore` 名前空間の翻訳関数
+ */
+export function buildScoreResultBreakdownSections(
+  tabs: readonly ScoreResultBreakdownTab[],
+  answer: Pick<ScoreQuestion["answer"], "han" | "fu">,
+  hanDisplay: (han: number) => string,
+  t: ScoreResultBreakdownTranslator,
+): readonly ScoreResultBreakdownSection[] {
+  return tabs.map(({ kind, breakdown }) =>
+    kind === "han"
+      ? {
+          kind,
+          tabLabel: `${t("form.labels.han")} ${hanDisplay(answer.han)}`,
+          table: {
+            items: breakdown.items,
+            total: breakdown.total,
+            suffix: t("form.options.hanSuffix"),
+            roundedTotal: undefined,
+            opensYakuList: true,
+          },
+        }
+      : {
+          kind,
+          tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
+          table: {
+            items: breakdown.items,
+            total: breakdown.total,
+            suffix: t("form.options.fuSuffix"),
+            roundedTotal: answer.fu,
+            opensYakuList: false,
+          },
+        },
+  );
+}
+
 function buildFuItems(
   fuDetails: NonNullable<ScoreQuestion["fuDetails"]>,
 ): ScoreResultBreakdown {

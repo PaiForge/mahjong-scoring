@@ -1,7 +1,13 @@
 import { useTranslations } from "use-intl";
-import { buildScoreBreakdownTabs } from "@mahjong-scoring/features/results/score-breakdown-tabs";
+import {
+  buildScoreBreakdownTabs,
+  scoreBreakdownTabLabel,
+} from "@mahjong-scoring/features/results/score-breakdown-tabs";
 
-import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
+import {
+  scoreTableOpeners,
+  useScoreTableModal,
+} from "@mahjong-scoring/features/score-table/use-score-table-modal";
 
 import { TableIcon } from "../../components/icons/icons";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
@@ -40,10 +46,10 @@ export function ScoreBreakdownPanel({
   // 値（翻数・符）を押したときだけ正解のセルをハイライトする
   // （「点数表を確認」からは素の表を開く。点数計算の答え合わせと同じ約束）
   const scoreTable = useScoreTableModal();
-  const openScoreTable =
-    scoreTableFocus === undefined ? undefined : scoreTable.open;
-  const openHighlighted =
-    openScoreTable === undefined ? undefined : () => openScoreTable(true);
+  const { openScoreTable, openHighlighted } = scoreTableOpeners(
+    scoreTableFocus,
+    scoreTable.open,
+  );
   const fuHanOrder = useFuHanOrder();
 
   const { tabs, initial } = buildScoreBreakdownTabs(
@@ -57,7 +63,7 @@ export function ScoreBreakdownPanel({
     tab.kind === "fu"
       ? {
           kind: tab.kind,
-          tabLabel: t("fuTab", { value: tab.fu.answer }),
+          tabLabel: scoreBreakdownTabLabel(tab, t),
           content: (
             <FuBreakdownTable
               details={tab.fu.details}
@@ -69,7 +75,7 @@ export function ScoreBreakdownPanel({
         }
       : {
           kind: tab.kind,
-          tabLabel: t("hanTab", { count: tab.hanTotal }),
+          tabLabel: scoreBreakdownTabLabel(tab, t),
           content: (
             <YakuBreakdownTable
               yakuDetails={tab.yakuDetails}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { buildScoreBreakdownTabs } from "./score-breakdown-tabs";
+import {
+  buildScoreBreakdownTabs,
+  scoreBreakdownTabLabel,
+} from "./score-breakdown-tabs";
 
 const fu = { details: [{ reason: "副底", fu: 20 }], answer: 30 };
 const yakuDetails = [
@@ -39,5 +42,19 @@ describe("buildScoreBreakdownTabs", () => {
         isFuCorrect: true,
       }).initial,
     ).toBe("han");
+  });
+});
+
+describe("scoreBreakdownTabLabel", () => {
+  const t = (key: "fuTab" | "hanTab", values: Record<string, number>) =>
+    `${key}:${JSON.stringify(values)}`;
+
+  it("符は正解の符、翻数は丸めの前の合計を添える", () => {
+    expect(scoreBreakdownTabLabel({ kind: "fu", fu }, t)).toBe(
+      'fuTab:{"value":30}',
+    );
+    expect(
+      scoreBreakdownTabLabel({ kind: "han", yakuDetails, hanTotal: 3 }, t),
+    ).toBe('hanTab:{"count":3}');
   });
 });
