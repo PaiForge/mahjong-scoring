@@ -29,8 +29,12 @@ const notificationMetadataSchema = z.object({
 
 export type NotificationMetadata = z.infer<typeof notificationMetadataSchema>;
 
-/** 検証に失敗したときの値（すべて未設定） */
-const EMPTY_METADATA: NotificationMetadata = {};
+/**
+ * 検証に失敗したときの値（すべて未設定）
+ *
+ * 失敗した行のすべてが同じオブジェクトを受け取るので、凍結して共有の値を守る。
+ */
+const EMPTY_METADATA: Readonly<NotificationMetadata> = Object.freeze({});
 
 /**
  * jsonb の値を検証して返す。形が違えば空の値
@@ -38,7 +42,7 @@ const EMPTY_METADATA: NotificationMetadata = {};
  */
 export function parseNotificationMetadata(
   value: unknown,
-): NotificationMetadata {
+): Readonly<NotificationMetadata> {
   const parsed = notificationMetadataSchema.safeParse(value);
   return parsed.success ? parsed.data : EMPTY_METADATA;
 }
