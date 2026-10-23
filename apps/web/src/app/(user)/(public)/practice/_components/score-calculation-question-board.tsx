@@ -8,7 +8,13 @@ import { QuestionPrompt } from "./question-prompt";
 import { RevealedScoreQuestionAnswer } from "./revealed-score-answer";
 import { TehaiMentsuBreakdown } from "./tehai-mentsu-breakdown";
 import { AnswerReviewPanel } from "./answer-review-panel";
+import { ScoreBreakdownPanel } from "./score-breakdown-panel";
 import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
+import {
+  buildScoreAnswerBreakdown,
+  hasScoreAnswerBreakdown,
+} from "@mahjong-scoring/features/results/score-answer-breakdown";
+import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import { ScoreChallengeAnswerForm } from "./score-challenge-answer-form";
 import {
   useScoreQuestionBoard,
@@ -32,6 +38,12 @@ interface ScoreCalculationQuestionBoardProps extends RecordingPracticeBoardProps
   readonly scoreRange?: ScoreOptionRange;
   /** 手牌の直下（問題文の上）に出題の一部として添える材料（役一覧等） */
   readonly renderQuestionSupplement?: (question: ScoreQuestion) => ReactNode;
+  /**
+   * 役一覧を与件として出す練習か（`renderQuestionSupplement` で役一覧を添える
+   * 満貫以上の点数計算）。トレーニングの答え合わせから翻数の内訳を落とし、
+   * 符の内訳だけを出す（与件の役一覧と同じ表を 2 度出さない）
+   */
+  readonly yakuGiven?: boolean;
 }
 
 /**
@@ -39,7 +51,8 @@ interface ScoreCalculationQuestionBoardProps extends RecordingPracticeBoardProps
  * 点数計算盤面
  *
  * 点数計算・満貫以上点数計算の練習で共有する。違いは出題条件
- * （`generateOptions`）・回答欄の点数の範囲・手牌に添える材料だけで、
+ * （`generateOptions`）・回答欄の点数の範囲・手牌に添える材料と、それが
+ * 役一覧なら答え合わせの内訳から翻数を落とすこと（`yakuGiven`）だけで、
  * 画面の構図と答え合わせの出し方は同じ。
  *
  * 盤面は他の練習（`HanCountBoard` 等）と同じく、フィードバック枠で囲まずに
@@ -53,6 +66,7 @@ export function ScoreCalculationQuestionBoard({
   boardHeight,
   scoreRange,
   renderQuestionSupplement,
+  yakuGiven = false,
   showFeedback,
   lastAnswerCorrect,
   isCountingDown = false,
@@ -62,6 +76,7 @@ export function ScoreCalculationQuestionBoard({
   onPresentQuestion,
 }: ScoreCalculationQuestionBoardProps) {
   const t = useTranslations(translationNamespace);
+  const tBreakdown = useTranslations("challenge.yakuBreakdown");
 
   const { question, questionIndex, handleSubmit } = useScoreQuestionBoard({
     generateOptions,
@@ -83,6 +98,10 @@ export function ScoreCalculationQuestionBoard({
       />
     );
   }
+
+  const breakdown = buildScoreAnswerBreakdown(question, tBreakdown, {
+    yakuGiven,
+  });
 
   return (
     <div className="space-y-6">
@@ -120,17 +139,30 @@ export function ScoreCalculationQuestionBoard({
         isTraining={isTraining}
       />
 
-      {/* 面子分解は正解開示の一部。回答中に見せると符や待ちの答えが割れるため
-          止まっている間だけ出す（結果ページの問題詳細と同じ材料）。置き場所が
+      {/* 面子分解と内訳は正解開示の一部。回答中に見せると符や待ちの答えが
+          割れるため止まっている間だけ、1 枚の面（AnswerReviewPanel）に入れて
+          出す（結果ページの問題詳細・模試の答え合わせと同じ材料）。置き場所が
           手牌の直下ではなく末尾なのは、開示の瞬間に回答欄を動かさないため。
-          直下にシェルの「次の問題へ」が続くので、答え合わせの資料の面
-          （AnswerReviewPanel）に入れて枠で境目を付ける。分解を持たない手
-          （七対子・国士無双）では面ごと出さない（空の枠を置かない） */}
-      {showBreakdown && hasMentsuBreakdown(question.tehai, question) && (
-        <AnswerReviewPanel>
-          <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
-        </AnswerReviewPanel>
-      )}
+          面の直下にシェルの「次の問題へ」が続くので、枠で境目を付ける。
+          正解の点数だけでは「点数表の引き間違い」と「翻数・符の数え間違い」を
+          切り分けられないので、符と翻数の内訳を 1 つの入口から切り替えて
+          出す。符は 4 翻以下だけ（符で満貫に届いた手は出し、5 翻以上は符が
+          点数に効かないので出さない）。役一覧が与件の練習では翻数を出さない。
+          問題ごとに作り直して閉じた状態へ戻す。面子分解を持たない手（七対子・
+          国士無双）で内訳も無ければ面ごと出さない（空の枠を置かない） */}
+      {showBreakdown &&
+        (hasMentsuBreakdown(question.tehai, question) ||
+          hasScoreAnswerBreakdown(breakdown)) && (
+          <AnswerReviewPanel>
+            <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
+            <ScoreBreakdownPanel
+              key={questionIndex}
+              {...breakdown}
+              scoreTableFocus={scoreTableFocusOfQuestion(question)}
+              surface="sunken"
+            />
+          </AnswerReviewPanel>
+        )}
     </div>
   );
 }

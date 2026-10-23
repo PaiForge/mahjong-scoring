@@ -39,6 +39,7 @@ export function ManganScoreCalculationBoard(
       translationNamespace="manganScoreCalculationChallenge"
       scoreRange="manganPlus"
       renderQuestionSupplement={renderYakuList}
+      yakuGiven
     />
   );
 }

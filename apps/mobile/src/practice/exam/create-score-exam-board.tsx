@@ -4,7 +4,7 @@ import { useTranslations } from "use-intl";
 import { scoreTableFocusOfQuestion } from "@mahjong-scoring/features/score-table/focus";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { buildScoreExamBreakdown } from "@mahjong-scoring/features/exam/score-exam-breakdown";
+import { buildScoreAnswerBreakdown } from "@mahjong-scoring/features/results/score-answer-breakdown";
 
 import { TehaiMentsuBreakdown } from "../../board/tehai-mentsu-breakdown";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
@@ -118,7 +118,9 @@ export function createScoreExamBoard(
             <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
             <ScoreBreakdownPanel
               key={questionIndex}
-              {...buildScoreExamBreakdown(question, tBreakdown)}
+              {...buildScoreAnswerBreakdown(question, tBreakdown, {
+                yakuGiven: false,
+              })}
               scoreTableFocus={scoreTableFocusOfQuestion(question)}
               surface="sunken"
             />

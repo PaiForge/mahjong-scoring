@@ -14,7 +14,7 @@ import { useTrainingAnswerVisibility } from "@mahjong-scoring/features/practice/
 import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/payment-adapter";
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
 import type { ScoreQuestionResult } from "@mahjong-scoring/features/results/score-question-result";
-import { buildScoreExamBreakdown } from "@mahjong-scoring/features/exam/score-exam-breakdown";
+import { buildScoreAnswerBreakdown } from "@mahjong-scoring/features/results/score-answer-breakdown";
 import { QuestionDisplay } from "@/app/(user)/(public)/practice/agari-score/_components/question-display";
 import type { ScoreExamBoardConfig } from "@mahjong-scoring/features/exam/score-exam-board-config";
 import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
@@ -51,7 +51,7 @@ import { ScoreExamAnswerForm } from "../_components/score-exam-answer-form";
  * 出す。結果ページの問題別詳細と同じ境目）。表と置き場所は翻数即答練習のトレーニング
  * （面子分解と一緒に答え合わせの資料の面 {@link AnswerReviewPanel} に入れ、
  * 閉じた状態から）と同じで、既に見た手を振り返る操作が画面で変わらない。役満止まりの注記は結果ページの問題別詳細と同じ
- * （{@link buildScoreExamBreakdown}）。本番の試験では出さない — 読ませている間も
+ * （{@link buildScoreAnswerBreakdown}）。本番の試験では出さない — 読ませている間も
  * タイマーが進むうえ、内訳は結果ページの問題別詳細が引き受ける。
  * 模試の答え合わせでは、開示した正解の点数を押すとそのセルをハイライトした
  * 点数早見表がモーダルで開く（点数表早引き練習と同じ導線）。点数を間違えたとき、
@@ -160,7 +160,9 @@ export function createScoreExamBoard(
             <TehaiMentsuBreakdown tehai={question.tehai} context={question} />
             <ScoreBreakdownPanel
               key={questionIndex}
-              {...buildScoreExamBreakdown(question, tBreakdown)}
+              {...buildScoreAnswerBreakdown(question, tBreakdown, {
+                yakuGiven: false,
+              })}
               scoreTableFocus={scoreTableFocus}
               surface="sunken"
             />
