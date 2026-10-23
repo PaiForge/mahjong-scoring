@@ -296,6 +296,17 @@ describe("planStatusOf（手動付与）", () => {
     ).toEqual({ kind: "pass", until: later });
   });
 
+  it("パスと付与の期限が同じならパスで出す", () => {
+    const same = new Date("2026-12-01T00:00:00Z");
+    expect(
+      planStatusOf(
+        [purchase({ expiresAt: same })],
+        [grant({ expiresAt: same })],
+        NOW,
+      ),
+    ).toEqual({ kind: "pass", until: same });
+  });
+
   it("取り消し済み・期限切れの付与は無視する", () => {
     expect(
       planStatusOf(
