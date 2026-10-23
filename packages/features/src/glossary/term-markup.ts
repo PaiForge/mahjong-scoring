@@ -24,7 +24,13 @@ export type TermMarkupToken =
   | { readonly type: "text"; readonly value: string }
   | { readonly type: "term"; readonly slug: string; readonly label: string };
 
-/** 入れ子を許さないグローバル正規表現。slug は | ] [ を、label は ] [ を含まない */
+/**
+ * 入れ子を許さない正規表現。slug は | ] [ を、label は ] [ を含まない
+ *
+ * `g` フラグは `matchAll` が要求するもの。`matchAll` は正規表現を写して走査する
+ * ので、`lastIndex` の状態が呼び出しをまたいで残らない（`exec` のループと違い、
+ * 呼び出しごとの初期化は要らない）。
+ */
 const TERM_MARKUP_RE = /\[\[([^[\]|]+?)(?:\|([^[\]]+?))?\]\]/g;
 
 /**
@@ -41,11 +47,7 @@ export function parseTermMarkup(input: string): TermMarkupToken[] {
   const tokens: TermMarkupToken[] = [];
   let lastIndex = 0;
 
-  // 正規表現がモジュールレベルで状態を持つため、呼び出しごとに初期化する
-  TERM_MARKUP_RE.lastIndex = 0;
-
-  let match: RegExpExecArray | undefined;
-  while ((match = TERM_MARKUP_RE.exec(input) ?? undefined) !== undefined) {
+  for (const match of input.matchAll(TERM_MARKUP_RE)) {
     const slug = match[1].trim();
     const label = (match[2] ?? match[1]).trim();
 
