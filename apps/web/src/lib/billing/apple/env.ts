@@ -41,7 +41,7 @@ const APPLE_PRODUCT_ID_ENV_NAMES: Readonly<
  *
  * 買い切りは必須、30 日パスは任意。パスの Product ID を外すと、アプリには
  * 買い切りだけが並ぶ（web の Stripe のパスはそのまま売る）。パスの商品の
- * 種類（消耗型）とその理由は `record.ts` の `APPLE_PRODUCT_TYPES`。
+ * 種類（消耗型）とその理由は `rejection.ts` の `APPLE_PRODUCT_TYPES`。
  */
 export function readAppleProductIds():
   Readonly<Partial<Record<OfferKey, string>>> | undefined {
