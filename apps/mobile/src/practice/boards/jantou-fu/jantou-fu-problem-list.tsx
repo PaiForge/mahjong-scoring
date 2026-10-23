@@ -1,8 +1,9 @@
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { getKazeName, parseHais, parseKazehai } from "@mahjong-scoring/core";
+import { parseHais, parseKazehai } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
+import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 
 import { colors } from "../../../lib/theme";
@@ -34,7 +35,7 @@ export function JantouFuProblemList({
         const bakaze = parseKazehai(result.bakaze);
         const jikaze = parseKazehai(result.jikaze);
         if (!bakaze || !jikaze) return undefined;
-        return `${getKazeName(bakaze)}${tCommon("round")} ${getKazeName(jikaze)}${tCommon("wind")}`;
+        return kazeContextLabel(bakaze, jikaze, tCommon);
       }}
       renderDetail={(result) => (
         <AnswerComparison
