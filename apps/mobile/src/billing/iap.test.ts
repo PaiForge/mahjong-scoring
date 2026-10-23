@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   purchaseUpdated: undefined as ((purchase: unknown) => void) | undefined,
+  purchaseError: undefined as
+    ((error: { code?: string; message: string }) => void) | undefined,
   requestPurchase: vi.fn(),
   finishTransaction: vi.fn(),
   getAvailablePurchases: vi.fn(),
@@ -18,7 +20,16 @@ vi.mock("expo-iap", () => ({
   fetchProducts: vi.fn(),
   finishTransaction: mocks.finishTransaction,
   getAvailablePurchases: mocks.getAvailablePurchases,
-  purchaseErrorListener: () => ({ remove: () => undefined }),
+  purchaseErrorListener: (
+    listener: (error: { code?: string; message: string }) => void,
+  ) => {
+    mocks.purchaseError = listener;
+    return {
+      remove: () => {
+        mocks.purchaseError = undefined;
+      },
+    };
+  },
   purchaseUpdatedListener: (listener: (purchase: unknown) => void) => {
     mocks.purchaseUpdated = listener;
     return {
@@ -35,6 +46,7 @@ import {
   finishIapPurchase,
   listIapPurchases,
   onIapPurchase,
+  onIapPurchaseError,
   requestIapPurchase,
 } from "./iap";
 
@@ -74,6 +86,36 @@ describe("取引の届け方", () => {
       productId: PURCHASE.productId,
       jws: "jws",
     });
+    unsubscribe();
+  });
+});
+
+describe("失敗の届け方", () => {
+  it("イベントで失敗が届いた後に要求も拒否されたら、受け手には 1 回だけ届く", async () => {
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchaseError(listener);
+    mocks.requestPurchase.mockImplementation(async () => {
+      mocks.purchaseError?.({ code: "user-cancelled", message: "cancelled" });
+      throw Object.assign(new Error("cancelled"), { code: "user-cancelled" });
+    });
+
+    await requestIapPurchase(PURCHASE.productId, "user-a");
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith("user-cancelled", "cancelled");
+    unsubscribe();
+  });
+
+  it("イベントで届かず要求だけ拒否されたら、拒否の失敗を知らせる", async () => {
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchaseError(listener);
+    mocks.requestPurchase.mockRejectedValue(
+      Object.assign(new Error("boom"), { code: "unknown" }),
+    );
+
+    await requestIapPurchase(PURCHASE.productId, "user-a");
+
+    expect(listener).toHaveBeenCalledTimes(1);
     unsubscribe();
   });
 });

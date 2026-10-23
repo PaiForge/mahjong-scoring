@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalVerifiedUser } from "@/lib/auth";
+import { checkoutStatusOf } from "@/lib/billing/checkout-landing";
 import { getStripeCustomerId } from "@/lib/billing/customer";
 import { recordPurchaseFromCheckoutSession } from "@/lib/billing/purchases";
 import { getStripe } from "@/lib/billing/stripe";
@@ -98,19 +99,14 @@ export async function GET(request: Request): Promise<NextResponse> {
     }
 
     const result = await recordPurchaseFromCheckoutSession(session);
-    if (result.outcome === "ignored" && result.reason === "notPaid") {
-      // 非同期の支払い方法（いまは使わない）で未確定のまま戻った場合
-      return toPlan("pending");
-    }
-    if (result.outcome === "ignored") {
+    if (result.outcome === "ignored" && result.reason !== "notPaid") {
       logExternalError(
         "checkout-complete",
         `purchase ignored: ${result.reason}`,
         undefined,
       );
-      return toPlan("failed");
     }
-    return toPlan(result.outcome === "recorded" ? "success" : undefined);
+    return toPlan(checkoutStatusOf(result));
   } catch (error) {
     // Stripe や DB の一時的な失敗。Webhook が後から記録するので、
     // ユーザーはマイページで結果を待てる

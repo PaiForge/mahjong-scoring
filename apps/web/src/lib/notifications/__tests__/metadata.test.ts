@@ -29,4 +29,8 @@ describe("parseNotificationMetadata", () => {
   ])("壊れた値（%s）は空に落とす（一覧を落とさない）", (_label, value) => {
     expect(parseNotificationMetadata(value)).toEqual({});
   });
+
+  it("壊れた値に返す空の値は凍結されている（共有の値を書き換えさせない）", () => {
+    expect(Object.isFrozen(parseNotificationMetadata(null))).toBe(true);
+  });
 });

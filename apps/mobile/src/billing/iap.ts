@@ -191,21 +191,23 @@ export async function fetchIapProducts(
   }
 }
 
-/**
- * いまの購入の要求の間に失敗を知らせたか。StoreKit のイベントと要求の拒否で
- * 同じ失敗を 2 度知らせないために使う（{@link requestIapPurchase}）
- */
-let errorDeliveredDuringRequest = false;
-
 type ErrorListener = (code: string, message: string) => void;
 const errorListeners = new Set<ErrorListener>();
 
 function deliverError(code: string, message: string): void {
-  errorDeliveredDuringRequest = true;
   for (const listener of errorListeners) listener(code, message);
 }
 
 let nativeErrorSubscription: { readonly remove: () => void } | undefined;
+
+/** 失敗の受け手を外す。誰もいなくなったら StoreKit の購読もやめる */
+function removeErrorListener(listener: ErrorListener): void {
+  errorListeners.delete(listener);
+  if (errorListeners.size === 0) {
+    nativeErrorSubscription?.remove();
+    nativeErrorSubscription = undefined;
+  }
+}
 
 /**
  * 購入の失敗を受け取る。解除する関数を返す
@@ -223,13 +225,7 @@ export function onIapPurchaseError(listener: ErrorListener): () => void {
       deliverError(error.code ?? ErrorCode.Unknown, error.message);
     }),
   );
-  return () => {
-    errorListeners.delete(listener);
-    if (errorListeners.size === 0) {
-      nativeErrorSubscription?.remove();
-      nativeErrorSubscription = undefined;
-    }
-  };
+  return () => removeErrorListener(listener);
 }
 
 type PurchaseListener = (purchase: IapPurchase) => void;
@@ -275,6 +271,8 @@ export function onIapPurchase(listener: PurchaseListener): () => void {
  * `requestPurchase` の戻り値は結果に使わない（expo-iap の TSDoc どおり。取引は
  * イベントで届く）— 戻り値からも配ると同じ取引が 2 度届き、記録の知らせが
  * 2 回出る。待つのは要求の拒否（失敗）を受け取るためだけ。
+ * StoreKit のイベントと要求の拒否は同じ失敗を両方から知らせることがあるので、
+ * 要求の間だけ失敗の受け手を足し、イベントで届いていれば拒否は重ねて知らせない。
  * 取引は自動で完了させない — サーバーに記録してから完了する（完了した取引は
  * StoreKit が配り直さず、記録に失敗すると取り戻せない）。
  *
@@ -290,7 +288,11 @@ export async function requestIapPurchase(
     deliverError(ErrorCode.NotPrepared, "not connected");
     return;
   }
-  errorDeliveredDuringRequest = false;
+  let errorDelivered = false;
+  const watchError: ErrorListener = () => {
+    errorDelivered = true;
+  };
+  errorListeners.add(watchError);
   try {
     await requestPurchase({
       request: {
@@ -304,10 +306,12 @@ export async function requestIapPurchase(
     });
   } catch (error) {
     // StoreKit のイベントで同じ失敗を受け取っていれば、重ねて知らせない
-    if (!errorDeliveredDuringRequest) {
+    if (!errorDelivered) {
       const { code, message } = errorOf(error);
       deliverError(code, message);
     }
+  } finally {
+    removeErrorListener(watchError);
   }
 }
 

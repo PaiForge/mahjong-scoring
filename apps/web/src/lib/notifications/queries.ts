@@ -24,7 +24,7 @@ import {
 export interface NotificationListItem {
   readonly id: string;
   readonly type: string;
-  readonly metadata: NotificationMetadata;
+  readonly metadata: Readonly<NotificationMetadata>;
   /** 既読にした日時。未読なら undefined */
   readonly readAt: Date | undefined;
   readonly createdAt: Date;
