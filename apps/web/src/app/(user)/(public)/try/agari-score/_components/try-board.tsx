@@ -24,6 +24,7 @@ import { ScorePracticeAnswerForm } from "@/app/(user)/(public)/practice/agari-sc
 import { ScoreAnswerFormSkeleton } from "@/app/(user)/(public)/practice/agari-score/_components/agari-score-board-skeleton";
 
 import { TRY_QUESTION } from "../_lib/try-question";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 1 回の解答。回答せずに正解を開示したときはどちらも undefined
@@ -121,7 +122,7 @@ export function TryBoard({
               title={t("signUp.title")}
               description={t("signUp.description")}
               cta={t("signUp.cta")}
-              secondary={{ label: t("signUp.browse"), href: "/practice" }}
+              secondary={{ label: t("signUp.browse"), href: PRACTICE_PATH }}
             />
           </div>
         ) : (

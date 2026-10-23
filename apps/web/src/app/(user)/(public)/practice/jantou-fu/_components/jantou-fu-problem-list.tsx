@@ -1,11 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { getKazeName, parseHais, parseKazehai } from "@mahjong-scoring/core";
+import { parseHais, parseKazehai } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
+import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 
 interface JantouFuProblemListProps {
@@ -41,7 +42,7 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
         const bakaze = parseKazehai(result.bakaze);
         const jikaze = parseKazehai(result.jikaze);
         if (!bakaze || !jikaze) return undefined;
-        return `${getKazeName(bakaze)}${tCommon("round")} ${getKazeName(jikaze)}${tCommon("wind")}`;
+        return kazeContextLabel(bakaze, jikaze, tCommon);
       }}
       renderDetail={(result) => (
         // 詳細は正解と回答の 2 行だけ。牌と符が並んだ時点で差まで読み取れる

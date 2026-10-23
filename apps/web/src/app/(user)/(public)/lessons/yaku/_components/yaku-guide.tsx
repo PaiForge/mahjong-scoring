@@ -5,6 +5,7 @@ import { GuideFigure } from "../../_components/guide-figure";
 import { GuideParagraph } from "../../_components/guide-paragraph";
 import { GuideSection } from "../../_components/guide-section";
 import { YakuNakiComparisonTable } from "../../_components/yaku-naki-comparison-table";
+import { REFERENCE_YAKU_PATH } from "@mahjong-scoring/features/routes";
 
 export async function YakuGuide() {
   const t = await getTranslations("yaku.learn");
@@ -34,7 +35,7 @@ export async function YakuGuide() {
         </GuideFigure>
 
         <Link
-          href="/reference/yaku"
+          href={REFERENCE_YAKU_PATH}
           className={`block text-center text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
           {t("referenceLink")}

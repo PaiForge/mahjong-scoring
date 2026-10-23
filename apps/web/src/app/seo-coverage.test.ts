@@ -7,11 +7,13 @@ import { describe, expect, it } from "vitest";
 import { collectPages } from "@/test/collect-pages";
 
 import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import {
   PRACTICE_SLUG,
   PRACTICE_MENU_SLUGS,
   practiceMenuBySlug,
 } from "@mahjong-scoring/features/practice-menu-types";
+import * as routes from "@mahjong-scoring/features/routes";
 
 /**
  * SEO カバレッジの不変条件（loading-boundaries.test.ts と同型の構造検査）:
@@ -81,8 +83,21 @@ function declaresCanonical(source: string, urlPath: string): boolean {
     );
   }
   // path オプション（path: "/x"）と createTitleOnlyMetadata の第 3 引数
-  // （, "/x"）の両方を受ける
-  return new RegExp(`(path:\\s*|,\\s*)"${urlPath}"`).test(source);
+  // （, "/x"）の両方を受ける。パスは文字列でも、features の定数
+  // （`LESSONS_PATH` 等。値がこのパスのもの）で渡していてもよい
+  const pathTokens = [
+    `"${urlPath}"`,
+    ...pathConstantNames(urlPath).map((name) => `${name}\\b`),
+  ];
+  return new RegExp(`(path:\\s*|,\\s*)(${pathTokens.join("|")})`).test(source);
+}
+
+/** 値が urlPath と一致する、パスの定数の名前（`routes.ts` と `PLAN_PAGE_HREF`） */
+function pathConstantNames(urlPath: string): readonly string[] {
+  const constants: Record<string, unknown> = { ...routes, PLAN_PAGE_HREF };
+  return Object.entries(constants)
+    .filter(([, value]) => value === urlPath)
+    .map(([name]) => name);
 }
 
 describe("SEO カバレッジ", () => {

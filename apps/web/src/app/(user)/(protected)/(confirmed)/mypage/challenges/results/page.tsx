@@ -20,6 +20,7 @@ import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 import { getChallengeResultsPaginated } from "../_lib/queries";
 import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
 import { ResultsTable } from "./_components/results-table";
+import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -63,7 +64,7 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
     <ContentContainer
       breadcrumb={[
         { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: tChallenges("pageTitle"), href: "/mypage/challenges" },
+        { label: tChallenges("pageTitle"), href: MY_RECORD_PATH },
         { label: t("pageTitle") },
       ]}
     >

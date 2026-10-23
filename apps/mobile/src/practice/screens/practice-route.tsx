@@ -4,6 +4,7 @@ import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
 
 import type { PracticeScreens } from "../practice-screens";
 import { PracticeMenuRoute } from "./practice-menu-route";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /** 昇級試験でない練習だけをこのルートで描く */
 const isPracticeMenu = (slug: PracticeMenuSlug) => !isExamMenu(slug);
@@ -28,7 +29,7 @@ export function PracticeRoute({
   return (
     <PracticeMenuRoute
       param="slug"
-      basePathPrefix="/practice"
+      basePathPrefix={PRACTICE_PATH}
       accept={isPracticeMenu}
       render={render}
     />

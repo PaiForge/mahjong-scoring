@@ -4,6 +4,7 @@ import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitlePlaceholder } from "@/app/(user)/_components/page-title";
 import { SectionTitleSkeleton } from "@/app/(user)/_components/section-title-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 段級位の詳細の読み込み中スケルトン。
@@ -17,7 +18,7 @@ export default async function Loading() {
   const t = await getTranslations("dojo");
 
   return (
-    <ContentContainer breadcrumb={[{ label: t("title"), href: "/dojo" }]}>
+    <ContentContainer breadcrumb={[{ label: t("title"), href: DOJO_PATH }]}>
       <PageTitlePlaceholder width="w-16" />
 
       <div className="space-y-8">

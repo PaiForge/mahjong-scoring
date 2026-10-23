@@ -49,7 +49,7 @@ import { beltBorderTopClass } from "@/lib/ranks/belt-colors";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
-import { rankHref } from "@mahjong-scoring/features/routes";
+import { DOJO_PATH, rankHref } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../_components/rank-status-badge";
 
@@ -99,7 +99,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
 
   return (
     <ContentContainer
-      breadcrumb={[{ label: t("title"), href: "/dojo" }, { label: rankName }]}
+      breadcrumb={[{ label: t("title"), href: DOJO_PATH }, { label: rankName }]}
     >
       <PageTitle>{rankName}</PageTitle>
 

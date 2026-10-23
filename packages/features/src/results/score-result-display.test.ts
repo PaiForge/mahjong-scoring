@@ -2,6 +2,7 @@ import type { ScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
 import {
+  buildScoreResultBreakdownSections,
   buildScoreResultDisplay,
   resolveScoreResultBreakdown,
 } from "./score-result-display";
@@ -182,5 +183,52 @@ describe("resolveScoreResultBreakdown", () => {
         judgement: { isHanCorrect: true, isFuCorrect: false },
       }).initial,
     ).toBe("fu");
+  });
+});
+
+describe("buildScoreResultBreakdownSections", () => {
+  const t = (key: string) =>
+    ({
+      "form.labels.han": "翻数",
+      "form.labels.fu": "符",
+      "form.options.hanSuffix": "翻",
+      "form.options.fuSuffix": "符",
+    })[key] ?? key;
+  const breakdown = { items: [{ name: "立直", value: 1 }], total: 1 };
+
+  it("翻数は役一覧を開き、符は切り上げ後の符を持つ。見出しに正解の値を添える", () => {
+    const sections = buildScoreResultBreakdownSections(
+      [
+        { kind: "han", breakdown },
+        { kind: "fu", breakdown: { items: [], total: 32 } },
+      ],
+      { han: 3, fu: 40 },
+      (han) => `${han}翻`,
+      t,
+    );
+    expect(sections).toEqual([
+      {
+        kind: "han",
+        tabLabel: "翻数 3翻",
+        table: {
+          items: breakdown.items,
+          total: 1,
+          suffix: "翻",
+          roundedTotal: undefined,
+          opensYakuList: true,
+        },
+      },
+      {
+        kind: "fu",
+        tabLabel: "符 40符",
+        table: {
+          items: [],
+          total: 32,
+          suffix: "符",
+          roundedTotal: 40,
+          opensYakuList: false,
+        },
+      },
+    ]);
   });
 });

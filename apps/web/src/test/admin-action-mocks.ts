@@ -22,6 +22,7 @@ import { vi, type Mock } from "vitest";
  *   recordModerationAction: (await import("@/test/admin-action-mocks"))
  *     .mockRecordModerationAction,
  * }));
+ * vi.mock("@/lib/supabase/admin", async () => await import("@/test/admin-action-mocks"));
  * vi.mock("@/lib/db", async () => ({
  *   db: { transaction: (await import("@/test/admin-action-mocks")).mockTransaction },
  * }));
@@ -58,6 +59,17 @@ export const mockRevalidateTag = vi.fn();
 
 /** `@/lib/notifications/create-notification` の `notifyQuietly` の差し替え先 */
 export const mockNotify = vi.fn();
+
+/** `@/lib/supabase/admin` の Auth の `updateUserById`（BAN・BAN 解除が Auth 側の停止を切り替える） */
+export const mockUpdateUserById = vi.fn();
+
+/**
+ * `vi.mock("@/lib/supabase/admin", ...)` 用。Auth の管理 API のうち
+ * BAN・BAN 解除が使う `updateUserById` だけを持つ
+ */
+export function createAdminClient() {
+  return { auth: { admin: { updateUserById: mockUpdateUserById } } };
+}
 
 /** `vi.mock("<admin/_lib/auth>", ...)` 用のエイリアス */
 export const requireAdminActor = mockRequireAdminActor;

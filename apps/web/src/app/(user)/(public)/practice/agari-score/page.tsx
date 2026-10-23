@@ -23,12 +23,13 @@ import { chaptersInSection } from "@mahjong-scoring/features/curriculum/registry
 import { PracticeChapterSection } from "../_components/practice-chapter-section";
 import { ScoreSetupForm } from "./_components/score-setup-form";
 import { AgariScoreHelpTour } from "./_components/agari-score-help-tour";
+import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   // slug "agari-score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
   // createPracticeMetadata を使えない。パスをここで明示する。
   return createNamespaceMetadata("agariScore", {
-    path: "/practice/agari-score",
+    path: AGARI_SCORE_PRACTICE_HREF,
   });
 }
 

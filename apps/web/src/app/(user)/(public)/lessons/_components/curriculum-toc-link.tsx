@@ -5,6 +5,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 import { chapterTocHref } from "../_lib/toc-anchor";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 教本の目次への導線
@@ -42,7 +43,7 @@ export async function CurriculumTocLink({
   return (
     <div className={align === "center" ? "text-center" : "text-right"}>
       <Link
-        href={focusSlug ? chapterTocHref(focusSlug) : "/lessons"}
+        href={focusSlug ? chapterTocHref(focusSlug) : LESSONS_PATH}
         className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
       >
         {t("tocLink")}

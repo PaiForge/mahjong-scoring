@@ -47,9 +47,7 @@ import {
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
-
-/** 出題条件を選ぶ設定画面。「終了」で戻る先 */
-const SETUP_HREF = "/practice/agari-score";
+import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 function AgariScoreBoardInner() {
   const t = useTranslations("agariScore");
@@ -160,8 +158,9 @@ function AgariScoreBoardInner() {
     // 設定画面に着いてから出す（ここで出すと表示時間が遷移の裏で減り、
     // 視線も切り替わる本文側にあるため見落とされる）。
     // 文言はこの練習のもの — チャレンジでもトレーニングでもないため
-    toastOnArrival(SETUP_HREF, t("exitToast"));
-    router.push(SETUP_HREF);
+    // 出題条件を選ぶ設定画面へ戻る
+    toastOnArrival(AGARI_SCORE_PRACTICE_HREF, t("exitToast"));
+    router.push(AGARI_SCORE_PRACTICE_HREF);
   }, [router, t]);
 
   // 回答・開示・次へ進むのボタンはいずれも縦に長い盤面の下端にあり、押した位置の
@@ -220,7 +219,7 @@ function AgariScoreBoardInner() {
     return (
       <GenerationFailedNotice
         translationNamespace="agariScore"
-        onBackToSetup={() => router.push("/practice/agari-score")}
+        onBackToSetup={() => router.push(AGARI_SCORE_PRACTICE_HREF)}
       />
     );
   }

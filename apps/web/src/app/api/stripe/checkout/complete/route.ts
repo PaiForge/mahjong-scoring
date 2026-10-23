@@ -9,9 +9,7 @@ import { getStripe } from "@/lib/billing/stripe";
 import { logExternalError } from "@/lib/log-error";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { buildSignInHref } from "@/lib/redirect";
-
-/** Checkout 完了後に着地するマイページのパス */
-const MYPAGE_PLAN_PATH = "/mypage/plan";
+import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * Stripe Checkout の完了着地

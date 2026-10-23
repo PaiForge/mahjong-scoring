@@ -49,7 +49,10 @@ import {
   menuTypeToSlug,
   type PracticeBoard,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { practicePlayHref } from "@mahjong-scoring/features/routes";
+import {
+  LEADERBOARD_PATH,
+  practicePlayHref,
+} from "@mahjong-scoring/features/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -169,7 +172,7 @@ export default async function LeaderboardDetailPage({
     <ContentContainer
       className="space-y-6"
       breadcrumb={[
-        { label: t("title"), href: "/leaderboard" },
+        { label: t("title"), href: LEADERBOARD_PATH },
         { label: moduleTitle },
       ]}
     >

@@ -5,6 +5,7 @@ import { ChapterTocList } from "@/app/(user)/(public)/lessons/_components/chapte
 import { CURRICULUM_CHAPTER_SLUGS } from "@mahjong-scoring/features/curriculum/registry";
 
 import { LandingSection } from "./landing-section";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * トップの「基礎から学ぶ」節
@@ -25,7 +26,7 @@ export function LearnSection() {
       iconClassName="bg-brand-subtle text-brand-subtle-foreground"
       title={t("learnTitle")}
       description={t("learnDescription")}
-      href="/lessons"
+      href={LESSONS_PATH}
       ctaLabel={t("learnCta")}
       ctaVariant="secondary"
     >

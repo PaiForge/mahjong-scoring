@@ -4,15 +4,12 @@ import {
   mockRevalidatePath,
   mockRevalidateTag,
   mockTransaction,
+  mockUpdateUserById,
   createUpdateTxMock,
   setupAdminActor,
   setupNotAdmin,
   type UpdateTxMock,
 } from "@/test/admin-action-mocks";
-
-const { mockUpdateUserById } = vi.hoisted(() => ({
-  mockUpdateUserById: vi.fn(),
-}));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
 vi.mock(
@@ -25,11 +22,10 @@ vi.mock("@/lib/db", async () => ({
   },
   profiles: { id: "profiles.id", bannedAt: "profiles.banned_at" },
 }));
-vi.mock("@/lib/supabase/admin", () => ({
-  createAdminClient: () => ({
-    auth: { admin: { updateUserById: mockUpdateUserById } },
-  }),
-}));
+vi.mock(
+  "@/lib/supabase/admin",
+  async () => await import("@/test/admin-action-mocks"),
+);
 vi.mock(
   "../../../_lib/auth",
   async () => await import("@/test/admin-action-mocks"),

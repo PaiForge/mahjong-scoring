@@ -24,6 +24,7 @@ import {
   rankTier,
   type RankSlug,
 } from "@mahjong-scoring/features/ranks/registry";
+import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 
 interface ExamStartGateProps {
   /** 昇級試験の練習スラッグ（例: "pinfu-exam"） */
@@ -181,7 +182,7 @@ export function ExamStartGate({
         {/* 帯色は「この試験の級」ではなく「先に取る級」。押した先の道場が
             出すのはその級の前提章と試験で、色もそちらに揃える */}
         <LinkButton
-          href="/dojo"
+          href={DOJO_PATH}
           variant="belt"
           size="lg"
           fullWidth

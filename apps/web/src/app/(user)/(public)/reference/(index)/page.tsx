@@ -22,9 +22,13 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
+import {
+  REFERENCE_PATH,
+  REFERENCE_YAKU_PATH,
+} from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("reference", { path: "/reference" });
+  return createNamespaceMetadata("reference", { path: REFERENCE_PATH });
 }
 
 interface ReferenceLinkDef {
@@ -45,7 +49,7 @@ export default async function ReferenceHubPage() {
       icon: <TableIcon className="size-5 text-brand-subtle-foreground" />,
     },
     {
-      href: "/reference/yaku",
+      href: REFERENCE_YAKU_PATH,
       title: t("yaku.title"),
       description: t("yaku.description"),
       icon: <BookIcon className="size-5 text-brand-subtle-foreground" />,

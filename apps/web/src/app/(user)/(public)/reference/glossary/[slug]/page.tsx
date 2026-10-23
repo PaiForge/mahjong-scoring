@@ -52,6 +52,7 @@ import { TermSection } from "../_components/term-section";
 import { TermExamples } from "../_components/term-examples";
 import { TermLearnLinks } from "../_components/term-learn-links";
 import { buildDefinedTermSchema } from "../_lib/json-ld";
+import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
 
 interface GlossaryTermPageProps {
   readonly params: Promise<{ readonly slug: string }>;
@@ -112,7 +113,7 @@ export default async function GlossaryTermPage({
       />
       <ContentContainer
         breadcrumb={[
-          { label: tHub("title"), href: "/reference" },
+          { label: tHub("title"), href: REFERENCE_PATH },
           { label: t("title"), href: GLOSSARY_PATH },
           { label: term.term },
         ]}

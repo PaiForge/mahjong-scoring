@@ -4,8 +4,9 @@ import { memo, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { getKazeName, isOya } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
+import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 import { Hai } from "@pai-forge/mahjong-react-ui";
 import {
@@ -169,9 +170,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           style={{ height: `${infoRowHeight}px`, transformOrigin: "left top" }}
         >
           <div>
-            {getKazeName(context.bakaze)}
-            {t("round")} {getKazeName(context.jikaze)}
-            {t("wind")}
+            {kazeContextLabel(context.bakaze, context.jikaze, t)}
             <span className={oya ? "ml-2 text-yellow-300" : "ml-2"}>
               {oya ? t("dealer") : t("nonDealer")}
             </span>

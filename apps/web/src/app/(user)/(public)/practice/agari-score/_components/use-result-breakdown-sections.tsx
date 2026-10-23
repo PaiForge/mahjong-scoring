@@ -2,7 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
-import type { ScoreResultBreakdownTab } from "@mahjong-scoring/features/results/score-result-display";
+import {
+  buildScoreResultBreakdownSections,
+  type ScoreResultBreakdownTab,
+} from "@mahjong-scoring/features/results/score-result-display";
 import type { BreakdownPanelSection } from "../../_components/breakdown-panel";
 import { ResultBreakdownTable } from "./result-breakdown-table";
 
@@ -28,33 +31,20 @@ export function useResultBreakdownSections({
   readonly onOpenYakuList: (yakuName?: string) => void;
 }): readonly BreakdownPanelSection[] {
   const t = useTranslations("agariScore");
-  return tabs.map(({ kind, breakdown }): BreakdownPanelSection =>
-    kind === "han"
-      ? {
-          kind,
-          tabLabel: `${t("form.labels.han")} ${hanDisplay(answer.han)}`,
-          content: (
-            <ResultBreakdownTable
-              items={breakdown.items}
-              total={breakdown.total}
-              suffix={t("form.options.hanSuffix")}
-              onOpenScoreTable={onOpenScoreTable}
-              onOpenYakuList={onOpenYakuList}
-            />
-          ),
-        }
-      : {
-          kind,
-          tabLabel: `${t("form.labels.fu")} ${answer.fu}${t("form.options.fuSuffix")}`,
-          content: (
-            <ResultBreakdownTable
-              items={breakdown.items}
-              total={breakdown.total}
-              suffix={t("form.options.fuSuffix")}
-              roundedTotal={answer.fu}
-              onOpenScoreTable={onOpenScoreTable}
-            />
-          ),
-        },
+  return buildScoreResultBreakdownSections(tabs, answer, hanDisplay, t).map(
+    ({ kind, tabLabel, table }): BreakdownPanelSection => ({
+      kind,
+      tabLabel,
+      content: (
+        <ResultBreakdownTable
+          items={table.items}
+          total={table.total}
+          suffix={table.suffix}
+          roundedTotal={table.roundedTotal}
+          onOpenScoreTable={onOpenScoreTable}
+          onOpenYakuList={table.opensYakuList ? onOpenYakuList : undefined}
+        />
+      ),
+    }),
   );
 }

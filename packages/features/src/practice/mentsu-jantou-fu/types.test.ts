@@ -9,7 +9,12 @@ import {
 import { expectRestoresQuestion } from "@mahjong-scoring/features/test/expect-restores-question";
 import { generateOrThrow } from "@mahjong-scoring/features/test/generate-or-throw";
 
-import { parseMentsuJantouFuResults, toQuestionResult } from "./types";
+import {
+  countCorrectItems,
+  isItemCorrect,
+  parseMentsuJantouFuResults,
+  toQuestionResult,
+} from "./types";
 
 /** 保存形式として妥当な結果データ */
 const validResult = {
@@ -139,5 +144,22 @@ describe("toQuestionResult", () => {
       question.items.map((item) => item.fu),
     );
     expect(parseMentsuJantouFuResults([result])).toHaveLength(1);
+  });
+});
+
+describe("isItemCorrect / countCorrectItems", () => {
+  it("選んだ符が正解の符と一致する行だけを正解に数える", () => {
+    const items = [
+      { correctFu: 4, userFu: 4 },
+      { correctFu: 8, userFu: 4 },
+      { correctFu: 2, userFu: 2 },
+    ];
+    expect(items.map(isItemCorrect)).toEqual([true, false, true]);
+    expect(countCorrectItems(items)).toBe(2);
+  });
+
+  it("時間切れで答えていない行（userFu 無し）は不正解", () => {
+    expect(isItemCorrect({ correctFu: 0 })).toBe(false);
+    expect(countCorrectItems([{ correctFu: 0 }, { correctFu: 4 }])).toBe(0);
   });
 });

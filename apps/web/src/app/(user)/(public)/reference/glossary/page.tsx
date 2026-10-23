@@ -26,6 +26,7 @@ import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { KanaRowNav } from "./_components/kana-row-nav";
 import { KanaTermList } from "./_components/kana-term-list";
 import { buildDefinedTermSetSchema } from "./_lib/json-ld";
+import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
   // canonical はリテラルで渡す（seo-coverage.test.ts がページのソースを
@@ -53,7 +54,7 @@ export default async function GlossaryIndexPage() {
       />
       <ContentContainer
         breadcrumb={[
-          { label: tHub("title"), href: "/reference" },
+          { label: tHub("title"), href: REFERENCE_PATH },
           { label: t("title") },
         ]}
       >

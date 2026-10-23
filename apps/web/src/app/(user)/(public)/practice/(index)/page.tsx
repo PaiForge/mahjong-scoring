@@ -39,9 +39,10 @@ import {
   listedPracticeRanks,
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return createNamespaceMetadata("practice", { path: "/practice" });
+  return createNamespaceMetadata("practice", { path: PRACTICE_PATH });
 }
 
 export default async function PracticePage() {

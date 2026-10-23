@@ -24,6 +24,7 @@ import {
   getPublishedAnnouncementCount,
   getPublishedAnnouncementsPaginated,
 } from "@/lib/announcements/queries";
+import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 export const revalidate = 86400;
 
@@ -35,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("announcements", {
     title: "pageTitle",
     description: "pageDescription",
-    path: "/announcements",
+    path: ANNOUNCEMENTS_PATH,
   });
 }
 

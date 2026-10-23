@@ -95,11 +95,29 @@ export function toQuestionResult(
     isTsumo: context.isTsumo,
     items,
     outcome: toAnswerOutcome(
-      userFuList === undefined
-        ? undefined
-        : items.every((item) => item.userFu === item.correctFu),
+      userFuList === undefined ? undefined : items.every(isItemCorrect),
     ),
   };
+}
+
+/**
+ * 回答行 1 つの正誤 — 選んだ符が正解の符と一致すれば正解
+ * 回答行正誤
+ *
+ * 時間切れで答えていない行（`userFu` 無し）は不正解。採点（{@link toQuestionResult}）と
+ * 結果一覧の行の色・「n / m 行正解」の数え上げが同じ判定を読む。
+ */
+export function isItemCorrect(
+  item: Pick<MentsuJantouFuItemResult, "correctFu" | "userFu">,
+): boolean {
+  return item.userFu === item.correctFu;
+}
+
+/** 符を当てた行の数（結果一覧の「n / m 行正解」の n） */
+export function countCorrectItems(
+  items: readonly Pick<MentsuJantouFuItemResult, "correctFu" | "userFu">[],
+): number {
+  return items.filter(isItemCorrect).length;
 }
 
 /** 回答行 1 つを保存形式に変換する */

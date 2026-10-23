@@ -7,6 +7,7 @@ import { getPublishedAnnouncementsPaginated } from "@/lib/announcements/queries"
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * ダッシュボードのお知らせセクション。最新のお知らせを数件だけ載せる。
@@ -36,7 +37,7 @@ export async function HomeAnnouncements() {
           />
           <div className="text-right">
             <Link
-              href="/announcements"
+              href={ANNOUNCEMENTS_PATH}
               className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-50 hover:text-foreground ${FOCUS_RING_CLASSES}`}
             >
               {t("viewAll")}

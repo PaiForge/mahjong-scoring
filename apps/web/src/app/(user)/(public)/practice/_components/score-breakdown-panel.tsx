@@ -3,8 +3,14 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
-import { buildScoreBreakdownTabs } from "@mahjong-scoring/features/results/score-breakdown-tabs";
-import { useScoreTableModal } from "@mahjong-scoring/features/score-table/use-score-table-modal";
+import {
+  buildScoreBreakdownTabs,
+  scoreBreakdownTabLabel,
+} from "@mahjong-scoring/features/results/score-breakdown-tabs";
+import {
+  scoreTableOpeners,
+  useScoreTableModal,
+} from "@mahjong-scoring/features/score-table/use-score-table-modal";
 import { TableIcon } from "@/app/(user)/_components/icons/table-icon";
 import { ScoreTableModal } from "@/app/(user)/(public)/reference/score-table/_components/score-table-modal";
 import { BreakdownPanel, type BreakdownPanelSection } from "./breakdown-panel";
@@ -44,10 +50,10 @@ export function ScoreBreakdownPanel({
   const t = useTranslations("challenge.scoreBreakdown");
   const tScoreTable = useTranslations("scoreTable");
   const scoreTable = useScoreTableModal();
-  const openScoreTable =
-    scoreTableFocus === undefined ? undefined : scoreTable.open;
-  const openHighlighted =
-    openScoreTable === undefined ? undefined : () => openScoreTable(true);
+  const { openScoreTable, openHighlighted } = scoreTableOpeners(
+    scoreTableFocus,
+    scoreTable.open,
+  );
   const fuHanOrder = useFuHanOrder();
 
   const { tabs, initial } = buildScoreBreakdownTabs(
@@ -61,7 +67,7 @@ export function ScoreBreakdownPanel({
     tab.kind === "fu"
       ? {
           kind: tab.kind,
-          tabLabel: t("fuTab", { value: tab.fu.answer }),
+          tabLabel: scoreBreakdownTabLabel(tab, t),
           content: (
             <FuBreakdownTable
               details={tab.fu.details}
@@ -73,7 +79,7 @@ export function ScoreBreakdownPanel({
         }
       : {
           kind: tab.kind,
-          tabLabel: t("hanTab", { count: tab.hanTotal }),
+          tabLabel: scoreBreakdownTabLabel(tab, t),
           content: (
             <YakuBreakdownTable
               yakuDetails={tab.yakuDetails}

@@ -3,8 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { Hai } from "@pai-forge/mahjong-react-ui";
-import { getKazeName, isOya } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
+import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
 import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
@@ -125,9 +126,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
         >
           <View style={styles.infoContent}>
             <Text style={styles.infoText}>
-              {getKazeName(context.bakaze)}
-              {t("round")} {getKazeName(context.jikaze)}
-              {t("wind")}
+              {kazeContextLabel(context.bakaze, context.jikaze, t)}
               <Text style={oya ? styles.oya : undefined}>
                 {"  "}
                 {oya ? t("dealer") : t("nonDealer")}

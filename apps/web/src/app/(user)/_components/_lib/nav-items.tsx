@@ -5,6 +5,14 @@ import { BookIcon } from "../icons/book-icon";
 import { TableIcon } from "../icons/table-icon";
 import { ChartIcon } from "../icons/chart-icon";
 import { SettingsIcon } from "../icons/settings-icon";
+import {
+  DOJO_PATH,
+  LEADERBOARD_PATH,
+  LESSONS_PATH,
+  PRACTICE_PATH,
+  PREFERENCES_PATH,
+  REFERENCE_PATH,
+} from "@mahjong-scoring/features/routes";
 
 /**
  * ナビゲーション項目の定義
@@ -25,9 +33,9 @@ export interface NavItemDef {
 export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
   // ログイン済みは proxy がダッシュボードへ rewrite するので「次にやること」へ戻れる
   { href: "/", labelKey: "home", icon: <HomeIcon /> },
-  { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
-  { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
-  { href: "/lessons", labelKey: "learn", icon: <BookIcon /> },
+  { href: DOJO_PATH, labelKey: "dojo", icon: <BeltIcon /> },
+  { href: PRACTICE_PATH, labelKey: "practice", icon: <DumbbellIcon /> },
+  { href: LESSONS_PATH, labelKey: "learn", icon: <BookIcon /> },
   // 対局中に片手で開くタブバーからは、早見表ハブを経由せず最も使う点数表へ直接飛ばす
   {
     href: "/reference/score-table",
@@ -42,12 +50,12 @@ export const TAB_BAR_NAV_ITEMS: readonly NavItemDef[] = [
  * ログイン不要の設定への導線もここに含める。
  */
 export const DRAWER_NAV_ITEMS: readonly NavItemDef[] = [
-  { href: "/practice", labelKey: "practice", icon: <DumbbellIcon /> },
-  { href: "/lessons", labelKey: "learn", icon: <BookIcon /> },
-  { href: "/dojo", labelKey: "dojo", icon: <BeltIcon /> },
-  { href: "/reference", labelKey: "reference", icon: <TableIcon /> },
-  { href: "/leaderboard", labelKey: "leaderboard", icon: <ChartIcon /> },
-  { href: "/preferences", labelKey: "settings", icon: <SettingsIcon /> },
+  { href: PRACTICE_PATH, labelKey: "practice", icon: <DumbbellIcon /> },
+  { href: LESSONS_PATH, labelKey: "learn", icon: <BookIcon /> },
+  { href: DOJO_PATH, labelKey: "dojo", icon: <BeltIcon /> },
+  { href: REFERENCE_PATH, labelKey: "reference", icon: <TableIcon /> },
+  { href: LEADERBOARD_PATH, labelKey: "leaderboard", icon: <ChartIcon /> },
+  { href: PREFERENCES_PATH, labelKey: "settings", icon: <SettingsIcon /> },
 ];
 
 /**

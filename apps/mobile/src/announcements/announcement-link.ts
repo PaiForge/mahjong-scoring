@@ -1,3 +1,11 @@
+import {
+  ANNOUNCEMENTS_PATH,
+  DOJO_PATH,
+  LESSONS_PATH,
+  PRACTICE_PATH,
+  REFERENCE_PATH,
+} from "@mahjong-scoring/features/routes";
+
 /**
  * アプリの中に同じ画面があるパスの先頭
  *
@@ -6,12 +14,12 @@
  * 無いもの（ランキング・料金・規約等）は web のページをブラウザで開く。
  */
 const APP_PATH_PREFIXES = [
-  "/announcements",
-  "/dojo",
+  ANNOUNCEMENTS_PATH,
+  DOJO_PATH,
   "/exam",
-  "/lessons",
-  "/practice",
-  "/reference",
+  LESSONS_PATH,
+  PRACTICE_PATH,
+  REFERENCE_PATH,
 ] as const;
 
 /** 本文のリンクの開き方 */

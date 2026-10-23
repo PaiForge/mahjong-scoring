@@ -34,7 +34,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PracticeLinkButton } from "@/app/(user)/_components/practice-link-button";
-import { practiceHref } from "@mahjong-scoring/features/routes";
+import { PRACTICE_PATH, practiceHref } from "@mahjong-scoring/features/routes";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
@@ -143,7 +143,7 @@ export function ChallengeDashboard({
         <p className="text-surface-500">{t("noData")}</p>
         {/* 記録が 1 件も無い人にとって、このページは行き止まりになる。
             記録を作れる唯一の場所である練習一覧へ送る */}
-        <LinkButton href="/practice" className="mt-6">
+        <LinkButton href={PRACTICE_PATH} className="mt-6">
           {t("goToPractice")}
         </LinkButton>
       </div>
@@ -285,7 +285,10 @@ export function ChallengeDashboard({
               記録が 1 件も無いときの空表示と同じ「練習一覧へ」を使う —
               行き先が同じものを別の名前で呼ばない */}
           <p className="text-center">
-            <Link href="/practice" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+            <Link
+              href={PRACTICE_PATH}
+              className={`text-sm ${TEXT_LINK_CLASSES}`}
+            >
               {t("goToPractice")}
             </Link>
           </p>
