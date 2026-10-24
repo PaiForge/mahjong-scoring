@@ -1,5 +1,9 @@
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import {
+  PREFERENCE_ANCHORS,
+  type PreferenceAnchor,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { useAuth } from "../auth/use-auth";
 import { Divider } from "../components/divider";
@@ -56,6 +60,7 @@ export function DisplaySettingsSection() {
         description={t("doraDisplayDescription")}
         checked={doraDisplay === "actual"}
         onChange={(checked) => setDoraDisplay(checked ? "actual" : "indicator")}
+        anchor={PREFERENCE_ANCHORS.doraDisplay}
       />
       {/* 保存値（termLinks）は「リンクを出す」で既定 true のまま、スイッチだけ
           反転して「リンクなしで表示する」として見せる。設定のスイッチは既定 OFF に
@@ -65,6 +70,7 @@ export function DisplaySettingsSection() {
         description={t("termLinksDescription")}
         checked={!termLinks}
         onChange={(checked) => setTermLinks(!checked)}
+        anchor={PREFERENCE_ANCHORS.termLinks}
       />
       {/* 翻→符が既定なので、スイッチは「符を先にする」の向きで出す */}
       <SettingToggleRow
@@ -74,6 +80,7 @@ export function DisplaySettingsSection() {
         onChange={(checked) =>
           setFuHanOrder(checked ? "fu-first" : "han-first")
         }
+        anchor={PREFERENCE_ANCHORS.fuHanOrder}
       />
       {/* 組の 1 つの select が既定なので、スイッチは「分けて選ぶ」の向きで出す */}
       <SettingToggleRow
@@ -81,6 +88,7 @@ export function DisplaySettingsSection() {
         description={t("koTsumoInputDescription")}
         checked={koTsumoInput === "split"}
         onChange={(checked) => setKoTsumoInput(checked ? "split" : "combined")}
+        anchor={PREFERENCE_ANCHORS.koTsumoInput}
       />
       {/* Pro は iOS だけで扱う（Android は行を出さず、盤面も常に正規の向き・理牌した順） */}
       {IAP_AVAILABLE && <PracticeToolsRows />}
@@ -145,6 +153,7 @@ function PracticeToolsRowsFor({
           setTileOrientation(checked ? "random" : "upright")
         }
         testID="preferences-tile-orientation"
+        anchor={PREFERENCE_ANCHORS.tileOrientation}
       />
       {/* SettingsCard はこの行群を1つの子として扱うため、内部の区切りはここに置く */}
       <Divider tone="row" />
@@ -155,6 +164,7 @@ function PracticeToolsRowsFor({
         checked={tileOrder === "unsorted"}
         onChange={(checked) => setTileOrder(checked ? "unsorted" : "sorted")}
         testID="preferences-tile-order"
+        anchor={PREFERENCE_ANCHORS.tileOrder}
       />
     </>
   );
@@ -168,6 +178,7 @@ interface PracticeToolsToggleRowProps {
   readonly onChange: (checked: boolean) => void;
   /** スイッチの行の testID。鍵の行は末尾に `-locked` を付ける */
   readonly testID: string;
+  readonly anchor: PreferenceAnchor;
 }
 
 /**
@@ -182,6 +193,7 @@ function PracticeToolsToggleRow({
   checked,
   onChange,
   testID,
+  anchor,
 }: PracticeToolsToggleRowProps) {
   const t = useTranslations("settings");
   const router = useRouter();
@@ -195,6 +207,7 @@ function PracticeToolsToggleRow({
           router.push(access === "signedOut" ? "/sign-in" : MYPAGE_PLAN_PATH)
         }
         testID={`${testID}-locked`}
+        anchor={anchor}
       />
     );
   return (
@@ -205,6 +218,7 @@ function PracticeToolsToggleRow({
       onChange={onChange}
       disabled={access === "pending"}
       testID={testID}
+      anchor={anchor}
     />
   );
 }

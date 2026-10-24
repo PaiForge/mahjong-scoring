@@ -11,6 +11,8 @@
  * 利用規約・プライバシーポリシー等の web のページへの入口はここに置かず、
  * マイページの「その他」に置く（`SiteLinksSection`）。アカウント（ログアウト・
  * 退会）も web と同じくマイページのアカウントの画面にあり、ここには置かない。
+ * レッスン・盤面のドラの注記・点数表・用語のシート・ランキングから
+ * `?item=` で項目を指して開かれたら、その行まで送る（`PreferenceAnchorProvider`）。
  * @flow ホームのヘッダーの人型のアイコン → マイページ → 設定 →（役の並び順）
  */
 import { View, StyleSheet } from "react-native";
@@ -20,6 +22,7 @@ import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { DisplaySettingsSection } from "../../preferences/display-settings-section";
 import { MembersOnlyGate } from "../../preferences/members-only-gate";
+import { PreferenceAnchorProvider } from "../../preferences/preference-anchor";
 import { PrivacySettingsSection } from "../../preferences/privacy-settings-section";
 import { RuleSettingsSection } from "../../preferences/rule-settings-section";
 import { TrainingSettingsSection } from "../../preferences/training-settings-section";
@@ -30,19 +33,21 @@ export default function PreferencesScreen() {
   return (
     <Screen title={t("pageTitle")} back contentStyle={styles.content}>
       <MembersOnlyGate>
-        <PrivacySettingsSection style={styles.section} />
-        <View style={styles.section}>
-          <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
-          <RuleSettingsSection />
-        </View>
-        <View style={styles.section}>
-          <SectionTitle>{t("trainingSectionTitle")}</SectionTitle>
-          <TrainingSettingsSection />
-        </View>
-        <View style={styles.section}>
-          <SectionTitle>{t("displaySectionTitle")}</SectionTitle>
-          <DisplaySettingsSection />
-        </View>
+        <PreferenceAnchorProvider style={styles.content}>
+          <PrivacySettingsSection style={styles.section} />
+          <View style={styles.section}>
+            <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
+            <RuleSettingsSection />
+          </View>
+          <View style={styles.section}>
+            <SectionTitle>{t("trainingSectionTitle")}</SectionTitle>
+            <TrainingSettingsSection />
+          </View>
+          <View style={styles.section}>
+            <SectionTitle>{t("displaySectionTitle")}</SectionTitle>
+            <DisplaySettingsSection />
+          </View>
+        </PreferenceAnchorProvider>
       </MembersOnlyGate>
     </Screen>
   );

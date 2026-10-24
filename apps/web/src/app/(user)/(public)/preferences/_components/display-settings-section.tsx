@@ -22,7 +22,7 @@ import {
   useKoTsumoInput,
   useTermLinksEnabled,
 } from "@/app/_hooks/use-display-settings-store";
-import { PREFERENCE_ANCHORS } from "../_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 import { YAKU_ORDER_PATH } from "@mahjong-scoring/features/routes";
 
 /**

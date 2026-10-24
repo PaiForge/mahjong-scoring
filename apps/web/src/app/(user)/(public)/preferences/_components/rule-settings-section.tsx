@@ -8,7 +8,10 @@ import {
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import type { RuleSettings } from "@mahjong-scoring/core";
 import { RULE_SETTING_TOGGLES } from "@mahjong-scoring/features/settings/rule-setting-toggles";
-import { PREFERENCE_ANCHORS, type PreferenceAnchor } from "../_lib/anchors";
+import {
+  PREFERENCE_ANCHORS,
+  type PreferenceAnchor,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * 設定項目へのアンカー（教本などから `/preferences#renfonpai` で直接飛んで来られる）

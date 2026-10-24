@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import type { PreferenceAnchor } from "@/app/(user)/(public)/preferences/_lib/anchors";
-import { preferencesHref } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import type { PreferenceAnchor } from "@mahjong-scoring/features/settings/preference-anchors";
+import { preferencesHref } from "@mahjong-scoring/features/settings/preference-anchors";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
 import type { GuideTranslator } from "../_lib/guide-translator";

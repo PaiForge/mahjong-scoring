@@ -25,7 +25,10 @@ import {
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
 } from "@mahjong-scoring/features/board/hand-layout";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesItemHref,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -174,7 +177,7 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           <TextLink
             onPress={() => {
               setShowDoraInfo(false);
-              router.push(PREFERENCES_PATH);
+              router.push(preferencesItemHref(PREFERENCE_ANCHORS.doraDisplay));
             }}
           >
             {t("doraInfoSettingsLink")}

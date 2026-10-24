@@ -186,6 +186,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     ポリシーが Safari で開く。設定を直接開くと会員限定ゲートが出る
   - `preferences-signed-in` — `bob@` のマイページの「設定」の行から設定を開き、項目が使える。
     マイページには設定の行の下に「その他」が並ぶ
+  - `preferences-anchor` — `bob@` が `/preferences?item=ko-tsumo-input` で設定を開くと、下の方の
+    子のツモの入力の行まで送られ、淡緑の地で示される（レッスン等の設定へのリンクの行き先）
   - `preferences-pro-rows` — 設定の Pro の 2 行（上下ランダム・理牌しない）。`bob@` はどちらも
     スイッチで理牌しないを押す、`alice@` はどちらも鍵の行で、押すとプラン画面へ。iOS だけ
   - `mypage-account` — `bob@` のマイページの「アカウント」の行からアカウントを開き、ユーザー名・

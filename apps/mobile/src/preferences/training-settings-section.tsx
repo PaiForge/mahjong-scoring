@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import {
   SettingsCard,
@@ -30,6 +31,7 @@ export function TrainingSettingsSection() {
         description={t("autoAdvanceOnCorrectDescription")}
         checked={autoAdvanceOnCorrect}
         onChange={setAutoAdvanceOnCorrect}
+        anchor={PREFERENCE_ANCHORS.autoAdvanceOnCorrect}
       />
     </SettingsCard>
   );

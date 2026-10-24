@@ -13,7 +13,7 @@ import {
   getLeaderboardVisibility,
   setLeaderboardVisibility,
 } from "../_actions/leaderboard-visibility";
-import { PREFERENCE_ANCHORS } from "../_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * プライバシー設定セクション

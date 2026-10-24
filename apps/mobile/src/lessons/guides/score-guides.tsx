@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 import {
   CHIITOITSU_SCORE_TABLE,
   PINFU_SCORE_TABLE,
@@ -62,7 +63,10 @@ export function PinfuScoreGuide() {
 
       {/* コラム: 切り上げ満貫 — 表の4翻の行だけがルールで変わる */}
       <ChapterColumn namespace={namespace}>
-        <PreferenceSettingsNote namespace={namespace} />
+        <PreferenceSettingsNote
+          namespace={namespace}
+          anchor={PREFERENCE_ANCHORS.kiriageMangan}
+        />
       </ChapterColumn>
 
       <GuideSection title={t("whyTitle")}>

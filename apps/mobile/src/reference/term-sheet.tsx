@@ -9,7 +9,10 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { glossaryTermPreview } from "@mahjong-scoring/features/glossary/views";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesItemHref,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { InfoModal } from "../components/info-modal";
 import { TextLink } from "../components/text-link";
@@ -83,7 +86,11 @@ export function TermSheetProvider({
         closeLabel={t("closeLabel")}
         footnote={
           // 主役は語の意味なので、「用語ページを見る」と同じ強さで並べない
-          <TextLink onPress={() => go(PREFERENCES_PATH)}>
+          <TextLink
+            onPress={() =>
+              go(preferencesItemHref(PREFERENCE_ANCHORS.termLinks))
+            }
+          >
             {t("turnOffTermLinks")}
           </TextLink>
         }

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useTranslations } from "use-intl";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { FormMessage } from "../auth/form-message";
 import { useAuth } from "../auth/use-auth";
@@ -121,6 +122,7 @@ function LeaderboardVisibilityRow({ userId }: { readonly userId: string }) {
           checked={state.hidden}
           onChange={handleChange}
           disabled={!canToggleLeaderboardVisibility(state)}
+          anchor={PREFERENCE_ANCHORS.leaderboardVisibility}
         />
       </SettingsCard>
       {state.saveFailed && (

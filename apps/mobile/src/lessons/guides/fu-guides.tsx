@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 import {
   JANTOU_FU_SUMMARY_ROWS,
   MACHI_FU_SUMMARY_ROWS,
@@ -90,7 +91,10 @@ export function JantouFuGuide() {
 
       {/* コラム: 連風牌 */}
       <ChapterColumn namespace={namespace}>
-        <PreferenceSettingsNote namespace={namespace} />
+        <PreferenceSettingsNote
+          namespace={namespace}
+          anchor={PREFERENCE_ANCHORS.renfonpai}
+        />
       </ChapterColumn>
 
       <FuSummaryTable

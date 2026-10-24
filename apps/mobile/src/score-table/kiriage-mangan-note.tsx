@@ -4,7 +4,10 @@ import { useTranslations } from "use-intl";
 
 import { TextLink } from "../components/text-link";
 import { borderWidth, colors, radius } from "../lib/theme";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesItemHref,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * 切り上げ満貫適用中の但し書き（web の `KiriageManganNote`）
@@ -21,7 +24,11 @@ export function KiriageManganNote() {
   return (
     <View style={styles.panel}>
       <Text style={styles.text}>{t("kiriageManganActive")}</Text>
-      <TextLink onPress={() => router.push(PREFERENCES_PATH)}>
+      <TextLink
+        onPress={() =>
+          router.push(preferencesItemHref(PREFERENCE_ANCHORS.kiriageMangan))
+        }
+      >
         {t("kiriageManganActiveLink")}
       </TextLink>
     </View>
