@@ -7,7 +7,8 @@
  * `token_hash` で検証する）ので、確認が済んだらアプリに戻ってログインしてもらう。メールを開いた
  * ブラウザでも web にログインした状態になるが、同じアカウントなので
  * どちらでユーザー名を決めてもよい。
- * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート → 登録 → 確認メールの案内 →（メールのリンク）→ ログイン
+ * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート → 登録 → 確認メールの案内
+ * （`/sign-up/verify-email`）→（メールのリンク）→ ログイン
  * （Apple: 記録の案内 → 登録 → Apple のシート → ユーザー名の設定）
  *
  * 利用規約への同意は、登録の手段（Apple・メール）より上に置いた一文で取る
@@ -22,21 +23,18 @@ import {
   MIN_PASSWORD_LENGTH,
   validatePasswordPair,
 } from "@mahjong-scoring/features/account/password";
-import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
-import { AppleSignInSection } from "../auth/apple-sign-in-section";
-import { FormMessage } from "../auth/form-message";
-import { supabase } from "../auth/supabase-client";
-import { refreshAccount } from "../auth/use-auth";
-import { Button } from "../components/button";
-import { Screen } from "../components/screen";
-import { SectionTitle } from "../components/section-title";
-import { TextField } from "../components/text-field";
-import { TextLink } from "../components/text-link";
-import { SITE_URL } from "../lib/app-site-url";
-import { InlineTextLink } from "../lessons/components/chapter-link";
-import { panelFrame } from "../lib/panel-styles";
-import { colors } from "../lib/theme";
+import { AppleSignInSection } from "../../auth/apple-sign-in-section";
+import { FormMessage } from "../../auth/form-message";
+import { supabase } from "../../auth/supabase-client";
+import { refreshAccount } from "../../auth/use-auth";
+import { Button } from "../../components/button";
+import { Screen } from "../../components/screen";
+import { TextField } from "../../components/text-field";
+import { TextLink } from "../../components/text-link";
+import { SITE_URL } from "../../lib/app-site-url";
+import { InlineTextLink } from "../../lessons/components/chapter-link";
+import { colors } from "../../lib/theme";
 
 /** 登録の失敗を辞書の文言に写すための分類 */
 type SignUpFailure = "weak" | "rateLimited" | "networkError" | "failed";
@@ -61,7 +59,6 @@ export default function SignUpScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [sentTo, setSentTo] = useState<string | undefined>(undefined);
 
   const failureMessage = (failure: SignUpFailure): string => {
     switch (failure) {
@@ -107,12 +104,13 @@ export default function SignUpScreen() {
       router.replace("/mypage/setup-username");
       return;
     }
-    setSentTo(trimmedEmail);
+    // 確認待ちの画面は登録のフォームの上に積む。打ち間違いを直すときは
+    // 入力した値の残るこの画面へ戻る（`verify-email.tsx`）
+    router.push({
+      pathname: "/sign-up/verify-email",
+      params: { email: trimmedEmail },
+    });
   };
-
-  if (sentTo !== undefined) {
-    return <SentScreen email={sentTo} onRestart={() => setSentTo(undefined)} />;
-  }
 
   return (
     <Screen title={t("pageTitle")} back contentStyle={styles.content}>
@@ -184,94 +182,6 @@ export default function SignUpScreen() {
   );
 }
 
-/**
- * 確認メールを送った後の案内。確認が済んだらログインへ戻ってもらう
- *
- * 届かないときの案内と再送は web の確認待ちの画面（`/sign-up/verify-email`）と同じ:
- * 打ち間違いなら登録からやり直す一文と、再送の後のクールダウン（`useResendCooldown`）。
- * やり直しは同じ画面の登録のフォームへ戻す（入力した値は残し、誤りだけ直せる）。
- */
-function SentScreen({
-  email,
-  onRestart,
-}: {
-  readonly email: string;
-  /** 登録のフォームへ戻る（メールアドレスの打ち間違いを直す） */
-  readonly onRestart: () => void;
-}) {
-  const t = useTranslations("verifyEmail");
-  const router = useRouter();
-  const [resending, setResending] = useState(false);
-  const { cooldown, start: startCooldown } = useResendCooldown();
-  const [resendResult, setResendResult] = useState<
-    { readonly tone: "error" | "success"; readonly text: string } | undefined
-  >(undefined);
-
-  const resend = async () => {
-    if (!supabase || resending || cooldown > 0) return;
-    setResending(true);
-    const { error } = await supabase.auth.resend({ type: "signup", email });
-    setResending(false);
-    if (!error) startCooldown();
-    setResendResult(
-      error
-        ? {
-            tone: "error",
-            text: error.status === 429 ? t("rateLimited") : t("resendError"),
-          }
-        : { tone: "success", text: t("resendSuccess") },
-    );
-  };
-
-  return (
-    <Screen title={t("pageTitle")} back contentStyle={styles.content}>
-      <SectionTitle>{t("sectionTitle")}</SectionTitle>
-      <View style={styles.sent}>
-        <Text style={styles.body}>{t("sentTo")}</Text>
-        <Text style={styles.email}>{email}</Text>
-        <Text style={styles.body}>
-          {t("checkInbox", { subject: t("mailSubject") })}
-        </Text>
-        <Text style={styles.body}>{t("returnToApp")}</Text>
-      </View>
-      <Button onPress={() => router.replace("/sign-in")} fullWidth size="lg">
-        {t("goToSignIn")}
-      </Button>
-      <View style={[panelFrame, styles.trouble]}>
-        <Text style={styles.troubleTitle}>{t("troubleTitle")}</Text>
-        <Text style={styles.body}>{t("troubleDelay")}</Text>
-        <Text style={styles.body}>{t("troubleSpam")}</Text>
-        <Text style={styles.body} testID="sign-up-sent-typo">
-          {t.rich("troubleTypo", {
-            signUp: (chunks) => (
-              <InlineTextLink onPress={onRestart}>{chunks}</InlineTextLink>
-            ),
-          })}
-        </Text>
-        <Text style={styles.body}>{t("troubleResend")}</Text>
-        <Button
-          onPress={() => void resend()}
-          variant="neutral"
-          disabled={resending || cooldown > 0}
-          fullWidth
-          testID="sign-up-resend"
-        >
-          {resending
-            ? t("resendLoading")
-            : cooldown > 0
-              ? t("resendCooldown", { seconds: cooldown })
-              : t("resendButton")}
-        </Button>
-        {resendResult !== undefined && (
-          <FormMessage tone={resendResult.tone}>
-            {resendResult.text}
-          </FormMessage>
-        )}
-      </View>
-    </Screen>
-  );
-}
-
 const styles = StyleSheet.create({
   content: {
     gap: 24,
@@ -298,27 +208,5 @@ const styles = StyleSheet.create({
   lead: {
     fontSize: 15,
     color: colors.surface600,
-  },
-  sent: {
-    gap: 8,
-  },
-  body: {
-    fontSize: 15,
-    lineHeight: 23,
-    color: colors.surface700,
-  },
-  email: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
-  trouble: {
-    padding: 16,
-    gap: 8,
-  },
-  troubleTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.surface800,
   },
 });
