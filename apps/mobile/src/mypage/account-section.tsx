@@ -18,6 +18,7 @@ import { TextLink } from "../components/text-link";
 import { showToast } from "../components/toast";
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
+import { BanNotice } from "./ban-notice";
 
 /**
  * 退会を受け付けた知らせ。工程が残っている（pending）ときは完了と言わない
@@ -68,7 +69,10 @@ export function SignedInAccount() {
   return (
     <>
       {accountError === "banned" && (
-        <Text style={styles.failedText}>{t("banned")}</Text>
+        <>
+          <BanNotice />
+          <Text style={styles.failedText}>{t("banned")}</Text>
+        </>
       )}
       {accountError !== undefined && accountError !== "banned" && (
         <View style={styles.failed}>

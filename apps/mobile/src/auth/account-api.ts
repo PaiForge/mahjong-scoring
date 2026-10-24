@@ -1,10 +1,13 @@
 import {
+  MOBILE_BAN_API_PATH,
   MOBILE_DELETE_ACCOUNT_API_PATH,
   MOBILE_ME_API_PATH,
   MOBILE_USERNAME_API_PATH,
   isMobileDeleteAccountErrorCode,
   isMobileUsernameErrorCode,
+  parseMobileBanResponse,
   parseMobileMeResponse,
+  type MobileBanResponse,
   type MobileDeleteAccountErrorCode,
   type MobileDeleteAccountRequest,
   type MobileDeleteAccountResponse,
@@ -39,6 +42,24 @@ export async function fetchAccount(): Promise<
   if (!response.ok) return { error: await apiFailureOf(response) };
   const account = parseMobileMeResponse(await readJson(response));
   return account ?? { error: "unknown" };
+}
+
+/**
+ * BAN の知らせ（理由）を読む
+ * BAN 通知取得
+ *
+ * アカウント状態が `banned` だったときに読む。BAN 中も通る API で、
+ * 解けていれば `banned: false` が返る。
+ */
+export async function fetchBanNotice(): Promise<
+  MobileBanResponse | { readonly error: ApiFailure }
+> {
+  const response = await callMobileApi(MOBILE_BAN_API_PATH);
+  if (typeof response === "string") return { error: response };
+  if (!response.ok) return { error: await apiFailureOf(response) };
+  return (
+    parseMobileBanResponse(await readJson(response)) ?? { error: "unknown" }
+  );
 }
 
 /**

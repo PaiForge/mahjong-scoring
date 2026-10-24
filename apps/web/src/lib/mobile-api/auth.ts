@@ -134,12 +134,17 @@ function isAuthServiceFailure(error: unknown): boolean {
  * 呼ぶので、要否は各 API が `profile` を見て決める。
  *
  * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も通す
+ * @param options.forBanNotice - BAN の知らせを読む。BAN 中も通す（退会処理中は弾く）
  */
 async function authenticateMobileRequest(
   request: Request,
   {
     forAccountDeletion = false,
-  }: { readonly forAccountDeletion?: boolean } = {},
+    forBanNotice = false,
+  }: {
+    readonly forAccountDeletion?: boolean;
+    readonly forBanNotice?: boolean;
+  } = {},
 ): Promise<MobileAuthContext | { error: MobileAuthErrorCode }> {
   const token = readBearerToken(request);
   if (!token) return { error: "unauthorized" };
@@ -155,7 +160,7 @@ async function authenticateMobileRequest(
   ]);
   if (!forAccountDeletion) {
     if (standing === "deleting") return { error: "deleted" };
-    if (standing === "banned") return { error: "banned" };
+    if (standing === "banned" && !forBanNotice) return { error: "banned" };
   }
 
   return {
@@ -218,6 +223,7 @@ type AuthorizeMobileResult =
  * @param options.config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
  * @param options.forAccountDeletion - 退会の受付として使う（退会の API だけ）。
  *   BAN 中・退会処理中も通す（本人による退会は BAN の対象にしない。受付は冪等）
+ * @param options.forBanNotice - BAN の知らせ（理由）を読む API だけ。BAN 中も通す
  */
 export async function authorizeMobileRequest(
   request: Request,
@@ -225,6 +231,7 @@ export async function authorizeMobileRequest(
   options: {
     readonly config?: Readonly<IpRateLimitConfig>;
     readonly forAccountDeletion?: boolean;
+    readonly forBanNotice?: boolean;
   } = {},
 ): Promise<AuthorizeMobileResult> {
   const config = options.config ?? IP_RATE_LIMITS[rateLimitKey];

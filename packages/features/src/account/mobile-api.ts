@@ -57,6 +57,40 @@ export function parseMobileMeResponse(
 }
 
 /**
+ * BAN の知らせを返す API のパス
+ * BAN 通知APIパス
+ */
+export const MOBILE_BAN_API_PATH = `${MOBILE_API_PREFIX}/me/ban`;
+
+/**
+ * BAN の知らせ
+ * BAN 通知応答
+ *
+ * アカウント状態の API が `banned`（403）を返したとき、アプリはこれを読んで
+ * web の BAN のページ（`/banned`）と同じ知らせを出す。`reason` は運営が
+ * BAN のときに書いた理由（無ければ null）。BAN が解けていれば `banned: false`。
+ */
+export type MobileBanResponse =
+  | { readonly banned: false }
+  | { readonly banned: true; readonly reason: string | null };
+
+const mobileBanResponseSchema = z.union([
+  z.object({ banned: z.literal(false) }),
+  z.object({ banned: z.literal(true), reason: z.string().nullable() }),
+]);
+
+/**
+ * BAN の知らせの応答を検証する。形が違えば undefined
+ * BAN 通知応答検証
+ */
+export function parseMobileBanResponse(
+  body: unknown,
+): MobileBanResponse | undefined {
+  const parsed = mobileBanResponseSchema.safeParse(body);
+  return parsed.success ? parsed.data : undefined;
+}
+
+/**
  * アプリ向け API が返すエラーの理由（認証と回数制限）
  *
  * - `unauthorized` — トークンが無い・無効・失効（401）。ログアウト状態へ戻す
