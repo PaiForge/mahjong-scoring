@@ -6,7 +6,7 @@
   "build": {
     "production": {
       "environment": "production",
-      "node": "24.12.0",
+      "node": "24.22.1",
       "autoIncrement": true,
       "ios": {
         "resourceClass": "m-medium"
