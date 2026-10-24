@@ -10,6 +10,11 @@ Supabase Auth で、記録の読み書きは web のアプリ向け API（`/api/
 - web の開発環境が動いていること（[apps/web/README.md](../web/README.md) のクイックスタート）。
   アプリは開発中、Metro を動かしている Mac の Supabase（`:54321`）と web（`:3000`）に繋ぐ
 - 実機で開くなら、iPhone と Mac が同じ Wi-Fi にいること
+- ローカルの Supabase のポート（`:54321` / `:54322`）を他のプロジェクトの Supabase が使って
+  いないこと。同じポートを使うプロジェクトが動いていると、接続先は localhost のままその DB に
+  繋がり、マイグレーションやシードが別のプロジェクトの DB に向かう。`docker ps --format '{{.Names}}' |
+grep supabase_db` が `supabase_db_mahjong-scoring-web` であることを確かめ、違えば
+  `pnpm supabase stop --project-id <そのプロジェクト>` で止めてから `pnpm supabase start`（`apps/web` で）
 
 ### 起動
 
@@ -39,6 +44,58 @@ pnpm --filter @mahjong-scoring/mobile start
 expo-router が `apps/mobile/app` を探し、アプリのコードが 1 行も入っていないバンドルが 200 で返る。
 正しい URL は `curl -H "expo-platform: ios" -H "accept: application/expo+json" localhost:8099/` で
 得られるマニフェストの `launchAsset.url` から引ける。
+
+### iOS シミュレーターと Maestro を入れる
+
+アプリの見た目と動きは iOS シミュレーターの Release ビルド（`pnpm --filter @mahjong-scoring/mobile sim:release`）
+で確かめ、操作と撮影は Maestro（`.maestro/` のフロー）で流す（[CLAUDE.md](./CLAUDE.md)「確かめ方」）。
+どちらも Mac に一度入れれば済むが、Xcode を入れただけでは使えない。
+
+なぜ要るか:
+
+- **ブラウザ版では見つからない不具合がある。** react-native-web は画面の構成を見るためのもので、
+  ネイティブでだけ壊れるもの（`crypto.randomUUID` の不在・`measureLayout` の引数・`Modal` の表示の失敗）を
+  通してしまう。シミュレーターなら実機と同じ JS エンジン（Hermes）とネイティブの部品で動く
+- **TestFlight のビルドは月に限りがある。** EAS の無料プランは iOS のビルドが月 15 回まで（毎月 1 日
+  （UTC）に戻る。残りは `npx eas-cli account:usage`）。手元で確かめてから出せば、直しのためのビルドを
+  使わずに済む
+- **Maestro は確かめ方を残せる。** ログインして記録まで走らせる手順を YAML で流し、各画面を撮る。
+  手で同じ操作をやり直さずに済み、Claude Code もこれで画面を撮って確かめる
+
+手順（Xcode は App Store から入れておく。`sudo` の付くものは管理者のパスワードを聞かれる）:
+
+```bash
+# 1. コマンドラインのツールを Xcode に向ける（Command Line Tools だけを向いていると simctl が無い）
+sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+# 2. ライセンスに同意し、初回の部品を入れる
+sudo xcodebuild -license accept
+xcodebuild -runFirstLaunch
+# 3. iOS のシミュレーターの実行環境を入れる（数 GB。時間がかかる）
+xcodebuild -downloadPlatform iOS
+# 4. ネイティブのビルドに使う CocoaPods
+brew install cocoapods
+# 5. Maestro は Java 17 以上で動く
+brew install openjdk@17
+sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+# 6. Maestro
+brew tap mobile-dev-inc/tap
+brew trust --formula mobile-dev-inc/tap/maestro
+brew install mobile-dev-inc/tap/maestro
+```
+
+入ったかの確かめ方:
+
+```bash
+xcrun simctl list runtimes   # iOS の行がある
+java -version                # 17 以上
+maestro --version
+```
+
+`/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app` が無いときは Xcode の
+インストールが途中で止まっている。Xcode を入れ直す。
+
+EAS の枠を使い切った月に TestFlight へ出すなら、手元でビルドする（`npx eas-cli build --platform ios
+--profile production --local`）。上の手順に加えて fastlane（`brew install fastlane`）が要る。
 
 アプリ向け API（`/api/mobile/v1`）を curl で叩くときは、画面の確認を先に済ませる。退会のように
 回数制限の厳しい API（`rate-limit-ip.ts`）を同じ IP から何度か叩くと 429 になり、その後 5 分は
