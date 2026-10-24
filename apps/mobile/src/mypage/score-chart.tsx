@@ -6,7 +6,9 @@ import type { ChartDataPoint } from "@mahjong-scoring/features/my-record/types";
 import { colors } from "../lib/theme";
 
 const CHART_HEIGHT = 200;
-const PADDING = { top: 10, right: 12, bottom: 24, left: 32 } as const;
+// 左は目盛りの数字（〜32）に縦書きの軸名（web の `yAxisLabel`）の幅を足す
+const PADDING = { top: 10, right: 12, bottom: 24, left: 44 } as const;
+const AXIS_LABEL_X = 10;
 const Y_TICKS = 4;
 
 /** 目盛りの上端（最大値以上で、4 等分が整数になる値） */
@@ -24,6 +26,7 @@ function niceMax(max: number): number {
  * recharts の代わりに react-native-svg で描く — 必要なのは 2 本の折れ線と
  * 目盛りだけで、チャートのライブラリを足すほどではない。
  *
+ * 縦軸の左に軸名（「スコア」）を 90 度倒して添える（web と同じ）。
  * web のツールチップ（点に重ねると値が出る）の代わりに、値は直近の履歴の
  * 表で読む。前の期間の凡例を押すとその期間へ移る（web と同じ。移れる期間が
  * 無ければ押せない）。
@@ -31,12 +34,15 @@ function niceMax(max: number): number {
 export function ScoreChart({
   data,
   emptyMessage,
+  yAxisLabel,
   currentLabel,
   previousLabel,
   onPreviousLabelPress,
 }: {
   readonly data: readonly ChartDataPoint[];
   readonly emptyMessage: string;
+  /** 縦軸の名前（web の `yAxisLabel`） */
+  readonly yAxisLabel: string;
   readonly currentLabel: string;
   readonly previousLabel: string;
   readonly onPreviousLabelPress?: () => void;
@@ -127,6 +133,17 @@ export function ScoreChart({
                 </SvgText>
               );
             })}
+            <SvgText
+              x={AXIS_LABEL_X}
+              y={PADDING.top + plotHeight / 2}
+              fontSize={11}
+              fill={colors.surface500}
+              textAnchor="middle"
+              rotation={-90}
+              origin={`${AXIS_LABEL_X}, ${PADDING.top + plotHeight / 2}`}
+            >
+              {yAxisLabel}
+            </SvgText>
             {labelIndexes.map((index) => (
               <SvgText
                 key={`x-${data[index]?.dateKey}`}

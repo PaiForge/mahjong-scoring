@@ -26,7 +26,7 @@ import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
-import { isKnownAuthProvider } from "@/lib/auth-provider";
+import { isKnownAuthProvider } from "@mahjong-scoring/features/account/auth-provider";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypageAccount");

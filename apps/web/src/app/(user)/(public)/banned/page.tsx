@@ -1,12 +1,10 @@
-import { desc, eq, and } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { getAuthenticatedUser } from "../../../../lib/auth";
-import { isUserBanned } from "../../../../lib/ban";
-import { db, moderationActions } from "../../../../lib/db";
+import { getLatestBanReason, isUserBanned } from "../../../../lib/ban";
 
 /**
  * BAN ページ
@@ -26,20 +24,7 @@ export default async function BannedPage() {
     redirect("/");
   }
 
-  // 最新の BAN 理由を取得
-  const [latestBan] = await db
-    .select({ reason: moderationActions.reason })
-    .from(moderationActions)
-    .where(
-      and(
-        eq(moderationActions.targetId, user.id),
-        eq(moderationActions.action, "ban"),
-      ),
-    )
-    .orderBy(desc(moderationActions.createdAt))
-    .limit(1);
-
-  const reason = latestBan?.reason;
+  const reason = await getLatestBanReason(user.id);
 
   return (
     <ContentContainer>

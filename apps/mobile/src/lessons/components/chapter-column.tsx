@@ -5,7 +5,10 @@ import { useTranslations } from "use-intl";
 import { GuideColumn } from "./highlight-panel";
 import { InlineTextLink, richLineBreak } from "./chapter-link";
 import { GuideNote, GuideParagraph } from "./guide-text";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import {
+  preferencesItemHref,
+  type PreferenceAnchor,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * 章末のコラム（web の `ChapterColumn`）
@@ -40,15 +43,17 @@ export function ChapterColumn({
  * 設定誘導注記
  *
  * 章の辞書が `columnSettingsNote`（`<settingsLink>` を含む）を持つ前提。
- * web は設定ページの該当項目へアンカーで着地させるが、モバイルの設定画面は
- * 項目へのアンカーを持たないので、設定画面を開くだけにする。
+ * 設定画面の該当項目まで送る（web のアンカーと同じ項目）。
  *
  * @param namespace 章の辞書の名前空間
+ * @param anchor 注記が指す設定の項目
  */
 export function PreferenceSettingsNote({
   namespace,
+  anchor,
 }: {
   readonly namespace: string;
+  readonly anchor: PreferenceAnchor;
 }) {
   const t = useTranslations(namespace);
   const router = useRouter();
@@ -56,7 +61,9 @@ export function PreferenceSettingsNote({
     <GuideNote>
       {t.rich("columnSettingsNote", {
         settingsLink: (chunks) => (
-          <InlineTextLink onPress={() => router.navigate(PREFERENCES_PATH)}>
+          <InlineTextLink
+            onPress={() => router.navigate(preferencesItemHref(anchor))}
+          >
             {chunks}
           </InlineTextLink>
         ),

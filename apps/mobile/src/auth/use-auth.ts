@@ -16,8 +16,17 @@ export type AuthStatus = "unavailable" | "loading" | "signedOut" | "signedIn";
 
 interface AuthState {
   readonly status: AuthStatus;
-  /** ログイン中のユーザー。ゲストなら undefined */
-  readonly user: { readonly id: string; readonly email?: string } | undefined;
+  /**
+   * ログイン中のユーザー。ゲストなら undefined。`provider` は Supabase の
+   * `app_metadata.provider`（登録に使ったログイン方法。アカウントの画面に出す）
+   */
+  readonly user:
+    | {
+        readonly id: string;
+        readonly email?: string;
+        readonly provider?: string;
+      }
+    | undefined;
   /**
    * サーバーから読んだアカウント状態。読み終えるまで・読めなかったときは
    * undefined（`accountError` で区別する）
@@ -86,7 +95,11 @@ supabase?.auth.onAuthStateChange((event, session) => {
   const changed = useAuthStore.getState().user?.id !== user.id;
   useAuthStore.setState({
     status: "signedIn",
-    user: { id: user.id, email: user.email },
+    user: {
+      id: user.id,
+      email: user.email,
+      provider: user.app_metadata.provider,
+    },
     ...(changed ? { account: undefined, accountError: undefined } : {}),
   });
   // トークンの更新だけなら読み直さない。コールバックの中で Supabase の

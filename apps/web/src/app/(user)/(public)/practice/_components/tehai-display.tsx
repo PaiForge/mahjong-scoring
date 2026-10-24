@@ -22,7 +22,7 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
+} from "@mahjong-scoring/features/settings/preference-anchors";
 import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
 import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";

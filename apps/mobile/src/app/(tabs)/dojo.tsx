@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
 import {
@@ -7,6 +8,7 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
+import { useAuth } from "../../auth/use-auth";
 import { Screen } from "../../components/screen";
 import { DojoHelp } from "../../dojo/dojo-help";
 import { SectionTitle } from "../../components/section-title";
@@ -14,6 +16,7 @@ import { TextLink } from "../../components/text-link";
 import { RankJourneyCard } from "../../dojo/rank-journey-card";
 import { RankProgressBar } from "../../dojo/rank-progress-bar";
 import { useMobileJourney } from "../../dojo/use-mobile-journey";
+import { linkStyles } from "../../lib/link-styles";
 import { panelFrame } from "../../lib/panel-styles";
 import { colors } from "../../lib/theme";
 import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
@@ -35,13 +38,14 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * 数えたときは、道の見出しの下に「この端末の履歴を含みます」と添える
  * （サーバーの記録だけでは済みにならない練習があると分かるように）。見出しの
  * 「?」から道場の見方を開ける（web のツアーの代わりに 1 枚ずつ送るシート）。
- * 未ログインに添えるログインの案内は持たない。
+ * 未ログインにはバーの下に段級位の記録にはアカウントが要ることとログインへの
+ * 導線を添える（web と同じ）。
  *
  * 初段（黒帯）を取った人には、バーの下に実戦練習への案内を出す（web と同じ）。
  * 練習一覧の表示はストアが持つので、実戦に切り替えてから練習のタブへ移る。
  *
  * @flow
- * 1. 次の目標の級から、レッスン / 練習 / 試験（模試）へ進む
+ * 1. 次の目標の級から、レッスン / 練習 / 試験へ進む
  * 2. 級名を押すと級の詳細へ
  */
 export default function DojoPage() {
@@ -51,6 +55,8 @@ export default function DojoPage() {
   const current = highestRank(input.achievedRankSlugs);
   const goToTab = useGoToTab();
   const setPracticeMode = usePracticeModeStore((state) => state.setMode);
+  const { status } = useAuth();
+  const router = useRouter();
 
   return (
     <Screen
@@ -60,7 +66,21 @@ export default function DojoPage() {
       contentStyle={styles.content}
     >
       {/* 現在の段級位は節にせずバーで示す。ゲストは常に無級 */}
-      <RankProgressBar currentSlug={current?.slug} />
+      <View style={styles.rank}>
+        <RankProgressBar currentSlug={current?.slug} />
+        {status === "signedOut" && (
+          <Text style={styles.note}>
+            {t("signInNote")}{" "}
+            <Text
+              style={linkStyles.inline}
+              accessibilityRole="link"
+              onPress={() => router.push("/sign-in")}
+            >
+              {t("signInLink")}
+            </Text>
+          </Text>
+        )}
+      </View>
 
       {current?.slug === BLACK_BELT_SLUG && (
         <View style={[panelFrame, styles.practical]}>
@@ -116,6 +136,9 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
+  },
+  rank: {
+    gap: 8,
   },
   practical: {
     gap: 12,

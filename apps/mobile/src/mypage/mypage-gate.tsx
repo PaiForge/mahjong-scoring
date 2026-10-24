@@ -6,6 +6,7 @@ import { refreshAccount, useAuth } from "../auth/use-auth";
 import { LoadingIndicator } from "../components/load-state";
 import { TextLink } from "../components/text-link";
 import { RecordCtaCard } from "../home/record-cta-card";
+import { BanNotice } from "./ban-notice";
 import { colors } from "../lib/theme";
 
 /**
@@ -58,15 +59,16 @@ function RecordCta({ preview }: { readonly preview: ReactNode }) {
 }
 
 /**
- * アカウント状態を読めなかったとき。BAN 中はその旨だけ（ログアウトと退会は
- * マイページの下のアカウントの行から）
+ * アカウント状態を読めなかったとき。BAN 中は停止の知らせ（理由つき。ログアウトと
+ * 退会はマイページの下のアカウントの行から）
  */
 function AccountLoadFailed({ banned }: { readonly banned: boolean }) {
   const t = useTranslations("settings.account");
+  if (banned) return <BanNotice />;
   return (
     <MypageLoadFailed
-      message={banned ? t("banned") : t("loadFailed")}
-      onRetry={banned ? undefined : () => void refreshAccount()}
+      message={t("loadFailed")}
+      onRetry={() => void refreshAccount()}
     />
   );
 }

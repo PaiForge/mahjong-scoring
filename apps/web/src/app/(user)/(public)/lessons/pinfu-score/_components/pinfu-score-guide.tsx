@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
-import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";

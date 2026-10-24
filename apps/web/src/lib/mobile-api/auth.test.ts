@@ -285,6 +285,43 @@ describe("authorizeMobileRequest", () => {
     expect(result.ok).toBe(true);
   });
 
+  it("BAN の知らせは BAN 中でも通す", async () => {
+    activeUser();
+    mockGetProfileCore.mockResolvedValue({
+      username: "alice",
+      bannedAt: new Date(),
+      deletedAt: null,
+    });
+
+    const result = await authorizeMobileRequest(
+      withToken(),
+      "readMobileAccount",
+      { forBanNotice: true },
+    );
+
+    expect(result.ok).toBe(true);
+  });
+
+  it("BAN の知らせでも退会処理中は deleted で弾く", async () => {
+    activeUser();
+    mockHasDeletionRequest.mockResolvedValue(true);
+    mockGetProfileCore.mockResolvedValue({
+      username: "alice",
+      bannedAt: new Date(),
+      deletedAt: null,
+    });
+
+    const result = await authorizeMobileRequest(
+      withToken(),
+      "readMobileAccount",
+      { forBanNotice: true },
+    );
+
+    await expect(
+      result.ok === false ? result.response.json() : undefined,
+    ).resolves.toEqual({ error: "deleted" });
+  });
+
   it("応答は共有キャッシュに乗せず、Expo の web 版が読める CORS ヘッダを付ける", async () => {
     mockGetUser.mockResolvedValue({
       data: { user: null },

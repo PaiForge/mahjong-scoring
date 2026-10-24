@@ -8,7 +8,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * 切り上げ満貫適用中の但し書き

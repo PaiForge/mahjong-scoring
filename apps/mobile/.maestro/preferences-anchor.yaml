@@ -1,0 +1,26 @@
+# 設定の項目を指すリンク（`/preferences?item=`）: ログイン中（bob）が子のツモの入力の項目を
+# 指して開くと、画面の下の方にあるその行まで送られ、淡緑の地で示される。プライバシーの節が
+# 読み終えて高さが変わった後も行が画面に残る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- openLink: "mahjong-scoring://preferences?item=ko-tsumo-input"
+- extendedWaitUntil:
+    visible: "ランキングに表示しない"
+    timeout: 10000
+- waitForAnimationToEnd
+- assertVisible: "子のツモの点数を子・親に分けて選ぶ"
+- takeScreenshot: preferences-anchor

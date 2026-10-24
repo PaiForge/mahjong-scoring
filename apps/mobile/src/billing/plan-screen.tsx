@@ -42,6 +42,7 @@ import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
  * - 購入履歴に金額の列が無い（web の価格が見えると App Store の価格との差が
  *   問い合わせの種になる）。購入元（Web / App Store）は出す
  * - 運営からの付与は状態にだけ出し、付与の表は持たない
+ * - 領収書の在処は App Store の購入にだけ添える（web の Stripe の案内は出さない）
  *
  * 購入の結果はここでは待たない。届いた取引はルートの購入の同期
  * （`usePurchaseSync`）が記録し、記録できたらこの画面が読み直す。
@@ -349,6 +350,8 @@ function History({
   readonly purchases: readonly MobilePlanPurchase[];
 }) {
   const t = useTranslations("mobilePlan.history");
+  // 領収書の在処の案内は web の購入状況と同じ文言
+  const tWeb = useTranslations("mypagePlan.history");
   const format = useFormatter();
   return (
     <View style={styles.section} testID="plan-history">
@@ -374,6 +377,9 @@ function History({
             t(`states.${purchase.state}`),
           ])}
         />
+      )}
+      {purchases.some((purchase) => purchase.provider === "apple") && (
+        <Text style={styles.hint}>{tWeb("receiptHintApple")}</Text>
       )}
     </View>
   );

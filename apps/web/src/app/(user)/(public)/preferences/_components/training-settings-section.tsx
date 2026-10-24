@@ -10,7 +10,7 @@ import {
   useAutoAdvanceOnCorrect,
   useTrainingSettingsStore,
 } from "@/app/_hooks/use-training-settings-store";
-import { PREFERENCE_ANCHORS } from "../_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * トレーニング設定セクション

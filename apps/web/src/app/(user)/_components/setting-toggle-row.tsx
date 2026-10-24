@@ -22,7 +22,7 @@ export function SettingsCard({ children }: { readonly children: ReactNode }) {
 interface SettingToggleRowProps {
   /**
    * 行の id。教本などページ外から `/preferences#...` で直接飛んで来る項目に付ける。
-   * リンク先とずれないよう、値は `_lib/anchors.ts` の定数から取ること。
+   * リンク先とずれないよう、値は features の `settings/preference-anchors.ts` の定数から取ること。
    */
   readonly id?: string;
   readonly title: string;

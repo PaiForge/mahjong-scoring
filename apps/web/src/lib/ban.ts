@@ -1,5 +1,8 @@
 import "server-only";
 
+import { and, desc, eq } from "drizzle-orm";
+
+import { db, moderationActions } from "./db";
 import {
   getProfileCoreByUserId,
   hasAccountDeletionRequest,
@@ -46,4 +49,27 @@ export async function getAccountStanding(
   if (deletionRequested || profile?.deletedAt != null) return "deleting";
   if (profile?.bannedAt != null) return "banned";
   return "active";
+}
+
+/**
+ * 最新の BAN の理由（運営が BAN のときに書いたもの）。書かれていなければ null
+ * BAN 理由取得
+ *
+ * web の BAN のページとアプリの BAN の知らせが同じものを出す。
+ */
+export async function getLatestBanReason(
+  userId: string,
+): Promise<string | null> {
+  const [latestBan] = await db
+    .select({ reason: moderationActions.reason })
+    .from(moderationActions)
+    .where(
+      and(
+        eq(moderationActions.targetId, userId),
+        eq(moderationActions.action, "ban"),
+      ),
+    )
+    .orderBy(desc(moderationActions.createdAt))
+    .limit(1);
+  return latestBan?.reason ?? null;
 }

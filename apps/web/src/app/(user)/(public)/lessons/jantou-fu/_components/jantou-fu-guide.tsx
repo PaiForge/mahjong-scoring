@@ -1,6 +1,6 @@
 import { HaiKind } from "@mahjong-scoring/core";
 import { JANTOU_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
-import { PREFERENCE_ANCHORS } from "@/app/(user)/(public)/preferences/_lib/anchors";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 import { ChapterColumn } from "../../_components/chapter-column";
 import { PreferenceSettingsNote } from "../../_components/preference-settings-note";
 import { ExampleTable } from "../../_components/example-table";

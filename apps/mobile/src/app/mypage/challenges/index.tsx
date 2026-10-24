@@ -226,6 +226,7 @@ function Records({
           <ScoreChart
             data={chartData}
             emptyMessage={t("noData")}
+            yAxisLabel={t("scoreUnit")}
             currentLabel={t(`periods.${period}`)}
             previousLabel={t(`periods.${getPreviousPeriodLabel(period)}`)}
             onPreviousLabelPress={

@@ -1,11 +1,29 @@
 import { useTranslations } from "use-intl";
 import { RULE_SETTING_TOGGLES } from "@mahjong-scoring/features/settings/rule-setting-toggles";
+import {
+  PREFERENCE_ANCHORS,
+  type PreferenceAnchor,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 import {
   SettingsCard,
   SettingToggleRow,
 } from "../components/setting-toggle-row";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
+
+/**
+ * 設定項目へのアンカー（レッスンなどから `/preferences?item=renfonpai` で
+ * 直接開かれる。web の同名の表と同じ）
+ *
+ * ダブル役満・複合役満の採否は設定群の先頭項目にだけ付ける。
+ */
+const ANCHOR_BY_FIELD: Partial<
+  Record<(typeof RULE_SETTING_TOGGLES)[number]["field"], PreferenceAnchor>
+> = {
+  renfonpaiAs4Fu: PREFERENCE_ANCHORS.renfonpai,
+  kiriageMangan: PREFERENCE_ANCHORS.kiriageMangan,
+  suuankouTankiDouble: PREFERENCE_ANCHORS.doubleYakuman,
+};
 
 /**
  * ルール設定セクション
@@ -28,6 +46,7 @@ export function RuleSettingsSection() {
           description={t(`${messageKey}Description`)}
           checked={settings[field]}
           onChange={settings[setter]}
+          anchor={ANCHOR_BY_FIELD[field]}
         />
       ))}
     </SettingsCard>

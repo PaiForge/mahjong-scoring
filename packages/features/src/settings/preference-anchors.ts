@@ -1,9 +1,13 @@
+import { PREFERENCES_PATH } from "../routes";
+
 /**
  * 設定ページ内の各設定項目へのアンカー。
  *
  * 教本（`/lessons/*`）などページ外から特定の設定項目へ直接リンクするために使う。
  * 設定項目は今後増えていくため、リンク側で `/preferences#...` を直接書かず
- * ここの定数を経由させ、id とリンク先がずれないようにする。
+ * ここの定数を経由させ、id とリンク先がずれないようにする。web は要素の id と
+ * URL のハッシュ（{@link preferencesHref}）、アプリは同じ値をクエリ
+ * （{@link preferencesItemHref}）で渡す — ネイティブの画面にハッシュは無い。
  */
 export const PREFERENCE_ANCHORS = {
   /** 連風牌（場風＝自風）の雀頭を4符にするか */
@@ -35,5 +39,13 @@ export type PreferenceAnchor =
 
 /** 設定ページの特定項目への href（例: `/preferences#renfonpai`）。 */
 export function preferencesHref(anchor: PreferenceAnchor): string {
-  return `/preferences#${anchor}`;
+  return `${PREFERENCES_PATH}#${anchor}`;
+}
+
+/** 設定の項目を指すクエリの名前（アプリ。例: `/preferences?item=renfonpai`） */
+export const PREFERENCES_ITEM_PARAM = "item";
+
+/** アプリの設定画面の特定項目への href（例: `/preferences?item=renfonpai`）。 */
+export function preferencesItemHref(anchor: PreferenceAnchor): string {
+  return `${PREFERENCES_PATH}?${PREFERENCES_ITEM_PARAM}=${anchor}`;
 }

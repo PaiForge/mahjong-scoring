@@ -6,7 +6,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
  * 非表示設定中の案内

@@ -12,7 +12,7 @@ import type { GlossaryTermPreview } from "@mahjong-scoring/features/glossary/vie
 import {
   PREFERENCE_ANCHORS,
   preferencesHref,
-} from "@/app/(user)/(public)/preferences/_lib/anchors";
+} from "@mahjong-scoring/features/settings/preference-anchors";
 
 interface TermModalContextValue {
   /** slug の用語を開く。未知の slug なら何もしない */

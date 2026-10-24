@@ -2,6 +2,10 @@ import { useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesItemHref,
+} from "@mahjong-scoring/features/settings/preference-anchors";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
 import {
@@ -12,7 +16,6 @@ import {
 import type { MobileLeaderboardRanksResponse } from "@mahjong-scoring/features/leaderboard/mobile-api";
 import { leaderboardBoardLabel } from "@mahjong-scoring/features/leaderboard/board-label";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
@@ -137,7 +140,13 @@ function ViewerRanks({
     return (
       <View style={[panelFrame, styles.notice]} testID="leaderboard-hidden">
         <Text style={styles.noticeText}>{t("viewerHidden")}</Text>
-        <TextLink onPress={() => router.push(PREFERENCES_PATH)}>
+        <TextLink
+          onPress={() =>
+            router.push(
+              preferencesItemHref(PREFERENCE_ANCHORS.leaderboardVisibility),
+            )
+          }
+        >
           {t("viewerHiddenLink")}
         </TextLink>
       </View>

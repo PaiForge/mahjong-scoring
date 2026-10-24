@@ -1,5 +1,8 @@
 import { Children, Fragment, useEffect, useState, type ReactNode } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import type { PreferenceAnchor } from "@mahjong-scoring/features/settings/preference-anchors";
+
+import { usePreferenceAnchor } from "../preferences/preference-anchor";
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
@@ -83,6 +86,11 @@ interface SettingToggleRowProps {
    * 余白を詰め、文字を一段小さく淡くする
    */
   readonly nested?: boolean;
+  /**
+   * 設定画面の項目（web の要素の id）。`/preferences?item=` で指されたら
+   * その行まで送り、淡緑の地で示す（`PreferenceAnchorProvider`）
+   */
+  readonly anchor?: PreferenceAnchor;
 }
 
 /**
@@ -114,7 +122,9 @@ export function SettingToggleRow({
   disabled = false,
   testID,
   nested = false,
+  anchor,
 }: SettingToggleRowProps) {
+  const anchorTarget = usePreferenceAnchor(anchor);
   // 描画の間ずっと同じ値を使う（ref ではなく state の初期化で 1 度だけ作る）
   const [position] = useState(() => new Animated.Value(checked ? 1 : 0));
 
@@ -143,7 +153,13 @@ export function SettingToggleRow({
       accessibilityLabel={title}
       accessibilityState={{ checked, disabled }}
       testID={testID}
-      style={[styles.row, nested && styles.nestedRow]}
+      ref={anchorTarget?.ref}
+      onLayout={anchorTarget?.onLayout}
+      style={[
+        styles.row,
+        nested && styles.nestedRow,
+        anchorTarget !== undefined && styles.targeted,
+      ]}
     >
       <View style={styles.body}>
         {titleAction === undefined ? (
@@ -178,6 +194,11 @@ interface SettingLinkRowProps {
   readonly title: string;
   /** 補足説明。辞書の改行は無視してスマホの幅で折り返す */
   readonly description?: string;
+  /**
+   * 設定画面の項目（web の要素の id）。`/preferences?item=` で指されたら
+   * その行まで送り、淡緑の地で示す（`PreferenceAnchorProvider`）
+   */
+  readonly anchor?: PreferenceAnchor;
 }
 
 /**
@@ -190,12 +211,20 @@ export function SettingLinkRow({
   onPress,
   title,
   description,
+  anchor,
 }: SettingLinkRowProps) {
+  const anchorTarget = usePreferenceAnchor(anchor);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      ref={anchorTarget?.ref}
+      onLayout={anchorTarget?.onLayout}
+      style={({ pressed }) => [
+        styles.row,
+        anchorTarget !== undefined && styles.targeted,
+        pressed && styles.pressed,
+      ]}
     >
       <View style={styles.body}>
         <Text style={[styles.title, styles.linkTitle]}>{title}</Text>
@@ -218,6 +247,11 @@ interface SettingLockedRowProps {
   /** 使える条件（「Pro プランで利用できます」） */
   readonly note: string;
   readonly testID?: string;
+  /**
+   * 設定画面の項目（web の要素の id）。`/preferences?item=` で指されたら
+   * その行まで送り、淡緑の地で示す（`PreferenceAnchorProvider`）
+   */
+  readonly anchor?: PreferenceAnchor;
 }
 
 /**
@@ -235,14 +269,22 @@ export function SettingLockedRow({
   badge,
   note,
   testID,
+  anchor,
 }: SettingLockedRowProps) {
+  const anchorTarget = usePreferenceAnchor(anchor);
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
       accessibilityLabel={`${title}、${badge}、${note}`}
       testID={testID}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      ref={anchorTarget?.ref}
+      onLayout={anchorTarget?.onLayout}
+      style={({ pressed }) => [
+        styles.row,
+        anchorTarget !== undefined && styles.targeted,
+        pressed && styles.pressed,
+      ]}
     >
       <View style={styles.body}>
         <View style={styles.titleRow}>
@@ -288,6 +330,10 @@ const styles = StyleSheet.create({
   },
   pressed: {
     backgroundColor: colors.surface50,
+  },
+  // web の `target:bg-brand-subtle`。リンクで指された項目を着地後も示す
+  targeted: {
+    backgroundColor: colors.brandSubtle,
   },
   body: {
     flex: 1,

@@ -5,7 +5,9 @@
  * web で登録したアカウントもそのまま使える（同じ Supabase の認証）。ユーザー名をまだ
  * 決めていなければ、続けてユーザー名の設定へ進む。
  * パスワードを忘れた人は再設定のリンクを送る画面へ（新しいパスワードはメールの
- * リンクから web で決める。`forgot-password.tsx`）。
+ * リンクから web で決める。`forgot-password.tsx`）。メールの確認が済んでいない
+ * 人には、エラーの下に確認メールを再送する画面（`sign-up/verify-email.tsx`）への
+ * 導線を出す。
  * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート → ログイン →
  * （ユーザー名の設定）→ 元の画面へ戻る
  */
@@ -46,18 +48,26 @@ export default function SignInScreen() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+  // 確認が済んでいなかったメールアドレス（再送の画面へ渡す）
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | undefined>(
+    undefined,
+  );
 
   const submit = async () => {
     if (!supabase || submitting) return;
     setSubmitting(true);
     setError(undefined);
+    setUnconfirmedEmail(undefined);
+    const trimmedEmail = email.trim();
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: trimmedEmail,
       password,
     });
     if (signInError) {
       setSubmitting(false);
-      setError(t(signInErrorKey(signInError.code, signInError.status)));
+      const key = signInErrorKey(signInError.code, signInError.status);
+      setError(t(key));
+      if (key === "emailNotConfirmed") setUnconfirmedEmail(trimmedEmail);
       return;
     }
     const account = await refreshAccount();
@@ -93,6 +103,19 @@ export default function SignInScreen() {
           testID="sign-in-password"
         />
         {error !== undefined && <FormMessage tone="error">{error}</FormMessage>}
+        {unconfirmedEmail !== undefined && (
+          <TextLink
+            onPress={() =>
+              router.push({
+                pathname: "/sign-up/verify-email",
+                params: { email: unconfirmedEmail },
+              })
+            }
+            testID="sign-in-resend-confirmation"
+          >
+            {t("emailNotConfirmedResend")}
+          </TextLink>
+        )}
         <Button
           onPress={() => void submit()}
           disabled={submitting || !email || !password}

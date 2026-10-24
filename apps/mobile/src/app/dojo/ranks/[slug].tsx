@@ -35,7 +35,7 @@ import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-scre
  * @flow
  * 1. 道場の級カードの級名から遷移する
  * 2. 前提のレッスンに取り組む（完了の印が進捗を示す）
- * 3. 試験の説明画面へ進む（モバイルでは模試だけを受けられる）
+ * 3. 試験の説明画面へ進み、本番か模試を受ける
  */
 export default function RankDetailPage() {
   const { slug: param } = useLocalSearchParams<{ slug: string }>();

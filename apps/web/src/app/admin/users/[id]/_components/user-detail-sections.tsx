@@ -7,7 +7,7 @@ import {
   formatAdminDate,
   formatAdminDateTime,
 } from "@/app/admin/_lib/format-date";
-import { isKnownAuthProvider } from "@/lib/auth-provider";
+import { isKnownAuthProvider } from "@mahjong-scoring/features/account/auth-provider";
 import { formatAmount } from "@/lib/billing/prices";
 import {
   benefitGrantStateOf,
