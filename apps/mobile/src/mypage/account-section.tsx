@@ -3,6 +3,8 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
+import { isKnownAuthProvider } from "@mahjong-scoring/features/account/auth-provider";
+
 import { refreshAccount, signOut, useAuth } from "../auth/use-auth";
 import {
   dismissDeletionNotice,
@@ -44,7 +46,8 @@ export function DeletionNoticePanel() {
  * アカウントの情報とログアウト・退会（ログイン中）
  * アカウント設定
  *
- * ユーザー名・メールアドレスと、ログアウト・退会を出す。ユーザー名を
+ * ユーザー名・メールアドレス・ログイン方法（web のアカウントのページと同じ）と、
+ * ログアウト・退会を出す。ユーザー名を
  * 決めていなければ、その設定へ進む行を先頭に置く。BAN 中もログアウトと
  * 退会の行は出す（本人による退会は BAN の対象にしない）。ログアウトしたら
  * マイページへ戻る（ゲストに見せるアカウントの中身は無い）。
@@ -56,6 +59,11 @@ export function SignedInAccount() {
   const router = useRouter();
   const { user, account, accountError } = useAuth();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
+  // 知らない値はそのまま出す（無いキーを引くと use-intl がエラーを出す）
+  const providerLabel = (provider: string | undefined) =>
+    isKnownAuthProvider(provider)
+      ? tAccount(`login.providers.${provider}`)
+      : (provider ?? tAccount("login.unknown"));
 
   return (
     <>
@@ -89,6 +97,11 @@ export function SignedInAccount() {
             </>
           )}
           <InfoRow label={t("email")} value={user?.email ?? "—"} />
+          <Divider />
+          <InfoRow
+            label={tAccount("login.provider")}
+            value={providerLabel(user?.provider)}
+          />
         </View>
       </View>
       <LinkRowList>
