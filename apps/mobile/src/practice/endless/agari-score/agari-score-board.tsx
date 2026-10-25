@@ -155,7 +155,7 @@ function AgariScoreBoardInner() {
               <QuestionDisplay question={currentQuestion} />
 
               {isAnswered ? (
-                // 面子分解は正解開示の一部（回答中に見せると符の答えが割れる）
+                // 面子分解は回答中のヒントと同じ位置（答え合わせでは候補の切り替えも出す）
                 <View style={styles.answered}>
                   <View style={styles.result}>
                     <TehaiMentsuBreakdown
@@ -183,6 +183,13 @@ function AgariScoreBoardInner() {
                 </View>
               ) : (
                 <View style={styles.answering}>
+                  {/* 回答中のヒント。答え合わせと同じ位置に置き、回答の前後で
+                      入口を動かさない（web と同じ） */}
+                  <TehaiMentsuBreakdown
+                    tehai={currentQuestion.tehai}
+                    context={currentQuestion}
+                    hint
+                  />
                   <QuestionPrompt>{t("board.questionPrompt")}</QuestionPrompt>
                   <ScorePracticeAnswerForm
                     key={questionSeq}
