@@ -91,8 +91,14 @@ java -version                # 17 以上
 maestro --version
 ```
 
-`/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app` が無いときは Xcode の
-インストールが途中で止まっている。Xcode を入れ直す。
+シミュレーターの画面を窓で見る Simulator.app は無くてもよい。`sim:release` と Maestro は
+画面を出さずに端末を起動して操作し、撮った PNG で確かめる（2026-10 に Xcode 27.1 で、
+Simulator.app の無いまま起動・撮影できることを確かめた）。
+
+`sim:release` と `maestro` は、端末の名前を渡さなければ起動中の iPhone を、無ければ
+いちばん新しい iOS の「iPhone <数字> Pro」を使う（`scripts/_simulator.sh`）。決め打ちの
+名前を持たないのは、Xcode の版で端末の名前が入れ替わるため。別の端末を使うなら
+`sim:release "iPhone 17"` / `SIMULATOR_NAME="iPhone 17" pnpm --filter @mahjong-scoring/mobile maestro <flow>` で渡す。
 
 EAS の枠を使い切った月に TestFlight へ出すなら、手元でビルドする（`npx eas-cli build --platform ios
 --profile production --local`）。上の手順に加えて fastlane（`brew install fastlane`）が要る。

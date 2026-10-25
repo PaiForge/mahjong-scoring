@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # iOS シミュレーター向けの Release ビルドを、手元の Supabase と web に向けて作る
 #
-#   scripts/sim-release.sh [シミュレーターの名前]   # 既定は iPhone 16 Pro
+#   scripts/sim-release.sh [シミュレーターの名前]   # 省略時の選び方は _simulator.sh
 #
 # web 版や開発ビルドでは見えないネイティブの壊れ方を、本番に触れずに確かめるためのもの。
 # ログインから記録までシードユーザー（apps/web の dev seed）で通せる。
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-DEVICE_NAME="${1:-iPhone 16 Pro}"
-UDID=$(xcrun simctl list devices available -j |
-  jq -r --arg name "$DEVICE_NAME" '.devices[][] | select(.name == $name) | .udid' | head -1)
+source scripts/_simulator.sh
+UDID=$(resolve_simulator_udid "${1:-}")
 if [ -z "$UDID" ]; then
-  echo "sim-release: シミュレーター「$DEVICE_NAME」が無い（xcrun simctl list devices available）" >&2
+  echo "sim-release: シミュレーター「${1:-iPhone <数字> Pro}」が無い（xcrun simctl list devices available）" >&2
   exit 1
 fi
+DEVICE_NAME=$(simulator_name "$UDID")
 
 # Supabase CLI がローカル環境に既定で振る公開キー（src/auth/supabase-config.ts と同じ値）
 LOCAL_SUPABASE_URL="http://127.0.0.1:54321"

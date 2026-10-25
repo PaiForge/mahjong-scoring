@@ -3,7 +3,7 @@
 #
 #   scripts/maestro.sh <flow> [-e KEY=VALUE ...]   # .maestro/<flow>.yaml
 #
-# シミュレーターは SIMULATOR_NAME（既定 iPhone 16 Pro）で引く。出力は
+# シミュレーターは SIMULATOR_NAME で引く（省略時の選び方は _simulator.sh）。出力は
 # MAESTRO_OUTPUT_DIR（既定 $TMPDIR/maestro-mahjong-scoring）の <flow>/ に入れ、
 # 流すたびに空にする。失敗したときの画面もそこに入る。
 set -euo pipefail
@@ -16,11 +16,10 @@ if [ ! -f ".maestro/$FLOW.yaml" ]; then
   exit 1
 fi
 
-DEVICE_NAME="${SIMULATOR_NAME:-iPhone 16 Pro}"
-UDID=$(xcrun simctl list devices available -j |
-  jq -r --arg name "$DEVICE_NAME" '.devices[][] | select(.name == $name) | .udid' | head -1)
+source scripts/_simulator.sh
+UDID=$(resolve_simulator_udid "${SIMULATOR_NAME:-}")
 if [ -z "$UDID" ]; then
-  echo "maestro: シミュレーター「$DEVICE_NAME」が無い" >&2
+  echo "maestro: シミュレーター「${SIMULATOR_NAME:-iPhone <数字> Pro}」が無い" >&2
   exit 1
 fi
 
