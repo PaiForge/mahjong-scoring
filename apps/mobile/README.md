@@ -89,7 +89,15 @@ brew install mobile-dev-inc/tap/maestro
 xcrun simctl list runtimes   # iOS の行がある
 java -version                # 17 以上
 maestro --version
+security find-identity -v -p codesigning   # Apple Development の行が 1 つ以上ある
 ```
+
+最後の 1 つは Xcode の画面で行う（コマンドでは作れない）: Xcode > Settings > Accounts で
+チームの Apple アカウントを足し、Manage Certificates の「+」から **Apple Development** の証明書を
+作る。シミュレーター向けのビルドでも署名が要るため。アプリは「Apple でログイン」の entitlement
+（`ios/app/app.entitlements`）を持ち、Expo の CLI はこれを持つアプリをシミュレーター向けでも署名して
+ビルドする（`@expo/cli` の `simulatorBuildRequiresCodeSigning`）。証明書が無いと `sim:release` は
+`No code signing certificates are available to use.` で止まる。
 
 シミュレーターの画面を窓で見る Simulator.app は無くてもよい。`sim:release` と Maestro は
 画面を出さずに端末を起動して操作し、撮った PNG で確かめる（2026-10 に Xcode 27.1 で、
