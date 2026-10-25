@@ -19,7 +19,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 15000
-- openLink: "mahjong-scoring://practice/han-count/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/han-count/play"
 - extendedWaitUntil:
     visible:
       id: "choice-0"

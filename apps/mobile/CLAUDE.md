@@ -142,6 +142,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
   分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
   開発中は Metro を動かす Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
+- **JS は Static Hermes で動き、web にある組み込みの一部が無い。** `Array.prototype.toSorted`・
+  `Object.groupBy` は無く、呼ぶと画面ごと落ちる（型も web のテストも通る）。アプリと共有コード
+  （`packages/features`・`core`）ではルートの `eslint.config.mjs` が弾く。新しい組み込みを使う前に
+  実機の Release ビルドで確かめ、無ければ同じ規則に足す
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
@@ -151,6 +155,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （react-native-web）は画面の構成を見るためのもので、ネイティブでだけ壊れるもの
   （`crypto.randomUUID` の不在・`measureLayout` の引数等）を通してしまう
 - ビルドは `pnpm --filter @mahjong-scoring/mobile sim:release`（`scripts/sim-release.sh`）。
+  Xcode は EAS と同じ 26.6 を `DEVELOPER_DIR` で渡す（Xcode 27 で組むと iOS 27 で起動しない。
+  入れ方と理由は `README.md`「Xcode 26.6 で組む」）。
   手元の Supabase（`:54321`）と web（`:3000`）に向けるので、シードユーザーでログインから
   記録まで確かめられ、本番には触れない。手でやると落とす工程を含む: Metro の変換
   キャッシュを捨てる（`EXPO_PUBLIC_*` はキャッシュのキーに入らず、前回の接続先が
@@ -191,7 +197,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   - `preferences-pro-rows` — 設定の Pro の 2 行（上下ランダム・理牌しない）。`bob@` はどちらも
     スイッチで理牌しないを押す、`alice@` はどちらも鍵の行で、押すとプラン画面へ。iOS だけ
   - `mypage-account` — `bob@` のマイページの「アカウント」の行からアカウントを開き、ユーザー名・
-    メールアドレス・ログイン方法とログアウト・退会の行が並ぶ。ログアウトするとゲストのマイページへ戻る
+    メールアドレス・ログイン方法とログアウト・退会の行が並ぶ。ログアウトするとゲストのマイページの先頭（記録の案内）へ戻る
   - `exam-gate` — 昇級試験の説明の受験ゲート。ゲストは登録の案内、無級の `alice@` が 4級の
     試験を開くと先に取る級と道場への導線。模試はどちらも受けられる
   - `exam-play` — `bob@`（5級）が 4級の本番を説明から始め、最初の選択肢を押し続けて終わらせる。
@@ -230,7 +236,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     盤面に回答時間が出る。残数の表示は無い
   - 購入そのもの（StoreKit のシート・Sandbox の課金）は Maestro とシミュレーターでは確かめない。
     実機と Sandbox テスターでの手順は `README.md`「アプリ内課金」
-  - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
+  - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする（パスワードの保存の確認が出たら閉じる）
+  - `_open-link` — 部品。`LINK` を開き、iOS 27 の「で開く?」の確認が出たら押す。フローでは `openLink` を
+    直接書かずこれを使う
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい。
   ただし `LinkRow` のように行全体が 1 つのアクセシビリティ要素にまとまる部品の中の文字

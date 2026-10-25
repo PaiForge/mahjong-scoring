@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { StyleSheet, View, type ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
@@ -65,6 +65,8 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  *   決めていない人・アカウントを読めなかった人にも出す — ログアウトと退会が
  *   アカウントにある
  * - 退会した後はゲストとしてここへ戻るので、受け付けた知らせを先頭に出す
+ * - ログアウト・退会でゲストに戻ったら先頭へ戻す。アカウントの行まで送った位置の
+ *   ままだと、先頭の記録の案内が画面の外にあり、淡い見本だけが途中から見える
  * - 末尾に「その他」（利用規約・プライバシーポリシー等の web のページ）を、
  *   ゲストにもログイン中の人にも出す。web のフッターに当たる場所がアプリには
  *   無く、マイページがその役を兼ねる（設定には置かない。理由は `SiteLinksSection`）
@@ -84,8 +86,22 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  */
 export default function MypageScreen() {
   const t = useTranslations("nav");
+  const scrollRef = useRef<ScrollView>(null);
+  const { status } = useAuth();
+  // この画面はアカウントの画面の下に残っているので、戻る前に先頭へ送っておく
+  const previousStatus = useRef(status);
+  useEffect(() => {
+    if (previousStatus.current === "signedIn" && status === "signedOut")
+      scrollRef.current?.scrollTo({ y: 0, animated: false });
+    previousStatus.current = status;
+  }, [status]);
   return (
-    <Screen title={t("mypage")} back contentStyle={styles.content}>
+    <Screen
+      title={t("mypage")}
+      back
+      contentStyle={styles.content}
+      ref={scrollRef}
+    >
       <DeletionNoticePanel />
       <MypageGate preview={<MypagePreview />}>
         {(userId) => <SignedInMypage userId={userId} />}

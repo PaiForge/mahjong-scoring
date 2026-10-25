@@ -89,10 +89,56 @@ brew install mobile-dev-inc/tap/maestro
 xcrun simctl list runtimes   # iOS の行がある
 java -version                # 17 以上
 maestro --version
+security find-identity -v -p codesigning   # Apple Development の行（無くても sim:release は動く）
 ```
 
-`/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app` が無いときは Xcode の
-インストールが途中で止まっている。Xcode を入れ直す。
+最後の 1 つは無くてもよい。証明書があれば `sim:release` は `expo run:ios` で署名してビルドし、
+無ければ ad hoc 署名（証明書の要らない「-」。Xcode の Sign to Run Locally と同じ）で
+`xcodebuild` で組んで `simctl` で入れる（`scripts/sim-release.sh`）。分けているのは、アプリが
+「Apple でログイン」の entitlement を持ち、Expo の CLI はそれを持つアプリをシミュレーター向けでも
+署名しようとして、証明書の無い Mac では止まるため（`@expo/cli` の `simulatorBuildRequiresCodeSigning`）。
+署名を丸ごと外す（`CODE_SIGNING_ALLOWED=NO`）とキーチェーンが使えず、ログインの保存で落ちる
+（`KeyChainException: A required entitlement is not present`）。ad hoc 署名のビルドでは
+「Apple でログイン」だけが通らない（メールのログインと記録は通る）。証明書は Xcode > Settings >
+Accounts でチームの Apple アカウントを足し、Manage Certificates の「+」から **Apple Development** を作る。
+
+#### Xcode 26.6 で組む（EAS と同じ）
+
+**Xcode 27 で作ったビルドは iOS 27 で起動しない（2026-10 時点）。** iOS 27 の SDK は UIScene の
+ライフサイクルを必須にし、Expo SDK 57 の既定（AppDelegate が窓を持つ形）のアプリは起動直後に
+`UIScene life cycle is required for apps built with this SDK` で落ちる。EAS は SDK 57 を
+Xcode 26.6 でビルドするので、TestFlight やストアのビルドは影響を受けない。手元でも同じ
+Xcode 26.6 を並べて入れて組む（UIScene へ移るのは SDK 58 に上げるとき。SDK 58 からは既定。
+[Expo の案内](https://github.com/expo/fyi/blob/main/ios-scene-lifecycle.md)）。
+
+```bash
+brew install xcodes aria2
+# Apple ID・2 ファクタ認証・管理者のパスワードを聞かれる。対話するのでターミナルで直接打つ
+xcodes install 26.6 --directory /Applications --experimental-unxip
+# Xcode 26.6 の iOS 26.5 の実行環境（これが無いとシミュレーター向けにも組めない）
+DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer xcodebuild -downloadPlatform iOS
+```
+
+ビルドは `DEVELOPER_DIR` で Xcode 26.6 を渡す（`xcode-select` は切り替えなくてよい）。26.5 の SDK で
+組んだアプリは iOS 27 の端末でも動き、iOS 27 に上げた iPhone で TestFlight 版を開くのと同じ条件になる:
+
+```bash
+DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer pnpm --filter @mahjong-scoring/mobile sim:release
+pnpm --filter @mahjong-scoring/mobile maestro preferences-anchor
+```
+
+iOS 27 のシミュレーターは、リンクでアプリを開く前の確認（「"麻雀点数計算教室" で開く?」）と、
+ログインの後のパスワードの保存の確認を出す。フローは `_open-link.yaml` と `_sign-in.yaml` が
+出たときだけ閉じる。フローでリンクを開くときは `openLink` を直接書かず `_open-link.yaml` を使う。
+
+シミュレーターの画面を窓で見る Simulator.app は無くてもよい。`sim:release` と Maestro は
+画面を出さずに端末を起動して操作し、撮った PNG で確かめる（2026-10 に Xcode 27.1 で、
+Simulator.app の無いまま起動・撮影できることを確かめた）。
+
+`sim:release` と `maestro` は、端末の名前を渡さなければ起動中の iPhone を、無ければ
+いちばん新しい iOS の「iPhone <数字> Pro」を使う（`scripts/_simulator.sh`）。決め打ちの
+名前を持たないのは、Xcode の版で端末の名前が入れ替わるため。別の端末を使うなら
+`sim:release "iPhone 17"` / `SIMULATOR_NAME="iPhone 17" pnpm --filter @mahjong-scoring/mobile maestro <flow>` で渡す。
 
 EAS の枠を使い切った月に TestFlight へ出すなら、手元でビルドする（`npx eas-cli build --platform ios
 --profile production --local`）。上の手順に加えて fastlane（`brew install fastlane`）が要る。

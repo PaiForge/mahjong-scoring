@@ -38,9 +38,10 @@ appId: help.mahjong.score
     id: "account-sign-out"
 - tapOn:
     id: "account-sign-out-confirm"
+# ゲストに戻ったマイページは先頭へ戻っている（スクロールせずに記録の案内が見える）
 - extendedWaitUntil:
     visible:
-      id: "mypage-preview"
+      id: "mypage-sign-up-cta"
     timeout: 10000
 - assertNotVisible:
     id: "mypage-menu-account"

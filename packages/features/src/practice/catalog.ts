@@ -224,7 +224,9 @@ export function isExamMenu(slug: PracticeMenuSlug): boolean {
  * まとめて見たいときは分野の絞り込みがある。
  */
 export function listedPracticeMenus(): readonly PracticeMenu[] {
-  return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug)).toSorted(
+  // toSorted はアプリの Hermes に無い。filter が返す新しい配列を並べるので
+  // カタログそのものは書き換えない
+  return PRACTICE_CATALOG.filter((menu) => !isExamMenu(menu.slug)).sort(
     (a, b) => compareNumbers(rankOrder(a), rankOrder(b)),
   );
 }

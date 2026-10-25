@@ -11,7 +11,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- openLink: "mahjong-scoring://practice"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
 - extendedWaitUntil:
     visible:
       id: "practice-mode-practical"
@@ -23,10 +26,13 @@ appId: help.mahjong.score
       id: "practice-entry-quota-sign-in-agari-score"
     timeout: 15000
 - takeScreenshot: practice-quota-guest-entry
-- openLink: "mahjong-scoring://practice/agari-score/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
-      id: "han-select"
+      id: "score-select"
     timeout: 15000
 - scrollUntilVisible:
     element:
@@ -57,6 +63,10 @@ appId: help.mahjong.score
     direction: DOWN
 - tapOn:
     id: "practice-quota-paywall-back"
+# 練習の設定へ戻る。「開始する」は設定の項目の下にあり、画面に収まらない
 - extendedWaitUntil:
-    visible: "開始する"
+    visible: "設定"
     timeout: 10000
+- scrollUntilVisible:
+    element: "開始する"
+    direction: DOWN

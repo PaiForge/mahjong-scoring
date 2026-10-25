@@ -10,7 +10,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- openLink: "mahjong-scoring://lessons/mangan-ko-ron"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons/mangan-ko-ron"
 - scrollUntilVisible:
     element:
       id: "lesson-start-quiz"

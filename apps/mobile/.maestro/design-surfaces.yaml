@@ -10,7 +10,10 @@ appId: help.mahjong.score
     visible: "次にやること"
     timeout: 20000
 - takeScreenshot: home
-- openLink: "mahjong-scoring://dojo"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://dojo"
 - waitForAnimationToEnd
 - takeScreenshot: dojo
 - scrollUntilVisible:
@@ -18,11 +21,17 @@ appId: help.mahjong.score
     direction: DOWN
     optional: true
 - takeScreenshot: dojo-scrolled
-- openLink: "mahjong-scoring://practice/yaku-han"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/yaku-han"
 - waitForAnimationToEnd
 - takeScreenshot: practice-intro-variants
 # チャレンジ: カウントダウンの後の盤面、1 つ答えた後の正誤、閉じるで中止の確認
-- openLink: "mahjong-scoring://practice/jantou-fu/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/play"
 - extendedWaitUntil:
     visible:
       id: "choice-0"
@@ -44,7 +53,10 @@ appId: help.mahjong.score
 - takeScreenshot: quit-dialog
 - tapOn: "中止する"
 # 聴牌形: 待ち牌を 2 つ選ぶ → 回答 → マスの表で同じ列を 2 つ選ぶ
-- openLink: "mahjong-scoring://practice/tenpai-score/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/tenpai-score/play"
 - extendedWaitUntil:
     visible:
       id: "machi-tile-0"

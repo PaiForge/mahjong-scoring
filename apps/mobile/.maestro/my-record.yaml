@@ -41,7 +41,10 @@ appId: help.mahjong.score
       id: "my-record-try"
     direction: DOWN
 - takeScreenshot: my-record-bottom
-- openLink: "mahjong-scoring://mypage/challenges/results"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://mypage/challenges/results"
 - extendedWaitUntil:
     visible: "結果一覧"
     timeout: 15000

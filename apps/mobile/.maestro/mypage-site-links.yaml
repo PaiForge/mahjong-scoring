@@ -36,7 +36,10 @@ appId: help.mahjong.score
     timeout: 20000
 - takeScreenshot: mypage-site-links-privacy
 - launchApp
-- openLink: "mahjong-scoring://preferences"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://preferences"
 - extendedWaitUntil:
     visible:
       id: "preferences-members-gate"

@@ -35,7 +35,10 @@ appId: help.mahjong.score
     timeout: 15000
 - takeScreenshot: leaderboard-ranks-monthly
 # 設定で非表示にすると、順位の代わりに案内と設定への導線が出る
-- openLink: "mahjong-scoring://preferences"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://preferences"
 - extendedWaitUntil:
     visible: "ランキングに表示しない"
     timeout: 15000
@@ -43,21 +46,30 @@ appId: help.mahjong.score
 - tapOn: "ランキングに表示しない"
 # 保存の応答を待ってから移る（移った先は開いたときに読み直す）
 - waitForAnimationToEnd
-- openLink: "mahjong-scoring://leaderboard"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://leaderboard"
 - extendedWaitUntil:
     visible:
       id: "leaderboard-hidden"
     timeout: 15000
 - takeScreenshot: leaderboard-ranks-hidden
 # 戻すと順位が戻る（シードの状態に戻す）
-- openLink: "mahjong-scoring://preferences"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://preferences"
 - extendedWaitUntil:
     visible: "ランキングに表示しない"
     timeout: 15000
 - tapOn: "ランキングに表示しない"
 # 保存の応答を待ってから移る（移った先は開いたときに読み直す）
 - waitForAnimationToEnd
-- openLink: "mahjong-scoring://leaderboard"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://leaderboard"
 - extendedWaitUntil:
     visible: ".*位"
     timeout: 15000
