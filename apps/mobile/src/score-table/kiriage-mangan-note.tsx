@@ -1,55 +1,48 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { TextLink } from "../components/text-link";
-import { borderWidth, colors, radius } from "../lib/theme";
+import { linkStyles } from "../lib/link-styles";
+import { colors } from "../lib/theme";
 import {
   PREFERENCE_ANCHORS,
   preferencesItemHref,
 } from "@mahjong-scoring/features/settings/preference-anchors";
 
 /**
- * 切り上げ満貫適用中の但し書き（web の `KiriageManganNote`）
+ * 切り上げ満貫の設定の脚注（web の `KiriageManganNote`）
  * 切り上げ満貫の注記
  *
- * 表の 30符4翻・60符3翻は設定次第で満貫になる。表だけでは「点数表が間違っている」
- * と読めてしまうため、有効なときは表の下に明示して設定画面へ戻す。web の
- * `HighlightPanel`（琥珀色の囲み）と同じ見た目に描く。
+ * 表の 30符4翻・60符3翻は設定次第で満貫になる。表だけではどちらのルールで
+ * 出ているか分からないため、オン・オフどちらでも表の下に今の設定を出して
+ * 設定画面へ戻す。表の上のツモの注記と同じ淡い小さな文字の脚注にし、
+ * リンクは文の中の語なので `linkStyles.inline` で示す。
  */
-export function KiriageManganNote() {
+export function KiriageManganNote({ enabled }: { readonly enabled: boolean }) {
   const t = useTranslations("scoreTable");
   const router = useRouter();
 
   return (
-    <View style={styles.panel}>
-      <Text style={styles.text}>{t("kiriageManganActive")}</Text>
-      <TextLink
+    <Text style={styles.text}>
+      {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
+      {"・"}
+      <Text
+        accessibilityRole="link"
         onPress={() =>
           router.push(preferencesItemHref(PREFERENCE_ANCHORS.kiriageMangan))
         }
+        style={linkStyles.inline}
       >
-        {t("kiriageManganActiveLink")}
-      </TextLink>
-    </View>
+        {t("kiriageManganStatusLink")}
+      </Text>
+    </Text>
   );
 }
 
 const styles = StyleSheet.create({
-  panel: {
-    borderWidth: borderWidth.panel,
-    borderColor: colors.amber300,
-    borderRadius: radius.panel,
-    backgroundColor: colors.amber50,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    alignItems: "center",
-    gap: 4,
-  },
   text: {
-    fontSize: 14,
-    lineHeight: 22,
-    color: colors.surface700,
-    textAlign: "center",
+    fontSize: 12,
+    lineHeight: 20,
+    color: colors.surface500,
   },
 });
