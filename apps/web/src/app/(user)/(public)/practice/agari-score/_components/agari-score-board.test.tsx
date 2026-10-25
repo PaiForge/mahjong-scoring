@@ -39,6 +39,8 @@ const { useAgariScoreStore } = await import("../_hooks/use-agari-score-store");
 const { _resetPracticeQuota, usePracticeQuotaStore } =
   await import("../../_hooks/use-practice-quota");
 const { AGARI_SCORE_TOUR_ID } = await import("../_lib/tour-ids");
+const { hasMentsuBreakdown } =
+  await import("@mahjong-scoring/features/board/mentsu-breakdown");
 
 const LAST_FREE = {
   success: true,
@@ -358,6 +360,33 @@ describe("AgariScoreBoard", () => {
 
   // 出題文の横の「?」が照らす要素。役の欄は設定で役の回答を求めるときだけ
   // 描かれ、ツアーは無いものを飛ばす（印が無いことで飛ばされる）
+  describe("ヒント（面子分解）", () => {
+    it("回答中もヒントとして開け、答え合わせでは同じ入口が面子分解に戻る", async () => {
+      await visit("yaku=pinfu");
+
+      expect(
+        screen.getByRole("button", { name: "mentsuBreakdownHint" }),
+      ).toBeDefined();
+      act(() => {
+        useAgariScoreStore.getState().revealAnswer();
+      });
+      expect(
+        screen.queryByRole("button", { name: "mentsuBreakdownHint" }),
+      ).toBeNull();
+      expect(
+        screen.getByRole("button", { name: "mentsuBreakdown" }),
+      ).toBeDefined();
+    });
+
+    it("分解を持たない手（七対子）ではヒントを出さない", async () => {
+      await visit("yaku=chiitoitsu&ranges=non");
+
+      expect(
+        screen.queryByRole("button", { name: "mentsuBreakdownHint" }),
+      ).toBeNull();
+    });
+  });
+
   describe("ヘルプツアー", () => {
     interface DriverStep {
       readonly element: Element;
@@ -377,11 +406,24 @@ describe("AgariScoreBoard", () => {
     const tourIdsOf = (steps: readonly DriverStep[]) =>
       steps.map((step) => step.element.getAttribute("data-tour-id"));
 
+    /**
+     * 盤面の次に照らすヒント。問題は乱数で作るので、分解を持たない手
+     * （七対子・国士無双）が出た回はヒントが無く、ツアーも飛ばす
+     */
+    const hintStep = () => {
+      const question = useAgariScoreStore.getState().currentQuestion;
+      if (!question) throw new Error("問題ができていない");
+      return hasMentsuBreakdown(question.tehai, question)
+        ? [AGARI_SCORE_TOUR_ID.hint]
+        : [];
+    };
+
     it("既定の設定では翻数・符の欄が無く、盤面・点数・回答・開示の順に照らす", async () => {
       await visit("");
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
+        ...hintStep(),
         AGARI_SCORE_TOUR_ID.score,
         AGARI_SCORE_TOUR_ID.submit,
         AGARI_SCORE_TOUR_ID.reveal,
@@ -393,6 +435,7 @@ describe("AgariScoreBoard", () => {
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
+        ...hintStep(),
         AGARI_SCORE_TOUR_ID.han,
         AGARI_SCORE_TOUR_ID.fu,
         AGARI_SCORE_TOUR_ID.score,
@@ -406,6 +449,7 @@ describe("AgariScoreBoard", () => {
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
+        ...hintStep(),
         AGARI_SCORE_TOUR_ID.yaku,
         AGARI_SCORE_TOUR_ID.han,
         AGARI_SCORE_TOUR_ID.fu,

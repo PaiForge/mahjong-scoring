@@ -47,6 +47,7 @@ import {
   usePracticeQuota,
 } from "../../_hooks/use-practice-quota";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
+import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 function AgariScoreBoardInner() {
@@ -265,9 +266,10 @@ function AgariScoreBoardInner() {
         {/* Answer area（開示時は userAnswer / judgementResult なしで結果表示を出す）
             答え合わせの組み方（面子分解 → 表 を 1 組にして、その下に「次の問題へ」）
             と余白は聴牌形の点数計算の結果（TenpaiScoreResult）と同じにする。
-            面子分解は正解開示の一部で、回答中に見せると符の答えが割れるため
-            回答後にのみ出す。置き場所が手牌の直下なのは TehaiMentsuBreakdown の
-            TSDoc のとおり */}
+            面子分解は回答中もヒントとして同じ位置に出す（回答中は符と翻を書いた
+            候補の切り替えを伏せる）。置き場所が手牌の直下なのは
+            TehaiMentsuBreakdown の TSDoc のとおりで、回答の前後で入口が動かない
+            よう、どちらの段階でも組の先頭に置く */}
         {isAnswered ? (
           <div className="space-y-4 sm:space-y-6">
             <div className="space-y-4">
@@ -298,6 +300,17 @@ function AgariScoreBoardInner() {
           /* 出題文はフォームの見出しなので、盤面全体の余白ではなく
              フォームと近い間隔で組にする */
           <div className="space-y-4">
+            {/* 七対子・国士無双は分解を持たない。包みごと置かず、ツアーが
+                空の要素を照らさないようにする（無い対象はツアーが飛ばす） */}
+            {hasMentsuBreakdown(currentQuestion.tehai, currentQuestion) && (
+              <div data-tour-id={AGARI_SCORE_TOUR_ID.hint}>
+                <TehaiMentsuBreakdown
+                  tehai={currentQuestion.tehai}
+                  context={currentQuestion}
+                  hint
+                />
+              </div>
+            )}
             {/* 出題文の右端にヘルプツアーの「?」を添える。説明する欄は
                 この下に並ぶので、ページの見出しより入口として近い
                 （聴牌形の点数計算と同じ置き方） */}

@@ -48,6 +48,11 @@ export function AgariScoreSpotlightTour({
       description: t("board.description"),
     },
     {
+      targetId: AGARI_SCORE_TOUR_ID.hint,
+      title: t("hint.title"),
+      description: t("hint.description"),
+    },
+    {
       targetId: AGARI_SCORE_TOUR_ID.yaku,
       title: t("yaku.title"),
       description: t("yaku.description"),
