@@ -15,6 +15,7 @@ import { InfoModal } from "@/app/(user)/_components/info-modal";
 import { ToggleGroup } from "@/app/(user)/_components/toggle-group";
 import { TehaiHand } from "@/app/(user)/(public)/_components/tehai-hand";
 import { TilesIcon } from "@/app/(user)/_components/icons/tiles-icon";
+import { LightbulbIcon } from "@/app/(user)/_components/icons/lightbulb-icon";
 import { useFuHanOrder } from "@/app/_hooks/use-display-settings-store";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 import type { TehaiMentsuBreakdownProps } from "@mahjong-scoring/features/board/tehai-mentsu-breakdown-props";
@@ -170,7 +171,14 @@ export function TehaiMentsuBreakdown({
     <div className="flex justify-end">
       <ReferenceLinkButton
         hitArea="row"
-        icon={<TilesIcon className="size-3.5 shrink-0" />}
+        icon={
+          // ヒントの入口は電球（レッスンの確認問題のヒントと同じ記号）
+          hint ? (
+            <LightbulbIcon className="size-3.5 shrink-0" />
+          ) : (
+            <TilesIcon className="size-3.5 shrink-0" />
+          )
+        }
         label={t(hint ? "mentsuBreakdownHint" : "mentsuBreakdown")}
         onClick={open}
       />

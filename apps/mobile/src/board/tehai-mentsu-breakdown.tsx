@@ -7,7 +7,7 @@ import type {
 } from "@mahjong-scoring/core";
 
 import { DataTable } from "../components/data-table";
-import { TilesIcon } from "../components/icons/icons";
+import { LightbulbIcon, TilesIcon } from "../components/icons/icons";
 import { InfoModal } from "../components/info-modal";
 import { ToggleGroup, toggleLabelColor } from "../components/toggle-group";
 import { useFuHanOrder } from "../hooks/use-display-settings-store";
@@ -98,7 +98,14 @@ export function TehaiMentsuBreakdown({
   return (
     <View style={styles.trigger}>
       <ReferenceLinkButton
-        icon={<TilesIcon size={14} color={colors.mutedForeground} />}
+        icon={
+          // ヒントの入口は電球（レッスンの確認問題のヒントと同じ記号。web と同じ）
+          hint ? (
+            <LightbulbIcon size={14} color={colors.mutedForeground} />
+          ) : (
+            <TilesIcon size={14} color={colors.mutedForeground} />
+          )
+        }
         label={t(hint ? "mentsuBreakdownHint" : "mentsuBreakdown")}
         onPress={open}
       />
