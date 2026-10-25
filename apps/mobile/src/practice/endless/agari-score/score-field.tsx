@@ -57,6 +57,7 @@ export function ScoreField({
               placeholder={t("form.placeholders.fromKo")}
               accessibilityLabel={t("form.placeholders.fromKo")}
               disabled={disabled}
+              testID="score-select-from-ko"
             />
           </View>
           <Text style={styles.slash}>/</Text>
@@ -68,6 +69,7 @@ export function ScoreField({
               placeholder={t("form.placeholders.fromOya")}
               accessibilityLabel={t("form.placeholders.fromOya")}
               disabled={disabled}
+              testID="score-select-from-oya"
             />
           </View>
         </View>
@@ -82,6 +84,7 @@ export function ScoreField({
           placeholder={t("form.placeholders.select")}
           accessibilityLabel={t("form.labels.koTsumoScore")}
           disabled={disabled}
+          testID="score-select"
         />
       ) : (
         <ScoreOptionSelect
@@ -94,6 +97,7 @@ export function ScoreField({
           placeholder={t("form.placeholders.select")}
           accessibilityLabel={t("form.labels.score")}
           disabled={disabled}
+          testID="score-select"
         />
       )}
     </View>

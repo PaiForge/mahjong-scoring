@@ -37,7 +37,7 @@ appId: help.mahjong.score
 - tapOn: "開始する"
 - extendedWaitUntil:
     visible:
-      id: "han-select"
+      id: "score-select"
     timeout: 15000
 - scrollUntilVisible:
     element:
@@ -49,10 +49,12 @@ appId: help.mahjong.score
 - tapOn:
     id: "screen-back"
     optional: true
-- extendedWaitUntil:
-    visible:
+# 戻った設定は「開始する」まで送った位置のまま。上の計測のスイッチまで戻す
+- scrollUntilVisible:
+    element:
       id: "setup-measure-time"
       enabled: true
+    direction: UP
     timeout: 10000
 - tapOn:
     id: "setup-measure-time"

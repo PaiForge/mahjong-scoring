@@ -60,6 +60,10 @@ appId: help.mahjong.score
 - inputText: devpass1
 - tapOn:
     id: "sign-in-submit"
+# iOS がパスワードの保存を尋ねるシートを出したら閉じる（_sign-in.yaml と同じ）
+- tapOn:
+    text: "Not Now|今はしない"
+    optional: true
 # ログインの前にいたマイページへ戻る
 - extendedWaitUntil:
     visible: "@seed_bob"
