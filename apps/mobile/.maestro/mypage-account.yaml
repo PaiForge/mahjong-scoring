@@ -38,13 +38,10 @@ appId: help.mahjong.score
     id: "account-sign-out"
 - tapOn:
     id: "account-sign-out-confirm"
-# 戻ったマイページはアカウントの行まで送った位置のまま。先頭の記録の案内まで戻して確かめる
-- scrollUntilVisible:
-    element:
-      id: "mypage-preview"
-    direction: UP
-    # 見本は画面より背が高く、100% 見えることは無い
-    visibilityPercentage: 10
+# ゲストに戻ったマイページは先頭へ戻っている（スクロールせずに記録の案内が見える）
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
     timeout: 10000
 - assertNotVisible:
     id: "mypage-menu-account"
