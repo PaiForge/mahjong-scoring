@@ -38,7 +38,9 @@ function ClosedTiles({
  * 面子分解（web の `TehaiMentsuBreakdown`）
  *
  * 和了形を 4 面子 + 雀頭に分けた表をモーダルで見せる。答えが割れるので、
- * 盤面ではトレーニングの答え合わせ中（と結果の一覧）だけ出す。
+ * 盤面ではトレーニングの答え合わせ中（と結果の一覧）だけ出す。例外は
+ * 和了形の点数計算のヒントで、`hint` を立てて回答中にも置く（入口の文言を
+ * 変え、符と翻を書いた候補の切り替えを伏せる。web と同じ）。
  *
  * 解釈が複数ある手（面子分解が割れる・和了牌の入れ方が割れる）では、
  * 候補を高点法の順にセグメントコントロールで切り替えられる。最も高い
@@ -54,6 +56,7 @@ function ClosedTiles({
 export function TehaiMentsuBreakdown({
   tehai,
   context,
+  hint = false,
 }: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
   const {
@@ -66,11 +69,13 @@ export function TehaiMentsuBreakdown({
     mentsuLabel,
     fuHanLabel,
   } = useMentsuBreakdown(tehai, context, useFuHanOrder());
-  if (selected === undefined) return undefined;
+  // ヒントは高点法の先頭の解釈だけを見せる（候補を選ぶ切り替えを出さない）
+  const shown = hint ? candidates[0] : selected;
+  if (shown === undefined) return undefined;
 
   const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
     const fuHan = fuHanLabel(candidate);
-    const isSelected = candidate.key === selected.key;
+    const isSelected = candidate.key === shown.key;
     // 文字色はセグメントの選択状態に合わせ、バッジは枠と文字を同じ色にする
     const color = toggleLabelColor(isSelected);
     return (
@@ -87,14 +92,14 @@ export function TehaiMentsuBreakdown({
     );
   };
 
-  const { breakdown } = selected;
-  const showsCandidateTabs = candidates.length > 1;
+  const { breakdown } = shown;
+  const showsCandidateTabs = !hint && candidates.length > 1;
 
   return (
     <View style={styles.trigger}>
       <ReferenceLinkButton
         icon={<TilesIcon size={14} color={colors.mutedForeground} />}
-        label={t("mentsuBreakdown")}
+        label={t(hint ? "mentsuBreakdownHint" : "mentsuBreakdown")}
         onPress={open}
       />
       <InfoModal
@@ -118,7 +123,7 @@ export function TehaiMentsuBreakdown({
                   label: candidateLabel(c),
                 })),
               ]}
-              selected={selected.key}
+              selected={shown.key}
               onSelect={select}
               accessibilityLabel={t("mentsuBreakdown")}
             />

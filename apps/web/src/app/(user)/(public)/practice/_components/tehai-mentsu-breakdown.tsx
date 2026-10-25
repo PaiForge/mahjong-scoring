@@ -122,13 +122,16 @@ function ClosedTiles({
  * 和了牌には枠を付ける。ツモ・ロンのどちらだったかは盤面が既に示して
  * いるので、モーダル側で言い直さない。
  *
- * 回答を受け付けている間は置かないこと。待ちや符を問う練習では分解が
+ * 回答を受け付けている間は原則置かないこと。待ちや符を問う練習では分解が
  * 答えを割ってしまう。出すのは正解を開示する文脈（結果の問題詳細と、
- * トレーニング・模試で止まっている間）に限る。
+ * トレーニング・模試で止まっている間）に限る。例外は和了形の点数計算の
+ * ヒントで、`hint` を立てて置く（入口の文言を変え、符と翻を書いた候補の
+ * 切り替えを伏せる。範囲の根拠は {@link TehaiMentsuBreakdownProps} の `hint`）。
  */
 export function TehaiMentsuBreakdown({
   tehai,
   context,
+  hint = false,
 }: TehaiMentsuBreakdownProps) {
   const t = useTranslations("common");
   const {
@@ -141,7 +144,9 @@ export function TehaiMentsuBreakdown({
     mentsuLabel,
     fuHanLabel,
   } = useMentsuBreakdown(tehai, context, useFuHanOrder());
-  if (selected === undefined) return undefined;
+  // ヒントは高点法の先頭の解釈だけを見せる（候補を選ぶタブを出さない）
+  const shown = hint ? candidates[0] : selected;
+  if (shown === undefined) return undefined;
 
   const candidateLabel = (candidate: MentsuBreakdownCandidate) => {
     const fuHan = fuHanLabel(candidate);
@@ -158,15 +163,15 @@ export function TehaiMentsuBreakdown({
     );
   };
 
-  const { breakdown } = selected;
-  const showsCandidateTabs = candidates.length > 1;
+  const { breakdown } = shown;
+  const showsCandidateTabs = !hint && candidates.length > 1;
 
   return (
     <div className="flex justify-end">
       <ReferenceLinkButton
         hitArea="row"
         icon={<TilesIcon className="size-3.5 shrink-0" />}
-        label={t("mentsuBreakdown")}
+        label={t(hint ? "mentsuBreakdownHint" : "mentsuBreakdown")}
         onClick={open}
       />
       <InfoModal
@@ -193,7 +198,7 @@ export function TehaiMentsuBreakdown({
                   value: c.key,
                   label: candidateLabel(c),
                 }))}
-                selected={selected.key}
+                selected={shown.key}
                 onChange={select}
               />
             </div>

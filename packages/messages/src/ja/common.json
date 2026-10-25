@@ -27,6 +27,7 @@
   "minkan": "明槓子",
   "jantou": "雀頭",
   "mentsuBreakdown": "面子分解",
+  "mentsuBreakdownHint": "ヒント：面子分解",
   "mentsuBreakdownColHai": "牌",
   "mentsuBreakdownColType": "種別",
   "mentsuBreakdownCandidateFu": "{fu}符",

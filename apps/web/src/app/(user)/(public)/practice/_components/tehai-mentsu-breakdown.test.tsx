@@ -395,5 +395,19 @@ describe("TehaiMentsuBreakdown", () => {
       expect(highlightedHais()).toEqual([HaiKind.ManZu5]);
       expect(jantouHighlighted()).toBe(true);
     });
+
+    // 候補のタブは符・翻と「最高点」の印を持ち、回答前に見せると答えになる
+    it("ヒントでは入口の文言を変え、切り替えを出さず最高点の解釈だけを見せる", () => {
+      render(
+        <TehaiMentsuBreakdown tehai={TWO_WAYS_TEHAI} context={RON_5M} hint />,
+      );
+      fireEvent.click(
+        screen.getByRole("button", { name: "mentsuBreakdownHint" }),
+      );
+
+      expect(candidateButtons()).toHaveLength(0);
+      expect(screen.queryByText("mentsuBreakdownBest")).toBeNull();
+      expect(jantouHighlighted()).toBe(false);
+    });
   });
 });
