@@ -2,6 +2,11 @@
 # iOS シミュレーター向けの Release ビルドを、手元の Supabase と web に向けて作る
 #
 #   scripts/sim-release.sh [シミュレーターの名前]   # 省略時の選び方は _simulator.sh
+#   DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer scripts/sim-release.sh
+#
+# 使う Xcode は DEVELOPER_DIR で選べる（省略時は xcode-select の Xcode）。EAS は SDK 57 を
+# Xcode 26.6 で組むので、ストアのビルドと同じ条件で確かめるならそれを渡す。Xcode 27 で
+# 組むと、Expo SDK 57 のアプリは iOS 27 で起動しない（UIScene のライフサイクルが必須）
 #
 # web 版や開発ビルドでは見えないネイティブの壊れ方を、本番に触れずに確かめるためのもの。
 # ログインから記録までシードユーザー（apps/web の dev seed）で通せる。
@@ -41,20 +46,27 @@ export CI=1
 
 # アプリは「Apple でログイン」の entitlement を持ち、expo run:ios はそれを持つアプリを
 # シミュレーター向けでも署名する（@expo/cli の simulatorBuildRequiresCodeSigning）。
-# Apple Development の証明書が無い Mac ではそこで止まるので、署名せずに xcodebuild で
-# 組み、simctl で入れる。シミュレーターは署名の無いアプリも動かせる。この経路のビルドでは
-# 「Apple でログイン」だけが通らない（メールのログインと記録は通る）
+# Apple Development の証明書が無い Mac ではそこで止まるので、ad hoc 署名（証明書の要らない
+# 「-」。Xcode の Sign to Run Locally と同じ）で xcodebuild で組み、simctl で入れる。署名を
+# 丸ごと外す（CODE_SIGNING_ALLOWED=NO）と entitlement が付かず、キーチェーンが使えなくなって
+# expo-secure-store がログインの保存に失敗する（KeyChainException: A required entitlement is
+# not present）。この経路のビルドでは「Apple でログイン」だけが通らない
 if security find-identity -v -p codesigning | grep -q "Apple Development"; then
   npx expo run:ios --configuration Release --device "$UDID" --no-bundler
 else
-  echo "sim-release: Apple Development の証明書が無いので、署名せずにビルドする（Apple でログインは通らない）"
+  echo "sim-release: Apple Development の証明書が無いので、ad hoc 署名でビルドする（Apple でログインは通らない）"
   # ios/ の生成と pod install（expo run:ios が先に行うのと同じ）
   npx expo prebuild --platform ios
   xcrun simctl boot "$UDID" 2>/dev/null || true
-  DERIVED="ios/build-unsigned"
+  # 中間生成物は Xcode の版ごとに分ける（版の違うモジュールのキャッシュを混ぜない）。
+  # 行き先は特定の端末でなく汎用のシミュレーターにする。古い Xcode（EAS と同じ 26 系を
+  # DEVELOPER_DIR で選んだとき）は、自分より新しい iOS の端末を行き先に取れない
+  # head は読み残しで xcodebuild を SIGPIPE で落とし、pipefail でスクリプトごと止まるので sed で取る
+  DERIVED="ios/build-unsigned-$(xcodebuild -version | sed -n 1p | tr -c 'A-Za-z0-9.\n' '-')"
   xcodebuild -workspace ios/app.xcworkspace -scheme app -configuration Release \
-    -sdk iphonesimulator -destination "id=$UDID" -derivedDataPath "$DERIVED" \
-    CODE_SIGNING_ALLOWED=NO -quiet build
+    -sdk iphonesimulator -destination "generic/platform=iOS Simulator" -derivedDataPath "$DERIVED" \
+    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= \
+    -quiet build
   BUILT_APP=$(find "$DERIVED/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' | head -1)
   [ -n "$BUILT_APP" ] || { echo "sim-release: ビルドした .app が見つからない" >&2; exit 1; }
   xcrun simctl install "$UDID" "$BUILT_APP"

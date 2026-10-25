@@ -8,7 +8,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- openLink: "mahjong-scoring://exam/fu"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://exam/fu"
 - scrollUntilVisible:
     element:
       id: "start-training"
@@ -23,7 +26,10 @@ appId: help.mahjong.score
     env:
       EMAIL: alice@example.local
       PASSWORD: devpass1
-- openLink: "mahjong-scoring://exam/fu"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://exam/fu"
 - scrollUntilVisible:
     element:
       id: "start-training"

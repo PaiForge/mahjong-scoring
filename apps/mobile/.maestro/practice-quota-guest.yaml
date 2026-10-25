@@ -11,7 +11,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- openLink: "mahjong-scoring://practice"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
 - extendedWaitUntil:
     visible:
       id: "practice-mode-practical"
@@ -23,7 +26,10 @@ appId: help.mahjong.score
       id: "practice-entry-quota-sign-in-agari-score"
     timeout: 15000
 - takeScreenshot: practice-quota-guest-entry
-- openLink: "mahjong-scoring://practice/agari-score/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
       id: "han-select"

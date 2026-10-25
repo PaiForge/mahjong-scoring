@@ -10,7 +10,10 @@ appId: help.mahjong.score
     visible: "次にやること"
     timeout: 20000
 # チャレンジ: 閉じる → 中止の確認 → 説明画面に「チャレンジを中止しました」
-- openLink: "mahjong-scoring://practice/jantou-fu/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/play"
 - extendedWaitUntil:
     visible:
       id: "choice-0"
@@ -32,7 +35,10 @@ appId: help.mahjong.score
 - assertVisible: "チャレンジを中止しました"
 - takeScreenshot: toast-challenge-quit
 # トレーニング: 閉じる → 説明画面に「トレーニングを終了しました」
-- openLink: "mahjong-scoring://practice/jantou-fu/training"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/training"
 - extendedWaitUntil:
     visible:
       id: "screen-back"
@@ -44,7 +50,10 @@ appId: help.mahjong.score
     timeout: 5000
 - takeScreenshot: toast-training-exit
 # 和了形の点数計算: 閉じる → 設定画面に「和了形の点数計算を終了しました」
-- openLink: "mahjong-scoring://practice/agari-score/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
       id: "screen-back"

@@ -19,7 +19,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 15000
-- openLink: "mahjong-scoring://practice/agari-score"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score"
 - extendedWaitUntil:
     visible:
       id: "setup-measure-time"

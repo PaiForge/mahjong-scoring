@@ -22,7 +22,10 @@ appId: help.mahjong.score
 - assertNotVisible:
     id: "home-username-cta"
 - takeScreenshot: home-signed-in
-- openLink: "mahjong-scoring://practice/jantou-fu/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/play"
 - extendedWaitUntil:
     visible:
       id: "choice-0"

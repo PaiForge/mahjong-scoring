@@ -1,0 +1,16 @@
+# 部品: アプリのリンク（mahjong-scoring://...）を開く
+#
+#   - runFlow:
+#       file: _open-link.yaml
+#       env:
+#         LINK: "mahjong-scoring://dojo"
+#
+# iOS 27 のシミュレーターは、リンクでアプリを開く前に「"麻雀点数計算教室" で開く?」の
+# 確認を出し、押すまで止まる（2026-10 に Xcode 27.1 の iOS 27 で確かめた）。出たときだけ
+# 「開く」を押す。出ない端末（Android・それより前の iOS）では何もしない
+appId: help.mahjong.score
+---
+- openLink: ${LINK}
+- tapOn:
+    text: "Open|開く"
+    optional: true

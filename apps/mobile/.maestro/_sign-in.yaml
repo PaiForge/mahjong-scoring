@@ -10,7 +10,10 @@
 # ユーザー名の設定へ送られている。
 appId: help.mahjong.score
 ---
-- openLink: "mahjong-scoring://sign-in"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://sign-in"
 - extendedWaitUntil:
     visible:
       id: "sign-in-submit"
@@ -27,3 +30,8 @@ appId: help.mahjong.score
     notVisible:
       id: "sign-in-submit"
     timeout: 15000
+# iOS がパスワードの保存を尋ねるシートを出すことがある（2026-10 に iOS 27 で確かめた）。
+# 出たら閉じる。残すと次の画面の確認がシートの下で失敗する
+- tapOn:
+    text: "Not Now|今はしない"
+    optional: true

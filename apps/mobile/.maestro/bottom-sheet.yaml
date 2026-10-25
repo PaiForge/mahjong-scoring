@@ -8,7 +8,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
-- openLink: "mahjong-scoring://practice/agari-score/play"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
       id: "screen-back"
@@ -71,7 +74,10 @@ appId: help.mahjong.score
 - assertVisible: "点数表を確認"
 - takeScreenshot: sheet-reference-closed
 # 固定の高さ・中身がスクロールする: 役の選択（MultiSelect）
-- openLink: "mahjong-scoring://practice/agari-score"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score"
 - scrollUntilVisible:
     element: "役を追加"
     direction: DOWN

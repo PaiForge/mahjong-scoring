@@ -14,7 +14,10 @@ appId: help.mahjong.score
     env:
       EMAIL: bob@example.local
       PASSWORD: devpass1
-- openLink: "mahjong-scoring://exam/fu"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://exam/fu"
 - scrollUntilVisible:
     element:
       id: "start-exam"

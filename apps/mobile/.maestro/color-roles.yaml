@@ -19,16 +19,28 @@ appId: help.mahjong.score
     visible: "次にやること"
     timeout: 15000
 - takeScreenshot: home-signed-in
-- openLink: "mahjong-scoring://practice"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
 - waitForAnimationToEnd
 - takeScreenshot: practice-list
-- openLink: "mahjong-scoring://lessons"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons"
 - waitForAnimationToEnd
 - takeScreenshot: lessons
-- openLink: "mahjong-scoring://dojo"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://dojo"
 - waitForAnimationToEnd
 - takeScreenshot: dojo-signed-in
-- openLink: "mahjong-scoring://leaderboard"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://leaderboard"
 - extendedWaitUntil:
     visible: ".*位"
     timeout: 15000

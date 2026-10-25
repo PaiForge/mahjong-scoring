@@ -151,6 +151,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （react-native-web）は画面の構成を見るためのもので、ネイティブでだけ壊れるもの
   （`crypto.randomUUID` の不在・`measureLayout` の引数等）を通してしまう
 - ビルドは `pnpm --filter @mahjong-scoring/mobile sim:release`（`scripts/sim-release.sh`）。
+  Xcode は EAS と同じ 26.6 を `DEVELOPER_DIR` で渡す（Xcode 27 で組むと iOS 27 で起動しない。
+  入れ方と理由は `README.md`「Xcode 26.6 で組む」）。
   手元の Supabase（`:54321`）と web（`:3000`）に向けるので、シードユーザーでログインから
   記録まで確かめられ、本番には触れない。手でやると落とす工程を含む: Metro の変換
   キャッシュを捨てる（`EXPO_PUBLIC_*` はキャッシュのキーに入らず、前回の接続先が
@@ -230,7 +232,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     盤面に回答時間が出る。残数の表示は無い
   - 購入そのもの（StoreKit のシート・Sandbox の課金）は Maestro とシミュレーターでは確かめない。
     実機と Sandbox テスターでの手順は `README.md`「アプリ内課金」
-  - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする
+  - `_sign-in` — 部品。`EMAIL` / `PASSWORD` を受けてメールでログインする（パスワードの保存の確認が出たら閉じる）
+  - `_open-link` — 部品。`LINK` を開き、iOS 27 の「で開く?」の確認が出たら押す。フローでは `openLink` を
+    直接書かずこれを使う
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい。
   ただし `LinkRow` のように行全体が 1 つのアクセシビリティ要素にまとまる部品の中の文字
