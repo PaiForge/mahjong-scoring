@@ -166,11 +166,7 @@ export function ScoreTable({
         />
       )}
       {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}
-      {kiriageMangan && viewMode === "normal" && (
-        <View style={styles.kiriage}>
-          <KiriageManganNote />
-        </View>
-      )}
+      {viewMode === "normal" && <KiriageManganNote enabled={kiriageMangan} />}
     </View>
   );
 
@@ -208,8 +204,5 @@ const styles = StyleSheet.create({
   note: {
     fontSize: 12,
     color: colors.surface500,
-  },
-  kiriage: {
-    marginTop: 8,
   },
 });

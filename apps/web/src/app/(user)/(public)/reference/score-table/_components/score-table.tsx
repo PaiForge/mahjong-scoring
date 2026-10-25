@@ -165,9 +165,9 @@ export function ScoreTable({
       </div>
 
       {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}
-      {kiriageMangan && viewMode === "normal" && (
-        <div className="mt-4">
-          <KiriageManganNote />
+      {viewMode === "normal" && (
+        <div className="mt-2">
+          <KiriageManganNote enabled={kiriageMangan} />
         </div>
       )}
     </div>
