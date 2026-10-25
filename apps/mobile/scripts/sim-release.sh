@@ -33,10 +33,33 @@ PACKAGE_BACKUP=$(mktemp)
 cp package.json "$PACKAGE_BACKUP"
 trap 'cp "$PACKAGE_BACKUP" package.json; rm -f "$PACKAGE_BACKUP"' EXIT
 
-EXPO_PUBLIC_SUPABASE_URL="$LOCAL_SUPABASE_URL" \
-EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$LOCAL_SUPABASE_PUBLISHABLE_KEY" \
-EXPO_PUBLIC_SITE_URL="$LOCAL_SITE_URL" \
-CI=1 npx expo run:ios --configuration Release --device "$UDID" --no-bundler
+# バンドルの組み立て（Xcode のビルドの中の Metro）がこの値を読む
+export EXPO_PUBLIC_SUPABASE_URL="$LOCAL_SUPABASE_URL"
+export EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$LOCAL_SUPABASE_PUBLISHABLE_KEY"
+export EXPO_PUBLIC_SITE_URL="$LOCAL_SITE_URL"
+export CI=1
+
+# アプリは「Apple でログイン」の entitlement を持ち、expo run:ios はそれを持つアプリを
+# シミュレーター向けでも署名する（@expo/cli の simulatorBuildRequiresCodeSigning）。
+# Apple Development の証明書が無い Mac ではそこで止まるので、署名せずに xcodebuild で
+# 組み、simctl で入れる。シミュレーターは署名の無いアプリも動かせる。この経路のビルドでは
+# 「Apple でログイン」だけが通らない（メールのログインと記録は通る）
+if security find-identity -v -p codesigning | grep -q "Apple Development"; then
+  npx expo run:ios --configuration Release --device "$UDID" --no-bundler
+else
+  echo "sim-release: Apple Development の証明書が無いので、署名せずにビルドする（Apple でログインは通らない）"
+  # ios/ の生成と pod install（expo run:ios が先に行うのと同じ）
+  npx expo prebuild --platform ios
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  DERIVED="ios/build-unsigned"
+  xcodebuild -workspace ios/app.xcworkspace -scheme app -configuration Release \
+    -sdk iphonesimulator -destination "id=$UDID" -derivedDataPath "$DERIVED" \
+    CODE_SIGNING_ALLOWED=NO -quiet build
+  BUILT_APP=$(find "$DERIVED/Build/Products/Release-iphonesimulator" -maxdepth 1 -name '*.app' | head -1)
+  [ -n "$BUILT_APP" ] || { echo "sim-release: ビルドした .app が見つからない" >&2; exit 1; }
+  xcrun simctl install "$UDID" "$BUILT_APP"
+  xcrun simctl launch "$UDID" help.mahjong.score >/dev/null
+fi
 
 # 焼き込まれた接続先を検査する。本番の URL が残っていたら、このビルドで操作してはいけない
 APP=$(xcrun simctl get_app_container "$UDID" help.mahjong.score)
