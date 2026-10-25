@@ -85,6 +85,36 @@ export default [
     },
   },
   {
+    // アプリ（apps/mobile）とアプリが読む共有コード（packages/features・core）は
+    // Static Hermes で動く。Hermes には web（ブラウザ・Node）にある一部の新しい
+    // 組み込みが無く、呼ぶと「undefined is not a function」で画面ごと落ちる。型も
+    // web 側のテストも通るので、実機で開くまで気づけない（2026-10 に練習一覧の
+    // toSorted で全員が落ちる状態になった）。Hermes 250829098.0.17 で無いことを
+    // 確かめたものをここに並べる（toReversed・toSpliced・with・findLast は有る）。
+    // no-restricted-syntax ではなくこの規則にするのは、上の比較関数の禁止と
+    // 同じ規則を同じファイルに重ねると、後の設定が前の設定を置き換えるため
+    files: [
+      "apps/mobile/**/*.{js,jsx,ts,tsx}",
+      "packages/features/src/**/*.{ts,tsx}",
+      "packages/core/src/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        {
+          property: "toSorted",
+          message:
+            "Hermes に Array.prototype.toSorted は無い。filter・map 等で作った新しい配列に .sort() を呼ぶか、[...xs].sort() で複製してから並べる",
+        },
+        {
+          object: "Object",
+          property: "groupBy",
+          message: "Hermes に Object.groupBy は無い。reduce 等で組み立てる",
+        },
+      ],
+    },
+  },
+  {
     // CommonJS で書かれた設定ファイル（postcss・Metro・Babel 等）。`module` /
     // `require` を未定義扱いにしない
     files: [

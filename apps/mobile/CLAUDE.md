@@ -142,6 +142,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
   分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
   開発中は Metro を動かす Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
+- **JS は Static Hermes で動き、web にある組み込みの一部が無い。** `Array.prototype.toSorted`・
+  `Object.groupBy` は無く、呼ぶと画面ごと落ちる（型も web のテストも通る）。アプリと共有コード
+  （`packages/features`・`core`）ではルートの `eslint.config.mjs` が弾く。新しい組み込みを使う前に
+  実機の Release ビルドで確かめ、無ければ同じ規則に足す
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
