@@ -17,6 +17,8 @@
 export const AGARI_SCORE_TOUR_ID = {
   /** 手牌と和了の条件（場風・自風・ドラ・ツモ/ロン） */
   board: "score-board",
+  /** 回答中のヒント（面子分解）。分解を持たない手（七対子・国士無双）では無い */
+  hint: "score-hint",
   /** 役の選択欄（役の回答を求める設定のときだけ） */
   yaku: "score-yaku",
   /** 翻数の選択欄 */

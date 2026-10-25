@@ -127,6 +127,11 @@ export function AgariScoreOperationHelp({
       title: t("board.title"),
       description: t("board.description"),
     },
+    {
+      key: "hint",
+      title: t("hint.title"),
+      description: t("hint.description"),
+    },
     ...(requireYaku
       ? [
           {
