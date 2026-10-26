@@ -129,6 +129,12 @@ export async function banAndResolveReportAction(
  * BAN より軽い対応。表示名・自己紹介・アバター・SNS を空にし、アカウントと
  * 成績は残す。ユーザー名は消さない（URL とランキングの識別子で、空にできない）
  * — ユーザー名そのものが不適切なら BAN で対応する。
+ *
+ * アバターは先に Storage から消し、消せたときだけ参照を切って通報を閉じる。
+ * avatars は公開バケットで公開 URL は RLS を通らずに読めるため、参照だけ
+ * 切って閉じると、Storage の削除に失敗したときに不適切な画像が公開された
+ * まま「対応済み」になり、やり直す入口（未対応の通報）も消える。この順なら
+ * 失敗は `failed` として返り、通報は未対応のまま残る。
  */
 export async function clearProfileAndResolveReportAction(
   reportId: string,
@@ -138,6 +144,13 @@ export async function clearProfileAndResolveReportAction(
   if ("error" in context) return context;
   const targetId = context.report.targetUserId;
   const ipAddress = await getClientIp();
+
+  try {
+    await deleteAvatarObject(targetId);
+  } catch (error) {
+    logExternalError("clearProfileAndResolveReport", "avatar removal", error);
+    return { error: "failed" };
+  }
 
   try {
     await db.transaction(async (tx) => {
@@ -173,12 +186,6 @@ export async function clearProfileAndResolveReportAction(
     return { error: "failed" };
   }
 
-  // 参照を切った後なので、画像の削除に失敗しても誰も指していない画像が残るだけ
-  try {
-    await deleteAvatarObject(targetId);
-  } catch (error) {
-    logExternalError("clearProfileAndResolveReport", "avatar removal", error);
-  }
   // ランキングの行は表示名とアバターを持つ
   purgeLeaderboardCache();
   revalidateAdminUsers();
