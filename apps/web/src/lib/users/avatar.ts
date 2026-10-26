@@ -129,19 +129,33 @@ export async function saveAvatarForUser(
  * アバター画像を削除し、プロフィールの URL を空に戻す
  * アバター削除
  *
- * web の Route Handler から呼ぶ。認証と回数制限は
- * 呼び出し側が済ませること。Storage の削除に失敗しても失敗にしない（下の
- * コメントの通り無害なため）。
+ * web の Route Handler から呼ぶ。認証と回数制限は呼び出し側が済ませること。
+ *
+ * 先に Storage の画像を消し、消せたときだけ参照（`profiles.avatar_url`）を切る。
+ * avatars は公開バケットで、公開 URL は RLS を通らずに読める。参照を先に切ると、
+ * Storage の削除に失敗しても本人には「消えた」と返り、画像は固定のパスで
+ * 公開されたまま残る（再試行の手掛かりも失う）。この順なら Storage の失敗は
+ * 失敗として返り、参照が残るので本人がそのまま削除をやり直せる。
+ * 参照を切る側が失敗したときは消えた画像を指す URL が残るが、やり直せば
+ * 削除は通る（無いパスの remove はエラーにならない）。
+ *
+ * 保存と違い writeAsAccount を通さない。あのロックが防ぐのは「退会の
+ * データ削除の後に書き込みが走り、消したはずのデータが残る」ことで、
+ * ここは消すだけなので退会と前後しても残るものが無い（退会も同じ列を
+ * NULL にし、同じ画像を消す）。
+ *
+ * @returns Storage の削除に失敗したら `removeFailed`（プロフィールは触らない）
  */
-export async function removeAvatarForUser(userId: string): Promise<void> {
-  // 先に参照（profiles.avatar_url）を切る。Storage の削除に失敗しても残るのは
-  // 誰からも参照されないオブジェクトだけで、次のアップロードが同じパスを上書きする。
-  // 逆順にすると失敗時に「消えた画像を指す URL」が残り、一覧が壊れた画像を出す。
-  //
-  // 保存と違い writeAsAccount を通さない。あのロックが防ぐのは「退会の
-  // データ削除の後に書き込みが走り、消したはずのデータが残る」ことで、
-  // ここは消すだけなので退会と前後しても残るものが無い（退会も同じ列を
-  // NULL にし、同じ画像を消す）。
+export async function removeAvatarForUser(
+  userId: string,
+): Promise<{ readonly ok: true } | { readonly error: "removeFailed" }> {
+  try {
+    await deleteAvatarObject(userId);
+  } catch (error) {
+    logExternalError("removeAvatarForUser", "avatar removal", error);
+    return { error: "removeFailed" };
+  }
+
   await db
     .update(profiles)
     .set({ avatarUrl: null, updatedAt: new Date() })
@@ -150,14 +164,13 @@ export async function removeAvatarForUser(userId: string): Promise<void> {
   // 保存と同じ理由でランキングのキャッシュを捨てる（行にアバター URL を含む）。
   purgeLeaderboardCache();
 
-  await deleteAvatarObject(userId);
-
   logActivityEvent({
     userId,
     action: "delete_avatar",
     targetType: "user",
     targetId: userId,
   });
+  return { ok: true };
 }
 
 /**
@@ -165,11 +178,18 @@ export async function removeAvatarForUser(userId: string): Promise<void> {
  * アバター画像削除
  *
  * 本人の削除（{@link removeAvatarForUser}）と、管理者が通報を受けて
- * プロフィールの内容を消すとき（`admin/reports`）に使う。どちらも先に
- * `profiles.avatar_url` を切ってから呼ぶ。
+ * プロフィールの内容を消すとき（`admin/reports`）に使う。どちらも参照
+ * （`profiles.avatar_url`）を切る前に呼び、失敗したら参照を残して止める。
+ *
+ * supabase-js は Storage の失敗を投げずに `error` で返すため、ここで投げ直す。
+ * サービスロールは RLS を通らないので、エラーが無ければオブジェクトは
+ * 消えたか元から無い（どちらも目的は果たしている）。
+ *
+ * @throws Storage が削除に失敗したとき
  */
 export async function deleteAvatarObject(userId: string): Promise<void> {
-  await createAdminClient()
+  const { error } = await createAdminClient()
     .storage.from("avatars")
     .remove([avatarFilePath(userId)]);
+  if (error) throw new Error(`storage remove: ${error.message}`);
 }

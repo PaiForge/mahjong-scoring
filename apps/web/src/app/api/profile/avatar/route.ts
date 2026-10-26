@@ -43,6 +43,9 @@ export async function DELETE(request: Request) {
   const auth = await authorizeApiRequest(request, "deleteAvatar");
   if (!auth.ok) return auth.response;
 
-  await removeAvatarForUser(auth.user.id);
+  const result = await removeAvatarForUser(auth.user.id);
+  if ("error" in result) {
+    return jsonPrivate({ error: result.error }, { status: 500 });
+  }
   return jsonPrivate({ success: true });
 }
