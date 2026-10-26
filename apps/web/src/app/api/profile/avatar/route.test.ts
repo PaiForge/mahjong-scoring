@@ -16,6 +16,8 @@
  * 2. DELETE は「Storage を消せてから参照を切る」順序で、Storage の削除に
  *    失敗したら失敗を返して参照を残す（公開バケットの画像が残ったまま
  *    「消えた」と返さない）
+ * 3. 上げた後に退会の受付が分かったら画像を消し、消せなければ退会の
+ *    Storage の工程を未了に戻して再試行に回す（退会者の画像を公開のまま残さない）
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NextResponse } from "next/server";
@@ -28,8 +30,10 @@ const {
   mockSharp,
   mockToBuffer,
   mockCreateAdminClient,
+  mockWriteAsAccount,
 } = vi.hoisted(() => ({
   mockCreateAdminClient: vi.fn(),
+  mockWriteAsAccount: vi.fn(),
   mockAuthorizeApiRequest: vi.fn(),
   mockLogActivityEvent: vi.fn(),
   mockRevalidateTag: vi.fn(),
@@ -48,17 +52,20 @@ vi.mock("@/lib/activity-log", () => ({
   logActivityEvent: mockLogActivityEvent,
 }));
 
-vi.mock("@/lib/db", async () => ({
-  db: { update: mockUpdate },
-  profiles: (await import("@/test/schema-mock")).profiles,
-}));
+vi.mock("@/lib/db", async () => {
+  const schema = await import("@/test/schema-mock");
+  return {
+    db: { update: mockUpdate },
+    profiles: schema.profiles,
+    accountDeletions: schema.accountDeletions,
+  };
+});
 
-// 退会と直列にする書き込みの枠は、退会が無い状態（そのまま書く）として通す
-vi.mock("@/lib/users/account-write-lock", async () =>
-  (await import("@/test/account-write-lock-mock")).passThroughAccountWrite({
-    update: mockUpdate,
-  }),
-);
+// 退会と直列にする書き込みの枠。既定は退会が無い状態（そのまま書く）として
+// 通し（beforeEach）、退会と行き違うテストだけ written: false に差し替える
+vi.mock("@/lib/users/account-write-lock", () => ({
+  writeAsAccount: mockWriteAsAccount,
+}));
 
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: mockCreateAdminClient,
@@ -71,7 +78,9 @@ vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 // そのまま渡ることなので、チェーンの形だけ模す。
 vi.mock("sharp", () => ({ default: mockSharp }));
 
+import { passThroughAccountWrite } from "@/test/account-write-lock-mock";
 import { createQueryChain } from "@/test/drizzle-mock";
+import { accountDeletions } from "@/test/schema-mock";
 import { LEADERBOARD_CACHE_TAG } from "@/lib/cache-tags";
 import { AVATAR_MAX_FILE_SIZE } from "@/lib/images/policy";
 
@@ -150,6 +159,9 @@ beforeEach(() => {
   vi.clearAllMocks();
   authorized();
   mockUpdate.mockReturnValue(createQueryChain(undefined));
+  mockWriteAsAccount.mockImplementation(
+    passThroughAccountWrite({ update: mockUpdate }).writeAsAccount,
+  );
   mockToBuffer.mockResolvedValue(PROCESSED);
   mockSharp.mockReturnValue({
     rotate: () => ({
@@ -317,6 +329,73 @@ describe("POST", () => {
         targetType: "user",
         targetId: USER_ID,
       });
+    });
+  });
+
+  describe("上げた後に退会の受付が分かったとき", () => {
+    beforeEach(() => {
+      mockWriteAsAccount.mockResolvedValue({ written: false });
+    });
+
+    it("上げた画像を消して 401 を返し、退会の工程には触れない", async () => {
+      const response = await POST(requestWithFile(pngFile()));
+
+      expect(response.status).toBe(401);
+      await expect(response.json()).resolves.toEqual({ error: "unauthorized" });
+      expectPrivateCache(response);
+      expect(mockRemove).toHaveBeenCalledWith([`${USER_ID}/avatar.webp`]);
+      expect(mockUpdate).not.toHaveBeenCalled();
+      expect(mockRevalidateTag).not.toHaveBeenCalled();
+      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [
+        "エラーを返した",
+        () =>
+          mockRemove.mockResolvedValue({
+            data: null,
+            error: new Error("storage down"),
+          }),
+      ],
+      [
+        "例外を投げた",
+        () => mockRemove.mockRejectedValue(new Error("network")),
+      ],
+    ])(
+      "削除が%sら、退会の Storage の工程を未了に戻して再試行に回す",
+      async (_label, failRemove) => {
+        // 退会の Storage の工程が先に済んでいると、この画像は誰にも消されない。
+        // 完了も外す（cron は未完了の要求だけを読む）。
+        failRemove();
+
+        const response = await POST(requestWithFile(pngFile()));
+
+        expect(response.status).toBe(401);
+        expectPrivateCache(response);
+        expect(mockUpdate).toHaveBeenCalledWith(accountDeletions);
+        const chain = mockUpdate.mock.results[0].value;
+        expect(chain.set).toHaveBeenCalledWith({
+          storageDeletedAt: null,
+          completedAt: null,
+        });
+        expect(chain.where).toHaveBeenCalledWith({
+          op: "eq",
+          args: [accountDeletions.userId, USER_ID],
+        });
+      },
+    );
+
+    it("未了に戻すのも失敗したら、記録だけ残して 401 を返す", async () => {
+      mockRemove.mockRejectedValue(new Error("network"));
+      mockUpdate.mockImplementation(() => {
+        throw new Error("db down");
+      });
+
+      const response = await POST(requestWithFile(pngFile()));
+
+      expect(response.status).toBe(401);
+      expectPrivateCache(response);
     });
   });
 });

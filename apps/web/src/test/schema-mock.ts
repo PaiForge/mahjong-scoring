@@ -151,3 +151,11 @@ export const practiceQuotaUsage = {
   day: "day",
   count: "count",
 } as const;
+
+/** account_deletions のカラム */
+export const accountDeletions = {
+  _name: "account_deletions",
+  userId: "user_id",
+  storageDeletedAt: "storage_deleted_at",
+  completedAt: "completed_at",
+} as const;
