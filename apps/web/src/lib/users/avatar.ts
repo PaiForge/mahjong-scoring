@@ -5,7 +5,7 @@ import sharp from "sharp";
 
 import { logActivityEvent } from "@/lib/activity-log";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
-import { db, profiles } from "@/lib/db";
+import { accountDeletions, db, profiles } from "@/lib/db";
 import { SHARP_DECODE_OPTIONS } from "@/lib/images/sharp-options";
 import { logExternalError } from "@/lib/log-error";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -96,8 +96,7 @@ export async function saveAvatarForUser(
   } = storage.from("avatars").getPublicUrl(filePath);
   const avatarUrl = `${publicUrl}?t=${Date.now()}`;
 
-  // 退会を受け付けた後なら URL を書かず、上げた画像も消す（退会の Storage の
-  // 工程が先に済んでいると、ここで上げた画像は誰にも消されずに残る）
+  // 退会を受け付けた後なら URL を書かず、上げた画像も消す
   const { written } = await writeAsAccount(userId, (tx) =>
     tx
       .update(profiles)
@@ -105,7 +104,7 @@ export async function saveAvatarForUser(
       .where(eq(profiles.id, userId)),
   );
   if (!written) {
-    await storage.from("avatars").remove([filePath]);
+    await discardAvatarUploadedAfterDeletion(userId, where);
     return { error: "unauthorized" };
   }
 
@@ -123,6 +122,49 @@ export async function saveAvatarForUser(
   });
 
   return { avatarUrl };
+}
+
+/**
+ * 退会の受付と行き違いで上げた画像を消す
+ * 退会後のアバター破棄
+ *
+ * 退会の Storage の工程が先に済んでいると、ここで上げた画像は誰にも消されず、
+ * 退会者の画像が公開 URL で読めるまま残る。消せなかったときは、退会の要求の
+ * Storage の工程を未了に戻して cron（`processPendingAccountDeletions`）に
+ * 拾わせる。工程はプレフィックスで一覧して消すので、この画像も含まれる。
+ * 完了済みの要求も完了を外して戻す（cron は未完了の要求だけを読む）。
+ * Apple の連携の取り消し（`lib/apple/refresh-tokens.ts`）と同じ戻し方で、
+ * 済んでいる他の工程は飛ばされる。
+ *
+ * @design 退会の処理と同時に走ったとき
+ * それでも画像が残るのは、ここで消すのに失敗し、かつ退会の処理が一覧した後・
+ * 済みを記録する前に、この画像が上がって戻しまで終えたときだけ（済みの記録が
+ * 戻しを上書きする）。
+ * 受付の排他ロックと書き込みの共有ロックは要求の行が出来た後の書き込みを
+ * 止めるだけで、Storage の工程とは直列にならない。閉じるには工程の一覧から
+ * 済みの記録までを要求の行のロックで包む必要があり、Storage の失敗と退会の
+ * 処理の数百ミリ秒が重なる確率に対して見合わないので採っていない。
+ *
+ * 戻しも失敗したら記録だけ残す（呼び出し元は退会後として 401 を返す）。
+ */
+async function discardAvatarUploadedAfterDeletion(
+  userId: string,
+  where: string,
+): Promise<void> {
+  try {
+    await deleteAvatarObject(userId);
+    return;
+  } catch (error) {
+    logExternalError(where, "退会後に上げたアバターの削除に失敗", error);
+  }
+  try {
+    await db
+      .update(accountDeletions)
+      .set({ storageDeletedAt: null, completedAt: null })
+      .where(eq(accountDeletions.userId, userId));
+  } catch (error) {
+    logExternalError(where, "退会の Storage の工程を未了に戻せなかった", error);
+  }
 }
 
 /**
@@ -180,6 +222,8 @@ export async function removeAvatarForUser(
  * 本人の削除（{@link removeAvatarForUser}）と、管理者が通報を受けて
  * プロフィールの内容を消すとき（`admin/reports`）に使う。どちらも参照
  * （`profiles.avatar_url`）を切る前に呼び、失敗したら参照を残して止める。
+ * 退会と行き違いで上げた画像の後始末（{@link discardAvatarUploadedAfterDeletion}）
+ * にも使い、こちらは失敗したら退会の再試行に回す。
  *
  * supabase-js は Storage の失敗を投げずに `error` で返すため、ここで投げ直す。
  * サービスロールは RLS を通らないので、エラーが無ければオブジェクトは
