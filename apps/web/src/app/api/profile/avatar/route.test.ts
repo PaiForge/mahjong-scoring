@@ -13,8 +13,9 @@
  *
  * あわせて、コメントでしか表現されていない2つの仕様を固定する。
  * 1. アップロードに失敗したら profiles を更新しない
- * 2. DELETE は「先に参照を切ってから Storage を消す」順序で、Storage の削除に
- *    失敗しても操作全体は成功させる
+ * 2. DELETE は「Storage を消せてから参照を切る」順序で、Storage の削除に
+ *    失敗したら失敗を返して参照を残す（公開バケットの画像が残ったまま
+ *    「消えた」と返さない）
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { NextResponse } from "next/server";
@@ -334,9 +335,9 @@ describe("DELETE", () => {
     expect(mockUpdate).not.toHaveBeenCalled();
   });
 
-  it("参照を切ってから Storage を消す", async () => {
-    // 逆順にすると、削除に失敗したときに「消えた画像を指す URL」が残り、
-    // 一覧が壊れた画像を出す。
+  it("Storage を消してから参照を切る", async () => {
+    // 参照を先に切ると、Storage の削除に失敗したときに公開 URL の画像が
+    // 残ったまま「消えた」と返り、やり直す手掛かりも失う。
     const order: string[] = [];
     mockUpdate.mockImplementation(() => {
       order.push("db");
@@ -344,12 +345,12 @@ describe("DELETE", () => {
     });
     mockRemove.mockImplementation(() => {
       order.push("storage");
-      return Promise.resolve({ error: undefined });
+      return Promise.resolve({ data: [], error: null });
     });
 
     await DELETE(request());
 
-    expect(order).toEqual(["db", "storage"]);
+    expect(order).toEqual(["storage", "db"]);
     expect(mockRemove).toHaveBeenCalledWith([`${USER_ID}/avatar.webp`]);
     expect(mockUserStorageFrom).not.toHaveBeenCalled();
   });
@@ -377,14 +378,41 @@ describe("DELETE", () => {
     });
   });
 
-  it("Storage の削除に失敗しても成功として返す", async () => {
-    // 参照は既に切れているので、残るのは誰からも参照されないオブジェクトだけ。
-    // 次のアップロードが同じパスを上書きする。
-    mockRemove.mockResolvedValue({ error: new Error("storage down") });
+  it("Storage がエラーを返したら 500 を返し、参照を残す", async () => {
+    // 参照（avatar_url）が残るので、本人がそのまま削除をやり直せる。
+    mockRemove.mockResolvedValue({
+      data: null,
+      error: new Error("storage down"),
+    });
+
+    const response = await DELETE(request());
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({ error: "removeFailed" });
+    expectPrivateCache(response);
+    expect(mockUpdate).not.toHaveBeenCalled();
+    expect(mockRevalidateTag).not.toHaveBeenCalled();
+    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+  });
+
+  it("Storage の呼び出しが例外を投げても 500 を返し、参照を残す", async () => {
+    mockRemove.mockRejectedValue(new Error("network"));
+
+    const response = await DELETE(request());
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({ error: "removeFailed" });
+    expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it("画像が既に無くても（削除 0 件）参照を切って成功する", async () => {
+    // 前回の DB 更新だけが失敗した後のやり直し。サービスロールは RLS を
+    // 通らないので、0 件は「元から無い」を意味する。
+    mockRemove.mockResolvedValue({ data: [], error: null });
 
     const response = await DELETE(request());
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ success: true });
+    expect(mockUpdate).toHaveBeenCalled();
   });
 });
