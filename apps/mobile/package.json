@@ -54,7 +54,7 @@
     "@types/react": "^19.2.18",
     "babel-preset-expo": "~57.0.14",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.12"
   },
   "expo": {
     "install": {
