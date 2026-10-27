@@ -22,6 +22,7 @@ import {
   type TenpaiScorePhase,
 } from "./cell-ref";
 import { judgeAllCells } from "./judge-cells";
+import { buildPracticeQueryReset } from "../practice-query-reset";
 
 interface TenpaiScoreState {
   /** 現在の問題 */
@@ -190,15 +191,9 @@ export function createTenpaiScoreStore(getRuleSettings: () => RuleSettings) {
     },
 
     applyPracticeQuery: (query, options) => {
-      set((state) => ({
-        options: { ...state.options, ...options },
-        appliedQuery: query,
-        stats: { total: 0, correct: 0 },
-        currentQuestion: undefined,
-        generationFailed: false,
-        questionSeq: state.questionSeq + 1,
-        ...INITIAL_ANSWERING,
-      }));
+      set((state) =>
+        buildPracticeQueryReset(state, query, options, INITIAL_ANSWERING),
+      );
     },
 
     setQuestion: (question) => {
