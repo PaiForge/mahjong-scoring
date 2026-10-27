@@ -1,7 +1,5 @@
-import {
-  HAN_COUNT_OPTIONS,
-  hanCountLabel,
-} from "@mahjong-scoring/features/practice/han-count/han-options";
+import { HAN_COUNT_OPTIONS } from "@mahjong-scoring/features/practice/han-count/han-options";
+import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
 
 import { HanChoiceAnswerForm } from "../../components/han-choice-answer-form";
 
@@ -27,7 +25,7 @@ export function HanCountAnswerForm(props: {
       options={HAN_COUNT_OPTIONS}
       translationNamespace="hanCountChallenge"
       columns={4}
-      renderLabel={hanCountLabel}
+      renderLabel={hanOptionLabel}
     />
   );
 }

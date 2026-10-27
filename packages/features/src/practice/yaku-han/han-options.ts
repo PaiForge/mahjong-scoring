@@ -1,4 +1,4 @@
-import { YAKUMAN_HAN, isYakumanHan } from "@mahjong-scoring/core";
+import { YAKUMAN_HAN } from "@mahjong-scoring/core";
 
 /**
  * 役翻数練習の選択肢（1〜6翻 + 役満）
@@ -13,21 +13,6 @@ import { YAKUMAN_HAN, isYakumanHan } from "@mahjong-scoring/core";
  * だけを並べる。合計翻数を答える翻数即答とは問う対象が違うため、選択肢を共有しない。
  */
 export const YAKU_HAN_OPTIONS = [1, 2, 3, 4, 5, 6, YAKUMAN_HAN] as const;
-
-/**
- * 役翻数の選択肢の表記（「n翻」か「役満」）
- * 役翻数表記
- *
- * 回答フォームと問題別一覧で同じ表記にする。
- *
- * @param t - `hanOption` / `yakuman` キーを持つ翻訳関数（yakuHanChallenge）
- */
-export function yakuHanLabel(
-  han: number,
-  t: (key: string, values?: Record<string, number>) => string,
-): string {
-  return isYakumanHan(han) ? t("yakuman") : t("hanOption", { count: han });
-}
 
 /**
  * 出題の手が門前か鳴きかの表記（「門前」か「鳴き」）
