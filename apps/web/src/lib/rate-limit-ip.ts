@@ -138,7 +138,9 @@ export const IP_RATE_LIMITS = {
   // アプリのチャレンジの一時停止・状態の取り直し・時間切れの問題の取得。
   // 裏に回る・通信が戻るたびに飛ぶ
   readChallenge: { maxRequests: 300, windowMs: 600_000 },
-  // アプリのチャレンジの確定。送り直しを含めても開始の回数を超えない
+  // チャレンジの確定（アプリの確定の API と web の savePracticeResult /
+  // submitExamResult が同じ枠を使う）。送り直しを含めても開始の回数を超えない。
+  // web はアカウント単位だけで数える（enforceUserRateLimit の TSDoc）
   finishChallenge: { maxRequests: 60, windowMs: 600_000 },
   // アプリが画面を開くたびに読む進み具合
   readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
@@ -221,4 +223,29 @@ export async function enforceIpRateLimit(
   const { getClientIp } = await import("./client-ip");
   const ip = await getClientIp();
   return checkIpRateLimitGuard(ip, key, config);
+}
+
+/**
+ * ログイン済みのユーザー単位のレートリミット。
+ * 制限超過時は `{ error: 'rateLimited' }` を返し、許可時は undefined を返す。
+ * ユーザーレートリミット
+ *
+ * IP の枠と同じストアで数え、キーに `user:` を付けて混ざらないようにする。
+ * 同じアクションキーを使えば、アプリ向け API（`authorizeMobileRequest` の
+ * ユーザーの段）と web の Server Action が 1 つのアカウントで同じ枠を数える。
+ *
+ * IP ではなくアカウントで数えるのは、弾かれると取り返しの付かない書き込み
+ * （web の結果送信は送り直さない）を、同じ回線を共有する他人の操作に
+ * 巻き込ませないため。
+ *
+ * @param userId - 認証済みのユーザー ID
+ * @param key - アクションキー（`IP_RATE_LIMITS` のキー）
+ * @param config - レートリミット設定（省略時は `IP_RATE_LIMITS[key]`）
+ */
+export function enforceUserRateLimit(
+  userId: string,
+  key: keyof typeof IP_RATE_LIMITS,
+  config: Readonly<IpRateLimitConfig> = IP_RATE_LIMITS[key],
+): { error: RateLimitErrorCode } | undefined {
+  return checkIpRateLimitGuard(`user:${userId}`, key, config);
 }

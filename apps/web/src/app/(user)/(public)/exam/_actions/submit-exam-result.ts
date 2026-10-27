@@ -3,6 +3,10 @@ import type { ActionResult } from "@/lib/action-types";
 import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
+import {
+  enforceUserRateLimit,
+  type RateLimitErrorCode,
+} from "@/lib/rate-limit-ip";
 import { resolveRecorder } from "@/lib/resolve-recorder";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
@@ -14,6 +18,7 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
  */
 export type SubmitExamErrorCode =
   | Exclude<AuthGateErrorCode, "unauthorized">
+  | RateLimitErrorCode
   | "invalidResult"
   | "unexpectedError";
 
@@ -29,6 +34,9 @@ export type SubmitExamErrorCode =
  *   エラーではなく「期待された no-op」を表す（未ログインでは挑戦が始まらない
  *   ため、通常は起きない）。
  * - `{ error: 'banned' }`: BAN されたユーザー。採点しない。
+ * - `{ error: 'rateLimited' }`: 同じアカウントの確定の回数が枠
+ *   （`IP_RATE_LIMITS.finishChallenge`）を超えた。挑戦には触れずに返すので
+ *   未確定のまま残り、枠が空いてから同じ挑戦 ID で再送できる。
  * - `{ error: 'invalidResult' }`: 採点できる試験の挑戦ではない。
  *   存在しない・他人の挑戦、試験でない練習の挑戦、まだ終わって
  *   いない挑戦（時間切れにもミス上限にも達していない）。
@@ -62,6 +70,12 @@ export type SubmitExamResponse = ActionResult<
  * （`gradeExamRun`）自体も「次の級の試験でなければ付与しない」ので、
  * 資格ガードは二重の安全装置。
  *
+ * 回数の枠はアカウント単位で数え、アプリの確定と同じ枠を使う
+ * （`enforceUserRateLimit`）。IP で数えないのは、web の終了時の送信
+ * （`useFinishAction`）が弾かれても送り直さず、同じ回線を共有する他人の
+ * 操作に巻き込まれると記録が黙って失われるため。確定の回数は開始の回数
+ * （`beginChallenge` の枠）を超えないので、人の操作は引っ掛からない。
+ *
  * @param attemptId - `beginChallenge` が発行した挑戦 ID
  */
 export async function submitExamResult(
@@ -71,6 +85,11 @@ export async function submitExamResult(
     const recorder = await resolveRecorder();
     if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
     if ("error" in recorder) return { error: recorder.error };
+    const rateLimited = enforceUserRateLimit(
+      recorder.user.id,
+      "finishChallenge",
+    );
+    if (rateLimited) return rateLimited;
     const result = await finishAttempt(recorder.user.id, attemptId, true);
     if (!result || !("grantedRanks" in result))
       return { error: "invalidResult" };

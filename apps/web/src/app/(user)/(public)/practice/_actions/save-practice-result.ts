@@ -3,6 +3,10 @@ import type { ActionResult } from "@/lib/action-types";
 import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
+import {
+  enforceUserRateLimit,
+  type RateLimitErrorCode,
+} from "@/lib/rate-limit-ip";
 import { resolveRecorder } from "@/lib/resolve-recorder";
 
 /**
@@ -13,6 +17,7 @@ import { resolveRecorder } from "@/lib/resolve-recorder";
  */
 export type SaveResultErrorCode =
   | Exclude<AuthGateErrorCode, "unauthorized">
+  | RateLimitErrorCode
   | "invalidResult"
   | "unexpectedError";
 
@@ -25,6 +30,9 @@ export type SaveResultErrorCode =
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
+ * - `{ error: 'rateLimited' }`: 同じアカウントの確定の回数が枠
+ *   （`IP_RATE_LIMITS.finishChallenge`）を超えた。挑戦には触れずに返すので
+ *   未確定のまま残り、枠が空いてから同じ挑戦 ID で再送できる。
  * - `{ error: 'invalidResult' }`: 記録できる挑戦ではない。
  *   存在しない・他人の挑戦、昇級試験の挑戦、まだ終わっていない
  *   挑戦（時間切れにもミス上限にも達していない）、1 問も回答していない挑戦。
@@ -61,6 +69,12 @@ export type SaveResultResponse = ActionResult<
  * 匿名扱いされるバグクラスを避け、サーバーの cookie ベースの Supabase
  * クライアントを唯一の認証ソースにする。
  *
+ * 回数の枠はアカウント単位で数え、アプリの確定と同じ枠を使う
+ * （`enforceUserRateLimit`）。IP で数えないのは、web の終了時の送信
+ * （`useFinishAction`）が弾かれても送り直さず、同じ回線を共有する他人の
+ * 操作に巻き込まれると記録が黙って失われるため。確定の回数は開始の回数
+ * （`beginChallenge` の枠）を超えないので、人の操作は引っ掛からない。
+ *
  * @param attemptId - `beginChallenge` が発行した挑戦 ID
  */
 export async function savePracticeResult(
@@ -70,6 +84,11 @@ export async function savePracticeResult(
     const recorder = await resolveRecorder();
     if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
     if ("error" in recorder) return { error: recorder.error };
+    const rateLimited = enforceUserRateLimit(
+      recorder.user.id,
+      "finishChallenge",
+    );
+    if (rateLimited) return rateLimited;
     const result = await finishAttempt(recorder.user.id, attemptId, false);
     if (!result || !("challengeResultId" in result))
       return { error: "invalidResult" };

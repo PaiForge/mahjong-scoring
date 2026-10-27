@@ -13,6 +13,7 @@ import { getSupabasePublicEnv } from "../supabase/env";
 import {
   IP_RATE_LIMITS,
   checkIpRateLimitGuard,
+  enforceUserRateLimit,
   type IpRateLimitConfig,
 } from "../rate-limit-ip";
 
@@ -217,7 +218,7 @@ type AuthorizeMobileResult =
  * ユーザーの枠は認証の後に数え、回線を変えながら 1 アカウントで叩く経路を
  * 絞る。どちらも `rate-limit-ip.ts` のインメモリの枠を使うので、インスタンス
  * 間で共有されない制約も同じ（web の Server Action と同条件）。ユーザーの枠は
- * キーに `user:` を付けて IP の枠と混ざらないようにしている。
+ * `enforceUserRateLimit` で数え、IP の枠と混ざらない。
  *
  * @param rateLimitKey - レートリミットのアクションキー（`IP_RATE_LIMITS` のキー）
  * @param options.config - レートリミット設定（省略時は `IP_RATE_LIMITS[rateLimitKey]`）
@@ -251,7 +252,7 @@ export async function authorizeMobileRequest(
     };
   }
 
-  if (checkIpRateLimitGuard(`user:${auth.user.id}`, rateLimitKey, config)) {
+  if (enforceUserRateLimit(auth.user.id, rateLimitKey, config)) {
     return rateLimited();
   }
 
