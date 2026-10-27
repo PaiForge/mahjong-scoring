@@ -20,7 +20,7 @@ export function wait(ms: number): Promise<void> {
  * 通信の再送
  *
  * 結果が「送り直してよい」かは呼び出し側の `shouldRetry` が決める（アプリは
- * 通信や一時的な障害、web は結果送信の失敗の表 `finish-failure-policy.ts`）。
+ * 通信や一時的な障害、web はチャレンジの Action の失敗の表 `challenge-failure-policy.ts`）。
  * サーバーが断った（もう送っても変わらない）結果はそのまま返す。`send` が
  * 投げる例外は扱わない — 例外も送り直したいなら `send` の中で結果に畳む。
  *

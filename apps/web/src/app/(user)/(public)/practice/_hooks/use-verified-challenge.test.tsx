@@ -184,6 +184,111 @@ describe("server-graded challenge UI", () => {
     await waitFor(() => expect(mocks.expired).toHaveBeenCalledTimes(1));
     expect(mocks.recorded).toHaveBeenCalledWith(answered);
   });
+  describe("送り直し", () => {
+    /**
+     * 送り直しの待ち時間（500ms → 1s → 2s）を実時間で待たない。開始の往復は
+     * 実時間のまま待ち（`findByText`）、押してから時計を偽物にする —
+     * `waitFor` は偽の時計の下では進まないため、以降は `act` で時間を進めて
+     * 直接確かめる
+     */
+    async function mountAndFakeTimers() {
+      mount();
+      await screen.findByText("20");
+      vi.useFakeTimers();
+    }
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    const graded = {
+      answered,
+      correct: true,
+      question: { ...hidden, id: "question-2" },
+      sequence: 1,
+      elapsedMs: 12_345,
+    };
+
+    it("枠・不通・例外で弾かれた回答は同じ番号・同じ回答で送り直し、採点は 1 回", async () => {
+      mocks.answer
+        .mockResolvedValueOnce({ error: "rateLimited" })
+        .mockResolvedValueOnce({ error: "authUnavailable" })
+        .mockRejectedValueOnce(new Error("network"))
+        .mockResolvedValue(graded);
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("answer"));
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(mocks.answer).toHaveBeenCalledTimes(1);
+      // 送り直しを待つ間も採点待ちのまま（時計は止まり、選択肢は押せない）
+      expect(screen.getByTestId("grading").textContent).toBe("true");
+      await act(() => vi.advanceTimersByTimeAsync(500));
+      expect(mocks.answer).toHaveBeenCalledTimes(2);
+      await act(() => vi.advanceTimersByTimeAsync(1_000));
+      expect(mocks.answer).toHaveBeenCalledTimes(3);
+      expect(screen.getByTestId("grading").textContent).toBe("true");
+      await act(() => vi.advanceTimersByTimeAsync(2_000));
+      expect(mocks.answer).toHaveBeenCalledTimes(4);
+      for (const call of mocks.answer.mock.calls)
+        expect(call).toEqual(["attempt-1", 0, 2]);
+      expect(mocks.onAnswer).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("grading").textContent).toBe("false");
+      expect(screen.getByTestId("clock").textContent).toBe("12345");
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("送り直しても通らなければ通信エラーで止める", async () => {
+      mocks.answer.mockResolvedValue({ error: "rateLimited" });
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("answer"));
+      await act(() => vi.advanceTimersByTimeAsync(3_500));
+      expect(mocks.answer).toHaveBeenCalledTimes(4);
+      expect(screen.getByRole("alert")).toBeDefined();
+      expect(mocks.onAnswer).not.toHaveBeenCalled();
+    });
+
+    it.each(["rejected", "unauthorized", "banned"] as const)(
+      "受け付けられなかった回答（%s）は送り直さずに止める",
+      async (error) => {
+        mocks.answer.mockResolvedValue({ error });
+        await mountAndFakeTimers();
+        fireEvent.click(screen.getByText("answer"));
+        await act(() => vi.advanceTimersByTimeAsync(3_500));
+        expect(mocks.answer).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole("alert")).toBeDefined();
+      },
+    );
+
+    it("時間切れの開示の一時的な失敗は同じ挑戦 ID で読み直す", async () => {
+      mocks.reveal
+        .mockResolvedValueOnce({ error: "unexpectedError" })
+        .mockResolvedValueOnce({ remainingMs: 100 })
+        .mockRejectedValueOnce(new Error("network"))
+        .mockResolvedValue({ question: answered });
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("expire"));
+      await act(() => vi.advanceTimersByTimeAsync(500));
+      expect(mocks.reveal).toHaveBeenCalledTimes(2);
+      // 期限前なら残り時間だけ待ってから読み直す。その読み直しも送り直す
+      await act(() => vi.advanceTimersByTimeAsync(120));
+      expect(mocks.reveal).toHaveBeenCalledTimes(3);
+      await act(() => vi.advanceTimersByTimeAsync(500));
+      expect(mocks.reveal).toHaveBeenCalledTimes(4);
+      for (const call of mocks.reveal.mock.calls)
+        expect(call).toEqual(["attempt-1"]);
+      expect(mocks.expired).toHaveBeenCalledTimes(1);
+      expect(mocks.recorded).toHaveBeenCalledWith(answered);
+      expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("開示を受け付けなかったら送り直さずに止める", async () => {
+      mocks.reveal.mockResolvedValue({ error: "rejected" });
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("expire"));
+      await act(() => vi.advanceTimersByTimeAsync(3_500));
+      expect(mocks.reveal).toHaveBeenCalledTimes(1);
+      expect(mocks.expired).not.toHaveBeenCalled();
+      expect(screen.getByRole("alert")).toBeDefined();
+    });
+  });
+
   it("期限を過ぎて届いた回答は加点せず、結果表示に進める", async () => {
     mocks.answer.mockResolvedValue({ expired: true });
     mount();
