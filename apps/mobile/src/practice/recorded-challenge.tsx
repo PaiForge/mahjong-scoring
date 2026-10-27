@@ -18,7 +18,7 @@ import {
   type RecordedChallengeMode,
   type ServerQuestion,
 } from "./recorded-challenge-mode";
-import { useReconnectPrompt } from "./use-reconnect-prompt";
+import { useReconnectPrompt } from "@mahjong-scoring/features/session/use-reconnect-prompt";
 import { useServerPauseSync } from "./use-server-pause-sync";
 import {
   practiceMenuBySlug,

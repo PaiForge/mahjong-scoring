@@ -61,6 +61,8 @@ function Board() {
       <button onClick={() => handleSelect(0)}>answer-other</button>
       <button onClick={challenge?.advance}>next</button>
       <button onClick={() => challenge?.expire(mocks.expired)}>expire</button>
+      <p data-testid="reconnect">{challenge?.reconnect?.message ?? ""}</p>
+      <button onClick={() => challenge?.reconnect?.onPress()}>reconnect</button>
     </div>
   );
 }
@@ -234,14 +236,49 @@ describe("server-graded challenge UI", () => {
       expect(screen.queryByRole("alert")).toBeNull();
     });
 
-    it("送り直しても通らなければ通信エラーで止める", async () => {
+    it("送り直しても通らなければ再接続の案内を出し、押すと同じ回答を送り直す", async () => {
       mocks.answer.mockResolvedValue({ error: "rateLimited" });
       await mountAndFakeTimers();
       fireEvent.click(screen.getByText("answer"));
       await act(() => vi.advanceTimersByTimeAsync(3_500));
       expect(mocks.answer).toHaveBeenCalledTimes(4);
-      expect(screen.getByRole("alert")).toBeDefined();
+      // 盤面ごと止めず（alert ではなく）、採点待ちのまま押されるのを待つ
+      expect(screen.queryByRole("alert")).toBeNull();
+      expect(screen.getByTestId("reconnect").textContent).toBe(
+        "connectionLost",
+      );
+      expect(screen.getByTestId("grading").textContent).toBe("true");
       expect(mocks.onAnswer).not.toHaveBeenCalled();
+      // 案内のボタンは無効な fieldset の中にあってはならない（ブラウザは
+      // 無効な fieldset の中のボタンを押させない。jsdom は伝播させない）
+      expect(screen.getByText("reconnect").closest("fieldset")?.disabled).toBe(
+        false,
+      );
+      // 待っている間は送らない
+      await act(() => vi.advanceTimersByTimeAsync(10_000));
+      expect(mocks.answer).toHaveBeenCalledTimes(4);
+
+      mocks.answer.mockResolvedValue(graded);
+      fireEvent.click(screen.getByText("reconnect"));
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(screen.getByTestId("reconnect").textContent).toBe("");
+      expect(mocks.answer).toHaveBeenCalledTimes(5);
+      expect(mocks.answer.mock.lastCall).toEqual(["attempt-1", 0, 2]);
+      expect(mocks.onAnswer).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("grading").textContent).toBe("false");
+    });
+
+    it("再接続を押してもまだ通らなければ、数回送り直してからまた案内を出す", async () => {
+      mocks.answer.mockResolvedValue({ error: "authUnavailable" });
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("answer"));
+      await act(() => vi.advanceTimersByTimeAsync(3_500));
+      fireEvent.click(screen.getByText("reconnect"));
+      await act(() => vi.advanceTimersByTimeAsync(3_500));
+      expect(mocks.answer).toHaveBeenCalledTimes(8);
+      expect(screen.getByTestId("reconnect").textContent).toBe(
+        "connectionLost",
+      );
     });
 
     it.each(["rejected", "unauthorized", "banned"] as const)(
@@ -276,6 +313,23 @@ describe("server-graded challenge UI", () => {
       expect(mocks.expired).toHaveBeenCalledTimes(1);
       expect(mocks.recorded).toHaveBeenCalledWith(answered);
       expect(screen.queryByRole("alert")).toBeNull();
+    });
+
+    it("開示の送り直しが尽きたら再接続の案内を出し、押すと読み直す", async () => {
+      mocks.reveal.mockResolvedValue({ error: "unexpectedError" });
+      await mountAndFakeTimers();
+      fireEvent.click(screen.getByText("expire"));
+      await act(() => vi.advanceTimersByTimeAsync(3_500));
+      expect(mocks.reveal).toHaveBeenCalledTimes(4);
+      expect(screen.getByTestId("reconnect").textContent).toBe(
+        "connectionLost",
+      );
+      expect(mocks.expired).not.toHaveBeenCalled();
+      mocks.reveal.mockResolvedValue({ question: answered });
+      fireEvent.click(screen.getByText("reconnect"));
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(mocks.expired).toHaveBeenCalledTimes(1);
+      expect(mocks.recorded).toHaveBeenCalledWith(answered);
     });
 
     it("開示を受け付けなかったら送り直さずに止める", async () => {

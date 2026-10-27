@@ -16,6 +16,8 @@ import type {
   GameSessionState,
   TimerControl,
 } from "@mahjong-scoring/features/session/use-timed-session";
+import type { ReconnectPrompt } from "@mahjong-scoring/features/session/use-reconnect-prompt";
+import { Button } from "@/app/(user)/_components/button";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
@@ -93,6 +95,13 @@ interface ChallengeShellProps {
    * 中断の確認モーダルとトーストの文言（試験 / チャレンジ）もここで選ぶ。
    */
   readonly variant?: MenuKind;
+  /**
+   * 通信の失敗が続いたときに盤面の上へ重ねる再接続の案内（記録付きの
+   * チャレンジだけ。`useVerifiedChallenge` の `reconnect`）。出ている間は
+   * 一時停止と同じく盤面を inert にして幕を掛け、一時停止も押せなくする。
+   * 時計は採点待ち（`isGrading`）として止まっている
+   */
+  readonly reconnect?: ReconnectPrompt;
   /** 練習終了時に呼び出されるコールバック（スコア保存等） */
   readonly onFinish?: (
     args: FinishCallbackArgs,
@@ -121,6 +130,7 @@ export function ChallengeShell({
   hasProblemList = false,
   hasSetup = false,
   variant = "practice",
+  reconnect,
   onFinish,
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
@@ -248,7 +258,11 @@ export function ChallengeShell({
           elapsedMs={elapsedMs}
           timeLimit={gameSession.timeLimit}
           isPaused={gameSession.isPaused}
-          pauseDisabled={gameSession.isCountingDown || gameSession.isFinished}
+          pauseDisabled={
+            gameSession.isCountingDown ||
+            gameSession.isFinished ||
+            reconnect !== undefined
+          }
           onTogglePause={gameSession.togglePause}
           remainingLives={gameSession.remainingLives}
           mistakeLimit={gameSession.mistakeLimit}
@@ -271,11 +285,31 @@ export function ChallengeShell({
               同じ問題へもう一度答えると 2 行になる）。ログイン中はサーバーが
               一時停止中の回答を受け付けず、チャレンジが通信エラーで止まる */}
           <div
-            className={gameSession.isPaused ? "blur-sm select-none" : undefined}
-            inert={gameSession.isPaused}
+            className={
+              gameSession.isPaused || reconnect
+                ? "blur-sm select-none"
+                : undefined
+            }
+            inert={gameSession.isPaused || reconnect !== undefined}
           >
             {children}
           </div>
+
+          {/* 送り直しが尽きた回答。押すまで時計は止まったままで、押すと同じ
+              回答をもう一度送る（チャレンジは作り直さない） */}
+          {reconnect && (
+            <BoardOverlay>
+              <div
+                role="alert"
+                className="mx-4 flex flex-col items-center gap-4 rounded-md border border-panel bg-white p-4 text-center text-sm text-surface-700"
+              >
+                <p>{tc(`recording.${reconnect.message}`)}</p>
+                <Button onClick={reconnect.onPress}>
+                  {tc("recording.reconnect")}
+                </Button>
+              </div>
+            </BoardOverlay>
+          )}
 
           <BoardOverlay isVisible={gameSession.isPaused}>
             <button

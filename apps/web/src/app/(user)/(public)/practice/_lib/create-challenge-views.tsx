@@ -165,6 +165,7 @@ export function createChallengePlayView<
         hasProblemList={hasProblemList}
         hasSetup={hasSetup}
         variant={variant}
+        reconnect={verified?.reconnect}
         onFinish={handleFinish}
       >
         {renderBoard(
