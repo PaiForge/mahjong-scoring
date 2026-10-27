@@ -4,6 +4,7 @@ import "server-only";
 import { PLAN_PRICES_CACHE_TAG } from "@/lib/cache-tags";
 import { logExternalError } from "@/lib/log-error";
 
+import { currencyFractionDigits } from "./currency";
 import { readOfferPriceId } from "./env";
 import {
   OFFER_KEYS,
@@ -88,19 +89,17 @@ export async function getOfferPrices(
  * 金額を通貨に応じた表記にする（税込総額）
  * 金額表記
  *
- * JPY は最小単位が円なのでそのまま、USD などセント単位の通貨は 100 で割る。
- * `Intl.NumberFormat` が通貨ごとの小数桁を知っている。
+ * JPY は最小単位が円なのでそのまま、USD などセント単位の通貨は 100 で割る
+ * （小数桁は `currencyFractionDigits`。App Store の価格の換算と同じ）。
  */
 export function formatAmount(
   amount: number,
   currency: string,
   locale = "ja-JP",
 ): string {
-  const upper = currency.toUpperCase();
   const formatter = new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: upper,
+    currency: currency.toUpperCase(),
   });
-  const digits = formatter.resolvedOptions().maximumFractionDigits ?? 0;
-  return formatter.format(amount / 10 ** digits);
+  return formatter.format(amount / 10 ** currencyFractionDigits(currency));
 }
