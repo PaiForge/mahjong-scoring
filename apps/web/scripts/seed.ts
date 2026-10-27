@@ -7,14 +7,14 @@
  * 行は変えない（管理画面での編集を上書きしない）。ローカルの確認用データ
  * （ユーザー・成績）は `scripts/dev-seed.ts` の担当で、ここには入れない。
  */
-import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import { resolveMigrationDatabaseUrl } from "./_lib/database-url";
+import { loadScriptEnv } from "./_lib/load-script-env";
 import { seedAdCreatives } from "./seed/ad-creatives";
 
-dotenv.config({ path: [".env.local", ".env"] });
+loadScriptEnv();
 
 const connectionString = resolveMigrationDatabaseUrl();
 if (!connectionString) {

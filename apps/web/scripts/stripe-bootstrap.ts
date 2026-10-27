@@ -29,7 +29,6 @@
  */
 import { parseArgs } from "node:util";
 
-import dotenv from "dotenv";
 import Stripe from "stripe";
 
 import {
@@ -43,8 +42,9 @@ import {
 } from "@mahjong-scoring/features/billing/plans";
 import { STRIPE_API_VERSION } from "../src/lib/billing/api-version";
 import { STRIPE_WEBHOOK_EVENTS } from "../src/lib/billing/webhook-events";
+import { loadScriptEnv } from "./_lib/load-script-env";
 
-dotenv.config({ path: [".env.local", ".env"] });
+loadScriptEnv();
 
 /** Dashboard と Checkout に出る商品名・価格の表示名 */
 const PLAN_DISPLAY: Readonly<
