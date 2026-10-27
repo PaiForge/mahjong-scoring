@@ -1,12 +1,12 @@
-import dotenv from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
 import {
   LOCAL_SUPABASE_DATABASE_URL,
   resolveMigrationDatabaseUrl,
 } from "./scripts/_lib/database-url";
+import { loadScriptEnv } from "./scripts/_lib/load-script-env";
 
-dotenv.config({ path: [".env.local", ".env"] });
+loadScriptEnv();
 
 const databaseUrl =
   resolveMigrationDatabaseUrl() ?? LOCAL_SUPABASE_DATABASE_URL;

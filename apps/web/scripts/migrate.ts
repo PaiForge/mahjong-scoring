@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { readFileSync } from "fs";
@@ -7,8 +6,9 @@ import postgres from "postgres";
 import { fileURLToPath } from "url";
 
 import { resolveMigrationDatabaseUrl } from "./_lib/database-url";
+import { loadScriptEnv } from "./_lib/load-script-env";
 
-dotenv.config({ path: [".env.local", ".env"] });
+loadScriptEnv();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

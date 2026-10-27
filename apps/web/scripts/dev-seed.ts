@@ -16,7 +16,6 @@
  *   - POSTGRES_URL / DATABASE_URL 未設定ならローカル Supabase の Postgres
  */
 import { createClient } from "@supabase/supabase-js";
-import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
@@ -24,6 +23,7 @@ import {
   LOCAL_SUPABASE_DATABASE_URL,
   resolveMigrationDatabaseUrl,
 } from "./_lib/database-url";
+import { loadScriptEnv } from "./_lib/load-script-env";
 import { DEV_TRACKING_IDS, reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedAnnouncements } from "./dev-seed/announcements";
 import { reseedBenefitGrants } from "./dev-seed/benefit-grants";
@@ -33,7 +33,7 @@ import { reseedNotifications } from "./dev-seed/notifications";
 import { reseedPurchases } from "./dev-seed/purchases";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
 
-dotenv.config({ path: [".env.local", ".env"] });
+loadScriptEnv();
 
 /** ローカル Supabase の API エンドポイント */
 const LOCAL_SUPABASE_API_URL = "http://127.0.0.1:54321";
