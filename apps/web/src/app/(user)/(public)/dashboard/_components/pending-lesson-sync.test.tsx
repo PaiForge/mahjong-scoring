@@ -154,6 +154,17 @@ describe("PendingLessonSync", () => {
     expect(readPendingLessonCompletions()).toHaveLength(1);
   });
 
+  it("認証サーバーが答えられなかったら預かりを残し、失敗として扱う", async () => {
+    rememberPendingLessonCompletion("mangan-ko-ron");
+    mockCompleteLessons.mockResolvedValue({ error: "authUnavailable" });
+
+    render(<PendingLessonSync userId="u1" />);
+    await flush();
+
+    expect(screen.getByTestId("pending-lesson-failed")).toBeTruthy();
+    expect(readPendingLessonCompletions()).toHaveLength(1);
+  });
+
   it("BAN で拒まれたら預かりを残し、再試行の注記も出さない", async () => {
     rememberPendingLessonCompletion("mangan-ko-ron");
     mockCompleteLessons.mockResolvedValue({ error: "banned" });

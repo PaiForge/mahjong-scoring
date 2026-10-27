@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   mockAuthenticateAndCheckBan,
+  mockIsVerifiedUserUnavailable,
   setupAuthorized,
 } from "@/test/auth-mocks";
 const { finish } = vi.hoisted(() => ({ finish: vi.fn() }));
@@ -42,6 +43,14 @@ describe("submitExamResult", () => {
   it("BAN中は書き込まない", async () => {
     mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
     expect(await submitExamResult("attempt-id")).toEqual({ error: "banned" });
+    expect(finish).not.toHaveBeenCalled();
+  });
+  it("認証サーバーが答えられなかったときは匿名にせず authUnavailable", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+    expect(await submitExamResult("attempt-id")).toEqual({
+      error: "authUnavailable",
+    });
     expect(finish).not.toHaveBeenCalled();
   });
   it("無効・未終了・使用済みの挑戦は成功扱いにしない", async () => {

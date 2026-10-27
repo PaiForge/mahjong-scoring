@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { isAuthServiceFailure } from "./auth-service-failure";
 import { type AuthUser, claimsToAuthUser, userToAuthUser } from "./auth-user";
 import { getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
@@ -90,6 +91,34 @@ export const getOptionalUser = cache(
 );
 
 /**
+ * 認証サーバーに問い合わせた結果。user が取れなかったときは、その理由が
+ * 「答えられなかった」（届かない・混んでいる・障害）か「無効と答えた」かも持つ
+ * 検証済みユーザー問い合わせ結果
+ *
+ * cache() によりリクエスト内では 1 回だけ問い合わせる。`getOptionalVerifiedUser`
+ * と `isVerifiedUserUnavailable` はこれを読むだけなので、両方を呼んでも
+ * 往復は増えない。
+ */
+const getVerifiedUserResult = cache(
+  async (): Promise<
+    | { readonly user: AuthUser }
+    | { readonly user: undefined; readonly unavailable: boolean }
+  > => {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
+    if (user) return { user: userToAuthUser(user) };
+    return {
+      user: undefined,
+      unavailable: error !== null && isAuthServiceFailure(error),
+    };
+  },
+);
+
+/**
  * 認証済みユーザーまたは undefined を返す。リダイレクトなし。
  * 検証付きオプショナルユーザー取得
  *
@@ -97,17 +126,27 @@ export const getOptionalUser = cache(
  * JWT のローカル検証では失効済みセッションを有効期限まで検出できないため、
  * DB へ書き込む Server Action ではこちらを使い、失効を即座に反映する。
  * 表示専用の読み取りには `getOptionalUser`（ローカル検証・低レイテンシ）を使うこと。
+ *
+ * 認証サーバーが答えられなかったときも undefined になる。それを「未ログイン」と
+ * 区別したい書き込み（記録を黙って捨てたくない `resolveRecorder`）は
+ * {@link isVerifiedUserUnavailable} で確かめる。
  */
-export const getOptionalVerifiedUser = cache(
-  async (): Promise<AuthUser | undefined> => {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    // Supabase API は null を返すが、プロジェクト規約に合わせ undefined に正規化する
-    return user ? userToAuthUser(user) : undefined;
-  },
-);
+export async function getOptionalVerifiedUser(): Promise<AuthUser | undefined> {
+  return (await getVerifiedUserResult()).user;
+}
+
+/**
+ * `getOptionalVerifiedUser` が undefined を返したのは、認証サーバーが答えられ
+ * なかった（届かない・回数制限・障害）からか
+ * 認証サーバー不通判定
+ *
+ * cookie が無い・失効している・無効なトークンは「未ログイン」であり false。
+ * 分け方は {@link isAuthServiceFailure}。user が取れていれば常に false。
+ */
+export async function isVerifiedUserUnavailable(): Promise<boolean> {
+  const result = await getVerifiedUserResult();
+  return result.user === undefined && result.unavailable;
+}
 
 /**
  * ゲスト専用ページのガード。ログイン済みなら退避先へリダイレクトする。

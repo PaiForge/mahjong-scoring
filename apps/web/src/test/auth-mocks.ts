@@ -37,11 +37,21 @@ export const mockEnforceIpRateLimit = vi.fn();
 /** `@/lib/auth` の `authenticateAndCheckBan` の差し替え先 */
 export const mockAuthenticateAndCheckBan = vi.fn();
 
+/**
+ * `@/lib/auth` の `isVerifiedUserUnavailable` の差し替え先。
+ * `resolveRecorder` が `unauthorized` を「未ログイン」と「認証サーバーが
+ * 答えられなかった」に分けるのに読む
+ */
+export const mockIsVerifiedUserUnavailable = vi.fn();
+
 /** `vi.mock("@/lib/rate-limit-ip", ...)` 用のエイリアス */
 export const enforceIpRateLimit = mockEnforceIpRateLimit;
 
 /** `vi.mock("@/lib/auth", ...)` 用のエイリアス */
 export const authenticateAndCheckBan = mockAuthenticateAndCheckBan;
+
+/** `vi.mock("@/lib/auth", ...)` 用のエイリアス */
+export const isVerifiedUserUnavailable = mockIsVerifiedUserUnavailable;
 
 /** 認証を通過したときに返るユーザー */
 export const AUTHENTICATED_USER = {
@@ -58,4 +68,5 @@ export const AUTHENTICATED_USER = {
 export function setupAuthorized(user = AUTHENTICATED_USER): void {
   mockEnforceIpRateLimit.mockResolvedValue(undefined);
   mockAuthenticateAndCheckBan.mockResolvedValue({ user });
+  mockIsVerifiedUserUnavailable.mockResolvedValue(false);
 }

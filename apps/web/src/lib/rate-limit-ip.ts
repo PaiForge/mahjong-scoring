@@ -139,8 +139,9 @@ export const IP_RATE_LIMITS = {
   // 裏に回る・通信が戻るたびに飛ぶ
   readChallenge: { maxRequests: 300, windowMs: 600_000 },
   // チャレンジの確定（アプリの確定の API と web の savePracticeResult /
-  // submitExamResult が同じ枠を使う）。送り直しを含めても開始の回数を超えない。
-  // web はアカウント単位だけで数える（enforceUserRateLimit の TSDoc）
+  // submitExamResult が同じ枠を使う）。失敗の送り直し（数回）を含めても、
+  // 人の操作の開始の回数（10 分で十数回）を超えない。web はアカウント単位
+  // だけで数える（enforceUserRateLimit の TSDoc）
   finishChallenge: { maxRequests: 60, windowMs: 600_000 },
   // アプリが画面を開くたびに読む進み具合
   readMobileProgress: { maxRequests: 120, windowMs: 600_000 },
@@ -235,8 +236,8 @@ export async function enforceIpRateLimit(
  * ユーザーの段）と web の Server Action が 1 つのアカウントで同じ枠を数える。
  *
  * IP ではなくアカウントで数えるのは、弾かれると取り返しの付かない書き込み
- * （web の結果送信は送り直さない）を、同じ回線を共有する他人の操作に
- * 巻き込ませないため。
+ * （web の結果送信は数秒の間に数回送り直すだけで、通らなければ記録が失われる）
+ * を、同じ回線を共有する他人の操作に巻き込ませないため。
  *
  * @param userId - 認証済みのユーザー ID
  * @param key - アクションキー（`IP_RATE_LIMITS` のキー）

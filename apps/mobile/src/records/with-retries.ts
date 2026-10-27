@@ -1,32 +1,31 @@
+import {
+  wait,
+  withRetries as retryWhile,
+} from "@mahjong-scoring/features/session/with-retries";
+
 import { isRetryableFailure } from "./failure-policy";
 import type { RecordsApiResult } from "./records-api";
 
-/** 通信の失敗を送り直す間隔（ミリ秒）。尽きたら利用者に再接続を任せる */
-const RETRY_DELAYS_MS = [500, 1000, 2000] as const;
-
-/** 指定ミリ秒待つ */
-export function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export { wait };
 
 /**
  * 通信の失敗だけを、間を空けて数回送り直す
  * 通信の再送
  *
- * サーバーが断った（4xx 等）失敗は送り直さず、そのまま返す。
+ * サーバーが断った（4xx 等）失敗は送り直さず、そのまま返す。送り直す失敗の
+ * 分け方は `failure-policy.ts`、間隔と仕組みは features の `withRetries`
+ * （web の結果送信と同じ）。
  *
  * @param send - 1 回の送信
  * @param delaysMs - 送り直すまでの待ち時間の列（長さが再送の回数）
  */
-export async function withRetries<T>(
+export function withRetries<T>(
   send: () => Promise<RecordsApiResult<T>>,
-  delaysMs: readonly number[] = RETRY_DELAYS_MS,
+  delaysMs?: readonly number[],
 ): Promise<RecordsApiResult<T>> {
-  let result = await send();
-  for (const delay of delaysMs) {
-    if (!("error" in result) || !isRetryableFailure(result.error)) break;
-    await wait(delay);
-    result = await send();
-  }
-  return result;
+  return retryWhile(
+    send,
+    (result) => "error" in result && isRetryableFailure(result.error),
+    delaysMs,
+  );
 }

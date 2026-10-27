@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockAuthenticateAndCheckBan,
+  mockIsVerifiedUserUnavailable,
   mockInsert,
   mockRevalidatePath,
   mockFetchJourneyInput,
   mockLockAccountForWrite,
 } = vi.hoisted(() => ({
   mockAuthenticateAndCheckBan: vi.fn(),
+  mockIsVerifiedUserUnavailable: vi.fn(),
   mockInsert: vi.fn(),
   mockRevalidatePath: vi.fn(),
   mockFetchJourneyInput: vi.fn(),
@@ -16,6 +18,7 @@ const {
 
 vi.mock("@/lib/auth", () => ({
   authenticateAndCheckBan: mockAuthenticateAndCheckBan,
+  isVerifiedUserUnavailable: mockIsVerifiedUserUnavailable,
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -59,6 +62,7 @@ beforeEach(() => {
   mockInsert.mockReturnValue(insertChain);
   mockFetchJourneyInput.mockResolvedValue(NO_PROGRESS);
   mockLockAccountForWrite.mockResolvedValue(true);
+  mockIsVerifiedUserUnavailable.mockResolvedValue(false);
 });
 
 describe("completeLesson", () => {
@@ -89,6 +93,16 @@ describe("completeLesson", () => {
     expect(mockInsert).not.toHaveBeenCalled();
     expect(mockRevalidatePath).not.toHaveBeenCalled();
     expect(mockFetchJourneyInput).not.toHaveBeenCalled();
+  });
+
+  it("認証サーバーが答えられなかったときは匿名にせず authUnavailable", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+
+    const result = await completeLesson("mangan-ko-ron");
+
+    expect(result).toEqual({ error: "authUnavailable" });
+    expect(mockInsert).not.toHaveBeenCalled();
   });
 
   /**
