@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
 import {
   DATA_TABLE_CELL_PADDING,
   DataTable,
   DataTableHeaderCell,
 } from "@/app/(user)/_components/data-table";
 import { LinkButton } from "@/app/(user)/_components/link-button";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
@@ -30,6 +28,7 @@ import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
+import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypagePlan");
@@ -102,9 +101,8 @@ export default async function MypagePlanPage({
   searchParams,
 }: MypagePlanPageProps) {
   const { user } = await requireConfirmedUser();
-  const [t, tMypage, purchases, grants, { status }] = await Promise.all([
+  const [t, purchases, grants, { status }] = await Promise.all([
     getTranslations("mypagePlan"),
-    getTranslations("mypage"),
     listPurchases(user.id),
     listBenefitGrants(user.id),
     searchParams,
@@ -118,14 +116,7 @@ export default async function MypagePlanPage({
   const statusCopy = describePlanStatus(plan, t);
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: t("pageTitle") },
-      ]}
-    >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
+    <MypageSubpageLayout title={t("pageTitle")}>
       <div className="space-y-8">
         {(status === "success" ||
           status === "pending" ||
@@ -267,6 +258,6 @@ export default async function MypagePlanPage({
           </section>
         )}
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

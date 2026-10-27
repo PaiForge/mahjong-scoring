@@ -10,9 +10,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkRowList } from "@/app/(user)/_components/link-row";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
@@ -25,6 +23,7 @@ import {
 import { MarkAllReadButton } from "./_components/mark-all-read-button";
 import { NotificationItem } from "./_components/notification-item";
 import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
+import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("notifications");
@@ -41,10 +40,9 @@ export default async function NotificationsPage({
   const params = await searchParams;
   const page = parsePageParam(params.page);
 
-  const [t, tMypage, { items, totalPages, currentPage }, unreadCount] =
+  const [t, { items, totalPages, currentPage }, unreadCount] =
     await Promise.all([
       getTranslations("notifications"),
-      getTranslations("mypage"),
       listNotifications(user.id, page),
       countUnreadNotifications(user.id),
     ]);
@@ -55,14 +53,7 @@ export default async function NotificationsPage({
       : MYPAGE_NOTIFICATIONS_PATH;
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: t("pageTitle") },
-      ]}
-    >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
+    <MypageSubpageLayout title={t("pageTitle")}>
       <div className="space-y-4">
         {/* 未読数とボタンの行。未読が無くても高さを保ち、既読にした瞬間に
             一覧が上へ飛ばないようにする */}
@@ -97,6 +88,6 @@ export default async function NotificationsPage({
           buildHref={buildHref}
         />
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

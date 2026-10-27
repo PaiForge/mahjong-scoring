@@ -20,23 +20,21 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { isKnownAuthProvider } from "@mahjong-scoring/features/account/auth-provider";
+import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypageAccount");
 }
 
 export default async function MypageAccountPage() {
-  const [{ user }, t, tMypage] = await Promise.all([
+  const [{ user }, t] = await Promise.all([
     requireConfirmedUser(),
     getTranslations("mypageAccount"),
-    getTranslations("mypage"),
   ]);
 
   const { provider } = user;
@@ -45,14 +43,7 @@ export default async function MypageAccountPage() {
     : (provider ?? t("login.unknown"));
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: t("pageTitle") },
-      ]}
-    >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
+    <MypageSubpageLayout title={t("pageTitle")}>
       <section className="space-y-4">
         <SectionTitle>{t("login.title")}</SectionTitle>
         <dl className="space-y-4 rounded-panel border border-panel bg-white p-5">
@@ -85,6 +76,6 @@ export default async function MypageAccountPage() {
           {t("deleteAccountLink")}
         </Link>
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

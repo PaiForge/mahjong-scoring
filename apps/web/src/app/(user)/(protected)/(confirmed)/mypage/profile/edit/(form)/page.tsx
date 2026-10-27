@@ -9,14 +9,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import { getProfileForEdit } from "@/lib/db/queries";
 
 import { AvatarUpload } from "../_components/avatar-upload";
 import { ProfileForm } from "../_components/profile-form";
+import { MypageSubpageLayout } from "../../../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("profileEdit");
@@ -24,7 +23,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ProfileEditPage() {
   const t = await getTranslations("profileEdit");
-  const tMypage = await getTranslations("mypage");
 
   const { user } = await requireConfirmedUser();
   const profile = await getProfileForEdit(user.id);
@@ -38,14 +36,7 @@ export default async function ProfileEditPage() {
   };
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: t("pageTitle") },
-      ]}
-    >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
+    <MypageSubpageLayout title={t("pageTitle")}>
       <div className="space-y-8">
         <div className="flex justify-center">
           <AvatarUpload currentAvatarUrl={profile?.avatarUrl ?? null} />
@@ -53,6 +44,6 @@ export default async function ProfileEditPage() {
 
         <ProfileForm initial={initial} />
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

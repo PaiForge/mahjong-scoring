@@ -8,8 +8,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
@@ -21,6 +19,7 @@ import { getChallengeResultsPaginated } from "../_lib/queries";
 import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
 import { ResultsTable } from "./_components/results-table";
 import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
+import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -33,7 +32,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ChallengeResultsPage({ searchParams }: Props) {
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
-  const tMypage = await getTranslations("mypage");
   const tRoot = await getTranslations();
   const params = await searchParams;
 
@@ -61,15 +59,10 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
   };
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: tChallenges("pageTitle"), href: MY_RECORD_PATH },
-        { label: t("pageTitle") },
-      ]}
+    <MypageSubpageLayout
+      title={t("pageTitle")}
+      parents={[{ label: tChallenges("pageTitle"), href: MY_RECORD_PATH }]}
     >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
       <div className="space-y-6">
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
         <ResultsTable
@@ -90,6 +83,6 @@ export default async function ChallengeResultsPage({ searchParams }: Props) {
           buildHref={buildHref}
         />
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }
