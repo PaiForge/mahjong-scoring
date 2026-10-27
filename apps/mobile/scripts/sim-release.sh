@@ -2,11 +2,10 @@
 # iOS シミュレーター向けの Release ビルドを、手元の Supabase と web に向けて作る
 #
 #   scripts/sim-release.sh [シミュレーターの名前]   # 省略時の選び方は _simulator.sh
-#   DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer scripts/sim-release.sh
+#   DEVELOPER_DIR=/Applications/Xcode-<版>.app/Contents/Developer scripts/sim-release.sh
 #
-# 使う Xcode は DEVELOPER_DIR で選べる（省略時は xcode-select の Xcode）。EAS は SDK 57 を
-# Xcode 26.6 で組むので、ストアのビルドと同じ条件で確かめるならそれを渡す。Xcode 27 で
-# 組むと、Expo SDK 57 のアプリは iOS 27 で起動しない（UIScene のライフサイクルが必須）
+# 使う Xcode は DEVELOPER_DIR で選べる（省略時は xcode-select の Xcode）。古い版で確かめたい
+# ときだけ渡す
 #
 # web 版や開発ビルドでは見えないネイティブの壊れ方を、本番に触れずに確かめるためのもの。
 # ログインから記録までシードユーザー（apps/web の dev seed）で通せる。
@@ -59,8 +58,8 @@ else
   npx expo prebuild --platform ios
   xcrun simctl boot "$UDID" 2>/dev/null || true
   # 中間生成物は Xcode の版ごとに分ける（版の違うモジュールのキャッシュを混ぜない）。
-  # 行き先は特定の端末でなく汎用のシミュレーターにする。古い Xcode（EAS と同じ 26 系を
-  # DEVELOPER_DIR で選んだとき）は、自分より新しい iOS の端末を行き先に取れない
+  # 行き先は特定の端末でなく汎用のシミュレーターにする。古い Xcode（DEVELOPER_DIR で
+  # 選んだとき）は、自分より新しい iOS の端末を行き先に取れない
   # head は読み残しで xcodebuild を SIGPIPE で落とし、pipefail でスクリプトごと止まるので sed で取る
   DERIVED="ios/build-unsigned-$(xcodebuild -version | sed -n 1p | tr -c 'A-Za-z0-9.\n' '-')"
   xcodebuild -workspace ios/app.xcworkspace -scheme app -configuration Release \

@@ -134,9 +134,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `npx expo install --fix` で戻さないこと
   - `react` / `react-dom` — ワークスペース全体と同じ版にそろえる。packages/features も devDependency で
     React を持ち、版が違うと pnpm が別の実体を置き、Metro が共有コードの React を別に解決して
-    React が 2 つバンドルに入る（フックが落ちる）。RN のレンダラーは React の版を厳密には検査しない
-  - `typescript` — 他のパッケージと同じ TS7。SDK 54 では Expo の CLI が TS7 で Metro まで届かず
-    5.9 に固定していたが、SDK 57 では `expo start` から iOS / Android / web のバンドルまで通る
+    React が 2 つバンドルに入る（フックが落ちる）。RN のレンダラーは React の版を厳密には検査しないが、
+    React Native は peer に React の最低版を求める。SDK を上げて unmet peer が出たら、web・features の
+    React も一緒に上げる
+  - `typescript` — 他のパッケージと同じ TS7。`expo start` から iOS / Android / web のバンドルまで通る
+    （以前の SDK では Expo の CLI が TS7 で Metro まで届かず、5 系に固定していた。SDK を上げて
+    バンドルが落ちたらまずここを疑う）
 - **ネイティブ広告は web と同じ画面の同じ位置に出す。** 広告は web の広告配信 API
   （`/api/ads/<スロット>`）から読み（`src/ads/use-native-ads.ts`）、スロットは
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
@@ -155,8 +158,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （react-native-web）は画面の構成を見るためのもので、ネイティブでだけ壊れるもの
   （`crypto.randomUUID` の不在・`measureLayout` の引数等）を通してしまう
 - ビルドは `pnpm --filter @mahjong-scoring/mobile sim:release`（`scripts/sim-release.sh`）。
-  Xcode は EAS と同じ 26.6 を `DEVELOPER_DIR` で渡す（Xcode 27 で組むと iOS 27 で起動しない。
-  入れ方と理由は `README.md`「Xcode 26.6 で組む」）。
+  Xcode は `xcode-select` のものでよい（起動直後に落ちたときの見方は `README.md`「使う Xcode」）。
   手元の Supabase（`:54321`）と web（`:3000`）に向けるので、シードユーザーでログインから
   記録まで確かめられ、本番には触れない。手でやると落とす工程を含む: Metro の変換
   キャッシュを捨てる（`EXPO_PUBLIC_*` はキャッシュのキーに入らず、前回の接続先が

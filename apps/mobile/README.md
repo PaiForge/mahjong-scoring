@@ -102,30 +102,17 @@ security find-identity -v -p codesigning   # Apple Development の行（無く�
 「Apple でログイン」だけが通らない（メールのログインと記録は通る）。証明書は Xcode > Settings >
 Accounts でチームの Apple アカウントを足し、Manage Certificates の「+」から **Apple Development** を作る。
 
-#### Xcode 26.6 で組む（EAS と同じ）
+#### 使う Xcode
 
-**Xcode 27 で作ったビルドは iOS 27 で起動しない（2026-10 時点）。** iOS 27 の SDK は UIScene の
-ライフサイクルを必須にし、Expo SDK 57 の既定（AppDelegate が窓を持つ形）のアプリは起動直後に
-`UIScene life cycle is required for apps built with this SDK` で落ちる。EAS は SDK 57 を
-Xcode 26.6 でビルドするので、TestFlight やストアのビルドは影響を受けない。手元でも同じ
-Xcode 26.6 を並べて入れて組む（UIScene へ移るのは SDK 58 に上げるとき。SDK 58 からは既定。
-[Expo の案内](https://github.com/expo/fyi/blob/main/ios-scene-lifecycle.md)）。
+ビルドは `xcode-select` の Xcode（ふだんの最新版）でよい。別の版を並べて入れて `DEVELOPER_DIR` で
+渡す必要はない（`DEVELOPER_DIR` で選べるのは古い版で確かめたいときのため）。
 
-```bash
-brew install xcodes aria2
-# Apple ID・2 ファクタ認証・管理者のパスワードを聞かれる。対話するのでターミナルで直接打つ
-xcodes install 26.6 --directory /Applications --experimental-unxip
-# Xcode 26.6 の iOS 26.5 の実行環境（これが無いとシミュレーター向けにも組めない）
-DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer xcodebuild -downloadPlatform iOS
-```
-
-ビルドは `DEVELOPER_DIR` で Xcode 26.6 を渡す（`xcode-select` は切り替えなくてよい）。26.5 の SDK で
-組んだアプリは iOS 27 の端末でも動き、iOS 27 に上げた iPhone で TestFlight 版を開くのと同じ条件になる:
-
-```bash
-DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer pnpm --filter @mahjong-scoring/mobile sim:release
-pnpm --filter @mahjong-scoring/mobile maestro preferences-anchor
-```
+**新しい Xcode の SDK で組んだアプリが起動直後に落ちたら、ネイティブのテンプレートが SDK に追いついて
+いない。** iOS 27 の SDK は UIScene のライフサイクルを必須にし、AppDelegate が窓を持つ形のアプリは
+`UIScene life cycle is required for apps built with this SDK` で落ちる（2026-10 に実測）。Expo の
+テンプレートが UIScene（`ios/app/SceneDelegate.swift`）を持つ SDK に上げて解消した
+（[Expo の案内](https://github.com/expo/fyi/blob/main/ios-scene-lifecycle.md)）。`ios/` は prebuild の
+生成物なので、SDK を上げたら `npx expo prebuild --clean --platform ios` で作り直してから組む。
 
 iOS 27 のシミュレーターは、リンクでアプリを開く前の確認（「"麻雀点数計算教室" で開く?」）と、
 ログインの後のパスワードの保存の確認を出す。フローは `_open-link.yaml` と `_sign-in.yaml` が
