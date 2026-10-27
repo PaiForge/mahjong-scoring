@@ -97,6 +97,7 @@
     "target": "対象",
     "actor": "実行者",
     "reason": "理由",
+    "metadata": "メタデータ",
     "ipAddress": "IPアドレス",
     "timestamp": "日時",
     "noLogsFound": "ログが見つかりません",
