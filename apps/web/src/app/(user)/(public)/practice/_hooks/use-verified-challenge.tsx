@@ -138,7 +138,7 @@ export function VerifiedChallengeProvider({
       pending.current = actions()
         .then((api) => api.answerChallenge(state.id, state.sequence, answer))
         .then((result) => {
-          if (!result) {
+          if ("error" in result) {
             setMode("error");
             return;
           }
@@ -186,18 +186,14 @@ export function VerifiedChallengeProvider({
         const api = await actions();
         let result = await api.revealExpiredChallenge(state.id);
         // サーバー時計と画面のタイマーの差を吸収し、早期終了を認めない。
-        if (
-          result &&
-          "remainingMs" in result &&
-          result.remainingMs !== undefined
-        ) {
+        if ("remainingMs" in result) {
           const remainingMs = result.remainingMs;
           await new Promise((resolve) =>
             setTimeout(resolve, Math.max(0, remainingMs) + 20),
           );
           result = await api.revealExpiredChallenge(state.id);
         }
-        if (!result || !("question" in result) || !result.question) {
+        if (!("question" in result)) {
           setMode("error");
           return;
         }
