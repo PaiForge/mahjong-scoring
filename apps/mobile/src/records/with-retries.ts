@@ -14,12 +14,16 @@ export function wait(ms: number): Promise<void> {
  * 通信の再送
  *
  * サーバーが断った（4xx 等）失敗は送り直さず、そのまま返す。
+ *
+ * @param send - 1 回の送信
+ * @param delaysMs - 送り直すまでの待ち時間の列（長さが再送の回数）
  */
 export async function withRetries<T>(
   send: () => Promise<RecordsApiResult<T>>,
+  delaysMs: readonly number[] = RETRY_DELAYS_MS,
 ): Promise<RecordsApiResult<T>> {
   let result = await send();
-  for (const delay of RETRY_DELAYS_MS) {
+  for (const delay of delaysMs) {
     if (!("error" in result) || !isRetryableFailure(result.error)) break;
     await wait(delay);
     result = await send();
