@@ -3,13 +3,16 @@ import "server-only";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 
 import { findUserIdsMatching } from "@/app/admin/_lib/log-query-helpers";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
+import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
 import { listAllAuthUsers } from "@/lib/supabase/list-all-auth-users";
 
 /** ユーザー一覧の 1 ページ分 */
 interface UsersPageData {
   readonly users: readonly User[];
   readonly totalCount: number;
+  /** 範囲外の要求を最終ページに丸めた後のページ番号 */
+  readonly currentPage: number;
+  readonly totalPages: number;
 }
 
 /**
@@ -20,6 +23,10 @@ interface UsersPageData {
  * Auth の Admin API が属性での絞り込みを持たないため、全ユーザーを取得して
  * 合致したものを JS 側で切り出す（並び順は `listUsers` と同じ）。
  *
+ * 範囲外のページ（件数が減った後の古いリンク）は最終ページに丸める。
+ * `listUsers` は件数を行と同じ応答で返すため、要求されたページのまま引き、
+ * 範囲外だったと分かったときだけ丸めたページを引き直す。
+ *
  * @param query - 検索文字列（trim 済み）。空文字なら検索なし
  */
 export async function fetchUsersPageData(
@@ -28,24 +35,48 @@ export async function fetchUsersPageData(
   query: string,
 ): Promise<UsersPageData> {
   if (!query) {
-    const { data, error } = await adminClient.auth.admin.listUsers({
-      page,
-      perPage: DEFAULT_PAGE_SIZE,
-    });
-    if (error) {
-      // Next.js error boundary に委任する意図的な throw
-      throw new Error(`Failed to fetch users: ${error.message}`);
-    }
-    return { users: data.users ?? [], totalCount: data.total ?? 0 };
+    const first = await listAuthUsersPage(adminClient, page);
+    const pagination = resolvePagination(page, first.totalCount);
+    const { users, totalCount } =
+      pagination.currentPage === page
+        ? first
+        : await listAuthUsersPage(adminClient, pagination.currentPage);
+    return {
+      users,
+      totalCount,
+      currentPage: pagination.currentPage,
+      totalPages: pagination.totalPages,
+    };
   }
 
   const allUsers = await listAllAuthUsers(adminClient);
   const matchedIds = new Set(await findUserIdsMatching(allUsers, query));
   const matchedUsers = allUsers.filter((u) => matchedIds.has(u.id));
-  const { offset, limit } = getPaginationData(page, matchedUsers.length);
+  const { offset, limit, currentPage, totalPages } = resolvePagination(
+    page,
+    matchedUsers.length,
+  );
 
   return {
     users: matchedUsers.slice(offset, offset + limit),
     totalCount: matchedUsers.length,
+    currentPage,
+    totalPages,
   };
+}
+
+/** Auth の `listUsers` の 1 ページ分を引く */
+async function listAuthUsersPage(
+  adminClient: SupabaseClient,
+  page: number,
+): Promise<{ readonly users: readonly User[]; readonly totalCount: number }> {
+  const { data, error } = await adminClient.auth.admin.listUsers({
+    page,
+    perPage: DEFAULT_PAGE_SIZE,
+  });
+  if (error) {
+    // Next.js error boundary に委任する意図的な throw
+    throw new Error(`Failed to fetch users: ${error.message}`);
+  }
+  return { users: data.users ?? [], totalCount: data.total ?? 0 };
 }
