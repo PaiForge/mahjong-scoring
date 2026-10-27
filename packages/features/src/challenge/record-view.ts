@@ -9,7 +9,8 @@
  * - `none` — バッジ無し。普通の走行、または今回の記録を特定できない訪問
  *   （web の `?grant=` が無い・保存に失敗した）で、過去記録だけを見せる場合
  */
-export type RecordStatus = "first" | "newBest" | "none";
+export const RECORD_STATUSES = ["first", "newBest", "none"] as const;
+export type RecordStatus = (typeof RECORD_STATUSES)[number];
 
 /**
  * 結果画面の記録の節（「今回 / 前回 / これまでのベスト」）の表示値

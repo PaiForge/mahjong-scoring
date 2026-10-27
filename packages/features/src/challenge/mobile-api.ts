@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { BuildJourneyInput, PracticeAttempt } from "../journey/journey";
 import { isPracticeMenuSlug } from "../practice-menu-types";
 import { isRankSlug, type RankSlug } from "../ranks/registry";
-import type { RecordView } from "./record-view";
+import { RECORD_STATUSES, type RecordView } from "./record-view";
 import type { ChallengeQuestion, ChallengeSettings } from "./types";
 
 /**
@@ -335,7 +335,7 @@ const expInfoSchema = z.object({
 });
 
 const recordViewSchema = z.object({
-  status: z.enum(["first", "newBest", "none"]),
+  status: z.enum(RECORD_STATUSES),
   currentScore: z.number().optional(),
   previousBestScore: z.number().optional(),
   previousLastScore: z.number().optional(),
