@@ -35,6 +35,27 @@ function sqlInList(values: readonly string[]): SQL {
   return sql.raw(values.map((value) => `'${value}'`).join(", "));
 }
 
+/**
+ * 行の作成日時の列（`created_at`。挿入時に DB の現在時刻が入る）
+ * 作成日時列
+ *
+ * 同じ定義を表ごとに書かないための組み立て。`updated_at` と違い更新側は触らない。
+ */
+function createdAtColumn() {
+  return timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
+}
+
+/**
+ * 行の更新日時の列（`updated_at`。挿入時に DB の現在時刻が入る）
+ * 更新日時列
+ *
+ * DB は更新時に自動では書き換えない。行を更新する側が `updatedAt: new Date()` を
+ * `set` に含める。
+ */
+function updatedAtColumn() {
+  return timestamp("updated_at", { withTimezone: true }).defaultNow().notNull();
+}
+
 /** プロフィール */
 export const profiles = pgTable("profiles", {
   /** auth.users(id) への外部キー（Supabase SQL で定義） */
@@ -80,13 +101,9 @@ export const profiles = pgTable("profiles", {
   /** ソフトデリート日時 */
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   /** 作成日時 */
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: createdAtColumn(),
   /** 更新日時 */
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  updatedAt: updatedAtColumn(),
 });
 
 export type Profile = typeof profiles.$inferSelect;
@@ -105,9 +122,7 @@ export const userRoles = pgTable(
     /** ロール */
     role: appRoleEnum("role").notNull().default("user"),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [unique("uq_user_role").on(table.userId, table.role)],
 );
@@ -179,9 +194,7 @@ export const challengeResults = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     ...scoreTupleColumns(),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_cr_period_ranking").on(
@@ -222,9 +235,7 @@ export const challengeBestScores = pgTable(
       .defaultNow()
       .notNull(),
     /** 更新日時 */
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    updatedAt: updatedAtColumn(),
   },
   (table) => [
     primaryKey({
@@ -270,9 +281,7 @@ export const moderationActions = pgTable(
     /** 操作元の IP アドレス */
     ipAddress: varchar("ip_address", { length: 45 }),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_ma_actor").on(table.actorId),
@@ -312,9 +321,7 @@ export const userBlocks = pgTable(
     /** ブロックされた人の auth.users(id)（Supabase SQL で FK を定義） */
     blockedId: uuid("blocked_id").notNull(),
     /** ブロックした日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     primaryKey({ columns: [table.blockerId, table.blockedId] }),
@@ -383,9 +390,7 @@ export const reports = pgTable(
     /** 閉じた日時 */
     resolvedAt: timestamp("resolved_at", { withTimezone: true }),
     /** 通報した日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_reports_status_created").on(table.status, table.createdAt),
@@ -424,9 +429,7 @@ export const userActivityLog = pgTable(
     /** 追加メタデータ */
     metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_ual_user").on(table.userId),
@@ -472,9 +475,7 @@ export const expEvents = pgTable(
     /** 計算内訳などの補助メタデータ */
     metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_exp_events_user_created").on(table.userId, table.createdAt),
@@ -509,9 +510,7 @@ export const userExp = pgTable(
     /** 累計 EXP */
     totalExp: integer("total_exp").notNull().default(0),
     /** 更新日時 */
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    updatedAt: updatedAtColumn(),
   },
   (table) => [index("idx_user_exp_total").on(table.totalExp)],
 );
@@ -608,13 +607,9 @@ export const announcements = pgTable(
     /** 公開日時（published 時は必須） */
     publishedAt: timestamp("published_at", { withTimezone: true }),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
     /** 更新日時 */
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    updatedAt: updatedAtColumn(),
   },
   (table) => [
     unique("uq_announcements_slug_locale").on(table.slug, table.locale),
@@ -733,13 +728,9 @@ export const adCreatives = pgTable(
      */
     hand: varchar("hand", { length: 64 }),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
     /** 更新日時 */
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    updatedAt: updatedAtColumn(),
   },
   (table) => [
     index("idx_ad_creatives_slot_active").on(table.slot, table.isActive),
@@ -795,9 +786,7 @@ export const adNetworkSettings = pgTable(
     /** トラッキング ID（Amazon アソシエイトの `tag=` の値） */
     trackingId: varchar("tracking_id", { length: 64 }).notNull(),
     /** 更新日時 */
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    updatedAt: updatedAtColumn(),
   },
   (table) => [
     primaryKey({ columns: [table.network, table.platform] }),
@@ -882,9 +871,7 @@ export const stripeCustomers = pgTable("stripe_customers", {
     .unique()
     .notNull(),
   /** 作成日時 */
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: createdAtColumn(),
 });
 
 export type StripeCustomer = typeof stripeCustomers.$inferSelect;
@@ -924,9 +911,7 @@ export const billingCheckouts = pgTable(
     }).unique(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     settledAt: timestamp("settled_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     uniqueIndex("billing_checkouts_one_pending_customer")
@@ -1061,9 +1046,7 @@ export const purchases = pgTable(
     /** 取り消し理由（`PurchaseRevokeReason`）。`revoked_at` と対で入る */
     revokeReason: varchar("revoke_reason", { length: 50 }),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_purchases_user_expires").on(table.userId, table.expiresAt),
@@ -1158,9 +1141,7 @@ export const benefitGrants = pgTable(
     /** 取り消しの理由。`revoked_at` と対で入る */
     revokeReason: text("revoke_reason"),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_benefit_grants_user_expires").on(table.userId, table.expiresAt),
@@ -1368,9 +1349,7 @@ export const notifications = pgTable(
     /** 既読にした日時。NULL なら未読 */
     readAt: timestamp("read_at", { withTimezone: true }),
     /** 作成日時 */
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .defaultNow()
-      .notNull(),
+    createdAt: createdAtColumn(),
   },
   (table) => [
     index("idx_notifications_user_created").on(table.userId, table.createdAt),
@@ -1490,10 +1469,6 @@ export const appleRefreshTokens = pgTable("apple_refresh_tokens", {
   clientId: text("client_id").notNull(),
   /** 暗号化した refresh token */
   encryptedRefreshToken: text("encrypted_refresh_token").notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
 });
