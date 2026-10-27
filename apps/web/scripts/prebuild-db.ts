@@ -5,12 +5,15 @@
  * only inserts initial rows that are still missing.
  *
  * Skips both when no DB environment variable is set
- * (POSTGRES_URL_NON_POOLING, POSTGRES_URL, DATABASE_URL).
+ * (POSTGRES_URL_NON_POOLING, POSTGRES_URL, DATABASE_URL) in the environment,
+ * `.env.local` or `.env` — the same sources `pnpm db:run-migrate` reads.
  */
-import "dotenv/config";
 import { execSync } from "node:child_process";
 
 import { resolveMigrationDatabaseUrl } from "./_lib/database-url";
+import { loadScriptEnv } from "./_lib/load-script-env";
+
+loadScriptEnv();
 
 const hasDbConnection = resolveMigrationDatabaseUrl();
 
