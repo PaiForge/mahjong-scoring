@@ -9,7 +9,8 @@ import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-ja
 import { restoreItem } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/restore-item";
 import {
   countCorrectItems,
-  isItemCorrect,
+  type ItemOutcome,
+  itemOutcome,
   type MentsuJantouFuQuestionResult,
 } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { FuItemTiles } from "./fu-item-tiles";
@@ -17,6 +18,20 @@ import { FuItemTiles } from "./fu-item-tiles";
 interface MentsuJantouFuProblemListProps {
   readonly results: readonly MentsuJantouFuQuestionResult[];
 }
+
+/** 行の枠と地（時間切れは正誤の色を持たない） */
+const ITEM_ROW_CLASSES: Readonly<Record<ItemOutcome, string>> = {
+  timeUp: "border-surface-300 bg-surface-50",
+  correct: "border-success bg-success-subtle",
+  wrong: "border-destructive bg-destructive-subtle",
+};
+
+/** 「あなたの回答」の文字色 */
+const ITEM_ANSWER_CLASSES: Readonly<Record<ItemOutcome, string>> = {
+  timeUp: "text-surface-500",
+  correct: "text-success",
+  wrong: "text-destructive",
+};
 
 /**
  * 面子と雀頭の符練習の問題別フィードバック一覧
@@ -65,18 +80,12 @@ export function MentsuJantouFuProblemList({
             <ul className="space-y-2">
               {items.map((item) => {
                 const { userFu } = item;
-                const correct = isItemCorrect(item);
+                const outcome = itemOutcome(item);
 
                 return (
                   <li
                     key={item.id}
-                    className={`flex min-w-0 items-center gap-2 rounded-panel border p-2 ${
-                      userFu === undefined
-                        ? "border-surface-300 bg-surface-50"
-                        : correct
-                          ? "border-success bg-success-subtle"
-                          : "border-destructive bg-destructive-subtle"
-                    }`}
+                    className={`flex min-w-0 items-center gap-2 rounded-panel border p-2 ${ITEM_ROW_CLASSES[outcome]}`}
                   >
                     <FuItemTiles
                       item={item}
@@ -101,13 +110,7 @@ export function MentsuJantouFuProblemList({
                           {t("result.yourAnswer")}
                         </dt>
                         <dd
-                          className={`font-bold ${
-                            userFu === undefined
-                              ? "text-surface-500"
-                              : correct
-                                ? "text-success"
-                                : "text-destructive"
-                          }`}
+                          className={`font-bold ${ITEM_ANSWER_CLASSES[outcome]}`}
                         >
                           {userFu === undefined
                             ? tCommon("timeUp")

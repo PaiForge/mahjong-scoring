@@ -113,6 +113,24 @@ export function isItemCorrect(
   return item.userFu === item.correctFu;
 }
 
+/** 結果一覧の行の見せ方（時間切れ / 正解 / 不正解） */
+export type ItemOutcome = "timeUp" | "correct" | "wrong";
+
+/**
+ * 結果一覧の行の見せ方
+ * 回答行の見せ方
+ *
+ * 時間切れで答えていない行（`userFu` 無し）は正誤の色を持たず、回答欄に
+ * 「時間切れ」を出す（採点上は不正解 — {@link isItemCorrect}）。web と
+ * モバイルの一覧が同じ分岐で行の枠と回答の文字の色を決める。
+ */
+export function itemOutcome(
+  item: Pick<MentsuJantouFuItemResult, "correctFu" | "userFu">,
+): ItemOutcome {
+  if (item.userFu === undefined) return "timeUp";
+  return isItemCorrect(item) ? "correct" : "wrong";
+}
+
 /** 符を当てた行の数（結果一覧の「n / m 行正解」の n） */
 export function countCorrectItems(
   items: readonly Pick<MentsuJantouFuItemResult, "correctFu" | "userFu">[],
