@@ -1,4 +1,4 @@
-import { PlanBenefit } from "../billing/plans";
+import { hasPracticeTools, type PlanBenefit } from "../billing/plans";
 import type { BeginPracticeQuestionResult } from "./answer";
 
 /**
@@ -65,8 +65,6 @@ export function showsAnswerTime(
   gate: PracticeQuotaGate | undefined,
 ): boolean {
   return (
-    measureTime &&
-    gate?.kind === "open" &&
-    gate.benefits.includes(PlanBenefit.PracticeTools)
+    measureTime && gate?.kind === "open" && hasPracticeTools(gate.benefits)
   );
 }

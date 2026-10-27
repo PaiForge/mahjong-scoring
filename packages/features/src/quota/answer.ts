@@ -1,4 +1,4 @@
-import { PlanBenefit } from "../billing/plans";
+import { hasUnlimitedPractice, type PlanBenefit } from "../billing/plans";
 import { PRACTICE_QUOTA_LIMITS, type QuotaMenu } from "./limits";
 
 /**
@@ -52,7 +52,7 @@ export function isUnlimited(
   proOnSale: boolean,
   benefits: readonly PlanBenefit[],
 ): boolean {
-  return !proOnSale || benefits.includes(PlanBenefit.UnlimitedPractice);
+  return !proOnSale || hasUnlimitedPractice(benefits);
 }
 
 /** 無制限の答え。特典は本物の判定どおり返す（拡張機能の出し分けは販売の有無と無関係） */

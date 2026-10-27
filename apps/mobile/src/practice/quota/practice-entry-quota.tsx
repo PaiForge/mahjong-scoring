@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { hasUnlimitedPractice } from "@mahjong-scoring/features/billing/plans";
 import type { BeginPracticeQuestionResult } from "@mahjong-scoring/features/quota/answer";
 import {
   PRACTICE_QUOTA_LIMITS,
@@ -79,7 +79,7 @@ function EntryQuota({ menu }: { readonly menu: QuotaMenu }) {
       return <Text style={styles.text}>{t("unavailable")}</Text>;
     const { quota } = state;
     if (quota.remaining === "unlimited") {
-      return quota.benefits.includes(PlanBenefit.UnlimitedPractice) ? (
+      return hasUnlimitedPractice(quota.benefits) ? (
         <View style={styles.pro}>
           <Chip tone="amber">{tQuota("proBadge")}</Chip>
           <InfinityIcon size={16} color={colors.surface900} />

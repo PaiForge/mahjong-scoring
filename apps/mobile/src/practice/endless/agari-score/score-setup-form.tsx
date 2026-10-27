@@ -13,7 +13,7 @@ import {
 } from "../../../components/setting-toggle-row";
 import type { ScoreSettingsStoreHook } from "../../../hooks/use-score-settings-store";
 import { useTrainingSettingsStore } from "../../../hooks/use-training-settings-store";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { hasPracticeTools } from "@mahjong-scoring/features/billing/plans";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 import { colors } from "../../../lib/theme";
@@ -213,10 +213,9 @@ function SignedInMeasureTimeRow({
   const t = useTranslations("agariScore");
   const { state } = usePlan(userId);
   const loading = state.kind === "loading";
-  const hasPracticeTools =
-    state.kind === "loaded" &&
-    state.value.benefits.includes(PlanBenefit.PracticeTools);
-  if (!loading && !hasPracticeTools)
+  const granted =
+    state.kind === "loaded" && hasPracticeTools(state.value.benefits);
+  if (!loading && !granted)
     return <LockedMeasureTimeRow href={MYPAGE_PLAN_PATH} />;
   return (
     <SettingToggleRow

@@ -10,8 +10,8 @@ import {
 } from "@/app/(user)/_components/setting-toggle-row";
 import { useAuth } from "@/app/_contexts/auth-context";
 import {
+  hasPracticeTools,
   PLAN_PAGE_HREF,
-  PlanBenefit,
 } from "@mahjong-scoring/features/billing/plans";
 import {
   useDisplaySettingsStore,
@@ -52,12 +52,10 @@ export function DisplaySettingsSection() {
   // 出すか」の見た目だけを決める（練習の盤面は開始時に特典を読み直して決める）。
   // 特典が無い間も保存値は書き換えない
   const { user, isLoading, profile, isProfileLoading } = useAuth();
-  const hasPracticeTools =
-    profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
   const isBenefitPending = isLoading || (user !== null && isProfileLoading);
   const practiceToolsAccess: PracticeToolsAccess = isBenefitPending
     ? "pending"
-    : hasPracticeTools
+    : profile && hasPracticeTools(profile.benefits)
       ? "granted"
       : "locked";
 

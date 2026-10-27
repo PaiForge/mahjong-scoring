@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
-  PlanBenefit,
+  hasUnlimitedPractice,
   PLAN_PAGE_HREF,
 } from "@mahjong-scoring/features/billing/plans";
 import {
@@ -71,7 +71,7 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
       ) : quota === null ? (
         <p>{t("unavailable")}</p>
       ) : quota.remaining === "unlimited" ? (
-        quota.benefits.includes(PlanBenefit.UnlimitedPractice) ? (
+        hasUnlimitedPractice(quota.benefits) ? (
           <div className="flex items-center gap-2 rounded-lg bg-podium-gold px-3 py-2">
             <ProBadge label={tQuota("proBadge")} onGold />
             <p className="flex items-center gap-1 text-sm font-bold text-surface-900">
