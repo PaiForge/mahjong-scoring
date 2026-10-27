@@ -1,6 +1,22 @@
+import {
+  type ChoiceFeedbackTone,
+  type FrameFeedbackTone,
+  choiceFeedbackTone,
+  frameFeedbackTone,
+} from "@mahjong-scoring/features/practice/feedback-tone";
+
+/** 盤面の枠のトーン → ボーダー＋背景クラス */
+const FRAME_CLASSES: Readonly<Record<FrameFeedbackTone, string>> = {
+  idle: "border-panel bg-white",
+  correct: "border-success bg-success-subtle",
+  wrong: "border-destructive bg-destructive-subtle",
+};
+
 /**
  * 練習の正誤フィードバック時のボーダー＋背景クラスを返す
  * フィードバック枠スタイル
+ *
+ * 状態の判定は `frameFeedbackTone`（モバイルと共通）。
  *
  * @param showFeedback - フィードバック表示中かどうか
  * @param lastAnswerCorrect - 直前の回答が正解だったか（undefined の場合はデフォルト表示）
@@ -9,57 +25,50 @@ export function getFeedbackBorderClass(
   showFeedback: boolean,
   lastAnswerCorrect: boolean | undefined,
 ): string {
-  if (!showFeedback || lastAnswerCorrect === undefined)
-    return "border-panel bg-white";
-  return lastAnswerCorrect
-    ? "border-success bg-success-subtle"
-    : "border-destructive bg-destructive-subtle";
+  return FRAME_CLASSES[frameFeedbackTone(showFeedback, lastAnswerCorrect)];
 }
+
+/**
+ * 選択肢のトーン → ボーダー＋背景クラス
+ *
+ * `pending`（押してから正誤が返るまで）の塗りは正誤のどちらとも読めない
+ * 灰色（`bg-pending`。select で答える盤面が待ち中に出す
+ * `disabled:bg-surface-100` と同じ）に限る。以前はブランドの緑
+ * （`bg-primary-100`）を使っていたが、その値は正解の塗り `bg-success-subtle`
+ * と同じ色で、不正解だったときに「緑で正解になってから赤に変わる」ように
+ * 見えた（2026-10 に本番で報告）。
+ */
+const CHOICE_CLASSES: Readonly<
+  Record<ChoiceFeedbackTone, { borderClass: string; bgClass: string }>
+> = {
+  idle: {
+    borderClass: "border-surface-300 hover:border-surface-400",
+    bgClass: "bg-white hover:bg-surface-50",
+  },
+  pending: { borderClass: "border-pending-border", bgClass: "bg-pending" },
+  correct: { borderClass: "border-success", bgClass: "bg-success-subtle" },
+  wrong: {
+    borderClass: "border-destructive",
+    bgClass: "bg-destructive-subtle",
+  },
+  dimmed: { borderClass: "border-surface-300", bgClass: "bg-white opacity-50" },
+};
 
 /**
  * 選択肢ボタンのボーダー＋背景クラスを返す
  * 選択肢配色
  *
- * 選んだ選択肢は、正誤が付く前（`isSelected && !showFeedback`）から色を変える。
- * 記録ありのチャレンジは採点がサーバーで行われ、押してから正誤が返るまで
- * 通信の往復と採点のぶん待つ（2026-10 の本番実測で定常 136〜233ms、挑戦の
- * 最初の回答は約 700ms）。その間ボタンが静止時の見た目に戻ると「押したのに
- * 何も起きない」一拍になるので、押した瞬間に「受け付けた」を見せ、
- * 正誤の色は後から乗せる。採点が同期のトレーニングとレッスンでは、選択と
- * 同時に `showFeedback` が立つのでこの状態を通らない。
- *
- * 「受け付けた」の塗りは正誤のどちらとも読めない灰色（`bg-pending`。
- * select で答える盤面が待ち中に出す `disabled:bg-surface-100` と同じ）に
- * 限る。以前はブランドの緑（`bg-primary-100`）を使っていたが、その値は
- * 正解の塗り `bg-success-subtle` と同じ色で、不正解だったときに「緑で
- * 正解になってから赤に変わる」ように見えた（2026-10 に本番で報告）。
+ * 状態の判定（採点待ち → 正解 → 選んだ不正解 → それ以外）は
+ * `choiceFeedbackTone`（モバイルと共通）。
  */
 export function getFeedbackStyles(
   showFeedback: boolean,
   isSelected: boolean,
   isCorrect: boolean,
 ): { borderClass: string; bgClass: string } {
-  if (!showFeedback) {
-    return isSelected
-      ? { borderClass: "border-pending-border", bgClass: "bg-pending" }
-      : {
-          borderClass: "border-surface-300 hover:border-surface-400",
-          bgClass: "bg-white hover:bg-surface-50",
-        };
-  }
-
-  if (isCorrect) {
-    return { borderClass: "border-success", bgClass: "bg-success-subtle" };
-  }
-
-  if (isSelected) {
-    return {
-      borderClass: "border-destructive",
-      bgClass: "bg-destructive-subtle",
-    };
-  }
-
-  return { borderClass: "border-surface-300", bgClass: "bg-white opacity-50" };
+  return CHOICE_CLASSES[
+    choiceFeedbackTone(showFeedback, isSelected, isCorrect)
+  ];
 }
 
 /**
