@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import { AnswerOutcome } from "@mahjong-scoring/features/results/result-schemas";
 
@@ -33,7 +33,7 @@ export function ProblemListAccordion<T>({
   const tResult = useTranslations(`${translationNamespace}.result`);
   const tCommon = useTranslations("common");
   const scrollIntoView = useScrollIntoView();
-  const cardRefs = useRef(new Map<number, View>());
+  const cardRefs = useRef(new Map<number, ViewInstance>());
   const [openIndexes, setOpenIndexes] = useState<ReadonlySet<number>>(
     () => new Set(),
   );

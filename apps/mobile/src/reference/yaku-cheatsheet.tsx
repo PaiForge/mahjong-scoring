@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   YAKU_HAN_ENTRIES,
@@ -86,7 +86,7 @@ export function YakuCheatsheet({
 
   // 開いた役が置かれたら一度だけ中央へ寄せる
   const scrollIntoView = useScrollIntoView();
-  const focusRef = useRef<View>(null);
+  const focusRef = useRef<ViewInstance>(null);
   const hasScrolled = useRef(false);
   const handleFocusLayout = useCallback(() => {
     if (hasScrolled.current) return;

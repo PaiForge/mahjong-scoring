@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import type { View } from "react-native";
+import type { ViewInstance } from "react-native";
 
 /**
  * 注目セルの印（点数早見表の正解のセル）
@@ -9,6 +9,6 @@ import type { View } from "react-native";
  * ことを `ScoreTable` が受け取り、スクロール枠の中央へ寄せる。
  */
 export interface FocusAnchor {
-  readonly ref: RefObject<View | null>;
+  readonly ref: RefObject<ViewInstance | null>;
   readonly onLayout: () => void;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, type Href } from "expo-router";
-import type { ScrollView } from "react-native";
+import type { ScrollViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
@@ -33,7 +33,7 @@ interface EndlessBoardShellOptions {
 
 interface EndlessBoardShell {
   /** 盤面のスクロール（`Screen` の ref） */
-  readonly scrollRef: React.RefObject<ScrollView | null>;
+  readonly scrollRef: React.RefObject<ScrollViewInstance | null>;
   /** 盤面の先頭へ戻す。回答・開示・次へのたびに呼ぶ */
   readonly scrollToTop: () => void;
   /** 正解で自動で次へ進んだ合図（`CorrectFlash` の signal） */
@@ -74,7 +74,7 @@ export function useEndlessBoardShell({
 }: EndlessBoardShellOptions): EndlessBoardShell {
   const tq = useTranslations("practiceQuota");
   const router = useRouter();
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const [flashSignal, setFlashSignal] = useState(0);
   // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う

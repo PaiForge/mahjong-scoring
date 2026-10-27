@@ -9,23 +9,13 @@ import {
 import {
   ScrollView,
   type LayoutChangeEvent,
+  type ScrollViewInstance,
   type StyleProp,
-  type View,
+  type ViewInstance,
   type ViewStyle,
 } from "react-native";
 
 import { scrollTargetY, type ScrollBlock } from "../lib/scroll-target";
-
-declare module "react-native" {
-  interface ScrollView {
-    /**
-     * 中身の View の ref。iOS / Android の実装（`ScrollView.js`）にも
-     * react-native-web にもあるが、型定義（`ScrollView.d.ts`）に載っていない。
-     * 型定義が勧める `innerViewRef` プロップは react-native-web が受け取らない
-     */
-    getInnerViewRef(): View | null;
-  }
-}
 
 /**
  * 渡した要素が見えるところまでスクロールする関数
@@ -36,8 +26,11 @@ declare module "react-native" {
  * `nearest` は上端を優先する）
  */
 type ScrollIntoView = (
-  target: View | null,
-  options?: { readonly block?: ScrollBlock; readonly until?: View | null },
+  target: ViewInstance | null,
+  options?: {
+    readonly block?: ScrollBlock;
+    readonly until?: ViewInstance | null;
+  },
 ) => void;
 
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
@@ -64,7 +57,7 @@ export function ScrollIntoViewProvider({
   scrollY,
   children,
 }: {
-  readonly scrollRef: RefObject<ScrollView | null>;
+  readonly scrollRef: RefObject<ScrollViewInstance | null>;
   readonly viewportHeight: RefObject<number>;
   readonly scrollY: RefObject<number>;
   readonly children: ReactNode;
@@ -76,7 +69,8 @@ export function ScrollIntoViewProvider({
       // 中身の View の ref。`getInnerViewNode()`（数値のタグ）は使わない —
       // New Architecture の `measureLayout` は ref 以外を受け取ると黙って何も
       // せず（開発ビルドで警告が出るだけ）、スクロールしない。web 版
-      // （react-native-web）はどちらも要素を返すため、web では差が見えない
+      // （react-native-web）はどちらも要素を返すため、web では差が見えない。
+      // 型定義が勧める `innerViewRef` プロップは react-native-web が受け取らない
       const content = scroll.getInnerViewRef();
       if (content == null) return;
       const scrollTo = (y: number, height: number) => {
@@ -122,7 +116,7 @@ export function ScrollIntoViewScrollView({
   readonly style?: StyleProp<ViewStyle>;
   readonly children: ReactNode;
 }) {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const viewportHeight = useRef(0);
   const scrollY = useRef(0);
 

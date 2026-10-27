@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useWindowDimensions, type ScrollView } from "react-native";
+import { useWindowDimensions, type ScrollViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 
 import { SelectOptionList } from "../../../components/select-option-list";
@@ -46,7 +46,7 @@ export function YakuSelectList({
   const t = useTranslations("common.yakuPicker");
   const options = useYakuOptions();
   const height = useYakuListHeight();
-  const listRef = useRef<ScrollView>(null);
+  const listRef = useRef<ScrollViewInstance>(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({ y: 0, animated: false });

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, type ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import { type Role, type WinType } from "@mahjong-scoring/core";
 
@@ -91,7 +91,7 @@ export function ScoreTable({
   // 注目セルが置かれたら一度だけ中央へ寄せる（タブを行き来して戻っても
   // 動かさない — 読んでいる位置を奪わないため）
   const scrollIntoView = useScrollIntoView();
-  const focusRef = useRef<View>(null);
+  const focusRef = useRef<ViewInstance>(null);
   const hasScrolled = useRef(false);
   const handleFocusLayout = useCallback(() => {
     if (hasScrolled.current) return;

@@ -1,6 +1,12 @@
 import { useRef } from "react";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  type ViewInstance,
+} from "react-native";
 import { useTranslations } from "use-intl";
 import {
   MOBILE_AD_SLOTS,
@@ -98,7 +104,7 @@ function KanaIndex({
   readonly ads: readonly NativeAdView[];
 }) {
   const scrollIntoView = useScrollIntoView();
-  const headingRefs = useRef(new Map<KanaRow, View | null>());
+  const headingRefs = useRef(new Map<KanaRow, ViewInstance | null>());
 
   return (
     <View style={styles.section}>
