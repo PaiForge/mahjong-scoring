@@ -5,9 +5,9 @@ import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-t
 import { withRetries } from "@mahjong-scoring/features/session/with-retries";
 import { logExternalError } from "@/lib/log-error";
 import {
-  isRetryableFinishFailure,
+  isRetryableChallengeFailure,
   type FinishErrorCode,
-} from "../_lib/finish-failure-policy";
+} from "../_lib/challenge-failure-policy";
 import type {
   FinishCallbackArgs,
   FinishCallbackResult,
@@ -71,7 +71,7 @@ interface FinishActionOptions<TSuccess extends Record<string, unknown>> {
  * これにより匿名ユーザーに対する `console.error` のノイズも発生しない。
  *
  * 一時的な失敗（回数制限・DB の失敗・認証サーバーの不通・例外）は、同じ挑戦 ID を
- * 間を空けて数回送り直す（`withRetries`。分け方は `finish-failure-policy.ts`、
+ * 間を空けて数回送り直す（`withRetries`。分け方は `challenge-failure-policy.ts`、
  * アプリの確定の送信と同じ間隔）。送り直す間は盤面が結果ページ形のスケルトンの
  * まま（`ChallengeShell`）で、利用者に待たせるのは合計 3.5 秒ほど。送り直しても
  * 通らなければ undefined を返して結果ページへ進む — 挑戦は未確定のまま残るが、
@@ -102,7 +102,7 @@ export function useFinishAction<TSuccess extends Record<string, unknown>>(
         (outcome) =>
           "thrown" in outcome ||
           (isFailureResponse(outcome) &&
-            isRetryableFinishFailure(outcome.error)),
+            isRetryableChallengeFailure(outcome.error)),
       );
       if ("thrown" in result) {
         logExternalError(name, menuType, result.thrown);

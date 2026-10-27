@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type {
   GameSessionState,
   TimerControl,
@@ -43,7 +43,10 @@ const timerControl: TimerControl = {
   reset: vi.fn(),
 };
 
-function renderShell(isPaused: boolean) {
+function renderShell(
+  isPaused: boolean,
+  reconnect?: { message: "connectionLost"; onPress: () => void },
+) {
   return render(
     <ChallengeShell
       title="t"
@@ -51,6 +54,7 @@ function renderShell(isPaused: boolean) {
       resultPath="/practice/jantou-fu/result"
       gameSession={gameSession({ isPaused, isPlaying: !isPaused })}
       timerControl={timerControl}
+      reconnect={reconnect}
     >
       <button type="button">choice</button>
     </ChallengeShell>,
@@ -68,5 +72,28 @@ describe("ChallengeShell 一時停止", () => {
     renderShell(false);
     const board = screen.getByText("choice").parentElement;
     expect(board?.hasAttribute("inert")).toBe(false);
+  });
+});
+
+describe("ChallengeShell 再接続の案内", () => {
+  it("案内を盤面の上に重ね、盤面と一時停止を押せなくし、押すと送り直しを続ける", () => {
+    const onPress = vi.fn();
+    renderShell(false, { message: "connectionLost", onPress });
+    const board = screen.getByText("choice").parentElement;
+    expect(board?.hasAttribute("inert")).toBe(true);
+    expect(screen.getByRole("alert").textContent).toContain(
+      "recording.connectionLost",
+    );
+    expect(screen.getByRole("button", { name: "pause" })).toHaveProperty(
+      "disabled",
+      true,
+    );
+    fireEvent.click(screen.getByText("recording.reconnect"));
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it("案内が無ければ何も重ねない", () => {
+    renderShell(false);
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 });

@@ -34,6 +34,12 @@ import { vi } from "vitest";
 /** `@/lib/rate-limit-ip` の `enforceIpRateLimit` の差し替え先 */
 export const mockEnforceIpRateLimit = vi.fn();
 
+/**
+ * `@/lib/rate-limit-ip` の `enforceUserRateLimit` の差し替え先。
+ * ログイン済みのアカウント単位の枠（結果送信・回答）を数える Action が読む
+ */
+export const mockEnforceUserRateLimit = vi.fn();
+
 /** `@/lib/auth` の `authenticateAndCheckBan` の差し替え先 */
 export const mockAuthenticateAndCheckBan = vi.fn();
 
@@ -46,6 +52,9 @@ export const mockIsVerifiedUserUnavailable = vi.fn();
 
 /** `vi.mock("@/lib/rate-limit-ip", ...)` 用のエイリアス */
 export const enforceIpRateLimit = mockEnforceIpRateLimit;
+
+/** `vi.mock("@/lib/rate-limit-ip", ...)` 用のエイリアス */
+export const enforceUserRateLimit = mockEnforceUserRateLimit;
 
 /** `vi.mock("@/lib/auth", ...)` 用のエイリアス */
 export const authenticateAndCheckBan = mockAuthenticateAndCheckBan;
@@ -67,6 +76,7 @@ export const AUTHENTICATED_USER = {
  */
 export function setupAuthorized(user = AUTHENTICATED_USER): void {
   mockEnforceIpRateLimit.mockResolvedValue(undefined);
+  mockEnforceUserRateLimit.mockReturnValue(undefined);
   mockAuthenticateAndCheckBan.mockResolvedValue({ user });
   mockIsVerifiedUserUnavailable.mockResolvedValue(false);
 }

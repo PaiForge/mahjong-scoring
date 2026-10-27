@@ -4,7 +4,7 @@ import type { MobileChallengeStatus } from "@mahjong-scoring/features/challenge/
 import { isRetryableFailure } from "../records/failure-policy";
 import { pauseRecordedChallenge } from "../records/records-api";
 import { withRetries } from "../records/with-retries";
-import type { ReconnectPrompt } from "./use-reconnect-prompt";
+import type { ReconnectPrompt } from "@mahjong-scoring/features/session/use-reconnect-prompt";
 
 /**
  * サーバーの一時停止を画面の状態に合わせる

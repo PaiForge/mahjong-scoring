@@ -4,24 +4,33 @@ import {
   AUTHENTICATED_USER,
   mockAuthenticateAndCheckBan,
   mockEnforceIpRateLimit,
+  mockEnforceUserRateLimit,
+  mockIsVerifiedUserUnavailable,
   setupAuthorized,
 } from "@/test/auth-mocks";
 
-const { mockBeginAttempt, mockAnswerAttempt } = vi.hoisted(() => ({
-  mockBeginAttempt: vi.fn(),
-  mockAnswerAttempt: vi.fn(),
-}));
+const { mockBeginAttempt, mockAnswerAttempt, mockRevealExpiredAttempt } =
+  vi.hoisted(() => ({
+    mockBeginAttempt: vi.fn(),
+    mockAnswerAttempt: vi.fn(),
+    mockRevealExpiredAttempt: vi.fn(),
+  }));
 
 vi.mock("../rate-limit-ip", async () => await import("@/test/auth-mocks"));
 vi.mock("../auth", async () => await import("@/test/auth-mocks"));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 vi.mock("./attempts", () => ({
   beginAttempt: mockBeginAttempt,
   answerAttempt: mockAnswerAttempt,
   pauseAttempt: vi.fn(),
-  revealExpiredAttempt: vi.fn(),
+  revealExpiredAttempt: mockRevealExpiredAttempt,
 }));
 
-import { answerChallenge, beginChallenge } from "./actions";
+import {
+  answerChallenge,
+  beginChallenge,
+  revealExpiredChallenge,
+} from "./actions";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -61,6 +70,16 @@ describe("beginChallenge", () => {
     expect(mockEnforceIpRateLimit).not.toHaveBeenCalled();
     expect(mockBeginAttempt).not.toHaveBeenCalled();
   });
+
+  it("認証サーバーの不通は未ログインと区別し、非記録モードへ落とさない", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+
+    expect(await beginChallenge("jantou_fu", "default", {})).toEqual({
+      error: "authUnavailable",
+    });
+    expect(mockBeginAttempt).not.toHaveBeenCalled();
+  });
 });
 
 describe("answerChallenge", () => {
@@ -90,10 +109,114 @@ describe("answerChallenge", () => {
     }
   });
 
-  it("未認証なら採点に進まない", async () => {
+  it("ログイン済みならアカウント単位の回答の枠を数えてから採点する", async () => {
+    mockAnswerAttempt.mockResolvedValue({ correct: true });
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      correct: true,
+    });
+    expect(mockEnforceUserRateLimit).toHaveBeenCalledWith(
+      AUTHENTICATED_USER.id,
+      "answerChallenge",
+    );
+    // IP では数えない（共有 NAT の回答を巻き添えにしない）
+    expect(mockEnforceIpRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("枠を超えたら rateLimited で、行には触れない", async () => {
+    mockEnforceUserRateLimit.mockReturnValue({ error: "rateLimited" });
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "rateLimited",
+    });
+    expect(mockAnswerAttempt).not.toHaveBeenCalled();
+  });
+
+  it("未認証なら unauthorized で採点に進まない", async () => {
     mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
 
-    expect(await answerChallenge("attempt-1", 0, 2)).toBeUndefined();
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "unauthorized",
+    });
     expect(mockAnswerAttempt).not.toHaveBeenCalled();
+    expect(mockEnforceUserRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("認証サーバーの不通は authUnavailable（送り直せる）", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "authUnavailable",
+    });
+    expect(mockAnswerAttempt).not.toHaveBeenCalled();
+  });
+
+  it("BAN は banned", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "banned" });
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "banned",
+    });
+  });
+
+  it("挑戦が受け付けなかった回答は rejected", async () => {
+    mockAnswerAttempt.mockResolvedValue(undefined);
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "rejected",
+    });
+  });
+
+  it("採点の例外は unexpectedError に畳んで記録する", async () => {
+    mockAnswerAttempt.mockRejectedValue(new Error("db down"));
+    const { logExternalError } = await import("../log-error");
+
+    expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
+      error: "unexpectedError",
+    });
+    expect(logExternalError).toHaveBeenCalledWith(
+      "answerChallenge",
+      "answer failed",
+      expect.any(Error),
+    );
+  });
+});
+
+describe("revealExpiredChallenge", () => {
+  it("読めた結果はそのまま返し、枠は数えない", async () => {
+    mockRevealExpiredAttempt.mockResolvedValue({ remainingMs: 1_200 });
+
+    expect(await revealExpiredChallenge("attempt-1")).toEqual({
+      remainingMs: 1_200,
+    });
+    expect(mockEnforceUserRateLimit).not.toHaveBeenCalled();
+    expect(mockEnforceIpRateLimit).not.toHaveBeenCalled();
+  });
+
+  it("返せなかったら rejected", async () => {
+    mockRevealExpiredAttempt.mockResolvedValue(undefined);
+
+    expect(await revealExpiredChallenge("attempt-1")).toEqual({
+      error: "rejected",
+    });
+  });
+
+  it("認証サーバーの不通は authUnavailable", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+
+    expect(await revealExpiredChallenge("attempt-1")).toEqual({
+      error: "authUnavailable",
+    });
+    expect(mockRevealExpiredAttempt).not.toHaveBeenCalled();
+  });
+
+  it("読み出しの例外は unexpectedError に畳む", async () => {
+    mockRevealExpiredAttempt.mockRejectedValue(new Error("db down"));
+
+    expect(await revealExpiredChallenge("attempt-1")).toEqual({
+      error: "unexpectedError",
+    });
   });
 });
