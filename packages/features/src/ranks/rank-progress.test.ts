@@ -10,11 +10,11 @@ describe("buildRankProgress", () => {
     expect(progress.totalCount).toBe(RANK_REGISTRY.length);
     expect(progress.segments.map((s) => s.state)).toEqual([
       "next",
-      "upcoming",
-      "upcoming",
-      "upcoming",
-      "upcoming",
-      "upcoming",
+      "unachieved",
+      "unachieved",
+      "unachieved",
+      "unachieved",
+      "unachieved",
     ]);
     expect(progress.segments.some((s) => s.isCurrent)).toBe(false);
   });
@@ -26,9 +26,9 @@ describe("buildRankProgress", () => {
       "achieved",
       "achieved",
       "next",
-      "upcoming",
-      "upcoming",
-      "upcoming",
+      "unachieved",
+      "unachieved",
+      "unachieved",
     ]);
     expect(progress.segments.filter((s) => s.isCurrent)).toEqual([
       { slug: "kyu-4", state: "achieved", isCurrent: true },

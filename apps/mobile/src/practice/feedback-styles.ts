@@ -1,59 +1,79 @@
 import type { ViewStyle } from "react-native";
+import {
+  type ChoiceFeedbackTone,
+  type FrameFeedbackTone,
+  choiceFeedbackTone,
+  frameFeedbackTone,
+} from "@mahjong-scoring/features/practice/feedback-tone";
 
 import { colors } from "../lib/theme";
+
+/** 盤面の枠のトーン → 枠と地の色 */
+const FRAME_STYLES: Readonly<Record<FrameFeedbackTone, ViewStyle>> = {
+  idle: { borderColor: colors.panel, backgroundColor: colors.white },
+  correct: {
+    borderColor: colors.success,
+    backgroundColor: colors.successSubtle,
+  },
+  wrong: {
+    borderColor: colors.destructive,
+    backgroundColor: colors.destructiveSubtle,
+  },
+};
 
 /**
  * 盤面の枠の正誤配色（web の `getFeedbackBorderClass`）
  * フィードバック枠スタイル
+ *
+ * 状態の判定は `frameFeedbackTone`（web と共通）。
  */
 export function feedbackFrameStyle(
   showFeedback: boolean,
   lastAnswerCorrect: boolean | undefined,
 ): ViewStyle {
-  if (!showFeedback || lastAnswerCorrect === undefined)
-    return { borderColor: colors.panel, backgroundColor: colors.white };
-  return lastAnswerCorrect
-    ? { borderColor: colors.success, backgroundColor: colors.successSubtle }
-    : {
-        borderColor: colors.destructive,
-        backgroundColor: colors.destructiveSubtle,
-      };
+  return FRAME_STYLES[frameFeedbackTone(showFeedback, lastAnswerCorrect)];
 }
+
+/**
+ * 選択肢のトーン → 枠と地の色
+ *
+ * 待機中の枠はフォーム部品と同じ一段濃い灰。採点待ちは正誤のどちらとも
+ * 読めない灰（`pending`）。
+ */
+const CHOICE_STYLES: Readonly<Record<ChoiceFeedbackTone, ViewStyle>> = {
+  idle: { borderColor: colors.surface300, backgroundColor: colors.white },
+  pending: {
+    borderColor: colors.pendingBorder,
+    backgroundColor: colors.pending,
+  },
+  correct: {
+    borderColor: colors.success,
+    backgroundColor: colors.successSubtle,
+  },
+  wrong: {
+    borderColor: colors.destructive,
+    backgroundColor: colors.destructiveSubtle,
+  },
+  dimmed: {
+    borderColor: colors.surface300,
+    backgroundColor: colors.white,
+    opacity: 0.5,
+  },
+};
 
 /**
  * 選択肢ボタンの正誤配色（web の `getFeedbackStyles`）
  * 選択肢配色
  *
- * 押した選択肢は正誤が付く前から色を変え、正誤が出たら正解を緑、選んだ
- * 不正解を赤、それ以外を薄くする。枠はフォーム部品と同じ一段濃い灰。
+ * 状態の判定（採点待ち → 正解 → 選んだ不正解 → それ以外）は
+ * `choiceFeedbackTone`（web と共通）。
  */
 export function choiceFeedbackStyle(
   showFeedback: boolean,
   isSelected: boolean,
   isCorrect: boolean,
 ): ViewStyle {
-  if (!showFeedback) {
-    return isSelected
-      ? { borderColor: colors.pendingBorder, backgroundColor: colors.pending }
-      : { borderColor: colors.surface300, backgroundColor: colors.white };
-  }
-  if (isCorrect) {
-    return {
-      borderColor: colors.success,
-      backgroundColor: colors.successSubtle,
-    };
-  }
-  if (isSelected) {
-    return {
-      borderColor: colors.destructive,
-      backgroundColor: colors.destructiveSubtle,
-    };
-  }
-  return {
-    borderColor: colors.surface300,
-    backgroundColor: colors.white,
-    opacity: 0.5,
-  };
+  return CHOICE_STYLES[choiceFeedbackTone(showFeedback, isSelected, isCorrect)];
 }
 
 /**

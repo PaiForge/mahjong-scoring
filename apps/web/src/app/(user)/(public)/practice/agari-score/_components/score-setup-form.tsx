@@ -23,8 +23,8 @@ import { PlayIcon } from "@/app/(user)/_components/icons/play-icon";
 import { Button } from "@/app/(user)/_components/button";
 import { useAuth } from "@/app/_contexts/auth-context";
 import {
+  hasPracticeTools as hasPracticeToolsBenefit,
   PLAN_PAGE_HREF,
-  PlanBenefit,
 } from "@mahjong-scoring/features/billing/plans";
 
 interface ScoreSetupFormProps {
@@ -71,8 +71,9 @@ export function ScoreSetupForm({
   // 盤面は特典の有無をサーバーの返事で改めて確かめるので、ここの判定は
   // 「スイッチを出すか料金ページへの導線を出すか」の見た目だけを決める
   const { user, isLoading, profile, isProfileLoading } = useAuth();
-  const hasPracticeTools =
-    profile?.benefits.includes(PlanBenefit.PracticeTools) ?? false;
+  const hasPracticeTools = profile
+    ? hasPracticeToolsBenefit(profile.benefits)
+    : false;
   // 特典の有無が決まるまではスケルトンを出す。ロック行はスイッチ行より背が高く、
   // 決まる前に描くと Pro の閲覧者にロック行が一瞬出てから縮む
   const isBenefitPending = isLoading || (user !== null && isProfileLoading);

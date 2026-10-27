@@ -37,6 +37,13 @@ import {
   updateAccountRecords,
   useAccountRecordsStore,
 } from "./use-account-records-store";
+import { withRetries } from "./with-retries";
+
+/**
+ * 確定の送り直しの間隔（ミリ秒）。送る前に確定待ちへ預けているので、
+ * 盤面の送信（`withRetries` の既定）より早く諦めて次の同期に任せる
+ */
+const FINISH_RETRY_DELAYS_MS = [1000, 2000] as const;
 
 /**
  * サーバーから読んだ本人の進み具合（メモリのみ）
@@ -396,12 +403,10 @@ export async function submitChallengeFinish(
     finishChallenge(records, userId, challenge),
   );
   setFinishStatus(challenge.attemptId, "sending");
-  let result = await finishRecordedChallenge(userId, challenge.attemptId);
-  for (const delay of [1000, 2000]) {
-    if (!("error" in result) || !isRetryableFailure(result.error)) break;
-    await new Promise((resolve) => setTimeout(resolve, delay));
-    result = await finishRecordedChallenge(userId, challenge.attemptId);
-  }
+  const result = await withRetries(
+    () => finishRecordedChallenge(userId, challenge.attemptId),
+    FINISH_RETRY_DELAYS_MS,
+  );
   if ("value" in result) {
     updateAccountRecords((records) =>
       dropPendingFinish(records, userId, challenge.attemptId),

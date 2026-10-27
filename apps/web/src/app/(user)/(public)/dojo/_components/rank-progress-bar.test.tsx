@@ -29,11 +29,11 @@ describe("RankProgressBar", () => {
     );
     expect(segmentStates(container)).toEqual([
       "next",
-      "upcoming",
-      "upcoming",
-      "upcoming",
-      "upcoming",
-      "upcoming",
+      "unachieved",
+      "unachieved",
+      "unachieved",
+      "unachieved",
+      "unachieved",
     ]);
     const bar = container.querySelector('[role="progressbar"]');
     expect(bar?.getAttribute("aria-valuenow")).toBe("0");
@@ -50,9 +50,9 @@ describe("RankProgressBar", () => {
       "achieved",
       "achieved",
       "next",
-      "upcoming",
-      "upcoming",
-      "upcoming",
+      "unachieved",
+      "unachieved",
+      "unachieved",
     ]);
     expect(
       container

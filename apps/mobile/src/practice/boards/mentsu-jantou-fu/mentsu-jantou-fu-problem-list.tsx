@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { useTranslations } from "use-intl";
 import { findAgariHighlight } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/find-agari-highlight";
 import {
@@ -7,7 +7,8 @@ import {
 } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/restore-item";
 import {
   countCorrectItems,
-  isItemCorrect,
+  type ItemOutcome,
+  itemOutcome,
   type MentsuJantouFuQuestionResult,
 } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/types";
 import { restoreTehaiQuestion } from "@mahjong-scoring/features/results/parse-question-tiles";
@@ -29,19 +30,10 @@ function ItemRow({
   const t = useTranslations("mentsuJantouFu");
   const tCommon = useTranslations("common");
   const { userFu } = item;
-  const correct = isItemCorrect(item);
+  const outcome = itemOutcome(item);
 
   return (
-    <View
-      style={[
-        styles.item,
-        userFu === undefined
-          ? styles.itemTimeUp
-          : correct
-            ? styles.itemCorrect
-            : styles.itemWrong,
-      ]}
-    >
+    <View style={[styles.item, ITEM_ROW_STYLES[outcome]]}>
       <FuItemTiles item={item} highlightedTileIndex={highlightedTileIndex} />
       <View style={styles.answers}>
         <View style={styles.answerLine}>
@@ -53,17 +45,7 @@ function ItemRow({
         <View style={styles.answerLine}>
           <Text style={styles.answerLabel}>{t("result.yourAnswer")}</Text>
           <Text
-            style={[
-              styles.answerValue,
-              {
-                color:
-                  userFu === undefined
-                    ? colors.surface500
-                    : correct
-                      ? colors.success
-                      : colors.destructive,
-              },
-            ]}
+            style={[styles.answerValue, { color: ITEM_ANSWER_COLORS[outcome] }]}
           >
             {userFu === undefined
               ? tCommon("timeUp")
@@ -185,3 +167,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 });
+
+/** 行の枠と地（時間切れは正誤の色を持たない） */
+const ITEM_ROW_STYLES: Readonly<Record<ItemOutcome, ViewStyle>> = {
+  timeUp: styles.itemTimeUp,
+  correct: styles.itemCorrect,
+  wrong: styles.itemWrong,
+};
+
+/** 「あなたの回答」の文字色 */
+const ITEM_ANSWER_COLORS: Readonly<Record<ItemOutcome, string>> = {
+  timeUp: colors.surface500,
+  correct: colors.success,
+  wrong: colors.destructive,
+};

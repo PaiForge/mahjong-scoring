@@ -1,5 +1,5 @@
 import type { MobilePlanResponse } from "@mahjong-scoring/features/billing/mobile-api";
-import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
+import { hasPracticeTools } from "@mahjong-scoring/features/billing/plans";
 
 import type { FocusReadState } from "../lib/use-focus-read";
 
@@ -30,7 +30,5 @@ export function resolvePracticeToolsAccess(
 ): Exclude<PracticeToolsAccess, "signedOut"> {
   if (plan.kind === "loading") return "pending";
   if (plan.kind === "failed") return "locked";
-  return plan.value.benefits.includes(PlanBenefit.PracticeTools)
-    ? "granted"
-    : "locked";
+  return hasPracticeTools(plan.value.benefits) ? "granted" : "locked";
 }

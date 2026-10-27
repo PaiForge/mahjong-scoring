@@ -1,6 +1,6 @@
 import { mulberry32, type HaiKindId } from "@mahjong-scoring/core";
 
-import { PlanBenefit } from "../billing/plans";
+import { hasPracticeTools, type PlanBenefit } from "../billing/plans";
 import { DEFAULT_TILE_ORDER, type TileOrderMode } from "../settings/tile-order";
 import {
   DEFAULT_TILE_ORIENTATION,
@@ -88,7 +88,7 @@ export function resolveHandPresentationSettings(
   saved: HandPresentationSettings,
   benefits: readonly PlanBenefit[],
 ): HandPresentationSettings {
-  if (!benefits.includes(PlanBenefit.PracticeTools)) {
+  if (!hasPracticeTools(benefits)) {
     return DEFAULT_HAND_PRESENTATION_SETTINGS;
   }
   return { orientation: saved.orientation, order: saved.order };

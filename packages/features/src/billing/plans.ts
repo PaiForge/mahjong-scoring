@@ -89,6 +89,31 @@ export function isPlanBenefit(value: string): value is PlanBenefit {
 }
 
 /**
+ * 練習の拡張機能（回答時間の計測・手牌の表示の調整）を使えるか
+ * 拡張機能判定
+ *
+ * 設定画面の Pro の行・和了形の設定の計測の行・盤面の表示の調整・出題許可の
+ * 答えが同じ特典名を引く。
+ */
+export function hasPracticeTools(benefits: readonly PlanBenefit[]): boolean {
+  return benefits.includes(PlanBenefit.PracticeTools);
+}
+
+/**
+ * 回数制限を外す特典を持つか
+ * 無制限特典判定
+ *
+ * 販売の有無を含めて「数えずに通すか」を決めるのは `quota/answer.ts` の
+ * `isUnlimited`。ここは特典だけを見る（残数の表示が「Pro で無制限」と
+ * 「販売していないので無制限」を出し分けるのに使う）。
+ */
+export function hasUnlimitedPractice(
+  benefits: readonly PlanBenefit[],
+): boolean {
+  return benefits.includes(PlanBenefit.UnlimitedPractice);
+}
+
+/**
  * 売り方の種類
  * 購入種別
  *

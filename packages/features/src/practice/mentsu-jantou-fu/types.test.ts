@@ -12,6 +12,7 @@ import { generateOrThrow } from "@mahjong-scoring/features/test/generate-or-thro
 import {
   countCorrectItems,
   isItemCorrect,
+  itemOutcome,
   parseMentsuJantouFuResults,
   toQuestionResult,
 } from "./types";
@@ -161,5 +162,13 @@ describe("isItemCorrect / countCorrectItems", () => {
   it("時間切れで答えていない行（userFu 無し）は不正解", () => {
     expect(isItemCorrect({ correctFu: 0 })).toBe(false);
     expect(countCorrectItems([{ correctFu: 0 }, { correctFu: 4 }])).toBe(0);
+  });
+});
+
+describe("itemOutcome", () => {
+  it("答えていない行は時間切れ、答えた行は正誤", () => {
+    expect(itemOutcome({ correctFu: 4 })).toBe("timeUp");
+    expect(itemOutcome({ correctFu: 4, userFu: 4 })).toBe("correct");
+    expect(itemOutcome({ correctFu: 8, userFu: 4 })).toBe("wrong");
   });
 });
