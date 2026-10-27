@@ -84,8 +84,10 @@ export async function fetchAuditLogPageData(
           .limit(pagination.limit)
           .offset(pagination.offset);
 
-  // ユーザー情報の取得
-  const targetIds = [...new Set(logs.map((l) => l.targetId))];
+  // ユーザー情報の取得（対象が利用者でない行は targetId を持たない）
+  const targetIds = [
+    ...new Set(logs.flatMap((l) => (l.targetId ? [l.targetId] : []))),
+  ];
   const actorIds = [...new Set(logs.map((l) => l.actorId))];
   const allUserIds = [...new Set([...targetIds, ...actorIds])];
 

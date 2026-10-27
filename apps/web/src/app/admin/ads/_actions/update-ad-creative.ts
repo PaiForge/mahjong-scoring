@@ -3,9 +3,15 @@
 import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
-import { copyToTranslationRows } from "@/lib/ads/copy";
+import { copyFromTranslationRows, copyToTranslationRows } from "@/lib/ads/copy";
+import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, adCreativeTranslations, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
+import {
+  ContentActionKind,
+  ContentActionTargetType,
+  recordContentAction,
+} from "@/app/admin/_lib/content-action";
 
 import { toAdCreativeRow } from "../_lib/creative-row";
 import { adImageUrlPrefix } from "../_lib/image-url";
@@ -30,7 +36,10 @@ export type UpdateAdCreativeError =
  * スロットを移すと kind が変わりうるうえ、並び順も別のスロットの中で
  * 決め直す必要があるため。
  *
- * 文言は行ごと入れ替える（消したロケールの行を残さない）。
+ * 文言は行ごと入れ替える（消したロケールの行を残さない）。文言の行は
+ * 時刻を持たず、入れ替えで id も変わるので、監査ログに更新前の行と文言
+ * （`before`）、更新後の値（`after`）を残す。リンク（URL / ASIN）もここで
+ * 変わりうる（収益の行き先）。
  */
 export async function updateAdCreative(
   id: string,
@@ -50,11 +59,29 @@ export async function updateAdCreative(
   const validated = validateAdCreative({ ...data, slot }, adImageUrlPrefix());
   if (!validated.ok) return { error: validated.error };
   const { value } = validated;
+  const ipAddress = await getClientIp();
 
-  await db.transaction(async (tx) => {
+  const updated = await db.transaction(async (tx) => {
+    // 更新前の値を監査ログに残すため、行を押さえてから読む
+    const [before] = await tx
+      .select()
+      .from(adCreatives)
+      .where(eq(adCreatives.id, id))
+      .for("update");
+    if (!before) return false;
+    const beforeCopyRows = await tx
+      .select()
+      .from(adCreativeTranslations)
+      .where(eq(adCreativeTranslations.creativeId, id));
+    const beforeCopy = copyFromTranslationRows(beforeCopyRows).get(id) ?? {
+      title: {},
+      description: {},
+    };
+
+    const after = toAdCreativeRow(value, slot);
     await tx
       .update(adCreatives)
-      .set({ ...toAdCreativeRow(value, slot), updatedAt: new Date() })
+      .set({ ...after, updatedAt: new Date() })
       .where(eq(adCreatives.id, id));
     await tx
       .delete(adCreativeTranslations)
@@ -62,7 +89,19 @@ export async function updateAdCreative(
     await tx
       .insert(adCreativeTranslations)
       .values(copyToTranslationRows(id, value.copy));
+    await recordContentAction(tx, {
+      actorId: admin.actorId,
+      action: ContentActionKind.UpdateAdCreative,
+      target: { type: ContentActionTargetType.AdCreative, key: id },
+      ipAddress,
+      metadata: {
+        before: { ...before, copy: beforeCopy },
+        after: { ...after, copy: value.copy },
+      },
+    });
+    return true;
   });
+  if (!updated) return { error: "errorNotFound" };
 
   revalidateAdCreatives();
 

@@ -255,28 +255,52 @@ export type ChallengeBestScore = typeof challengeBestScores.$inferSelect;
 export type NewChallengeBestScore = typeof challengeBestScores.$inferInsert;
 
 /**
- * モデレーションアクション — 管理者の操作記録
+ * 管理者の操作の記録（管理画面の「監査ログ」）
+ * 監査ログ
  *
  * @description
- * BAN / BAN解除などの管理者操作を記録する監査ログテーブル。
- * 管理者（actorId）が対象ユーザー（targetId）に対して行った
- * アクションとその理由を保持する。
+ * 管理画面の Server Action が行った操作を、誰が（`actor_id`）・どこから
+ * （`ip_address`）・何に（`target_type` + `target_id` / `target_key`）・何を
+ * （`action` + `metadata`）の形で残す。表の名前の「モデレーション」は、
+ * 利用者を対象にした操作（BAN・通報への対応・特典の付与と取り消し。
+ * `admin/users/_lib/moderation.ts` の `ModerationActionKind`）を指す下位概念で、
+ * 広告・お知らせ・トラッキング ID への操作（`admin/_lib/content-action.ts` の
+ * `ContentActionKind`）も同じ表に積む。1 つの表にするのは、管理者の操作を
+ * 1 本の時系列で読むため。
+ *
+ * 記録されるのは管理画面の操作だけ。シード（`scripts/seed/`・`scripts/dev-seed/`）と
+ * SQL での直接の書き込みは載らない。
+ *
+ * @design 対象は `target_id` か `target_key` のどちらか 1 つ
+ * 利用者が対象なら `target_id`（auth.users への FK。RESTRICT。Supabase SQL で定義）、
+ * それ以外は `target_key`（広告の uuid・既定ロケールの題・`amazon_jp:web` 等の
+ * 文字列）。どちらを持つかは `target_type` で決まり、CHECK で両立を弾く。
+ * `target_key` に FK を張らないのは、お知らせが物理削除される（消した記録を
+ * 残すために行を消させない、は本末転倒）ため。広告は消さない（`ad_creatives`
+ * の TSDoc）が、同じ規則で扱う。
+ *
+ * @design 記録は操作と同じトランザクション
+ * 記録が書けなければ操作も失敗にする（利用者の行動を fire-and-forget で残す
+ * `user_activity_log` とは逆）。復旧の手がかり（消したお知らせの本文・
+ * 書き換える前のトラッキング ID）がここにしか残らないため。
  */
 export const moderationActions = pgTable(
   "moderation_actions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    /** 操作を実行した管理者の auth.users(id) */
+    /** 操作を実行した管理者の auth.users(id)（FK は Supabase SQL で定義。RESTRICT） */
     actorId: uuid("actor_id").notNull(),
-    /** 実行されたアクション（例: ban, unban） */
+    /** 操作の種類（`ModerationActionKind` / `ContentActionKind` の値） */
     action: varchar("action", { length: 50 }).notNull(),
-    /** 対象のエンティティ種別（例: user） */
+    /** 対象の種別（`user` / `ContentActionTargetType` の値） */
     targetType: varchar("target_type", { length: 50 }).notNull(),
-    /** 対象エンティティの ID */
-    targetId: uuid("target_id").notNull(),
-    /** 操作の理由（任意） */
+    /** 対象が利用者のときの auth.users(id)。それ以外は NULL */
+    targetId: uuid("target_id"),
+    /** 対象が利用者でないときの鍵。利用者のときは NULL */
+    targetKey: text("target_key"),
+    /** 操作の理由（利用者への操作では必須。それ以外は無い） */
     reason: text("reason"),
-    /** 追加メタデータ */
+    /** 操作の付随情報（変更前後の値など。形は種類ごとに記録する側が決める） */
     metadata: jsonb("metadata").default({}).$type<Record<string, unknown>>(),
     /** 操作元の IP アドレス */
     ipAddress: varchar("ip_address", { length: 45 }),
@@ -286,8 +310,13 @@ export const moderationActions = pgTable(
   (table) => [
     index("idx_ma_actor").on(table.actorId),
     index("idx_ma_target").on(table.targetType, table.targetId),
+    index("idx_ma_target_key").on(table.targetType, table.targetKey),
     index("idx_ma_action").on(table.action),
     index("idx_ma_created_at").on(table.createdAt),
+    check(
+      "moderation_actions_chk_target",
+      sql`(${table.targetType} = 'user') = (${table.targetId} IS NOT NULL) AND (${table.targetId} IS NOT NULL) <> (${table.targetKey} IS NOT NULL)`,
+    ),
   ],
 );
 

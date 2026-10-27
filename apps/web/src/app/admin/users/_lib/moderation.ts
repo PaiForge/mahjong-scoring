@@ -13,10 +13,12 @@ export const PERMANENT_BAN_DURATION = "876000h";
 export const NO_BAN_DURATION = "none";
 
 /**
- * 管理者の操作の種類（`moderation_actions.action` の値）
+ * 利用者を対象にした管理者の操作の種類（`moderation_actions.action` の値）
  * モデレーション操作種別
  *
- * 監査ログの絞り込み（`audit-log/page.tsx`）の選択肢と同じ文字列。
+ * 監査ログの絞り込み（`audit-log/page.tsx`）の選択肢と同じ文字列。広告・
+ * お知らせ・トラッキング ID への操作は `admin/_lib/content-action.ts` の
+ * `ContentActionKind`（同じ表に積む）。
  */
 export const ModerationActionKind = {
   Ban: "ban",
@@ -45,10 +47,12 @@ interface ModerationActionRecord {
 }
 
 /**
- * moderation_actions テーブルへ監査レコードを追加する。
+ * 利用者を対象にした操作を監査ログ（`moderation_actions`）に残す
  * モデレーション記録
  *
- * BAN / BAN 解除 / 特典の付与・取り消しで共通の INSERT を一元化する。
+ * BAN / BAN 解除 / 通報への対応 / 特典の付与・取り消しで共通の INSERT を
+ * 一元化する。対象は `target_id`（auth.users）で、`target_key` は持たない。
+ * 利用者以外が対象の操作は `recordContentAction`（`admin/_lib/content-action.ts`）。
  */
 export async function recordModerationAction(
   tx: TransactionClient,
