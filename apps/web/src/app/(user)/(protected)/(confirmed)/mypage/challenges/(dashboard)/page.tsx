@@ -11,8 +11,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
@@ -26,6 +24,7 @@ import {
   resolveRequestedBoard,
   selectRecordBoard,
 } from "@mahjong-scoring/features/my-record/requested-board";
+import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("mypage.challenges");
@@ -43,7 +42,6 @@ export default async function ChallengesPage({
   searchParams,
 }: ChallengesPageProps) {
   const t = await getTranslations("mypage.challenges");
-  const tMypage = await getTranslations("mypage");
 
   const { user } = await requireConfirmedUser();
 
@@ -79,19 +77,12 @@ export default async function ChallengesPage({
   }
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: t("pageTitle") },
-      ]}
-    >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
+    <MypageSubpageLayout title={t("pageTitle")}>
       <ChallengeDashboard
         initialBoards={availableBoards}
         initialBoard={initialBoard}
         initialAttempts={initialAttempts}
       />
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

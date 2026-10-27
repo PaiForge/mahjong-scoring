@@ -1,10 +1,8 @@
 "use client";
 
 import { HanChoiceAnswerForm } from "../../_components/han-choice-answer-form";
-import {
-  HAN_COUNT_OPTIONS,
-  hanCountLabel,
-} from "@mahjong-scoring/features/practice/han-count/han-options";
+import { HAN_COUNT_OPTIONS } from "@mahjong-scoring/features/practice/han-count/han-options";
+import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
 
 interface HanCountAnswerFormProps {
   /** 正解の翻数 */
@@ -30,7 +28,7 @@ export function HanCountAnswerForm(props: HanCountAnswerFormProps) {
       options={HAN_COUNT_OPTIONS}
       translationNamespace="hanCountChallenge"
       columnsClassName="grid-cols-4 sm:grid-cols-5"
-      renderLabel={hanCountLabel}
+      renderLabel={hanOptionLabel}
     />
   );
 }

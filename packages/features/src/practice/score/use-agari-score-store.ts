@@ -13,6 +13,7 @@ import {
   judgeAnswer,
   toYakumanRuleConfig,
 } from "@mahjong-scoring/core";
+import { buildPracticeQueryReset } from "../practice-query-reset";
 
 interface AgariScoreState {
   /** 現在の問題 */
@@ -183,15 +184,9 @@ export function createAgariScoreStore(getRuleSettings: () => RuleSettings) {
     },
 
     applyPracticeQuery: (query, options) => {
-      set((state) => ({
-        options: { ...state.options, ...options },
-        appliedQuery: query,
-        stats: { total: 0, correct: 0 },
-        currentQuestion: undefined,
-        ...INITIAL_ANSWERING,
-        generationFailed: false,
-        questionSeq: state.questionSeq + 1,
-      }));
+      set((state) =>
+        buildPracticeQueryReset(state, query, options, INITIAL_ANSWERING),
+      );
     },
 
     setQuestion: (question: ScoreQuestion | undefined) => {

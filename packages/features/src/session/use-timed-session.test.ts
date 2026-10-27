@@ -5,22 +5,21 @@ import { renderHook, act } from "@testing-library/react";
 import { useTimedSession } from "./use-timed-session";
 
 /**
- * useTimedSession のポーズ機能テスト
+ * useTimedSession のテスト
  *
- * useCountdown は内部で setTimeout を使うため、
- * vi.useFakeTimers() でタイマーを制御し、カウントダウンを完了させてから
- * ポーズ関連のテストを行う。
+ * useCountdown は内部で setTimeout を使うため、ファイル内のすべてのテストで
+ * vi.useFakeTimers() でタイマーを制御し、カウントダウンを完了させてから検証する。
  */
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("useTimedSession - pause feature", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   describe("isPaused の初期状態", () => {
     it("isPaused の初期値は false", () => {
       const { result } = renderHook(() => useTimedSession());
@@ -325,14 +324,6 @@ describe("useTimedSession - pause feature", () => {
 });
 
 describe("useTimedSession - goalCount", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   function answer(
     result: { current: ReturnType<typeof useTimedSession> },
     correct: boolean,

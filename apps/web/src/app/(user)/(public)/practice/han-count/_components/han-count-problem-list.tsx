@@ -7,7 +7,7 @@ import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
 import { QuestionDisplay } from "../../agari-score/_components/question-display";
 import { restoreScoreQuestion } from "@mahjong-scoring/features/results/score-question-result";
-import { hanCountLabel } from "@mahjong-scoring/features/practice/han-count/han-options";
+import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
 import type { HanCountQuestionResult } from "@mahjong-scoring/features/practice/han-count/types";
 import { HanBreakdown } from "./han-breakdown";
 
@@ -36,7 +36,7 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
       results={results}
       translationNamespace="hanCountChallenge"
       outcome={(r) => r.outcome}
-      renderSummary={(result) => hanCountLabel(result.correctHan, t)}
+      renderSummary={(result) => hanOptionLabel(result.correctHan, t)}
       renderDetail={(result) => {
         const question = restoreScoreQuestion(
           result.question,
@@ -62,7 +62,7 @@ export function HanCountProblemList({ results }: HanCountProblemListProps) {
               {...numericAnswerComparison(
                 result.correctHan,
                 userHan,
-                (value) => hanCountLabel(value, t),
+                (value) => hanOptionLabel(value, t),
                 (value) => t("hanOption", { count: value }),
               )}
             />

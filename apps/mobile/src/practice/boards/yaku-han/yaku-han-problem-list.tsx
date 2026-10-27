@@ -1,9 +1,7 @@
 import { useTranslations } from "use-intl";
 import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
-import {
-  yakuHanLabel,
-  yakuHanStateLabel,
-} from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
 import type { YakuHanQuestionResult } from "@mahjong-scoring/features/practice/yaku-han/types";
 
 import { AnswerComparison } from "../../components/answer-comparison";
@@ -23,7 +21,7 @@ export function YakuHanProblemList({
 }) {
   const t = useTranslations("yakuHanChallenge");
 
-  const hanLabel = (han: number) => yakuHanLabel(han, t);
+  const hanLabel = (han: number) => hanOptionLabel(han, t);
 
   // 門前限定役も含め常に付ける（出題時のバッジと表示を揃える）
   const stateLabel = (r: YakuHanQuestionResult) =>

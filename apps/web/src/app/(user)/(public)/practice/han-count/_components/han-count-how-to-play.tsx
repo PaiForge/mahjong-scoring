@@ -9,10 +9,8 @@ import {
   defineDemoHand,
 } from "@mahjong-scoring/features/board/demo-score-question";
 import { QuestionPrompt } from "../../_components/question-prompt";
-import {
-  HAN_COUNT_OPTIONS,
-  hanCountLabel,
-} from "@mahjong-scoring/features/practice/han-count/han-options";
+import { HAN_COUNT_OPTIONS } from "@mahjong-scoring/features/practice/han-count/han-options";
+import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
 
 /**
  * デモ用の固定例: 立直 + 門前清自摸和 + 断么九（3翻）
@@ -74,7 +72,7 @@ export function HanCountHowToPlay() {
       <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
         {HAN_COUNT_OPTIONS.map((han) => (
           <DemoChoiceCell key={han} className="text-sm font-semibold">
-            {hanCountLabel(han, t)}
+            {hanOptionLabel(han, t)}
           </DemoChoiceCell>
         ))}
       </div>

@@ -15,3 +15,18 @@ export const PurchaseRevokeReason = {
 } as const;
 export type PurchaseRevokeReason =
   (typeof PurchaseRevokeReason)[keyof typeof PurchaseRevokeReason];
+
+const PURCHASE_REVOKE_REASON_VALUES: readonly string[] =
+  Object.values(PurchaseRevokeReason);
+
+/**
+ * 文字列が購入取消理由の値か
+ * 購入取消理由判定
+ *
+ * DB の `purchases.revoke_reason` は varchar なので、読むときにここで絞る。
+ */
+export function isPurchaseRevokeReason(
+  value: string,
+): value is PurchaseRevokeReason {
+  return PURCHASE_REVOKE_REASON_VALUES.includes(value);
+}

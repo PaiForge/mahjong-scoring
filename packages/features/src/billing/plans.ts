@@ -126,6 +126,18 @@ export const PurchaseKind = {
 } as const;
 export type PurchaseKind = (typeof PurchaseKind)[keyof typeof PurchaseKind];
 
+const PURCHASE_KIND_VALUES: readonly string[] = Object.values(PurchaseKind);
+
+/**
+ * 文字列が売り方の種類の値か
+ * 売り方種類判定
+ *
+ * DB の `purchases.kind` は varchar なので、読むときにここで絞る。
+ */
+export function isPurchaseKind(value: string): value is PurchaseKind {
+  return PURCHASE_KIND_VALUES.includes(value);
+}
+
 /** 料金ページのパス。ペイウォール・設定画面の Pro 導線が指す */
 export const PLAN_PAGE_HREF = "/plan";
 

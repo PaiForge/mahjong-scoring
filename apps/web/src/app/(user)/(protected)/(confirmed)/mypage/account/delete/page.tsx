@@ -8,14 +8,13 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 
 import { DeleteAccountButton } from "./_components/delete-account-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createPrivateMetadata("deleteAccount");
@@ -24,19 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function DeleteAccountPage() {
   await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
-  const tMypage = await getTranslations("mypage");
   const tAccount = await getTranslations("mypageAccount");
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: tMypage("pageTitle"), href: "/mypage" },
-        { label: tAccount("pageTitle"), href: "/mypage/account" },
-        { label: t("pageTitle") },
-      ]}
+    <MypageSubpageLayout
+      title={t("pageTitle")}
+      parents={[{ label: tAccount("pageTitle"), href: "/mypage/account" }]}
     >
-      <PageTitle>{t("pageTitle")}</PageTitle>
-
       <section className="space-y-4">
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
 
@@ -66,6 +59,6 @@ export default async function DeleteAccountPage() {
           {t("backToAccount")}
         </Link>
       </div>
-    </ContentContainer>
+    </MypageSubpageLayout>
   );
 }

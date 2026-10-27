@@ -22,9 +22,9 @@ import {
   isFullyRefunded,
   sessionMatchesCheckout,
 } from "./checkout-session-match";
-import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import { isPurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { buildPurchaseRow } from "./purchase-row";
-import { PurchaseRevokeReason } from "./revoke-reason";
+import { PurchaseRevokeReason, isPurchaseRevokeReason } from "./revoke-reason";
 import { getStripe } from "./stripe";
 
 /** 記録を見送った理由。予約のない決済には現在のプラン定義を推測して付けない。 */
@@ -208,31 +208,16 @@ export function purchaseNotificationOf(
     target: { type: NotificationTargetType.Purchase, id: purchase.id },
     metadata: {
       plan: purchase.plan,
-      kind: purchaseKindOf(purchase.kind),
+      kind: isPurchaseKind(purchase.kind) ? purchase.kind : undefined,
       expiresAt: purchase.expiresAt?.toISOString(),
-      revokeReason: revoked
-        ? purchaseRevokeReasonOf(purchase.revokeReason)
-        : undefined,
+      revokeReason:
+        revoked &&
+        purchase.revokeReason !== null &&
+        isPurchaseRevokeReason(purchase.revokeReason)
+          ? purchase.revokeReason
+          : undefined,
     },
   };
-}
-
-/** varchar の `kind` を `PurchaseKind` に絞る。知らない値は通知に載せない */
-function purchaseKindOf(value: string): PurchaseKind | undefined {
-  return value === PurchaseKind.Pass || value === PurchaseKind.Lifetime
-    ? value
-    : undefined;
-}
-
-/** varchar の `revoke_reason` を `PurchaseRevokeReason` に絞る */
-function purchaseRevokeReasonOf(
-  value: string | null,
-): PurchaseRevokeReason | undefined {
-  return value === PurchaseRevokeReason.Refunded ||
-    value === PurchaseRevokeReason.Fraud ||
-    value === PurchaseRevokeReason.Revoked
-    ? value
-    : undefined;
 }
 
 /**
