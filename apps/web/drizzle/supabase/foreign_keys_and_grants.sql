@@ -112,6 +112,8 @@ END;
 $$;
 
 -- FK constraint: moderation_actions.target_id → auth.users(id) ON DELETE RESTRICT
+-- 対象が利用者でない行（広告・お知らせ・トラッキング ID）は target_id が NULL で、
+-- 対象は target_key に持つ。FK は NULL を検査しないので、この制約は利用者の行にだけ効く。
 DO $$
 BEGIN
   IF NOT EXISTS (
