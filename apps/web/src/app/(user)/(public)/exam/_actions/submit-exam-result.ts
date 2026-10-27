@@ -1,26 +1,25 @@
 "use server";
 import type { ActionResult } from "@/lib/action-types";
-import type { AuthGateErrorCode } from "@/lib/auth";
 import { finishAttempt } from "@/lib/challenge/attempts";
 import { logExternalError } from "@/lib/log-error";
 import {
   enforceUserRateLimit,
   type RateLimitErrorCode,
 } from "@/lib/rate-limit-ip";
-import { resolveRecorder } from "@/lib/resolve-recorder";
+import {
+  resolveRecorder,
+  type RecorderErrorCode,
+} from "@/lib/resolve-recorder";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 /**
  * `submitExamResult` が返しうるエラーコード
  *
  * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
- * 含まない。各コードの意味は {@link SubmitExamResponse} を参照。
+ * 含まない（`resolveRecorder`）。各コードの意味は {@link SubmitExamResponse} を参照。
  */
 export type SubmitExamErrorCode =
-  | Exclude<AuthGateErrorCode, "unauthorized">
-  | RateLimitErrorCode
-  | "invalidResult"
-  | "unexpectedError";
+  RecorderErrorCode | RateLimitErrorCode | "invalidResult" | "unexpectedError";
 
 /**
  * `submitExamResult` の戻り値
@@ -34,6 +33,8 @@ export type SubmitExamErrorCode =
  *   エラーではなく「期待された no-op」を表す（未ログインでは挑戦が始まらない
  *   ため、通常は起きない）。
  * - `{ error: 'banned' }`: BAN されたユーザー。採点しない。
+ * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられず、ログイン済みか
+ *   どうかが分からなかった。挑戦には触れていないので、同じ挑戦 ID で再送できる。
  * - `{ error: 'rateLimited' }`: 同じアカウントの確定の回数が枠
  *   （`IP_RATE_LIMITS.finishChallenge`）を超えた。挑戦には触れずに返すので
  *   未確定のまま残り、枠が空いてから同じ挑戦 ID で再送できる。

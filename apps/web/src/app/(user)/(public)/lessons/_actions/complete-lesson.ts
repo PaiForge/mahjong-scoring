@@ -3,13 +3,15 @@
 import { revalidatePath } from "next/cache";
 
 import type { ActionResult } from "@/lib/action-types";
-import type { AuthGateErrorCode } from "@/lib/auth";
 import {
   partitionLessonSlugs,
   recordLessonCompletions,
 } from "@/lib/lessons/record-completions";
 import { logExternalError } from "@/lib/log-error";
-import { resolveRecorder } from "@/lib/resolve-recorder";
+import {
+  resolveRecorder,
+  type RecorderErrorCode,
+} from "@/lib/resolve-recorder";
 
 import {
   isLessonChapterSlug,
@@ -36,8 +38,7 @@ import { DOJO_PATH, LESSONS_PATH } from "@mahjong-scoring/features/routes";
  * レッスンのページからは起きない）なので i18n キーは持たない。各コードの意味は
  * {@link CompleteLessonResult} を参照。
  */
-export type CompleteLessonErrorCode =
-  Exclude<AuthGateErrorCode, "unauthorized"> | "invalidSlug";
+export type CompleteLessonErrorCode = RecorderErrorCode | "invalidSlug";
 
 /**
  * `completeLessons` が返しうるエラーコード
@@ -46,10 +47,7 @@ export type CompleteLessonErrorCode =
  * 認証ゲートの `"unauthorized"` は `skipped: 'anonymous'` に読み替えるため
  * 含まない。スラッグの誤りはエラーにせず `rejected` で返す。
  */
-export type CompleteLessonsErrorCode = Exclude<
-  AuthGateErrorCode,
-  "unauthorized"
->;
+export type CompleteLessonsErrorCode = RecorderErrorCode;
 
 /**
  * レッスン完了 Server Action の戻り値
@@ -67,6 +65,8 @@ export type CompleteLessonsErrorCode = Exclude<
  * - `{ error: 'invalidSlug' }`: カリキュラムに存在しない slug
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   端末にも預けない（同期しても同じく弾かれるだけ）
+ * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられず、ログイン済みか
+ *   どうかが分からなかった。クライアントは通信の失敗と同じく端末に預ける
  */
 export type CompleteLessonResult = ActionResult<
   CompleteLessonErrorCode,
@@ -83,6 +83,8 @@ export type CompleteLessonResult = ActionResult<
  * - `{ success: true, skipped: 'anonymous' }`: 未ログイン。預かりはそのまま残す
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   預かりは残す（BAN が解かれたら次のホームで記録できる）
+ * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられなかった。預かりは
+ *   残し、通信の失敗と同じく再試行できる
  */
 export type CompleteLessonsResult = ActionResult<
   CompleteLessonsErrorCode,

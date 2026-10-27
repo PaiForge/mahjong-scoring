@@ -327,6 +327,30 @@ describe("LessonView", () => {
       errorSpy.mockRestore();
     });
 
+    it("認証サーバーが答えられなかったときも通信の失敗と同じく預けて再試行できる", async () => {
+      mockCompleteLesson.mockResolvedValueOnce({ error: "authUnavailable" });
+      const errorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+      renderLesson();
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      expect(await screen.findByTestId("lesson-save-failed")).toBeTruthy();
+      expect(readPendingLessonCompletions()).toEqual([
+        expect.objectContaining({ slug: "mangan-ko-ron", userId: "u1" }),
+      ]);
+
+      mockCompleteLesson.mockResolvedValueOnce({ success: true });
+      fireEvent.click(screen.getByRole("button", { name: "saveFailed.retry" }));
+
+      expect(
+        await screen.findByRole("link", { name: "nextLesson" }),
+      ).toBeTruthy();
+      expect(readPendingLessonCompletions()).toEqual([]);
+      errorSpy.mockRestore();
+    });
+
     it("保存中に再試行ボタンは出ず、多重送信にならない", async () => {
       const save = deferred<{ success: true }>();
       mockCompleteLesson.mockReturnValue(save.promise);

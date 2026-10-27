@@ -1,10 +1,11 @@
 import "server-only";
 
 import type { NextResponse } from "next/server";
-import { createClient, isAuthRetryableFetchError } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 import type { MobileApiErrorCode } from "@mahjong-scoring/features/account/mobile-api";
 
+import { isAuthServiceFailure } from "../auth-service-failure";
 import { type AuthUser, userToAuthUser } from "../auth-user";
 import { getClientIp } from "../client-ip";
 import { getAccountStanding } from "../ban";
@@ -93,29 +94,6 @@ async function verifyBearerToken(
     };
   }
   return isAuthServiceFailure(error) ? "unavailable" : "invalid";
-}
-
-/**
- * 認証サーバーが答えられなかった（トークンの正否が分からない）失敗か
- *
- * 届かない（`AuthRetryableFetchError`・status 0）・回数制限（429）・
- * サーバーの障害（5xx）は、トークンが無効だという答えではない。これを
- * 401 にすると、アプリは有効なログインを捨ててしまう。それ以外（不正な
- * JWT の 403・ログアウト済みの `AuthSessionMissingError`・削除済み）は
- * 認証サーバーが「無効」と答えたもの（2026-10 にローカルで実測）。
- */
-function isAuthServiceFailure(error: unknown): boolean {
-  if (isAuthRetryableFetchError(error)) return true;
-  const status =
-    typeof error === "object" && error !== null && "status" in error
-      ? error.status
-      : undefined;
-  return (
-    typeof status !== "number" ||
-    status === 0 ||
-    status === 429 ||
-    status >= 500
-  );
 }
 
 /**
