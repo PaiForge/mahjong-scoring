@@ -1,11 +1,12 @@
 import { vi, type Mock } from "vitest";
 
 /**
- * 管理者の Server Action（BAN・特典の付与と取り消し）のテスト用スタブ
+ * 管理者の Server Action（BAN・特典の付与と取り消し・広告・お知らせ）のテスト用スタブ
  * 管理者アクションモック
  *
  * どのアクションも `requireAdminActor` → `getClientIp` → `db.transaction` の
- * 順に通り、操作を記録して（`recordModerationAction`）画面を再検証する
+ * 順に通り、操作を記録して（利用者が対象なら `recordModerationAction`、
+ * 広告・お知らせなら `recordContentAction`）画面を再検証する
  * （`revalidatePath`）。各テストが同じ `vi.fn()` 生成・`vi.mock` 登録・「管理者として
  * 通過した状態」の初期化を書いていたのでここへまとめる。
  *
@@ -52,6 +53,9 @@ export const mockRevalidatePath = vi.fn();
 
 /** `admin/users/_lib/moderation` の `recordModerationAction` の差し替え先 */
 export const mockRecordModerationAction = vi.fn();
+
+/** `admin/_lib/content-action` の `recordContentAction` の差し替え先 */
+export const mockRecordContentAction = vi.fn();
 
 /** `next/cache` の `revalidateTag`（BAN でランキングのキャッシュを捨てる） */
 export const mockRevalidateTag = vi.fn();
@@ -106,14 +110,17 @@ export function setupAdminActor(tx: unknown): void {
 }
 
 /**
- * 管理者でない（`requireAdminActor` が `unauthorized` を返す）状態にする
+ * 管理者でない（`requireAdminActor` が拒否を返す）状態にする
  * 管理者拒否設定
  *
- * `setupAdminActor()` のあとに呼ぶ。拒否の形（`{ error: "unauthorized" }`）を
- * 各テストが書き写さないよう、ここで 1 つ持つ。
+ * `setupAdminActor()` のあとに呼ぶ。実物と同じく、アクションが渡した
+ * エラーキー（`unauthorized` / `errorSaveFailed` 等）をそのまま返す。拒否の形
+ * （`{ error: <キー> }`）を各テストが書き写さないよう、ここで 1 つ持つ。
  */
 export function setupNotAdmin(): void {
-  mockRequireAdminActor.mockResolvedValue({ error: "unauthorized" });
+  mockRequireAdminActor.mockImplementation(async (failureError: string) => ({
+    error: failureError,
+  }));
 }
 
 /** `tx.update(table).set(...).where(...)` を受ける偽のトランザクション */
