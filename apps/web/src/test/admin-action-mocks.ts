@@ -10,8 +10,9 @@ import { vi, type Mock } from "vitest";
  * 通過した状態」の初期化を書いていたのでここへまとめる。
  *
  * export はモック対象の module 形にも揃えてあるため、`vi.mock` のファクトリに
- * そのまま渡せる（`@/lib/db` はテストごとに他のメンバーも要るので
- * `mockTransaction` だけを取り出して組む）:
+ * そのまま渡せる（`@/lib/db` は `db.transaction` を {@link mockTransaction} にした
+ * `admin-action-db-mock` を渡す。トランザクションの外でも `db` を引くアクションは
+ * `mockTransaction` を取り出してテスト側で組む）:
  *
  * ```ts
  * vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
@@ -23,9 +24,7 @@ import { vi, type Mock } from "vitest";
  *     .mockRecordModerationAction,
  * }));
  * vi.mock("@/lib/supabase/admin", async () => await import("@/test/admin-action-mocks"));
- * vi.mock("@/lib/db", async () => ({
- *   db: { transaction: (await import("@/test/admin-action-mocks")).mockTransaction },
- * }));
+ * vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
  *
  * beforeEach(() => {
  *   vi.clearAllMocks();

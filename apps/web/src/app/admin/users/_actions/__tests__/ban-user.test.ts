@@ -16,12 +16,7 @@ vi.mock(
   "@/lib/client-ip",
   async () => await import("@/test/admin-action-mocks"),
 );
-vi.mock("@/lib/db", async () => ({
-  db: {
-    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
-  },
-  profiles: { id: "profiles.id", bannedAt: "profiles.banned_at" },
-}));
+vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock(
   "@/lib/supabase/admin",
   async () => await import("@/test/admin-action-mocks"),
