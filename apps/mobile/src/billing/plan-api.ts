@@ -14,7 +14,11 @@ import {
 
 import type { ApiFailure, MobileApiInit } from "../auth/api-client";
 import { readPublicMobileApi } from "../auth/read-public-mobile-api";
-import { domainFailureOf, requestMobileApi } from "../auth/request-mobile-api";
+import {
+  domainFailureOf,
+  requestMobileApi,
+  type MobileApiResult,
+} from "../auth/request-mobile-api";
 
 /**
  * プラン・取引の記録の API の失敗
@@ -27,8 +31,7 @@ export type PlanApiFailure =
   ApiFailure | MobilePlanErrorCode | "serverError" | "rejected";
 
 /** プラン・取引の記録の API の結果 */
-export type PlanApiResult<T> =
-  { readonly value: T } | { readonly error: PlanApiFailure };
+export type PlanApiResult<T> = MobileApiResult<T, PlanApiFailure>;
 
 /**
  * 要求を送り、成功なら応答を検証して返す
