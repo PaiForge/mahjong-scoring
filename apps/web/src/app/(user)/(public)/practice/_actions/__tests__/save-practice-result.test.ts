@@ -6,11 +6,13 @@ import {
 const { finish } = vi.hoisted(() => ({ finish: vi.fn() }));
 vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 vi.mock("@/lib/challenge/attempts", () => ({ finishAttempt: finish }));
+import { _resetStore } from "@/lib/rate-limit-ip";
 import { savePracticeResult } from "../save-practice-result";
 
 describe("savePracticeResult", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    _resetStore();
     setupAuthorized({ id: "owner", email: "owner@example.com" });
     finish.mockResolvedValue({ challengeResultId: "result-id" });
   });
@@ -46,6 +48,32 @@ describe("savePracticeResult", () => {
     finish.mockResolvedValue(undefined);
     expect(await savePracticeResult("invalid")).toEqual({
       error: "invalidResult",
+    });
+  });
+  it("同じアカウントの確定が枠を超えたら挑戦に触れずに rateLimited", async () => {
+    for (let i = 0; i < 60; i += 1) await savePracticeResult("attempt-id");
+    finish.mockClear();
+
+    expect(await savePracticeResult("attempt-id")).toEqual({
+      error: "rateLimited",
+    });
+    expect(finish).not.toHaveBeenCalled();
+  });
+  it("枠は別のアカウントと共有しない", async () => {
+    for (let i = 0; i < 60; i += 1) await savePracticeResult("attempt-id");
+    setupAuthorized({ id: "other", email: "other@example.com" });
+
+    expect(await savePracticeResult("attempt-id")).toMatchObject({
+      success: true,
+    });
+  });
+  it("未認証は枠を数えない", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
+    for (let i = 0; i < 61; i += 1) await savePracticeResult("attempt-id");
+    setupAuthorized({ id: "owner", email: "owner@example.com" });
+
+    expect(await savePracticeResult("attempt-id")).toMatchObject({
+      success: true,
     });
   });
 });
