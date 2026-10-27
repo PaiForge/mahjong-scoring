@@ -8,11 +8,11 @@ import {
 import {
   AppState,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
   type AppStateStatus,
+  type ScrollViewInstance,
 } from "react-native";
 import { useIsFocused } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -49,7 +49,7 @@ interface ChallengeShellProps {
   /** 終わったときに呼ぶ（経過時間を渡す）。結果画面への遷移は呼び出し側が持つ */
   readonly onFinish: (elapsedMs: number) => void;
   /** 盤面が表示を切り替えたときに先頭へ戻すための ScrollView の参照 */
-  readonly scrollRef: React.RefObject<ScrollView | null>;
+  readonly scrollRef: React.RefObject<ScrollViewInstance | null>;
   readonly children: ReactNode;
 }
 

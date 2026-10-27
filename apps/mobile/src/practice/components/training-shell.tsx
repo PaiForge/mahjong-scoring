@@ -1,5 +1,5 @@
 import type { ReactNode, RefObject } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ScrollViewInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -58,7 +58,7 @@ interface TrainingShellProps {
   readonly help?: ReactNode;
   /** 模試の末尾に置く本番の試験の開始導線（模試だけ） */
   readonly examStart?: ReactNode;
-  readonly scrollRef: RefObject<ScrollView | null>;
+  readonly scrollRef: RefObject<ScrollViewInstance | null>;
   readonly children: ReactNode;
 }
 

@@ -6,7 +6,12 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { View, type StyleProp, type ViewStyle } from "react-native";
+import {
+  View,
+  type StyleProp,
+  type ViewInstance,
+  type ViewStyle,
+} from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import {
   PREFERENCES_ITEM_PARAM,
@@ -19,7 +24,7 @@ interface PreferenceAnchorContextValue {
   /** URL が指す項目（`?item=`）。指していなければ undefined */
   readonly item: string | undefined;
   /** 指された項目の行が置かれた・動いたときに呼ぶ */
-  readonly land: (target: View | null) => void;
+  readonly land: (target: ViewInstance | null) => void;
 }
 
 const PreferenceAnchorContext = createContext<
@@ -52,11 +57,11 @@ export function PreferenceAnchorProvider({
   const params = useLocalSearchParams<{ [PREFERENCES_ITEM_PARAM]?: string }>();
   const item = params[PREFERENCES_ITEM_PARAM];
   const scrollIntoView = useScrollIntoView();
-  const target = useRef<View | null>(null);
+  const target = useRef<ViewInstance | null>(null);
   const touched = useRef(false);
 
   const land = useCallback(
-    (node: View | null) => {
+    (node: ViewInstance | null) => {
       target.current = node;
       if (!touched.current) scrollIntoView(node);
     },
@@ -92,14 +97,14 @@ export function PreferenceAnchorProvider({
  */
 export function usePreferenceAnchor(anchor: PreferenceAnchor | undefined):
   | {
-      readonly ref: (node: View | null) => void;
+      readonly ref: (node: ViewInstance | null) => void;
       readonly onLayout: () => void;
     }
   | undefined {
   const context = useContext(PreferenceAnchorContext);
-  const node = useRef<View | null>(null);
+  const node = useRef<ViewInstance | null>(null);
   const land = context?.land;
-  const ref = useCallback((value: View | null) => {
+  const ref = useCallback((value: ViewInstance | null) => {
     node.current = value;
   }, []);
   const onLayout = useCallback(() => land?.(node.current), [land]);

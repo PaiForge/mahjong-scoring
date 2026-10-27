@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  type ScrollViewInstance,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
@@ -73,7 +74,7 @@ interface ScreenProps {
    */
   readonly stickyHeaderIndices?: readonly number[];
   /** 本文の `ScrollView`。呼び出し側が先頭へ戻すとき等に使う */
-  readonly ref?: Ref<ScrollView>;
+  readonly ref?: Ref<ScrollViewInstance>;
 }
 
 /**
@@ -104,11 +105,11 @@ export function Screen({
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
   // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const viewportHeight = useRef(0);
   const scrollY = useRef(0);
   const setScrollRef = useCallback(
-    (node: ScrollView | null) => {
+    (node: ScrollViewInstance | null) => {
       scrollRef.current = node;
       if (typeof ref === "function") ref(node);
       else if (ref != null) ref.current = node;

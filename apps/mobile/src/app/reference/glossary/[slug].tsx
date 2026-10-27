@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
@@ -23,6 +23,7 @@ import { LinkRow, LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { TextLink } from "../../../components/text-link";
+import { findRouteIndexByHref } from "../../../lib/route-pathname";
 import { colors } from "../../../lib/theme";
 import { ExampleCard } from "../../../lessons/components/example-card";
 import { MentsuSet, TileSet } from "../../../lessons/components/tile-row";
@@ -46,6 +47,7 @@ export default function GlossaryTermScreen() {
   const t = useTranslations("glossary");
   const tCurriculum = useTranslations("learnCurriculum");
   const router = useRouter();
+  const navigation = useNavigation();
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.glossaryTerm);
   const translate = (key: string) => t(key);
@@ -125,8 +127,20 @@ export default function GlossaryTermScreen() {
         </View>
       )}
 
-      {/* 一覧から来たならそこまで閉じて戻る（navigate は一覧をもう 1 枚積む） */}
-      <TextLink onPress={() => router.dismissTo(GLOSSARY_PATH)}>
+      {/* 一覧から来たならそこまで閉じて戻り（navigate は一覧をもう 1 枚積む）、
+          レッスンのシート等から来たなら一覧を上に積む。dismissTo は一覧が履歴に
+          無いとこの画面を置き換え、一覧から戻るとこの画面を飛ばしてしまう */}
+      <TextLink
+        onPress={() => {
+          const state = navigation.getState();
+          const inHistory =
+            state !== undefined &&
+            findRouteIndexByHref(state.routes, state.index, GLOSSARY_PATH) !==
+              undefined;
+          if (inHistory) router.dismissTo(GLOSSARY_PATH);
+          else router.push(GLOSSARY_PATH);
+        }}
+      >
         {t("backToIndex")}
       </TextLink>
     </Screen>

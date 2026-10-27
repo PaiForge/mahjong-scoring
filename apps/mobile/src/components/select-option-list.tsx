@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  type ScrollViewInstance,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
@@ -28,7 +29,7 @@ interface SelectOptionListProps {
   /** 枠の高さなど（囲みと配色は上書きしない） */
   readonly style?: StyleProp<ViewStyle>;
   /** スクロール位置を操作するための枠への参照 */
-  readonly ref?: Ref<ScrollView>;
+  readonly ref?: Ref<ScrollViewInstance>;
 }
 
 /**

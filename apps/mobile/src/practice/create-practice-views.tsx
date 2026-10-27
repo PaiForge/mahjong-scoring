@@ -1,5 +1,5 @@
 import { useCallback, useRef, type ReactNode } from "react";
-import type { ScrollView } from "react-native";
+import type { ScrollViewInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { type PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
@@ -49,7 +49,7 @@ interface ChallengePlayViewConfig<TResult> {
 
 /** 盤面が表示を切り替えたときに画面の先頭へ戻す */
 function useScrollToTop() {
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const scrollToTop = useCallback(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);

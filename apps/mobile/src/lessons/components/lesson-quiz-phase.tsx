@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   choiceKey,
@@ -117,8 +117,8 @@ export function LessonQuizPhase({
   const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
   const scrollIntoView = useScrollIntoView();
-  const judgementRef = useRef<View>(null);
-  const nextButtonRef = useRef<View>(null);
+  const judgementRef = useRef<ViewInstance>(null);
+  const nextButtonRef = useRef<ViewInstance>(null);
 
   const isAnswered = selected !== undefined;
   const isCorrect = isAnswered && isSameChoice(selected, question.answer);

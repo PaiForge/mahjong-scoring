@@ -1,5 +1,5 @@
 import { useCallback, useRef, type ReactNode } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, type ScrollViewInstance } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
@@ -81,7 +81,7 @@ function LessonScreenContent({
   readonly guide: ReactNode;
 }) {
   const t = useTranslations(chapterNamespace(slug));
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const scrollTop = useCallback(() => {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);

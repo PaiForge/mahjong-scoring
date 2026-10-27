@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet, View, type ScrollView } from "react-native";
+import { StyleSheet, View, type ScrollViewInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
@@ -86,7 +86,7 @@ import { SiteLinksSection } from "../../mypage/site-links-section";
  */
 export default function MypageScreen() {
   const t = useTranslations("nav");
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const { status } = useAuth();
   // この画面はアカウントの画面の下に残っているので、戻る前に先頭へ送っておく
   const previousStatus = useRef(status);

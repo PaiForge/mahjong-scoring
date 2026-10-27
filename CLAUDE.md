@@ -75,7 +75,7 @@ URL はコミット SHA で固定している — `main` を指すと、読む�
 
 ```
 apps/web/          — Next.js 16 (Turbopack, App Router, Tailwind CSS v4)
-apps/mobile/       — Expo SDK 57（expo-router, React Native 0.86）。web と同じ画面をネイティブで出す
+apps/mobile/       — Expo（expo-router, React Native）。web と同じ画面をネイティブで出す
 packages/core/     — 共通ドメインロジック（問題生成等）。@pai-forge/riichi-mahjong 依存
 packages/features/ — web とモバイルで共有するアプリのロジック（レジストリ・パス・セッションのフック・設定ストア）
 packages/messages/ — i18n 辞書（ICU 形式。web は next-intl、モバイルは use-intl で同じ辞書を読む）
