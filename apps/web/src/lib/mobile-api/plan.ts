@@ -24,14 +24,13 @@ import {
   type PlanStatus,
 } from "../billing/plan-status";
 import { listPurchases } from "../billing/purchases";
-import { getClientIp } from "../client-ip";
 import type { Purchase } from "../db";
 import { listBenefitGrants } from "../entitlements/benefit-grants";
 import { getActiveBenefits } from "../entitlements/has-benefit";
-import { checkIpRateLimitGuard, IP_RATE_LIMITS } from "../rate-limit-ip";
 
 import { authorizeMobileRequest } from "./auth";
-import { mobileJson, mobileRateLimited, mobileServerError } from "./response";
+import { limitPublicMobileRequest } from "./public-rate-limit";
+import { mobileJson, mobileServerError } from "./response";
 
 /** プラン・取引の記録の API 固有の失敗の理由ごとの HTTP ステータス */
 const PLAN_ERROR_STATUS = {
@@ -177,14 +176,7 @@ export async function handleReadPlan(request: Request): Promise<NextResponse> {
  * StoreKit を通り、記録は署名付き取引の検証を通る）。
  */
 export async function handleReadPlanOffers(): Promise<NextResponse> {
-  if (
-    checkIpRateLimitGuard(
-      await getClientIp(),
-      "readMobilePlanOffers",
-      IP_RATE_LIMITS.readMobilePlanOffers,
-    )
-  ) {
-    return mobileRateLimited();
-  }
+  const rateLimited = await limitPublicMobileRequest("readMobilePlanOffers");
+  if (rateLimited) return rateLimited;
   return mobileJson<MobilePlanOffersResponse>({ offers: appleOffers() });
 }

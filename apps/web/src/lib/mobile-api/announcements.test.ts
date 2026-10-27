@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCount, mockPage, mockOne } = vi.hoisted(() => ({
+const { mockCount, mockPage, mockOne, mockClientIp } = vi.hoisted(() => ({
   mockCount: vi.fn(),
   mockPage: vi.fn(),
   mockOne: vi.fn(),
+  mockClientIp: vi.fn(),
 }));
 
 vi.mock("../announcements/queries", () => ({
@@ -11,8 +12,10 @@ vi.mock("../announcements/queries", () => ({
   getPublishedAnnouncementsPaginated: mockPage,
   getPublishedAnnouncement: mockOne,
 }));
+vi.mock("../client-ip", () => ({ getClientIp: mockClientIp }));
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
+import { _resetStore } from "../rate-limit-ip";
 import {
   handleReadAnnouncement,
   handleReadAnnouncements,
@@ -36,6 +39,8 @@ const row = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  _resetStore();
+  mockClientIp.mockResolvedValue("203.0.113.1");
   mockCount.mockResolvedValue(45);
   mockPage.mockResolvedValue([
     row,
@@ -102,6 +107,17 @@ describe("handleReadAnnouncements", () => {
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: "serverError" });
   });
+
+  it("同じ IP からの回数の上限を超えたら 429 で DB を読まない", async () => {
+    for (let i = 0; i < 120; i += 1) await handleReadAnnouncements(get(""));
+    mockCount.mockClear();
+
+    const response = await handleReadAnnouncements(get(""));
+
+    expect(response.status).toBe(429);
+    expect(await response.json()).toEqual({ error: "rateLimited" });
+    expect(mockCount).not.toHaveBeenCalled();
+  });
 });
 
 describe("handleReadAnnouncement", () => {
@@ -124,5 +140,24 @@ describe("handleReadAnnouncement", () => {
 
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ error: "notFound" });
+  });
+
+  it("同じ IP からの回数の上限を超えたら 429 で DB を読まない", async () => {
+    for (let i = 0; i < 120; i += 1) await handleReadAnnouncement("release");
+    mockOne.mockClear();
+
+    const response = await handleReadAnnouncement("release");
+
+    expect(response.status).toBe(429);
+    expect(await response.json()).toEqual({ error: "rateLimited" });
+    expect(mockOne).not.toHaveBeenCalled();
+  });
+
+  it("一覧とは別に数える", async () => {
+    for (let i = 0; i < 120; i += 1) await handleReadAnnouncements(get(""));
+
+    const response = await handleReadAnnouncement("release");
+
+    expect(response.status).toBe(200);
   });
 });

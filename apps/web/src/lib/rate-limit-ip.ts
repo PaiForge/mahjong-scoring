@@ -158,6 +158,15 @@ export const IP_RATE_LIMITS = {
   readMobilePlan: { maxRequests: 120, windowMs: 600_000 },
   // 認証なしの販売中の商品の一覧。ゲストの練習の入口が開くたびに読む
   readMobilePlanOffers: { maxRequests: 120, windowMs: 600_000 },
+  // 認証なしのお知らせの一覧と 1 件。一覧は画面を開くたびと「さらに読み込む」、
+  // 1 件は記事を開くたびに飛ぶ。公開の記事を読むだけなので、販売中の商品の
+  // 一覧（readMobilePlanOffers）と同じ値で連打や自動化だけを止める。一覧と
+  // 1 件は別に数え、記事を続けて開いても一覧の読み直しが止まらないようにする
+  readMobileAnnouncements: { maxRequests: 120, windowMs: 600_000 },
+  readMobileAnnouncement: { maxRequests: 120, windowMs: 600_000 },
+  // 認証なしの昇級試験の合格ライン。試験の説明画面を開くたびに読む。
+  // 誰が読んでも同じ値なので、readMobilePlanOffers と同じ値で連打だけを止める
+  readMobileExamGoals: { maxRequests: 120, windowMs: 600_000 },
   // アプリの購入と復元の取引の記録。復元は持っている取引を数件まとめて
   // 送るので、その分だけ余裕を持たせる。Apple の証明書の確認を伴う
   recordAppleTransaction: { maxRequests: 30, windowMs: 600_000 },

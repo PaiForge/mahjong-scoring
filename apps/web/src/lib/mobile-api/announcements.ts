@@ -17,6 +17,7 @@ import {
 } from "../announcements/queries";
 import { parsePageParam, resolvePagination } from "../pagination";
 
+import { limitPublicMobileRequest } from "./public-rate-limit";
 import { mobileJson, mobileServerError } from "./response";
 
 /** 日時を JSON に載せる形（ISO 8601）にする。無ければ undefined */
@@ -32,11 +33,14 @@ function isoOf(value: Date | string | null): string | undefined {
  * ロケールは web と同じく既定（ja）に固定する — アプリは端末の言語に
  * 関わらず日本語の辞書で出している。範囲外のページは最後のページに丸める
  * （web は 404 にするが、アプリは「さらに読み込む」で次を読むだけなので、
- * 読んでいる間に記事が減っても空振りで終わらせる）。
+ * 読んでいる間に記事が減っても空振りで終わらせる）。認証が無いので IP の
+ * 回数だけを絞る。
  */
 export async function handleReadAnnouncements(
   request: Request,
 ): Promise<NextResponse> {
+  const rateLimited = await limitPublicMobileRequest("readMobileAnnouncements");
+  if (rateLimited) return rateLimited;
   const requestedPage = parsePageParam(
     new URL(request.url).searchParams.get("page") ?? undefined,
   );
@@ -77,13 +81,15 @@ export async function handleReadAnnouncements(
  * お知らせ詳細API（アプリ向け）
  *
  * 本文は Markdown の原文のまま返し、描き方はアプリが決める。公開中で
- * なければ 404 `notFound`。
+ * なければ 404 `notFound`。認証が無いので IP の回数だけを絞る。
  *
  * @param slug - お知らせの slug（ルートのパラメータ）
  */
 export async function handleReadAnnouncement(
   slug: string,
 ): Promise<NextResponse> {
+  const rateLimited = await limitPublicMobileRequest("readMobileAnnouncement");
+  if (rateLimited) return rateLimited;
   try {
     const announcement = await getPublishedAnnouncement(slug, DEFAULT_LOCALE);
     if (!announcement) {
