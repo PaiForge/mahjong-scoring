@@ -72,9 +72,9 @@ export type SaveResultResponse = ActionResult<
  *
  * 回数の枠はアカウント単位で数え、アプリの確定と同じ枠を使う
  * （`enforceUserRateLimit`）。IP で数えないのは、web の終了時の送信
- * （`useFinishAction`）が弾かれても送り直さず、同じ回線を共有する他人の
- * 操作に巻き込まれると記録が黙って失われるため。確定の回数は開始の回数
- * （`beginChallenge` の枠）を超えないので、人の操作は引っ掛からない。
+ * （`useFinishAction`）が弾かれても数秒の間に数回送り直すだけで、同じ回線を
+ * 共有する他人の操作に巻き込まれると記録が失われるため。確定の回数は開始の
+ * 回数（`beginChallenge` の枠）を超えないので、人の操作は引っ掛からない。
  *
  * @param attemptId - `beginChallenge` が発行した挑戦 ID
  */
