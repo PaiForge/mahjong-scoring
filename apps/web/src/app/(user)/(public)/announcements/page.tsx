@@ -17,7 +17,7 @@ import { PaginationNav } from "@/app/(user)/_components/pagination-nav";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
-import { getPaginationData, parsePageParam } from "@/lib/pagination";
+import { parsePageParam, resolvePagination } from "@/lib/pagination";
 
 import { AnnouncementTextList } from "./_components/announcement-text-list";
 import {
@@ -45,14 +45,17 @@ export default async function AnnouncementsPage({ searchParams }: Props) {
   const locale = await getLocale();
   const t = await getTranslations("announcements");
 
+  const requestedPage = parsePageParam(page);
   const totalCount = await getPublishedAnnouncementCount();
-  const { currentPage, totalPages, limit, offset } = getPaginationData(
-    parsePageParam(page),
+  const { currentPage, totalPages, limit, offset } = resolvePagination(
+    requestedPage,
     totalCount,
     ANNOUNCEMENTS_PER_PAGE,
   );
 
-  if (currentPage > totalPages && totalPages > 0 && page !== undefined) {
+  // 範囲外のページは最終ページを出さず 404 にする（丸めたページと要求の
+  // 食い違いで判定する。アプリ向け API は丸めたページをそのまま返す）
+  if (currentPage !== requestedPage) {
     notFound();
   }
 

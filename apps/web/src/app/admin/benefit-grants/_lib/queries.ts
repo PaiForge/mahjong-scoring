@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { desc, sql } from "drizzle-orm";
 
 import { benefitGrants, db, type BenefitGrant, type Profile } from "@/lib/db";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
+import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
 import { getAuthUserEmails } from "@/lib/supabase/get-auth-user-emails";
 
 import { buildProfileMap } from "../../_lib/log-query-helpers";
@@ -32,7 +32,7 @@ export async function fetchBenefitGrantsPageData(
     .select({ count: sql<number>`count(*)` })
     .from(benefitGrants);
 
-  const pagination = getPaginationData(
+  const pagination = resolvePagination(
     page,
     Number(countResult.count),
     DEFAULT_PAGE_SIZE,

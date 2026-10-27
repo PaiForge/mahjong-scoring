@@ -3,7 +3,7 @@ import "server-only";
 import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 
 import { db, profiles, reports, type Profile, type Report } from "@/lib/db";
-import { DEFAULT_PAGE_SIZE, getPaginationData } from "@/lib/pagination";
+import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
 
 import { buildProfileMap } from "../../_lib/log-query-helpers";
 
@@ -36,7 +36,7 @@ export async function fetchReportsPageData(
     .select({ count: sql<number>`count(*)::int` })
     .from(reports)
     .where(where);
-  const pagination = getPaginationData(
+  const pagination = resolvePagination(
     page,
     countRow?.count ?? 0,
     DEFAULT_PAGE_SIZE,

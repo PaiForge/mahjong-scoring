@@ -13,7 +13,6 @@ import {
   parseAsString,
 } from "nuqs/server";
 
-import { getPaginationData } from "@/lib/pagination";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 
@@ -47,13 +46,8 @@ export default async function AdminUsersPage({
   const adminClient = createAdminClient();
   const t = await getTranslations("admin");
 
-  const { users, totalCount } = await fetchUsersPageData(
-    adminClient,
-    page,
-    query,
-  );
-
-  const pagination = getPaginationData(page, totalCount);
+  const { users, totalCount, currentPage, totalPages } =
+    await fetchUsersPageData(adminClient, page, query);
 
   const profileMap = await buildProfileMap(users.map((u) => u.id));
   const now = new Date();
@@ -134,8 +128,8 @@ export default async function AdminUsersPage({
       </div>
 
       <AdminPaginationNav
-        currentPage={pagination.currentPage}
-        totalPages={pagination.totalPages}
+        currentPage={currentPage}
+        totalPages={totalPages}
         buildHref={buildHref}
       />
     </div>
