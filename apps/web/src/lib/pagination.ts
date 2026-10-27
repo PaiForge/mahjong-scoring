@@ -11,7 +11,7 @@ export const DEFAULT_PAGE_SIZE = 20;
  * ページ番号の解釈
  *
  * 未指定・配列・数値として読めない値・0 以下は 1 ページ目。上限には丸めない
- * （件数を知っている側が `getPaginationData` 等で扱う）。
+ * （件数を知っている側が `resolvePagination` で扱う）。
  *
  * @param raw - `searchParams.page` の値
  */
@@ -40,7 +40,7 @@ export function clampPage(requested: number, totalPages: number): number {
  *
  * 範囲外のページ（3 件しかないのに `?page=9`）は最終ページに丸め、
  * 件数が 0 でも 1 ページ目にする。「件数を知ってからページを決める」側
- * （通知・チャレンジ履歴・ランキング・アプリのお知らせ）はこれを通し、
+ * （通知・チャレンジ履歴・ランキング・お知らせ・管理画面の一覧）はこれを通し、
  * 丸めの規則を取得関数ごとに書き起こさない — 書き起こすと規則を直した
  * ときに片側だけが直る。
  *
@@ -72,6 +72,10 @@ interface PaginationData {
 
 /**
  * ページネーションパラメータを算出する。
+ *
+ * 最終ページには丸めない。件数を数える前に要求されたページの取り出し位置
+ * だけ先に出す（件数と行を並行して引く）ときに使い、ページの確定は
+ * `resolvePagination` で行う。
  *
  * @param page - リクエストされたページ番号（1始まり）
  * @param totalCount - 全件数
