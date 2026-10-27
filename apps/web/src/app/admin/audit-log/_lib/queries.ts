@@ -3,7 +3,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 
 import { db, moderationActions } from "../../../../lib/db";
 import {
-  getPaginationData,
+  resolvePagination,
   DEFAULT_PAGE_SIZE,
 } from "../../../../lib/pagination";
 import { listAllAuthUsers } from "../../../../lib/supabase/list-all-auth-users";
@@ -66,7 +66,7 @@ export async function fetchAuditLogPageData(
     .from(moderationActions)
     .where(whereClause);
 
-  const pagination = getPaginationData(
+  const pagination = resolvePagination(
     page,
     Number(countResult.count),
     DEFAULT_PAGE_SIZE,
