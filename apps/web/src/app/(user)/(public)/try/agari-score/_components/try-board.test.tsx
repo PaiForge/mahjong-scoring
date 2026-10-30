@@ -2,6 +2,7 @@ import { cleanup, fireEvent, screen } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 面子分解（features の共有フック）は use-intl から辞書を読む
@@ -22,6 +23,11 @@ function choose(label: string, value: string | number) {
 function signUpLink() {
   return screen.queryByRole("link", { name: "signUp.cta" });
 }
+
+// このファイルは select の入力方式を検査する（タイルは score-tile-picker.test.tsx）
+beforeEach(() => {
+  useDisplaySettingsStore.setState({ scoreInput: "select" });
+});
 
 describe("TryBoard", () => {
   beforeEach(() => {

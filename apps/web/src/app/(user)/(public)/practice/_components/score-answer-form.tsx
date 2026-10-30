@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 import { koTsumoPaymentKey } from "@mahjong-scoring/core";
 import { Button } from "@/app/(user)/_components/button";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { useKoTsumoInput } from "@/app/_hooks/use-display-settings-store";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "@/app/_hooks/use-display-settings-store";
 import type { ScoreAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 import {
   koTsumoPaymentOfKey,
@@ -14,15 +17,18 @@ import {
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
+import { ScoreTilePicker } from "./score-tile-picker";
 
 /**
  * 点数系練習共通の回答フォーム
  * 点数回答フォーム
  *
  * props の意味と設計（選択即送信・ルール固定）は features の
- * {@link ScoreAnswerFormProps} にある。ここは select での描画だけを持つ。
- * 回答直後の正誤は select 自身の枠と地の色で返す
- * （{@link import("../_lib/select-class").getSelectClass} 参照）。
+ * {@link ScoreAnswerFormProps} にある。ここは描画だけを持つ。入力方式
+ * （{@link import("@mahjong-scoring/features/settings/score-input").ScoreInputMode}）が
+ * `tiles` なら {@link ScoreTilePicker}、`select` なら select で描く。
+ * 回答直後の正誤は、タイルなら選んだタイル、select なら select 自身の枠と
+ * 地の色で返す（{@link import("../_lib/select-class").getSelectClass} 参照）。
  * トレーニングの正解は {@link import("./revealed-score-answer").RevealedScoreAnswer} が
  * 別に出す。
  */
@@ -43,11 +49,15 @@ export function ScoreAnswerForm({
   const t = useTranslations(translationNamespace);
   // ラベルと select を紐付ける id（読み上げで見出しを名前として得るため）
   const scoreId = useId();
+  const scoreLabelId = useId();
   const koTsumoId = useId();
   const fromKoId = useId();
   const fromOyaId = useId();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const koTsumoInput = useKoTsumoInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+  const scoreInput = useScoreInput();
+  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
+  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
   const {
     availableScores,
     isOyaTsumo,
@@ -89,7 +99,41 @@ export function ScoreAnswerForm({
   // 送信ボタンが「次の問題へ」に入れ替わる瞬間にその差だけ下が動く
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {availableScores.type === "koTsumoSplit" ? (
+      {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
+        <div>
+          <span
+            id={scoreLabelId}
+            className="mb-2 block text-sm font-bold text-surface-700"
+          >
+            {availableScores.type === "koTsumoCombined"
+              ? t("koTsumoScore")
+              : t("selectScore")}
+          </span>
+          <ScoreTilePicker
+            available={availableScores}
+            isOya={isOya}
+            isTsumo={isTsumo}
+            value={
+              availableScores.type === "koTsumoCombined"
+                ? koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)
+                : score?.toString()
+            }
+            onChange={(v) => {
+              if (availableScores.type === "single") {
+                selectScore(Number(v));
+                return;
+              }
+              const payment = koTsumoPaymentOfKey(availableScores.payments, v);
+              if (payment) selectKoTsumoPayment(payment);
+            }}
+            suffix={isOyaTsumo ? t("all") : ""}
+            disabled={disabled}
+            labelledBy={scoreLabelId}
+            autoSubmit={autoSubmit}
+            feedback={feedback}
+          />
+        </div>
+      ) : availableScores.type === "koTsumoSplit" ? (
         <div>
           <div className="flex items-center gap-2">
             <div className="flex-1">

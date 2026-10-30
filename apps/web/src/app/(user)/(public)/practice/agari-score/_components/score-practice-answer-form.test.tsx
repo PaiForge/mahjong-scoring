@@ -1,8 +1,13 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import { ScorePracticeAnswerForm } from "./score-practice-answer-form";
+
+// このファイルは select の入力方式を検査する（タイルは score-tile-picker.test.tsx）
+beforeEach(() => {
+  useDisplaySettingsStore.setState({ scoreInput: "select" });
+});
 
 afterEach(() => {
   useDisplaySettingsStore.setState({ koTsumoInput: "combined" });

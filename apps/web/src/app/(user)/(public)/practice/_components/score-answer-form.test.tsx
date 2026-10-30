@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
@@ -13,6 +13,11 @@ function firstRealOptionValue(select: HTMLElement): string {
     .filter((o) => (o as HTMLOptionElement).value !== "");
   return (opts[0] as HTMLOptionElement).value;
 }
+
+// このファイルは select の入力方式を検査する（タイルは score-tile-picker.test.tsx）
+beforeEach(() => {
+  useDisplaySettingsStore.setState({ scoreInput: "select" });
+});
 
 afterEach(() => {
   useDisplaySettingsStore.setState({ koTsumoInput: "combined" });
