@@ -10,6 +10,7 @@ import {
   DEFAULT_KO_TSUMO_INPUT,
   type KoTsumoInputMode,
 } from "./ko-tsumo-input";
+import { DEFAULT_SCORE_INPUT, type ScoreInputMode } from "./score-input";
 import {
   passThroughHydration,
   type SettingsStoreOptions,
@@ -39,6 +40,9 @@ export interface DisplaySettingsState {
   /** 子のツモの点数を組の 1 つの select で選ぶか、子から・親からの 2 つで選ぶか */
   koTsumoInput: KoTsumoInputMode;
   setKoTsumoInput: (mode: KoTsumoInputMode) => void;
+  /** 点数を「満貫未満 / 満貫以上」の切り替えとタイルで答えるか、select で答えるか */
+  scoreInput: ScoreInputMode;
+  setScoreInput: (mode: ScoreInputMode) => void;
   /**
    * 練習の盤面で手牌の上下をランダムにするか（保存した希望）
    *
@@ -120,6 +124,9 @@ function mergeDisplaySettings(
         "combined",
         "split",
       ]) ?? current.koTsumoInput,
+    scoreInput:
+      pickOneOf<ScoreInputMode>(persisted.scoreInput, ["tiles", "select"]) ??
+      current.scoreInput,
     tileOrientation: normalizeTileOrientation(persisted.tileOrientation),
     tileOrder: normalizeTileOrder(persisted.tileOrder),
   };
@@ -168,6 +175,8 @@ export function createDisplaySettingsStore({
         setFuHanOrder: (fuHanOrder) => set({ fuHanOrder }),
         koTsumoInput: DEFAULT_KO_TSUMO_INPUT,
         setKoTsumoInput: (koTsumoInput) => set({ koTsumoInput }),
+        scoreInput: DEFAULT_SCORE_INPUT,
+        setScoreInput: (scoreInput) => set({ scoreInput }),
         tileOrientation: DEFAULT_TILE_ORIENTATION,
         setTileOrientation: (tileOrientation) => set({ tileOrientation }),
         tileOrder: DEFAULT_TILE_ORDER,
@@ -246,6 +255,19 @@ export function createDisplaySettingsStore({
   }
 
   /**
+   * 点数の入力方式取得フック
+   * 点数入力方式
+   *
+   * ハイドレーション完了までは既定値を返す（`useHydrated` を渡した場合）。
+   * web では select を選んだ人も描画直後はタイルで描き、ハイドレーション後に
+   * select へ替わる。
+   */
+  function useScoreInput(): ScoreInputMode {
+    const scoreInput = useDisplaySettingsStore((s) => s.scoreInput);
+    return useHydrated(scoreInput, DEFAULT_SCORE_INPUT);
+  }
+
+  /**
    * 手牌の向きの保存値取得フック
    * 牌の向き保存値
    *
@@ -290,5 +312,6 @@ export function createDisplaySettingsStore({
     useTermLinksEnabled,
     useFuHanOrder,
     useKoTsumoInput,
+    useScoreInput,
   };
 }

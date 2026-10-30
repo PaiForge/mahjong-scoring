@@ -120,6 +120,52 @@ export function getAvailableScores({
     : { type: "single", scores: scoresFor(RON_SCORES_KO, "ronKo") };
 }
 
+/**
+ * 1 つの select / タイル群で答える選択肢（子ツモの分割入力以外）
+ * 単一入力の選択肢
+ */
+export type SingleInputScores = SingleScores | KoTsumoCombinedScores;
+
+/**
+ * 選択肢を満貫未満と満貫以上に分ける
+ * 点数帯分割
+ *
+ * タイルで答える入力が「満貫未満 / 満貫以上」の切り替えで片側だけを並べる
+ * ために使う。分け方は翻数・範囲で絞るとき（{@link getAvailableScores}）と
+ * 同じしきい値で、子ツモの組は子・親の両方が満貫の支払いに届いたものだけを
+ * 満貫以上とする（2000/3900 は満貫未満）。すでに片側へ絞られた選択肢を
+ * 渡すと、もう片側は空になる。
+ *
+ * 子ツモの分割入力（`koTsumoSplit`）は 2 つの欄が連動しないため受けない。
+ */
+export function splitScoresByBand(
+  available: SingleInputScores,
+  isOya: boolean,
+  isTsumo: boolean,
+): Readonly<Record<ScoreRange, SingleInputScores>> {
+  if (available.type === "koTsumoCombined") {
+    const of = (band: ScoreRange): KoTsumoCombinedScores => ({
+      type: "koTsumoCombined",
+      payments: available.payments.filter((p) =>
+        inBand(isManganPlusPayment(p), band),
+      ),
+    });
+    return { nonMangan: of("nonMangan"), manganPlus: of("manganPlus") };
+  }
+  const category = singleCategoryOf(isOya, isTsumo);
+  const of = (band: ScoreRange): SingleScores => ({
+    type: "single",
+    scores: filterScores(available.scores, category, band),
+  });
+  return { nonMangan: of("nonMangan"), manganPlus: of("manganPlus") };
+}
+
+/** 1 つの点数で答える区分（ロン・親ツモ）のカテゴリ */
+function singleCategoryOf(isOya: boolean, isTsumo: boolean): ScoreCategory {
+  if (isTsumo) return "tsumoOyaAll";
+  return isOya ? "ronOya" : "ronKo";
+}
+
 /** 子ツモを 2 つの select で答える選択肢 */
 interface KoTsumoSplitScores {
   readonly type: "koTsumoSplit";

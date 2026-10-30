@@ -37,7 +37,7 @@ appId: help.mahjong.score
 - tapOn: "開始する"
 - extendedWaitUntil:
     visible:
-      id: "score-select"
+      id: "score-tiles"
     timeout: 15000
 - scrollUntilVisible:
     element:

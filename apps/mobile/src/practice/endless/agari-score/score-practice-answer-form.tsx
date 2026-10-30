@@ -9,7 +9,10 @@ import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "../../../hooks/use-rule-settings-store";
-import { useKoTsumoInput } from "../../../hooks/use-display-settings-store";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "../../../hooks/use-display-settings-store";
 import { colors } from "../../../lib/theme";
 import { HanFuFields } from "./han-fu-fields";
 import { ScoreField } from "./score-field";
@@ -40,7 +43,10 @@ export function ScorePracticeAnswerForm({
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const koTsumoInput = useKoTsumoInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+  const scoreInput = useScoreInput();
+  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
+  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
   const form = useScorePracticeAnswerForm({
     onSubmit,
     isTsumo,
@@ -93,7 +99,13 @@ export function ScorePracticeAnswerForm({
         />
       )}
 
-      <ScoreField form={form} disabled={disabled} />
+      <ScoreField
+        form={form}
+        disabled={disabled}
+        scoreInput={scoreInput}
+        isOya={isOya}
+        isTsumo={isTsumo}
+      />
 
       <Button
         onPress={form.submit}

@@ -24,6 +24,8 @@ export const PREFERENCE_ANCHORS = {
   termLinks: "term-links",
   /** 符と翻を「30符 4翻」の符→翻の順で出すか */
   fuHanOrder: "fu-han-order",
+  /** 点数をタイルではなく選択欄（select）で答えるか */
+  scoreInput: "score-input",
   /** 子のツモの点数を「子から」「親から」の 2 つに分けて選ぶか */
   koTsumoInput: "ko-tsumo-input",
   /** 練習の盤面で手牌の上下をランダムにするか（Pro） */

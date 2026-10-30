@@ -140,5 +140,10 @@
   "tryLinks": {
     "title": "練習で試す",
     "backToHome": "ホームに戻る"
+  },
+  "scoreInput": {
+    "bands": "点数帯",
+    "nonMangan": "満貫未満",
+    "manganPlus": "満貫以上"
   }
 }

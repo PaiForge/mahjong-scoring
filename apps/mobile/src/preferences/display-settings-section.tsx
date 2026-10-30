@@ -22,6 +22,7 @@ import {
   useDoraDisplayMode,
   useFuHanOrder,
   useKoTsumoInput,
+  useScoreInput,
   useTermLinksEnabled,
 } from "../hooks/use-display-settings-store";
 import {
@@ -37,8 +38,8 @@ import {
  * 表示設定セクション
  *
  * 端末ローカルに保存される「見え方」の設定を切り替える。出題内容も
- * 正解判定も変わらない（ドラの判定は常に表示牌から導く）。子ツモの入力方式も
- * 受け付ける回答は変えず、答え方の形だけを変える
+ * 正解判定も変わらない（ドラの判定は常に表示牌から導く）。点数と子ツモの
+ * 入力方式も受け付ける回答は変えず、答え方の形だけを変える
  * （web の `DisplaySettingsSection`）。
  */
 export function DisplaySettingsSection() {
@@ -50,6 +51,8 @@ export function DisplaySettingsSection() {
   const setTermLinks = useDisplaySettingsStore((s) => s.setTermLinks);
   const fuHanOrder = useFuHanOrder();
   const setFuHanOrder = useDisplaySettingsStore((s) => s.setFuHanOrder);
+  const scoreInput = useScoreInput();
+  const setScoreInput = useDisplaySettingsStore((s) => s.setScoreInput);
   const koTsumoInput = useKoTsumoInput();
   const setKoTsumoInput = useDisplaySettingsStore((s) => s.setKoTsumoInput);
 
@@ -82,7 +85,19 @@ export function DisplaySettingsSection() {
         }
         anchor={PREFERENCE_ANCHORS.fuHanOrder}
       />
-      {/* 組の 1 つの select が既定なので、スイッチは「分けて選ぶ」の向きで出す */}
+      {/* タイルが既定なので、スイッチは「選択欄から選ぶ」の向きで出す */}
+      <SettingToggleRow
+        title={t("scoreInputTitle")}
+        description={t("scoreInputDescription")}
+        checked={scoreInput === "select"}
+        onChange={(checked) => setScoreInput(checked ? "select" : "tiles")}
+        testID="preferences-score-input"
+        anchor={PREFERENCE_ANCHORS.scoreInput}
+      />
+      {/* 組の 1 つの選択欄が既定なので、スイッチは「分けて選ぶ」の向きで出す。
+          タイルで答える間（上の行がオフ）は効かないが、行は隠さず無効にもしない
+          （web と同じ。リンクの着地先を残し、押せないスイッチは壊れて見える）。
+          効く条件は説明文で示す */}
       <SettingToggleRow
         title={t("koTsumoInputTitle")}
         description={t("koTsumoInputDescription")}

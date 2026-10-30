@@ -12,4 +12,5 @@ export const {
   useTermLinksEnabled,
   useFuHanOrder,
   useKoTsumoInput,
+  useScoreInput,
 } = createDisplaySettingsStore(MOBILE_SETTINGS_STORE_OPTIONS);

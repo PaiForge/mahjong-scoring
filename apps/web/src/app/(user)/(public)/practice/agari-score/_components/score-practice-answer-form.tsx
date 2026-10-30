@@ -7,7 +7,10 @@ import {
   useRuleSettingsStore,
   useYakumanRules,
 } from "@/app/_hooks/use-rule-settings-store";
-import { useKoTsumoInput } from "@/app/_hooks/use-display-settings-store";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "@/app/_hooks/use-display-settings-store";
 import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import { Button } from "@/app/(user)/_components/button";
@@ -44,7 +47,10 @@ export function ScorePracticeAnswerForm({
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
-  const koTsumoInput = useKoTsumoInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+  const scoreInput = useScoreInput();
+  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
+  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
   const form = useScorePracticeAnswerForm({
     onSubmit,
     isTsumo,
@@ -104,7 +110,13 @@ export function ScorePracticeAnswerForm({
         />
       )}
 
-      <ScoreField form={form} disabled={disabled} />
+      <ScoreField
+        form={form}
+        disabled={disabled}
+        scoreInput={scoreInput}
+        isOya={isOya}
+        isTsumo={isTsumo}
+      />
 
       <Button
         type="submit"

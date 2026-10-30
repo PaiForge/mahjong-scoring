@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import type { TenpaiScoreQuestion } from "@mahjong-scoring/core";
 import { isOya } from "@mahjong-scoring/core";
 
@@ -112,6 +113,11 @@ function hanSelect() {
 }
 
 const submitButton = () => screen.getByRole("button", { name: "cells.submit" });
+
+// このファイルは select の入力方式を検査する（タイルは score-tile-picker.test.tsx）
+beforeEach(() => {
+  useDisplaySettingsStore.setState({ scoreInput: "select" });
+});
 
 describe("TenpaiScoreBoard の回答欄", () => {
   beforeEach(() => {

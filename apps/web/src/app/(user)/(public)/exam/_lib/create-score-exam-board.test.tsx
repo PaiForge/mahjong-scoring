@@ -124,6 +124,11 @@ function firstRealOptionValue(select: HTMLElement): string {
   return (opts[0] as HTMLOptionElement).value;
 }
 
+// このファイルは select の入力方式を検査する（タイルは score-tile-picker.test.tsx）
+beforeEach(() => {
+  useDisplaySettingsStore.setState({ scoreInput: "select" });
+});
+
 describe("createScoreExamBoard", () => {
   beforeEach(() => {
     cleanup();

@@ -120,3 +120,39 @@ describe("DisplaySettingsSection の Pro の 2 行", () => {
     });
   });
 });
+
+describe("DisplaySettingsSection の点数の入力方式", () => {
+  it("スイッチをオンにすると select、オフに戻すとタイルを保存する", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    act(() => {
+      useDisplaySettingsStore.getState().setScoreInput("tiles");
+    });
+    render(<DisplaySettingsSection />);
+    const toggle = screen.getByLabelText("scoreInputTitle");
+    expect(toggle).toHaveProperty("checked", false);
+
+    fireEvent.click(toggle);
+    expect(useDisplaySettingsStore.getState().scoreInput).toBe("select");
+
+    fireEvent.click(toggle);
+    expect(useDisplaySettingsStore.getState().scoreInput).toBe("tiles");
+  });
+
+  it("子ツモの入力方式の行は、タイルのままでも隠さない（リンクの着地先を残す）", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    render(<DisplaySettingsSection />);
+    expect(useDisplaySettingsStore.getState().scoreInput).toBe("tiles");
+    expect(screen.getByLabelText("koTsumoInputTitle")).toBeTruthy();
+    expect(document.getElementById("ko-tsumo-input")).not.toBeNull();
+  });
+});
