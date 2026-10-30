@@ -1,8 +1,12 @@
-# 点数のタイル入力（既定の入力方式）: ゲストで和了形の点数計算を開くと、点数の欄に
-# 「満貫未満 / 満貫以上」の切り替え（墨の選択中）と片側のタイルが並ぶ。満貫以上へ
-# 切り替えて 1 つ選ぶと墨の枠と内側の線で示され、満貫未満へ戻すと切り替えのボタンに
-# 「満貫以上 · <選んだ点数>」が添えられる（隠れた側の値で送れることを見せる）。
-# タイル群の高さは多いほうの帯ぶん確保され、切り替えても下の「回答する」が動かない
+# 点数のタイル入力（既定の入力方式）。bob（Pro。ゲストの 1 日 1 問の制限に掛からず、
+# 盤面を 2 回開ける）で和了形の点数計算を開く。
+# 1. 既定（点数だけを答える）: 点数の欄に「満貫未満 / 満貫以上」の切り替え（墨の選択中）と
+#    片側のタイルが並び、「回答する」は無い。満貫以上へ切り替えてタイルを押すと、その場で
+#    答え合わせになる
+# 2. 翻数と符も答える設定: 「回答する」が残り、タイルは押しても送られない。満貫以上で選んだ
+#    タイルは墨の枠と内側の線で示され、満貫未満へ戻すと切り替えのボタンに
+#    「満貫以上 · <選んだ点数>」が添えられる（隠れた側の値で送れることを見せる）。
+#    タイル群の高さは多いほうの帯ぶん確保され、切り替えても下のボタンが動かない
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -11,6 +15,15 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+# 1. 既定: 押した時点で答え合わせ
 - runFlow:
     file: _open-link.yaml
     env:
@@ -25,6 +38,7 @@ appId: help.mahjong.score
     direction: DOWN
 - assertVisible:
     id: "score-tiles-band-manganPlus"
+- assertNotVisible: "回答する"
 - takeScreenshot: score-tile-input-non-mangan
 - tapOn:
     id: "score-tiles-band-manganPlus"
@@ -34,18 +48,45 @@ appId: help.mahjong.score
 - tapOn:
     id: "score-tiles-[0-9].*"
     index: 0
+- extendedWaitUntil:
+    visible: "あなたの回答"
+    timeout: 10000
+- takeScreenshot: score-tile-input-answered
+# 2. 翻数と符も答える設定: ボタンで送る。隠れた側の選択を切り替えに添える
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score"
+- extendedWaitUntil:
+    visible: "翻数と符も回答する"
+    timeout: 10000
+- tapOn: "翻数と符も回答する"
+- scrollUntilVisible:
+    element: "開始する"
+    direction: DOWN
+- tapOn: "開始する"
+- extendedWaitUntil:
+    visible:
+      id: "score-tiles"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "score-tiles-band-manganPlus"
+    direction: DOWN
+- tapOn:
+    id: "score-tiles-band-manganPlus"
 - waitForAnimationToEnd
+- tapOn:
+    id: "score-tiles-[0-9].*"
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: "あなたの回答"
 - takeScreenshot: score-tile-input-mangan-selected
 - tapOn:
     id: "score-tiles-band-nonMangan"
 - waitForAnimationToEnd
 - assertVisible: "満貫以上 · .*"
-- takeScreenshot: score-tile-input-hidden-selection
 - scrollUntilVisible:
     element: "回答する"
     direction: DOWN
-- tapOn: "回答する"
-- extendedWaitUntil:
-    visible: "あなたの回答"
-    timeout: 10000
-- takeScreenshot: score-tile-input-answered
+- takeScreenshot: score-tile-input-hidden-selection
