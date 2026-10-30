@@ -3,15 +3,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ScoreRange } from "@mahjong-scoring/core";
+import type { SingleInputScores } from "@mahjong-scoring/features/practice/score/get-available-scores";
 import {
-  splitScoresByBand,
-  type SingleInputScores,
-} from "@mahjong-scoring/features/practice/score/get-available-scores";
-import {
-  koTsumoSelectOptions,
-  scoreSelectOptions,
-  type ScoreSelectOption,
-} from "@mahjong-scoring/features/practice/score/score-select-options";
+  resolveScoreTileBands,
+  SCORE_BANDS,
+} from "@mahjong-scoring/features/practice/score/score-tile-bands";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import {
   SELECTED_TILE_CLASSES,
@@ -45,27 +41,14 @@ interface ScoreTilePickerProps {
   readonly feedback?: SelectFeedbackState;
 }
 
-const BANDS = [
-  "nonMangan",
-  "manganPlus",
-] as const satisfies readonly ScoreRange[];
-
-/** 1 行に並べるタイルの数。子ツモの組（`1800/3600`）は幅が要るので 3 つ */
-const COLUMNS = { single: 4, koTsumoCombined: 3 } as const;
-
 /**
  * 点数をタイルで答える欄
  * 点数タイル入力
  *
  * select では選択肢が多すぎる（子ロンの全範囲で 30 個）ため、「満貫未満 /
- * 満貫以上」の切り替えで片側だけを並べる。選択肢が片側にしか無いとき
- * （5 翻以上・満貫の練習）は切り替えを出さない。
- *
- * 切り替えの初期値は問題によらず満貫未満 — 正解のある側を開くと、それ自体が
- * 答えのヒントになる。ただし選択済みの値（聴牌形の点数計算で回答済みのマス）が
- * あるときはその側を開く。切り替えても選択は消さず、隠れた側に選んだ値が
- * あるときは切り替えのボタンにその値を添える（見えない値で送れてしまうことを
- * 見せるため）。
+ * 満貫以上」の切り替えで片側だけを並べる。どちらの帯を開くか・切り替えを
+ * 出すか・隠れた側の選択・確保する行数は features の
+ * {@link resolveScoreTileBands}（モバイルと共通）が決め、ここは描画だけを持つ。
  *
  * 両側のタイル群のうち多いほうの高さを確保し、切り替えで下の「回答する」
  * ボタンが上下に動かないようにする。
@@ -85,30 +68,15 @@ export function ScoreTilePicker({
   const t = useTranslations("practice.scoreInput");
   const [chosenBand, setChosenBand] = useState<ScoreRange | undefined>();
 
-  const split = splitScoresByBand(available, isOya, isTsumo);
-  const options: Readonly<Record<ScoreRange, readonly ScoreSelectOption[]>> = {
-    nonMangan: toOptions(split.nonMangan, suffix),
-    manganPlus: toOptions(split.manganPlus, suffix),
-  };
-  const hasBoth = BANDS.every((band) => options[band].length > 0);
-  const bandOfValue = BANDS.find((band) =>
-    options[band].some((option) => option.value === value),
-  );
-  const band: ScoreRange = hasBoth
-    ? (chosenBand ?? bandOfValue ?? "nonMangan")
-    : options.nonMangan.length > 0
-      ? "nonMangan"
-      : "manganPlus";
-  const selectedLabel = BANDS.flatMap((b) => options[b]).find(
-    (option) => option.value === value,
-  )?.label;
-
-  const columns = COLUMNS[available.type];
-  const rows = Math.ceil(
-    Math.max(
-      ...BANDS.map((b) => (hasBoth || b === band ? options[b].length : 0)),
-    ) / columns,
-  );
+  const { options, hasBoth, band, hiddenSelection, columns, rows } =
+    resolveScoreTileBands({
+      available,
+      isOya,
+      isTsumo,
+      value,
+      chosenBand,
+      suffix,
+    });
 
   const showsFeedback =
     feedback !== undefined &&
@@ -138,7 +106,7 @@ export function ScoreTilePicker({
           aria-label={t("bands")}
           className="grid grid-cols-2 overflow-hidden rounded-lg border border-surface-400"
         >
-          {BANDS.map((b, index) => {
+          {SCORE_BANDS.map((b, index) => {
             const isActive = b === band;
             return (
               <button
@@ -156,8 +124,8 @@ export function ScoreTilePicker({
                 }`}
               >
                 {t(b)}
-                {!isActive && b === bandOfValue && selectedLabel !== undefined
-                  ? ` · ${selectedLabel}`
+                {hiddenSelection?.band === b
+                  ? ` · ${hiddenSelection.label}`
                   : ""}
               </button>
             );
@@ -189,13 +157,4 @@ export function ScoreTilePicker({
       </div>
     </div>
   );
-}
-
-function toOptions(
-  scores: SingleInputScores,
-  suffix: string,
-): readonly ScoreSelectOption[] {
-  return scores.type === "koTsumoCombined"
-    ? koTsumoSelectOptions(scores.payments)
-    : scoreSelectOptions(scores.scores, suffix);
 }
