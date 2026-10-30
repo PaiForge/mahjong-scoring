@@ -1,0 +1,51 @@
+# 点数のタイル入力（既定の入力方式）: ゲストで和了形の点数計算を開くと、点数の欄に
+# 「満貫未満 / 満貫以上」の切り替え（墨の選択中）と片側のタイルが並ぶ。満貫以上へ
+# 切り替えて 1 つ選ぶと墨の枠と内側の線で示され、満貫未満へ戻すと切り替えのボタンに
+# 「満貫以上 · <選んだ点数>」が添えられる（隠れた側の値で送れることを見せる）。
+# タイル群の高さは多いほうの帯ぶん確保され、切り替えても下の「回答する」が動かない
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "score-tiles"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "score-tiles-band-nonMangan"
+    direction: DOWN
+- assertVisible:
+    id: "score-tiles-band-manganPlus"
+- takeScreenshot: score-tile-input-non-mangan
+- tapOn:
+    id: "score-tiles-band-manganPlus"
+- waitForAnimationToEnd
+# 満貫以上の先頭のタイル（親子・ツモロンで値が違うので正規表現で引く。
+# 切り替えのボタンは score-tiles-band-* なので数字で始まるものだけに当たる）
+- tapOn:
+    id: "score-tiles-[0-9].*"
+    index: 0
+- waitForAnimationToEnd
+- takeScreenshot: score-tile-input-mangan-selected
+- tapOn:
+    id: "score-tiles-band-nonMangan"
+- waitForAnimationToEnd
+- assertVisible: "満貫以上 · .*"
+- takeScreenshot: score-tile-input-hidden-selection
+- scrollUntilVisible:
+    element: "回答する"
+    direction: DOWN
+- tapOn: "回答する"
+- extendedWaitUntil:
+    visible: "あなたの回答"
+    timeout: 10000
+- takeScreenshot: score-tile-input-answered

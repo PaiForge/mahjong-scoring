@@ -45,22 +45,38 @@ appId: help.mahjong.score
       - waitForAnimationToEnd
       - assertNotVisible: "ドラの見方"
       - assertVisible: "わからない"
-# 中身なりの一覧から選ぶ: 点数の選択欄（SelectField）。選ぶとシートが閉じて値が入る。
-# 翻数・符の欄は既定では出ない（実戦練習は点数だけを答える）ので点数の欄で確かめる。
-# 選択肢は問題ごとに違う点数なので、先頭のものを選ぶ
-- tapOn:
-    id: "score-select"
+# 中身なりの一覧から選ぶ: 翻数の選択欄（SelectField）。選ぶとシートが閉じて値が入る。
+# 点数は既定ではタイルで答える（選択欄は設定で選ぶ。ゲストは設定を開けない）ので、
+# 練習の設定で「翻数と符も回答する」をオンにして翻数の欄で確かめる
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score"
+- extendedWaitUntil:
+    visible: "翻数と符も回答する"
+    timeout: 10000
+- tapOn: "翻数と符も回答する"
+- scrollUntilVisible:
+    element: "開始する"
+    direction: DOWN
+- tapOn: "開始する"
 - extendedWaitUntil:
     visible:
-      id: "score-select-option-.*"
+      id: "han-select"
+    timeout: 15000
+- tapOn:
+    id: "han-select"
+- extendedWaitUntil:
+    visible:
+      id: "han-select-option-.*"
     timeout: 5000
 - takeScreenshot: sheet-select-open
 - tapOn:
-    id: "score-select-option-.*"
+    id: "han-select-option-.*"
     index: 0
 - waitForAnimationToEnd
 - assertNotVisible:
-    id: "score-select-option-.*"
+    id: "han-select-option-.*"
 - takeScreenshot: sheet-select-chosen
 # 固定の高さ・注目セルへ寄せるスクロール枠: 点数表（ReferenceModal）
 - tapOn: "わからない"

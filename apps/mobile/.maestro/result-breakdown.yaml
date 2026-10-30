@@ -18,7 +18,7 @@ appId: help.mahjong.score
       LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
-      id: "score-select"
+      id: "score-tiles"
     timeout: 15000
 - repeat:
     times: 10
