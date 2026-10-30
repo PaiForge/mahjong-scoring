@@ -418,14 +418,14 @@ describe("AgariScoreBoard", () => {
         : [];
     };
 
-    it("既定の設定では翻数・符の欄が無く、盤面・点数・回答・開示の順に照らす", async () => {
+    it("既定の設定では翻数・符の欄と回答ボタンが無く、盤面・点数・開示の順に照らす", async () => {
+      // 点数だけを問う設定は選んだ時点で送るので、回答ボタンが無い
       await visit("");
 
       expect(tourIdsOf(startTour())).toEqual([
         AGARI_SCORE_TOUR_ID.board,
         ...hintStep(),
         AGARI_SCORE_TOUR_ID.score,
-        AGARI_SCORE_TOUR_ID.submit,
         AGARI_SCORE_TOUR_ID.reveal,
       ]);
     });

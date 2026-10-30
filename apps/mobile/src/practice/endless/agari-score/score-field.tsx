@@ -28,6 +28,7 @@ export function ScoreField({
   scoreInput,
   isOya,
   isTsumo,
+  autoSubmit = false,
 }: {
   readonly form: Pick<
     UseScorePracticeAnswerFormResult,
@@ -46,6 +47,8 @@ export function ScoreField({
   readonly scoreInput: ScoreInputMode;
   readonly isOya: boolean;
   readonly isTsumo: boolean;
+  /** 選んだ時点で送られるか（タイルを採点待ちの灰で示す） */
+  readonly autoSubmit?: boolean;
 }) {
   const t = useTranslations("agariScore");
   const { availableScores } = form;
@@ -77,6 +80,7 @@ export function ScoreField({
           suffix={form.isOyaTsumo ? t("form.options.all") : ""}
           disabled={disabled}
           accessibilityLabel={label}
+          autoSubmit={autoSubmit}
         />
       ) : availableScores.type === "koTsumoSplit" ? (
         <View style={styles.koTsumoRow}>

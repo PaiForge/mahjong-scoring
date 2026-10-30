@@ -333,6 +333,7 @@ function AgariScoreBoardInner() {
               requireHanFu={requireHanFu}
               exactHan={exactHan}
               requireFuForMangan={requireFuForMangan}
+              autoSubmit
             />
           </div>
         )}

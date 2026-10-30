@@ -59,6 +59,23 @@ export interface UseScorePracticeAnswerFormParams {
   /** 子ツモの入力方式（端末の表示設定。アプリ側がストアから読んで渡す） */
   readonly koTsumoInput: KoTsumoInputMode;
   /**
+   * 点数を選んだ時点で送る（既定 false）
+   * 選択即送信
+   *
+   * 点数だけを問う設定（役も翻数・符も答えない）のときに立てる。点数の
+   * 選択肢をタップする練習（符・翻数・役）と、点数だけを答えるチャレンジ・
+   * 昇級試験は押した時点で答えになるので、同じ格子のタイルで「押しても
+   * 送られない」画面を作らない。他の欄も答える設定では、点数が最後の欄とは
+   * 限らず（符を先に選んだ人が後から点数を直す）、揃った瞬間に送ると
+   * 直せないので立てない。立てるかどうかはフォームが決め、ここは
+   * 「点数の選択が揃ったら送る」だけを持つ。
+   *
+   * 設定にはしない — 誤タップの心配は選択肢をタップする練習すべてに同じ
+   * ようにあり、そこに設定は置いていない。操作の形の設定（点数・子ツモの
+   * 入力方式）を増やすと組み合わせごとに web とアプリで確かめる筋が増える
+   */
+  readonly autoSubmit?: boolean;
+  /**
    * 入力欄の初期値。変わったら、まだ触っていない欄をその中身に合わせる
    * （聴牌形の点数計算で同じ答えのマスをまとめて選んだとき、共通の答えを入れておく）
    */
@@ -91,6 +108,11 @@ export interface UseScorePracticeAnswerFormResult extends FormFields {
   readonly isComplete: boolean;
   /** 回答を送る。入力が揃っていなければ何もしない */
   readonly submit: () => void;
+  /**
+   * 「回答する」ボタンを出すか。選択即送信（`autoSubmit`）なら出さない —
+   * 選んだ時点で送られるので、押しても何も起きないボタンになる
+   */
+  readonly showsSubmitButton: boolean;
 }
 
 /**
@@ -115,6 +137,7 @@ export function useScorePracticeAnswerForm({
   kiriageMangan,
   allowDoubleYakuman,
   koTsumoInput,
+  autoSubmit = false,
   prefill,
 }: UseScorePracticeAnswerFormParams): UseScorePracticeAnswerFormResult {
   const [fields, setFields] = useState(() => fieldsOf(prefill));
@@ -137,7 +160,7 @@ export function useScorePracticeAnswerForm({
       setFields((prev) => ({ ...prev, [key]: value }));
     };
 
-  const { fu, yakus } = fields;
+  const { fu } = fields;
   // 翻数を問わないときは、入力欄に残った値（prefill 等）も無いものとして扱う。
   // 点数の選択肢を翻数で絞らず、取りうる全点数から選ばせるため
   const han = requireHanFu ? fields.han : undefined;
@@ -164,30 +187,52 @@ export function useScorePracticeAnswerForm({
     (!isFuRequired || fu !== undefined) &&
     selection.isComplete;
 
-  const submit = () => {
-    if (requireHanFu && han === undefined) return;
-    if (isFuRequired && fu === undefined) return;
+  /**
+   * 欄の中身から送る回答を組み立てる（揃っていなければ undefined）
+   *
+   * 翻数（`han`）と選択肢（`availableScores`）は今の render のものを使う。
+   * 選択即送信は点数の欄の書き換えでしか起きず、そのとき翻数は変わらない
+   */
+  const answerOf = (f: FormFields): UserAnswer | undefined => {
+    if (requireHanFu && han === undefined) return undefined;
+    if (isFuRequired && f.fu === undefined) return undefined;
 
-    const submitYakus = requireYaku ? [...yakus] : [];
+    const submitYakus = requireYaku ? [...f.yakus] : [];
     const submitFu = isFuRequired
-      ? fu
+      ? f.fu
       : isMangan || !requireHanFu
         ? undefined
-        : fu;
+        : f.fu;
+    const s = resolveScoreSelection(availableScores, f);
 
     if (availableScores.type !== "single") {
-      if (scoreFromKo === undefined || scoreFromOya === undefined) return;
-      onSubmit({
+      if (s.scoreFromKo === undefined || s.scoreFromOya === undefined)
+        return undefined;
+      return {
         han,
         fu: submitFu,
-        scoreFromKo,
-        scoreFromOya,
+        scoreFromKo: s.scoreFromKo,
+        scoreFromOya: s.scoreFromOya,
         yakus: submitYakus,
-      });
-    } else {
-      if (score === undefined) return;
-      onSubmit({ han, fu: submitFu, score, yakus: submitYakus });
+      };
     }
+    if (s.score === undefined) return undefined;
+    return { han, fu: submitFu, score: s.score, yakus: submitYakus };
+  };
+
+  const submit = () => {
+    const answer = answerOf(fields);
+    if (answer) onSubmit(answer);
+  };
+
+  // 点数の欄を書き換え、選択即送信なら書き換えた後の回答が揃った時点で送る
+  const selectScore = (patch: Partial<FormFields>) => {
+    setTouched(true);
+    const next = { ...fields, ...patch };
+    setFields(next);
+    if (!autoSubmit) return;
+    const answer = answerOf(next);
+    if (answer) onSubmit(answer);
   };
 
   return {
@@ -200,21 +245,16 @@ export function useScorePracticeAnswerForm({
     setHan: update("han"),
     setFu: update("fu"),
     setYakus: update("yakus"),
-    setScore: update("score"),
-    setScoreFromKo: update("scoreFromKo"),
-    setScoreFromOya: update("scoreFromOya"),
-    setKoTsumoPayment: ({ fromKo, fromOya }) => {
-      setTouched(true);
-      setFields((prev) => ({
-        ...prev,
-        scoreFromKo: fromKo,
-        scoreFromOya: fromOya,
-      }));
-    },
+    setScore: (value) => selectScore({ score: value }),
+    setScoreFromKo: (value) => selectScore({ scoreFromKo: value }),
+    setScoreFromOya: (value) => selectScore({ scoreFromOya: value }),
+    setKoTsumoPayment: ({ fromKo, fromOya }) =>
+      selectScore({ scoreFromKo: fromKo, scoreFromOya: fromOya }),
     isFuRequired,
     availableScores,
     isOyaTsumo: paymentKindOf(isOya, isTsumo) === "oyaTsumo",
     isComplete,
     submit,
+    showsSubmitButton: !autoSubmit,
   };
 }
