@@ -4,7 +4,10 @@ import { koTsumoPaymentKey } from "@mahjong-scoring/core";
 import type { ScoreAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
 import { Button } from "../../components/button";
-import { useKoTsumoInput } from "../../hooks/use-display-settings-store";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "../../hooks/use-display-settings-store";
 import { useRuleSettingsStore } from "../../hooks/use-rule-settings-store";
 import { colors } from "../../lib/theme";
 import {
@@ -14,15 +17,18 @@ import {
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreOptionSelect } from "./score-option-select";
+import { ScoreTilePicker } from "./score-tile-picker";
 
 /**
  * 点数系練習共通の回答フォーム
  * 点数回答フォーム
  *
  * web の `ScoreAnswerForm` の移植。props の意味と設計（選択即送信・ルール
- * 固定）は features の {@link ScoreAnswerFormProps} にある。ここはピッカーでの
- * 描画だけを持つ。回答直後の正誤は選択欄自身の枠と地の色で返し、トレーニングの
- * 正解は {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す。
+ * 固定）は features の {@link ScoreAnswerFormProps} にある。ここは描画だけを
+ * 持つ。入力方式（features の `settings/score-input.ts`）が `tiles` なら
+ * {@link ScoreTilePicker}、`select` なら選択欄で描く。回答直後の正誤は、タイルなら
+ * 選んだタイル、選択欄なら欄自身の枠と地の色で返し、トレーニングの正解は
+ * {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す。
  */
 export function ScoreAnswerForm({
   isOya,
@@ -40,7 +46,10 @@ export function ScoreAnswerForm({
 }: ScoreAnswerFormProps) {
   const t = useTranslations(translationNamespace);
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
-  const koTsumoInput = useKoTsumoInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+  const scoreInput = useScoreInput();
+  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
+  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
   const {
     availableScores,
     isOyaTsumo,
@@ -74,7 +83,42 @@ export function ScoreAnswerForm({
 
   return (
     <View style={styles.form}>
-      {availableScores.type === "koTsumoSplit" ? (
+      {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
+        <View>
+          <Text style={styles.label}>
+            {availableScores.type === "koTsumoCombined"
+              ? t("koTsumoScore")
+              : t("selectScore")}
+          </Text>
+          <ScoreTilePicker
+            available={availableScores}
+            isOya={isOya}
+            isTsumo={isTsumo}
+            value={
+              availableScores.type === "koTsumoCombined"
+                ? koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)
+                : score?.toString()
+            }
+            onChange={(v) => {
+              if (availableScores.type === "single") {
+                selectScore(Number(v));
+                return;
+              }
+              const payment = koTsumoPaymentOfKey(availableScores.payments, v);
+              if (payment) selectKoTsumoPayment(payment);
+            }}
+            suffix={isOyaTsumo ? t("all") : ""}
+            disabled={disabled}
+            accessibilityLabel={
+              availableScores.type === "koTsumoCombined"
+                ? t("koTsumoScore")
+                : t("selectScore")
+            }
+            autoSubmit={autoSubmit}
+            feedback={feedback}
+          />
+        </View>
+      ) : availableScores.type === "koTsumoSplit" ? (
         <View style={styles.koTsumoRow}>
           <View style={styles.koTsumoColumn}>
             <Text style={styles.label}>{t("fromKo")}</Text>

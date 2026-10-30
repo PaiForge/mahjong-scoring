@@ -26,6 +26,13 @@ interface ToggleGroupProps<T extends string> {
    * 文言の幅に詰める
    */
   readonly fill?: boolean;
+  /**
+   * 高さ。既定の `sm` は見出しの横や表の上に置く 34pt。`lg` は回答の欄の中で
+   * 指で押す 44pt（点数のタイル入力の「満貫未満 / 満貫以上」）
+   */
+  readonly size?: "sm" | "lg";
+  /** 切り替えを受け付けない（回答直後の正誤を見せている間など）。見た目は変えない */
+  readonly disabled?: boolean;
   /** Maestro のフローで引く印。選択肢ごとに `<testID>-<値>` を付ける */
   readonly testID?: string;
 }
@@ -56,6 +63,8 @@ export function ToggleGroup<T extends string>({
   onSelect,
   accessibilityLabel,
   fill = false,
+  size = "sm",
+  disabled = false,
   testID,
 }: ToggleGroupProps<T>) {
   const options = groups.flat();
@@ -71,19 +80,27 @@ export function ToggleGroup<T extends string>({
           <Pressable
             key={option.value}
             onPress={() => onSelect(option.value)}
+            disabled={disabled}
             testID={
               testID === undefined ? undefined : `${testID}-${option.value}`
             }
             accessibilityRole="radio"
-            accessibilityState={{ selected: isActive }}
+            accessibilityState={{ selected: isActive, disabled }}
             style={[
               styles.segment,
+              size === "lg" && styles.segmentLg,
               fill && styles.segmentFill,
               isActive && styles.segmentActive,
             ]}
           >
             {typeof option.label === "string" ? (
-              <Text style={[styles.label, isActive && styles.labelActive]}>
+              <Text
+                style={[
+                  styles.label,
+                  size === "lg" && styles.labelLg,
+                  isActive && styles.labelActive,
+                ]}
+              >
                 {option.label}
               </Text>
             ) : (
@@ -112,6 +129,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingHorizontal: 12,
   },
+  // 溝の padding 2 を足して 44pt
+  segmentLg: {
+    minHeight: 40,
+  },
   segmentFill: {
     flex: 1,
     alignItems: "center",
@@ -123,6 +144,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: toggleLabelColor(false),
+  },
+  labelLg: {
+    fontSize: 14,
   },
   labelActive: {
     color: toggleLabelColor(true),

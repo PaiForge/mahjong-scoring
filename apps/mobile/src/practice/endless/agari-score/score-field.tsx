@@ -7,21 +7,27 @@ import {
   scoreSelectOptions,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import type { UseScorePracticeAnswerFormResult } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
+import type { ScoreInputMode } from "@mahjong-scoring/features/settings/score-input";
 
 import { colors } from "../../../lib/theme";
 import { ScoreOptionSelect } from "../../components/score-option-select";
+import { ScoreTilePicker } from "../../components/score-tile-picker";
 
 /**
  * 回答フォームの点数の欄（web の `ScoreField`）
  * 点数の欄
  *
- * 点数の選択肢の形（`availableScores.type`）で欄が変わる。子ツモの分割入力
- * （組の欄）は「300/500」だけでは並び順が分からない初学者のため、ラベルに
- * 「子から / 親から」の順を添える。
+ * 入力方式（`scoreInput`）が `tiles` なら {@link ScoreTilePicker} で描く（子ツモは
+ * 組のタイル）。`select` では点数の選択肢の形（`availableScores.type`）で欄が
+ * 変わる。子ツモの組の欄は「300/500」だけでは並び順が分からない初学者のため、
+ * ラベルに「子から / 親から」の順を添える。
  */
 export function ScoreField({
   form,
   disabled,
+  scoreInput,
+  isOya,
+  isTsumo,
 }: {
   readonly form: Pick<
     UseScorePracticeAnswerFormResult,
@@ -37,17 +43,42 @@ export function ScoreField({
     | "setKoTsumoPayment"
   >;
   readonly disabled: boolean;
+  readonly scoreInput: ScoreInputMode;
+  readonly isOya: boolean;
+  readonly isTsumo: boolean;
 }) {
   const t = useTranslations("agariScore");
   const { availableScores } = form;
+  const label =
+    availableScores.type === "single"
+      ? t("form.labels.score")
+      : t("form.labels.koTsumoScore");
   return (
     <View>
-      <Text style={styles.label}>
-        {availableScores.type === "single"
-          ? t("form.labels.score")
-          : t("form.labels.koTsumoScore")}
-      </Text>
-      {availableScores.type === "koTsumoSplit" ? (
+      <Text style={styles.label}>{label}</Text>
+      {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
+        <ScoreTilePicker
+          available={availableScores}
+          isOya={isOya}
+          isTsumo={isTsumo}
+          value={
+            availableScores.type === "koTsumoCombined"
+              ? form.koTsumoPayment && koTsumoPaymentKey(form.koTsumoPayment)
+              : form.score?.toString()
+          }
+          onChange={(v) => {
+            if (availableScores.type === "single") {
+              form.setScore(Number(v));
+              return;
+            }
+            const payment = koTsumoPaymentOfKey(availableScores.payments, v);
+            if (payment) form.setKoTsumoPayment(payment);
+          }}
+          suffix={form.isOyaTsumo ? t("form.options.all") : ""}
+          disabled={disabled}
+          accessibilityLabel={label}
+        />
+      ) : availableScores.type === "koTsumoSplit" ? (
         <View style={styles.koTsumoRow}>
           <View style={styles.koTsumoColumn}>
             <ScoreOptionSelect
