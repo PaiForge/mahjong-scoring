@@ -8,13 +8,24 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "次にやること"
     timeout: 20000
+# 点数は既定でタイルで答える（選択欄は設定で選ぶ。ゲストは設定を開けない）ので、
+# 練習の設定で「翻数と符も回答する」をオンにして翻数の選択欄で確かめる。ゲストの
+# 回数制限（1 日 1 問）に掛からないよう、盤面はここで 1 回だけ開く
 - runFlow:
     file: _open-link.yaml
     env:
-      LINK: "mahjong-scoring://practice/agari-score/play"
+      LINK: "mahjong-scoring://practice/agari-score"
+- extendedWaitUntil:
+    visible: "翻数と符も回答する"
+    timeout: 10000
+- tapOn: "翻数と符も回答する"
+- scrollUntilVisible:
+    element: "開始する"
+    direction: DOWN
+- tapOn: "開始する"
 - extendedWaitUntil:
     visible:
-      id: "screen-back"
+      id: "han-select"
     timeout: 15000
 # 中身なりの高さ: ドラの見方（InfoModal）
 - tapOn: "詳細情報を表示"
@@ -45,25 +56,7 @@ appId: help.mahjong.score
       - waitForAnimationToEnd
       - assertNotVisible: "ドラの見方"
       - assertVisible: "わからない"
-# 中身なりの一覧から選ぶ: 翻数の選択欄（SelectField）。選ぶとシートが閉じて値が入る。
-# 点数は既定ではタイルで答える（選択欄は設定で選ぶ。ゲストは設定を開けない）ので、
-# 練習の設定で「翻数と符も回答する」をオンにして翻数の欄で確かめる
-- runFlow:
-    file: _open-link.yaml
-    env:
-      LINK: "mahjong-scoring://practice/agari-score"
-- extendedWaitUntil:
-    visible: "翻数と符も回答する"
-    timeout: 10000
-- tapOn: "翻数と符も回答する"
-- scrollUntilVisible:
-    element: "開始する"
-    direction: DOWN
-- tapOn: "開始する"
-- extendedWaitUntil:
-    visible:
-      id: "han-select"
-    timeout: 15000
+# 中身なりの一覧から選ぶ: 翻数の選択欄（SelectField）。選ぶとシートが閉じて値が入る
 - tapOn:
     id: "han-select"
 - extendedWaitUntil:
@@ -79,6 +72,10 @@ appId: help.mahjong.score
     id: "han-select-option-.*"
 - takeScreenshot: sheet-select-chosen
 # 固定の高さ・注目セルへ寄せるスクロール枠: 点数表（ReferenceModal）
+# 翻数・符の欄とタイルのぶん「わからない」は画面の外にある
+- scrollUntilVisible:
+    element: "わからない"
+    direction: DOWN
 - tapOn: "わからない"
 - extendedWaitUntil:
     visible: "点数表を確認"
