@@ -17,7 +17,7 @@ import {
   type ScoreRange,
 } from "@mahjong-scoring/core";
 
-import { getAvailableScores } from "./get-available-scores";
+import { getAvailableScores, splitScoresByBand } from "./get-available-scores";
 import type { AvailableScoresParams } from "./get-available-scores";
 
 describe("getAvailableScores", () => {
@@ -436,5 +436,69 @@ describe("getAvailableScores", () => {
       expect(available.koScores).toContain(2000);
       expect(available.oyaScores).toContain(3900);
     });
+  });
+});
+
+describe("splitScoresByBand", () => {
+  const cases = [
+    { name: "子ロン", isOya: false, isTsumo: false },
+    { name: "親ロン", isOya: true, isTsumo: false },
+    { name: "親ツモ", isOya: true, isTsumo: true },
+    { name: "子ツモ（組）", isOya: false, isTsumo: true },
+  ] as const;
+
+  for (const { name, isOya, isTsumo } of cases) {
+    it(`${name}: 範囲で絞った選択肢と同じ 2 つに分ける`, () => {
+      const params = { han: undefined, isOya, isTsumo, koTsumoInput: "combined" } as const;
+      const all = getAvailableScores({ ...params, scoreRange: "all" });
+      if (all.type === "koTsumoSplit") throw new Error("組の入力を渡した");
+
+      const bands = splitScoresByBand(all, isOya, isTsumo);
+
+      expect(bands.nonMangan).toEqual(
+        getAvailableScores({ ...params, scoreRange: "nonMangan" }),
+      );
+      expect(bands.manganPlus).toEqual(
+        getAvailableScores({ ...params, scoreRange: "manganPlus" }),
+      );
+    });
+  }
+
+  it("2000/3900 は満貫未満の側に入る", () => {
+    const all = getAvailableScores({
+      han: undefined,
+      isOya: false,
+      isTsumo: true,
+      scoreRange: "all",
+      koTsumoInput: "combined",
+    });
+    if (all.type !== "koTsumoCombined") throw new Error("組の入力でない");
+
+    const { nonMangan, manganPlus } = splitScoresByBand(all, false, true);
+
+    if (nonMangan.type !== "koTsumoCombined") throw new Error("組の入力でない");
+    if (manganPlus.type !== "koTsumoCombined") throw new Error("組の入力でない");
+    expect(nonMangan.payments.map(koTsumoPaymentKey)).toContain("2000/3900");
+    expect(manganPlus.payments.map(koTsumoPaymentKey)).toEqual([
+      "2000/4000",
+      "3000/6000",
+      "4000/8000",
+      "6000/12000",
+      "8000/16000",
+    ]);
+  });
+
+  it("片側へ絞った選択肢を渡すと、もう片側は空になる", () => {
+    const high = getAvailableScores({
+      han: 5,
+      isOya: false,
+      isTsumo: false,
+    });
+    if (high.type !== "single") throw new Error("単一の入力でない");
+
+    const bands = splitScoresByBand(high, false, false);
+
+    expect(bands.nonMangan).toEqual({ type: "single", scores: [] });
+    expect(bands.manganPlus).toEqual(high);
   });
 });
