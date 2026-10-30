@@ -213,7 +213,11 @@ describe("useScorePracticeAnswerForm の選択即送信", () => {
     });
 
     act(() =>
-      result.current.setKoTsumoPayment({ fromKo: 2000, fromOya: 4000 }),
+      result.current.setKoTsumoPayment({
+        type: "koTsumo",
+        fromKo: 2000,
+        fromOya: 4000,
+      }),
     );
 
     expect(onSubmit).toHaveBeenCalledWith(
