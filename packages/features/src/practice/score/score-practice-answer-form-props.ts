@@ -11,6 +11,7 @@ import type { ScorePracticeModeFlags } from "./generator-options";
  * 区分で答える・満貫以上は符なし」。満貫以上で符が不要になっても符の欄は
  * 消さず無効にして残す（欄が消えると、翻数を選んだ直後に触る点数と回答
  * ボタンが指の下でせり上がるため）。入力が揃うまで回答ボタンは押せない。
+ * 点数だけを問う設定で `autoSubmit` なら、点数を選んだ時点で送りボタンを出さない。
  *
  * @remarks
  * 問題が変わったときの入力リセットは、呼び出し元が `key` を変えて
@@ -23,6 +24,14 @@ export interface ScorePracticeAnswerFormProps extends Partial<ScorePracticeModeF
   readonly isOya: boolean;
   /** 回答ボタンの文言。既定は「回答する」 */
   readonly submitLabel?: string;
+  /**
+   * 点数だけを問う設定（役も翻数・符も答えない）のとき、点数を選んだ時点で
+   * 送る（既定 false）。他の欄も答える設定では渡しても効かず、ボタンで送る。
+   * 和了形の点数計算（とその体験）が立てる。聴牌形の点数計算はマスを確定する
+   * 流れが別で、マスごとのフォームに「このマスに当てはめる」のボタンを残す。
+   * 理由は features の `useScorePracticeAnswerForm` の `autoSubmit`
+   */
+  readonly autoSubmit?: boolean;
   /**
    * 「役」のラベル行を役の回答が不要でも出す。「役なし」の置き場をツモ・
    * ロンの別によらず確保し、フォームの高さを変えないため（聴牌形の点数計算が

@@ -133,6 +133,7 @@ export function TryBoard({
                 onSubmit={handleSubmit}
                 isTsumo={TRY_QUESTION.isTsumo}
                 isOya={isOya(TRY_QUESTION.jikaze)}
+                autoSubmit
               />
             ) : (
               <ScoreAnswerFormSkeleton />

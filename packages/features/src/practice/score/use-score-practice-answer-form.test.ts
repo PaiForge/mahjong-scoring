@@ -185,3 +185,58 @@ describe("useScorePracticeAnswerForm", () => {
     });
   });
 });
+
+describe("useScorePracticeAnswerForm の選択即送信", () => {
+  it("点数を選んだ時点で送り、回答ボタンを出さない", () => {
+    const { result, onSubmit } = render(undefined, {
+      requireHanFu: false,
+      autoSubmit: true,
+    });
+    expect(result.current.showsSubmitButton).toBe(false);
+
+    act(() => result.current.setScore(8000));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({
+      han: undefined,
+      fu: undefined,
+      score: 8000,
+      yakus: [],
+    });
+  });
+
+  it("子ツモの組を選んだ時点で送る", () => {
+    const { result, onSubmit } = render(undefined, {
+      requireHanFu: false,
+      isTsumo: true,
+      autoSubmit: true,
+    });
+
+    act(() =>
+      result.current.setKoTsumoPayment({ fromKo: 2000, fromOya: 4000 }),
+    );
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ scoreFromKo: 2000, scoreFromOya: 4000 }),
+    );
+  });
+
+  it("翻数と符を答える設定で立てても、翻数が未選択なら点数だけでは送らない", () => {
+    // フォームは他の欄がある設定では立てないが、立てても揃うまでは送らない
+    const { result, onSubmit } = render(undefined, {
+      requireHanFu: true,
+      autoSubmit: true,
+    });
+
+    act(() => result.current.setScore(2000));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it("立てなければ点数を選んでも送らず、回答ボタンを出す", () => {
+    const { result, onSubmit } = render(undefined, { requireHanFu: false });
+    expect(result.current.showsSubmitButton).toBe(true);
+
+    act(() => result.current.setScore(8000));
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+});

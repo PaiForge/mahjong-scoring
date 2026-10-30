@@ -35,6 +35,7 @@ export function ScorePracticeAnswerForm({
   exactHan = false,
   requireFuForMangan = false,
   submitLabel,
+  autoSubmit = false,
   reserveYakuRow = false,
   noYaku,
   prefill,
@@ -47,6 +48,9 @@ export function ScorePracticeAnswerForm({
   const scoreInput = useScoreInput();
   // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
   const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
+  // 点数だけを問う設定のときだけ選んだ時点で送る（他の欄があると、点数が
+  // 最後の欄とは限らない）
+  const submitsOnSelect = autoSubmit && !requireYaku && !requireHanFu;
   const form = useScorePracticeAnswerForm({
     onSubmit,
     isTsumo,
@@ -57,6 +61,7 @@ export function ScorePracticeAnswerForm({
     kiriageMangan,
     allowDoubleYakuman,
     koTsumoInput,
+    autoSubmit: submitsOnSelect,
     prefill,
   });
 
@@ -105,16 +110,20 @@ export function ScorePracticeAnswerForm({
         scoreInput={scoreInput}
         isOya={isOya}
         isTsumo={isTsumo}
+        autoSubmit={submitsOnSelect}
       />
 
-      <Button
-        onPress={form.submit}
-        size="lg"
-        fullWidth
-        disabled={disabled || !form.isComplete}
-      >
-        {submitLabel ?? t("form.buttons.answer")}
-      </Button>
+      {/* 選択即送信なら出さない（選んだ時点で送られる） */}
+      {form.showsSubmitButton && (
+        <Button
+          onPress={form.submit}
+          size="lg"
+          fullWidth
+          disabled={disabled || !form.isComplete}
+        >
+          {submitLabel ?? t("form.buttons.answer")}
+        </Button>
+      )}
     </View>
   );
 }

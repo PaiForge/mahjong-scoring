@@ -162,3 +162,54 @@ describe("点数のタイル入力（和了形・聴牌形の点数計算）", (
     );
   });
 });
+
+describe("和了形の点数計算の選択即送信", () => {
+  it("点数だけを問う設定なら、タイルを押した時点で送り、回答ボタンを出さない", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ScorePracticeAnswerForm
+        onSubmit={onSubmit}
+        isTsumo={false}
+        isOya={false}
+        requireHanFu={false}
+        autoSubmit
+      />,
+    );
+    expect(
+      screen.queryByRole("button", { name: "form.buttons.answer" }),
+    ).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "manganPlus" }));
+    fireEvent.click(screen.getByRole("button", { name: "8000" }));
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ score: 8000, han: undefined }),
+    );
+  });
+
+  it("翻数と符も答える設定では、立てても回答ボタンで送る", () => {
+    const onSubmit = vi.fn();
+    render(
+      <ScorePracticeAnswerForm
+        onSubmit={onSubmit}
+        isTsumo={false}
+        isOya={false}
+        requireHanFu
+        autoSubmit
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("form.labels.han"), {
+      target: { value: "5" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "8000" }));
+
+    expect(onSubmit).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "form.buttons.answer" }),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ han: 5, score: 8000 }),
+    );
+  });
+});
