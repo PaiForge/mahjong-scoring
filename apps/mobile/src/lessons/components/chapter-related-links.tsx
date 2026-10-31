@@ -1,4 +1,5 @@
 import { StyleSheet, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   getChapterBySlug,
@@ -7,9 +8,12 @@ import {
 } from "@mahjong-scoring/features/curriculum/registry";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { relatedPracticeLinks } from "@mahjong-scoring/features/lessons/registry";
+import { LESSON_SCORE_PRACTICES } from "@mahjong-scoring/features/practice/score/lesson-practices";
+import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { NativeAdCard } from "../../ads/native-ad-card";
 import { useNativeAds } from "../../ads/use-native-ads";
+import { Button } from "../../components/button";
 import { SectionTitle } from "../../components/section-title";
 import { ExamCtaCard } from "../../dojo/exam-cta-card";
 import { PracticeCard } from "../../practice/components/practice-card";
@@ -27,9 +31,10 @@ import { PracticeCard } from "../../practice/components/practice-card";
  * 昇級試験の案内（{@link ExamCtaCard}。行き先は試験の説明画面と模試）を置く。
  *
  * 練習のカードの並びの末尾に広告のカードを 1 枚混ぜる（練習一覧と同じカードの
- * 形。web と同じ）。web が出す和了形の点数計算の絞り込み（カタログ外の練習）への
- * ボタンはモバイルに出さない — 和了形の点数計算は URL の絞り込み（`?yaku=` 等）を
- * 受け取らない。練習も試験も無い章（「はじめに」のセクション）では何も出さない。
+ * 形。web と同じ）。点数計算の章は、その下に章の内容そのままの出題（七対子だけ等。
+ * `LESSON_SCORE_PRACTICES`）で和了形の点数計算を始めるボタンを足す。盤面へは
+ * 章の slug を渡し、盤面が絞り込みを引く。練習も試験も無い章（「はじめに」の
+ * セクション）では何も出さない。
  *
  * @param slug レッスン（章）の slug
  * @param exclude 完了画面の次の一歩と同じ練習（重ねて出さない）
@@ -42,6 +47,9 @@ export function ChapterRelatedLinks({
   readonly exclude?: PracticeLink;
 }) {
   const t = useTranslations("lessons.related");
+  const tAll = useTranslations();
+  const router = useRouter();
+  const freePractice = LESSON_SCORE_PRACTICES[slug];
   const links = relatedPracticeLinks(slug).filter(
     (link) =>
       exclude === undefined ||
@@ -50,23 +58,41 @@ export function ChapterRelatedLinks({
   );
   const examSlug = getChapterBySlug(slug)?.examSlug;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.lessonPractices);
-  if (links.length === 0 && examSlug === undefined) return undefined;
+  const hasPractice = links.length > 0 || freePractice !== undefined;
+  if (!hasPractice && examSlug === undefined) return undefined;
 
   return (
     <>
-      {links.length > 0 && (
+      {hasPractice && (
         <View style={styles.section}>
           <SectionTitle>{t("practiceTitle")}</SectionTitle>
-          <View style={styles.list}>
-            {links.map((link) => (
-              <PracticeCard
-                key={`${link.slug}:${link.variant ?? ""}`}
-                slug={link.slug}
-                variant={link.variant}
-              />
-            ))}
-            {ad !== undefined && <NativeAdCard creative={ad} />}
-          </View>
+          {links.length > 0 && (
+            <View style={styles.list}>
+              {links.map((link) => (
+                <PracticeCard
+                  key={`${link.slug}:${link.variant ?? ""}`}
+                  slug={link.slug}
+                  variant={link.variant}
+                />
+              ))}
+              {ad !== undefined && <NativeAdCard creative={ad} />}
+            </View>
+          )}
+          {freePractice !== undefined && (
+            <Button
+              onPress={() =>
+                router.push({
+                  pathname: `${AGARI_SCORE_PRACTICE_HREF}/play`,
+                  params: { lesson: slug },
+                })
+              }
+              size="lg"
+              fullWidth
+              testID="lesson-free-practice"
+            >
+              {tAll(freePractice.labelKey)}
+            </Button>
+          )}
         </View>
       )}
       {examSlug !== undefined && <ExamCtaCard slug={examSlug} />}

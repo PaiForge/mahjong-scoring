@@ -181,6 +181,9 @@ export const IP_RATE_LIMITS = {
   // 認証なしの昇級試験の合格ライン。試験の説明画面を開くたびに読む。
   // 誰が読んでも同じ値なので、readMobilePlanOffers と同じ値で連打だけを止める
   readMobileExamGoals: { maxRequests: 120, windowMs: 600_000 },
+  // 認証なしのアプリの最低バージョン。起動時と前面に戻るたびに読む。
+  // 誰が読んでも同じ値なので、readMobilePlanOffers と同じ値で連打だけを止める
+  readMobileAppVersion: { maxRequests: 120, windowMs: 600_000 },
   // アプリの購入と復元の取引の記録。復元は持っている取引を数件まとめて
   // 送るので、その分だけ余裕を持たせる。Apple の証明書の確認を伴う
   recordAppleTransaction: { maxRequests: 30, windowMs: 600_000 },

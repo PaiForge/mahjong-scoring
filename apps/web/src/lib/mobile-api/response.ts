@@ -10,13 +10,14 @@ import { logExternalError } from "../log-error";
  *
  * ネイティブの fetch は CORS を見ないが、画面確認用の Expo の web 版
  * （localhost:8081）はブラウザから別 origin を叩き、`Authorization` ヘッダを
- * 付けるのでプリフライトも飛ぶ。この API は cookie を読まず
+ * 付けるのでプリフライトも飛ぶ（アプリの版を知らせる `X-App-*` も同じ）。この API は cookie を読まず
  * （`Access-Control-Allow-Credentials` も付けない）、トークンを持つ者しか
  * 本人として振る舞えないので、どの origin から読まれても渡せるものは増えない。
  */
 const MOBILE_CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Authorization, Content-Type",
+  "Access-Control-Allow-Headers":
+    "Authorization, Content-Type, X-App-Version, X-App-Platform",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Max-Age": "86400",
 } as const;

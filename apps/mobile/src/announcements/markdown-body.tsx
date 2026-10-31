@@ -37,7 +37,8 @@ type OpenLink = (href: string) => void;
  *
  * web と違うもの: h2 は web と同じ `SectionTitle`、本文の文字は 16pt
  * （`apps/mobile/CLAUDE.md` の方針）。本文のリンクは、アプリに同じ画面が
- * あればアプリの中で、無ければブラウザで開く（`resolveAnnouncementLink`）。
+ * あればアプリの中で、無ければブラウザで開き、価格・特商法のページへは
+ * リンクにしない（`resolveAnnouncementLink`）。
  */
 export function MarkdownBody({ content }: { readonly content: string }) {
   const router = useRouter();
@@ -49,7 +50,7 @@ export function MarkdownBody({ content }: { readonly content: string }) {
       // タブの入口（`/dojo` 等）は積まずにタブを切り替える
       if (isTabHref(target.path)) goToTab(target.path);
       else router.push(target.path);
-    } else {
+    } else if (target.kind === "browser") {
       void Linking.openURL(target.url);
     }
   };
@@ -231,6 +232,12 @@ function renderInlines(
           </Text>
         );
       case "link":
+        // 価格・特商法のページへのリンクは文字だけ出す（`resolveAnnouncementLink`）
+        if (resolveAnnouncementLink(node.url, SITE_URL).kind === "text") {
+          return (
+            <Text key={index}>{renderInlines(node.children, openLink)}</Text>
+          );
+        }
         return (
           <Text
             key={index}

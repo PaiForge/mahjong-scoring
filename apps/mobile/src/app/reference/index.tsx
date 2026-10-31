@@ -10,6 +10,8 @@ import {
   TableIcon,
 } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
+import { useGoToTab } from "../../hooks/use-go-to-tab";
+import { isTabHref } from "../../lib/tab-href";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors, radius } from "../../lib/theme";
@@ -30,6 +32,12 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
 export default function ReferenceHubScreen() {
   const t = useTranslations("reference");
   const router = useRouter();
+  const goToTab = useGoToTab();
+  // 点数表はタブにある。push するとタブ一式がもう 1 組積まれる
+  const open = (href: string) => {
+    if (isTabHref(href)) goToTab(href);
+    else router.push(href);
+  };
 
   const links = [
     {
@@ -64,7 +72,7 @@ export default function ReferenceHubScreen() {
         {links.map((link) => (
           <LinkRow
             key={link.href}
-            onPress={() => router.push(link.href)}
+            onPress={() => open(link.href)}
             leading={<View style={styles.icon}>{link.icon}</View>}
             title={link.title}
             description={link.description}

@@ -3,6 +3,12 @@ import {
   type MobileApiErrorCode,
 } from "@mahjong-scoring/features/account/mobile-api";
 
+import {
+  APP_PLATFORM_HEADER,
+  APP_VERSION_HEADER,
+} from "@mahjong-scoring/features/app-version/mobile-api";
+
+import { APP_PLATFORM, APP_VERSION } from "../app-version/app-version";
 import { SITE_URL } from "../lib/app-site-url";
 import { supabase } from "./supabase-client";
 import { showDeletionNotice } from "./use-deletion-notice";
@@ -156,6 +162,17 @@ async function settleRejectedLogin({
   }
 }
 
+/**
+ * アプリの版と OS を知らせるヘッダ（契約は `app-version/mobile-api.ts`）。
+ * 読めない値は付けない
+ */
+const APP_VERSION_HEADERS: Readonly<Record<string, string>> = {
+  ...(APP_VERSION === undefined ? {} : { [APP_VERSION_HEADER]: APP_VERSION }),
+  ...(APP_PLATFORM === undefined
+    ? {}
+    : { [APP_PLATFORM_HEADER]: APP_PLATFORM }),
+};
+
 /** 1 回の HTTP 要求 */
 function send(
   path: string,
@@ -166,6 +183,7 @@ function send(
     method: init.method ?? "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,
+      ...APP_VERSION_HEADERS,
       ...(init.body === undefined
         ? {}
         : { "Content-Type": "application/json" }),

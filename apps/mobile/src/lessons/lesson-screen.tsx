@@ -54,14 +54,14 @@ function LessonNotFound() {
  *   確認（`LessonView`。本文と入れ替わる）
  * - 確認問題を持たない章: 本文の下に完了ボタンと練習への導線。完了にしたら
  *   目次の順の次のレッスンを出し、そのまま読み進められるようにする
- * - 章末: 公開日
+ * - コラム: 完了を持たないので、本文の下に初めから次のレッスンを出す
+ *   （出さないと戻る以外の行き先が無い）
+ * - 章末: 広告 1 行と公開日（web と同じ）
  *
  * 常設の前後のレッスンへのリンクは置かない。次へ進むのは完了の後の
  * 「次のレッスン」で、置き換えて移るので、何章続けて読んでもヘッダーの戻る
- * 1 回で学習を始めた画面へ帰れる。
- *
- * web が章末に出すネイティブ広告と、本文の用語リンクが開く用語のモーダルは
- * モバイルには無い（用語は太字で示すだけ）。
+ * 1 回で学習を始めた画面へ帰れる。本文の用語は web のモーダルの代わりに
+ * 用語のシートを開く（`TermText`）。
  *
  * @param slug ルートの slug（未検証）
  */
@@ -116,11 +116,10 @@ function LessonScreenContent({
       ) : (
         <View style={styles.body}>
           {guide}
-          {/* コラムは完了を持たない（ChapterKind） */}
+          {/* コラムは完了を持たない（ChapterKind）ので、次のレッスンを初めから出す */}
           {isLessonChapterSlug(slug) && <ChapterCompleteButton slug={slug} />}
-          {completed && nextSlug !== undefined && (
-            <NextLessonPreview slug={nextSlug} />
-          )}
+          {(completed || !isLessonChapterSlug(slug)) &&
+            nextSlug !== undefined && <NextLessonPreview slug={nextSlug} />}
           <ChapterRelatedLinks slug={slug} />
           {footer}
         </View>

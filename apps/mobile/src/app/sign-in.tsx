@@ -140,6 +140,9 @@ export default function SignInScreen() {
           </TextLink>
         </View>
       </View>
+      {/* web はログインに Google を持ち、アプリは持たない。web で Google だけを
+          使ってきた人も、パスワードを足せば同じアカウントに入れる */}
+      <Text style={styles.hint}>{t("googleAccountHint")}</Text>
     </Screen>
   );
 }
@@ -164,5 +167,10 @@ const styles = StyleSheet.create({
   signUpLead: {
     fontSize: 15,
     color: colors.surface600,
+  },
+  hint: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: colors.surface500,
   },
 });
