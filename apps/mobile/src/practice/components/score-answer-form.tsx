@@ -16,6 +16,7 @@ import {
   scoreSelectOptions,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
+import { ScoreLabelRow } from "./score-label-row";
 import { ScoreOptionSelect } from "./score-option-select";
 import { ScoreTilePicker } from "./score-tile-picker";
 
@@ -29,6 +30,8 @@ import { ScoreTilePicker } from "./score-tile-picker";
  * {@link ScoreTilePicker}、`select` なら選択欄で描く。回答直後の正誤は、タイルなら
  * 選んだタイル、選択欄なら欄自身の枠と地の色で返し、トレーニングの正解は
  * {@link import("./revealed-score-answer").RevealedScoreAnswer} が別に出す。
+ * どの分岐でも点数のラベル行（{@link ScoreLabelRow}）の右端に入力方式の
+ * 切り替えボタンが付く。
  */
 export function ScoreAnswerForm({
   isOya,
@@ -85,11 +88,14 @@ export function ScoreAnswerForm({
     <View style={styles.form}>
       {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
         <View>
-          <Text style={styles.label}>
-            {availableScores.type === "koTsumoCombined"
-              ? t("koTsumoScore")
-              : t("selectScore")}
-          </Text>
+          <ScoreLabelRow
+            label={
+              availableScores.type === "koTsumoCombined"
+                ? t("koTsumoScore")
+                : t("selectScore")
+            }
+            disabled={disabled}
+          />
           <ScoreTilePicker
             available={availableScores}
             isOya={isOya}
@@ -119,9 +125,16 @@ export function ScoreAnswerForm({
           />
         </View>
       ) : availableScores.type === "koTsumoSplit" ? (
+        // この分岐だけ欄全体のラベルが無く「子から」「親から」の 2 つになる。切り替えの
+        // ボタンのために行を 1 本足すと他の分岐と高さが揃わないので、右の列（親から）の
+        // ラベル行の右端に置く。select + 分割は設定ページで選んだ人しか辿れないが、
+        // タイルへ戻る入口を全変種で揃える。左の列のラベルは、ボタンを含む右の行と
+        // 高さを揃えるため同じ最小の高さの箱に入れる
         <View style={styles.koTsumoRow}>
           <View style={styles.koTsumoColumn}>
-            <Text style={styles.label}>{t("fromKo")}</Text>
+            <View style={styles.plainLabelRow}>
+              <Text style={styles.label}>{t("fromKo")}</Text>
+            </View>
             <ScoreOptionSelect
               value={scoreFromKo?.toString()}
               onChange={(v) => selectFromKo(Number(v))}
@@ -135,7 +148,7 @@ export function ScoreAnswerForm({
           </View>
           <Text style={styles.slash}>/</Text>
           <View style={styles.koTsumoColumn}>
-            <Text style={styles.label}>{t("fromOya")}</Text>
+            <ScoreLabelRow label={t("fromOya")} disabled={disabled} />
             <ScoreOptionSelect
               value={scoreFromOya?.toString()}
               onChange={(v) => selectFromOya(Number(v))}
@@ -152,7 +165,7 @@ export function ScoreAnswerForm({
         // 「300/500」だけでは並び順が分からない初学者のため、ラベルに
         // 「子から / 親から」の順を添える
         <View>
-          <Text style={styles.label}>{t("koTsumoScore")}</Text>
+          <ScoreLabelRow label={t("koTsumoScore")} disabled={disabled} />
           <ScoreOptionSelect
             value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
             onChange={(key) => {
@@ -172,7 +185,7 @@ export function ScoreAnswerForm({
         </View>
       ) : (
         <View>
-          <Text style={styles.label}>{t("selectScore")}</Text>
+          <ScoreLabelRow label={t("selectScore")} disabled={disabled} />
           <ScoreOptionSelect
             value={score?.toString()}
             onChange={(v) => selectScore(Number(v))}
@@ -215,8 +228,13 @@ const styles = StyleSheet.create({
   koTsumoColumn: {
     flex: 1,
   },
-  label: {
+  /** 右の列の {@link ScoreLabelRow}（28 のボタンを含む）と同じ高さ・余白にする */
+  plainLabelRow: {
+    minHeight: 28,
     marginBottom: 8,
+    justifyContent: "center",
+  },
+  label: {
     fontSize: 14,
     fontWeight: "700",
     color: colors.surface700,

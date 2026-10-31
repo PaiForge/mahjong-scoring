@@ -10,6 +10,7 @@ import type { UseScorePracticeAnswerFormResult } from "@mahjong-scoring/features
 import type { ScoreInputMode } from "@mahjong-scoring/features/settings/score-input";
 
 import { colors } from "../../../lib/theme";
+import { ScoreLabelRow } from "../../components/score-label-row";
 import { ScoreOptionSelect } from "../../components/score-option-select";
 import { ScoreTilePicker } from "../../components/score-tile-picker";
 
@@ -20,7 +21,8 @@ import { ScoreTilePicker } from "../../components/score-tile-picker";
  * 入力方式（`scoreInput`）が `tiles` なら {@link ScoreTilePicker} で描く（子ツモは
  * 組のタイル）。`select` では点数の選択肢の形（`availableScores.type`）で欄が
  * 変わる。子ツモの組の欄は「300/500」だけでは並び順が分からない初学者のため、
- * ラベルに「子から / 親から」の順を添える。
+ * ラベルに「子から / 親から」の順を添える。ラベル行（{@link ScoreLabelRow}）の
+ * 右端に入力方式の切り替えボタンが付く。
  */
 export function ScoreField({
   form,
@@ -58,7 +60,7 @@ export function ScoreField({
       : t("form.labels.koTsumoScore");
   return (
     <View>
-      <Text style={styles.label}>{label}</Text>
+      <ScoreLabelRow label={label} disabled={disabled} />
       {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
         <ScoreTilePicker
           available={availableScores}
@@ -140,12 +142,6 @@ export function ScoreField({
 }
 
 const styles = StyleSheet.create({
-  label: {
-    marginBottom: 8,
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.surface700,
-  },
   koTsumoRow: {
     flexDirection: "row",
     alignItems: "center",

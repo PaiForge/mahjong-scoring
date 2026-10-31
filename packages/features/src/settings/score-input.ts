@@ -18,9 +18,11 @@
  * 種類の差で、同じ理由で `leaderboard_key` に載せず同じ土俵で比べる。
  * この設定を入れる前の記録はすべて select で入力されたもの。
  *
- * web の設定ページは会員限定（`MembersOnlyGate`）のため、web のゲストは
- * 切り替えられず既定の tiles になる（ログイン中に select を選んでから
- * ログアウトした人は select のまま）。モバイルの設定はゲストも変えられる。
+ * 切り替える入口は 2 つで、どちらも同じ表示設定ストアの `scoreInput` を書く:
+ * 設定ページの「点数を選択欄から選ぶ」と、練習の点数の欄のラベル行の右端にある
+ * 切り替えボタン（web `ScoreInputToggleButton`、モバイルも同名）。web の設定ページは
+ * 会員限定（`MembersOnlyGate`）だが、回答欄のボタンはゲストにも出るので、web の
+ * ゲストも select に戻せる（localStorage に残る）。モバイルの設定はゲストも変えられる。
  */
 export type ScoreInputMode = "tiles" | "select";
 
@@ -28,6 +30,6 @@ export type ScoreInputMode = "tiles" | "select";
  * 候補が少なく 1 タップで答えられる tiles を既定にする
  *
  * 既存の利用者も、保存値が無ければ次に開いたときからタイルになる
- * （select に戻すには設定の「点数を選択欄から選ぶ」）。
+ * （select に戻すには設定の「点数を選択欄から選ぶ」か、回答欄の切り替えボタン）。
  */
 export const DEFAULT_SCORE_INPUT: ScoreInputMode = "tiles";

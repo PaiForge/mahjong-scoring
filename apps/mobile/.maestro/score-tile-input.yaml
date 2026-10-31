@@ -7,6 +7,8 @@
 #    タイルは墨の枠と内側の線で示され、満貫未満へ戻すと切り替えのボタンに
 #    「満貫以上 · <選んだ点数>」が添えられる（隠れた側の値で送れることを見せる）。
 #    タイル群の高さは多いほうの帯ぶん確保され、切り替えても下のボタンが動かない
+# 3. 点数の欄の右上の切り替えボタン: 押すと選択欄（score-select の id）になり、もう一度押すと
+#    タイル（score-tiles）に戻る
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -90,3 +92,21 @@ appId: help.mahjong.score
     element: "回答する"
     direction: DOWN
 - takeScreenshot: score-tile-input-hidden-selection
+# 3. 点数の欄の右上の切り替えボタン: 選択欄とタイルを行き来する
+- scrollUntilVisible:
+    element:
+      id: "score-input-toggle"
+    direction: UP
+- tapOn:
+    id: "score-input-toggle"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "score-select"
+- assertNotVisible:
+    id: "score-tiles"
+- takeScreenshot: score-tile-input-select
+- tapOn:
+    id: "score-input-toggle"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "score-tiles"

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ColorValue } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import Svg, { Path, Rect } from "react-native-svg";
 
 import { colors } from "../../lib/theme";
 
@@ -199,6 +199,35 @@ export function TilesIcon(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M9 6v12m6-12v12M5 18h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </Outline>
+  );
+}
+
+/**
+ * 選択欄（ドロップダウン）アイコン。点数の入力方式の切り替えで select 側を表す
+ * （角丸の矩形の中に下向きの山形。web の `DropdownIcon` と同じ path）
+ */
+export function DropdownIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M4 7a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" />
+      <Path d="M9 11l3 3 3-3" />
+    </Outline>
+  );
+}
+
+/**
+ * タイルの並び（2×2）アイコン。点数の入力方式の切り替えでタイル側を表す。
+ * 面子の `TilesIcon` とは別物 — `TilesIcon` は面子（3 枚の牌）の記号で面子分解の
+ * 導線に使っており、点数のタイルに流用すると意味が割れる（web の `GridIcon` と同じ図形）
+ */
+export function GridIcon(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Rect x="4" y="4" width="7" height="7" rx="1" />
+      <Rect x="13" y="4" width="7" height="7" rx="1" />
+      <Rect x="4" y="13" width="7" height="7" rx="1" />
+      <Rect x="13" y="13" width="7" height="7" rx="1" />
     </Outline>
   );
 }

@@ -38,7 +38,7 @@ describe("ScoreAnswerForm autoSubmit", () => {
     );
 
     // 自動送信時は「回答する」ボタンを出さない
-    expect(screen.queryByRole("button")).toBeNull();
+    expect(screen.queryByRole("button", { name: "answer" })).toBeNull();
 
     const select = screen.getByRole("combobox");
     const value = firstRealOptionValue(select);
@@ -125,7 +125,7 @@ describe("ScoreAnswerForm autoSubmit", () => {
     });
     expect(onSubmit).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole("button", { name: "answer" }));
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
@@ -230,6 +230,44 @@ describe("ScoreAnswerForm の正誤フィードバック", () => {
     for (const select of screen.getAllByRole("combobox")) {
       expect(select.className).toContain("border-destructive");
     }
+  });
+});
+
+describe("ScoreAnswerForm の入力方式の切り替え", () => {
+  it("タイルで描いた欄の切り替えボタンを押すと select に変わる", () => {
+    useDisplaySettingsStore.setState({ scoreInput: "tiles" });
+    render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={false}
+        han={3}
+        onSubmit={() => {}}
+        translationNamespace="x"
+      />,
+    );
+    expect(screen.queryByRole("combobox")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "switchToSelect" }));
+
+    expect(screen.getByRole("combobox")).toBeDefined();
+    expect(screen.getByRole("button", { name: "switchToTiles" })).toBeDefined();
+  });
+
+  it("子ツモの分割入力では「親から」のラベル行にだけボタンを置く", () => {
+    useDisplaySettingsStore.setState({ koTsumoInput: "split" });
+    render(
+      <ScoreAnswerForm
+        isOya={false}
+        isTsumo={true}
+        han={3}
+        onSubmit={() => {}}
+        translationNamespace="x"
+      />,
+    );
+
+    expect(
+      screen.getAllByRole("button", { name: "switchToTiles" }),
+    ).toHaveLength(1);
   });
 });
 
