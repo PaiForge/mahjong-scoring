@@ -27,6 +27,8 @@ export const AGARI_SCORE_TOUR_ID = {
   fu: "score-fu",
   /** 点数の選択欄（子のツモは子・親の 2 つ） */
   score: "score-score",
+  /** 点数の入力方式（タイル / 選択欄）の切り替えボタン */
+  scoreInput: "score-input-mode",
   /** 回答ボタン */
   submit: "score-submit",
   /** 「わからない」（無回答のまま正解を開示する） */
