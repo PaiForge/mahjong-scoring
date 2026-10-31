@@ -22,10 +22,10 @@ import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { DisplaySettingsSection } from "../../preferences/display-settings-section";
 import { MembersOnlyGate } from "../../preferences/members-only-gate";
+import { PracticeSettingsSection } from "../../preferences/practice-settings-section";
 import { PreferenceAnchorProvider } from "../../preferences/preference-anchor";
 import { PrivacySettingsSection } from "../../preferences/privacy-settings-section";
 import { RuleSettingsSection } from "../../preferences/rule-settings-section";
-import { TrainingSettingsSection } from "../../preferences/training-settings-section";
 
 export default function PreferencesScreen() {
   const t = useTranslations("settings");
@@ -41,7 +41,7 @@ export default function PreferencesScreen() {
           </View>
           <View style={styles.section}>
             <SectionTitle>{t("trainingSectionTitle")}</SectionTitle>
-            <TrainingSettingsSection />
+            <PracticeSettingsSection />
           </View>
           <View style={styles.section}>
             <SectionTitle>{t("displaySectionTitle")}</SectionTitle>

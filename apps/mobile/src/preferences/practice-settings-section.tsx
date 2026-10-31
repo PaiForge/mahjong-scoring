@@ -17,7 +17,7 @@ import {
  * 出題内容も正解判定も変わらず、チャレンジ（制限時間あり）にも影響しない
  * （web の `TrainingSettingsSection`）。
  */
-export function TrainingSettingsSection() {
+export function PracticeSettingsSection() {
   const t = useTranslations("settings");
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const setAutoAdvanceOnCorrect = useTrainingSettingsStore(
