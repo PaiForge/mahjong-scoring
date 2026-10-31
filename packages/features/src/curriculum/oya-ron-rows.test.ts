@@ -39,6 +39,14 @@ describe("buildOyaRonRows", () => {
     ]);
   });
 
+  // 章は「26マスのうち14マス」と本文で言い切っている
+  it("満貫未満の点数が載るマスは26", () => {
+    const scored = buildOyaRonRows().flatMap((row) =>
+      row.cells.filter((cell) => cell.kind === "score"),
+    );
+    expect(scored).toHaveLength(26);
+  });
+
   it("章の例: 30符1翻はちょうど1.5倍、30符2翻はずれる", () => {
     const row30 = buildOyaRonRows().find((row) => row.fu === 30);
     expect(row30?.cells[0]).toMatchObject({
