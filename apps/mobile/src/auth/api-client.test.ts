@@ -22,11 +22,19 @@ vi.mock("./supabase-client", () => ({
 }));
 // 実物は expo-constants を読む
 vi.mock("../lib/app-site-url", () => ({ SITE_URL: "https://example.test" }));
+// 実物は expo-constants と react-native を読む
+vi.mock("../app-version/app-version", () => ({
+  APP_VERSION: "1.0.0",
+  APP_PLATFORM: "ios",
+}));
 vi.mock("./use-deletion-notice", () => ({
   showDeletionNotice: mocks.showDeletionNotice,
 }));
 
 const { callMobileApi, onAccountDeleted } = await import("./api-client");
+
+/** アプリの版と OS を知らせるヘッダ（上のモックの値） */
+const APP_HEADERS = { "X-App-Version": "1.0.0", "X-App-Platform": "ios" };
 
 function session(accessToken: string) {
   return { user: { id: "user-a" }, access_token: accessToken };
@@ -52,7 +60,7 @@ describe("callMobileApi", () => {
     expect(mocks.fetch).toHaveBeenCalledWith(
       "https://example.test/api/x",
       expect.objectContaining({
-        headers: { Authorization: "Bearer token-1" },
+        headers: { Authorization: "Bearer token-1", ...APP_HEADERS },
       }),
     );
   });
@@ -85,7 +93,7 @@ describe("callMobileApi", () => {
     expect(mocks.fetch).toHaveBeenLastCalledWith(
       "https://example.test/api/x",
       expect.objectContaining({
-        headers: { Authorization: "Bearer token-2" },
+        headers: { Authorization: "Bearer token-2", ...APP_HEADERS },
       }),
     );
     expect(mocks.signOut).not.toHaveBeenCalled();

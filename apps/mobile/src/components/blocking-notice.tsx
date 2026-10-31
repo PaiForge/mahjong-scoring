@@ -10,7 +10,7 @@ import { colors } from "../lib/theme";
  *
  * アプリをそのまま使い続けられないとき（描画の失敗・最低バージョン未満）に、
  * 見出し・説明・操作だけを画面の中央に置く。ヘッダーもタブも持たないので、
- * 抜け出す操作は `children` のボタンで必ず渡す。
+ * 次に取れる操作は `children` のボタンで渡す。
  */
 export function BlockingNotice({
   title,

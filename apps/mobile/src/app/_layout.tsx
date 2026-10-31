@@ -4,6 +4,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { UpdateRequiredOverlay } from "../app-version/update-required-overlay";
 import { usePurchaseSync } from "../billing/use-purchase-sync";
 import { AppErrorFallback } from "../components/app-error-fallback";
 import { ToastHost } from "../components/toast";
@@ -64,6 +65,8 @@ export default function RootLayout() {
         </TileImageProvider>
         {/* 遷移をまたいで生き、どの画面の上にも出す（`showToast`） */}
         <ToastHost />
+        {/* 使えなくなった版では全面を覆う。トーストより上に置く */}
+        <UpdateRequiredOverlay />
         <StatusBar style="dark" />
       </AppIntlProvider>
     </SafeAreaProvider>
