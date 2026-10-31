@@ -73,6 +73,18 @@ export default async function SignInPage({
             {t("signUpLinkText")}
           </Link>
         </p>
+
+        {/* アプリはログインに Apple を持ち、web は持たない。アプリで Apple だけを
+            使ってきた人も、パスワードを足せば同じアカウントに入れる */}
+        <p className="max-w-sm mx-auto text-xs leading-relaxed text-surface-500">
+          {t.rich("appleAccountHint", {
+            contact: (chunks) => (
+              <Link href="/contact" className={TEXT_LINK_CLASSES}>
+                {chunks}
+              </Link>
+            ),
+          })}
+        </p>
       </div>
     </ContentContainer>
   );
