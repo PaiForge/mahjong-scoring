@@ -14,6 +14,8 @@ interface PressableSurfaceProps {
   readonly accessibilityLabel?: string;
   readonly accessibilityState?: { readonly selected?: boolean };
   readonly testID?: string;
+  /** 小さな面の押せる範囲を広げる（四辺に同じ幅。見た目の大きさは変えない） */
+  readonly hitSlop?: number;
   readonly children: ReactNode;
 }
 
@@ -34,6 +36,7 @@ export function PressableSurface({
   accessibilityLabel,
   accessibilityState,
   testID,
+  hitSlop,
   children,
 }: PressableSurfaceProps) {
   return (
@@ -44,6 +47,7 @@ export function PressableSurface({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled, ...accessibilityState }}
       testID={testID}
+      hitSlop={hitSlop}
       style={({ pressed }) => [style, pressed && !disabled && pressedStyle]}
     >
       {children}
