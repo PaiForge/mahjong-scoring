@@ -44,9 +44,29 @@ export async function OyaRonScoresGuide() {
         <GuideParagraph preLine>{t("memorizeBody1")}</GuideParagraph>
 
         <OyaRonScoreTable caption={t("tableCaption")} />
-        <GuideNote>{t("legendNote")}</GuideNote>
+        <div>
+          <GuideNote>{t("legendNote")}</GuideNote>
+          <GuideNote>{t("legendParenNote")}</GuideNote>
+        </div>
+      </GuideSection>
 
-        <GuideParagraph preLine>{t("memorizeBody2")}</GuideParagraph>
+      {/* 表から読み取れる特徴を、覚える手がかりとして箇条書きで残す */}
+      <GuideSection title={t("summaryTitle")}>
+        <ul className="list-disc space-y-1 pl-6 text-sm leading-relaxed text-surface-700">
+          <li>
+            {t("summaryCount")}
+            <ul className="mt-1 list-[circle] pl-6">
+              <li>{t("summaryCountRest")}</li>
+            </ul>
+          </li>
+          <li>{t("summaryCleanRows")}</li>
+          <li>
+            {t("summaryDirection")}
+            <ul className="mt-1 list-[circle] pl-6">
+              <li>{t("summaryDirectionExample")}</li>
+            </ul>
+          </li>
+        </ul>
       </GuideSection>
 
       {/* コラム: 切り上げ満貫を採ると、ずれるマスのうち2つが満貫に変わる */}

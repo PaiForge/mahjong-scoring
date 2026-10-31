@@ -1,3 +1,4 @@
+import { View } from "react-native";
 import { useTranslations } from "use-intl";
 import { FU_PAIRS } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
@@ -281,8 +282,24 @@ export function OyaRonScoresGuide() {
       <GuideSection title={t("memorizeTitle")}>
         <GuideParagraph>{t("memorizeBody1")}</GuideParagraph>
         <OyaRonScoreTable caption={t("tableCaption")} />
-        <GuideNote>{t("legendNote")}</GuideNote>
-        <GuideParagraph>{t("memorizeBody2")}</GuideParagraph>
+        <View>
+          <GuideNote>{t("legendNote")}</GuideNote>
+          <GuideNote>{t("legendParenNote")}</GuideNote>
+        </View>
+      </GuideSection>
+
+      {/* 表から読み取れる特徴を、覚える手がかりとして箇条書きで残す */}
+      <GuideSection title={t("summaryTitle")}>
+        <GuideBulletList
+          items={[
+            { text: t("summaryCount"), children: [t("summaryCountRest")] },
+            t("summaryCleanRows"),
+            {
+              text: t("summaryDirection"),
+              children: [t("summaryDirectionExample")],
+            },
+          ]}
+        />
       </GuideSection>
 
       {/* コラム: 切り上げ満貫を採ると、ずれるマスのうち2つが満貫に変わる */}
