@@ -30,7 +30,7 @@ export function AppErrorFallback(props: ErrorBoundaryProps) {
 }
 
 function AppErrorNotice({ error, retry }: ErrorBoundaryProps) {
-  const t = useTranslations("mobileApp.errorBoundary");
+  const t = useTranslations("mobileApp");
   const router = useRouter();
 
   useEffect(() => {
@@ -43,9 +43,12 @@ function AppErrorNotice({ error, retry }: ErrorBoundaryProps) {
   };
 
   return (
-    <BlockingNotice title={t("title")} description={t("description")}>
+    <BlockingNotice
+      title={t("errorBoundary.title")}
+      description={t("errorBoundary.description")}
+    >
       <Button onPress={() => void retry()} fullWidth testID="error-retry">
-        {t("retry")}
+        {t("errorBoundary.retry")}
       </Button>
       <Button
         onPress={goHome}
@@ -53,7 +56,7 @@ function AppErrorNotice({ error, retry }: ErrorBoundaryProps) {
         fullWidth
         testID="error-go-home"
       >
-        {t("home")}
+        {t("goHome")}
       </Button>
     </BlockingNotice>
   );
