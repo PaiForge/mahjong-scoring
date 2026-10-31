@@ -75,6 +75,11 @@ export function AgariScoreSpotlightTour({
       description: t("score.description", answerFieldsOf(requireHanFu)),
     },
     {
+      targetId: AGARI_SCORE_TOUR_ID.scoreInput,
+      title: t("scoreInput.title"),
+      description: t("scoreInput.description"),
+    },
+    {
       targetId: AGARI_SCORE_TOUR_ID.submit,
       title: t("submit.title"),
       description: t("submit.description"),
