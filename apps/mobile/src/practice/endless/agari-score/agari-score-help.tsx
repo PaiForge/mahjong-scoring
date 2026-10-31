@@ -164,6 +164,12 @@ export function AgariScoreOperationHelp({
       title: t("score.title"),
       description: t("score.description", answerFieldsOf(requireHanFu)),
     },
+    // 点数の欄の右上の切り替えボタン。ボタンの説明は地の文に置かず「?」に逃がす
+    {
+      key: "scoreInput",
+      title: t("scoreInput.title"),
+      description: t("scoreInput.description"),
+    },
     {
       key: "submit",
       title: t("submit.title"),
