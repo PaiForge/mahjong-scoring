@@ -34,6 +34,7 @@ const PORTED_LESSON_SLUGS = [
   "fu-doubling",
   "ron-to-tsumo",
   "tsumo-payments",
+  "oya-ron-scores",
 ] as const satisfies readonly CurriculumChapterSlug[];
 
 /** モバイルで開けるレッスンの slug */
