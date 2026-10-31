@@ -323,6 +323,17 @@ const CURRICULUM_REGISTRY = [
     practiceLinks: [practiceLink("score-table", "all")],
     i18nKey: "learnCurriculum.chapters.tsumoPayments",
   },
+  {
+    slug: "oya-ron-scores",
+    publishedAt: "2026-11-01",
+    section: "memorization",
+    order: 230,
+    // 親に絞った点数表早引きの満貫未満。この章が覚えておけと言う「1.5倍から
+    // ずれるマス」はすべて満貫未満の親ロンにあり、親のセルを引く練習が
+    // そのまま腕試しになる
+    practiceLinks: [practiceLink("score-table", "oya_non_mangan")],
+    i18nKey: "learnCurriculum.chapters.oyaRonScores",
+  },
 ] as const satisfies readonly CurriculumChapterEntry[];
 
 /** 章スラッグ — `/lessons/<slug>` の slug 部分に対応 */

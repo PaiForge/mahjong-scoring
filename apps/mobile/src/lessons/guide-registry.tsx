@@ -18,6 +18,7 @@ import {
 } from "./guides/score-guides";
 import {
   FuDoublingGuide,
+  OyaRonScoresGuide,
   RonToTsumoGuide,
   TsumoPaymentsGuide,
 } from "./guides/memorization-guides";
@@ -53,6 +54,7 @@ const LESSON_GUIDES: Readonly<Record<PortedLessonSlug, () => ReactNode>> = {
   "fu-doubling": () => <FuDoublingGuide />,
   "ron-to-tsumo": () => <RonToTsumoGuide />,
   "tsumo-payments": () => <TsumoPaymentsGuide />,
+  "oya-ron-scores": () => <OyaRonScoresGuide />,
 };
 
 /**

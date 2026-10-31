@@ -32,6 +32,7 @@ import furoScore from "./ja/furo-score.json";
 import fuDoubling from "./ja/fu-doubling.json";
 import tsumoPayments from "./ja/tsumo-payments.json";
 import ronToTsumo from "./ja/ron-to-tsumo.json";
+import oyaRonScores from "./ja/oya-ron-scores.json";
 import totalFu from "./ja/total-fu.json";
 import yaku from "./ja/yaku.json";
 import reference from "./ja/reference.json";
@@ -137,6 +138,7 @@ export const messages = {
   fuDoubling,
   tsumoPayments,
   ronToTsumo,
+  oyaRonScores,
   totalFu,
   yaku,
   reference,

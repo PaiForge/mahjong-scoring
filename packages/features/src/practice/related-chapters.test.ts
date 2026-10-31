@@ -27,7 +27,7 @@ describe("chaptersLinkingToPractice", () => {
   });
 
   it("バリアント違いのリンクを練習単位に畳む", () => {
-    // 点数表早引きは5つの章がそれぞれ別のバリアントで送るが、戻る先は
+    // 点数表早引きは6つの章がそれぞれ別のバリアントで送るが、戻る先は
     // どれも「その章」なので章は重複せず、バリアントの違いでも分かれない
     const chapters = chaptersLinkingToPractice("score-table");
     expect(chapters).toEqual([
@@ -36,6 +36,7 @@ describe("chaptersLinkingToPractice", () => {
       "fu-doubling",
       "ron-to-tsumo",
       "tsumo-payments",
+      "oya-ron-scores",
     ]);
     expect(new Set(chapters).size).toBe(chapters.length);
   });

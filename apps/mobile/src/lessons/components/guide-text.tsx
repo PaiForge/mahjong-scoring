@@ -66,22 +66,54 @@ export function GuideOrderedList({
   );
 }
 
+/** 子の項目を1段だけ持つ点付きリストの項目 */
+export interface GuideBulletItem {
+  readonly text: string;
+  readonly children: readonly string[];
+}
+
 /**
  * 教本の点付きリスト（web の `list-disc` の `<ul>`）
+ *
+ * 項目に {@link GuideBulletItem} を渡すと、その下に1段字下げした白丸の
+ * 項目を並べる（web の `list-[circle]` を入れ子にした `<ul>`）。
  */
 export function GuideBulletList({
   items,
 }: {
-  readonly items: readonly string[];
+  readonly items: readonly (string | GuideBulletItem)[];
 }) {
   return (
     <View style={styles.list}>
-      {items.map((item, index) => (
-        <View key={index} style={styles.listItem}>
-          <Text style={styles.listMarker}>{"•"}</Text>
-          <Text style={styles.listText}>{item}</Text>
-        </View>
-      ))}
+      {items.map((item, index) =>
+        typeof item === "string" ? (
+          <BulletRow key={index} marker={"•"} text={item} />
+        ) : (
+          <View key={index} style={styles.list}>
+            <BulletRow marker={"•"} text={item.text} />
+            <View style={[styles.list, styles.nestedList]}>
+              {item.children.map((child, childIndex) => (
+                <BulletRow key={childIndex} marker={"◦"} text={child} />
+              ))}
+            </View>
+          </View>
+        ),
+      )}
+    </View>
+  );
+}
+
+function BulletRow({
+  marker,
+  text,
+}: {
+  readonly marker: string;
+  readonly text: string;
+}) {
+  return (
+    <View style={styles.listItem}>
+      <Text style={styles.listMarker}>{marker}</Text>
+      <Text style={styles.listText}>{text}</Text>
     </View>
   );
 }
@@ -140,6 +172,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     paddingLeft: 8,
+  },
+  nestedList: {
+    paddingLeft: 24,
   },
   listMarker: {
     minWidth: 16,

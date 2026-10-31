@@ -14,6 +14,10 @@ import {
   type FuPair,
   type FuPairCell,
 } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
+import {
+  buildOyaRonRows,
+  type OyaRonCell,
+} from "@mahjong-scoring/features/curriculum/oya-ron-rows";
 import { buildRonHalvingRows } from "@mahjong-scoring/features/curriculum/ron-halving-rows";
 import { buildTsumoSplitRows } from "@mahjong-scoring/features/curriculum/tsumo-payment-rows";
 import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
@@ -168,6 +172,70 @@ export function FuPairScoreTable({
           })),
         ]}
         rows={[renderRow(pair.low, rows.low), renderRow(pair.high, rows.high)]}
+      />
+    </View>
+  );
+}
+
+/**
+ * 満貫未満の親ロンの表で、子のロンの1.5倍にならないセルに地を敷いたもの
+ * （web の `OyaRonScoreTable`）
+ * 親ロンのずれ表
+ *
+ * 地の敷き方は {@link FuPairScoreTable} と同じ（モバイルの表はセルの地を
+ * 変えられないので、値の周りに地を敷く）。ずれるセルには子のロンを1.5倍した
+ * 値を添え、色だけに頼らない。
+ *
+ * @param caption 表の上に出す見出し
+ */
+export function OyaRonScoreTable({ caption }: { readonly caption: string }) {
+  const t = useTranslations("learnCurriculum.scoreTable");
+
+  const renderCell = (cell: OyaRonCell): ReactNode => {
+    switch (cell.kind) {
+      case "invalid":
+        return <MutedCell>-</MutedCell>;
+      case "mangan":
+        return <StrongCell>{t("mangan")}</StrongCell>;
+      case "score":
+        return (
+          <>
+            <StrongCell>{cell.oyaRon}</StrongCell>
+            {cell.deviates && (
+              <MutedCell tone={500}>({cell.koRonTimesOneAndHalf})</MutedCell>
+            )}
+          </>
+        );
+    }
+  };
+
+  return (
+    <View style={styles.block}>
+      <TableCaption>{caption}</TableCaption>
+      <DataTable
+        columns={[
+          { label: t("colFuHan"), flex: 1.1 },
+          ...HAN_COLS.map((han) => ({
+            label: t("hanUnit", { value: han }),
+            align: "center" as const,
+          })),
+        ]}
+        rows={buildOyaRonRows().map((row) => [
+          <RowHeaderCell key="fu">
+            {t("fuUnit", { value: row.fu })}
+          </RowHeaderCell>,
+          ...row.cells.map((cell) => (
+            <View
+              key={cell.han}
+              style={[
+                styles.pairCell,
+                cell.kind === "score" && cell.deviates && styles.linked,
+              ]}
+            >
+              {renderCell(cell)}
+            </View>
+          )),
+        ])}
       />
     </View>
   );

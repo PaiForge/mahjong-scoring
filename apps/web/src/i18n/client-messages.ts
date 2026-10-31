@@ -49,6 +49,7 @@ export const SERVER_ONLY_MESSAGE_NAMESPACES = [
   "ronToTsumo",
   "fuDoubling",
   "tsumoPayments",
+  "oyaRonScores",
   "menzenMentsuScore",
   "pinfuScore",
   "furoScore",

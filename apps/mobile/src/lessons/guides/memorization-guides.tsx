@@ -1,7 +1,12 @@
+import { View } from "react-native";
 import { useTranslations } from "use-intl";
 import { FU_PAIRS } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
+import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
-import { ChapterColumn } from "../components/chapter-column";
+import {
+  ChapterColumn,
+  PreferenceSettingsNote,
+} from "../components/chapter-column";
 import { ChapterLink } from "../components/chapter-link";
 import { Formula } from "../components/formula";
 import { GuideBody, GuideSection } from "../components/guide-section";
@@ -14,6 +19,7 @@ import {
 import {
   FuPairScoreTable,
   HanDoublingTable,
+  OyaRonScoreTable,
   RonHalvingDiagram,
   RonHalvingTable,
   TsumoCarryoverDiagram,
@@ -236,6 +242,73 @@ export function TsumoPaymentsGuide() {
       </GuideSection>
 
       <ChapterColumn namespace={namespace} />
+    </GuideBody>
+  );
+}
+
+/**
+ * 親ロンでの効率的な点数の覚え方 — 点数記憶術セクション第 4 章
+ * （web の `OyaRonScoresGuide`）
+ */
+export function OyaRonScoresGuide() {
+  const namespace = "oyaRonScores.learn";
+  const t = useTranslations(namespace);
+
+  return (
+    <GuideBody>
+      {/* 規則の確認。満貫以上で規則が崩れないことは満貫の章が済ませている */}
+      <GuideSection title={t("ruleTitle")}>
+        <GuideParagraph>{t("ruleBody1")}</GuideParagraph>
+        <GuideParagraph>
+          {t.rich("ruleBody2", {
+            link: () => <ChapterLink slug="mangan-oya-ron" />,
+          })}
+        </GuideParagraph>
+      </GuideSection>
+
+      {/* 満貫未満では切り上げのせいで規則が表に出ないマスがある */}
+      <GuideSection title={t("gapTitle")}>
+        <GuideParagraph>{t("gapBody1")}</GuideParagraph>
+        <GuideParagraph>{t("gapBody2")}</GuideParagraph>
+        <GuideParagraph>{t("gapBody3")}</GuideParagraph>
+        <GuideNote>
+          {t.rich("ceilNote", {
+            link: () => <ChapterLink slug="why-scoring-is-complex" />,
+          })}
+        </GuideNote>
+      </GuideSection>
+
+      {/* 本題。ずれるマスを表の上で示し、それだけを覚える対象にする */}
+      <GuideSection title={t("memorizeTitle")}>
+        <GuideParagraph>{t("memorizeBody1")}</GuideParagraph>
+        <OyaRonScoreTable caption={t("tableCaption")} />
+        <View>
+          <GuideNote>{t("legendNote")}</GuideNote>
+          <GuideNote>{t("legendParenNote")}</GuideNote>
+        </View>
+      </GuideSection>
+
+      {/* 表から読み取れる特徴を、覚える手がかりとして箇条書きで残す */}
+      <GuideSection title={t("summaryTitle")}>
+        <GuideBulletList
+          items={[
+            { text: t("summaryCount"), children: [t("summaryCountRest")] },
+            t("summaryCleanRows"),
+            {
+              text: t("summaryDirection"),
+              children: [t("summaryDirectionExample")],
+            },
+          ]}
+        />
+      </GuideSection>
+
+      {/* コラム: 切り上げ満貫を採ると、ずれるマスのうち2つが満貫に変わる */}
+      <ChapterColumn namespace={namespace}>
+        <PreferenceSettingsNote
+          namespace={namespace}
+          anchor={PREFERENCE_ANCHORS.kiriageMangan}
+        />
+      </ChapterColumn>
     </GuideBody>
   );
 }
