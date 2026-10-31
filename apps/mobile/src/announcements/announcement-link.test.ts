@@ -43,4 +43,43 @@ describe("resolveAnnouncementLink", () => {
       url: "//other.test/lessons",
     });
   });
+
+  it("置き場所の違う画面はアプリのパスに読み替える", () => {
+    expect(resolveAnnouncementLink("/reference/score-table", SITE)).toEqual({
+      kind: "app",
+      path: "/score-table",
+    });
+    expect(resolveAnnouncementLink(`${SITE}/dashboard`, SITE)).toEqual({
+      kind: "app",
+      path: "/",
+    });
+    expect(resolveAnnouncementLink("/dojo/ranks", SITE)).toEqual({
+      kind: "app",
+      path: "/dojo",
+    });
+  });
+
+  it("リファレンスはアプリにある画面だけアプリで開く", () => {
+    expect(resolveAnnouncementLink("/reference", SITE).kind).toBe("app");
+    expect(resolveAnnouncementLink("/reference/yaku", SITE).kind).toBe("app");
+    expect(resolveAnnouncementLink("/reference/glossary/fu", SITE).kind).toBe(
+      "app",
+    );
+    expect(resolveAnnouncementLink("/reference/demo", SITE)).toEqual({
+      kind: "browser",
+      url: `${SITE}/reference/demo`,
+    });
+  });
+
+  it("価格・特商法のページはリンクにしない", () => {
+    for (const href of [
+      "/plan",
+      "/plan?from=announcement",
+      `${SITE}/tokushoho`,
+      "/mypage/plan",
+    ]) {
+      expect(resolveAnnouncementLink(href, SITE)).toEqual({ kind: "text" });
+    }
+    expect(resolveAnnouncementLink("/planet", SITE).kind).toBe("browser");
+  });
 });
