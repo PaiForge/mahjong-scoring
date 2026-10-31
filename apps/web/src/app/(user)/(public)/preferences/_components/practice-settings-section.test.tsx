@@ -1,10 +1,15 @@
 /**
- * DisplaySettingsSection の Pro の行（「手牌の上下をランダムにする」「手牌を理牌せずに表示する」）
+ * PracticeSettingsSection（設定ページの「練習」の節）の Pro の行と答え方の行
  *
  * @description
+ * Pro の行（「手牌の上下をランダムにする」「手牌を理牌せずに表示する」）
  * - Pro（practice_tools あり）: スイッチを出し、保存値を切り替える。2 行は独立
  * - Pro でない: スイッチの代わりに利用条件と料金ページへの導線を出し、保存値は消さない
  * - 特典の読み込み中: 押せないスイッチを出す
+ *
+ * 答え方の行
+ * - 点数の入力方式: スイッチのオン / オフが select / タイルの保存値になる
+ * - 子ツモの入力方式: 点数がタイルのままでも行を隠さない（リンクの着地先を残す）
  */
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -20,7 +25,7 @@ vi.mock(
 const { useAuth } = await import("@/test/auth-context-mock");
 const { useDisplaySettingsStore } =
   await import("@/app/_hooks/use-display-settings-store");
-const { DisplaySettingsSection } = await import("./display-settings-section");
+const { PracticeSettingsSection } = await import("./practice-settings-section");
 
 function profileWith(benefits: readonly string[]) {
   return { benefits };
@@ -49,7 +54,7 @@ beforeEach(() => {
   });
 });
 
-describe.each(ROWS)("DisplaySettingsSection の$name", ({ key, on, title }) => {
+describe.each(ROWS)("PracticeSettingsSection の$name", ({ key, on, title }) => {
   it("Pro ならスイッチで保存値を切り替える", () => {
     useAuth.mockReturnValue({
       user: { id: "u1" },
@@ -57,7 +62,7 @@ describe.each(ROWS)("DisplaySettingsSection の$name", ({ key, on, title }) => {
       profile: profileWith([PlanBenefit.PracticeTools]),
       isProfileLoading: false,
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     fireEvent.click(screen.getByLabelText(title));
     expect(useDisplaySettingsStore.getState()[key]).toBe(on);
   });
@@ -73,7 +78,7 @@ describe.each(ROWS)("DisplaySettingsSection の$name", ({ key, on, title }) => {
       profile: profileWith([]),
       isProfileLoading: false,
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     expect(screen.queryByLabelText(title)).toBeNull();
     expect(screen.getByText(title)).toBeTruthy();
     const links = screen.getAllByText("practiceToolsPro.link");
@@ -91,14 +96,14 @@ describe.each(ROWS)("DisplaySettingsSection の$name", ({ key, on, title }) => {
       profile: undefined,
       isProfileLoading: true,
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     expect(screen.queryByLabelText(title)).toBeNull();
     expect(screen.queryByText("practiceToolsPro.link")).toBeNull();
     expect(screen.getByText(title)).toBeTruthy();
   });
 });
 
-describe("DisplaySettingsSection の Pro の 2 行", () => {
+describe("PracticeSettingsSection の Pro の 2 行", () => {
   it("片方を切り替えても他方の保存値は変わらない", () => {
     useAuth.mockReturnValue({
       user: { id: "u1" },
@@ -106,7 +111,7 @@ describe("DisplaySettingsSection の Pro の 2 行", () => {
       profile: profileWith([PlanBenefit.PracticeTools]),
       isProfileLoading: false,
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     fireEvent.click(screen.getByLabelText("tileOrderTitle"));
     expect(useDisplaySettingsStore.getState()).toMatchObject({
       tileOrientation: "upright",
@@ -121,7 +126,7 @@ describe("DisplaySettingsSection の Pro の 2 行", () => {
   });
 });
 
-describe("DisplaySettingsSection の点数の入力方式", () => {
+describe("PracticeSettingsSection の点数の入力方式", () => {
   it("スイッチをオンにすると select、オフに戻すとタイルを保存する", () => {
     useAuth.mockReturnValue({
       user: { id: "u1" },
@@ -132,7 +137,7 @@ describe("DisplaySettingsSection の点数の入力方式", () => {
     act(() => {
       useDisplaySettingsStore.getState().setScoreInput("tiles");
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     const toggle = screen.getByLabelText("scoreInputTitle");
     expect(toggle).toHaveProperty("checked", false);
 
@@ -150,7 +155,7 @@ describe("DisplaySettingsSection の点数の入力方式", () => {
       profile: profileWith([]),
       isProfileLoading: false,
     });
-    render(<DisplaySettingsSection />);
+    render(<PracticeSettingsSection />);
     expect(useDisplaySettingsStore.getState().scoreInput).toBe("tiles");
     expect(screen.getByLabelText("koTsumoInputTitle")).toBeTruthy();
     expect(document.getElementById("ko-tsumo-input")).not.toBeNull();

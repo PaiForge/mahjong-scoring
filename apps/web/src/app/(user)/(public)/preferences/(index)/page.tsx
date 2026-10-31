@@ -16,9 +16,9 @@ import { AnchorScroll } from "../_components/anchor-scroll";
 import { BlockedUsersSection } from "../_components/blocked-users-section";
 import { DisplaySettingsSection } from "../_components/display-settings-section";
 import { MembersOnlyGate } from "../_components/members-only-gate";
+import { PracticeSettingsSection } from "../_components/practice-settings-section";
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
 import { RuleSettingsSection } from "../_components/rule-settings-section";
-import { TrainingSettingsSection } from "../_components/training-settings-section";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createTitleOnlyMetadata("settings", "pageTitle");
@@ -41,8 +41,8 @@ export default async function PreferencesPage() {
             </section>
 
             <section className="space-y-4">
-              <SectionTitle>{t("trainingSectionTitle")}</SectionTitle>
-              <TrainingSettingsSection />
+              <SectionTitle>{t("practiceSectionTitle")}</SectionTitle>
+              <PracticeSettingsSection />
             </section>
 
             <section className="space-y-4">
