@@ -149,6 +149,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `Object.groupBy` は無く、呼ぶと画面ごと落ちる（型も web のテストも通る）。アプリと共有コード
   （`packages/features`・`core`）ではルートの `eslint.config.mjs` が弾く。新しい組み込みを使う前に
   実機の Release ビルドで確かめ、無ければ同じ規則に足す
+- **iPad は対象にしない（`app.json` の `ios.supportsTablet: false`）。** 本文に最大幅の上限が無く、
+  iPad の横向き・分割表示ではボタンやカードが端まで伸び、牌（`AutoScale` は拡大しない）だけが
+  小さく浮く。iPad では iPhone 版が互換モードで動く。足すなら本文の最大幅を決めて iPad で
+  確かめてから — 一度ストアで iPad に対応すると、対応を外した版は App Store Connect が受け付けない
+- **使わない権限の用途の文言を Info.plist に残さない。** expo-secure-store は既定で Face ID の
+  用途（英語）を書き込むが、`requireAuthentication` を使わないので `faceIDPermission: false` で消している
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 

@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "scheme": "mahjong-scoring",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "help.mahjong.score",
       "usesAppleSignIn": true,
       "config": {
@@ -39,7 +39,12 @@
           "backgroundColor": "#00904a"
         }
       ],
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
       "expo-apple-authentication",
       "expo-iap",
       "expo-status-bar"
