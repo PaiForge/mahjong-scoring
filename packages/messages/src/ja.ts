@@ -89,6 +89,7 @@ import notifications from "./ja/notifications.json";
 import lessons from "./ja/lessons.json";
 import notFound from "./ja/not-found.json";
 import mobilePlan from "./ja/mobile-plan.json";
+import mobileApp from "./ja/mobile-app.json";
 
 /**
  * 日本語の辞書（全名前空間）
@@ -195,6 +196,7 @@ export const messages = {
   lessons,
   notFound,
   mobilePlan,
+  mobileApp,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

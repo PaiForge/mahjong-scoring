@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { usePurchaseSync } from "../billing/use-purchase-sync";
+import { AppErrorFallback } from "../components/app-error-fallback";
 import { ToastHost } from "../components/toast";
 import { AppIntlProvider } from "../lib/intl-provider";
 import { useAccountSync } from "../records/use-account-sync";
@@ -68,6 +69,9 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+/** 描画に失敗した画面の受け皿。expo-router がこの名前の export を拾う */
+export { AppErrorFallback as ErrorBoundary };
 
 /** 預かりの送信を回す（記録できた知らせに辞書を引くので Provider の内側に置く） */
 function AccountSync() {
