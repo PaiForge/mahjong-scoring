@@ -16,6 +16,7 @@ import {
   scoreSelectOptions,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
+import { ScoreLabelRow } from "./score-label-row";
 import { ScoreOptionSelect } from "./score-option-select";
 import { ScoreTilePicker } from "./score-tile-picker";
 
@@ -30,7 +31,8 @@ import { ScoreTilePicker } from "./score-tile-picker";
  * 回答直後の正誤は、タイルなら選んだタイル、select なら select 自身の枠と
  * 地の色で返す（{@link import("../_lib/select-class").getSelectClass} 参照）。
  * トレーニングの正解は {@link import("./revealed-score-answer").RevealedScoreAnswer} が
- * 別に出す。
+ * 別に出す。どの分岐もラベル行（{@link ScoreLabelRow}）の右端に入力方式の
+ * 切り替えボタンを置く。
  */
 export function ScoreAnswerForm({
   isOya,
@@ -101,14 +103,16 @@ export function ScoreAnswerForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {scoreInput === "tiles" && availableScores.type !== "koTsumoSplit" ? (
         <div>
-          <span
-            id={scoreLabelId}
-            className="mb-2 block text-sm font-bold text-surface-700"
-          >
-            {availableScores.type === "koTsumoCombined"
-              ? t("koTsumoScore")
-              : t("selectScore")}
-          </span>
+          <ScoreLabelRow disabled={disabled}>
+            <span
+              id={scoreLabelId}
+              className="block text-sm font-bold text-surface-700"
+            >
+              {availableScores.type === "koTsumoCombined"
+                ? t("koTsumoScore")
+                : t("selectScore")}
+            </span>
+          </ScoreLabelRow>
           <ScoreTilePicker
             available={availableScores}
             isOya={isOya}
@@ -155,12 +159,20 @@ export function ScoreAnswerForm({
             </div>
             <span className="mt-6 font-medium text-surface-500">/</span>
             <div className="flex-1">
-              <label
-                htmlFor={fromOyaId}
-                className="mb-2 block text-sm font-bold text-surface-700"
-              >
-                {t("fromOya")}
-              </label>
+              {/* この分岐だけ欄全体のラベルが無い（「子から」「親から」の 2 列）。
+                  切り替えボタンのために行を 1 本足すと他の分岐と高さが揃わない
+                  ので、右の列（「親から」）のラベル行の右端に置く。select + 分割は
+                  設定ページで選んだ人しか辿れないが、戻る入口は全変種で揃える。
+                  ボタンは -my-1 で行の高さを増やさないので、左の列のラベルと
+                  高さは揃ったまま */}
+              <ScoreLabelRow disabled={disabled}>
+                <label
+                  htmlFor={fromOyaId}
+                  className="block text-sm font-bold text-surface-700"
+                >
+                  {t("fromOya")}
+                </label>
+              </ScoreLabelRow>
               <ScoreOptionSelect
                 id={fromOyaId}
                 value={scoreFromOya?.toString()}
@@ -177,12 +189,14 @@ export function ScoreAnswerForm({
         // 「300/500」だけでは並び順が分からない初学者のため、ラベルに
         // 「子から / 親から」の順を添える
         <div>
-          <label
-            htmlFor={koTsumoId}
-            className="mb-2 block text-sm font-bold text-surface-700"
-          >
-            {t("koTsumoScore")}
-          </label>
+          <ScoreLabelRow disabled={disabled}>
+            <label
+              htmlFor={koTsumoId}
+              className="block text-sm font-bold text-surface-700"
+            >
+              {t("koTsumoScore")}
+            </label>
+          </ScoreLabelRow>
           <ScoreOptionSelect
             id={koTsumoId}
             value={koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)}
@@ -201,12 +215,14 @@ export function ScoreAnswerForm({
         </div>
       ) : (
         <div>
-          <label
-            htmlFor={scoreId}
-            className="mb-2 block text-sm font-bold text-surface-700"
-          >
-            {t("selectScore")}
-          </label>
+          <ScoreLabelRow disabled={disabled}>
+            <label
+              htmlFor={scoreId}
+              className="block text-sm font-bold text-surface-700"
+            >
+              {t("selectScore")}
+            </label>
+          </ScoreLabelRow>
           <ScoreOptionSelect
             id={scoreId}
             value={score?.toString()}

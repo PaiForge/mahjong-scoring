@@ -10,6 +10,7 @@ import {
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import type { UseScorePracticeAnswerFormResult } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import type { ScoreInputMode } from "@mahjong-scoring/features/settings/score-input";
+import { ScoreLabelRow } from "../../_components/score-label-row";
 import { ScoreOptionSelect } from "../../_components/score-option-select";
 import { ScoreTilePicker } from "../../_components/score-tile-picker";
 import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
@@ -26,6 +27,10 @@ import { AGARI_SCORE_TOUR_ID } from "../_lib/tour-ids";
  *   組の select は「300/500」だけでは並び順が分からない初学者のため、
  *   ラベルに「子から / 親から」の順を添える
  * - `koTsumoCombined`: 子ツモを組でまとめた 1 つの select
+ *
+ * どの形もラベル行（{@link ScoreLabelRow}）の右端に入力方式の切り替えボタンを
+ * 置く。ヘルプツアーが照らすのはこの欄のボタンだけなので、ここで
+ * {@link AGARI_SCORE_TOUR_ID.scoreInput} を渡す。
  */
 export function ScoreField({
   form,
@@ -63,14 +68,19 @@ export function ScoreField({
   if (scoreInput === "tiles" && availableScores.type !== "koTsumoSplit") {
     return (
       <div data-tour-id={AGARI_SCORE_TOUR_ID.score}>
-        <span
-          id={scoreLabelId}
-          className="mb-2 block text-sm font-bold text-surface-700"
+        <ScoreLabelRow
+          disabled={disabled}
+          tourId={AGARI_SCORE_TOUR_ID.scoreInput}
         >
-          {availableScores.type === "single"
-            ? t("form.labels.score")
-            : t("form.labels.koTsumoScore")}
-        </span>
+          <span
+            id={scoreLabelId}
+            className="block text-sm font-bold text-surface-700"
+          >
+            {availableScores.type === "single"
+              ? t("form.labels.score")
+              : t("form.labels.koTsumoScore")}
+          </span>
+        </ScoreLabelRow>
         <ScoreTilePicker
           available={availableScores}
           isOya={isOya}
@@ -99,15 +109,22 @@ export function ScoreField({
 
   return (
     <div data-tour-id={AGARI_SCORE_TOUR_ID.score}>
-      <label
-        htmlFor={availableScores.type === "koTsumoSplit" ? undefined : scoreId}
-        id={scoreLabelId}
-        className="mb-2 block text-sm font-bold text-surface-700"
+      <ScoreLabelRow
+        disabled={disabled}
+        tourId={AGARI_SCORE_TOUR_ID.scoreInput}
       >
-        {availableScores.type === "single"
-          ? t("form.labels.score")
-          : t("form.labels.koTsumoScore")}
-      </label>
+        <label
+          htmlFor={
+            availableScores.type === "koTsumoSplit" ? undefined : scoreId
+          }
+          id={scoreLabelId}
+          className="block text-sm font-bold text-surface-700"
+        >
+          {availableScores.type === "single"
+            ? t("form.labels.score")
+            : t("form.labels.koTsumoScore")}
+        </label>
+      </ScoreLabelRow>
       {availableScores.type === "koTsumoSplit" ? (
         <div
           role="group"

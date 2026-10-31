@@ -418,7 +418,7 @@ describe("AgariScoreBoard", () => {
         : [];
     };
 
-    it("既定の設定では翻数・符の欄と回答ボタンが無く、盤面・点数・開示の順に照らす", async () => {
+    it("既定の設定では翻数・符の欄と回答ボタンが無く、盤面・点数・入力方式の切り替え・開示の順に照らす", async () => {
       // 点数だけを問う設定は選んだ時点で送るので、回答ボタンが無い
       await visit("");
 
@@ -426,6 +426,7 @@ describe("AgariScoreBoard", () => {
         AGARI_SCORE_TOUR_ID.board,
         ...hintStep(),
         AGARI_SCORE_TOUR_ID.score,
+        AGARI_SCORE_TOUR_ID.scoreInput,
         AGARI_SCORE_TOUR_ID.reveal,
       ]);
     });
@@ -439,6 +440,7 @@ describe("AgariScoreBoard", () => {
         AGARI_SCORE_TOUR_ID.han,
         AGARI_SCORE_TOUR_ID.fu,
         AGARI_SCORE_TOUR_ID.score,
+        AGARI_SCORE_TOUR_ID.scoreInput,
         AGARI_SCORE_TOUR_ID.submit,
         AGARI_SCORE_TOUR_ID.reveal,
       ]);
@@ -454,6 +456,7 @@ describe("AgariScoreBoard", () => {
         AGARI_SCORE_TOUR_ID.han,
         AGARI_SCORE_TOUR_ID.fu,
         AGARI_SCORE_TOUR_ID.score,
+        AGARI_SCORE_TOUR_ID.scoreInput,
         AGARI_SCORE_TOUR_ID.submit,
         AGARI_SCORE_TOUR_ID.reveal,
       ]);
