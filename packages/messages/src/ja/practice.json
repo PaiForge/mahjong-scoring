@@ -144,6 +144,8 @@
   "scoreInput": {
     "bands": "点数帯",
     "nonMangan": "満貫未満",
-    "manganPlus": "満貫以上"
+    "manganPlus": "満貫以上",
+    "switchToSelect": "点数を選択欄から選ぶ",
+    "switchToTiles": "点数をタイルから選ぶ"
   }
 }
