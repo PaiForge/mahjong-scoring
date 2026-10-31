@@ -1,6 +1,6 @@
 {
   "proBadge": "Pro",
-  "remaining": "{count, plural, =0 {今日はこの問題で最後です} other {今日はあと # 問}}",
+  "remaining": "{count, select, 0 {今日はこの問題で最後です} other {今日はあと {count} 問}}",
   "planLink": "制限なしで続けるには",
   "paywall": {
     "title": "今日の無料分はここまでです",
