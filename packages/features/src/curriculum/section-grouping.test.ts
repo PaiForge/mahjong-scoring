@@ -97,6 +97,7 @@ describe("section grouping", () => {
       "fu-doubling",
       "ron-to-tsumo",
       "tsumo-payments",
+      "oya-ron-scores",
     ]);
   });
 });
