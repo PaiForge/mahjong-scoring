@@ -15,7 +15,6 @@
   "junseiChuurenDoubleDescription": "九蓮宝燈を九面待ち（純正形）でアガったとき、\nダブル役満として計算します。\nオフのときは通常の役満です。",
   "fukugouYakumanTitle": "役満の複合を合算する",
   "fukugouYakumanDescription": "複数の役満が同時に成立したとき（大三元＋字一色など）、\n合算した点数で計算します。\nオフのときは役満1つ分の点数です。",
-  "trainingSectionTitle": "トレーニング",
   "practiceSectionTitle": "練習",
   "autoAdvanceOnCorrectTitle": "正解したら自動で次の問題へ",
   "autoAdvanceOnCorrectDescription": "トレーニングと点数計算の演習（和了形・聴牌形の点数計算）で正解したとき、\n答え合わせを挟まずに次の問題へ進みます。\nオフのときは「次の問題へ」を押すまで正解を表示したまま止まります。\n間違えたときは、この設定に関わらず止まります。",
