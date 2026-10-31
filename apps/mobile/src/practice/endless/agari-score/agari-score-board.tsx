@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya, type UserAnswer } from "@mahjong-scoring/core";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
+import type { ScorePracticePick } from "@mahjong-scoring/features/practice/score/lesson-practices";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
@@ -38,7 +39,8 @@ import { HandPresentationProvider } from "../../hand-presentation-provider";
  * 回答欄（回答後は面子分解・結果表・「次の問題へ」）→ 正誤カウンタ →
  * わからない / 終了する。
  *
- * 出題条件は開いたときの設定から組む（web はクエリから読む）。問題は
+ * 出題条件は開いたときの設定から組む（web はクエリから読む）。レッスンの
+ * 「関連する練習」から開いたときは章の絞り込み（`pick`）で出題する。問題は
  * 回数制限のゲート（{@link usePracticeQuota}）の許可を待ってから作り、
  * 無料枠を使い切ったら盤面の代わりにペイウォールを出す（iOS で販売中の
  * ときだけ。Android と販売していない間は無制限）。回答時間の計測（Pro）は
@@ -46,7 +48,11 @@ import { HandPresentationProvider } from "../../hand-presentation-provider";
  * 二重の判定）。正解で自動で次へ進むときの知らせはトーストの代わりに
  * {@link CorrectFlash} で出す。
  */
-function AgariScoreBoardInner() {
+function AgariScoreBoardInner({
+  pick,
+}: {
+  readonly pick: ScorePracticePick | undefined;
+}) {
   const t = useTranslations("agariScore");
   // 盤面を開いたときの設定で通す（途中で変わる経路は無いが、出題条件と
   // 判定モードを 1 問ごとに読み直さない）
@@ -66,10 +72,10 @@ function AgariScoreBoardInner() {
   } = useAgariScoreStore();
   // 出題条件をストアへ移し、成績と前回の問題を消す（最初の問題の前に 1 度）
   const start = useCallback(() => {
-    const options = readGeneratorOptions(settings, true);
+    const options = readGeneratorOptions(settings, true, pick);
     const store = useAgariScoreStore.getState();
     store.applyPracticeQuery(JSON.stringify(options), options);
-  }, [settings]);
+  }, [settings, pick]);
   const {
     scrollRef,
     scrollToTop,
@@ -277,10 +283,15 @@ function AgariScoreBoardPreparing() {
  * スタックに残った画面へ戻るだけなら盤面も Provider もマウントされたままで、
  * 初期化も見せ方の判定もやり直さない。
  */
-export function AgariScoreBoard() {
+export function AgariScoreBoard({
+  pick,
+}: {
+  /** 章の絞り込み（レッスンの「関連する練習」から開いたとき）。無ければ設定どおり */
+  readonly pick?: ScorePracticePick;
+}) {
   return (
     <HandPresentationProvider fallback={<AgariScoreBoardPreparing />}>
-      <AgariScoreBoardInner />
+      <AgariScoreBoardInner pick={pick} />
     </HandPresentationProvider>
   );
 }
