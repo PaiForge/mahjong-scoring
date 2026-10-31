@@ -21,9 +21,9 @@ import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preferenc
  * 用語リンクの有無・符と翻の並び順。どれも練習の盤面に限らずレッスンや点数表でも効く。
  * 出題内容も正解判定も変わらない（ドラの判定は常に表示牌から導く）。
  *
- * 練習の中でしか意味を持たない設定（点数と子ツモの入力方式、Pro の盤面の 2 行、
- * 役の並び順）は `PracticeSettingsSection` に置く。保存先は同じ表示設定ストアだが、
- * 節は画面上の分類でストアの分け方とは一致させない。
+ * 問題を解く画面（練習・昇級試験）でだけ効く設定（点数と子ツモの入力方式、Pro の
+ * 盤面の 2 行、役の並び順）は `PracticeSettingsSection` に置く。保存先は同じ表示設定
+ * ストアだが、節は画面上の分類でストアの分け方とは一致させない。
  */
 export function DisplaySettingsSection() {
   const t = useTranslations("settings");
