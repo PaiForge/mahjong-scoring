@@ -68,13 +68,13 @@ describe("RankJourneyCard", () => {
     ).toHaveLength(RANK_REGISTRY[0].learnChapterSlugs.length);
     // 施錠の注記は次の目標の級には出ない
     expect(container.textContent).not.toContain("lockedNote");
-    // 進み具合の各段はその段の一覧へ送る（学ぶは目次のその級の最初のレッスン）
+    // 進み具合の各段はその段の一覧へ送る（学ぶ・練習するはその級で絞った一覧）
     expect(
       Array.from(container.querySelectorAll("[data-stage] a")).map((a) =>
         a.getAttribute("href"),
       ),
     ).toEqual([
-      "/lessons#chapter-mangan-ko-ron",
+      "/lessons?rank=kyu-5",
       "/practice?rank=kyu-5",
       "/exam/mangan",
     ]);
