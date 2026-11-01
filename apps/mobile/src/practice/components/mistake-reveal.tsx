@@ -45,11 +45,7 @@ export function MistakeRevealProvider({
   }, []);
   const value = useMemo(() => ({ reveal, register }), [reveal, register]);
 
-  return (
-    <MistakeRevealContext.Provider value={value}>
-      {children}
-    </MistakeRevealContext.Provider>
-  );
+  return <MistakeRevealContext value={value}>{children}</MistakeRevealContext>;
 }
 
 /** 登録された「間違えた問題を開く」処理。無ければ `undefined` */

@@ -394,7 +394,7 @@ function RecordedSession({
   );
 
   return (
-    <Context.Provider
+    <Context
       value={{
         userId,
         attemptId,
@@ -433,7 +433,7 @@ function RecordedSession({
           </View>
         </View>
       )}
-    </Context.Provider>
+    </Context>
   );
 }
 

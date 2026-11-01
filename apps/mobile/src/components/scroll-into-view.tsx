@@ -97,9 +97,9 @@ export function ScrollIntoViewProvider({
   );
 
   return (
-    <ScrollIntoViewContext.Provider value={scrollIntoView}>
+    <ScrollIntoViewContext value={scrollIntoView}>
       {children}
-    </ScrollIntoViewContext.Provider>
+    </ScrollIntoViewContext>
   );
 }
 

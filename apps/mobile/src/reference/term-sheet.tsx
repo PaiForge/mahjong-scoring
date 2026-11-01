@@ -77,7 +77,7 @@ export function TermSheetProvider({
   };
 
   return (
-    <TermSheetContext.Provider value={openTerm}>
+    <TermSheetContext value={openTerm}>
       {children}
       <InfoModal
         isOpen={active !== undefined}
@@ -128,7 +128,7 @@ export function TermSheetProvider({
           </View>
         )}
       </InfoModal>
-    </TermSheetContext.Provider>
+    </TermSheetContext>
   );
 }
 

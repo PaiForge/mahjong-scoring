@@ -35,9 +35,9 @@ export function BoardBleedProvider({
   readonly children: ReactNode;
 }) {
   return (
-    <BoardBleedContext.Provider value={{ bleed: true, flushTop }}>
+    <BoardBleedContext value={{ bleed: true, flushTop }}>
       {children}
-    </BoardBleedContext.Provider>
+    </BoardBleedContext>
   );
 }
 
