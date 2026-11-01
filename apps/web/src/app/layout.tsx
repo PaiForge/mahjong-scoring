@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { GlobalToaster } from "@/app/_components/global-toaster";
 import { GoogleAnalytics } from "@/app/_components/google-analytics";
 import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
 import { ScrollReset } from "@/app/_components/scroll-reset";
@@ -17,10 +17,6 @@ import {
 import { SITE_URL } from "@/config";
 import { clientMessages } from "@/i18n/client-messages";
 import "./globals.css";
-
-const GlobalToaster = dynamic(() =>
-  import("@/app/_components/global-toaster").then((mod) => mod.GlobalToaster),
-);
 
 export const metadata: Metadata = {
   // 各ページの alternates.canonical と OGP の相対パスを絶対 URL へ解決する基準。
