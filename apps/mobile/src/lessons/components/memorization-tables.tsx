@@ -15,8 +15,8 @@ import {
   type FuPairCell,
 } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
 import {
-  buildOyaRonRows,
   type OyaRonCell,
+  type OyaRonRow,
 } from "@mahjong-scoring/features/curriculum/oya-ron-rows";
 import { buildRonHalvingRows } from "@mahjong-scoring/features/curriculum/ron-halving-rows";
 import { buildTsumoSplitRows } from "@mahjong-scoring/features/curriculum/tsumo-payment-rows";
@@ -186,9 +186,16 @@ export function FuPairScoreTable({
  * 変えられないので、値の周りに地を敷く）。ずれるセルには子のロンを1.5倍した
  * 値を添え、色だけに頼らない。
  *
- * @param caption 表の上に出す見出し
+ * @param caption 表の上に出す見出し（どちらのルールの表かを含む）
+ * @param rows 表の行（`buildOyaRonRows` の結果。切り上げ満貫の設定で章が組む）
  */
-export function OyaRonScoreTable({ caption }: { readonly caption: string }) {
+export function OyaRonScoreTable({
+  caption,
+  rows,
+}: {
+  readonly caption: string;
+  readonly rows: readonly OyaRonRow[];
+}) {
   const t = useTranslations("learnCurriculum.scoreTable");
 
   const renderCell = (cell: OyaRonCell): ReactNode => {
@@ -220,7 +227,7 @@ export function OyaRonScoreTable({ caption }: { readonly caption: string }) {
             align: "center" as const,
           })),
         ]}
-        rows={buildOyaRonRows().map((row) => [
+        rows={rows.map((row) => [
           <RowHeaderCell key="fu">
             {t("fuUnit", { value: row.fu })}
           </RowHeaderCell>,
