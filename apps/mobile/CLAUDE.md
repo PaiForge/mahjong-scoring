@@ -52,7 +52,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
-- **タブの入口（`/`・`/dojo`・`/practice`・`/lessons`・`/reference`）へは `useGoToTab` で移る。**
+- **タブの入口（`/`・`/dojo`・`/practice`・`/lessons`・`/score-table`）へは `useGoToTab` で移る。**
   詳細の画面はルートのスタックに積んでいて、そこから `push` / `navigate` でタブへ送ると
   タブ一式がもう 1 組積まれる。履歴にある画面へ戻るリンクは `dismissTo`（slug ごとに使い回す
   `practice/[slug]` 等は `useDismissToHref`。`dismissTo` はルート名だけで照合する）。

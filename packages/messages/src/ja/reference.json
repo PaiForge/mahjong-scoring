@@ -2,6 +2,7 @@
   "title": "早見表",
   "sectionTitle": "調べたい内容から探す",
   "description": "点数や役をすぐに確認できる早見表をまとめています。",
+  "relatedTitle": "ほかの早見表",
   "scoreTable": {
     "title": "点数早見表",
     "description": "親・子のロン／ツモ点数を符×翻の一覧で確認できます"

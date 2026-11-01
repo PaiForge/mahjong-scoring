@@ -15,8 +15,7 @@ import { colors } from "../../lib/theme";
  * 下部タブ
  *
  * web のモバイル下部タブバー（`TAB_BAR_NAV_ITEMS`）と同じ並び: ホーム・道場・
- * 練習・レッスン・早見表（web は点数表へ直接飛ぶが、アプリは役一覧・用語集も
- * このタブの中で切り替える。`(tabs)/reference.tsx`）。起動時は先頭のホームを開く。web がドロワーと
+ * 練習・レッスン・点数表。起動時は先頭のホームを開く。web がドロワーと
  * アカウントのメニューに置く設定は、どちらも持たないモバイルではマイページ
  * （ホームのヘッダー右の人型のアイコン）の奥に置く（タブを 6 つにすると
  * 1 つあたりの幅が狭まり、OS の上限の 5 も超える）。
@@ -69,9 +68,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="reference"
+        name="score-table"
         options={{
-          title: t("reference"),
+          title: t("scoreTable"),
           tabBarIcon: ({ color }) => <TableIcon color={color} size={22} />,
         }}
       />

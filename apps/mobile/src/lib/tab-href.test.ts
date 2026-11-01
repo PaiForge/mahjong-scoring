@@ -9,7 +9,7 @@ describe("isTabHref", () => {
       "/dojo",
       "/practice",
       "/lessons",
-      "/reference",
+      "/score-table",
     ]) {
       expect(isTabHref(href)).toBe(true);
     }
@@ -25,6 +25,5 @@ describe("isTabHref", () => {
     expect(isTabHref("/dojo/ranks/kyu-5")).toBe(false);
     expect(isTabHref("/lessons/jantou-fu")).toBe(false);
     expect(isTabHref("/announcements")).toBe(false);
-    expect(isTabHref("/reference/yaku")).toBe(false);
   });
 });
