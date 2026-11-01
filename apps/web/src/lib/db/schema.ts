@@ -22,6 +22,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { AD_PLATFORMS } from "../ads/registry";
+import { REPORT_STATUSES, ReportStatus } from "../report-status";
 
 /**
  * CHECK の `IN (...)` に並べる値のリスト
@@ -413,7 +414,9 @@ export const reports = pgTable(
     /** 通報した時点の相手のプロフィール */
     snapshot: jsonb("snapshot").notNull().$type<ReportedProfileSnapshot>(),
     /** 対応の状態 */
-    status: varchar("status", { length: 20 }).notNull().default("open"),
+    status: varchar("status", { length: 20 })
+      .notNull()
+      .default(ReportStatus.Open),
     /** 閉じた管理者の auth.users(id) */
     resolvedBy: uuid("resolved_by"),
     /** 閉じた日時 */
@@ -426,10 +429,10 @@ export const reports = pgTable(
     index("idx_reports_target").on(table.targetUserId),
     uniqueIndex("uq_reports_open_per_reporter")
       .on(table.reporterId, table.targetUserId)
-      .where(sql`${table.status} = 'open'`),
+      .where(sql`${table.status} = ${sqlInList([ReportStatus.Open])}`),
     check(
       "reports_status_values",
-      sql`${table.status} IN ('open', 'resolved', 'dismissed')`,
+      sql`${table.status} IN (${sqlInList(REPORT_STATUSES)})`,
     ),
   ],
 );

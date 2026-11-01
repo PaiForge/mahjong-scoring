@@ -13,6 +13,7 @@ import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { TableHead } from "@/app/admin/_components/table-head";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ReportStatus } from "@/lib/report-status";
 import { isReportReason } from "@mahjong-scoring/features/reports/report";
 
 import { formatAdminDateTime } from "../../_lib/format-date";
@@ -104,7 +105,7 @@ export default async function AdminReportsPage({
                 <tr key={report.id} className="border-b border-surface-100">
                   <td className="px-4 py-3 whitespace-nowrap">
                     {formatAdminDateTime(report.createdAt)}
-                    {report.status === "open" && (
+                    {report.status === ReportStatus.Open && (
                       <span className="block text-xs text-surface-500">
                         {t("elapsed", {
                           hours: Math.floor(
