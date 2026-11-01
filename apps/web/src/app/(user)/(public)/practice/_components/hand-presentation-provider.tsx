@@ -91,12 +91,12 @@ export function HandPresentationProvider({
 
   if (preparation.status === "pending" || value === undefined) return fallback;
   return (
-    <HandPresentationContext.Provider value={value}>
-      <HandPresentationNoticeContext.Provider
+    <HandPresentationContext value={value}>
+      <HandPresentationNoticeContext
         value={preparation.fallbackReason !== undefined}
       >
         {children}
-      </HandPresentationNoticeContext.Provider>
-    </HandPresentationContext.Provider>
+      </HandPresentationNoticeContext>
+    </HandPresentationContext>
   );
 }

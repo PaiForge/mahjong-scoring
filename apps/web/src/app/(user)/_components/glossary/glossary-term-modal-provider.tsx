@@ -85,7 +85,7 @@ export function GlossaryTermModalProvider({
   const active = activeSlug === undefined ? undefined : terms[activeSlug];
 
   return (
-    <TermModalContext.Provider value={value}>
+    <TermModalContext value={value}>
       {children}
       <InfoModal
         isOpen={active !== undefined}
@@ -134,6 +134,6 @@ export function GlossaryTermModalProvider({
           </div>
         )}
       </InfoModal>
-    </TermModalContext.Provider>
+    </TermModalContext>
   );
 }
