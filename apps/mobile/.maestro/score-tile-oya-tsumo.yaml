@@ -1,0 +1,56 @@
+# 親ツモの点数タイル。bob（Pro。回数制限に掛からず問題を送り続けられる）で和了形の
+# 点数計算を開き、「わからない」→「次の問題へ」で親ツモの問題（満貫未満の先頭が
+# score-tiles-500。親ツモにしか無い値）が出るまで送る。
+# タイルは点数の下に小さく「オール」を積み、1 行の「4000オール」のように途中で
+# 折り返さない。満貫以上の「16000」も 1 枚に収まる
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "score-tiles"
+    timeout: 15000
+- repeat:
+    while:
+      notVisible:
+        id: "score-tiles-500"
+    times: 40
+    commands:
+      - scrollUntilVisible:
+          element: "わからない"
+          direction: DOWN
+      - tapOn: "わからない"
+      - scrollUntilVisible:
+          element: "次の問題へ"
+          direction: DOWN
+      - tapOn: "次の問題へ"
+      - extendedWaitUntil:
+          visible:
+            id: "score-tiles"
+          timeout: 15000
+      - scrollUntilVisible:
+          element:
+            id: "score-tiles-band-nonMangan"
+          direction: DOWN
+- takeScreenshot: score-tile-oya-tsumo-non-mangan
+- tapOn:
+    id: "score-tiles-band-manganPlus"
+- waitForAnimationToEnd
+- takeScreenshot: score-tile-oya-tsumo-mangan-plus
