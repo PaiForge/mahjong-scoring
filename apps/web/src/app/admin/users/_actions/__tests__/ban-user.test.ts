@@ -95,7 +95,7 @@ describe("banUser", () => {
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/users", "layout");
     // ランキングに載るかどうかが変わるので、ランキングのキャッシュも捨てる
-    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "default");
+    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "max");
   });
 
   it("仮登録（プロフィール無し）でも成功する — profiles の更新は 0 行で BAN は Auth にだけ残る", async () => {
