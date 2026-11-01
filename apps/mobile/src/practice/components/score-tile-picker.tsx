@@ -68,6 +68,10 @@ const TILE_GAP = 6;
  * ボタンが上下に動かないようにする。選択中は `InsetRing` + 墨の枠（塗りだけに
  * 頼らない）、回答直後は選んだタイルを正誤の色にして他を薄くする
  * （選択肢ボタンと同じ `choiceFeedbackStyle`）。
+ *
+ * 後置文字列（親ツモの「オール」）は点数の下に小さく積む。1 行の「4000オール」は
+ * 4 列のタイルに収まらず途中で折り返すため、点数表（`TsumoScore`）の親ツモと
+ * 同じ組み方にする。読み上げは `accessibilityLabel` の「4000オール」のまま。
  */
 export function ScoreTilePicker({
   available,
@@ -160,7 +164,16 @@ export function ScoreTilePicker({
                 {isSelected && !showsFeedback && !autoSubmit && (
                   <InsetRing color={colors.selected} borderRadius={radius.sm} />
                 )}
-                <Text style={styles.tileLabel}>{option.label}</Text>
+                {suffix === "" ? (
+                  <Text style={styles.tileLabel}>{option.label}</Text>
+                ) : (
+                  <>
+                    <Text style={[styles.tileLabel, styles.tileLabelStacked]}>
+                      {option.value}
+                    </Text>
+                    <Text style={styles.tileSuffix}>{suffix}</Text>
+                  </>
+                )}
               </PressableSurface>
             );
           })}
@@ -202,6 +215,16 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
     fontVariant: ["tabular-nums"],
+    color: colors.surface900,
+  },
+  tileLabelStacked: {
+    lineHeight: 18,
+  },
+  tileSuffix: {
+    fontSize: 10,
+    lineHeight: 12,
+    fontWeight: "700",
+    opacity: 0.6,
     color: colors.surface900,
   },
 });
