@@ -12,11 +12,9 @@ import { colors } from "../../lib/theme";
  * 章末の公開日（web の `LearnPageLayout` の末尾）
  * 章公開日
  *
- * web は公開日の上に前後の章へのリンクを置くが、モバイルには置かない。
- * 読み終えてから進む先は完了の後の「次のレッスン」（{@link
- * import("./next-lesson-preview").NextLessonPreview}）が受け持つ。常設の
- * 左右のリンクは完了を経ずに読み飛ばす道になり、ネイティブでは横並びの
- * 小さな文字の操作として押しにくいため。
+ * web は公開日の上に前後の章へのリンクを置く。モバイルはその位置に
+ * 前のレッスンだけを行の形で置く（{@link
+ * import("./prev-lesson-link").PrevLessonLink}。前だけにする理由もそこ）。
  *
  * @param slug 現在の章
  */

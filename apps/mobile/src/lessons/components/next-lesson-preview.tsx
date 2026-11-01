@@ -35,7 +35,9 @@ const EXCERPT_LINES = 3;
  *
  * 次のレッスンへは `replace` で移る。続けて読むたびにスタックを積むと、
  * ヘッダーの戻るを読んだ章の数だけ押さないと、学習を始めた画面（目次・
- * 道場・練習）へ帰れない。
+ * 道場・練習）へ帰れない。レッスン同士は同じ階層の横移動で、iOS の戻るが
+ * 指す「一つ上の階層」は目次の側にある。前のレッスンへ読み返しに行くのは
+ * 章末の {@link import("./prev-lesson-link").PrevLessonLink}（同じく置き換え）。
  */
 export function NextLessonPreview({
   slug,

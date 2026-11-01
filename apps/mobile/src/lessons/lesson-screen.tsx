@@ -25,6 +25,7 @@ import {
   NextLessonPreview,
   nextChapterSlug,
 } from "./components/next-lesson-preview";
+import { PrevLessonLink } from "./components/prev-lesson-link";
 import { renderLessonGuide } from "./guide-registry";
 import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 import { useGoToTab } from "../hooks/use-go-to-tab";
@@ -56,11 +57,13 @@ function LessonNotFound() {
  *   目次の順の次のレッスンを出し、そのまま読み進められるようにする
  * - コラム: 完了を持たないので、本文の下に初めから次のレッスンを出す
  *   （出さないと戻る以外の行き先が無い）
- * - 章末: 広告 1 行と公開日（web と同じ）
+ * - 章末: 広告 1 行・前のレッスン・公開日（web と同じ並び。web は前後の
+ *   両方を置くが、こちらは前だけ）
  *
- * 常設の前後のレッスンへのリンクは置かない。次へ進むのは完了の後の
- * 「次のレッスン」で、置き換えて移るので、何章続けて読んでもヘッダーの戻る
- * 1 回で学習を始めた画面へ帰れる。本文の用語は web のモーダルの代わりに
+ * レッスン同士は置き換えて移る。次へは完了の後の「次のレッスン」、前へは
+ * 章末の「前のレッスン」（`PrevLessonLink`）で、どちらもスタックに積まない
+ * ので、何章行き来してもヘッダーの戻る 1 回で学習を始めた画面へ帰れる
+ * （理由は `PrevLessonLink` の TSDoc）。本文の用語は web のモーダルの代わりに
  * 用語のシートを開く（`TermText`）。
  *
  * @param slug ルートの slug（未検証）
@@ -89,7 +92,7 @@ function LessonScreenContent({
   const completed = useLessonDone(slug);
   const nextSlug = nextChapterSlug(slug);
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.learnChapter);
-  // 章末の公開日の上に広告を 1 行。周りは表・ボタン・
+  // 章末の公開日の上に広告を 1 行と前のレッスン。周りは表・ボタン・
   // テキストリンクで練習カードが無いため、カードにすると本文から浮く。
   // 枠の無い 1 行で置く（web と同じ）
   const footer = (
@@ -99,6 +102,7 @@ function LessonScreenContent({
           <NativeAdRow creative={ad} />
         </LinkRowList>
       )}
+      <PrevLessonLink slug={slug} />
       <ChapterPublishedDate slug={slug} />
     </>
   );
