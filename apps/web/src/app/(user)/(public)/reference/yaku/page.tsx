@@ -10,7 +10,7 @@
  *
  * @flow
  * リファレンスハブ（/reference）の「役一覧」カードか、教本の翻数別まとめの
- * 役名リンクから遷移して閲覧する。
+ * 役名リンクから遷移して閲覧する。一覧の下の「ほかの早見表」から点数表・用語集へ。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -20,6 +20,7 @@ import { NativeAdRow } from "@/app/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
+import { RelatedReferencesSection } from "../_components/related-references-section";
 import { YakuCheatsheet } from "./_components/yaku-cheatsheet";
 import {
   REFERENCE_PATH,
@@ -58,6 +59,10 @@ export default async function ReferenceYakuPage() {
       />
 
       <p className="mt-6 text-sm text-surface-500">{t("nakiNote")}</p>
+
+      <div className="mt-10">
+        <RelatedReferencesSection current="yaku" />
+      </div>
     </ContentContainer>
   );
 }
