@@ -194,7 +194,8 @@ function Offers({
   const t = useTranslations("mobilePlan.offers");
   const tPlan = useTranslations("mobilePlan");
   const products = useIapProducts(offers);
-  const [purchasing, setPurchasing] = useState(false);
+  /** 購入シートを開いている商品。押した方だけを処理中にし、他は止めるだけにする */
+  const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
 
   // 取り消しは知らせない（本人が閉じただけ）。承認待ち（Ask to Buy）は承認されたら
   // 購入の同期が記録するので、待っていることだけ伝える
@@ -212,9 +213,9 @@ function Offers({
   );
 
   const buy = (productId: string) => {
-    setPurchasing(true);
+    setPurchasing(productId);
     void requestIapPurchase(productId, userId).finally(() =>
-      setPurchasing(false),
+      setPurchasing(undefined),
     );
   };
 
@@ -249,7 +250,10 @@ function Offers({
             <Button
               size="lg"
               fullWidth
-              disabled={purchasing || busy}
+              disabled={
+                busy || (purchasing !== undefined && purchasing !== productId)
+              }
+              loading={purchasing === productId}
               testID={`plan-buy-${key}`}
               onPress={() => buy(productId)}
             >

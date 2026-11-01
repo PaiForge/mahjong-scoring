@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   View,
@@ -22,6 +23,12 @@ interface ButtonProps {
   readonly size?: ButtonSize;
   readonly fullWidth?: boolean;
   readonly disabled?: boolean;
+  /**
+   * 処理中。押せなくし、ラベルの前（`icon` の代わり）にスピナーを出す。
+   * 塗りは押せるときのまま保ち、同じ操作で止めた他のボタン（`disabled` の淡い灰）と
+   * 見分けられるようにする（購入ボタンが 2 つ並ぶプラン画面で、押した方を示す）
+   */
+  readonly loading?: boolean;
   /** ラベルの前に置くアイコン（色は呼び出し側が文字色に合わせる） */
   readonly icon?: ReactNode;
   readonly style?: StyleProp<ViewStyle>;
@@ -109,6 +116,7 @@ export function Button({
   size = "md",
   fullWidth = false,
   disabled = false,
+  loading = false,
   icon,
   style,
   testID,
@@ -118,7 +126,8 @@ export function Button({
   return (
     <PressableSurface
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
+      accessibilityState={{ busy: loading }}
       testID={testID}
       style={[
         styles.face,
@@ -135,7 +144,14 @@ export function Button({
       }}
     >
       <View style={styles.content}>
-        {icon}
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={buttonForeground(variant, disabled)}
+          />
+        ) : (
+          icon
+        )}
         <Text
           style={[
             styles.label,

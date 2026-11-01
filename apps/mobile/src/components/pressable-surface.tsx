@@ -12,7 +12,10 @@ interface PressableSurfaceProps {
    */
   readonly pressedStyle: StyleProp<ViewStyle>;
   readonly accessibilityLabel?: string;
-  readonly accessibilityState?: { readonly selected?: boolean };
+  readonly accessibilityState?: {
+    readonly selected?: boolean;
+    readonly busy?: boolean;
+  };
   readonly testID?: string;
   /** 小さな面の押せる範囲を広げる（四辺に同じ幅。見た目の大きさは変えない） */
   readonly hitSlop?: number;
