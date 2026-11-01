@@ -11,3 +11,13 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 export function practiceListHrefForRank(slug: RankSlug): string {
   return `/practice?rank=${slug}`;
 }
+
+/**
+ * その級で絞ったレッスンの目次のパス
+ * 級別レッスン目次パス
+ *
+ * web の `lessonsListHref(rank)` と同じ形（`/lessons?rank=<級>`）。
+ */
+export function lessonsHrefForRank(slug: RankSlug): string {
+  return `/lessons?rank=${slug}`;
+}
