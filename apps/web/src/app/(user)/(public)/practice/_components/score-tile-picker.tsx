@@ -52,6 +52,11 @@ interface ScoreTilePickerProps {
  *
  * 両側のタイル群のうち多いほうの高さを確保し、切り替えで下の「回答する」
  * ボタンが上下に動かないようにする。
+ *
+ * 後置文字列（親ツモの「オール」）は点数の下に小さく積む。「4000オール」を
+ * 1 行で書くと 4 列のタイルに収まらず、狭い画面（iOS のアプリ）で途中で
+ * 折り返す。点数表（`TsumoScore`）の親ツモと同じ組み方で、読み上げは
+ * 1 行の「4000オール」のまま。
  */
 export function ScoreTilePicker({
   available,
@@ -148,9 +153,17 @@ export function ScoreTilePicker({
               aria-pressed={isSelected}
               disabled={disabled}
               onClick={() => onChange(option.value)}
+              aria-label={option.label}
               className={`min-h-11 rounded-lg border px-1 text-sm font-bold tabular-nums text-surface-900 transition-colors disabled:cursor-not-allowed ${FOCUS_RING_CLASSES} ${tileClasses(isSelected)}`}
             >
-              {option.label}
+              {suffix === "" ? (
+                option.label
+              ) : (
+                <span className="inline-flex flex-col items-center leading-tight">
+                  <span>{option.value}</span>
+                  <span className="text-[0.625rem] opacity-60">{suffix}</span>
+                </span>
+              )}
             </button>
           );
         })}
