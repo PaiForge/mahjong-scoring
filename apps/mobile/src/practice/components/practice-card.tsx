@@ -15,7 +15,12 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { BeltPill } from "../../components/belt-pill";
-import { BookIcon, ChevronRightIcon } from "../../components/icons/icons";
+import { Chip, chipForeground } from "../../components/chip";
+import {
+  BookIcon,
+  CheckIcon,
+  ChevronRightIcon,
+} from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
 import { linkCard } from "../../lib/link-card-styles";
 import { PracticeCardVisual } from "./practice-card-visual";
@@ -28,10 +33,16 @@ import { PracticeCardVisual } from "./practice-card-visual";
  *
  * レッスンのアイコンと段級位のピルはカードの中の別の行き先（その練習を最初に扱う
  * レッスン / その級の詳細）で、押すとカードではなくそちらへ移動する（web と同じ）。
+ *
+ * チャレンジを 1 回でも終えた練習は、下段の左に「挑戦済み」の印を出す（`attempted`）。
+ * 道場の「練習する」の段と同じ印・同じ数え方で、級で絞った一覧から
+ * 「練習する 2 / 4」の残りがどれかを見分けるためのもの。未挑戦の側に
+ * 印を付けないのは、何も始めていない人の一覧が全部「未挑戦」で埋まるため。
  */
 export function PracticeCard({
   slug,
   variant,
+  attempted = false,
 }: {
   readonly slug: PracticeMenuSlug;
   /**
@@ -39,6 +50,8 @@ export function PracticeCard({
    * バリアント名を添える（「点数表早引き（子・満貫以上）」。レッスンから送るとき）
    */
   readonly variant?: string;
+  /** チャレンジを 1 回でも終えたか（どのバリアントでも） */
+  readonly attempted?: boolean;
 }) {
   const t = useTranslations("practice");
   const tRanks = useTranslations("ranks");
@@ -88,9 +101,19 @@ export function PracticeCard({
         </View>
       </View>
       {visual !== undefined && <PracticeCardVisual visual={visual} />}
-      <View style={styles.footer}>
-        <Text style={styles.detail}>{t("detail")}</Text>
-        <ChevronRightIcon size={16} color={colors.action} />
+      <View style={[styles.footer, attempted && styles.footerWithMark]}>
+        {attempted && (
+          <Chip
+            tone="success"
+            icon={<CheckIcon size={14} color={chipForeground("success")} />}
+          >
+            {t("attempted")}
+          </Chip>
+        )}
+        <View style={styles.footerEnd}>
+          <Text style={styles.detail}>{t("detail")}</Text>
+          <ChevronRightIcon size={16} color={colors.action} />
+        </View>
       </View>
     </Pressable>
   );
@@ -119,5 +142,12 @@ const styles = StyleSheet.create({
   },
   title: linkCard.title,
   footer: linkCard.footer,
+  footerWithMark: {
+    justifyContent: "space-between",
+  },
+  footerEnd: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   detail: linkCard.footerLabel,
 });
