@@ -111,7 +111,7 @@ describe("NextStepSection", () => {
       container.querySelectorAll("[data-stage] a"),
     ).map((a) => a.getAttribute("href"));
     expect(stageHrefs).toEqual([
-      "/lessons#chapter-mangan-ko-ron",
+      "/lessons?rank=kyu-5",
       // 練習するの行き先は「自分で練習を選ぶ」と同じ
       "/practice?rank=kyu-5",
       "/exam/mangan",

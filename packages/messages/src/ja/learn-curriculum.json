@@ -97,7 +97,9 @@
     "nextChapterBadge": "次はここから",
     "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！",
     "unavailableBadge": "アプリ版は準備中",
-    "columnBadge": "コラム"
+    "columnBadge": "コラム",
+    "rankFilterTitle": "{rank}のレッスン",
+    "allLessonsLink": "すべてのレッスンを見る"
   },
   "chapter": {
     "completeCta": "このレッスンを完了にする",

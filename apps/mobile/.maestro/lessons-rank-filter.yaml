@@ -1,0 +1,30 @@
+# レッスンの目次を級で開く（ホーム・道場の「学ぶ」の行き先 `/lessons?rank=<級>`）。
+# その級の前提レッスンだけが並び、下の「すべてのレッスンを見る」で全体の目次に戻る。
+# 手元の web（:3000）が要る（広告の読み込み）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons?rank=kyu-5"
+- extendedWaitUntil:
+    visible: "5級のレッスン"
+    timeout: 10000
+- assertVisible: "0 / 5 レッスン完了"
+- assertNotVisible: "雀頭の符"
+- takeScreenshot: lessons-rank-kyu-5
+- scrollUntilVisible:
+    element:
+      id: "lessons-show-all"
+- tapOn:
+    id: "lessons-show-all"
+- extendedWaitUntil:
+    notVisible: "5級のレッスン"
+    timeout: 10000
+- takeScreenshot: lessons-all-after-show-all

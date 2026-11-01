@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { BeltPill } from "@/app/(user)/_components/belt-pill";
 import { BookIcon } from "@/app/(user)/_components/icons/book-icon";
 import { ChevronRightIcon } from "@/app/(user)/_components/icons/chevron-right-icon";
@@ -39,6 +40,8 @@ interface PracticeCardProps {
   learnHref?: string;
   /** 教本アイコンのアクセシブル名（「教本を読む」）。アイコンに文字は添えない */
   learnLabel?: string;
+  /** 下段の左に置く印（「挑戦済み」）。右端の「くわしく見る」の位置は変えない */
+  footerStart?: ReactNode;
 }
 
 export function PracticeCard({
@@ -49,6 +52,7 @@ export function PracticeCard({
   detailLabel,
   learnHref,
   learnLabel,
+  footerStart,
 }: PracticeCardProps) {
   return (
     <div className="flex flex-col justify-between rounded-panel border border-panel bg-white p-5">
@@ -84,7 +88,9 @@ export function PracticeCard({
         </div>
         {visual && <PracticeCardVisual visual={visual} />}
       </div>
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex items-center justify-between gap-3">
+        {/* 印が無くても左の箱を置き、「くわしく見る」を右端に保つ */}
+        <div className="min-w-0">{footerStart}</div>
         <Link
           href={href}
           className={`flex items-center text-sm font-bold ${TEXT_LINK_CLASSES}`}

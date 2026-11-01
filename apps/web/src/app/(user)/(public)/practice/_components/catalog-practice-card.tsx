@@ -10,6 +10,7 @@ import { chapterHref, practiceHref } from "@mahjong-scoring/features/routes";
 import { practiceDisplayTitle } from "@mahjong-scoring/features/practice/practice-variant-label";
 import { practiceCardRank } from "../_lib/practice-card-rank";
 import { practiceCardVisual } from "@mahjong-scoring/features/practice/card-visual";
+import { PracticeAttemptedMark } from "./attempted-practices";
 import { PracticeCard } from "./practice-card";
 
 interface CatalogPracticeCardProps {
@@ -31,6 +32,9 @@ interface CatalogPracticeCardProps {
  *
  * カードの「教本を読む」は 1 本だけなので、関連章のうち最初にその練習を
  * 扱う章へ送る（複数の章が扱う練習は説明ページが全部出す）。
+ *
+ * 下段の左の「挑戦済み」の印は、練習一覧（`AttemptedPracticesProvider` の中）に
+ * 置いたときだけ出る。
  */
 export async function CatalogPracticeCard({
   slug,
@@ -53,6 +57,7 @@ export async function CatalogPracticeCard({
       detailLabel={t("detail")}
       learnHref={firstChapter ? chapterHref(firstChapter) : undefined}
       learnLabel={firstChapter ? t("learn") : undefined}
+      footerStart={<PracticeAttemptedMark slug={slug} label={t("attempted")} />}
     />
   );
 }

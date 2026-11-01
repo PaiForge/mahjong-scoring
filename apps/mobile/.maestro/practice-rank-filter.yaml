@@ -1,0 +1,78 @@
+# 練習一覧を級で開く（ホーム・道場の「練習する」の行き先 `/practice?rank=<級>`）。
+# 実戦練習を選んで残したあとでも、級を指定して開けば基礎練習のその級に絞った一覧が出る
+# ことを、3 つの開き方で確かめる: タブが開いたまま別の級 / 同じ級をもう一度 / アプリを
+# 起動し直して最初に開く（保存値の読み込みより先に切り替えると実戦練習に戻されていた）。
+# 最後に bob@ で開き、挑戦済みの練習に「挑戦済み」の印が付くのを撮る。手元の web（:3000）と
+# dev seed が要る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+
+# タブが開いたまま、別の級で開く
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
+- tapOn:
+    id: "practice-mode-practical"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice?rank=kyu-5"
+- extendedWaitUntil:
+    visible:
+      id: "practice-card-yaku-han"
+    timeout: 10000
+- assertNotVisible:
+    id: "practice-card-jantou-fu"
+- takeScreenshot: practice-rank-kyu-5-guest
+
+# 同じ級でもう一度開く
+- tapOn:
+    id: "practice-mode-practical"
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice?rank=kyu-5"
+- extendedWaitUntil:
+    visible:
+      id: "practice-card-yaku-han"
+    timeout: 10000
+
+# 実戦練習を残したまま起動し直し、最初に級で開く
+- tapOn:
+    id: "practice-mode-practical"
+- stopApp
+- launchApp
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice?rank=kyu-5"
+- extendedWaitUntil:
+    visible:
+      id: "practice-card-yaku-han"
+    timeout: 15000
+- assertNotVisible: "挑戦済み"
+
+# ログイン中は挑戦済みの練習に印が付く（dev seed は全練習にチャレンジ成績を入れている）
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice?rank=kyu-4"
+- extendedWaitUntil:
+    visible: "挑戦済み"
+    timeout: 15000
+- takeScreenshot: practice-rank-kyu-4-attempted
