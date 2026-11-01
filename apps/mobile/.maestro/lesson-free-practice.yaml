@@ -1,0 +1,30 @@
+# 点数計算の章（平和）の「関連する練習」の末尾にある、章の絞り込みで和了形の点数計算を
+# 始めるボタン。確認問題を持つ章なので、完了済みの frank@ で開く（完了済みの人には
+# 本文の下に関連する練習が出る）。押すと和了形の点数計算が平和の手で始まる
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: frank@example.local
+      PASSWORD: devpass1
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons/pinfu-score"
+- scrollUntilVisible:
+    element: "平和の点数計算を練習する"
+    direction: DOWN
+    # 章の本文の末尾までスクロールするので既定の 20 秒では届かない
+    timeout: 60000
+- takeScreenshot: lesson-free-practice-button
+- tapOn:
+    id: "lesson-free-practice"
+- waitForAnimationToEnd
+- takeScreenshot: lesson-free-practice-board

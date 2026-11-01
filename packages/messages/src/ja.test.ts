@@ -34,3 +34,23 @@ describe("日本語辞書の束ね方", () => {
     }
   });
 });
+
+/** 辞書の値（入れ子を含む）をすべて取り出す */
+function allMessages(value: unknown): string[] {
+  if (typeof value === "string") return [value];
+  if (typeof value !== "object" || value === null) return [];
+  return Object.values(value).flatMap(allMessages);
+}
+
+describe("アプリでも引ける書き方", () => {
+  it("ICU の plural / selectordinal を使わない", () => {
+    // アプリの JS（Hermes）には Intl.PluralRules が無く、plural は `=0` のような
+    // 完全一致の分岐以外で書式に失敗し、画面に辞書キーがそのまま出る（2026-11 に
+    // iOS の Release で実測）。日本語は数で形が変わらないので、数で分けたいときは
+    // select（`{count, select, 0 {…} other {…}}`）で書く
+    const offending = allMessages(messages).filter((message) =>
+      /,\s*(plural|selectordinal)\s*,/.test(message),
+    );
+    expect(offending).toEqual([]);
+  });
+});
