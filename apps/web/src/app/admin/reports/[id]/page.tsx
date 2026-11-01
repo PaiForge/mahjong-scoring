@@ -6,6 +6,7 @@ import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { Profile, ReportedProfileSnapshot } from "@/lib/db";
+import { ReportStatus } from "@/lib/report-status";
 import { isReportReason } from "@mahjong-scoring/features/reports/report";
 
 import { formatAdminDateTime } from "../../_lib/format-date";
@@ -109,7 +110,7 @@ export default async function AdminReportDetailPage({
         <ReportStatusChip status={report.status} />
       </div>
 
-      {report.status === "open" && (
+      {report.status === ReportStatus.Open && (
         <DetailSection title={t("actions.title")}>
           <div className="space-y-3">
             <p className="text-sm text-surface-600">

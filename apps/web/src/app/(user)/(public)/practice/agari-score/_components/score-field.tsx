@@ -4,9 +4,11 @@ import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { koTsumoPaymentKey } from "@mahjong-scoring/core";
 import {
+  applyScoreTileChoice,
   koTsumoPaymentOfKey,
   koTsumoSelectOptions,
   scoreSelectOptions,
+  scoreTileValue,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import type { UseScorePracticeAnswerFormResult } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import type { ScoreInputMode } from "@mahjong-scoring/features/settings/score-input";
@@ -85,19 +87,17 @@ export function ScoreField({
           available={availableScores}
           isOya={isOya}
           isTsumo={isTsumo}
-          value={
-            availableScores.type === "koTsumoCombined"
-              ? form.koTsumoPayment && koTsumoPaymentKey(form.koTsumoPayment)
-              : form.score?.toString()
+          value={scoreTileValue(
+            availableScores,
+            form.score,
+            form.koTsumoPayment,
+          )}
+          onChange={(v) =>
+            applyScoreTileChoice(availableScores, v, {
+              onScore: form.setScore,
+              onKoTsumoPayment: form.setKoTsumoPayment,
+            })
           }
-          onChange={(v) => {
-            if (availableScores.type === "single") {
-              form.setScore(Number(v));
-              return;
-            }
-            const payment = koTsumoPaymentOfKey(availableScores.payments, v);
-            if (payment) form.setKoTsumoPayment(payment);
-          }}
           suffix={form.isOyaTsumo ? t("form.options.all") : ""}
           disabled={disabled}
           labelledBy={scoreLabelId}

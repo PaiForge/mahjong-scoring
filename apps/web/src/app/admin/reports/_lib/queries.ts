@@ -4,6 +4,7 @@ import { and, asc, desc, eq, ne, sql } from "drizzle-orm";
 
 import { db, profiles, reports, type Profile, type Report } from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
+import { ReportStatus } from "@/lib/report-status";
 
 import { buildProfileMap } from "../../_lib/log-query-helpers";
 
@@ -31,7 +32,9 @@ export async function fetchReportsPageData(
   page: number,
 ): Promise<ReportsPageData> {
   const where =
-    tab === "open" ? eq(reports.status, "open") : ne(reports.status, "open");
+    tab === "open"
+      ? eq(reports.status, ReportStatus.Open)
+      : ne(reports.status, ReportStatus.Open);
   const [countRow] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(reports)
@@ -76,7 +79,7 @@ export async function countOpenReports(): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(reports)
-    .where(eq(reports.status, "open"));
+    .where(eq(reports.status, ReportStatus.Open));
   return row?.count ?? 0;
 }
 

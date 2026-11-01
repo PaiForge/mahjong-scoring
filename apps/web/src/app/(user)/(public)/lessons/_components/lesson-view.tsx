@@ -10,6 +10,7 @@ import {
   isSameChoice,
   type LessonChoice,
 } from "@mahjong-scoring/features/lessons/quiz";
+import { LESSON_PHASES } from "@mahjong-scoring/features/lessons/lesson-phase";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
 import { chapterHref } from "@mahjong-scoring/features/routes";
@@ -58,9 +59,6 @@ interface FetchedFollowUp {
   readonly userId: string;
   readonly followUp: LessonFollowUp;
 }
-
-/** レッスンの段階（並びは進む順） */
-const PHASES = ["learn", "quiz", "done"] as const;
 
 /**
  * レッスンの進行（本文 → 確認問題 → できたことの確認）
@@ -155,7 +153,7 @@ export function LessonView({
   // 保存を始めた = 解き終えた。完了画面はそのあとでしか描けない
   const finished = saveState !== "idle";
   const [phase, pushPhase] = usePhaseHistory(
-    PHASES,
+    LESSON_PHASES,
     (target) => target !== "done" || finished,
     LESSON_SCROLL_ANCHOR_ID,
   );

@@ -8,6 +8,7 @@ import { purgeLeaderboardCache } from "@/lib/cache-tags";
 import { getClientIp } from "@/lib/client-ip";
 import { db, profiles, reports, type TransactionClient } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
+import { ReportStatus } from "@/lib/report-status";
 import { deleteAvatarObject } from "@/lib/users/avatar";
 
 import { requireAdminActor } from "../../_lib/auth";
@@ -41,7 +42,7 @@ async function prepare(
   const [report] = await db
     .select({ id: reports.id, targetUserId: reports.targetUserId })
     .from(reports)
-    .where(and(eq(reports.id, reportId), eq(reports.status, "open")))
+    .where(and(eq(reports.id, reportId), eq(reports.status, ReportStatus.Open)))
     .limit(1);
   if (!report) return { error: "notFound" };
   return { actorId: admin.actorId, reason: trimmed, report };
@@ -62,14 +63,14 @@ async function resolveOpenReportsFor(
   const resolved = await tx
     .update(reports)
     .set({
-      status: "resolved",
+      status: ReportStatus.Resolved,
       resolvedBy: context.actorId,
       resolvedAt: new Date(),
     })
     .where(
       and(
         eq(reports.targetUserId, context.report.targetUserId),
-        eq(reports.status, "open"),
+        eq(reports.status, ReportStatus.Open),
       ),
     )
     .returning({ id: reports.id });
@@ -211,7 +212,7 @@ export async function dismissReportAction(
       await tx
         .update(reports)
         .set({
-          status: "dismissed",
+          status: ReportStatus.Dismissed,
           resolvedBy: context.actorId,
           resolvedAt: new Date(),
         })

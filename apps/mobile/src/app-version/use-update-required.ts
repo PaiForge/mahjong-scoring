@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { AppState } from "react-native";
 import { mobileAppVersionApiUrl } from "@mahjong-scoring/features/app-version/mobile-api";
 
-import { readJson } from "../auth/read-json";
-import { SITE_URL } from "../lib/app-site-url";
+import { readPublicMobileApi } from "../auth/read-public-mobile-api";
 import { APP_PLATFORM, APP_VERSION } from "./app-version";
 import { isUpdateRequired } from "./update-requirement";
 
@@ -20,17 +19,14 @@ export function useUpdateRequired(): boolean {
 
   useEffect(() => {
     if (APP_PLATFORM === undefined) return;
-    const url = `${SITE_URL}${mobileAppVersionApiUrl(APP_PLATFORM)}`;
+    const path = mobileAppVersionApiUrl(APP_PLATFORM);
     let active = true;
     const check = async () => {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return;
-        const body = await readJson(response);
-        if (active) setRequired(isUpdateRequired(body, APP_VERSION));
-      } catch {
-        // 通信できなければ前の答えのまま
-      }
+      // 通信できない・読めなければ undefined で、前の答えのまま
+      const next = await readPublicMobileApi(path, (body) =>
+        isUpdateRequired(body, APP_VERSION),
+      );
+      if (active && next !== undefined) setRequired(next);
     };
     void check();
     const sub = AppState.addEventListener("change", (state) => {

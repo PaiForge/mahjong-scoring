@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { MENTSU_JANTOU_FU_HELP_SECTIONS } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/help-sections";
 
 import { HelpIconButton } from "../../../components/help-icon-button";
 import { InfoModal } from "../../../components/info-modal";
 import { colors } from "../../../lib/theme";
-
-/** ヘルプ本文の節（辞書キーの接頭辞） */
-const SECTIONS = ["ronKoutsu", "jantou", "shuntsu", "scope"] as const;
 
 /**
  * 面子と雀頭の符計算のヘルプ
@@ -38,7 +36,7 @@ export function MentsuJantouFuHelp() {
         closeLabel={tCommon("close")}
       >
         <View style={styles.sections}>
-          {SECTIONS.map((section) => (
+          {MENTSU_JANTOU_FU_HELP_SECTIONS.map((section) => (
             <View key={section} style={styles.section}>
               <Text style={styles.heading}>{t(`${section}.title`)}</Text>
               <Text style={styles.body}>{t(`${section}.body`)}</Text>
