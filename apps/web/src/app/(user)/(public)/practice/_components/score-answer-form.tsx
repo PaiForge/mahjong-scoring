@@ -11,9 +11,11 @@ import {
 } from "@/app/_hooks/use-display-settings-store";
 import type { ScoreAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 import {
+  applyScoreTileChoice,
   koTsumoPaymentOfKey,
   koTsumoSelectOptions,
   scoreSelectOptions,
+  scoreTileValue,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
 import { ScoreLabelRow } from "./score-label-row";
@@ -117,19 +119,13 @@ export function ScoreAnswerForm({
             available={availableScores}
             isOya={isOya}
             isTsumo={isTsumo}
-            value={
-              availableScores.type === "koTsumoCombined"
-                ? koTsumoPayment && koTsumoPaymentKey(koTsumoPayment)
-                : score?.toString()
+            value={scoreTileValue(availableScores, score, koTsumoPayment)}
+            onChange={(v) =>
+              applyScoreTileChoice(availableScores, v, {
+                onScore: selectScore,
+                onKoTsumoPayment: selectKoTsumoPayment,
+              })
             }
-            onChange={(v) => {
-              if (availableScores.type === "single") {
-                selectScore(Number(v));
-                return;
-              }
-              const payment = koTsumoPaymentOfKey(availableScores.payments, v);
-              if (payment) selectKoTsumoPayment(payment);
-            }}
             suffix={isOyaTsumo ? t("all") : ""}
             disabled={disabled}
             labelledBy={scoreLabelId}
