@@ -3,6 +3,7 @@ import {
   isSameChoice,
   type LessonChoice,
 } from "@mahjong-scoring/features/lessons/quiz";
+import type { LessonPhase } from "@mahjong-scoring/features/lessons/lesson-phase";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
 
@@ -14,9 +15,6 @@ import { hapticJudgement } from "../../lib/haptics";
 import { LessonDonePhase } from "./lesson-done-phase";
 import { LessonLearnPhase } from "./lesson-learn-phase";
 import { LessonQuizPhase } from "./lesson-quiz-phase";
-
-/** レッスンの段階（並びは進む順） */
-type LessonPhase = "learn" | "quiz" | "done";
 
 interface LessonViewProps {
   readonly slug: QuizLessonSlug;
