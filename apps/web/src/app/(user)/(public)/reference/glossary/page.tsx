@@ -9,7 +9,8 @@
  *
  * @flow
  * 早見表ハブ（/reference）か教本本文の用語リンクから来て、分類か五十音で
- * 目的の語を探し、用語ページへ遷移する。
+ * 目的の語を探し、用語ページへ遷移する。一覧の下の「ほかの早見表」から
+ * 点数表・役一覧へ。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -21,6 +22,7 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { getGlossaryTermViews } from "@/lib/glossary/queries";
 
+import { RelatedReferencesSection } from "../_components/related-references-section";
 import { CategoryTermIndex } from "./_components/category-term-index";
 import { JsonLd } from "@/app/(user)/_components/json-ld";
 import { KanaRowNav } from "./_components/kana-row-nav";
@@ -71,6 +73,8 @@ export default async function GlossaryIndexPage() {
             <KanaRowNav terms={terms} />
             <KanaTermList terms={terms} ads={ads} />
           </section>
+
+          <RelatedReferencesSection current="glossary" />
         </div>
       </ContentContainer>
     </>
