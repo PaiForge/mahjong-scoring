@@ -108,7 +108,7 @@ export function LinkRowList({
   const items = Array.isArray(children) ? children.flat() : [children];
   const rows = items.filter(Boolean);
   return (
-    <LinkRowFramedContext.Provider value={!inset}>
+    <LinkRowFramedContext value={!inset}>
       <View style={inset ? undefined : panelFrame}>
         {rows.map((child, i) => (
           <View key={i}>
@@ -117,7 +117,7 @@ export function LinkRowList({
           </View>
         ))}
       </View>
-    </LinkRowFramedContext.Provider>
+    </LinkRowFramedContext>
   );
 }
 

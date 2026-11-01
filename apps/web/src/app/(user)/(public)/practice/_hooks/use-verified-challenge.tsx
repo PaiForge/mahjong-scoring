@@ -337,7 +337,7 @@ export function VerifiedChallengeProvider({
   if (mode === "anonymous") return children;
   if (!state) return undefined;
   return (
-    <Context.Provider
+    <Context
       value={{
         ...state,
         advance,
@@ -376,6 +376,6 @@ export function VerifiedChallengeProvider({
           {children}
         </fieldset>
       </QuestionHostProvider>
-    </Context.Provider>
+    </Context>
   );
 }

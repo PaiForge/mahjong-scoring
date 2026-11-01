@@ -321,7 +321,7 @@ describe("POST", () => {
       // 一覧の行はアバター URL を含むため、捨てないと古い画像を出し続ける。
       expect(mockRevalidateTag).toHaveBeenCalledWith(
         LEADERBOARD_CACHE_TAG,
-        "default",
+        "max",
       );
       expect(mockLogActivityEvent).toHaveBeenCalledWith({
         userId: USER_ID,
@@ -447,7 +447,7 @@ describe("DELETE", () => {
     );
     expect(mockRevalidateTag).toHaveBeenCalledWith(
       LEADERBOARD_CACHE_TAG,
-      "default",
+      "max",
     );
     expect(mockLogActivityEvent).toHaveBeenCalledWith({
       userId: USER_ID,

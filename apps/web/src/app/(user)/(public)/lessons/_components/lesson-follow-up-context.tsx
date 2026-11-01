@@ -16,7 +16,7 @@ const LessonFollowUpContext = createContext<LessonFollowUp | undefined>(
  * `LessonView` が記録の結果から入れる。いまログインしている本人の分だけで、
  * 未記録・別のユーザーに切り替わったときは undefined。
  */
-export const LessonFollowUpProvider = LessonFollowUpContext.Provider;
+export const LessonFollowUpProvider = LessonFollowUpContext;
 
 /** レッスンの続きを読む。無ければ undefined */
 export function useLessonFollowUp(): LessonFollowUp | undefined {

@@ -70,7 +70,7 @@ export function PreferenceAnchorProvider({
   const value = useMemo(() => ({ item, land }), [item, land]);
 
   return (
-    <PreferenceAnchorContext.Provider value={value}>
+    <PreferenceAnchorContext value={value}>
       <View
         style={style}
         onTouchStart={() => {
@@ -82,7 +82,7 @@ export function PreferenceAnchorProvider({
       >
         {children}
       </View>
-    </PreferenceAnchorContext.Provider>
+    </PreferenceAnchorContext>
   );
 }
 

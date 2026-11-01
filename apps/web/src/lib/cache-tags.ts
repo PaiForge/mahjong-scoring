@@ -19,7 +19,7 @@ export const LEADERBOARD_CACHE_TAG = "leaderboard";
  * 閉じ込める。
  */
 export function purgeLeaderboardCache(): void {
-  revalidateTag(LEADERBOARD_CACHE_TAG, "default");
+  revalidateTag(LEADERBOARD_CACHE_TAG, "max");
 }
 
 /**

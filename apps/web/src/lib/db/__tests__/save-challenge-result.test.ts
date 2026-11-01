@@ -200,7 +200,7 @@ describe("saveChallengeResult", () => {
       expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
       expect(mockRevalidateTag).toHaveBeenCalledWith(
         "exp-heatmap:user-123",
-        "default",
+        "max",
       );
     });
 

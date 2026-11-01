@@ -110,7 +110,7 @@ describe("unbanUser", () => {
     });
     expect(mockRevalidatePath).toHaveBeenCalledWith("/admin/users", "layout");
     // ランキングに載るかどうかが変わるので、ランキングのキャッシュも捨てる
-    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "default");
+    expect(mockRevalidateTag).toHaveBeenCalledWith("leaderboard", "max");
   });
 
   it("仮登録（プロフィール無し）の BAN も解除できる — Auth にしか残っていない BAN を解く経路", async () => {

@@ -68,7 +68,7 @@ describe("updateProfile", () => {
     expect(result).toEqual({ success: true });
     expect(mockRevalidateTag).toHaveBeenCalledWith(
       LEADERBOARD_CACHE_TAG,
-      "default",
+      "max",
     );
   });
 
