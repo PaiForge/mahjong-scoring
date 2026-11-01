@@ -2,20 +2,21 @@ import {
   DOJO_PATH,
   LESSONS_PATH,
   PRACTICE_PATH,
+  REFERENCE_PATH,
 } from "@mahjong-scoring/features/routes";
 
 /**
  * 下部タブの入口のパス（`app/(tabs)/` の 5 画面）
  *
- * ホーム・道場・練習・レッスン・点数表。点数表はアプリだけのタブで、
- * features の routes に定数が無い。
+ * ホーム・道場・練習・レッスン・早見表。早見表は web のハブと同じパスで、
+ * 点数表・役一覧・用語集をタブの中で切り替える。
  */
 const TAB_PATHS: ReadonlySet<string> = new Set([
   "/",
   DOJO_PATH,
   PRACTICE_PATH,
   LESSONS_PATH,
-  "/score-table",
+  REFERENCE_PATH,
 ]);
 
 /**

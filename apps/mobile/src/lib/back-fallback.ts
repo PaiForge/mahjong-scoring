@@ -9,9 +9,6 @@ import {
 /** マイページ（設定・アカウントの入口） */
 const MYPAGE_PATH = "/mypage";
 
-/** 点数表のタブ（参照ページの入口） */
-const SCORE_TABLE_TAB_PATH = "/score-table";
-
 /**
  * 戻る履歴が無いときの戻り先
  * 戻り先の既定
@@ -23,7 +20,7 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  *
  * - レッスン → レッスンの目次
  * - 道場・級の詳細・昇級試験 → 道場
- * - 参照（役一覧・用語）→ 参照の入口、参照の入口 → 点数表のタブ
+ * - 参照（役一覧・用語）→ 早見表のタブ
  * - 設定の下のページ → 設定、設定 → マイページ（入口がマイページのため）
  * - 退会 → アカウント、それ以外のマイページの下のページ → マイページ、
  *   マイページ → ホーム（入口がホームのヘッダーのため）
@@ -41,7 +38,7 @@ export function backFallbackHref(pathname: string): string {
     case "exam":
       return DOJO_PATH;
     case "reference":
-      return child === undefined ? SCORE_TABLE_TAB_PATH : REFERENCE_PATH;
+      return REFERENCE_PATH;
     case "preferences":
       return child === undefined ? MYPAGE_PATH : PREFERENCES_PATH;
     case "mypage":

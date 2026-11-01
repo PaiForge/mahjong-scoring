@@ -47,7 +47,7 @@ describe("resolveAnnouncementLink", () => {
   it("置き場所の違う画面はアプリのパスに読み替える", () => {
     expect(resolveAnnouncementLink("/reference/score-table", SITE)).toEqual({
       kind: "app",
-      path: "/score-table",
+      path: "/reference",
     });
     expect(resolveAnnouncementLink(`${SITE}/dashboard`, SITE)).toEqual({
       kind: "app",
