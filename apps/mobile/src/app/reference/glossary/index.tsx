@@ -28,6 +28,7 @@ import { useScrollIntoView } from "../../../components/scroll-into-view";
 import { SectionTitle } from "../../../components/section-title";
 import { linkStyles } from "../../../lib/link-styles";
 import { colors } from "../../../lib/theme";
+import { RelatedReferencesSection } from "../../../reference/related-references-section";
 import { TermLinkList } from "../../../reference/term-link-list";
 
 /**
@@ -38,8 +39,9 @@ import { TermLinkList } from "../../../reference/term-link-list";
  * 分類（意味の近さ）と五十音の 2 つの入口を持ち、語の説明は用語の画面に置く。
  *
  * @flow
- * 点数表のタブの「ほかの早見表」か、レッスン本文の用語のシートから来て、
- * 分類か五十音で目的の語を探し、用語の画面へ進む。
+ * 点数表・役一覧の「ほかの早見表」か、レッスン本文の用語のシートから来て、
+ * 分類か五十音で目的の語を探し、用語の画面へ進む。一覧の下の
+ * 「ほかの早見表」から点数表・役一覧へ。
  */
 export default function GlossaryIndexScreen() {
   const t = useTranslations("glossary");
@@ -73,6 +75,8 @@ export default function GlossaryIndexScreen() {
         onOpen={(href) => router.push(href)}
         ads={ads}
       />
+
+      <RelatedReferencesSection current="glossary" />
     </Screen>
   );
 }
