@@ -19,19 +19,22 @@ import {
  * {@link GuideColumn} を直接使う。
  *
  * @param namespace 章の辞書の名前空間（`<camelCase(slug)>.learn`）
+ * @param values 見出しと本文の ICU 引数（ルール設定で文言が変わる章が渡す）
  */
 export function ChapterColumn({
   namespace,
+  values,
   children,
 }: {
   readonly namespace: string;
+  readonly values?: Record<string, string | number>;
   readonly children?: ReactNode;
 }) {
   const t = useTranslations(namespace);
   return (
-    <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
+    <GuideColumn label={t("columnLabel")} title={t("columnTitle", values)}>
       <GuideParagraph>
-        {t.rich("columnBody", { br: richLineBreak })}
+        {t.rich("columnBody", { ...values, br: richLineBreak })}
       </GuideParagraph>
       {children}
     </GuideColumn>

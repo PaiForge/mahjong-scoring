@@ -10,14 +10,16 @@ import { TABLE_HIGHLIGHT_CELL_CLASS } from "@/app/(user)/_components/_lib/table-
 import { HAN_COLS } from "@mahjong-scoring/features/score-table/han-cols";
 import { ScoreTableReferenceLink } from "../../_components/score-table-reference-link";
 
-import {
-  buildOyaRonRows,
-  type OyaRonCell,
+import type {
+  OyaRonCell,
+  OyaRonRow,
 } from "@mahjong-scoring/features/curriculum/oya-ron-rows";
 
 interface OyaRonScoreTableProps {
-  /** 表の上に出す見出し */
+  /** 表の上に出す見出し（どちらのルールの表かを含む） */
   readonly caption: string;
+  /** 表の行（`buildOyaRonRows` の結果） */
+  readonly rows: readonly OyaRonRow[];
 }
 
 /**
@@ -31,11 +33,14 @@ interface OyaRonScoreTableProps {
  * 凡例の文言は章側が持つ。
  *
  * 点数とずれの判定は features の `curriculum/oya-ron-rows` 経由で core の計算を
- * 通す。章側にもこのファイルにも点数を書き起こさない。
+ * 通す。章側にもこのファイルにも点数を書き起こさない。行は切り上げ満貫の
+ * 設定ごとに章が組み立てて渡す。
  */
-export async function OyaRonScoreTable({ caption }: OyaRonScoreTableProps) {
+export async function OyaRonScoreTable({
+  caption,
+  rows,
+}: OyaRonScoreTableProps) {
   const t = await getTranslations("learnCurriculum.scoreTable");
-  const rows = buildOyaRonRows();
 
   const renderCell = (cell: OyaRonCell) => {
     switch (cell.kind) {

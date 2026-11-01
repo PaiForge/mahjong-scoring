@@ -7,6 +7,8 @@ import { GuideParagraph } from "./guide-paragraph";
 interface ChapterColumnProps {
   /** 章の名前空間で解決済みの翻訳関数 */
   readonly t: GuideTranslator;
+  /** 見出しと本文の ICU 引数（ルール設定で文言が変わる章が渡す） */
+  readonly values?: Record<string, string | number>;
   /** 本文のあとに続ける補足（注記など）。無ければ本文だけのコラムになる */
   readonly children?: ReactNode;
 }
@@ -24,11 +26,11 @@ interface ChapterColumnProps {
  * （`columnBody1` / `columnBody2`）はこの形に乗らないので、
  * {@link GuideColumn} を直接使うこと。
  */
-export function ChapterColumn({ t, children }: ChapterColumnProps) {
+export function ChapterColumn({ t, values, children }: ChapterColumnProps) {
   return (
-    <GuideColumn label={t("columnLabel")} title={t("columnTitle")}>
+    <GuideColumn label={t("columnLabel")} title={t("columnTitle", values)}>
       <GuideParagraph>
-        {t.rich("columnBody", { br: () => <br /> })}
+        {t.rich("columnBody", { ...values, br: () => <br /> })}
       </GuideParagraph>
       {children}
     </GuideColumn>

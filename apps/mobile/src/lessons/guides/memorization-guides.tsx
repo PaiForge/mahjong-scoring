@@ -1,6 +1,10 @@
 import { View } from "react-native";
 import { useTranslations } from "use-intl";
 import { FU_PAIRS } from "@mahjong-scoring/features/curriculum/fu-doubling-rows";
+import {
+  buildOyaRonRows,
+  countOyaRonCells,
+} from "@mahjong-scoring/features/curriculum/oya-ron-rows";
 import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import {
@@ -25,6 +29,7 @@ import {
   TsumoCarryoverDiagram,
   TsumoSplitTable,
 } from "../components/memorization-tables";
+import { useRuleSettingsStore } from "../../hooks/use-rule-settings-store";
 
 /** 25符と50符の組。七対子とその倍の符で、この章の入口になる例 */
 const CHIITOITSU_PAIR = { low: 25, high: 50 } as const;
@@ -249,10 +254,16 @@ export function TsumoPaymentsGuide() {
 /**
  * 親ロンでの効率的な点数の覚え方 — 点数記憶術セクション第 4 章
  * （web の `OyaRonScoresGuide`）
+ *
+ * 表・まとめのマス数・コラムは切り上げ満貫の設定に合わせる（理由は web 側）。
  */
 export function OyaRonScoresGuide() {
   const namespace = "oyaRonScores.learn";
   const t = useTranslations(namespace);
+  const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
+  const kiriage = kiriageMangan ? "on" : "off";
+  const rows = buildOyaRonRows({ kiriageMangan });
+  const { scored, deviating } = countOyaRonCells(rows);
 
   return (
     <GuideBody>
@@ -281,7 +292,10 @@ export function OyaRonScoresGuide() {
       {/* 本題。ずれるマスを表の上で示し、それだけを覚える対象にする */}
       <GuideSection title={t("memorizeTitle")}>
         <GuideParagraph>{t("memorizeBody1")}</GuideParagraph>
-        <OyaRonScoreTable caption={t("tableCaption")} />
+        <OyaRonScoreTable
+          caption={t("tableCaption", { kiriage })}
+          rows={rows}
+        />
         <View>
           <GuideNote>{t("legendNote")}</GuideNote>
           <GuideNote>{t("legendParenNote")}</GuideNote>
@@ -292,7 +306,10 @@ export function OyaRonScoresGuide() {
       <GuideSection title={t("summaryTitle")}>
         <GuideBulletList
           items={[
-            { text: t("summaryCount"), children: [t("summaryCountRest")] },
+            {
+              text: t("summaryCount", { kiriage, scored, deviating }),
+              children: [t("summaryCountRest", { rest: scored - deviating })],
+            },
             t("summaryCleanRows"),
             {
               text: t("summaryDirection"),
@@ -302,8 +319,8 @@ export function OyaRonScoresGuide() {
         />
       </GuideSection>
 
-      {/* コラム: 切り上げ満貫を採ると、ずれるマスのうち2つが満貫に変わる */}
-      <ChapterColumn namespace={namespace}>
+      {/* コラム: 設定と逆のルールでは、30符4翻・60符3翻の2マスの扱いが変わる */}
+      <ChapterColumn namespace={namespace} values={{ kiriage }}>
         <PreferenceSettingsNote
           namespace={namespace}
           anchor={PREFERENCE_ANCHORS.kiriageMangan}
