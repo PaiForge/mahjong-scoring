@@ -155,6 +155,11 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   確かめてから — 一度ストアで iPad に対応すると、対応を外した版は App Store Connect が受け付けない
 - **使わない権限の用途の文言を Info.plist に残さない。** expo-secure-store は既定で Face ID の
   用途（英語）を書き込むが、`requireAuthentication` を使わないので `faceIDPermission: false` で消している
+- **収集するデータは `app.json` の `ios.privacyManifests` に書き、App Store Connect のプライバシー
+  ラベルと揃える。** いまはメールアドレス・ユーザー ID（ユーザー名を含む）・購入履歴・練習の記録
+  （GameplayContent）で、どれもアカウントに紐づき、トラッキングしない。サーバーに送るものを足したら
+  両方を直す。API の利用理由（UserDefaults 等）は書かない — `pod install` が依存のマニフェストから
+  集めて足す（prebuild 直後のファイルでは空に見える）
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
