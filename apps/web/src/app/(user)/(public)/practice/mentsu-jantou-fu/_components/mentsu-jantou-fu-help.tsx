@@ -1,10 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { MENTSU_JANTOU_FU_HELP_SECTIONS } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/help-sections";
 import { PracticeHelpButton } from "../../_components/practice-help-button";
-
-/** ヘルプ本文の節（辞書キーの接頭辞） */
-const SECTIONS = ["ronKoutsu", "jantou", "shuntsu", "scope"] as const;
 
 /**
  * 面子と雀頭の符計算のヘルプ
@@ -23,7 +21,7 @@ export function MentsuJantouFuHelp() {
   return (
     <PracticeHelpButton title={t("title")} label={t("label")}>
       <div className="space-y-4">
-        {SECTIONS.map((section) => (
+        {MENTSU_JANTOU_FU_HELP_SECTIONS.map((section) => (
           <section key={section}>
             <h4 className="font-bold text-surface-900">
               {t(`${section}.title`)}
