@@ -3,6 +3,8 @@
  *
  * @description 基礎練習と実戦練習の入口。基礎練習は段級位・分野で絞り込み、
  * 実戦練習は問題のプレビューと利用枠を示す。選択は URL と端末に保存する。
+ * ログイン中は、チャレンジを終えた練習のカードに「挑戦済み」の印を出す
+ * （静的ページのまま、クライアントが Server Action で取る）。
  * @flow 各練習の設定・説明ページへ遷移する。
  */
 import type { Metadata } from "next";
@@ -17,6 +19,7 @@ import {
   TenpaiScorePracticeBanner,
 } from "../_components/practical-practice-banners";
 import { PracticeModeSwitcher } from "../_components/practice-mode-switcher";
+import { AttemptedPracticesProvider } from "../_components/attempted-practices";
 import { CatalogPracticeCard } from "../_components/catalog-practice-card";
 import {
   PracticeFilter,
@@ -90,7 +93,7 @@ export default async function PracticePage() {
 
       <PracticeModeSwitcher
         basic={
-          <div className="space-y-6">
+          <AttemptedPracticesProvider>
             <PracticeFilter
               items={items}
               filterLabel={t("filter.label")}
@@ -115,7 +118,7 @@ export default async function PracticePage() {
                 })),
               ]}
             />
-          </div>
+          </AttemptedPracticesProvider>
         }
         practical={
           <div className="space-y-6">
