@@ -20,7 +20,7 @@ import { YakuCheatsheet } from "../../reference/yaku-cheatsheet";
  * 翻数表の役名から開く）。翻数のまとまりの間に広告の行を置く。
  *
  * @flow
- * 早見表のハブか、レッスンの役名から開いて閲覧する。
+ * 点数表のタブの「ほかの早見表」か、レッスンの役名から開いて閲覧する。
  */
 export default function ReferenceYakuScreen() {
   const t = useTranslations("reference.yaku");

@@ -2,17 +2,19 @@
  * 点数早見表
  *
  * @description 符×翻（20〜110 符 × 1〜4 翻）と満貫以上の点数を、親子・ロンツモで
- * 切り替えて引く表。セルをタップすると数字を隠せる（暗記用）。
- * @flow 下部タブ → 点数表。見出しの右の虫眼鏡から早見表（役一覧・用語集）へ
+ * 切り替えて引く表。セルをタップすると数字を隠せる（暗記用）。表の下に
+ * ほかの早見表（役一覧・用語集）への行を置く（`RELATED_REFERENCES`）。web と
+ * 違い早見表の一覧の画面は持たず、この行が役一覧・用語集の入口になる。
+ * @flow 下部タブ → 点数表。表の下の「ほかの早見表」から役一覧・用語集へ
  */
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
+import { RELATED_REFERENCES } from "@mahjong-scoring/features/score-table/related-references";
 
-import { MagnifyingGlassIcon } from "../../components/icons/icons";
+import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { colors } from "../../lib/theme";
+import { SectionTitle } from "../../components/section-title";
 import { ScoreTable } from "../../score-table/score-table";
 
 /** 切り替えの帯の位置（`Screen` の子の並びで数える）。表の上に追従させる */
@@ -29,24 +31,25 @@ export default function ScoreTableScreen() {
         <Screen
           title={t("pageTitle")}
           inTabs
-          titleAction={
-            // web はドロワーから早見表のハブへ行けるが、モバイルにドロワーは
-            // 無いので、早見表のうち点数表を置いたこのタブから入口を出す
-            <Pressable
-              onPress={() => router.push(REFERENCE_PATH)}
-              accessibilityRole="button"
-              accessibilityLabel={tReference("title")}
-              hitSlop={8}
-              style={({ pressed }) => pressed && styles.pressed}
-            >
-              <MagnifyingGlassIcon size={24} color={colors.surface700} />
-            </Pressable>
-          }
           contentStyle={styles.content}
           stickyHeaderIndices={[CONTROLS_INDEX]}
         >
           {controls}
           {body}
+          <View style={styles.related}>
+            <SectionTitle>{tReference("relatedTitle")}</SectionTitle>
+            <LinkRowList>
+              {RELATED_REFERENCES.map(({ key, href }) => (
+                <LinkRow
+                  key={key}
+                  testID={`score-table-related-${key}`}
+                  onPress={() => router.push(href)}
+                  title={tReference(`${key}.title`)}
+                  description={tReference(`${key}.description`)}
+                />
+              ))}
+            </LinkRowList>
+          </View>
         </Screen>
       )}
     />
@@ -57,7 +60,8 @@ const styles = StyleSheet.create({
   content: {
     gap: 0,
   },
-  pressed: {
-    opacity: 0.5,
+  related: {
+    marginTop: 40,
+    gap: 16,
   },
 });

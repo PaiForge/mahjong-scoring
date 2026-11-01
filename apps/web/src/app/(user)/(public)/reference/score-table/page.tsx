@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
+import { LinkRow, LinkRowList } from "@/app/(user)/_components/link-row";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { SectionTitle } from "@/app/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ScoreTableFromQuery } from "./_components/score-table-from-query";
 import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
+import { RELATED_REFERENCES } from "@mahjong-scoring/features/score-table/related-references";
 
 /**
  * 点数早見表
@@ -20,6 +23,9 @@ import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
  * クエリの読み取り（`useSearchParams`）は何も描画しない葉に閉じ込め、hydration 後に
  * タブとハイライトを合わせる（`ScoreTableFromQuery`）。ルール設定（切り上げ満貫）は
  * 端末ローカルなので、サーバーと hydration 中は既定値で描き、その後に追随させる。
+ *
+ * @flow タブバー・早見表の一覧・練習の答え合わせから開く。表の下の
+ * 「ほかの早見表」から役一覧・用語集へ（`RELATED_REFERENCES`）
  */
 export async function generateMetadata(): Promise<Metadata> {
   return createNamespaceMetadata("scoreTable", {
@@ -42,7 +48,24 @@ export default async function ReferenceScoreTablePage() {
     >
       <PageTitle>{t("pageTitle")}</PageTitle>
 
-      <ScoreTableFromQuery />
+      <div className="space-y-10">
+        <ScoreTableFromQuery />
+
+        {/* タブバーからここへ直接来た人に、ほかの早見表があることを見せる */}
+        <section className="space-y-4">
+          <SectionTitle>{tHub("relatedTitle")}</SectionTitle>
+          <LinkRowList>
+            {RELATED_REFERENCES.map(({ key, href }) => (
+              <LinkRow
+                key={key}
+                href={href}
+                title={tHub(`${key}.title`)}
+                description={tHub(`${key}.description`)}
+              />
+            ))}
+          </LinkRowList>
+        </section>
+      </div>
     </ContentContainer>
   );
 }

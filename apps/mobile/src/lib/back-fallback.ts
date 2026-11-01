@@ -3,13 +3,12 @@ import {
   LESSONS_PATH,
   PRACTICE_PATH,
   PREFERENCES_PATH,
-  REFERENCE_PATH,
 } from "@mahjong-scoring/features/routes";
 
 /** マイページ（設定・アカウントの入口） */
 const MYPAGE_PATH = "/mypage";
 
-/** 点数表のタブ（参照ページの入口） */
+/** 点数表のタブ（役一覧・用語集の入口） */
 const SCORE_TABLE_TAB_PATH = "/score-table";
 
 /**
@@ -23,7 +22,7 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  *
  * - レッスン → レッスンの目次
  * - 道場・級の詳細・昇級試験 → 道場
- * - 参照（役一覧・用語）→ 参照の入口、参照の入口 → 点数表のタブ
+ * - 参照（役一覧・用語）→ 点数表のタブ（表の下に入口がある）
  * - 設定の下のページ → 設定、設定 → マイページ（入口がマイページのため）
  * - 退会 → アカウント、それ以外のマイページの下のページ → マイページ、
  *   マイページ → ホーム（入口がホームのヘッダーのため）
@@ -41,7 +40,7 @@ export function backFallbackHref(pathname: string): string {
     case "exam":
       return DOJO_PATH;
     case "reference":
-      return child === undefined ? SCORE_TABLE_TAB_PATH : REFERENCE_PATH;
+      return SCORE_TABLE_TAB_PATH;
     case "preferences":
       return child === undefined ? MYPAGE_PATH : PREFERENCES_PATH;
     case "mypage":

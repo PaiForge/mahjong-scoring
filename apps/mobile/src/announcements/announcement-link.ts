@@ -31,14 +31,16 @@ const APP_PATH_PREFIXES = [
 /**
  * web とアプリで置き場所の違う画面（web のパス → アプリのパス）
  *
- * 点数表はアプリではタブにある。ホームは web のログイン済みのトップ
- * （`/dashboard`。URL は `/` のまま見える）と同じ画面。`/dojo/ranks` は
+ * 点数表はアプリではタブにある。早見表の一覧（`/reference`）は持たず、
+ * 点数表の下の行が役一覧・用語集の入口になるので、一覧も点数表へ送る。
+ * ホームは web のログイン済みのトップ（`/dashboard`。URL は `/` のまま
+ * 見える）と同じ画面。`/dojo/ranks` は
  * web が道場へ 301 で送る旧一覧。
  */
 const APP_PATH_ALIASES: ReadonlyMap<string, string> = new Map([
   ["/", "/"],
   ["/dashboard", "/"],
-  [REFERENCE_PATH, REFERENCE_PATH],
+  [REFERENCE_PATH, "/score-table"],
   ["/reference/score-table", "/score-table"],
   ["/dojo/ranks", DOJO_PATH],
 ]);

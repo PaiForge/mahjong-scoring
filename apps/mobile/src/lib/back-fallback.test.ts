@@ -14,9 +14,9 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/exam/mangan")).toBe("/dojo");
   });
 
-  it("参照の下は参照の入口へ、入口は点数表のタブへ", () => {
-    expect(backFallbackHref("/reference/yaku")).toBe("/reference");
-    expect(backFallbackHref("/reference")).toBe("/score-table");
+  it("参照の下は入口のある点数表のタブへ", () => {
+    expect(backFallbackHref("/reference/yaku")).toBe("/score-table");
+    expect(backFallbackHref("/reference/glossary/fu")).toBe("/score-table");
   });
 
   it("設定の下は設定へ、設定は入口のマイページへ", () => {

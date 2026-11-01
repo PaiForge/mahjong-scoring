@@ -38,8 +38,8 @@ import { TermLinkList } from "../../../reference/term-link-list";
  * 分類（意味の近さ）と五十音の 2 つの入口を持ち、語の説明は用語の画面に置く。
  *
  * @flow
- * 早見表のハブか、レッスン本文の用語のシートから来て、分類か五十音で目的の
- * 語を探し、用語の画面へ進む。
+ * 点数表のタブの「ほかの早見表」か、レッスン本文の用語のシートから来て、
+ * 分類か五十音で目的の語を探し、用語の画面へ進む。
  */
 export default function GlossaryIndexScreen() {
   const t = useTranslations("glossary");
