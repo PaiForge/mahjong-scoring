@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   practiceMenuBySlug,
+  resolveInitialPracticeVariant,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
+import { VARIANT_PARAM } from "@mahjong-scoring/features/routes";
+
+import {
+  usePracticeVariantStore,
+  useRememberedPracticeVariant,
+} from "../../hooks/use-practice-variant-store";
 
 import { InsetRing } from "../../components/inset-ring";
 import { SectionTitle } from "../../components/section-title";
@@ -15,9 +23,33 @@ import { PracticeStartCta } from "./practice-start-cta";
  * 出題設定（バリアント）の選択と開始導線（web の `VariantStartPanel`）
  *
  * レジストリに列挙したバリアントから 1 つ選び、`?variant=` に載せて
- * チャレンジ / トレーニングへ送る。
+ * チャレンジ / トレーニングへ送る。初期選択は `?variant=`、無ければ前回
+ * 始めたときの範囲（`resolveInitialPracticeVariant`）。前回の範囲は
+ * AsyncStorage から非同期に読むので、読み終えるまでは何も描かない
+ * （既定で描いてから切り替えると選択が目の前で動く。読み出しは一瞬で終わる）。
  */
 export function VariantStartPanel({
+  slug,
+}: {
+  readonly slug: PracticeMenuSlug;
+}) {
+  const params = useLocalSearchParams<{ [VARIANT_PARAM]?: string }>();
+  const fromUrl = params[VARIANT_PARAM];
+  const remembered = useRememberedPracticeVariant(slug);
+  if (!remembered.ready) return undefined;
+  return (
+    <VariantStartForm
+      slug={slug}
+      initialVariant={resolveInitialPracticeVariant(
+        slug,
+        typeof fromUrl === "string" ? fromUrl : undefined,
+        remembered.variant,
+      )}
+    />
+  );
+}
+
+function VariantStartForm({
   slug,
   initialVariant,
 }: {
@@ -27,6 +59,7 @@ export function VariantStartPanel({
   const { namespace, variants } = practiceMenuBySlug(slug);
   const tVariants = useTranslations(`${namespace}.variants`);
   const tp = useTranslations("practice");
+  const rememberVariant = usePracticeVariantStore((s) => s.rememberVariant);
   const [variant, setVariant] = useState(initialVariant);
 
   return (
@@ -66,7 +99,12 @@ export function VariantStartPanel({
           })}
         </View>
       </View>
-      <PracticeStartCta slug={slug} variant={variant} />
+      <PracticeStartCta
+        slug={slug}
+        variant={variant}
+        // 選択肢を押しただけでは保存せず、始めたときに覚える
+        onStart={() => rememberVariant(slug, variant)}
+      />
     </View>
   );
 }
