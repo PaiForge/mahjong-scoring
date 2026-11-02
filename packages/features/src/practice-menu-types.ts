@@ -665,3 +665,29 @@ export function resolvePracticeVariant<S extends PracticeMenuSlug>(
   // variants[0] は列挙そのものなので必ず通る。型の絞り込みのためだけの残余
   throw new Error(`Unreachable: ${slug} の既定バリアントが列挙に無い`);
 }
+
+/**
+ * 説明ページの出題設定の初期選択を決める
+ * 初期バリアント
+ *
+ * URL の `?variant=`（レッスン・道場・結果ページの「設定を変更する」が
+ * 意図して付ける）を最優先し、無い・不正なら前回チャレンジかトレーニングを
+ * 始めたときの範囲（端末ローカルの保存値）、それも無い・レジストリから
+ * 消えた値なら既定（先頭）に落とす。
+ *
+ * 保存値は記録の土俵を決めない — 選んだ範囲は開始時に `?variant=` へ載せて
+ * play / training へ運ぶので、土俵は従来どおり URL だけで決まる。
+ *
+ * @param fromUrl - URL の `?variant=` の生の値
+ * @param remembered - 前回開始したときの範囲（保存値）
+ */
+export function resolveInitialPracticeVariant<S extends PracticeMenuSlug>(
+  slug: S,
+  fromUrl: string | undefined,
+  remembered: string | undefined,
+): PracticeVariantOf<S> {
+  if (fromUrl !== undefined && isPracticeVariantOf(slug, fromUrl)) {
+    return fromUrl;
+  }
+  return resolvePracticeVariant(slug, remembered);
+}

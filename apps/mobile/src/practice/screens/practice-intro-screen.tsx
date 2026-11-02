@@ -45,7 +45,7 @@ export function PracticeIntroScreen({
       <HowToPlaySection namespace={namespace} Demo={Demo} />
 
       {hasSetup ? (
-        <VariantStartPanel slug={slug} initialVariant={variant} />
+        <VariantStartPanel slug={slug} />
       ) : (
         <PracticeStartCta slug={slug} variant={variant} />
       )}

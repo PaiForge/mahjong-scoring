@@ -24,9 +24,12 @@ import { colors } from "../../lib/theme";
 export function PracticeStartCta({
   slug,
   variant,
+  onStart,
 }: {
   readonly slug: PracticeMenuSlug;
   readonly variant: string;
+  /** チャレンジ・トレーニングのどちらかを押したとき（遷移の前に呼ぶ） */
+  readonly onStart?: () => void;
 }) {
   const router = useRouter();
   const challenge = useTranslations("challenge");
@@ -44,7 +47,10 @@ export function PracticeStartCta({
           size="lg"
           fullWidth
           icon={<PlayIcon size={16} color={buttonForeground("primary")} />}
-          onPress={() => router.push(practicePlayHref(slug, variant))}
+          onPress={() => {
+            onStart?.();
+            router.push(practicePlayHref(slug, variant));
+          }}
           testID="start-challenge"
         >
           {labels.challenge}
@@ -62,7 +68,10 @@ export function PracticeStartCta({
           icon={
             <InfinityIcon size={16} color={buttonForeground("secondary")} />
           }
-          onPress={() => router.push(practiceTrainingHref(slug, variant))}
+          onPress={() => {
+            onStart?.();
+            router.push(practiceTrainingHref(slug, variant));
+          }}
           testID="start-training"
         >
           {labels.training}

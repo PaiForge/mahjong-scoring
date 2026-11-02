@@ -1,16 +1,22 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   practiceMenuBySlug,
+  resolveInitialPracticeVariant,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { useVariantQuery } from "../_hooks/use-variant-query";
+import {
+  usePracticeVariantStore,
+  useRememberedPracticeVariant,
+} from "@/app/_hooks/use-practice-variant-store";
 import {
   practicePlayHref,
   practiceTrainingHref,
+  VARIANT_PARAM,
 } from "@mahjong-scoring/features/routes";
 import { buildPracticeStartCtaLabels } from "@mahjong-scoring/features/practice/start-cta-labels";
 import {
@@ -46,17 +52,46 @@ function optionGridClass(count: number): string {
   return `grid gap-2 ${count > 3 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`;
 }
 
+/**
+ * 初期選択を決めてから選択肢を描く
+ *
+ * 教本・結果ページ・トレーニングの終了・チャレンジの中断から `?variant=`
+ * 付きで来たときはそれを、無ければ前回始めたときの範囲を初期選択にする
+ * （`resolveInitialPracticeVariant`）。前回の範囲は端末ローカルで、読み終える
+ * まではスケルトンを出す — 既定で描いてから切り替えると選択が目の前で動く。
+ */
 function VariantOptions({ slug }: VariantStartPanelProps) {
+  const { variants } = practiceMenuBySlug(slug);
+  const searchParams = useSearchParams();
+  const remembered = useRememberedPracticeVariant(slug);
+
+  if (!remembered.ready) {
+    return <VariantOptionsSkeleton count={variants.length} />;
+  }
+  return (
+    <VariantOptionsForm
+      slug={slug}
+      initial={resolveInitialPracticeVariant(
+        slug,
+        searchParams.get(VARIANT_PARAM) ?? undefined,
+        remembered.variant,
+      )}
+    />
+  );
+}
+
+function VariantOptionsForm({
+  slug,
+  initial,
+}: VariantStartPanelProps & { readonly initial: string }) {
   const { namespace, variants, timeLimit, mistakeLimit } =
     practiceMenuBySlug(slug);
   const tVariants = useTranslations(`${namespace}.variants`);
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const tt = useTranslations("training");
+  const rememberVariant = usePracticeVariantStore((s) => s.rememberVariant);
 
-  // 教本・結果ページ・トレーニングの終了・チャレンジの中断から `?variant=`
-  // 付きで来たときはそれを初期選択にする
-  const initial = useVariantQuery(slug);
   const [variant, setVariant] = useState<string>(initial);
 
   return (
@@ -96,12 +131,14 @@ function VariantOptions({ slug }: VariantStartPanelProps) {
           { challenge: tc, practice: tp, training: tt },
           { timeLimit, mistakeLimit },
         )}
+        // 選択肢を押しただけでは保存せず、始めたときに覚える
+        onStart={() => rememberVariant(slug, variant)}
       />
     </>
   );
 }
 
-/** URL の読み出し前に確保する、選択肢 3 枚と開始導線の枠 */
+/** URL と前回の範囲を読み終える前に確保する、選択肢と開始導線の枠 */
 function VariantOptionsSkeleton({ count }: { readonly count: number }) {
   return (
     <>
@@ -132,7 +169,8 @@ function VariantOptionsSkeleton({ count }: { readonly count: number }) {
  * play / training への `?variant=` に載せて運ぶ。
  *
  * 初期選択は URL の `?variant=`（教本の導線・結果ページの「設定を変更する」・
- * トレーニングの「終了する」・チャレンジの「やめる」が付ける）。`useSearchParams()` で読むため静的ルートではこのサブツリーだけが
+ * トレーニングの「終了する」・チャレンジの「やめる」が付ける）、無ければ前回
+ * チャレンジかトレーニングを始めたときの範囲（端末ローカル）。`useSearchParams()` で読むため静的ルートではこのサブツリーだけが
  * クライアント描画になる — 自前の `Suspense` で包み、プリレンダー HTML には
  * 選択肢と同寸のスケルトンを出す（これが無いと `loading.tsx` の境界まで
  * 巻き込んでページ全体がスケルトンになる）。

@@ -18,6 +18,8 @@ interface PracticeStartCtaProps {
    * リンクの代わりに無効表示のラベルを出す（遷移させない）。
    */
   readonly disabled?: boolean;
+  /** チャレンジ・トレーニングのどちらかを押したとき（遷移の前に呼ぶ） */
+  readonly onStart?: () => void;
 }
 
 /** 3ブロック全体の縦積み */
@@ -78,11 +80,13 @@ export function TrainingStartBlock({
   label,
   hint,
   disabled = false,
+  onClick,
 }: {
   readonly href: string;
   readonly label: ReactNode;
   readonly hint: ReactNode;
   readonly disabled?: boolean;
+  readonly onClick?: () => void;
 }) {
   return (
     <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
@@ -92,6 +96,7 @@ export function TrainingStartBlock({
         size="lg"
         fullWidth
         disabled={disabled}
+        onClick={onClick}
       >
         <InfinityIcon className="size-4" />
         {label}
@@ -115,11 +120,18 @@ export function PracticeStartCta({
   trainingHref,
   labels,
   disabled = false,
+  onStart,
 }: PracticeStartCtaProps) {
   return (
     <div className={PRACTICE_START_CTA_FRAME_CLASS}>
       <div className={PRACTICE_START_CTA_BLOCK_CLASS}>
-        <LinkButton href={playHref} size="lg" fullWidth disabled={disabled}>
+        <LinkButton
+          href={playHref}
+          size="lg"
+          fullWidth
+          disabled={disabled}
+          onClick={onStart}
+        >
           <PlayIcon className="size-4" />
           {labels.challenge}
         </LinkButton>
@@ -133,6 +145,7 @@ export function PracticeStartCta({
         label={labels.training}
         hint={labels.trainingHint}
         disabled={disabled}
+        onClick={onStart}
       />
     </div>
   );
