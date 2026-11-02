@@ -4,13 +4,11 @@
 
 ALTER TABLE "profiles" ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "profiles_select_policy" ON "profiles";
-CREATE POLICY "profiles_select_policy" ON "profiles"
-  FOR SELECT USING (deleted_at IS NULL);
-
--- INSERT / UPDATE のポリシーは置かない。書き込みはサーバ（Drizzle の直 DB 接続）
--- だけが行う（理由は foreign_keys_and_grants.sql の profiles の GRANT を参照）。
+-- ポリシーは 1 つも置かない。読み書きはサーバ（Drizzle の直 DB 接続）だけが行う
+-- （理由は foreign_keys_and_grants.sql の profiles の節を参照）。GRANT が無くても
+-- 全行を読むポリシーを残すと、GRANT を戻した瞬間に全利用者が列挙できる状態へ戻る。
 -- 下の DROP は既存環境から旧ポリシーを取り除くために残す（冪等）。
+DROP POLICY IF EXISTS "profiles_select_policy" ON "profiles";
 DROP POLICY IF EXISTS "profiles_insert_policy" ON "profiles";
 DROP POLICY IF EXISTS "profiles_update_policy" ON "profiles";
 

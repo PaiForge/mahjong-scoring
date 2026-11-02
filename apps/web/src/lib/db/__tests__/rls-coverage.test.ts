@@ -59,6 +59,49 @@ const CLIENT_WRITABLE_TABLES: readonly string[] = [
 
 const WRITE_PRIVILEGES = ["INSERT", "UPDATE", "DELETE"] as const;
 
+/**
+ * 他人の行まで読める（own-row ではない SELECT ポリシーを持つ）ことを許す表。
+ *
+ * RLS は行を絞れても列を絞れない。全行を読めるポリシーに SELECT の GRANT を
+ * 合わせると、publishable key だけで表の全列が全員分読める。ここには、どの列を
+ * 誰に見せても構わない公開コンテンツだけを置く。
+ *
+ * profiles を足してはいけない。以前は全行を読めるポリシーと anon への SELECT が
+ * あり、全利用者の id・SNS・banned_at・hidden_from_leaderboard が列挙でき、
+ * 公開プロフィールが隠す BAN 中の利用者まで見えた（2026-11 の監査）。他の利用者に
+ * 見せる列はサーバのクエリ（getPublicProfileByUsername）が選んで返す。
+ */
+const PUBLIC_READ_TABLES: readonly string[] = ["announcements"];
+
+const OWN_ROW_CONDITION = /^\(?\s*auth\.uid\(\)\s*=\s*user_id\s*\)?$/;
+
+/** `GRANT ... ON TABLE public.<name> TO ...` のうち、クライアントロールへ SELECT を付けた表 */
+function clientReadableTables(sql: string): string[] {
+  return [
+    ...sql.matchAll(
+      /^GRANT\s+([A-Z, ]+?)\s+ON TABLE public\.([a-z0-9_]+)\s+TO\s+([a-z, ]+);/gm,
+    ),
+  ]
+    .filter(
+      (match) =>
+        match[1]!.includes("SELECT") &&
+        /\b(anon|authenticated)\b/.test(match[3]!),
+    )
+    .map((match) => match[2]!);
+}
+
+/** `CREATE POLICY ... ON <name> FOR SELECT USING (<条件>)` を表ごとに集める */
+function selectPolicyConditions(sql: string): Map<string, string[]> {
+  const conditions = new Map<string, string[]>();
+  for (const match of sql.matchAll(
+    /CREATE POLICY\s+"[^"]+"\s+ON\s+"?([a-z0-9_]+)"?\s+FOR\s+SELECT\s+USING\s*\(([\s\S]*?)\);/gi,
+  )) {
+    const table = match[1]!;
+    conditions.set(table, [...(conditions.get(table) ?? []), match[2]!.trim()]);
+  }
+  return conditions;
+}
+
 /** `pgTable("name", ...)` の第 1 引数を集める */
 function declaredTables(source: string): string[] {
   return [...source.matchAll(/pgTable\(\s*"([a-z0-9_]+)"/g)].map(
@@ -127,6 +170,44 @@ describe("RLS coverage", () => {
    * いまは許可リストが空（章の読了がレッスンの完了へ畳まれ、クライアントが
    * 直接書く表は無くなった）なので、書き込みのポリシーは 1 つも無いのが正。
    */
+  it("SELECT を付けた表は、公開コンテンツ以外は自分の行しか読めない", () => {
+    const readable = clientReadableTables(GRANTS_SQL);
+    const policies = selectPolicyConditions(RLS_SQL);
+
+    // 正規表現が壊れて 0 件になると、以下の検査が素通りしてしまう
+    expect(readable).toContain("announcements");
+
+    const exposed = readable.filter(
+      (table) =>
+        !PUBLIC_READ_TABLES.includes(table) &&
+        (policies.get(table) ?? []).some(
+          (condition) => !OWN_ROW_CONDITION.test(condition),
+        ),
+    );
+    expect(exposed).toEqual([]);
+  });
+
+  it("anon に SELECT を付けているのは公開コンテンツの表だけ", () => {
+    const anonReadable = [
+      ...GRANTS_SQL.matchAll(
+        /^GRANT\s+([A-Z, ]+?)\s+ON TABLE public\.([a-z0-9_]+)\s+TO\s+([a-z, ]+);/gm,
+      ),
+    ]
+      .filter(
+        (match) => match[1]!.includes("SELECT") && /\banon\b/.test(match[3]!),
+      )
+      .map((match) => match[2]!);
+
+    expect(
+      anonReadable.filter((table) => !PUBLIC_READ_TABLES.includes(table)),
+    ).toEqual([]);
+  });
+
+  it("profiles はクライアントロールに読ませない", () => {
+    expect(clientReadableTables(GRANTS_SQL)).not.toContain("profiles");
+    expect(selectPolicyConditions(RLS_SQL).has("profiles")).toBe(false);
+  });
+
   it("許可リスト外の表に書き込みのポリシーを作っていない", () => {
     const writablePolicies = [
       ...RLS_SQL.matchAll(
