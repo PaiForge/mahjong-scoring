@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { createDisplaySettingsStore } from "./use-display-settings-store";
+import { createPracticeVariantStore } from "./use-practice-variant-store";
 import { createRuleSettingsStore } from "./use-rule-settings-store";
 import { createScoreSettingsStore } from "./use-score-settings-store";
 import { createTrainingSettingsStore } from "./use-training-settings-store";
@@ -129,5 +130,64 @@ describe("点数練習の設定ストア", () => {
     const saved = JSON.parse(data.get("score-settings") ?? "{}");
     expect(saved.state.requireYaku).toBe(true);
     expect(saved.version).toBe(0);
+  });
+});
+
+describe("前回の出題設定", () => {
+  it("練習ごとに保存名へ書き込み、他の練習の値を消さない", () => {
+    const { data, storage } = createMemoryStorage();
+    const { usePracticeVariantStore } = createPracticeVariantStore({
+      storage: () => storage,
+    });
+
+    act(() => {
+      usePracticeVariantStore
+        .getState()
+        .rememberVariant("total-fu", "up_to_60");
+      usePracticeVariantStore.getState().rememberVariant("yaku-han", "all");
+    });
+
+    const saved = JSON.parse(data.get("mahjong-practice-variants") ?? "{}");
+    expect(saved.state.lastVariants).toEqual({
+      "total-fu": "up_to_60",
+      "yaku-han": "all",
+    });
+  });
+
+  it("同期の保存先なら最初の描画から読み終えている", () => {
+    const { storage } = createMemoryStorage({
+      "mahjong-practice-variants": JSON.stringify({
+        state: { lastVariants: { "total-fu": "up_to_60" } },
+        version: 0,
+      }),
+    });
+    const { useRememberedPracticeVariant } = createPracticeVariantStore({
+      storage: () => storage,
+    });
+
+    const { result } = renderHook(() =>
+      useRememberedPracticeVariant("total-fu"),
+    );
+    expect(result.current).toEqual({ ready: true, variant: "up_to_60" });
+  });
+
+  it("非同期の保存先では読み終えるまで ready にならない", async () => {
+    const { storage } = createAsyncStorage({
+      "mahjong-practice-variants": JSON.stringify({
+        state: { lastVariants: { "total-fu": "all" } },
+        version: 0,
+      }),
+    });
+    const { useRememberedPracticeVariant } = createPracticeVariantStore({
+      storage: () => storage,
+    });
+
+    const { result } = renderHook(() =>
+      useRememberedPracticeVariant("total-fu"),
+    );
+    expect(result.current.ready).toBe(false);
+    await waitFor(() =>
+      expect(result.current).toEqual({ ready: true, variant: "all" }),
+    );
   });
 });

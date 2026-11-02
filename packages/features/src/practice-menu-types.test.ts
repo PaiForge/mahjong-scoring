@@ -7,6 +7,7 @@ import {
   isPracticeVariant,
   practiceMenuBySlug,
   practiceMenuByType,
+  resolveInitialPracticeVariant,
   resolvePracticeVariant,
 } from "./practice-menu-types";
 
@@ -106,5 +107,31 @@ describe("バリアント", () => {
     expect(resolvePracticeVariant("yaku-han", "bogus")).toBe("no_kuisagari");
     expect(resolvePracticeVariant("yaku-han", "all")).toBe("all");
     expect(resolvePracticeVariant("jantou-fu", "all")).toBe(DEFAULT_VARIANT);
+  });
+
+  describe("resolveInitialPracticeVariant", () => {
+    it("URL の指定を保存値より優先する", () => {
+      expect(resolveInitialPracticeVariant("total-fu", "all", "up_to_60")).toBe(
+        "all",
+      );
+    });
+
+    it("URL が無い・不正なら保存値を使う", () => {
+      expect(
+        resolveInitialPracticeVariant("total-fu", undefined, "up_to_60"),
+      ).toBe("up_to_60");
+      expect(
+        resolveInitialPracticeVariant("total-fu", "bogus", "up_to_60"),
+      ).toBe("up_to_60");
+    });
+
+    it("保存値も無い・列挙に無いなら既定に落とす", () => {
+      expect(
+        resolveInitialPracticeVariant("total-fu", undefined, undefined),
+      ).toBe("up_to_40");
+      expect(
+        resolveInitialPracticeVariant("total-fu", undefined, "removed"),
+      ).toBe("up_to_40");
+    });
   });
 });
