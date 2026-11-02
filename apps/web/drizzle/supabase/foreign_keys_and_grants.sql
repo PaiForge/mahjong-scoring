@@ -43,13 +43,20 @@ BEGIN
 END;
 $$;
 
--- 書き込みはクライアントに許さない。登録・編集は Server Action が Drizzle の
--- 直 DB 接続で行う。profiles の行には banned_at / deleted_at / username のように
--- サーバだけが決めてよい列が同居しており、own-row の RLS では列を区別できない
--- （以前は INSERT / UPDATE を付けていたため、BAN の印を自分で消す・予約語や形式の
--- 検証を通らない username を名乗る、といった書き換えが PostgREST 越しにできた）。
-GRANT SELECT ON TABLE public.profiles TO authenticated;
-GRANT SELECT ON TABLE public.profiles TO anon;
+-- profiles はクライアントロールに何も付与しない（冒頭の一括 REVOKE のまま閉じる）。
+-- 読み書きはすべてサーバが Drizzle の直 DB 接続で行い、クライアント（web・アプリ）は
+-- PostgREST 越しに profiles を読まない。
+--
+-- 書き込み: 行には banned_at / deleted_at / username のようにサーバだけが決めてよい
+-- 列が同居しており、own-row の RLS では列を区別できない（以前は INSERT / UPDATE を
+-- 付けていたため、BAN の印を自分で消す・予約語や形式の検証を通らない username を
+-- 名乗る、といった書き換えが PostgREST 越しにできた）。
+--
+-- 読み取り: 以前は anon / authenticated に SELECT を付けていた。RLS は行
+-- （deleted_at IS NULL）しか絞れず列を絞れないため、publishable key だけで全利用者の
+-- id・SNS・banned_at・hidden_from_leaderboard を列挙でき、公開プロフィール
+-- （getPublicProfileByUsername）が隠す BAN 中の利用者も見えた（2026-11 の監査）。
+-- 他の利用者に見せる列はサーバのクエリが選んで返す。
 
 -- =============================================================================
 -- challenge_results
