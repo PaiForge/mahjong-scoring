@@ -39,8 +39,10 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://preferences"
-- extendedWaitUntil:
-    visible: "ランキングに表示しない"
+# プライバシーの節は麻雀ルール・練習の節の下にあり、開いた位置からは見えない
+- scrollUntilVisible:
+    element: "ランキングに表示しない"
+    direction: DOWN
     timeout: 15000
 - takeScreenshot: preferences-privacy
 - tapOn: "ランキングに表示しない"
@@ -60,8 +62,10 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://preferences"
-- extendedWaitUntil:
-    visible: "ランキングに表示しない"
+# プライバシーの節は麻雀ルール・練習の節の下にあり、開いた位置からは見えない
+- scrollUntilVisible:
+    element: "ランキングに表示しない"
+    direction: DOWN
     timeout: 15000
 - tapOn: "ランキングに表示しない"
 # 保存の応答を待ってから移る（移った先は開いたときに読み直す）

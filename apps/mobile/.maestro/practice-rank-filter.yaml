@@ -57,7 +57,7 @@ appId: help.mahjong.score
     visible:
       id: "practice-card-yaku-han"
     timeout: 15000
-- assertNotVisible: "挑戦済み"
+- assertNotVisible: ".*挑戦済み.*"
 
 # ログイン中は挑戦済みの練習に印が付く（dev seed は全練習にチャレンジ成績を入れている）
 - runFlow:
@@ -65,14 +65,16 @@ appId: help.mahjong.score
     env:
       EMAIL: bob@example.local
       PASSWORD: devpass1
+# ログインを終えると、ログイン画面を開く前の練習一覧へ戻る（useLeaveAuthFlow）
 - extendedWaitUntil:
-    visible: "次にやること"
+    visible:
+      id: "practice-card-yaku-han"
     timeout: 15000
 - runFlow:
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://practice?rank=kyu-4"
 - extendedWaitUntil:
-    visible: "挑戦済み"
+    visible: ".*挑戦済み.*"
     timeout: 15000
 - takeScreenshot: practice-rank-kyu-4-attempted
