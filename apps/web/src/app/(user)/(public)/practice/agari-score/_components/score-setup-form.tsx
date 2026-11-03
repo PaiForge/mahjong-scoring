@@ -272,6 +272,7 @@ export function ScoreSetupForm({
               add: tPicker("add"),
               title: tPicker("title"),
               done: tPicker("done"),
+              close: tCommon("close"),
             }}
           />
           {/* 選んだ役を 1 つずつ × で外す手間を省く。外すと「指定しない」に戻る */}

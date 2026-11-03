@@ -3,8 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Button } from "./button";
-import { XMarkIcon } from "./icons/x-mark-icon";
-import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { ModalCloseButton } from "./modal-close-button";
 import { ModalShell } from "@/app/_components/modal-shell";
 
 interface InfoModalProps {
@@ -47,18 +46,9 @@ export function InfoModal({
 }: InfoModalProps) {
   return (
     <ModalShell isOpen={isOpen} onClose={onClose} label={title}>
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="text-xl font-bold text-surface-900">{title}</h3>
-        {/* 見出しの 1 行（text-xl）と中心を揃えつつ、タップ領域は 36px 取る。
-            負の余白でパネルの角へ寄せ、見出しの位置は動かさない */}
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={closeLabel}
-          className={`-mr-2 -mt-1 shrink-0 rounded-lg p-1.5 text-surface-500 transition-colors hover:bg-surface-100 hover:text-surface-900 ${FOCUS_RING_CLASSES}`}
-        >
-          <XMarkIcon className="size-6" />
-        </button>
+        <ModalCloseButton onClick={onClose} label={closeLabel} />
       </div>
       <div className="text-sm leading-relaxed text-surface-700">{children}</div>
       <div className="flex justify-end">

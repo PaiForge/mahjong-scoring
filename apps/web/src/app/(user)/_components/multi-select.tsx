@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ModalShell } from "@/app/_components/modal-shell";
 import { Button } from "@/app/(user)/_components/button";
+import { ModalCloseButton } from "@/app/(user)/_components/modal-close-button";
 import { SelectOptionList, type SelectOption } from "./select-option-list";
 import { SelectValueBox } from "./select-value-box";
 
@@ -11,6 +12,8 @@ interface MultiSelectLabels {
   readonly add: string;
   readonly title: string;
   readonly done: string;
+  /** 見出しの右の × の aria-label。役は押した時点で反映されるので、× も「完了」と同じく閉じるだけ */
+  readonly close: string;
 }
 
 interface MultiSelectProps {
@@ -70,9 +73,15 @@ export function MultiSelect({
         label={labels.title}
       >
         <div className="flex h-[70vh] flex-col md:h-96">
-          <h3 className="mb-4 text-lg font-bold text-surface-900">
-            {labels.title}
-          </h3>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-lg font-bold text-surface-900">
+              {labels.title}
+            </h3>
+            <ModalCloseButton
+              onClick={() => setIsModalOpen(false)}
+              label={labels.close}
+            />
+          </div>
           <SelectOptionList
             options={options}
             value={value}
