@@ -206,6 +206,7 @@ web と同じ画面をネイティブで出す Expo アプリ。アプリの規�
 - `PageTitlePlaceholder` / `AdminPageTitlePlaceholder` — 読み込み中の見出し。`PageTitle` / `AdminPageTitle` と同じ箱にグレー帯（`PageTitleSkeleton`）を置く。スケルトンで `PageTitle` に `PageTitleSkeleton` を入れない — 空の h1 が本物より先に初期 HTML へ出る
 - `SectionTitleSkeleton` — 見出しのプレースホルダ。矩形で代用せずこれを使う（`SectionTitle` 自身を描画するため実物と高さ・形が一致する）
 - `icons/OutlineIcon` — 線画アイコンの svg 外殻。新しい線画アイコンはこれを使う
+- `ModalCloseButton` — モーダルの見出しの右に置く × の閉じるボタン。説明・早見表・ヘルプツアー・選択肢の一覧のような「閉じても何も失わない」モーダルに下端のボタンと併設する。× をモーダルごとに書き起こさない。確認モーダルと入力を持つダイアログには置かない（× がキャンセルか分かりにくく、入力が消える）
 - `HighlightPanel` — 地の文から浮かせて読ませる琥珀色の囲み（教本のコラム・計算手順・注意書き）。`border-amber-500 bg-amber-50/60` の一式をページ側で直接書かない
 - `SettingsCard` / `SettingToggleRow` — 設定ページの項目カードとトグル行。設定項目を足すときに `<input type="checkbox">` とスイッチの markup を書き起こさない
 - `HelpIconButton` — 「押すと説明が出る」入口の「?」（設定の補足・ドラの見方・練習の進め方）。送信ボタンと

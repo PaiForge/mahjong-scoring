@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import type { ReactNode } from "react";
 import { ModalShell } from "@/app/_components/modal-shell";
+import { ModalCloseButton } from "@/app/(user)/_components/modal-close-button";
 import { Button } from "@/app/(user)/_components/button";
 import { HelpIconButton } from "@/app/(user)/_components/help-icon-button";
 
@@ -100,22 +101,7 @@ export function HelpTourModal({
           {/* Header */}
           <div className="flex items-center justify-between border-b border-panel px-5 py-3">
             <h3 className="text-base font-bold text-surface-900">{title}</h3>
-            <button
-              type="button"
-              onClick={close}
-              aria-label={labels.close}
-              className="text-surface-400 transition-colors hover:text-surface-600"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-5 w-5"
-                aria-hidden
-              >
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-              </svg>
-            </button>
+            <ModalCloseButton onClick={close} label={labels.close} />
           </div>
 
           {/* Body: 見出しは px-5、スライド本体は px-2 にして牌の使える幅を最大化する */}

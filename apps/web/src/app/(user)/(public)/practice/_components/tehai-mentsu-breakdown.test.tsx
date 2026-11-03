@@ -150,11 +150,17 @@ describe("TehaiMentsuBreakdown", () => {
     ]);
   });
 
-  it("閉じるボタンでモーダルが閉じる", () => {
+  // 閉じる操作は見出しの右の × と下端のボタンの 2 つ（InfoModal）
+  it.each([
+    ["右上の ×", 0],
+    ["下端のボタン", 1],
+  ])("%sでモーダルが閉じる", (_, index) => {
     render(<TehaiMentsuBreakdown tehai={MENTSU_TEHAI} context={CONTEXT} />);
 
     openModal();
-    fireEvent.click(screen.getByRole("button", { name: "close" }));
+    const closeButtons = screen.getAllByRole("button", { name: "close" });
+    expect(closeButtons).toHaveLength(2);
+    fireEvent.click(closeButtons[index]!);
 
     expect(screen.queryByRole("dialog")).toBeNull();
   });

@@ -53,6 +53,7 @@ export function YakuSelect({
   labelAction,
 }: YakuSelectProps) {
   const tPicker = useTranslations("common.yakuPicker");
+  const tCommon = useTranslations("common");
   const options = useYakuOptions();
 
   const labels = useMemo(
@@ -60,8 +61,9 @@ export function YakuSelect({
       add: tPicker("add"),
       title: tPicker("title"),
       done: tPicker("done"),
+      close: tCommon("close"),
     }),
-    [tPicker],
+    [tPicker, tCommon],
   );
 
   return (

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { Button } from "./button";
+import { ModalCloseButton } from "./modal-close-button";
 import { ModalShell } from "@/app/_components/modal-shell";
 
 interface InfoModalProps {
@@ -27,6 +28,12 @@ interface InfoModalProps {
  * 情報表示モーダル
  *
  * 閉じるボタンのみを持つ汎用モーダル。
+ *
+ * 閉じる操作は 2 つ置く。見出しの右の × は、モーダルの閉じ方として最も
+ * 見慣れた位置で、本文が長くスクロールした後でも下まで降りずに閉じられる。
+ * 下端の「閉じる」ボタンは読み終えた指の先にある出口で、初期フォーカスも
+ * こちらに置く（× に置くとフォーカスリングが見出しの横に出て目を引く）。
+ * どちらも同じ `closeLabel` を名乗り、× は aria-label で読ませる。
  * シェル（オーバーレイ・Escape・スクロールロック）は ModalShell に委譲する。
  */
 export function InfoModal({
@@ -39,7 +46,10 @@ export function InfoModal({
 }: InfoModalProps) {
   return (
     <ModalShell isOpen={isOpen} onClose={onClose} label={title}>
-      <h3 className="text-xl font-bold text-surface-900">{title}</h3>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-xl font-bold text-surface-900">{title}</h3>
+        <ModalCloseButton onClick={onClose} label={closeLabel} />
+      </div>
       <div className="text-sm leading-relaxed text-surface-700">{children}</div>
       <div className="flex justify-end">
         <Button onClick={onClose} autoFocus>
