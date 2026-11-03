@@ -24,7 +24,9 @@ API でしか「未設定」と分からない。項目は Parqsee（同じチ�
 - App Privacy（プライバシーラベル）の回答は公開 API に無い。確かめられるのは、
   バージョンを下書きの `reviewSubmissions` に足すこと — App Store Connect は
   残りの欠けを `meta.associatedErrors` に並べて項目を拒否する（下書きは
-  `submitted: true` を PATCH するまで送られず、項目は消せる）
+  `submitted: true` を PATCH するまで送られず、項目は消せる）。項目が拒否されて
+  空のまま残った下書きは `canceled: true` も受け付けない（"Resource is not in
+  cancellable state"）。害は無く、Web の画面から提出するときにその下書きが使われる
 - その種類で最初のアプリ内課金（消耗型・非消耗型のそれぞれ）は、App Store
   Connect の Web の画面（商品のページ → Add for Review）からしかバージョンの
   提出に加えられない。API の `inAppPurchaseSubmissions` は
