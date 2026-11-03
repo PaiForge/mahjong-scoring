@@ -182,6 +182,23 @@ Claude Code ではスキル `ship-to-testflight`（`.claude/skills/ship-to-testf
   退会すると、退会と Apple 連携の取り消しの確認を兼ねられる
 - EAS のビルドログは brotli 圧縮で、ダウンロードしたものは node の `zlib.brotliDecompressSync` で読める
 
+## 審査に出す前の確認（App Store Connect API）
+
+`scripts/asc.py`（Python。`uv run` が依存を入れる）が、App Store Connect API で準備中の
+バージョンの提出に要る項目を読み、欠けを 1 行ずつ出す。書き込みの素の呼び出しも持つ。
+
+```bash
+cd apps/mobile
+export ASC_API_KEY_ID=<Key ID> ASC_API_ISSUER_ID=<Issuer ID>
+export ASC_API_KEY_PATH=<.p8 のパス>  # 省略時は ~/.appstoreconnect/private_keys/AuthKey_<Key ID>.p8
+uv run scripts/asc.py audit
+```
+
+- 鍵はチームの App Store Connect API の鍵（Users and Access > Integrations）。同じチームの
+  Parqsee と同じものを使える
+- App Privacy（プライバシーラベル）・その種類で最初のアプリ内課金をバージョンに加える操作・
+  デモアカウントのパスワードは API で扱えない。Web の画面で行う（詳しくはスクリプトの冒頭）
+
 ## Apple でログイン（iOS）
 
 iOS アプリのネイティブの Apple ログインだけを持つ（web の Apple ログインは無い）。
