@@ -19,7 +19,7 @@ const ManganExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);
 /** 昇級試験（満貫以上の点数計算）の画面一式（モバイルが開くのは模試だけ） */
 export const manganExamScreens: PracticeScreens = createScoreExamScreens({
   slug: PRACTICE_SLUG.manganExam,
-  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  boardConfig: EXAM_BOARD_CONFIG,
   Board: ManganExamBoard,
   Demo: createScoreExamHowToPlay(
     EXAM_BOARD_CONFIG.translationNamespace,

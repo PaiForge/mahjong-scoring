@@ -6,6 +6,10 @@ import {
 } from "@mahjong-scoring/features/results/score-question-result";
 
 import type { RecordingPracticeBoardProps } from "@mahjong-scoring/features/practice/board-props";
+import {
+  scoreExamQuestionGenerator,
+  type ScoreExamBoardConfig,
+} from "@mahjong-scoring/features/exam/score-exam-board-config";
 import { ScoreProblemList } from "../components/score-problem-list";
 import {
   createChallengePlayView,
@@ -15,8 +19,11 @@ import type { PracticeScreens } from "../practice-screens";
 
 interface ScoreExamScreensConfig {
   readonly slug: PracticeMenuSlug;
-  /** i18n の翻訳ネームスペース（例: "manganExamChallenge"） */
-  readonly translationNamespace: string;
+  /**
+   * 出題盤面の設定（`EXAM_BOARD_CONFIG`）。翻訳名前空間と、模試を回数制限に
+   * 通すときに画面側で問題を作る条件をここから取る
+   */
+  readonly boardConfig: ScoreExamBoardConfig;
   /** 出題盤面（{@link import("./create-score-exam-board").createScoreExamBoard} の戻り値） */
   readonly Board: (
     props: RecordingPracticeBoardProps<ScoreQuestionResult>,
@@ -34,14 +41,17 @@ interface ScoreExamScreensConfig {
  * 見本と翻訳名前空間だけ。
  *
  * 本番（`Play`）は記録付きでしか始めない（ゲスト等は説明画面へ戻る）。
- * 結果の一覧（`ProblemList`）は試験の結果画面が使う。
+ * 結果の一覧（`ProblemList`）は試験の結果画面が使う。模試（`Training`）は
+ * 回数制限の対象の試験（1級・初段）なら出題を回数制限に通す
+ * （`createTrainingView` が `isQuotaMenu(slug)` で決める）。
  */
 export function createScoreExamScreens({
   slug,
-  translationNamespace,
+  boardConfig,
   Board,
   Demo,
 }: ScoreExamScreensConfig): PracticeScreens {
+  const { translationNamespace } = boardConfig;
   return {
     Play: createChallengePlayView<ScoreQuestionResult>({
       slug,
@@ -58,6 +68,7 @@ export function createScoreExamScreens({
     }),
     Training: createTrainingView({
       slug,
+      generateQuestion: scoreExamQuestionGenerator(boardConfig),
       renderBoard: (args) => (
         <Board
           showFeedback={args.showFeedback}

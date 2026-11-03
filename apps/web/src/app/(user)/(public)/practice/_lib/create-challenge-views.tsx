@@ -4,8 +4,11 @@ import {
   VerifiedChallengeProvider,
   useVerifiedChallenge,
 } from "../_hooks/use-verified-challenge";
-import { type ReactNode } from "react";
+import { type ReactNode, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { toast } from "react-hot-toast";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
   practiceMenuBySlug,
@@ -26,7 +29,19 @@ import type {
   ChallengeBoardArgs,
   TrainingBoardArgs,
 } from "@mahjong-scoring/features/practice/board-props";
-import { practiceResultHref } from "@mahjong-scoring/features/routes";
+import {
+  practiceHref,
+  practiceResultHref,
+} from "@mahjong-scoring/features/routes";
+import { QuestionHostProvider } from "@mahjong-scoring/features/practice/use-question-host";
+import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
+import {
+  useQuotaQuestionHost,
+  type QuotaQuestionHost,
+} from "@mahjong-scoring/features/quota/use-quota-question-host";
+import { PracticeQuotaPaywall } from "../_components/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "../_components/practice-quota-remaining";
+import { usePracticeQuota } from "../_hooks/use-practice-quota";
 import { useTrainingModeBridge } from "@mahjong-scoring/features/practice/use-training-mode-bridge";
 import { challengeViewSettings } from "@mahjong-scoring/features/practice/challenge-view-settings";
 import { HandPresentationProvider } from "../_components/hand-presentation-provider";
@@ -276,6 +291,19 @@ export interface TrainingViewConfig<TProps, TState> {
     props: TProps,
     state: TState,
   ) => ReactNode;
+  /**
+   * 回数制限に通す模試の出題（問題を 1 問作る。成立しなければ undefined）
+   *
+   * 試験のスラッグが回数制限の対象（`isQuotaMenu`）のときだけ使い、必須。
+   * 盤面と同じ条件で作ること（`scoreExamQuestionGenerator`）。対象でない
+   * 練習・模試では無視する。
+   */
+  readonly generateQuestion?: () => unknown;
+}
+
+/** 回数制限の無い練習・模試のビューが呼ぶ、何も持たないホスト */
+function useNoQuotaHost(): QuotaQuestionHost | undefined {
+  return undefined;
 }
 
 /**
@@ -285,6 +313,12 @@ export interface TrainingViewConfig<TProps, TState> {
  * 昇級試験のスラッグを渡すと模試になる。仕組みは練習のトレーニングと同じで、
  * 違うのは見出し（試験名に「（模試）」を添える）と、シェルの文言・末尾の
  * 導線が「チャレンジ」ではなく「本番の試験」を指すことだけ。
+ *
+ * 回数制限の対象の模試（1級・初段。`isQuotaMenu`）は出題を回数制限に通す。
+ * 盤面には出題ホスト（`useQuotaQuestionHost`）で問題を渡し、盤面は本番と
+ * 同じコードのまま。上限に達したら盤面ごとペイウォールに置き換える
+ * （和了形の点数計算と同じ）。ゲートの状態をビューが持つのは、シェル
+ * （見出し・カウンタ・本番への導線）の中にペイウォールを入れないため。
  */
 export function createTrainingView<
   TProps extends object = Record<string, never>,
@@ -299,10 +333,28 @@ export function createTrainingView<
     kind: variant,
   } = challengeViewSettings(slug);
   const useBoardState = config.useBoardState ?? useNoBoardState;
+  // 回数制限の対象かはスラッグで決まる（生成時に固定。フックの呼び順が毎レンダー同じ）
+  const quotaMenu = isQuotaMenu(slug) ? slug : undefined;
+  const { generateQuestion } = config;
+  if (quotaMenu !== undefined && generateQuestion === undefined) {
+    throw new Error(
+      `createTrainingView(${slug}): 回数制限の対象の模試には generateQuestion が要る`,
+    );
+  }
+  const useQuotaHost =
+    quotaMenu !== undefined && generateQuestion !== undefined
+      ? () =>
+          useQuotaQuestionHost(generateQuestion, (generate) =>
+            usePracticeQuota(quotaMenu, generate),
+          )
+      : useNoQuotaHost;
 
   function TrainingView(props: TProps) {
     const t = useTranslations(namespace);
     const tExamTraining = useTranslations("examTraining");
+    const tq = useTranslations("practiceQuota");
+    const tt = useTranslations("training");
+    const router = useRouter();
     const boardState = useBoardState(props);
     const session = useTrainingSession();
     const {
@@ -319,16 +371,59 @@ export function createTrainingView<
     // 盤面に登録してもらう。生成待ちの間は「わからない」を押せない
     const { trainingMode, reveal, revealDisabled } =
       useTrainingModeBridge(session);
+    const quotaHost = useQuotaHost();
+    const gate = quotaHost?.gate;
+
+    useEffect(() => {
+      if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
+    }, [gate, tq]);
+
+    const title =
+      variant === "exam"
+        ? tExamTraining("pageTitle", { title: t("title") })
+        : t("title");
+
+    // ペイウォールの「試験の説明に戻る」。シェルの「終了する」と同じく、
+    // 終えたことをトーストで知らせてから説明ページへ戻す
+    const handleBackToIntro = useCallback(() => {
+      const href = practiceHref(slug);
+      toastOnArrival(
+        href,
+        variant === "exam" ? tExamTraining("exitToast") : tt("exitToast"),
+      );
+      router.push(href);
+    }, [router, tExamTraining, tt]);
+
+    // 無料枠を使い切った。問題は作っていないので盤面ごと置き換える
+    if (quotaMenu !== undefined && gate?.kind === "blocked") {
+      return (
+        <PracticeQuotaPaywall
+          menu={quotaMenu}
+          title={title}
+          limit={gate.limit}
+          signedIn={gate.signedIn}
+          backLabel={tq("paywall.backToExam")}
+          onBackToSetup={handleBackToIntro}
+        />
+      );
+    }
+
+    const board = renderBoard(
+      {
+        showFeedback,
+        isTraining: true,
+        lastAnswerCorrect,
+        onAnswer: handleAnswer,
+      },
+      props,
+      boardState,
+    );
 
     return (
       <TrainingShell
         // 模試は本番と同じ試験名で始まる見出しになるため、模試だと分かる
         // 添え字を付ける（タイマーが無いだけでは本番と見分けにくい）
-        title={
-          variant === "exam"
-            ? tExamTraining("pageTitle", { title: t("title") })
-            : t("title")
-        }
+        title={title}
         slug={slug}
         variant={variant}
         titleAction={help}
@@ -344,15 +439,22 @@ export function createTrainingView<
         hasSubmitButton={hasSubmitButton}
       >
         <TrainingModeProvider value={trainingMode}>
-          {renderBoard(
-            {
-              showFeedback,
-              isTraining: true,
-              lastAnswerCorrect,
-              onAnswer: handleAnswer,
-            },
-            props,
-            boardState,
+          {quotaHost === undefined ? (
+            board
+          ) : (
+            <QuestionHostProvider value={quotaHost.host}>
+              {board}
+              {/* 無料枠の残り。Pro とまだ聞いていない間は何も描かない。
+                  リンクは解答前だけ（和了形の点数計算と同じ理由） */}
+              {gate?.kind === "open" && (
+                <div className="mt-4">
+                  <PracticeQuotaRemaining
+                    remaining={gate.remaining}
+                    showPlanLink={!showFeedback}
+                  />
+                </div>
+              )}
+            </QuestionHostProvider>
           )}
         </TrainingModeProvider>
       </TrainingShell>

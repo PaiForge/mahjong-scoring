@@ -15,7 +15,7 @@ import {
 } from "@mahjong-scoring/features/quota/limits";
 import {
   usePracticeQuotaControl,
-  type PracticeQuotaControl as SharedPracticeQuotaControl,
+  type PracticeQuotaControl,
   type PracticeQuotaSource,
 } from "@mahjong-scoring/features/quota/use-practice-quota-control";
 import { createPracticeQuotaGate } from "@mahjong-scoring/features/quota/use-practice-quota-gate";
@@ -190,20 +190,7 @@ export async function peekPracticeQuotaAnswer(
   }
 }
 
-/**
- * 盤面の回数制限の操作（{@link usePracticeQuota} の戻り値）
- * 回数制限操作
- *
- * web と共有する操作（features の `PracticeQuotaControl`）に、開いた直後の
- * 1 問を足したもの。
- */
-export interface PracticeQuotaControl extends SharedPracticeQuotaControl {
-  /**
-   * 盤面を開いたときの最初の 1 問。前の練習のゲート（ペイウォール等）を
-   * 消してから聞く — 消さないと、返事が届くまで前回のペイウォールが出る
-   */
-  readonly requestFirstQuestion: () => Promise<void>;
-}
+export type { PracticeQuotaControl } from "@mahjong-scoring/features/quota/use-practice-quota-control";
 
 /**
  * 出題許可の問い合わせ先（{@link askQuota}。答えの出どころは 3 つ）
@@ -254,11 +241,6 @@ export function usePracticeQuota(
   );
   const { requestQuestion, refreshGate } = control;
 
-  const requestFirstQuestion = useCallback(() => {
-    gates.clear(menu);
-    return requestQuestion();
-  }, [menu, requestQuestion]);
-
   // 開いた直後のフォーカスは最初の問題の要求と重なるので飛ばす
   const focusedOnce = useRef(false);
   useFocusEffect(
@@ -274,5 +256,5 @@ export function usePracticeQuota(
     }, [menu, requestQuestion, refreshGate]),
   );
 
-  return { ...control, requestFirstQuestion };
+  return control;
 }

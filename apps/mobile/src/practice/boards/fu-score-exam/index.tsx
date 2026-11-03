@@ -19,7 +19,7 @@ const FuScoreExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);
 /** 昇級試験（30〜50符の点数計算）の画面一式（モバイルが開くのは模試だけ） */
 export const fuScoreExamScreens: PracticeScreens = createScoreExamScreens({
   slug: PRACTICE_SLUG.fuScoreExam,
-  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  boardConfig: EXAM_BOARD_CONFIG,
   Board: FuScoreExamBoard,
   Demo: createScoreExamHowToPlay(
     EXAM_BOARD_CONFIG.translationNamespace,

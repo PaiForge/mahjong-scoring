@@ -122,7 +122,7 @@ function AgariScoreBoardInner({
     return (
       <PracticeQuotaPaywall
         menu="agari-score"
-        translationNamespace="agariScore"
+        title={t("title")}
         limit={gate.limit}
         signedIn={gate.signedIn}
         onBackToSetup={handleBackToSetup}

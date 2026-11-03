@@ -123,7 +123,7 @@ function TenpaiScoreBoardInner() {
     return (
       <PracticeQuotaPaywall
         menu="tenpai-score"
-        translationNamespace="tenpaiScore"
+        title={t("title")}
         limit={gate.limit}
         signedIn={gate.signedIn}
         onBackToSetup={handleBackToSetup}

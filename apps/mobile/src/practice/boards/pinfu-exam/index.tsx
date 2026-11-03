@@ -19,7 +19,7 @@ const PinfuExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);
 /** 昇級試験（平和の点数計算）の画面一式（モバイルが開くのは模試だけ） */
 export const pinfuExamScreens: PracticeScreens = createScoreExamScreens({
   slug: PRACTICE_SLUG.pinfuExam,
-  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  boardConfig: EXAM_BOARD_CONFIG,
   Board: PinfuExamBoard,
   Demo: createScoreExamHowToPlay(
     EXAM_BOARD_CONFIG.translationNamespace,

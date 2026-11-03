@@ -23,6 +23,11 @@ export interface PracticeQuotaControl {
    */
   readonly requestQuestion: () => Promise<void>;
   /**
+   * 盤面を開いたときの最初の 1 問。前の練習のゲート（ペイウォール等）を
+   * 消してから聞く — 消さないと、返事が届くまで前回のペイウォールが出る
+   */
+  readonly requestFirstQuestion: () => Promise<void>;
+  /**
    * 残数と特典を消費せずに取り直す。盤面を離れて戻ってきたとき、解答中の
    * 問題を引き継ぎながら、離れている間の購入・ログイン・日付の変わり目を
    * 表示に反映させる。失敗・レート制限のときは今の `gate` を保つ
@@ -94,10 +99,21 @@ export function usePracticeQuotaControl(
     [gates, menu, source],
   );
 
+  const requestFirstQuestion = useCallback(() => {
+    gates.clear(menu);
+    return requestQuestion();
+  }, [gates, menu, requestQuestion]);
+
   const refreshGate = useCallback(
     () => gates.refresh(menu, () => source.peek(menu)),
     [gates, menu, source],
   );
 
-  return { requestQuestion, refreshGate, isChecking, gate };
+  return {
+    requestQuestion,
+    requestFirstQuestion,
+    refreshGate,
+    isChecking,
+    gate,
+  };
 }

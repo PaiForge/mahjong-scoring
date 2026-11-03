@@ -7,6 +7,7 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
+import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
 import { practiceTrainingHref } from "@mahjong-scoring/features/routes";
 
 import { NativeAdRow } from "../../ads/native-ad-row";
@@ -19,6 +20,7 @@ import { practiceListHrefForRank } from "../../dojo/dojo-routes";
 import { colors } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
 import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
+import { PracticeEntryQuota } from "../quota/practice-entry-quota";
 import { StartCtaDivider } from "../components/practice-start-cta";
 import { HowToPlaySection } from "../components/how-to-play-section";
 import { PracticeRelatedChapters } from "../components/practice-chapter-section";
@@ -36,6 +38,9 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * 開始導線は web と同じく本番 / 「または」/ 模試の 3 段。本番のボタンは
  * 受験ゲート（{@link ExamStartGate}）がログイン・ユーザー名・級の順序で
  * 出し分ける。模試には掛けない — 記録も段級位の付与も無く、誰でも受けられる。
+ * ただし回数制限の対象の模試（1級・初段。`isQuotaMenu`）は 1 日の無料枠が
+ * あるので、ボタンの下に今日の残りを出す（練習一覧の実戦練習のカードと同じ
+ * {@link PracticeEntryQuota}。iOS で販売中のときだけ出る）。
  * 本番を出せないとき（ログインを出せないビルド・BAN 中）は模試だけを
  * 主ボタンで出す。
  */
@@ -90,6 +95,7 @@ export function ExamIntroScreen({
           </Button>
           <Text style={styles.hint}>{tExam("hint")}</Text>
         </View>
+        {isQuotaMenu(slug) && <PracticeEntryQuota menu={slug} />}
       </View>
 
       <PracticeRelatedChapters slug={slug} />

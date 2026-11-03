@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
@@ -23,11 +24,13 @@ import {
 interface PracticeQuotaPaywallProps {
   /** 練習（1 日の上限を引く） */
   readonly menu: QuotaMenu;
-  /** 見出し（練習名）の辞書。`GenerationFailedNotice` と同じ */
-  readonly translationNamespace: "agariScore" | "tenpaiScore";
+  /** 見出し。置き換える盤面と同じ練習名（模試なら「（模試）」付き） */
+  readonly title: ReactNode;
   /** 使い切った上限（サーバーの返事。未ログインなら未ログインの上限） */
   readonly limit: number;
   readonly signedIn: boolean;
+  /** 末尾の戻るリンクの文言。省略時は「練習に戻る」（模試は試験の説明へ戻る） */
+  readonly backLabel?: ReactNode;
   readonly onBackToSetup: () => void;
 }
 
@@ -42,16 +45,18 @@ interface PracticeQuotaPaywallProps {
  * - ログイン済み: Pro の料金ページへ
  *
  * ログイン後は今の play へ戻す（`buildSignInHref`）。設定を選び直させない。
+ * 模試（`exam/<級>/training`）でも同じ画面で、見出しと戻るリンクの文言だけ
+ * 呼び出し側が差し替える。
  */
 export function PracticeQuotaPaywall({
   menu,
-  translationNamespace,
+  title,
   limit,
   signedIn,
+  backLabel,
   onBackToSetup,
 }: PracticeQuotaPaywallProps) {
   const t = useTranslations("practiceQuota.paywall");
-  const tPractice = useTranslations(translationNamespace);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const query = searchParams.toString();
@@ -59,7 +64,7 @@ export function PracticeQuotaPaywall({
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
-      <PageTitle>{tPractice("title")}</PageTitle>
+      <PageTitle>{title}</PageTitle>
 
       <div className="space-y-8 py-6">
         <div className="space-y-4 text-center">
@@ -114,7 +119,7 @@ export function PracticeQuotaPaywall({
 
         <PracticeFooterActions>
           <PracticeFooterAction onClick={onBackToSetup}>
-            {t("backToSetup")}
+            {backLabel ?? t("backToSetup")}
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>

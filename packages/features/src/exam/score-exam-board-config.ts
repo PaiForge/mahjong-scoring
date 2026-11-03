@@ -1,4 +1,8 @@
-import type { QuestionGeneratorOptions } from "@mahjong-scoring/core";
+import {
+  generateValidScoreQuestion,
+  type QuestionGeneratorOptions,
+  type ScoreQuestion,
+} from "@mahjong-scoring/core";
 import type { ScoreOptionRange } from "../practice/score/get-available-scores";
 
 /**
@@ -26,4 +30,20 @@ export interface ScoreExamBoardConfig {
    * 省略時は盤面の出題フックの既定値。
    */
   readonly maxRetries?: number;
+}
+
+/**
+ * 盤面と同じ条件で問題を 1 問作る関数を組む
+ * 試験問題生成関数
+ *
+ * 盤面は自分で問題を作る（`useScoreQuestionBoard`）が、模試を回数制限に
+ * 通すときは出題ホスト（`useQuotaQuestionHost`）が盤面の外で作る。条件と
+ * 試行回数の予算を盤面と同じ値から取り、2 か所で食い違わないようにする。
+ * 成立しなければ undefined。
+ */
+export function scoreExamQuestionGenerator(
+  config: ScoreExamBoardConfig,
+): () => ScoreQuestion | undefined {
+  return () =>
+    generateValidScoreQuestion(config.generateOptions, config.maxRetries);
 }
