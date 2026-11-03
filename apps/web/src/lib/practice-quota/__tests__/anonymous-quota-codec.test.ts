@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { EMPTY_QUOTA_COUNTS } from "@mahjong-scoring/features/quota/limits";
 import { createHmac } from "node:crypto";
 
 import { describe, expect, it } from "vitest";
@@ -11,7 +12,7 @@ import {
 const KEY = Buffer.from("0123456789abcdef0123456789abcdef");
 const OTHER_KEY = Buffer.from("fedcba9876543210fedcba9876543210");
 const NOW = new Date("2026-10-01T03:00:00Z"); // JST 12:00
-const ZERO = { "agari-score": 0, "tenpai-score": 0 };
+const ZERO = EMPTY_QUOTA_COUNTS;
 
 /** 署名はそのままに JSON の部分だけ差し替える */
 function withPayload(encoded: string, payload: unknown): string {
@@ -34,7 +35,7 @@ function reencode(payload: unknown, key: Buffer): string {
 
 describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
   it("符号化した回数を同じ日・同じ鍵で読み戻せる", () => {
-    const counts = { "agari-score": 2, "tenpai-score": 1 };
+    const counts = { ...ZERO, "agari-score": 2, "tenpai-score": 1 };
     const value = encodeAnonymousQuotaCookie(counts, NOW, KEY);
     expect(decodeAnonymousQuotaCookie(value, NOW, KEY)).toEqual(counts);
   });
@@ -53,7 +54,7 @@ describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
 
   it("日付が変わると 0 に戻る", () => {
     const value = encodeAnonymousQuotaCookie(
-      { "agari-score": 1, "tenpai-score": 1 },
+      { ...ZERO, "agari-score": 1, "tenpai-score": 1 },
       NOW,
       KEY,
     );
@@ -63,7 +64,7 @@ describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
 
   it("署名が合わない（改ざんされた）値は 0 として扱う", () => {
     const value = encodeAnonymousQuotaCookie(
-      { "agari-score": 1, "tenpai-score": 0 },
+      { ...ZERO, "agari-score": 1, "tenpai-score": 0 },
       NOW,
       KEY,
     );
@@ -76,7 +77,7 @@ describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
 
   it("別の鍵で署名した値は読めない", () => {
     const value = encodeAnonymousQuotaCookie(
-      { "agari-score": 1, "tenpai-score": 0 },
+      { ...ZERO, "agari-score": 1, "tenpai-score": 0 },
       NOW,
       OTHER_KEY,
     );
@@ -119,6 +120,6 @@ describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
         NOW,
         KEY,
       ),
-    ).toEqual({ "agari-score": 3, "tenpai-score": 0 });
+    ).toEqual({ ...ZERO, "agari-score": 3, "tenpai-score": 0 });
   });
 });

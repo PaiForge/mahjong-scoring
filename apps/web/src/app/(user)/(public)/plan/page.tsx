@@ -108,6 +108,7 @@ export default async function PlanPage() {
             {t("perks.freeLimits", {
               agari: PRACTICE_QUOTA_LIMITS["agari-score"].signedIn,
               tenpai: PRACTICE_QUOTA_LIMITS["tenpai-score"].signedIn,
+              exam: PRACTICE_QUOTA_LIMITS["score-exam"].signedIn,
             })}
           </p>
         </section>
