@@ -1,3 +1,4 @@
+import { EMPTY_QUOTA_COUNTS } from "@mahjong-scoring/features/quota/limits";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -13,14 +14,14 @@ describe("guestQuotaForDay", () => {
   it("保存が無ければ 0 から", () => {
     expect(guestQuotaForDay(undefined, DAY)).toEqual({
       day: DAY,
-      counts: { "agari-score": 0, "tenpai-score": 0 },
+      counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 0, "tenpai-score": 0 },
     });
   });
 
   it("同じ日なら保存した数をそのまま使う", () => {
     const state: GuestQuotaState = {
       day: DAY,
-      counts: { "agari-score": 1, "tenpai-score": 0 },
+      counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 1, "tenpai-score": 0 },
     };
     expect(guestQuotaForDay(state, DAY)).toBe(state);
   });
@@ -28,9 +29,10 @@ describe("guestQuotaForDay", () => {
   it("日が変わると 0 に戻る", () => {
     const state: GuestQuotaState = {
       day: "2026-10-10",
-      counts: { "agari-score": 1, "tenpai-score": 1 },
+      counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 1, "tenpai-score": 1 },
     };
     expect(guestQuotaForDay(state, DAY).counts).toEqual({
+      ...EMPTY_QUOTA_COUNTS,
       "agari-score": 0,
       "tenpai-score": 0,
     });
@@ -43,7 +45,11 @@ describe("consumeGuestQuota", () => {
   it("消費すると数が増え、残りはこの 1 問を含めない", () => {
     const { state, usage } = consumeGuestQuota(fresh, "agari-score", 2);
     expect(usage).toEqual({ allowed: true, remaining: 1 });
-    expect(state.counts).toEqual({ "agari-score": 1, "tenpai-score": 0 });
+    expect(state.counts).toEqual({
+      ...EMPTY_QUOTA_COUNTS,
+      "agari-score": 1,
+      "tenpai-score": 0,
+    });
   });
 
   it("上限に達していれば不許可で、数は変えない", () => {
@@ -67,9 +73,12 @@ describe("parseGuestQuotaState", () => {
     expect(
       parseGuestQuotaState({
         day: DAY,
-        counts: { "agari-score": 1, "tenpai-score": 2 },
+        counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 1, "tenpai-score": 2 },
       }),
-    ).toEqual({ day: DAY, counts: { "agari-score": 1, "tenpai-score": 2 } });
+    ).toEqual({
+      day: DAY,
+      counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 1, "tenpai-score": 2 },
+    });
   });
 
   it("形が違えば undefined", () => {
@@ -81,6 +90,9 @@ describe("parseGuestQuotaState", () => {
   it("壊れた数・無い練習は 0 にする", () => {
     expect(
       parseGuestQuotaState({ day: DAY, counts: { "agari-score": -1 } }),
-    ).toEqual({ day: DAY, counts: { "agari-score": 0, "tenpai-score": 0 } });
+    ).toEqual({
+      day: DAY,
+      counts: { ...EMPTY_QUOTA_COUNTS, "agari-score": 0, "tenpai-score": 0 },
+    });
   });
 });

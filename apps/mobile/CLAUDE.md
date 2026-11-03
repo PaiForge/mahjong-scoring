@@ -96,8 +96,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`usePurchaseSync`）がルートで動き、取引はサーバーが 2xx か 4xx を返したときだけ finish する
   （理由は `purchase-sync.ts`）。アプリの中で web の価格・`/plan`・特商法・Stripe に触れず、購入履歴に
   金額を出さない（審査ガイドライン 3.1.1）。回数制限は web と同じ表と規則で iOS だけに掛かり
-  （`src/practice/quota/`）、ゲストは端末ローカルで練習ごとに 1 日 1 問。販売していない（サーバーに Product ID が
-  無い）間は制限しない。ストアの設定・環境変数・Sandbox の許可リストは `README.md`「アプリ内課金」
+  （`src/practice/quota/`）、ゲストは端末ローカルで練習ごとに 1 日 1 問。対象は和了形・聴牌形の
+  点数計算と 1級・初段の模試（`isQuotaMenu`。模試は `createTrainingView` が出題ホストで通す）。
+  販売していない（サーバーに Product ID が無い）間は制限しない。ストアの設定・環境変数・Sandbox の許可リストは `README.md`「アプリ内課金」
 - **アプリの中で他の利用者を見せない。受け付ける自由入力はユーザー名だけ。** ランキングの詳細・
   練習の画面の上位・公開プロフィール・通報・ブロック・プロフィールの編集（表示名・自己紹介・SNS・
   アバター）は web だけに置き、アプリは自分の順位（`app/leaderboard/index.tsx`）とランキングへの

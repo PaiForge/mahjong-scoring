@@ -19,7 +19,7 @@ const ChiitoitsuExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);
 /** 昇級試験（七対子の点数計算）の画面一式（モバイルが開くのは模試だけ） */
 export const chiitoitsuExamScreens: PracticeScreens = createScoreExamScreens({
   slug: PRACTICE_SLUG.chiitoitsuExam,
-  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  boardConfig: EXAM_BOARD_CONFIG,
   Board: ChiitoitsuExamBoard,
   Demo: createScoreExamHowToPlay(
     EXAM_BOARD_CONFIG.translationNamespace,

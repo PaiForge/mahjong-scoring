@@ -1,4 +1,4 @@
-import { useCallback, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { ScrollViewInstance } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -33,6 +33,17 @@ import {
 } from "./recorded-challenge";
 import { HandPresentationProvider } from "./hand-presentation-provider";
 import { PreparingScreen } from "./components/preparing-screen";
+import { QuestionHostProvider } from "@mahjong-scoring/features/practice/use-question-host";
+import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
+import {
+  useQuotaQuestionHost,
+  type QuotaQuestionHost,
+} from "@mahjong-scoring/features/quota/use-quota-question-host";
+import { showToast } from "../components/toast";
+import { useDismissToHref } from "../hooks/use-dismiss-to-href";
+import { PracticeQuotaPaywall } from "./quota/practice-quota-paywall";
+import { PracticeQuotaRemaining } from "./quota/practice-quota-remaining";
+import { usePracticeQuota } from "./quota/use-practice-quota";
 
 /** 練習の画面が受け取る props（URL の `?variant=` を正規化した値） */
 export interface PracticeViewProps {
@@ -224,6 +235,19 @@ interface TrainingViewConfig {
     args: TrainingBoardArgs,
     props: PracticeViewProps,
   ) => ReactNode;
+  /**
+   * 回数制限に通す模試の出題（問題を 1 問作る。成立しなければ undefined）
+   *
+   * 試験のスラッグが回数制限の対象（`isQuotaMenu`）のときだけ使い、必須。
+   * 盤面と同じ条件で作ること（`scoreExamQuestionGenerator`）。対象でない
+   * 練習・模試では無視する（web の同名の設定と同じ）。
+   */
+  readonly generateQuestion?: () => unknown;
+}
+
+/** 回数制限の無い練習・模試の画面が呼ぶ、何も持たないホスト */
+function useNoQuotaHost(): QuotaQuestionHost | undefined {
+  return undefined;
 }
 
 /**
@@ -232,20 +256,43 @@ interface TrainingViewConfig {
  *
  * web の `createTrainingView` と同じ形。チャレンジと同じ盤面を、時計も
  * ライフも無いセッションで動かす。
+ *
+ * 回数制限の対象の模試（1級・初段。`isQuotaMenu`）は出題を回数制限に通す
+ * （web と同じ）。盤面には出題ホスト（`useQuotaQuestionHost`）で問題を渡し、
+ * 上限に達したら画面ごとペイウォールに置き換える。ゲートの状態を画面が持つので、
+ * ペイウォールからログイン・プラン画面へ行って戻ってきたときの聞き直し
+ * （`usePracticeQuota` のフォーカス）もそのまま効く。
  */
 export function createTrainingView(
   config: TrainingViewConfig,
 ): (props: PracticeViewProps) => ReactNode {
-  const { slug, hasSubmitButton, help, renderBoard } = config;
+  const { slug, hasSubmitButton, help, renderBoard, generateQuestion } = config;
   const { namespace, mistakeLimit, timeLimit, kind } =
     challengeViewSettings(slug);
+  // 回数制限の対象かはスラッグで決まる（生成時に固定。フックの呼び順が毎レンダー同じ）
+  const quotaMenu = isQuotaMenu(slug) ? slug : undefined;
+  if (quotaMenu !== undefined && generateQuestion === undefined) {
+    throw new Error(
+      `createTrainingView(${slug}): 回数制限の対象の模試には generateQuestion が要る`,
+    );
+  }
+  const useQuotaHost =
+    quotaMenu !== undefined && generateQuestion !== undefined
+      ? () =>
+          useQuotaQuestionHost(generateQuestion, (generate) =>
+            usePracticeQuota(quotaMenu, generate),
+          )
+      : useNoQuotaHost;
 
   function TrainingView(props: PracticeViewProps) {
     const t = useTranslations(namespace);
     const tExam = useTranslations("examTraining");
+    const tt = useTranslations("training");
+    const tq = useTranslations("practiceQuota");
     const offersRealExam = useOffersRealExam();
     const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
     const { scrollRef, scrollToTop } = useScrollToTop();
+    const dismissToHref = useDismissToHref();
     const session = useTrainingSession({
       autoAdvanceOnCorrect,
       onDisplayChange: scrollToTop,
@@ -253,20 +300,54 @@ export function createTrainingView(
 
     const { trainingMode, reveal, revealDisabled } =
       useTrainingModeBridge(session);
+    const quotaHost = useQuotaHost();
+    const gate = quotaHost?.gate;
+
+    useEffect(() => {
+      if (gate?.kind === "rateLimited") showToast(tq("rateLimited"));
+    }, [gate, tq]);
+
+    const title =
+      kind === "exam" ? tExam("pageTitle", { title: t("title") }) : t("title");
+    const exitHref = practiceHref(slug, props.variant);
+
+    // 無料枠を使い切った。問題は作っていないので画面ごと置き換える。戻るは
+    // シェルの「終了する」と同じく、終えたことを知らせてから説明画面へ
+    if (quotaMenu !== undefined && gate?.kind === "blocked") {
+      return (
+        <PracticeQuotaPaywall
+          menu={quotaMenu}
+          title={title}
+          limit={gate.limit}
+          signedIn={gate.signedIn}
+          backLabel={tq("paywall.backToExam")}
+          onBackToSetup={() => {
+            dismissToHref(exitHref);
+            showToast(kind === "exam" ? tExam("exitToast") : tt("exitToast"));
+          }}
+        />
+      );
+    }
+
+    const board = renderBoard(
+      {
+        showFeedback: session.showFeedback,
+        isTraining: true,
+        lastAnswerCorrect: session.lastAnswerCorrect,
+        onAnswer: session.handleAnswer,
+      },
+      props,
+    );
 
     return (
       <TrainingShell
-        title={
-          kind === "exam"
-            ? tExam("pageTitle", { title: t("title") })
-            : t("title")
-        }
+        title={title}
         variant={kind}
         correctCount={session.correctCount}
         totalCount={session.totalCount}
         challengeRules={{ timeLimit, mistakeLimit }}
         challengeHref={practicePlayHref(slug, props.variant)}
-        exitHref={practiceHref(slug, props.variant)}
+        exitHref={exitHref}
         onReveal={reveal}
         revealDisabled={revealDisabled}
         isRevealed={session.isRevealed}
@@ -286,14 +367,20 @@ export function createTrainingView(
         scrollRef={scrollRef}
       >
         <TrainingModeProvider value={trainingMode}>
-          {renderBoard(
-            {
-              showFeedback: session.showFeedback,
-              isTraining: true,
-              lastAnswerCorrect: session.lastAnswerCorrect,
-              onAnswer: session.handleAnswer,
-            },
-            props,
+          {quotaHost === undefined ? (
+            board
+          ) : (
+            <QuestionHostProvider value={quotaHost.host}>
+              {board}
+              {/* 無料枠の残り。Pro とまだ聞いていない間は何も描かない。
+                  導線は解答前だけ（和了形の点数計算と同じ理由） */}
+              {gate?.kind === "open" && (
+                <PracticeQuotaRemaining
+                  remaining={gate.remaining}
+                  showPlanLink={!session.showFeedback}
+                />
+              )}
+            </QuestionHostProvider>
           )}
         </TrainingModeProvider>
       </TrainingShell>

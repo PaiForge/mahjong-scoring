@@ -19,7 +19,7 @@ const ScoreExamBoard = createScoreExamBoard(EXAM_BOARD_CONFIG);
 /** 昇段試験（あらゆる手の点数計算）の画面一式（モバイルが開くのは模試だけ） */
 export const scoreExamScreens: PracticeScreens = createScoreExamScreens({
   slug: PRACTICE_SLUG.scoreExam,
-  translationNamespace: EXAM_BOARD_CONFIG.translationNamespace,
+  boardConfig: EXAM_BOARD_CONFIG,
   Board: ScoreExamBoard,
   Demo: createScoreExamHowToPlay(
     EXAM_BOARD_CONFIG.translationNamespace,

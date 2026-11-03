@@ -17,12 +17,14 @@ import { colors } from "../../lib/theme";
 interface PracticeQuotaPaywallProps {
   /** 練習（ログインしたときの上限を引く） */
   readonly menu: QuotaMenu;
-  /** 見出し（練習名）の辞書。`GenerationFailedNotice` と同じ */
-  readonly translationNamespace: "agariScore" | "tenpaiScore";
+  /** 見出し。置き換える盤面と同じ練習名（模試なら「（模試）」付き） */
+  readonly title: string;
   /** 使い切った上限 */
   readonly limit: number;
   /** ログインしているか（ユーザー名を決めていない人も含む） */
   readonly signedIn: boolean;
+  /** 末尾の戻るリンクの文言。省略時は「練習に戻る」（模試は試験の説明へ戻る） */
+  readonly backLabel?: string;
   readonly onBackToSetup: () => void;
 }
 
@@ -49,23 +51,24 @@ const PERKS = ["perkUnlimited", "perkTools"] as const;
  *
  * ログインやプラン画面から戻ると、盤面のゲートが前面に戻ったのを見て
  * 聞き直す（`usePracticeQuota`）ので、枠が増えた・Pro になった人はそのまま
- * 次の問題へ進む。
+ * 次の問題へ進む。模試（1級・初段）でも同じ画面で、見出しと戻るリンクの
+ * 文言だけ呼び出し側が差し替える。
  */
 export function PracticeQuotaPaywall({
   menu,
-  translationNamespace,
+  title,
   limit,
   signedIn,
+  backLabel,
   onBackToSetup,
 }: PracticeQuotaPaywallProps) {
   const t = useTranslations("practiceQuota.paywall");
-  const tPractice = useTranslations(translationNamespace);
   const tPlan = useTranslations("mobilePlan");
   const router = useRouter();
 
   return (
     <Screen
-      title={tPractice("title")}
+      title={title}
       back
       backIcon="close"
       onBack={onBackToSetup}
@@ -128,7 +131,7 @@ export function PracticeQuotaPaywall({
 
       <View style={styles.footer}>
         <TextLink onPress={onBackToSetup} testID="practice-quota-paywall-back">
-          {t("backToSetup")}
+          {backLabel ?? t("backToSetup")}
         </TextLink>
       </View>
     </Screen>
