@@ -323,7 +323,7 @@
         "admin": "管理者",
         "user": "一般"
       },
-      "provider": "登録方法",
+      "provider": "ログイン方法",
       "providers": {
         "email": "メール",
         "google": "Google",
