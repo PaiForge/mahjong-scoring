@@ -44,6 +44,26 @@ interface SectionProps {
   readonly now: Date;
 }
 
+/**
+ * ログイン方法のプロバイダを `app_metadata` から読む
+ *
+ * `providers` は連携しているプロバイダの一覧（Google を足した人は
+ * `["email", "google"]`）。認証サーバーがログイン・検証のたびに書き直す値で、
+ * 管理 API で連携だけ足した直後は古いことがある。無ければ最初に登録した
+ * `provider` 1 つに落とす。
+ */
+function readProviders(appMetadata: {
+  readonly provider?: string;
+  readonly providers?: unknown;
+}): readonly string[] {
+  const { providers } = appMetadata;
+  if (Array.isArray(providers)) {
+    const names = providers.filter((p): p is string => typeof p === "string");
+    if (names.length > 0) return names;
+  }
+  return appMetadata.provider === undefined ? [] : [appMetadata.provider];
+}
+
 /** アカウント（ID・メール・ユーザー名・ロール・ログイン方法・日時） */
 export async function AccountSection({
   detail,
@@ -51,7 +71,7 @@ export async function AccountSection({
 }: Pick<SectionProps, "detail" | "status">) {
   const t = await getTranslations("admin.userDetail");
   const { authUser, profile } = detail;
-  const provider = authUser.app_metadata.provider;
+  const providers = readProviders(authUser.app_metadata);
   return (
     <DetailSection title={t("account.title")}>
       <dl>
@@ -83,9 +103,15 @@ export async function AccountSection({
             : t("account.roles.user")}
         </InfoRow>
         <InfoRow label={t("account.provider")}>
-          {isKnownAuthProvider(provider)
-            ? t(`account.providers.${provider}`)
-            : (provider ?? "-")}
+          {providers.length === 0
+            ? "-"
+            : providers
+                .map((provider) =>
+                  isKnownAuthProvider(provider)
+                    ? t(`account.providers.${provider}`)
+                    : provider,
+                )
+                .join(" / ")}
         </InfoRow>
         <InfoRow label={t("account.emailConfirmedAt")}>
           {authUser.email_confirmed_at

@@ -70,6 +70,23 @@ pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面�
 | `pnpm format`       | Prettier でフォーマット                   |
 | `pnpm format:check` | Prettier の整形漏れを検査（書き換えない） |
 
+## 認証
+
+web とモバイルは同じ Supabase Auth のアカウントを使います。1 つのアカウントに
+メールアドレスとパスワード・Google・Apple（iOS アプリだけ）を複数つなげられ、
+追加・削除とメールアドレスの変更は web のアカウントページ（`/mypage/account`）で行います。
+
+手順は置き場所で分かれています:
+
+- Supabase Dashboard の設定（ログイン方法の連携・メールの確認・パスワード）、Google、
+  認証メールのテンプレート: [apps/web/docs/authentication-setup.md](apps/web/docs/authentication-setup.md)
+  と [apps/web/docs/resend-smtp-setup.md](apps/web/docs/resend-smtp-setup.md)
+- Apple でログインと、「メールを非公開」の中継アドレス（Private Email Relay）:
+  [apps/mobile/README.md](apps/mobile/README.md) の「Apple でログイン（iOS）」
+
+本番の Supabase はローカルの `apps/web/supabase/config.toml` を読みません。`config.toml` を
+変えたら Dashboard も揃えてください（対応表は web の文書にあります）。
+
 ## コーディング規約
 
 コーディング規約と牌の表記法は、PaiForge の別リポジトリで一元管理しています。

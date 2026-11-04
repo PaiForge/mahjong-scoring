@@ -64,9 +64,9 @@ pnpm dev
 
 ## ローカル開発
 
-### Google OAuth の設定（Google サインイン用）
+### 認証（Supabase Auth）
 
-Google サインインをローカルでテストするには、OAuth 認証情報の設定が必要です。詳細は [docs/authentication-setup.md](docs/authentication-setup.md) を参照してください。
+ログイン方法（メールアドレスとパスワード・Google・Apple）と、本番の Supabase Dashboard の設定と `supabase/config.toml` の対応、Google サインインをローカルでテストするための OAuth 認証情報の設定は [docs/authentication-setup.md](docs/authentication-setup.md) を参照してください。
 
 ### Apple ログイン（iOS アプリ用）
 

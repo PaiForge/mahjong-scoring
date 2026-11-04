@@ -63,7 +63,6 @@ export const SERVER_ONLY_MESSAGE_NAMESPACES = [
   "examResult",
   "exp",
   "mypagePlan",
-  "mypageAccount",
   "announcements",
   "publicProfile",
   "banned",

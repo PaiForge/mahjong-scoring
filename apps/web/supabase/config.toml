@@ -146,7 +146,13 @@ enable_signup = true
 # Allow/disallow anonymous sign-ins to your project.
 enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
-enable_manual_linking = false
+# アカウントのページの「Google アカウントを追加」「外す」（`linkIdentity` /
+# `unlinkIdentity`）はこれが要る。本番は Dashboard > Authentication >
+# Sign In / Providers の "Allow manual linking" を ON にする（下の [auth.email]
+# の同期項目と同じく、config.toml を変えたら本番も揃える）。
+# 同じメールアドレスの Google / Apple でログインしたときの自動連携は、この
+# 設定に関係なく常に働く（GoTrue に切る設定が無い）。
+enable_manual_linking = true
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
 minimum_password_length = 6
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
@@ -171,15 +177,17 @@ web3 = 30
 
 [auth.email]
 # === 本番環境 (Supabase Dashboard) での設定 ===
-# 以下の設定を Supabase Dashboard > Authentication > Settings で必ず同期すること:
+# 本番はこのファイルを読まない。以下を Supabase Dashboard で同期すること
+# （キーと Dashboard の置き場所の対応表は docs/authentication-setup.md）:
 # 1. Email Auth を有効化 (Enable Email provider)
 # 2. "Confirm email" を有効化 (enable_confirmations に相当)
 # 3. "Secure password change" を有効化
-# 4. "Double confirm email changes" を有効化
+# 4. "Secure email change" を有効化 (double_confirm_changes に相当。古い画面では "Double confirm email changes")
 # 5. Minimum password length を 6 に設定
 # 6. Password requirements を "letters_digits" に設定
 # 7. Site URL を本番 URL に設定 (Authentication > URL Configuration)
 # 8. Redirect URLs に本番 URL を追加
+# 9. "Allow manual linking" を有効化 (上の [auth] enable_manual_linking に相当。Sign In / Providers の User Signups)
 #
 # Allow/disallow new user signups via email to your project.
 enable_signup = true

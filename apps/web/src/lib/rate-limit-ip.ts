@@ -95,6 +95,12 @@ export const IP_RATE_LIMITS = {
   resetPassword: { maxRequests: 5, windowMs: 300_000 },
   username: { maxRequests: 5, windowMs: 300_000 },
   deleteAccount: { maxRequests: 5, windowMs: 300_000 },
+  // アカウントのページのログイン方法。外すのは本人の操作 1 回ずつで、
+  // 付け替えでも 2〜3 回。メールを送る 2 つは認証サーバーの送信間隔
+  // （60 秒）とも二重に掛かる
+  unlinkLoginIdentity: { maxRequests: 10, windowMs: 600_000 },
+  requestEmailChange: { maxRequests: 5, windowMs: 600_000 },
+  requestPasswordSetup: { maxRequests: 3, windowMs: 300_000 },
   uploadAvatar: { maxRequests: 5, windowMs: 600_000 },
   deleteAvatar: { maxRequests: 5, windowMs: 600_000 },
   // 管理画面の広告画像。管理者しか通らないが、差し替えを続けて試す運用を

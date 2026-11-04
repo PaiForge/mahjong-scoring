@@ -40,7 +40,7 @@ export interface EmailTemplateContent {
 }
 
 /**
- * 確認メールとパスワード再設定のリンク先
+ * 確認メール・パスワード再設定・メールアドレス変更のリンク先
  *
  * @design `ConfirmationURL` ではなく `token_hash` を web の `/auth/callback` へ渡す
  *
@@ -56,7 +56,7 @@ export interface EmailTemplateContent {
  * 渡す値で、再設定のようにクエリを含むことがあり、そのままでは後ろに
  * パラメータを足せない。
  */
-function callbackHref(type: "signup" | "recovery"): string {
+function callbackHref(type: "signup" | "recovery" | "email_change"): string {
   // 属性値の中の & は &amp; と書く（HTML の文字参照として読まれないように）
   return `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=${type}`;
 }
@@ -84,9 +84,9 @@ export const EMAIL_TEMPLATES: readonly EmailTemplateContent[] = [
     heading: "メールアドレス変更の確認",
     body: "メールアドレスを <strong>{{ .NewEmail }}</strong> に変更するリクエストを受け付けました。以下のボタンをクリックして、変更を確認してください。",
     button: "メールアドレスの変更を確認",
-    // メールアドレスの変更は画面に無く（管理側の操作だけ）、/auth/callback も
-    // email_change の token_hash を扱わないので、Supabase の検証 URL のまま
-    href: "{{ .ConfirmationURL }}",
+    // 変更前・変更後の両方のアドレスに届く（double_confirm_changes）。
+    // 両方のリンクを開くと変更が確定する。文面は 2 通で同じ
+    href: callbackHref("email_change"),
     note: "この変更をリクエストした覚えがない場合は、このメールを無視してください。メールアドレスは変更されません。",
   },
 ];
