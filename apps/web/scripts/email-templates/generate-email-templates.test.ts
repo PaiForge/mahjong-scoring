@@ -51,7 +51,8 @@ describe("認証メールテンプレート", () => {
         "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=signup",
       "recovery.html":
         "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=recovery",
-      "email_change.html": "{{ .ConfirmationURL }}",
+      "email_change.html":
+        "{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=email_change",
     });
   });
 
