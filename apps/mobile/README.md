@@ -222,11 +222,30 @@ App Store は Google などのログインを出すアプリに Apple のログ�
 | App ID                  | `help.mahjong.score`（Sign in with Apple を有効） | App Store Connect API（`bundleIds` と `bundleIdCapabilities` の `APPLE_ID_AUTH`）か、[Identifiers](https://developer.apple.com/account/resources/identifiers/list) の「＋」→ App IDs       |
 | Sign in with Apple の鍵 | Key ID `Z93WHKSUHN`（`.p8` は 1Password）         | [Keys](https://developer.apple.com/account/resources/authkeys/list) の「＋」→「Sign in with Apple」にチェック → Configure で Primary App ID に上の App ID。`.p8` のダウンロードは 1 回だけ |
 
-Services ID と Private Email Relay の登録はしていない。前者は web の Apple ログインを
-作るとき、後者は Apple でログインした人（中継アドレス `@privaterelay.appleid.com`）へ
-メールを送る機能を作るときに要る。
+Services ID は登録していない（web の Apple ログインを作るときに要る）。
 
 鍵はアプリには入れない。サーバー（web）の環境変数として持つ。
+
+### Private Email Relay（未登録）
+
+「メールを非公開」を選んだ人のアドレス（`@privaterelay.appleid.com`）へのメールは、
+送信元のドメインとアドレスを Apple に登録していないと Apple が中継せずに捨てる。
+登録していない間、web のアカウントページ（`/mypage/account`）ではその人の
+メールアドレスの変更とパスワードの設定が無効になり、理由が画面に出る
+（判定は `packages/features/src/account/login-methods.ts` の `isApplePrivateRelayEmail`）。
+登録するなら:
+
+1. 送信元を決める。Supabase Auth の送信元は Resend の custom SMTP で設定したアドレス
+   （[apps/web/docs/resend-smtp-setup.md](../web/docs/resend-smtp-setup.md)）。Supabase
+   組み込みの送信元（`noreply@mail.app.supabase.io`）は他社のドメインなので登録できない
+2. [Certificates, Identifiers & Profiles](https://developer.apple.com/account/resources/) →
+   **Services** → **Sign in with Apple for Email Communication** → Configure
+3. **Domains and Subdomains** に送信元のドメイン、**Email Addresses** に送信元のアドレスを
+   登録する。ドメインには SPF が通っている必要がある（Resend のドメイン認証で入れた
+   SPF で足りる）
+4. 登録したら、web の中継アドレスの人を断っている箇所（`isApplePrivateRelayEmail` を
+   読む Server Action と画面）を外す。メールの到達は Apple の判断なので、登録後に
+   実際の中継アドレスで 1 度確かめる
 
 ### Supabase の設定
 
