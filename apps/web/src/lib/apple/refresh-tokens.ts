@@ -172,6 +172,46 @@ export async function revokeAppleLinkForDeletion(
   }
 }
 
+/**
+ * Apple の連携を外すユーザーの、その Apple アカウントの refresh token を
+ * Apple に取り消させてから消す
+ * Apple連携の後始末（連携の解除）
+ *
+ * 連携を外しても Apple 側の「このアプリにサインインしている」状態は残るので、
+ * 退会（{@link revokeAppleLinkForDeletion}）と同じく取り消す（TN3194）。
+ * トークンを預かっていなければ取り消すものは無い（Apple の連携があるのに
+ * トークンが無いのは、アプリが預ける前の古い連携）。設定が無い・Apple に
+ * 届かない・復号できないときは投げる — 取り消せていないのに連携だけ外さない。
+ *
+ * @param appleSubject - 外す連携の Apple のユーザー ID（別の Apple アカウントの
+ *   トークンには触れない）
+ */
+export async function revokeAppleTokenForUnlink(
+  userId: string,
+  appleSubject: string,
+): Promise<void> {
+  const [row] = await db
+    .select()
+    .from(appleRefreshTokens)
+    .where(
+      and(
+        eq(appleRefreshTokens.userId, userId),
+        eq(appleRefreshTokens.appleSubject, appleSubject),
+      ),
+    )
+    .limit(1);
+  if (!row) return;
+  await revokeStoredToken(row.clientId, row.encryptedRefreshToken);
+  await db
+    .delete(appleRefreshTokens)
+    .where(
+      and(
+        eq(appleRefreshTokens.userId, userId),
+        eq(appleRefreshTokens.encryptedRefreshToken, row.encryptedRefreshToken),
+      ),
+    );
+}
+
 /** 保存したトークンを復号して取り消す。できなければ投げる */
 async function revokeStoredToken(
   clientId: string,
