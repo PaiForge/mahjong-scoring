@@ -125,7 +125,7 @@ export async function getAccountLoginState(
 export async function ensureEmailIdentity(
   userId: string,
   email: string,
-  identities: readonly LinkedIdentity[],
+  identities: readonly { readonly provider: string }[],
 ): Promise<void> {
   if (identities.some((i) => i.provider === "email")) return;
   const admin = createAdminClient();
