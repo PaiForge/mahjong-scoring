@@ -148,6 +148,7 @@ export function EmailCard({
               size="sm"
               onClick={() => {
                 setEditing(false);
+                setNewEmail("");
                 setError("");
               }}
               disabled={isSubmitting}
