@@ -150,10 +150,16 @@ type VerificationFailure = Extract<
  * Apple のライブラリで署名付きデータを検証する検証器を作る
  * 署名検証器生成
  *
- * Production と Sandbox の検証器を 2 つ持ち、まず Production で検証する。
- * 課金環境が違う（`INVALID_ENVIRONMENT`）ときだけ Sandbox で検証し直す。
- * 署名不正など他の失敗では Sandbox を試さない — 不正なデータを 2 回検証すると、
+ * Production と Sandbox の検証器を 2 つ持つ。まず中身が名乗る課金環境
+ * （{@link claimedEnvironmentOf}。名乗りが読めなければ Production）で検証し、
+ * 課金環境が違う（`INVALID_ENVIRONMENT`）ときだけもう一方で検証し直す。
+ * 署名不正など他の失敗ではもう一方を試さない — 不正なデータを 2 回検証すると、
  * どちらの失敗が本当の理由かログから読めなくなる。
+ *
+ * 名乗りで順を決めるのは、Sandbox の取引（TestFlight・審査）が毎回 Production
+ * の検証（証明書の鎖と OCSP）を 1 度無駄に通っていたため。名乗りは順を選ぶ
+ * だけで、検証を通った側の検証器の課金環境だけを採るのは変わらない — 偽って
+ * 名乗っても、署名と課金環境の一致はライブラリが確かめる。
  *
  * 証明書の失効確認（OCSP）をオンにしている（`enableOnlineChecks`）。Apple に
  * 届かないときは `unavailable` を返し、呼び出し側は一時的な失敗として応答する
@@ -188,8 +194,9 @@ export function createAppleSignedDataVerifier({
     ),
   };
 
-  /** Production で検証し、課金環境が違うときだけ Sandbox で検証し直す */
+  /** 名乗った課金環境で検証し、課金環境が違うときだけもう一方で検証し直す */
   async function verifyEitherEnvironment<T>(
+    first: AppleEnvironment,
     verify: (verifier: SignedDataVerifier) => Promise<T>,
   ): Promise<
     | {
@@ -199,11 +206,15 @@ export function createAppleSignedDataVerifier({
       }
     | VerificationFailure
   > {
+    const second =
+      first === AppleEnvironment.Production
+        ? AppleEnvironment.Sandbox
+        : AppleEnvironment.Production;
     try {
       return {
         ok: true,
-        payload: await verify(verifiers.Production),
-        environment: AppleEnvironment.Production,
+        payload: await verify(verifiers[first]),
+        environment: first,
       };
     } catch (error) {
       if (!isInvalidEnvironment(error)) return failureOf(error);
@@ -211,8 +222,8 @@ export function createAppleSignedDataVerifier({
     try {
       return {
         ok: true,
-        payload: await verify(verifiers.Sandbox),
-        environment: AppleEnvironment.Sandbox,
+        payload: await verify(verifiers[second]),
+        environment: second,
       };
     } catch (error) {
       return failureOf(error);
@@ -222,8 +233,9 @@ export function createAppleSignedDataVerifier({
   async function verifyTransaction(
     jws: string,
   ): Promise<AppleVerification<AppleTransaction>> {
-    const verified = await verifyEitherEnvironment((verifier) =>
-      verifier.verifyAndDecodeTransaction(jws),
+    const verified = await verifyEitherEnvironment(
+      claimedEnvironmentOf(jws, "transaction"),
+      (verifier) => verifier.verifyAndDecodeTransaction(jws),
     );
     if (!verified.ok) return verified;
     const parsed = transactionPayloadSchema.safeParse(verified.payload);
@@ -266,8 +278,9 @@ export function createAppleSignedDataVerifier({
   async function verifyNotification(
     signedPayload: string,
   ): Promise<AppleVerification<AppleNotification>> {
-    const verified = await verifyEitherEnvironment((verifier) =>
-      verifier.verifyAndDecodeNotification(signedPayload),
+    const verified = await verifyEitherEnvironment(
+      claimedEnvironmentOf(signedPayload, "notification"),
+      (verifier) => verifier.verifyAndDecodeNotification(signedPayload),
     );
     if (!verified.ok) return verified;
     const parsed = notificationPayloadSchema.safeParse(verified.payload);
@@ -303,7 +316,42 @@ export function createAppleSignedDataVerifier({
   return { verifyTransaction, verifyNotification };
 }
 
-/** 課金環境が違うだけの失敗か（Sandbox で検証し直す唯一の条件） */
+const claimedTransactionSchema = z.object({ environment: z.string() });
+const claimedNotificationSchema = z.object({
+  data: z.object({ environment: z.string() }),
+});
+
+/**
+ * 署名を確かめる前の JWS の中身が名乗る課金環境。読めなければ Production
+ * 名乗りの課金環境
+ *
+ * 検証器を試す順を決めるだけに使う（{@link createAppleSignedDataVerifier}）。
+ * 取引は `environment`、通知は `data.environment` に課金環境を持つ。Sandbox と
+ * 名乗るときだけ Sandbox を先にし、それ以外（Production・形が違う・読めない）は
+ * 従来どおり Production を先にする。
+ */
+function claimedEnvironmentOf(
+  jws: string,
+  kind: "transaction" | "notification",
+): AppleEnvironment {
+  const segment = jws.split(".")[1];
+  if (segment === undefined) return AppleEnvironment.Production;
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(Buffer.from(segment, "base64url").toString("utf8"));
+  } catch {
+    return AppleEnvironment.Production;
+  }
+  const claimed =
+    kind === "transaction"
+      ? claimedTransactionSchema.safeParse(decoded).data?.environment
+      : claimedNotificationSchema.safeParse(decoded).data?.data.environment;
+  return claimed === AppleEnvironment.Sandbox
+    ? AppleEnvironment.Sandbox
+    : AppleEnvironment.Production;
+}
+
+/** 課金環境が違うだけの失敗か（もう一方の検証器で検証し直す唯一の条件） */
 function isInvalidEnvironment(error: unknown): boolean {
   return (
     error instanceof VerificationException &&

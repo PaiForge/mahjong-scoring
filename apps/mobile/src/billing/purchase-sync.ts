@@ -118,3 +118,35 @@ export function summarizeRestore(
   if (results.some((result) => !shouldFinishAfter(result))) return "failed";
   return "nothingToRestore";
 }
+
+/** 購入ボタン 1 つの見え方 */
+export interface BuyButtonState {
+  /** 押せない（淡い灰）。同じ操作で止めた他のボタン */
+  readonly disabled: boolean;
+  /** 処理中（塗りのままスピナー）。押したボタン */
+  readonly loading: boolean;
+}
+
+/**
+ * 商品の購入ボタンの見え方を決める
+ * 購入ボタン状態
+ *
+ * 購入シートを開いてから取引の記録が終わるまで（`purchasing`）は、押した商品の
+ * ボタンだけを処理中にし、他の商品は止める。誰も買っていない間は、画面の外から
+ * 届いた取引を記録している間（`busy`）だけ止める — 押していない人に処理中を
+ * 見せない。
+ *
+ * @param productId - このボタンの商品
+ * @param purchasing - 買っている最中の商品。無ければ undefined
+ * @param busy - 取引を記録している最中か（`usePurchaseRecording`）
+ */
+export function buyButtonStateOf(
+  productId: string,
+  purchasing: string | undefined,
+  busy: boolean,
+): BuyButtonState {
+  if (purchasing === undefined) return { disabled: busy, loading: false };
+  return purchasing === productId
+    ? { disabled: false, loading: true }
+    : { disabled: true, loading: false };
+}

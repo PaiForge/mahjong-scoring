@@ -20,12 +20,16 @@ import {
   IapErrorCode,
   fetchIapProducts,
   onIapPurchaseError,
-  requestIapPurchase,
   type IapProduct,
 } from "./iap";
 import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
+import { buyButtonStateOf } from "./purchase-sync";
 import { usePlan } from "./use-plan";
-import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
+import {
+  buyIapProduct,
+  restoreIapPurchases,
+  usePurchaseRecording,
+} from "./use-purchase-sync";
 
 /**
  * プラン画面の中身（ログイン中でユーザー名を決めた人）
@@ -44,8 +48,11 @@ import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
  * - 運営からの付与は状態にだけ出し、付与の表は持たない
  * - 領収書の在処は App Store の購入にだけ添える（web の Stripe の案内は出さない）
  *
- * 購入の結果はここでは待たない。届いた取引はルートの購入の同期
- * （`usePurchaseSync`）が記録し、記録できたらこの画面が読み直す。
+ * 届いた取引はルートの購入の同期（`usePurchaseSync`）が記録し、記録後の
+ * プランがこの画面に渡る。押した購入ボタンは、購入画面を開いてから取引の
+ * 記録が終わるまで処理中のままにする（`buyIapProduct`）— 購入画面が閉じてから
+ * 記録されるまでの間、状態は無料のままなので、ボタンが戻ると「買えていない」
+ * ように見える。
  */
 export function PlanScreenBody({ userId }: { readonly userId: string }) {
   const t = useTranslations("mobilePlan");
@@ -65,11 +72,18 @@ function PlanBody({
 }) {
   const t = useTranslations("mobilePlan");
   const recording = usePurchaseRecording();
+  /**
+   * 購入シートを開いてから、その取引の記録が終わるまでの商品（`buyIapProduct`
+   * が返るまで）。押した方だけを処理中にし、他の商品と復元は止める。商品の
+   * カードの外に持つのは、復元のボタンも同じ値で止めるため — 記録が始まる前
+   * （取引がまだ届いていない間）は `recording` が false で、復元だけが押せて
+   * しまう
+   */
+  const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
   const onSale = plan.offers.length > 0;
   const lineup = planLineupOf(plan.offers);
   return (
     <>
-      {recording && <RecordingNotice />}
       <View style={styles.section}>
         <SectionTitle>{t("status.title")}</SectionTitle>
         <StatusCard status={plan.status} />
@@ -83,6 +97,8 @@ function PlanBody({
               offers={plan.offers}
               lineup={lineup}
               busy={recording}
+              purchasing={purchasing}
+              onPurchasingChange={setPurchasing}
             />
           ) : (
             <Text style={styles.body}>
@@ -93,14 +109,26 @@ function PlanBody({
           )}
         </View>
       )}
+      {recording && <RecordingNotice />}
       {onSale && <Notes lineup={lineup} />}
-      <Restore userId={userId} lineup={lineup} busy={recording} />
+      <Restore
+        userId={userId}
+        lineup={lineup}
+        busy={recording || purchasing !== undefined}
+      />
       <History purchases={plan.purchases} />
     </>
   );
 }
 
-/** 購入の直後の取引を記録している間の知らせ（通信に失敗して送り直している間も出る） */
+/**
+ * 購入の直後の取引を記録している間の知らせ（通信に失敗して送り直している間も出る）
+ *
+ * 置き場所は商品のカードの下。記録は購入ボタンを押した直後に始まるので、先頭に
+ * 差し込むと状態・商品・押したボタンがその高さ分だけ下へ動き、押した場所から
+ * 目を離させる。押したボタンは記録が終わるまで処理中のままなので、知らせの
+ * 役目は「閉じないで」の一文だけで、押した場所より下にあれば足りる
+ */
 function RecordingNotice() {
   const t = useTranslations("mobilePlan");
   return (
@@ -184,18 +212,21 @@ function Offers({
   offers,
   lineup,
   busy,
+  purchasing,
+  onPurchasingChange,
 }: {
   readonly userId: string;
   readonly offers: readonly MobilePlanOffer[];
   readonly lineup: PlanLineup;
   /** 取引を記録している間。重ねて買わせない */
   readonly busy: boolean;
+  /** 買っている最中の商品（`PlanBody` が持つ）。押した方だけを処理中にする */
+  readonly purchasing: string | undefined;
+  readonly onPurchasingChange: (productId: string | undefined) => void;
 }) {
   const t = useTranslations("mobilePlan.offers");
   const tPlan = useTranslations("mobilePlan");
   const products = useIapProducts(offers);
-  /** 購入シートを開いている商品。押した方だけを処理中にし、他は止めるだけにする */
-  const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
 
   // 取り消しは知らせない（本人が閉じただけ）。承認待ち（Ask to Buy）は承認されたら
   // 購入の同期が記録するので、待っていることだけ伝える
@@ -213,9 +244,9 @@ function Offers({
   );
 
   const buy = (productId: string) => {
-    setPurchasing(productId);
-    void requestIapPurchase(productId, userId).finally(() =>
-      setPurchasing(undefined),
+    onPurchasingChange(productId);
+    void buyIapProduct(productId, userId).finally(() =>
+      onPurchasingChange(undefined),
     );
   };
 
@@ -250,10 +281,7 @@ function Offers({
             <Button
               size="lg"
               fullWidth
-              disabled={
-                busy || (purchasing !== undefined && purchasing !== productId)
-              }
-              loading={purchasing === productId}
+              {...buyButtonStateOf(productId, purchasing, busy)}
               testID={`plan-buy-${key}`}
               onPress={() => buy(productId)}
             >
@@ -293,6 +321,7 @@ function Restore({
 }: {
   readonly userId: string;
   readonly lineup: PlanLineup;
+  /** 取引を記録している間、または商品を買っている最中。重ねて送らせない */
   readonly busy: boolean;
 }) {
   const t = useTranslations("mobilePlan");

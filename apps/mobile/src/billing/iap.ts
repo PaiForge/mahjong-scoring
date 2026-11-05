@@ -263,14 +263,37 @@ export function onIapPurchase(listener: PurchaseListener): () => void {
 }
 
 /**
+ * 購入の要求の戻り値から、要求した商品の取引 ID を読む。無ければ undefined
+ *
+ * 戻り値は 1 件・配列・null のどれもありうる（expo-iap の型）。取引 ID が
+ * 無い取引はイベントでも配られない（{@link toIapPurchase}）ので、読めなければ
+ * 待つ相手が無いとして undefined を返す。
+ */
+function transactionIdOf(
+  result: Purchase | Purchase[] | null,
+  productId: string,
+): string | undefined {
+  if (result === null) return undefined;
+  const purchases = Array.isArray(result) ? result : [result];
+  const transactionId = purchases.find(
+    (purchase) => purchase.productId === productId,
+  )?.transactionId;
+  return typeof transactionId === "string" && transactionId !== ""
+    ? transactionId
+    : undefined;
+}
+
+/**
  * 購入を始める（App Store の購入画面を出す）
  * 購入要求
  *
- * 結果は待たない: 届いた取引は {@link onIapPurchase}、失敗は
- * {@link onIapPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決する。
- * `requestPurchase` の戻り値は結果に使わない（expo-iap の TSDoc どおり。取引は
+ * 取引そのものは配らない: 届いた取引は {@link onIapPurchase}、失敗は
+ * {@link onIapPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決し、
+ * 買えたならその取引 ID を返す（取り消し・失敗・承認待ちは undefined）。
+ * `requestPurchase` の戻り値から取引を配らない（expo-iap の TSDoc どおり。取引は
  * イベントで届く）— 戻り値からも配ると同じ取引が 2 度届き、記録の知らせが
- * 2 回出る。待つのは要求の拒否（失敗）を受け取るためだけ。
+ * 2 回出る。戻り値から読むのは取引 ID だけで、呼び出し側がイベントで届いた
+ * 取引の記録の終わりを待つのに使う（`buyIapProduct`）。
  * StoreKit のイベントと要求の拒否は同じ失敗を両方から知らせることがあるので、
  * 要求の間だけ失敗の受け手を足し、イベントで届いていれば拒否は重ねて知らせない。
  * 取引は自動で完了させない — サーバーに記録してから完了する（完了した取引は
@@ -282,11 +305,11 @@ export function onIapPurchase(listener: PurchaseListener): () => void {
 export async function requestIapPurchase(
   productId: string,
   appAccountToken: string,
-): Promise<void> {
-  if (!IAP_AVAILABLE) return;
+): Promise<string | undefined> {
+  if (!IAP_AVAILABLE) return undefined;
   if (!(await connectIap())) {
     deliverError(ErrorCode.NotPrepared, "not connected");
-    return;
+    return undefined;
   }
   let errorDelivered = false;
   const watchError: ErrorListener = () => {
@@ -294,7 +317,7 @@ export async function requestIapPurchase(
   };
   errorListeners.add(watchError);
   try {
-    await requestPurchase({
+    const result = await requestPurchase({
       request: {
         apple: {
           sku: productId,
@@ -304,12 +327,14 @@ export async function requestIapPurchase(
       },
       type: "in-app",
     });
+    return transactionIdOf(result, productId);
   } catch (error) {
     // StoreKit のイベントで同じ失敗を受け取っていれば、重ねて知らせない
     if (!errorDelivered) {
       const { code, message } = errorOf(error);
       deliverError(code, message);
     }
+    return undefined;
   } finally {
     removeErrorListener(watchError);
   }
