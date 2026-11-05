@@ -90,6 +90,43 @@ describe("取引の届け方", () => {
   });
 });
 
+describe("購入の要求の戻り値", () => {
+  it("買えたら要求した商品の取引 ID を返す", async () => {
+    await expect(
+      requestIapPurchase(PURCHASE.productId, "user-a"),
+    ).resolves.toBe(PURCHASE.transactionId);
+  });
+
+  it("配列で返っても要求した商品の取引 ID を返す", async () => {
+    mocks.requestPurchase.mockResolvedValue([
+      { ...PURCHASE, productId: "other", transactionId: "other-tx" },
+      PURCHASE,
+    ]);
+
+    await expect(
+      requestIapPurchase(PURCHASE.productId, "user-a"),
+    ).resolves.toBe(PURCHASE.transactionId);
+  });
+
+  it("戻り値が無ければ undefined", async () => {
+    mocks.requestPurchase.mockResolvedValue(null);
+
+    await expect(
+      requestIapPurchase(PURCHASE.productId, "user-a"),
+    ).resolves.toBeUndefined();
+  });
+
+  it("要求が拒否されたら undefined", async () => {
+    mocks.requestPurchase.mockRejectedValue(
+      Object.assign(new Error("cancelled"), { code: "user-cancelled" }),
+    );
+
+    await expect(
+      requestIapPurchase(PURCHASE.productId, "user-a"),
+    ).resolves.toBeUndefined();
+  });
+});
+
 describe("失敗の届け方", () => {
   it("イベントで失敗が届いた後に要求も拒否されたら、受け手には 1 回だけ届く", async () => {
     const listener = vi.fn();
