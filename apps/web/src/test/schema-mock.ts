@@ -159,3 +159,34 @@ export const accountDeletions = {
   storageDeletedAt: "storage_deleted_at",
   completedAt: "completed_at",
 } as const;
+
+/** ad_creatives のカラム */
+export const adCreatives = {
+  _name: "ad_creatives",
+  id: "id",
+  slot: "slot",
+  sortOrder: "sort_order",
+  createdAt: "created_at",
+  isActive: "is_active",
+  href: "href",
+} as const;
+
+/** ad_creative_translations のカラム */
+export const adCreativeTranslations = {
+  _name: "ad_creative_translations",
+  creativeId: "creative_id",
+} as const;
+
+/** ad_network_settings のカラム */
+export const adNetworkSettings = {
+  _name: "ad_network_settings",
+  network: "network",
+  platform: "platform",
+  trackingId: "tracking_id",
+} as const;
+
+/** announcements のカラム */
+export const announcements = {
+  _name: "announcements",
+  id: "id",
+} as const;
