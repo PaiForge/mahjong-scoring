@@ -5,12 +5,7 @@ import type { MobilePlanResponse } from "@mahjong-scoring/features/billing/mobil
 import { useFocusRead, type FocusReadState } from "../lib/use-focus-read";
 import { clearPlanBenefitsCache } from "../practice/quota/use-practice-quota";
 import { fetchPlan, type PlanApiFailure } from "./plan-api";
-
-/** 書き込みの応答に添えられた、その時点のプラン（誰のものか付きで） */
-export interface PlanSnapshot {
-  readonly userId: string;
-  readonly plan: MobilePlanResponse;
-}
+import { planToShowOf, type PlanSnapshot } from "./plan-snapshot";
 
 /**
  * プランの読み直しの合図。`version` が進むと、開いているプラン画面が読み直す
@@ -66,8 +61,9 @@ export function usePlan(userId: string): {
   useEffect(
     () =>
       usePlanVersionStore.subscribe(({ snapshot }) => {
-        if (snapshot?.userId === userId) replace(snapshot.plan);
-        else reload();
+        const plan = planToShowOf(snapshot, userId);
+        if (plan === undefined) reload();
+        else replace(plan);
       }),
     [reload, replace, userId],
   );
