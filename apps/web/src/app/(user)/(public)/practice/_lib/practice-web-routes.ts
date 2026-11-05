@@ -6,7 +6,11 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { PRACTICE_PATH, variantQuery } from "@mahjong-scoring/features/routes";
+import {
+  PRACTICE_PATH,
+  practiceListHrefForRank,
+  variantQuery,
+} from "@mahjong-scoring/features/routes";
 import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
 
 /**
@@ -21,13 +25,12 @@ import { PRACTICE_SETUP_HASH } from "./scroll-anchor";
  */
 
 /**
- * 練習一覧の絞り込みを表すクエリパラメータ名。
+ * 練習一覧を分野で絞るクエリパラメータ名（級は features の `RANK_PARAM`）。
  *
  * サーバーでは読まない（`searchParams` を読むとルートが動的になり、初回表示が
  * `loading.tsx` のスケルトンを経由する）。読むのは一覧のフィルタ
  * （`PracticeFilter`）だけで、それ以外はここを通してリンクを組み立てる。
  */
-export const PRACTICE_RANK_PARAM = "rank";
 export const PRACTICE_CATEGORY_PARAM = "category";
 
 export type { PracticeListFilter } from "@mahjong-scoring/features/practice/list-guides";
@@ -40,9 +43,8 @@ export type { PracticeListFilter } from "@mahjong-scoring/features/practice/list
  */
 export function practiceListHref(filter?: PracticeListFilter): string {
   if (filter === undefined) return PRACTICE_PATH;
-  const param =
-    filter.kind === "rank" ? PRACTICE_RANK_PARAM : PRACTICE_CATEGORY_PARAM;
-  return `${PRACTICE_PATH}?${param}=${filter.value}`;
+  if (filter.kind === "rank") return practiceListHrefForRank(filter.value);
+  return `${PRACTICE_PATH}?${PRACTICE_CATEGORY_PARAM}=${filter.value}`;
 }
 
 /**

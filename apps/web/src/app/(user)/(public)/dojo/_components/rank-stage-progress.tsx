@@ -14,9 +14,11 @@ import {
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
 
-import { practiceHref } from "@mahjong-scoring/features/routes";
+import {
+  lessonsListHref,
+  practiceHref,
+} from "@mahjong-scoring/features/routes";
 
-import { lessonsListHref } from "../../lessons/_lib/lessons-web-routes";
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
 
 interface RankStageProgressProps {

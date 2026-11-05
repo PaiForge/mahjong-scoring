@@ -8,13 +8,16 @@ import {
   type JourneyStage,
   type RankJourney,
 } from "@mahjong-scoring/features/journey/journey";
-import { practiceHref } from "@mahjong-scoring/features/routes";
+import {
+  lessonsListHref,
+  practiceHref,
+  practiceListHrefForRank,
+} from "@mahjong-scoring/features/routes";
 
 import { ChevronRightIcon } from "../components/icons/icons";
 import { colors, radius } from "../lib/theme";
 import { beltStyle } from "./belt-style";
 import { DoneMark } from "./done-mark";
-import { lessonsHrefForRank, practiceListHrefForRank } from "./dojo-routes";
 
 /** 1 段分の表示 */
 interface StageCell {
@@ -30,7 +33,7 @@ interface StageCell {
 function stageHref(stage: JourneyStage, journey: RankJourney): string {
   switch (stage) {
     case "learn":
-      return lessonsHrefForRank(journey.rank.slug);
+      return lessonsListHref(journey.rank.slug);
     case "practice":
       return practiceListHrefForRank(journey.rank.slug);
     case "exam":

@@ -54,8 +54,7 @@ import {
   type RankDefinition,
 } from "@mahjong-scoring/features/ranks/registry";
 import { fetchCompletedLessonSlugs } from "../_lib/lesson-progress";
-import { LESSONS_RANK_PARAM } from "../_lib/lessons-web-routes";
-import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
+import { LESSONS_PATH, RANK_PARAM } from "@mahjong-scoring/features/routes";
 
 interface LearnIndexPageProps {
   readonly searchParams: Promise<
@@ -86,7 +85,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function LearnIndexPage({
   searchParams,
 }: LearnIndexPageProps) {
-  const rank = resolveRankFilter((await searchParams)[LESSONS_RANK_PARAM]);
+  const rank = resolveRankFilter((await searchParams)[RANK_PARAM]);
   if (rank !== undefined) return <RankLessonsIndex rank={rank} />;
 
   const [t, completedSlugs, ads] = await Promise.all([
