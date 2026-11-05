@@ -1,3 +1,4 @@
+import { getTsumoTotal } from "@mahjong-scoring/core";
 import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
 import { ManganTableShell, type ManganTableColumn } from "./mangan-table-shell";
 
@@ -25,7 +26,10 @@ export function ManganOyaTsumoScoreTable() {
       showHan={false}
       renderCells={(row) => {
         const each = row.tsumoOya.all;
-        return [formatLessonPoints(each), formatLessonPoints(each * 3)];
+        return [
+          formatLessonPoints(each),
+          formatLessonPoints(getTsumoTotal(row.tsumoOya)),
+        ];
       }}
     />
   );

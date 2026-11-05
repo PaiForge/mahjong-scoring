@@ -1,3 +1,4 @@
+import { getTsumoTotal } from "@mahjong-scoring/core";
 import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
 import { ManganTableShell, type ManganTableColumn } from "./mangan-table-shell";
 
@@ -30,7 +31,7 @@ export function ManganKoTsumoScoreTable() {
         return [
           formatLessonPoints(fromKo),
           formatLessonPoints(fromOya),
-          formatLessonPoints(fromKo * 2 + fromOya),
+          formatLessonPoints(getTsumoTotal(row.tsumoKo)),
         ];
       }}
     />
