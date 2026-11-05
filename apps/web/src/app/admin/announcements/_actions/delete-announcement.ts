@@ -5,7 +5,8 @@ import { eq } from "drizzle-orm";
 import { revalidateAnnouncementPaths } from "../_lib/announcement-row";
 
 import type { ActionResult } from "@/lib/action-types";
-import { announcements, db } from "@/lib/db";
+import { type Announcement, announcements, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -32,21 +33,31 @@ export async function deleteAnnouncement(
     return admin;
   }
 
-  const deleted = await db.transaction(async (tx) => {
-    const [row] = await tx
-      .delete(announcements)
-      .where(eq(announcements.id, id))
-      .returning();
-    if (!row) return undefined;
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.DeleteAnnouncement,
-      target: { type: ContentActionTargetType.Announcement, key: id },
-      ipAddress: admin.ipAddress,
-      metadata: { before: row },
+  let deleted: Announcement | undefined;
+  try {
+    deleted = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .delete(announcements)
+        .where(eq(announcements.id, id))
+        .returning();
+      if (!row) return undefined;
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.DeleteAnnouncement,
+        target: { type: ContentActionTargetType.Announcement, key: id },
+        ipAddress: admin.ipAddress,
+        metadata: { before: row },
+      });
+      return row;
     });
-    return row;
-  });
+  } catch (error) {
+    logExternalError(
+      "deleteAnnouncement",
+      "failed to delete announcement",
+      error,
+    );
+    return { error: "errorDeleteFailed" };
+  }
 
   if (!deleted) {
     return { error: "errorNotFound" };

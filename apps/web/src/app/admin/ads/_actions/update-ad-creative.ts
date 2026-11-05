@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import type { ActionResult } from "@/lib/action-types";
 import { copyFromTranslationRows, copyToTranslationRows } from "@/lib/ads/copy";
 import { adCreatives, adCreativeTranslations, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -59,46 +60,52 @@ export async function updateAdCreative(
   if (!validated.ok) return { error: validated.error };
   const { value } = validated;
 
-  const updated = await db.transaction(async (tx) => {
-    // 更新前の値を監査ログに残すため、行を押さえてから読む
-    const [before] = await tx
-      .select()
-      .from(adCreatives)
-      .where(eq(adCreatives.id, id))
-      .for("update");
-    if (!before) return false;
-    const beforeCopyRows = await tx
-      .select()
-      .from(adCreativeTranslations)
-      .where(eq(adCreativeTranslations.creativeId, id));
-    const beforeCopy = copyFromTranslationRows(beforeCopyRows).get(id) ?? {
-      title: {},
-      description: {},
-    };
+  let updated: boolean;
+  try {
+    updated = await db.transaction(async (tx) => {
+      // 更新前の値を監査ログに残すため、行を押さえてから読む
+      const [before] = await tx
+        .select()
+        .from(adCreatives)
+        .where(eq(adCreatives.id, id))
+        .for("update");
+      if (!before) return false;
+      const beforeCopyRows = await tx
+        .select()
+        .from(adCreativeTranslations)
+        .where(eq(adCreativeTranslations.creativeId, id));
+      const beforeCopy = copyFromTranslationRows(beforeCopyRows).get(id) ?? {
+        title: {},
+        description: {},
+      };
 
-    const after = toAdCreativeRow(value, slot);
-    await tx
-      .update(adCreatives)
-      .set({ ...after, updatedAt: new Date() })
-      .where(eq(adCreatives.id, id));
-    await tx
-      .delete(adCreativeTranslations)
-      .where(eq(adCreativeTranslations.creativeId, id));
-    await tx
-      .insert(adCreativeTranslations)
-      .values(copyToTranslationRows(id, value.copy));
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.UpdateAdCreative,
-      target: { type: ContentActionTargetType.AdCreative, key: id },
-      ipAddress: admin.ipAddress,
-      metadata: {
-        before: { ...before, copy: beforeCopy },
-        after: { ...after, copy: value.copy },
-      },
+      const after = toAdCreativeRow(value, slot);
+      await tx
+        .update(adCreatives)
+        .set({ ...after, updatedAt: new Date() })
+        .where(eq(adCreatives.id, id));
+      await tx
+        .delete(adCreativeTranslations)
+        .where(eq(adCreativeTranslations.creativeId, id));
+      await tx
+        .insert(adCreativeTranslations)
+        .values(copyToTranslationRows(id, value.copy));
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.UpdateAdCreative,
+        target: { type: ContentActionTargetType.AdCreative, key: id },
+        ipAddress: admin.ipAddress,
+        metadata: {
+          before: { ...before, copy: beforeCopy },
+          after: { ...after, copy: value.copy },
+        },
+      });
+      return true;
     });
-    return true;
-  });
+  } catch (error) {
+    logExternalError("updateAdCreative", "failed to update ad creative", error);
+    return { error: "errorSaveFailed" };
+  }
   if (!updated) return { error: "errorNotFound" };
 
   revalidateAdCreatives();

@@ -5,6 +5,7 @@ import { and, inArray, isNotNull } from "drizzle-orm";
 import type { ActionResult } from "@/lib/action-types";
 import { isAdPlatform, slotsForPlatform } from "@/lib/ads/registry";
 import { adCreatives, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -56,27 +57,37 @@ export async function setAdCreativeHrefByTitle(
     isNotNull(adCreatives.href),
   );
 
-  const updated = await db.transaction(async (tx) => {
-    const before = await tx
-      .select({ id: adCreatives.id, href: adCreatives.href })
-      .from(adCreatives)
-      .where(condition)
-      .for("update");
-    if (before.length === 0) return 0;
-    const rows = await tx
-      .update(adCreatives)
-      .set({ href: trimmed, updatedAt: new Date() })
-      .where(condition)
-      .returning({ id: adCreatives.id });
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.SetAdCreativeHrefByTitle,
-      target: { type: ContentActionTargetType.AdTitle, key: title },
-      ipAddress: admin.ipAddress,
-      metadata: { platform, before, after: trimmed },
+  let updated: number;
+  try {
+    updated = await db.transaction(async (tx) => {
+      const before = await tx
+        .select({ id: adCreatives.id, href: adCreatives.href })
+        .from(adCreatives)
+        .where(condition)
+        .for("update");
+      if (before.length === 0) return 0;
+      const rows = await tx
+        .update(adCreatives)
+        .set({ href: trimmed, updatedAt: new Date() })
+        .where(condition)
+        .returning({ id: adCreatives.id });
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.SetAdCreativeHrefByTitle,
+        target: { type: ContentActionTargetType.AdTitle, key: title },
+        ipAddress: admin.ipAddress,
+        metadata: { platform, before, after: trimmed },
+      });
+      return rows.length;
     });
-    return rows.length;
-  });
+  } catch (error) {
+    logExternalError(
+      "setAdCreativeHrefByTitle",
+      "failed to set ad creative hrefs by title",
+      error,
+    );
+    return { error: "errorSaveFailed" };
+  }
   if (updated === 0) return { error: "errorNotFound" };
 
   revalidateAdCreatives();

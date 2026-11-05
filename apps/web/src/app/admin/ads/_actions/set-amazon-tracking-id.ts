@@ -6,6 +6,7 @@ import type { ActionResult } from "@/lib/action-types";
 import { AMAZON_NETWORK, isValidTrackingId } from "@/lib/ads/amazon";
 import { isAdPlatform } from "@/lib/ads/registry";
 import { adNetworkSettings, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   adNetworkSettingKey,
@@ -48,39 +49,48 @@ export async function setAmazonTrackingId(
     eq(adNetworkSettings.platform, platform),
   );
 
-  await db.transaction(async (tx) => {
-    const [current] = await tx
-      .select({ trackingId: adNetworkSettings.trackingId })
-      .from(adNetworkSettings)
-      .where(condition)
-      .for("update");
-    if (value === "") {
-      await tx.delete(adNetworkSettings).where(condition);
-    } else {
-      await tx
-        .insert(adNetworkSettings)
-        .values({ network: AMAZON_NETWORK, platform, trackingId: value })
-        .onConflictDoUpdate({
-          target: [adNetworkSettings.network, adNetworkSettings.platform],
-          set: { trackingId: value, updatedAt: new Date() },
-        });
-    }
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.SetAmazonTrackingId,
-      target: {
-        type: ContentActionTargetType.AdNetworkSetting,
-        key: adNetworkSettingKey(AMAZON_NETWORK, platform),
-      },
-      ipAddress: admin.ipAddress,
-      metadata: {
-        network: AMAZON_NETWORK,
-        platform,
-        before: current?.trackingId ?? null,
-        after: value === "" ? null : value,
-      },
+  try {
+    await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select({ trackingId: adNetworkSettings.trackingId })
+        .from(adNetworkSettings)
+        .where(condition)
+        .for("update");
+      if (value === "") {
+        await tx.delete(adNetworkSettings).where(condition);
+      } else {
+        await tx
+          .insert(adNetworkSettings)
+          .values({ network: AMAZON_NETWORK, platform, trackingId: value })
+          .onConflictDoUpdate({
+            target: [adNetworkSettings.network, adNetworkSettings.platform],
+            set: { trackingId: value, updatedAt: new Date() },
+          });
+      }
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.SetAmazonTrackingId,
+        target: {
+          type: ContentActionTargetType.AdNetworkSetting,
+          key: adNetworkSettingKey(AMAZON_NETWORK, platform),
+        },
+        ipAddress: admin.ipAddress,
+        metadata: {
+          network: AMAZON_NETWORK,
+          platform,
+          before: current?.trackingId ?? null,
+          after: value === "" ? null : value,
+        },
+      });
     });
-  });
+  } catch (error) {
+    logExternalError(
+      "setAmazonTrackingId",
+      "failed to set amazon tracking id",
+      error,
+    );
+    return { error: "errorSaveFailed" };
+  }
 
   revalidateAdCreatives();
   return { success: true };

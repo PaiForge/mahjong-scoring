@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { adCreatives, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -27,26 +28,36 @@ export async function setAdCreativeActive(
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) return admin;
 
-  const updated = await db.transaction(async (tx) => {
-    const [before] = await tx
-      .select({ isActive: adCreatives.isActive })
-      .from(adCreatives)
-      .where(eq(adCreatives.id, id))
-      .for("update");
-    if (!before) return false;
-    await tx
-      .update(adCreatives)
-      .set({ isActive, updatedAt: new Date() })
-      .where(eq(adCreatives.id, id));
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.SetAdCreativeActive,
-      target: { type: ContentActionTargetType.AdCreative, key: id },
-      ipAddress: admin.ipAddress,
-      metadata: { before: before.isActive, after: isActive },
+  let updated: boolean;
+  try {
+    updated = await db.transaction(async (tx) => {
+      const [before] = await tx
+        .select({ isActive: adCreatives.isActive })
+        .from(adCreatives)
+        .where(eq(adCreatives.id, id))
+        .for("update");
+      if (!before) return false;
+      await tx
+        .update(adCreatives)
+        .set({ isActive, updatedAt: new Date() })
+        .where(eq(adCreatives.id, id));
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.SetAdCreativeActive,
+        target: { type: ContentActionTargetType.AdCreative, key: id },
+        ipAddress: admin.ipAddress,
+        metadata: { before: before.isActive, after: isActive },
+      });
+      return true;
     });
-    return true;
-  });
+  } catch (error) {
+    logExternalError(
+      "setAdCreativeActive",
+      "failed to set ad creative active",
+      error,
+    );
+    return { error: "errorSaveFailed" };
+  }
   if (!updated) return { error: "errorNotFound" };
 
   revalidateAdCreatives();

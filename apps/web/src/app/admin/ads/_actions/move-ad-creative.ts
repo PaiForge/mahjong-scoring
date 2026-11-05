@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { adCreatives, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -29,38 +30,44 @@ export async function moveAdCreative(
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) return admin;
 
-  const moved = await db.transaction(async (tx) => {
-    const [target] = await tx
-      .select({ slot: adCreatives.slot })
-      .from(adCreatives)
-      .where(eq(adCreatives.id, id))
-      .limit(1);
-    if (!target) return false;
+  let moved: boolean;
+  try {
+    moved = await db.transaction(async (tx) => {
+      const [target] = await tx
+        .select({ slot: adCreatives.slot })
+        .from(adCreatives)
+        .where(eq(adCreatives.id, id))
+        .limit(1);
+      if (!target) return false;
 
-    const rows = await tx
-      .select({ id: adCreatives.id })
-      .from(adCreatives)
-      .where(eq(adCreatives.slot, target.slot))
-      .orderBy(asc(adCreatives.sortOrder), asc(adCreatives.createdAt));
-    const before = rows.map((row) => row.id);
-    const next = moveInOrder(before, id, direction);
-    if (next === undefined) return true;
+      const rows = await tx
+        .select({ id: adCreatives.id })
+        .from(adCreatives)
+        .where(eq(adCreatives.slot, target.slot))
+        .orderBy(asc(adCreatives.sortOrder), asc(adCreatives.createdAt));
+      const before = rows.map((row) => row.id);
+      const next = moveInOrder(before, id, direction);
+      if (next === undefined) return true;
 
-    for (const [sortOrder, rowId] of next.entries()) {
-      await tx
-        .update(adCreatives)
-        .set({ sortOrder })
-        .where(eq(adCreatives.id, rowId));
-    }
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.MoveAdCreative,
-      target: { type: ContentActionTargetType.AdCreative, key: id },
-      ipAddress: admin.ipAddress,
-      metadata: { slot: target.slot, direction, before, after: next },
+      for (const [sortOrder, rowId] of next.entries()) {
+        await tx
+          .update(adCreatives)
+          .set({ sortOrder })
+          .where(eq(adCreatives.id, rowId));
+      }
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.MoveAdCreative,
+        target: { type: ContentActionTargetType.AdCreative, key: id },
+        ipAddress: admin.ipAddress,
+        metadata: { slot: target.slot, direction, before, after: next },
+      });
+      return true;
     });
-    return true;
-  });
+  } catch (error) {
+    logExternalError("moveAdCreative", "failed to move ad creative", error);
+    return { error: "errorSaveFailed" };
+  }
   if (!moved) return { error: "errorNotFound" };
 
   revalidateAdCreatives();

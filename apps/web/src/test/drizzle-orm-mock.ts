@@ -37,6 +37,7 @@ export const gt = operator("gt");
 export const lt = operator("lt");
 export const isNull = operator("isNull");
 export const isNotNull = operator("isNotNull");
+export const max = operator("max");
 
 export const sql = Object.assign(
   (strings: TemplateStringsArray, ...values: unknown[]) => ({

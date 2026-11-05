@@ -59,6 +59,7 @@ let tx: { select: Mock; update: Mock };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   selectChain = createQueryChain(BEFORE);
   updateChain = createQueryChain([{ id: "ad-1" }, { id: "ad-2" }]);
   tx = { select: vi.fn(() => selectChain), update: vi.fn(() => updateChain) };
@@ -113,5 +114,21 @@ describe("setAdCreativeHrefByTitle", () => {
       },
     });
     expect(mockRevalidateAdCreatives).toHaveBeenCalledTimes(1);
+  });
+
+  it("トランザクションが失敗したら errorSaveFailed でログを残し、再検証しない", async () => {
+    mockTransaction.mockRejectedValue(new Error("connection lost"));
+
+    expect(
+      await setAdCreativeHrefByTitle("本", "web", "https://example.com/new"),
+    ).toEqual({
+      error: "errorSaveFailed",
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("[setAdCreativeHrefByTitle]"),
+      "connection lost",
+    );
+    expect(mockRecordContentAction).not.toHaveBeenCalled();
+    expect(mockRevalidateAdCreatives).not.toHaveBeenCalled();
   });
 });
