@@ -2,12 +2,12 @@ import { Fragment } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import {
   countProgress,
   currentStage,
   type JourneyStage,
-  type RankJourney,
-} from "@mahjong-scoring/features/journey/journey";
+} from "@mahjong-scoring/features/journey/journey-progress";
 import {
   lessonsListHref,
   practiceHref,

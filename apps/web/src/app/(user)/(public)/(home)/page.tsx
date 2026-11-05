@@ -35,6 +35,11 @@ import { LandingPage } from "./_components/landing-page";
  * Organization / WebSite の JSON-LD はトップだけが出す（サイト名とロゴの根拠。
  * 各ページのパンくず・用語・記事のスキーマとは別物）。運営者名は辞書から引くため
  * async だが、cookie もデータも読まないので静的生成のまま。
+ *
+ * route group `(home)` は、LP（`/`）の loading.tsx を他の公開ルート（`contact` / `practice` 等）の祖先にせずに置くための
+ * もの。いまは静的ルートなので loading.tsx を外してあり（静的ルートは境界を持たない。不変条件と
+ * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
+ * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
  */
 export const metadata: Metadata = {
   alternates: { canonical: "/" },

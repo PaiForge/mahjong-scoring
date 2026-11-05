@@ -1,0 +1,5 @@
+# ripgrep（と Claude Code の Grep ツール）だけが読む除外リスト。git は何も無視しない。
+# Drizzle のスキーマのスナップショット。snake_case の列名の grep を 9 割以上ノイズにする。
+# 本当に中身を見たいときは `rg --no-ignore` を使うか、ファイルを直接開く。
+# ルートの .ignore に置かないのは、起点が apps/web のとき親の .ignore が効かないため（実測）。
+drizzle/meta/

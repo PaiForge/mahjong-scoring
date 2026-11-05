@@ -80,7 +80,6 @@ function listAgariCandidates(
 
 /**
  * 面子手生成結果
- * 面子手生成結果
  */
 export interface MentsuTehaiResult {
   readonly tehai: Tehai14;

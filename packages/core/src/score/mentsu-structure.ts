@@ -16,7 +16,7 @@ import {
   type Tehai14,
   type YakuResult,
 } from "@pai-forge/riichi-mahjong";
-import { isOpenMentsuAt } from "../core/score-calculation";
+import { isOpenMentsuAt } from "../core/score-table-math";
 import { isExposedMentsu } from "../problem/shared/hand-skeleton";
 import { applyAppScoringRules } from "../problem/score/utils/reconciler";
 import type { AgariContext } from "../problem/shared/agari-context";

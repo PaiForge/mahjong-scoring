@@ -96,10 +96,11 @@ import mobileApp from "./ja/mobile-app.json";
  * 日本語辞書
  *
  * 名前空間ごとに 1 ファイル（`<名前空間のケバブケース>.json`）に分け、ここで
- * 1 つに束ねる。キーの並びは名前空間の追加順。web（next-intl）はこれを
- * そのまま渡す。モバイル（use-intl）は使う名前空間だけを分割代入で取り出して
- * 束ね直す（`const { practice, challenge } = messages`）— 型が保たれたまま、
- * web 専用の本文（教本・規約・管理画面）を載せずに済む。
+ * 1 つに束ねる。キーの並びは名前空間の追加順。web（next-intl）もモバイル
+ * （use-intl、`apps/mobile/src/lib/intl-provider.tsx`）もこの束を丸ごと
+ * Provider に渡す。辞書キーはレジストリと結び付いた契約
+ * （`practice.practices.<messageKey>`・`<namespace>.variants.<key>`・
+ * `ranks.names.<slug>`）なので、辞書を web 用とモバイル用に分けない。
  *
  * 名前空間を足すときはファイルを置き、ここに import と 1 行を足す。
  * ファイルと束ねた一覧の食い違いは `ja.test.ts` が落とす。

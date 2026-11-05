@@ -11,6 +11,11 @@
  * 2. /contact/confirm — 内容を見せて「送信する」。「入力画面に戻る」は
  *    同じクエリで 1 に戻り、各欄が埋まった状態になる
  * 3. 送信成功で /contact/success へ
+ *
+ * route group `(index)` は、この indexの loading.tsx を兄弟ルート（`confirm` / `success`）の祖先にせずに置くための
+ * もの。いまは静的ルートなので loading.tsx を外してあり（静的ルートは境界を持たない。不変条件と
+ * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
+ * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
  */
 import { Suspense } from "react";
 

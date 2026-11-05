@@ -5,9 +5,15 @@
  * `challenge_results` / `challenge_best_scores` テーブルの `menu_type` カラムに格納される値。
  * ただし昇級試験（`*_exam`）は記録を残さないため、レジストリにあってもテーブルには入らない。
  *
- * @description 新しい練習種別の追加は `PRACTICE_MENU_REGISTRY` に1行追加するだけでよい。
- * slug（URL 用ケバブケース）・messageKey（i18n 用キャメルケース）・namespace
- * （練習ページの辞書セクション）はレジストリから自動導出される。
+ * @description 練習種別の正典は下の `PRACTICE_MENU_REGISTRY`。ただし新しい練習を
+ * 足す作業は「1 行足すだけ」では終わらない — 盤面・出題・辞書・スケルトンは
+ * 練習ごとのファイルを持ち、レジストリに足した時点で型エラーやテストが
+ * 教えてくれる場所と、黙って既定に落ちる場所がある。全体の手順は
+ * `PRACTICE_MENU_REGISTRY` の TSDoc を参照。
+ *
+ * 練習の slug はレッスン（教本の章）の slug と共有している（`machi-fu` 等。
+ * `curriculum/registry.ts`・`lessons/registry.ts`・`glossary/`）。slug で grep すると
+ * 練習以外の章・用語にも当たる。
  *
  * @design menuType — 練習種別
  *
@@ -173,7 +179,48 @@ export const ALL_VARIANT = "all";
 
 /**
  * 練習種別レジストリ
- * 新しい練習の追加はここに1行追加するだけでよい。
+ * 練習種別の正典
+ *
+ * 新しい練習を足すときの手順。ここに 1 件足すのは入口で、続きは 3 群に分かれる。
+ *
+ * **(a) レジストリから自動で導かれる（追記不要）**
+ * - slug / messageKey / namespace の相互変換、`PracticeMenuType` 等の union 型
+ * - URL（`basePath` と play / training / result の配下）、
+ *   sitemap（`apps/web/src/app/_lib/sitemap-routes.ts` が `PRACTICE_MENU_SLUGS` を回す）
+ * - 結果の保存キー（`resultStorageKeyFor`）・バリアントの正規化
+ *
+ * **(b) 足すまで typecheck かテストが落ちる（忘れても気づける）**
+ * - `apps/web/src/lib/challenge/generators.ts` — `Record<PracticeMenuType, …>` の出題表。
+ *   生成器が返す問題の型は `packages/features/src/challenge/types.ts` の
+ *   `ChallengeQuestion` union に無いと型が合わない
+ * - `packages/core/src/exp/constants.ts` の `MODULE_WEIGHT` — キーは string だが
+ *   `apps/web/src/lib/db/__tests__/exp-module-weight.test.ts` が全練習の登録を確かめる
+ * - `packages/features/src/practice/catalog.ts` の `PRACTICE_CATALOG` — `catalog.test.ts` が
+ *   全 slug の掲載を確かめる。`practice/card-visual.ts` の例示も `card-visual.test.ts` が落とす
+ * - `packages/features/src/leaderboard/boards.test.ts` — `LEADERBOARD_MENU_TYPES` を
+ *   明示の一覧と突き合わせる
+ * - `packages/messages/src/ja/practice.json` の `practices.<messageKey>.{title,shortTitle}` と
+ *   練習の名前空間のファイル（`ja/<namespace のケバブケース>.json`。`ja.ts` に 1 行足す）—
+ *   `apps/web/src/lib/db/__tests__/practice-menu-i18n-integrity.test.ts` が落とす
+ * - `apps/web/src/app/loading-boundaries.test.ts` の `DYNAMIC_ROUTES` に
+ *   `/practice/<slug>/result` を足す（result は cookie を読む動的ルートで `loading.tsx` を持つ）
+ * - `apps/web/src/app/seo-coverage.test.ts` — 全 slug の `page.tsx` と canonical を確かめる
+ *
+ * **(c) 忘れると黙って既定に落ちる（grep で確かめる）**
+ * - `apps/web/src/app/(user)/(public)/practice/_lib/board-area-height.ts` —
+ *   `BOARD_AREA_HEIGHT` に実測の高さを足し、`BOARD_HEIGHT_BY_SLUG` に slug を足す。
+ *   後者は `Partial` で、無い練習は `scoreExam` の高さで待つ（高さを足せば
+ *   `_components/play-board-skeleton.tsx` の `SHAPES` は型で追記を求める）
+ * - `apps/mobile/src/practice/registry.ts` の `PRACTICE_SCREENS` — `Partial` で、
+ *   無い練習はモバイルの一覧に出ない
+ * - `apps/web/src/lib/challenge/questions.ts` の `gradeChallengeAnswer` — 問題の形を
+ *   フィールドの有無で見分けるため、新しい形は既存の分岐に紛れるか最後の分岐に落ちる
+ *
+ * **新しく作るファイル**（既存の練習、例えば `machi-fu` を手本にする）:
+ * web `apps/web/src/app/(user)/(public)/practice/<slug>/{page,play/page,training/page,result/page,result/loading}.tsx`
+ * と `_components/`、モバイル `apps/mobile/src/practice/boards/<slug>/index.tsx`、
+ * core `packages/core/src/problem/<slug>/`、features `packages/features/src/practice/<slug>/types.ts`、
+ * 辞書 `packages/messages/src/ja/<namespace>.json`。
  */
 const PRACTICE_MENU_REGISTRY = [
   {

@@ -29,7 +29,8 @@ export function HeatmapDetailPanel({
 
   // 練習名の辞書は `practice.practices.<key>` が `title` / `shortTitle` /
   // `description` を持つオブジェクトなので、末端の `shortTitle` まで指定する。
-  // オブジェクトを指すと next-intl は訳文ではなくキーのパスを描画する
+  // オブジェクトを指すと next-intl は訳文ではなくキーのパスを描画する。
+  // 例: practice.practices.machiFu.shortTitle（完成形のキーで grep したときにここへ着地させるための例）
   const breakdown = moduleBreakdown
     ? buildExpBreakdown(moduleBreakdown)
     : undefined;

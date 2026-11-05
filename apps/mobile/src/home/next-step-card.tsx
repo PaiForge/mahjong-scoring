@@ -42,6 +42,7 @@ export function NextStepCard({ journey }: { readonly journey: Journey }) {
 
   const rankSlug = current.rank.slug;
   const title = journeyStepTitle(nextStep, tAll);
+  // 例: dashboard.nextStep.steps.lesson.cta（完成形のキーで grep したときにここへ着地させるための例）
   const ctaKey =
     nextStep.kind === "lesson" && isFresh
       ? "lesson.firstCta"

@@ -24,15 +24,13 @@ import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
 import { UserSearchForm } from "../_components/user-search-form";
 import { fetchUsersPageData } from "../_lib/queries";
+import { USER_TABLE_COLUMNS } from "../_lib/table-columns";
 import { UserStatus, resolveUserStatus } from "../_lib/user-status";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
   user: parseAsString.withDefault(""),
 });
-
-/** ユーザー一覧テーブルの列数（メール・ユーザー名・表示名・状態・登録日・詳細） */
-const USER_TABLE_COLUMN_COUNT = 6;
 
 export default async function AdminUsersPage({
   searchParams,
@@ -73,19 +71,12 @@ export default async function AdminUsersPage({
       <div className="admin-table">
         <table className="w-full text-left text-sm">
           <TableHead
-            labels={[
-              t("usersTable.email"),
-              t("usersTable.username"),
-              t("usersTable.displayName"),
-              t("usersTable.status"),
-              t("usersTable.createdAt"),
-              t("usersTable.detail"),
-            ]}
+            labels={USER_TABLE_COLUMNS.map((key) => t(`usersTable.${key}`))}
           />
           <tbody>
             {users.length === 0 ? (
               <TableEmptyRow
-                columnCount={USER_TABLE_COLUMN_COUNT}
+                columnCount={USER_TABLE_COLUMNS.length}
                 label={t("usersTable.noUsersFound")}
               />
             ) : (

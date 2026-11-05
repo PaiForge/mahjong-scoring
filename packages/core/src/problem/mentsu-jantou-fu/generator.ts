@@ -17,7 +17,7 @@ import { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   calculateMentsuFu,
   isOpenMentsuForFu,
-} from "../../core/score-calculation";
+} from "../../core/score-table-math";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import { defaultIdGenerator, type IdGenerator } from "../../core/id";
 import {

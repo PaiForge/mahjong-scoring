@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HIGH_SCORES } from "./score-calculation";
+import { HIGH_SCORES } from "./score-table-math";
 
 /**
  * HIGH_SCORES は MANGAN_PLUS_TIERS からの導出に変えたため、

@@ -57,6 +57,7 @@ function VariantStartForm({
   readonly initialVariant: string;
 }) {
   const { namespace, variants } = practiceMenuBySlug(slug);
+  // 例: yakuHanChallenge.variants（完成形のキーで grep したときにここへ着地させるための例）
   const tVariants = useTranslations(`${namespace}.variants`);
   const tp = useTranslations("practice");
   const rememberVariant = usePracticeVariantStore((s) => s.rememberVariant);
@@ -93,6 +94,7 @@ function VariantStartForm({
                 >
                   {tVariants(`${option}.label`)}
                 </Text>
+                {/* 例: yakuHanChallenge.variants.all.hint */}
                 <Text style={styles.hint}>{tVariants(`${option}.hint`)}</Text>
               </Pressable>
             );

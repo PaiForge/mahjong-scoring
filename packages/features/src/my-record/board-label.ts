@@ -19,6 +19,7 @@ type RootTranslator = (key: string) => string;
  * 純粋関数にしている（ランキングの `boardTitle` のマイレコード版）。
  */
 export function boardLabel(board: PracticeBoard, t: RootTranslator): string {
+  // 例: practice.practices.scoreTable.shortTitle / scoreTableChallenge.variants.all.label（完成形のキーで grep したときにここへ着地させるための例）
   const title = t(
     `practice.practices.${menuTypeToMessageKey(board.menuType)}.shortTitle`,
   );

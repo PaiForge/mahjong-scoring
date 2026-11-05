@@ -167,12 +167,12 @@ export {
   getTsumoTotal,
   isInvalidCell,
   HIGH_SCORES,
-} from "./core/score-calculation";
+} from "./core/score-table-math";
 export type {
   KoTsumoPayment,
   RoleScore,
   TsumoPayment,
-} from "./core/score-calculation";
+} from "./core/score-table-math";
 
 // === Problem: Score Table Practice ===
 export { generateScoreTableQuestion } from "./problem/score-table/generator";

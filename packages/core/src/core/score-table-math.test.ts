@@ -15,7 +15,7 @@ import {
   calculateStandaloneMentsuFu,
   isOpenMentsuAt,
   isOpenMentsuForFu,
-} from "./score-calculation";
+} from "./score-table-math";
 
 describe("calculateKoScore", () => {
   it("1翻30符の子ロンは1000点", () => {

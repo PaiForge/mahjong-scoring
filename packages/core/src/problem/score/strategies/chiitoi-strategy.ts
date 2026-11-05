@@ -14,7 +14,6 @@ import { generateToitsu } from "../utils/shape-generator";
 
 /**
  * 七対子生成結果
- * 七対子生成結果
  */
 export interface ChiitoiTehaiResult {
   readonly tehai: Tehai14;

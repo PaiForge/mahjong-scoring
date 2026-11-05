@@ -52,6 +52,7 @@ function presentStep(
 ): StepPresentation {
   const title = journeyStepTitle(step, tAll);
   const href = journeyStepHref(step);
+  // 例: dashboard.nextStep.steps.lesson.cta（完成形のキーで grep したときにここへ着地させるための例）
   const key =
     step.kind === "lesson" && isFresh ? "lesson.firstCta" : `${step.kind}.cta`;
   return { href, cta: t(`steps.${key}`, { title }) };
@@ -73,7 +74,10 @@ function presentStep(
  * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
  * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
  * 伝わらないため揃えた。まだ何も始めていない人はボタンを最初のレッスン
- * 向けにする。初回限定のカードは別に持たない。
+ * 向けにする。初回限定のカードは別に持たない。見出しの文言
+ * （`dashboard.nextStep.title` = 「次にやること」）はモバイルの Maestro フロー
+ * （`apps/mobile/.maestro/` の約 39 本）がホームの表示待ちに使っている。文言を
+ * 変えるときはそれらのフローも一緒に直す。
  *
  * 進み具合の各段はその段の一覧（級で絞ったレッスンの目次・級で絞った練習一覧・
  * 試験の説明ページ）へのリンク（`RankStageProgress` の `isCurrentRank`）。

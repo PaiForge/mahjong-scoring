@@ -64,6 +64,36 @@ export default [
     },
   },
   {
+    // 管理画面（apps/web/src/app/admin）はユーザー向け画面と別のビジュアル言語で、
+    // ボタン・入力欄・状態チップは admin/_lib の adminButtonClasses() 等、ページ送りは
+    // AdminPaginationNav と、部品を自前で持つ。app/_components はユーザー向け画面と
+    // 管理画面の両方が使う共有部品で、ここから (user)/_components を読むと依存が
+    // 双方向になる。どちらも (user)/_components（ブランド UI）を import しない
+    // （ルートの CLAUDE.md「共通UIコンポーネント」）。例外の app/not-found.tsx /
+    // app/error.tsx はどちらの配下でもないので、この files には掛からない。
+    // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
+    // 置き換えるため、features 向けの上の設定と files が重ならない独立した項目にする
+    files: [
+      "apps/web/src/app/admin/**/*.{js,jsx,ts,tsx}",
+      "apps/web/src/app/_components/**/*.{js,jsx,ts,tsx}",
+    ],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              // `@/app/(user)/_components/...` も相対パスの `../(user)/_components/...` も掛ける
+              regex: "(^|/)\\(user\\)/_components(/|$)",
+              message:
+                "admin と app/_components から (user)/_components（ブランド UI）を import しない。管理画面は admin/_lib・admin/_components の部品を使い、両画面で共有する部品は app/_components に置く",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // 牌の並び（理牌）の順を決めるのは riichi-mahjong だけにする。牌種 ID は
     // 数値なので `(a, b) => a - b` でも並ぶが、それを許すと牌の順の定義が
     // アプリのあちこちに散り、赤 5 のような ID の大小と一致しない牌で

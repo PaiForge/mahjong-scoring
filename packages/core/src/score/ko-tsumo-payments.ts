@@ -3,7 +3,7 @@ import {
   calculateTierScore,
   isInvalidCell,
   type KoTsumoPayment,
-} from "../core/score-calculation";
+} from "../core/score-table-math";
 import { compareNumbers } from "../core/compare";
 import { FU_VALUES } from "./constants";
 import { MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "./tiers";

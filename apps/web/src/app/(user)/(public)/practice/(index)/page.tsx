@@ -6,6 +6,11 @@
  * ログイン中は、チャレンジを終えた練習のカードに「挑戦済み」の印を出す
  * （静的ページのまま、クライアントが Server Action で取る）。
  * @flow 各練習の設定・説明ページへ遷移する。
+ *
+ * route group `(index)` は、この indexの loading.tsx を兄弟ルート（`<slug>/play` / `<slug>/result` 等）の祖先にせずに置くための
+ * もの。いまは静的ルートなので loading.tsx を外してあり（静的ルートは境界を持たない。不変条件と
+ * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
+ * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";

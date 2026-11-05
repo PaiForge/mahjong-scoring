@@ -57,6 +57,7 @@ export function journeyStepTitle(
         practiceMenuBySlug(step.slug).menuType,
       )?.rank;
       if (rank === undefined) return "";
+      // 例: ranks.examTitle.kyu / ranks.names.kyu-5（完成形のキーで grep したときにここへ着地させるための例）
       return tAll(`ranks.examTitle.${rankTier(rank.slug)}`, {
         rank: tAll(`ranks.names.${rank.slug}`),
       });

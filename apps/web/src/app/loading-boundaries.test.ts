@@ -42,6 +42,17 @@ import { collectPages } from "@/test/collect-pages";
  * ビルド成果物と突き合わせる。ページの動的 / 静的が変わったら（cookie を読み
  * 始めた・searchParams を使った・`force-dynamic` を付けた等）この一覧と
  * loading.tsx の有無を一緒に直すこと。
+ *
+ * 上の挙動を再検証するとき（Next を上げたとき等）:
+ * - 初期 HTML は `pnpm build` 後の `.next/server/app/<route>.html` の `<main>` を直接見る。
+ *   `<!--$?-->` / `$RC(` / `<div hidden id="S:…">` があれば本文は外出しされている
+ *   （同じ応答の末尾にあり、別 fetch ではない）
+ * - 境界の入れ子は `curl -sL -H 'RSC: 1' -H 'Next-Router-Prefetch: 1' -H 'Next-Url: /' <URL>` の
+ *   prefetch payload にルート固有のスケルトンのクラスが含まれるかで見る（server loading だけ。
+ *   client loading は参照しか入らない）
+ * - 体感は `next start` にブラウザ自動化で MutationObserver を仕込み、click 後の
+ *   `.animate-pulse` の数の推移を記録する。遅いサーバーを模すときは対象ルートの RSC 応答だけを
+ *   遅らせる — 全 RSC を遅らせると静的リンクの prefetch が渋滞して誤った結論になる
  */
 const APP_DIR = dirname(fileURLToPath(import.meta.url));
 
@@ -187,6 +198,16 @@ describe("DYNAMIC_ROUTES とビルド成果物", () => {
           !(route in manifest.routes) && !(route in manifest.dynamicRoutes),
       ),
     );
+    const missing = [...built].filter((route) => !DYNAMIC_ROUTES.has(route));
+    const stale = [...DYNAMIC_ROUTES].filter((route) => !built.has(route));
+    expect(
+      missing,
+      `動的にビルドされたのに DYNAMIC_ROUTES に無いルート → DYNAMIC_ROUTES に足し、leaf に loading.tsx を 1 枚置く: ${missing.join(", ")}`,
+    ).toEqual([]);
+    expect(
+      stale,
+      `DYNAMIC_ROUTES にあるのに静的にプリレンダリングされたルート → DYNAMIC_ROUTES から外し、loading.tsx を消す: ${stale.join(", ")}`,
+    ).toEqual([]);
     expect([...built].sort()).toEqual([...DYNAMIC_ROUTES].sort());
   });
 });

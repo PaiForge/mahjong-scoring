@@ -2,6 +2,8 @@ import { AdminPageTitlePlaceholder } from "@/app/admin/_components/admin-page-ti
 import { TableSkeleton } from "@/app/admin/_components/table-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 
+import { BENEFIT_GRANT_TABLE_COLUMNS } from "./_lib/table-columns";
+
 /**
  * 特典の手動付与一覧のローディング状態
  * ローディング
@@ -13,7 +15,7 @@ export default function Loading() {
         <AdminPageTitlePlaceholder width="w-40" />
         <SkeletonBar className="h-5 w-96 max-w-full" tone={100} />
       </div>
-      <TableSkeleton columns={7} />
+      <TableSkeleton columns={BENEFIT_GRANT_TABLE_COLUMNS.length} />
     </div>
   );
 }

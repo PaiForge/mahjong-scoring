@@ -18,7 +18,6 @@ interface QuizTimerProps {
 
 /**
  * 円形タイマー
- * 円形タイマー
  *
  * web の `quiz-timer.tsx` と同じ形（経過に応じて伸びる円弧と中央の残り時間）。
  */

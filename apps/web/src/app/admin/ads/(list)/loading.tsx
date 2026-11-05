@@ -14,6 +14,12 @@ const WEB_SLOTS = AD_SLOT_VALUES.filter(
   (slot) => platformForSlot(slot) === "web",
 );
 
+/**
+ * route group `(list)` は、この index の loading.tsx が兄弟ルート（`[id]/edit` / `links` / `new`）の
+ * 祖先にならないようにするためだけにある。不変条件（動的ルートは loading.tsx を 1 枚・
+ * 静的ルートは 0 枚）と理由は `apps/web/src/app/loading-boundaries.test.ts`。page.tsx と
+ * loading.tsx を 1 つ上に移すとそのテストが落ちる。
+ */
 export default function AdsLoading() {
   return (
     <div className="space-y-6">

@@ -86,6 +86,7 @@ function VariantOptionsForm({
 }: VariantStartPanelProps & { readonly initial: string }) {
   const { namespace, variants, timeLimit, mistakeLimit } =
     practiceMenuBySlug(slug);
+  // 例: yakuHanChallenge.variants（完成形のキーで grep したときにここへ着地させるための例）
   const tVariants = useTranslations(`${namespace}.variants`);
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
@@ -116,6 +117,7 @@ function VariantOptionsForm({
               >
                 {tVariants(`${option}.label`)}
               </span>
+              {/* 例: yakuHanChallenge.variants.all.hint */}
               <span className="text-xs text-surface-500">
                 {tVariants(`${option}.hint`)}
               </span>

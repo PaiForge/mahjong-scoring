@@ -3,7 +3,7 @@ import {
   calculateKoScore,
   calculateTierScore,
   isInvalidCell,
-} from "../core/score-calculation";
+} from "../core/score-table-math";
 import { FU_VALUES } from "./constants";
 import {
   koTsumoPaymentKey,

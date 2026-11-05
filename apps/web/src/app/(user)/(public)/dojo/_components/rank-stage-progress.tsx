@@ -7,12 +7,12 @@ import {
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 import { beltTintClasses } from "@/lib/ranks/belt-colors";
+import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import {
   countProgress,
   currentStage,
   type JourneyStage,
-  type RankJourney,
-} from "@mahjong-scoring/features/journey/journey";
+} from "@mahjong-scoring/features/journey/journey-progress";
 
 import {
   lessonsListHref,

@@ -6,7 +6,6 @@ interface HomeIconProps {
 
 /**
  * ホームアイコン
- * ホームアイコン
  */
 export function HomeIcon({ className = "size-5" }: HomeIconProps) {
   return (

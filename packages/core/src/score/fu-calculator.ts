@@ -4,7 +4,7 @@ import {
   type Kazehai,
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
-import { calculateMentsuFu, isOpenMentsuAt } from "../core/score-calculation";
+import { calculateMentsuFu, isOpenMentsuAt } from "../core/score-table-math";
 import { jantouFuReasons } from "../problem/shared/jantou-fu";
 import { FU_STEP, FUTEI_FU } from "./mentsu-tehai-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";

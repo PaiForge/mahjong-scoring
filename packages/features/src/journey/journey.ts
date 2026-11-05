@@ -14,8 +14,8 @@ import {
 } from "../ranks/registry";
 
 /**
- * 点数計算・黒帯への道 — 段級位ごとの行程と、その中の「次にやること」
- * 黒帯への道
+ * 段級位ごとの行程と、その中の「次にやること」
+ * 点数計算・黒帯への道
  *
  * @description
  * 段級位（5級 → … → 初段 = 黒帯）を 1 本の道として見せるためのモデル。
@@ -24,6 +24,22 @@ import {
  * 各段の進み具合を出す。ダッシュボードの「次にやること」カード・道場の行程表示・
  * 登録直後の最初の一歩が、すべてこの 1 つの計算を読む — 置き場所ごとに
  * 「次」を別々に決めると、ホームと道場で指す先が食い違う。
+ *
+ * 読む順: 型（{@link JourneyPathItem} / {@link RankJourney} / {@link JourneyStep} /
+ * {@link Journey}）→ {@link buildJourney}（行程を組む）→ {@link firstUndoneStep}
+ * （「最初の未了」の規則。ホームの `nextStep` と道場の現在の段はどちらもこれを読む）。
+ * レッスンを終えた直後に示す一歩（{@link stepAfterLesson} /
+ * {@link stepAfterLessonWithProgress}）は別の方針で、ホームの一歩と一致しないことがある。
+ * 道場の表示向けの数え方（段の進捗・現在の段）は `journey-progress.ts`、一歩の
+ * 行き先と名前（`journeyStepHref` / `journeyStepTitle`）は `journey-step.ts`。
+ * 呼び出しの入口は web のダッシュボードが `dashboard/guidance.ts`、モバイルが
+ * `apps/mobile/src/dojo/use-mobile-journey.ts`。
+ *
+ * 模試（試験のトレーニング）の一歩は無い — 模試へのリンクは `rank-goal-panel` の
+ * `practiceTrainingHref(examSlug)` だけ。{@link JourneyStep} に kind を足すときは
+ * `journeyStepHref` / `journeyStepTitle`（`journey-step.ts`）の分岐、辞書の
+ * `dashboard.nextStep.steps.<kind>.cta` と `lessons.nextStep.<kind>`、ダッシュボードの
+ * `data-next-step` 属性（kind をそのまま出す）が一緒に動く。
  *
  * @design 「学んだ」はレッスンの完了
  * 学ぶ段の 1 歩はレッスン（= 教本の章、`/lessons/<slug>`）1 つで、済んだかは
@@ -72,7 +88,7 @@ import {
  */
 
 /** 行程の 1 段（学ぶ / 練習する / 認定される）の 1 項目 */
-interface JourneyItem {
+export interface JourneyItem {
   /** 済んでいるか */
   readonly done: boolean;
 }
@@ -127,7 +143,6 @@ export interface RankJourney {
 }
 
 /**
- * 次の一歩
  * 次の一歩
  *
  * - `lesson`: レッスン（章）を終える
@@ -257,9 +272,24 @@ export function buildJourneyPath(
   return path;
 }
 
-/** 行程の中で最初の未了を返す。すべて済んでいれば昇級試験 */
-function selectStep(journey: RankJourney): JourneyStep {
-  const item = journey.path.find((entry) => !entry.done);
+/** 並びの中で最初の未了の項目。すべて済んでいれば undefined */
+function firstUndone(
+  items: readonly JourneyPathItem[],
+): JourneyPathItem | undefined {
+  return items.find((item) => !item.done);
+}
+
+/**
+ * 級の行程の中で最初の未了へ進む一歩。すべて済んでいれば昇級試験
+ * 最初の未了
+ *
+ * ホームの「次にやること」（{@link buildJourney} の `nextStep`）と道場の
+ * 現在の段（`journey-progress.ts` の `currentStage`）が読む唯一の規則。
+ * 「最初の未了」の決め方を変えるときはここだけを変える — 別の場所に
+ * `path.find(!done)` を書き起こすと、ホームと道場で指す先が食い違う。
+ */
+export function firstUndoneStep(journey: RankJourney): JourneyStep {
+  const item = firstUndone(journey.path);
   return item === undefined
     ? { kind: "exam", slug: journey.exam.slug }
     : pathItemToStep(item);
@@ -349,7 +379,10 @@ function preferLesson(
  *   いても、子のロン・子のツモを終えて練習が未挑戦なら、ホームは子の練習、
  *   ここは親のロンを指す
  *
- * 後ろが尽きて前へ戻るときだけは、ホームと同じ「最初の未了」を指す。
+ * 後ろが尽きて前へ戻るときだけは、ホームと同じ「最初の未了」（{@link firstUndoneStep}
+ * と同じ部品 `firstUndone`）を指す。上の 2 点は意図した違いで、
+ * {@link firstUndoneStep} に寄せない — 寄せると、終えた直後の人を飛ばしてきた
+ * 項目へ戻してしまう。
  *
  * 終えたレッスンの級をすでに取得している（学び直し）なら、その級の試験へは
  * 送らずホームと同じ一歩（次に取る級の最初の未了）を返す。全級取得済みで
@@ -389,7 +422,7 @@ export function stepAfterLessonWithProgress(
     items.filter((item) => !item.done);
   const next =
     preferLesson(undone(path.slice(index + 1))) ??
-    undone(path.slice(0, index))[0];
+    firstUndone(path.slice(0, index));
   return next === undefined
     ? { kind: "exam", slug: examSlug }
     : pathItemToStep(next);
@@ -432,53 +465,10 @@ export function buildJourney(input: BuildJourneyInput): Journey {
   return {
     ranks,
     current,
-    nextStep: current === undefined ? undefined : selectStep(current),
+    nextStep: current === undefined ? undefined : firstUndoneStep(current),
     isFresh:
       input.completedLessonSlugs.size === 0 &&
       input.attemptedPractices.length === 0 &&
       input.achievedRankSlugs.length === 0,
   };
-}
-
-/**
- * 行程の 1 段の進み具合（済んだ数 / 全体）
- * 段の進捗
- */
-export interface JourneyStageProgress {
-  readonly done: number;
-  readonly total: number;
-}
-
-/** 項目の並びから進み具合を数える */
-export function countProgress(
-  items: readonly JourneyItem[],
-): JourneyStageProgress {
-  return {
-    done: items.filter((item) => item.done).length,
-    total: items.length,
-  };
-}
-
-/**
- * 級の行程の 3 段（学ぶ・練習する・認定される）
- * 行程の段
- */
-export type JourneyStage = "learn" | "practice" | "exam";
-
-/**
- * 級の行程で、いま取り組んでいる段
- * 現在の段
- *
- * 次の一歩（`buildJourney` の `nextStep`）と同じ規則 — 道筋で最初の未了の
- * 項目の段、道筋が済んでいれば試験。学ぶと練習するは章の順に交互に進むので、
- * 「学ぶがすべて済むまで練習しない」わけではない。
- *
- * 試験に合格した級は undefined。学ぶ・練習するを飛ばして合格した経験者の級に
- * 「いま学ぶ段」を示さないため、道筋より先に合否を見る。
- */
-export function currentStage(journey: RankJourney): JourneyStage | undefined {
-  if (journey.exam.done) return undefined;
-  const item = journey.path.find((entry) => !entry.done);
-  if (item === undefined) return "exam";
-  return item.kind === "chapter" ? "learn" : "practice";
 }

@@ -8,6 +8,11 @@
  * @flow
  * メニューから点数表（/reference/score-table）・役一覧（/reference/yaku）・
  * 用語集（/reference/glossary）へ遷移する。
+ *
+ * route group `(index)` は、この indexの loading.tsx を兄弟ルート（`score-table` / `yaku` / `glossary` 等）の祖先にせずに置くための
+ * もの。いまは静的ルートなので loading.tsx を外してあり（静的ルートは境界を持たない。不変条件と
+ * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
+ * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
  */
 import type { Metadata } from "next";
 import Link from "next/link";

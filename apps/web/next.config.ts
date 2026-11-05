@@ -83,7 +83,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   env: appBuildId === undefined ? {} : { NEXT_PUBLIC_BUILD_ID: appBuildId },
   // next dev による AGENTS.md / CLAUDE.md の自動生成を無効化する。
-  // AI 向けの規約はリポジトリルートの CLAUDE.md を単一の正とするため。
+  // AI 向けの規約は手で書いた CLAUDE.md（ルートと各ディレクトリ）を正とするため。
   agentRules: false,
   images: {
     remotePatterns: [
