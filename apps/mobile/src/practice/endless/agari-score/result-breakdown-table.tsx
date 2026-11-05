@@ -1,9 +1,11 @@
-import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
 
-import { linkStyles } from "../../../lib/link-styles";
-import { DetailTable } from "../../components/detail-table";
+import { InlineLink } from "../../../components/inline-link";
+import {
+  DETAIL_TABLE_FONT_SIZE,
+  DetailTable,
+} from "../../components/detail-table";
 
 /** 内訳の 1 行（役名と翻数 / 符の理由と符） */
 export interface DetailItem {
@@ -55,14 +57,14 @@ export function ResultBreakdownTable({
   const itemLabel = (name: string) =>
     onOpenYakuList !== undefined &&
     resolveYakuCheatsheetName(name) !== undefined ? (
-      <Text
+      <InlineLink
         onPress={() => onOpenYakuList(name)}
-        accessibilityRole="link"
+        cue="info"
+        fontSize={DETAIL_TABLE_FONT_SIZE}
         accessibilityHint={tChallenge("openInYakuList")}
-        style={[styles.yakuLink, linkStyles.inline]}
       >
         {name}
-      </Text>
+      </InlineLink>
     ) : (
       name
     );
@@ -96,10 +98,3 @@ export function ResultBreakdownTable({
     />
   );
 }
-
-const styles = StyleSheet.create({
-  // 行見出しの文字の大きさ（DetailTable）に揃える。翻数の内訳（YakuBreakdown）と同じ
-  yakuLink: {
-    fontSize: 14,
-  },
-});

@@ -1,18 +1,21 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { scoreBarFigures } from "@mahjong-scoring/features/results/score-bar";
 import { useTranslations } from "use-intl";
 
-import { linkStyles } from "../../lib/link-styles";
+import { InlineLink } from "../../components/inline-link";
 import { colors, radius } from "../../lib/theme";
 import { useMistakeReveal } from "./mistake-reveal";
+
+/** 凡例の文字の大きさ。押せる「不正解: N」もこれに合わせる */
+const LEGEND_FONT_SIZE = 12;
 
 /**
  * 正解・不正解の割合の帯（web の `ResultScoreBar`）
  *
  * 凡例の「不正解: N」は、下の問題別一覧が間違えた問題を開く処理を登録して
  * いれば、押すとそこへ送るリンクになる（{@link useMistakeReveal}）。凡例の
- * 「正解: N」と同じ大きさで並ぶので、本文中の語と同じく下線で押せることを
- * 示す（`linkStyles.inline`）。全問正解のときや一覧が出ないときは送る先が
+ * 「正解: N」と同じ大きさで並ぶので、末尾の矢印で押せることを示す
+ * （{@link InlineLink}）。全問正解のときや一覧が出ないときは送る先が
  * 無いので文字のまま。
  */
 export function ResultScoreBar({
@@ -74,25 +77,15 @@ export function ResultScoreBar({
               style={[styles.swatch, { backgroundColor: colors.destructive }]}
             />
             {incorrect > 0 && reveal !== undefined ? (
-              <Pressable
+              <InlineLink
                 onPress={reveal}
-                accessibilityRole="button"
+                cue="chevron"
+                fontSize={LEGEND_FONT_SIZE}
                 accessibilityLabel={incorrectLabel}
                 accessibilityHint={tc("revealMistakesHint")}
-                hitSlop={12}
               >
-                {({ pressed }) => (
-                  <Text
-                    style={[
-                      styles.legendText,
-                      linkStyles.inline,
-                      pressed && linkStyles.textButtonPressed,
-                    ]}
-                  >
-                    {tc("incorrect")}: {incorrect}
-                  </Text>
-                )}
-              </Pressable>
+                {incorrectLabel}
+              </InlineLink>
             ) : (
               <Text style={styles.legendText}>
                 {tc("incorrect")}:{" "}
@@ -151,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   legendText: {
-    fontSize: 12,
+    fontSize: LEGEND_FONT_SIZE,
     color: colors.surface600,
   },
   strong: {

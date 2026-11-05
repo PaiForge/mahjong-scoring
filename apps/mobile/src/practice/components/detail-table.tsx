@@ -47,6 +47,12 @@ interface DetailTableProps {
 /** Maestro のフローで引く、押すと点数表が開く答えの値の印 */
 const ANSWER_LINK_TEST_ID = "detail-table-answer-link";
 
+/**
+ * 表の文字の大きさ。置く側がラベルに要素（押せる役名の `InlineLink`）を渡す
+ * ときは、文字列のセルと同じ大きさになるようこれを渡す
+ */
+export const DETAIL_TABLE_FONT_SIZE = 14;
+
 /** 文字列・数はそのまま Text に、要素はそのまま置く */
 function Cell({
   value,
@@ -199,7 +205,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   text: {
-    fontSize: 14,
+    fontSize: DETAIL_TABLE_FONT_SIZE,
   },
   bold: {
     fontWeight: "700",

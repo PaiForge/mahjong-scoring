@@ -22,7 +22,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - リンクは下線を引かない（`lib/link-styles.ts`）。押せる行は濃い題名 + 右端の矢印 +
   押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線。
   凡例や表の中で押せない語と同じ大きさで並ぶ語（「不正解: N」・内訳の役名）は
-  本文中の語に数える（色だけでは見分けられない）
+  色だけでは見分けられないが、`Text` の下線は太さも位置も選べず web の下線に
+  見えないので、`InlineLink` で末尾の記号（矢印・ⓘ）を添える
 - 説明・選択肢の一覧・選択欄は `BottomSheet`（下からのシート）。確認だけ中央の
   ダイアログ（`ConfirmationModal`）。`BottomSheet` の中身は OS 標準のシート
   （`@expo/ui`。iOS は SwiftUI の sheet、Android は Material 3）で、引き下げ・
