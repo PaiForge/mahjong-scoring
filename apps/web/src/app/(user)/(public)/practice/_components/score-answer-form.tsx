@@ -18,6 +18,7 @@ import {
   scoreTileValue,
 } from "@mahjong-scoring/features/practice/score/score-select-options";
 import { useScoreAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-answer-form";
+import { resolveKoTsumoInput } from "@mahjong-scoring/features/settings/ko-tsumo-input";
 import { ScoreLabelRow } from "./score-label-row";
 import { ScoreOptionSelect } from "./score-option-select";
 import { ScoreTilePicker } from "./score-tile-picker";
@@ -60,8 +61,7 @@ export function ScoreAnswerForm({
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   const storedKoTsumoInput = useKoTsumoInput();
   const scoreInput = useScoreInput();
-  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
-  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
+  const koTsumoInput = resolveKoTsumoInput(scoreInput, storedKoTsumoInput);
   const {
     availableScores,
     isOyaTsumo,

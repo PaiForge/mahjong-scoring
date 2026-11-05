@@ -1,3 +1,5 @@
+import type { ScoreInputMode } from "./score-input";
+
 /**
  * 子のツモの点数の入力方式
  *
@@ -29,3 +31,19 @@ export type KoTsumoInputMode = "combined" | "split";
 
 /** 1 タップで答えられ、実在する組だけが並ぶ combined を既定にする */
 export const DEFAULT_KO_TSUMO_INPUT: KoTsumoInputMode = "combined";
+
+/**
+ * 点数の入力方式を踏まえた、実際に効く子ツモの入力方式
+ *
+ * タイル入力（`scoreInput` が `tiles`）では子ツモを常に組で答える —
+ * 2 つのタイル群は互いに連動せず、片側だけでは帯を決められないため、
+ * 保存した `split` は効かない。select 入力では保存した方式をそのまま使う。
+ * 回答フォーム（web・モバイルの練習と無限訓練）はこれを通して方式を決め、
+ * 「タイルなら組」の規則を画面ごとに書かない。
+ */
+export function resolveKoTsumoInput(
+  scoreInput: ScoreInputMode,
+  stored: KoTsumoInputMode,
+): KoTsumoInputMode {
+  return scoreInput === "tiles" ? "combined" : stored;
+}

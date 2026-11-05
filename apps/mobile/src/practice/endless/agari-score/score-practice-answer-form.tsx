@@ -3,6 +3,7 @@ import { useTranslations } from "use-intl";
 import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
+import { resolveKoTsumoInput } from "@mahjong-scoring/features/settings/ko-tsumo-input";
 
 import { Button } from "../../../components/button";
 import {
@@ -46,8 +47,7 @@ export function ScorePracticeAnswerForm({
   const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
   const storedKoTsumoInput = useKoTsumoInput();
   const scoreInput = useScoreInput();
-  // タイルは子ツモを常に組で答える（2 つのタイル群は帯を決められない）
-  const koTsumoInput = scoreInput === "tiles" ? "combined" : storedKoTsumoInput;
+  const koTsumoInput = resolveKoTsumoInput(scoreInput, storedKoTsumoInput);
   // 点数だけを問う設定のときだけ選んだ時点で送る（他の欄があると、点数が
   // 最後の欄とは限らない）
   const submitsOnSelect = autoSubmit && !requireYaku && !requireHanFu;
