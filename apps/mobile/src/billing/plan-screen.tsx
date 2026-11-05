@@ -23,6 +23,7 @@ import {
   type IapProduct,
 } from "./iap";
 import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
+import { buyButtonStateOf } from "./purchase-sync";
 import { usePlan } from "./use-plan";
 import {
   buyIapProduct,
@@ -71,11 +72,18 @@ function PlanBody({
 }) {
   const t = useTranslations("mobilePlan");
   const recording = usePurchaseRecording();
+  /**
+   * 購入シートを開いてから、その取引の記録が終わるまでの商品（`buyIapProduct`
+   * が返るまで）。押した方だけを処理中にし、他の商品と復元は止める。商品の
+   * カードの外に持つのは、復元のボタンも同じ値で止めるため — 記録が始まる前
+   * （取引がまだ届いていない間）は `recording` が false で、復元だけが押せて
+   * しまう
+   */
+  const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
   const onSale = plan.offers.length > 0;
   const lineup = planLineupOf(plan.offers);
   return (
     <>
-      {recording && <RecordingNotice />}
       <View style={styles.section}>
         <SectionTitle>{t("status.title")}</SectionTitle>
         <StatusCard status={plan.status} />
@@ -89,6 +97,8 @@ function PlanBody({
               offers={plan.offers}
               lineup={lineup}
               busy={recording}
+              purchasing={purchasing}
+              onPurchasingChange={setPurchasing}
             />
           ) : (
             <Text style={styles.body}>
@@ -99,14 +109,26 @@ function PlanBody({
           )}
         </View>
       )}
+      {recording && <RecordingNotice />}
       {onSale && <Notes lineup={lineup} />}
-      <Restore userId={userId} lineup={lineup} busy={recording} />
+      <Restore
+        userId={userId}
+        lineup={lineup}
+        busy={recording || purchasing !== undefined}
+      />
       <History purchases={plan.purchases} />
     </>
   );
 }
 
-/** 購入の直後の取引を記録している間の知らせ（通信に失敗して送り直している間も出る） */
+/**
+ * 購入の直後の取引を記録している間の知らせ（通信に失敗して送り直している間も出る）
+ *
+ * 置き場所は商品のカードの下。記録は購入ボタンを押した直後に始まるので、先頭に
+ * 差し込むと状態・商品・押したボタンがその高さ分だけ下へ動き、押した場所から
+ * 目を離させる。押したボタンは記録が終わるまで処理中のままなので、知らせの
+ * 役目は「閉じないで」の一文だけで、押した場所より下にあれば足りる
+ */
 function RecordingNotice() {
   const t = useTranslations("mobilePlan");
   return (
@@ -190,21 +212,21 @@ function Offers({
   offers,
   lineup,
   busy,
+  purchasing,
+  onPurchasingChange,
 }: {
   readonly userId: string;
   readonly offers: readonly MobilePlanOffer[];
   readonly lineup: PlanLineup;
   /** 取引を記録している間。重ねて買わせない */
   readonly busy: boolean;
+  /** 買っている最中の商品（`PlanBody` が持つ）。押した方だけを処理中にする */
+  readonly purchasing: string | undefined;
+  readonly onPurchasingChange: (productId: string | undefined) => void;
 }) {
   const t = useTranslations("mobilePlan.offers");
   const tPlan = useTranslations("mobilePlan");
   const products = useIapProducts(offers);
-  /**
-   * 購入シートを開いてから、その取引の記録が終わるまでの商品。押した方だけを
-   * 処理中にし、他は止めるだけにする
-   */
-  const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
 
   // 取り消しは知らせない（本人が閉じただけ）。承認待ち（Ask to Buy）は承認されたら
   // 購入の同期が記録するので、待っていることだけ伝える
@@ -222,9 +244,9 @@ function Offers({
   );
 
   const buy = (productId: string) => {
-    setPurchasing(productId);
+    onPurchasingChange(productId);
     void buyIapProduct(productId, userId).finally(() =>
-      setPurchasing(undefined),
+      onPurchasingChange(undefined),
     );
   };
 
@@ -259,10 +281,7 @@ function Offers({
             <Button
               size="lg"
               fullWidth
-              disabled={
-                purchasing === undefined ? busy : purchasing !== productId
-              }
-              loading={purchasing === productId}
+              {...buyButtonStateOf(productId, purchasing, busy)}
               testID={`plan-buy-${key}`}
               onPress={() => buy(productId)}
             >
@@ -302,6 +321,7 @@ function Restore({
 }: {
   readonly userId: string;
   readonly lineup: PlanLineup;
+  /** 取引を記録している間、または商品を買っている最中。重ねて送らせない */
   readonly busy: boolean;
 }) {
   const t = useTranslations("mobilePlan");

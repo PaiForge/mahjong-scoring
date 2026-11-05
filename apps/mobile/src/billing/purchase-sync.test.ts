@@ -3,6 +3,7 @@ import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/b
 
 import type { PlanApiFailure, PlanApiResult } from "./plan-api";
 import {
+  buyButtonStateOf,
   isRetryable,
   shouldFinishAfter,
   summarizeRestore,
@@ -138,5 +139,35 @@ describe("isRetryable", () => {
     ] as const) {
       expect(isRetryable(error), error).toBe(false);
     }
+  });
+});
+
+describe("buyButtonStateOf", () => {
+  const PASS = "pass";
+  const LIFETIME = "lifetime";
+
+  it("誰も買っていなければ、記録中だけ止める", () => {
+    expect(buyButtonStateOf(PASS, undefined, false)).toEqual({
+      disabled: false,
+      loading: false,
+    });
+    expect(buyButtonStateOf(PASS, undefined, true)).toEqual({
+      disabled: true,
+      loading: false,
+    });
+  });
+
+  it("押した商品は、記録中でも処理中のまま（止めない）", () => {
+    expect(buyButtonStateOf(PASS, PASS, true)).toEqual({
+      disabled: false,
+      loading: true,
+    });
+  });
+
+  it("他の商品を買っている間は止める", () => {
+    expect(buyButtonStateOf(LIFETIME, PASS, false)).toEqual({
+      disabled: true,
+      loading: false,
+    });
   });
 });
