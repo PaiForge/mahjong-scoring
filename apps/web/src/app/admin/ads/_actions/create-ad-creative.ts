@@ -7,6 +7,7 @@ import { copyToTranslationRows } from "@/lib/ads/copy";
 import { isAdSlot } from "@/lib/ads/registry";
 import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, adCreativeTranslations, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -48,31 +49,37 @@ export async function createAdCreative(
   const slot = value.slot;
   const ipAddress = await getClientIp();
 
-  const id = await db.transaction(async (tx) => {
-    const [last] = await tx
-      .select({ sortOrder: max(adCreatives.sortOrder) })
-      .from(adCreatives)
-      .where(eq(adCreatives.slot, slot));
-    const row = {
-      ...toAdCreativeRow(value, slot),
-      sortOrder: (last?.sortOrder ?? -1) + 1,
-    };
-    const [inserted] = await tx
-      .insert(adCreatives)
-      .values(row)
-      .returning({ id: adCreatives.id });
-    await tx
-      .insert(adCreativeTranslations)
-      .values(copyToTranslationRows(inserted.id, value.copy));
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.CreateAdCreative,
-      target: { type: ContentActionTargetType.AdCreative, key: inserted.id },
-      ipAddress,
-      metadata: { after: { ...row, copy: value.copy } },
+  let id: string;
+  try {
+    id = await db.transaction(async (tx) => {
+      const [last] = await tx
+        .select({ sortOrder: max(adCreatives.sortOrder) })
+        .from(adCreatives)
+        .where(eq(adCreatives.slot, slot));
+      const row = {
+        ...toAdCreativeRow(value, slot),
+        sortOrder: (last?.sortOrder ?? -1) + 1,
+      };
+      const [inserted] = await tx
+        .insert(adCreatives)
+        .values(row)
+        .returning({ id: adCreatives.id });
+      await tx
+        .insert(adCreativeTranslations)
+        .values(copyToTranslationRows(inserted.id, value.copy));
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.CreateAdCreative,
+        target: { type: ContentActionTargetType.AdCreative, key: inserted.id },
+        ipAddress,
+        metadata: { after: { ...row, copy: value.copy } },
+      });
+      return inserted.id;
     });
-    return inserted.id;
-  });
+  } catch (error) {
+    logExternalError("createAdCreative", "failed to create ad creative", error);
+    return { error: "errorSaveFailed" };
+  }
 
   revalidateAdCreatives();
 
