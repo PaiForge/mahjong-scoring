@@ -16,6 +16,11 @@ import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
  * 実描画のカードは淡い細枠（`border-panel`）で、スケルトンも同じ枠のまま面を
  * 灰色にする（スケルトンの枠はどの画面も `border-panel` にそろえる）。枠は
  * border-box なので、アバターの枠を外しても高さは実描画と一致したまま。
+ *
+ * route group `(home)` は、この index の loading.tsx が兄弟ルート（`account` / `challenges` / `notifications` / `plan` / `profile`）の
+ * 祖先にならないようにするためだけにある。不変条件（動的ルートは loading.tsx を 1 枚・
+ * 静的ルートは 0 枚）と理由は `apps/web/src/app/loading-boundaries.test.ts`。page.tsx と
+ * loading.tsx を 1 つ上に移すとそのテストが落ちる。
  */
 export default function Loading() {
   return (

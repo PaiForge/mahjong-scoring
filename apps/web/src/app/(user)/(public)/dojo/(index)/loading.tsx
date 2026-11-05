@@ -22,6 +22,11 @@ import { RANK_REGISTRY } from "@mahjong-scoring/features/ranks/registry";
  * なので施錠の注記が無く、他の級より 1 行低い。級を持つユーザーでは次の目標の
  * 級が変わり前提章と練習の数も変わるため丈がずれるが、道場は未ログインでも
  * 開ける公開ページで、この状態が既定の姿。
+ *
+ * route group `(index)` は、この index の loading.tsx が兄弟ルート（`ranks/[slug]`）の
+ * 祖先にならないようにするためだけにある。不変条件（動的ルートは loading.tsx を 1 枚・
+ * 静的ルートは 0 枚）と理由は `apps/web/src/app/loading-boundaries.test.ts`。page.tsx と
+ * loading.tsx を 1 つ上に移すとそのテストが落ちる。
  */
 export default async function Loading() {
   const t = await getTranslations("dojo");

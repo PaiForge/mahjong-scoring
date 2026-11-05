@@ -11,6 +11,11 @@ import { SkeletonBar } from "@/app/_components/skeleton-bar";
  * 合わせる。カードの枠は `/mypage/plan` のスケルトンと同じく灰色に置き換える。
  * ログイン方法の行数は人によるので、いちばん多い形（パスワード・連携 1 つ・
  * 追加ボタン）に合わせる。
+ *
+ * route group `(home)` は、この index の loading.tsx が兄弟ルート（`delete`）の
+ * 祖先にならないようにするためだけにある。不変条件（動的ルートは loading.tsx を 1 枚・
+ * 静的ルートは 0 枚）と理由は `apps/web/src/app/loading-boundaries.test.ts`。page.tsx と
+ * loading.tsx を 1 つ上に移すとそのテストが落ちる。
  */
 export default function Loading() {
   return (
