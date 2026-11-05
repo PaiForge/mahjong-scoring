@@ -20,12 +20,15 @@ import {
   IapErrorCode,
   fetchIapProducts,
   onIapPurchaseError,
-  requestIapPurchase,
   type IapProduct,
 } from "./iap";
 import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
 import { usePlan } from "./use-plan";
-import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
+import {
+  buyIapProduct,
+  restoreIapPurchases,
+  usePurchaseRecording,
+} from "./use-purchase-sync";
 
 /**
  * プラン画面の中身（ログイン中でユーザー名を決めた人）
@@ -44,8 +47,11 @@ import { restoreIapPurchases, usePurchaseRecording } from "./use-purchase-sync";
  * - 運営からの付与は状態にだけ出し、付与の表は持たない
  * - 領収書の在処は App Store の購入にだけ添える（web の Stripe の案内は出さない）
  *
- * 購入の結果はここでは待たない。届いた取引はルートの購入の同期
- * （`usePurchaseSync`）が記録し、記録できたらこの画面が読み直す。
+ * 届いた取引はルートの購入の同期（`usePurchaseSync`）が記録し、記録後の
+ * プランがこの画面に渡る。押した購入ボタンは、購入画面を開いてから取引の
+ * 記録が終わるまで処理中のままにする（`buyIapProduct`）— 購入画面が閉じてから
+ * 記録されるまでの間、状態は無料のままなので、ボタンが戻ると「買えていない」
+ * ように見える。
  */
 export function PlanScreenBody({ userId }: { readonly userId: string }) {
   const t = useTranslations("mobilePlan");
@@ -194,7 +200,10 @@ function Offers({
   const t = useTranslations("mobilePlan.offers");
   const tPlan = useTranslations("mobilePlan");
   const products = useIapProducts(offers);
-  /** 購入シートを開いている商品。押した方だけを処理中にし、他は止めるだけにする */
+  /**
+   * 購入シートを開いてから、その取引の記録が終わるまでの商品。押した方だけを
+   * 処理中にし、他は止めるだけにする
+   */
   const [purchasing, setPurchasing] = useState<string | undefined>(undefined);
 
   // 取り消しは知らせない（本人が閉じただけ）。承認待ち（Ask to Buy）は承認されたら
@@ -214,7 +223,7 @@ function Offers({
 
   const buy = (productId: string) => {
     setPurchasing(productId);
-    void requestIapPurchase(productId, userId).finally(() =>
+    void buyIapProduct(productId, userId).finally(() =>
       setPurchasing(undefined),
     );
   };
@@ -251,7 +260,7 @@ function Offers({
               size="lg"
               fullWidth
               disabled={
-                busy || (purchasing !== undefined && purchasing !== productId)
+                purchasing === undefined ? busy : purchasing !== productId
               }
               loading={purchasing === productId}
               testID={`plan-buy-${key}`}
