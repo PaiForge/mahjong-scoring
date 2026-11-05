@@ -60,6 +60,7 @@ let tx: { select: Mock; insert: Mock; delete: Mock };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   selectChain = createQueryChain([{ trackingId: "old-22" }]);
   insertChain = createQueryChain([]);
   deleteChain = createQueryChain([]);
@@ -139,5 +140,19 @@ describe("setAmazonTrackingId", () => {
         metadata: expect.objectContaining({ before: null, after: "new-22" }),
       }),
     );
+  });
+
+  it("トランザクションが失敗したら errorSaveFailed でログを残し、再検証しない", async () => {
+    mockTransaction.mockRejectedValue(new Error("connection lost"));
+
+    expect(await setAmazonTrackingId("web", "new-22")).toEqual({
+      error: "errorSaveFailed",
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("[setAmazonTrackingId]"),
+      "connection lost",
+    );
+    expect(mockRecordContentAction).not.toHaveBeenCalled();
+    expect(mockRevalidateAdCreatives).not.toHaveBeenCalled();
   });
 });
