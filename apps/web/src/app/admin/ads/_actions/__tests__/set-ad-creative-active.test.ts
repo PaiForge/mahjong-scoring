@@ -3,6 +3,7 @@ import {
   ADMIN_ACTOR_ID,
   ADMIN_CLIENT_IP,
   mockRecordContentAction,
+  mockTransaction,
   setupAdminActor,
 } from "@/test/admin-action-mocks";
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
@@ -46,6 +47,7 @@ let tx: { select: Mock; update: Mock };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   selectChain = createQueryChain([{ isActive: false }]);
   updateChain = createQueryChain([]);
   tx = { select: vi.fn(() => selectChain), update: vi.fn(() => updateChain) };
@@ -79,5 +81,19 @@ describe("setAdCreativeActive", () => {
       metadata: { before: false, after: true },
     });
     expect(mockRevalidateAdCreatives).toHaveBeenCalledTimes(1);
+  });
+
+  it("トランザクションが失敗したら errorSaveFailed でログを残し、再検証しない", async () => {
+    mockTransaction.mockRejectedValue(new Error("connection lost"));
+
+    expect(await setAdCreativeActive("ad-1", true)).toEqual({
+      error: "errorSaveFailed",
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("[setAdCreativeActive]"),
+      "connection lost",
+    );
+    expect(mockRecordContentAction).not.toHaveBeenCalled();
+    expect(mockRevalidateAdCreatives).not.toHaveBeenCalled();
   });
 });
