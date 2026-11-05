@@ -1,10 +1,9 @@
-import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import {
   type ScoreChallengeAnswerFormProps,
   scoreAnswerTargetOf,
 } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
-import { useYakumanRules } from "../../hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "../../hooks/use-rule-settings-store";
 import { ScoreAnswerForm } from "./score-answer-form";
 
 /**
@@ -30,8 +29,8 @@ export function ScoreChallengeAnswerForm({
   isTraining = false,
 }: ScoreChallengeAnswerFormProps) {
   // トレーニングでダブル役満採用時のみ、その点数（子64000点等）を選択肢に足す
-  const yakumanRules = useYakumanRules();
-  const allowDoubleYakuman = isTraining && allowsDoubleYakuman(yakumanRules);
+  const allowsDoubleYakuman = useAllowDoubleYakuman();
+  const allowDoubleYakuman = isTraining && allowsDoubleYakuman;
 
   return (
     <ScoreAnswerForm

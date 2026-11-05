@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
+import { getScoreLevelName } from "@mahjong-scoring/core";
 import {
   formatHan,
   formatPayment,
@@ -10,7 +10,7 @@ import { paymentToScoreTableAnswer } from "@mahjong-scoring/features/results/pay
 import { resolveScoreResultView } from "@mahjong-scoring/features/results/score-result-view";
 
 import { BookIcon, TableIcon } from "../../../components/icons/icons";
-import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "../../../hooks/use-rule-settings-store";
 import { useYakuOrder } from "../../../hooks/use-yaku-order-store";
 import { linkStyles } from "../../../lib/link-styles";
 import { colors } from "../../../lib/theme";
@@ -62,7 +62,7 @@ export function ResultDisplay({
   const tScoreTable = useTranslations("scoreTable");
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
   const scoreLevelName = getScoreLevelName(answer.scoreLevel);
   // 点数表。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く。web と同じ）

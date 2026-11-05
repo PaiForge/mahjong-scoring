@@ -4,9 +4,9 @@ import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
-import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
-import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import { useAutoAdvanceOnCorrect } from "@/app/_hooks/use-training-settings-store";
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { PageTitle } from "@/app/(user)/_components/page-title";
@@ -78,7 +78,7 @@ function TenpaiScoreBoardInner() {
   useEffect(() => {
     if (gate?.kind === "rateLimited") toast.error(tq("rateLimited"));
   }, [gate, tq]);
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
 
   // 問題ができるのを待たずに送る（理由は agari-score-board と同じ）
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);

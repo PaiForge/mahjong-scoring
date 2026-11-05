@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import { YakuLabelRow, YakuSelect } from "./yaku-select";
 import {
   useRuleSettingsStore,
-  useYakumanRules,
+  useAllowDoubleYakuman,
 } from "@/app/_hooks/use-rule-settings-store";
 import {
   useKoTsumoInput,
@@ -48,7 +47,7 @@ export function ScorePracticeAnswerForm({
   const t = useTranslations("agariScore");
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
   const storedKoTsumoInput = useKoTsumoInput();
   const scoreInput = useScoreInput();
   const koTsumoInput = resolveKoTsumoInput(scoreInput, storedKoTsumoInput);

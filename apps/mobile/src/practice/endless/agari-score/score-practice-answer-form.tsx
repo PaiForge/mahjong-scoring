@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import type { ScorePracticeAnswerFormProps } from "@mahjong-scoring/features/practice/score/score-practice-answer-form-props";
 import { useScorePracticeAnswerForm } from "@mahjong-scoring/features/practice/score/use-score-practice-answer-form";
 import { resolveKoTsumoInput } from "@mahjong-scoring/features/settings/ko-tsumo-input";
@@ -8,7 +7,7 @@ import { resolveKoTsumoInput } from "@mahjong-scoring/features/settings/ko-tsumo
 import { Button } from "../../../components/button";
 import {
   useRuleSettingsStore,
-  useYakumanRules,
+  useAllowDoubleYakuman,
 } from "../../../hooks/use-rule-settings-store";
 import {
   useKoTsumoInput,
@@ -44,7 +43,7 @@ export function ScorePracticeAnswerForm({
   const t = useTranslations("agariScore");
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
   // ダブル役満を採用したルールでは、翻数・点数の選択肢にダブル役満を足す
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
   const storedKoTsumoInput = useKoTsumoInput();
   const scoreInput = useScoreInput();
   const koTsumoInput = resolveKoTsumoInput(scoreInput, storedKoTsumoInput);
