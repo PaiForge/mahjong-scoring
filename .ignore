@@ -1,0 +1,10 @@
+# ripgrep（と Claude Code の Grep ツール）だけが読む除外リスト。git は何も無視しない。
+#
+# ここに挙げるのは生成物のスナップショットで、snake_case の列名の grep を 9 割以上
+# ノイズにする（例: `created_at` は 1244 件中 1203 件が drizzle/meta だった）。
+# 本当に中身を見たいときは `rg --no-ignore` を使うか、ファイルを直接開く。
+#
+# ripgrep 14.1.1 は、検索の起点が子ディレクトリのとき（`rg … apps/web` や apps/web で
+# 実行）親の .ignore のパターンを当てない（実測）。そのため drizzle/meta の除外は
+# `apps/web/.ignore` に置き、ここにはリポジトリルートのファイルだけを書く。
+pnpm-lock.yaml
