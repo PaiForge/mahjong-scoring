@@ -37,6 +37,15 @@ export interface RuleSettingsState extends RuleSettings {
  * （`challenge/rule-boundary.ts`）。昇級試験はそもそもこのストアを
  * 読まない。
  *
+ * 設定の項目と既定値の形は core の `packages/core/src/rules/settings.ts`
+ * （`RuleSettings` / `DEFAULT_RULE_SETTINGS`）が持つ。項目を足す手順はそこから:
+ * `RuleSettings` に項目と既定値を足す → ここ（`RuleSettingsState`）に setter を
+ * 足す → `settings/rule-setting-toggles.ts` の `RULE_SETTING_TOGGLES` に行を足す
+ * （項目か辞書の文言が欠けると `rule-setting-toggles.test.ts` が落ちる）→
+ * `packages/messages/src/ja/settings.json` に `<messageKey>Title` / `Description`
+ * を足す。web・モバイルの設定画面はどちらも `RULE_SETTING_TOGGLES` を回して
+ * 行を描くので、UI 側の編集は要らない。
+ *
  * @param options 保存先（保存名は `mahjong-rule-settings` 固定）
  */
 export function createRuleSettingsStore({ storage }: SettingsStoreOptions) {
