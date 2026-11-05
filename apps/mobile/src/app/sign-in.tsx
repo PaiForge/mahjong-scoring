@@ -8,12 +8,14 @@
  * リンクから web で決める。`forgot-password.tsx`）。メールの確認が済んでいない
  * 人には、エラーの下に確認メールを再送する画面（`sign-up/verify-email.tsx`）への
  * 導線を出す。
- * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート → ログイン →
+ * 確認メールの画面（登録の後）から来たときは、登録に使ったメールアドレスを入れて開く。
+ * @flow 記録の案内（ホーム・マイページ）/ 設定の会員限定ゲート /
+ * 確認メールの案内（登録の後）→ ログイン →
  * （ユーザー名の設定）→ 元の画面へ戻る
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
 import { AppleSignInSection } from "../auth/apple-sign-in-section";
@@ -44,7 +46,11 @@ export default function SignInScreen() {
   const t = useTranslations("auth");
   const router = useRouter();
   const leaveAuthFlow = useLeaveAuthFlow();
-  const [email, setEmail] = useState("");
+  // 確認メールの画面から開いたときは、登録に使ったメールアドレスが渡る
+  const { email: initialEmail = "" } = useLocalSearchParams<{
+    email?: string;
+  }>();
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -52,6 +58,14 @@ export default function SignInScreen() {
   const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | undefined>(
     undefined,
   );
+
+  // 誤りは前に送った入力についてのもの。打ち直したら消す（再送の導線も同じ）
+  const changeInput =
+    (setValue: (value: string) => void) => (value: string) => {
+      setValue(value);
+      setError(undefined);
+      setUnconfirmedEmail(undefined);
+    };
 
   const submit = async () => {
     if (!supabase || submitting) return;
@@ -87,7 +101,7 @@ export default function SignInScreen() {
         <TextField
           label={t("emailLabel")}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={changeInput(setEmail)}
           placeholder={t("emailPlaceholder")}
           kind="email"
           testID="sign-in-email"
@@ -95,7 +109,7 @@ export default function SignInScreen() {
         <TextField
           label={t("passwordLabel")}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={changeInput(setPassword)}
           placeholder={t("passwordPlaceholder")}
           kind="password"
           secure

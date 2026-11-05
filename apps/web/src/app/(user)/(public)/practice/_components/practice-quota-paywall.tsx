@@ -2,11 +2,13 @@
 
 import type { ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { ContentContainer } from "@/app/(user)/_components/content-container";
 import { LinkButton } from "@/app/(user)/_components/link-button";
 import { PageTitle } from "@/app/(user)/_components/page-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import {
@@ -41,7 +43,8 @@ interface PracticeQuotaPaywallProps {
  * 問題は生成していないので手牌は無い。盤面と同じ外枠（`ContentContainer` +
  * `PageTitle`）に、理由・Pro の特典・導線を置く。
  *
- * - 未ログイン: 先にログインを勧める（ログインすると枠が増える）。Pro は二の次
+ * - 未ログイン: 先にログインを勧める（ログインすると枠が増える）。アカウントの無い人へ
+ *   登録へのリンクを添える。Pro は二の次
  * - ログイン済み: Pro の料金ページへ
  *
  * ログイン後は今の play へ戻す（`buildSignInHref`）。設定を選び直させない。
@@ -86,7 +89,9 @@ export function PracticeQuotaPaywall({
             <LinkButton href={signInHref} size="lg" fullWidth>
               {t("signInCta")}
             </LinkButton>
-            <p className="text-xs text-surface-500">{t("signUpHint")}</p>
+            <Link href="/sign-up" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+              {t("signUpLink")}
+            </Link>
           </div>
         )}
 

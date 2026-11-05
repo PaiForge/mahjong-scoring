@@ -1,0 +1,67 @@
+# 退会のお知らせは別のアカウントでログインすると消える: 使い捨てのアカウント（EMAIL）で
+# ログインして退会すると、マイページの先頭に退会のお知らせが出る。続けて bob@ で
+# ログインしてマイページを開くと、お知らせは出ていない。
+# 手元の web（:3000）とその DB が動いていること。使い捨てのアカウントは先に手元の
+# Supabase に確認済みで作っておく（dev seed のユーザーは退会させない — ユーザー名が
+# 再利用防止で残り、seed で作り直せなくなる）:
+#   cd apps/web && KEY=$(pnpm -s supabase status -o json | jq -r .SERVICE_ROLE_KEY)
+#   curl -s http://127.0.0.1:54321/auth/v1/admin/users -H "apikey: $KEY" \
+#     -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+#     -d '{"email":"leaver-1@example.local","password":"devpass1","email_confirm":true}'
+#   scripts/maestro.sh deletion-notice -e EMAIL=leaver-1@example.local
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: ${EMAIL}
+      PASSWORD: devpass1
+# ユーザー名はまだ無いので設定へ送られる。決めずに戻る
+- extendedWaitUntil:
+    visible:
+      id: "generate-username"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible:
+      id: "home-mypage"
+    timeout: 10000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-account"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-account"
+- tapOn:
+    id: "account-delete"
+- extendedWaitUntil:
+    visible:
+      id: "account-delete-submit"
+    timeout: 10000
+- tapOn:
+    id: "account-delete-submit"
+- tapOn:
+    id: "account-delete-submit-confirm"
+- extendedWaitUntil:
+    visible: "退会(が完了しました|を受け付けました).*"
+    timeout: 15000
+- takeScreenshot: deletion-notice-shown
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 15000
+- assertNotVisible: "退会(が完了しました|を受け付けました).*"
+- takeScreenshot: deletion-notice-gone

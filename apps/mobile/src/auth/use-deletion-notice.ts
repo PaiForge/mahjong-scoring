@@ -20,7 +20,11 @@ export function showDeletionNotice(notice: DeletionNotice): void {
   useDeletionNoticeStore.setState({ notice });
 }
 
-/** 知らせを閉じる */
+/**
+ * 知らせを閉じる
+ *
+ * 知らせの「閉じる」と、別のアカウントでログインしたとき（`use-auth.ts`）に呼ぶ。
+ */
 export function dismissDeletionNotice(): void {
   useDeletionNoticeStore.setState({ notice: undefined });
 }
