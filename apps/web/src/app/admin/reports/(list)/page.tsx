@@ -19,21 +19,12 @@ import { isReportReason } from "@mahjong-scoring/features/reports/report";
 import { formatAdminDateTime } from "../../_lib/format-date";
 import { ReportStatusChip } from "../_components/report-status-chip";
 import { countOpenReports, fetchReportsPageData } from "../_lib/queries";
+import { REPORT_TABLE_COLUMNS } from "../_lib/table-columns";
 
 const searchParamsCache = createSearchParamsCache({
   tab: parseAsStringLiteral(["open", "closed"] as const).withDefault("open"),
   page: parseAsInteger.withDefault(1),
 });
-
-/** 列（通報日時・通報された人・理由・通報した人・状態・操作） */
-const COLUMN_KEYS = [
-  "createdAt",
-  "target",
-  "reason",
-  "reporter",
-  "status",
-  "actions",
-] as const;
 
 /** 1 時間（経過時間の表示に使う） */
 const HOUR_MS = 60 * 60 * 1000;
@@ -93,11 +84,13 @@ export default async function AdminReportsPage({
 
       <div className="admin-table">
         <table className="w-full text-left text-sm">
-          <TableHead labels={COLUMN_KEYS.map((key) => t(`table.${key}`))} />
+          <TableHead
+            labels={REPORT_TABLE_COLUMNS.map((key) => t(`table.${key}`))}
+          />
           <tbody>
             {data.reports.length === 0 ? (
               <TableEmptyRow
-                columnCount={COLUMN_KEYS.length}
+                columnCount={REPORT_TABLE_COLUMNS.length}
                 label={t("table.empty")}
               />
             ) : (

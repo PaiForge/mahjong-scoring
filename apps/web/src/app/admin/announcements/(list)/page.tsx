@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { TableHead } from "@/app/admin/_components/table-head";
+import { ANNOUNCEMENT_TABLE_COLUMNS } from "../_lib/table-columns";
 import { formatAdminDateTime } from "@/app/admin/_lib/format-date";
 import { type Announcement, announcements, db } from "@/lib/db";
 import { AnnouncementStatus } from "@/lib/announcement-status";
@@ -69,13 +70,7 @@ export default async function AdminAnnouncementsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <TableHead
-                    labels={[
-                      t("locale"),
-                      t("title"),
-                      t("status"),
-                      t("publishedAt"),
-                      t("actions"),
-                    ]}
+                    labels={ANNOUNCEMENT_TABLE_COLUMNS.map((key) => t(key))}
                   />
                   <tbody>
                     {variants.map((a) => (

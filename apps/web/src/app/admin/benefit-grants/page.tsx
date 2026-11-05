@@ -10,21 +10,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import { BenefitGrantRow } from "./_components/benefit-grant-row";
 import { fetchBenefitGrantsPageData } from "./_lib/queries";
+import { BENEFIT_GRANT_TABLE_COLUMNS } from "./_lib/table-columns";
 
 const searchParamsCache = createSearchParamsCache({
   page: parseAsInteger.withDefault(1),
 });
-
-/** 列（対象・内容・期間・理由・付与者・状態・操作） */
-const COLUMN_KEYS = [
-  "target",
-  "plan",
-  "period",
-  "reason",
-  "grantedBy",
-  "state",
-  "actions",
-] as const;
 
 /**
  * 特典の手動付与一覧
@@ -59,11 +49,13 @@ export default async function AdminBenefitGrantsPage({
 
       <div className="admin-table">
         <table className="w-full text-left text-sm">
-          <TableHead labels={COLUMN_KEYS.map((key) => t(`table.${key}`))} />
+          <TableHead
+            labels={BENEFIT_GRANT_TABLE_COLUMNS.map((key) => t(`table.${key}`))}
+          />
           <tbody>
             {grants.length === 0 ? (
               <TableEmptyRow
-                columnCount={COLUMN_KEYS.length}
+                columnCount={BENEFIT_GRANT_TABLE_COLUMNS.length}
                 label={t("table.empty")}
               />
             ) : (
