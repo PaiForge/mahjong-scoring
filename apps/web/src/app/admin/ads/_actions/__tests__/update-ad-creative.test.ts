@@ -26,14 +26,10 @@ const { mockRevalidateAdCreatives, mockSelect } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock("@/lib/db", async () => ({
-  db: {
-    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
-    select: mockSelect,
-  },
-  adCreatives: { id: "id", slot: "slot" },
-  adCreativeTranslations: { creativeId: "creative_id" },
-}));
+vi.mock("@/lib/db", async () => {
+  const shared = await import("@/test/admin-action-db-mock");
+  return { ...shared, db: { ...shared.db, select: mockSelect } };
+});
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 vi.mock(
   "@/app/admin/_lib/auth",

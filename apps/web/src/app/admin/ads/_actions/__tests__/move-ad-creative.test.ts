@@ -23,17 +23,7 @@ const { mockRevalidateAdCreatives } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock("@/lib/db", async () => ({
-  db: {
-    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
-  },
-  adCreatives: {
-    id: "id",
-    slot: "slot",
-    sortOrder: "sort_order",
-    createdAt: "created_at",
-  },
-}));
+vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 vi.mock(
   "@/app/admin/_lib/auth",

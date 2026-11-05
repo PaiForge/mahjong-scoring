@@ -23,16 +23,7 @@ const { mockRevalidateAdCreatives } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock("@/lib/db", async () => ({
-  db: {
-    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
-  },
-  adNetworkSettings: {
-    network: "network",
-    platform: "platform",
-    trackingId: "tracking_id",
-  },
-}));
+vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 vi.mock(
   "@/app/admin/_lib/auth",

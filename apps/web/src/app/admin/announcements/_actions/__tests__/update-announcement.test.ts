@@ -22,12 +22,7 @@ const { mockRevalidateAnnouncementPaths, DUPLICATE } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock("@/lib/db", async () => ({
-  db: {
-    transaction: (await import("@/test/admin-action-mocks")).mockTransaction,
-  },
-  announcements: { id: "id" },
-}));
+vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock("@/lib/db/extract-pg-error-code", () => ({
   isUniqueViolation: (error: unknown) => error === DUPLICATE,
 }));
