@@ -83,7 +83,7 @@ interface CatalogVisual {
  * 答えは載せない。ここは練習の対象を見せる場所であって、答えを教える場所
  * ではない。単位だけを「符は？」の形で出す。
  *
- * 一覧に並ぶ練習はすべてここに例示を持つ（`practice-card-visual.test.ts` が
+ * 一覧に並ぶ練習はすべてここに例示を持つ（`card-visual.test.ts` が
  * 落とす）。1 枚でも欠けると、その練習だけ帯の無い低いカードになる。
  */
 const PRACTICE_CARD_VISUALS: Partial<Record<PracticeMenuSlug, CatalogVisual>> =

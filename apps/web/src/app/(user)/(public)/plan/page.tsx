@@ -45,7 +45,6 @@ export const revalidate = 3600;
 
 /**
  * 料金ページ
- * 料金ページ
  *
  * @description
  * Pro プランの特典と、2 つの売り方（30 日パス / 買い切り）の価格と購入ボタン。

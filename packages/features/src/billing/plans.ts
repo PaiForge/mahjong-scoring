@@ -58,7 +58,6 @@
 
 /**
  * 特典
- * 特典
  *
  * - `unlimited_practice` — `practice/agari-score` と `practice/tenpai-score` の 1 日の
  *   回数制限を外す

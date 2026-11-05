@@ -55,7 +55,8 @@ export type QuotaCounts = Readonly<Record<QuotaMenu, number>>;
  * 空の練習回数
  *
  * 未ログイン（web の cookie）とゲスト（アプリの端末）の数え方が、日の変わり目と
- * 保存値が読めないときに戻る値。練習を足したらここが型エラーになる。
+ * 保存値が読めないときに戻る値。回数制限の対象（`QUOTA_MENUS`）に練習を足したら
+ * ここが型エラーになる。対象外の練習を足しても何も起きない。
  */
 export const EMPTY_QUOTA_COUNTS: QuotaCounts = {
   "agari-score": 0,

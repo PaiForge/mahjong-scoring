@@ -17,7 +17,7 @@ import { ScoreAnswerForm } from "./score-answer-form";
  *
  * トレーニングでは、選択肢にダブル役満の点数（子64000点等）を端末のルール
  * 設定に従って足す。チャレンジ（記録あり）では選択肢を設定に依らない集合に
- * 固定する（`fixedRules`。理由は `_lib/rule-boundary.ts`）。
+ * 固定する（`fixedRules`。理由は `packages/features/src/challenge/rule-boundary.ts`）。
  * 昇級試験の回答フォーム（exam/_components/score-exam-answer-form.tsx）は
  * 見た目が同じでもここを共有しない。試験はルール設定を読まないことが
  * あちらの仕様で、統合すると片方の前提が崩れる。
