@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   evaluateExamOutcome,
@@ -6,9 +6,12 @@ import {
   type ExamOutcomeInput,
 } from "@mahjong-scoring/features/exam/exam-outcome";
 
-import { linkStyles } from "../../lib/link-styles";
+import { InlineLink } from "../../components/inline-link";
 import { colors, radius } from "../../lib/theme";
 import { useMistakeReveal } from "../components/mistake-reveal";
+
+/** 凡例の文字の大きさ。押せる終わり方の語もこれに合わせる */
+const LEGEND_FONT_SIZE = 12;
 
 /**
  * 昇級試験の結果サマリ（web の `ExamResultSummary`）
@@ -18,11 +21,13 @@ import { useMistakeReveal } from "../components/mistake-reveal";
  * 埋め、「あとどれだけ足りなかったか」を長さで見せる（試験はミス 1 回で
  * 終わるので、正解・不正解の比率はほとんど何も伝えない）。合否は棒の上の
  * 1 行で、色は答え合わせと同じ success / destructive。凡例の右端は終わり方で、
- * 誤答・時間切れで終わったときは押すと問題別の結果でその問題を開く。
+ * 誤答・時間切れで終わったときは押すと問題別の結果でその問題を開く
+ * （末尾の矢印で押せることを示す {@link InlineLink}）。
  * 判定の分岐は {@link evaluateExamOutcome} が持つ。
  */
 export function ExamResultSummary(input: ExamOutcomeInput) {
   const t = useTranslations("examResult");
+  const tChallenge = useTranslations("challenge");
   const reveal = useMistakeReveal();
   const outcome = evaluateExamOutcome(input);
   const { correct, total, minScore } = input;
@@ -82,19 +87,14 @@ export function ExamResultSummary(input: ExamOutcomeInput) {
           </Text>
         </View>
         {outcome.ending !== "goal" && reveal !== undefined ? (
-          <Pressable onPress={reveal} accessibilityRole="button" hitSlop={12}>
-            {({ pressed }) => (
-              <Text
-                style={[
-                  styles.legendText,
-                  linkStyles.textButton,
-                  pressed && linkStyles.textButtonPressed,
-                ]}
-              >
-                {endingLabel}
-              </Text>
-            )}
-          </Pressable>
+          <InlineLink
+            onPress={reveal}
+            cue="chevron"
+            fontSize={LEGEND_FONT_SIZE}
+            accessibilityHint={tChallenge("revealMistakesHint")}
+          >
+            {endingLabel}
+          </InlineLink>
         ) : (
           <Text style={styles.legendText}>{endingLabel}</Text>
         )}
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.success,
   },
   legendText: {
-    fontSize: 12,
+    fontSize: LEGEND_FONT_SIZE,
     color: colors.surface600,
   },
   strong: {

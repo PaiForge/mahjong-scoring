@@ -1,14 +1,13 @@
 import { useMemo } from "react";
-import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import { sumYakuHan } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
 import { useYakuOrder } from "../../hooks/use-yaku-order-store";
-import { linkStyles } from "../../lib/link-styles";
+import { InlineLink } from "../../components/inline-link";
 import { useYakuCheatsheetModal } from "../use-yaku-cheatsheet-modal";
 import { BreakdownPanel } from "./breakdown-panel";
-import { DetailTable } from "./detail-table";
+import { DETAIL_TABLE_FONT_SIZE, DetailTable } from "./detail-table";
 import type {
   YakuBreakdownProps,
   YakuBreakdownTableProps,
@@ -82,14 +81,14 @@ export function YakuBreakdownTable({
         // 見出しは開閉の入口が持つため、表側の見出しは出さない
         rows={ordered.map((detail) => ({
           label: canOpenYakuCheatsheet(detail.name) ? (
-            <Text
+            <InlineLink
               onPress={() => openYakuCheatsheet(detail.name)}
-              accessibilityRole="link"
+              cue="info"
+              fontSize={DETAIL_TABLE_FONT_SIZE}
               accessibilityHint={tChallenge("openInYakuList")}
-              style={[styles.yakuLink, linkStyles.textButton]}
             >
               {detail.name}
-            </Text>
+            </InlineLink>
           ) : (
             detail.name
           ),
@@ -111,9 +110,3 @@ export function YakuBreakdownTable({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  yakuLink: {
-    fontSize: 14,
-  },
-});
