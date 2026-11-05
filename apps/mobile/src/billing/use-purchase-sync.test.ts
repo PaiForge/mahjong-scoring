@@ -145,6 +145,24 @@ describe("プラン画面からの購入", () => {
     expect(mocks.showToast).toHaveBeenCalledTimes(1);
     stop();
   });
+
+  it("記録の応答のプランを画面に渡す", async () => {
+    const stop = startPurchaseSync("user-a", () => false);
+    const response = recordedAs("recorded");
+    mocks.postAppleTransaction.mockResolvedValue(response);
+    mocks.requestIapPurchase.mockImplementation(async () => {
+      deliver("tx-plan");
+      return "tx-plan";
+    });
+
+    await buyIapProduct(PRODUCT_ID, "user-a");
+
+    expect(mocks.invalidatePlan).toHaveBeenCalledWith({
+      userId: "user-a",
+      plan: response.value,
+    });
+    stop();
+  });
 });
 
 describe("プラン画面の外で届いた取引", () => {

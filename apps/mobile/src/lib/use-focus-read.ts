@@ -24,12 +24,17 @@ export type FocusReadState<T, E> =
  * （条件を選び直したとき）も読み直す。呼び出し側は `read` を `useCallback` で
  * 包み、条件が変わったときだけ作り直すこと。`read` が undefined のあいだ
  * （ログインの状態を読んでいる間）は送らずに `loading` のまま待つ。
+ *
+ * `replace` は読み直さずに値を差し替える。書き込みの応答が新しい値を含むとき
+ * （取引の記録の応答に記録後のプランが付く等）に、もう 1 往復せず画面へ出す。
+ * 読んでいる最中の要求の結果は捨てる（差し替えた値より古い）。
  */
 export function useFocusRead<T extends object, E>(
   read: (() => Promise<T | { readonly error: E }>) | undefined,
 ): {
   readonly state: FocusReadState<T, E>;
   readonly reload: () => void;
+  readonly replace: (value: T) => void;
 } {
   const [state, setState] = useState<FocusReadState<T, E>>({
     kind: "loading",
@@ -53,7 +58,12 @@ export function useFocusRead<T extends object, E>(
     });
   }, [read]);
 
+  const replace = useCallback((value: T) => {
+    latest.current++;
+    setState({ kind: "loaded", value, pending: false });
+  }, []);
+
   useFocusEffect(reload);
 
-  return { state, reload };
+  return { state, reload, replace };
 }

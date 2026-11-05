@@ -146,7 +146,7 @@ function changeRecording(delta: number): void {
  *
  * 完了するかは {@link shouldFinishAfter}。同じ取引を送っている最中なら、その
  * 結果を待って返す（購入の同期と復元が同じ取引を同時に送ることがある）。
- * 記録できたらプラン画面に読み直させる。
+ * 記録できたら、応答に添えられた記録後のプランをプラン画面に渡す。
  */
 function submitPurchase(
   userId: string,
@@ -160,7 +160,8 @@ function submitPurchase(
       await finishIapPurchase(purchase);
       finished.add(purchase.transactionId);
     }
-    if ("value" in response) invalidatePlan();
+    // 応答は記録後のプランを含むので、画面に読み直させずそのまま渡す
+    if ("value" in response) invalidatePlan({ userId, plan: response.value });
     return response;
   })().finally(() => inFlight.delete(purchase.transactionId));
   inFlight.set(purchase.transactionId, result);
