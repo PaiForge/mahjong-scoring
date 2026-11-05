@@ -4,7 +4,6 @@ import {
   HaiKind,
   MentsuType,
   Tacha,
-  sortTehai,
   type CompletedMentsu,
   type HaiKindId,
   type Tehai,
@@ -13,10 +12,11 @@ import {
   resolveMentsuBreakdown,
   resolveMentsuBreakdowns,
 } from "./mentsu-structure";
+import { tehaiOf } from "../test-utils/tehai";
 
-/** 副露なしの手牌を作るヘルパー（面子ごとに書いた牌を、出題と同じく理牌する） */
-function makeTehai(closed: readonly HaiKind[]): Tehai {
-  return sortTehai({ closed, exposed: [] });
+/** 副露なしの手牌を作る（面子ごとに書いた牌を、出題と同じく理牌する） */
+function makeTehai(closed: readonly HaiKindId[]): Tehai {
+  return tehaiOf({ closed });
 }
 
 /** 東場・南家のツモ和了 */
@@ -133,13 +133,17 @@ describe("resolveMentsuBreakdown", () => {
   });
 
   it("14枚でない手牌は undefined を返す", () => {
-    const tehai = makeTehai([
-      ...THREE_SHUNTSU,
-      HaiKind.Haku,
-      HaiKind.Haku,
-      HaiKind.Haku,
-      HaiKind.ManZu9,
-    ]);
+    // 13 枚なので検証を通らない。`tehaiOf` を通さず直接組む
+    const tehai: Tehai = {
+      closed: [
+        ...THREE_SHUNTSU,
+        HaiKind.Haku,
+        HaiKind.Haku,
+        HaiKind.Haku,
+        HaiKind.ManZu9,
+      ],
+      exposed: [],
+    };
 
     const breakdown = resolveMentsuBreakdown(tehai, {
       ...TSUMO_CONTEXT,
@@ -391,7 +395,7 @@ describe("resolveMentsuBreakdown", () => {
 
     it("副露した面子には和了牌を付けない", () => {
       // 456p 678s + 99m + 白暗刻 + 234m チー。和了牌は 4m だがチーは対象外
-      const tehai: Tehai = {
+      const tehai = tehaiOf({
         closed: [
           HaiKind.PinZu4,
           HaiKind.PinZu5,
@@ -416,7 +420,7 @@ describe("resolveMentsuBreakdown", () => {
             },
           },
         ],
-      };
+      });
 
       const breakdown = resolveMentsuBreakdown(tehai, {
         ...TSUMO_CONTEXT,
@@ -484,7 +488,7 @@ describe("resolveMentsuBreakdown", () => {
 
     it("副露した面子は手の内の面子と雀頭の後に並べる", () => {
       // 456p 678s 白白白 99m + 234m チー
-      const tehai: Tehai = {
+      const tehai = tehaiOf({
         closed: [
           HaiKind.PinZu4,
           HaiKind.PinZu5,
@@ -509,7 +513,7 @@ describe("resolveMentsuBreakdown", () => {
             },
           },
         ],
-      };
+      });
 
       expect(blocksOf(tehai, HaiKind.PinZu6)).toEqual([
         ["Jantou", HaiKind.ManZu9],

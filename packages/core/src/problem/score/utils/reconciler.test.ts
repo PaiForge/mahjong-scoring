@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
 import {
   HaiKind,
-  sortTehai,
+  type HaiKindId,
   type Tehai14,
   type ScoreResult,
 } from "@pai-forge/riichi-mahjong";
+import { tehaiOf } from "../../../test-utils/tehai";
 import { applyRiichiAndUraDora } from "./reconciler";
 
 /**
@@ -20,14 +21,12 @@ function makeScoreResult(overrides: Partial<ScoreResult> = {}): ScoreResult {
   } as ScoreResult;
 }
 
-/**
- * テスト用の門前手牌（刻子含む）を構築するヘルパー。出題と同じく理牌する
- */
-function makeTehaiWithKoutsu(koutsuHai: number, closedRest: number[]): Tehai14 {
-  return sortTehai({
-    closed: [koutsuHai, koutsuHai, koutsuHai, ...closedRest],
-    exposed: [],
-  } as unknown as Tehai14);
+/** テスト用の門前手牌（刻子含む）を組む。出題と同じく理牌する */
+function makeTehaiWithKoutsu(
+  koutsuHai: HaiKindId,
+  closedRest: readonly HaiKindId[],
+): Tehai14 {
+  return tehaiOf({ closed: [koutsuHai, koutsuHai, koutsuHai, ...closedRest] });
 }
 
 /**
@@ -36,7 +35,7 @@ function makeTehaiWithKoutsu(koutsuHai: number, closedRest: number[]): Tehai14 {
  * どのテストも「刻子1つ + 通常の3面子 + 雀頭」の手牌を使い、
  * 検証したいのは刻子の種類と雀頭だけ。定型部分をここにまとめる。
  */
-function standardRest(jantou: number): number[] {
+function standardRest(jantou: HaiKindId): HaiKindId[] {
   return [
     HaiKind.ManZu1,
     HaiKind.ManZu2,
