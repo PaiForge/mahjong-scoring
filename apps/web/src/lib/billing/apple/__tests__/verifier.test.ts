@@ -51,6 +51,13 @@ function payload(overrides: Record<string, unknown> = {}) {
   };
 }
 
+/** 中身だけを持つ JWS の形の文字列（署名は偽の検証器が見ない） */
+function jwsClaiming(body: Record<string, unknown>): string {
+  const encode = (value: unknown) =>
+    Buffer.from(JSON.stringify(value)).toString("base64url");
+  return `${encode({ alg: "ES256" })}.${encode(body)}.sig`;
+}
+
 function exception(status: VerificationStatus) {
   return new VerificationException(status);
 }
@@ -155,6 +162,52 @@ describe("verifyTransaction", () => {
       ok: false,
       reason: "invalidSignature",
     });
+  });
+});
+
+describe("検証器を試す順", () => {
+  it("Sandbox と名乗る取引は Sandbox を先に検証し、Production を試さない", async () => {
+    mocks.Sandbox.transaction.mockResolvedValue(
+      payload({ environment: "Sandbox" }),
+    );
+    const result = await verifier().verifyTransaction(
+      jwsClaiming({ environment: "Sandbox" }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      value: { environment: "Sandbox" },
+    });
+    expect(mocks.Production.transaction).not.toHaveBeenCalled();
+  });
+
+  it("Sandbox と偽って名乗っても、Production の検証器で通ったものは Production", async () => {
+    mocks.Sandbox.transaction.mockRejectedValue(
+      exception(VerificationStatus.INVALID_ENVIRONMENT),
+    );
+    mocks.Production.transaction.mockResolvedValue(payload());
+    const result = await verifier().verifyTransaction(
+      jwsClaiming({ environment: "Sandbox" }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      value: { environment: "Production" },
+    });
+  });
+
+  it("Sandbox と名乗る通知は Sandbox を先に検証する", async () => {
+    mocks.Sandbox.notification.mockResolvedValue({
+      notificationUUID: "uuid",
+      notificationType: "TEST",
+      signedDate: PURCHASE_DATE,
+    });
+    const result = await verifier().verifyNotification(
+      jwsClaiming({ data: { environment: "Sandbox" } }),
+    );
+    expect(result).toMatchObject({
+      ok: true,
+      value: { environment: "Sandbox" },
+    });
+    expect(mocks.Production.notification).not.toHaveBeenCalled();
   });
 });
 
