@@ -1,0 +1,36 @@
+# ログインの誤りは打ち直すと消える: bob@ に誤ったパスワードでログインすると
+# 「メールアドレスまたはパスワードが正しくありません」が出て、パスワードを打ち直すと消える。
+# 手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-submit"
+    timeout: 10000
+- tapOn:
+    id: "sign-in-email"
+- inputText: bob@example.local
+- tapOn:
+    id: "sign-in-password"
+- inputText: wrongpass1
+- tapOn:
+    id: "sign-in-submit"
+- extendedWaitUntil:
+    visible: ".*パスワードが正しくありません.*"
+    timeout: 15000
+- takeScreenshot: sign-in-error-shown
+- tapOn:
+    id: "sign-in-password"
+- eraseText: 1
+- assertNotVisible: ".*パスワードが正しくありません.*"
+- takeScreenshot: sign-in-error-cleared

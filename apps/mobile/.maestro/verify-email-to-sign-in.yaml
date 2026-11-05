@@ -1,0 +1,81 @@
+# 確認メールの画面から「ログイン画面へ」: ゲストのマイページから新しいメールアドレスで
+# 登録し、確認メールの画面で「ログイン画面へ」を押すと、登録に使ったアドレスが入った
+# ログインが開く。登録のフォームごと置き換わっているので、ユーザー名を決めていない
+# ivan@ でログインしてユーザー名の設定から戻ると、登録の画面ではなくマイページに着く。
+# 手元の web（:3000）とその DB が動いていること。登録したアカウントは確認しないまま
+# 手元の DB に残る（流すたびにアドレスを変える）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 10000
+- tapOn:
+    id: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible:
+      id: "sign-up-submit"
+    timeout: 10000
+- evalScript: ${output.email = 'verify-' + Date.now() + '@example.local'}
+- tapOn:
+    id: "sign-up-email"
+- inputText: ${output.email}
+- tapOn:
+    id: "sign-up-password"
+- inputText: devpass1
+- tapOn:
+    id: "sign-up-confirm-password"
+- inputText: devpass1
+- hideKeyboard
+- tapOn:
+    id: "sign-up-submit"
+- extendedWaitUntil:
+    visible:
+      id: "verify-email-sign-in"
+    timeout: 15000
+- assertVisible: ${output.email}
+- tapOn:
+    id: "verify-email-sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-submit"
+    timeout: 10000
+# 登録に使ったアドレスが入っている
+- assertVisible:
+    id: "sign-in-email"
+    text: ${output.email}
+- takeScreenshot: verify-email-sign-in-prefilled
+# ログイン画面の下は登録ではなくマイページ（戻る 1 回で入口）
+- tapOn:
+    id: "sign-in-email"
+- eraseText: 60
+- inputText: ivan@example.local
+- tapOn:
+    id: "sign-in-password"
+- inputText: devpass1
+- tapOn:
+    id: "sign-in-submit"
+- tapOn:
+    text: "Not Now|今はしない"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "generate-username"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-username-cta"
+    timeout: 10000
+- assertNotVisible:
+    id: "sign-up-submit"
+- takeScreenshot: verify-email-back-to-mypage

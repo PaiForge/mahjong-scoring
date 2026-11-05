@@ -147,6 +147,7 @@ export default function SignUpScreen() {
           onChangeText={changeInput(setEmail)}
           placeholder={t("emailPlaceholder")}
           kind="email"
+          testID="sign-up-email"
         />
         <TextField
           label={t("passwordLabel")}
@@ -155,6 +156,7 @@ export default function SignUpScreen() {
           placeholder={t("passwordPlaceholder")}
           kind="newPassword"
           secure
+          testID="sign-up-password"
         />
         <TextField
           label={t("confirmPasswordLabel")}
@@ -164,6 +166,7 @@ export default function SignUpScreen() {
           kind="newPassword"
           secure
           onSubmitEditing={() => void submit()}
+          testID="sign-up-confirm-password"
         />
         {error !== undefined && <FormMessage tone="error">{error}</FormMessage>}
         <Button
@@ -171,6 +174,7 @@ export default function SignUpScreen() {
           disabled={submitting || !email || !password || !confirmPassword}
           fullWidth
           size="lg"
+          testID="sign-up-submit"
         >
           {submitting ? t("emailSignUpLoading") : t("emailSignUp")}
         </Button>
