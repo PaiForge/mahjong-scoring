@@ -1,11 +1,13 @@
 import {
   buildJourney,
-  countProgress,
   stepAfterLessonWithProgress,
   type BuildJourneyInput,
-  type JourneyStageProgress,
   type JourneyStep,
 } from "../journey/journey";
+import {
+  countProgress,
+  type JourneyStageProgress,
+} from "../journey/journey-progress";
 import { quizLessonBySlug, type QuizLessonSlug } from "./registry";
 import type { PracticeLink } from "../curriculum/registry";
 
