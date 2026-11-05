@@ -62,6 +62,7 @@ let tx: { delete: Mock };
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   deleteChain = createQueryChain([ROW]);
   tx = { delete: vi.fn(() => deleteChain) };
   setupAdminActor(tx);
@@ -98,5 +99,19 @@ describe("deleteAnnouncement", () => {
       metadata: { before: ROW },
     });
     expect(mockRevalidateAnnouncementPaths).toHaveBeenCalledWith("hello");
+  });
+
+  it("トランザクションが失敗したら errorDeleteFailed でログを残し、再検証しない", async () => {
+    mockTransaction.mockRejectedValue(new Error("connection lost"));
+
+    expect(await deleteAnnouncement("ann-1")).toEqual({
+      error: "errorDeleteFailed",
+    });
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining("[deleteAnnouncement]"),
+      "connection lost",
+    );
+    expect(mockRecordContentAction).not.toHaveBeenCalled();
+    expect(mockRevalidateAnnouncementPaths).not.toHaveBeenCalled();
   });
 });
