@@ -9,7 +9,7 @@ import type {
   MobileAnnouncementsResponse,
 } from "@mahjong-scoring/features/announcements/mobile-api";
 
-import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import {
   getPublishedAnnouncement,
   getPublishedAnnouncementCount,

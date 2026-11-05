@@ -7,7 +7,7 @@ import { toast } from "react-hot-toast";
 
 import { toJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
-import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import { AnnouncementStatus } from "@/lib/announcement-status";
 
 import { createAnnouncement } from "../_actions/create-announcement";

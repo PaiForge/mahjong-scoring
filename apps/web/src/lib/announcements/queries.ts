@@ -4,7 +4,10 @@ import { and, desc, eq, sql } from "drizzle-orm";
 
 import { type Announcement, announcements, db } from "@/lib/db";
 import { AnnouncementStatus } from "@/lib/announcement-status";
-import { DEFAULT_LOCALE, pickByLocale } from "@/i18n/locales";
+import {
+  DEFAULT_LOCALE,
+  pickByLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * 公開お知らせのページネーション取得（slug 重複排除）

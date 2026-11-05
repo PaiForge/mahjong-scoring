@@ -1,7 +1,7 @@
 import { parseHais, type HaiKindId } from "@mahjong-scoring/core";
 import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
-import type { SupportedLocale } from "@/i18n/locales";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { resolveAdHref } from "./amazon";
 import { resolveCreativeCopy, type CreativeCopy } from "./copy";

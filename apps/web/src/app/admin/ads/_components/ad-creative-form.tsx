@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
-import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import { isAdSlot, kindForSlot } from "@/lib/ads/registry";
 
 import { createAdCreative } from "../_actions/create-ad-creative";

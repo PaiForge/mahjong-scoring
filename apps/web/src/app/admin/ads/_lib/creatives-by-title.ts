@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 
-import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { adCreativeTranslations, db } from "@/lib/db";
 
 /**

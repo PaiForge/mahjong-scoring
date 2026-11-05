@@ -1,7 +1,7 @@
 import { getRequestConfig } from "next-intl/server";
 import { messages } from "@mahjong-scoring/messages/ja";
 
-import { DEFAULT_LOCALE } from "./locales";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * next-intl のリクエスト設定
