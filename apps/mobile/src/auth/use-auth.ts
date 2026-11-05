@@ -3,6 +3,7 @@ import type { MobileMeResponse } from "@mahjong-scoring/features/account/mobile-
 
 import { fetchAccount, type ApiFailure } from "./account-api";
 import { supabase } from "./supabase-client";
+import { dismissDeletionNotice } from "./use-deletion-notice";
 
 /**
  * ログインの状態
@@ -93,6 +94,9 @@ supabase?.auth.onAuthStateChange((event, session) => {
     return;
   }
   const changed = useAuthStore.getState().user?.id !== user.id;
+  // 退会の知らせは退会したアカウントのもの。別のアカウント（同じメールアドレスで
+  // 登録し直したものも含む）でログインしたら、その人に見せる知らせではない
+  if (changed) dismissDeletionNotice();
   useAuthStore.setState({
     status: "signedIn",
     user: {

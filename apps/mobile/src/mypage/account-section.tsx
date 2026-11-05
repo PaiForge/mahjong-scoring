@@ -24,13 +24,17 @@ import { BanNotice } from "./ban-notice";
  * 退会を受け付けた知らせ。工程が残っている（pending）ときは完了と言わない
  *
  * 退会の後はゲストに戻ってマイページへ戻るので、マイページの先頭に置く。
- * 知らせが無ければ何も出さない。
+ * 知らせが無ければ何も出さない。ログイン中も出さない — 知らせはゲストに
+ * 戻った人へのもので、ログイン中のマイページはその時のアカウントのもの。
+ * 知らせはログインした時点で捨てる（`use-auth.ts`）が、出すかどうかを
+ * 捨てる順序に頼らずここでも決める。
  */
 export function DeletionNoticePanel() {
   const t = useTranslations("deleteAccount");
   const tAccount = useTranslations("settings.account");
   const notice = useDeletionNotice();
-  if (notice === undefined) return null;
+  const { status } = useAuth();
+  if (notice === undefined || status === "signedIn") return null;
   return (
     <View style={[panelFrame, styles.notice]} accessibilityLiveRegion="polite">
       <Text style={styles.noticeText}>

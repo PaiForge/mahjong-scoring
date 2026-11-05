@@ -108,6 +108,7 @@ export default function DeleteAccountScreen() {
         disabled={deleting}
         fullWidth
         size="lg"
+        testID="account-delete-submit"
       >
         {deleting ? t("deleting") : t("confirmButton")}
       </Button>
@@ -118,6 +119,7 @@ export default function DeleteAccountScreen() {
         confirmText={t("confirmOk")}
         cancelText={t("confirmCancel")}
         confirmVariant="danger"
+        testID="account-delete-submit"
         onConfirm={() => void remove()}
         onClose={() => setConfirming(false)}
       />

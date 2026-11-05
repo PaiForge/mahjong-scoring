@@ -1,0 +1,75 @@
+# 確認メールの画面から「ログイン画面へ」: ゲストのマイページから新しいメールアドレスで
+# 登録へ進み、確認メールの画面で「ログイン画面へ」を押すと、登録に使ったアドレスが入った
+# ログインが開く。登録のフォームごと置き換わっているので、ユーザー名を決めていない
+# ivan@ でログインしてユーザー名の設定から戻ると、登録の画面ではなくマイページに着く。
+# 手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 10000
+- tapOn:
+    id: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible:
+      id: "sign-up-submit"
+    timeout: 10000
+# 登録のフォームの上に確認メールの画面を積む。送信（`router.push`）の代わりにリンクで開く —
+# 新しいパスワードの欄では iOS が「強力なパスワードを使用」のシートを出して打った文字を
+# 受け取らず、Maestro からはそのシートが見えないので、フォームを送れない（2026-11 に
+# iOS 27 のシミュレーターで確かめた）。画面の積み方は送ったときと同じ
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://sign-up/verify-email?email=verify-flow%40example.local"
+- extendedWaitUntil:
+    visible:
+      id: "verify-email-sign-in"
+    timeout: 15000
+- assertVisible: verify-flow@example.local
+- tapOn:
+    id: "verify-email-sign-in"
+- extendedWaitUntil:
+    visible:
+      id: "sign-in-submit"
+    timeout: 10000
+# 登録に使ったアドレスが入っている
+- assertVisible:
+    id: "sign-in-email"
+    text: verify-flow@example.local
+- takeScreenshot: verify-email-sign-in-prefilled
+# ログイン画面の下は登録ではなくマイページ（戻る 1 回で入口）
+- tapOn:
+    id: "sign-in-email"
+- eraseText: 60
+- inputText: ivan@example.local
+- tapOn:
+    id: "sign-in-password"
+- inputText: devpass1
+- tapOn:
+    id: "sign-in-submit"
+- tapOn:
+    text: "Not Now|今はしない"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "generate-username"
+    timeout: 15000
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-username-cta"
+    timeout: 10000
+- assertNotVisible:
+    id: "sign-up-submit"
+- takeScreenshot: verify-email-back-to-mypage
