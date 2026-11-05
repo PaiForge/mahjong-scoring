@@ -59,7 +59,7 @@ export function ResultBreakdownTable({
         onPress={() => onOpenYakuList(name)}
         accessibilityRole="link"
         accessibilityHint={tChallenge("openInYakuList")}
-        style={[styles.yakuLink, linkStyles.textButton]}
+        style={[styles.yakuLink, linkStyles.inline]}
       >
         {name}
       </Text>

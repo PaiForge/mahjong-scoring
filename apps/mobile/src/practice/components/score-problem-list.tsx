@@ -111,7 +111,7 @@ export function ScoreProblemList({
                         )
                       }
                       accessibilityRole="link"
-                      style={[styles.correctLink, linkStyles.textButton]}
+                      style={[styles.correctLink, linkStyles.scoreTableValue]}
                     >
                       {formatAnswer(result.correctAnswer, translate)}
                     </Text>

@@ -10,8 +10,10 @@ import { useMistakeReveal } from "./mistake-reveal";
  * 正解・不正解の割合の帯（web の `ResultScoreBar`）
  *
  * 凡例の「不正解: N」は、下の問題別一覧が間違えた問題を開く処理を登録して
- * いれば、押すとそこへ送る文字の操作になる（{@link useMistakeReveal}）。
- * 全問正解のときや一覧が出ないときは送る先が無いので文字のまま。
+ * いれば、押すとそこへ送るリンクになる（{@link useMistakeReveal}）。凡例の
+ * 「正解: N」と同じ大きさで並ぶので、本文中の語と同じく下線で押せることを
+ * 示す（`linkStyles.inline`）。全問正解のときや一覧が出ないときは送る先が
+ * 無いので文字のまま。
  */
 export function ResultScoreBar({
   correct,
@@ -83,7 +85,7 @@ export function ResultScoreBar({
                   <Text
                     style={[
                       styles.legendText,
-                      linkStyles.textButton,
+                      linkStyles.inline,
                       pressed && linkStyles.textButtonPressed,
                     ]}
                   >

@@ -87,7 +87,7 @@ export function ExamResultSummary(input: ExamOutcomeInput) {
               <Text
                 style={[
                   styles.legendText,
-                  linkStyles.textButton,
+                  linkStyles.inline,
                   pressed && linkStyles.textButtonPressed,
                 ]}
               >
