@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState, type ReactNode } from "react";
-import { StyleSheet, Text, View, type ViewInstance } from "react-native";
+import { useState, type ReactNode } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   YAKU_HAN_ENTRIES,
@@ -28,7 +28,7 @@ import { TehaiHand } from "../board/tehai-hand";
 import { AccordionCard } from "../components/accordion-card";
 import { Chip } from "../components/chip";
 import { FilterChips } from "../components/filter-chips";
-import { useScrollIntoView } from "../components/scroll-into-view";
+import { useFocusAnchor } from "../components/scroll-into-view";
 import { SectionTitle } from "../components/section-title";
 import { colors } from "../lib/theme";
 
@@ -85,14 +85,7 @@ export function YakuCheatsheet({
   const [nakiFilter, setNakiFilter] = useState<NakiFilter>(ALL_NAKI_KINDS);
 
   // 開いた役が置かれたら一度だけ中央へ寄せる
-  const scrollIntoView = useScrollIntoView();
-  const focusRef = useRef<ViewInstance>(null);
-  const hasScrolled = useRef(false);
-  const handleFocusLayout = useCallback(() => {
-    if (hasScrolled.current) return;
-    hasScrolled.current = true;
-    scrollIntoView(focusRef.current);
-  }, [scrollIntoView]);
+  const focusAnchor = useFocusAnchor();
 
   const nakiLabel = (entry: YakuHanEntry) => {
     // 門前限定は成立可否の制約なので印で強調し、食い下がりは翻数の補足
@@ -154,8 +147,8 @@ export function YakuCheatsheet({
                 return isFocused ? (
                   <View
                     key={entry.name}
-                    ref={focusRef}
-                    onLayout={handleFocusLayout}
+                    ref={focusAnchor.ref}
+                    onLayout={focusAnchor.onLayout}
                     collapsable={false}
                   >
                     {card}
