@@ -17,7 +17,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const WEB_SRC = resolve(HERE, "..");
 const FEATURES_SRC = resolve(HERE, "../../../../packages/features/src");
 const ADMIN_DIR = resolve(WEB_SRC, "app/admin");
-/** 管理画面が import してよい共有部品の置き場（CLAUDE.md の「共通UIコンポーネント」） */
+/** 管理画面が import してよい共有部品の置き場（`apps/web/src/app/CLAUDE.md` の「共通 UI コンポーネント」） */
 const SHARED_COMPONENTS_DIR = resolve(WEB_SRC, "app/_components");
 
 /** 走査対象のソース（テストは除く。テストは本物の辞書を丸ごと渡してよい） */

@@ -9,7 +9,9 @@ PR はワークフローの後続ステップが bot 名義で開くので、あ
 作業を始める前に、次の 3 つを必ず読んでください。規約はここに一元化されていて、
 このプロンプトには要約しか書いていません。
 
-- `CLAUDE.md`（リポジトリルート）— 構成・用語・UI コンポーネントの置き場・ルート構成
+- `CLAUDE.md`（リポジトリルート）— 構成・用語・ルート構成。場所ごとの規約は触るディレクトリの
+  `CLAUDE.md` にある（`apps/web/src/app/CLAUDE.md` = 共通 UI の置き場と画面の規約、`apps/web/CLAUDE.md` =
+  DB・認証、`packages/features/CLAUDE.md`・`packages/core/CLAUDE.md`）。触る場所のものを読む
 - https://raw.githubusercontent.com/PaiForge/docs/0b464878e4e24b6b8c154d90f96e1657e212ddaa/coding-standards.md — コーディング規約
 - https://raw.githubusercontent.com/PaiForge/extended-mpsz/72ee9ede74583d58587bc8c6ed36166bb808b5bd/SPEC.md — 牌の表記法（Extended MPSZ）
 
@@ -88,7 +90,7 @@ pnpm format:check
 - テストが存在するモジュールを変更する場合は、対応するテストも更新 / 追加する
 - 新しいファイルを作る前に、既存ファイルを拡張できないかを優先的に検討する
 - ドキュメントファイル（`*.md`）は明示的に要求された場合のみ作成する
-- `CLAUDE.md` にある共通 UI コンポーネント（`Button` / `LinkRow` / `HighlightPanel` 等）と
+- `apps/web/src/app/CLAUDE.md` にある共通 UI コンポーネント（`Button` / `LinkRow` / `HighlightPanel` 等）と
   クラス定数（`buttonClasses()` / `TEXT_LINK_CLASSES` 等）を使い、同じ見た目をページ側で
   書き起こさない
 - `"use client"` は hooks / イベントハンドラ / ブラウザ API が要るときだけ付ける
