@@ -9,17 +9,22 @@
  * 届かないときの案内は web と同じ: 打ち間違いなら登録からやり直す一文と、再送の
  * 後のクールダウン（`useResendCooldown`）。やり直しは登録のフォームへ戻す —
  * 登録から来たならスタックにあるそのフォーム（入力した値が残り、誤りだけ
- * 直せる）、ログインから来たなら新しく開く（`dismissTo` が無ければ置き換える）。
+ * 直せる）、ログインから来たならログインごと登録に置き換える。
+ * 「ログイン画面へ」も同じく、登録から来たなら登録ごとログインに置き換え、
+ * 登録に使ったメールアドレスを入れて開く。どちらも入口の上に流れの画面を
+ * 1 枚だけ残し、ログインやユーザー名の設定を終えて戻る 1 回で入口に帰す
+ * （`useSwitchAuthScreen`）。
  * @flow 登録 / ログイン（確認が済んでいない）→ メール確認待ち →（メールのリンク）→ ログイン
  */
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
 import { FormMessage } from "../../auth/form-message";
 import { supabase } from "../../auth/supabase-client";
+import { useSwitchAuthScreen } from "../../auth/use-switch-auth-screen";
 import { Button } from "../../components/button";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
@@ -29,7 +34,7 @@ import { colors } from "../../lib/theme";
 
 export default function VerifyEmailScreen() {
   const t = useTranslations("verifyEmail");
-  const router = useRouter();
+  const switchAuthScreen = useSwitchAuthScreen();
   const { email = "" } = useLocalSearchParams<{ email?: string }>();
   const [resending, setResending] = useState(false);
   const { cooldown, start: startCooldown } = useResendCooldown();
@@ -70,7 +75,14 @@ export default function VerifyEmailScreen() {
         </Text>
         <Text style={styles.body}>{t("returnToApp")}</Text>
       </View>
-      <Button onPress={() => router.dismissTo("/sign-in")} fullWidth size="lg">
+      <Button
+        onPress={() =>
+          switchAuthScreen("signIn", email === "" ? undefined : { email })
+        }
+        fullWidth
+        size="lg"
+        testID="verify-email-sign-in"
+      >
         {t("goToSignIn")}
       </Button>
       <View style={[panelFrame, styles.trouble]}>
@@ -80,7 +92,7 @@ export default function VerifyEmailScreen() {
         <Text style={styles.body} testID="sign-up-sent-typo">
           {t.rich("troubleTypo", {
             signUp: (chunks) => (
-              <InlineTextLink onPress={() => router.dismissTo("/sign-up")}>
+              <InlineTextLink onPress={() => switchAuthScreen("signUp")}>
                 {chunks}
               </InlineTextLink>
             ),
