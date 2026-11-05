@@ -37,6 +37,7 @@ import {
   updateAccountRecords,
   useAccountRecordsStore,
 } from "./use-account-records-store";
+import { waitForHydration } from "./wait-for-hydration";
 import { withRetries } from "./with-retries";
 
 /**
@@ -137,14 +138,7 @@ async function syncOnce(userId: string): Promise<void> {
 
 /** ゲストのレッスン完了を保存先から読み終えるまで待つ */
 function guestLessonsHydrated(): Promise<void> {
-  const { persist: store } = useLessonCompletionStore;
-  if (store.hasHydrated()) return Promise.resolve();
-  return new Promise((resolve) => {
-    const unsubscribe = store.onFinishHydration(() => {
-      unsubscribe();
-      resolve();
-    });
-  });
+  return waitForHydration(useLessonCompletionStore);
 }
 
 function recordsFor(userId: string) {

@@ -7,7 +7,7 @@ import { highScoreCellId } from "@mahjong-scoring/features/score-table/score-gri
 import { DataTable, type DataTableColumn } from "../components/data-table";
 import { tableHighlight } from "../lib/table-highlight";
 import { colors } from "../lib/theme";
-import type { FocusAnchor } from "./focus-anchor";
+import type { FocusAnchor } from "../components/scroll-into-view";
 import { HideableScore } from "./hideable-score";
 import { TsumoScore } from "./tsumo-score";
 

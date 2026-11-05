@@ -85,11 +85,13 @@ async function reserveAndActivate(
   | { readonly error: CheckoutError; readonly url?: undefined }
 > {
   const reserved = await db.transaction(async (tx) => {
-    const customer = await lockBillingCustomer(tx, customerId);
-    if (!customer) throw new Error("Billing customer no longer exists");
-    const now = new Date();
-    if (await hasUnexpiredPurchase(tx, userId, now))
-      return { error: "alreadyActive" } as const;
+    const gate = await lockCustomerWithoutActivePurchase(
+      tx,
+      customerId,
+      userId,
+    );
+    if ("error" in gate) return gate;
+    const { customer, now } = gate;
     const [pending] = await tx
       .select()
       .from(billingCheckouts)
@@ -123,11 +125,13 @@ async function reserveAndActivate(
   if ("error" in reserved) return reserved;
 
   const result = await db.transaction(async (tx) => {
-    const customer = await lockBillingCustomer(tx, customerId);
-    if (!customer) throw new Error("Billing customer no longer exists");
-    const now = new Date();
-    if (await hasUnexpiredPurchase(tx, userId, now))
-      return { error: "alreadyActive" } as const;
+    const gate = await lockCustomerWithoutActivePurchase(
+      tx,
+      customerId,
+      userId,
+    );
+    if ("error" in gate) return gate;
+    const { now } = gate;
     const [attempt] = await tx
       .select()
       .from(billingCheckouts)
@@ -178,6 +182,34 @@ async function reserveAndActivate(
   }
   if ("url" in result && result.url) return { url: result.url };
   return { error: result.error ?? "checkoutPending" };
+}
+
+/**
+ * 顧客の行をロックし、有効な購入が無いことを確かめる（予約と発行の両方の入口）
+ *
+ * ロックは同じ顧客の同時の Checkout を直列にするため。有効な購入があれば
+ * ロックしたまま `alreadyActive` で抜ける（トランザクションの終了で解放される）。
+ * 顧客の行が無いのは呼び出し側が作った直後に消えたときだけなので例外にする。
+ */
+async function lockCustomerWithoutActivePurchase(
+  tx: TransactionClient,
+  customerId: string,
+  userId: string,
+): Promise<
+  | {
+      readonly customer: NonNullable<
+        Awaited<ReturnType<typeof lockBillingCustomer>>
+      >;
+      readonly now: Date;
+    }
+  | { readonly error: "alreadyActive" }
+> {
+  const customer = await lockBillingCustomer(tx, customerId);
+  if (!customer) throw new Error("Billing customer no longer exists");
+  const now = new Date();
+  if (await hasUnexpiredPurchase(tx, userId, now))
+    return { error: "alreadyActive" } as const;
+  return { customer, now };
 }
 
 async function settle(tx: TransactionClient, id: string): Promise<void> {

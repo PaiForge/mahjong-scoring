@@ -5,6 +5,7 @@ import type { BuildJourneyInput, PracticeAttempt } from "../journey/journey";
 import { isPracticeMenuSlug } from "../practice-menu-types";
 import { isRankSlug, type RankSlug } from "../ranks/registry";
 import { RECORD_STATUSES, type RecordView } from "./record-view";
+import { challengeSettingsSchema } from "./settings-schema";
 import type { ChallengeQuestion, ChallengeSettings } from "./types";
 
 /**
@@ -290,7 +291,7 @@ export function parseMobileAnswerResponse(
 const statusSchema = entrySchema.extend({
   menuType: z.string(),
   variant: z.string(),
-  settings: z.object({ renfonpaiAs4Fu: z.boolean() }),
+  settings: challengeSettingsSchema,
   score: z.number(),
   incorrectAnswers: z.number(),
   elapsedMs: z.number(),

@@ -1,6 +1,6 @@
 import { asc, eq } from "drizzle-orm";
 
-import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { AMAZON_NETWORK } from "@/lib/ads/amazon";
 import type { CreativeCopy } from "@/lib/ads/copy";
 import { loadCreativeCopy } from "@/lib/ads/load-copy";

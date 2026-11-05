@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { allowsDoubleYakuman, getScoreLevelName } from "@mahjong-scoring/core";
-import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
+import { getScoreLevelName } from "@mahjong-scoring/core";
+import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { formatHan } from "@mahjong-scoring/features/practice/score/format-answer";
 import { formatScoreAnswer } from "@mahjong-scoring/features/results/format-score-answer";
@@ -52,7 +52,7 @@ export function ResultDisplay({
   const tScoreTable = useTranslations("scoreTable");
   const { answer } = question;
   // ダブル役満採用時は 26 翻を役満へ丸めず「ダブル役満」と表示する
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
   // 点数表モーダル。値（点数・内訳の翻数と符）を押したときだけ正解のセルを
   // ハイライトする（表への補助リンクからは素の表を開く）。
   const scoreTable = useScoreTableModal();

@@ -7,8 +7,10 @@ import {
   type HaiKindId,
 } from "@pai-forge/riichi-mahjong";
 import {
+  HIGH_SCORES,
   calculateKoScore,
   calculateOyaScore,
+  getTsumoTotal,
   isInvalidCell,
   calculateStandaloneMentsuFu,
   isOpenMentsuAt,
@@ -179,6 +181,20 @@ describe("calculateOyaScore", () => {
       ron: 2400,
       tsumo: { type: "oyaTsumo", all: 800 },
     });
+  });
+});
+
+describe("getTsumoTotal", () => {
+  it("子ツモは子 2 人分と親の支払いの合計で、ロンと等しい", () => {
+    for (const row of HIGH_SCORES) {
+      expect(getTsumoTotal(row.tsumoKo)).toBe(row.ronKo);
+    }
+  });
+
+  it("親ツモは子全員が払うオールの 3 人分で、ロンと等しい", () => {
+    for (const row of HIGH_SCORES) {
+      expect(getTsumoTotal(row.tsumoOya)).toBe(row.ronOya);
+    }
   });
 });
 

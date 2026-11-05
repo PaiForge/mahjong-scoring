@@ -1,13 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { allowsDoubleYakuman } from "@mahjong-scoring/core";
 import {
   formatHan,
   formatPayment,
 } from "@mahjong-scoring/features/practice/score/format-answer";
 
-import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "../../../hooks/use-rule-settings-store";
 import { colors } from "../../../lib/theme";
 import {
   CorrectValue,
@@ -37,7 +36,7 @@ export function NoYakuResultDisplay({
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
 
   // 点数で答えた（= 役なしのマスに対する誤答）ときだけ翻・符・点数の行に値が入る
   const scoreAnswer =

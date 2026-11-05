@@ -4,7 +4,6 @@ import { and, inArray, isNotNull } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { isAdPlatform, slotsForPlatform } from "@/lib/ads/registry";
-import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -50,7 +49,6 @@ export async function setAdCreativeHrefByTitle(
   }
   const trimmed = href.trim();
   if (!isValidAdHref(trimmed)) return { error: "errorHrefInvalid" };
-  const ipAddress = await getClientIp();
 
   const condition = and(
     inArray(adCreatives.id, creativeIdsWithTitle(title)),
@@ -74,7 +72,7 @@ export async function setAdCreativeHrefByTitle(
       actorId: admin.actorId,
       action: ContentActionKind.SetAdCreativeHrefByTitle,
       target: { type: ContentActionTargetType.AdTitle, key: title },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: { platform, before, after: trimmed },
     });
     return rows.length;

@@ -3,7 +3,6 @@
 import { eq, sql } from "drizzle-orm";
 
 import type { ActionResult } from "../../../../lib/action-types";
-import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
 import { logExternalError } from "../../../../lib/log-error";
 import { createAdminClient } from "../../../../lib/supabase/admin";
@@ -34,10 +33,9 @@ export async function unbanUser(
   if ("error" in admin) {
     return admin;
   }
-  const { actorId } = admin;
+  const { actorId, ipAddress } = admin;
 
   const adminClient = createAdminClient();
-  const ipAddress = await getClientIp();
 
   // 元の bannedAt を保存（ロールバック用）
   const [profile] = await db

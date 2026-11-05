@@ -3,7 +3,6 @@
 import { eq } from "drizzle-orm";
 
 import type { ActionResult } from "../../../../lib/action-types";
-import { getClientIp } from "../../../../lib/client-ip";
 import { db, profiles } from "../../../../lib/db";
 import { logExternalError } from "../../../../lib/log-error";
 import { createAdminClient } from "../../../../lib/supabase/admin";
@@ -41,7 +40,7 @@ export async function banUser(
   if ("error" in admin) {
     return admin;
   }
-  const { actorId } = admin;
+  const { actorId, ipAddress } = admin;
 
   // 自分自身の BAN を禁止
   if (actorId === targetUserId) {
@@ -54,7 +53,6 @@ export async function banUser(
   }
 
   const adminClient = createAdminClient();
-  const ipAddress = await getClientIp();
 
   // Phase 1: Supabase Auth で BAN
   const { error: authError } = await adminClient.auth.admin.updateUserById(

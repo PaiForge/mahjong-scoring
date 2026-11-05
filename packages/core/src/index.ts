@@ -164,6 +164,7 @@ export {
   calculateOyaScore,
   calculateTierScore,
   calculateStandaloneMentsuFu,
+  getTsumoTotal,
   isInvalidCell,
   HIGH_SCORES,
 } from "./core/score-calculation";

@@ -14,6 +14,7 @@ import type {
   MobilePauseChallengeRequest,
   MobileUnansweredResponse,
 } from "@mahjong-scoring/features/challenge/mobile-api";
+import { challengeSettingsSchema } from "@mahjong-scoring/features/challenge/settings-schema";
 import {
   isExamMenuType,
   isPracticeMenuType,
@@ -54,7 +55,7 @@ const beginSchema: z.ZodType<MobileBeginChallengeRequest> = z.object({
   id: z.string().uuid(),
   menuType: z.string(),
   variant: z.string(),
-  settings: z.object({ renfonpaiAs4Fu: z.boolean() }),
+  settings: challengeSettingsSchema,
 });
 const answerSchema: z.ZodType<MobileAnswerChallengeRequest> = z.object({
   sequence: z.number().int().nonnegative(),

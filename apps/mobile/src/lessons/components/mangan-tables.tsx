@@ -1,7 +1,7 @@
 import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-labels";
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
-import { HIGH_SCORES, type Role } from "@mahjong-scoring/core";
+import { HIGH_SCORES, getTsumoTotal, type Role } from "@mahjong-scoring/core";
 import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
 
 import { DataTable, type DataTableColumn } from "../../components/data-table";
@@ -137,7 +137,7 @@ export function ManganKoTsumoScoreTable() {
         return [
           formatLessonPoints(fromKo),
           formatLessonPoints(fromOya),
-          formatLessonPoints(fromKo * 2 + fromOya),
+          formatLessonPoints(getTsumoTotal(row.tsumoKo)),
         ];
       }}
     />
@@ -160,7 +160,10 @@ export function ManganOyaTsumoScoreTable() {
       showHan={false}
       renderCells={(row) => {
         const each = row.tsumoOya.all;
-        return [formatLessonPoints(each), formatLessonPoints(each * 3)];
+        return [
+          formatLessonPoints(each),
+          formatLessonPoints(getTsumoTotal(row.tsumoOya)),
+        ];
       }}
     />
   );

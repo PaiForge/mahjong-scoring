@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import { AnnouncementStatus } from "@/lib/announcement-status";
 import { ANNOUNCEMENT_LIMITS } from "../_lib/validation";
 import { ADMIN_INPUT_CLASSES } from "../../_lib/input-classes";

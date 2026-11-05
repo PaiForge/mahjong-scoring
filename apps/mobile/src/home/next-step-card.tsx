@@ -12,10 +12,12 @@ import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { BeltButton } from "../dojo/belt-button";
 import { beltCardFrame } from "../dojo/belt-style";
-import { practiceListHrefForRank } from "../dojo/dojo-routes";
 import { RankHeading } from "../dojo/rank-heading";
 import { RankStageProgress } from "../dojo/rank-stage-progress";
-import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
+import {
+  PRACTICE_PATH,
+  practiceListHrefForRank,
+} from "@mahjong-scoring/features/routes";
 
 /**
  * ホームの「次にやること」（web の `NextStepSection`）

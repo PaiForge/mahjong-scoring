@@ -1,14 +1,14 @@
 import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { allowsDoubleYakuman, isOya } from "@mahjong-scoring/core";
+import { isOya } from "@mahjong-scoring/core";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { BoardBleedProvider } from "../../../board/board-bleed";
 import { Screen } from "../../../components/screen";
-import { useYakumanRules } from "../../../hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "../../../hooks/use-rule-settings-store";
 import { useTenpaiScoreSettingsStore } from "../../../hooks/use-score-settings-store";
 import { ScoreCounter } from "../../components/score-counter";
 import { AnswerTimeBadge } from "../../quota/answer-time-badge";
@@ -52,7 +52,7 @@ function TenpaiScoreBoardInner() {
   const tScore = useTranslations("agariScore");
   const [settings] = useState(() => useTenpaiScoreSettingsStore.getState());
   const modeFlags = readModeFlags(settings);
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
   const {
     currentQuestion,
     phase,

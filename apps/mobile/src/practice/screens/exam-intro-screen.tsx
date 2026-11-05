@@ -8,7 +8,10 @@ import {
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
-import { practiceTrainingHref } from "@mahjong-scoring/features/routes";
+import {
+  practiceListHrefForRank,
+  practiceTrainingHref,
+} from "@mahjong-scoring/features/routes";
 
 import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
@@ -16,7 +19,6 @@ import { Button, buttonForeground } from "../../components/button";
 import { InfinityIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { practiceListHrefForRank } from "../../dojo/dojo-routes";
 import { colors } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
 import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";

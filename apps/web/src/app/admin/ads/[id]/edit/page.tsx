@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { SUPPORTED_LOCALES } from "@/i18n/locales";
+import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import type { StoredCopy } from "@/lib/ads/copy";
 
 import { AdCreativeForm } from "../../_components/ad-creative-form";

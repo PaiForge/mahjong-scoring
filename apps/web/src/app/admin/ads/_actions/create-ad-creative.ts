@@ -5,7 +5,6 @@ import { eq, max } from "drizzle-orm";
 import type { ActionResult } from "@/lib/action-types";
 import { copyToTranslationRows } from "@/lib/ads/copy";
 import { isAdSlot } from "@/lib/ads/registry";
-import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, adCreativeTranslations, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -46,7 +45,6 @@ export async function createAdCreative(
   const { value } = validated;
   if (!isAdSlot(value.slot)) return { error: "errorSlotInvalid" };
   const slot = value.slot;
-  const ipAddress = await getClientIp();
 
   const id = await db.transaction(async (tx) => {
     const [last] = await tx
@@ -68,7 +66,7 @@ export async function createAdCreative(
       actorId: admin.actorId,
       action: ContentActionKind.CreateAdCreative,
       target: { type: ContentActionTargetType.AdCreative, key: inserted.id },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: { after: { ...row, copy: value.copy } },
     });
     return inserted.id;

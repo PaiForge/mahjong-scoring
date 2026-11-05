@@ -1,29 +1,7 @@
 import { describe, it, expect } from "vitest";
-import {
-  HaiKind,
-  MentsuType,
-  sortTehai,
-  validateTehai14,
-} from "@pai-forge/riichi-mahjong";
-import type {
-  CompletedMentsu,
-  HaiKindId,
-  Tehai14,
-} from "@pai-forge/riichi-mahjong";
+import { HaiKind, MentsuType, type Tehai14 } from "@pai-forge/riichi-mahjong";
+import { tehaiOf } from "../../test-utils/tehai";
 import { generateDoraMarkers } from "./dora-utils";
-
-/** 検証済みの手牌を組む（固定値なので失敗しない）。出題と同じく理牌する */
-function tehaiOf(input: {
-  readonly closed: readonly HaiKindId[];
-  readonly exposed: readonly CompletedMentsu[];
-}): Tehai14 {
-  const result = validateTehai14({
-    closed: [...input.closed],
-    exposed: [...input.exposed],
-  });
-  if (result.isErr()) throw new Error("テスト用の手牌が不正");
-  return sortTehai(result.value);
-}
 
 /** 123m 456m 789m 234s 55s（槓子なし） */
 const NO_KANTSU = tehaiOf({

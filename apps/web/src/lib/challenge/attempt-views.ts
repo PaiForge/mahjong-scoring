@@ -10,6 +10,7 @@ import type {
   ChallengeSettings,
   ChallengeState,
 } from "@mahjong-scoring/features/challenge/types";
+import { challengeSettingsSchema } from "@mahjong-scoring/features/challenge/settings-schema";
 import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import { publicChallengeQuestion } from "./questions";
 import { challengeElapsed, challengeRemainingMs } from "./transitions";
@@ -28,7 +29,6 @@ import { challengeElapsed, challengeRemainingMs } from "./transitions";
  */
 
 const uuid = z.string().uuid();
-const settingsSchema = z.object({ renfonpaiAs4Fu: z.boolean() });
 
 /** 挑戦 ID として読める値か（UUID の文字列） */
 export function isAttemptId(id: unknown): id is string {
@@ -57,7 +57,7 @@ export function parseBeginRequest(
     !isPracticeVariant(menuType, variant)
   )
     return undefined;
-  const parsed = settingsSchema.safeParse(settings);
+  const parsed = challengeSettingsSchema.safeParse(settings);
   if (!parsed.success) return undefined;
   const base = { menuType, variant, settings: parsed.data };
   if (requestedId === undefined) return { ...base, id: undefined };

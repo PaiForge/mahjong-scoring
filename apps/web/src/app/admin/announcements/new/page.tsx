@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { isSupportedLocale } from "@/i18n/locales";
+import { isSupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { AnnouncementForm } from "../_components/announcement-form";
 

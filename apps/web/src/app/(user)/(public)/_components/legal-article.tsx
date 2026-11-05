@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SectionTitle } from "@/app/(user)/_components/section-title";
-import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { JST_TIME_ZONE } from "@mahjong-scoring/features/jst";
 
 /**

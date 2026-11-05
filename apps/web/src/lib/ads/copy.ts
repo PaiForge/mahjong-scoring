@@ -3,7 +3,7 @@ import {
   isSupportedLocale,
   SUPPORTED_LOCALES,
   type SupportedLocale,
-} from "@/i18n/locales";
+} from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * 広告の文言（タイトル・説明）。ロケールごとに 1 行ずつ

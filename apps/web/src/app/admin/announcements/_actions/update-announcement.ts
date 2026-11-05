@@ -4,7 +4,6 @@ import { eq } from "drizzle-orm";
 
 import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { announcements, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -54,7 +53,6 @@ export async function updateAnnouncement(
 
   // 行の各時刻（ピン留め・更新）を1つの「今」から揃える
   const now = new Date();
-  const ipAddress = await getClientIp();
 
   let found: boolean;
   try {
@@ -82,7 +80,7 @@ export async function updateAnnouncement(
         actorId: admin.actorId,
         action: ContentActionKind.UpdateAnnouncement,
         target: { type: ContentActionTargetType.Announcement, key: id },
-        ipAddress,
+        ipAddress: admin.ipAddress,
         metadata: { before, after },
       });
       return true;

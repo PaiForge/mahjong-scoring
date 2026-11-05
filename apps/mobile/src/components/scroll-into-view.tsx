@@ -152,4 +152,35 @@ export function useScrollIntoView(): ScrollIntoView {
   return useContext(ScrollIntoViewContext) ?? noop;
 }
 
+/**
+ * 「ここを見せて」の目印（点数早見表の正解のセル・役一覧で開いた役）
+ * 注目アンカー
+ *
+ * 見せたい要素をこの ref と onLayout を持つ View で包む。置かれたことを
+ * {@link useFocusAnchor} が受け取り、スクロール枠の中央へ寄せる。
+ */
+export interface FocusAnchor {
+  readonly ref: RefObject<ViewInstance | null>;
+  readonly onLayout: () => void;
+}
+
+/**
+ * 注目する要素が置かれたら一度だけ枠の中央へ寄せる
+ * 一度だけ中央寄せ
+ *
+ * 寄せるのは最初に置かれたときだけ。タブを行き来して同じ要素が置き直されても
+ * 動かさない — 読んでいる位置を奪わないため。
+ */
+export function useFocusAnchor(): FocusAnchor {
+  const scrollIntoView = useScrollIntoView();
+  const ref = useRef<ViewInstance>(null);
+  const hasScrolled = useRef(false);
+  const onLayout = useCallback(() => {
+    if (hasScrolled.current) return;
+    hasScrolled.current = true;
+    scrollIntoView(ref.current);
+  }, [scrollIntoView]);
+  return { ref, onLayout };
+}
+
 function noop() {}

@@ -21,10 +21,10 @@ import {
   isSamePracticeFilter,
   matchesPracticeFilter,
   PRACTICE_CATEGORY_PARAM,
-  PRACTICE_RANK_PARAM,
   practiceListHref,
   type PracticeListFilter,
 } from "../_lib/practice-web-routes";
+import { RANK_PARAM } from "@mahjong-scoring/features/routes";
 
 /** 絞り込みの選択肢 1 つ。`filter` を持たないものが「すべて」 */
 interface PracticeFilterOption {
@@ -172,7 +172,7 @@ function FilteredList({
 
 function FilterFromQuery(props: PracticeFilterProps) {
   const searchParams = useSearchParams();
-  const rank = searchParams.get(PRACTICE_RANK_PARAM);
+  const rank = searchParams.get(RANK_PARAM);
   const category = searchParams.get(PRACTICE_CATEGORY_PARAM);
 
   // 知らない値が URL に入っていたら絞り込み無しとして扱う（404 にはしない —

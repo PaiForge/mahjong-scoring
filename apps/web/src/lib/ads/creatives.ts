@@ -3,7 +3,10 @@ import { unstable_cache } from "next/cache";
 
 import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 
-import { DEFAULT_LOCALE, type SupportedLocale } from "@/i18n/locales";
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 import { AD_CREATIVES_CACHE_TAG } from "@/lib/cache-tags";
 import { adCreatives, adNetworkSettings, db } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";

@@ -19,9 +19,10 @@ import {
  * 直せば両方が追随する。
  *
  * @design 置くのは両方にある遷移先だけ
- * 練習一覧の絞り込みクエリや説明ページ内のアンカーのように、web の
+ * 練習一覧の分野の絞り込みクエリや説明ページ内のアンカーのように、web の
  * 画面構成に結び付いたパスは web 側に置く。ここに置くのは、どちらの
- * プラットフォームでも同じ画面を指すパスだけ。
+ * プラットフォームでも同じ画面を指すパスだけ。級で絞った一覧
+ * （`?rank=<級>`）は道場・ホーム・試験から両方で開くのでここに置く。
  *
  * @design バリアントの URL パラメータ
  * バリアントを持つ練習（レジストリの `variants`）は、説明ページで選んだ
@@ -90,6 +91,40 @@ export const PRACTICE_PATH = "/practice";
 
 /** レッスン一覧（教本の目次）のパス */
 export const LESSONS_PATH = "/lessons";
+
+/**
+ * 練習一覧・レッスンの目次を級で絞るクエリパラメータ名
+ * 級絞り込みパラメータ
+ *
+ * 値は級の slug。練習一覧（web は `PracticeFilter`、モバイルは練習タブ）と
+ * レッスンの目次（web は `lessons/(index)/page.tsx`、モバイルはレッスンタブ）が
+ * 同じ名前・同じ値で読む。web の練習一覧はサーバーでは読まない
+ * （`searchParams` を読むとルートが動的になり、初回表示が `loading.tsx` の
+ * スケルトンを経由する）。
+ */
+export const RANK_PARAM = "rank";
+
+/**
+ * その級で絞った練習一覧のパス
+ * 級別練習一覧パス
+ *
+ * 道場の行程・ホームの「次にやること」・昇級試験の説明の「この級の練習」が開く。
+ * web の分野の絞り込みを含む形は `practiceListHref`（web 固有）。
+ */
+export function practiceListHrefForRank(slug: RankSlug): string {
+  return `${PRACTICE_PATH}?${RANK_PARAM}=${slug}`;
+}
+
+/**
+ * レッスンの目次のパス。級を渡すとその級の前提レッスンだけに絞った目次を開く
+ * レッスン目次パス
+ *
+ * @param rank 絞る級。省略すると全レッスン
+ */
+export function lessonsListHref(rank?: RankSlug): string {
+  if (rank === undefined) return LESSONS_PATH;
+  return `${LESSONS_PATH}?${RANK_PARAM}=${rank}`;
+}
 
 /** お知らせ一覧のパス */
 export const ANNOUNCEMENTS_PATH = "/announcements";

@@ -2,8 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { UserAnswer } from "@mahjong-scoring/core";
-import { allowsDoubleYakuman } from "@mahjong-scoring/core";
-import { useYakumanRules } from "@/app/_hooks/use-rule-settings-store";
+import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import { JudgementMark } from "../../_components/judgement-mark";
 import {
   formatHan,
@@ -64,7 +63,7 @@ export function NoYakuResultDisplay({
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
-  const allowDoubleYakuman = allowsDoubleYakuman(useYakumanRules());
+  const allowDoubleYakuman = useAllowDoubleYakuman();
 
   // 点数で答えた（= 役なしのマスに対する誤答）ときだけ翻・符・点数の行に値が入る
   const scoreAnswer =

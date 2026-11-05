@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import { EMPTY_ACCOUNT_RECORDS, type AccountRecords } from "./account-records";
+import { waitForHydration } from "./wait-for-hydration";
 
 interface AccountRecordsStore extends AccountRecords {
   /** 預かりを書き換える（`account-records.ts` の遷移を渡す） */
@@ -50,12 +51,5 @@ export function updateAccountRecords(
 
 /** 預かりを保存先から読み終えるまで待つ */
 export function accountRecordsHydrated(): Promise<void> {
-  const { persist: store } = useAccountRecordsStore;
-  if (store.hasHydrated()) return Promise.resolve();
-  return new Promise((resolve) => {
-    const unsubscribe = store.onFinishHydration(() => {
-      unsubscribe();
-      resolve();
-    });
-  });
+  return waitForHydration(useAccountRecordsStore);
 }

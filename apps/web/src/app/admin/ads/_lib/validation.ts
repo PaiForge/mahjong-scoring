@@ -1,6 +1,9 @@
 import { parseTehai } from "@mahjong-scoring/core";
 
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+} from "@mahjong-scoring/features/i18n/locales";
 import { extractAsin } from "@/lib/ads/amazon";
 import type { StoredCopy } from "@/lib/ads/copy";
 import { isAdSlot, kindForSlot, type AdSlot } from "@/lib/ads/registry";

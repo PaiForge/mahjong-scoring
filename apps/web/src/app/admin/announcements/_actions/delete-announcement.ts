@@ -5,7 +5,6 @@ import { eq } from "drizzle-orm";
 import { revalidateAnnouncementPaths } from "../_lib/announcement-row";
 
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { announcements, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -32,7 +31,6 @@ export async function deleteAnnouncement(
   if ("error" in admin) {
     return admin;
   }
-  const ipAddress = await getClientIp();
 
   const deleted = await db.transaction(async (tx) => {
     const [row] = await tx
@@ -44,7 +42,7 @@ export async function deleteAnnouncement(
       actorId: admin.actorId,
       action: ContentActionKind.DeleteAnnouncement,
       target: { type: ContentActionTargetType.Announcement, key: id },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: { before: row },
     });
     return row;

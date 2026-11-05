@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import {
   DEFAULT_RULE_SETTINGS,
+  allowsDoubleYakuman,
   toYakumanRuleConfig,
   type RuleSettings,
   type YakumanRuleConfig,
@@ -108,5 +109,18 @@ export function createRuleSettingsStore({ storage }: SettingsStoreOptions) {
     );
   }
 
-  return { useRuleSettingsStore, useYakumanRules };
+  /**
+   * ダブル役満（26 翻以上の正解）を採用した設定か
+   * ダブル役満採用フック
+   *
+   * 翻数・点数の選択肢にダブル役満を足すか、26 翻を役満へ丸めずに判定するかは
+   * これを通す（core の `allowsDoubleYakuman` を {@link useYakumanRules} に
+   * かけたもの）。記録が残るチャレンジはトレーニングのときだけこれを見る
+   * （`score-challenge-answer-form`）。
+   */
+  function useAllowDoubleYakuman(): boolean {
+    return allowsDoubleYakuman(useYakumanRules());
+  }
+
+  return { useRuleSettingsStore, useYakumanRules, useAllowDoubleYakuman };
 }

@@ -56,6 +56,20 @@ export interface OyaTsumoPayment {
 export type TsumoPayment = KoTsumoPayment | OyaTsumoPayment;
 
 /**
+ * ツモ和了で和了者が受け取る総点数
+ * ツモ受け取り総額
+ *
+ * 子ツモは「子・子・親」で分担し（子 2 人分 + 親）、親ツモは子全員が同額を
+ * 払う（3 人分）。合計はロンの支払いと等しく、早見表の「合計」列はこれで
+ * 「3 人で分け合っているだけ」を示す。分担の規則を表示側で書かない。
+ */
+export function getTsumoTotal(payment: TsumoPayment): number {
+  return payment.type === "koTsumo"
+    ? payment.fromKo * 2 + payment.fromOya
+    : payment.all * 3;
+}
+
+/**
  * 基本符（ベースポイント）を計算する
  * 基本符計算
  *

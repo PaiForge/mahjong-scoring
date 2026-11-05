@@ -1,7 +1,6 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { db, type BenefitGrant } from "@/lib/db";
 import { revokeBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
@@ -41,14 +40,12 @@ export async function revokeBenefitGrantAction(
   if ("error" in admin) {
     return admin;
   }
-  const { actorId } = admin;
+  const { actorId, ipAddress } = admin;
 
   const trimmedReason = normalizeModerationReason(reason);
   if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
-
-  const ipAddress = await getClientIp();
 
   let revoked: BenefitGrant | undefined;
   try {

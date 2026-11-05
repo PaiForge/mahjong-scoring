@@ -1,6 +1,6 @@
 import { parseJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
-import { isSupportedLocale } from "@/i18n/locales";
+import { isSupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import {
   AnnouncementStatus,
   isAnnouncementStatus,

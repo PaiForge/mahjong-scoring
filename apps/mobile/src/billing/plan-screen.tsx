@@ -7,6 +7,7 @@ import type {
   MobilePlanResponse,
   MobilePlanStatus,
 } from "@mahjong-scoring/features/billing/mobile-api";
+import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 
 import { Button } from "../components/button";
 import { DataTable } from "../components/data-table";
@@ -411,9 +412,9 @@ function History({
           ])}
         />
       )}
-      {purchases.some((purchase) => purchase.provider === "apple") && (
-        <Text style={styles.hint}>{tWeb("receiptHintApple")}</Text>
-      )}
+      {purchases.some(
+        (purchase) => purchase.provider === PurchaseProvider.Apple,
+      ) && <Text style={styles.hint}>{tWeb("receiptHintApple")}</Text>}
     </View>
   );
 }

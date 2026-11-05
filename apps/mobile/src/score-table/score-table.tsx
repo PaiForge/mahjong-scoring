@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef, type ReactNode } from "react";
-import { StyleSheet, Text, View, type ViewInstance } from "react-native";
+import { useMemo, type ReactNode } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { type Role, type WinType } from "@mahjong-scoring/core";
 
@@ -8,7 +8,7 @@ import { buildScoreGrid } from "@mahjong-scoring/features/score-table/score-grid
 import { useScoreTableOptions } from "@mahjong-scoring/features/score-table/use-score-table-options";
 import { useScoreTableSelection } from "@mahjong-scoring/features/score-table/use-score-table-selection";
 
-import { useScrollIntoView } from "../components/scroll-into-view";
+import { useFocusAnchor } from "../components/scroll-into-view";
 import { ToggleGroup } from "../components/toggle-group";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
@@ -88,17 +88,8 @@ export function ScoreTable({
     useScoreTableOptions();
   const kiriageMangan = useRuleSettingsStore((s) => s.kiriageMangan);
 
-  // 注目セルが置かれたら一度だけ中央へ寄せる（タブを行き来して戻っても
-  // 動かさない — 読んでいる位置を奪わないため）
-  const scrollIntoView = useScrollIntoView();
-  const focusRef = useRef<ViewInstance>(null);
-  const hasScrolled = useRef(false);
-  const handleFocusLayout = useCallback(() => {
-    if (hasScrolled.current) return;
-    hasScrolled.current = true;
-    scrollIntoView(focusRef.current);
-  }, [scrollIntoView]);
-  const focusAnchor = { ref: focusRef, onLayout: handleFocusLayout };
+  // 注目セルが置かれたら一度だけ中央へ寄せる
+  const focusAnchor = useFocusAnchor();
 
   /** 符・翻の点数計算結果グリッド（親子 / ロンツモ / 切り上げ満貫設定に依存） */
   const scoreGrid = useMemo(

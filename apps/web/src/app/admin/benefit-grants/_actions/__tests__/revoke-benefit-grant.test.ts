@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  mockGetClientIp,
+  ADMIN_ACTOR_ID,
+  mockRequireAdminActor,
   mockNotify,
   mockRecordModerationAction,
   mockRevalidatePath,
@@ -14,10 +15,6 @@ const { mockRevokeBenefitGrant } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock(
-  "@/lib/client-ip",
-  async () => await import("@/test/admin-action-mocks"),
-);
 vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   revokeBenefitGrant: mockRevokeBenefitGrant,
@@ -44,7 +41,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   setupAdminActor(TX);
-  mockGetClientIp.mockResolvedValue(undefined);
+  mockRequireAdminActor.mockResolvedValue({
+    actorId: ADMIN_ACTOR_ID,
+    ipAddress: undefined,
+  });
   mockRevokeBenefitGrant.mockResolvedValue({
     id: "g1",
     userId: "u1",

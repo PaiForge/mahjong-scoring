@@ -1,5 +1,8 @@
 import { useTranslations } from "next-intl";
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/i18n/locales";
+import {
+  DEFAULT_LOCALE,
+  SUPPORTED_LOCALES,
+} from "@mahjong-scoring/features/i18n/locales";
 import { AD_CREATIVE_LIMITS } from "../_lib/validation";
 import { AD_FORM_INPUT_CLASS, AD_FORM_LABEL_CLASS } from "./ad-form-classes";
 
