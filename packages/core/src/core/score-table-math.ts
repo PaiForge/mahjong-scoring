@@ -1,3 +1,18 @@
+/**
+ * 点数表の算術
+ * 点数表計算
+ *
+ * 符と翻から基本点・子と親の点数（ロン / ツモの支払い）・満貫以上の区分を導き、
+ * 点数表の各マスの値と「存在しないマス」（20符ロン等）を決める。面子 1 つの符
+ * （`calculateMentsuFu`）と、点数表早引きの表示用の上位区分（`HIGH_SCORES`）も
+ * ここに置く。
+ *
+ * 練習の「点数計算」（`/practice/score-calculation`、features の
+ * `practice/score-calculation/`、core の `problem/score/`）ではない — あちらは
+ * 手牌から出題と採点を組む側で、点数の値を求めるときにここを呼ぶ。以前は
+ * このファイルも `score-calculation.ts` と名乗っていて、練習の名前と区別が
+ * つかなかったため改名した。
+ */
 import {
   MentsuType,
   calculateScore,

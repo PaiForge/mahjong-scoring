@@ -15,12 +15,11 @@ import {
   defaultRandomSource,
   type RandomSource,
 } from "../../core/random";
-import { calculateMentsuFu } from "../../core/score-calculation";
+import { calculateMentsuFu } from "../../core/score-table-math";
 import { isHaiKindId } from "../../core/type-guards";
 import { randomSimple, randomYaochu } from "../shared/tile-random";
 
 /**
- * 面子生成結果
  * 面子生成結果
  */
 export interface MentsuResult {

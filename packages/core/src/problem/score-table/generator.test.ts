@@ -5,7 +5,7 @@ import {
   calculateKoScore,
   calculateOyaScore,
   isInvalidCell,
-} from "../../core/score-calculation";
+} from "../../core/score-table-math";
 import { expectSampled } from "../../test/sampling";
 
 /**

@@ -9,7 +9,7 @@ import {
   calculateOyaScore,
   isInvalidCell,
   HIGH_SCORES,
-} from "../../core/score-calculation";
+} from "../../core/score-table-math";
 import { FU_VALUES } from "../../score/constants";
 import {
   clampHanToYakuman,

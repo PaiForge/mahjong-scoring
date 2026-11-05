@@ -8,7 +8,7 @@ import type { ScoreRange } from "../score/types";
 import type { IdGenerator } from "../../core/id";
 import type { RandomSource } from "../../core/random";
 import type { Fu } from "@pai-forge/riichi-mahjong";
-import type { TsumoPayment } from "../../core/score-calculation";
+import type { TsumoPayment } from "../../core/score-table-math";
 
 /**
  * ロン和了の正解
