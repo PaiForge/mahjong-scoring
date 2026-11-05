@@ -60,6 +60,13 @@ export default function SignUpScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
+  // 誤りは前に送った入力についてのもの。打ち直したら消す（ユーザー名の設定・ログインと同じ）
+  const changeInput =
+    (setValue: (value: string) => void) => (value: string) => {
+      setValue(value);
+      setError(undefined);
+    };
+
   const failureMessage = (failure: SignUpFailure): string => {
     switch (failure) {
       case "weak":
@@ -137,14 +144,14 @@ export default function SignUpScreen() {
         <TextField
           label={t("emailLabel")}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={changeInput(setEmail)}
           placeholder={t("emailPlaceholder")}
           kind="email"
         />
         <TextField
           label={t("passwordLabel")}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={changeInput(setPassword)}
           placeholder={t("passwordPlaceholder")}
           kind="newPassword"
           secure
@@ -152,7 +159,7 @@ export default function SignUpScreen() {
         <TextField
           label={t("confirmPasswordLabel")}
           value={confirmPassword}
-          onChangeText={setConfirmPassword}
+          onChangeText={changeInput(setConfirmPassword)}
           placeholder={t("confirmPasswordPlaceholder")}
           kind="newPassword"
           secure
