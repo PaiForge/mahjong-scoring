@@ -10,6 +10,7 @@ import {
 } from "@/lib/ads/registry";
 import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, db } from "@/lib/db";
+import { logExternalError } from "@/lib/log-error";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
   ContentActionKind,
@@ -52,27 +53,37 @@ export async function setAdCreativeActiveByTitle(
     ),
   );
 
-  const updated = await db.transaction(async (tx) => {
-    const before = await tx
-      .select({ id: adCreatives.id, isActive: adCreatives.isActive })
-      .from(adCreatives)
-      .where(condition)
-      .for("update");
-    if (before.length === 0) return 0;
-    const rows = await tx
-      .update(adCreatives)
-      .set({ isActive, updatedAt: new Date() })
-      .where(condition)
-      .returning({ id: adCreatives.id });
-    await recordContentAction(tx, {
-      actorId: admin.actorId,
-      action: ContentActionKind.SetAdCreativeActiveByTitle,
-      target: { type: ContentActionTargetType.AdTitle, key: title },
-      ipAddress,
-      metadata: { platform, before, after: isActive },
+  let updated: number;
+  try {
+    updated = await db.transaction(async (tx) => {
+      const before = await tx
+        .select({ id: adCreatives.id, isActive: adCreatives.isActive })
+        .from(adCreatives)
+        .where(condition)
+        .for("update");
+      if (before.length === 0) return 0;
+      const rows = await tx
+        .update(adCreatives)
+        .set({ isActive, updatedAt: new Date() })
+        .where(condition)
+        .returning({ id: adCreatives.id });
+      await recordContentAction(tx, {
+        actorId: admin.actorId,
+        action: ContentActionKind.SetAdCreativeActiveByTitle,
+        target: { type: ContentActionTargetType.AdTitle, key: title },
+        ipAddress,
+        metadata: { platform, before, after: isActive },
+      });
+      return rows.length;
     });
-    return rows.length;
-  });
+  } catch (error) {
+    logExternalError(
+      "setAdCreativeActiveByTitle",
+      "failed to set ad creatives active by title",
+      error,
+    );
+    return { error: "errorSaveFailed" };
+  }
   if (updated === 0) return { error: "errorNotFound" };
 
   revalidateAdCreatives();
