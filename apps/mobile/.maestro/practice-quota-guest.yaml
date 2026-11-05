@@ -54,6 +54,8 @@ appId: help.mahjong.score
     timeout: 15000
 - assertVisible:
     id: "practice-quota-paywall-sign-in"
+- assertVisible:
+    id: "practice-quota-paywall-sign-up"
 - assertNotVisible:
     id: "practice-quota-paywall-plan"
 - takeScreenshot: practice-quota-guest-paywall
