@@ -59,6 +59,14 @@ export default function SignInScreen() {
     undefined,
   );
 
+  // 誤りは前に送った入力についてのもの。打ち直したら消す（再送の導線も同じ）
+  const changeInput =
+    (setValue: (value: string) => void) => (value: string) => {
+      setValue(value);
+      setError(undefined);
+      setUnconfirmedEmail(undefined);
+    };
+
   const submit = async () => {
     if (!supabase || submitting) return;
     setSubmitting(true);
@@ -93,7 +101,7 @@ export default function SignInScreen() {
         <TextField
           label={t("emailLabel")}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={changeInput(setEmail)}
           placeholder={t("emailPlaceholder")}
           kind="email"
           testID="sign-in-email"
@@ -101,7 +109,7 @@ export default function SignInScreen() {
         <TextField
           label={t("passwordLabel")}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={changeInput(setPassword)}
           placeholder={t("passwordPlaceholder")}
           kind="password"
           secure
