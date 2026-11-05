@@ -63,37 +63,57 @@ const RETRY_DELAYS_MS = [2_000, 5_000, 10_000, 30_000] as const;
  */
 const purchasedHere = new Set<string>();
 
-/**
- * 取引の記録が終わるのを待つ口（取引 ID → 終わったら解決する Promise）
- *
- * 購入の要求が返る（取引 ID が分かる）のと、StoreKit のイベントで取引が届く
- * （記録が始まる）のは同時で、順序は決まらない。どちらが先でも同じ口で
- * 出会えるよう、先に来た側が作る。この起動中に買った取引の数しか増えない
- * ので消さない。
- */
-const recordingDone = new Map<
-  string,
-  { readonly promise: Promise<void>; readonly resolve: () => void }
->();
+/** 1 度だけ解決する合図 */
+interface Signal {
+  readonly promise: Promise<void>;
+  readonly resolve: () => void;
+}
 
-function recordingDoneOf(transactionId: string) {
-  const existing = recordingDone.get(transactionId);
-  if (existing !== undefined) return existing;
+function createSignal(): Signal {
   let resolve = () => {};
   const promise = new Promise<void>((done) => {
     resolve = done;
   });
-  const created = { promise, resolve };
-  recordingDone.set(transactionId, created);
+  return { promise, resolve };
+}
+
+/**
+ * 取引の記録の進み（取引 ID → 始まり・終わりの合図）
+ *
+ * 購入の要求が返る（取引 ID が分かる）のと、StoreKit のイベントで取引が届く
+ * （記録が始まる）のは別の経路で届く。openiap はイベントを流してから要求を
+ * 解決する（`OpenIapStoreKitModule.requestPurchase` は `emitPurchaseUpdate` →
+ * `return`）ので通常はイベントが先だが、ブリッジの配送順は頼れない。どちらが
+ * 先でも同じ口で出会えるよう、先に来た側が作る。記録する側
+ * （{@link recordPurchase}）が `started` → `done` の順に解決し、買った側
+ * （{@link buyIapProduct}）が待つ。配り直し・取り直しの取引も通るので、
+ * この起動中に届いた取引の数だけ増える（それで足りるので消さない）。
+ */
+const recordings = new Map<
+  string,
+  { readonly started: Signal; readonly done: Signal }
+>();
+
+function recordingOf(transactionId: string) {
+  const existing = recordings.get(transactionId);
+  if (existing !== undefined) return existing;
+  const created = { started: createSignal(), done: createSignal() };
+  recordings.set(transactionId, created);
   return created;
 }
 
 /**
- * 記録の終わりを待つ上限（ミリ秒）。送り直しを使い切るまで（約 47 秒と各回の
- * 通信）より長く取る。取引がイベントで届かなかったとき、購入ボタンを処理中の
- * まま止めないための保険
+ * 購入の要求が返ってから、その取引の記録が始まるのを待つ上限（ミリ秒）
+ *
+ * 上の経路のとおり、要求が返った時点で記録は普通もう始まっている。始まって
+ * いないのは、イベントが要求の解決より後に配られた（この猶予で拾う）か、
+ * この接続ではもう届かない（必須の項目が欠けて `toIapPurchase` が捨てた・
+ * openiap が配り済みと見なした）かのどちらか。後者は次の起動で StoreKit が
+ * 配り直すので、購入ボタンを回し続けずに返す。始まった記録の終わりには上限を
+ * 置かない — 送り直しの間（最大 47 秒と各回の通信）も押したボタンを回し
+ * 続ける方が、途中で戻して「買えていない」ように見せるより正しい
  */
-const RECORDING_WAIT_LIMIT_MS = 90_000;
+const RECORDING_START_GRACE_MS = 3_000;
 
 /** 記録を送っている取引の数。プラン画面が「記録しています」を出すのに使う */
 const useRecordingStore = create<{ readonly count: number }>(() => ({
@@ -121,7 +141,9 @@ export function usePurchaseRecording(): boolean {
  * 記録そのものはルートの購入の同期（{@link usePurchaseSync}）が行い、ここは
  * その終わりを待つだけ — 画面を離れても記録と知らせは続く。
  *
- * 取り消し・失敗・承認待ちは購入画面が閉じた時点で返る（取引が無い）。
+ * 取り消し・失敗・承認待ちは購入画面が閉じた時点で返る（取引が無い）。買えた
+ * のに取引が届かないときは、記録の始まりを少し待ってから返す
+ * （{@link RECORDING_START_GRACE_MS}）。
  */
 export async function buyIapProduct(
   productId: string,
@@ -130,10 +152,13 @@ export async function buyIapProduct(
   const transactionId = await requestIapPurchase(productId, userId);
   if (transactionId === undefined) return;
   purchasedHere.add(transactionId);
-  await Promise.race([
-    recordingDoneOf(transactionId).promise,
-    wait(RECORDING_WAIT_LIMIT_MS),
+  const recording = recordingOf(transactionId);
+  const started = await Promise.race([
+    recording.started.promise.then(() => true),
+    wait(RECORDING_START_GRACE_MS).then(() => false),
   ]);
+  if (!started) return;
+  await recording.done.promise;
 }
 
 function changeRecording(delta: number): void {
@@ -185,8 +210,10 @@ async function recordPurchase(
   purchase: IapPurchase,
   notifyOwnedByAnotherAccount: boolean,
 ): Promise<void> {
+  const recording = recordingOf(purchase.transactionId);
+  recording.started.resolve();
   if (finished.has(purchase.transactionId)) {
-    recordingDoneOf(purchase.transactionId).resolve();
+    recording.done.resolve();
     return;
   }
   changeRecording(1);
@@ -216,7 +243,7 @@ async function recordPurchase(
     });
   } finally {
     changeRecording(-1);
-    recordingDoneOf(purchase.transactionId).resolve();
+    recording.done.resolve();
   }
 }
 

@@ -111,6 +111,63 @@ describe("プラン画面からの購入", () => {
     stop();
   });
 
+  it("取引が届かなければ、記録の始まりの猶予が過ぎたら返る", async () => {
+    vi.useFakeTimers();
+    try {
+      const stop = startPurchaseSync("user-a", () => false);
+      mocks.requestIapPurchase.mockResolvedValue("tx-lost");
+
+      let settled = false;
+      const buying = buyIapProduct(PRODUCT_ID, "user-a").then(() => {
+        settled = true;
+      });
+      await flush();
+      expect(settled).toBe(false);
+
+      await vi.advanceTimersByTimeAsync(3_000);
+      await buying;
+      expect(mocks.postAppleTransaction).not.toHaveBeenCalled();
+      stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("送り直しの最中は、猶予を越えても記録が終わるまで待つ", async () => {
+    vi.useFakeTimers();
+    try {
+      const stop = startPurchaseSync("user-a", () => false);
+      let respond: (value: unknown) => void = () => {};
+      mocks.postAppleTransaction
+        .mockResolvedValueOnce({ error: "network" })
+        .mockReturnValueOnce(
+          new Promise((resolve) => {
+            respond = resolve;
+          }),
+        );
+      mocks.requestIapPurchase.mockImplementation(async () => {
+        deliver("tx-retry");
+        return "tx-retry";
+      });
+
+      let settled = false;
+      const buying = buyIapProduct(PRODUCT_ID, "user-a").then(() => {
+        settled = true;
+      });
+      // 猶予（3 秒）と最初の送り直しの間（2 秒）を越える
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(mocks.postAppleTransaction).toHaveBeenCalledTimes(2);
+      expect(settled).toBe(false);
+
+      respond(recordedAs("recorded"));
+      await buying;
+      expect(settled).toBe(true);
+      stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("要求が返る前に記録が終わっていても待ち続けない", async () => {
     const stop = startPurchaseSync("user-a", () => false);
     mocks.postAppleTransaction.mockResolvedValue(recordedAs("recorded"));
