@@ -39,6 +39,12 @@ export function RuleSettingsSection() {
 
   return (
     <SettingsCard>
+      {/*
+        例: settings.kiriageManganTitle / settings.kiriageManganDescription（完成形のキーで
+        grep したときにここへ着地させるための例）。messageKey は field と違うことがある
+        （`renfonpaiAs4Fu` → `renfonpai`）。更新も `settings[setter]` で呼ぶので、
+        `setKiriageMangan(` で grep してもこの呼び出し元には当たらない
+      */}
       {RULE_SETTING_TOGGLES.map(({ field, setter, messageKey }) => (
         <SettingToggleRow
           key={field}

@@ -240,6 +240,7 @@ function rankOrder(menu: PracticeMenu): number {
 
 /** 練習名の i18n キー（`getTranslations("practice")` スコープ内で使う） */
 export function practiceTitleKey(slug: PracticeMenuSlug): string {
+  // 例: practice.practices.machiFu.title（完成形のキーで grep したときにここへ着地させるための例）
   return `practices.${practiceMenuBySlug(slug).messageKey}.title`;
 }
 

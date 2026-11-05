@@ -26,6 +26,7 @@ export function leaderboardBoardLabel(
   if (practiceMenuByType(board.menuType).rankedVariants.length > 1) {
     return boardLabel(board, t);
   }
+  // 例: practice.practices.machiFu.shortTitle（完成形のキーで grep したときにここへ着地させるための例）
   return t(
     `practice.practices.${menuTypeToMessageKey(board.menuType)}.shortTitle`,
   );

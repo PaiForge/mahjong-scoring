@@ -42,6 +42,7 @@ export function practiceDisplayTitle(
   slug: PracticeMenuSlug,
   variant: string | undefined,
 ): string {
+  // 例: practice.practices.machiFu.title（完成形のキーで grep したときにここへ着地させるための例）
   const title = tAll(`practice.${practiceTitleKey(slug)}`);
   const variantLabel = practiceVariantLabel(tAll, slug, variant);
   return variantLabel ? `${title}（${variantLabel}）` : title;
