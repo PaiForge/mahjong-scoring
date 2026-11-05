@@ -98,7 +98,12 @@ export function PracticeQuotaPaywall({
           >
             {t("signInCta")}
           </Button>
-          <Text style={styles.hint}>{t("signUpHint")}</Text>
+          <TextLink
+            onPress={() => router.push("/sign-up")}
+            testID="practice-quota-paywall-sign-up"
+          >
+            {t("signUpLink")}
+          </TextLink>
         </View>
       )}
 
