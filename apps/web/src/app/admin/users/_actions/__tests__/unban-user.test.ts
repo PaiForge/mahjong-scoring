@@ -20,10 +20,6 @@ const { mockSelectLimit, mockDbUpdateSet, mockDbUpdateWhere } = vi.hoisted(
 );
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock(
-  "@/lib/client-ip",
-  async () => await import("@/test/admin-action-mocks"),
-);
 vi.mock("@/lib/db", async () => {
   // `db.select(...).from(...).where(...).limit(1)` — 元の bannedAt の退避
   const selectChain = {

@@ -8,7 +8,6 @@ import {
   isAdPlatform,
   slotsForPlatform,
 } from "@/lib/ads/registry";
-import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -41,7 +40,6 @@ export async function setAdCreativeActiveByTitle(
   if (platform !== undefined && !isAdPlatform(platform)) {
     return { error: "errorNotFound" };
   }
-  const ipAddress = await getClientIp();
 
   const condition = and(
     inArray(adCreatives.id, creativeIdsWithTitle(title)),
@@ -68,7 +66,7 @@ export async function setAdCreativeActiveByTitle(
       actorId: admin.actorId,
       action: ContentActionKind.SetAdCreativeActiveByTitle,
       target: { type: ContentActionTargetType.AdTitle, key: title },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: { platform, before, after: isActive },
     });
     return rows.length;

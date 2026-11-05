@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import { getOptionalVerifiedUser } from "../../../lib/auth";
+import { getClientIp } from "../../../lib/client-ip";
 import { db, userRoles } from "../../../lib/db";
 
 interface AuthSuccess {
@@ -45,21 +46,36 @@ export async function requireAdmin(): Promise<AuthResult> {
 }
 
 /**
+ * Server Action を実行する管理者 — 誰が（`actorId`）・どこから（`ipAddress`）
+ * 管理者の操作主体
+ *
+ * 監査ログ（`recordContentAction` / `recordModerationAction`）の 2 欄で、
+ * どのアクションも同じ組を記録する。IP はリクエストヘッダー由来で
+ * 取れないこともある（`getClientIp`）。
+ */
+export interface AdminActor {
+  readonly actorId: string;
+  readonly ipAddress: string | undefined;
+}
+
+/**
  * Server Action 用の管理者ガード。
  *
  * `requireAdmin()` に失敗した場合、アクションが返すべきエラーキーに
  * 変換して返す（アクションごとに UI 側の i18n キーが異なるため引数で受け取る）。
+ * 通ったときは監査ログに残す操作元の IP も一緒に返す — 管理者の操作は
+ * すべて記録するので、アクションごとに `getClientIp()` を呼ばせない。
  *
  * @param failureError - 認証失敗時に返すエラーキー
  */
 export async function requireAdminActor<E extends string>(
   failureError: E,
-): Promise<{ readonly actorId: string } | { readonly error: E }> {
+): Promise<AdminActor | { readonly error: E }> {
   const result = await requireAdmin();
   if ("error" in result) {
     return { error: failureError };
   }
-  return { actorId: result.userId };
+  return { actorId: result.userId, ipAddress: await getClientIp() };
 }
 
 /**

@@ -1,7 +1,6 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { db, type BenefitGrant } from "@/lib/db";
 import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
@@ -49,7 +48,7 @@ export async function grantBenefits(
   if ("error" in admin) {
     return admin;
   }
-  const { actorId } = admin;
+  const { actorId, ipAddress } = admin;
 
   if (!isGrantDurationKey(duration)) {
     return { error: "invalidDuration" };
@@ -59,8 +58,6 @@ export async function grantBenefits(
   if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
-
-  const ipAddress = await getClientIp();
 
   let granted: BenefitGrant | undefined;
   try {

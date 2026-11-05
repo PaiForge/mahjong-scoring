@@ -5,7 +5,6 @@ import { and, eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
 import { purgeLeaderboardCache } from "@/lib/cache-tags";
-import { getClientIp } from "@/lib/client-ip";
 import { db, profiles, reports, type TransactionClient } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 import { ReportStatus } from "@/lib/report-status";
@@ -26,6 +25,7 @@ export type ReportActionError =
 
 interface AdminContext {
   readonly actorId: string;
+  readonly ipAddress: string | undefined;
   readonly reason: string;
   readonly report: { readonly id: string; readonly targetUserId: string };
 }
@@ -45,7 +45,7 @@ async function prepare(
     .where(and(eq(reports.id, reportId), eq(reports.status, ReportStatus.Open)))
     .limit(1);
   if (!report) return { error: "notFound" };
-  return { actorId: admin.actorId, reason: trimmed, report };
+  return { ...admin, reason: trimmed, report };
 }
 
 /**
@@ -57,7 +57,6 @@ async function prepare(
 async function resolveOpenReportsFor(
   tx: TransactionClient,
   context: AdminContext,
-  ipAddress: string | undefined,
   via: ModerationActionKind,
 ): Promise<void> {
   const resolved = await tx
@@ -79,7 +78,7 @@ async function resolveOpenReportsFor(
     action: ModerationActionKind.ResolveReport,
     targetId: context.report.targetUserId,
     reason: context.reason,
-    ipAddress,
+    ipAddress: context.ipAddress,
     metadata: { reportIds: resolved.map((r) => r.id), via },
   });
 }
@@ -110,10 +109,9 @@ export async function banAndResolveReportAction(
     };
   }
 
-  const ipAddress = await getClientIp();
   try {
     await db.transaction((tx) =>
-      resolveOpenReportsFor(tx, context, ipAddress, ModerationActionKind.Ban),
+      resolveOpenReportsFor(tx, context, ModerationActionKind.Ban),
     );
   } catch (error) {
     logExternalError("banAndResolveReport", "failed to resolve", error);
@@ -144,7 +142,6 @@ export async function clearProfileAndResolveReportAction(
   const context = await prepare(reportId, reason);
   if ("error" in context) return context;
   const targetId = context.report.targetUserId;
-  const ipAddress = await getClientIp();
 
   try {
     await deleteAvatarObject(targetId);
@@ -172,13 +169,12 @@ export async function clearProfileAndResolveReportAction(
         action: ModerationActionKind.ClearProfile,
         targetId,
         reason: context.reason,
-        ipAddress,
+        ipAddress: context.ipAddress,
         metadata: { reportId: context.report.id },
       });
       await resolveOpenReportsFor(
         tx,
         context,
-        ipAddress,
         ModerationActionKind.ClearProfile,
       );
     });
@@ -206,7 +202,6 @@ export async function dismissReportAction(
 ): Promise<ActionResult<ReportActionError>> {
   const context = await prepare(reportId, reason);
   if ("error" in context) return context;
-  const ipAddress = await getClientIp();
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -222,7 +217,7 @@ export async function dismissReportAction(
         action: ModerationActionKind.DismissReport,
         targetId: context.report.targetUserId,
         reason: context.reason,
-        ipAddress,
+        ipAddress: context.ipAddress,
         metadata: { reportId: context.report.id },
       });
     });

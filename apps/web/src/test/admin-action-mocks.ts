@@ -4,8 +4,8 @@ import { vi, type Mock } from "vitest";
  * 管理者の Server Action（BAN・特典の付与と取り消し・広告・お知らせ）のテスト用スタブ
  * 管理者アクションモック
  *
- * どのアクションも `requireAdminActor` → `getClientIp` → `db.transaction` の
- * 順に通り、操作を記録して（利用者が対象なら `recordModerationAction`、
+ * どのアクションも `requireAdminActor`（管理者の確認と操作元の IP）→
+ * `db.transaction` の順に通り、操作を記録して（利用者が対象なら `recordModerationAction`、
  * 広告・お知らせなら `recordContentAction`）画面を再検証する
  * （`revalidatePath`）。各テストが同じ `vi.fn()` 生成・`vi.mock` 登録・「管理者として
  * 通過した状態」の初期化を書いていたのでここへまとめる。
@@ -17,7 +17,6 @@ import { vi, type Mock } from "vitest";
  *
  * ```ts
  * vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
- * vi.mock("@/lib/client-ip", async () => await import("@/test/admin-action-mocks"));
  * vi.mock("../../../_lib/auth", async () => await import("@/test/admin-action-mocks"));
  * vi.mock("../../_lib/moderation", async (importOriginal) => ({
  *   ...(await importOriginal<typeof import("../../_lib/moderation")>()),
@@ -41,9 +40,6 @@ import { vi, type Mock } from "vitest";
 
 /** `admin/_lib/auth` の `requireAdminActor` の差し替え先 */
 export const mockRequireAdminActor = vi.fn();
-
-/** `@/lib/client-ip` の `getClientIp` の差し替え先 */
-export const mockGetClientIp = vi.fn();
 
 /** `@/lib/db` の `db.transaction` の差し替え先 */
 export const mockTransaction = vi.fn();
@@ -77,9 +73,6 @@ export function createAdminClient() {
 /** `vi.mock("<admin/_lib/auth>", ...)` 用のエイリアス */
 export const requireAdminActor = mockRequireAdminActor;
 
-/** `vi.mock("@/lib/client-ip", ...)` 用のエイリアス */
-export const getClientIp = mockGetClientIp;
-
 /** `vi.mock("next/cache", ...)` 用のエイリアス */
 export const revalidatePath = mockRevalidatePath;
 
@@ -102,8 +95,10 @@ export const ADMIN_CLIENT_IP = "203.0.113.1";
  * @param tx - トランザクションのコールバックに渡す偽の tx
  */
 export function setupAdminActor(tx: unknown): void {
-  mockRequireAdminActor.mockResolvedValue({ actorId: ADMIN_ACTOR_ID });
-  mockGetClientIp.mockResolvedValue(ADMIN_CLIENT_IP);
+  mockRequireAdminActor.mockResolvedValue({
+    actorId: ADMIN_ACTOR_ID,
+    ipAddress: ADMIN_CLIENT_IP,
+  });
   mockTransaction.mockImplementation(
     async (fn: (transaction: unknown) => Promise<void>) => fn(tx),
   );

@@ -13,10 +13,6 @@ const { mockInsertBenefitGrant } = vi.hoisted(() => ({
 }));
 
 vi.mock("next/cache", async () => await import("@/test/admin-action-mocks"));
-vi.mock(
-  "@/lib/client-ip",
-  async () => await import("@/test/admin-action-mocks"),
-);
 vi.mock("@/lib/db", () => import("@/test/admin-action-db-mock"));
 vi.mock("@/lib/entitlements/benefit-grants", () => ({
   insertBenefitGrant: mockInsertBenefitGrant,

@@ -3,7 +3,6 @@
 import { asc, eq } from "drizzle-orm";
 
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { adCreatives, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -29,7 +28,6 @@ export async function moveAdCreative(
 ): Promise<ActionResult<"errorSaveFailed" | "errorNotFound">> {
   const admin = await requireAdminActor("errorSaveFailed");
   if ("error" in admin) return admin;
-  const ipAddress = await getClientIp();
 
   const moved = await db.transaction(async (tx) => {
     const [target] = await tx
@@ -58,7 +56,7 @@ export async function moveAdCreative(
       actorId: admin.actorId,
       action: ContentActionKind.MoveAdCreative,
       target: { type: ContentActionTargetType.AdCreative, key: id },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: { slot: target.slot, direction, before, after: next },
     });
     return true;

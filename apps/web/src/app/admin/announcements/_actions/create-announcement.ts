@@ -2,7 +2,6 @@
 
 import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import type { ActionResult } from "@/lib/action-types";
-import { getClientIp } from "@/lib/client-ip";
 import { announcements, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -45,7 +44,6 @@ export async function createAnnouncement(
   }
 
   const now = new Date();
-  const ipAddress = await getClientIp();
 
   let inserted: { id: string };
   try {
@@ -59,7 +57,7 @@ export async function createAnnouncement(
         actorId: admin.actorId,
         action: ContentActionKind.CreateAnnouncement,
         target: { type: ContentActionTargetType.Announcement, key: row.id },
-        ipAddress,
+        ipAddress: admin.ipAddress,
         metadata: { after: row },
       });
       return row;

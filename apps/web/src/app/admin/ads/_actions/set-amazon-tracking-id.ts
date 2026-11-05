@@ -5,7 +5,6 @@ import { and, eq } from "drizzle-orm";
 import type { ActionResult } from "@/lib/action-types";
 import { AMAZON_NETWORK, isValidTrackingId } from "@/lib/ads/amazon";
 import { isAdPlatform } from "@/lib/ads/registry";
-import { getClientIp } from "@/lib/client-ip";
 import { adNetworkSettings, db } from "@/lib/db";
 import { requireAdminActor } from "@/app/admin/_lib/auth";
 import {
@@ -44,7 +43,6 @@ export async function setAmazonTrackingId(
   if (value !== "" && !isValidTrackingId(value)) {
     return { error: "errorTrackingIdInvalid" };
   }
-  const ipAddress = await getClientIp();
   const condition = and(
     eq(adNetworkSettings.network, AMAZON_NETWORK),
     eq(adNetworkSettings.platform, platform),
@@ -74,7 +72,7 @@ export async function setAmazonTrackingId(
         type: ContentActionTargetType.AdNetworkSetting,
         key: adNetworkSettingKey(AMAZON_NETWORK, platform),
       },
-      ipAddress,
+      ipAddress: admin.ipAddress,
       metadata: {
         network: AMAZON_NETWORK,
         platform,
