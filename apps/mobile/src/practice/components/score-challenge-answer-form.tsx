@@ -1,5 +1,6 @@
 import {
   type ScoreChallengeAnswerFormProps,
+  challengeScoreRangeOf,
   scoreAnswerTargetOf,
 } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 
@@ -41,7 +42,7 @@ export function ScoreChallengeAnswerForm({
       showFeedback={showFeedback}
       lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace={translationNamespace}
-      scoreRange={scoreRange}
+      scoreRange={challengeScoreRangeOf(scoreRange)}
       allowDoubleYakuman={allowDoubleYakuman}
       autoSubmit
       fixedRules={!isTraining}

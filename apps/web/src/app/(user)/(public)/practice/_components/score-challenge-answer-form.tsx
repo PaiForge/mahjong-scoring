@@ -3,6 +3,7 @@
 import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import {
   type ScoreChallengeAnswerFormProps,
+  challengeScoreRangeOf,
   scoreAnswerTargetOf,
 } from "@mahjong-scoring/features/practice/score/score-answer-form-props";
 import { ScoreAnswerForm } from "./score-answer-form";
@@ -46,7 +47,7 @@ export function ScoreChallengeAnswerForm({
       showFeedback={showFeedback}
       lastAnswerCorrect={lastAnswerCorrect}
       translationNamespace={translationNamespace}
-      scoreRange={scoreRange}
+      scoreRange={challengeScoreRangeOf(scoreRange)}
       allowDoubleYakuman={allowDoubleYakuman}
       autoSubmit
       fixedRules={!isTraining}
