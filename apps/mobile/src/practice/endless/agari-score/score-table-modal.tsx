@@ -46,6 +46,7 @@ export function ScoreTableModal({
           initialRole={focus.role}
           initialWinType={focus.winType}
           blurToggleEnabled={false}
+          onLeave={onClose}
         />
       )}
     </ReferenceModal>
