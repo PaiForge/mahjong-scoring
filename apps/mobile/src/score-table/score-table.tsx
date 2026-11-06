@@ -39,6 +39,11 @@ interface ScoreTableProps {
    * 省略時は縦に並べて返す。
    */
   readonly renderLayout?: (parts: ScoreTableParts) => ReactNode;
+  /**
+   * 表の中のリンク（切り上げ満貫の設定）で別の画面へ移る直前に呼ぶ。
+   * シートに載せて開いたときに、移動先の上にシートが残らないよう閉じる
+   */
+  readonly onLeave?: () => void;
 }
 
 /** 点数早見表を組む部品 */
@@ -64,6 +69,7 @@ export function ScoreTable({
   initialWinType = "ron",
   blurToggleEnabled = true,
   renderLayout,
+  onLeave,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
   const {
@@ -157,7 +163,9 @@ export function ScoreTable({
         />
       )}
       {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}
-      {viewMode === "normal" && <KiriageManganNote enabled={kiriageMangan} />}
+      {viewMode === "normal" && (
+        <KiriageManganNote enabled={kiriageMangan} onLeave={onLeave} />
+      )}
     </View>
   );
 
