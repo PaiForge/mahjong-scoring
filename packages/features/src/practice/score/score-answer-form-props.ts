@@ -137,13 +137,33 @@ export interface ScoreChallengeAnswerFormProps {
   readonly lastAnswerCorrect?: boolean;
   /** i18n の翻訳ネームスペース（例: "scoreCalculationChallenge"） */
   readonly translationNamespace: string;
-  /** 選択肢を絞る点数帯。出題条件と揃える。省略時は絞らない */
+  /**
+   * 選択肢を絞る点数帯。出題条件と揃える。省略時は絞らない
+   * （{@link challengeScoreRangeOf}）
+   */
   readonly scoreRange?: ScoreOptionRange;
   /**
    * トレーニングモードか（チャレンジでは未指定）。
    * トレーニングだけが端末のルール設定で選択肢を変える
    */
   readonly isTraining?: boolean;
+}
+
+/**
+ * 点数計算チャレンジの回答フォームが選択肢に使う範囲
+ * チャレンジ点数範囲
+ *
+ * 範囲を渡さない出題（点数計算）は、正解の翻数で絞らず全範囲（`"all"`）にする。
+ * 回答フォームは範囲が `undefined` だと翻数から絞る（`getAvailableScores`）が、
+ * この練習の翻数は利用者の入力ではなく {@link scoreAnswerTargetOf} が取る正解の
+ * 値なので、絞ると答えが漏れる。1〜2 翻なら満貫未満だけ、5 翻以上なら満貫以上
+ * だけが残り、「満貫未満 / 満貫以上」の切り替えが消えること自体が翻数のヒントに
+ * なる。範囲を決めている出題（満貫以上の点数計算）は、その範囲をそのまま使う。
+ */
+export function challengeScoreRangeOf(
+  scoreRange: ScoreOptionRange | undefined,
+): ScoreOptionRange {
+  return scoreRange ?? "all";
 }
 
 /**
