@@ -20,7 +20,7 @@ describe("LOCALE_LINK_TABLE", () => {
   });
 
   it("英語で未公開のページは持たない", () => {
-    expect(LOCALE_LINK_TABLE["/practice"]).toBeUndefined();
+    expect(LOCALE_LINK_TABLE["/plan"]).toBeUndefined();
   });
 });
 
@@ -40,8 +40,8 @@ describe("resolveNavTarget", () => {
   });
 
   it("英語のページから英語で未公開のページへは /en を付けず、言語をまたぐと示す", () => {
-    expect(resolveNavTarget("/practice", en)).toEqual({
-      href: "/practice",
+    expect(resolveNavTarget("/plan", en)).toEqual({
+      href: "/plan",
       crossLocale: true,
     });
   });
@@ -84,7 +84,7 @@ describe("languageOptions", () => {
   });
 
   it("対訳の無いページでは英語をリンクにしない（別の英語ページへ向けない）", () => {
-    expect(languageOptions("/practice", "", ja)).toEqual([
+    expect(languageOptions("/plan", "", ja)).toEqual([
       { kind: "current", locale: "ja" },
       { kind: "unavailable", locale: "en" },
     ]);
