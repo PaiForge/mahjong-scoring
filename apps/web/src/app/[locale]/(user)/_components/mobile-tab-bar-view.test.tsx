@@ -131,11 +131,28 @@ describe("MobileTabBarView", () => {
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
-  it("英語のページでは英語版の無いタブを出さず、残りが 1 つならバーごと出さない", () => {
+  it("英語のページでは英語版の無いタブを出さず、英語で公開しているタブだけを /en の href で出す", () => {
     renderAt("/en/reference/score-table", false, "en");
 
-    // 英語で公開しているのは点数表だけ。英語の名前のまま日本語のページへ
-    // 飛ばすタブも、/en を付けた存在しない URL も出さない
+    // 英語で公開しているのはホーム・レッスン・点数表。道場・練習は英語で未公開なので、
+    // 英語の名前のまま日本語のページへ飛ばすタブも、/en を付けた存在しない URL も出さない
+    expect(
+      screen.getAllByRole("link").map((link) => link.getAttribute("href")),
+    ).toEqual(["/en", "/en/lessons", "/en/reference/score-table"]);
+    expect(
+      screen.getByRole("link", { name: /点数表/ }).className.split(" "),
+    ).toContain("text-foreground");
+  });
+
+  it("英語で公開しているタブが 1 つだけならバーごと出さない", () => {
+    // 英語で公開しているのが点数表だけの表（タブ 1 つのバーは行き来の役に立たない）
+    renderAt("/en/reference/score-table", false, "en", {
+      "/reference/score-table": {
+        ja: "/reference/score-table",
+        en: "/en/reference/score-table",
+      },
+    });
+
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.queryByRole("link")).toBeNull();
   });
@@ -152,6 +169,11 @@ describe("MobileTabBarView", () => {
     expect(practice.className.split(" ")).toContain("text-foreground");
     expect(
       screen.getAllByRole("link").map((link) => link.getAttribute("href")),
-    ).toEqual(["/en/practice", "/en/reference/score-table"]);
+    ).toEqual([
+      "/en",
+      "/en/practice",
+      "/en/lessons",
+      "/en/reference/score-table",
+    ]);
   });
 });
