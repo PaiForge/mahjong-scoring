@@ -1,116 +1,116 @@
 {
-  "pageTitle": "マイページ",
-  "menuLabel": "マイページメニュー",
-  "viewProfile": "公開プロフィール",
-  "editProfile": "プロフィール編集",
-  "activityTitle": "アクティビティ",
-  "loadFailed": "マイページを読み込めませんでした。",
-  "retry": "もう一度読み込む",
+  "pageTitle": "My Page",
+  "menuLabel": "My Page menu",
+  "viewProfile": "Public profile",
+  "editProfile": "Edit profile",
+  "activityTitle": "Activity",
+  "loadFailed": "Could not load My Page.",
+  "retry": "Reload",
   "cards": {
     "challenges": {
-      "title": "マイレコード",
-      "summary": "チャレンジモードの成績を確認できます"
+      "title": "My Records",
+      "summary": "See your results in Challenge mode"
     },
     "ranks": {
-      "title": "ランキングでの順位",
-      "summary": "練習ごとの、web のランキングでのあなたの順位"
+      "title": "Leaderboard positions",
+      "summary": "Your position on the web leaderboard for each practice"
     },
     "profile": {
-      "title": "プロフィール編集",
-      "summary": "アバター・表示名・自己紹介・SNS アカウント"
+      "title": "Edit profile",
+      "summary": "Avatar, display name, bio and social media accounts"
     },
     "plan": {
-      "title": "Pro プラン",
-      "summary": "購入状況と購入履歴"
+      "title": "Pro plan",
+      "summary": "Purchase status and purchase history"
     },
     "notifications": {
-      "title": "通知",
-      "summary": "Pro プランの購入や期限切れなどのお知らせ"
+      "title": "Notifications",
+      "summary": "Updates such as buying Pro or Pro expiring"
     },
     "account": {
-      "title": "アカウント",
-      "summary": "メールアドレスとログイン方法の確認"
+      "title": "Account",
+      "summary": "Check your email address and login methods"
     }
   },
   "heatmap": {
-    "less": "少",
-    "more": "多",
-    "total": "合計",
-    "noActivity": "この日の活動はありません",
-    "otherMenuTypes": "その他",
-    "empty": "まだ活動がありません。練習を始めよう！",
-    "expSuffix": "経験値",
-    "gridAriaLabel": "EXP アクティビティヒートマップ",
-    "barChartAriaLabel": "直近 7 日間の EXP 推移",
-    "legendAriaLabel": "経験値強度の凡例（少から多へ）",
-    "cellAriaLabel": "{date}: {amount} 経験値",
-    "detailPanelPlaceholder": "日付を選択すると、その日の内訳が表示されます",
+    "less": "Less",
+    "more": "More",
+    "total": "Total",
+    "noActivity": "No activity on this day",
+    "otherMenuTypes": "Other",
+    "empty": "No activity yet. Start practicing!",
+    "expSuffix": "EXP",
+    "gridAriaLabel": "EXP activity heatmap",
+    "barChartAriaLabel": "EXP over the last 7 days",
+    "legendAriaLabel": "EXP intensity legend (from less to more)",
+    "cellAriaLabel": "{date}: {amount} EXP",
+    "detailPanelPlaceholder": "Select a date to see the breakdown for that day",
     "monthNames": [
-      "1月",
-      "2月",
-      "3月",
-      "4月",
-      "5月",
-      "6月",
-      "7月",
-      "8月",
-      "9月",
-      "10月",
-      "11月",
-      "12月"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
     ],
     "dayLabels": {
-      "mon": "月",
-      "wed": "水",
-      "fri": "金"
+      "mon": "Mon",
+      "wed": "Wed",
+      "fri": "Fri"
     }
   },
   "challenges": {
-    "pageTitle": "マイレコード",
-    "records": "成績",
-    "noData": "データがありません",
-    "loadFailed": "成績を読み込めませんでした。",
-    "periodLabel": "期間",
-    "boardLabel": "種目",
-    "bestScore": "ベストスコア",
-    "avgScore": "平均スコア",
-    "avgScoreInfo": "ミス上限に達せず終了（完走）したチャレンジの平均スコア",
-    "scoreTrend": "スコア推移",
-    "scoreUnit": "スコア",
-    "recentHistory": "直近の履歴",
-    "viewAllResults": "すべての結果を見る",
-    "tryChallenge": "{title}にチャレンジ",
-    "goToPractice": "練習一覧へ",
-    "tableDate": "日時",
-    "tableCorrectAnswers": "正解数",
-    "tableIncorrectAnswers": "ミス数",
-    "vsLastWeek": "先週比",
-    "vs2WeeksAgo": "2週前比",
-    "vsLastMonth": "先月比",
-    "vs2MonthsAgo": "2ヶ月前比",
+    "pageTitle": "My Records",
+    "records": "Results",
+    "noData": "No data",
+    "loadFailed": "Could not load your results.",
+    "periodLabel": "Period",
+    "boardLabel": "Practice",
+    "bestScore": "Best score",
+    "avgScore": "Average score",
+    "avgScoreInfo": "Average score of the challenges you finished without reaching the mistake limit",
+    "scoreTrend": "Score trend",
+    "scoreUnit": "Score",
+    "recentHistory": "Recent history",
+    "viewAllResults": "See all results",
+    "tryChallenge": "Take the {title} challenge",
+    "goToPractice": "Go to the practice list",
+    "tableDate": "Date",
+    "tableCorrectAnswers": "Correct",
+    "tableIncorrectAnswers": "Mistakes",
+    "vsLastWeek": "vs. last week",
+    "vs2WeeksAgo": "vs. 2 weeks ago",
+    "vsLastMonth": "vs. last month",
+    "vs2MonthsAgo": "vs. 2 months ago",
     "periods": {
-      "thisWeek": "今週",
-      "lastWeek": "先週",
-      "thisMonth": "今月",
-      "lastMonth": "先月",
-      "twoWeeksAgo": "2週前",
-      "twoMonthsAgo": "2ヶ月前"
+      "thisWeek": "This week",
+      "lastWeek": "Last week",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "twoWeeksAgo": "2 weeks ago",
+      "twoMonthsAgo": "2 months ago"
     }
   },
   "challengeResults": {
-    "pageTitle": "チャレンジ全履歴",
-    "sectionTitle": "結果一覧",
-    "empty": "結果がありません",
-    "tableDate": "日時",
-    "tableMenu": "種目",
-    "tableCorrectAnswers": "正解数",
-    "tableIncorrectAnswers": "ミス数",
-    "allMenuTypes": "すべての種目",
-    "loadFailed": "結果を読み込めませんでした。",
-    "loadMore": "さらに読み込む"
+    "pageTitle": "All challenge results",
+    "sectionTitle": "Results",
+    "empty": "No results",
+    "tableDate": "Date",
+    "tableMenu": "Practice",
+    "tableCorrectAnswers": "Correct",
+    "tableIncorrectAnswers": "Mistakes",
+    "allMenuTypes": "All practices",
+    "loadFailed": "Could not load results.",
+    "loadMore": "Load more"
   },
   "preview": {
-    "name": "あなたの名前",
+    "name": "Your name",
     "username": "your_name"
   }
 }
