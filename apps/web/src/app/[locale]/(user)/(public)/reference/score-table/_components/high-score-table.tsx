@@ -49,7 +49,8 @@ export function HighScoreTable({
         <>
           <DataTableHeaderCell align="left">{t("name")}</DataTableHeaderCell>
           <DataTableHeaderCell align="right">
-            {t("hanSuffix")}
+            {/* 接尾辞は数に連結する語で、英語は先頭に空白を持つ（" han"）。見出しでは落とす */}
+            {t("hanSuffix").trim()}
           </DataTableHeaderCell>
           <DataTableHeaderCell align="right">{t("score")}</DataTableHeaderCell>
         </>
