@@ -12,6 +12,7 @@ import {
   RANK_SITEMAP_PATHS,
 } from "@/app/_lib/sitemap-routes";
 import { EN_PUBLISHED_PATHS } from "@/i18n/route-policy";
+import { translatedTemplateOf } from "@/i18n/translated-publications";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import {
   PRACTICE_SLUG,
@@ -35,7 +36,8 @@ import * as routes from "@mahjong-scoring/features/routes";
  *    扱いを明示する — 3 の分類は静的なパスでしか判定できないので、明示が無いと
  *    新しい動的ページが無検査で出荷される
  * 5. 英語で公開するパス（`route-policy.ts` の許可リスト）は `app/[locale]` 配下の
- *    実在する page.tsx に解決できる
+ *    実在する page.tsx に解決できる（用語の具体的なパスは許可リストのテンプレート
+ *    `/reference/glossary/[slug]` へ畳んで引く）
  *
  * 分類に失敗したら: sitemap-routes.ts に載せて canonical を付けるか、
  * noindex 系ヘルパー（createPracticePlayMetadata / createPrivateMetadata 等）を
@@ -250,10 +252,14 @@ describe("SEO カバレッジ", () => {
     ).toHaveLength(1);
   });
 
+  // 用語のページは許可リストがテンプレート（`/reference/glossary/[slug]`）で持ち、
+  // `EN_PUBLISHED_PATHS` はそれを具体的なパス（`/reference/glossary/jantou`）へ展開した
+  // 一覧。page.tsx はテンプレートのキーで集めているので、具体的なパスは許可リストの
+  // テンプレートへ畳んでから引く（完全一致の行はそのまま引く）。
   it.each(EN_PUBLISHED_PATHS.map((path) => [path]))(
     "英語で公開する %s は app/[locale] 配下の実在する page.tsx に解決できる",
     (path) => {
-      const page = templates.get(path);
+      const page = templates.get(translatedTemplateOf(path, "en") ?? path);
       expect(
         page,
         "route-policy.ts の英語の許可リストにあるが page.tsx が無い",
