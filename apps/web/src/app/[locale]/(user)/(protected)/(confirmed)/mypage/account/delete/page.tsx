@@ -16,26 +16,32 @@ import { DeleteAccountButton } from "./_components/delete-account-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { ACCOUNT_PAGE_PATH } from "@/lib/users/account-page-notice";
+
+import { confirmedGuardOptions } from "../../../_lib/guard-options";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/account/delete">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/account/delete");
-  return createPrivateMetadata("deleteAccount");
+  const locale = await prepareRouteLocale(params, "/mypage/account/delete");
+  return createPrivateMetadata("deleteAccount", "pageTitle", { locale });
 }
 
 export default async function DeleteAccountPage({
   params,
 }: PageProps<"/[locale]/mypage/account/delete">) {
-  await prepareRouteLocale(params, "/mypage/account/delete");
-  await requireConfirmedUser();
+  const locale = await prepareRouteLocale(params, "/mypage/account/delete");
+  await requireConfirmedUser(
+    confirmedGuardOptions("/mypage/account/delete", locale),
+  );
   const t = await getTranslations("deleteAccount");
   const tAccount = await getTranslations("mypageAccount");
 
   return (
     <MypageSubpageLayout
       title={t("pageTitle")}
-      parents={[{ label: tAccount("pageTitle"), href: "/mypage/account" }]}
+      parents={[{ label: tAccount("pageTitle"), href: ACCOUNT_PAGE_PATH }]}
     >
       <section className="space-y-4">
         <SectionTitle>{t("sectionTitle")}</SectionTitle>
@@ -60,7 +66,7 @@ export default async function DeleteAccountPage({
           アカウントページの退会リンクと同じ区切り線で離す。 */}
       <div className="mt-10 border-t border-panel pt-6 text-center">
         <Link
-          href="/mypage/account"
+          href={resolveNavTargetFor(ACCOUNT_PAGE_PATH, locale).href}
           className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
           {t("backToAccount")}

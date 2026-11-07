@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+
+import { localizedHref } from "@/i18n/public-path";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 
 import {
   evaluateIdentityRemoval,
@@ -49,6 +52,11 @@ interface LoginMethodsCardProps extends LoginMethods {
  *
  * Google の追加は認証サーバーの `linkIdentity` で Google へ移動し、結果は
  * `/auth/callback` がこのページへ報せ付きで戻す。
+ *
+ * 英語のページから始めたときは、`/auth/callback` に `locale=<言語>` を付けて
+ * 同じ言語のこのページへ戻させる（`/auth/callback` は言語の接頭辞を持たない
+ * 共通の入口なので、言語を URL で運ぶ）。日本語では付けない（従来の URL のまま。
+ * 無い場合は日本語として扱われる）。外した後の読み直しも同じ言語のこのページ。
  */
 export function LoginMethodsCard({
   identities,
@@ -56,6 +64,7 @@ export function LoginMethodsCard({
   email,
   relayBlocked,
 }: LoginMethodsCardProps) {
+  const locale = useLocale();
   const t = useTranslations("mypageAccount.methods");
   const tProviders = useTranslations("mypageAccount.login.providers");
   const router = useRouter();
@@ -127,7 +136,7 @@ export function LoginMethodsCard({
         return;
       }
       toast.success(t("removedToast"));
-      router.replace(ACCOUNT_PAGE_PATH);
+      router.replace(localizedHref(ACCOUNT_PAGE_PATH, locale));
     } catch {
       toast.error(t("errors.unknown"));
     } finally {
@@ -140,6 +149,9 @@ export function LoginMethodsCard({
     try {
       const callbackUrl = new URL("/auth/callback", window.location.origin);
       callbackUrl.searchParams.set(LINK_RETURN_PARAM, LINK_RETURN_GOOGLE);
+      if (locale !== DEFAULT_LOCALE) {
+        callbackUrl.searchParams.set("locale", locale);
+      }
       const supabase = createClient();
       const { error } = await supabase.auth.linkIdentity({
         provider: "google",

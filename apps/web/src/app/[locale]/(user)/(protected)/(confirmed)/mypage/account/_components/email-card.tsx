@@ -2,9 +2,11 @@
 
 import { useId, useState } from "react";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+
+import { localizedHref } from "@/i18n/public-path";
 
 import { Button } from "@/app/[locale]/(user)/_components/button";
 import { PROFILE_INPUT_CLASS } from "@/app/[locale]/(user)/(protected)/_components/profile-text-field";
@@ -31,12 +33,14 @@ interface EmailCardProps {
  * 開く（別のページもモーダルも挟まない）。送ると認証サーバーが変更前・変更後の
  * 両方に確認メールを送り、両方のリンクを開くまでアドレスは変わらない。
  * 送った後は URL の報せを消しつつ読み直し、「確認しています」の行を出す。
+ * 読み直す先は同じ言語のこのページ（`localizedHref`。日本語は恒等）。
  */
 export function EmailCard({
   email,
   pendingEmail,
   relayBlocked,
 }: EmailCardProps) {
+  const locale = useLocale();
   const t = useTranslations("mypageAccount.email");
   const router = useRouter();
   const inputId = useId();
@@ -78,7 +82,7 @@ export function EmailCard({
       toast.success(t("sentToast"));
       setEditing(false);
       setNewEmail("");
-      router.replace(ACCOUNT_PAGE_PATH);
+      router.replace(localizedHref(ACCOUNT_PAGE_PATH, locale));
     } catch {
       setError(mapError("unknown"));
     } finally {
