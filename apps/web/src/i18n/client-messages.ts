@@ -1,5 +1,5 @@
 import { messages } from "@mahjong-scoring/messages/ja";
-import type { AbstractIntlMessages } from "next-intl";
+import type { Messages } from "next-intl";
 
 import type { MessagesForLocale } from "./request";
 
@@ -106,15 +106,16 @@ const NON_CLIENT_NAMESPACES: ReadonlySet<string> = new Set<string>([
  * 英語の辞書は完訳の名前空間しか持たないので、結果も完訳の名前空間だけになる。
  * 足りない名前空間を日本語で埋めない（`loadMessages` の TSDoc）。
  *
- * 型は `Omit<...>` に絞らず `AbstractIntlMessages` で返す。`Object.fromEntries` の
- * 戻り値を絞るには型の断定が要り、絞ったところで読む側（`useTranslations` のキー）は
- * 辞書の型から検査されないため、得るものが無い。
+ * 型は `Omit<...>` に絞らず、Provider が受け取る `Messages`（next-intl の辞書の型。
+ * web は辞書の形を型に載せていないので任意の木）で返す。絞ったところで読む側
+ * （`useTranslations` のキー）は辞書の型から検査されないため、得るものが無い。
+ * `AbstractIntlMessages`（文字列と入れ子だけ）にしないのは、辞書に配列の値
+ * （`mypage.heatmap.monthNames`。`t.raw` で読む）があり、その形に収まらないため
+ * （収めるには型の断定が要る）。
  *
  * @param dictionary - リクエストの言語の辞書（`loadMessages` の戻り値）
  */
-export function selectClientMessages(
-  dictionary: MessagesForLocale,
-): AbstractIntlMessages {
+export function selectClientMessages(dictionary: MessagesForLocale): Messages {
   return Object.fromEntries(
     Object.entries(dictionary).filter(
       ([namespace]) => !NON_CLIENT_NAMESPACES.has(namespace),
@@ -129,8 +130,7 @@ export function selectClientMessages(
  * 撤去したら、この export も消してよい（新しい呼び出し側は
  * {@link selectClientMessages} を使う）。
  */
-export const clientMessages: AbstractIntlMessages =
-  selectClientMessages(messages);
+export const clientMessages: Messages = selectClientMessages(messages);
 
 /**
  * 管理画面と共有するクライアントコンポーネント（`app/_components/`）が引く名前空間
@@ -149,7 +149,7 @@ const ADMIN_SHARED_MESSAGE_NAMESPACES = [
  * 管理画面は日本語固定（英語の版を作らない）なので、言語を受け取らず日本語の
  * 辞書から選ぶ。
  */
-export const adminClientMessages: AbstractIntlMessages = Object.fromEntries(
+export const adminClientMessages: Messages = Object.fromEntries(
   [...ADMIN_MESSAGE_NAMESPACES, ...ADMIN_SHARED_MESSAGE_NAMESPACES].map(
     (namespace) => [namespace, messages[namespace]],
   ),
