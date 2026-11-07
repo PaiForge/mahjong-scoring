@@ -1,0 +1,90 @@
+{
+  "pageTitle": "アカウント",
+  "login": {
+    "title": "ログイン情報",
+    "email": "メールアドレス",
+    "provider": "ログイン方法",
+    "providers": {
+      "email": "メールアドレスとパスワード",
+      "google": "Google アカウント",
+      "apple": "Apple アカウント"
+    },
+    "unknown": "—"
+  },
+  "email": {
+    "title": "メールアドレス",
+    "change": "変更する",
+    "cancel": "キャンセル",
+    "newEmailLabel": "新しいメールアドレス",
+    "newEmailPlaceholder": "mail@example.com",
+    "submit": "確認メールを送る",
+    "submitting": "送信中...",
+    "pending": "{email} への変更を確認しています。変更前と変更後の両方のアドレスに届いた確認メールのリンクを開くと、変更が完了します。",
+    "relayBlocked": "Apple の「メールを非公開」のアドレスには確認メールを送れないため、メールアドレスの変更とパスワードの設定はできません。",
+    "sentToast": "確認メールを送りました。変更前と変更後の両方のアドレスに届きます。",
+    "errors": {
+      "invalidEmail": "メールアドレスの形式が正しくありません。",
+      "sameEmail": "今のメールアドレスと同じです。",
+      "emailUnavailable": "このメールアドレスには変更できません。",
+      "relayAddress": "Apple の「メールを非公開」のアドレスからは変更できません。",
+      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+      "sendFailed": "確認メールを送れませんでした。もう一度お試しください。",
+      "unauthorized": "ログインの状態が切れました。もう一度ログインしてください。",
+      "banned": "この操作は行えません。"
+    }
+  },
+  "methods": {
+    "title": "ログイン方法",
+    "password": {
+      "set": "設定済み",
+      "unset": "未設定",
+      "setup": "パスワードを設定",
+      "change": "パスワードを変更",
+      "sending": "送信中...",
+      "relayBlocked": "Apple の非公開のメールアドレスには設定のメールを送れません。",
+      "sentToast": "パスワード設定のメールを {email} に送りました。メールのリンクから新しいパスワードを決めてください。"
+    },
+    "google": {
+      "add": "Google アカウントを追加",
+      "adding": "Google へ移動中..."
+    },
+    "apple": {
+      "privateRelay": "非公開のメールアドレス"
+    },
+    "remove": "外す",
+    "removing": "外しています...",
+    "cannotRemove": {
+      "lastWebMethod": "外すと web でログインできる手段が無くなります。先にパスワードを設定するか、別の Google アカウントを追加してください。"
+    },
+    "confirmRemove": {
+      "title": "{provider}の連携を外しますか？",
+      "message": "{email} ではログインできなくなります。",
+      "ok": "外す",
+      "cancel": "キャンセル"
+    },
+    "removedToast": "連携を外しました。",
+    "errors": {
+      "removal:notLinked": "この連携は見つかりませんでした。画面を読み込み直してください。",
+      "removal:notRemovable": "この連携は外せません。",
+      "removal:lastWebMethod": "外すと web でログインできる手段が無くなります。先にパスワードを設定するか、別の Google アカウントを追加してください。",
+      "appleUnavailable": "Apple に接続できませんでした。しばらくしてからもう一度お試しください。",
+      "unlinkFailed": "連携を外せませんでした。もう一度お試しください。",
+      "relayAddress": "Apple の非公開のメールアドレスには設定のメールを送れません。",
+      "noEmail": "メールアドレスが未設定のため送れません。",
+      "sendFailed": "メールを送れませんでした。もう一度お試しください。",
+      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+      "unauthorized": "ログインの状態が切れました。もう一度ログインしてください。",
+      "banned": "この操作は行えません。",
+      "unknown": "通信できませんでした。もう一度お試しください。"
+    }
+  },
+  "notices": {
+    "linkedGoogle": "Google アカウントを追加しました。",
+    "linkDuplicate": "この Google アカウントは、すでにこのアカウントか別のアカウントに連携されています。",
+    "linkFailed": "Google アカウントを追加できませんでした。もう一度お試しください。",
+    "emailChangePending": "確認を受け付けました。もう 1 通の確認メールのリンクも開くと、メールアドレスの変更が完了します。",
+    "emailChangeDone": "メールアドレスを変更しました。",
+    "emailChangeLinkInvalid": "メールアドレス変更のリンクが無効か、有効期限が切れています。もう一度変更を始めてください。"
+  },
+  "deleteAccountLink": "アカウントを削除"
+}

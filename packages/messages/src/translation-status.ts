@@ -84,6 +84,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  * 英語で出すときに `practice` より後の 29 名前空間を同じ手順で足した。`lessons`
  * （確認問題の部品。`/try/mentsu-fu` が読む）と `settings`（和了形・聴牌形の設定
  * フォームが読む）もここで訳す。
+ *
+ * 会員の画面（認証・ダッシュボード・マイページ・設定と、レッスンの確認問題・完了）を
+ * 英語で出すときに `auth` より後の 16 名前空間を同じ手順で足した。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -151,6 +154,22 @@ export const EN_TRANSLATED_NAMESPACES = [
   "manganExamChallenge",
   "lessons",
   "tryMentsuFu",
+  "auth",
+  "signUp",
+  "verifyEmail",
+  "forgotPassword",
+  "resetPassword",
+  "validation",
+  "setupUsername",
+  "banned",
+  "dashboard",
+  "announcements",
+  "mypage",
+  "mypageAccount",
+  "deleteAccount",
+  "mypagePlan",
+  "profileEdit",
+  "pagination",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -178,31 +197,15 @@ export const EN_EXCLUDED_NAMESPACES = [
  * ファイルを置いて `en.ts` に束ねる。並びは `ja.ts` と同じ。
  */
 export const EN_PENDING_NAMESPACES = [
-  "deleteAccount",
-  "announcements",
-  "dashboard",
   "recordCta",
   "terms",
   "privacy",
   "legal",
   "contact",
-  "auth",
-  "signUp",
-  "verifyEmail",
-  "forgotPassword",
-  "resetPassword",
-  "validation",
-  "mypage",
-  "setupUsername",
-  "profileEdit",
   "publicProfile",
   "report",
-  "banned",
-  "pagination",
   "leaderboard",
   "plan",
-  "mypagePlan",
-  "mypageAccount",
   "tokushoho",
   "mobilePlan",
   "mobileApp",

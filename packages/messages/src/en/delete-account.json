@@ -1,0 +1,26 @@
+{
+  "pageTitle": "退会",
+  "sectionTitle": "確認",
+  "warning": "退会すると、このアカウントではログインできなくなります。この操作は取り消せません。",
+  "consequences": {
+    "personalData": "アバター・表示名・自己紹介・SNS などの個人情報は削除されます。",
+    "scoresRemoved": "成績は削除され、ランキングからも表示されなくなります。",
+    "usernameLocked": "ユーザー名は再利用防止のため保持され、同じ名前では再登録できません。"
+  },
+  "confirmButton": "アカウントを削除する",
+  "deleting": "削除中…",
+  "confirmTitle": "本当に退会しますか？",
+  "confirmMessage": "この操作は取り消せません。アカウントを削除すると、このアカウントではログインできなくなります。",
+  "confirmOk": "退会する",
+  "confirmCancel": "キャンセル",
+  "error": "退会処理に失敗しました。時間をおいて再度お試しください。",
+  "successToast": "退会が完了しました",
+  "acceptedToast": "退会を受け付けました。処理が終わるまで少し時間がかかることがあります。",
+  "backToAccount": "アカウントに戻る",
+  "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
+  "banned": "アカウントが停止されているため、この操作はできません。",
+  "networkError": "通信できませんでした。電波の届くところでもう一度お試しください。",
+  "appleRequired": "Apple でログインしたアカウントは、退会の前に Apple での確認が必要です。もう一度「アカウントを削除する」を押して、Apple の確認を済ませてください。",
+  "appleMismatch": "このアカウントで使っている Apple ID で確認してください。",
+  "appleNotSupported": "Apple でログインしたアカウントは、iPhone のアプリから退会してください。"
+}

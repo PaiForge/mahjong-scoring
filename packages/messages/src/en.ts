@@ -63,6 +63,22 @@ import chiitoitsuExamChallenge from "./en/chiitoitsu-exam-challenge.json";
 import manganExamChallenge from "./en/mangan-exam-challenge.json";
 import lessons from "./en/lessons.json";
 import tryMentsuFu from "./en/try-mentsu-fu.json";
+import auth from "./en/auth.json";
+import signUp from "./en/sign-up.json";
+import verifyEmail from "./en/verify-email.json";
+import forgotPassword from "./en/forgot-password.json";
+import resetPassword from "./en/reset-password.json";
+import validation from "./en/validation.json";
+import setupUsername from "./en/setup-username.json";
+import banned from "./en/banned.json";
+import dashboard from "./en/dashboard.json";
+import announcements from "./en/announcements.json";
+import mypage from "./en/mypage.json";
+import mypageAccount from "./en/mypage-account.json";
+import deleteAccount from "./en/delete-account.json";
+import mypagePlan from "./en/mypage-plan.json";
+import profileEdit from "./en/profile-edit.json";
+import pagination from "./en/pagination.json";
 import type {
   EnTranslatedNamespace,
   MessagesShape,
@@ -152,6 +168,22 @@ export const messages = {
   manganExamChallenge,
   lessons,
   tryMentsuFu,
+  auth,
+  signUp,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
+  validation,
+  setupUsername,
+  banned,
+  dashboard,
+  announcements,
+  mypage,
+  mypageAccount,
+  deleteAccount,
+  mypagePlan,
+  profileEdit,
+  pagination,
 } satisfies Pick<MessagesShape, EnTranslatedNamespace>;
 
 /** 英語の辞書の型（完訳の名前空間 → 文言の木） */
