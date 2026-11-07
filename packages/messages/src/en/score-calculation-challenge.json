@@ -1,32 +1,32 @@
 {
-  "title": "点数即答",
-  "description": "手牌・和了牌・風牌・ドラなどの情報から正しい点数を答える練習です",
-  "questionPrompt": "この和了の点数を回答してください",
-  "oya": "親",
-  "ko": "子",
-  "tsumo": "ツモ",
-  "ron": "ロン",
-  "han": "{count}翻",
-  "fu": "{count}符",
-  "selectScore": "点数を選択",
-  "fromKo": "子から",
-  "fromOya": "親から",
-  "koTsumoScore": "点数（子から / 親から）",
-  "all": "オール",
-  "answer": "回答する",
-  "revealedAnswer": "正解: <answer></answer>",
-  "pointSuffix": "点",
-  "generating": "問題を生成中...",
+  "title": "Instant Score Calculation",
+  "description": "Practice answering the riichi mahjong score of a win from the hand, the winning tile, the winds, dora and more",
+  "questionPrompt": "Answer the score for this win",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": "all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": "points",
+  "generating": "Generating questions...",
   "howToPlay": {
-    "title": "問題方式",
-    "lead": "このような問題が出題されます。"
+    "title": "Question format",
+    "lead": "You will get questions like this."
   },
   "result": {
-    "problemDetails": "問題の詳細",
-    "correctAnswer": "正解",
-    "yourAnswer": "あなたの回答",
-    "correct": "正解",
-    "incorrect": "不正解"
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
   },
-  "summarySeparator": "・"
+  "summarySeparator": ", "
 }
