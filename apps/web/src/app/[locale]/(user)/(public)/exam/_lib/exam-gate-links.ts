@@ -7,7 +7,7 @@ import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 import {
   EXAM_GATE_SIGN_UP_PATH,
   type ExamGateLinks,
-} from "../_components/exam-gate-links";
+} from "./exam-gate-link-defaults";
 
 /**
  * 受験ゲートの導線を、ページの言語で張る先に解決する
