@@ -221,3 +221,29 @@ export function localizedHref(path: string, locale: SupportedLocale): string {
   const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
   return `${prefixed}${search}${hash}`;
 }
+
+/**
+ * ロケール非依存のパスを、内部のルート（`app/[locale]/...`）のパスにする
+ * 内部ロケールパス
+ *
+ * `revalidatePath` に渡すためのもの。公開 URL（{@link localizedHref}）と違い、
+ * 既定の言語にも接頭辞を付ける（`/lessons` は `/ja/lessons`・`/en/lessons`、
+ * `/` は `/ja`・`/en`）。日本語の公開 URL は proxy が内部の `/ja/...` へ
+ * rewrite して描くので、キャッシュの実体は内部のパスにある。
+ * query・hash はそのまま残す。`/` で始まらない値・既に接頭辞の付いた値・
+ * ロケール化しないパスは扱わない（呼び出し側の誤り）ので、そのまま返す。
+ *
+ * @param path - ロケール非依存のパス（`/lessons/jantou-fu` 等）
+ * @param locale - 内部ルートの言語
+ */
+export function internalLocalePath(
+  path: string,
+  locale: SupportedLocale,
+): string {
+  if (!path.startsWith("/") || path.startsWith("//")) return path;
+  const { pathname, search, hash } = splitHref(path);
+  if (isNonLocalizedPath(pathname)) return path;
+  if (parseExternalPath(pathname).prefix !== undefined) return path;
+  const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
+  return `${prefixed}${search}${hash}`;
+}

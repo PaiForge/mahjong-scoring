@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  internalLocalePath,
   isNonLocalizedPath,
   localizedHref,
   parseExternalPath,
@@ -144,5 +145,29 @@ describe("isNonLocalizedPath", () => {
     ["/practice", false],
   ])("%s → %s", (pathname, expected) => {
     expect(isNonLocalizedPath(pathname)).toBe(expected);
+  });
+});
+
+describe("internalLocalePath", () => {
+  it("既定の言語にも接頭辞を付ける（内部のルートのパス）", () => {
+    expect(internalLocalePath("/lessons", "ja")).toBe("/ja/lessons");
+    expect(internalLocalePath("/lessons", "en")).toBe("/en/lessons");
+    expect(internalLocalePath("/", "ja")).toBe("/ja");
+    expect(internalLocalePath("/", "en")).toBe("/en");
+  });
+
+  it("query と hash はそのまま残す", () => {
+    expect(internalLocalePath("/lessons/jantou-fu?x=1#y", "en")).toBe(
+      "/en/lessons/jantou-fu?x=1#y",
+    );
+  });
+
+  it("ロケール化しないパス・接頭辞済み・外部 URL はそのまま", () => {
+    expect(internalLocalePath("/api/x", "ja")).toBe("/api/x");
+    expect(internalLocalePath("/en/lessons", "ja")).toBe("/en/lessons");
+    expect(internalLocalePath("https://example.com/", "en")).toBe(
+      "https://example.com/",
+    );
+    expect(internalLocalePath("//host/x", "en")).toBe("//host/x");
   });
 });
