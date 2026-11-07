@@ -1,27 +1,27 @@
 {
-  "pageTitle": "はじめよう",
-  "pageDescription": "麻雀の点数計算の始め方ガイド。レベルに応じて適した練習を選び、初心者でも符計算・点数申告をマスターできます。",
+  "pageTitle": "Getting Started with Riichi Mahjong Scoring",
+  "pageDescription": "A guide to getting started with riichi mahjong scoring. Pick the practice that suits your level and master counting fu and calling out the score, even as a beginner.",
   "steps": {
     "tryout": {
-      "title": "まずは体験",
-      "description": "和了時の点数計算問題を1問解いてみましょう",
-      "cta": "問題を解いてみる"
+      "title": "Try it first",
+      "description": "Solve one scoring question for a winning hand",
+      "cta": "Try a question"
     },
     "practice": {
-      "title": "簡単な問題を解く",
-      "description": "点数計算がまだできない場合は、簡単な符の計算問題をやってみましょう",
-      "cta": "練習をはじめる",
-      "sub": "練習の一覧を見る"
+      "title": "Solve easy questions",
+      "description": "If you cannot calculate scores yet, start with simple fu questions",
+      "cta": "Start practicing",
+      "sub": "See all practice menus"
     },
     "learn": {
-      "title": "机上で知る",
-      "description": "点数計算に関する知識を1から学べます",
-      "cta": "読んでみる"
+      "title": "Learn the theory",
+      "description": "Learn everything about scoring from the very beginning",
+      "cta": "Start reading"
     }
   },
   "signUp": {
-    "title": "アカウントを作って記録を残そう",
-    "description": "無料登録で学習の進捗が保存され、ランキングにも参加できます。",
-    "cta": "無料ユーザー登録"
+    "title": "Create an account to keep your records",
+    "description": "A free account saves your learning progress.",
+    "cta": "Sign up for free"
   }
 }
