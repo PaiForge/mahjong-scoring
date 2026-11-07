@@ -25,14 +25,14 @@ const PATH = "/reset-password";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/reset-password">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/reset-password");
   return createAuthPageMetadata("resetPassword", "pageTitle", PATH, locale);
 }
 
 export default async function ResetPasswordPage({
   params,
 }: PageProps<"/[locale]/reset-password">) {
-  await prepareRouteLocale(params, PATH);
+  await prepareRouteLocale(params, "/reset-password");
   const t = await getTranslations("resetPassword");
 
   return (

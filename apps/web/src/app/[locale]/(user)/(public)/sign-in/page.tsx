@@ -45,7 +45,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/sign-in">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-in");
   return createAuthPageMetadata("auth", "signInPageTitle", PATH, locale);
 }
 
@@ -55,7 +55,7 @@ export default async function SignInPage({
 }: {
   searchParams: Promise<{ error?: string; redirect?: string }>;
 } & Pick<PageProps<"/[locale]/sign-in">, "params">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-in");
   const { error, redirect: redirectParam } = await searchParams;
   const mypage = localizedHref("/mypage", locale);
   // `?redirect=` はガードが公開 URL の形（英語なら `/en/...`）で付けるので、

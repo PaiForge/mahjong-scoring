@@ -16,7 +16,7 @@ const PATH = "/mypage/setup-username";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/setup-username">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/setup-username");
   return createPrivateMetadata("setupUsername", "title", { locale });
 }
 
@@ -33,7 +33,7 @@ export async function generateMetadata({
 export default async function SetupUsernamePage({
   params,
 }: PageProps<"/[locale]/mypage/setup-username">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/setup-username");
   await requireProvisionalUser({ returnTo: localizedHref(PATH, locale) });
   const t = await getTranslations("setupUsername");
 

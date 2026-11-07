@@ -2,17 +2,19 @@
 
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
-import { useRouter } from "@/i18n/navigation";
-
 import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
+
+import { localizedHref } from "@/i18n/public-path";
 
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { usePasswordFormMessages } from "../../_hooks/use-password-form-messages";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
+import { useSupportedLocale } from "../../sign-in/_lib/use-supported-locale";
 import { resetPassword } from "../_actions/reset-password";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
@@ -21,14 +23,17 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
  * Server Action 経由で Supabase の updateUser を呼び出す。
  * パスワード再設定フォーム
  *
- * 成功後は `@/i18n/navigation` の `useRouter` で今の言語のマイページへ遷移する。
- * トーストの預かりはロケール非依存のパスで渡す（`toastOnArrival` が接頭辞を外して比べる）。
+ * 成功後は今の言語のマイページへ遷移する（英語なら `/en/mypage`。接頭辞は
+ * `localizedHref`。`@/i18n/navigation` は公開状態の表ごとクライアントの JS に
+ * 載るので読まない）。トーストの預かりはロケール非依存のパスで渡す
+ * （`toastOnArrival` が接頭辞を外して比べる）。
  */
 export function ResetPasswordForm() {
   const t = useTranslations("resetPassword");
   const { validatePair, mapPasswordError } =
     usePasswordFormMessages("resetPassword");
   const router = useRouter();
+  const locale = useSupportedLocale();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { error, isLoading, submit } = useAuthFormSubmit();
@@ -44,7 +49,7 @@ export function ResetPasswordForm() {
       },
       onSuccess: () => {
         toastOnArrival("/mypage", t("successToast"), "success");
-        router.push("/mypage");
+        router.push(localizedHref("/mypage", locale));
       },
     });
   };

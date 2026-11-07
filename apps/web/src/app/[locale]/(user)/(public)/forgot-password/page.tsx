@@ -30,14 +30,14 @@ const PATH = "/forgot-password";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/forgot-password">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/forgot-password");
   return createAuthPageMetadata("forgotPassword", "pageTitle", PATH, locale);
 }
 
 export default async function ForgotPasswordPage({
   params,
 }: PageProps<"/[locale]/forgot-password">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/forgot-password");
   const t = await getTranslations("forgotPassword");
   const signIn = resolveNavTargetFor("/sign-in", locale);
 

@@ -43,7 +43,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/sign-up/verify-email">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-up/verify-email");
   return createAuthPageMetadata("verifyEmail", "pageTitle", PATH, locale);
 }
 
@@ -53,7 +53,7 @@ export default async function VerifyEmailPage({
 }: {
   searchParams: Promise<{ email?: string }>;
 } & Pick<PageProps<"/[locale]/sign-up/verify-email">, "params">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-up/verify-email");
   // 確認済み（＝ログイン済み）ユーザーにこのページは不要。
   // 再送しても GoTrue は送信せず「再送した」と誤解させるため、マイページへ退避する。
   await redirectIfAuthenticated(localizedHref("/mypage", locale));

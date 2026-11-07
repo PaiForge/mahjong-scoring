@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 
-import { Link } from "@/i18n/navigation";
 import { localizedHref } from "@/i18n/public-path";
 
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
@@ -23,8 +23,12 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
  * @param redirectTo ログイン成功時の遷移先（公開 URL の形。英語なら `/en/...`）。
  *   未指定ならページの言語の `/mypage`（英語なら `/en/mypage`）。
  *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
- *   読み込み直す遷移（`window.location.href`）なので、言語の接頭辞は
- *   next-intl の遷移に任せられず、ここで最終の URL にする。
+ *   読み込み直す遷移（`window.location.href`）なので、ここで最終の URL にする。
+ *
+ * 言語の接頭辞は `localizedHref` で付ける（マイページ・パスワードを忘れたときの
+ * ページはどちらの言語でも公開している）。`@/i18n/navigation` はクライアントから
+ * 読まない — 公開状態の表（`route-policy.ts`）ごとクライアントの JS に載るため
+ * （`client-bundle-boundaries.test.ts`）。
  */
 export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
   const t = useTranslations("auth");
@@ -79,7 +83,10 @@ export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
       </AuthSubmitButton>
 
       <p className="text-center text-sm">
-        <Link href="/forgot-password" className={TEXT_LINK_CLASSES}>
+        <Link
+          href={localizedHref("/forgot-password", locale)}
+          className={TEXT_LINK_CLASSES}
+        >
           {t("forgotPasswordLink")}
         </Link>
       </p>

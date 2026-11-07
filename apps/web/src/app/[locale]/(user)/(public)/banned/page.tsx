@@ -10,12 +10,10 @@ import { getAuthenticatedUser } from "../../../../../lib/auth";
 import { getLatestBanReason, isUserBanned } from "../../../../../lib/ban";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
-const PATH = "/banned";
-
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/banned">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/banned");
   return createPrivateMetadata("banned", "title", { locale });
 }
 
@@ -30,7 +28,7 @@ export async function generateMetadata({
 export default async function BannedPage({
   params,
 }: PageProps<"/[locale]/banned">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/banned");
   const t = await getTranslations("banned");
 
   // 未認証なら getAuthenticatedUser が今の言語の /sign-in へリダイレクトする

@@ -48,7 +48,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/sign-up">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-up");
   return createAuthPageMetadata("signUp", "pageTitle", PATH, locale);
 }
 
@@ -58,7 +58,7 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 } & Pick<PageProps<"/[locale]/sign-up">, "params">) {
-  const locale = await prepareRouteLocale(params, PATH);
+  const locale = await prepareRouteLocale(params, "/sign-up");
   await redirectIfAuthenticated(localizedHref("/mypage", locale));
 
   const { error } = await searchParams;
