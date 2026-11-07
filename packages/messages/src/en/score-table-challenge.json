@@ -10,11 +10,11 @@
   "fu": "{count} fu",
   "selectScore": "Select a score",
   "revealedAnswer": "Correct answer: <answer></answer>",
-  "pointSuffix": "points",
+  "pointSuffix": " points",
   "fromKo": "From each non-dealer",
   "fromOya": "From the dealer",
   "koTsumoScore": "Score (from each non-dealer / from the dealer)",
-  "all": "all",
+  "all": " all",
   "answer": "Submit",
   "questionLabel": "Answer the score for these conditions",
   "howToPlay": {

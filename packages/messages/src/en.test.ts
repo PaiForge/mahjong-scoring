@@ -173,6 +173,12 @@ const JAPANESE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
  * `1 han`、`東{round}` → `東 round`）。日本語は空白を入れずに続けるので、英語では
  * 値の側に区切りの空白を持たせる。単独で見出しにもなる（`hanSuffix` は満貫以上の表の
  * 列見出し）が、要素の先頭の空白は描画で詰まるので見た目に出ない。
+ * 練習の答え・選択肢も同じ形で、点数・翻・符の数の直後に連結する（`formatHan` の
+ * `${han}${hanSuffix}`・`formatPayment` / `formatScoreAnswer` の `${score}${all}` と
+ * `${score}${pointSuffix}`・`practiceHanOptions` / `practiceFuOptions` の選択肢・内訳の表の `withSuffix`・
+ * 点数タイルの `aria-label`）。空白が無いと `3han`・`4000all`・`8000points` と出る。
+ * 点数タイルは接尾辞を数の下に別の要素で描くが、先頭の空白は同じく詰まる。
+ * 単独で見出しやボタンに出るだけのキー（`scoreTable.all` 等）はここに足さない。
  * 呼び出し側を ICU の文型（`{han} han`）に改めたら、ここから外す。
  */
 const LEADING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
@@ -180,6 +186,28 @@ const LEADING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
   "scoreTable.hanSuffix",
   "common.round",
   "common.wind",
+  // 和了形・聴牌形（聴牌形も agariScore の接尾辞を読む）
+  "agariScore.form.options.hanSuffix",
+  "agariScore.form.options.fuSuffix",
+  "agariScore.form.options.all",
+  "agariScore.result.pointSuffix",
+  // 点数を答える練習・試験（ScoreAnswerForm・RevealedScoreAnswer・問題一覧が読む）
+  "scoreTableChallenge.all",
+  "scoreTableChallenge.pointSuffix",
+  "scoreCalculationChallenge.all",
+  "scoreCalculationChallenge.pointSuffix",
+  "manganScoreCalculationChallenge.all",
+  "manganScoreCalculationChallenge.pointSuffix",
+  "fuScoreExamChallenge.all",
+  "fuScoreExamChallenge.pointSuffix",
+  "scoreExamChallenge.all",
+  "scoreExamChallenge.pointSuffix",
+  "pinfuExamChallenge.all",
+  "pinfuExamChallenge.pointSuffix",
+  "chiitoitsuExamChallenge.all",
+  "chiitoitsuExamChallenge.pointSuffix",
+  "manganExamChallenge.all",
+  "manganExamChallenge.pointSuffix",
 ]);
 
 /**
