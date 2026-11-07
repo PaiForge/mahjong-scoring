@@ -26,19 +26,25 @@ import { redirectIfAuthenticated } from "@/lib/auth";
 
 import { GoogleOAuthButton } from "../../sign-in/_components/google-oauth-button";
 import { ResendEmailButton } from "./_components/resend-email-button";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 認証状態に依存するため、ビルド時のプリレンダリングを無効化 */
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/sign-up/verify-email">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/sign-up/verify-email");
   return createTitleOnlyMetadata("verifyEmail", "pageTitle");
 }
 
 export default async function VerifyEmailPage({
+  params,
   searchParams,
 }: {
   searchParams: Promise<{ email?: string }>;
-}) {
+} & Pick<PageProps<"/[locale]/sign-up/verify-email">, "params">) {
+  await prepareRouteLocale(params, "/sign-up/verify-email");
   // 確認済み（＝ログイン済み）ユーザーにこのページは不要。
   // 再送しても GoTrue は送信せず「再送した」と誤解させるため、マイページへ退避する。
   await redirectIfAuthenticated();

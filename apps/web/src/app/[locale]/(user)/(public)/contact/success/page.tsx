@@ -5,13 +5,20 @@ import { ContentContainer } from "@/app/[locale]/(user)/_components/content-cont
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/contact/success">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/contact/success");
   return createPrivateMetadata("contact.success", "title");
 }
 
 /** お問い合わせの送信完了 */
-export default async function ContactSuccessPage() {
+export default async function ContactSuccessPage({
+  params,
+}: PageProps<"/[locale]/contact/success">) {
+  await prepareRouteLocale(params, "/contact/success");
   const t = await getTranslations("contact");
 
   return (

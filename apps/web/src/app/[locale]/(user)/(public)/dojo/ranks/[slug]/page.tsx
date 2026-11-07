@@ -28,6 +28,7 @@
  * 3. 試験の説明ページへ進む（受験資格は試験ページ側が判定する）
  */
 import type { Metadata } from "next";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -54,13 +55,14 @@ import { DOJO_PATH, rankHref } from "@mahjong-scoring/features/routes";
 import { RankStatusBadge } from "../_components/rank-status-badge";
 
 interface RankDetailPageProps {
-  readonly params: Promise<{ readonly slug: string }>;
+  readonly params: Promise<{ readonly locale: string; readonly slug: string }>;
 }
 
 export async function generateMetadata({
   params,
 }: RankDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
+  await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
   const rank = rankBySlug(slug);
   // 未知の slug は本文が notFound() を呼び、Next が noindex を付けた
   // not-found を描く。ここでは何も宣言しない
@@ -83,6 +85,7 @@ export async function generateMetadata({
 
 export default async function RankDetailPage({ params }: RankDetailPageProps) {
   const { slug } = await params;
+  await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
   const rank = rankBySlug(slug);
   if (!rank) notFound();
 

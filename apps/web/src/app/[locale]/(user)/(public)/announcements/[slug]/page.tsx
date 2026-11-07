@@ -7,7 +7,7 @@
  */
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { MarkdownRenderer } from "@/app/[locale]/(user)/_components/markdown-renderer";
@@ -20,16 +20,17 @@ import {
 } from "@mahjong-scoring/features/announcements/format";
 import { getPublishedAnnouncement } from "@/lib/announcements/queries";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 export const revalidate = 86400;
 
 interface Props {
-  params: Promise<{ slug: string }>;
+  readonly params: Promise<{ readonly locale: string; readonly slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const locale = await getLocale();
+  const locale = await prepareRouteLocale(params, `/announcements/${slug}`);
   const announcement = await getPublishedAnnouncement(slug, locale);
 
   if (!announcement) {
@@ -50,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AnnouncementDetailPage({ params }: Props) {
   const { slug } = await params;
-  const locale = await getLocale();
+  const locale = await prepareRouteLocale(params, `/announcements/${slug}`);
   const t = await getTranslations("announcements");
 
   const announcement = await getPublishedAnnouncement(slug, locale);

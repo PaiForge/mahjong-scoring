@@ -26,12 +26,19 @@ import { PRACTICE_SCROLL_ANCHOR_ID } from "@/app/[locale]/(user)/(public)/practi
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 import { TryBoard } from "./_components/try-board";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/try/agari-score">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/try/agari-score");
   return createNamespaceMetadata("tryDemo", { path: "/try/agari-score" });
 }
 
-export default async function TryPage() {
+export default async function TryPage({
+  params,
+}: PageProps<"/[locale]/try/agari-score">) {
+  await prepareRouteLocale(params, "/try/agari-score");
   const t = await getTranslations("tryDemo");
 
   return (

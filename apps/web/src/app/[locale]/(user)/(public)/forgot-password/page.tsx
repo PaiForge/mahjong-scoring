@@ -20,12 +20,19 @@ import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { ForgotPasswordForm } from "./_components/forgot-password-form";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/forgot-password">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/forgot-password");
   return createTitleOnlyMetadata("forgotPassword", "pageTitle");
 }
 
-export default async function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+  params,
+}: PageProps<"/[locale]/forgot-password">) {
+  await prepareRouteLocale(params, "/forgot-password");
   const t = await getTranslations("forgotPassword");
 
   return (

@@ -24,6 +24,7 @@ import {
   LegalSection,
 } from "../_components/legal-article";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 改定日。文面を変えたら更新する */
 const LAST_UPDATED = "2026-10-10";
@@ -35,14 +36,20 @@ const GOOGLE_LINKS = {
   partnerSites: "https://policies.google.com/technologies/partner-sites",
 } as const;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/privacy">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/privacy");
   return createNamespaceMetadata("privacy", {
     title: "pageTitle",
     path: "/privacy",
   });
 }
 
-export default async function PrivacyPage() {
+export default async function PrivacyPage({
+  params,
+}: PageProps<"/[locale]/privacy">) {
+  await prepareRouteLocale(params, "/privacy");
   const t = await getTranslations("privacy");
 
   return (

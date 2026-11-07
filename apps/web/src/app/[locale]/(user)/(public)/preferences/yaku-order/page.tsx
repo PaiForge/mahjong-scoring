@@ -19,12 +19,19 @@ import {
   PREFERENCES_PATH,
   YAKU_ORDER_PATH,
 } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/preferences/yaku-order">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/preferences/yaku-order");
   return createTitleOnlyMetadata("settings.yakuOrder", "pageTitle");
 }
 
-export default async function YakuOrderPage() {
+export default async function YakuOrderPage({
+  params,
+}: PageProps<"/[locale]/preferences/yaku-order">) {
+  await prepareRouteLocale(params, "/preferences/yaku-order");
   const t = await getTranslations("settings");
   const tYakuOrder = await getTranslations("settings.yakuOrder");
 

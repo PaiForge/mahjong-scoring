@@ -27,19 +27,25 @@ import { redirectIfAuthenticated } from "@/lib/auth";
 import { GoogleOAuthButton } from "../sign-in/_components/google-oauth-button";
 import { EmailSignUpForm } from "./_components/email-sign-up-form";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 認証状態に依存するため、ビルド時のプリレンダリングを無効化 */
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/sign-up">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/sign-up");
   return createTitleOnlyMetadata("signUp", "pageTitle");
 }
 
 export default async function SignUpPage({
+  params,
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
-}) {
+} & Pick<PageProps<"/[locale]/sign-up">, "params">) {
+  await prepareRouteLocale(params, "/sign-up");
   await redirectIfAuthenticated();
 
   const { error } = await searchParams;

@@ -66,12 +66,19 @@ import { MembersOnlyGate } from "../_components/members-only-gate";
 import { PracticeSettingsSection } from "../_components/practice-settings-section";
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
 import { RuleSettingsSection } from "../_components/rule-settings-section";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/preferences">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/preferences");
   return createTitleOnlyMetadata("settings", "pageTitle");
 }
 
-export default async function PreferencesPage() {
+export default async function PreferencesPage({
+  params,
+}: PageProps<"/[locale]/preferences">) {
+  await prepareRouteLocale(params, "/preferences");
   const t = await getTranslations("settings");
 
   return (

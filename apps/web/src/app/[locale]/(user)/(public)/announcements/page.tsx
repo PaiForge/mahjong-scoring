@@ -25,6 +25,7 @@ import {
   getPublishedAnnouncementsPaginated,
 } from "@/lib/announcements/queries";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 export const revalidate = 86400;
 
@@ -32,7 +33,10 @@ interface Props {
   searchParams: Promise<{ page?: string }>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/announcements">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/announcements");
   return createNamespaceMetadata("announcements", {
     title: "pageTitle",
     description: "pageDescription",
@@ -40,7 +44,11 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function AnnouncementsPage({ searchParams }: Props) {
+export default async function AnnouncementsPage({
+  params,
+  searchParams,
+}: Props & Pick<PageProps<"/[locale]/announcements">, "params">) {
+  await prepareRouteLocale(params, "/announcements");
   const { page } = await searchParams;
   const locale = await getLocale();
   const t = await getTranslations("announcements");

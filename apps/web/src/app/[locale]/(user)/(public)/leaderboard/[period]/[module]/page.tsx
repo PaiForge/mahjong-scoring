@@ -21,6 +21,7 @@ import { Suspense } from "react";
 
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
@@ -58,6 +59,7 @@ export const dynamic = "force-dynamic";
 
 interface LeaderboardDetailPageProps {
   params: Promise<{
+    locale: string;
     period: string;
     module: string;
   }>;
@@ -95,6 +97,7 @@ export async function generateMetadata({
     params,
     searchParams,
   ]);
+  await prepareRouteLocale(params, `/leaderboard/${period}/${moduleSlug}`);
   const validated = validateParams(period, moduleSlug, variant);
   if (!validated) return {};
 
@@ -153,6 +156,7 @@ export default async function LeaderboardDetailPage({
   searchParams,
 }: LeaderboardDetailPageProps) {
   const { period, module: moduleSlug } = await params;
+  await prepareRouteLocale(params, `/leaderboard/${period}/${moduleSlug}`);
   const { page: pageParam, variant } = await searchParams;
 
   const validated = validateParams(period, moduleSlug, variant);

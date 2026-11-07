@@ -7,6 +7,7 @@
  * @flow マイページの「公開プロフィール」リンク・ランキングの行 → /u/[username] → 「…」→ ブロック → ブロック中の案内
  */
 import type { Metadata } from "next";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
@@ -26,11 +27,15 @@ import { UnblockButton } from "./_components/block-dialogs";
 import { ProfileActionsMenu } from "./_components/profile-actions-menu";
 
 interface Props {
-  readonly params: Promise<{ username: string }>;
+  readonly params: Promise<{
+    readonly locale: string;
+    readonly username: string;
+  }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { username } = await params;
+  await prepareRouteLocale(params, `/u/${username}`);
   const profile = await getPublicProfileByUsername(username);
   if (!profile) {
     return { robots: { index: false, follow: false } };
@@ -46,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PublicProfilePage({ params }: Props) {
   const { username } = await params;
+  await prepareRouteLocale(params, `/u/${username}`);
   const profile = await getPublicProfileByUsername(username);
 
   if (!profile) {

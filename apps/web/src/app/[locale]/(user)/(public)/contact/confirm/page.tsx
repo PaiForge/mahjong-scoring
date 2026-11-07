@@ -9,12 +9,16 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 
 import { ContactConfirm } from "../_components/contact-confirm";
 import { readContactParams } from "../_lib/contact-params";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 interface ContactConfirmPageProps {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/contact/confirm">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/contact/confirm");
   return createPrivateMetadata("contact.confirm", "title");
 }
 
@@ -25,8 +29,11 @@ export async function generateMetadata(): Promise<Metadata> {
  * 開いた等）入力画面へ戻す。
  */
 export default async function ContactConfirmPage({
+  params,
   searchParams,
-}: ContactConfirmPageProps) {
+}: ContactConfirmPageProps &
+  Pick<PageProps<"/[locale]/contact/confirm">, "params">) {
+  await prepareRouteLocale(params, "/contact/confirm");
   const formData = readContactParams(await searchParams);
   if (!formData) {
     redirect("/contact");

@@ -29,6 +29,7 @@ import {
   type LeaderboardPeriod,
 } from "@mahjong-scoring/features/leaderboard/boards";
 import { LEADERBOARD_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 export const dynamic = "force-dynamic";
 
@@ -45,13 +46,19 @@ function parsePeriod(value: string | undefined): LeaderboardPeriod {
   return "all-time";
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/leaderboard">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/leaderboard");
   return createTitleOnlyMetadata("leaderboard", "title", LEADERBOARD_PATH);
 }
 
 export default async function LeaderboardIndexPage({
+  params,
   searchParams,
-}: LeaderboardIndexPageProps) {
+}: LeaderboardIndexPageProps &
+  Pick<PageProps<"/[locale]/leaderboard">, "params">) {
+  await prepareRouteLocale(params, "/leaderboard");
   const { period: periodParam } = await searchParams;
   const period = parsePeriod(periodParam);
   const t = await getTranslations("leaderboard");

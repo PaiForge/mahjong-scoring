@@ -30,18 +30,25 @@ import {
   LegalSection,
 } from "../_components/legal-article";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 改定日。文面を変えたら更新する */
 const LAST_UPDATED = "2026-10-10";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/terms">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/terms");
   return createNamespaceMetadata("terms", {
     title: "pageTitle",
     path: "/terms",
   });
 }
 
-export default async function TermsPage() {
+export default async function TermsPage({
+  params,
+}: PageProps<"/[locale]/terms">) {
+  await prepareRouteLocale(params, "/terms");
   const t = await getTranslations("terms");
 
   return (

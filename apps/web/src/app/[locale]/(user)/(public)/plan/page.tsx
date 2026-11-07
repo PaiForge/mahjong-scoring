@@ -19,8 +19,12 @@ import { PRACTICE_QUOTA_LIMITS } from "@mahjong-scoring/features/quota/limits";
 
 import { OfferPurchaseButton } from "./_components/offer-purchase-button";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/plan">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/plan");
   // パスはリテラルで書く（seo-coverage.test が canonical の宣言を文字列で検査する）
   return createNamespaceMetadata("plan", {
     title: "pageTitle",
@@ -59,7 +63,10 @@ export const revalidate = 3600;
  * 2. 未ログインなら「ログインして購入」でサインインへ（戻り先はこのページ）
  * 3. ログイン済みなら Stripe の決済画面へ → 完了すると `/mypage/plan` に戻る
  */
-export default async function PlanPage() {
+export default async function PlanPage({
+  params,
+}: PageProps<"/[locale]/plan">) {
+  await prepareRouteLocale(params, "/plan");
   const t = await getTranslations("plan");
   const prices = await getOfferPrices("pro");
   const plan = PLANS.pro;
