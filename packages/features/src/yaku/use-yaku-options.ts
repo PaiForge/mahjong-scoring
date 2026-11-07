@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useTranslations } from "use-intl";
 
-import { YAKU_TO_KEY } from "./yaku-labels";
+import { yakuLabel } from "./yaku-labels";
 
 /** 役の選択肢 1 件 */
 export interface YakuOption {
@@ -16,7 +16,8 @@ export interface YakuOption {
  * 役表示名取得
  *
  * 選択肢・チップ・設定の並び替えが同じ表示名を出すため、変換をここに寄せる。
- * 同じ役が画面ごとに違う名前で出ないようにするのが目的。
+ * 同じ役が画面ごとに違う名前で出ないようにするのが目的。変換の本体は純粋関数の
+ * {@link yakuLabel}（サーバーコンポーネントはそちらを直接呼ぶ）。
  *
  * 辞書は use-intl から読む。web の next-intl の `useTranslations` は
  * use-intl のものを包んだだけで、`NextIntlClientProvider` も use-intl の
@@ -25,13 +26,7 @@ export interface YakuOption {
 export function useYakuLabel(): (yakuName: string) => string {
   const tYaku = useTranslations("agariScore.yaku");
 
-  return useCallback(
-    (yakuName: string) => {
-      const key = YAKU_TO_KEY[yakuName];
-      return key ? tYaku(key) : yakuName;
-    },
-    [tYaku],
-  );
+  return useCallback((yakuName: string) => yakuLabel(yakuName, tYaku), [tYaku]);
 }
 
 /**
