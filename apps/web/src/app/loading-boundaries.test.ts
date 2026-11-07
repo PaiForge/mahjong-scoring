@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { EN_PUBLISHED_PATHS } from "@/i18n/route-policy";
+import { EN_PUBLISHED_PATHS, getPublication } from "@/i18n/route-policy";
 import { collectPageTemplates } from "@/test/collect-pages";
 import {
   type BuildArtifacts,
@@ -53,7 +53,8 @@ import {
  * 1 枚の page.tsx が `/ja/practice` と `/en/practice` の両方を描くため。
  * 静的 / 動的は日本語（既定の言語）のルートで決める。英語は公開したページ
  * だけが描かれ、それ以外は not-found の成果物になるので、通常のページの
- * 分類とは別に後段で検査する。ページの動的 / 静的が変わったら（cookie を読み
+ * 分類とは別に後段で検査する（英語で静的生成を要求するのは索引させるページだけ。
+ * 理由は後段のテストの TSDoc）。ページの動的 / 静的が変わったら（cookie を読み
  * 始めた・searchParams を使った・`force-dynamic` を付けた等）この一覧と
  * loading.tsx の有無を一緒に直すこと。
  *
@@ -261,8 +262,22 @@ describe("DYNAMIC_ROUTES とビルド成果物", () => {
     },
   );
 
+  /**
+   * 英語の成果物: 未公開のページは 200 で静的生成されず、索引させるページは
+   * 静的生成される
+   *
+   * @design 静的生成を要求するのは英語の `published-indexable` だけ
+   * 英語の noindex のページ（練習・昇級試験の play / training / result・道場・
+   * 段級位の詳細）は動的でよい。どれも閲覧者ごとの内容（結果の cookie と
+   * searchParams・受験資格のガード・本人の段級位）で、日本語でも動的に描いている。
+   * 英語だけ静的にする理由が無く、静的にすると「動的ルートは loading.tsx を 1 枚」の
+   * 規約と食い違う（1 枚の page.tsx が両言語を描くので、境界の有無は言語で
+   * 分けられない）。静的であることが要るのは、クローラーが JS を実行せずに読む
+   * 初期 HTML を持つ索引対象のページだけ。英語の noindex が静的か動的かは
+   * 日本語の分類（上の {@link DYNAMIC_ROUTES}）と同じになる。
+   */
   it.skipIf(!hasBuild)(
-    "英語は公開したページだけが 200 で静的生成され、他は not-found の成果物か描画されない",
+    "英語は公開したページだけが 200 で静的生成され、索引させるページは静的、他は not-found の成果物か描画されない",
     () => {
       const artifacts = loadArtifacts();
       const published = new Set(EN_PUBLISHED_PATHS);
@@ -273,7 +288,10 @@ describe("DYNAMIC_ROUTES とビルド成果物", () => {
         const { kind, ok } = classifyRoute(artifacts, page.appRoute, "en");
         const okPaths = ok.map((route) => route.key.slice("/en".length) || "/");
         unexpected.push(...okPaths.filter((path) => !published.has(path)));
-        if (published.has(page.template) && kind !== "static") {
+        if (
+          getPublication(page.template, "en") === "published-indexable" &&
+          kind !== "static"
+        ) {
           notStatic.push(`${page.template}（${kind}）`);
         }
       }
@@ -283,7 +301,7 @@ describe("DYNAMIC_ROUTES とビルド成果物", () => {
       ).toEqual([]);
       expect(
         notStatic,
-        `英語で公開したのに 200 で静的生成されていないページ: ${notStatic.join(", ")}`,
+        `英語で索引させるのに 200 で静的生成されていないページ: ${notStatic.join(", ")}`,
       ).toEqual([]);
     },
   );
