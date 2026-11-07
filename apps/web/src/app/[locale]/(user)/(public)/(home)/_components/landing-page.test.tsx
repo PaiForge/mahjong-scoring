@@ -28,6 +28,8 @@ vi.mock(
 
 const { LandingPage } = await import("./landing-page");
 const { heroCtaTarget } = await import("./hero-section");
+const { translatedPublishedPaths } =
+  await import("@/i18n/translated-publications");
 
 const JAPANESE_ONLY = "language.japaneseOnly";
 
@@ -90,6 +92,24 @@ describe("LandingPage", () => {
     expect(learn.getAttribute("href")).toBe("/en/lessons");
     expect(learn.hasAttribute("hrefLang")).toBe(false);
     expect(learn.textContent).not.toContain(JAPANESE_ONLY);
+  });
+
+  it("今の許可リストでは、英語の LP の CTA はどれも英語のページ（はじめ方・練習・デモ・レッスン）を言語をまたがずに指す", () => {
+    enPublished.current = new Set(translatedPublishedPaths("en"));
+    const { container } = render(<LandingPage locale="en" />);
+
+    const expected = {
+      ctaGetStarted: "/en/getting-started",
+      practiceCta: "/en/practice",
+      referenceCta: "/en/reference/demo",
+      learnCta: "/en/lessons",
+    };
+    for (const [key, href] of Object.entries(expected)) {
+      const link = ctaLink(container, key);
+      expect(link.getAttribute("href"), key).toBe(href);
+      expect(link.hasAttribute("hrefLang"), key).toBe(false);
+      expect(link.textContent, key).not.toContain(JAPANESE_ONLY);
+    }
   });
 });
 

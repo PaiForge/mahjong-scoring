@@ -80,15 +80,21 @@ describe("Footer", () => {
   it("英語のページでは、英語版の無いページを日本語へ素のリンクで向けて日本語のみと示す", async () => {
     const html = await renderHtml("en", "/en/reference/score-table");
 
-    // 英語で未公開のページ（利用規約・はじめにの章）は日本語へ素のリンクで向ける
+    // 英語で未公開のページ（利用規約など「その他」の 5 本）は日本語へ素のリンクで向ける
     expect(html).toMatch(/<a href="\/terms" hrefLang="ja"/);
-    expect(html).toMatch(/<a href="\/lessons\/about-this-app" hrefLang="ja"/);
-    expect(html).not.toMatch(/href="\/en\/(?!reference\/score-table)/);
+    // はじめにの章は英語で公開しているので、英語の章へ言語をまたがずに向ける
+    expect(html).toMatch(
+      /<a href="\/en\/lessons\/about-this-app"(?! hrefLang)/,
+    );
+    expect(html).not.toMatch(/href="\/lessons\/about-this-app"/);
+    expect(html).not.toMatch(
+      /href="\/en\/(?!reference\/score-table|lessons\/about-this-app)/,
+    );
     // 英語のトップ（/en）は公開しているので、ロゴは英語のトップへ言語をまたがずに向ける
     expect(html).toMatch(/<a href="\/en">/);
     expect(html).not.toMatch(/<a href="\/" hrefLang="ja"/);
-    // 「はじめに」1 本 +「その他」5 本（ロゴは英語のトップなので印を持たない）
-    expect(html.match(/language\.japaneseOnly/g)).toHaveLength(6);
+    // 「その他」5 本（ロゴ・はじめには英語のページなので印を持たない）
+    expect(html.match(/language\.japaneseOnly/g)).toHaveLength(5);
     // 日本語への切替は /ja を経由しない
     expect(html).toMatch(
       /<a href="\/reference\/score-table" hrefLang="ja"[^>]*>日本語<\/a>/,
