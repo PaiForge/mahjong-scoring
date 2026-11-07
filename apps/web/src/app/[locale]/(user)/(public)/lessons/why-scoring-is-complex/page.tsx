@@ -6,16 +6,22 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/why-scoring-is-complex">) {
-  await prepareRouteLocale(params, "/lessons/why-scoring-is-complex");
-  return createLearnMetadata("why-scoring-is-complex");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/why-scoring-is-complex",
+  );
+  return createLearnMetadata("why-scoring-is-complex", { locale });
 }
 
 export default async function LearnWhyScoringIsComplexPage({
   params,
 }: PageProps<"/[locale]/lessons/why-scoring-is-complex">) {
-  await prepareRouteLocale(params, "/lessons/why-scoring-is-complex");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/why-scoring-is-complex",
+  );
   return (
-    <LearnPageLayout slug="why-scoring-is-complex">
+    <LearnPageLayout slug="why-scoring-is-complex" locale={locale}>
       <WhyScoringIsComplexGuide />
     </LearnPageLayout>
   );
