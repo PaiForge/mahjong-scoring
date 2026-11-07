@@ -15,12 +15,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { MenzenMentsuScoreGuide } from "./_components/menzen-mentsu-score-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/menzen-mentsu-score">) {
+  await prepareRouteLocale(params, "/lessons/menzen-mentsu-score");
   return createLearnMetadata("menzen-mentsu-score");
 }
 
-export default function LearnMenzenMentsuScorePage() {
+export default async function LearnMenzenMentsuScorePage({
+  params,
+}: PageProps<"/[locale]/lessons/menzen-mentsu-score">) {
+  await prepareRouteLocale(params, "/lessons/menzen-mentsu-score");
   return (
     <LearnPageLayout slug="menzen-mentsu-score">
       <MenzenMentsuScoreGuide />

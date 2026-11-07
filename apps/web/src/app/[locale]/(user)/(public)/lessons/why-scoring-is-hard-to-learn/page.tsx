@@ -17,12 +17,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { WhyScoringIsHardToLearnGuide } from "./_components/why-scoring-is-hard-to-learn-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/why-scoring-is-hard-to-learn">) {
+  await prepareRouteLocale(params, "/lessons/why-scoring-is-hard-to-learn");
   return createLearnMetadata("why-scoring-is-hard-to-learn");
 }
 
-export default function LearnWhyScoringIsHardToLearnPage() {
+export default async function LearnWhyScoringIsHardToLearnPage({
+  params,
+}: PageProps<"/[locale]/lessons/why-scoring-is-hard-to-learn">) {
+  await prepareRouteLocale(params, "/lessons/why-scoring-is-hard-to-learn");
   return (
     <LearnPageLayout slug="why-scoring-is-hard-to-learn">
       <WhyScoringIsHardToLearnGuide />

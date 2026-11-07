@@ -10,12 +10,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { PinfuScoreGuide } from "./_components/pinfu-score-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/pinfu-score">) {
+  await prepareRouteLocale(params, "/lessons/pinfu-score");
   return createLearnMetadata("pinfu-score");
 }
 
-export default function LearnPinfuScorePage() {
+export default async function LearnPinfuScorePage({
+  params,
+}: PageProps<"/[locale]/lessons/pinfu-score">) {
+  await prepareRouteLocale(params, "/lessons/pinfu-score");
   return (
     <LearnPageLayout slug="pinfu-score">
       <PinfuScoreGuide />

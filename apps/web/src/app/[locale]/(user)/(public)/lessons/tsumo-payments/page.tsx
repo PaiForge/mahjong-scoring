@@ -15,12 +15,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { TsumoPaymentsGuide } from "./_components/tsumo-payments-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/tsumo-payments">) {
+  await prepareRouteLocale(params, "/lessons/tsumo-payments");
   return createLearnMetadata("tsumo-payments");
 }
 
-export default function LearnTsumoPaymentsPage() {
+export default async function LearnTsumoPaymentsPage({
+  params,
+}: PageProps<"/[locale]/lessons/tsumo-payments">) {
+  await prepareRouteLocale(params, "/lessons/tsumo-payments");
   return (
     <LearnPageLayout slug="tsumo-payments">
       <TsumoPaymentsGuide />

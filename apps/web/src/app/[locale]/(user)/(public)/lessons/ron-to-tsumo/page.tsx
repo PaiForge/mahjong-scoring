@@ -17,12 +17,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { RonToTsumoGuide } from "./_components/ron-to-tsumo-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/ron-to-tsumo">) {
+  await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
   return createLearnMetadata("ron-to-tsumo");
 }
 
-export default function LearnRonToTsumoPage() {
+export default async function LearnRonToTsumoPage({
+  params,
+}: PageProps<"/[locale]/lessons/ron-to-tsumo">) {
+  await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
   return (
     <LearnPageLayout slug="ron-to-tsumo">
       <RonToTsumoGuide />

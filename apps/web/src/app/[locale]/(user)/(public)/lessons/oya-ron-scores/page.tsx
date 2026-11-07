@@ -16,12 +16,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { OyaRonScoresGuide } from "./_components/oya-ron-scores-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/oya-ron-scores">) {
+  await prepareRouteLocale(params, "/lessons/oya-ron-scores");
   return createLearnMetadata("oya-ron-scores");
 }
 
-export default function LearnOyaRonScoresPage() {
+export default async function LearnOyaRonScoresPage({
+  params,
+}: PageProps<"/[locale]/lessons/oya-ron-scores">) {
+  await prepareRouteLocale(params, "/lessons/oya-ron-scores");
   return (
     <LearnPageLayout slug="oya-ron-scores">
       <OyaRonScoresGuide />
