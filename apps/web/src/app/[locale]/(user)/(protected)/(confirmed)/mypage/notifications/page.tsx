@@ -32,7 +32,7 @@ import { confirmedGuardOptions } from "../../_lib/guard-options";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/notifications">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, MYPAGE_NOTIFICATIONS_PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/notifications");
   return createPrivateMetadata("notifications", "pageTitle", { locale });
 }
 
@@ -45,10 +45,7 @@ export default async function NotificationsPage({
   searchParams,
 }: NotificationsPageProps &
   Pick<PageProps<"/[locale]/mypage/notifications">, "params">) {
-  const locale = await prepareRouteLocale(
-    routeParams,
-    MYPAGE_NOTIFICATIONS_PATH,
-  );
+  const locale = await prepareRouteLocale(routeParams, "/mypage/notifications");
   const { user } = await requireConfirmedUser(
     confirmedGuardOptions(MYPAGE_NOTIFICATIONS_PATH, locale),
   );

@@ -51,7 +51,7 @@ const AMOUNT_FORMAT_LOCALES = {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/plan">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, MYPAGE_PLAN_PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/plan");
   return createPrivateMetadata("mypagePlan", "pageTitle", { locale });
 }
 
@@ -137,7 +137,7 @@ export default async function MypagePlanPage({
   params,
   searchParams,
 }: MypagePlanPageProps & Pick<PageProps<"/[locale]/mypage/plan">, "params">) {
-  const locale = await prepareRouteLocale(params, MYPAGE_PLAN_PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/plan");
   const { user } = await requireConfirmedUser(
     confirmedGuardOptions(MYPAGE_PLAN_PATH, locale),
   );

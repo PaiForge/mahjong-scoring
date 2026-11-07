@@ -33,7 +33,7 @@ interface Props {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/challenges/results">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, MY_RECORD_RESULTS_PATH);
+  const locale = await prepareRouteLocale(params, "/mypage/challenges/results");
   return createPrivateMetadata("mypage.challengeResults", "pageTitle", {
     locale,
   });
@@ -43,7 +43,10 @@ export default async function ChallengeResultsPage({
   params: routeParams,
   searchParams,
 }: Props & Pick<PageProps<"/[locale]/mypage/challenges/results">, "params">) {
-  const locale = await prepareRouteLocale(routeParams, MY_RECORD_RESULTS_PATH);
+  const locale = await prepareRouteLocale(
+    routeParams,
+    "/mypage/challenges/results",
+  );
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tRoot = await getTranslations();

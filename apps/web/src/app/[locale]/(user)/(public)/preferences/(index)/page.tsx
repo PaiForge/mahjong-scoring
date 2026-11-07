@@ -86,14 +86,14 @@ const PUBLIC_PROFILE_SAMPLE_PATH = publicProfileHref("username");
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/preferences">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, PREFERENCES_PATH);
+  const locale = await prepareRouteLocale(params, "/preferences");
   return createPreferencesMetadata("settings", PREFERENCES_PATH, locale);
 }
 
 export default async function PreferencesPage({
   params,
 }: PageProps<"/[locale]/preferences">) {
-  const locale = await prepareRouteLocale(params, PREFERENCES_PATH);
+  const locale = await prepareRouteLocale(params, "/preferences");
   const t = await getTranslations("settings");
   const tNav = await getTranslations("nav");
   const profileLinks = {

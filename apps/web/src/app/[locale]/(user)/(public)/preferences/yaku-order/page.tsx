@@ -25,7 +25,7 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/preferences/yaku-order">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, YAKU_ORDER_PATH);
+  const locale = await prepareRouteLocale(params, "/preferences/yaku-order");
   return createPreferencesMetadata(
     "settings.yakuOrder",
     YAKU_ORDER_PATH,
@@ -36,7 +36,7 @@ export async function generateMetadata({
 export default async function YakuOrderPage({
   params,
 }: PageProps<"/[locale]/preferences/yaku-order">) {
-  const locale = await prepareRouteLocale(params, YAKU_ORDER_PATH);
+  const locale = await prepareRouteLocale(params, "/preferences/yaku-order");
   const t = await getTranslations("settings");
   const tYakuOrder = await getTranslations("settings.yakuOrder");
 
