@@ -1,7 +1,18 @@
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
 import { practiceMenuByType } from "../practice-menu-types";
 import { formatJstDateTime, JST_TIME_ZONE, jstDayKey } from "../jst";
 
 import type { AttemptRow, ChallengeAttempt, ChartDataPoint } from "./types";
+
+/**
+ * 短縮日付の書式に渡す BCP 47 の言語タグ
+ *
+ * 日本語は従来の `ja`（「8月17日」）のまま。英語は `en-US`（「Aug 17」）。
+ */
+const SHORT_DATE_LOCALES: Readonly<Record<SupportedLocale, string>> = {
+  ja: "ja",
+  en: "en-US",
+};
 
 /**
  * 日付を YYYY/MM/DD HH:mm 形式にフォーマットする（JST）
@@ -9,19 +20,34 @@ import type { AttemptRow, ChallengeAttempt, ChartDataPoint } from "./types";
  *
  * 期間の境界（`period.ts`）と同じ JST で表示する。サーバーで描画する
  * 全履歴の表とクライアントで描画するダッシュボードが同じ文字列を出すため。
+ * 英語は `formatJstDateTime` の英語の形（JST の時刻を en-US の書式で）。
+ *
+ * @param date - 表示する日時（無ければ「-」）
+ * @param locale - 表示する言語（省略時は日本語。モバイルは省略する）
  */
-export function formatDate(date: Date | undefined): string {
+export function formatDate(
+  date: Date | undefined,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
   if (!date) return "-";
-  return formatJstDateTime(new Date(date));
+  return formatJstDateTime(new Date(date), locale);
 }
 
 /**
  * 日付を短縮形式（月/日）にフォーマットする（JST）
  * 短縮日付フォーマット
+ *
+ * 英語は「Aug 17」。言語を変えても日付は JST で切る。
+ *
+ * @param date - 表示する日時（無ければ「-」）
+ * @param locale - 表示する言語（省略時は日本語。モバイルは省略する）
  */
-export function formatShortDate(date: Date | undefined): string {
+export function formatShortDate(
+  date: Date | undefined,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
   if (!date) return "-";
-  return new Intl.DateTimeFormat("ja", {
+  return new Intl.DateTimeFormat(SHORT_DATE_LOCALES[locale], {
     month: "short",
     day: "numeric",
     timeZone: JST_TIME_ZONE,
@@ -145,6 +171,7 @@ interface DailyAggregation {
  */
 export function aggregateByDay(
   attempts: readonly ChallengeAttempt[],
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): DailyAggregation[] {
   const dailyMap = new Map<
     string,
@@ -161,7 +188,7 @@ export function aggregateByDay(
       dailyMap.set(dateKey, {
         total: s.score,
         count: 1,
-        dateLabel: formatShortDate(s.createdAt),
+        dateLabel: formatShortDate(s.createdAt, locale),
       });
     }
   }
@@ -182,9 +209,10 @@ export function aggregateByDay(
 export function toAttemptRows(
   attempts: readonly ChallengeAttempt[],
   limit = 5,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): AttemptRow[] {
   return attempts.slice(0, limit).map((s) => ({
-    date: formatDate(s.createdAt),
+    date: formatDate(s.createdAt, locale),
     correctAnswers: String(s.score),
     incorrectAnswers: s.incorrectAnswers,
   }));
@@ -197,9 +225,10 @@ export function toAttemptRows(
 export function buildChartData(
   currentAttempts: readonly ChallengeAttempt[],
   previousAttempts: readonly ChallengeAttempt[],
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): ChartDataPoint[] {
-  const currentDaily = aggregateByDay(currentAttempts);
-  const previousDaily = aggregateByDay(previousAttempts);
+  const currentDaily = aggregateByDay(currentAttempts, locale);
+  const previousDaily = aggregateByDay(previousAttempts, locale);
 
   const allDateKeys = new Set([
     ...currentDaily.map((d) => d.dateKey),
