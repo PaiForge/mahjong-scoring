@@ -1,32 +1,32 @@
 {
-  "title": "昇級試験：満貫以上の点数計算",
-  "description": "役の表示なしで手牌から翻数を数え、満貫以上の点数を答える昇級試験です。ミスは1回までです",
-  "oya": "親",
-  "ko": "子",
-  "tsumo": "ツモ",
-  "ron": "ロン",
-  "han": "{count}翻",
-  "fu": "{count}符",
-  "questionPrompt": "この和了の点数を回答してください",
-  "selectScore": "点数を選択",
-  "fromKo": "子から",
-  "fromOya": "親から",
-  "koTsumoScore": "点数（子から / 親から）",
-  "all": "オール",
-  "answer": "回答する",
-  "revealedAnswer": "正解: <answer></answer>",
-  "pointSuffix": "点",
-  "generating": "問題を生成中...",
+  "title": "Promotion Exam: Scoring Mangan and Above",
+  "description": "A promotion exam with no yaku shown: count the han from a riichi mahjong hand and answer scores of mangan and above. You can make at most one mistake",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "questionPrompt": "Answer the score for this win",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": "all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": "points",
+  "generating": "Generating questions...",
   "howToPlay": {
-    "title": "問題方式",
-    "lead": "このような問題が出題されます。役は表示されないため、手牌から翻数を自分で数えて点数を答えます。"
+    "title": "Question format",
+    "lead": "You will get questions like this. The yaku are not shown, so count the han from the hand yourself and answer the score."
   },
   "result": {
-    "problemDetails": "問題の詳細",
-    "correctAnswer": "正解",
-    "yourAnswer": "あなたの回答",
-    "correct": "正解",
-    "incorrect": "不正解"
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
   },
-  "summarySeparator": "・"
+  "summarySeparator": ", "
 }
