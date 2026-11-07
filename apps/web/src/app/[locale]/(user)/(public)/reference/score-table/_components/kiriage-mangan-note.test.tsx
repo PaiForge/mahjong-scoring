@@ -2,10 +2,21 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 
 import { getPublication } from "@/i18n/route-policy";
+import { getTranslatedPublication } from "@/i18n/translated-publications";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
+
+// 既定は本物の許可リスト。設定ページが未公開の言語の振る舞いを見るテストだけ差し替える
+vi.mock("@/i18n/translated-publications", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/i18n/translated-publications")>();
+  return {
+    ...actual,
+    getTranslatedPublication: vi.fn(actual.getTranslatedPublication),
+  };
+});
 
 import { KiriageManganNote } from "./kiriage-mangan-note";
 
@@ -30,7 +41,17 @@ describe("KiriageManganNote", () => {
     expect(screen.queryByText("language.japaneseOnly")).toBeNull();
   });
 
-  it("英語のページでは /en を付けずに日本語の設定ページへ向け、日本語のみと示す", () => {
+  it("英語のページでは英語で公開している設定ページへ同じ言語のリンクを張り、日本語のみの印を付けない", () => {
+    render(<KiriageManganNote enabled pageLocale="en" />);
+
+    const link = screen.getByRole("link");
+    expect(link.getAttribute("href")).toMatch(/^\/en\/preferences#/);
+    expect(link.getAttribute("hrefLang")).toBeNull();
+    expect(screen.queryByText("language.japaneseOnly")).toBeNull();
+  });
+
+  it("設定ページが未公開の言語では /en を付けずに日本語の設定ページへ向け、日本語のみと示す", () => {
+    vi.mocked(getTranslatedPublication).mockReturnValueOnce("unpublished");
     render(<KiriageManganNote enabled pageLocale="en" />);
 
     const link = screen.getByRole("link");
@@ -48,7 +69,7 @@ describe("KiriageManganNote", () => {
     expect(container.textContent).toContain("kiriageManganStatusSeparator");
   });
 
-  it("前提: 設定ページは英語で公開していない（公開したら英語のリンクに切り替える）", () => {
-    expect(getPublication(PREFERENCES_PATH, "en")).toBe("unpublished");
+  it("前提: 設定ページは英語で出している（索引させない）", () => {
+    expect(getPublication(PREFERENCES_PATH, "en")).toBe("published-noindex");
   });
 });

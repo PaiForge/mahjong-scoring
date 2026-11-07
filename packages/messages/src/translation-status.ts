@@ -243,9 +243,12 @@ export const EN_NOT_FOUND_NAMESPACES = [
  * 章のレイアウト（`lessons/_components/learn-page-layout.tsx`）が引く目次・章の
  * 見出し（`learnCurriculum`）、本文の用語のモーダル（`glossary`）、著者の表記
  * （`company`）、広告の札（`nativeAd`）と、本文から開く点数表のモーダル
- * （`scoreTable`）。`lessons`（確認問題・完了・次のレッスン・段級位の目標）は
- * 完訳だが、章の確認問題・完了はログインが要り英語ではまだ出ないので含めない
- * （ログインの画面を英語で出すときに章の依存へ足す）。
+ * （`scoreTable`）。章末の確認問題・完了の画面・次のレッスンの抜粋（`lessons`）、
+ * 級のゴールの案内（`ranks`）、完了後の練習への導線（`practice`）も読む。確認問題の
+ * 部品が読む `common`（ツモ / ロンの札等）はシェルに含まれる。
+ *
+ * 確認問題・完了はログインが要り、ログイン・登録の画面を英語で出すまでは章の依存に
+ * 含めていなかった。会員の画面を英語で出すのと一緒に足した。
  */
 const EN_LESSON_CHAPTER_NAMESPACES = [
   ...EN_SHELL_NAMESPACES,
@@ -254,6 +257,9 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
   "company",
   "nativeAd",
   "scoreTable",
+  "lessons",
+  "ranks",
+  "practice",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
@@ -494,14 +500,13 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * 練習一覧・道場・体験のカードは variant のラベルで全練習の名前空間を読む
  * （{@link EN_ALL_PRACTICE_NAMESPACES}）。束は、そのルートの部品がどれかの状態
  * （未ログイン・回数切れ・答え合わせ等）で読む名前空間の和で、常に全部を描くとは限らない。
- * 英語で出さない部品だけが読む名前空間は含めない — 章の確認問題・完了（`lessons`。
- * `/try/mentsu-fu` は確認問題の部品を借りるので読む）、ランキングのプレビュー
+ * 英語で出さない部品だけが読む名前空間は含めない — ランキングのプレビュー
  * （`leaderboard`。英語ではランキングを提供せず、`/leaderboard` が未公開の間は
- * プレビューも出さない）。
+ * プレビューも出さない）、料金ページ（`plan`）、お知らせの一覧・詳細の本文。
  *
  * - `/` — LP の各節（`landing`）、運営者の表記（`company`）、目次（`learnCurriculum`）
  * - `/lessons` — 目次と進捗（`learnCurriculum`）、段級位での絞り込み（`ranks`）、広告（`nativeAd`）
- * - `/lessons/<slug>` — {@link EN_LESSON_CHAPTER_NAMESPACES} と章の名前空間
+ * - `/lessons/<slug>` — {@link EN_LESSON_CHAPTER_NAMESPACES}（確認問題・完了を含む）と章の名前空間
  *   （`chapterNamespace(slug)` = slug の camelCase。数式の `\text{…}` の語
  *   `formula.*` もここ）。満貫の 4 章は満貫の表（`manganScoreTable`）、役の章は
  *   鳴きの比較表の役名（`yakuNames`）も読む
@@ -529,8 +534,24 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  *   確認問題の部品 `lessons` と面子の符の `mentsuFu`）
  * - `/getting-started` — はじめ方（`gettingStarted`）
  * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
- *   練習・チャレンジの見本（`practice`・`challenge`・`tenpaiScore`・`agariScore`・
- *   `manganScoreCalculationChallenge`・`jantouFu`。見本の役名は `yakuNames`）
+ *   練習・チャレンジの見本（`practice`（章の共通に含む）・`challenge`・`tenpaiScore`・
+ *   `agariScore`・`manganScoreCalculationChallenge`・`jantouFu`。見本の役名は `yakuNames`）
+ * - 認証 — `/sign-in`（`auth`）、`/sign-up`（`signUp`・`auth`・パスワードの規則の
+ *   `validation`）、`/sign-up/verify-email`（`verifyEmail`・`auth`）、`/forgot-password`
+ *   （`forgotPassword`）、`/reset-password`（`resetPassword`・`validation`）、`/banned`
+ *   （`banned`）、`/mypage/setup-username`（`setupUsername`）
+ * - `/dashboard` — 次にやること・続きから（`dashboard`・`dojo`・`ranks`・
+ *   `learnCurriculum`）、練習のバナー（`practice`）、お知らせ（`announcements`）、
+ *   練習の表示名の variant（`practiceDisplayTitle`。全練習の名前空間）
+ * - `/mypage` — マイページの見出し・メニュー・活動のヒートマップ（`mypage`・`practice`）、
+ *   段級位（`ranks`）
+ * - `/mypage/challenges`・`/mypage/challenges/results` — 成績（`mypage`・`common`・
+ *   `practice`）、ページ送り（`pagination`）、土俵のラベル（`boardLabel`。全練習の名前空間）
+ * - `/mypage/notifications` — 通知の一覧（`notifications`）とページ送り（`pagination`）
+ * - `/mypage/account`・`/mypage/account/delete` — `mypageAccount`・`deleteAccount`
+ * - `/mypage/plan` — 購入状況と履歴（`mypagePlan`）
+ * - `/mypage/profile/edit` — `profileEdit`・`mypage`
+ * - `/preferences`・`/preferences/yaku-order` — 設定（`settings`）、役の並び（`agariScore` の `yaku`）
  *
  * ルートを足すときはその page・`_components`・使う features の `use-*.ts` が引く
  * 名前空間をソースから列挙して足し、先にそれらを完訳にする。
@@ -541,7 +562,6 @@ export const EN_ROUTE_NAMESPACES = {
   "/lessons/about-this-app": [
     ...EN_LESSON_CHAPTER_NAMESPACES,
     "aboutThisApp",
-    "practice",
     "challenge",
     "tenpaiScore",
     "agariScore",
@@ -692,4 +712,47 @@ export const EN_ROUTE_NAMESPACES = {
     "learnCurriculum",
     "nativeAd",
   ],
+  "/sign-in": [...EN_SHELL_NAMESPACES, "auth"],
+  "/sign-up": [...EN_SHELL_NAMESPACES, "signUp", "auth", "validation"],
+  "/sign-up/verify-email": [...EN_SHELL_NAMESPACES, "verifyEmail", "auth"],
+  "/forgot-password": [...EN_SHELL_NAMESPACES, "forgotPassword"],
+  "/reset-password": [...EN_SHELL_NAMESPACES, "resetPassword", "validation"],
+  "/banned": [...EN_SHELL_NAMESPACES, "banned"],
+  "/dashboard": [
+    ...EN_SHELL_NAMESPACES,
+    "dashboard",
+    "ranks",
+    "dojo",
+    "learnCurriculum",
+    "practice",
+    "announcements",
+    ...EN_ALL_PRACTICE_NAMESPACES,
+  ],
+  "/mypage": [...EN_SHELL_NAMESPACES, "mypage", "ranks", "practice"],
+  "/mypage/account": [...EN_SHELL_NAMESPACES, "mypageAccount", "deleteAccount"],
+  "/mypage/account/delete": [
+    ...EN_SHELL_NAMESPACES,
+    "mypageAccount",
+    "deleteAccount",
+  ],
+  "/mypage/challenges": [
+    ...EN_SHELL_NAMESPACES,
+    "mypage",
+    "pagination",
+    "practice",
+    ...EN_ALL_PRACTICE_NAMESPACES,
+  ],
+  "/mypage/challenges/results": [
+    ...EN_SHELL_NAMESPACES,
+    "mypage",
+    "pagination",
+    "practice",
+    ...EN_ALL_PRACTICE_NAMESPACES,
+  ],
+  "/mypage/notifications": [...EN_SHELL_NAMESPACES, "pagination"],
+  "/mypage/plan": [...EN_SHELL_NAMESPACES, "mypagePlan"],
+  "/mypage/profile/edit": [...EN_SHELL_NAMESPACES, "profileEdit", "mypage"],
+  "/mypage/setup-username": [...EN_SHELL_NAMESPACES, "setupUsername"],
+  "/preferences": [...EN_SHELL_NAMESPACES, "settings", "agariScore"],
+  "/preferences/yaku-order": [...EN_SHELL_NAMESPACES, "settings", "agariScore"],
 } as const satisfies Readonly<Record<string, readonly EnTranslatedNamespace[]>>;

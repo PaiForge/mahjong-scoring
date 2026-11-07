@@ -41,11 +41,11 @@ import {
  * 4. Supabase のセッションを更新する。更新した cookie はリクエストの cookie に
  *    書き戻し（後段のサーバーコンポーネントが新しいトークンを読む）、
  *    応答の `Set-Cookie` にも全属性ごと載せる
- * 5. ログイン済みの `/` を内部の `/ja/dashboard` へ rewrite する（アドレスバーは
- *    `/` のまま）。未ログインの `/dashboard` 直アクセスは同じ言語の LP へ HTTP の
- *    リダイレクト。英語は LP（`/en`）を公開しているが dashboard は未公開なので、
- *    ログイン済みでも `/en` は英語の LP のまま（{@link canRewriteToDashboard}）。
- *    `/en/dashboard` は 3 で 404 になる
+ * 5. ログイン済みのトップを dashboard の実体へ rewrite する（アドレスバーは
+ *    トップのまま）。日本語の `/` は内部の `/ja/dashboard`、英語の `/en` は
+ *    `/en/dashboard`（{@link canRewriteToDashboard}・{@link rewriteToDashboard}）。
+ *    未ログインの `/dashboard`・`/en/dashboard` 直アクセスは同じ言語の LP へ HTTP の
+ *    リダイレクト
  * 6. next-intl の middleware を最後に 1 回だけ呼び、その応答（内部 rewrite と
  *    ロケールのリクエストヘッダ）をそのまま返す。セッション更新の cookie と
  *    ヘッダはその応答に足す。cookie 更新用に別の `NextResponse.next()` を作って
@@ -105,12 +105,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       external.path === "/" &&
       canRewriteToDashboard(external.locale)
     ) {
-      const response = handleI18nRouting(
-        requestWithPathname(
-          request,
-          localizedHref(DASHBOARD_PATH, external.locale),
-        ),
-      );
+      const response = rewriteToDashboard(request, external.locale);
       response.headers.set("Cache-Control", "private, no-store");
       return withSession(response, session);
     }
@@ -171,16 +166,58 @@ function isUnknownGlossaryPath(path: string): boolean {
 /**
  * ログイン済みのトップを dashboard へ rewrite してよい言語か
  *
- * 日本語だけ。英語は LP を公開しているが dashboard は未公開なので、ログイン済みの
- * `/en` も LP を出す。英語の dashboard を公開するとき（認証済みの `/en` を内部の
- * `/en/dashboard` へ rewrite する）は、next-intl が `/en/dashboard` を
- * 書き換え不要と判定して rewrite を出さないため、この合成のままでは動かない。
- * 英語を解禁するときに合成の方法を決め、テストを足す。
+ * その言語で dashboard を公開していれば rewrite する（日本語・英語とも公開）。
+ * dashboard が未公開の言語では、ログイン済みでもトップの LP を出す（未公開の
+ * ページを rewrite で描かない）。言語ごとの rewrite の組み方は
+ * {@link rewriteToDashboard}。
  */
 function canRewriteToDashboard(locale: SupportedLocale): boolean {
-  return (
-    locale === DEFAULT_LOCALE &&
-    getPublication(DASHBOARD_PATH, locale) !== "unpublished"
+  return getPublication(DASHBOARD_PATH, locale) !== "unpublished";
+}
+
+/**
+ * next-intl がロケールを後段へ渡すリクエストヘッダの名前
+ *
+ * Server Component の `headers()` と next-intl の `requestLocale` がこれを読む。
+ * 出典は next-intl 4.13.5 の `dist/esm/{development,production}/shared/constants.js`
+ * の `HEADER_LOCALE_NAME`。公開の export ではないので文字列で持つ。next-intl を
+ * 上げたら同じ値か確かめる（`proxy.test.ts` が、next-intl が組む日本語の rewrite と
+ * 自前の英語の rewrite のロケールのヘッダを見比べる）。
+ */
+const NEXT_INTL_LOCALE_HEADER = "X-NEXT-INTL-LOCALE";
+
+/**
+ * ログイン済みのトップを、その言語の dashboard の実体へ rewrite する
+ *
+ * - 既定の言語（日本語）は next-intl に任せる。外部の `/dashboard` へ来たことにした
+ *   リクエストを渡すと、next-intl が内部の `/ja/dashboard` への rewrite と
+ *   ロケールのヘッダを組む
+ * - それ以外（英語）は自分で rewrite を組む。英語の dashboard の内部 URL は外部の
+ *   公開パス `/en/dashboard` と同じで、next-intl は「要求のパスと内部 URL が同じなら
+ *   rewrite は要らない」と判定して `NextResponse.next()` を返す（`isRewriteNecessary`）。
+ *   `requestWithPathname(request, "/en/dashboard")` を渡しても rewrite が出ず、
+ *   `/en` の LP が描かれてしまう
+ *
+ * 英語の rewrite は next-intl の rewrite と同じ形にする: 元のリクエストのヘッダ
+ * （セッション更新で書き戻した cookie を含む）を写してロケールのヘッダを足し、
+ * `NextResponse.rewrite(url, { request: { headers } })` で後段へ渡す（Next が
+ * `x-middleware-request-*` に展開する）。query は引き継ぐ。next-intl の結果に
+ * `x-middleware-rewrite` が無ければ組み直す案は、そのヘッダの名前が Next の内部
+ * 契約に依るので採らない。
+ */
+function rewriteToDashboard(
+  request: NextRequest,
+  locale: SupportedLocale,
+): NextResponse {
+  const dashboardHref = localizedHref(DASHBOARD_PATH, locale);
+  if (locale === DEFAULT_LOCALE) {
+    return handleI18nRouting(requestWithPathname(request, dashboardHref));
+  }
+  const headers = new Headers(request.headers);
+  headers.set(NEXT_INTL_LOCALE_HEADER, locale);
+  return NextResponse.rewrite(
+    new URL(`${dashboardHref}${request.nextUrl.search}`, request.url),
+    { request: { headers } },
   );
 }
 

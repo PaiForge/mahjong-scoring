@@ -167,21 +167,50 @@ const EN_CHALLENGE_PRACTICE_PATHS: readonly string[] = [
 ];
 
 /**
+ * 英語で出しているが索引させない会員の画面（認証・ダッシュボード・マイページ・設定）
+ *
+ * どれも閲覧者ごとの内容で、英語では noindex で出す（日本語の robots は変えない）。
+ * 英語のマイページは robots.txt でも除外する（{@link EN_ROBOTS_DISALLOW_ADDITIONS}）。
+ */
+const EN_MEMBER_NOINDEX_PATHS: readonly string[] = [
+  "/sign-in",
+  "/sign-up",
+  "/sign-up/verify-email",
+  "/forgot-password",
+  "/reset-password",
+  "/banned",
+  "/dashboard",
+  "/mypage",
+  "/mypage/account",
+  "/mypage/account/delete",
+  "/mypage/challenges",
+  "/mypage/challenges/results",
+  "/mypage/notifications",
+  "/mypage/plan",
+  "/mypage/profile/edit",
+  "/mypage/setup-username",
+  "/preferences",
+  "/preferences/yaku-order",
+];
+
+/**
  * 英語で出しているが索引させないページ（ロケール非依存のパス）
  *
  * `route-policy.ts` の英語の `published-noindex`。練習・昇級試験の play / training /
- * result（17 × 3）、和了形・聴牌形の play、道場、段級位の詳細 6 件。段級位の詳細は
+ * result（17 × 3）、和了形・聴牌形の play、道場、段級位の詳細 6 件と、会員の画面 18 件
+ * （{@link EN_MEMBER_NOINDEX_PATHS}）。段級位の詳細は
  * アプリではテンプレート（`/dojo/ranks/[slug]`）だが、監査はレジストリを読まない
  * （モジュールの TSDoc）ので slug を文字列で並べる。`expectations.test.ts` が
  * route-policy の集合との一致を落とす。
  *
  * @design 英語の noindex は動的でよい
  * どれも閲覧者ごとの内容（結果の cookie と searchParams・受験資格のガード・本人の
- * 段級位）で、日本語でも多くが動的に描かれる。静的生成を求めるのはクローラーが
+ * 段級位・ログイン状態）で、日本語でも多くが動的に描かれる。静的生成を求めるのはクローラーが
  * 初期 HTML を読む索引対象だけで、noindex の静的 / 動的は日本語の分類（baseline の
  * 静的生成の台帳）に従う。build の監査はこれらのうち日本語で静的だったものだけを
  * 200 の静的な HTML として期待し、HTTP の監査は全件をゲストで取得して noindex・
- * 言語・hreflang を確かめる。
+ * 言語・hreflang を確かめる。要ログインのページ（マイページ・設定の一部）は、ゲストでは
+ * 英語のログイン（`/en/sign-in?redirect=…`）への 3xx になる。
  */
 export const EN_NOINDEX_PATHS: readonly string[] = [
   ...EN_CHALLENGE_PRACTICE_PATHS.flatMap((path) =>
@@ -196,6 +225,7 @@ export const EN_NOINDEX_PATHS: readonly string[] = [
   "/dojo/ranks/kyu-2",
   "/dojo/ranks/kyu-1",
   "/dojo/ranks/dan-1",
+  ...EN_MEMBER_NOINDEX_PATHS,
 ];
 
 /**
@@ -203,7 +233,7 @@ export const EN_NOINDEX_PATHS: readonly string[] = [
  *
  * - `/en`・`/en/...` は移行前もルートが無く 404 だった。英語で公開した
  *   ページだけが 200 になり、未公開の英語は 404 + noindex のまま。`/en` は
- *   英語の LP（ログイン済みでも dashboard へ rewrite しない。英語の dashboard は未公開）
+ *   ゲストには英語の LP（ログイン済みは英語の dashboard へ rewrite する。認証の検査が見る）
  * - `/ja` は移行前は 404。移行後は外部から来た `/ja/...` を接頭辞なしの日本語
  *   URL へ 307 で正規化する（`/ja` を公開 URL として出さないため）。日本語の
  *   正規の URL のリダイレクトではない
@@ -229,6 +259,19 @@ export const BASELINE_ROBOTS_DISALLOW: readonly string[] = [
   "/mypage",
   "/api",
   "/u/",
+];
+
+/**
+ * 移行で robots.txt の Disallow に足した英語の行（出現順。baseline の行の後ろに並ぶ）
+ *
+ * Disallow は前方一致なので日本語の行は `/en/...` に掛からない。英語でも公開した
+ * マイページ（ページは noindex）を日本語と同じく除外する。`/en/u/` は英語では未公開
+ * （proxy の 404）だが、「任意の文字列で URL が作れる」という公開プロフィールの除外の
+ * 意図を英語にも当てる。HTTP の監査は「baseline の行がそのまま + この行」を期待する。
+ */
+export const EN_ROBOTS_DISALLOW_ADDITIONS: readonly string[] = [
+  "/en/mypage",
+  "/en/u/",
 ];
 
 /**

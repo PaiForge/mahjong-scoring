@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
@@ -173,6 +173,24 @@ describe("MobileTabBarView", () => {
 
     expect(screen.queryByRole("navigation")).toBeNull();
     expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("英語の会員の画面（マイページ・設定）でも、英語で公開している 5 つのタブを /en の href で出す", () => {
+    for (const pathname of ["/en/mypage", "/en/preferences", "/en/sign-in"]) {
+      renderAt(pathname, false, "en");
+
+      expect(
+        screen.getAllByRole("link").map((link) => link.getAttribute("href")),
+        pathname,
+      ).toEqual([
+        "/en",
+        "/en/dojo",
+        "/en/practice",
+        "/en/lessons",
+        "/en/reference/score-table",
+      ]);
+      cleanup();
+    }
   });
 
   it("英語の配下のページでも接頭辞を外して親のタブを選択中にする", () => {

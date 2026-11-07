@@ -36,6 +36,10 @@ describe("prepareRouteLocale", () => {
     ["en", "/reference/demo"],
     ["en", "/dojo"],
     ["en", "/dojo/ranks/kyu-5"],
+    ["en", "/dashboard"],
+    ["en", "/sign-in"],
+    ["en", "/mypage"],
+    ["en", "/preferences"],
   ] as const)(
     "%s の公開ページ %s はロケールを確定して返す",
     async (locale, path) => {
@@ -58,11 +62,12 @@ describe("prepareRouteLocale", () => {
   );
 
   it.each([
-    ["en", "/dashboard"],
-    ["en", "/sign-in"],
-    ["en", "/mypage"],
     ["en", "/leaderboard"],
+    ["en", "/u/alice"],
+    ["en", "/announcements"],
     ["en", "/plan"],
+    ["en", "/contact"],
+    ["en", "/terms"],
     ["en", "/dojo/ranks/__unknown__"],
     ["ja", "/nonexistent"],
   ] as const)(

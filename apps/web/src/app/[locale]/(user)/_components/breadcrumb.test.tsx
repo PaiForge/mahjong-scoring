@@ -65,17 +65,17 @@ describe("Breadcrumb", () => {
   });
 
   it("英語は英語で出していないページ（404 になる /en/...）へリンクせず、JSON-LD にも載せない", () => {
-    // マイページ・購入状況は英語では未公開。ホーム（/en）は公開している
+    // ランキング・料金は英語では未公開。ホーム（/en）は公開している
     const { container, getByLabelText, getByText } = renderIn("en", [
-      { label: "My page", href: "/mypage" },
-      { label: "Plan", href: "/mypage/plan" },
+      { label: "Leaderboard", href: "/leaderboard" },
+      { label: "Plan", href: "/plan" },
       { label: "Play" },
     ]);
 
     expect(getByLabelText("Home").getAttribute("href")).toBe("/en");
-    expect(getByText("My page").tagName).toBe("SPAN");
+    expect(getByText("Leaderboard").tagName).toBe("SPAN");
     expect(getByText("Plan").tagName).toBe("SPAN");
-    // 未公開の段は文字だけ残し、/en/mypage のような存在しない URL を作らない
+    // 未公開の段は文字だけ残し、/en/leaderboard のような存在しない URL を作らない
     expect(hrefs(container)).toEqual(["/en"]);
     expect(readSchema(container)).toEqual({
       "@context": "https://schema.org",
@@ -90,6 +90,16 @@ describe("Breadcrumb", () => {
         { "@type": "ListItem", position: 2, name: "Play" },
       ],
     });
+  });
+
+  it("英語で公開したマイページ・購入状況の段は英語の URL へリンクする（noindex のページでもリンクは張る）", () => {
+    const { container } = renderIn("en", [
+      { label: "My page", href: "/mypage" },
+      { label: "Plan", href: "/mypage/plan" },
+      { label: "History" },
+    ]);
+
+    expect(hrefs(container)).toEqual(["/en", "/en/mypage", "/en/mypage/plan"]);
   });
 
   it("英語で公開した練習一覧・練習の説明ページの段は英語の URL へリンクする（noindex の play は現在地）", () => {
