@@ -6,6 +6,7 @@ import {
   benefitGrantStateOf,
   blocksNewPurchase,
   formatPlanDate,
+  formatPlanDateShort,
   planStatusOf,
   purchaseProviderOf,
   purchaseStateOf,
@@ -325,6 +326,31 @@ describe("formatPlanDate", () => {
   it("JST の年月日で出す（UTC 15:00 以降は翌日）", () => {
     expect(formatPlanDate(new Date("2026-10-20T15:00:00Z"))).toBe(
       "2026年10月21日",
+    );
+  });
+
+  it("言語を省くと日本語を渡したときと同じ", () => {
+    const date = new Date("2026-10-20T15:00:00Z");
+    expect(formatPlanDate(date)).toBe(formatPlanDate(date, "ja"));
+  });
+
+  it("英語は en-US の長い日付で、日付は JST で切る", () => {
+    expect(formatPlanDate(new Date("2026-10-20T15:00:00Z"), "en")).toBe(
+      "October 21, 2026",
+    );
+  });
+});
+
+describe("formatPlanDateShort", () => {
+  it("JST の「年/月/日」で出す（言語を省くと日本語）", () => {
+    const date = new Date("2026-10-30T15:00:00Z");
+    expect(formatPlanDateShort(date)).toBe("2026/10/31");
+    expect(formatPlanDateShort(date, "ja")).toBe("2026/10/31");
+  });
+
+  it("英語は en-US の「月/日/年」で、日付は JST で切る", () => {
+    expect(formatPlanDateShort(new Date("2026-10-30T15:00:00Z"), "en")).toBe(
+      "10/31/2026",
     );
   });
 });
