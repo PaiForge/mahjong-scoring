@@ -136,6 +136,38 @@ describe("getNativeAdCreatives", () => {
     ).resolves.toEqual([]);
   });
 
+  it("日本語以外の言語のページには、キャッシュも DB も読まずに広告を出さない", async () => {
+    mockCachedRead.mockResolvedValue([
+      creative({
+        copy: { title: { ja: "麻雀の本", en: "A book" }, description: {} },
+      }),
+    ]);
+    mockTrackingId.mockResolvedValue("example-22");
+
+    await expect(
+      getNativeAdCreatives("practice-grid-native-ad", "en"),
+    ).resolves.toEqual([]);
+    await expect(
+      getNativeAdPlacements("learn-index-native-ad", "en"),
+    ).resolves.toEqual([]);
+    await expect(
+      getNativeAdCreative("practice-grid-native-ad", "en"),
+    ).resolves.toBeUndefined();
+    expect(mockCachedRead).not.toHaveBeenCalled();
+    expect(mockTrackingId).not.toHaveBeenCalled();
+  });
+
+  it("日本語のページは locale を明示しても省略したときと同じ広告を出す", async () => {
+    mockCachedRead.mockResolvedValue([creative()]);
+    const implicit = await getNativeAdCreatives("practice-grid-native-ad");
+    const explicit = await getNativeAdCreatives(
+      "practice-grid-native-ad",
+      "ja",
+    );
+    expect(explicit).toEqual(implicit);
+    expect(explicit).toHaveLength(1);
+  });
+
   it("読み込みに失敗したら広告を出さない（ページを落とさない）", async () => {
     mockCachedRead.mockRejectedValue(new Error("db down"));
     await expect(
