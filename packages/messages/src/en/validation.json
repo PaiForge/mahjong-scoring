@@ -1,8 +1,8 @@
 {
   "password": {
-    "tooShort": "パスワードは{minLength}文字以上で入力してください。",
-    "missingLetter": "パスワードには英字を1文字以上含めてください。",
-    "missingDigit": "パスワードには数字を1文字以上含めてください。",
-    "weak": "パスワードが脆弱です。別のパスワードをお試しください。"
+    "tooShort": "Use at least {minLength} characters for your password.",
+    "missingLetter": "Include at least one letter in your password.",
+    "missingDigit": "Include at least one number in your password.",
+    "weak": "This password is too weak. Please try a different one."
   }
 }

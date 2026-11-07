@@ -1,6 +1,6 @@
 {
-  "title": "アカウントが停止されています",
-  "message": "あなたのアカウントは利用規約違反により停止されました。",
-  "reason": "理由: {reason}",
-  "contact": "異議がある場合はお問い合わせください。"
+  "title": "Your account has been suspended",
+  "message": "Your account has been suspended for violating the Terms of Service.",
+  "reason": "Reason: {reason}",
+  "contact": "If you disagree, please contact us."
 }
