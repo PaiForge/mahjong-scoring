@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { menuTypeToMessageKey } from "@mahjong-scoring/features/practice-menu-types";
 import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
@@ -17,12 +17,16 @@ interface HeatmapDetailPanelProps {
 /**
  * 選択日の EXP 詳細パネル（常にマウントし aria-live で読み上げ）
  * ヒートマップ詳細パネル
+ *
+ * 選択日の見出しはページの言語の書式（日本語「2026年8月31日」/ 英語
+ * 「August 31, 2026」）。日付キーは JST の日なので、書式だけを言語で変える。
  */
 export function HeatmapDetailPanel({
   selectedDate,
   selectedTotal,
   moduleBreakdown,
 }: HeatmapDetailPanelProps) {
+  const locale = useLocale();
   const t = useTranslations("mypage.heatmap");
   const tMenu = useTranslations("practice.practices");
   const expSuffix = t("expSuffix");
@@ -62,7 +66,7 @@ export function HeatmapDetailPanel({
       {selectedDate ? (
         <>
           <p className="font-semibold text-surface-900">
-            {formatJstDayKeyLong(selectedDate)}
+            {formatJstDayKeyLong(selectedDate, locale)}
           </p>
           <p className="mt-1 text-surface-600">
             {t("total")}: {selectedTotal} {expSuffix}

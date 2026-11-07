@@ -45,18 +45,27 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
-import { readAccountPageNotice } from "@/lib/users/account-page-notice";
+import {
+  ACCOUNT_PAGE_PATH,
+  readAccountPageNotice,
+} from "@/lib/users/account-page-notice";
 import { getAccountLoginState } from "@/lib/users/login-methods";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 import { EmailCard } from "../_components/email-card";
 import { LoginMethodsCard } from "../_components/login-methods-card";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+
+import { confirmedGuardOptions } from "../../../_lib/guard-options";
+
+/** 退会のページ（ロケール非依存のパス） */
+const DELETE_ACCOUNT_PATH = "/mypage/account/delete";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/account">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/account");
-  return createPrivateMetadata("mypageAccount");
+  const locale = await prepareRouteLocale(params, "/mypage/account");
+  return createPrivateMetadata("mypageAccount", "pageTitle", { locale });
 }
 
 interface MypageAccountPageProps {
@@ -68,8 +77,10 @@ export default async function MypageAccountPage({
   searchParams,
 }: MypageAccountPageProps &
   Pick<PageProps<"/[locale]/mypage/account">, "params">) {
-  await prepareRouteLocale(routeParams, "/mypage/account");
-  const { user } = await requireConfirmedUser();
+  const locale = await prepareRouteLocale(routeParams, "/mypage/account");
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(ACCOUNT_PAGE_PATH, locale),
+  );
   const [t, state, params] = await Promise.all([
     getTranslations("mypageAccount"),
     getAccountLoginState(user.id),
@@ -114,7 +125,7 @@ export default async function MypageAccountPage({
           ログイン情報を見に来ただけの人の視線には入りにくくする。 */}
       <div className="mt-10 border-t border-panel pt-6 text-center">
         <Link
-          href="/mypage/account/delete"
+          href={resolveNavTargetFor(DELETE_ACCOUNT_PATH, locale).href}
           className={`text-sm ${TEXT_LINK_CLASSES}`}
         >
           {t("deleteAccountLink")}

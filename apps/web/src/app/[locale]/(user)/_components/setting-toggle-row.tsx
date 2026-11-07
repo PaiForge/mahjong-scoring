@@ -10,6 +10,9 @@ import {
   TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 
+import type { NavTarget } from "./_lib/locale-links";
+import { JapaneseOnlyMark, LocaleNavLink } from "./locale-nav-link";
+
 /** 設定項目を並べるカード */
 export function SettingsCard({ children }: { readonly children: ReactNode }) {
   return (
@@ -104,8 +107,31 @@ interface SettingLockedRowProps {
   /** 利用条件の説明（「Pro プランで利用できます」） */
   readonly note: string;
   /** 利用できるようにする導線（料金ページ等） */
-  readonly link: { readonly href: string; readonly label: string };
+  readonly link: SettingLockedRowLink;
 }
+
+/**
+ * {@link SettingLockedRow} の導線
+ *
+ * - `href` — 同じ言語の中の遷移（`next/link`）。従来の形
+ * - `navTarget` — 張る先を `resolveNavTargetFor()` の結果で受ける形。言語を
+ *   またぐ先（`crossLocale`）は素の `<a hrefLang="ja">`（`LocaleNavLink`）にして
+ *   「日本語のみ」の印（`japaneseOnlyLabel`）を添える。この部品はクライアントで
+ *   描かれるので公開状態を読まず、親（サーバー）が決めた値を受け取る
+ */
+export type SettingLockedRowLink =
+  | {
+      readonly label: string;
+      readonly href: string;
+      readonly navTarget?: undefined;
+    }
+  | {
+      readonly label: string;
+      readonly navTarget: NavTarget;
+      /** 言語をまたぐときに添える「日本語のみ」の文言（`nav.language.japaneseOnly`） */
+      readonly japaneseOnlyLabel: string;
+      readonly href?: undefined;
+    };
 
 /**
  * 利用条件を満たすまで切り替えられない設定行
@@ -113,6 +139,9 @@ interface SettingLockedRowProps {
  *
  * 押せないスイッチは「壊れている」に見えるため、スイッチの代わりに利用条件と
  * 導線を出す。行の形は {@link SettingToggleRow} と揃える。
+ *
+ * 導線を `navTarget` で渡し、それが言語をまたがない（`crossLocale: false`）ときと
+ * `href` で渡したときは、どちらも同じ `next/link` の出力になる。
  */
 export function SettingLockedRow({
   id,
@@ -142,9 +171,27 @@ export function SettingLockedRow({
       )}
       <p className="mt-1 text-xs text-surface-600">{note}</p>
       <div className="mt-1 text-right text-xs">
-        <Link href={link.href} className={`font-semibold ${TEXT_LINK_CLASSES}`}>
-          {link.label}
-        </Link>
+        {link.navTarget === undefined ? (
+          <Link
+            href={link.href}
+            className={`font-semibold ${TEXT_LINK_CLASSES}`}
+          >
+            {link.label}
+          </Link>
+        ) : (
+          <>
+            <LocaleNavLink
+              navTarget={link.navTarget}
+              linkKind="plain"
+              className={`font-semibold ${TEXT_LINK_CLASSES}`}
+            >
+              {link.label}
+            </LocaleNavLink>
+            {link.navTarget.crossLocale && (
+              <JapaneseOnlyMark label={link.japaneseOnlyLabel} />
+            )}
+          </>
+        )}
       </div>
     </div>
   );

@@ -23,7 +23,10 @@ const { mockReplace, mockToastSuccess, mockRequestEmailChange } = vi.hoisted(
   }),
 );
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next-intl", async () => ({
+  ...(await import("@/test/intl-mock")),
+  useLocale: () => "ja",
+}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mockReplace }),
 }));

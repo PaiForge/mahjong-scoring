@@ -15,7 +15,10 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next-intl", async () => ({
+  ...(await import("@/test/intl-mock")),
+  useLocale: () => "ja",
+}));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock(
   "@/app/_contexts/auth-context",
@@ -100,6 +103,47 @@ describe.each(ROWS)("PracticeSettingsSection の$name", ({ key, on, title }) => 
     expect(screen.queryByLabelText(title)).toBeNull();
     expect(screen.queryByText("practiceToolsPro.link")).toBeNull();
     expect(screen.getByText(title)).toBeTruthy();
+  });
+});
+
+describe("PracticeSettingsSection の料金ページへの導線", () => {
+  it("言語をまたぐ張り方を渡すと、日本語の料金ページへ hrefLang 付きで張り日本語のみの印を添える", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    render(
+      <PracticeSettingsSection
+        planLink={{
+          navTarget: { href: "/plan", crossLocale: true },
+          japaneseOnlyLabel: "language.japaneseOnly",
+        }}
+      />,
+    );
+    const links = screen.getAllByText("practiceToolsPro.link");
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      const anchor = link.closest("a");
+      expect(anchor?.getAttribute("href")).toBe("/plan");
+      expect(anchor?.getAttribute("hrefLang")).toBe("ja");
+    }
+    expect(screen.getAllByText("language.japaneseOnly")).toHaveLength(2);
+  });
+
+  it("張り方を渡さなければ hrefLang も日本語のみの印も付けない（日本語のページの出力）", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    render(<PracticeSettingsSection />);
+    for (const link of screen.getAllByText("practiceToolsPro.link")) {
+      expect(link.closest("a")?.hasAttribute("hrefLang")).toBe(false);
+    }
+    expect(screen.queryByText("language.japaneseOnly")).toBeNull();
   });
 });
 

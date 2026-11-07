@@ -3,9 +3,11 @@
 import { useMemo, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { localizedHref } from "@/i18n/public-path";
+import { MY_RECORD_RESULTS_PATH } from "../_lib/paths";
 
 import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 import {
@@ -67,12 +69,19 @@ interface ChallengeDashboardProps {
  * フィルター、KPIカード、チャート、履歴テーブルを表示する。
  * サーバーサイドでプリフェッチした初期データを受け取り、初回の useEffect を省略する。
  * ダッシュボード
+ *
+ * リンク（全履歴・練習の説明ページ・練習一覧）はページの言語のまま張る
+ * （`localizedHref`。日本語は恒等）。行き先はどれもマイレコードを出している
+ * 言語で出している画面（全履歴は同じマイページの下位、練習は記録を持つ
+ * チャレンジ型の練習すべて。`mypage-link-targets.test.ts` が検査する）ので、
+ * ここで公開状態を読まない。チャートの軸と履歴の日時もページの言語の書式にする。
  */
 export function ChallengeDashboard({
   initialBoards,
   initialBoard,
   initialAttempts,
 }: ChallengeDashboardProps) {
+  const locale = useLocale();
   const t = useTranslations("mypage.challenges");
   const tRoot = useTranslations();
   const {
@@ -88,7 +97,13 @@ export function ChallengeDashboard({
     chartData,
     tableRows,
     hasMoreResults,
-  } = useDashboardData({ initialBoards, initialBoard, initialAttempts });
+  } = useDashboardData({
+    initialBoards,
+    initialBoard,
+    initialAttempts,
+    locale,
+  });
+  const practiceListHref = localizedHref(PRACTICE_PATH, locale);
 
   const comparisonLabel = t(getComparisonLabelKey(selectedPeriod));
   const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
@@ -143,7 +158,7 @@ export function ChallengeDashboard({
         <p className="text-surface-500">{t("noData")}</p>
         {/* 記録が 1 件も無い人にとって、このページは行き止まりになる。
             記録を作れる唯一の場所である練習一覧へ送る */}
-        <LinkButton href={PRACTICE_PATH} className="mt-6">
+        <LinkButton href={practiceListHref} className="mt-6">
           {t("goToPractice")}
         </LinkButton>
       </div>
@@ -246,7 +261,7 @@ export function ChallengeDashboard({
             {hasMoreResults && (
               <div className="text-center">
                 <Link
-                  href="/mypage/challenges/results"
+                  href={localizedHref(MY_RECORD_RESULTS_PATH, locale)}
                   className={`text-sm ${TEXT_LINK_CLASSES}`}
                 >
                   {t("viewAllResults")}
@@ -271,9 +286,12 @@ export function ChallengeDashboard({
           className={`flex flex-col ${SUB_LINK_GAP} border-t border-panel pt-4`}
         >
           <PracticeLinkButton
-            href={practiceHref(
-              menuTypeToSlug(selectedBoard.menuType),
-              selectedBoard.variant,
+            href={localizedHref(
+              practiceHref(
+                menuTypeToSlug(selectedBoard.menuType),
+                selectedBoard.variant,
+              ),
+              locale,
             )}
             label={t("tryChallenge", {
               title: boardLabel(selectedBoard, tRoot),
@@ -286,7 +304,7 @@ export function ChallengeDashboard({
               行き先が同じものを別の名前で呼ばない */}
           <p className="text-center">
             <Link
-              href={PRACTICE_PATH}
+              href={practiceListHref}
               className={`text-sm ${TEXT_LINK_CLASSES}`}
             >
               {t("goToPractice")}

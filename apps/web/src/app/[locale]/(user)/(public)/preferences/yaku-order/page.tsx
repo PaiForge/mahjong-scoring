@@ -12,8 +12,9 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
-import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 import { MembersOnlyGate } from "../_components/members-only-gate";
+import { membersGateLinks } from "../_lib/members-gate-links";
+import { createPreferencesMetadata } from "../_lib/preferences-metadata";
 import { YakuOrderSection } from "../_components/yaku-order-section";
 import {
   PREFERENCES_PATH,
@@ -24,14 +25,18 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/preferences/yaku-order">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/preferences/yaku-order");
-  return createTitleOnlyMetadata("settings.yakuOrder", "pageTitle");
+  const locale = await prepareRouteLocale(params, "/preferences/yaku-order");
+  return createPreferencesMetadata(
+    "settings.yakuOrder",
+    YAKU_ORDER_PATH,
+    locale,
+  );
 }
 
 export default async function YakuOrderPage({
   params,
 }: PageProps<"/[locale]/preferences/yaku-order">) {
-  await prepareRouteLocale(params, "/preferences/yaku-order");
+  const locale = await prepareRouteLocale(params, "/preferences/yaku-order");
   const t = await getTranslations("settings");
   const tYakuOrder = await getTranslations("settings.yakuOrder");
 
@@ -44,7 +49,7 @@ export default async function YakuOrderPage({
     >
       <PageTitle>{tYakuOrder("pageTitle")}</PageTitle>
 
-      <MembersOnlyGate redirectTo={YAKU_ORDER_PATH}>
+      <MembersOnlyGate links={membersGateLinks(YAKU_ORDER_PATH, locale)}>
         <section className="space-y-4">
           <SectionTitle>{tYakuOrder("sectionTitle")}</SectionTitle>
           <YakuOrderSection />

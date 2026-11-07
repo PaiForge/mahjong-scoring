@@ -25,6 +25,7 @@ const {
   mockLinkIdentity,
   mockUnlinkLoginIdentity,
   mockRequestPasswordSetup,
+  locale,
 } = vi.hoisted(() => ({
   mockReplace: vi.fn(),
   mockToastSuccess: vi.fn(),
@@ -32,9 +33,13 @@ const {
   mockLinkIdentity: vi.fn(),
   mockUnlinkLoginIdentity: vi.fn(),
   mockRequestPasswordSetup: vi.fn(),
+  locale: { current: "ja" as "ja" | "en" },
 }));
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next-intl", async () => ({
+  ...(await import("@/test/intl-mock")),
+  useLocale: () => locale.current,
+}));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: mockReplace }),
 }));
@@ -96,6 +101,7 @@ async function click(element: HTMLElement) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  locale.current = "ja";
   mockLinkIdentity.mockResolvedValue({ data: {}, error: null });
 });
 
@@ -174,6 +180,17 @@ describe("LoginMethodsCard の「外す」", () => {
     expect(mockReplace).toHaveBeenCalledWith("/mypage/account");
   });
 
+  it("英語のページでは同じ言語のアカウントのページを読み直す", async () => {
+    locale.current = "en";
+    mockUnlinkLoginIdentity.mockResolvedValue({ success: true });
+    renderCard(props);
+
+    await click(button("remove"));
+    await click(button("confirmRemove.ok"));
+
+    expect(mockReplace).toHaveBeenCalledWith("/en/mypage/account");
+  });
+
   it("失敗のコードは辞書のキーに写してトーストに出し、読み直さない", async () => {
     mockUnlinkLoginIdentity.mockResolvedValue({
       error: "removal:lastWebMethod",
@@ -202,5 +219,20 @@ describe("LoginMethodsCard の「Google アカウントを追加」", () => {
     expect(redirectTo.origin).toBe(window.location.origin);
     expect(redirectTo.pathname).toBe("/auth/callback");
     expect(redirectTo.searchParams.get("link")).toBe("google");
+    // 日本語では言語を運ばない（従来の戻り先のまま）
+    expect(redirectTo.searchParams.has("locale")).toBe(false);
+  });
+
+  it("英語のページから始めたら、戻り先に locale=en を付けて同じ言語へ戻させる", async () => {
+    locale.current = "en";
+    renderCard({ identities: [emailIdentity], hasPassword: true });
+
+    await click(button("google.add"));
+
+    const [args] = mockLinkIdentity.mock.calls[0] ?? [];
+    const redirectTo = new URL(args.options.redirectTo);
+    expect(redirectTo.pathname).toBe("/auth/callback");
+    expect(redirectTo.searchParams.get("link")).toBe("google");
+    expect(redirectTo.searchParams.get("locale")).toBe("en");
   });
 });

@@ -1,7 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { localizedHref } from "@/i18n/public-path";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import {
   SettingLinkRow,
   SettingLockedRow,
@@ -48,8 +50,23 @@ import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preferenc
  * 行の順は 進め方 → 答え方 → 盤面 → 別画面へのリンク。各行のアンカー
  * （`PREFERENCE_ANCHORS`）は節を移っても変えないので、他の画面からのリンクの着地は
  * そのまま効く。
+ *
+ * 役の並び順のページへは同じ言語のまま張る（設定のページを出している言語では
+ * 子ページも出している）。Pro の行の料金ページ（`/plan`）は英語で出していない
+ * （購入条件の法務のページが英語で揃うまで購入は日本語のまま）ので、英語の
+ * ページからは日本語の `/plan` へ言語をまたいで張り（素の `<a hrefLang="ja">`）、
+ * 「日本語のみ」の印を添える。英語の存在しない URL は作らない。張り方は
+ * ページ（サーバー）が公開状態の表から決めて `planLink` で渡す。
+ *
+ * @param planLink - 料金ページへの張り方。省略すると従来どおり同じ言語の中の
+ *   `/plan`（日本語のページはこれ。日本語の出力を変えないため渡さない）
  */
-export function PracticeSettingsSection() {
+export function PracticeSettingsSection({
+  planLink,
+}: {
+  readonly planLink?: PlanLink;
+} = {}) {
+  const locale = useLocale();
   const t = useTranslations("settings");
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const setAutoAdvanceOnCorrect = useTrainingSettingsStore(
@@ -119,6 +136,7 @@ export function PracticeSettingsSection() {
           setTileOrientation(checked ? "random" : "upright")
         }
         access={practiceToolsAccess}
+        planLink={planLink}
       />
       <PracticeToolsToggleRow
         id={PREFERENCE_ANCHORS.tileOrder}
@@ -127,12 +145,13 @@ export function PracticeSettingsSection() {
         checked={tileOrder === "unsorted"}
         onChange={(checked) => setTileOrder(checked ? "unsorted" : "sorted")}
         access={practiceToolsAccess}
+        planLink={planLink}
       />
 
       {/* 別画面へのリンクは末尾に置く。36役を並び替える UI は設定ページに置くと
           長すぎるため専用ページへ渡す */}
       <SettingLinkRow
-        href={YAKU_ORDER_PATH}
+        href={localizedHref(YAKU_ORDER_PATH, locale)}
         title={t("yakuOrderTitle")}
         description={t("yakuOrderDescription")}
       />
@@ -149,6 +168,18 @@ export function PracticeSettingsSection() {
  */
 type PracticeToolsAccess = "pending" | "granted" | "locked";
 
+/**
+ * 料金ページへの張り方（ページがサーバーで `resolveNavTargetFor` から決める）
+ *
+ * この部品はクライアントで描かれるので公開状態を読まない。
+ */
+export interface PlanLink {
+  /** 料金ページの張る先 */
+  readonly navTarget: NavTarget;
+  /** 言語をまたぐときに添える「日本語のみ」の文言 */
+  readonly japaneseOnlyLabel: string;
+}
+
 interface PracticeToolsToggleRowProps {
   readonly id: string;
   readonly title: string;
@@ -156,6 +187,8 @@ interface PracticeToolsToggleRowProps {
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
   readonly access: PracticeToolsAccess;
+  /** 料金ページへの張り方（省略時は同じ言語の中の `/plan`） */
+  readonly planLink: PlanLink | undefined;
 }
 
 /**
@@ -170,9 +203,11 @@ function PracticeToolsToggleRow({
   checked,
   onChange,
   access,
+  planLink,
 }: PracticeToolsToggleRowProps) {
   const t = useTranslations("settings");
   if (access === "locked") {
+    const label = t("practiceToolsPro.link");
     return (
       <SettingLockedRow
         id={id}
@@ -180,7 +215,15 @@ function PracticeToolsToggleRow({
         description={description}
         badge={t("practiceToolsPro.badge")}
         note={t("practiceToolsPro.note")}
-        link={{ href: PLAN_PAGE_HREF, label: t("practiceToolsPro.link") }}
+        link={
+          planLink === undefined
+            ? { href: PLAN_PAGE_HREF, label }
+            : {
+                navTarget: planLink.navTarget,
+                japaneseOnlyLabel: planLink.japaneseOnlyLabel,
+                label,
+              }
+        }
       />
     );
   }

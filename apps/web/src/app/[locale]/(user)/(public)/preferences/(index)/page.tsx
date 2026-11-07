@@ -51,6 +51,12 @@
  * もの。いまは静的ルートなので loading.tsx を外してあり（静的ルートは境界を持たない。不変条件と
  * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
  * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
+ *
+ * 英語でも同じ構成で出す（静的のまま。英語は noindex — `createPreferencesMetadata`）。
+ * 会員登録・ログインの導線は同じ言語で張り、公開プロフィール（ブロックした人の行）と
+ * 料金ページ（Pro の行）は英語で出していないので日本語のページを指し、「日本語のみ」の
+ * 印を添える。クライアントの部品は公開状態を読まないので、張り方はここで決めて渡す。
+ * 料金ページの張り方は日本語では渡さない（部品の従来の `next/link` の出力のまま保つ）。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -58,7 +64,11 @@ import { getTranslations } from "next-intl/server";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
-import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { publicProfileHref } from "@/lib/users/public-profile-href";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
+import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { AnchorScroll } from "../_components/anchor-scroll";
 import { BlockedUsersSection } from "../_components/blocked-users-section";
 import { DisplaySettingsSection } from "../_components/display-settings-section";
@@ -67,19 +77,40 @@ import { PracticeSettingsSection } from "../_components/practice-settings-sectio
 import { PrivacySettingsSection } from "../_components/privacy-settings-section";
 import { RuleSettingsSection } from "../_components/rule-settings-section";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { membersGateLinks } from "../_lib/members-gate-links";
+import { createPreferencesMetadata } from "../_lib/preferences-metadata";
+
+/**
+ * 公開プロフィールの公開状態を引くための代表のパス。公開状態は
+ * `/u/<username>` の形で一律に決まるので、名前の値は何でもよい
+ */
+const PUBLIC_PROFILE_SAMPLE_PATH = publicProfileHref("username");
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/preferences">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/preferences");
-  return createTitleOnlyMetadata("settings", "pageTitle");
+  const locale = await prepareRouteLocale(params, "/preferences");
+  return createPreferencesMetadata("settings", PREFERENCES_PATH, locale);
 }
 
 export default async function PreferencesPage({
   params,
 }: PageProps<"/[locale]/preferences">) {
-  await prepareRouteLocale(params, "/preferences");
+  const locale = await prepareRouteLocale(params, "/preferences");
   const t = await getTranslations("settings");
+  const tNav = await getTranslations("nav");
+  const profileLinks = {
+    crossLocale: resolveNavTargetFor(PUBLIC_PROFILE_SAMPLE_PATH, locale)
+      .crossLocale,
+    japaneseOnlyLabel: tNav("language.japaneseOnly"),
+  };
+  const planLink =
+    locale === DEFAULT_LOCALE
+      ? undefined
+      : {
+          navTarget: resolveNavTargetFor(PLAN_PAGE_HREF, locale),
+          japaneseOnlyLabel: tNav("language.japaneseOnly"),
+        };
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
@@ -87,7 +118,7 @@ export default async function PreferencesPage({
       <PageTitle>{t("pageTitle")}</PageTitle>
 
       <div className="space-y-8">
-        <MembersOnlyGate>
+        <MembersOnlyGate links={membersGateLinks(PREFERENCES_PATH, locale)}>
           <div className="space-y-8">
             <section className="space-y-4">
               <SectionTitle>{t("rulesSectionTitle")}</SectionTitle>
@@ -96,7 +127,7 @@ export default async function PreferencesPage({
 
             <section className="space-y-4">
               <SectionTitle>{t("practiceSectionTitle")}</SectionTitle>
-              <PracticeSettingsSection />
+              <PracticeSettingsSection planLink={planLink} />
             </section>
 
             <section className="space-y-4">
@@ -107,7 +138,7 @@ export default async function PreferencesPage({
             <section className="space-y-4">
               <SectionTitle>{t("privacySectionTitle")}</SectionTitle>
               <PrivacySettingsSection />
-              <BlockedUsersSection />
+              <BlockedUsersSection profileLinks={profileLinks} />
             </section>
           </div>
         </MembersOnlyGate>

@@ -30,12 +30,29 @@ import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
 import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { JapaneseOnlyMark } from "@/app/[locale]/(user)/_components/locale-nav-link";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
+
+import { confirmedGuardOptions } from "../../_lib/guard-options";
+
+/**
+ * 金額の書式の地域（`Intl.NumberFormat` のロケール）
+ *
+ * 通貨は購入時のもの（`purchase.currency`）のまま。区切りと通貨記号の並びだけを
+ * ページの言語に合わせる。
+ */
+const AMOUNT_FORMAT_LOCALES = {
+  ja: "ja-JP",
+  en: "en-US",
+} as const satisfies Record<SupportedLocale, string>;
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/plan">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/plan");
-  return createPrivateMetadata("mypagePlan");
+  const locale = await prepareRouteLocale(params, "/mypage/plan");
+  return createPrivateMetadata("mypagePlan", "pageTitle", { locale });
 }
 
 type PlanTranslator = Awaited<ReturnType<typeof getTranslations<"mypagePlan">>>;
@@ -50,19 +67,24 @@ type PlanTranslator = Awaited<ReturnType<typeof getTranslations<"mypagePlan">>>;
 function describePlanStatus(
   plan: PlanStatus,
   t: PlanTranslator,
+  locale: SupportedLocale,
 ): { readonly heading: string; readonly hint: string } {
   switch (plan.kind) {
     case "lifetime":
       return { heading: t("status.lifetime"), hint: t("status.lifetimeHint") };
     case "pass":
       return {
-        heading: t("status.pass", { until: formatPlanDate(plan.until) }),
+        heading: t("status.pass", {
+          until: formatPlanDate(plan.until, locale),
+        }),
         hint: t("status.passHint"),
       };
     case "granted":
       return {
         heading: plan.until
-          ? t("status.grantedUntil", { until: formatPlanDate(plan.until) })
+          ? t("status.grantedUntil", {
+              until: formatPlanDate(plan.until, locale),
+            })
           : t("status.granted"),
         hint: t("status.grantedHint"),
       };
@@ -100,26 +122,41 @@ interface MypagePlanPageProps {
  * 1. 状態を見る → 購入が有効でなければ「Pro を購入する」で料金ページへ
  * 2. 購入履歴で日付・内容・金額・購入元・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
  * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
+ *
+ * @design 英語でも購入は日本語の料金ページで
+ * 購入状況・購入履歴・付与は英語のページでも英語で出す（日付・金額もページの
+ * 言語の書式。通貨は購入時のまま）。購入の導線（「Pro を購入する」）だけは、
+ * 英語のページからも日本語の料金ページ（`/plan`）へ言語をまたいで張り、
+ * 「日本語のみ」の印を添える。購入の条件を示す法務のページ（利用規約・
+ * プライバシーポリシー・特定商取引法に基づく表記）が英語で揃うまで、購入を
+ * 英語の画面で完結させないため。張る先は公開状態の表から決める
+ * （`resolveNavTargetFor`）ので、料金ページを英語で出せば同じ言語へ切り替わる。
+ * Stripe の Checkout（言語・キャンセルの戻り先・完了の着地）は日本語のまま変えない。
  */
 export default async function MypagePlanPage({
   params,
   searchParams,
 }: MypagePlanPageProps & Pick<PageProps<"/[locale]/mypage/plan">, "params">) {
-  await prepareRouteLocale(params, "/mypage/plan");
-  const { user } = await requireConfirmedUser();
-  const [t, purchases, grants, { status }] = await Promise.all([
+  const locale = await prepareRouteLocale(params, "/mypage/plan");
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(MYPAGE_PLAN_PATH, locale),
+  );
+  const [t, tNav, purchases, grants, { status }] = await Promise.all([
     getTranslations("mypagePlan"),
+    getTranslations("nav"),
     listPurchases(user.id),
     listBenefitGrants(user.id),
     searchParams,
   ]);
+  const planPageTarget = resolveNavTargetFor(PLAN_PAGE_HREF, locale);
+  const amountLocale = AMOUNT_FORMAT_LOCALES[locale];
   const now = new Date();
   const plan = planStatusOf(purchases, grants, now);
   const canPurchase = !purchases.some((purchase) =>
     blocksNewPurchase(purchase, now),
   );
   const providers = new Set(purchases.map(purchaseProviderOf));
-  const statusCopy = describePlanStatus(plan, t);
+  const statusCopy = describePlanStatus(plan, t, locale);
 
   return (
     <MypageSubpageLayout title={t("pageTitle")}>
@@ -143,8 +180,11 @@ export default async function MypagePlanPage({
               {statusCopy.hint}
             </p>
             {canPurchase && (
-              <LinkButton href={PLAN_PAGE_HREF} size="lg" fullWidth>
+              <LinkButton navTarget={planPageTarget} size="lg" fullWidth>
                 {t("status.buy")}
+                {planPageTarget.crossLocale && (
+                  <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+                )}
               </LinkButton>
             )}
           </div>
@@ -182,7 +222,7 @@ export default async function MypagePlanPage({
                 return (
                   <tr key={purchase.id} className="text-sm">
                     <td className={`${cell} text-left tabular-nums`}>
-                      {formatPlanDateShort(purchase.createdAt)}
+                      {formatPlanDateShort(purchase.createdAt, locale)}
                     </td>
                     <td className={`${cell} whitespace-nowrap text-left`}>
                       {purchase.kind === PurchaseKind.Lifetime
@@ -190,7 +230,11 @@ export default async function MypagePlanPage({
                         : t("history.kind.pass")}
                     </td>
                     <td className={`${cell} text-right tabular-nums`}>
-                      {formatAmount(purchase.amount, purchase.currency)}
+                      {formatAmount(
+                        purchase.amount,
+                        purchase.currency,
+                        amountLocale,
+                      )}
                     </td>
                     <td className={`${cell} whitespace-nowrap text-left`}>
                       {t(`history.provider.${purchaseProviderOf(purchase)}`)}
@@ -240,7 +284,7 @@ export default async function MypagePlanPage({
                 return (
                   <tr key={grant.id} className="text-sm">
                     <td className={`${cell} text-left tabular-nums`}>
-                      {formatPlanDateShort(grant.createdAt)}
+                      {formatPlanDateShort(grant.createdAt, locale)}
                     </td>
                     <td className={`${cell} whitespace-nowrap text-left`}>
                       {grant.plan === "pro" ? t("grants.pro") : grant.plan}
@@ -250,7 +294,7 @@ export default async function MypagePlanPage({
                     >
                       {grant.expiresAt
                         ? t("grants.until", {
-                            until: formatPlanDateShort(grant.expiresAt),
+                            until: formatPlanDateShort(grant.expiresAt, locale),
                           })
                         : t("grants.permanent")}
                     </td>
