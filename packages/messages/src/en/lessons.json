@@ -298,50 +298,50 @@
     "achievement": "You can now use the fixed fu of pinfu (20 fu by tsumo, 30 fu by ron) to look up the score in the table when other yaku are added."
   },
   "menzenMentsuScore": {
-    "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
-    "questionPrompt": "手牌の符を選んでください",
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
     "questions": {
       "ron2": {
-        "hint": "副底 20 符・門前加符 10 符・積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋10＋2＝32 符。テンパネして 40 符です。平和でない門前のロンは必ず符が付くので、40 符以上になります。"
+        "hint": "Add the 20 base fu, the 10 fu closed ron bonus and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 10 + 2 = 32 fu, which rounds up (tenpane) to 40 fu. A closed ron that is not pinfu always has some fu built up, so it is 40 fu or more."
       },
       "tsumo8": {
-        "hint": "副底 20 符・ツモ 2 符・積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋2＋8＝30 符。ちょうど 10 の倍数なのでテンパネせず、30 符のままです（么九牌の暗刻 1 つだけの手など）。"
+        "hint": "Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 2 + 8 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu (for example, a hand whose only fu come from one closed triplet of terminals or honors)."
       },
       "tsumo10": {
-        "hint": "ツモの 2 符を足し忘れないようにしましょう。",
-        "explanation": "20＋2＋10＝32 符。テンパネして 40 符です。ロンなら 20＋10＋10＝40 符でちょうどなので、同じ 40 符になります。"
+        "hint": "Do not forget to add the 2 fu for tsumo.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. By ron it would be exactly 20 + 10 + 10 = 40 fu, so it comes to the same 40 fu."
       },
       "ron12": {
-        "hint": "門前加符の 10 符を足してから切り上げます。",
-        "explanation": "20＋10＋12＝42 符。テンパネして 50 符です。同じ 12 符でもツモなら 20＋2＋12＝34 符で 40 符になり、ロンのほうが 10 符上になります。"
+        "hint": "Add the 10 fu closed ron bonus, then round up.",
+        "explanation": "20 + 10 + 12 = 42 fu, which rounds up to 50 fu. With the same 12 fu, a tsumo would be 20 + 2 + 12 = 34 fu and round up to 40 fu, so the ron comes out 10 fu higher."
       }
     },
-    "achievement": "平和以外の門前の手の符を、副底・ツモかロンの符・積み上げた符を足して切り上げ、どこでテンパネするかを見分けて出せるようになりました。"
+    "achievement": "You can now work out the fu for a closed hand that is not pinfu by adding the base fu, the fu for tsumo or ron and the built-up fu and rounding up, and you can tell where the total rounds up."
   },
   "furoScore": {
-    "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
-    "questionPrompt": "手牌の符を選んでください",
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
     "questions": {
       "ron4": {
-        "hint": "鳴いた手のロンには門前加符が付きません。副底 20 符に積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋4＝24 符。テンパネして 30 符です。門前なら 20＋10＋4＝34 符で 40 符なので、鳴くとロンは 10 符低くなります。"
+        "hint": "A ron with an open hand gets no closed ron bonus. Add the built-up fu to the 20 base fu, then round up to the next 10 fu.",
+        "explanation": "20 + 4 = 24 fu, which rounds up (tenpane) to 30 fu. Closed, it would be 20 + 10 + 4 = 34 fu and 40 fu, so calling makes a ron 10 fu lower."
       },
       "ron0": {
-        "hint": "積み上げた符が 0 符のロンは例外です（食い平和形）。",
-        "explanation": "積み上げ 0 符のロンは合計 20 符ですが、20 符は平和ツモ専用の符なので 30 符として扱います（食い平和形）。"
+        "hint": "A ron with 0 built-up fu is the exception (the open pinfu shape).",
+        "explanation": "A ron with 0 built-up fu totals 20 fu, but 20 fu is reserved for a pinfu tsumo, so it is treated as 30 fu (the open pinfu shape)."
       },
       "tsumo10": {
-        "hint": "ツモの符は門前と同じです。副底 20 符・ツモ 2 符・積み上げた符を足して切り上げます。",
-        "explanation": "20＋2＋10＝32 符。テンパネして 40 符です。鳴いていてもツモの 2 符は付きます。"
+        "hint": "Tsumo fu are the same as for a closed hand. Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. The 2 fu for tsumo still apply with an open hand."
       },
       "ron10": {
-        "hint": "ロンの出発点は副底の 20 符だけです。",
-        "explanation": "20＋10＝30 符。ちょうど 10 の倍数なのでテンパネせず 30 符です。同じ 10 符でもツモなら 32 符で 40 符になり、鳴いた手ではツモのほうが高くなります。"
+        "hint": "A ron starts from the 20 base fu alone.",
+        "explanation": "20 + 10 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu. With the same 10 fu, a tsumo would be 32 fu and round up to 40 fu, so with an open hand the tsumo comes out higher."
       }
     },
-    "achievement": "鳴いた手の符を、ロンは副底 20 符から・ツモは門前と同じ 22 符から足して切り上げて出せるようになりました（食い平和形は 30 符）。"
+    "achievement": "You can now work out the fu for an open hand by adding up from the 20 base fu for a ron, or from 22 fu for a tsumo as with a closed hand, then rounding up (the open pinfu shape is 30 fu)."
   },
   "rankGoal": {
     "title": "On to the {rank} Promotion Exam",
