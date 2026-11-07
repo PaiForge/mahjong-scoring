@@ -29,21 +29,22 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/agari-score">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/agari-score");
+  const locale = await prepareRouteLocale(params, "/practice/agari-score");
   // slug "agari-score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
   // createPracticeMetadata を使えない。パスをここで明示する。
   return createNamespaceMetadata("agariScore", {
     path: AGARI_SCORE_PRACTICE_HREF,
+    locale,
   });
 }
 
 export default async function ScoreSetupPage({
   params,
 }: PageProps<"/[locale]/practice/agari-score">) {
-  await prepareRouteLocale(params, "/practice/agari-score");
+  const locale = await prepareRouteLocale(params, "/practice/agari-score");
   const t = await getTranslations("agariScore");
   const tp = await getTranslations("practice");
-  const ad = await getNativeAdCreative("practice-intro-native-ad");
+  const ad = await getNativeAdCreative("practice-intro-native-ad", locale);
 
   return (
     <ContentContainer

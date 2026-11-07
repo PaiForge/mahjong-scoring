@@ -6,8 +6,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/agari-score/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/agari-score/play");
-  return createFreePracticePlayMetadata("agariScore");
+  const locale = await prepareRouteLocale(params, "/practice/agari-score/play");
+  return createFreePracticePlayMetadata("agariScore", { locale });
 }
 
 /**

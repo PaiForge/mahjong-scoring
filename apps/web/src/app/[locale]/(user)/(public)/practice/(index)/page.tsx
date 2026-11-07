@@ -53,18 +53,18 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice");
-  return createNamespaceMetadata("practice", { path: PRACTICE_PATH });
+  const locale = await prepareRouteLocale(params, "/practice");
+  return createNamespaceMetadata("practice", { path: PRACTICE_PATH, locale });
 }
 
 export default async function PracticePage({
   params,
 }: PageProps<"/[locale]/practice">) {
-  await prepareRouteLocale(params, "/practice");
+  const locale = await prepareRouteLocale(params, "/practice");
   const [t, tRanks, ad] = await Promise.all([
     getTranslations("practice"),
     getTranslations("ranks"),
-    getNativeAdCreative("practice-grid-native-ad"),
+    getNativeAdCreative("practice-grid-native-ad", locale),
   ]);
 
   // カードはここで全件描画し、絞り込みは表示するかどうかの判断だけを
