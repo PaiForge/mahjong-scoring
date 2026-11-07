@@ -1,17 +1,17 @@
 {
   "learn": {
-    "pageTitle": "親のツモ（満貫以上）",
-    "pageDescription": "親が満貫以上をツモしたときの点数（オール）を覚えます。",
-    "bodyTitle": "親のツモは全員同額（オール）",
-    "body1": "親が[[tsumo|ツモ]]したときは、子3人が全員同じ額を支払います。これを「オール」と呼びます。\n不均等な分担がないぶん、子のツモよりも覚えやすいケースです。",
-    "body2": "受け取る合計は親の[[ron|ロン]]と同じです。\n親が[[mangan|満貫]]以上をツモしたケースを見てみましょう。",
-    "body3": "表のとおり、合計は親のロンと一致し、それを子3人で均等に割っているだけです。",
-    "divisionTitle": "ロンを3で割れば出る",
-    "divisionBody": "オールの数字も覚え直す必要はありません。\n子のツモでは半分にする操作を2回しましたが、こちらは3で割る1回で済みます。子3人が同じ額を出すので、分ける先が1種類しかないためです。",
-    "divisionDiagramCaption": "満貫の場合",
-    "divisionRonLabel": "親のロン",
-    "divisionArrowLabel": "3で割る",
-    "divisionAllLabel": "子ひとりが出す",
-    "divisionResultLabel": "点数表の親ツモ"
+    "pageTitle": "Mangan and Above: Dealer Tsumo Scores",
+    "pageDescription": "Learn the riichi mahjong scores for a dealer tsumo of mangan or more, where every non-dealer pays the same amount (“all”).",
+    "bodyTitle": "On a dealer tsumo, everyone pays the same (“all”)",
+    "body1": "When the dealer wins by [[tsumo|tsumo]], the three non-dealers each pay the same amount. This is called “all”.\nWith no uneven split, it is easier to remember than a non-dealer tsumo.",
+    "body2": "The total received is the same as a dealer [[ron|ron]].\nLet us look at the dealer winning a [[mangan|mangan]] or more by tsumo.",
+    "body3": "As the table shows, the total matches the dealer ron score and is simply split evenly among the three non-dealers.",
+    "divisionTitle": "Divide the ron score by 3",
+    "divisionBody": "You do not need to memorize the “all” numbers separately either.\nFor a non-dealer tsumo you halved twice; here a single division by 3 does it. All three non-dealers pay the same amount, so there is only one kind of share.",
+    "divisionDiagramCaption": "For mangan",
+    "divisionRonLabel": "Dealer ron",
+    "divisionArrowLabel": "Divide by 3",
+    "divisionAllLabel": "Paid by each non-dealer",
+    "divisionResultLabel": "Dealer tsumo in the scoring table"
   }
 }

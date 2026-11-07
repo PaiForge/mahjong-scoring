@@ -1,10 +1,10 @@
 {
   "learn": {
-    "pageTitle": "親のロン（満貫以上）",
-    "pageDescription": "親が満貫以上をロンしたときの点数を覚えます。子の1.5倍が基本です。",
-    "bodyTitle": "親は子の1.5倍になるだけ",
-    "body1": "親で[[mangan|満貫]]以上の点数計算を行う場合も、符の計算は不要です。\nただし、親では子の1.5倍の点数になります。",
-    "body2": "子の場合と同じように、最もシンプルな親が満貫以上を[[ron|ロン]]したケースを見てみましょう。",
-    "body3": "表のとおり、点数はすべて子のロンの1.5倍になっているだけです。\n倍率（満貫の何倍か）や翻数のレンジは子の場合と同じです。\n子での点数計算の知識をそのまま親での点数計算にも応用できます。"
+    "pageTitle": "Mangan and Above: Dealer Ron Scores",
+    "pageDescription": "Learn the riichi mahjong scores for a dealer ron of mangan or more. The dealer simply scores 1.5 times the non-dealer amount.",
+    "bodyTitle": "The dealer simply scores 1.5 times the non-dealer amount",
+    "body1": "As the dealer, you do not need to count fu for [[mangan|mangan]] and above either.\nThe dealer, however, scores 1.5 times what a non-dealer would.",
+    "body2": "As with the non-dealer, let us look at the simplest case: the dealer wins a mangan or more by [[ron|ron]].",
+    "body3": "As the table shows, every score is just 1.5 times the non-dealer ron score.\nThe multipliers (how many times mangan) and the han ranges are the same as for a non-dealer.\nWhat you know about non-dealer scoring carries straight over to the dealer."
   }
 }
