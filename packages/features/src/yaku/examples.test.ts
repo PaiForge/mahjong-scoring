@@ -5,6 +5,8 @@ import {
   parseHais,
   parseTehai,
 } from "@mahjong-scoring/core";
+import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import type { YakuExampleHand, YakuExampleSet } from "./examples";
 import {
   YAKU_EXAMPLES,
@@ -181,5 +183,35 @@ describe("resolveYakuCheatsheetName", () => {
     expect([...unresolved].sort()).toEqual(
       [...YAKU_CHEATSHEET_EXCLUDED].sort(),
     );
+  });
+});
+
+describe("例示の牌の見出し（variant / variantKey）", () => {
+  const examples = Object.values(YAKU_EXAMPLES).flat();
+
+  it("日本語の見出しと辞書キーを必ず対で持つ", () => {
+    for (const example of examples) {
+      expect(example.variantKey === undefined, example.menzen.mpsz).toBe(
+        example.variant === undefined,
+      );
+    }
+  });
+
+  it("辞書キーの日本語の値が、日本語の見出しと一致する（日本語の表示を変えない）", () => {
+    const jaVariants: Readonly<Record<string, string>> =
+      jaMessages.reference.yaku.variants;
+    for (const example of examples) {
+      if (example.variantKey === undefined) continue;
+      expect(jaVariants[example.variantKey]).toBe(example.variant);
+    }
+  });
+
+  it("辞書キーは英語の辞書にも実在する", () => {
+    const enVariants: Readonly<Record<string, string>> =
+      enMessages.reference.yaku.variants;
+    for (const example of examples) {
+      if (example.variantKey === undefined) continue;
+      expect(enVariants[example.variantKey]).toBeTypeOf("string");
+    }
   });
 });
