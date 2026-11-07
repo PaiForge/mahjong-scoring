@@ -91,6 +91,7 @@ import notFound from "./ja/not-found.json";
 import errorPage from "./ja/error-page.json";
 import mobilePlan from "./ja/mobile-plan.json";
 import mobileApp from "./ja/mobile-app.json";
+import yakuNames from "./ja/yaku-names.json";
 
 /**
  * 日本語の辞書（全名前空間）
@@ -200,6 +201,7 @@ export const messages = {
   errorPage,
   mobilePlan,
   mobileApp,
+  yakuNames,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

@@ -195,6 +195,7 @@ export const EN_PENDING_NAMESPACES = [
   "lessons",
   "mobilePlan",
   "mobileApp",
+  "yakuNames",
 ] as const satisfies readonly MessageNamespace[];
 
 /**

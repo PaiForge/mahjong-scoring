@@ -25,6 +25,11 @@
       "menzenOnly": "Closed only",
       "kuisagari": "Reduced when open",
       "unchanged": "Same when open"
+    },
+    "variants": {
+      "haku": "White Dragon (haku)",
+      "hatsu": "Green Dragon (hatsu)",
+      "chun": "Red Dragon (chun)"
     }
   },
   "glossary": {
