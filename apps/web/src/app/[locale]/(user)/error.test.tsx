@@ -19,9 +19,15 @@ function renderIn(locale: SupportedLocale) {
 }
 
 describe("(user) のエラー境界", () => {
-  it.each(["ja", "en"] as const)(
-    "%s: 見出し・説明・再試行・ホームへのリンクがすべてその言語の辞書から出る",
-    (locale) => {
+  // ホームへのリンクはその言語のトップ。英語のトップ（`/en`）は公開しているので
+  // 英語のエラーからは `/en` へ戻す（未公開の言語のトップへは向けない —
+  // `publishedHomeHref`）。
+  it.each([
+    ["ja", "/"],
+    ["en", "/en"],
+  ] as const)(
+    "%s: 見出し・説明・再試行・ホームへのリンクがすべてその言語の辞書から出て、ホームは %s を指す",
+    (locale, homeHref) => {
       const errorPage = renderIn(locale);
       expect(screen.getByText(errorPage.title)).toBeTruthy();
       expect(screen.getByText(errorPage.description)).toBeTruthy();
@@ -32,7 +38,7 @@ describe("(user) のエラー境界", () => {
         screen
           .getByRole("link", { name: errorPage.goHome })
           .getAttribute("href"),
-      ).toBe("/");
+      ).toBe(homeHref);
     },
   );
 
