@@ -11,14 +11,13 @@ import {
   getPublishedAnnouncementsPaginated,
 } from "@/lib/announcements/queries";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
-import {
-  JapaneseOnlyMark,
-  LocaleNavLink,
-} from "@/app/[locale]/(user)/_components/locale-nav-link";
+import { LocaleNavLink } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
+
+import { linkLabel } from "./link-label";
 
 interface HomeAnnouncementsProps {
   /** ページの言語（`prepareRouteLocale` が確定したもの） */
@@ -92,10 +91,7 @@ export async function HomeAnnouncements({ locale }: HomeAnnouncementsProps) {
               linkKind="plain"
               className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-50 hover:text-foreground ${FOCUS_RING_CLASSES}`}
             >
-              {t("viewAll")}
-              {viewAll.crossLocale && (
-                <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
-              )}
+              {linkLabel(t("viewAll"), viewAll, tNav("language.japaneseOnly"))}
               <span aria-hidden="true">
                 <ChevronRightIcon />
               </span>

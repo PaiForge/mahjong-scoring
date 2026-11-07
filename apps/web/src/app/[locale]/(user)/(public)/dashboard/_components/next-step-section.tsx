@@ -4,10 +4,7 @@ import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/loca
 import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
-import {
-  JapaneseOnlyMark,
-  LocaleNavLink,
-} from "@/app/[locale]/(user)/_components/locale-nav-link";
+import { LocaleNavLink } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -30,6 +27,7 @@ import {
 } from "@mahjong-scoring/features/journey/journey-step";
 import { RankHeading } from "../../dojo/_components/rank-heading";
 import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
+import { linkLabel } from "./link-label";
 
 interface NextStepSectionProps {
   readonly journey: Journey;
@@ -175,10 +173,7 @@ export async function NextStepSection({
             className={beltButtonVarsClass(rankSlug)}
             trailingIcon={<ChevronRightIcon className="size-4" />}
           >
-            {step.cta}
-            {step.navTarget.crossLocale && (
-              <JapaneseOnlyMark label={japaneseOnlyLabel} />
-            )}
+            {linkLabel(step.cta, step.navTarget, japaneseOnlyLabel)}
           </LinkButton>
           <div className="text-center">
             <LocaleNavLink
@@ -186,10 +181,7 @@ export async function NextStepSection({
               linkKind="plain"
               className={`text-sm ${TEXT_LINK_CLASSES}`}
             >
-              {t("choosePractice")}
-              {practiceList.crossLocale && (
-                <JapaneseOnlyMark label={japaneseOnlyLabel} />
-              )}
+              {linkLabel(t("choosePractice"), practiceList, japaneseOnlyLabel)}
             </LocaleNavLink>
           </div>
         </div>
