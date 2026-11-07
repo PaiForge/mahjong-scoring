@@ -5,8 +5,9 @@
  * - 用語リンクを押すと、その語の意味と用語ページへの導線が出る
  * - 同じモーダルに、用語リンクを切る設定への導線が出る
  *   （設定ページを自分から見に行く読者しか設定に辿り着けない状態を避ける）
- * - 英語のページでは、英語で公開している用語ページへは英語のページへ張り、
- *   英語で出していない設定ページへは日本語のページへ「日本語のみ」と添えて向ける
+ * - 英語のページでは、英語で公開している用語ページ・設定ページへは英語のページへ
+ *   張り、「日本語のみ」の印を付けない（英語で出していない先を日本語のページへ
+ *   印付きで向ける規則は `_lib/glossary-link-target.ts` が持つ）
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -95,22 +96,24 @@ describe("GlossaryTermModalProvider", () => {
     expect(details.getAttribute("hrefLang")).toBeNull();
   });
 
-  it("英語のページで英語版の無い設定へは、日本語のページへ「日本語のみ」と添えて向ける", () => {
+  it("英語のページでは英語で公開している設定へ英語のページで向け、日本語のみの印を付けない", () => {
     renderChapter("en");
     fireEvent.click(screen.getByRole("link", { name: "平和" }));
 
     const settings = screen.getByRole("link", {
       name: "用語リンクなしで表示する",
     });
-    expect(settings.getAttribute("href")).toBe("/preferences#term-links");
-    expect(settings.getAttribute("hrefLang")).toBe("ja");
-    expect(screen.getByText(JAPANESE_ONLY)).toBeDefined();
+    expect(settings.getAttribute("href")).toBe("/en/preferences#term-links");
+    expect(settings.getAttribute("hrefLang")).toBeNull();
+    expect(screen.queryByText(JAPANESE_ONLY)).toBeNull();
   });
 
-  it("前提: 用語ページは英語で公開し、設定ページは公開していない", () => {
+  it("前提: 用語ページと設定ページは英語で公開している（設定は索引させない）", () => {
     expect(getTranslatedPublication("/reference/glossary/pinfu", "en")).toBe(
       "published-indexable",
     );
-    expect(getTranslatedPublication("/preferences", "en")).toBe("unpublished");
+    expect(getTranslatedPublication("/preferences", "en")).toBe(
+      "published-noindex",
+    );
   });
 });

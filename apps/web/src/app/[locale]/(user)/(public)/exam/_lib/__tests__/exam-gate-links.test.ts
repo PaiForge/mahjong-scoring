@@ -3,8 +3,8 @@
  *
  * @description
  * 行き先は公開状態で決まる。日本語では今までどおりの行き先、英語では
- * 英語で公開している道場は英語の URL、未公開の登録は日本語の URL のまま
- * 言語をまたぐ印を付ける。
+ * 英語で公開している道場・登録は英語の URL（未公開の先なら日本語の URL のまま
+ * 言語をまたぐ印を付ける）。
  */
 import { describe, expect, it } from "vitest";
 
@@ -18,9 +18,9 @@ describe("resolveExamGateLinks", () => {
     });
   });
 
-  it("英語では道場は英語の道場、未公開の登録は日本語の登録へ言語をまたいで送る", () => {
+  it("英語では登録・道場とも英語で公開しているので、英語のページへ言語をまたがずに送る", () => {
     expect(resolveExamGateLinks("en")).toEqual({
-      signUp: { href: "/sign-up", crossLocale: true },
+      signUp: { href: "/en/sign-up", crossLocale: false },
       dojo: { href: "/en/dojo", crossLocale: false },
     });
   });
