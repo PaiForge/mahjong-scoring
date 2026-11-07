@@ -20,16 +20,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/tsumo-payments">) {
-  await prepareRouteLocale(params, "/lessons/tsumo-payments");
-  return createLearnMetadata("tsumo-payments");
+  const locale = await prepareRouteLocale(params, "/lessons/tsumo-payments");
+  return createLearnMetadata("tsumo-payments", { locale });
 }
 
 export default async function LearnTsumoPaymentsPage({
   params,
 }: PageProps<"/[locale]/lessons/tsumo-payments">) {
-  await prepareRouteLocale(params, "/lessons/tsumo-payments");
+  const locale = await prepareRouteLocale(params, "/lessons/tsumo-payments");
   return (
-    <LearnPageLayout slug="tsumo-payments">
+    <LearnPageLayout slug="tsumo-payments" locale={locale}>
       <TsumoPaymentsGuide />
     </LearnPageLayout>
   );
