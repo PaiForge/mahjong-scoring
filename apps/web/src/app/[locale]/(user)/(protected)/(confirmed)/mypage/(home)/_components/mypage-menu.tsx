@@ -6,7 +6,9 @@ import { ChartIcon } from "@/app/[locale]/(user)/_components/icons/chart-icon";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { OutlineIcon } from "@/app/[locale]/(user)/_components/icons/outline-icon";
 import { UserIcon } from "@/app/[locale]/(user)/_components/icons/user-icon";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import {
   MYPAGE_NOTIFICATIONS_PATH,
   MYPAGE_PLAN_PATH,
@@ -33,8 +35,16 @@ const panelClasses =
 const rowClasses =
   "flex min-h-24 items-center gap-3 px-4 py-5 sm:gap-4 sm:px-5";
 
-/** マイページ専用のナビゲーション。矢印と行全体の反応で遷移先を示す。 */
-export function MyPageMenu() {
+/**
+ * マイページ専用のナビゲーション。矢印と行全体の反応で遷移先を示す。
+ *
+ * 行き先（マイレコード・プラン・通知・アカウント）はどれもマイページの下位
+ * ページで、マイページを出している言語ではどれも出している。張る先は
+ * 公開状態の表から引き（`resolveNavTargetFor`）、ページの言語のまま移す。
+ *
+ * @param locale - ページの言語
+ */
+export function MyPageMenu({ locale }: { readonly locale: SupportedLocale }) {
   const t = useTranslations("mypage");
 
   return (
@@ -45,7 +55,7 @@ export function MyPageMenu() {
           return (
             <li key={key}>
               <Link
-                href={href}
+                href={resolveNavTargetFor(href, locale).href}
                 className={`group ${rowClasses} transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${featured ? "bg-brand-subtle hover:bg-primary-100" : "hover:bg-surface-50"}`}
               >
                 <span
