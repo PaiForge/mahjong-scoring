@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/core";
 import type {
   FuDetail,
+  FuReasonSpec,
   Furo,
   HaiKindId,
   RuleConfig,
@@ -94,10 +95,48 @@ export const completedMentsuTypeSchema = z.literal([
   MentsuType.Kantsu,
 ]);
 
-/** 符の内訳 1 件 */
+/**
+ * 符の理由の構造
+ *
+ * 英語の結果ページが内訳の理由を辞書で描くために、sessionStorage を経ても
+ * 残す（`z.object` は知らない項目を落とすので、ここに書かないと消える）。
+ */
+export const fuReasonSpecSchema: z.ZodType<FuReasonSpec> = z.discriminatedUnion(
+  "kind",
+  [
+    z.object({ kind: z.literal("futei") }),
+    z.object({ kind: z.literal("chiitoitsu") }),
+    z.object({ kind: z.literal("pinfuTsumo") }),
+    z.object({ kind: z.literal("tsumo") }),
+    z.object({ kind: z.literal("menzenRon") }),
+    z.object({
+      kind: z.literal("mentsu"),
+      yaochu: z.boolean(),
+      open: z.boolean(),
+      kantsu: z.boolean(),
+    }),
+    z.object({
+      kind: z.literal("jantou"),
+      reasons: z.array(z.enum(["bakaze", "jikaze", "sangenpai"])),
+    }),
+    z.object({
+      kind: z.literal("machi"),
+      machi: z.enum(["tanki", "kanchan", "penchan", "other"]),
+    }),
+    z.object({ kind: z.literal("kuiPinfu") }),
+  ],
+);
+
+/**
+ * 符の内訳 1 件
+ *
+ * `spec` は省略可能。構造を足す前に保存された内訳（`reason` と `fu` だけ）も
+ * 読み、その行は日本語の `reason` をそのまま描く（`fuReasonLabel`）。
+ */
 export const fuDetailSchema: z.ZodType<FuDetail> = z.object({
   reason: z.string(),
   fu: z.number(),
+  spec: fuReasonSpecSchema.optional(),
 });
 
 /**

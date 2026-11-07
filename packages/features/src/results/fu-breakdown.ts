@@ -39,14 +39,20 @@ export interface FuBreakdown {
  * しないとき（例: 32符 → 40符）に 10 符単位へ切り上げた後の符を添える。
  * 開閉や表の描画は web・モバイルの `FuBreakdown` が持つ。
  *
+ * 理由の行の文言は `formatReason` で決める。省略時は core の日本語の文言
+ * （`detail.reason`）をそのまま出す（モバイルは日本語固定なのでこのまま）。
+ * 言語ごとに描く側は `fuReasonLabel`（`challenge.fuBreakdown` の辞書で引く）を渡す。
+ *
  * @param details - 切り上げ前の符の内訳
  * @param answer - 切り上げ後の符（正解）
  * @param t - 符の内訳の名前空間の翻訳関数
+ * @param formatReason - 理由の行の文言（省略時は `detail.reason`）
  */
 export function buildFuBreakdown(
   details: readonly FuDetail[],
   answer: number,
   t: FuBreakdownTranslator,
+  formatReason: (detail: FuDetail) => string = (detail) => detail.reason,
 ): FuBreakdown {
   const rawTotal = details.reduce((sum, detail) => sum + detail.fu, 0);
   const formatFu = (value: number) => t("fuSuffix", { value });
@@ -55,7 +61,7 @@ export function buildFuBreakdown(
 
   return {
     rows: details.map((detail) => ({
-      label: detail.reason,
+      label: formatReason(detail),
       value: formatFu(detail.fu),
     })),
     total: { label: t("breakdownTotal"), value: formatFu(rawTotal) },

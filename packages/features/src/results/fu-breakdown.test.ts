@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { FuDetail } from "@mahjong-scoring/core";
 
 import { buildFuBreakdown } from "./fu-breakdown";
 
@@ -42,5 +43,23 @@ describe("buildFuBreakdown", () => {
       { reason: "門前加符", fu: 10 },
     ];
     expect(buildFuBreakdown(exact, 30, t).rounded).toBeUndefined();
+  });
+
+  it("理由の文言を渡せば各行のラベルはそれで組み、省略時は reason のまま", () => {
+    const details: readonly FuDetail[] = [
+      { reason: "副底", fu: 20, spec: { kind: "futei" } },
+      { reason: "門前加符", fu: 10 },
+    ];
+    const formatReason = (detail: { readonly reason: string }) =>
+      `[${detail.reason}]`;
+
+    expect(
+      buildFuBreakdown(details, 30, t, formatReason).rows.map(
+        (row) => row.label,
+      ),
+    ).toEqual(["[副底]", "[門前加符]"]);
+    expect(
+      buildFuBreakdown(details, 30, t).rows.map((row) => row.label),
+    ).toEqual(["副底", "門前加符"]);
   });
 });
