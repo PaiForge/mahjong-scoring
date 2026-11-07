@@ -247,7 +247,11 @@ export function restoreScoreQuestion(
  * 符と翻の順は表示設定に従う（出題文と同じ）。満貫以上の問題は符を
  * 持たないため、`orderFuHan` が符を省く。
  *
- * @param t - `oya` / `ko` / `tsumo` / `ron` / `fu` / `han` キーを持つ翻訳関数
+ * 区切りは辞書の `summarySeparator`（日本語は「・」で従来と同じ文字列、英語は
+ * 「, 」）。区切りを関数に書くと英語のページに全角の中黒が残る。
+ *
+ * @param t - `oya` / `ko` / `tsumo` / `ron` / `fu` / `han` / `summarySeparator`
+ *   キーを持つ翻訳関数（点数系の練習・試験の名前空間）
  * @param fuHanOrder - 符と翻の表示順の設定
  */
 export function scoreResultSummary(
@@ -262,5 +266,5 @@ export function scoreResultSummary(
       fu: result.fu === undefined ? undefined : t("fu", { count: result.fu }),
       han: t("han", { count: result.han }),
     }),
-  ].join("・");
+  ].join(t("summarySeparator"));
 }
