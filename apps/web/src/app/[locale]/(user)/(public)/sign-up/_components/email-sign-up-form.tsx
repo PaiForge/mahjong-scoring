@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+import { useRouter } from "@/i18n/navigation";
 
 import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
 
@@ -17,6 +18,9 @@ import { signUp } from "../_actions/sign-up";
 /**
  * メールアドレス/パスワードによるサインアップフォーム
  * メール登録フォーム
+ *
+ * 送信後の確認待ちのページへは `@/i18n/navigation` の `useRouter` で今の言語のまま
+ * 遷移する（英語なら `/en/sign-up/verify-email`）。
  */
 export function EmailSignUpForm() {
   const t = useTranslations("signUp");

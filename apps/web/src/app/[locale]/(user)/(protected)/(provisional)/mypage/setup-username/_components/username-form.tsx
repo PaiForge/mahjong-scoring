@@ -4,7 +4,8 @@ import { type FormEvent, useCallback, useState } from "react";
 import { ProfileTextField } from "@/app/[locale]/(user)/(protected)/_components/profile-text-field";
 
 import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
+
+import { useRouter } from "@/i18n/navigation";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
@@ -82,6 +83,9 @@ export function UsernameForm() {
       // 挟まず、マイページからいつでも編集できるままにする — 登録の直後に
       // 任意のフォームが続くと「まだ登録の続き」に見え、最初の学習までの
       // 距離が伸びる。
+      // 遷移は `@/i18n/navigation` の `useRouter` が今の言語の接頭辞を付ける
+      // （英語は `/en`。ログイン済みの `/en` も proxy が dashboard へ rewrite する
+      // ので日本語と同じ着地になる）。トーストの預かりはロケール非依存のパス。
       const next = "/";
       toastOnArrival(next, t("registered"), "success");
       router.push(next);

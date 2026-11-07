@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+
+import { useRouter } from "@/i18n/navigation";
 
 import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
 
@@ -19,6 +20,9 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
  * パスワード再設定フォーム。
  * Server Action 経由で Supabase の updateUser を呼び出す。
  * パスワード再設定フォーム
+ *
+ * 成功後は `@/i18n/navigation` の `useRouter` で今の言語のマイページへ遷移する。
+ * トーストの預かりはロケール非依存のパスで渡す（`toastOnArrival` が接頭辞を外して比べる）。
  */
 export function ResetPasswordForm() {
   const t = useTranslations("resetPassword");
