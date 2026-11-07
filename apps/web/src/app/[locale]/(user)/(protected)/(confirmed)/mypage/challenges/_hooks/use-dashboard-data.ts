@@ -26,6 +26,7 @@ import type {
   AttemptRow,
 } from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 const TABLE_DISPLAY_LIMIT = 5;
 
@@ -42,6 +43,11 @@ interface UseDashboardDataOptions {
     readonly current: readonly ChallengeAttempt[];
     readonly previous: readonly ChallengeAttempt[];
   };
+  /**
+   * チャートの軸と履歴の日時を整形する言語。日の区切り（どの日の記録か）は
+   * 言語によらず JST で、書式だけが変わる
+   */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -53,6 +59,7 @@ export function useDashboardData({
   initialBoards,
   initialBoard,
   initialAttempts,
+  locale,
 }: UseDashboardDataOptions) {
   const [selectedBoard, setSelectedBoard] = useState<PracticeBoard | undefined>(
     initialBoard,
@@ -113,13 +120,13 @@ export function useDashboardData({
   );
 
   const chartData: ChartDataPoint[] = useMemo(
-    () => buildChartData(currentAttempts, previousAttempts),
-    [currentAttempts, previousAttempts],
+    () => buildChartData(currentAttempts, previousAttempts, locale),
+    [currentAttempts, previousAttempts, locale],
   );
 
   const tableRows: AttemptRow[] = useMemo(
-    () => toAttemptRows(currentAttempts, TABLE_DISPLAY_LIMIT),
-    [currentAttempts],
+    () => toAttemptRows(currentAttempts, TABLE_DISPLAY_LIMIT, locale),
+    [currentAttempts, locale],
   );
 
   const hasMoreResults = currentAttempts.length > TABLE_DISPLAY_LIMIT;

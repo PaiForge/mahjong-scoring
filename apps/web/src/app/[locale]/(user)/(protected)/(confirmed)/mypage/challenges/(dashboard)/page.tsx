@@ -26,12 +26,15 @@ import {
 } from "@mahjong-scoring/features/my-record/requested-board";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
+
+import { confirmedGuardOptions } from "../../../_lib/guard-options";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/challenges">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/challenges");
-  return createPrivateMetadata("mypage.challenges");
+  const locale = await prepareRouteLocale(params, "/mypage/challenges");
+  return createPrivateMetadata("mypage.challenges", "pageTitle", { locale });
 }
 
 const DEFAULT_PERIOD = "thisWeek" as const;
@@ -47,10 +50,12 @@ export default async function ChallengesPage({
   searchParams,
 }: ChallengesPageProps &
   Pick<PageProps<"/[locale]/mypage/challenges">, "params">) {
-  await prepareRouteLocale(params, "/mypage/challenges");
+  const locale = await prepareRouteLocale(params, "/mypage/challenges");
   const t = await getTranslations("mypage.challenges");
 
-  const { user } = await requireConfirmedUser();
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(MY_RECORD_PATH, locale),
+  );
 
   // サーバーサイドで初期データをプリフェッチし、クライアントの初回 useEffect を省略する
   const availableBoards = await fetchAvailableBoards(user.id);

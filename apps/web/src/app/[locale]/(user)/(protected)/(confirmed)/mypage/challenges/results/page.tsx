@@ -21,6 +21,10 @@ import { ResultsTable } from "./_components/results-table";
 import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+
+import { confirmedGuardOptions } from "../../../_lib/guard-options";
+import { MY_RECORD_RESULTS_PATH } from "../_lib/paths";
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -29,21 +33,25 @@ interface Props {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/challenges/results">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/challenges/results");
-  return createPrivateMetadata("mypage.challengeResults");
+  const locale = await prepareRouteLocale(params, MY_RECORD_RESULTS_PATH);
+  return createPrivateMetadata("mypage.challengeResults", "pageTitle", {
+    locale,
+  });
 }
 
 export default async function ChallengeResultsPage({
   params: routeParams,
   searchParams,
 }: Props & Pick<PageProps<"/[locale]/mypage/challenges/results">, "params">) {
-  await prepareRouteLocale(routeParams, "/mypage/challenges/results");
+  const locale = await prepareRouteLocale(routeParams, MY_RECORD_RESULTS_PATH);
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tRoot = await getTranslations();
   const params = await searchParams;
 
-  const { user } = await requireConfirmedUser();
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(MY_RECORD_RESULTS_PATH, locale),
+  );
 
   const page = parsePageParam(params.page);
 
@@ -63,7 +71,11 @@ export default async function ChallengeResultsPage({
       urlParams.set("variant", board.variant);
     }
     const qs = urlParams.toString();
-    return `/mypage/challenges/results${qs ? `?${qs}` : ""}`;
+    // ページ送りはこのページ自身なので、同じ言語のまま移る
+    return resolveNavTargetFor(
+      `${MY_RECORD_RESULTS_PATH}${qs ? `?${qs}` : ""}`,
+      locale,
+    ).href;
   };
 
   return (
@@ -83,6 +95,7 @@ export default async function ChallengeResultsPage({
             incorrectAnswers: t("tableIncorrectAnswers"),
           }}
           getBoardLabel={(item) => boardLabel(item, tRoot)}
+          locale={locale}
         />
 
         <PaginationNav

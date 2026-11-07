@@ -9,6 +9,7 @@ import { getMissColorClass } from "@/app/[locale]/(user)/_components/_lib/miss-c
 import { formatDate } from "@mahjong-scoring/features/my-record/stats";
 import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
 import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 interface ResultsTableProps {
   readonly items: readonly ChallengeAttempt[];
@@ -21,6 +22,8 @@ interface ResultsTableProps {
   };
   /** 土俵（練習種別 × バリアント）を表示ラベルへ変換する（i18n は呼び出し元で行う） */
   readonly getBoardLabel: (board: PracticeBoard) => string;
+  /** 日時の書式の言語（時刻は言語によらず JST） */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -32,6 +35,7 @@ export function ResultsTable({
   emptyMessage,
   headers,
   getBoardLabel,
+  locale,
 }: ResultsTableProps) {
   if (items.length === 0) {
     return <p className="text-surface-500 text-center py-8">{emptyMessage}</p>;
@@ -55,7 +59,9 @@ export function ResultsTable({
     >
       {items.map((item) => (
         <CompactTableRow key={item.id}>
-          <CompactTableCell>{formatDate(item.createdAt)}</CompactTableCell>
+          <CompactTableCell>
+            {formatDate(item.createdAt, locale)}
+          </CompactTableCell>
           <CompactTableCell>{getBoardLabel(item)}</CompactTableCell>
           <CompactTableCell align="right">{item.score}</CompactTableCell>
           <CompactTableCell
