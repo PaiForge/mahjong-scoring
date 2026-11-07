@@ -1,0 +1,26 @@
+{
+  "pageTitle": "Riichi Mahjong Scoring Table",
+  "pageDescription": "Look up dealer and non-dealer ron and tsumo scores in a fu × han table.",
+  "viewScoreTable": "View the scoring table",
+  "ko": "Non-dealer",
+  "oya": "Dealer",
+  "ron": "Ron",
+  "tsumo": "Tsumo",
+  "all": "all",
+  "tsumoNote": {
+    "ko": "* Tsumo scores: top = paid by each non-dealer / bottom = paid by the dealer",
+    "oya": "* “all” means each of the other players pays the same amount"
+  },
+  "fuHan": "Fu × Han",
+  "fuSuffix": " fu",
+  "hanSuffix": " han",
+  "score": "Points",
+  "name": "Limit",
+  "mangan": "Mangan",
+  "haneman": "Haneman",
+  "baiman": "Baiman",
+  "sanbaiman": "Sanbaiman",
+  "yakuman": "Yakuman",
+  "kiriageManganStatus": "Kiriage mangan (round up to mangan): {state, select, on {on} other {off}}",
+  "kiriageManganStatusLink": "Change setting"
+}
