@@ -3,7 +3,10 @@ import type { ComponentType } from "react";
 import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 
-import { createResultMetadata } from "@/app/_lib/metadata";
+import {
+  createResultMetadata,
+  type MetadataLocaleOptions,
+} from "@/app/_lib/metadata";
 
 import type {
   PracticeMenuSlug,
@@ -149,11 +152,13 @@ interface ResultPageConfig {
  * 各 page.tsx の `generateMetadata` から練習の slug を渡して呼ぶ。
  * 辞書 namespace をレジストリから引くため、page.tsx 側に namespace を
  * 書かずに済む（`createPracticeResultPage` と同じ slug 1 つで完結する）。
+ * `options.locale` はページの `prepareRouteLocale` の戻り値を渡す（省略時は日本語）。
  */
 export async function createPracticeResultMetadata(
   slug: PracticeMenuSlug,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
-  return createResultMetadata(practiceMenuBySlug(slug).namespace);
+  return createResultMetadata(practiceMenuBySlug(slug).namespace, options);
 }
 
 /** Next.js 16 のページ props（searchParams は Promise） */
