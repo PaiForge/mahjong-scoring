@@ -1,10 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { createContext, useContext, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { useLocale, useTranslations } from "next-intl";
 
 import { InfoModal } from "@/app/[locale]/(user)/_components/info-modal";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { MentsuSet } from "@/app/[locale]/(user)/_components/mentsu-set";
 import { TileSet } from "@/app/[locale]/(user)/_components/tile-set";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -13,6 +17,8 @@ import {
   PREFERENCE_ANCHORS,
   preferencesHref,
 } from "@mahjong-scoring/features/settings/preference-anchors";
+
+import { glossaryLinkTarget } from "./_lib/glossary-link-target";
 
 interface TermModalContextValue {
   /** slug の用語を開く。未知の slug なら何もしない */
@@ -62,6 +68,13 @@ const MANY_TILES_THRESHOLD = 7;
  * 読者しか辿り着けない状態では、いちばん困っている人に届かないため。
  * その場で切らずに設定ページへ送るのは、設定が会員限定（未ログインでは
  * 操作できない）で、切った後に戻す場所と揃わなくなるから。
+ *
+ * 2 本のリンク（用語ページ・設定）はページの言語で張る（`glossaryLinkTarget`。
+ * 英語の章からは英語の用語ページへ）。英語で出していない設定ページへは、
+ * `/en` を付けずに日本語のページへ素の `<a hrefLang="ja">` で向けて
+ * 「日本語のみ」と添える。公開状態はクライアントからも読める許可リスト
+ * （`translated-publications.ts`）から引くので、サーバー側（`LearnPageLayout`）から
+ * 張る先を渡してもらう配線は要らない。
  */
 export function GlossaryTermModalProvider({
   terms,
@@ -83,6 +96,12 @@ export function GlossaryTermModalProvider({
   );
 
   const active = activeSlug === undefined ? undefined : terms[activeSlug];
+  const locale = useLocale();
+  const tNav = useTranslations("nav");
+  const settingsTarget = glossaryLinkTarget(
+    preferencesHref(PREFERENCE_ANCHORS.termLinks),
+    locale,
+  );
 
   return (
     <TermModalContext value={value}>
@@ -95,12 +114,18 @@ export function GlossaryTermModalProvider({
         footnote={
           // 主役は語の意味なので、「用語ページを見る」と同じ強さで並べない。
           // 閉じるボタンの下に小さく置き、探している人にだけ見つかる大きさにする
-          <Link
-            href={preferencesHref(PREFERENCE_ANCHORS.termLinks)}
-            className={TEXT_LINK_CLASSES}
-          >
-            {turnOffLabel}
-          </Link>
+          <>
+            <LocaleNavLink
+              navTarget={settingsTarget}
+              linkKind="plain"
+              className={TEXT_LINK_CLASSES}
+            >
+              {turnOffLabel}
+            </LocaleNavLink>
+            {settingsTarget.crossLocale && (
+              <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+            )}
+          </>
         }
       >
         {active !== undefined && (
@@ -128,9 +153,13 @@ export function GlossaryTermModalProvider({
                 {active.example.caption}
               </p>
             )}
-            <Link href={active.href} className={TEXT_LINK_CLASSES}>
+            <LocaleNavLink
+              navTarget={glossaryLinkTarget(active.href, locale)}
+              linkKind="plain"
+              className={TEXT_LINK_CLASSES}
+            >
               {viewDetailsLabel}
-            </Link>
+            </LocaleNavLink>
           </div>
         )}
       </InfoModal>

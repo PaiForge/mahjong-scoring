@@ -8,6 +8,9 @@
  * 役名リンクで直接開いた状態に着地できる。一覧の上の切り替えで、鳴いたときの
  * 扱い（門前限定・食い下がり・鳴いても同じ）で絞り込める。
  *
+ * 役名は辞書 `yakuNames`（日本語は core の役名そのもの、英語はローマ字の慣用名）
+ * から引く。metadata・広告には入口の `prepareRouteLocale` が確定させた言語を渡す。
+ *
  * @flow
  * リファレンスハブ（/reference）の「役一覧」カードか、教本の翻数別まとめの
  * 役名リンクから遷移して閲覧する。一覧の下の「ほかの早見表」から点数表・用語集へ。
@@ -27,23 +30,25 @@ import {
   REFERENCE_YAKU_PATH,
 } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/reference/yaku">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/reference/yaku");
+  const locale = await prepareRouteLocale(params, "/reference/yaku");
   return createNamespaceMetadata("reference.yaku", {
     path: REFERENCE_YAKU_PATH,
+    locale,
   });
 }
 
 export default async function ReferenceYakuPage({
   params,
 }: PageProps<"/[locale]/reference/yaku">) {
-  await prepareRouteLocale(params, "/reference/yaku");
+  const locale = await prepareRouteLocale(params, "/reference/yaku");
   const t = await getTranslations("reference.yaku");
   const tHub = await getTranslations("reference");
-  const ads = await getNativeAdPlacements("yaku-reference-native-ad");
+  const ads = await getNativeAdPlacements("yaku-reference-native-ad", locale);
 
   return (
     <ContentContainer
@@ -58,6 +63,9 @@ export default async function ReferenceYakuPage({
       <YakuCheatsheet
         withAnchors
         withNakiFilter
+        // 日本語では渡さない（既定が日本語）。クライアント部品の props は RSC の
+        // ペイロードとして HTML に載るので、渡すと日本語の HTML が変わる
+        {...(locale === DEFAULT_LOCALE ? {} : { locale })}
         ads={ads.map((ad) => (
           <LinkRowList key={ad.id}>
             <NativeAdRow creative={ad} />
