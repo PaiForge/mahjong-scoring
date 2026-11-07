@@ -133,100 +133,100 @@
     "achievement": "You can now work out the payments for a dealer tsumo of mangan or more by dividing the dealer ron score by 3."
   },
   "yaku": {
-    "condition": "{state, select, naki {鳴き} other {門前}}・{yaku}",
-    "questionPrompt": "翻数を選んでください",
+    "condition": "{state, select, naki {Open} other {Closed}}, {yaku}",
+    "questionPrompt": "Choose the han",
     "questions": {
       "riichi": {
-        "hint": "門前でしか成立しない、いちばん基本の役です。",
-        "explanation": "立直は 1 翻です。鳴くと成立しない門前限定の役です。"
+        "hint": "The most basic yaku, and one that only a closed hand can have.",
+        "explanation": "Riichi is 1 han. Only a closed hand can have it: once you call, it no longer counts."
       },
       "toitoiNaki": {
-        "hint": "ポンで刻子を集めて作る役なので、鳴いても翻数は下がりません。",
-        "explanation": "対々和は 2 翻です。鳴いても翻数が変わりません。"
+        "hint": "You build this yaku by collecting triplets with pon, so calling does not lower its han.",
+        "explanation": "Toitoi is 2 han. Its han stay the same when you call."
       },
       "honitsuMenzen": {
-        "hint": "表で、門前のときの翻数を確かめましょう。",
-        "explanation": "混一色は門前なら 3 翻です。"
+        "hint": "Check the table for its han with a closed hand.",
+        "explanation": "Honitsu is 3 han with a closed hand."
       },
       "honitsuNaki": {
-        "hint": "混一色は食い下がりの役。鳴くと門前から 1 翻下がります。",
-        "explanation": "混一色は鳴くと門前の 3 翻から 1 翻下がって 2 翻です（食い下がり）。"
+        "hint": "Honitsu is a kuisagari yaku: calling makes it 1 han less than when closed.",
+        "explanation": "Once you call, honitsu drops 1 han from its closed 3 han to 2 han (kuisagari)."
       }
     },
-    "achievement": "役の翻数を、鳴いたときの違い（食い下がり）も含めて数えられるようになりました。"
+    "achievement": "You can now count the han of a yaku, including how calling changes them (kuisagari)."
   },
   "jantouFu": {
-    "condition": "{bakaze}場・{jikaze}家の雀頭",
-    "questionPrompt": "雀頭の符を選んでください",
+    "condition": "{bakaze} round, {jikaze} seat: the pair",
+    "questionPrompt": "Choose the fu for the pair",
     "questions": {
       "sangen": {
-        "hint": "白・發・中は三元牌。役牌の雀頭です。",
-        "explanation": "白は三元牌なので、雀頭にすると 2 符です。三元牌は場風・自風に関係なく、いつでも 2 符です。"
+        "hint": "The white, green and red dragons are the dragons. This is a pair of value tiles.",
+        "explanation": "The white dragon is a dragon, so as the pair it is 2 fu. A pair of dragons is always 2 fu, whatever the round wind and seat wind are."
       },
       "jikaze": {
-        "hint": "南家にとって、南は自分の風です。",
-        "explanation": "南家の南は自風なので 2 符です。場風（東）だけでなく、自風の雀頭にも符が付きます。"
+        "hint": "For the South player, South is your own wind.",
+        "explanation": "For the South player, South is the seat wind, so it is 2 fu. Not only a round wind (East) pair but also a seat wind pair earns fu."
       },
       "otakaze": {
-        "hint": "東場の南家にとって、西は場風でも自風でもありません。",
-        "explanation": "西は場風（東）でも自風（南）でもないオタ風なので 0 符です。風牌でも符が付くとは限りません。"
+        "hint": "For the South player in the East round, West is neither the round wind nor the seat wind.",
+        "explanation": "West is neither the round wind (East) nor the seat wind (South). It is a guest wind, so it is 0 fu. A wind tile does not always earn fu."
       },
       "suuhai": {
-        "hint": "数牌の雀頭に符が付くかを、まとめの表で確かめましょう。",
-        "explanation": "五筒は数牌なので 0 符です。数牌の雀頭には符が付きません。"
+        "hint": "Check the summary table to see whether a pair of number tiles earns fu.",
+        "explanation": "5 pin is a number tile, so it is 0 fu. A pair of number tiles never earns fu."
       }
     },
-    "achievement": "雀頭に符が付く牌（三元牌・場風・自風）と付かない牌（数牌・オタ風）を見分けられるようになりました。"
+    "achievement": "You can now tell the pairs that earn fu (dragons, the round wind, your seat wind) from those that do not (number tiles, guest winds)."
   },
   "mentsuFu": {
-    "condition": "{shape, select, shuntsu {順子} koutsu {刻子} other {槓子}}",
-    "questionPrompt": "面子の符を選んでください",
+    "condition": "{shape, select, shuntsu {Sequence} koutsu {Triplet} other {Quad}}",
+    "questionPrompt": "Choose the fu for the set",
     "questions": {
       "minkouSimple": {
-        "hint": "1 枚が横向きなのは鳴いた印です。中張牌の明刻は、刻子の符の基準です。",
-        "explanation": "五萬をポンした中張牌の明刻なので 2 符です。ここから、暗刻・么九牌・槓子でそれぞれ倍になっていきます。"
+        "hint": "One tile turned sideways marks a call. An open triplet of simples is the starting value for triplet fu.",
+        "explanation": "This is an open triplet of simples, made by calling pon on 5 man, so it is 2 fu. From here, being closed, being terminals or honors and being a quad each double the fu."
       },
       "ankouYaochu": {
-        "hint": "横向きの牌が無いので暗刻。9 は么九牌です。暗刻で 2 倍、么九牌でさらに 2 倍です。",
-        "explanation": "九索の暗刻は么九牌の暗刻なので、明刻の 2 符の 2 倍の 2 倍で 8 符です。"
+        "hint": "No tile is turned sideways, so it is a closed triplet, and 9 is a terminal. Being closed doubles the fu, and being a terminal doubles them again.",
+        "explanation": "A closed triplet of 9 sou is a closed triplet of terminals, so the 2 fu of an open triplet doubles and doubles again to 8 fu."
       },
       "minkanSimple": {
-        "hint": "槓子の符は、明暗と牌の種類が同じ刻子の 4 倍です。中張牌の明刻は 2 符です。",
-        "explanation": "五索の明槓は中張牌の明槓なので、中張牌の明刻 2 符の 4 倍で 8 符です。"
+        "hint": "A quad is worth 4 times a triplet of the same kind of tile, open or closed in the same way. An open triplet of simples is 2 fu.",
+        "explanation": "An open quad of 5 sou is an open quad of simples, so it is 4 times the 2 fu of an open triplet of simples: 8 fu."
       },
       "ankanYaochu": {
-        "hint": "両端が伏せてあるのは暗槓。中は字牌なので么九牌です。么九牌の暗刻は 8 符です。",
-        "explanation": "中の暗槓は么九牌の暗槓なので、么九牌の暗刻 8 符の 4 倍で 32 符です。面子の符の最大です。"
+        "hint": "Both end tiles face down, so it is a closed quad. The red dragon is an honor tile, so it counts as terminals and honors. A closed triplet of terminals or honors is 8 fu.",
+        "explanation": "A closed quad of red dragons is a closed quad of honors, so it is 4 times the 8 fu of a closed triplet of terminals or honors: 32 fu. That is the most fu a set can earn."
       }
     },
-    "achievement": "刻子・槓子の符を、明暗と牌の種類（中張牌・么九牌）から出せるようになりました。"
+    "achievement": "You can now work out the fu for triplets and quads from whether they are open or closed and the kind of tile (simples, or terminals and honors)."
   },
   "machiFu": {
-    "condition": "聴牌の形 ＋ 和了牌",
-    "questionPrompt": "待ちの符を選んでください",
+    "condition": "Tenpai shape + winning tile",
+    "questionPrompt": "Choose the fu for the wait",
     "questions": {
       "ryanmen": {
-        "hint": "3 と 4 の両側（2 と 5）のどちらが来ても和了れる形です。",
-        "explanation": "三筒・四筒で二筒・五筒を待つ両面待ちなので 0 符です。受け入れが広い待ちには符が付きません。"
+        "hint": "A shape that wins on a tile on either side of 3 and 4 (2 or 5).",
+        "explanation": "3 pin and 4 pin waiting on 2 pin or 5 pin is a two-sided wait, so it is 0 fu. A wait that accepts many tiles earns no fu."
       },
       "kanchan": {
-        "hint": "4 と 6 の間の 1 枚だけを待つ形です。",
-        "explanation": "四萬・六萬で五萬だけを待つ嵌張待ちなので 2 符です。"
+        "hint": "A shape that waits only on the one tile between 4 and 6.",
+        "explanation": "4 man and 6 man waiting only on 5 man is a closed wait, so it is 2 fu."
       },
       "penchan": {
-        "hint": "端の 8 と 9 で、片側の 7 だけを待つ形です。",
-        "explanation": "八索・九索で七索だけを待つ辺張待ちなので 2 符です。1 と 2 で 3 を待つ形と同じく、片側しか受けられません。"
+        "hint": "A shape at the end, 8 and 9, that waits only on the 7 on one side.",
+        "explanation": "8 sou and 9 sou waiting only on 7 sou is an edge wait, so it is 2 fu. Like 1 and 2 waiting on 3, it can only accept a tile on one side."
       },
       "shanpon": {
-        "hint": "対子 2 組のどちらかが刻子になれば和了れる形です。",
-        "explanation": "二萬と西の対子で、どちらかを待つ双碰待ちなので 0 符です。"
+        "hint": "A shape that wins when either of two pairs becomes a triplet.",
+        "explanation": "A pair of 2 man and a pair of West, waiting on either one, is a pair wait, so it is 0 fu."
       },
       "tanki": {
-        "hint": "1 枚だけを持って、同じ牌を待つ形です。",
-        "explanation": "七筒 1 枚で七筒を待つ単騎待ちなので 2 符です。"
+        "hint": "A shape that holds a single tile and waits on the same tile.",
+        "explanation": "A single 7 pin waiting on 7 pin is a single-tile wait, so it is 2 fu."
       }
     },
-    "achievement": "聴牌の形を見て、待ちに符が付くか（嵌張・辺張・単騎は 2 符、両面・双碰は 0 符）を見分けられるようになりました。"
+    "achievement": "You can now look at a tenpai shape and tell whether its wait earns fu (closed, edge and single-tile waits are 2 fu; two-sided and pair waits are 0 fu)."
   },
   "tehaiFu": {
     "condition": "{bakaze}場・{jikaze}家・{winType, select, tsumo {ツモ} other {ロン}}和了",
