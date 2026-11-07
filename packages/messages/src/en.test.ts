@@ -157,6 +157,9 @@ const JAPANESE_CHARACTERS = new RegExp(
  * 運営事業者名（`company.name.value`。運営者ページと JSON-LD の `parentOrganization.name`）は
  * 法人の登記上の名前で、英語の正式な表記は決まっていない。推測で英語名を作らず
  * （ブランド名と同じ扱い）、英語の正式名が決まったら英語の値に差し替えてここから外す。
+ * 確認メールの件名（`verifyEmail.mailSubject`）は、実際に届くメールの件名を画面がそのまま
+ * 示すための値。Supabase は言語別の件名を持てないので、件名は 1 つで日英併記
+ * （「<サイト名> - <日本語の見出し> / <英語の見出し>」）になり、英語の画面でも日本語を含む。
  */
 const JAPANESE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
   "metadata.siteName",
@@ -164,6 +167,7 @@ const JAPANESE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
   "nav.brandScoring",
   "nav.language.ja",
   "company.name.value",
+  "verifyEmail.mailSubject",
 ]);
 
 /**
@@ -228,6 +232,7 @@ const SEPARATOR_KEYS: ReadonlySet<string> = new Set([
   "pinfuExamChallenge.summarySeparator",
   "chiitoitsuExamChallenge.summarySeparator",
   "manganExamChallenge.summarySeparator",
+  "lessons.yakuJoiner",
 ]);
 
 /**

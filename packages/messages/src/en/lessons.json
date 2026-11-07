@@ -349,5 +349,6 @@
     "examDescription": "See what the exam covers and its pass criterion",
     "training": "Try the mock exam first (nothing is recorded)",
     "dojo": "See the whole path in the Dojo"
-  }
+  },
+  "yakuJoiner": " + "
 }
