@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 import { isNonLocalizedPath } from "@/i18n/public-path";
+import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
 
 interface CookieToSet {
   readonly name: string;
@@ -86,6 +87,37 @@ beforeEach(() => {
   supabase.cookiesToSet = [];
   supabase.cacheHeaders = {};
   supabase.getClaims.mockClear();
+});
+
+describe("日本語の用語集の未知 slug は rewrite 前に 404 にする", () => {
+  it("符号化された固定セグメントでも未知の語を 404 にする", async () => {
+    const response = await proxy(
+      makeRequest("/reference/%67lossary/review-unknown-term"),
+    );
+    expect(response.status).toBe(404);
+    expect(rewriteTarget(response)).toBeNull();
+  });
+
+  it.each(["__audit_unknown__", "review-unknown-term", "%E0%A4%A"])(
+    "%s は noindex の 404（Next の NoFallbackError に到達しない）",
+    async (slug) => {
+      const response = await proxy(makeRequest(`/reference/glossary/${slug}`));
+      expect(response.status).toBe(404);
+      expect(response.headers.get("X-Robots-Tag")).toBe("noindex");
+      expect(rewriteTarget(response)).toBeNull();
+      expect(await response.text()).toContain('<html lang="ja">');
+    },
+  );
+
+  it.each([...GLOSSARY_TERM_SLUGS, "%6danzu"])(
+    "実在する %s は静的ページへの rewrite を維持する",
+    async (slug) => {
+      const response = await proxy(makeRequest(`/reference/glossary/${slug}`));
+      expect(response.status).toBe(200);
+      expect(rewriteTarget(response)).toContain("/ja/reference/glossary/");
+      expect(response.headers.get("location")).toBeNull();
+    },
+  );
 });
 
 describe("日本語 URL は接頭辞なしのまま内部の /ja へ rewrite する", () => {

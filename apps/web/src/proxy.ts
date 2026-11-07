@@ -11,6 +11,7 @@ import {
 } from "@/i18n/public-path";
 import { getPublication } from "@/i18n/route-policy";
 import { routing } from "@/i18n/routing";
+import { isGlossaryTermSlug } from "@mahjong-scoring/features/glossary/registry";
 
 import {
   DEFAULT_LOCALE,
@@ -30,8 +31,9 @@ import {
  * 3. **未公開の英語 URL は 404 + noindex**（`/en/admin`・`/en/api/...`・
  *    `/en/auth/callback` を含む）。外部から来た `/ja/...` は、接頭辞なしの
  *    日本語ページが実在するときだけ next-intl の正規化（接頭辞なしへの
- *    リダイレクト）に任せ、実在しなければ 404。既存の日本語 URL を `/ja` へ
- *    転送することはない
+ *    リダイレクト）に任せ、実在しなければ 404。日本語の未知の用語もここで
+ *    404 にする（rewrite 後の dynamicParams = false が 500 になるのを防ぐ）。
+ *    既存の日本語 URL を `/ja` へ転送することはない
  * 4. Supabase のセッションを更新する。更新した cookie はリクエストの cookie に
  *    書き戻し（後段のサーバーコンポーネントが新しいトークンを読む）、
  *    応答の `Set-Cookie` にも全属性ごと載せる
@@ -126,13 +128,36 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
  *
  * - 英語（接頭辞の大文字小文字を問わない）で未公開のパス
  * - `/ja` 接頭辞付きで、接頭辞なしの日本語ページが実在しないパス
+ * - 日本語の用語集の未知 slug（レジストリで全件が確定している）
  *
- * 接頭辞の無い日本語のパスは判定しない（従来どおり Next のルーティングに
- * 任せる）。日本語の URL の集合を公開状態の表で変えないため。
+ * 用語以外の接頭辞の無い日本語のパスは従来どおり Next に任せる。
+ * DB 由来の slug など、日本語の URL の集合を公開状態の表で制限しないため。
  */
 function shouldRespondNotFound(external: ExternalPath): boolean {
-  if (external.prefix === undefined) return false;
+  if (external.prefix === undefined)
+    return isUnknownGlossaryPath(external.path);
   return getPublication(external.path, external.locale) === "unpublished";
+}
+
+/**
+ * 日本語の用語集の未知 slug を、内部 rewrite より前に弾く
+ * 用語の存在判定
+ *
+ * Next 16.4.3 の本番ビルドでは、/ja への rewrite と dynamicParams = false が
+ * 重なると未知 slug で NoFallbackError が外へ漏れ、404 でなく 500 になる。
+ * 全用語の静的生成と dynamicParams = false は残し、存在しない語だけを
+ * レジストリで判定する。検索エンジンに一時的な障害ではなく不存在を伝える。
+ * URL エンコードされた既存 slug は同じ語として通す。不正な符号化は不存在。
+ */
+function isUnknownGlossaryPath(path: string): boolean {
+  try {
+    // next-intl も decodeURI してから rewrite する。固定セグメントの符号化でも
+    // 同じ判定にしないと、/reference/%67lossary/<未知の語> が 500 に届く。
+    const match = /^\/reference\/glossary\/([^/]+)$/.exec(decodeURI(path));
+    return match !== null && !isGlossaryTermSlug(decodeURIComponent(match[1]));
+  } catch {
+    return path.startsWith("/reference/glossary/");
+  }
 }
 
 /**
@@ -229,7 +254,7 @@ function withSession(
 }
 
 /**
- * 未公開のロケール付き URL に返す汎用の 404
+ * 未公開のロケール付き URL・未知の用語に返す汎用の 404
  *
  * ページを描かずに HTTP で返す（ページの `notFound()` は祖先の `loading.tsx` が
  * ヘッダを確定させた後だと 200 になり得る）。索引させないよう `X-Robots-Tag` と
