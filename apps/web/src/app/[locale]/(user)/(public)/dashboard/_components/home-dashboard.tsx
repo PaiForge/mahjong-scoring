@@ -77,7 +77,7 @@ export async function HomeDashboard({ userId, locale }: HomeDashboardProps) {
 
         {showAgariScorePractice && <AgariScorePracticeSection />}
 
-        <HomeAnnouncements />
+        <HomeAnnouncements locale={locale} />
       </div>
     </ContentContainer>
   );
