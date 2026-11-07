@@ -9,6 +9,7 @@ import {
 } from "@mahjong-scoring/core";
 import type { YakuHanEntry } from "@mahjong-scoring/core";
 import { yakuHanLabel } from "@mahjong-scoring/features/yaku/yaku-han-label";
+import { YAKU_TO_KEY } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { AccordionCard } from "@/app/[locale]/(user)/_components/accordion-card";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { ToggleGroup } from "@/app/[locale]/(user)/_components/toggle-group";
@@ -104,7 +105,10 @@ interface YakuCheatsheetProps {
  * 役の早見表（翻数別の一覧）
  * 役チートシート
  *
- * 役名・翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。翻数はセクション
+ * 役・翻数は core の `YAKU_HAN_ENTRIES` を単一ソースとする。表示する役名は
+ * 辞書 `yakuNames.<YAKU_TO_KEY[役名]>` から引く（日本語の値は core の役名と
+ * 同じ文字列なので日本語の表示は変わらず、英語ではローマ字の慣用名になる）。
+ * 絞り込み・目印・アンカー id（`yaku-混一色`）は core の役名のまま。翻数はセクション
  * 見出しで示し、鳴きの扱いはカード右端に併記する（門前限定役は「門前限定」
  * バッジ、食い下がり役は「鳴きN翻」。無表示は鳴いても翻数が変わらない役）。
  * 手牌の例はカードを開くと出題盤面と同じ `TehaiHand` で表示する（鳴いて
@@ -121,6 +125,7 @@ export function YakuCheatsheet({
   withNakiFilter = false,
 }: YakuCheatsheetProps) {
   const t = useTranslations("reference.yaku");
+  const tYakuNames = useTranslations("yakuNames");
   // 絞り込みは URL に載せない。クエリを読むと静的なページが動的になるうえ、
   // 共有して開き直したい状態でもないため
   const [nakiFilter, setNakiFilter] = useState<NakiFilter>(ALL_NAKI_KINDS);
@@ -182,7 +187,8 @@ export function YakuCheatsheet({
                   title={
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="font-semibold text-surface-900">
-                        {entry.name}
+                        {/* 完成形のキーの例: yakuNames.honitsu（core の「混一色」） */}
+                        {tYakuNames(YAKU_TO_KEY[entry.name])}
                       </span>
                       {markedYakuNames?.includes(entry.name) && (
                         <span className="rounded-md bg-brand-subtle px-2 py-0.5 text-[11px] font-bold text-brand-subtle-foreground">
