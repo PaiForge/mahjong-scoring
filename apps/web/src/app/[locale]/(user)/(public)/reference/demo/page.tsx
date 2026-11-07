@@ -30,9 +30,10 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/reference/demo">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/reference/demo");
+  const locale = await prepareRouteLocale(params, "/reference/demo");
   return createNamespaceMetadata("reference.demo", {
     path: "/reference/demo",
+    locale,
   });
 }
 
