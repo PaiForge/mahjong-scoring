@@ -1,19 +1,19 @@
 {
   "learn": {
-    "pageTitle": "平和以外の門前面子手の点数計算",
-    "pageDescription": "平和以外の門前の面子手の点数計算を解説。副底・ツモかロンの符・積み上げた符を足して切り上げるだけで符が決まります。どこでテンパネするかの典型を、ロンとツモに分けてまとめます。",
-    "startTitle": "平和以外の門前ロンに30符は無い",
-    "startBody1": "[[chiitoitsu|七対子]]と[[pinfu|平和]]を先に扱ったのは、この2つが符を積み上げない特例だったからです。\nここからは符を積み上げる手、平和以外の[[menzen|門前]]の[[mentsute|面子手]]を見ていきます。",
-    "startBody2": "門前の面子手を[[ron|ロン]]で[[hora|和了]]ると、[[futei|副底]]の20符に[[menzen-ron-kafu|門前ロンの加符]]10符が乗って30符から始まります。\nそしてここから先、[[mentsu|面子]]・[[jantou|雀頭]]・[[machi|待ち]]のどれかで必ず符が付きます。",
-    "startBody3": "面子がすべて[[shuntsu|順子]]で、雀頭が[[yakuhai|役牌]]でなく、待ちが[[ryanmen|両面]] — この3つが揃った門前の面子手は、それがそのまま平和だからです。\nつまり平和でない門前の面子手には、必ず何かしらの符が積み上がります。",
-    "startBody4": "したがって平和でない門前の面子手は、ロンなら必ず40符以上になります。裏を返せば、門前で30符のロンは平和しかありません。\n一方[[tsumo|ツモ]]は副底20符にツモの2符が乗って22符から始まるので、切り上げて30符が下限になります。",
-    "roundTitle": "符がテンパネする典型",
-    "roundBody1": "面子手の符は、副底の20符、和了り方の符（門前のロンなら10符、ツモなら2符）、面子・雀頭・待ちで積み上げた符をすべて足し、10符単位に切り上げて決まります。\n積み上げる符の数え方は<mentsuLink></mentsuLink>・<jantouLink></jantouLink>・<machiLink></machiLink>の章でやったとおりです。",
-    "roundBody2": "足した合計に1の位の端数が出て、次の10符へ繰り上がることを「テンパネ」と呼びます。\n符はどれも2の倍数なので、合計がちょうど10の倍数にならない限り必ずテンパネします。どこでテンパネするかはロンとツモで出発点が違うので、分けて見ていきます。",
-    "ronTitle": "ロン（副底20符＋門前加符10符＝30符から）",
-    "ronNote": "出発点の30符がすでに10の倍数なので、符が1つでも付けばテンパネします。\n切り上げずに済むのは、積み上げた符がちょうど10の倍数のときだけです。",
-    "tsumoTitle": "ツモ（副底20符＋ツモ2符＝22符から）",
-    "tsumoNote": "ツモの2符がある分、ちょうどになる位置がロンから2符ずれます。積み上げた符が8符・18符…ならちょうど、10符・20符…ならテンパネします。\n么九牌の暗刻1つ（8符）だけなら30符のままです。「暗刻があるから40符」ではなく、そこに待ちや雀頭の2符が乗って32符になったところでテンパネして40符に上がります。",
-    "practiceCta": "門前の面子手で点数計算を練習する"
+    "pageTitle": "Riichi Mahjong Scoring for Closed Hands Other Than Pinfu",
+    "pageDescription": "How to score a closed standard hand that is not pinfu in riichi mahjong. Add the 20 base fu, the fu for ron or tsumo and the fu you built up, then round up to the next 10. This lesson shows where the fu typically round up (tenpane), for ron and tsumo separately.",
+    "startTitle": "A closed ron other than pinfu is never 30 fu",
+    "startBody1": "We covered [[chiitoitsu|chiitoitsu]] and [[pinfu|pinfu]] first because they are the two exceptions that do not build up fu.\nFrom here on we look at hands that do build up fu: [[menzen|closed]] [[mentsute|standard hands]] other than pinfu.",
+    "startBody2": "When you [[hora|win]] a closed standard hand by [[ron|ron]], the 10 fu [[menzen-ron-kafu|closed ron bonus]] goes on top of the 20 [[futei|base fu]], so you start from 30 fu.\nAnd from there, the [[mentsu|sets]], the [[jantou|pair]] or the [[machi|wait]] are sure to add some fu.",
+    "startBody3": "If every set is a [[shuntsu|sequence]], the pair is not [[yakuhai|yakuhai]] and the wait is [[ryanmen|two-sided]], a closed standard hand with all three is pinfu as it stands.\nIn other words, a closed standard hand that is not pinfu always builds up some fu.",
+    "startBody4": "So a closed standard hand that is not pinfu is always 40 fu or more on a ron. Put the other way round, the only closed 30 fu ron is pinfu.\n[[tsumo|Tsumo]], on the other hand, starts from 22 fu (the 20 base fu plus 2 fu for tsumo), so after rounding up its minimum is 30 fu.",
+    "roundTitle": "Where the fu typically round up",
+    "roundBody1": "The fu of a standard hand are the 20 base fu, the fu for how you won (10 fu for a closed ron, 2 fu for tsumo) and all the fu built up by the sets, the pair and the wait, added together and rounded up to the next 10 fu.\nYou count the built-up fu just as in the <mentsuLink></mentsuLink>, <jantouLink></jantouLink> and <machiLink></machiLink> lessons.",
+    "roundBody2": "When the total has a remainder in the ones place and is carried up to the next 10 fu, this is called “tenpane”.\nEvery fu value is a multiple of 2, so the total always rounds up unless it happens to be an exact multiple of 10. Ron and tsumo start from different points, so we look at where the total rounds up for each one separately.",
+    "ronTitle": "Ron (from 30 fu: 20 base fu + 10 fu closed ron bonus)",
+    "ronNote": "The starting point of 30 fu is already a multiple of 10, so a single source of fu is enough to make the total round up.\nThe only time you avoid rounding up is when the built-up fu add up to an exact multiple of 10.",
+    "tsumoTitle": "Tsumo (from 22 fu: 20 base fu + 2 fu for tsumo)",
+    "tsumoNote": "Because of the 2 fu for tsumo, the totals that come out exact are shifted by 2 fu from ron. If the built-up fu are 8, 18 and so on, the total is exact; if they are 10, 20 and so on, it rounds up.\nA single closed triplet of terminals or honors (8 fu) on its own keeps the hand at 30 fu. It is not “a closed triplet means 40 fu”: the hand goes up to 40 fu only when 2 fu for the wait or the pair are added on top, making 32 fu, which rounds up.",
+    "practiceCta": "Practice scoring closed standard hands"
   }
 }
