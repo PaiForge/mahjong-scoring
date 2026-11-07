@@ -40,9 +40,17 @@ const SECOND_EXAMPLE = { fu: 70, han: 1 } as const;
 
 /**
  * ツモは子のロンを半分ずつにすれば出る — 点数記憶術セクション第2章
+ *
+ * 数式の中の語（`\text{…}`）は章の辞書の `formula.*` から引く。英語の章に
+ * 漢字を残さないため。訳語は `String.raw` のテンプレートにそのまま埋めるので、
+ * LaTeX の特殊文字（`\ { } $ & # ^ _ % ~`）を含まない前提（含めると数式が
+ * 壊れる。語は「子のロン」のような名詞句だけにする）。
  */
 export async function RonToTsumoGuide() {
   const t = await getTranslations("ronToTsumo.learn");
+  const koRon = t("formula.koRon");
+  const oyaPays = t("formula.oyaPays");
+  const koPays = t("formula.koPays");
 
   return (
     <div className="space-y-10">
@@ -52,7 +60,7 @@ export async function RonToTsumoGuide() {
         <GuideParagraph preLine>{t("divideBody2")}</GuideParagraph>
 
         <BlockMath
-          latex={String.raw`\text{子のロン} : \text{親が出す} : \text{子が出す} = 4 : 2 : 1`}
+          latex={String.raw`\text{${koRon}} : \text{${oyaPays}} : \text{${koPays}} = 4 : 2 : 1`}
         />
 
         <GuideNote>
