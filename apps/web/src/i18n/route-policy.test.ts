@@ -11,8 +11,9 @@ import {
 import { collectPages } from "@/test/collect-pages";
 import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
 import { glossaryTermHref } from "@mahjong-scoring/features/glossary/routes";
+import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
-import { rankHref } from "@mahjong-scoring/features/routes";
+import { chapterHref, rankHref } from "@mahjong-scoring/features/routes";
 
 import {
   EN_PUBLISHED_PATHS,
@@ -20,6 +21,10 @@ import {
   isPublished,
   type Publication,
 } from "./route-policy";
+import {
+  translatedPublishedTemplates,
+  translatedTemplateOf,
+} from "./translated-publications";
 
 const APP_DIR = join(dirname(fileURLToPath(import.meta.url)), "../app");
 
@@ -142,12 +147,39 @@ describe("日本語の公開状態は既存の分類を取り込む", () => {
 });
 
 describe("英語は許可リストで公開する", () => {
-  it("フェーズ 1 で英語に公開するのは点数表だけ（索引させる）", () => {
-    expect(EN_PUBLISHED_PATHS).toEqual(["/reference/score-table"]);
-    expect(getPublication("/reference/score-table", "en")).toBe(
-      "published-indexable",
-    );
+  it("英語で公開するのは公開単位の表どおり（すべて索引させる）", () => {
+    const expected = [
+      "/",
+      "/lessons",
+      ...CURRICULUM.filter((chapter) => chapter.slug !== "about-this-app").map(
+        (chapter) => chapterHref(chapter.slug),
+      ),
+      "/reference",
+      "/reference/yaku",
+      "/reference/glossary",
+      "/reference/score-table",
+      ...GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
+    ];
+    expect([...EN_PUBLISHED_PATHS].sort()).toEqual([...expected].sort());
+    for (const path of EN_PUBLISHED_PATHS) {
+      expect(getPublication(path, "en"), path).toBe("published-indexable");
+    }
   });
+
+  it("英語で公開するパスに重複が無い", () => {
+    expect(new Set(EN_PUBLISHED_PATHS).size).toBe(EN_PUBLISHED_PATHS.length);
+  });
+
+  it.each(translatedPublishedTemplates("en").map((template) => [template]))(
+    "公開テンプレート %s は具体的なパスへ展開される（展開の表の書き忘れが無い）",
+    (template) => {
+      const expanded = EN_PUBLISHED_PATHS.filter(
+        (path) => translatedTemplateOf(path, "en") === template,
+      );
+      expect(expanded).toEqual(concretePaths(template));
+      expect(expanded.length).toBeGreaterThan(0);
+    },
+  );
 
   it.each([...userPages.keys()].map((template) => [template]))(
     "%s は許可リストに無ければ英語で unpublished（すべて英語にしてから noindex にする既定を持たない）",
@@ -160,7 +192,17 @@ describe("英語は許可リストで公開する", () => {
   );
 
   it.each([
-    ["/"],
+    ["/lessons/about-this-app"],
+    ["/reference/demo"],
+    ["/getting-started"],
+    ["/practice"],
+    ["/dojo"],
+  ])("%s は英語で unpublished（日本語では公開している）", (path) => {
+    expect(getPublication(path, "en")).toBe("unpublished");
+    expect(isPublished(getPublication(path, "ja"))).toBe(true);
+  });
+
+  it.each([
     ["/dashboard"],
     ["/admin"],
     ["/api/version"],
@@ -168,19 +210,27 @@ describe("英語は許可リストで公開する", () => {
     ["/english"],
     ["/reference/score-table/extra"],
     ["/reference/score-tables"],
+    ["/reference/glossary/__unknown__"],
+    ["/reference/glossary/jantou/extra"],
   ])("%s は英語で unpublished", (path) => {
     expect(getPublication(path, "en")).toBe("unpublished");
   });
 
   it("英語で公開するページは日本語でも公開している実在のページ", () => {
     for (const path of EN_PUBLISHED_PATHS) {
-      expect(userPages.has(path), `${path} の page.tsx が無い`).toBe(true);
-      expect(isPublished(getPublication(path, "ja"))).toBe(true);
+      const template = translatedTemplateOf(path, "en") ?? path;
+      expect(userPages.has(template), `${template} の page.tsx が無い`).toBe(
+        true,
+      );
+      expect(isPublished(getPublication(path, "ja")), path).toBe(true);
     }
   });
 
   it("英語の query 付きパスも同じ判定", () => {
     expect(getPublication("/reference/score-table?x=1#top", "en")).toBe(
+      "published-indexable",
+    );
+    expect(getPublication("/reference/glossary/jantou?x=1", "en")).toBe(
       "published-indexable",
     );
   });
