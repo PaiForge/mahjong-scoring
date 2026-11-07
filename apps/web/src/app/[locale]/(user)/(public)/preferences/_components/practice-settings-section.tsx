@@ -1,7 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
+import { localizedHref } from "@/i18n/public-path";
 import {
   SettingLinkRow,
   SettingLockedRow,
@@ -48,8 +49,14 @@ import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preferenc
  * 行の順は 進め方 → 答え方 → 盤面 → 別画面へのリンク。各行のアンカー
  * （`PREFERENCE_ANCHORS`）は節を移っても変えないので、他の画面からのリンクの着地は
  * そのまま効く。
+ *
+ * 役の並び順のページへは同じ言語のまま張る（設定のページを出している言語では
+ * 子ページも出している）。Pro の行の料金ページ（`/plan`）は英語で出していない
+ * （購入条件の法務のページが英語で揃うまで購入は日本語のまま）ので、英語の
+ * ページからも日本語の `/plan` を指す。英語の存在しない URL は作らない。
  */
 export function PracticeSettingsSection() {
+  const locale = useLocale();
   const t = useTranslations("settings");
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const setAutoAdvanceOnCorrect = useTrainingSettingsStore(
@@ -132,7 +139,7 @@ export function PracticeSettingsSection() {
       {/* 別画面へのリンクは末尾に置く。36役を並び替える UI は設定ページに置くと
           長すぎるため専用ページへ渡す */}
       <SettingLinkRow
-        href={YAKU_ORDER_PATH}
+        href={localizedHref(YAKU_ORDER_PATH, locale)}
         title={t("yakuOrderTitle")}
         description={t("yakuOrderDescription")}
       />

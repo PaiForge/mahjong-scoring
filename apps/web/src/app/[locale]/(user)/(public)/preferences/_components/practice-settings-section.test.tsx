@@ -15,7 +15,10 @@ import { act, fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next-intl", async () => ({
+  ...(await import("@/test/intl-mock")),
+  useLocale: () => "ja",
+}));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock(
   "@/app/_contexts/auth-context",

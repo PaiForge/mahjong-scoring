@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 
 import {
@@ -19,6 +18,27 @@ import {
 } from "@/app/_components/_lib/link-classes";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { publicProfileHref } from "@/lib/users/public-profile-href";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
+import { localizedHref } from "@/i18n/public-path";
+
+/**
+ * 公開プロフィールへのリンクの張り方（ページがサーバーで決めて渡す）
+ *
+ * この部品はクライアントで描かれるので公開状態を読まない。公開プロフィールの
+ * 公開状態は `/u/<username>` の形で一律なので、ページが 1 回だけ引いて渡す。
+ */
+export interface PublicProfileLinks {
+  /**
+   * ページの言語で公開プロフィールを出していない（日本語のページへ言語を
+   * またいで張り、「日本語のみ」の印を添える）
+   */
+  readonly crossLocale: boolean;
+  /** 「日本語のみ」の印の文言（`nav.language.japaneseOnly`） */
+  readonly japaneseOnlyLabel: string;
+}
 
 /**
  * 設定の「ブロックしたユーザー」
@@ -34,8 +54,22 @@ import { publicProfileHref } from "@/lib/users/public-profile-href";
  * たびに見せる理由が無いため。ページの末尾にあるので、後から現れても
  * 上の項目は動かない。読み込みに失敗しても、公開プロフィールのブロック中の
  * 案内から 1 人ずつ解除できる。
+ *
+ * 英語のページでもこの一覧は出し、ブロックした人の表示名もそのまま出す。
+ * 他の利用者を見せる画面（ランキング・公開プロフィール）は英語で出さないが、
+ * ここに並ぶのは本人がブロックを選んだ相手だけで、隠すと英語の画面から解除
+ * できなくなるため。各行の公開プロフィールへのリンクは、英語のページからは
+ * 日本語のページへ言語をまたいで張り（素の `<a hrefLang="ja">`）、「日本語のみ」の
+ * 印を添える（`profileLinks`）。
+ *
+ * @param profileLinks - 公開プロフィールへのリンクの張り方
  */
-export function BlockedUsersSection() {
+export function BlockedUsersSection({
+  profileLinks,
+}: {
+  readonly profileLinks: PublicProfileLinks;
+}) {
+  const locale = useLocale();
   const t = useTranslations("settings");
   const { user, isLoading: isAuthLoading } = useAuth();
   const [users, setUsers] = useState<readonly BlockedUserView[]>([]);
@@ -87,8 +121,14 @@ export function BlockedUsersSection() {
               key={row.username}
               className="flex items-center justify-between gap-3 px-5 py-3"
             >
-              <Link
-                href={publicProfileHref(row.username)}
+              <LocaleNavLink
+                navTarget={{
+                  href: profileLinks.crossLocale
+                    ? publicProfileHref(row.username)
+                    : localizedHref(publicProfileHref(row.username), locale),
+                  crossLocale: profileLinks.crossLocale,
+                }}
+                linkKind="plain"
                 className={`group flex min-w-0 items-center gap-3 rounded-md ${FOCUS_RING_CLASSES}`}
               >
                 <UserAvatar avatarUrl={row.avatarUrl} name={name} size="sm" />
@@ -100,9 +140,14 @@ export function BlockedUsersSection() {
                   </span>
                   <span className="block truncate text-xs text-surface-500">
                     @{row.username}
+                    {profileLinks.crossLocale && (
+                      <JapaneseOnlyMark
+                        label={profileLinks.japaneseOnlyLabel}
+                      />
+                    )}
                   </span>
                 </span>
-              </Link>
+              </LocaleNavLink>
               <Button
                 variant="neutral"
                 size="sm"

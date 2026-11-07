@@ -8,8 +8,19 @@ import { useAuth } from "@/app/_contexts/auth-context";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
-import { buildSignInHref } from "@/lib/redirect";
-import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+
+/**
+ * 会員限定ゲートの導線の張る先（ページの言語の最終 href）
+ *
+ * ページ（サーバー）が `membersGateLinks()` で組んで渡す。この部品は
+ * クライアントで描かれるので、公開状態を読まない。
+ */
+export interface MembersGateLinks {
+  /** 会員登録 */
+  readonly signUpHref: string;
+  /** ログイン（ログイン後にこのページへ戻す `?redirect=` 付き） */
+  readonly signInHref: string;
+}
 
 /**
  * 会員限定ゲート（スモーク）
@@ -17,14 +28,17 @@ import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
  * 設定項目は会員登録への導線（CTA）も兼ねる。未ログイン時は中身を
  * スモーク（ぼかし＋減光）で覆って操作を無効化し、その上に会員登録 CTA を重ねる。
  * ログイン状態の確定前（読み込み中）は誤操作防止のため操作だけ無効化し、CTA は出さない。
+ *
+ * 会員登録・ログインはページと同じ言語で張る（英語の設定ページからは英語の
+ * 登録・ログインへ。ログイン後は同じ言語のこのページへ戻す）。
  */
 export function MembersOnlyGate({
   children,
-  redirectTo = PREFERENCES_PATH,
+  links,
 }: {
   readonly children: ReactNode;
-  /** サインイン後に戻す先。設定の子ページから開いたときはそのページへ返す */
-  readonly redirectTo?: string;
+  /** 会員登録・ログインの張る先 */
+  readonly links: MembersGateLinks;
 }) {
   const t = useTranslations("settings.membersGate");
   const { user, isLoading } = useAuth();
@@ -48,9 +62,9 @@ export function MembersOnlyGate({
             <p className="font-semibold text-surface-900">{t("title")}</p>
             <p className="mt-1 text-sm text-surface-600">{t("description")}</p>
           </div>
-          <LinkButton href="/sign-up">{t("cta")}</LinkButton>
+          <LinkButton href={links.signUpHref}>{t("cta")}</LinkButton>
           <Link
-            href={buildSignInHref(redirectTo)}
+            href={links.signInHref}
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signInLink")}
