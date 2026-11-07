@@ -1,9 +1,16 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { JapaneseOnlyMark } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { currentLocale } from "@/i18n/current-locale";
+import { localizedHref } from "@/i18n/public-path";
+import { buildSignInHref } from "@/lib/redirect";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
+import { PracticeNavLink } from "./practice-nav-link";
 import { ResultBlockSection } from "./result-block-section";
 
 /**
@@ -21,8 +28,19 @@ import { ResultBlockSection } from "./result-block-section";
  * 参考プロジェクト (`blindfold-chess` の `SignUpBannerUI`) の
  * 「枠で囲って目立たせる」構成に合わせつつ、配色はプロジェクトの
  * primary（緑系）トークンを使った薄緑の塗りに置き換えている。
+ *
+ * 登録・ログインがその言語で未公開なら（英語のページ）、「日本語のみ」の印を付けた
+ * 日本語の登録・ログインへ文書ごと送る。登録は言語をまたいでも成立し、ログインの
+ * 戻り先（`?redirect=`）に `returnTo` の今の言語の URL を載せれば、ログインのあと
+ * 英語のページへ戻れる。日本語のページのリンク（戻り先なし）は変えない。
+ *
+ * @param returnTo - ログインのあとに戻す先（ロケール非依存。省略時は練習一覧）
  */
-export async function SignUpCta() {
+export async function SignUpCta({
+  returnTo = PRACTICE_PATH,
+}: {
+  readonly returnTo?: string;
+} = {}) {
   const t = await getTranslations("challenge");
 
   return (
@@ -31,6 +49,7 @@ export async function SignUpCta() {
       <SignUpCtaCard
         message={t("signUpCta.message")}
         description={t("signUpCta.description")}
+        returnTo={returnTo}
       />
     </ResultBlockSection>
   );
@@ -49,6 +68,9 @@ export async function SignUpCta() {
  * 直上の表を指しているため、別のセクションに切り離すと何に載るのかが
  * 離れる。アプリの結果画面はランキングを出さないので、同じ位置の案内は
  * ランキングに触れない別の文言にしている（`recordCta.result`）。
+ *
+ * ランキングのプレビューの一部なので、プレビューと同じく `/leaderboard` を
+ * その言語で公開しているときだけ出る（判定は `createPracticeResultPage`）。
  */
 export async function LeaderboardSignUpCta() {
   const t = await getTranslations("challenge");
@@ -57,6 +79,7 @@ export async function LeaderboardSignUpCta() {
     <SignUpCtaCard
       message={t("signUpCta.leaderboard.message")}
       description={t("signUpCta.leaderboard.description")}
+      returnTo={PRACTICE_PATH}
     />
   );
 }
@@ -65,11 +88,26 @@ export async function LeaderboardSignUpCta() {
 async function SignUpCtaCard({
   message,
   description,
+  returnTo,
 }: {
   readonly message: string;
   readonly description: string;
+  /** ログインのあとに戻す先（ロケール非依存） */
+  readonly returnTo: string;
 }) {
-  const t = await getTranslations("challenge");
+  const [t, tNav, locale] = await Promise.all([
+    getTranslations("challenge"),
+    getTranslations("nav.language"),
+    currentLocale(),
+  ]);
+  const signUpTarget = resolveNavTargetFor("/sign-up", locale);
+  // 日本語は今までどおり戻り先なしのログイン。他の言語は今の言語のページへ戻す
+  const signInTarget = resolveNavTargetFor(
+    locale === DEFAULT_LOCALE
+      ? "/sign-in"
+      : buildSignInHref(localizedHref(returnTo, locale)),
+    locale,
+  );
 
   return (
     <div className="rounded-panel border border-panel bg-brand-subtle p-4 sm:p-6">
@@ -82,18 +120,21 @@ async function SignUpCtaCard({
           className={`flex w-full flex-col items-center ${SUB_LINK_GAP} sm:w-auto sm:items-end`}
         >
           <LinkButton
-            href="/sign-up"
+            navTarget={signUpTarget}
             fullWidth
             className="whitespace-nowrap sm:w-auto"
           >
             {t("signUpCta.cta")}
+            {signUpTarget.crossLocale && (
+              <JapaneseOnlyMark label={tNav("japaneseOnly")} />
+            )}
           </LinkButton>
-          <Link
-            href="/sign-in"
+          <PracticeNavLink
+            navTarget={signInTarget}
             className={`text-xs font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {t("signUpCta.signInLink")}
-          </Link>
+          </PracticeNavLink>
         </div>
       </div>
     </div>

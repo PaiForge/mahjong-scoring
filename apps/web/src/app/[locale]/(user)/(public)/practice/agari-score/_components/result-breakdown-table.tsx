@@ -9,7 +9,15 @@ import { DetailTable } from "../../_components/detail-table";
 import { ScoreTableValueButton } from "../../_components/score-table-value-button";
 
 interface DetailItem {
+  /** 役名（core の日本語）・符の理由。役一覧の着地先はこれで引く */
   readonly name: string;
+  /**
+   * 行に出す文言（今の言語の辞書で引いたもの）。省略時は `name` をそのまま出す
+   *
+   * 役名・符の理由は core が日本語で持つので、英語のページに漢字を残さないよう
+   * 置く側が辞書で引いて渡す。役一覧の着地先は訳ではなく `name` で解決する。
+   */
+  readonly label?: string;
   readonly value: number;
 }
 
@@ -69,13 +77,13 @@ export function ResultBreakdownTable({
       </ScoreTableValueButton>
     );
   const isRounded = roundedTotal !== undefined && total !== roundedTotal;
-  const itemLabel = (name: string) => {
+  const itemLabel = (name: string, label: string) => {
     const cheatsheetName =
       onOpenYakuList === undefined
         ? undefined
         : resolveYakuCheatsheetName(name);
     if (onOpenYakuList === undefined || cheatsheetName === undefined) {
-      return name;
+      return label;
     }
     return (
       <button
@@ -84,7 +92,7 @@ export function ResultBreakdownTable({
         title={tChallenge("openInYakuList")}
         className={TEXT_LINK_CLASSES}
       >
-        {name}
+        {label}
       </button>
     );
   };
@@ -92,7 +100,7 @@ export function ResultBreakdownTable({
   return (
     <DetailTable
       rows={items.map((detail) => ({
-        label: itemLabel(detail.name),
+        label: itemLabel(detail.name, detail.label ?? detail.name),
         value: withSuffix(detail.value),
       }))}
       total={{

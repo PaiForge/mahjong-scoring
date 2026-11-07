@@ -1,7 +1,7 @@
 "use client";
 
 import { useOnFinished } from "@mahjong-scoring/features/session/use-on-finished";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "./use-localized-router";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { RUN_PARAM } from "@mahjong-scoring/features/challenge/challenge-run";
 import { FINISH_REASON_PARAM } from "@mahjong-scoring/features/challenge/finish-reason";
@@ -92,7 +92,8 @@ export function useFinishRedirect({
   resultPath,
   onFinish,
 }: UseFinishRedirectOptions) {
-  const router = useRouter();
+  // 結果ページへは今の言語のまま送る（英語の play から日本語の result へ落とさない）
+  const router = useLocalizedRouter();
   // 終了が確定した瞬間に 1 回だけ保存して結果ページへ送る
   useOnFinished(isFinished ? finalResult : undefined, (final) => {
     const { correctCount, incorrectCount, totalCount, reason, finishedAt } =

@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { HelpIconButton } from "@/app/[locale]/(user)/_components/help-icon-button";
+
+import { PracticeNavLink } from "../../_components/practice-nav-link";
 
 /**
  * 有料プランの機能で、いまの閲覧者には開放されていないことを示す
@@ -22,7 +24,11 @@ interface SettingToggleLock {
   readonly badge: string;
   readonly note: string;
   readonly linkLabel: string;
-  readonly href: string;
+  /**
+   * 料金ページへの張る先（`clientNavTarget`）。その言語で未公開なら
+   * 「日本語のみ」の印付きの日本語のページ
+   */
+  readonly navTarget: NavTarget;
 }
 
 interface SettingToggleProps {
@@ -95,12 +101,12 @@ export function SettingToggle({
         </div>
         <p className="mt-1 text-xs text-surface-600">{locked.note}</p>
         <div className="mt-1 text-right text-xs">
-          <Link
-            href={locked.href}
+          <PracticeNavLink
+            navTarget={locked.navTarget}
             className={`font-semibold ${TEXT_LINK_CLASSES}`}
           >
             {locked.linkLabel}
-          </Link>
+          </PracticeNavLink>
         </div>
       </div>
     );

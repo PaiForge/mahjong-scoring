@@ -6,6 +6,7 @@ import type {
   YakuSelectionState,
 } from "@mahjong-scoring/core";
 import { resolveYakuCheatsheetName } from "@mahjong-scoring/features/yaku/examples";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { YAKU_SELECTION_CLASSES } from "../../_lib/yaku-selection-classes";
 import { JudgementMark } from "../../_components/judgement-mark";
 import type { JudgementVerdict } from "@mahjong-scoring/features/results/result-schemas";
@@ -67,6 +68,9 @@ export function YakuJudgementChips({
   align = "start",
 }: YakuJudgementChipsProps) {
   const t = useTranslations("agariScore.result");
+  // 役名は core の日本語を `yakuNames` で引く（日本語の値は core の名前と同じなので
+  // 日本語の表示は変わらない）。早見表の着地先と key は core の名前のまま
+  const tYakuNames = useTranslations("yakuNames");
 
   if (judgements.length === 0) {
     return <span className="text-sm text-surface-400">{emptyLabel}</span>;
@@ -81,7 +85,9 @@ export function YakuJudgementChips({
         const className = `${CHIP_BASE_CLASSES} ${YAKU_SELECTION_CLASSES[judgement.state]}`;
         const content = (
           <>
-            <span className="whitespace-nowrap">{judgement.name}</span>
+            <span className="whitespace-nowrap">
+              {yakuLabel(judgement.name, tYakuNames)}
+            </span>
             {mark === undefined ? (
               <span className="whitespace-nowrap text-[0.625rem] font-medium">
                 {t(`yakuJudgement.${judgement.state}`)}

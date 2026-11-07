@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "./use-localized-router";
 import { useTranslations } from "next-intl";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import type { MenuKind } from "@mahjong-scoring/features/practice-menu-types";
@@ -47,7 +47,7 @@ export function useQuitConfirm({
   variant = "practice",
 }: UseQuitConfirmOptions): UseQuitConfirmReturn {
   const tc = useTranslations("challenge");
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
   const handleQuitClick = useCallback(() => {
@@ -65,6 +65,8 @@ export function useQuitConfirm({
     const exitHref = resolveExitHref();
     // 遷移先に着いてから出す。ここで出すと表示時間が遷移の裏で減り、
     // 視線も切り替わる本文側にあるため見落とされる
+    // href はロケール非依存のまま預ける（着地の判定は接頭辞を外して比べる）。
+    // 遷移は今の言語のまま（useLocalizedRouter が接頭辞を付ける）
     toastOnArrival(exitHref, tc(`quit.${variant}.toast`));
     router.push(exitHref);
   }, [tc, router, resolveExitHref, variant]);

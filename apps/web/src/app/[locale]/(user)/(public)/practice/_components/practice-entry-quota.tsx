@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -23,11 +23,24 @@ import {
   peekPracticeQuota,
   type BeginPracticeQuestionResult,
 } from "../_actions/begin-practice-question";
+import { usePageLocale } from "../_hooks/use-page-locale";
+import { clientNavTarget, signInNavTarget } from "../_lib/client-nav-target";
+import { PracticeNavLink } from "./practice-nav-link";
 
-/** 出題枠を消費せず、入口で実際の残量と利用条件を案内する。 */
+/**
+ * 出題枠を消費せず、入口で実際の残量と利用条件を案内する。
+ *
+ * ログイン・料金への導線は、その言語で未公開なら「日本語のみ」の印付きで日本語の
+ * ページへ送る（`clientNavTarget`）。ログインは英語のページへ戻れるよう、今の
+ * ページの公開 URL（`usePathname()` は `/en/...` の形）を戻り先に載せる。
+ */
 export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
   const t = useTranslations("practiceQuota.entry");
   const tQuota = useTranslations("practiceQuota");
+  const locale = usePageLocale();
+  const pathname = usePathname();
+  const signInTarget = signInNavTarget(locale, pathname);
+  const planTarget = clientNavTarget(PLAN_PAGE_HREF, locale);
   const badge = <ProBadge label={tQuota("proBadge")} />;
   const [quota, setQuota] = useState<BeginPracticeQuestionResult | null>();
   useEffect(() => {
@@ -95,15 +108,18 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
           {quota.remaining === 0 && <p>{t("reset")}</p>}
           {!quota.signedIn && (
             <p>
-              <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
+              <PracticeNavLink
+                navTarget={signInTarget}
+                className={TEXT_LINK_CLASSES}
+              >
                 {t("signIn", { limit: PRACTICE_QUOTA_LIMITS[menu].signedIn })}
-              </Link>
+              </PracticeNavLink>
             </p>
           )}
           <p className="pt-1">
             {/* 下線は文字にだけ引く。リンク全体に引くとバッジまで下線が掛かる */}
-            <Link
-              href={PLAN_PAGE_HREF}
+            <PracticeNavLink
+              navTarget={planTarget}
               className={`group inline-flex items-center gap-1.5 rounded-xs ${FOCUS_RING_CLASSES}`}
             >
               {t.rich("plan", {
@@ -113,7 +129,7 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
                 ),
               })}
               <ChevronRightIcon className="size-3.5 text-surface-400 group-hover:text-foreground" />
-            </Link>
+            </PracticeNavLink>
           </p>
         </>
       )}

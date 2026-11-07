@@ -9,6 +9,8 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
 import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
 import {
   buildResultBreadcrumb,
@@ -72,6 +74,13 @@ export async function ResultView({
   children,
 }: PracticeResultViewProps) {
   const tc = await getTranslations("challenge");
+  // 言語は自分で取る（多くの結果ページが使う部品のため props で通さない）。
+  // href の props はロケール非依存で受け、パンくずには非依存のまま渡し
+  // （パンくずが自分で言語を付ける）、ボタンとリンクにはここで今の言語の URL にする。
+  // 結果ページは動的（searchParams・cookie）なので currentLocale() が headers を
+  // 読んでも分類は変わらない
+  const locale = await currentLocale();
+  const hrefFor = (path: string) => resolveNavTargetFor(path, locale).href;
   // 親一覧（練習一覧 or 道場）。昇級試験の結果は道場へ帰す
   const parent = resultBreadcrumbParent(introHref);
   const [tParent, ad] = await Promise.all([
@@ -80,6 +89,7 @@ export async function ResultView({
       parent.namespace === "dojo"
         ? "exam-result-native-ad"
         : "practice-result-native-ad",
+      locale,
     ),
   ]);
 
@@ -129,7 +139,7 @@ export async function ResultView({
             />
             {settingsHref !== undefined && (
               <LinkButton
-                href={settingsHref}
+                href={hrefFor(settingsHref)}
                 variant="neutral"
                 size="lg"
                 fullWidth
@@ -142,14 +152,14 @@ export async function ResultView({
           <p className="text-center">
             {primaryAction === "parent" ? (
               <Link
-                href={`${playHref}${PRACTICE_SCROLL_HASH}`}
+                href={hrefFor(`${playHref}${PRACTICE_SCROLL_HASH}`)}
                 className={`text-sm ${TEXT_LINK_CLASSES}`}
               >
                 {tc("retryButton")}
               </Link>
             ) : (
               <Link
-                href={parent.href}
+                href={hrefFor(parent.href)}
                 className={`text-sm ${TEXT_LINK_CLASSES}`}
               >
                 {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}

@@ -1,5 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
+
 import {
   practiceMenuFromCatalog,
   relatedChaptersForPractice,
@@ -35,27 +38,33 @@ interface CatalogPracticeCardProps {
  *
  * 下段の左の「挑戦済み」の印は、練習一覧（`AttemptedPracticesProvider` の中）に
  * 置いたときだけ出る。
+ *
+ * 行き先（説明・章・級）は今の言語で張る（`currentLocale()` + `resolveNavTargetFor`）。
+ * 練習一覧を公開している言語では、練習の説明・レッスン・級の詳細も公開している。
  */
 export async function CatalogPracticeCard({
   slug,
   variant,
 }: CatalogPracticeCardProps) {
-  const [t, tRanks, tAll] = await Promise.all([
+  const [t, tRanks, tAll, locale] = await Promise.all([
     getTranslations("practice"),
     getTranslations("ranks"),
     getTranslations(),
+    currentLocale(),
   ]);
+  const hrefFor = (path: string) => resolveNavTargetFor(path, locale).href;
   const firstChapter = relatedChaptersForPractice(slug)[0];
   const title = practiceDisplayTitle(tAll, slug, variant);
+  const rank = practiceCardRank(practiceMenuFromCatalog(slug)?.rank, tRanks);
 
   return (
     <PracticeCard
       visual={practiceCardVisual(slug, t)}
-      href={practiceHref(slug, variant)}
+      href={hrefFor(practiceHref(slug, variant))}
       title={title}
-      rank={practiceCardRank(practiceMenuFromCatalog(slug)?.rank, tRanks)}
+      rank={rank && { ...rank, href: hrefFor(rank.href) }}
       detailLabel={t("detail")}
-      learnHref={firstChapter ? chapterHref(firstChapter) : undefined}
+      learnHref={firstChapter ? hrefFor(chapterHref(firstChapter)) : undefined}
       learnLabel={firstChapter ? t("learn") : undefined}
       footerStart={<PracticeAttemptedMark slug={slug} label={t("attempted")} />}
     />

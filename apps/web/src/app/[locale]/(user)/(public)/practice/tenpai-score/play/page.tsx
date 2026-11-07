@@ -6,8 +6,11 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/tenpai-score/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/tenpai-score/play");
-  return createFreePracticePlayMetadata("tenpaiScore");
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/tenpai-score/play",
+  );
+  return createFreePracticePlayMetadata("tenpaiScore", { locale });
 }
 
 /**

@@ -1,8 +1,11 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
+
+import { usePageLocale } from "../_hooks/use-page-locale";
+import { clientNavTarget } from "../_lib/client-nav-target";
+import { PracticeNavLink } from "./practice-nav-link";
 
 interface PracticeQuotaRemainingProps {
   /** 今日の残り。Pro（`"unlimited"`）とまだ聞いていない（undefined）は出さない */
@@ -32,14 +35,16 @@ interface PracticeQuotaRemainingProps {
  * リンクはボタン群より下にあるので、消えて詰まるのはその下だけで、
  * 押そうとしているボタンは動かない。
  *
- * `"use client"` は付けない。hooks は `useTranslations()` だけで、呼び出し元の
- * 盤面（クライアント）に取り込まれて動く。
+ * `"use client"` は付けない。hooks は `useTranslations()` と言語の取得だけで、呼び出し元の
+ * 盤面（クライアント）に取り込まれて動く。料金ページがその言語で未公開なら、
+ * 「日本語のみ」の印付きで日本語の料金ページへ送る（`clientNavTarget`）。
  */
 export function PracticeQuotaRemaining({
   remaining,
   showPlanLink,
 }: PracticeQuotaRemainingProps) {
   const t = useTranslations("practiceQuota");
+  const planTarget = clientNavTarget(PLAN_PAGE_HREF, usePageLocale());
   if (typeof remaining !== "number") return null;
 
   return (
@@ -49,9 +54,9 @@ export function PracticeQuotaRemaining({
       </p>
       {showPlanLink && (
         <p>
-          <Link href={PLAN_PAGE_HREF} className={TEXT_LINK_CLASSES}>
+          <PracticeNavLink navTarget={planTarget} className={TEXT_LINK_CLASSES}>
             {t("planLink")}
-          </Link>
+          </PracticeNavLink>
         </p>
       )}
     </div>

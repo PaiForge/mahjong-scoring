@@ -3,7 +3,7 @@
 import { useState, useMemo, type ReactNode } from "react";
 import { SettingCard } from "../../_components/setting-card";
 import { toggleInArray } from "@mahjong-scoring/features/practice/toggle-in-array";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "../../_hooks/use-localized-router";
 import { useTranslations } from "next-intl";
 import { SCORE_FILTERABLE_YAKU } from "@mahjong-scoring/core";
 import type { ScoreRange } from "@mahjong-scoring/core";
@@ -17,6 +17,8 @@ import { buildScorePracticeQuery } from "../_lib/build-practice-query";
 import { useIsClient } from "../../../../../../_hooks/use-is-client";
 import { SettingToggle, SettingToggleGroup } from "./setting-toggle";
 import { SmallCheckbox } from "./small-checkbox";
+import { usePageLocale } from "../../_hooks/use-page-locale";
+import { clientNavTarget } from "../../_lib/client-nav-target";
 import { ScoreSetupFormSkeleton } from "./score-setup-form-skeleton";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { PlayIcon } from "@/app/[locale]/(user)/_components/icons/play-icon";
@@ -63,7 +65,9 @@ export function ScoreSetupForm({
 }: ScoreSetupFormProps = {}) {
   const t = useTranslations("agariScore");
   const tCommon = useTranslations("common");
-  const router = useRouter();
+  // play への遷移は今の言語のまま（英語なら `/en/...`。日本語は接頭辞なし）
+  const router = useLocalizedRouter();
+  const planTarget = clientNavTarget(PLAN_PAGE_HREF, usePageLocale());
   const mounted = useIsClient();
   const [showExactHanInfo, setShowExactHanInfo] = useState(false);
   // 拡張機能（回答時間の計測）は Pro の特典。閲覧者の特典はログイン時に
@@ -223,7 +227,7 @@ export function ScoreSetupForm({
                   badge: t("setup.measureTimePro.badge"),
                   note: t("setup.measureTimePro.note"),
                   linkLabel: t("setup.measureTimePro.link"),
-                  href: PLAN_PAGE_HREF,
+                  navTarget: planTarget,
                 }
           }
         />

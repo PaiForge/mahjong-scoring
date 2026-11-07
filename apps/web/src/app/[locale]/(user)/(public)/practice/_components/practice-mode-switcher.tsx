@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { localizedHref } from "@/i18n/public-path";
+import { usePageLocale } from "../_hooks/use-page-locale";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
@@ -46,13 +48,15 @@ function ModeContent({
   mode,
 }: Props & { readonly mode: PracticeMode }) {
   const t = useTranslations("practice.modes");
+  // 同じページの切り替え。今の言語の一覧のまま（英語なら `/en/practice?mode=`）
+  const locale = usePageLocale();
   return (
     <div className="space-y-6">
       <nav aria-label={t("label")} className={TOGGLE_GROUP_CONTAINER_CLASSES}>
         {PRACTICE_MODES.map((value) => (
           <Link
             key={value}
-            href={`/practice?mode=${value}`}
+            href={localizedHref(`/practice?mode=${value}`, locale)}
             scroll={false}
             aria-current={mode === value ? "page" : undefined}
             className={`flex min-h-11 flex-1 items-center justify-center rounded-md px-4 text-sm font-bold transition-colors ${mode === value ? "bg-selected text-selected-foreground" : "text-surface-500 hover:bg-surface-100 hover:text-foreground"}`}

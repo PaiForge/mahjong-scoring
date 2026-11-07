@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
 import type { ExpInfo } from "@mahjong-scoring/core";
 import { HighlightPanel } from "@/app/[locale]/(user)/_components/highlight-panel";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
@@ -15,6 +16,7 @@ import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";
 import type { Fetched } from "../_lib/try-fetch";
 import { ExpGainDisplay } from "./exp-gain-display";
+import { PracticeNavLink } from "./practice-nav-link";
 import { ResultBlockSection } from "./result-block-section";
 
 interface RecordSectionProps {
@@ -68,6 +70,11 @@ export async function RecordSection({
   variant,
 }: RecordSectionProps) {
   const t = await getTranslations("challenge");
+  // マイレコードがその言語で未公開なら「日本語のみ」の印付きで日本語のページへ
+  const recordsTarget = resolveNavTargetFor(
+    myRecordHref({ menuType, variant }),
+    await currentLocale(),
+  );
   const view = comparison.ok ? deriveRecordView(comparison.value) : undefined;
 
   const badge =
@@ -125,12 +132,12 @@ export async function RecordSection({
       )}
 
       <p className="text-center">
-        <Link
-          href={myRecordHref({ menuType, variant })}
+        <PracticeNavLink
+          navTarget={recordsTarget}
           className={`text-sm ${TEXT_LINK_CLASSES}`}
         >
           <span aria-hidden="true">📈</span> {t("record.viewMyRecords")}
-        </Link>
+        </PracticeNavLink>
       </p>
     </ResultBlockSection>
   );

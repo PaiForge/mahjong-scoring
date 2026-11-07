@@ -28,6 +28,25 @@ describe("FuBreakdown", () => {
     expect(screen.getByText("嵌張待ち")).toBeTruthy();
   });
 
+  it("理由は core の日本語ではなく構造（spec）から辞書のキーで引き、spec の無い古い内訳は reason のまま出す", () => {
+    render(
+      <FuBreakdown
+        details={[
+          { reason: "副底", fu: 20, spec: { kind: "futei" } },
+          { reason: "嵌張待ち", fu: 2 },
+        ]}
+        answer={30}
+        translationNamespace="x"
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
+
+    // スタブはキーを返すので、辞書を引いた行はキーになる
+    expect(screen.getByText("reasons.futei")).toBeTruthy();
+    expect(screen.queryByText("副底")).toBeNull();
+    expect(screen.getByText("嵌張待ち")).toBeTruthy();
+  });
+
   it("surface を渡すと開いた表の面に反映する（白い面の中では沈めた灰）", () => {
     render(
       <FuBreakdown
