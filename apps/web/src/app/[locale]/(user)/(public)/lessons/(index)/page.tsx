@@ -8,225 +8,110 @@
  * 「レッスン」の行き先。段級位の行程に属さない章（はじめに・記憶術）もここに並ぶ —
  * 級ごとの見え方は道場が持つ。
  * @flow
- * ユーザーは各レッスンのタイトル Link から対応する `/lessons/<slug>` へ遷移する。
+ * ユーザーは各レッスンのタイトルのリンクから対応する `/lessons/<slug>` へ遷移する。
  * 未認証ユーザーでも進捗は空として表示され、最初のレッスンが「次はここから」となる。
+ * ログインしていれば、表示の後に本人の完了の印・進捗・次が付く。
  *
- * 完了を cookie から読むため動的ルート。レッスンページ（`/lessons/<slug>`）は静的なので、
- * 目次だけが持つ loading.tsx がレッスンの祖先にならないよう route group に退避している
- * （`loading-boundaries.test.ts` 参照）。
+ * **静的ルート**（cookie も searchParams もサーバーで読まない）。目次の公共の部分
+ * （章の並び・文言・広告）は閲覧者に依らないのでビルド時に焼き、閲覧者に依る部分は
+ * クライアントの `LessonsIndex` が後から付ける:
+ *
+ * - 完了の印・進捗・「次はここから」は `LessonProgressProvider` がログインを
+ *   確かめてから Server Action `getCompletedLessonSlugs()` で取って上書きする。
+ *   静的 HTML はゲストの状態（完了なし・次は最初のレッスン）
+ * - `?rank=<級>`（ダッシュボード・道場の級の進み具合の「学ぶ」の行き先）は
+ *   `useSearchParams` で読んでクライアントで絞る。静的 HTML と Suspense の
+ *   fallback は全体の目次。パンくずは絞った目次でも 1 段のまま（サーバーは
+ *   絞り込みを知らない）
+ *
+ * 英語の索引対象は静的生成であることが規約（`loading-boundaries.test.ts`）で、
+ * 以前の「完了を cookie から読む動的ルート + loading.tsx」をこの形に改めた。
+ * route group `(index)` は、その頃 loading.tsx が兄弟ルート（`/lessons/<slug>`）の
+ * 祖先にならないよう退避するためのもの。今は境界を持たないので要らないが、
+ * 移しても描画は変わらないため置いたままにしている。
+ *
+ * 英語の目次では、英語で出していない章の行を「日本語のみ」の印付きの日本語の
+ * リンク（`<a hrefLang="ja">`）にし、英語の存在しない URL を作らない。
+ * 「次はここから」と進捗の分母は英語で出しているレッスンだけから数える。
  *
  * 行は `#chapter-<slug>` で指せる。章の抜粋（練習の説明ページ等）の
  * 「目次へ」がその位置へ着地させるのに使う。
- *
- * `?rank=<級>` を付けると、その級の前提レッスンだけに絞った目次になる
- * （ダッシュボード・道場の級の進み具合の「学ぶ」の行き先）。進捗バーと
- * 「次はここから」もその級の中で数え、下に全レッスンへのリンクを置く。
- * 未知の級・前提レッスンを持たない級は絞らずに全体を出す。絞った目次は
- * 絞り込みのチップを持たない — 級ごとの一覧は道場が持ち、ここでは
- * 「この級のぶんだけ見る → 全体へ戻る」の往復だけを用意する。
  */
 import type { Metadata } from "next";
-import { Fragment } from "react";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
+import type { ReactNode } from "react";
+
 import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { LinkRowList } from "@/app/[locale]/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
-import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 import { getNativeAdPlacements } from "@/lib/ads/creatives";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
-import { CurriculumProgressBar } from "../_components/curriculum-progress-bar";
-import { CurriculumToc } from "../_components/curriculum-toc";
 import {
-  LESSON_CHAPTERS,
   CURRICULUM_SECTIONS,
   chaptersBySection,
-  isColumnChapter,
-  pickNextChapter,
-  type CurriculumChapterSlug,
+  type CurriculumSection,
 } from "@mahjong-scoring/features/curriculum/registry";
-import {
-  rankBySlug,
-  type RankDefinition,
-} from "@mahjong-scoring/features/ranks/registry";
-import { fetchCompletedLessonSlugs } from "../_lib/lesson-progress";
-import { LESSONS_PATH, RANK_PARAM } from "@mahjong-scoring/features/routes";
-import { prepareRouteLocale } from "@/i18n/route-locale";
+import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
+import { getTranslations } from "next-intl/server";
 
-interface LearnIndexPageProps {
-  readonly searchParams: Promise<
-    Readonly<Record<string, string | string[] | undefined>>
-  >;
-}
-
-/** `?rank=` から絞り込む級を引く。未知の級・前提レッスンを持たない級は絞らない */
-function resolveRankFilter(
-  value: string | string[] | undefined,
-): RankDefinition | undefined {
-  if (typeof value !== "string") return undefined;
-  const rank = rankBySlug(value);
-  if (rank === undefined || rank.learnChapterSlugs.length === 0) {
-    return undefined;
-  }
-  return rank;
-}
+import { chapterRowsFor } from "../_components/curriculum-toc";
+import { LessonsIndex } from "../_components/lessons-index";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/lessons");
+  const locale = await prepareRouteLocale(params, "/lessons");
   return createNamespaceMetadata("learnCurriculum.index", {
     title: "pageTitle",
     description: "pageDescription",
     path: LESSONS_PATH,
+    locale,
   });
 }
 
 export default async function LearnIndexPage({
   params,
-  searchParams,
-}: LearnIndexPageProps & Pick<PageProps<"/[locale]/lessons">, "params">) {
-  await prepareRouteLocale(params, "/lessons");
-  const rank = resolveRankFilter((await searchParams)[RANK_PARAM]);
-  if (rank !== undefined) return <RankLessonsIndex rank={rank} />;
-
-  const [t, completedSlugs, ads] = await Promise.all([
-    getTranslations("learnCurriculum"),
-    fetchCompletedLessonSlugs(),
-    getNativeAdPlacements("learn-index-native-ad"),
-  ]);
-  const next = pickNextChapter(completedSlugs);
-  const allCompleted = !next;
-
-  const grouped = chaptersBySection();
-
-  return (
-    <ContentContainer breadcrumb={[{ label: t("index.pageTitle") }]}>
-      <PageTitle>{t("index.pageTitle")}</PageTitle>
-      <HashAnchorScroll />
-
-      <div className="space-y-8">
-        <CurriculumProgressBar
-          completedCount={completedSlugs.size}
-          totalCount={LESSON_CHAPTERS.length}
-          allCompleted={allCompleted}
-        />
-
-        {CURRICULUM_SECTIONS.map((section, index) => {
-          const chapters = grouped.get(section) ?? [];
-          if (chapters.length === 0) return undefined;
-          const adIndex = adIndexAfterGroup(index);
-          const ad = adIndex === undefined ? undefined : ads[adIndex];
-          return (
-            <Fragment key={section}>
-              <CurriculumToc
-                section={section}
-                chapters={chapters}
-                completedSlugs={completedSlugs}
-                nextSlug={next?.slug}
-                anchored
-                headingLevel={2}
-              />
-              {/* 広告はセクションの切れ目に 1 行ずつ（位置は
-                  adIndexAfterGroup）。セクションの中（章の並び）には
-                  入れない — レッスンの順序は学習の順序で、間に挟まると順路が途切れる。
-                  目次は枠を持たない（印と破線だけ）ので、広告の行も枠を描かない */}
-              {ad && (
-                <LinkRowList inset>
-                  <NativeAdRow creative={ad} />
-                </LinkRowList>
-              )}
-            </Fragment>
-          );
-        })}
-
-        {allCompleted && (
-          <p className="text-center text-sm text-surface-600">
-            {t("index.allCompletedMessage")}
-          </p>
-        )}
-      </div>
-    </ContentContainer>
-  );
-}
-
-/**
- * 1 つの級の前提レッスンだけに絞った目次
- * 級で絞ったレッスン目次
- *
- * 進捗バーと「次はここから」はその級のレッスンの中で数える — 全体の数を
- * 出すと「学ぶ 3 / 5」から来た人が見る数と食い違う。広告は置かない
- * （セクションが 1〜2 個の短い一覧で、切れ目に挟むと広告が主役になる）。
- */
-async function RankLessonsIndex({ rank }: { readonly rank: RankDefinition }) {
-  const [t, tRanks, completedSlugs] = await Promise.all([
-    getTranslations("learnCurriculum"),
-    getTranslations("ranks"),
-    fetchCompletedLessonSlugs(),
-  ]);
-  const rankSlugs: ReadonlySet<CurriculumChapterSlug> = new Set(
-    rank.learnChapterSlugs,
-  );
+}: PageProps<"/[locale]/lessons">) {
+  const locale = await prepareRouteLocale(params, "/lessons");
   const grouped = chaptersBySection();
   const chapters = CURRICULUM_SECTIONS.flatMap(
     (section) => grouped.get(section) ?? [],
-  ).filter((chapter) => rankSlugs.has(chapter.slug));
-  const lessons = chapters.filter((chapter) => !isColumnChapter(chapter));
-  const completedCount = lessons.filter((chapter) =>
-    completedSlugs.has(chapter.slug),
-  ).length;
-  const next = lessons.find((chapter) => !completedSlugs.has(chapter.slug));
-  const title = t("index.rankFilterTitle", {
-    rank: tRanks(`names.${rank.slug}`),
+  );
+  const [t, rows, ads] = await Promise.all([
+    getTranslations("learnCurriculum.index"),
+    chapterRowsFor(chapters, locale),
+    getNativeAdPlacements("learn-index-native-ad", locale),
+  ]);
+
+  // 広告はセクションの切れ目に 1 行ずつ（位置は adIndexAfterGroup。章を持たない
+  // セクションは目次に出ないので、その後ろの広告も出さない）。目次は枠を
+  // 持たない（印と破線だけ）ので、広告の行も枠を描かない
+  const adsAfterSection: Partial<Record<CurriculumSection, ReactNode>> = {};
+  CURRICULUM_SECTIONS.forEach((section, index) => {
+    if ((grouped.get(section) ?? []).length === 0) return;
+    const adIndex = adIndexAfterGroup(index);
+    const ad = adIndex === undefined ? undefined : ads[adIndex];
+    if (ad === undefined) return;
+    adsAfterSection[section] = (
+      <LinkRowList inset>
+        <NativeAdRow creative={ad} />
+      </LinkRowList>
+    );
   });
 
   return (
-    <ContentContainer
-      breadcrumb={[
-        { label: t("index.pageTitle"), href: LESSONS_PATH },
-        { label: title },
-      ]}
-    >
-      <PageTitle>{t("index.pageTitle")}</PageTitle>
-
-      <section className="space-y-6">
-        <SectionTitle>{title}</SectionTitle>
-        <CurriculumProgressBar
-          completedCount={completedCount}
-          totalCount={lessons.length}
-          allCompleted={next === undefined}
-        />
-        <div className="space-y-6">
-          {CURRICULUM_SECTIONS.map((section) => {
-            const sectionChapters = chapters.filter(
-              (chapter) => chapter.section === section,
-            );
-            if (sectionChapters.length === 0) return undefined;
-            return (
-              <CurriculumToc
-                key={section}
-                section={section}
-                chapters={sectionChapters}
-                completedSlugs={completedSlugs}
-                nextSlug={next?.slug}
-                headingLevel={3}
-              />
-            );
-          })}
-        </div>
-        <div className="text-center">
-          <Link
-            href={LESSONS_PATH}
-            className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
-          >
-            {t("index.allLessonsLink")}
-          </Link>
-        </div>
-      </section>
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <PageTitle>{t("pageTitle")}</PageTitle>
+      <HashAnchorScroll />
+      <LessonsIndex
+        rows={rows}
+        adsAfterSection={adsAfterSection}
+        allLessonsTarget={resolveNavTargetFor(LESSONS_PATH, locale)}
+      />
     </ContentContainer>
   );
 }

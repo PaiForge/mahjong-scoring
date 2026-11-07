@@ -74,6 +74,12 @@ const APP_DIR = dirname(fileURLToPath(import.meta.url));
  * サーバーが要求ごとに描画するページの URL パス（`next build` の route table で ƒ のもの）
  *
  * `generateStaticParams` で列挙する SSG（`/reference/glossary/[slug]` 等）は静的として扱う。
+ *
+ * 閲覧者に依る部分をクライアントで後から付けて静的に保っているページもある。
+ * `/lessons` は以前、完了の印を cookie から読み `?rank=` をサーバーで読む動的ルート
+ * だったが、英語の索引対象（静的生成が必須。後段のテスト）にするため、完了は
+ * ログイン後に Server Action で取り、`?rank=` は `useSearchParams` を `Suspense` で
+ * 包んで読む形に改め、ここから外した（loading.tsx も消した）。
  */
 const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/admin",
@@ -112,7 +118,6 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/exam/score/result",
   "/leaderboard",
   "/leaderboard/[period]/[module]",
-  "/lessons",
   "/mypage",
   "/mypage/account",
   "/mypage/account/delete",
