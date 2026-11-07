@@ -5,7 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import type { ScoreQuestion } from "@mahjong-scoring/core";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 内訳の役名は yakuNames の日本語の辞書で引く（日本語の表示が core の役名のままであることを見る）
+vi.mock(
+  "next-intl",
+  async () => await import("../../_lib/yaku-names-intl-mock"),
+);
 vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 
 const { HanCountBoard } = await import("./han-count-board");
