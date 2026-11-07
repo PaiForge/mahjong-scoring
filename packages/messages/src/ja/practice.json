@@ -148,5 +148,6 @@
     "manganPlus": "満貫以上",
     "switchToSelect": "点数を選択欄から選ぶ",
     "switchToTiles": "点数をタイルから選ぶ"
-  }
+  },
+  "titleWithVariant": "{title}（{variant}）"
 }

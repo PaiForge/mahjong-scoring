@@ -185,10 +185,21 @@ const LEADING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
 /**
  * 前後に空白を持ってよい値（語と語の間に挟む区切り）
  *
- * 日本語は「・」で詰めて並べるが、英語は区切りの前後に空白を置く（`Closed / Open`）。
+ * 日本語は「・」「、」で詰めて並べるが、英語は区切りの前後（`Closed / Open`）か
+ * 後ろ（`Pair (seat wind, dragon)`）に空白を置く。
  */
 const SEPARATOR_KEYS: ReadonlySet<string> = new Set([
   "reference.yaku.exampleLabelSeparator",
+  "common.listSeparator",
+  "challenge.fuBreakdown.reasons.jantouReasonSeparator",
+  "scoreTableChallenge.summarySeparator",
+  "scoreCalculationChallenge.summarySeparator",
+  "manganScoreCalculationChallenge.summarySeparator",
+  "fuScoreExamChallenge.summarySeparator",
+  "scoreExamChallenge.summarySeparator",
+  "pinfuExamChallenge.summarySeparator",
+  "chiitoitsuExamChallenge.summarySeparator",
+  "manganExamChallenge.summarySeparator",
 ]);
 
 /**
@@ -317,7 +328,7 @@ describe("訳し残しが無い", () => {
       expect(String(leaves.get(key)), key).toMatch(/^ \S/);
     }
     for (const key of SEPARATOR_KEYS) {
-      expect(String(leaves.get(key)), key).toMatch(/^ \S+ $/);
+      expect(String(leaves.get(key)), key).toMatch(/^ ?\S+ $/);
     }
   });
 });

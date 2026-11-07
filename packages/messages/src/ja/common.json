@@ -44,5 +44,12 @@
     "placeholder": "選択してください",
     "emptySelection": "まだ選んでいません"
   },
-  "handPresentationFallbackNotice": "手牌の見せ方の設定を確認できなかったため、今回は手牌を通常の向き・理牌した順で表示しています。変更を反映するには、練習を開き直してください。"
+  "handPresentationFallbackNotice": "手牌の見せ方の設定を確認できなかったため、今回は手牌を通常の向き・理牌した順で表示しています。変更を反映するには、練習を開き直してください。",
+  "kazeNames": {
+    "ton": "東",
+    "nan": "南",
+    "sha": "西",
+    "pei": "北"
+  },
+  "listSeparator": "、"
 }

@@ -44,5 +44,12 @@
     "placeholder": "Select",
     "emptySelection": "Nothing selected yet"
   },
-  "handPresentationFallbackNotice": "We could not read your hand display settings, so this time the hand is shown in the normal orientation and in sorted order. To apply your changes, open the practice again."
+  "handPresentationFallbackNotice": "We could not read your hand display settings, so this time the hand is shown in the normal orientation and in sorted order. To apply your changes, open the practice again.",
+  "kazeNames": {
+    "ton": "East",
+    "nan": "South",
+    "sha": "West",
+    "pei": "North"
+  },
+  "listSeparator": ", "
 }
