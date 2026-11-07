@@ -73,11 +73,18 @@ describe("LanguageSwitcher", () => {
     expect(html).toContain("このページの英語版はありません");
   });
 
-  it("stacked では英語版が無いことを文字で添える", () => {
-    const html = renderHtml("ja", "/practice", "stacked");
+  it.each(["inline", "stacked"] as const)(
+    "%s でも英語版が無いことは読み上げと title だけで示し、見える文を足さない",
+    (variant) => {
+      const html = renderHtml("ja", "/practice", variant);
 
-    expect(html).toMatch(/<p[^>]*>このページの英語版はありません<\/p>/);
-  });
+      expect(html).not.toMatch(/<p[^>]*>このページの英語版はありません<\/p>/);
+      expect(html).toContain('title="このページの英語版はありません"');
+      expect(html).toMatch(
+        /<span class="sr-only"> このページの英語版はありません<\/span>/,
+      );
+    },
+  );
 
   it("注目セルの query は引き継ぎ、認証の値は写さない", () => {
     const html = renderHtml(

@@ -22,9 +22,8 @@ const LANGUAGE_NAME_KEYS = {
 interface LanguageSwitcherProps {
   readonly localeLinks: LocaleLinks;
   /**
-   * 見せ方。`"inline"` はヘッダーの 1 行（対訳が無いことは読み上げと title
-   * だけで示す）、`"stacked"` はドロワーとフッター（対訳が無いことを文字で
-   * 下に添える）。見出し（「言語」）は置き場所の側が持つ
+   * 見せ方。`"inline"` はヘッダーの 1 行、`"stacked"` はドロワーとフッター。
+   * 見出し（「言語」）は置き場所の側が持つ
    */
   readonly variant: "inline" | "stacked";
 }
@@ -41,8 +40,15 @@ interface LanguageSwitcherProps {
  * 転送先を返すと、クローラーの見る内容と食い違う）。選んだ言語は保存しない
  * — リンクの行き先そのものが選択で、保存できなくても切替は動く。
  *
- * 対訳の無いページでは、その言語をリンクにせず「このページの英語版は
- * ありません」と示す。英語の LP や別の英語ページへ勝手に向けない。
+ * 対訳の無いページでは、その言語をリンクにせず薄い文字で残し、「このページの
+ * 英語版はありません」は読み上げと title だけで添える。英語の LP や別の英語
+ * ページへ勝手に向けない。
+ *
+ * @design 対訳が無いことを見える文で添えない
+ * 英語版のあるページが少ない間は、日本語のほぼ全ページのフッター・ドロワーに
+ * 同じ断り書きが並び、日本語の読者に情報を運ばないまま本文の文字を増やす。
+ * 薄い文字（リンクでない）で無いことは見て分かるので、文は支援技術と
+ * ホバーにだけ渡す。ヘッダー・ドロワー・フッターで同じ見せ方になる。
  *
  * `next/link` ではなく素の `<a>` にしているのは、言語をまたぐ遷移を文書の
  * 読み込みにするため。`<html lang>` はルートレイアウトが、辞書は Provider が
@@ -111,9 +117,6 @@ function LanguageSwitcherView({
 }) {
   const t = useTranslations("nav");
   // 対訳が無いことの文言は英語の分だけ持つ（日本語は全ページにある）
-  const englishUnavailable = options.some(
-    (option) => option.kind === "unavailable" && option.locale === "en",
-  );
   const unavailableNote = t("language.enUnavailable");
 
   return (
@@ -134,17 +137,12 @@ function LanguageSwitcherView({
               option={option}
               name={t(LANGUAGE_NAME_KEYS[option.locale])}
               unavailableNote={
-                option.locale === "en" && variant === "inline"
-                  ? unavailableNote
-                  : undefined
+                option.locale === "en" ? unavailableNote : undefined
               }
             />
           </li>
         ))}
       </ul>
-      {variant === "stacked" && englishUnavailable && (
-        <p className="text-xs text-muted-foreground">{unavailableNote}</p>
-      )}
     </div>
   );
 }
@@ -156,7 +154,7 @@ function LanguageOptionItem({
 }: {
   readonly option: LanguageOption;
   readonly name: string;
-  /** 対訳が無いことを読み上げと title で添える文言（inline のときだけ） */
+  /** 対訳が無いことを読み上げと title で添える文言 */
   readonly unavailableNote: string | undefined;
 }) {
   switch (option.kind) {
