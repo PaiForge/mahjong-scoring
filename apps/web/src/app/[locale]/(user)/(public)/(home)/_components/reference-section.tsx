@@ -1,10 +1,15 @@
 import { useTranslations } from "next-intl";
 
 import { TableIcon } from "@/app/[locale]/(user)/_components/icons/table-icon";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { LandingSection } from "./landing-section";
 
-export function ReferenceSection() {
+export function ReferenceSection({
+  locale,
+}: {
+  readonly locale: SupportedLocale;
+}) {
   const t = useTranslations("landing");
 
   return (
@@ -15,6 +20,7 @@ export function ReferenceSection() {
       title={t("referenceTitle")}
       description={t("referenceDescription")}
       href="/reference/demo"
+      locale={locale}
       ctaLabel={t("referenceCta")}
       ctaVariant="secondary"
     />

@@ -108,11 +108,27 @@ const getAmazonTrackingIdCached = unstable_cache(
  *
  * 読み込みに失敗したら空配列（広告を出さない）— 広告の失敗でページを
  * 落とさない。どの行を出すか・どう組み立てるかは {@link toNativeAdViews}。
+ *
+ * @design 既定の言語（日本語）以外のページには広告を出さない
+ * 掲載中の広告はどれも日本語の読者に向けた日本語の書籍で、リンク先も
+ * amazon.co.jp。文言だけ英語に差し替えて英語のページに配ると、英語の読者を
+ * 読めない商品へ送ることになる。そのため日本語以外の `locale` ではキャッシュも
+ * DB も読まずに空配列を返す（キャッシュの前段で返すので、英語のページが
+ * 日本語のページとキャッシュを共有して広告を拾うことも無い）。呼び出し側
+ * （英語で出すページ）は自分の `locale` を必ず渡すこと — 省略すると日本語の
+ * 広告が出る。
+ *
+ * 英語に適合した広告を将来出すときは、ここで言語を素通しにするのではなく、
+ * creative 側に「対象の言語」を持たせ、その言語向けの行だけを返す形にする
+ * （文言の翻訳の有無で出し分けない。`toNativeAdViews` の文言の選択は項目
+ * 単位で日本語へ落ちるため、翻訳の有無は対象言語の代わりにならない）。
  */
 export async function getNativeAdCreatives(
   slot: AdSlot,
   locale: SupportedLocale = DEFAULT_LOCALE,
 ): Promise<NativeAdView[]> {
+  if (locale !== DEFAULT_LOCALE) return [];
+
   let creatives: ActiveCreative[];
   let trackingId: string | null;
   try {

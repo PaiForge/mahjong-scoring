@@ -54,8 +54,9 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
  *
  * 静的生成を保つため cookie / headers を読まない。言語は `params`（親の言語
  * レイアウトの `generateStaticParams` が列挙）から `prepareRouteLocale` で確定させ、
- * 確定した言語を metadata のヘルパーに明示で渡す。英語の `/` は未公開なので
- * ここで 404 になり、英語の値は組まれない。
+ * 確定した言語を metadata のヘルパーに明示で渡す。英語の `/`（`/en`）では
+ * タイトル・説明・カード・canonical・hreflang が英語の値で組まれる。英語で
+ * 未公開の間は `prepareRouteLocale` がここで 404 にする。
  */
 export async function generateMetadata({
   params,
@@ -73,14 +74,21 @@ export async function generateMetadata({
   };
 }
 
+/**
+ * トップページの本文と Organization / WebSite の JSON-LD
+ *
+ * JSON-LD にもページの言語を渡す（説明と `inLanguage` がページの言語になる。
+ * `@id`・`url`・サイト名は言語で変えない — 理由は `site-schema.ts`）。本文の
+ * 各 CTA も同じ言語で張る先を決める（`LandingPage`）。
+ */
 export default async function Home({ params }: PageProps<"/[locale]">) {
-  await prepareRouteLocale(params, "/");
+  const locale = await prepareRouteLocale(params, "/");
   const tCompany = await getTranslations("company");
 
   return (
     <>
-      <JsonLd data={buildSiteSchema(tCompany("name.value"))} />
-      <LandingPage />
+      <JsonLd data={buildSiteSchema(tCompany("name.value"), locale)} />
+      <LandingPage locale={locale} />
     </>
   );
 }
