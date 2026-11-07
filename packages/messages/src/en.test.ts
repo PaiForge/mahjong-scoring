@@ -215,6 +215,22 @@ const LEADING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * 末尾の空白を持ってよい値
+ *
+ * 呼び出し側が直後に別の要素（リンク）を連結する導入の文（ログイン画面の
+ * `{noAccountYet}<Link>{signUpLinkText}</Link>`、登録画面の
+ * `{alreadyHaveAccount}<Link>{signInLinkText}</Link>`）。日本語は「アカウントを
+ * お持ちでない方は」に空白を入れずにリンクを続けるので、JSX には区切りを置いて
+ * いない。英語は文とリンクの間に空白が要る（無いと `Don't have an account?Sign up`
+ * と詰まる）ため、日本語の出力を変えずに値の側に区切りの空白を持たせる。
+ * 呼び出し側を ICU のタグ（`… <link>Sign up</link>`）に改めたら、ここから外す。
+ */
+const TRAILING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
+  "auth.noAccountYet",
+  "auth.alreadyHaveAccount",
+]);
+
+/**
  * 前後に空白を持ってよい値（語と語の間に挟む区切り）
  *
  * 日本語は「・」「、」で詰めて並べるが、英語は区切りの前後（`Closed / Open`）か
@@ -303,7 +319,7 @@ describe("訳し残しが無い", () => {
     expect(empty).toEqual([]);
   });
 
-  it("前後に余計な空白を持たない（接尾辞の先頭と区切りの前後の空白だけ許す）", () => {
+  it("前後に余計な空白を持たない（接尾辞の先頭・リンクの前の文の末尾・区切りの前後の空白だけ許す）", () => {
     const padded = pairedLeaves()
       .filter((leaf) => typeof leaf.en === "string")
       .filter((leaf) => !SEPARATOR_KEYS.has(leaf.key))
@@ -313,7 +329,8 @@ describe("訳し残しが無い", () => {
         const leading = /^\s/.test(value);
         const trailing = /\s$/.test(value);
         return (
-          trailing || (leading && !LEADING_SPACE_ALLOWED_KEYS.has(leaf.key))
+          (trailing && !TRAILING_SPACE_ALLOWED_KEYS.has(leaf.key)) ||
+          (leading && !LEADING_SPACE_ALLOWED_KEYS.has(leaf.key))
         );
       })
       .map((leaf) => leaf.key);
@@ -359,6 +376,9 @@ describe("訳し残しが無い", () => {
     const leaves = new Map(pairedLeaves().map((leaf) => [leaf.key, leaf.en]));
     for (const key of LEADING_SPACE_ALLOWED_KEYS) {
       expect(String(leaves.get(key)), key).toMatch(/^ \S/);
+    }
+    for (const key of TRAILING_SPACE_ALLOWED_KEYS) {
+      expect(String(leaves.get(key)), key).toMatch(/\S $/);
     }
     for (const key of SEPARATOR_KEYS) {
       expect(String(leaves.get(key)), key).toMatch(/^ ?\S+ $/);
