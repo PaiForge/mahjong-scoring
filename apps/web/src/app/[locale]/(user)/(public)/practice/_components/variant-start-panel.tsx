@@ -23,6 +23,8 @@ import {
   PRACTICE_SCROLL_HASH,
   PRACTICE_SETUP_ANCHOR_ID,
 } from "../_lib/scroll-anchor";
+import { localizedHref } from "@/i18n/public-path";
+import { usePageLocale } from "../_hooks/use-page-locale";
 import { PracticeStartCta } from "./practice-start-cta";
 import { PracticeStartCtaSkeleton } from "./practice-start-cta-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
@@ -92,6 +94,7 @@ function VariantOptionsForm({
   const tp = useTranslations("practice");
   const tt = useTranslations("training");
   const rememberVariant = usePracticeVariantStore((s) => s.rememberVariant);
+  const locale = usePageLocale();
 
   const [variant, setVariant] = useState<string>(initial);
 
@@ -127,8 +130,15 @@ function VariantOptionsForm({
       </div>
 
       <PracticeStartCta
-        playHref={`${practicePlayHref(slug, variant)}${PRACTICE_SCROLL_HASH}`}
-        trainingHref={`${practiceTrainingHref(slug, variant)}${PRACTICE_SCROLL_HASH}`}
+        // 今の言語の play / training へ送る（英語の説明から日本語へ落とさない）
+        playHref={localizedHref(
+          `${practicePlayHref(slug, variant)}${PRACTICE_SCROLL_HASH}`,
+          locale,
+        )}
+        trainingHref={localizedHref(
+          `${practiceTrainingHref(slug, variant)}${PRACTICE_SCROLL_HASH}`,
+          locale,
+        )}
         labels={buildPracticeStartCtaLabels(
           { challenge: tc, practice: tp, training: tt },
           { timeLimit, mistakeLimit },

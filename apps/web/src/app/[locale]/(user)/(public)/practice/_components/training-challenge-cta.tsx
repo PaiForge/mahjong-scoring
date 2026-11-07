@@ -79,6 +79,7 @@ export function TrainingChallengeCta({
   const tt = useTranslations("training");
   const tExamTraining = useTranslations("examTraining");
   const isExam = variant === "exam";
+  const locale = usePageLocale();
 
   return (
     <div className="space-y-4 border-t border-panel pt-8">
@@ -97,7 +98,8 @@ export function TrainingChallengeCta({
       {isExam ? (
         <ExamStartGate
           slug={slug}
-          playHref={practicePlayHref(slug)}
+          // 本番の試験も今の言語の play へ送る（英語の模試から日本語の本番へ落とさない）
+          playHref={localizedHref(practicePlayHref(slug), locale)}
           startLabel={tExamTraining("realExamButton")}
         />
       ) : (
