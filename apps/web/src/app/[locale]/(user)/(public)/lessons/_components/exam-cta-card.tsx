@@ -15,6 +15,11 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 interface ExamCtaCardProps {
   /** 昇級試験の練習スラッグ（CURRICULUM の `examSlug`） */
@@ -25,6 +30,11 @@ interface ExamCtaCardProps {
    * （道場ページ等）から使うときはここで差し替える。
    */
   readonly lead?: string;
+  /**
+   * ページの言語。試験ページがこの言語で出ていなければカードを出さない。
+   * 省略時は日本語（道場の級の詳細のように日本語だけで出しているページ）
+   */
+  readonly locale?: SupportedLocale;
 }
 
 /**
@@ -37,11 +47,21 @@ interface ExamCtaCardProps {
  *
  * どのランクの要件にも紐付かない練習が指定された場合は何も描画しない
  * （試験の廃止時に CTA だけ残る事故を防ぐ）。
+ *
+ * 試験ページがページの言語で出ていなければ（英語の章の間は日本語だけ）何も
+ * 描画しない。押して始める面を別の言語の画面へ送らないため。判定は公開状態で、
+ * 試験ページをその言語で公開すれば何も書き換えずに現れる。
  */
-export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
+export async function ExamCtaCard({
+  slug,
+  lead,
+  locale = DEFAULT_LOCALE,
+}: ExamCtaCardProps) {
   const menu = practiceMenuBySlug(slug);
   const exam = rankRequiringMenu(menu.menuType);
   if (!exam) return undefined;
+  const target = resolveNavTargetFor(practiceHref(slug), locale);
+  if (target.crossLocale) return undefined;
 
   const t = await getTranslations("ranks");
   const rankName = t(`names.${exam.rank.slug}`);
@@ -85,7 +105,7 @@ export async function ExamCtaCard({ slug, lead }: ExamCtaCardProps) {
               押した瞬間に試験が始まるわけではないことは、色の強さではなく
               アイコンの向きで示す。 */}
           <LinkButton
-            href={practiceHref(slug)}
+            href={target.href}
             variant="belt"
             size="lg"
             fullWidth

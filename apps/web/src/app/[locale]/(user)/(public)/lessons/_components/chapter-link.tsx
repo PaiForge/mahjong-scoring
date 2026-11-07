@@ -1,7 +1,11 @@
-import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
 
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
@@ -27,14 +31,34 @@ interface ChapterLinkProps {
  * の形で埋める。`t.rich` の戻り値は文字列ではないため用語マークアップ
  * （`[[slug|表示語]]`）の変換が働かない。リンクを含む段落には用語マークアップを
  * 書かないこと（コラム本文と同じ制約）。
+ *
+ * 張る先はページの言語で解決する（`resolveNavTargetFor`）。リンク先の章が
+ * その言語で出ていなければ、日本語の章へ「日本語のみ」の印付きで張る（英語の
+ * 存在しない URL を作らない）。言語は props ではなく `getLocale()` で取る —
+ * `t.rich` のタグの中から描かれ、各章の本文に言語を配って回る経路が無いため。
+ * ページの入口（`prepareRouteLocale`）が先に `setRequestLocale` を済ませて
+ * いるので headers を読まず、静的生成を壊さない（`setRequestLocale` より前に
+ * 呼ばれる経路で使うとページが動的になる）。
  */
 export async function ChapterLink({ slug }: ChapterLinkProps) {
-  const t = await getTranslations("learnCurriculum");
+  const [t, tNav, locale] = await Promise.all([
+    getTranslations("learnCurriculum"),
+    getTranslations("nav.language"),
+    getLocale(),
+  ]);
   const chapter = getChapterBySlug(slug);
+  const target = resolveNavTargetFor(chapterHref(slug), locale);
 
   return (
-    <Link href={chapterHref(slug)} className={TEXT_LINK_CLASSES}>
-      {chapter ? t(`${getChapterI18nPath(chapter)}.title`) : slug}
-    </Link>
+    <>
+      <LocaleNavLink
+        navTarget={target}
+        linkKind="plain"
+        className={TEXT_LINK_CLASSES}
+      >
+        {chapter ? t(`${getChapterI18nPath(chapter)}.title`) : slug}
+      </LocaleNavLink>
+      {target.crossLocale && <JapaneseOnlyMark label={tNav("japaneseOnly")} />}
+    </>
   );
 }

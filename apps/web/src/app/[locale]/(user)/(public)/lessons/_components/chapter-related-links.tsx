@@ -5,6 +5,9 @@ import { PracticeLinkButton } from "@/app/[locale]/(user)/_components/practice-l
 import { NativeAdCard } from "@/app/[locale]/(user)/(public)/_components/native-ad-card";
 import { CatalogPracticeCard } from "@/app/[locale]/(user)/(public)/practice/_components/catalog-practice-card";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { practiceHref } from "@mahjong-scoring/features/routes";
 import {
   getChapterBySlug,
   type CurriculumChapterSlug,
@@ -17,6 +20,8 @@ import { RelatedPracticeCardSlot } from "./related-practice-card-slot";
 
 interface ChapterRelatedLinksProps {
   readonly slug: CurriculumChapterSlug;
+  /** ページの言語。行き先がこの言語で出ている導線だけを出す */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -41,19 +46,53 @@ interface ChapterRelatedLinksProps {
  *   昇級試験、の順
  *
  * 練習も試験も無い章（「はじめに」のセクション）では何も出さない。
+ *
+ * @design 行き先がその言語で出ている導線だけを出す
+ * 練習カード・自由練習のボタン・昇級試験の CTA は、行き先がページの言語で
+ * 公開しているとき（`resolveNavTargetFor` が言語をまたがない先を返すとき）だけ
+ * 出す。日本語では従来どおりすべて出す（`resolveNavTargetFor` は日本語の href を
+ * そのまま返す）。
+ * 判定は言語の分岐ではなく公開状態なので、英語の練習・試験を公開すれば
+ * 何も書き換えずに現れる。英語の章で日本語の練習へ「始める」ボタンを
+ * 並べると、押した先が日本語の画面になる（読むだけのリンクと違い、始める面を
+ * 日本語へ送る意味が無い）。すべての導線が出ない言語では節ごと出さず、
+ * 練習の並びの広告も出さない。
  */
-export async function ChapterRelatedLinks({ slug }: ChapterRelatedLinksProps) {
+export async function ChapterRelatedLinks({
+  slug,
+  locale,
+}: ChapterRelatedLinksProps) {
   const chapter = getChapterBySlug(slug);
-  const practiceLinks = relatedPracticeLinks(slug);
-  const freePractice = FREE_PRACTICE_LINKS[slug];
-  const examSlug = chapter?.examSlug;
+  /** その言語で出している行き先なら、その言語の href（出していなければ undefined） */
+  const publishedHref = (href: string) => {
+    const target = resolveNavTargetFor(href, locale);
+    return target.crossLocale ? undefined : target.href;
+  };
+  const practiceLinks = relatedPracticeLinks(slug).filter(
+    (link) =>
+      publishedHref(practiceHref(link.slug, link.variant)) !== undefined,
+  );
+  const freePracticeLink = FREE_PRACTICE_LINKS[slug];
+  const freePracticeHref =
+    freePracticeLink && publishedHref(freePracticeLink.href);
+  const freePractice =
+    freePracticeLink && freePracticeHref
+      ? { ...freePracticeLink, href: freePracticeHref }
+      : undefined;
+  const examSlug =
+    chapter?.examSlug !== undefined &&
+    publishedHref(practiceHref(chapter.examSlug)) !== undefined
+      ? chapter.examSlug
+      : undefined;
   const hasPractice = practiceLinks.length > 0 || freePractice !== undefined;
   if (!hasPractice && examSlug === undefined) return undefined;
 
   const [t, tAll, practiceAd] = await Promise.all([
     getTranslations("lessons.related"),
     getTranslations(),
-    hasPractice ? getNativeAdCreative("lesson-practices-native-ad") : undefined,
+    hasPractice
+      ? getNativeAdCreative("lesson-practices-native-ad", locale)
+      : undefined,
   ]);
 
   return (
@@ -86,7 +125,7 @@ export async function ChapterRelatedLinks({ slug }: ChapterRelatedLinksProps) {
         </section>
       )}
 
-      {examSlug && <ExamCtaCard slug={examSlug} />}
+      {examSlug && <ExamCtaCard slug={examSlug} locale={locale} />}
     </>
   );
 }

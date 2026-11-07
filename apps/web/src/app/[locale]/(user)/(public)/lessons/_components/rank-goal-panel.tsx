@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+
 import {
   LinkRow,
   LinkRowList,
@@ -26,6 +29,8 @@ interface RankGoalPanelProps {
   readonly rankSlug: RankSlug;
   /** その級の昇級試験 */
   readonly examSlug: PracticeMenuSlug;
+  /** ページの言語。行き先がこの言語で出ている入口だけを出す */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -45,11 +50,33 @@ interface RankGoalPanelProps {
  *
  * 枠と見出し帯は「次のレッスン」のプレビューと同じ体裁で、同じ位置に出る
  * ものが同じ形をしている。
+ *
+ * 試験・模試・道場の入口は、行き先がページの言語で出ているものだけを出す
+ * （`resolveNavTargetFor` が言語をまたがない先を返すもの。日本語ではすべて出る）。
+ * どれも出ない言語ではパネルごと出さない — 入口の無い「昇級試験まで」は
+ * 行き先の無い案内になる。完了画面は確認問題を出す言語でしか描かれないので、
+ * 英語では今は描かれないが、章末の導線と同じ規則にしておく。
  */
 export async function RankGoalPanel({
   rankSlug,
   examSlug,
+  locale,
 }: RankGoalPanelProps) {
+  const publishedHref = (href: string) => {
+    const target = resolveNavTargetFor(href, locale);
+    return target.crossLocale ? undefined : target.href;
+  };
+  const examHref = publishedHref(practiceHref(examSlug));
+  const trainingHref = publishedHref(practiceTrainingHref(examSlug));
+  const dojoHref = publishedHref(DOJO_PATH);
+  if (
+    examHref === undefined &&
+    trainingHref === undefined &&
+    dojoHref === undefined
+  ) {
+    return undefined;
+  }
+
   const [t, tAll] = await Promise.all([
     getTranslations("lessons.rankGoal"),
     getTranslations(),
@@ -74,24 +101,29 @@ export async function RankGoalPanel({
         </p>
         <RankJourneyProgressSummary />
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
-          <LinkRowList inset>
-            <LinkRow
-              href={practiceHref(examSlug)}
-              title={journeyStepTitle({ kind: "exam", slug: examSlug }, tAll)}
-              description={t("examDescription")}
-            />
-          </LinkRowList>
-          <div className="flex flex-col items-center gap-3 text-sm">
-            <Link
-              href={practiceTrainingHref(examSlug)}
-              className={TEXT_LINK_CLASSES}
-            >
-              {t("training")}
-            </Link>
-            <Link href={DOJO_PATH} className={TEXT_LINK_CLASSES}>
-              {t("dojo")}
-            </Link>
-          </div>
+          {examHref !== undefined && (
+            <LinkRowList inset>
+              <LinkRow
+                href={examHref}
+                title={journeyStepTitle({ kind: "exam", slug: examSlug }, tAll)}
+                description={t("examDescription")}
+              />
+            </LinkRowList>
+          )}
+          {(trainingHref !== undefined || dojoHref !== undefined) && (
+            <div className="flex flex-col items-center gap-3 text-sm">
+              {trainingHref !== undefined && (
+                <Link href={trainingHref} className={TEXT_LINK_CLASSES}>
+                  {t("training")}
+                </Link>
+              )}
+              {dojoHref !== undefined && (
+                <Link href={dojoHref} className={TEXT_LINK_CLASSES}>
+                  {t("dojo")}
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>

@@ -1,7 +1,12 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import {
   getChapterBySlug,
   getChapterI18nPath,
@@ -16,6 +21,8 @@ const HEADING_ID = "next-lesson-preview-title";
 
 interface NextLessonPreviewProps {
   readonly slug: QuizLessonSlug;
+  /** ページの言語。「続きを読む」の行き先をこの言語で解決する */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -32,16 +39,27 @@ interface NextLessonPreviewProps {
  * 害はない（リンクは抜粋の中に置かない — `lessonExcerpt` がマークアップを外す）。
  * 題名は章の辞書（`learnCurriculum.chapters`）から引く — レッスン = 章なので、
  * 別の題名を持たない。
+ *
+ * 「続きを読む」の行き先はページの言語で解決する（`resolveNavTargetFor`。
+ * その言語で出していない章なら日本語の章へ「日本語のみ」の印付き）。完了画面は
+ * 確認問題を出す言語でしか描かれない（英語の章はログイン画面が英語で出るまで
+ * 確認問題を出さない）ので英語では今は描かれないが、章の前後のリンクと
+ * 同じ規則にしておく。
  */
-export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
+export async function NextLessonPreview({
+  slug,
+  locale,
+}: NextLessonPreviewProps) {
   const chapter = getChapterBySlug(slug);
   if (chapter === undefined) return undefined;
 
-  const [t, tCurriculum, tAll] = await Promise.all([
+  const [t, tCurriculum, tAll, tNav] = await Promise.all([
     getTranslations("lessons.nextLesson"),
     getTranslations("learnCurriculum"),
     getTranslations(),
+    getTranslations("nav.language"),
   ]);
+  const target = resolveNavTargetFor(chapterHref(slug), locale);
   const paragraphs = lessonExcerpt(slug, (key) => tAll(key));
 
   return (
@@ -76,12 +94,16 @@ export async function NextLessonPreview({ slug }: NextLessonPreviewProps) {
           />
         </div>
         <div className="text-center">
-          <Link
-            href={chapterHref(slug)}
+          <LocaleNavLink
+            navTarget={target}
+            linkKind="plain"
             className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
           >
             {t("readMore")}
-          </Link>
+          </LocaleNavLink>
+          {target.crossLocale && (
+            <JapaneseOnlyMark label={tNav("japaneseOnly")} />
+          )}
         </div>
       </div>
     </section>

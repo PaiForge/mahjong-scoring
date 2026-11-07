@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { HIGH_SCORES, type Role, type WinType } from "@mahjong-scoring/core";
 
 import {
@@ -9,7 +9,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/[locale]/(user)/_components/data-table";
 
-import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
+import { hanDisplayFor } from "@mahjong-scoring/features/curriculum/han-display";
 
 import { ScoreTableReferenceLink } from "./score-table-reference-link";
 
@@ -58,6 +58,12 @@ interface ManganTableShellProps {
  * 「子（1人）／親／合計」）は、既定の px-4 では狭い画面で枠から溢れる。
  * 値の列だけ詰めて先頭 2 列を px-4 のままにすると、320px の子ツモで
  * 7px の横スクロールが残る（実測）。
+ *
+ * 翻数の範囲（「6 〜 7」/ 英語「6–7」）はページの言語の書式で出す。言語は
+ * `getLocale()` で取る — この表は章本文の部品の中（各満貫の表）から描かれ、
+ * 言語を props で渡す経路が無いため。ページの入口（`prepareRouteLocale`）が
+ * 先に `setRequestLocale` を済ませているので headers を読まず、静的生成を壊さない
+ * （`setRequestLocale` より前に呼ばれる経路で使うとページが動的になる）。
  */
 export async function ManganTableShell({
   role,
@@ -68,6 +74,7 @@ export async function ManganTableShell({
 }: ManganTableShellProps) {
   const t = await getTranslations("manganScoreTable");
   const tScore = await getTranslations("scoreTable");
+  const hanDisplay = hanDisplayFor(await getLocale());
 
   return (
     <div className="space-y-2">
@@ -105,7 +112,7 @@ export async function ManganTableShell({
               <td
                 className={`${DATA_TABLE_CELL_PADDING.dense} text-right text-surface-600`}
               >
-                {HAN_DISPLAY[row.nameKey]}
+                {hanDisplay[row.nameKey]}
               </td>
             )}
             {renderCells(row, t).map((cell, index) => {
