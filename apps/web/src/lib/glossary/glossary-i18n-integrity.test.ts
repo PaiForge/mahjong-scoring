@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { messages as messagesJson } from "@mahjong-scoring/messages/ja";
+import { messages as enMessagesJson } from "@mahjong-scoring/messages/en";
 
 import { kanaRowOf } from "@mahjong-scoring/features/glossary/kana";
 import { collectTermSlugsInNamespace } from "./message-terms";
@@ -21,8 +22,13 @@ import {
  * `t(\`terms.${slug}.term\`)` のような動的キーなので、綴りのずれは
  * コンパイルでは落ちず、ページを開いて初めて MISSING_MESSAGE になる。
  * その穴をここで塞ぐ。
+ *
+ * 英語の用語ページは許可リストのテンプレート（`/reference/glossary/[slug]`）で
+ * 全 slug をまとめて公開する。テンプレートは「その語が英語の辞書に揃っていること」を
+ * 保証しないので、英語の辞書にも同じキーと 3 節の検査を掛ける。索引の行
+ * （日本語は五十音・英語は頭文字）の割り当ては言語ごとの規則なので日本語だけを見る。
  */
-const messages = messagesJson as unknown as {
+interface GlossaryMessages {
   readonly glossary: {
     readonly categories: Record<string, string>;
     readonly captions: Record<string, string>;
@@ -38,9 +44,18 @@ const messages = messagesJson as unknown as {
       }
     >;
   };
-};
+}
 
-const { categories, captions, terms } = messages.glossary;
+const messages = messagesJson as unknown as GlossaryMessages;
+const enMessages = enMessagesJson as unknown as GlossaryMessages;
+
+const jaTerms = messages.glossary.terms;
+
+/** 言語ごとの辞書（同じ検査を両方に掛ける） */
+const GLOSSARY_BY_LOCALE = [
+  ["ja", messages.glossary],
+  ["en", enMessages.glossary],
+] as const;
 
 describe("用語スラッグ", () => {
   it("重複しない", () => {
@@ -54,7 +69,9 @@ describe("用語スラッグ", () => {
   });
 });
 
-describe("用語の文言", () => {
+describe.each(GLOSSARY_BY_LOCALE)("用語の文言（%s）", (_locale, glossary) => {
+  const { terms } = glossary;
+
   it.each(GLOSSARY_TERM_SLUGS.map((slug) => [slug]))(
     "%s は見出し語・読み・定義と 3 節（扱い・具体例・誤解）を持つ",
     (slug) => {
@@ -77,19 +94,21 @@ describe("用語の文言", () => {
     const known = new Set<string>(GLOSSARY_TERM_SLUGS);
     expect(Object.keys(terms).filter((slug) => !known.has(slug))).toEqual([]);
   });
+});
 
+describe("用語の読み（日本語）", () => {
   it("読みはすべて五十音のいずれかの行に割り当たる", () => {
     for (const slug of GLOSSARY_TERM_SLUGS) {
-      expect(kanaRowOf(terms[slug].reading), `${slug} の読み`).toBeDefined();
+      expect(kanaRowOf(jaTerms[slug].reading), `${slug} の読み`).toBeDefined();
     }
   });
 });
 
-describe("分類", () => {
+describe.each(GLOSSARY_BY_LOCALE)("分類（%s）", (_locale, glossary) => {
   it.each(GLOSSARY_CATEGORIES.map((category) => [category]))(
     "%s の表示名がある",
     (category) => {
-      expect(categories[category]).toBeTypeOf("string");
+      expect(glossary.categories[category]).toBeTypeOf("string");
     },
   );
 });
@@ -112,17 +131,20 @@ const NAKI_IN_EXAMPLE: Readonly<Record<string, boolean>> = {
 };
 
 describe("例示牌", () => {
-  it("captionKey は辞書に実在する", () => {
-    for (const term of GLOSSARY_TERMS) {
-      for (const example of term.examples ?? []) {
-        if (example.captionKey === undefined) continue;
-        expect(
-          captions[example.captionKey],
-          `${term.slug} の captionKey: ${example.captionKey}`,
-        ).toBeTypeOf("string");
+  it.each(GLOSSARY_BY_LOCALE)(
+    "captionKey は辞書（%s）に実在する",
+    (_locale, glossary) => {
+      for (const term of GLOSSARY_TERMS) {
+        for (const example of term.examples ?? []) {
+          if (example.captionKey === undefined) continue;
+          expect(
+            glossary.captions[example.captionKey],
+            `${term.slug} の captionKey: ${example.captionKey}`,
+          ).toBeTypeOf("string");
+        }
       }
-    }
-  });
+    },
+  );
 
   it.each(Object.entries(NAKI_IN_EXAMPLE))(
     "%s の例示は鳴きの有無まで描いている",

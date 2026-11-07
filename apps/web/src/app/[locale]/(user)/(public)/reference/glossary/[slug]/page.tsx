@@ -23,20 +23,22 @@
  * ネイティブ広告のカードを 1 枚置く（掲載中の広告があるときだけ）。導線の
  * 後に置くと、読み終えた人が次へ進む前に広告を越えることになる。
  *
+ * 英語では見出し語・本文・metadata・JSON-LD・リンクを英語のページとして組む。
+ * 言語は入口の `prepareRouteLocale` が確定させた値を各所へ明示で渡す
+ * （`headers()` / `cookies()` を読まず静的生成のまま）。
+ *
  * @flow
  * 用語集（/reference/glossary）の一覧、教本本文の用語リンクから開いた
  * モーダルの「用語ページを見る」、他の用語ページの関連語から遷移する。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createMetadata } from "@/app/_lib/metadata";
 import { NativeAdCard } from "@/app/[locale]/(user)/(public)/_components/native-ad-card";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
@@ -48,6 +50,7 @@ import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry
 import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
 
 import { JsonLd } from "@/app/[locale]/(user)/_components/json-ld";
+import { LocalizedTextLink } from "../_components/localized-text-link";
 import { RelatedTerms } from "../_components/related-terms";
 import { TermSection } from "../_components/term-section";
 import { TermExamples } from "../_components/term-examples";
@@ -90,10 +93,13 @@ export async function generateMetadata({
   params,
 }: GlossaryTermPageProps): Promise<Metadata> {
   const { slug } = await params;
-  await prepareRouteLocale(params, `/reference/glossary/${slug}`);
+  const locale = await prepareRouteLocale(
+    params,
+    `/reference/glossary/${slug}`,
+  );
   const [term, t] = await Promise.all([
-    getGlossaryTermViewBySlug(slug),
-    getTranslations("glossary"),
+    getGlossaryTermViewBySlug(slug, locale),
+    getTranslations({ locale, namespace: "glossary" }),
   ]);
   // 本番では dynamicParams = false が未知の slug をここへ通さない。
   // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る
@@ -106,6 +112,7 @@ export async function generateMetadata({
     title: t("metaTitle", { term: term.term, reading: term.reading }),
     description: term.definition,
     path: term.href,
+    locale,
   });
 }
 
@@ -113,18 +120,21 @@ export default async function GlossaryTermPage({
   params,
 }: GlossaryTermPageProps) {
   const { slug } = await params;
-  await prepareRouteLocale(params, `/reference/glossary/${slug}`);
+  const locale = await prepareRouteLocale(
+    params,
+    `/reference/glossary/${slug}`,
+  );
   const [term, t, tHub, ad] = await Promise.all([
-    getGlossaryTermViewBySlug(slug),
+    getGlossaryTermViewBySlug(slug, locale),
     getTranslations("glossary"),
     getTranslations("reference"),
-    getNativeAdCreative("glossary-term-native-ad"),
+    getNativeAdCreative("glossary-term-native-ad", locale),
   ]);
   if (!term) notFound();
 
   // 関連語は「あるものだけ」を出す。辞書に無い slug は queries が落とすため、
   // ここに来る時点で表示できる語だけが残っている。
-  const allTerms = await getGlossaryTermViews();
+  const allTerms = await getGlossaryTermViews(locale);
   const related = (term.related ?? [])
     .map((relatedSlug) => allTerms.find((t2) => t2.slug === relatedSlug))
     .filter((t2) => t2 !== undefined);
@@ -133,7 +143,11 @@ export default async function GlossaryTermPage({
   return (
     <>
       <JsonLd
-        data={buildDefinedTermSchema({ term, termSetName: t("title") })}
+        data={buildDefinedTermSchema({
+          term,
+          termSetName: t("title"),
+          locale,
+        })}
       />
       <ContentContainer
         breadcrumb={[
@@ -171,20 +185,24 @@ export default async function GlossaryTermPage({
           {related.length > 0 && (
             <section className="space-y-4">
               <SectionTitle>{t("relatedTitle")}</SectionTitle>
-              <RelatedTerms terms={related} />
+              <RelatedTerms terms={related} locale={locale} />
             </section>
           )}
 
           {learnSlugs.length > 0 && (
             <section className="space-y-4">
               <SectionTitle>{t("learnTitle")}</SectionTitle>
-              <TermLearnLinks slugs={learnSlugs} />
+              <TermLearnLinks slugs={learnSlugs} locale={locale} />
             </section>
           )}
 
-          <Link href={GLOSSARY_PATH} className={`text-sm ${TEXT_LINK_CLASSES}`}>
+          <LocalizedTextLink
+            path={GLOSSARY_PATH}
+            locale={locale}
+            className="text-sm"
+          >
             {t("backToIndex")}
-          </Link>
+          </LocalizedTextLink>
         </div>
       </ContentContainer>
     </>

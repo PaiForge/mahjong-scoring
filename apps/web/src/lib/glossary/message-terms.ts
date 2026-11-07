@@ -11,8 +11,8 @@ function hasChildren(value: unknown): value is Record<string, unknown> {
 }
 
 /** ドット区切りのパスで辞書のノードを引く */
-function resolveNode(path: string): unknown {
-  let node: unknown = messages;
+function resolveNode(dictionary: unknown, path: string): unknown {
+  let node: unknown = dictionary;
   for (const segment of path.split(".")) {
     if (!hasChildren(node)) return undefined;
     node = node[segment];
@@ -31,6 +31,27 @@ function walk(node: unknown, into: Set<string>): void {
 }
 
 /**
+ * 任意の言語の辞書で、名前空間配下が参照している用語スラッグを集める。
+ * 辞書指定の参照用語収集
+ *
+ * {@link collectTermSlugsInNamespace} の走査を、辞書を差し替えて行う版。
+ * 「英語の本文にだけ現れる slug が無い」ことをテストで確かめるために、
+ * 日本語と英語の辞書を同じ手順で走査する。
+ *
+ * @param dictionary 走査する辞書（`messages/ja` / `messages/en` の `messages`）
+ * @param namespace ドット区切りの名前空間（例: "mentsuFu.learn"）
+ * @returns 参照されている用語スラッグ（重複なし）。名前空間が無ければ空配列
+ */
+export function collectTermSlugsInDictionary(
+  dictionary: unknown,
+  namespace: string,
+): string[] {
+  const slugs = new Set<string>();
+  walk(resolveNode(dictionary, namespace), slugs);
+  return [...slugs];
+}
+
+/**
  * 辞書の名前空間配下が参照している用語スラッグを集める。
  * 名前空間の参照用語収集
  *
@@ -38,11 +59,15 @@ function walk(node: unknown, into: Set<string>): void {
  * リンクしている用語は漏れなく集まる。ページ側が「この章で使う用語」を
  * 別に列挙する必要がなく、辞書に `[[slug]]` を足すだけでモーダルが開く。
  *
+ * 走査するのは日本語の辞書だけで、英語のページもこの結果を使う。用語リンクの
+ * `[[slug|表示語]]` は言語で表示語だけが変わり slug は変えない規則なので、
+ * どの言語の本文も同じ slug の集合を参照する。英語の本文が日本語に無い slug を
+ * 足していない（足すと英語のモーダルにその語が載らない）ことは
+ * `message-terms.test.ts` が両方の辞書を走査して確かめる。
+ *
  * @param namespace ドット区切りの名前空間（例: "mentsuFu.learn"）
  * @returns 参照されている用語スラッグ（重複なし）。名前空間が無ければ空配列
  */
 export function collectTermSlugsInNamespace(namespace: string): string[] {
-  const slugs = new Set<string>();
-  walk(resolveNode(namespace), slugs);
-  return [...slugs];
+  return collectTermSlugsInDictionary(messages, namespace);
 }

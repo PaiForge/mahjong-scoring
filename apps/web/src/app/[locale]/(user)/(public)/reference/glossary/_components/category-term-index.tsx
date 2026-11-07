@@ -1,12 +1,15 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import type { GlossaryTermView } from "@mahjong-scoring/features/glossary/views";
 import { GLOSSARY_CATEGORIES } from "@mahjong-scoring/features/glossary/types";
 
+import { LocalizedTextLink } from "./localized-text-link";
+
 interface CategoryTermIndexProps {
   readonly terms: readonly GlossaryTermView[];
+  /** ページの言語（用語ページへのリンクの言語） */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -16,8 +19,14 @@ interface CategoryTermIndexProps {
  * 「符とは何か」を調べたい読者は語を知っているが、「符のあたりの言葉を
  * ひととおり見たい」読者は語を知らない。後者のために、意味の近いものを
  * まとめて並べる。定義は置かず、語だけを詰めて一覧性を優先する。
+ *
+ * 分類の並びは言語に依らず `GLOSSARY_CATEGORIES`（初学者が読む順）のまま。
+ * 分類の中の語は `terms` の並び（その言語の索引の順）に従う。
  */
-export async function CategoryTermIndex({ terms }: CategoryTermIndexProps) {
+export async function CategoryTermIndex({
+  terms,
+  locale,
+}: CategoryTermIndexProps) {
   const t = await getTranslations("glossary");
 
   return (
@@ -34,12 +43,13 @@ export async function CategoryTermIndex({ terms }: CategoryTermIndexProps) {
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
               {inCategory.map((term) => (
                 <li key={term.slug}>
-                  <Link
-                    href={term.href}
-                    className={`text-sm ${TEXT_LINK_CLASSES}`}
+                  <LocalizedTextLink
+                    path={term.href}
+                    locale={locale}
+                    className="text-sm"
                   >
                     {term.term}
-                  </Link>
+                  </LocalizedTextLink>
                 </li>
               ))}
             </ul>
