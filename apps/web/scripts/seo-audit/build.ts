@@ -21,9 +21,12 @@
  * 検査（すべて機械判定。1 件でも失敗すれば終了コード 1）:
  *
  * 1. 静的生成の台帳 — 移行前に静的生成した日本語のページがすべて 200 で静的生成され、
- *    新しく静的になったものが無い（`ALLOWED_NEW_JA_STATIC` を除く）。ISR の秒数も同じ。
+ *    新しく静的になったものは `ALLOWED_NEW_JA_STATIC`（動的から静的へ移したことを
+ *    認めるパス）だけで、許可したパスは実際に新しく静的になっている。ISR の秒数も同じ。
  *    ページ以外の静的ルート（robots・sitemap・アイコン・API）も残る
- * 2. 動的ルートの台帳 — 日本語で要求ごとに描画するルートの集合が移行前と同じ。
+ * 2. 動的ルートの台帳 — 日本語で要求ごとに描画するルートの集合が、移行前から
+ *    `ALLOWED_NEW_JA_STATIC` を除いたものと同じ（新たに動的になったものは無い）。
+ *    許可したパスは移行前に動的で、いまは動的でない。
  *    `generateStaticParams` が日本語で 0 件のルートは失敗（静的な URL が丸ごと消える）
  * 3. 英語の成果物 — 英語は公開したページだけが 200 で、他は not-found の成果物。
  *    用語のページ（テンプレート）は baseline の日本語の索引対象のうち
@@ -82,6 +85,7 @@ import {
   expectedEnIndexablePaths,
   expectedUrl,
   isEnIndexable,
+  matchStaticMigrations,
   parseSiteUrl,
   SITE_ORIGIN,
 } from "./expectations";
@@ -234,14 +238,13 @@ function auditStaticLedger(
     if (resolved?.locale === DEFAULT_LOCALE)
       jaStatic.set(resolved.publicPath, route);
   }
-  const allowed = new Set(ALLOWED_NEW_JA_STATIC);
   const missing = difference(baselineStatic, new Set(jaStatic.keys()));
-  const unexpected = difference(jaStatic.keys(), baselineStatic).filter(
-    (path) => !allowed.has(path),
+  const { unexpected, unused } = matchStaticMigrations(
+    difference(jaStatic.keys(), baselineStatic),
   );
   report.check(
     "静的生成の台帳（日本語）",
-    `baseline ${baselineStatic.size} 件 / 現在 ${jaStatic.size} 件、missing ${missing.length} 件、unexpected-ja ${unexpected.length} 件`,
+    `baseline ${baselineStatic.size} 件 / 現在 ${jaStatic.size} 件、missing ${missing.length} 件、unexpected-ja ${unexpected.length} 件、unused-allowance ${unused.length} 件`,
     [
       ...missing.map(
         (path) =>
@@ -250,6 +253,10 @@ function auditStaticLedger(
       ...unexpected.map(
         (path) =>
           `unexpected-ja: ${path}（移行前に無かった日本語の静的ページ）`,
+      ),
+      ...unused.map(
+        (path) =>
+          `unused-allowance: ${path}（静的化を許可したが、新しく静的生成されていない）`,
       ),
     ],
   );
@@ -323,14 +330,20 @@ function auditDynamicLedger(
       ...newPages.map((template) => `unexpected: ${template}`),
     ],
   );
-  const lostDynamic = difference(baselineDynamic, currentDynamic);
+  const { unexpected: lostDynamic, unused } = matchStaticMigrations(
+    difference(baselineDynamic, currentDynamic),
+  );
   const newDynamic = difference(currentDynamic, baselineDynamic);
   report.check(
     "動的ルートの台帳（日本語で要求ごとに描画）",
-    `baseline ${baselineDynamic.size} 件 / 現在 ${currentDynamic.size} 件`,
+    `baseline ${baselineDynamic.size} 件 / 現在 ${currentDynamic.size} 件、静的化を許可 ${ALLOWED_NEW_JA_STATIC.length} 件`,
     [
       ...lostDynamic.map((template) => `移行前は動的: ${template}`),
       ...newDynamic.map((template) => `新たに動的: ${template}`),
+      ...unused.map(
+        (template) =>
+          `unused-allowance: ${template}（静的化を許可したが、移行前に動的で今は動的でないルートに無い）`,
+      ),
     ],
   );
   report.check(
