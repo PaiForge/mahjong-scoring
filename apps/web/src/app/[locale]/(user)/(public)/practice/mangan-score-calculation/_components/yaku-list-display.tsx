@@ -7,6 +7,7 @@ import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 
 import { DetailTable } from "../../_components/detail-table";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 
 interface YakuListDisplayProps {
   readonly yakuDetails: readonly YakuDetail[];
@@ -47,10 +48,18 @@ interface YakuListDisplayProps {
  * （{@link import("../../_lib/board-area-height").BOARD_AREA_HEIGHT} の
  * `manganScoreCalculation`）。余白・文字サイズ・枠の太さを変えるとその実測値が
  * ずれて盤面が現れた瞬間に画面が跳ねるため、変えるときは測り直すこと。
+ *
+ * 役名は core の日本語（`yakuDetails.name`）を辞書の `yakuNames.<key>` で描く
+ * （英語のページに漢字を残さない）。役の選択・点数計算の練習が引く `agariScore.yaku`
+ * ではないのは日本語の表示を変えないため — `agariScore.yaku` の日本語は「断幺九」
+ * 「東」のように core の「断么九」「役牌 東」と表記が違い、この表はこれまで core の
+ * 役名をそのまま出していた。`yakuNames` の日本語は core の役名と一致する
+ * （`yaku-names.test.ts`）。英語の値は 2 つの辞書で同じ（連風牌だけ注記付き）。
  */
 export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
   const t = useTranslations("manganScoreCalculationChallenge");
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  const tYakuNames = useTranslations("yakuNames");
   const yakuOrder = useYakuOrder();
 
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
@@ -61,7 +70,8 @@ export function YakuListDisplay({ yakuDetails }: YakuListDisplayProps) {
       <DetailTable
         title={t("yakuListTitle")}
         rows={ordered.map((yaku) => ({
-          label: yaku.name,
+          // 例: yakuNames.tanyao
+          label: yakuLabel(yaku.name, tYakuNames),
           value: tBreakdown("han", { count: yaku.han }),
         }))}
         total={{

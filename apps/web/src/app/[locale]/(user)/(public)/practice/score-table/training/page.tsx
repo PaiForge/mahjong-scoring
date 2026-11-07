@@ -20,8 +20,11 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/score-table/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/score-table/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.scoreTable);
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/score-table/training",
+  );
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.scoreTable, { locale });
 }
 
 export default async function ScoreTableTrainingPage({

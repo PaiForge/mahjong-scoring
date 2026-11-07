@@ -20,8 +20,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/han-count">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/han-count");
-  return createPracticeMetadata(PRACTICE_SLUG.hanCount);
+  const locale = await prepareRouteLocale(params, "/practice/han-count");
+  return createPracticeMetadata(PRACTICE_SLUG.hanCount, { locale });
 }
 
 export default async function HanCountPage({

@@ -3,7 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 
-/** デモ用の固定例: 三色同順（鳴き） */
+/**
+ * デモ用の固定例: 三色同順（鳴き）
+ *
+ * 値は表示名ではなく出題と同じ core の役名（識別子）。表示名は `YakuHanPrompt` が
+ * 辞書（`yakuNames.sanshoku_doujun`）から引くので、英語のページには英語で出る。
+ */
 const DEMO_YAKU = "三色同順";
 const DEMO_IS_MENZEN = false;
 

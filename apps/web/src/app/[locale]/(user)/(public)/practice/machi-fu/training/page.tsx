@@ -20,8 +20,11 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/machi-fu/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/machi-fu/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.machiFu);
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/machi-fu/training",
+  );
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.machiFu, { locale });
 }
 
 export default async function MachiFuTrainingPage({

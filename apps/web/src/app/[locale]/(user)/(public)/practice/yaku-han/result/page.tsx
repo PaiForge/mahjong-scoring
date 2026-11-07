@@ -27,8 +27,8 @@ const SLUG = PRACTICE_SLUG.yakuHan;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/yaku-han/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/yaku-han/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/practice/yaku-han/result");
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";

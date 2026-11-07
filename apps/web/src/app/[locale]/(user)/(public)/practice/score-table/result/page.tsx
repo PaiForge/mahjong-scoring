@@ -27,8 +27,11 @@ const SLUG = PRACTICE_SLUG.scoreTable;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/score-table/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/score-table/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/score-table/result",
+  );
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";

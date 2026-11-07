@@ -29,8 +29,8 @@ const SLUG = PRACTICE_SLUG.machiFu;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/machi-fu/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/machi-fu/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/practice/machi-fu/result");
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";

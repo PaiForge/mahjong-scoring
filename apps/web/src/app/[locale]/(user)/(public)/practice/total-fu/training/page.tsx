@@ -20,8 +20,11 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/total-fu/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/total-fu/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.totalFu);
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/total-fu/training",
+  );
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.totalFu, { locale });
 }
 
 export default async function TotalFuTrainingPage({

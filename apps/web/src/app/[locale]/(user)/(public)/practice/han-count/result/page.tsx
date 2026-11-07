@@ -27,8 +27,8 @@ const SLUG = PRACTICE_SLUG.hanCount;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/han-count/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/han-count/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/practice/han-count/result");
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";
