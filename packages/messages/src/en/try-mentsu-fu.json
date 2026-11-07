@@ -1,13 +1,13 @@
 {
-  "title": "符の計算を体験",
-  "description": "登録なしで、麻雀の符の計算の問題を 1 問解いてみましょう。面子 1 つを見て、その符を答えます。",
-  "learnCta": "レッスンで面子の符を学ぶ",
-  "practiceTitle": "練習で試す",
-  "browsePractices": "練習の一覧を見る",
-  "backToHome": "ホームに戻る",
+  "title": "Try a Riichi Mahjong Fu Question",
+  "description": "Solve one riichi mahjong fu calculation question, no sign-up needed. Look at a single set and answer how many fu it is worth.",
+  "learnCta": "Learn the fu for sets in the lesson",
+  "practiceTitle": "Try it in practice",
+  "browsePractices": "See all practice menus",
+  "backToHome": "Back to home",
   "signUp": {
-    "title": "アカウントを作って練習を続けよう",
-    "description": "無料登録で学習の進捗が保存され、ランキングにも参加できます。符や翻数など範囲を絞った練習から段階的に進められます。",
-    "cta": "無料ユーザー登録"
+    "title": "Create an account to keep practicing",
+    "description": "Sign up for free to save your learning progress. You can work up step by step, starting with practice focused on one area such as fu or han.",
+    "cta": "Sign up for free"
   }
 }

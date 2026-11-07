@@ -1,353 +1,353 @@
 {
-  "completedMark": "完了済み",
-  "startQuiz": "確認問題へ（{count} 問）",
-  "retakeQuiz": "確認問題を解き直す",
-  "resumeQuiz": "確認問題に戻る（{index} / {total} 問目）",
-  "reviewBody": "本文を読み返す",
-  "quizTitle": "確認問題",
-  "progress": "{index} / {total} 問目",
-  "conditionLabel": "条件",
-  "showHint": "ヒントを見る",
-  "hintLabel": "ヒント",
-  "correct": "正解！",
-  "incorrect": "正解は {answer}",
+  "completedMark": "Completed",
+  "startQuiz": "Take the quiz ({count} questions)",
+  "retakeQuiz": "Retake the quiz",
+  "resumeQuiz": "Back to the quiz (question {index} of {total})",
+  "reviewBody": "Reread the lesson",
+  "quizTitle": "Quiz",
+  "progress": "Question {index} of {total}",
+  "conditionLabel": "Conditions",
+  "showHint": "Show a hint",
+  "hintLabel": "Hint",
+  "correct": "Correct!",
+  "incorrect": "The answer is {answer}",
   "answerLabels": {
-    "points": "{points} 点"
+    "points": "{points} points"
   },
   "choiceLabels": {
-    "oyaTsumo": "{all} オール",
-    "han": "{han}翻",
-    "yakuman": "役満",
-    "fu": "{fu}符"
+    "oyaTsumo": "{all} all",
+    "han": "{han} han",
+    "yakuman": "Yakuman",
+    "fu": "{fu} fu"
   },
-  "next": "次の問題へ",
-  "finish": "できたことを確認する",
-  "doneTitle": "できるようになったこと",
-  "doneTitleReview": "確認問題の結果",
-  "doneReviewAdvice": "間違えた問題は本文で見直しておきましょう。",
-  "doneScore": "{total} 問中 {correct} 問正解",
-  "saving": "完了を記録しています…",
-  "continueHome": "次の一歩へ",
+  "next": "Next question",
+  "finish": "See what you can do now",
+  "doneTitle": "What you can do now",
+  "doneTitleReview": "Quiz results",
+  "doneReviewAdvice": "Go back over the questions you missed in the lesson.",
+  "doneScore": "{correct} of {total} correct",
+  "saving": "Saving your completion…",
+  "continueHome": "Your next step",
   "nextStep": {
-    "lesson": "次のレッスン「{title}」へ",
-    "practice": "「{title}」に挑戦する",
-    "exam": "{title}に挑戦する"
+    "lesson": "Next lesson: {title}",
+    "practice": "Try the practice: {title}",
+    "exam": "Take the {title}"
   },
   "nextLesson": {
-    "title": "次のレッスン",
-    "readMore": "続きを読む"
+    "title": "Next lesson",
+    "readMore": "Keep reading"
   },
   "related": {
-    "practiceTitle": "関連する練習"
+    "practiceTitle": "Related practice"
   },
   "saveFailed": {
-    "title": "完了を記録できませんでした",
-    "description": "通信状況を確認して、もう一度お試しください。ホームに戻った場合も、次にホームを開いたときに自動で記録を再試行します。",
-    "retry": "もう一度記録する",
-    "goHome": "記録を待たずにホームへ"
+    "title": "Could not save your completion",
+    "description": "Check your connection and try again. If you go back home, saving is retried automatically the next time you open the home page.",
+    "retry": "Save again",
+    "goHome": "Go home without waiting"
   },
   "signedOut": {
-    "description": "ログインが切れています。ログインし直すと、このレッスンの完了がホームで記録されます。",
-    "signIn": "ログインする"
+    "description": "You have been signed out. Sign in again and this lesson's completion will be saved when you open the home page.",
+    "signIn": "Sign in"
   },
   "signUp": {
-    "title": "アカウントを作ってレッスンの進捗を記録しよう",
-    "description": "無料登録でレッスンの進捗を記録、学習内容に応じた試験の案内表示などがされるようになります。",
-    "cta": "無料ユーザー登録",
-    "secondary": "登録せずに続ける"
+    "title": "Create an account to track your lesson progress",
+    "description": "Sign up for free to save your lesson progress and get pointed to the exams that match what you have learned.",
+    "cta": "Sign up for free",
+    "secondary": "Continue without signing up"
   },
   "manganKoRon": {
-    "condition": "子・ロン・{han}翻（{tier}）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "Non-dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
     "questions": {
       "mangan": {
-        "hint": "基準となる点数を思い出しましょう。",
-        "explanation": "5 翻は満貫で、子のロンは 8,000 点です。"
+        "hint": "Recall the score everything else is based on.",
+        "explanation": "5 han is mangan, and a non-dealer ron of mangan is 8,000 points."
       },
       "haneman": {
-        "hint": "6〜7 翻は跳満。満貫の 1.5 倍です。",
-        "explanation": "6 翻は跳満で、満貫 8,000 点の 1.5 倍の 12,000 点です。"
+        "hint": "6 to 7 han is haneman: 1.5 times mangan.",
+        "explanation": "6 han is haneman: 1.5 times the 8,000 points of mangan, or 12,000 points."
       },
       "baiman": {
-        "hint": "8〜10 翻は倍満。満貫の 2 倍です。",
-        "explanation": "8 翻は倍満で、満貫 8,000 点の 2 倍の 16,000 点です。"
+        "hint": "8 to 10 han is baiman: twice mangan.",
+        "explanation": "8 han is baiman: twice the 8,000 points of mangan, or 16,000 points."
       }
     },
-    "achievement": "子が満貫以上をロンしたときの点数を、翻数から言えるようになりました。"
+    "achievement": "You can now give the score of a non-dealer ron of mangan or more from its han."
   },
   "manganKoTsumo": {
-    "condition": "子・ツモ・{han}翻（{tier}）",
-    "questionPrompt": "支払い（子 / 親）を選んでください",
+    "condition": "Non-dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose the payments (non-dealer / dealer)",
     "questions": {
       "mangan": {
-        "hint": "満貫の子のロンは 8,000 点。半分が親、そのまた半分が子の支払いです。",
-        "explanation": "満貫は合計 8,000 点。親が 4,000 点、子がひとり 2,000 点ずつ払います。"
+        "hint": "A non-dealer mangan ron is 8,000 points. Half of it is what the dealer pays, and half of that again is what each non-dealer pays.",
+        "explanation": "Mangan is 8,000 points in total. The dealer pays 4,000 points, and each non-dealer pays 2,000 points."
       },
       "haneman": {
-        "hint": "跳満の子のロンは 12,000 点。半分にして、もう一度半分にします。",
-        "explanation": "跳満は合計 12,000 点。親が 6,000 点、子がひとり 3,000 点ずつ払います。"
+        "hint": "A non-dealer haneman ron is 12,000 points. Halve it, then halve it again.",
+        "explanation": "Haneman is 12,000 points in total. The dealer pays 6,000 points, and each non-dealer pays 3,000 points."
       },
       "baiman": {
-        "hint": "倍満の子のロンは 16,000 点です。",
-        "explanation": "倍満は合計 16,000 点。親が 8,000 点、子がひとり 4,000 点ずつ払います。"
+        "hint": "A non-dealer baiman ron is 16,000 points.",
+        "explanation": "Baiman is 16,000 points in total. The dealer pays 8,000 points, and each non-dealer pays 4,000 points."
       }
     },
-    "achievement": "子が満貫以上をツモしたときの支払いを、子のロンの点数から出せるようになりました。"
+    "achievement": "You can now work out the payments for a non-dealer tsumo of mangan or more from the non-dealer ron score."
   },
   "manganOyaRon": {
-    "condition": "親・ロン・{han}翻（{tier}）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "Dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
     "questions": {
       "mangan": {
-        "hint": "子の満貫は 8,000 点。親はその 1.5 倍です。",
-        "explanation": "5 翻は満貫で、親のロンは子の 8,000 点の 1.5 倍の 12,000 点です。"
+        "hint": "A non-dealer mangan is 8,000 points. The dealer gets 1.5 times that.",
+        "explanation": "5 han is mangan, and a dealer ron is 1.5 times the non-dealer's 8,000 points, or 12,000 points."
       },
       "haneman": {
-        "hint": "子の跳満は 12,000 点。親はその 1.5 倍です。",
-        "explanation": "6 翻は跳満で、親のロンは子の 12,000 点の 1.5 倍の 18,000 点です。"
+        "hint": "A non-dealer haneman is 12,000 points. The dealer gets 1.5 times that.",
+        "explanation": "6 han is haneman, and a dealer ron is 1.5 times the non-dealer's 12,000 points, or 18,000 points."
       },
       "baiman": {
-        "hint": "倍満は満貫の 2 倍。親の満貫は 12,000 点です。",
-        "explanation": "8 翻は倍満で、親のロンは親の満貫 12,000 点の 2 倍の 24,000 点です。"
+        "hint": "Baiman is twice mangan. A dealer mangan is 12,000 points.",
+        "explanation": "8 han is baiman, and a dealer ron is twice the dealer mangan of 12,000 points, or 24,000 points."
       }
     },
-    "achievement": "親が満貫以上をロンしたときの点数を、子の点数の 1.5 倍として言えるようになりました。"
+    "achievement": "You can now give the score of a dealer ron of mangan or more as 1.5 times the non-dealer score."
   },
   "manganOyaTsumo": {
-    "condition": "親・ツモ・{han}翻（{tier}）",
-    "questionPrompt": "子ひとりの支払いを選んでください",
+    "condition": "Dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose what each non-dealer pays",
     "questions": {
       "mangan": {
-        "hint": "親の満貫のロンは 12,000 点。子 3 人で等分します。",
-        "explanation": "満貫は合計 12,000 点。子 3 人が 4,000 点ずつ払う「4,000 オール」です。"
+        "hint": "A dealer mangan ron is 12,000 points. The three non-dealers split it equally.",
+        "explanation": "Mangan is 12,000 points in total. The three non-dealers pay 4,000 points each: “4,000 all”."
       },
       "haneman": {
-        "hint": "親の跳満のロンは 18,000 点。3 で割ります。",
-        "explanation": "跳満は合計 18,000 点。子 3 人が 6,000 点ずつ払う「6,000 オール」です。"
+        "hint": "A dealer haneman ron is 18,000 points. Divide it by 3.",
+        "explanation": "Haneman is 18,000 points in total. The three non-dealers pay 6,000 points each: “6,000 all”."
       },
       "baiman": {
-        "hint": "親の倍満のロンは 24,000 点です。",
-        "explanation": "倍満は合計 24,000 点。子 3 人が 8,000 点ずつ払う「8,000 オール」です。"
+        "hint": "A dealer baiman ron is 24,000 points.",
+        "explanation": "Baiman is 24,000 points in total. The three non-dealers pay 8,000 points each: “8,000 all”."
       }
     },
-    "achievement": "親が満貫以上をツモしたときの支払いを、親のロンを 3 で割って出せるようになりました。"
+    "achievement": "You can now work out the payments for a dealer tsumo of mangan or more by dividing the dealer ron score by 3."
   },
   "yaku": {
-    "condition": "{state, select, naki {鳴き} other {門前}}・{yaku}",
-    "questionPrompt": "翻数を選んでください",
+    "condition": "{state, select, naki {Open} other {Closed}}, {yaku}",
+    "questionPrompt": "Choose the han",
     "questions": {
       "riichi": {
-        "hint": "門前でしか成立しない、いちばん基本の役です。",
-        "explanation": "立直は 1 翻です。鳴くと成立しない門前限定の役です。"
+        "hint": "The most basic yaku, and one that only a closed hand can have.",
+        "explanation": "Riichi is 1 han. Only a closed hand can have it: once you call, it no longer counts."
       },
       "toitoiNaki": {
-        "hint": "ポンで刻子を集めて作る役なので、鳴いても翻数は下がりません。",
-        "explanation": "対々和は 2 翻です。鳴いても翻数が変わりません。"
+        "hint": "You build this yaku by collecting triplets with pon, so calling does not lower its han.",
+        "explanation": "Toitoi is 2 han. Its han stay the same when you call."
       },
       "honitsuMenzen": {
-        "hint": "表で、門前のときの翻数を確かめましょう。",
-        "explanation": "混一色は門前なら 3 翻です。"
+        "hint": "Check the table for its han with a closed hand.",
+        "explanation": "Honitsu is 3 han with a closed hand."
       },
       "honitsuNaki": {
-        "hint": "混一色は食い下がりの役。鳴くと門前から 1 翻下がります。",
-        "explanation": "混一色は鳴くと門前の 3 翻から 1 翻下がって 2 翻です（食い下がり）。"
+        "hint": "Honitsu is a kuisagari yaku: calling makes it 1 han less than when closed.",
+        "explanation": "Once you call, honitsu drops 1 han from its closed 3 han to 2 han (kuisagari)."
       }
     },
-    "achievement": "役の翻数を、鳴いたときの違い（食い下がり）も含めて数えられるようになりました。"
+    "achievement": "You can now count the han of a yaku, including how calling changes them (kuisagari)."
   },
   "jantouFu": {
-    "condition": "{bakaze}場・{jikaze}家の雀頭",
-    "questionPrompt": "雀頭の符を選んでください",
+    "condition": "{bakaze} round, {jikaze} seat: the pair",
+    "questionPrompt": "Choose the fu for the pair",
     "questions": {
       "sangen": {
-        "hint": "白・發・中は三元牌。役牌の雀頭です。",
-        "explanation": "白は三元牌なので、雀頭にすると 2 符です。三元牌は場風・自風に関係なく、いつでも 2 符です。"
+        "hint": "The white, green and red dragons are the dragons. This is a pair of value tiles.",
+        "explanation": "The white dragon is a dragon, so as the pair it is 2 fu. A pair of dragons is always 2 fu, whatever the round wind and seat wind are."
       },
       "jikaze": {
-        "hint": "南家にとって、南は自分の風です。",
-        "explanation": "南家の南は自風なので 2 符です。場風（東）だけでなく、自風の雀頭にも符が付きます。"
+        "hint": "For the South player, South is your own wind.",
+        "explanation": "For the South player, South is the seat wind, so it is 2 fu. Not only a round wind (East) pair but also a seat wind pair earns fu."
       },
       "otakaze": {
-        "hint": "東場の南家にとって、西は場風でも自風でもありません。",
-        "explanation": "西は場風（東）でも自風（南）でもないオタ風なので 0 符です。風牌でも符が付くとは限りません。"
+        "hint": "For the South player in the East round, West is neither the round wind nor the seat wind.",
+        "explanation": "West is neither the round wind (East) nor the seat wind (South). It is a guest wind, so it is 0 fu. A wind tile does not always earn fu."
       },
       "suuhai": {
-        "hint": "数牌の雀頭に符が付くかを、まとめの表で確かめましょう。",
-        "explanation": "五筒は数牌なので 0 符です。数牌の雀頭には符が付きません。"
+        "hint": "Check the summary table to see whether a pair of number tiles earns fu.",
+        "explanation": "5 pin is a number tile, so it is 0 fu. A pair of number tiles never earns fu."
       }
     },
-    "achievement": "雀頭に符が付く牌（三元牌・場風・自風）と付かない牌（数牌・オタ風）を見分けられるようになりました。"
+    "achievement": "You can now tell the pairs that earn fu (dragons, the round wind, your seat wind) from those that do not (number tiles, guest winds)."
   },
   "mentsuFu": {
-    "condition": "{shape, select, shuntsu {順子} koutsu {刻子} other {槓子}}",
-    "questionPrompt": "面子の符を選んでください",
+    "condition": "{shape, select, shuntsu {Sequence} koutsu {Triplet} other {Quad}}",
+    "questionPrompt": "Choose the fu for the set",
     "questions": {
       "minkouSimple": {
-        "hint": "1 枚が横向きなのは鳴いた印です。中張牌の明刻は、刻子の符の基準です。",
-        "explanation": "五萬をポンした中張牌の明刻なので 2 符です。ここから、暗刻・么九牌・槓子でそれぞれ倍になっていきます。"
+        "hint": "One tile turned sideways marks a call. An open triplet of simples is the starting value for triplet fu.",
+        "explanation": "This is an open triplet of simples, made by calling pon on 5 man, so it is 2 fu. From here, being closed, being terminals or honors and being a quad each double the fu."
       },
       "ankouYaochu": {
-        "hint": "横向きの牌が無いので暗刻。9 は么九牌です。暗刻で 2 倍、么九牌でさらに 2 倍です。",
-        "explanation": "九索の暗刻は么九牌の暗刻なので、明刻の 2 符の 2 倍の 2 倍で 8 符です。"
+        "hint": "No tile is turned sideways, so it is a closed triplet, and 9 is a terminal. Being closed doubles the fu, and being a terminal doubles them again.",
+        "explanation": "A closed triplet of 9 sou is a closed triplet of terminals, so the 2 fu of an open triplet doubles and doubles again to 8 fu."
       },
       "minkanSimple": {
-        "hint": "槓子の符は、明暗と牌の種類が同じ刻子の 4 倍です。中張牌の明刻は 2 符です。",
-        "explanation": "五索の明槓は中張牌の明槓なので、中張牌の明刻 2 符の 4 倍で 8 符です。"
+        "hint": "A quad is worth 4 times a triplet of the same kind of tile, open or closed in the same way. An open triplet of simples is 2 fu.",
+        "explanation": "An open quad of 5 sou is an open quad of simples, so it is 4 times the 2 fu of an open triplet of simples: 8 fu."
       },
       "ankanYaochu": {
-        "hint": "両端が伏せてあるのは暗槓。中は字牌なので么九牌です。么九牌の暗刻は 8 符です。",
-        "explanation": "中の暗槓は么九牌の暗槓なので、么九牌の暗刻 8 符の 4 倍で 32 符です。面子の符の最大です。"
+        "hint": "Both end tiles face down, so it is a closed quad. The red dragon is an honor tile, so it counts as terminals and honors. A closed triplet of terminals or honors is 8 fu.",
+        "explanation": "A closed quad of red dragons is a closed quad of honors, so it is 4 times the 8 fu of a closed triplet of terminals or honors: 32 fu. That is the most fu a set can earn."
       }
     },
-    "achievement": "刻子・槓子の符を、明暗と牌の種類（中張牌・么九牌）から出せるようになりました。"
+    "achievement": "You can now work out the fu for triplets and quads from whether they are open or closed and the kind of tile (simples, or terminals and honors)."
   },
   "machiFu": {
-    "condition": "聴牌の形 ＋ 和了牌",
-    "questionPrompt": "待ちの符を選んでください",
+    "condition": "Tenpai shape + winning tile",
+    "questionPrompt": "Choose the fu for the wait",
     "questions": {
       "ryanmen": {
-        "hint": "3 と 4 の両側（2 と 5）のどちらが来ても和了れる形です。",
-        "explanation": "三筒・四筒で二筒・五筒を待つ両面待ちなので 0 符です。受け入れが広い待ちには符が付きません。"
+        "hint": "A shape that wins on a tile on either side of 3 and 4 (2 or 5).",
+        "explanation": "3 pin and 4 pin waiting on 2 pin or 5 pin is a two-sided wait, so it is 0 fu. A wait that accepts many tiles earns no fu."
       },
       "kanchan": {
-        "hint": "4 と 6 の間の 1 枚だけを待つ形です。",
-        "explanation": "四萬・六萬で五萬だけを待つ嵌張待ちなので 2 符です。"
+        "hint": "A shape that waits only on the one tile between 4 and 6.",
+        "explanation": "4 man and 6 man waiting only on 5 man is a closed wait, so it is 2 fu."
       },
       "penchan": {
-        "hint": "端の 8 と 9 で、片側の 7 だけを待つ形です。",
-        "explanation": "八索・九索で七索だけを待つ辺張待ちなので 2 符です。1 と 2 で 3 を待つ形と同じく、片側しか受けられません。"
+        "hint": "A shape at the end, 8 and 9, that waits only on the 7 on one side.",
+        "explanation": "8 sou and 9 sou waiting only on 7 sou is an edge wait, so it is 2 fu. Like 1 and 2 waiting on 3, it can only accept a tile on one side."
       },
       "shanpon": {
-        "hint": "対子 2 組のどちらかが刻子になれば和了れる形です。",
-        "explanation": "二萬と西の対子で、どちらかを待つ双碰待ちなので 0 符です。"
+        "hint": "A shape that wins when either of two pairs becomes a triplet.",
+        "explanation": "A pair of 2 man and a pair of West, waiting on either one, is a pair wait, so it is 0 fu."
       },
       "tanki": {
-        "hint": "1 枚だけを持って、同じ牌を待つ形です。",
-        "explanation": "七筒 1 枚で七筒を待つ単騎待ちなので 2 符です。"
+        "hint": "A shape that holds a single tile and waits on the same tile.",
+        "explanation": "A single 7 pin waiting on 7 pin is a single-tile wait, so it is 2 fu."
       }
     },
-    "achievement": "聴牌の形を見て、待ちに符が付くか（嵌張・辺張・単騎は 2 符、両面・双碰は 0 符）を見分けられるようになりました。"
+    "achievement": "You can now look at a tenpai shape and tell whether its wait earns fu (closed, edge and single-tile waits are 2 fu; two-sided and pair waits are 0 fu)."
   },
   "tehaiFu": {
-    "condition": "{bakaze}場・{jikaze}家・{winType, select, tsumo {ツモ} other {ロン}}和了",
-    "questionPrompt": "手牌全体の符を選んでください",
+    "condition": "{bakaze} round, {jikaze} seat, win by {winType, select, tsumo {tsumo} other {ron}}",
+    "questionPrompt": "Choose the fu for the whole hand",
     "questions": {
       "furoRon": {
-        "hint": "副露してのロンには、門前ロンの加符もツモ符も付きません。白の明刻と待ちを足して、最後に切り上げます。",
-        "explanation": "副底 20 符 ＋ 白の明刻 4 符 ＋ 嵌張待ち 2 符 = 26 符を切り上げて 30 符です。副露してのロンなので和了の符は付きません。"
+        "hint": "A ron with called sets gets neither the closed ron bonus nor tsumo fu. Add the open triplet of white dragons and the wait, then round up at the end.",
+        "explanation": "20 base fu + 4 fu for the open triplet of white dragons + 2 fu for the closed wait = 26 fu, rounded up to 30 fu. It is a ron with called sets, so nothing is added for how you won."
       },
       "furoTsumo": {
-        "hint": "副露していても、ツモ和了ならツモ符が付きます。",
-        "explanation": "副底 20 符 ＋ ツモ符 2 符 ＋ 白の明刻 4 符 ＋ 八筒の暗刻 4 符 ＋ 嵌張待ち 2 符 = 32 符を切り上げて 40 符です。ツモ符を忘れると 30 符になります。"
+        "hint": "Even with called sets, a tsumo win gets tsumo fu.",
+        "explanation": "20 base fu + 2 tsumo fu + 4 fu for the open triplet of white dragons + 4 fu for the closed triplet of 8 pin + 2 fu for the closed wait = 32 fu, rounded up to 40 fu. Forget the tsumo fu and you get 30 fu."
       },
       "shanponRon": {
-        "hint": "双碰待ちをロンしたとき、ロン牌を含む方の刻子は明刻として数えます。",
-        "explanation": "副底 20 符 ＋ 門前ロン 10 符 ＋ 九萬と一筒の暗刻 8 符ずつ ＋ ロンで完成した白の明刻 4 符 = 50 符です。白を暗刻と数えると 54 符で、60 符になってしまいます。"
+        "hint": "When you win by ron on a pair wait, the triplet that contains the ron tile counts as an open triplet.",
+        "explanation": "20 base fu + 10 fu closed ron bonus + 8 fu each for the closed triplets of 9 man and 1 pin + 4 fu for the open triplet of white dragons completed by the ron = 50 fu. Count the white dragons as a closed triplet and you get 54 fu, which rounds up to 60 fu."
       },
       "nanBakaze": {
-        "hint": "南場の場風は南です。",
-        "explanation": "副底 20 符 ＋ ツモ符 2 符 ＋ 九萬の暗刻 8 符 ＋ 南の雀頭（場風）2 符 = 32 符を切り上げて 40 符です。東を場風と取り違えると 30 符になります。"
+        "hint": "In the South round, the round wind is South.",
+        "explanation": "20 base fu + 2 tsumo fu + 8 fu for the closed triplet of 9 man + 2 fu for the pair of South (round wind) = 32 fu, rounded up to 40 fu. Mistake East for the round wind and you get 30 fu."
       }
     },
-    "achievement": "副底・和了の符・面子・雀頭・待ちを足して切り上げ、手牌全体の符を出せるようになりました。"
+    "achievement": "You can now work out the fu for a whole hand by adding the base fu, the fu for how you won, the sets, the pair and the wait, then rounding up."
   },
   "chiitoitsuScore": {
-    "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score",
     "questions": {
       "only": {
-        "hint": "七対子はツモでもロンでも 25 符です。25 符 2 翻の子のロンを表で引きます。",
-        "explanation": "七対子は 25 符。25 符 2 翻の子のロンは 1,600 点です。"
+        "hint": "Chiitoitsu is 25 fu by tsumo or by ron. Look up a non-dealer ron at 25 fu 2 han in the table.",
+        "explanation": "Chiitoitsu is 25 fu. A non-dealer ron at 25 fu 2 han is 1,600 points."
       },
       "tanyao": {
-        "hint": "役が複合しても符は 25 符のまま。変わるのは翻数だけです。",
-        "explanation": "断么九が複合して 3 翻、符は 25 符のままです。25 符 3 翻の子のロンは 3,200 点です。"
+        "hint": "When other yaku are added, the fu stay at 25. Only the han change.",
+        "explanation": "With tanyao added it is 3 han, and the fu stay at 25. A non-dealer ron at 25 fu 3 han is 3,200 points."
       },
       "riichiTanyao": {
-        "hint": "符は 25 符のまま 4 翻。子の表の右端です。",
-        "explanation": "立直・断么九が複合して 4 翻、符は 25 符のままです。25 符 4 翻の子のロンは 6,400 点です。"
+        "hint": "The fu stay at 25, and it is 4 han: the right end of the non-dealer table.",
+        "explanation": "With riichi and tanyao added it is 4 han, and the fu stay at 25. A non-dealer ron at 25 fu 4 han is 6,400 points."
       },
       "oyaRiichi": {
-        "hint": "親の表も同じ 25 符です。3 翻の親のロンを引きます。",
-        "explanation": "立直が複合して 3 翻、符は 25 符です。25 符 3 翻の親のロンは 4,800 点です。"
+        "hint": "The dealer table uses the same 25 fu. Look up a dealer ron at 3 han.",
+        "explanation": "With riichi added it is 3 han, at 25 fu. A dealer ron at 25 fu 3 han is 4,800 points."
       }
     },
-    "achievement": "七対子の符が 25 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
+    "achievement": "You can now use the fixed 25 fu of chiitoitsu to look up the score in the table when other yaku are added."
   },
   "pinfuScore": {
-    "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
-    "questionPrompt": "点数を選んでください（ツモは子 / 親の支払い）",
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score (for a tsumo, the non-dealer / dealer payments)",
     "questions": {
       "ron": {
-        "hint": "平和のロンは 30 符です。30 符 1 翻の子のロンを表で引きます。",
-        "explanation": "平和のロンは門前ロンの加符が付いて 30 符。30 符 1 翻の子のロンは 1,000 点です。"
+        "hint": "A pinfu ron is 30 fu. Look up a non-dealer ron at 30 fu 1 han in the table.",
+        "explanation": "A pinfu ron gets the closed ron bonus and is 30 fu. A non-dealer ron at 30 fu 1 han is 1,000 points."
       },
       "tsumo": {
-        "hint": "平和のツモは 20 符です。ツモの支払いは表のツモの行（子 / 親）で引きます。",
-        "explanation": "平和のツモは 20 符で、門前清自摸和が付いて 2 翻です。20 符 2 翻の子のツモは、子が 400 点・親が 700 点を払います。"
+        "hint": "A pinfu tsumo is 20 fu. Look up the tsumo payments in the tsumo row of the table (non-dealer / dealer).",
+        "explanation": "A pinfu tsumo is 20 fu, and with menzen tsumo added it is 2 han. On a non-dealer tsumo at 20 fu 2 han, each non-dealer pays 400 points and the dealer pays 700 points."
       },
       "tanyaoRon": {
-        "hint": "断么九が複合しても、ロンなら 30 符のままです。",
-        "explanation": "断么九が複合して 2 翻、符は 30 符のままです。30 符 2 翻の子のロンは 2,000 点です。"
+        "hint": "Even with tanyao added, a ron stays at 30 fu.",
+        "explanation": "With tanyao added it is 2 han, and the fu stay at 30. A non-dealer ron at 30 fu 2 han is 2,000 points."
       },
       "tanyaoTsumo": {
-        "hint": "断么九が複合しても、ツモなら 20 符のままです。",
-        "explanation": "門前清自摸和・断么九が複合して 3 翻、符は 20 符のままです。20 符 3 翻の子のツモは、子が 700 点・親が 1,300 点を払います。"
+        "hint": "Even with tanyao added, a tsumo stays at 20 fu.",
+        "explanation": "With menzen tsumo and tanyao added it is 3 han, and the fu stay at 20. On a non-dealer tsumo at 20 fu 3 han, each non-dealer pays 700 points and the dealer pays 1,300 points."
       }
     },
-    "achievement": "平和の符がツモ 20 符・ロン 30 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
+    "achievement": "You can now use the fixed fu of pinfu (20 fu by tsumo, 30 fu by ron) to look up the score in the table when other yaku are added."
   },
   "menzenMentsuScore": {
-    "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
-    "questionPrompt": "手牌の符を選んでください",
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
     "questions": {
       "ron2": {
-        "hint": "副底 20 符・門前加符 10 符・積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋10＋2＝32 符。テンパネして 40 符です。平和でない門前のロンは必ず符が付くので、40 符以上になります。"
+        "hint": "Add the 20 base fu, the 10 fu closed ron bonus and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 10 + 2 = 32 fu, which rounds up (tenpane) to 40 fu. A closed ron that is not pinfu always has some fu built up, so it is 40 fu or more."
       },
       "tsumo8": {
-        "hint": "副底 20 符・ツモ 2 符・積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋2＋8＝30 符。ちょうど 10 の倍数なのでテンパネせず、30 符のままです（么九牌の暗刻 1 つだけの手など）。"
+        "hint": "Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 2 + 8 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu (for example, a hand whose only fu come from one closed triplet of terminals or honors)."
       },
       "tsumo10": {
-        "hint": "ツモの 2 符を足し忘れないようにしましょう。",
-        "explanation": "20＋2＋10＝32 符。テンパネして 40 符です。ロンなら 20＋10＋10＝40 符でちょうどなので、同じ 40 符になります。"
+        "hint": "Do not forget to add the 2 fu for tsumo.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. By ron it would be exactly 20 + 10 + 10 = 40 fu, so it comes to the same 40 fu."
       },
       "ron12": {
-        "hint": "門前加符の 10 符を足してから切り上げます。",
-        "explanation": "20＋10＋12＝42 符。テンパネして 50 符です。同じ 12 符でもツモなら 20＋2＋12＝34 符で 40 符になり、ロンのほうが 10 符上になります。"
+        "hint": "Add the 10 fu closed ron bonus, then round up.",
+        "explanation": "20 + 10 + 12 = 42 fu, which rounds up to 50 fu. With the same 12 fu, a tsumo would be 20 + 2 + 12 = 34 fu and round up to 40 fu, so the ron comes out 10 fu higher."
       }
     },
-    "achievement": "平和以外の門前の手の符を、副底・ツモかロンの符・積み上げた符を足して切り上げ、どこでテンパネするかを見分けて出せるようになりました。"
+    "achievement": "You can now work out the fu for a closed hand that is not pinfu by adding the base fu, the fu for tsumo or ron and the built-up fu and rounding up, and you can tell where the total rounds up."
   },
   "furoScore": {
-    "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
-    "questionPrompt": "手牌の符を選んでください",
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
     "questions": {
       "ron4": {
-        "hint": "鳴いた手のロンには門前加符が付きません。副底 20 符に積み上げた符を足して、10 符単位に切り上げます。",
-        "explanation": "20＋4＝24 符。テンパネして 30 符です。門前なら 20＋10＋4＝34 符で 40 符なので、鳴くとロンは 10 符低くなります。"
+        "hint": "A ron with an open hand gets no closed ron bonus. Add the built-up fu to the 20 base fu, then round up to the next 10 fu.",
+        "explanation": "20 + 4 = 24 fu, which rounds up (tenpane) to 30 fu. Closed, it would be 20 + 10 + 4 = 34 fu and 40 fu, so calling makes a ron 10 fu lower."
       },
       "ron0": {
-        "hint": "積み上げた符が 0 符のロンは例外です（食い平和形）。",
-        "explanation": "積み上げ 0 符のロンは合計 20 符ですが、20 符は平和ツモ専用の符なので 30 符として扱います（食い平和形）。"
+        "hint": "A ron with 0 built-up fu is the exception (the open pinfu shape).",
+        "explanation": "A ron with 0 built-up fu totals 20 fu, but 20 fu is reserved for a pinfu tsumo, so it is treated as 30 fu (the open pinfu shape)."
       },
       "tsumo10": {
-        "hint": "ツモの符は門前と同じです。副底 20 符・ツモ 2 符・積み上げた符を足して切り上げます。",
-        "explanation": "20＋2＋10＝32 符。テンパネして 40 符です。鳴いていてもツモの 2 符は付きます。"
+        "hint": "Tsumo fu are the same as for a closed hand. Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. The 2 fu for tsumo still apply with an open hand."
       },
       "ron10": {
-        "hint": "ロンの出発点は副底の 20 符だけです。",
-        "explanation": "20＋10＝30 符。ちょうど 10 の倍数なのでテンパネせず 30 符です。同じ 10 符でもツモなら 32 符で 40 符になり、鳴いた手ではツモのほうが高くなります。"
+        "hint": "A ron starts from the 20 base fu alone.",
+        "explanation": "20 + 10 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu. With the same 10 fu, a tsumo would be 32 fu and round up to 40 fu, so with an open hand the tsumo comes out higher."
       }
     },
-    "achievement": "鳴いた手の符を、ロンは副底 20 符から・ツモは門前と同じ 22 符から足して切り上げて出せるようになりました（食い平和形は 30 符）。"
+    "achievement": "You can now work out the fu for an open hand by adding up from the 20 base fu for a ron, or from 22 fu for a tsumo as with a closed hand, then rounding up (the open pinfu shape is 30 fu)."
   },
   "rankGoal": {
-    "title": "{rank}の昇級試験まで",
-    "lead": "{rank}のレッスンはこれで最後です。練習で手を慣らしてから、昇級試験に挑戦しましょう。",
-    "examDescription": "試験の内容と合格基準を確認できます",
-    "training": "先に模試で試す（記録は残りません）",
-    "dojo": "道場で全体の道のりを見る"
+    "title": "On to the {rank} Promotion Exam",
+    "lead": "This is the last lesson for {rank}. Warm up in practice, then take on the promotion exam.",
+    "examDescription": "See what the exam covers and its pass criterion",
+    "training": "Try the mock exam first (nothing is recorded)",
+    "dojo": "See the whole path in the Dojo"
   }
 }
