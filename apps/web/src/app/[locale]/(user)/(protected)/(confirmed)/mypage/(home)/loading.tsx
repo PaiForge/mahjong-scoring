@@ -1,0 +1,67 @@
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitlePlaceholder } from "@/app/[locale]/(user)/_components/page-title";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+
+import { MyPageMenuSkeleton } from "./_components/mypage-menu";
+import { HeatmapSkeleton } from "./_components/heatmap-skeleton";
+
+/**
+ * マイページのローディング状態
+ * ローディング
+ *
+ * 実描画（`page.tsx`）と同じ枠・同じ行の高さで組み、データ到着時に
+ * レイアウトが動かないようにする。文字の矩形は行ボックス（text-lg なら 28px 等）
+ * を持つラッパーに入れ、矩形自体はフォントサイズ相当にとどめる。
+ *
+ * 実描画のカードは淡い細枠（`border-panel`）で、スケルトンも同じ枠のまま面を
+ * 灰色にする（スケルトンの枠はどの画面も `border-panel` にそろえる）。枠は
+ * border-box なので、アバターの枠を外しても高さは実描画と一致したまま。
+ *
+ * route group `(home)` は、この index の loading.tsx が兄弟ルート（`account` / `challenges` / `notifications` / `plan` / `profile`）の
+ * 祖先にならないようにするためだけにある。不変条件（動的ルートは loading.tsx を 1 枚・
+ * 静的ルートは 0 枚）と理由は `apps/web/src/app/loading-boundaries.test.ts`。page.tsx と
+ * loading.tsx を 1 つ上に移すとそのテストが落ちる。
+ */
+export default function Loading() {
+  return (
+    <ContentContainer>
+      <PageTitlePlaceholder width="w-40" />
+
+      <div className="space-y-6">
+        {/* プロフィールカード（実: flex items-center gap-4 border bg-card p-4。
+            アバター(lg=80px) + 表示名(text-lg) + @username(text-sm)
+            + 公開プロフィール/編集リンク。リンクはモバイル幅で 2 行に折り返す） */}
+        <section className="flex items-center gap-4 rounded-panel border border-panel bg-surface-50 p-4">
+          <SkeletonBar radius="full" className="h-20 w-20 flex-shrink-0" />
+          <div className="min-w-0">
+            {/* 表示名: text-lg = 28px 行 */}
+            <div className="flex h-7 items-center">
+              <SkeletonBar className="h-5 w-40" />
+            </div>
+            {/* @username: text-sm = 20px 行 */}
+            <div className="flex h-5 items-center">
+              <SkeletonBar className="h-3.5 w-24" />
+            </div>
+            {/* リンク 2 つ（実: px-3 py-1.5 text-sm = 高さ 32px、gap-1 で flex-wrap）。
+                幅は実文言（公開プロフィール / プロフィール編集）に合わせてあり、
+                実描画と同じ幅でモバイルでは 2 行に折り返す。 */}
+            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+              <SkeletonBar radius="lg" className="h-8 w-40" />
+              <SkeletonBar radius="lg" className="h-8 w-40" />
+            </div>
+          </div>
+        </section>
+
+        {/* アクティビティヒートマップ（実: border bg-card p-4、見出しは text-sm + mb-3） */}
+        <section className="rounded-panel border border-panel bg-surface-50 p-4">
+          <div className="mb-3 flex h-5 items-center">
+            <SkeletonBar className="h-3.5 w-28" />
+          </div>
+          <HeatmapSkeleton />
+        </section>
+
+        <MyPageMenuSkeleton />
+      </div>
+    </ContentContainer>
+  );
+}

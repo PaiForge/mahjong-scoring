@@ -6,7 +6,7 @@
  *   マイページのアクティビティヒートマップで使用する、日次 EXP 合計と
  *   練習種別ごとの内訳を並列クエリで取得する。日付境界は JST (Asia/Tokyo) 固定。
  *
- * @see apps/web/src/app/(user)/(protected)/(confirmed)/mypage/(home)/_components/exp-activity-heatmap.tsx
+ * @see apps/web/src/app/[locale]/(user)/(protected)/(confirmed)/mypage/(home)/_components/exp-activity-heatmap.tsx
  */
 import { jstStartOfDay } from "@mahjong-scoring/features/jst";
 import { and, eq, gte, lte, sql, sum } from "drizzle-orm";
@@ -16,7 +16,7 @@ import {
   DESKTOP_WEEKS,
   getHeatmapDateRangeForWeeks,
   getJstTodayDate,
-} from "@/app/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
+} from "@/app/[locale]/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
 
 import { db } from "./index";
 import { expEvents } from "./schema";

@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-import { ContentContainer } from "@/app/(user)/_components/content-container";
-import { PageTitle } from "@/app/(user)/_components/page-title";
-import { LinkButton } from "@/app/(user)/_components/link-button";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
 import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /**

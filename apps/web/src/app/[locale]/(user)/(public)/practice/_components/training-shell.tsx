@@ -1,0 +1,223 @@
+"use client";
+
+import { type ReactNode, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import { Button } from "@/app/[locale]/(user)/_components/button";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { HandPresentationNotice } from "./hand-presentation-notice";
+import type {
+  MenuKind,
+  PracticeMenuSlug,
+} from "@mahjong-scoring/features/practice-menu-types";
+import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
+import { ScoreCounter } from "./score-counter";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "./practice-footer-actions";
+import {
+  TrainingChallengeCta,
+  type TrainingChallengeRules,
+} from "./training-challenge-cta";
+import { WithUrlVariant } from "./with-url-variant";
+
+interface TrainingShellProps {
+  /** 画面上部に表示する練習名（PageTitle に渡す） */
+  readonly title: ReactNode;
+  /**
+   * 練習のスラッグ。「終了」リンク（説明ページ）と末尾のチャレンジ導線
+   * （play ページ。模試なら本番の受験ゲート）の遷移先をここから組む
+   */
+  readonly slug: PracticeMenuSlug;
+  /**
+   * 練習のトレーニングか、昇級試験の模試か（既定 practice）。
+   *
+   * 模試は終了トーストと末尾の導線の文言を「チャレンジ」ではなく「本番の
+   * 試験」で出す。それ以外（タイマー無し・正解を読ませて次へ）は同じ。
+   */
+  readonly variant?: MenuKind;
+  /**
+   * 練習名の右隣に並べる操作要素（ヘルプボタン等）
+   *
+   * 時間無制限のトレーニングだけが持つ。チャレンジでは読ませている間も
+   * タイマーが進むため、同じ位置に置かない。
+   */
+  readonly titleAction?: ReactNode;
+  /** 正解数 */
+  readonly correctCount: number;
+  /** 出題数 */
+  readonly totalCount: number;
+  /** チャレンジのルール（CTA の補足文に出す制限時間・ミス上限） */
+  readonly challengeRules: TrainingChallengeRules;
+  /** 練習本体のUI */
+  readonly children: ReactNode;
+  /** 内部ラッパーの max-w クラス（既定: "max-w-md"） */
+  readonly maxWidth?: string;
+  /**
+   * 「わからない」操作。指定時のみ、終了リンクの上に正解開示リンクを表示する
+   * （無回答で正解を開いてから次問題へ進む練習向け）。
+   */
+  readonly onReveal?: () => void;
+  /** 「わからない」を一時的に無効化する（フィードバック表示中・出題の生成待ちなど） */
+  readonly revealDisabled?: boolean;
+  /**
+   * 正解開示中。「わからない」と同じ位置に「次の問題へ」を表示する
+   *
+   * 位置を変えないのは、連続で開示して流したいとき（引き直し用途）に
+   * 同じ場所の連打で済ませるため。
+   */
+  readonly isRevealed?: boolean;
+  /**
+   * 回答後の停止中。盤面の直下に「次の問題へ」ボタンを表示する
+   *
+   * 開示中と違ってフッターのリンクではなくボタンで出すのは、答え合わせのあと
+   * 必ず通る導線であり、読み終えた資料の直下で受けるため。
+   */
+  readonly isHolding?: boolean;
+  /** 停止状態から次問題へ進む（「次の問題へ」が呼ぶ） */
+  readonly onProceed?: () => void;
+  /**
+   * 盤面が自前の回答ボタン（「回答する」）を持つか（既定 false）
+   *
+   * 持つ盤面は停止中に回答ボタンを引っ込め、シェルが「次の問題へ」を出す
+   * （無効化した回答ボタンと二段に並べない。
+   * {@link import("./challenge-submit-button").ChallengeSubmitButton} /
+   * {@link import("./score-answer-form").ScoreAnswerForm} 参照）。
+   *
+   * 持たない盤面（選択肢をタップした瞬間に確定する練習・自動送信の select）
+   * には引っ込む相手が無い。停止していない間もボタン 1 つ分の場所を空けて
+   * おき、「次の問題へ」が現れた瞬間にカウンタ以下が押し下げられないようにする。
+   *
+   * 盤面との間隔はどちらも `mt-6`（24px）。停止中はどの盤面も末尾が答え合わせの
+   * 資料の面（{@link import("./answer-review-panel").AnswerReviewPanel}。
+   * 面子分解・「内訳を確認」の押せる行）になる — 持つ盤面も、引っ込んだ
+   * 回答ボタンの場所に面子分解の面が入る。面とボタンの間を一段広く取り、
+   * 資料の行を狙って下に落ちた指がボタンに届かないようにする（以前は持つ
+   * 盤面を回答ボタンと同じ `mt-4` で入れ替えていたが、間に面子分解の行が
+   * 入るので「同じ位置」にはならず、行とボタンが 16px で隣り合っていた）。
+   */
+  readonly hasSubmitButton?: boolean;
+}
+
+/**
+ * トレーニング共通シェル（ステータスバー・ContentContainer）
+ *
+ * チャレンジの {@link import("./challenge-shell").ChallengeShell} と異なり、
+ * タイマー・ライフ・カウントダウン・結果ページ遷移を持たない。
+ * 時間無制限の反復練習に用い、ユーザーは「終了」リンクで任意に離脱する。
+ */
+export function TrainingShell({
+  title,
+  slug,
+  variant = "practice",
+  titleAction,
+  correctCount,
+  totalCount,
+  challengeRules,
+  children,
+  maxWidth = "max-w-md",
+  onReveal,
+  revealDisabled = false,
+  isRevealed = false,
+  isHolding = false,
+  onProceed,
+  hasSubmitButton = false,
+}: TrainingShellProps) {
+  const tc = useTranslations("challenge");
+  const tt = useTranslations("training");
+  const tExamTraining = useTranslations("examTraining");
+
+  // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
+
+  // チャレンジを「やめる」で抜けたときと同じく、終了したことをトーストで返す。
+  // 遷移先の説明ページに着いてから出す（ここで出すと表示時間が遷移の裏で減り、
+  // 視線も切り替わる本文側にあるため見落とされる）。着地の判定はパスだけなので、
+  // 預ける href にバリアントは要らない
+  const exitToast =
+    variant === "exam" ? tExamTraining("exitToast") : tt("exitToast");
+  const handleExit = useCallback(() => {
+    toastOnArrival(practiceHref(slug), exitToast);
+  }, [slug, exitToast]);
+
+  const showsProceed = isHolding && onProceed !== undefined;
+
+  return (
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
+      <PageTitle action={titleAction}>{title}</PageTitle>
+      <HandPresentationNotice />
+
+      <div className={`mx-auto space-y-8 ${maxWidth}`}>
+        {/* Game content area */}
+        <div>
+          {children}
+
+          {/* 回答後は自動で進まず、答え合わせを読み終えてから押してもらう。
+              回答ボタンを持たない盤面では、停止していない間も同じボタンを
+              不可視のまま置いて場所を取る（現れた瞬間に下が動かないため） */}
+          {(showsProceed || !hasSubmitButton) && (
+            <div
+              className={`mt-6 ${showsProceed ? "" : "invisible"}`}
+              inert={!showsProceed}
+              aria-hidden={!showsProceed}
+            >
+              <Button size="lg" fullWidth onClick={onProceed}>
+                {tt("nextButton")}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer: 正解 / 不正解 カウンタ（score/play と同じくアイコン付きで下部に表示） */}
+        <ScoreCounter
+          correct={correctCount}
+          incorrect={totalCount - correctCount}
+          correctLabel={tc("correct")}
+          incorrectLabel={tc("incorrect")}
+        />
+
+        {/* Reveal / Exit: 参考プロジェクトに倣い、スコア下にまとめて縦に並べる */}
+        <PracticeFooterActions>
+          {onReveal &&
+            (isRevealed ? (
+              <PracticeFooterAction onClick={() => onProceed?.()}>
+                {tt("nextButton")}
+              </PracticeFooterAction>
+            ) : (
+              <PracticeFooterAction
+                onClick={onReveal}
+                disabled={revealDisabled}
+              >
+                {tt("revealButton")}
+              </PracticeFooterAction>
+            ))}
+          {/* 説明ページの選択パネルは URL のバリアントを初期選択にする。
+              今の設定を持って戻らないと、終了した瞬間に選び直しになる */}
+          <WithUrlVariant slug={slug}>
+            {(urlVariant) => (
+              <PracticeFooterAction
+                href={practiceHref(slug, urlVariant)}
+                onClick={handleExit}
+              >
+                {tt("exitButton")}
+              </PracticeFooterAction>
+            )}
+          </WithUrlVariant>
+        </PracticeFooterActions>
+
+        {/* チャレンジへの切り替えは最後に置く。トレーニング中の操作
+            （わからない / 終了する）より前に出すと、解いている最中の
+            視線の先に「別のモードへ行くボタン」が居座るため */}
+        <TrainingChallengeCta
+          challengeRules={challengeRules}
+          slug={slug}
+          variant={variant}
+        />
+      </div>
+    </ContentContainer>
+  );
+}

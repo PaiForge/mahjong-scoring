@@ -83,7 +83,7 @@ export default [
         {
           patterns: [
             {
-              // `@/app/(user)/_components/...` も相対パスの `../(user)/_components/...` も掛ける
+              // `@/app/[locale]/(user)/_components/...` も相対パスの `../(user)/_components/...` も掛ける
               regex: "(^|/)\\(user\\)/_components(/|$)",
               message:
                 "admin と app/_components から (user)/_components（ブランド UI）を import しない。管理画面は admin/_lib・admin/_components の部品を使い、両画面で共有する部品は app/_components に置く",

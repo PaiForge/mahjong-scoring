@@ -1,0 +1,79 @@
+import type { ReactNode } from "react";
+import Link from "next/link";
+import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
+import type { Announcement } from "@/lib/db";
+
+import {
+  ANNOUNCEMENT_LIST_DATE_OPTIONS,
+  formatPublishedDate,
+} from "@mahjong-scoring/features/announcements/format";
+
+interface AnnouncementTextListProps {
+  readonly announcements: readonly Announcement[];
+  readonly locale: string;
+  /** 翻訳済みの「ピン留め」ラベル */
+  readonly pinnedLabel: string;
+  /**
+   * リストの末尾に混ぜる広告の行（`NativeAdRow`）。一覧ページだけが渡す。
+   * リストは `data-framed` を持ち、広告の行は枠の中の余白に切り替わる
+   */
+  readonly trailingAd?: ReactNode;
+}
+
+/** ホームと一覧ページで共有する、公開日とタイトルを揃えたお知らせリスト。 */
+export function AnnouncementTextList({
+  announcements,
+  locale,
+  pinnedLabel,
+  trailingAd,
+}: AnnouncementTextListProps) {
+  return (
+    <ul
+      data-framed=""
+      className="group/rows divide-y divide-surface-100 overflow-hidden rounded-panel border border-panel bg-card"
+    >
+      {announcements.map((announcement) => (
+        <li key={announcement.id}>
+          <Link
+            href={`/announcements/${announcement.slug}`}
+            className="group flex min-h-16 items-center gap-3 px-4 py-4 transition-colors hover:bg-surface-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:px-5"
+          >
+            <span className="flex min-w-0 flex-1 flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-5">
+              <time
+                dateTime={
+                  announcement.publishedAt
+                    ? new Date(announcement.publishedAt).toISOString()
+                    : undefined
+                }
+                className="shrink-0 text-xs font-medium tabular-nums text-surface-500"
+              >
+                {formatPublishedDate(
+                  announcement.publishedAt,
+                  locale,
+                  ANNOUNCEMENT_LIST_DATE_OPTIONS,
+                )}
+              </time>
+              <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-sm font-bold leading-relaxed text-foreground [overflow-wrap:anywhere]">
+                  {announcement.title}
+                </span>
+                {announcement.pinnedAt !== null && (
+                  <span className="shrink-0 rounded-md bg-brand-subtle px-2 py-0.5 text-xs font-medium text-brand-subtle-foreground">
+                    {pinnedLabel}
+                  </span>
+                )}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              className="shrink-0 text-surface-400 group-hover:text-foreground"
+            >
+              <ChevronRightIcon />
+            </span>
+          </Link>
+        </li>
+      ))}
+      {trailingAd}
+    </ul>
+  );
+}

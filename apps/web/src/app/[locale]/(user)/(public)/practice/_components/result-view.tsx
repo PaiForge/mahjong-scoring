@@ -1,0 +1,176 @@
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { NativeAdCard } from "@/app/[locale]/(user)/(public)/_components/native-ad-card";
+import { ArrowUturnLeftIcon } from "@/app/[locale]/(user)/_components/icons/arrow-uturn-left-icon";
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
+import type { PracticeResultViewProps } from "../_lib/create-practice-result-page";
+import {
+  buildResultBreadcrumb,
+  resultBreadcrumbParent,
+} from "../_lib/result-breadcrumb";
+import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
+import { ResultPrimaryAction } from "./result-primary-action";
+import { ResultScoreBar } from "./result-score-bar";
+
+/**
+ * 練習結果画面の共通ビュー
+ * 練習結果表示
+ *
+ * Server Component。`resultBlock` / `leaderboardBlock` の `Suspense` 境界が
+ * React Server Components のストリーミング機構で正しく機能するよう、このビュー
+ * 自体を Server Component として描画する。
+ *
+ * 以前は `"use client"` だったが、Client Component の props として渡された
+ * `<Suspense>` 境界は RSC シリアライズのタイミング上 fallback → 実コンテンツの
+ * 置換が期待通りに動作しない（スケルトンと実コンテンツが同時に描画される）
+ * 事象が発生したため、Server Component 化した。
+ *
+ * 子要素の `ResultScoreBar` も Server Component であり、`getTranslations` で
+ * 翻訳を取得する。
+ *
+ * 表示順:
+ * 1. PageTitle（練習名） — 即時描画
+ * 2. 「結果」セクション — 即時描画（親 page.tsx の searchParams から props で受け取る）。
+ *    設定を持つ練習は走った設定名（`variantLabel`）を 1 行添える。
+ *    既定は正解 / 不正解の積み上げ棒（`ResultScoreBar`）。`summary` を渡した
+ *    練習（昇級試験の合否サマリ）はそれで差し替える
+ * 3. `promotionBlock` — 昇級バナー（昇級時のみ。Suspense 境界）
+ * 4. `resultBlock` — 経験値 / 登録 CTA（Suspense 境界）。
+ *    記録を持たない練習（昇級試験）では undefined で、節ごと出ない
+ * 5. アクションボタン（もう一度 / 設定を変更する）と親一覧へのリンク — 即時描画。
+ *    `primaryAction` が "parent" のとき（昇級試験の合格）は主ボタンが親一覧
+ *    （道場）になり、「もう一度」が補助リンクへ下がる
+ * 6. ネイティブ広告 — 掲載中の広告があるときだけ。練習と昇級試験で
+ *    スロットを分ける（読み手の状況が違い、成果もスロット単位で見るため）
+ * 7. `children` — 練習種別固有の追加コンテンツ（問題別フィードバック等）。
+ *    問題別一覧は末尾に 5 の主ボタンをもう 1 つ持つ（`ResultPrimaryAction`）
+ * 8. `leaderboardBlock` — リーダーボードプレビュー（Suspense 境界）。
+ *    ランキングを持たない練習（昇級試験）では undefined で、節ごと出ない
+ * 9. `chaptersBlock` — 関連するレッスン（昇級試験は前提となるレッスン）。
+ *    説明ページと同じ集合で、どちらも持たない練習では節ごと出ない
+ */
+export async function ResultView({
+  practiceTitle,
+  playHref,
+  introHref,
+  settingsHref,
+  correct,
+  total,
+  variantLabel,
+  primaryAction = "retry",
+  promotionBlock,
+  summary,
+  resultBlock,
+  leaderboardBlock,
+  chaptersBlock,
+  children,
+}: PracticeResultViewProps) {
+  const tc = await getTranslations("challenge");
+  // 親一覧（練習一覧 or 道場）。昇級試験の結果は道場へ帰す
+  const parent = resultBreadcrumbParent(introHref);
+  const [tParent, ad] = await Promise.all([
+    getTranslations(parent.namespace),
+    getNativeAdCreative(
+      parent.namespace === "dojo"
+        ? "exam-result-native-ad"
+        : "practice-result-native-ad",
+    ),
+  ]);
+
+  return (
+    <ContentContainer
+      breadcrumb={buildResultBreadcrumb({
+        parentLabel: tParent("title"),
+        parentHref: parent.href,
+        practiceTitle,
+        resultLabel: tc("resultSuffix"),
+        introHref,
+      })}
+    >
+      <PageTitle>{practiceTitle}</PageTitle>
+
+      {/* カード内のセクション間マージンは space-y で等間隔に統一する */}
+      <div className="space-y-8">
+        <section className="space-y-3">
+          <SectionTitle>{tc("resultSectionTitle")}</SectionTitle>
+          {/* 走った出題設定。設定を持つ練習だけ 1 行（スケルトンも同じ行を持つ） */}
+          {variantLabel !== undefined && (
+            <p className="text-sm text-surface-500">{variantLabel}</p>
+          )}
+          {summary ?? <ResultScoreBar correct={correct} total={total} />}
+        </section>
+
+        {/* 昇級バナー: 今回の保存で段級位が付与されたときだけ現れる（Suspense 境界） */}
+        {promotionBlock}
+
+        {/* 結果ブロック: 経験値 / 登録 CTA。Suspense + ResultBlockSkeleton で包まれている。 */}
+        {resultBlock}
+
+        {/* アクションボタン。参考プロジェクト準拠で縦積み・全幅。
+            「設定を変更する」は出題設定を持つ練習だけに出る（`settingsHref`）。
+            練習一覧へは戻り先であって次の行動ではないため、ボタンではなく
+            ボタン群の下の補助リンクに置く。
+
+            余白は入れ子の gap で表す。内側 gap-3 がボタン同士のリズム、
+            外側 gap-4 が「ボタン群 → 補助リンク」の境界。リンク側に
+            padding を足して差を作らない（SUB_LINK_GAP 参照）。 */}
+        <div className={`flex flex-col ${SUB_LINK_GAP}`}>
+          <div className="flex flex-col gap-3">
+            <ResultPrimaryAction
+              playHref={playHref}
+              introHref={introHref}
+              primaryAction={primaryAction}
+            />
+            {settingsHref !== undefined && (
+              <LinkButton
+                href={settingsHref}
+                variant="neutral"
+                size="lg"
+                fullWidth
+              >
+                <ArrowUturnLeftIcon className="size-4" />
+                {tc("changeSettingsButton")}
+              </LinkButton>
+            )}
+          </div>
+          <p className="text-center">
+            {primaryAction === "parent" ? (
+              <Link
+                href={`${playHref}${PRACTICE_SCROLL_HASH}`}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+              >
+                {tc("retryButton")}
+              </Link>
+            ) : (
+              <Link
+                href={parent.href}
+                className={`text-sm ${TEXT_LINK_CLASSES}`}
+              >
+                {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
+              </Link>
+            )}
+          </p>
+        </div>
+
+        {/* ボタン群の後ろに置く。前に置くと「もう一度」より先に広告が目に入る */}
+        {ad && <NativeAdCard creative={ad} />}
+
+        {/* 練習種別固有の追加コンテンツ（問題別フィードバック一覧など） */}
+        {children}
+
+        {/* リーダーボードプレビュー。Suspense + LeaderboardSkeleton で包まれている。 */}
+        {leaderboardBlock}
+
+        {/* 結果を見て復習したくなった人の行き先。次の行動（もう一度）より
+            前に出さないよう最下部に置く */}
+        {chaptersBlock}
+      </div>
+    </ContentContainer>
+  );
+}

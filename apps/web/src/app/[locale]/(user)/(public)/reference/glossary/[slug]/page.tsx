@@ -1,0 +1,168 @@
+/**
+ * 用語ページ
+ *
+ * @description
+ * 用語 1 語の意味と、形が要る語には手牌の例を示し、点数計算での扱い・具体例・
+ * よくある誤解を続ける。関連語と、その語を扱う教本の章へ送る導線を持つ。
+ * 文言は辞書（`glossary.terms.<slug>`）、構造は用語レジストリ
+ * （`lib/glossary/registry.ts`）が持つ。
+ *
+ * 全 slug を `generateStaticParams` で列挙して静的生成し、`dynamicParams` を
+ * 切って「列挙した slug 以外は存在しない」ことを Next に伝える。用語は
+ * コードのレジストリが唯一の出所なので、実行時に増えることはない。
+ *
+ * @design dynamicParams = false — 本物の 404 を返すために要る
+ * 祖先に `loading.tsx` があるルートでは、ページ本体で `notFound()` を呼んでも
+ * ステータスは 200 になる。Suspense のフォールバックを流し始める時点で
+ * ヘッダが確定してしまうためで、`generateMetadata` 側で `notFound()` を
+ * 呼んでも変わらない（2026-08 に本番ビルドで実測）。`dynamicParams` を
+ * 切ると、未知の slug はページを描画する前にルーティングで弾かれるので、
+ * ソフト 404 にならずに 404 が返る。
+ *
+ * 本文（意味〜よくある誤解）を読み終えた位置、関連語・教本への導線の前に
+ * ネイティブ広告のカードを 1 枚置く（掲載中の広告があるときだけ）。導線の
+ * 後に置くと、読み終えた人が次へ進む前に広告を越えることになる。
+ *
+ * @flow
+ * 用語集（/reference/glossary）の一覧、教本本文の用語リンクから開いた
+ * モーダルの「用語ページを見る」、他の用語ページの関連語から遷移する。
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { createMetadata } from "@/app/_lib/metadata";
+import { NativeAdCard } from "@/app/[locale]/(user)/(public)/_components/native-ad-card";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
+import {
+  getGlossaryTermViewBySlug,
+  getGlossaryTermViews,
+} from "@/lib/glossary/queries";
+import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
+import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
+
+import { JsonLd } from "@/app/[locale]/(user)/_components/json-ld";
+import { RelatedTerms } from "../_components/related-terms";
+import { TermSection } from "../_components/term-section";
+import { TermExamples } from "../_components/term-examples";
+import { TermLearnLinks } from "../_components/term-learn-links";
+import { buildDefinedTermSchema } from "../_lib/json-ld";
+import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
+
+interface GlossaryTermPageProps {
+  readonly params: Promise<{ readonly slug: string }>;
+}
+
+export const dynamicParams = false;
+
+export function generateStaticParams(): { slug: string }[] {
+  return GLOSSARY_TERM_SLUGS.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: GlossaryTermPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const [term, t] = await Promise.all([
+    getGlossaryTermViewBySlug(slug),
+    getTranslations("glossary"),
+  ]);
+  // 本番では dynamicParams = false が未知の slug をここへ通さない。
+  // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る
+  // （本文が notFound() を呼び、Next が noindex を付けた 404 を描く）。
+  if (!term) return {};
+
+  return createMetadata({
+    // 見出し語だけ（「萬子」）では検索語を含まない。読みと「とは｜麻雀用語」を
+    // 添えて、用語を調べる検索（「萬子 とは」「マンズ 麻雀」）に当たる形にする
+    title: t("metaTitle", { term: term.term, reading: term.reading }),
+    description: term.definition,
+    path: term.href,
+  });
+}
+
+export default async function GlossaryTermPage({
+  params,
+}: GlossaryTermPageProps) {
+  const { slug } = await params;
+  const [term, t, tHub, ad] = await Promise.all([
+    getGlossaryTermViewBySlug(slug),
+    getTranslations("glossary"),
+    getTranslations("reference"),
+    getNativeAdCreative("glossary-term-native-ad"),
+  ]);
+  if (!term) notFound();
+
+  // 関連語は「あるものだけ」を出す。辞書に無い slug は queries が落とすため、
+  // ここに来る時点で表示できる語だけが残っている。
+  const allTerms = await getGlossaryTermViews();
+  const related = (term.related ?? [])
+    .map((relatedSlug) => allTerms.find((t2) => t2.slug === relatedSlug))
+    .filter((t2) => t2 !== undefined);
+  const learnSlugs = term.learnSlugs ?? [];
+
+  return (
+    <>
+      <JsonLd
+        data={buildDefinedTermSchema({ term, termSetName: t("title") })}
+      />
+      <ContentContainer
+        breadcrumb={[
+          { label: tHub("title"), href: REFERENCE_PATH },
+          { label: t("title"), href: GLOSSARY_PATH },
+          { label: term.term },
+        ]}
+      >
+        <PageTitle>{term.term}</PageTitle>
+
+        <div className="space-y-10">
+          <section className="space-y-4">
+            <SectionTitle>{t("definitionTitle")}</SectionTitle>
+            <p className="text-sm text-surface-400">
+              {t("readingLabel")}: {term.reading}
+            </p>
+            <p className="text-sm leading-relaxed text-surface-700">
+              {term.definition}
+            </p>
+          </section>
+
+          {term.examples !== undefined && term.examples.length > 0 && (
+            <section className="space-y-4">
+              <SectionTitle>{t("examplesTitle")}</SectionTitle>
+              <TermExamples examples={term.examples} />
+            </section>
+          )}
+
+          <TermSection title={t("usageTitle")} body={term.usage} />
+          <TermSection title={t("caseStudyTitle")} body={term.caseStudy} />
+          <TermSection title={t("pitfallTitle")} body={term.pitfall} />
+
+          {ad && <NativeAdCard creative={ad} />}
+
+          {related.length > 0 && (
+            <section className="space-y-4">
+              <SectionTitle>{t("relatedTitle")}</SectionTitle>
+              <RelatedTerms terms={related} />
+            </section>
+          )}
+
+          {learnSlugs.length > 0 && (
+            <section className="space-y-4">
+              <SectionTitle>{t("learnTitle")}</SectionTitle>
+              <TermLearnLinks slugs={learnSlugs} />
+            </section>
+          )}
+
+          <Link href={GLOSSARY_PATH} className={`text-sm ${TEXT_LINK_CLASSES}`}>
+            {t("backToIndex")}
+          </Link>
+        </div>
+      </ContentContainer>
+    </>
+  );
+}

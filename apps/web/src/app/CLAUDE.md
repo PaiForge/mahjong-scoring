@@ -26,13 +26,13 @@ page.tsx と loading.tsx を退避して、ローディング境界が兄弟ル�
 
 置き場所は 2 つ。ディレクトリで「管理画面が使うか」を表現している。
 
-| ディレクトリ                           | 中身                                                                                                                                                                                                     |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
-| `apps/web/src/app/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
+| ディレクトリ                                    | 中身                                                                                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/_components/`                 | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
+| `apps/web/src/app/[locale]/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
 
-新しい共通コンポーネントは原則 `(user)/_components/` に置く。`app/_components/` へ足すのは
-管理画面からも使うときだけ。`app/_components/` と `admin/` から `(user)/_components/` を
+新しい共通コンポーネントは原則 `[locale]/(user)/_components/` に置く。`app/_components/` へ足すのは
+管理画面からも使うときだけ。`app/_components/` と `admin/` から `[locale]/(user)/_components/` を
 import しない（依存の向きを一方向に保つ。ルートの `eslint.config.mjs` が弾く）。
 
 例外は 1 つだけ: ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないが
@@ -62,7 +62,7 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
   同じ緑の塗りの丸に白抜きの太字で、大きさは添える文字に合わせて em で決まる。素の「?」の文字や線画の
   アイコンをページ側で書かない（地の文に紛れて押せることが伝わらない）
 - ヘルプは 2 種類。`HelpTourModal`（`practice/_components/`）は練習の設定画面の「?」から、開始前に
-  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js、`(user)/_components/`）は
+  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js、`[locale]/(user)/_components/`）は
   練習の play 画面や道場の見出しの「?」から、今画面にある要素を順に照らして 1〜2 文で説明する。段階で
   画面が変わる練習は全段階の手順を渡し、無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。
   説明を文章のモーダルで読ませない。ページの見方の説明を見出しと本文の間の地の文に置かない —
@@ -100,19 +100,19 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 | 正解・完了 | `success`                           | 正誤の正解・役の正解チップ・済みマーク・正答バー                     |
 | 採点待ち   | `pending` / `pending-border`        | 押した選択肢が採点を待つ間。正誤のどちらとも読めない灰               |
 
-選択中のタイルは `(user)/_components/_lib/selection-classes.ts`（アプリは `InsetRing` + `colors.selected`）。
+選択中のタイルは `[locale]/(user)/_components/_lib/selection-classes.ts`（アプリは `InsetRing` + `colors.selected`）。
 麻雀卓（`primary-800`）・ヒートマップ・段級位の帯色・教材カテゴリ・順位の色はそれぞれの
 役割の色で、ここには寄せない。表の見出し・本文中の強調値・メニューの hover は緑にしない。
 
-### ボタン（`(user)/_components/`）
+### ボタン（`[locale]/(user)/_components/`）
 
 - `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン
-- 見た目は `(user)/_components/_lib/button-classes.ts` の `buttonClasses()` に集約。`border bg-primary-500 ...` のような一式をページ側で直接書かない
+- 見た目は `[locale]/(user)/_components/_lib/button-classes.ts` の `buttonClasses()` に集約。`border bg-primary-500 ...` のような一式をページ側で直接書かない
 - `variant`（primary / secondary / neutral / danger / warning / dangerOutline）、`size`（sm / md / lg / xl）、`fullWidth`、`disabled` で指定する。`className` は余白などレイアウト調整用で、色・枠・影を上書きしない
 - 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
 - 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
 - 「押せる面」（カード全体がリンクになっているもの。`LinkRow` 等）はボタンではないため対象外
-- 管理画面（`/admin`）は別のビジュアル言語のため対象外。`(user)/_components/` に置いているのはその意思表示でもある
+- 管理画面（`/admin`）は別のビジュアル言語のため対象外。`[locale]/(user)/_components/` に置いているのはその意思表示でもある
 
 ### テキストリンク（`_components/_lib/link-classes.ts`）
 
@@ -189,8 +189,8 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 制限時間 60 秒・ミス 3 回で終了。ページ遷移直後にカウントダウン（3, 2, 1）→ タイマー開始で、
 「準備はいいですか？」のような確認画面は出さない。共通フックは `packages/features/src/session/`
 （`use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`）で、web は
-`(user)/(public)/practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を
-通して使う。円形タイマーは `(user)/(public)/practice/_components/quiz-timer.tsx`。
+`[locale]/(user)/(public)/practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を
+通して使う。円形タイマーは `[locale]/(user)/(public)/practice/_components/quiz-timer.tsx`。
 
 ## 文言
 

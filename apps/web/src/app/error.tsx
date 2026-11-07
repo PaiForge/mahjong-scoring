@@ -5,8 +5,8 @@ import Link from "next/link";
 
 // ルート 404/500 は (user) 配下ではないが、ユーザーに見える画面なので
 // ブランド UI のボタンを使う（admin 配下のエラーもここに落ちる）。
-import { buttonClasses } from "@/app/(user)/_components/_lib/button-classes";
-import { Button } from "@/app/(user)/_components/button";
+import { buttonClasses } from "@/app/[locale]/(user)/_components/_lib/button-classes";
+import { Button } from "@/app/[locale]/(user)/_components/button";
 
 /**
  * Root Error Boundary

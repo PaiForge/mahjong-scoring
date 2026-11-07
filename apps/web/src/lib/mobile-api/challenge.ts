@@ -31,7 +31,7 @@ import {
   readAttemptStatus,
   revealExpiredAttempt,
 } from "../challenge/attempts";
-import { deriveRecordView } from "@/app/(user)/(public)/practice/_lib/derive-record-view";
+import { deriveRecordView } from "@/app/[locale]/(user)/(public)/practice/_lib/derive-record-view";
 
 import { getUserRankSlugs } from "../db/rank-queries";
 import { getExpInfoByChallengeResultId } from "../db/save-exp";

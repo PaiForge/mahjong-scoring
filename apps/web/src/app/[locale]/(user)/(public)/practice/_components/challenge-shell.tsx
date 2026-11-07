@@ -1,0 +1,358 @@
+"use client";
+
+import { type ReactNode, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import type {
+  MenuKind,
+  PracticeMenuSlug,
+} from "@mahjong-scoring/features/practice-menu-types";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { HandPresentationNotice } from "./hand-presentation-notice";
+import { BoardOverlay } from "@/app/[locale]/(user)/_components/board-overlay";
+import { PlayIcon } from "@/app/[locale]/(user)/_components/icons/play-icon";
+import { ScoreCounter } from "./score-counter";
+import type {
+  GameSessionState,
+  TimerControl,
+} from "@mahjong-scoring/features/session/use-timed-session";
+import type { ReconnectPrompt } from "@mahjong-scoring/features/session/use-reconnect-prompt";
+import { Button } from "@/app/[locale]/(user)/_components/button";
+import type {
+  FinishCallbackArgs,
+  FinishCallbackResult,
+} from "../_hooks/use-finish-redirect";
+import { useFinishRedirect } from "../_hooks/use-finish-redirect";
+import { useQuitConfirm } from "../_hooks/use-quit-confirm";
+import { useScrollToElement } from "../_hooks/use-scroll-to-element";
+import {
+  buildResultBreadcrumb,
+  resultBreadcrumbParent,
+} from "../_lib/result-breadcrumb";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
+import { practiceHref } from "@mahjong-scoring/features/routes";
+import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
+import { readVariantFromLocation } from "../_lib/variant-param";
+import { ChallengeStatusBar } from "./challenge-status-bar";
+import { QuitConfirmModal } from "./quit-confirm-modal";
+import { ResultPageSkeleton } from "./result-page-skeleton";
+import {
+  PracticeFooterAction,
+  PracticeFooterActions,
+} from "./practice-footer-actions";
+import { useChallengeClock } from "@mahjong-scoring/features/session/use-challenge-clock";
+import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+
+/**
+ * チャレンジの列の既定の幅
+ * チャレンジ列幅
+ *
+ * 開始前の待ち画面（{@link import("./practice-play-loading-fallback").PracticePlayLoadingFallback}）も
+ * 同じ値で描き、待ち画面から本体に替わるときに列の幅を揃える。
+ */
+export const CHALLENGE_SHELL_MAX_WIDTH = "max-w-md";
+
+export { LifeIndicator } from "./challenge-status-bar";
+
+interface ChallengeShellProps {
+  /**
+   * 画面上部に表示する練習名（PageTitle に渡す）。
+   * 終了後のスケルトンでパンくずのラベルにも使うため文字列に限定する。
+   */
+  readonly title: string;
+  /** ゲームロジック状態（タイマー値を含まない） */
+  readonly gameSession: GameSessionState;
+  /** ChallengeShell 内でタイマーを制御するためのインターフェース */
+  readonly timerControl: TimerControl;
+  /**
+   * 練習のスラッグ。終了時・中断時に URL のバリアントを正規化するのと、
+   * 「やめる」で戻る説明ページのパスを組むのに使う
+   */
+  readonly slug: PracticeMenuSlug;
+  /** リザルトページへのパス（例: "/practice/jantou-fu/result"） */
+  readonly resultPath: string;
+  /** 練習本体のUI */
+  readonly children: ReactNode;
+  /** 内部ラッパーの max-w クラス（既定: {@link CHALLENGE_SHELL_MAX_WIDTH}） */
+  readonly maxWidth?: string;
+  /**
+   * 結果ページが問題別フィードバック一覧を表示するか。
+   * true の場合、終了後のスケルトンにも出題数分の一覧枠を描画して
+   * 結果ページとの高さのずれを防ぐ。
+   */
+  readonly hasProblemList?: boolean;
+  /**
+   * 結果ページが「設定を変更する」ボタンを表示するか。
+   * true の場合、終了後のスケルトンにもボタン枠を 2 つ描画して
+   * 結果ページとの高さのずれを防ぐ。
+   */
+  readonly hasSetup?: boolean;
+  /**
+   * この練習が昇級試験か。
+   * 昇級試験は結果の節の形が違い、記録の節とランキングを持たないため、
+   * 終了後のスケルトンも同じ形にして結果ページとの高さのずれを防ぐ。
+   * 中断の確認モーダルとトーストの文言（試験 / チャレンジ）もここで選ぶ。
+   */
+  readonly variant?: MenuKind;
+  /**
+   * 通信の失敗が続いたときに盤面の上へ重ねる再接続の案内（記録付きの
+   * チャレンジだけ。`useVerifiedChallenge` の `reconnect`）。出ている間は
+   * 一時停止と同じく盤面を inert にして幕を掛け、一時停止も押せなくする。
+   * 時計は採点待ち（`isGrading`）として止まっている
+   */
+  readonly reconnect?: ReconnectPrompt;
+  /** 練習終了時に呼び出されるコールバック（スコア保存等） */
+  readonly onFinish?: (
+    args: FinishCallbackArgs,
+  ) =>
+    | Promise<FinishCallbackResult | void | undefined>
+    | FinishCallbackResult
+    | void;
+}
+
+/**
+ * 練習共通シェル（カウントダウン・ステータスバー・ContentContainer）
+ * 練習共通外殻
+ *
+ * タイマー状態（elapsedMs, remainingSeconds）は ChallengeShell 内の useGameTimer で管理される。
+ * これにより 100ms ごとのタイマー更新は ChallengeShell のみが再レンダリングし、
+ * children（練習本体の牌画像・選択肢ボタン等）には伝播しない。
+ */
+export function ChallengeShell({
+  title,
+  slug,
+  gameSession,
+  timerControl,
+  resultPath,
+  children,
+  maxWidth = CHALLENGE_SHELL_MAX_WIDTH,
+  hasProblemList = false,
+  hasSetup = false,
+  variant = "practice",
+  reconnect,
+  onFinish,
+}: ChallengeShellProps) {
+  const tc = useTranslations("challenge");
+  // 結果ページが受け取る introHref と一致させる（パンくずのラベル用）
+  const introHref = practiceHref(slug);
+  // 「やめる」で戻る説明ページ。選択パネルが URL のバリアントを初期選択に
+  // するので、今の出題設定を持って戻す（トレーニングの「終了する」と同じ）。
+  // 確定の瞬間に location から読む — バリアントはチャレンジ中に変わらない
+  const resolveExitHref = useCallback(
+    () => practiceHref(slug, readVariantFromLocation(slug)),
+    [slug],
+  );
+  // 親一覧（練習一覧 or 道場）。終了後スケルトンのパンくずを実描画と揃える
+  const parent = resultBreadcrumbParent(introHref);
+  const tParent = useTranslations(parent.namespace);
+
+  // 練習開始直後、グローバルヘッダ分のオフセットを解消して盤面を画面上部へ表示する
+  useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
+
+  // 終了して結果スケルトンに差し替わる瞬間に、ページ先頭へ戻す。
+  //
+  // セッション中は上のスクロールでグローバルヘッダとタイトル帯（約 128px）を
+  // 画面外へ送っている。その位置のまま結果スケルトンへ差し替わると、直後の
+  // 結果ページへの遷移で Next がページ先頭までスクロールを戻すため、ほぼ同じ
+  // 見た目のスケルトンがヘッダのぶんだけ下へ飛んだように見える。スケルトンに
+  // 切り替わる時点で戻しておけば、遷移の前後で位置が一致して飛ばない。
+  //
+  // 戻す先を結果ページ側に合わせる（ヘッダを画面外に残したまま遷移する）のでは
+  // なく先頭にするのは、結果ページが読む画面で、タイトル帯とパンくずが見えて
+  // いる状態が着地点として正しいため。
+  const isFinished = gameSession.isFinished;
+  useEffect(() => {
+    if (!isFinished) return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [isFinished]);
+
+  const { pauseForQuit, resumeAfterQuit } = useQuitPause(gameSession);
+
+  const {
+    isQuitModalOpen,
+    handleQuitClick,
+    handleQuitCancel,
+    handleQuitConfirm,
+  } = useQuitConfirm({
+    onOpen: pauseForQuit,
+    onCancel: resumeAfterQuit,
+    variant,
+    resolveExitHref,
+  });
+
+  const { remainingSeconds, elapsedMs } = useChallengeClock({
+    gameSession,
+    timerControl,
+  });
+
+  useFinishRedirect({
+    isFinished: gameSession.isFinished,
+    finalResult: gameSession.finalResult,
+    elapsedMs,
+    slug,
+    resultPath,
+    onFinish,
+  });
+
+  // 終了後はスコア保存 → 結果ページ遷移までの間、白画面を出さずに
+  // 結果ページ形状のスケルトンを表示する（遷移中も古いルートとして残り続ける）。
+  if (gameSession.isFinished) {
+    return (
+      <ResultPageSkeleton
+        practiceTitle={title}
+        breadcrumb={buildResultBreadcrumb({
+          parentLabel: tParent("title"),
+          parentHref: parent.href,
+          practiceTitle: title,
+          resultLabel: tc("resultSuffix"),
+          introHref,
+        })}
+        // 結果ページの一覧は答えた問題（終了時の totalCount）に、時間切れなら
+        // 答えられなかった最後の 1 問を足した数だけ並ぶ
+        problemCount={
+          hasProblemList
+            ? listedProblemCount(
+                gameSession.finalResult?.totalCount ?? gameSession.totalCount,
+                gameSession.finalResult?.reason,
+              )
+            : 0
+        }
+        hasSetup={hasSetup}
+        variant={variant}
+      />
+    );
+  }
+
+  return (
+    <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
+      <PageTitle>{title}</PageTitle>
+      <HandPresentationNotice />
+
+      {/* カウントダウンのスモーク。
+
+          高さは inset-0 に加えて min-h-lvh でも押さえる。iOS の Chrome / Safari は
+          スクロールに合わせて上下のツールバーを畳み、畳んだぶんだけ表示領域が縦に
+          伸びるが、fixed 要素の基準になるレイアウトビューポートは「ツールバーが
+          出ている状態」の高さのままになる。inset-0 だけだと畳んだ差分が画面下端に
+          帯として残り、そこだけ盤面が素通しで見える。lvh（ツールバーを畳んだときの
+          最大の高さ）を下限にすると、どちらの状態でも下端まで届く — ツールバーが
+          出ている間は画面外へはみ出すだけで見えない。lvh を解さないブラウザは
+          この宣言を捨てて inset-0 の高さに戻るだけなので後退しない。
+
+          この画面は開始直後に useScrollToElement が縦にスクロールするため、必ず
+          ツールバーが畳まれた状態に入る。他の全画面オーバーレイ（ModalShell /
+          NavMenu）は useBodyScrollLock で背面を止めていてツールバーが動かないため、
+          同じ形をしていてもこの症状が出ない。 */}
+      {gameSession.isCountingDown && (
+        <div className="fixed inset-0 z-30 flex min-h-lvh items-center justify-center bg-white/80 backdrop-blur-sm">
+          <span className="text-6xl font-bold text-action animate-pulse">
+            {gameSession.countdownValue}
+          </span>
+        </div>
+      )}
+
+      <div className={`mx-auto ${maxWidth}`}>
+        <ChallengeStatusBar
+          remainingSeconds={remainingSeconds}
+          elapsedMs={elapsedMs}
+          timeLimit={gameSession.timeLimit}
+          isPaused={gameSession.isPaused}
+          pauseDisabled={
+            gameSession.isCountingDown ||
+            gameSession.isFinished ||
+            reconnect !== undefined
+          }
+          onTogglePause={gameSession.togglePause}
+          remainingLives={gameSession.remainingLives}
+          mistakeLimit={gameSession.mistakeLimit}
+        />
+
+        {/* Game content area - overlay scoped here to keep status bar accessible.
+
+            <sm では盤面が白カードの左右パディング（p-4）を打ち消して画面端まで
+            広がる（TehaiDisplay の fullBleed）。オーバーレイは inset-0 でこの箱を
+            覆うため、箱がパディングの内側のままだと盤面の左右 16px が覆われず、
+            手牌が両端だけ透けて見える。外側へ -mx-4 で広げ、同じ幅を px-4 で
+            戻すことで、中の要素の位置は変えずに箱だけを盤面と同じ幅にする
+            （sm 以上は盤面が広がらないので元に戻す）。 */}
+        <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+          {/* 一時停止中は盤面を inert にして、タップもキーボードも届かなくする。
+              上に重ねる BoardOverlay は再開ボタン以外を pointer-events-none で
+              素通しするため、幕だけでは下の選択肢が押せてしまう。押せると
+              盤面は問題別一覧に結果を記録するのに、セッションは一時停止中の
+              回答を捨てるので、正誤の数に入らない行が一覧に残る（再開後に
+              同じ問題へもう一度答えると 2 行になる）。ログイン中はサーバーが
+              一時停止中の回答を受け付けず、チャレンジが通信エラーで止まる */}
+          <div
+            className={
+              gameSession.isPaused || reconnect
+                ? "blur-sm select-none"
+                : undefined
+            }
+            inert={gameSession.isPaused || reconnect !== undefined}
+          >
+            {children}
+          </div>
+
+          {/* 送り直しが尽きた回答。押すまで時計は止まったままで、押すと同じ
+              回答をもう一度送る（チャレンジは作り直さない） */}
+          {reconnect && (
+            <BoardOverlay>
+              <div
+                role="alert"
+                className="mx-4 flex flex-col items-center gap-4 rounded-md border border-panel bg-white p-4 text-center text-sm text-surface-700"
+              >
+                <p>{tc(`recording.${reconnect.message}`)}</p>
+                <Button onClick={reconnect.onPress}>
+                  {tc("recording.reconnect")}
+                </Button>
+              </div>
+            </BoardOverlay>
+          )}
+
+          <BoardOverlay isVisible={gameSession.isPaused}>
+            <button
+              type="button"
+              onClick={gameSession.togglePause}
+              className={`rounded-full border border-panel bg-white/90 p-4 text-surface-700 transition-colors hover:bg-white hover:text-surface-900 ${FOCUS_RING_CLASSES}`}
+              aria-label={tc("resume")}
+            >
+              <PlayIcon className="size-12" />
+            </button>
+          </BoardOverlay>
+        </div>
+
+        {/* Footer: 正誤カウンタと終了操作。TrainingShell と同じく盤面から
+            8 (32px) 間隔で並べる。
+
+            カウンタはチャレンジでも常に出す。回答の正誤を選択肢の色分けで
+            返せる練習（符・翻・役）と返せない練習（点数系は select 回答）が
+            あり、出す練習だけカウンタを置くと画面の作りが練習ごとに変わる。
+            トレーニングも同じ位置に同じものを置いているので、モードを
+            またいでも下端の並びが動かない。 */}
+        <div className="mt-8 space-y-8">
+          <ScoreCounter
+            correct={gameSession.correctCount}
+            incorrect={gameSession.incorrectCount}
+            correctLabel={tc("correct")}
+            incorrectLabel={tc("incorrect")}
+          />
+
+          <PracticeFooterActions>
+            <PracticeFooterAction onClick={handleQuitClick}>
+              {tc("quitButton")}
+            </PracticeFooterAction>
+          </PracticeFooterActions>
+        </div>
+      </div>
+
+      <QuitConfirmModal
+        isOpen={isQuitModalOpen}
+        onConfirm={handleQuitConfirm}
+        onCancel={handleQuitCancel}
+        variant={variant}
+      />
+    </ContentContainer>
+  );
+}

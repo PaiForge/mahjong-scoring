@@ -12,7 +12,7 @@
 
 追加・削除・メールアドレスの変更は web のアカウントページ（`/mypage/account`）で行います。
 仕組みと判断（同じプロバイダを複数許す理由、外すときのガード、パスワードを画面で
-受け取らない理由）は `apps/web/src/app/(user)/(protected)/(confirmed)/mypage/account/(home)/page.tsx`
+受け取らない理由）は `apps/web/src/app/[locale]/(user)/(protected)/(confirmed)/mypage/account/(home)/page.tsx`
 の TSDoc と `packages/features/src/account/login-methods.ts` に書いてあります。
 
 同じメールアドレスの Google / Apple でログインしたときの自動連携は Supabase Auth が

@@ -1,0 +1,94 @@
+/**
+ * お知らせ一覧
+ *
+ * @description
+ * 公開済みお知らせの一覧ページ。slug ごとに best なロケール variant を 1 件表示する。
+ * @flow ナビ「お知らせ」→ 一覧 → 各お知らせの詳細（/announcements/[slug]）
+ */
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+
+import { ANNOUNCEMENTS_PER_PAGE } from "@mahjong-scoring/features/announcements/listing";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { PaginationNav } from "@/app/[locale]/(user)/_components/pagination-nav";
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { parsePageParam, resolvePagination } from "@/lib/pagination";
+
+import { AnnouncementTextList } from "./_components/announcement-text-list";
+import {
+  getPublishedAnnouncementCount,
+  getPublishedAnnouncementsPaginated,
+} from "@/lib/announcements/queries";
+import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
+
+export const revalidate = 86400;
+
+interface Props {
+  searchParams: Promise<{ page?: string }>;
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return createNamespaceMetadata("announcements", {
+    title: "pageTitle",
+    description: "pageDescription",
+    path: ANNOUNCEMENTS_PATH,
+  });
+}
+
+export default async function AnnouncementsPage({ searchParams }: Props) {
+  const { page } = await searchParams;
+  const locale = await getLocale();
+  const t = await getTranslations("announcements");
+
+  const requestedPage = parsePageParam(page);
+  const totalCount = await getPublishedAnnouncementCount();
+  const { currentPage, totalPages, limit, offset } = resolvePagination(
+    requestedPage,
+    totalCount,
+    ANNOUNCEMENTS_PER_PAGE,
+  );
+
+  // 範囲外のページは最終ページを出さず 404 にする（丸めたページと要求の
+  // 食い違いで判定する。アプリ向け API は丸めたページをそのまま返す）
+  if (currentPage !== requestedPage) {
+    notFound();
+  }
+
+  const [items, ad] = await Promise.all([
+    getPublishedAnnouncementsPaginated(locale, limit, offset),
+    getNativeAdCreative("announcements-index-native-ad"),
+  ]);
+
+  return (
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <PageTitle>{t("pageTitle")}</PageTitle>
+
+      <div className="space-y-4">
+        <SectionTitle>{t("listTitle")}</SectionTitle>
+
+        {items.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("empty")}</p>
+        ) : (
+          <div className="space-y-6">
+            <AnnouncementTextList
+              announcements={items}
+              locale={locale}
+              pinnedLabel={t("pinned")}
+              trailingAd={ad && <NativeAdRow creative={ad} />}
+            />
+            <PaginationNav
+              currentPage={currentPage}
+              totalPages={totalPages}
+              buildHref={(p) => `/announcements${p > 1 ? `?page=${p}` : ""}`}
+            />
+          </div>
+        )}
+      </div>
+    </ContentContainer>
+  );
+}

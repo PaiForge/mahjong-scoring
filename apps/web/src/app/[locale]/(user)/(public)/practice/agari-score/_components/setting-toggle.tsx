@@ -1,0 +1,146 @@
+"use client";
+
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { HelpIconButton } from "@/app/[locale]/(user)/_components/help-icon-button";
+
+/**
+ * 有料プランの機能で、いまの閲覧者には開放されていないことを示す
+ * 設定ロック
+ *
+ * 機能名・使えない理由・使うための導線を隠さずに読ませる。スイッチの位置には
+ * 押せない表記（`badge`。「Pro」）を置き、その下に利用条件（`note`）と
+ * 料金ページへのテキストリンク（`linkLabel`）を添える。
+ *
+ * ぼかしや中央のオーバーレイで覆わない。1 行を覆うには面積が足りず、
+ * 描画の崩れに見えるため。Pro の設定が複数になったら、独立したカードに
+ * まとめる形を検討する。
+ */
+interface SettingToggleLock {
+  readonly badge: string;
+  readonly note: string;
+  readonly linkLabel: string;
+  readonly href: string;
+}
+
+interface SettingToggleProps {
+  readonly checked: boolean;
+  readonly onChange: (checked: boolean) => void;
+  readonly label: string;
+  readonly title?: string;
+  readonly isLast?: boolean;
+  readonly onInfoClick?: () => void;
+  readonly infoAriaLabel?: string;
+  /** 指定するとスイッチを出さず、利用条件と料金ページへの導線を出す */
+  readonly locked?: SettingToggleLock;
+  /**
+   * 上の行の細目として描く（{@link SettingToggleGroup} の中に置く）。
+   * 区切り線を引かず、文字を一段小さく淡くする
+   */
+  readonly nested?: boolean;
+}
+
+/**
+ * 親のトグルの細目をまとめる囲み
+ * 設定の細目
+ *
+ * 親の行の直下に置き、淡い地と左の縦線で「上の行に付いている」ことを示す。
+ * 親の行との間に区切り線は引かない（親の行は `isLast` にする）。中の行は
+ * `nested` にする。インデントだけだと行頭が揃っていないように見えるため、
+ * 縦線と地で塊にする。
+ */
+export function SettingToggleGroup({
+  isLast = false,
+  children,
+}: {
+  readonly isLast?: boolean;
+  readonly children: ReactNode;
+}) {
+  return (
+    <div
+      className={`bg-surface-50 pb-2 ${isLast ? "" : "border-b border-surface-100"}`}
+    >
+      <div className="ml-6 border-l-2 border-surface-200">{children}</div>
+    </div>
+  );
+}
+
+export function SettingToggle({
+  checked,
+  onChange,
+  label,
+  title,
+  isLast = false,
+  onInfoClick,
+  infoAriaLabel,
+  locked,
+  nested = false,
+}: SettingToggleProps) {
+  if (locked) {
+    // 操作できない行なので hover の反応は付けない。淡い背景で区切るが、
+    // 文字のコントラストは通常の行と同じに保つ
+    return (
+      <div
+        className={`bg-surface-50 px-5 py-3.5 ${isLast ? "" : "border-b border-surface-100"}`}
+      >
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-medium text-surface-700">
+            {title || label}
+          </span>
+          <span className="inline-flex shrink-0 items-center rounded-md bg-surface-100 px-2 py-0.5 text-[11px] leading-none font-bold text-surface-600">
+            {locked.badge}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-surface-600">{locked.note}</p>
+        <div className="mt-1 text-right text-xs">
+          <Link
+            href={locked.href}
+            className={`font-semibold ${TEXT_LINK_CLASSES}`}
+          >
+            {locked.linkLabel}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const rowClasses = nested
+    ? "py-2.5 pl-4 pr-5 hover:bg-surface-100"
+    : `px-5 py-3.5 hover:bg-surface-50 ${isLast ? "" : "border-b border-surface-100"}`;
+  const labelClasses = nested
+    ? "text-[13px] text-surface-600"
+    : "text-sm text-surface-700";
+
+  return (
+    <div
+      className={`group flex items-center justify-between transition-colors ${rowClasses}`}
+    >
+      <span className="flex items-center gap-1.5">
+        <label
+          className={`cursor-pointer select-none font-medium group-hover:text-surface-900 ${labelClasses}`}
+        >
+          {title || label}
+        </label>
+        {onInfoClick && (
+          <HelpIconButton onClick={onInfoClick} label={infoAriaLabel ?? ""} />
+        )}
+      </span>
+      <label className="relative inline-flex cursor-pointer items-center">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <div className="h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-surface-200 transition-colors duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-ring peer-focus:ring-offset-2 peer-checked:bg-action" />
+        <span
+          className={`pointer-events-none absolute left-[2px] top-[2px] block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out ${
+            checked ? "translate-x-[20px]" : "translate-x-0"
+          }`}
+        />
+      </label>
+    </div>
+  );
+}

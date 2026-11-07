@@ -3,7 +3,7 @@ import { vi } from "vitest";
 import type {
   BeginPracticeQuestionError,
   BeginPracticeQuestionResult,
-} from "@/app/(user)/(public)/practice/_actions/begin-practice-question";
+} from "@/app/[locale]/(user)/(public)/practice/_actions/begin-practice-question";
 import type { ActionResult } from "@/lib/action-types";
 
 /**

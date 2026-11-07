@@ -1,0 +1,43 @@
+import { getTranslations } from "next-intl/server";
+import { redirect } from "next/navigation";
+
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { getAuthenticatedUser } from "../../../../../lib/auth";
+import { getLatestBanReason, isUserBanned } from "../../../../../lib/ban";
+
+/**
+ * BAN ページ
+ *
+ * @description BAN されたユーザーに表示されるページ。BAN 理由を表示する。
+ * @flow 認証チェック → BAN チェック → 最新の BAN 理由を取得して表示
+ */
+export default async function BannedPage() {
+  const t = await getTranslations("banned");
+
+  // 未認証なら getAuthenticatedUser が /sign-in へリダイレクトする
+  const user = await getAuthenticatedUser();
+
+  // BAN されていなければホームへ
+  const banned = await isUserBanned(user.id);
+  if (!banned) {
+    redirect("/");
+  }
+
+  const reason = await getLatestBanReason(user.id);
+
+  return (
+    <ContentContainer>
+      <div className="space-y-4 py-12 text-center">
+        <PageTitle>{t("title")}</PageTitle>
+        <p className="text-gray-600">{t("message")}</p>
+        {reason && (
+          <p className="rounded-lg bg-destructive-subtle px-4 py-3 text-sm text-destructive-strong">
+            {t("reason", { reason })}
+          </p>
+        )}
+        <p className="text-sm text-gray-500">{t("contact")}</p>
+      </div>
+    </ContentContainer>
+  );
+}
