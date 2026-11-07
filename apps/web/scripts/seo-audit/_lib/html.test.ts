@@ -74,6 +74,33 @@ describe("readBody（初期 HTML の本文の所在）", () => {
   });
 });
 
+describe("readBody（広告のリンク）", () => {
+  it("rel に sponsored を持つリンクを、main の外や hidden の下も含めて数える", () => {
+    const body = readBody(
+      parseHtml(
+        "<html><body><main>" +
+          '<a href="https://example.com/a" target="_blank" rel="sponsored noopener noreferrer">A</a>' +
+          '<a href="/lessons">内部リンク</a>' +
+          '<a href="https://example.com/b" rel="noopener">外部</a>' +
+          "</main>" +
+          '<aside><a href="https://example.com/c" rel="Sponsored">C</a></aside>' +
+          '<div hidden><a href="https://example.com/d" rel="nofollow sponsored">D</a></div>' +
+          "</body></html>",
+      ),
+    );
+    expect(body.sponsoredLinks).toBe(3);
+  });
+
+  it("広告の無いページは 0", () => {
+    const body = readBody(
+      parseHtml(
+        '<html><body><main><h1>x</h1><a href="https://example.com" rel="noopener noreferrer">x</a></main></body></html>',
+      ),
+    );
+    expect(body.sponsoredLinks).toBe(0);
+  });
+});
+
 describe("readHead", () => {
   it("canonical・robots・hreflang・og・JSON-LD を読む", () => {
     const head = readHead(

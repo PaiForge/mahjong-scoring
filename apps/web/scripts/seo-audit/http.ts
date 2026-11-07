@@ -23,19 +23,23 @@
  * 2. sitemap の実応答 — 掲載 URL がすべて 200・索引対象・自己 canonical で、
  *    HTML の hreflang が sitemap と同じ。hreflang の相手も 200・索引対象・自己 canonical
  *    （DB 由来のお知らせ詳細のような動的ページもここで見る）
- * 3. 未公開の英語 — 移行前の日本語の URL に `/en` を付けたものは、公開した英語を除き
+ * 3. 未公開の英語 — 移行前の日本語の URL に `/en` を付けたものは、公開した英語
+ *    （完全一致の行と、用語のページのテンプレートに合うもの）を除き
  *    すべて hard 404 + `X-Robots-Tag: noindex` + meta robots noindex（index を併記しない）
  * 4. 言語の判定 — cookie（`NEXT_LOCALE`）・`Accept-Language`・bot の User-Agent・
  *    query のどの組み合わせでも、ステータス・Location・canonical・lang・robots・
  *    hreflang が変わらない。`NEXT_LOCALE` を書かない
  * 5. RSC / prefetch — Next のクライアント遷移の要求（`RSC: 1`・`Next-Router-Prefetch: 1`）
  *    も、日本語・公開した英語は 200 の RSC、未公開の英語は 404
- * 6. 未知の slug・言語・`/ja` の別名・管理画面・API・認証・静的ファイル・robots.txt
+ * 6. 未知の slug・言語・`/ja` の別名・管理画面・API・認証・静的ファイル・robots.txt。
+ *    英語の用語は、slug の形に合わない語が proxy の hard 404、形に合うが無い語が
+ *    ページ（`dynamicParams = false`）の 404 + noindex
  * 7. noindex — 日本語の noindex ページは meta robots が noindex で、親の googlebot の
  *    index が残らない
  * 8. 認証 — ゲスト・壊れた cookie・ログイン済み（dev-seed のユーザー。ローカルの
  *    Supabase に対してだけ）で `/` と `/dashboard` を確かめ、ログイン済みの HTML が
- *    共有キャッシュに載らず、後続のゲストに漏れない
+ *    共有キャッシュに載らず、後続のゲストに漏れない。ログイン済みの `/en` は
+ *    英語の LP のまま（英語の dashboard は未公開なので rewrite しない）
  * 9. SNS・構造化データ — bot の User-Agent で取得した head の title・description・
  *    og・twitter、og:image の実体（200・PNG・寸法）、JSON-LD
  *
@@ -67,8 +71,8 @@ import {
   AUDIT_LOCALES,
   BASELINE_HTTP_CHANGES,
   BASELINE_ROBOTS_DISALLOW,
-  EN_INDEXABLE_PATHS,
   EN_NOINDEX_PATHS,
+  isEnIndexable,
   parseSiteUrl,
   SITE_ORIGIN,
 } from "./expectations";
@@ -296,8 +300,9 @@ async function auditUnpublishedEnglish(
   context: Context,
   japanesePaths: readonly string[],
 ): Promise<void> {
-  const published = new Set([...EN_INDEXABLE_PATHS, ...EN_NOINDEX_PATHS]);
-  const targets = japanesePaths.filter((path) => !published.has(path));
+  const targets = japanesePaths.filter(
+    (path) => !isEnIndexable(path) && !EN_NOINDEX_PATHS.includes(path),
+  );
   const failures: string[] = [];
   for (const path of targets) {
     const enPath = `/en${path === "/" ? "" : path}`;
@@ -321,6 +326,8 @@ const VARIANT_SAMPLE_PATHS = [
   "/en/practice",
   "/en",
   "/lessons",
+  "/en/lessons",
+  "/en/reference/glossary/ankan",
   "/announcements",
   "/practice/jantou-fu/play",
   "/dashboard",
@@ -427,8 +434,17 @@ async function auditRsc(context: Context): Promise<void> {
     "/reference/score-table",
     "/en/reference/score-table",
     "/lessons",
+    "/en",
+    "/en/lessons",
+    "/en/lessons/jantou-fu",
+    "/en/reference/glossary",
   ];
-  const notFoundPaths = ["/en/practice", "/en", "/en/lessons", "/en/admin"];
+  const notFoundPaths = [
+    "/en/practice",
+    "/en/admin",
+    "/en/lessons/about-this-app",
+    "/en/getting-started",
+  ];
   let requests = 0;
   for (const [label, headers] of headerSets) {
     for (const path of okPaths) {
@@ -479,6 +495,52 @@ const expectHardNotFound = (fetched: Fetched): string | undefined => {
 const expectNotIndexable = (fetched: Fetched): string | undefined =>
   isNotIndexable(fetched) ? undefined : `${fetched.status} で索引対象`;
 
+/**
+ * 404 で、noindex（`X-Robots-Tag` か meta robots）を持つ
+ *
+ * proxy の hard 404 とは限らない（ページの `notFound()` の 404 も通す）。
+ */
+const expectNoindexNotFound = (fetched: Fetched): string | undefined => {
+  const head = headOf(fetched);
+  const problems: string[] = [];
+  if (fetched.status !== 404) problems.push(`status ${fetched.status}`);
+  if (!headerNoindex(fetched) && !(head && isNoindex(head.robots)))
+    problems.push("noindex が無い");
+  if (
+    head &&
+    (hasExplicitIndex(head.robots) || hasExplicitIndex(head.googlebot))
+  ) {
+    problems.push("robots / googlebot に index が残る");
+  }
+  return problems.length === 0 ? undefined : problems.join(" / ");
+};
+
+/**
+ * 英語で公開した 200 の索引対象（canonical が自分、hreflang が ja・en・x-default）
+ *
+ * @param path - 監査するサーバーの英語のパス（`/en/...`）
+ */
+const expectEnglishIndexable =
+  (path: string) =>
+  (fetched: Fetched): string | undefined => {
+    const head = headOf(fetched);
+    const self = `${SITE_ORIGIN}${path}`;
+    const problems: string[] = [];
+    if (fetched.status !== 200) problems.push(`status ${fetched.status}`);
+    if (!head) return [...problems, "HTML でない"].join(" / ");
+    if (isNotIndexable(fetched)) problems.push("noindex");
+    if (head.lang !== "en") problems.push(`lang=${head.lang}`);
+    if (head.canonicals.length !== 1 || head.canonicals[0] !== self)
+      problems.push(`canonical ${head.canonicals.join(" ") || "(なし)"}`);
+    const hreflangs = head.alternates.map((alternate) => alternate.hreflang);
+    if (
+      JSON.stringify([...hreflangs].sort()) !==
+      JSON.stringify(["en", "ja", "x-default"])
+    )
+      problems.push(`hreflang ${hreflangs.join(" ") || "(なし)"}`);
+    return problems.length === 0 ? undefined : problems.join(" / ");
+  };
+
 const expectNotOk = (fetched: Fetched): string | undefined =>
   fetched.status === 200 ? "200 で重複の URL を返した" : undefined;
 
@@ -519,13 +581,20 @@ const EDGE_CASES: readonly EdgeCase[] = [
   },
   {
     path: "/en/reference/glossary/ankan",
-    expect: "hard 404 + noindex",
-    check: expectHardNotFound,
+    expect: "200（canonical が自分、hreflang が ja・en・x-default）",
+    check: expectEnglishIndexable("/en/reference/glossary/ankan"),
   },
   {
+    // slug の形に合わない語は許可リストのテンプレートに当たらず、proxy が 404 にする
     path: "/en/reference/glossary/__audit_unknown__",
-    expect: "hard 404 + noindex",
-    check: expectHardNotFound,
+    expect: "404 + noindex",
+    check: expectNoindexNotFound,
+  },
+  {
+    // 形に合うが用語に無い語は proxy を通り、ページの dynamicParams = false が 404 にする
+    path: "/en/reference/glossary/audit-unknown-term",
+    expect: "404 + noindex（ページの 404）",
+    check: expectNoindexNotFound,
   },
   { path: "/fr/practice", expect: "404", check: expectStatus(404) },
   { path: "/fr", expect: "404", check: expectStatus(404) },
@@ -727,6 +796,22 @@ function isLandingPage(fetched: Fetched): boolean {
   );
 }
 
+/**
+ * 英語の LP（`/en`）の応答か
+ *
+ * dashboard（noindex・canonical を持たない）へ rewrite されていれば偽になる。
+ */
+function isEnglishLandingPage(fetched: Fetched): boolean {
+  const head = headOf(fetched);
+  return (
+    fetched.status === 200 &&
+    head !== undefined &&
+    head.lang === "en" &&
+    head.canonicals[0] === `${SITE_ORIGIN}/en` &&
+    !isNoindex(head.robots)
+  );
+}
+
 /** dev-seed のユーザーでログインし、要求に載せる cookie を返す */
 async function signIn(): Promise<{ cookie: string } | { error: string }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -820,9 +905,18 @@ async function auditAuth(context: Context): Promise<void> {
     if (dashboard.status === 200 && !isPrivate(dashboard)) {
       failures.push("ログイン済みの /dashboard が共有キャッシュ可能");
     }
+    // 英語の dashboard は未公開なので、ログイン済みでも /en は英語の LP のまま
     const enTop = await get(context, "/en", headers);
-    for (const problem of hardNotFoundProblems(enTop))
-      failures.push(`ログイン済みの /en: ${problem}`);
+    if (!isEnglishLandingPage(enTop)) {
+      failures.push(
+        `ログイン済みの /en が英語の LP でない（${enTop.status} ${enTop.location}。dashboard へ rewrite していないか）`,
+      );
+    }
+    if (enTop.headers.get("set-cookie") && !isPrivate(enTop)) {
+      failures.push(
+        "ログイン済みの /en が cookie を書いたのに共有キャッシュ可能",
+      );
+    }
     const after = await get(context, "/");
     if (!isLandingPage(after))
       failures.push(
@@ -851,19 +945,45 @@ function pngSize(
   return { width: view.getUint32(16), height: view.getUint32(20) };
 }
 
-/** 9 で見るページ（言語ごとの公開ページ） */
+/**
+ * 9 で見るページ（言語ごとの公開ページ）
+ *
+ * 用語のページは監査がレジストリを読まないので、slug の実在を baseline の
+ * HTTP の台帳（日本語で 200 だった URL）で確かめてから取得する。
+ */
 const SOCIAL_SAMPLES: readonly { path: string; locale: string }[] = [
   { path: "/", locale: "ja" },
   { path: "/reference/score-table", locale: "ja" },
   { path: "/lessons/jantou-fu", locale: "ja" },
+  { path: "/en", locale: "en" },
   { path: "/en/reference/score-table", locale: "en" },
+  { path: "/en/lessons/jantou-fu", locale: "en" },
+  { path: "/en/reference/glossary/jantou", locale: "en" },
 ];
 
-/** 9. SNS・構造化データ */
-async function auditSocial(context: Context): Promise<void> {
+/** 英語の公開パス（`/en/...`）をロケール非依存のパスにする */
+function localeFreeOf(path: string): string {
+  return path.replace(/^\/en(?=\/|$)/, "") || "/";
+}
+
+/**
+ * 9. SNS・構造化データ
+ *
+ * @param japaneseOk - baseline で日本語が 200 だったロケール非依存のパス
+ */
+async function auditSocial(
+  context: Context,
+  japaneseOk: ReadonlySet<string>,
+): Promise<void> {
   const failures: string[] = [];
   const titles = new Map<string, string>();
   for (const { path, locale } of SOCIAL_SAMPLES) {
+    if (locale !== DEFAULT_LOCALE && !japaneseOk.has(localeFreeOf(path))) {
+      failures.push(
+        `${path}: 見本のページが baseline の日本語に無い（見本を実在のページに直す）`,
+      );
+      continue;
+    }
     for (const [name, userAgent] of Object.entries(BOT_USER_AGENTS)) {
       const fetched = await get(context, path, { "user-agent": userAgent });
       const head = headOf(fetched);
@@ -889,7 +1009,7 @@ async function auditSocial(context: Context): Promise<void> {
       }
       if (head.meta.get("og:url") !== head.canonicals[0])
         failures.push(`${label}: og:url と canonical が違う`);
-      titles.set(`${locale}:${path.replace(/^\/en/, "") || "/"}`, head.title);
+      titles.set(`${locale}:${localeFreeOf(path)}`, head.title);
       for (const error of head.jsonLdErrors)
         failures.push(`${label}: JSON-LD を解析できない ${error}`);
       const imagePath = toLocalPath(head.meta.get("og:image") ?? "");
@@ -919,11 +1039,13 @@ async function auditSocial(context: Context): Promise<void> {
       }
     }
   }
-  if (
-    titles.get("ja:/reference/score-table") ===
-    titles.get("en:/reference/score-table")
-  ) {
-    failures.push("点数表の日英の title が同じ");
+  for (const { path, locale } of SOCIAL_SAMPLES) {
+    if (locale === DEFAULT_LOCALE) continue;
+    const free = localeFreeOf(path);
+    const ja = titles.get(`${DEFAULT_LOCALE}:${free}`);
+    if (ja !== undefined && ja === titles.get(`${locale}:${free}`)) {
+      failures.push(`${free}: 日英の title が同じ（${ja}）`);
+    }
   }
   context.report.check(
     "SNS・構造化データ（bot の User-Agent）",
@@ -970,7 +1092,15 @@ async function main(): Promise<void> {
   await auditEdgeCases(context);
   await auditJapaneseNoindex(context);
   await auditAuth(context);
-  await auditSocial(context);
+  await auditSocial(
+    context,
+    new Set(
+      baseline.http
+        .filter((row) => row.status === 200)
+        .map((row) => row.path)
+        .filter((path) => japanesePaths.includes(path)),
+    ),
+  );
 
   const out = readArg(argv, "out");
   if (out) writeReportJson(resolve(out), report);
