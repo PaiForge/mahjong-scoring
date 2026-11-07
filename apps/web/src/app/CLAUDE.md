@@ -9,10 +9,13 @@ web の App Router 配下だけに関わる規約。用語・ルート構成・�
 `_` プレフィックスを付ける（`_components/` `_hooks/` `_lib/`）。App Router のルート解決対象から
 外れ、ルートセグメントと区別できる。
 
-`(list)` / `(index)` / `(home)` / `(dashboard)` の route group は、index ページだけが動的なときに
-page.tsx と loading.tsx を退避して、ローディング境界が兄弟ルート（`[id]` 等）の祖先に
-ならないようにするためのもの（下の「ローディング境界」）。一段上へ動かすと
-`loading-boundaries.test.ts` が落ちる。
+`(list)` / `(index)` / `(home)` / `(dashboard)` / `(form)` の route group は、index ページだけが動的な
+ときに page.tsx と loading.tsx を退避して、ローディング境界が兄弟ルート（`[id]` 等）の祖先に
+ならないようにするためのもの（下の「ローディング境界」）。loading.tsx を持つ group
+（`dojo/(index)`・`mypage/(home)`・`admin/users/(list)` 等）から一段上へ動かすと
+`loading-boundaries.test.ts` が落ちる。page.tsx だけの group（`lessons/(index)`・`practice/(index)`・
+`reference/(index)` 等）は、ページが静的になって loading.tsx を外した跡で、group 自体は境界の
+役目を持たない（URL にも出ない）。そのページを動的に戻すときは、その group に loading.tsx を置く。
 
 ## `"use client"`
 
@@ -147,12 +150,13 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 遷移で効かない）と実測の記録は `loading-boundaries.test.ts` の頭にある。ここには操作だけ書く。
 
 - ページを動的にしたとき（cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、
-  テストの `DYNAMIC_ROUTES` と leaf の loading.tsx を一緒に足す。静的にしたら両方を外す。
-  新しい練習の `/practice/<slug>/result` も動的
+  テストの `DYNAMIC_ROUTES` と leaf の loading.tsx を一緒に足す。静的にしたら両方を外す
+  （閲覧者に依る部分をクライアントで後から付けて静的にした前例が `/lessons`。完了の印は
+  Server Action で取る。経緯は `DYNAMIC_ROUTES` の TSDoc）。新しい練習の `/practice/<slug>/result` も動的
 - 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
   （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ動的なときは
-  page.tsx と loading.tsx を route group に退避する（`lessons/(index)`, `mypage/(home)`,
-  `admin/(dashboard)`, `admin/users/(list)`）
+  page.tsx と loading.tsx を route group に退避する（`dojo/(index)`, `leaderboard/(index)`,
+  `mypage/(home)`, `admin/(dashboard)`, `admin/users/(list)`）
 - ページを消した・改名したあとは `apps/web` で `npx next build` を回して `.next` を作り直してから
   tsc とテストを見る。`.next/types/validator.ts`（tsconfig が include）が消したページを参照したまま
   残って tsc が「Cannot find module …/page.js」で落ち、このテストも古い manifest と突き合わせて
