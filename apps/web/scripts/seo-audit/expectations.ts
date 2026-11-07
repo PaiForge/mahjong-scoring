@@ -155,15 +155,54 @@ export const BASELINE_ROBOTS_DISALLOW: readonly string[] = [
 ];
 
 /**
- * 静的生成に新しく加わってよい日本語のパス
+ * 日本語で動的（要求ごとに描画）から静的生成へ移したことを認めるパス
  *
- * 移行前に要求ごとに描画していたページが静的になるのは、明示した変更に限って
- * 認める（ここに足す）。移行で日本語の静的 / 動的は変えないのが原則で、例外は
- * レッスンの目次 `/lessons` だけ — 英語の索引対象は静的生成が規約で、目次の
- * 公共部分（章の並び）は閲覧者に依らないため、日本語ごと静的にした（本人の完了の
- * 印・`?rank=` の絞り込みはクライアントで付ける）。
+ * 移行で日本語の静的 / 動的は変えないのが原則で、変えてよいのはここに足した
+ * パスだけ。例外はレッスンの目次 `/lessons` だけ — 英語の索引対象は静的生成が
+ * 規約で、目次の公共部分（章の並び）は閲覧者に依らないため、日本語ごと静的にした
+ * （本人の完了の印・`?rank=` の絞り込みはクライアントで付ける）。
+ *
+ * 1 本の一覧を build 監査の 2 つの台帳が同じ意味で読む（許可を台帳ごとに分けると、
+ * 片方だけ足して片方が落ちる・片方だけ消し忘れる）:
+ *
+ * - 静的生成の台帳: 移行前に無かった日本語の静的ページとして現れてよい
+ * - 動的ルートの台帳: 移行前は動的で、いまは動的でなくなってよい
+ *
+ * どちらの台帳でも、許可したのに移行が起きていない（いまも動的のまま・移行前から
+ * 静的だった）パスは失敗にする（{@link matchStaticMigrations}）。許可が黙って
+ * 空振りすると、意図した静的化が崩れても監査が通り、不要になった許可も残り続ける。
+ *
+ * 値は公開 URL のパスで、動的ルートの台帳ではルートのテンプレートと突き合わせる。
+ * 動的セグメントを持たないページだけを載せる（両者が同じ文字列になるため）。
  */
 export const ALLOWED_NEW_JA_STATIC: readonly string[] = ["/lessons"];
+
+/**
+ * 動的 → 静的の移行を許可の一覧と突き合わせる
+ *
+ * 台帳の差分（移行前と比べて静的の側へ移ったパス）を、許可したものと許可して
+ * いないものに分け、許可したのに差分に現れなかったものを返す。どちらも空なら合格。
+ *
+ * @param moved - 静的の側へ移ったパス。静的生成の台帳では新たに静的生成された
+ *   日本語のパス、動的ルートの台帳では移行前は動的でいまは動的でないテンプレート
+ * @param allowed - 移行を認めるパス（既定は {@link ALLOWED_NEW_JA_STATIC}）
+ * @returns `unexpected`: 許可に無い移行（昇順）。`unused`: 許可したのに移行が
+ *   起きていないパス（昇順）
+ */
+export function matchStaticMigrations(
+  moved: Iterable<string>,
+  allowed: readonly string[] = ALLOWED_NEW_JA_STATIC,
+): {
+  readonly unexpected: readonly string[];
+  readonly unused: readonly string[];
+} {
+  const movedSet = new Set(moved);
+  const allowedSet = new Set(allowed);
+  return {
+    unexpected: [...movedSet].filter((path) => !allowedSet.has(path)).sort(),
+    unused: [...allowedSet].filter((path) => !movedSet.has(path)).sort(),
+  };
+}
 
 /**
  * ロケール非依存のパスを、その言語の本番の絶対 URL にする

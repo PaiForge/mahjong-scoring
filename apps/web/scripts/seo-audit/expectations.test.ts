@@ -18,6 +18,7 @@ import {
   expectedEnIndexablePaths,
   expectedUrl,
   isEnIndexable,
+  matchStaticMigrations,
   parseSiteUrl,
 } from "./expectations";
 
@@ -139,5 +140,41 @@ describe("監査の期待値とアプリの公開状態", () => {
   it("本番の origin でない URL は解釈しない", () => {
     expect(parseSiteUrl("https://example.com/practice")).toBeUndefined();
     expect(parseSiteUrl("https://score.mahjong.help.evil/x")).toBeUndefined();
+  });
+});
+
+describe("動的 → 静的の移行の許可（静的生成の台帳と動的ルートの台帳が同じ一覧を読む）", () => {
+  it("許可したパスだけが静的へ移ったなら合格", () => {
+    expect(matchStaticMigrations(["/lessons"], ["/lessons"])).toEqual({
+      unexpected: [],
+      unused: [],
+    });
+  });
+
+  it("既定の許可は ALLOWED_NEW_JA_STATIC で、/lessons の静的化だけを認める", () => {
+    expect(matchStaticMigrations(["/lessons"])).toEqual({
+      unexpected: [],
+      unused: [],
+    });
+  });
+
+  it("許可に無いパスが静的へ移ったら unexpected として失敗にする", () => {
+    expect(
+      matchStaticMigrations(["/practice", "/lessons"], ["/lessons"]),
+    ).toEqual({ unexpected: ["/practice"], unused: [] });
+  });
+
+  it("許可したのに静的へ移っていない（動的のまま・移行前から静的）パスは unused として失敗にする", () => {
+    expect(matchStaticMigrations([], ["/lessons"])).toEqual({
+      unexpected: [],
+      unused: ["/lessons"],
+    });
+  });
+
+  it("移行が無く許可も無ければ合格", () => {
+    expect(matchStaticMigrations([], [])).toEqual({
+      unexpected: [],
+      unused: [],
+    });
   });
 });
