@@ -1,8 +1,13 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
@@ -10,6 +15,7 @@ import {
   beltBorderTopClass,
   beltButtonVarsClass,
 } from "@/lib/ranks/belt-colors";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { listedPracticeRanks } from "@mahjong-scoring/features/practice/rank-practices";
 import type {
   Journey,
@@ -27,6 +33,11 @@ import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
 
 interface NextStepSectionProps {
   readonly journey: Journey;
+  /**
+   * ページの言語。行き先（ボタン・級の詳細・進み具合の各段・「自分で練習を
+   * 選ぶ」）をこの言語で張る
+   */
+  readonly locale: SupportedLocale;
 }
 
 /** 翻訳関数の最小の形（名前空間ごとの `getTranslations` の戻り値をこれで受ける） */
@@ -34,7 +45,8 @@ type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
 /** 一歩の行き先と文言 */
 interface StepPresentation {
-  readonly href: string;
+  /** ページの言語で張る先（`resolveNavTargetFor`） */
+  readonly navTarget: NavTarget;
   /** ボタンの文言。対象の名前を含む（「「子のツモ」のレッスンを始める」） */
   readonly cta: string;
 }
@@ -47,15 +59,16 @@ interface StepPresentation {
 function presentStep(
   step: JourneyStep,
   isFresh: boolean,
+  locale: SupportedLocale,
   t: Translator,
   tAll: Translator,
 ): StepPresentation {
   const title = journeyStepTitle(step, tAll);
-  const href = journeyStepHref(step);
+  const navTarget = resolveNavTargetFor(journeyStepHref(step), locale);
   // 例: dashboard.nextStep.steps.lesson.cta（完成形のキーで grep したときにここへ着地させるための例）
   const key =
     step.kind === "lesson" && isFresh ? "lesson.firstCta" : `${step.kind}.cta`;
-  return { href, cta: t(`steps.${key}`, { title }) };
+  return { navTarget, cta: t(`steps.${key}`, { title }) };
 }
 
 /**
@@ -92,20 +105,43 @@ function presentStep(
  * 見えてしまう。
  *
  * 全級取得済み（`nextStep` が無い）なら何も描画しない。
+ *
+ * 行き先はすべてページの言語で張る（`resolveNavTargetFor`）。features の
+ * `journeyStepHref` 等が返すのは言語を持たないパス（`/lessons/<slug>`）なので、
+ * 英語のダッシュボード（`/en`）から素のまま張ると日本語のページへクライアント
+ * 遷移し、英語の文書に日本語の本文が載る。レッスン・練習・試験・道場は英語でも
+ * 公開しているので英語では `/en/...` になる。その言語で未公開の先だけは日本語の
+ * href のまま素の `<a hrefLang="ja">` にし、「日本語のみ」の印を添える。日本語の
+ * ページでは入力のパスのままで、出力は変わらない。
  */
-export async function NextStepSection({ journey }: NextStepSectionProps) {
+export async function NextStepSection({
+  journey,
+  locale,
+}: NextStepSectionProps) {
   const { current, nextStep, isFresh } = journey;
   if (current === undefined || nextStep === undefined) return undefined;
 
-  const [t, tRanks, tDojo, tAll] = await Promise.all([
+  const [t, tRanks, tDojo, tNav, tAll] = await Promise.all([
     getTranslations("dashboard.nextStep"),
     getTranslations("ranks"),
     getTranslations("dojo"),
+    getTranslations("nav"),
     getTranslations(),
   ]);
 
   const rankSlug = current.rank.slug;
-  const step = presentStep(nextStep, isFresh, t, tAll);
+  const step = presentStep(nextStep, isFresh, locale, t, tAll);
+  const japaneseOnlyLabel = tNav("language.japaneseOnly");
+  // 級の見出し・進み具合の各段のリンクも同じ言語で張る（道場の部品）
+  const linkLocale = { locale, japaneseOnlyLabel };
+  const practiceList = resolveNavTargetFor(
+    practiceListHref(
+      listedPracticeRanks().includes(rankSlug)
+        ? { kind: "rank", value: rankSlug }
+        : undefined,
+    ),
+    locale,
+  );
 
   return (
     <section className="space-y-4" data-next-step={nextStep.kind}>
@@ -120,13 +156,19 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
           status={current.status}
           tRanks={tRanks}
           tDojo={tDojo}
+          linkLocale={linkLocale}
         />
 
-        <RankStageProgress journey={current} tRanks={tRanks} isCurrentRank />
+        <RankStageProgress
+          journey={current}
+          tRanks={tRanks}
+          isCurrentRank
+          linkLocale={linkLocale}
+        />
 
         <div className={`flex flex-col ${SUB_LINK_GAP}`}>
           <LinkButton
-            href={step.href}
+            navTarget={step.navTarget}
             variant="belt"
             size="lg"
             fullWidth
@@ -134,18 +176,21 @@ export async function NextStepSection({ journey }: NextStepSectionProps) {
             trailingIcon={<ChevronRightIcon className="size-4" />}
           >
             {step.cta}
+            {step.navTarget.crossLocale && (
+              <JapaneseOnlyMark label={japaneseOnlyLabel} />
+            )}
           </LinkButton>
           <div className="text-center">
-            <Link
-              href={practiceListHref(
-                listedPracticeRanks().includes(rankSlug)
-                  ? { kind: "rank", value: rankSlug }
-                  : undefined,
-              )}
+            <LocaleNavLink
+              navTarget={practiceList}
+              linkKind="plain"
               className={`text-sm ${TEXT_LINK_CLASSES}`}
             >
               {t("choosePractice")}
-            </Link>
+              {practiceList.crossLocale && (
+                <JapaneseOnlyMark label={japaneseOnlyLabel} />
+              )}
+            </LocaleNavLink>
           </div>
         </div>
       </div>

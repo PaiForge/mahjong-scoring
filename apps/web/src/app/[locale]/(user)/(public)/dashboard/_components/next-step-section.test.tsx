@@ -41,7 +41,7 @@ function ctaHref(container: HTMLElement): string | null {
 describe("NextStepSection", () => {
   it("何も始めていなければ最初のレッスンへ送り、目標の級で絞った練習一覧へのリンクを添える", async () => {
     const { container, getByText, getByRole } = render(
-      await NextStepSection({ journey: journeyOf() }),
+      await NextStepSection({ journey: journeyOf(), locale: "ja" }),
     );
 
     expect(getByText("title")).toBeTruthy();
@@ -79,6 +79,7 @@ describe("NextStepSection", () => {
         journey: journeyOf({
           completedLessonSlugs: new Set(["mangan-ko-ron"]),
         }),
+        locale: "ja",
       }),
     );
 
@@ -94,6 +95,7 @@ describe("NextStepSection", () => {
             { slug: "mangan-score-calculation", variant: DEFAULT_VARIANT },
           ],
         }),
+        locale: "ja",
       }),
     );
 
@@ -104,7 +106,7 @@ describe("NextStepSection", () => {
 
   it("進み具合の各段はその段の一覧へ送る", async () => {
     const { container } = render(
-      await NextStepSection({ journey: journeyOf() }),
+      await NextStepSection({ journey: journeyOf(), locale: "ja" }),
     );
 
     const stageHrefs = Array.from(
@@ -124,6 +126,7 @@ describe("NextStepSection", () => {
         journey: journeyOf({
           completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
         }),
+        locale: "ja",
       }),
     );
 
@@ -147,6 +150,7 @@ describe("NextStepSection", () => {
             { slug: "han-count", variant: DEFAULT_VARIANT },
           ],
         }),
+        locale: "ja",
       }),
     );
 
@@ -168,6 +172,7 @@ describe("NextStepSection", () => {
           ...journeyOf({ achievedRankSlugs: ["kyu-5"] }),
           nextStep: { kind: "lesson", chapterSlug: "jantou-fu" },
         },
+        locale: "ja",
       }),
     );
 
@@ -177,10 +182,71 @@ describe("NextStepSection", () => {
     expect(ctaHref(container)).toBe("/lessons/jantou-fu");
   });
 
+  it("英語のダッシュボードでは行き先をすべて英語のページ（/en）で張る", async () => {
+    const { container, getByRole } = render(
+      await NextStepSection({ journey: journeyOf(), locale: "en" }),
+    );
+
+    expect(ctaHref(container)).toBe("/en/lessons/mangan-ko-ron");
+    expect(
+      getByRole("link", { name: "choosePractice" }).getAttribute("href"),
+    ).toBe("/en/practice?rank=kyu-5");
+    expect(getByRole("link", { name: "heading" }).getAttribute("href")).toBe(
+      "/en/dojo/ranks/kyu-5",
+    );
+    const stageHrefs = Array.from(
+      container.querySelectorAll("[data-stage] a"),
+    ).map((a) => a.getAttribute("href"));
+    expect(stageHrefs).toEqual([
+      "/en/lessons?rank=kyu-5",
+      "/en/practice?rank=kyu-5",
+      "/en/exam/mangan",
+    ]);
+    // 行き先はどれも英語で公開しているので、言語をまたぐリンク（素の <a hrefLang="ja">）は無い
+    expect(container.querySelector("a[hreflang]")).toBeNull();
+  });
+
+  it("英語のダッシュボードでも試験の一歩は英語の試験ページへ送る", async () => {
+    const { container } = render(
+      await NextStepSection({
+        journey: journeyOf({
+          completedLessonSlugs: new Set(RANK_REGISTRY[0].learnChapterSlugs),
+          attemptedPractices: [
+            { slug: "score-table", variant: "ko_mangan_plus" },
+            { slug: "score-table", variant: "oya_mangan_plus" },
+            { slug: "mangan-score-calculation", variant: DEFAULT_VARIANT },
+            { slug: "yaku-han", variant: "no_kuisagari" },
+            { slug: "yaku", variant: DEFAULT_VARIANT },
+            { slug: "han-count", variant: DEFAULT_VARIANT },
+          ],
+        }),
+        locale: "en",
+      }),
+    );
+
+    expect(ctaHref(container)).toBe("/en/exam/mangan");
+  });
+
+  it("英語のダッシュボードでも練習の一歩はバリアント付きの英語の練習ページへ送る", async () => {
+    const { container } = render(
+      await NextStepSection({
+        journey: journeyOf({
+          completedLessonSlugs: new Set(["mangan-ko-ron", "mangan-ko-tsumo"]),
+        }),
+        locale: "en",
+      }),
+    );
+
+    expect(ctaHref(container)).toBe(
+      "/en/practice/score-table?variant=ko_mangan_plus",
+    );
+  });
+
   it("全級取得済みなら何も描画しない", async () => {
     const { container } = render(
       await NextStepSection({
         journey: journeyOf({ achievedRankSlugs: RANK_SLUGS }),
+        locale: "ja",
       }),
     );
 
