@@ -16,7 +16,7 @@ export default async function LearnAboutThisAppPage({
   const locale = await prepareRouteLocale(params, "/lessons/about-this-app");
   return (
     <LearnPageLayout slug="about-this-app" locale={locale}>
-      <AboutThisAppGuide />
+      <AboutThisAppGuide locale={locale} />
     </LearnPageLayout>
   );
 }

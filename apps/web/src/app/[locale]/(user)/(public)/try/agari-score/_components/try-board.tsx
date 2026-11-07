@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { isOya, judgeAnswer } from "@mahjong-scoring/core";
 import type { JudgementResult, UserAnswer } from "@mahjong-scoring/core";
 
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { SignUpPanel } from "@/app/[locale]/(user)/_components/sign-up-panel";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import {
@@ -24,7 +25,6 @@ import { ScorePracticeAnswerForm } from "@/app/[locale]/(user)/(public)/practice
 import { ScoreAnswerFormSkeleton } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/agari-score-board-skeleton";
 
 import { TRY_QUESTION } from "../_lib/try-question";
-import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 1 回の解答。回答せずに正解を開示したときはどちらも undefined
@@ -57,17 +57,28 @@ interface TryAttempt {
  * フォームの選択肢が端末ローカルのルール設定で変わるため、サーバーの HTML
  * と初回のクライアント描画がずれうる。盤面（手牌）は設定に依らないので
  * サーバーで描き、静的 HTML に牌姿が載る。
+ *
+ * 登録と練習一覧の張る先はページ（サーバー）が `resolveNavTargetFor` で解いて
+ * 渡す。この部品はクライアントで公開状態を読めないため。必須にしてあるのは、
+ * 渡し忘れると英語のページから日本語の登録・練習一覧へクライアント遷移し、
+ * 英語の文書に日本語の本文が載るため。
  */
 export function TryBoard({
+  signUpTarget,
+  browseTarget,
   afterAnswer,
 }: {
+  /** 登録ボタンの張る先（`resolveNavTargetFor("/sign-up", locale)`） */
+  readonly signUpTarget: NavTarget;
+  /** 「登録せずに練習一覧を見る」の張る先（`resolveNavTargetFor("/practice", locale)`） */
+  readonly browseTarget: NavTarget;
   /**
    * 答え合わせのあとにだけ、フッターの下へ出す導線（ホームへ戻るリンクと
    * 練習の入口）。解く前に練習のカードが並ぶと、体験の 1 問より先に目に入る。
    * サーバーコンポーネントを渡すため、ページから要素で受け取る
    */
   readonly afterAnswer?: ReactNode;
-} = {}) {
+}) {
   const t = useTranslations("tryDemo");
   const tScore = useTranslations("agariScore");
   const tTraining = useTranslations("training");
@@ -122,7 +133,8 @@ export function TryBoard({
               title={t("signUp.title")}
               description={t("signUp.description")}
               cta={t("signUp.cta")}
-              secondary={{ label: t("signUp.browse"), href: PRACTICE_PATH }}
+              navTarget={signUpTarget}
+              secondary={{ label: t("signUp.browse"), navTarget: browseTarget }}
             />
           </div>
         ) : (
