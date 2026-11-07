@@ -8,6 +8,7 @@ import {
   formatHan,
   formatPayment,
 } from "@mahjong-scoring/features/practice/score/format-answer";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import {
   ResultTableFrame,
   ResultUnansweredCell,
@@ -63,6 +64,10 @@ export function NoYakuResultDisplay({
 }: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
+  // 選んだ役（core の役名）は `yakuNames` で引き、言語の区切りで結ぶ
+  // （日本語の値は core の名前と「、」なので日本語の表示は変わらない）
+  const tYakuNames = useTranslations("yakuNames");
+  const tCommon = useTranslations("common");
   const allowDoubleYakuman = useAllowDoubleYakuman();
 
   // 点数で答えた（= 役なしのマスに対する誤答）ときだけ翻・符・点数の行に値が入る
@@ -102,7 +107,9 @@ export function NoYakuResultDisplay({
                 <JudgedCell
                   value={
                     scoreAnswer.answer.yakus.length > 0
-                      ? scoreAnswer.answer.yakus.join("、")
+                      ? scoreAnswer.answer.yakus
+                          .map((name) => yakuLabel(name, tYakuNames))
+                          .join(tCommon("listSeparator"))
                       : tScore("result.details.none")
                   }
                   isCorrect={scoreAnswer.result.isYakuCorrect}

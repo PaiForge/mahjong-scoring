@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { getScoreLevelName } from "@mahjong-scoring/core";
+import { scoreLevelNameKey } from "@mahjong-scoring/core";
 import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import { useYakuOrder } from "@/app/_hooks/use-yaku-order-store";
 import { formatHan } from "@mahjong-scoring/features/practice/score/format-answer";
@@ -100,9 +100,13 @@ export function ResultDisplay({
 
   const hanDisplay = (hanValue: number) =>
     formatHan(hanValue, { t, exactHan, allowDoubleYakuman });
-  const scoreLevelName = exactHan
-    ? getScoreLevelName(answer.scoreLevel)
+  // 区分名（満貫・跳満…）は今の言語の辞書から引く（満貫未満は区分名を持たない）
+  const scoreLevelKey = exactHan
+    ? scoreLevelNameKey(answer.scoreLevel)
     : undefined;
+  // 例: scoreTable.mangan / scoreTable.doubleYakuman
+  const scoreLevelName =
+    scoreLevelKey === undefined ? undefined : tScoreTable(scoreLevelKey);
 
   const breakdownSections = useResultBreakdownSections({
     tabs: breakdownTabs,
@@ -110,6 +114,7 @@ export function ResultDisplay({
     hanDisplay,
     onOpenScoreTable: () => scoreTable.open(true),
     onOpenYakuList: openYakuList,
+    fuDetails: question.fuDetails,
   });
 
   return (

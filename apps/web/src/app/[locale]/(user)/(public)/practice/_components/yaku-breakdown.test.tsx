@@ -4,7 +4,8 @@ import { screen, fireEvent } from "@testing-library/react";
 import { render } from "@/test/tile-image-render";
 import { YakuBreakdown } from "./yaku-breakdown";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 役名は yakuNames の日本語の辞書で引く（日本語の表示が core の役名のままであることも見る）
+vi.mock("next-intl", async () => await import("../_lib/yaku-names-intl-mock"));
 
 const YAKU_DETAILS = [
   { name: "立直", han: 1 },

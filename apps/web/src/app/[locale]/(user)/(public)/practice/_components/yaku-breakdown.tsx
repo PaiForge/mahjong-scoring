@@ -11,6 +11,7 @@ import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import type {
   YakuBreakdownProps,
   YakuBreakdownTableProps,
@@ -74,6 +75,12 @@ export function YakuBreakdown({
  * 符の内訳と切り替えて出す場所（`ScoreBreakdownPanel`）では、開閉は
  * 置く側が持つので表だけを使う。`onOpenScoreTable` を渡すと、合計の翻数が
  * 点数表を開くボタンになる。
+ *
+ * 役名は core の日本語（`detail.name`）を `yakuNames` の辞書で引いて出す
+ * （{@link yakuLabel}）。英語のページに漢字を残さないため。日本語の `yakuNames` の
+ * 値は core の役名と同じ文字列なので、日本語の表示は変わらない（`agariScore.yaku` は
+ * 回答フォームの選択肢の呼び名で core の名前と食い違うため使わない）。早見表の
+ * 着地先は辞書の訳ではなく core の名前で引く。
  */
 export function YakuBreakdownTable({
   yakuDetails,
@@ -83,6 +90,7 @@ export function YakuBreakdownTable({
 }: YakuBreakdownTableProps<ReactNode>) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
+  const tYakuNames = useTranslations("yakuNames");
   const yakuOrder = useYakuOrder();
   const yakuNames = useMemo(
     () => yakuDetails.map((detail) => detail.name),
@@ -108,10 +116,10 @@ export function YakuBreakdownTable({
               title={tChallenge("openInYakuList")}
               className={TEXT_LINK_CLASSES}
             >
-              {detail.name}
+              {yakuLabel(detail.name, tYakuNames)}
             </button>
           ) : (
-            detail.name
+            yakuLabel(detail.name, tYakuNames)
           ),
           value: t("han", { count: detail.han }),
         }))}

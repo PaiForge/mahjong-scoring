@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { YakuJudgementChips } from "./yaku-judgement-chips";
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 役名は yakuNames の日本語の辞書で引く（日本語の表示が core の役名のままであることも見る）
+vi.mock(
+  "next-intl",
+  async () => await import("../../_lib/yaku-names-intl-mock"),
+);
 
 /**
  * 役名からチップ本体を引く
