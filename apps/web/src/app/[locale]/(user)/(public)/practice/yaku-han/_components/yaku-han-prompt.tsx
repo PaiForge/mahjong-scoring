@@ -2,9 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
+import { useYakuHanYakuLabel } from "../_hooks/use-yaku-han-yaku-label";
 
 interface YakuHanPromptProps {
-  /** 出題する役名 */
+  /** 出題する役名（core の日本語。表示名は {@link useYakuHanYakuLabel} で引く） */
   readonly yakuName: string;
   /** 門前で出題されているか（false は鳴き） */
   readonly isMenzen: boolean;
@@ -32,6 +33,7 @@ interface YakuHanPromptProps {
  */
 export function YakuHanPrompt({ yakuName, isMenzen }: YakuHanPromptProps) {
   const t = useTranslations("yakuHanChallenge");
+  const labelOf = useYakuHanYakuLabel();
 
   return (
     <div className="flex flex-col items-center gap-3">
@@ -44,7 +46,7 @@ export function YakuHanPrompt({ yakuName, isMenzen }: YakuHanPromptProps) {
       >
         {yakuHanStateLabel(isMenzen, t)}
       </span>
-      <p className="text-3xl font-bold text-surface-900">{yakuName}</p>
+      <p className="text-3xl font-bold text-surface-900">{labelOf(yakuName)}</p>
     </div>
   );
 }
