@@ -6,16 +6,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/mangan-oya-tsumo">) {
-  await prepareRouteLocale(params, "/lessons/mangan-oya-tsumo");
-  return createLearnMetadata("mangan-oya-tsumo");
+  const locale = await prepareRouteLocale(params, "/lessons/mangan-oya-tsumo");
+  return createLearnMetadata("mangan-oya-tsumo", { locale });
 }
 
 export default async function LearnManganOyaTsumoPage({
   params,
 }: PageProps<"/[locale]/lessons/mangan-oya-tsumo">) {
-  await prepareRouteLocale(params, "/lessons/mangan-oya-tsumo");
+  const locale = await prepareRouteLocale(params, "/lessons/mangan-oya-tsumo");
   return (
-    <LearnPageLayout slug="mangan-oya-tsumo">
+    <LearnPageLayout slug="mangan-oya-tsumo" locale={locale}>
       <ManganOyaTsumoGuide />
     </LearnPageLayout>
   );
