@@ -21,9 +21,16 @@ const PINFU_TSUMO_PAIR = { low: 20, high: 40 } as const;
 
 /**
  * 符が倍になるのは1翻上がるのと同じ — 点数記憶術セクション第1章
+ *
+ * 数式の中の語（`\text{…}`）は章の辞書の `formula.*` から引く。英語の章に
+ * 漢字を残さないため。訳語は `String.raw` のテンプレートにそのまま埋めるので、
+ * LaTeX の特殊文字（`\ { } $ & # ^ _ % ~`）を含まない前提（含めると数式が
+ * 壊れる。語は「符」「翻数」のような名詞だけにする）。
  */
 export async function FuDoublingGuide() {
   const t = await getTranslations("fuDoubling.learn");
+  const fu = t("formula.fu");
+  const han = t("formula.han");
 
   return (
     <div className="space-y-10">
@@ -32,7 +39,7 @@ export async function FuDoublingGuide() {
         <GuideParagraph preLine>{t("hanBody1")}</GuideParagraph>
 
         <BlockMath
-          latex={String.raw`\text{符} \times 2^{(\text{翻数} + 2)} \times 4`}
+          latex={String.raw`\text{${fu}} \times 2^{(\text{${han}} + 2)} \times 4`}
         />
 
         <GuideNote>
@@ -53,7 +60,7 @@ export async function FuDoublingGuide() {
         <GuideParagraph preLine>{t("fuBody1")}</GuideParagraph>
 
         <BlockMath
-          latex={String.raw`(2 \times \text{符}) \times 2^{(\text{翻数} + 2)} = \text{符} \times 2^{(\text{翻数} + 1 + 2)}`}
+          latex={String.raw`(2 \times \text{${fu}}) \times 2^{(\text{${han}} + 2)} = \text{${fu}} \times 2^{(\text{${han}} + 1 + 2)}`}
         />
 
         <GuideParagraph preLine>{t("fuBody2")}</GuideParagraph>
