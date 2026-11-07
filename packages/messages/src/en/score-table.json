@@ -22,5 +22,6 @@
   "sanbaiman": "Sanbaiman",
   "yakuman": "Yakuman",
   "kiriageManganStatus": "Kiriage mangan (round up to mangan): {state, select, on {on} other {off}}",
+  "kiriageManganStatusSeparator": "·",
   "kiriageManganStatusLink": "Change setting"
 }

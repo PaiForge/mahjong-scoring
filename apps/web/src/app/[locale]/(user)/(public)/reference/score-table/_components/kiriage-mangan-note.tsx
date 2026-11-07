@@ -33,6 +33,11 @@ interface KiriageManganNoteProps {
  * 毎回目に付く囲みになるため脚注に改めた）。出すかどうかと周りとの余白は
  * 置き場所を知っている呼び出し側に任せる。
  *
+ * 状態とリンクの間の区切りは辞書（`scoreTable.kiriageManganStatusSeparator`）から
+ * 引く。日本語は中黒「・」、英語は中点「·」で、英語のページに日本語の約物を
+ * 混ぜない（以前は「・」を直書きしていて、英語の点数表の本文に 1 文字だけ日本語が
+ * 出ていた）。
+ *
  * 設定ページは日本語だけで公開している。英語のページ（英語の点数表）からは
  * `/en` を付けずに日本語の設定ページへ素の `<a hrefLang="ja">` で向け、
  * 「日本語のみ」と添える（英語の存在しない URL を作らない）。ここは表の
@@ -54,7 +59,7 @@ export function KiriageManganNote({
     <p className="text-xs text-surface-500">
       {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
       <span aria-hidden="true" className="mx-1.5">
-        ・
+        {t("kiriageManganStatusSeparator")}
       </span>
       {crossLocale ? (
         <>
