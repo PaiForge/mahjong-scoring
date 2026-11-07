@@ -36,17 +36,23 @@ function page(
   goal?: ReactNode,
   planned?: { preview: ReactNode; previewLessonSlug: "mangan-ko-tsumo" },
   related: ReactNode = <p data-testid="related" />,
+  locale: "ja" | "en" = "ja",
 ) {
+  const prefix = locale === "en" ? "/en" : "";
   return (
     <LessonView
       slug="mangan-ko-ron"
       messageKey="manganKoRon"
       next={{
-        href: "/lessons/mangan-ko-tsumo",
+        href: `${prefix}/lessons/mangan-ko-tsumo`,
         label: "nextLesson",
         goal,
         ...planned,
       }}
+      signInHref={`${prefix}/sign-in?redirect=${encodeURIComponent(`${prefix}/lessons/mangan-ko-ron`)}`}
+      signUpTarget={{ href: `${prefix}/sign-up`, crossLocale: false }}
+      homeHref={prefix === "" ? "/" : prefix}
+      locale={locale}
       explanation={<p data-testid="explanation" />}
       related={related}
     />
@@ -214,6 +220,29 @@ describe("LessonView の済みの印", () => {
     );
     expect(screen.queryByTestId("preview")).toBeNull();
     expect(screen.getByTestId("goal")).toBeTruthy();
+  });
+
+  it("英語のページでは、記録で返った本人の一歩を英語の公開 URL へ送る", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "u1" }, isLoading: false });
+    mockGetState.mockResolvedValue(false);
+    mockCompleteLesson.mockResolvedValue({
+      success: true,
+      followUp: {
+        next: {
+          kind: "practice",
+          slug: "score-table",
+          variant: "ko_mangan_plus",
+        },
+      },
+    });
+    renderPage(undefined, undefined, undefined, "en");
+    await flush();
+    await finishSignedIn();
+
+    const link = await screen.findByRole("link", { name: "nextStep.practice" });
+    expect(link.getAttribute("href")).toBe(
+      "/en/practice/score-table?variant=ko_mangan_plus",
+    );
   });
 
   it("本人の一歩が道筋の順の次のレッスンと同じなら、そのプレビューを出す", async () => {

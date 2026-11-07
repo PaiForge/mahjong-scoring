@@ -11,9 +11,11 @@ import { DoneMark } from "@/app/[locale]/(user)/_components/done-mark";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useAuth } from "@/app/_contexts/auth-context";
+import { localizedHref } from "@/i18n/public-path";
 import { logExternalError } from "@/lib/log-error";
 import { buildSignInHref } from "@/lib/redirect";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
 import { completeLesson } from "../_actions/complete-lesson";
@@ -21,6 +23,11 @@ import { useLessonCompletion } from "../_hooks/use-lesson-completion";
 
 interface ChapterCompleteButtonProps {
   readonly slug: CurriculumChapterSlug;
+  /**
+   * ページの言語。ログイン画面とログイン後の戻り先（この章）をこの言語の
+   * 公開 URL にする
+   */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -43,21 +50,32 @@ interface ChapterCompleteButtonProps {
  *
  * 章ページは静的生成（cookie を読まない）なので、ユーザーに依存するのは
  * この 1 箇所だけ。認証状態は `useAuth()`、完了の初期値は Server Action で取る。
+ *
+ * @design ログインへの導線はページの言語のまま
+ * ログイン画面も戻り先の章も `locale` の公開 URL にする（英語の章からは
+ * `/en/sign-in?redirect=%2Fen%2Flessons%2F...`）。このボタンを出すのは
+ * ログイン画面を公開した言語の章だけ（`LearnPageLayout`）なので、公開状態は
+ * 問い直さない。`localizedHref` / `buildSignInHref` は公開状態を読まない
+ * 純粋な変換で、クライアントから呼んでよい。
  */
-export function ChapterCompleteButton({ slug }: ChapterCompleteButtonProps) {
+export function ChapterCompleteButton({
+  slug,
+  locale,
+}: ChapterCompleteButtonProps) {
   const t = useTranslations("learnCurriculum.chapter");
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const { completed, fetched, markCompleted } = useLessonCompletion(slug);
   const [saving, setSaving] = useState(false);
+  const signInHref = buildSignInHref(
+    localizedHref(chapterHref(slug), locale),
+    locale,
+  );
 
   if (!isLoading && user === null) {
     return (
       <div className="text-center">
-        <Link
-          href={buildSignInHref(chapterHref(slug))}
-          className={`text-sm ${TEXT_LINK_CLASSES}`}
-        >
+        <Link href={signInHref} className={`text-sm ${TEXT_LINK_CLASSES}`}>
           {t("loginPromptCta")}
         </Link>
       </div>
@@ -87,7 +105,7 @@ export function ChapterCompleteButton({ slug }: ChapterCompleteButtonProps) {
       if ("skipped" in result) {
         // サーバーにセッションが無い（クライアントではログイン済みに見えていた）。
         // ログインし直してこの章へ戻す
-        router.push(buildSignInHref(chapterHref(slug)));
+        router.push(signInHref);
         return;
       }
       markCompleted();

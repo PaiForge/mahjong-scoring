@@ -8,6 +8,9 @@ import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { resolvePublishedHref } from "@/i18n/navigation";
+import { localizedHref } from "@/i18n/public-path";
+import { buildSignInHref } from "@/lib/redirect";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
@@ -39,13 +42,16 @@ import { ChapterRelatedLinks } from "./chapter-related-links";
 import { LessonView } from "./lesson-view";
 import { NextLessonPreview } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
-import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
+import { chapterHref, LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
 /**
  * 完了の記録に要るログイン画面。この画面をページの言語で出しているときだけ
  * 確認問題・完了ボタンを出す（{@link LearnPageLayout} の `@design`）
  */
 const SIGN_IN_PATH = "/sign-in";
+
+/** 未ログインで確認問題を解き終えた人を送る登録画面（ロケール非依存のパス） */
+const SIGN_UP_PATH = "/sign-up";
 
 interface LearnPageLayoutProps {
   /** 対象章のスラッグ。辞書ネームスペースもここから導出する */
@@ -93,12 +99,32 @@ interface LearnPageLayoutProps {
  * ビルド時刻で代用すると、実際と違う公開日を名乗ることになる。
  *
  * @design 確認問題・完了ボタンは、その言語にログイン画面があるときだけ出す
- * 完了の記録にはログインが要る。ページの言語でログイン画面（`/sign-in`）を
- * 出していない間（英語の章はフェーズ 3 まで）は、確認問題（`LessonView`）と
- * 完了ボタンを出さず、本文 → 練習・試験への導線 → 章末だけを出す。確認問題を
- * 解いた先が日本語の登録画面になるのを避けるため。判定は言語の分岐ではなく
- * 公開状態なので、その言語のログイン画面を公開すれば何も書き換えずに現れる。
+ * 完了の記録にはログインが要る。確認問題（`LessonView`）と完了ボタンは、
+ * ページの言語でログイン画面（`/sign-in`）を公開している言語でだけ出す
+ * （日本語と、ログイン画面を公開した英語）。出していない言語では本文 →
+ * 練習・試験への導線 → 章末だけを出す。確認問題を解いた先が別の言語の
+ * 登録画面になるのを避けるため。判定は言語の分岐ではなく公開状態なので、
+ * その言語のログイン画面を公開すれば何も書き換えずに現れる。
  * 練習・試験への導線も同じく行き先の公開状態で出し分ける（`ChapterRelatedLinks`）。
+ *
+ * @design 確認問題・完了の遷移先はここ（サーバー）で言語付きに組む
+ * 完了画面の次の一歩（{@link nextStepAfter}）・ホーム・ログインし直し・登録の
+ * 張る先は、ページの言語の公開 URL にしてから `LessonView` /
+ * `ChapterCompleteButton` に渡す。クライアントの部品は公開状態を読めない
+ * （`route-policy.ts` はサーバー専用で、`client-bundle-boundaries.test.ts` が
+ * クライアントのツリーから届かないことを検査する）ので、受け取った href を
+ * 描くだけにする。
+ * - 次の一歩（レッスン・練習・昇級試験）とホームは `localizedHref`。行き先は
+ *   どれも確認問題を出す言語で公開済みのため、公開状態を問い直さない
+ * - ログインし直しは `buildSignInHref`。ログイン画面も戻り先（この章）も
+ *   ページの言語の公開 URL にする — 英語の章からログインして日本語の章へ
+ *   戻されないため。`ChapterCompleteButton` は言語だけを受けて同じ規則で
+ *   組む（`lib/redirect.ts` は公開状態を読まない純粋な変換なので
+ *   クライアントから呼べる）
+ * - 登録は `resolveNavTargetFor`。`SignUpPanel` が `navTarget` を見て、
+ *   未公開なら「日本語のみ」の印付きで日本語の登録へ送る（公開済みなら同じ
+ *   言語のまま）
+ * 日本語では `localizedHref` が恒等なので、日本語のページの href は変わらない。
  *
  * @design cookie を読まない
  * ここで `getOptionalUser()` を呼ぶと章ページ全体が動的になり、CDN キャッシュに
@@ -197,6 +223,10 @@ export async function LearnPageLayout({
           slug={quizLesson.slug}
           messageKey={quizLesson.messageKey}
           next={await nextStepAfter(quizLesson.slug, locale)}
+          signInHref={chapterSignInHref(quizLesson.slug, locale)}
+          signUpTarget={resolveNavTargetFor(SIGN_UP_PATH, locale)}
+          homeHref={localizedHref("/", locale)}
+          locale={locale}
           explanation={body}
           related={<ChapterRelatedLinks slug={slug} locale={locale} />}
           footer={footer}
@@ -205,7 +235,7 @@ export async function LearnPageLayout({
         <div className="space-y-10">
           {body}
           {interactive && chapter && !isColumnChapter(chapter) && (
-            <ChapterCompleteButton slug={slug} />
+            <ChapterCompleteButton slug={slug} locale={locale} />
           )}
           <ChapterRelatedLinks slug={slug} locale={locale} />
           {footer}
@@ -216,6 +246,20 @@ export async function LearnPageLayout({
 }
 
 /**
+ * ログインしてこの章へ戻すログイン画面の URL（ページの言語の公開 URL）
+ *
+ * ログイン画面も戻り先も同じ言語にする（{@link LearnPageLayout} の `@design`）。
+ * `buildSignInHref` は戻り先に触らないので、章の href を先に言語付きにして渡す。
+ * `ChapterCompleteButton` も同じ組み方をする。
+ */
+function chapterSignInHref(
+  slug: CurriculumChapterSlug,
+  locale: SupportedLocale,
+): string {
+  return buildSignInHref(localizedHref(chapterHref(slug), locale), locale);
+}
+
+/**
  * 確認問題の完了画面の主導線 — 黒帯への道でこのレッスンの次にある一歩
  *
  * 全レッスンが持つ（features のテストが固定）が、無ければホームの
@@ -223,6 +267,9 @@ export async function LearnPageLayout({
  * プレビュー、級の最後のレッスンならプレビューの代わりに級のゴールまでの
  * 残りを添える。道筋の順の一歩で、記録のときにサーバーが本人の進み具合から
  * 求めた一歩を返したら `LessonView` がそちらを使う。
+ *
+ * href はページの言語の公開 URL（`localizedHref`）。行き先のレッスン・練習・
+ * 昇級試験・ホームは、確認問題を出す言語ではどれも公開済み。
  */
 async function nextStepAfter(slug: QuizLessonSlug, locale: SupportedLocale) {
   const [t, tAll] = await Promise.all([
@@ -230,7 +277,8 @@ async function nextStepAfter(slug: QuizLessonSlug, locale: SupportedLocale) {
     getTranslations(),
   ]);
   const step = stepAfterLesson(slug);
-  if (step === undefined) return { href: "/", label: t("continueHome") };
+  if (step === undefined)
+    return { href: localizedHref("/", locale), label: t("continueHome") };
   const rank = rankBySlug(quizLessonBySlug(slug)?.rankSlug ?? "kyu-5");
   // 次のレッスンの抜粋は確認問題を持つレッスンの分しか無い（今の前提章は
   // すべて持つ）。持たないレッスンへはボタンで送る
@@ -239,7 +287,7 @@ async function nextStepAfter(slug: QuizLessonSlug, locale: SupportedLocale) {
       ? step.chapterSlug
       : undefined;
   return {
-    href: journeyStepHref(step),
+    href: localizedHref(journeyStepHref(step), locale),
     label: t(`nextStep.${step.kind}`, { title: journeyStepTitle(step, tAll) }),
     preview: nextLesson ? (
       <NextLessonPreview slug={nextLesson} locale={locale} />
