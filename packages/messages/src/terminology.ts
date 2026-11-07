@@ -69,7 +69,13 @@ export interface TermEntry {
  *
  * 並びは用語の系統順（麻雀全般 → 牌の種類 → 場と席 → 点数の単位 → 和了の仕方 →
  * 打点の区分 → 親子と場の点棒 → 手の構成 → 鳴きと門前 → 待ち → 役とドラ →
- * アプリの画面の呼び名 → 段級位）。
+ * アプリの画面の呼び名 → 段級位 → アカウントと認証）。
+ *
+ * アカウントと認証の語は、ナビ・設定・認証の画面・マイページで同じ語を使うために載せる
+ * （ナビの「ログイン」と認証の画面の見出しが "Log in" と "Sign in" に割れると、別の
+ * 操作に見える）。動詞は log in / log out / sign up に揃え、Google と Apple のボタン名
+ * だけは提供元の英語の表記（Sign in with Google / Sign in with Apple）に合わせる —
+ * 提供元のロゴと並ぶ固有の名前で、案内文もその名前で指すため。
  */
 export const TERMINOLOGY = [
   {
@@ -659,5 +665,70 @@ export const TERMINOLOGY = [
     ja: ["昇級試験", "昇段試験"],
     en: "promotion exam",
     note: "The exam that awards the next kyu or dan rank, for both 昇級 and 昇段. As a title, the rank comes first: 5 Kyu Promotion Exam; a menu name reads Promotion Exam: Scoring Pinfu.",
+  },
+  {
+    ja: ["アカウント"],
+    en: "account",
+    note: "A user's registration on the site. Account as a screen or section name.",
+  },
+  {
+    ja: ["ログイン"],
+    en: "log in",
+    note: "Verb: log in, logging in, logged in (Log in on buttons and the page title). Keep log in across the nav, settings and auth screens; sign in only inside the provider button names Sign in with Google and Sign in with Apple.",
+  },
+  {
+    ja: ["ログアウト"],
+    en: "log out",
+    note: "Verb: log out, logged out. An expired login reads You have been logged out (never mention a session).",
+  },
+  {
+    ja: ["新規登録", "アカウント登録"],
+    en: "sign up",
+    note: "Verb: sign up, signing up (Sign up on buttons and the page title). The noun for the act is sign-up. Create a free account is fine in a call to action.",
+  },
+  {
+    ja: ["本登録"],
+    en: "finish signing up",
+    note: "Choosing a username to complete an account created by email or Google.",
+  },
+  {
+    ja: ["メールアドレス"],
+    en: "email address",
+    note: "Email address as a form label. Email alone for the message itself and in Log in with email.",
+  },
+  {
+    ja: ["パスワード"],
+    en: "password",
+    note: "Forgot your password? for the link to the reset page.",
+  },
+  {
+    ja: ["パスワードリセット", "パスワード再設定"],
+    en: "password reset",
+    note: "Reset password as the request page title, Set a new password for the page reached from the email. After a request, always say an email was sent if an account exists, so the screen never tells whether an address is registered.",
+  },
+  {
+    ja: ["確認メール"],
+    en: "verification email",
+    note: "The email with the link that confirms the email address. Confirm your email address as the action; the email's subject line stays bilingual.",
+  },
+  {
+    ja: ["ユーザー名"],
+    en: "username",
+    note: "One word. The fixed, public ID (@username), which cannot be changed. Keep it distinct from display name.",
+  },
+  {
+    ja: ["表示名"],
+    en: "display name",
+    note: "The changeable name shown with the username.",
+  },
+  {
+    ja: ["マイページ"],
+    en: "My Page",
+    note: "The member page. A screen name, so always capitalized.",
+  },
+  {
+    ja: ["アカウント停止"],
+    en: "suspended",
+    note: "Your account has been suspended. Use suspended, not banned, in the text shown to users (banned stays as an internal key name).",
   },
 ] as const satisfies readonly TermEntry[];
