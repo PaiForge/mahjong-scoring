@@ -12,6 +12,7 @@ const t = (key: string, values?: Record<string, number>) =>
     ron: "ロン",
     fu: `${values?.count}符`,
     han: `${values?.count}翻`,
+    summarySeparator: "・",
   })[key] ?? key;
 
 describe("scoreResultSummary", () => {

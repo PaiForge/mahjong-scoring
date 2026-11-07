@@ -1,5 +1,6 @@
 import { MentsuType, getKazeName } from "@mahjong-scoring/core";
 
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
 import type { LessonChoice, LessonPrompt } from "./quiz";
 
 /**
@@ -12,13 +13,28 @@ type LessonTranslator = (
 ) => string;
 
 /**
- * 点数を日本語ロケールの桁区切りで表示する
+ * アプリの言語から、数の桁区切りに使う BCP 47 の言語タグへの対応
+ *
+ * 日本語・英語とも 3 桁ごとのカンマで、今は同じ文字列になる。言語ごとに書式が
+ * 分かれたときに描く側を書き換えずに済むよう、言語を受ける形にしておく。
+ */
+const NUMBER_FORMAT_LOCALES: Readonly<Record<SupportedLocale, string>> = {
+  ja: "ja-JP",
+  en: "en-US",
+};
+
+/**
+ * 点数をその言語の桁区切りで表示する
  * 点数表示
  *
  * @param points 点数
+ * @param locale 表示する言語（省略時は既定の日本語。日本語固定の読み手は省略する）
  */
-export function formatLessonPoints(points: number): string {
-  return points.toLocaleString("ja-JP");
+export function formatLessonPoints(
+  points: number,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return points.toLocaleString(NUMBER_FORMAT_LOCALES[locale]);
 }
 
 /**

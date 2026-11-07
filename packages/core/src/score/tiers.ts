@@ -177,9 +177,28 @@ export function isFuRelevant(han: number): boolean {
 /**
  * 点数レベルを日本語に変換する
  * 点数レベル日本語変換
+ *
+ * 日本語固定の読み手（モバイル）のために残す。言語ごとに描く側は
+ * {@link scoreLevelNameKey} で辞書（`scoreTable.<key>`）を引く。
  */
 export function getScoreLevelName(scoreLevel: string): string {
   return (
     MANGAN_PLUS_TIERS.find((tier) => tier.level === scoreLevel)?.nameJa ?? ""
   );
+}
+
+/**
+ * 点数レベルから区分名の辞書キーを引く（満貫未満は undefined）
+ * 点数区分名キー
+ *
+ * 値は {@link MANGAN_PLUS_TIERS} の `key`（"mangan" … "yakuman"・"doubleYakuman"）。
+ * 辞書の `scoreTable.<key>` が区分名で、日本語の値は `nameJa` と同じ文字列
+ * （`tiers.test.ts` が日本語の辞書と突き合わせて固定する）。
+ * {@link getScoreLevelName} の日本語を英語のページに出さないため、言語ごとに
+ * 描く側はこちらで辞書を引く。
+ *
+ * @param scoreLevel - 点数レベル（`ScoreLevel` の値）
+ */
+export function scoreLevelNameKey(scoreLevel: string): string | undefined {
+  return MANGAN_PLUS_TIERS.find((tier) => tier.level === scoreLevel)?.key;
 }

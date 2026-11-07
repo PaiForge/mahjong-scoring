@@ -50,6 +50,11 @@ const YAKUHAI_PREFIX = "役牌 ";
  * {@link YAKUHAI_ALIASES}）。どこにも寄せられない名前は役の最後・ドラの
  * 手前に、元の順のまま置く。
  *
+ * ここの語彙（ドラ・裏ドラ・場風牌 等）が日本語なのは、内訳の `name` が core の
+ * 日本語の役名のまま保存される契約だから（保存済みの結果も同じ名前で読む）。
+ * 画面に出すときは並べ替えた後の `name` を `yakuLabel`（`yaku/yaku-labels.ts`。
+ * 辞書の `agariScore.yaku`）に通し、英語のページに日本語の役名を残さない。
+ *
  * @param details - 出題が持つ役の内訳
  * @param yakuOrder - 表示に使う役の並び（`useYakuOrder` の戻り値）
  */

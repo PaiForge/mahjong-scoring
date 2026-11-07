@@ -14,6 +14,11 @@
  *
  * `yakuNames` のキー集合がこの表の値と一致し、日本語の値がこの表のキーと一致する
  * ことは `yaku-names.test.ts` が守る。
+ *
+ * 役ではない加算（ドラ・裏ドラ）と、内訳だけに出る風牌の役牌（連風牌）も載せる。
+ * core が役の内訳（`yakuDetails.name`）に出せる名前はすべてここにあり、
+ * `agariScore.yaku` にそのキーがあることは `yaku-labels.test.ts` が守る。表に無い名前は
+ * {@link yakuLabel} が core の日本語のまま返すので、英語のページに漢字が残る。
  */
 export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   立直: "riichi",
@@ -32,6 +37,7 @@ export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   "役牌 中": "chun",
   自風牌: "jikaze",
   場風牌: "bakaze",
+  連風牌: "renfonpai",
   三色同順: "sanshoku_doujun",
   一気通貫: "itsu",
   混全帯么九: "chanta",
@@ -59,4 +65,23 @@ export const YAKU_TO_KEY: Readonly<Record<string, string>> = {
   四槓子: "sukantsu",
   天和: "tenhou",
   地和: "chihou",
+  ドラ: "dora",
+  裏ドラ: "uraDora",
 };
+
+/**
+ * 役名（core の日本語）を練習の表示名にする
+ * 役表示名
+ *
+ * 練習（役の選択・点数計算の内訳）と設定が同じ表示名を出すため、変換をここに
+ * 寄せる。サーバーコンポーネントからも呼べる純粋関数で、クライアントの
+ * `useYakuLabel` はこれを包む。表に無い名前は core の名前をそのまま返す。
+ *
+ * @param name - core の役名（例: 断么九・ドラ・連風牌）
+ * @param t - `agariScore.yaku` 名前空間の翻訳関数
+ */
+export function yakuLabel(name: string, t: (key: string) => string): string {
+  const key = YAKU_TO_KEY[name];
+  // 例: agariScore.yaku.tanyao（完成形のキーで grep したときにここへ着地させるための例）
+  return key ? t(key) : name;
+}

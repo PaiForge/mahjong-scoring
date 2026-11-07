@@ -4,16 +4,92 @@ import {
   generateValidScoreQuestion,
 } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
+import { createTranslator } from "use-intl";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 import { generateOrThrow } from "../test/generate-or-throw";
 
 import { buildDemoScoreQuestion } from "../board/demo-score-question";
+import { makeScoreQuestionResult } from "./score-question-result.fixture";
 import {
   parseQuestionResults,
   restoreScoreQuestion,
+  scoreResultSummary,
   toScoreQuestionResult,
   toScoreQuestionSnapshot,
 } from "./score-question-result";
+
+/**
+ * 問題別一覧の見出しを引く点数系の名前空間（`ScoreProblemList` に渡す
+ * `translationNamespace`。どれも `summarySeparator` を持つ）
+ */
+const SCORE_SUMMARY_NAMESPACES = [
+  "scoreTableChallenge",
+  "scoreCalculationChallenge",
+  "manganScoreCalculationChallenge",
+  "fuScoreExamChallenge",
+  "scoreExamChallenge",
+  "pinfuExamChallenge",
+  "chiitoitsuExamChallenge",
+  "manganExamChallenge",
+] as const;
+
+/**
+ * 日本語の辞書の名前空間を文字列のキーで引く翻訳関数（アプリと同じ ICU の解釈）
+ *
+ * use-intl の翻訳関数はキーを辞書の型で絞るため、features の関数の引数の型に
+ * 直接は入らない。同じ関数を文字列のキーで呼ぶ形に包む。
+ */
+function jaTranslatorOf(
+  namespace: (typeof SCORE_SUMMARY_NAMESPACES)[number],
+): (key: string, values?: Record<string, number>) => string {
+  const translate = createTranslator({
+    locale: "ja",
+    messages: messages[namespace],
+  });
+  return (key, values) =>
+    String(Reflect.apply(translate, undefined, [key, values]));
+}
+
+describe("scoreResultSummary（日本語の辞書）", () => {
+  it.each(SCORE_SUMMARY_NAMESPACES)(
+    "%s の見出しは従来どおり「・」で結ぶ",
+    (namespace) => {
+      const t = jaTranslatorOf(namespace);
+      expect(
+        scoreResultSummary(
+          makeScoreQuestionResult({ han: 2, fu: 30 }),
+          t,
+          "fu-first",
+        ),
+      ).toBe("子・ロン・30符・2翻");
+      expect(
+        scoreResultSummary(
+          makeScoreQuestionResult({
+            isOya: true,
+            isTsumo: true,
+            han: 5,
+            fu: undefined,
+          }),
+          t,
+          "han-first",
+        ),
+      ).toBe("親・ツモ・5翻");
+    },
+  );
+
+  it("区切りは summarySeparator で引く", () => {
+    const t = (key: string, values?: Record<string, number>): string =>
+      key === "summarySeparator" ? " | " : `${key}${values?.count ?? ""}`;
+    expect(
+      scoreResultSummary(
+        makeScoreQuestionResult({ han: 2, fu: 30 }),
+        t,
+        "fu-first",
+      ),
+    ).toBe("ko | ron | fu30 | han2");
+  });
+});
 
 describe("parseQuestionResults", () => {
   const validResult = {
