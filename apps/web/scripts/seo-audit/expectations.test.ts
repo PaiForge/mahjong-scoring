@@ -56,6 +56,10 @@ const SAMPLE_PATHS: readonly string[] = [
   "/nonexistent",
   "/reference/glossary/unknown-term",
   "/reference/glossary/__unknown__",
+  "/dojo/ranks/audit-unknown-rank",
+  "/dojo/ranks/__unknown__",
+  "/dashboard",
+  "/plan",
 ];
 
 describe("監査の期待値とアプリの公開状態", () => {
@@ -104,6 +108,29 @@ describe("監査の期待値とアプリの公開状態", () => {
         (path) => getPublication(path, "en") === "published-noindex",
       ).sort(),
     );
+  });
+
+  it("英語で索引させるページは日本語でも索引させる（日本語の索引対象から英語を足す）", () => {
+    const jaIndexable = new Set(JA_INDEXABLE);
+    expect(EN_INDEXABLE_PATHS.filter((path) => !jaIndexable.has(path))).toEqual(
+      [],
+    );
+  });
+
+  it("英語の noindex に道場・段級位の詳細 6 件・練習と試験の play / training / result が入る", () => {
+    expect(EN_NOINDEX_PATHS).toEqual(
+      expect.arrayContaining([
+        "/dojo",
+        ...RANK_SITEMAP_PATHS,
+        "/practice/jantou-fu/result",
+        "/exam/score/play",
+        "/practice/tenpai-score/play",
+      ]),
+    );
+    expect(new Set(EN_NOINDEX_PATHS).size).toBe(EN_NOINDEX_PATHS.length);
+    for (const path of EN_NOINDEX_PATHS) {
+      expect(isEnIndexable(path), path).toBe(false);
+    }
   });
 
   it.each(SAMPLE_PATHS.map((path) => [path]))(
