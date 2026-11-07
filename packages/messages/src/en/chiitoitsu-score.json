@@ -1,17 +1,17 @@
 {
   "learn": {
-    "pageTitle": "七対子での点数計算",
-    "pageDescription": "七対子（チートイツ）の点数計算を解説。符はツモでもロンでも常に25符の1パターンで、翻数ごとの点数を早見表で覚えます。",
-    "onePatternTitle": "七対子は 25符 の1パターン",
-    "onePatternBody1": "[[chiitoitsu|七対子]]は必ず25符となります。",
-    "onePatternBody2": "これまでに学習した符の加算パターンでは、必ず偶数で符が加算されていたのに25符というのはかなり奇妙に思われるかも知れません。\nしかし、これは深く考えずそういうものだと割り切って覚えてしまうのがいいと思います。",
-    "columnLabel": "コラム",
-    "columnTitle": "なぜ25符という半端な数字なのか",
-    "columnBody": "25符という半端な数字は、七対子をかつて「50符1翻」として扱っていた名残と言われています。<br></br>25符2翻に読み替えても点数は変わりません（子のロンならどちらも1600点）。<br></br>このアプリでは一般的に利用されている25符2翻を採用しています。",
-    "compositeTitle": "複合しても 25符 は変わらない",
-    "compositeBody1": "七対子には断么九や混一色、[[riichi|立直]]などが複合する場合がありますが、そういった場合でも符は25符のままです。変わるのは翻数だけです。",
-    "compositeBody2": "七対子は[[menzen|門前]]でしか成立しません。鳴けないということは[[furo|副露]]の符が入る余地もありません。\nさらに七対子には、[[mentsu|面子]]や[[machi|待ち]]の符だけでなく[[tsumo-fu|ツモ符]]のような[[hora|和了]]に付く符も加算されません。25符は積み上げの結果ではなく、文字どおりの固定値です。",
-    "compositeBody3": "翻数があがって[[mangan|満貫]]以上になった場合は、25符の考慮自体が不要になります。",
-    "practiceCta": "七対子の点数計算を練習する"
+    "pageTitle": "Riichi Mahjong Chiitoitsu Scoring: Always 25 Fu",
+    "pageDescription": "How to score chiitoitsu (seven pairs) in riichi mahjong: always 25 fu, by tsumo or by ron, with a table of scores for each han to memorize.",
+    "onePatternTitle": "Chiitoitsu has one pattern: 25 fu",
+    "onePatternBody1": "[[chiitoitsu|Chiitoitsu]] (seven pairs) is always 25 fu.",
+    "onePatternBody2": "Every way of adding fu you have learned so far adds an even number, so 25 fu may seem very strange.\nStill, it is best not to think too hard about it and simply accept and memorize it as a fixed rule.",
+    "columnLabel": "Column",
+    "columnTitle": "Why such an odd number as 25 fu?",
+    "columnBody": "The odd figure of 25 fu is said to be a remnant of the days when chiitoitsu was scored as 50 fu 1 han.<br></br>Reading it as 25 fu 2 han gives the same score (1,600 points for a non-dealer ron either way).<br></br>This app uses 25 fu 2 han, the form most commonly used.",
+    "compositeTitle": "Still 25 fu with other yaku",
+    "compositeBody1": "Chiitoitsu can combine with yaku such as tanyao (all simples), honitsu (half flush) and [[riichi|riichi]], but even then it stays at 25 fu. Only the han change.",
+    "compositeBody2": "Chiitoitsu can only be made with a [[menzen|closed hand]]. Since you cannot call, there is no room for fu from [[furo|calls]] either.\nOn top of that, chiitoitsu adds no fu for [[mentsu|sets]] or the [[machi|wait]], and none of the fu tied to how you [[hora|win]], such as [[tsumo-fu|tsumo fu]]. 25 fu is not the result of adding anything up; it is literally a fixed value.",
+    "compositeBody3": "Once the han reach [[mangan|mangan]] or more, you no longer need to think about the 25 fu at all.",
+    "practiceCta": "Practice chiitoitsu scoring"
   }
 }
