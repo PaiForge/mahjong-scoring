@@ -1,61 +1,61 @@
 {
-  "title": "道場",
-  "description": "麻雀の点数計算の段級位制。5級から初段（黒帯）まで、級ごとに学ぶ・練習する・試験に合格するの順で進む「点数計算・黒帯への道」の全行程を確認できます。",
-  "currentRankTitle": "現在の段級位",
-  "unranked": "無級",
+  "title": "Dojo",
+  "description": "The kyu and dan ranks of riichi mahjong scoring. See the whole Road to the black belt in scoring, from 5 Kyu to Shodan (the black belt): for each rank you learn, practice and then pass an exam.",
+  "currentRankTitle": "Your current rank",
+  "unranked": "Unranked",
   "rankProgress": "{done} / {total}",
-  "rankProgressValue": "{rank}（{done} / {total}）",
-  "signInNote": "段級位を記録するにはアカウントが必要です。",
-  "signInLink": "ログインはこちら",
-  "nextRankTitle": "次の目標",
-  "journeyTitle": "点数計算・黒帯への道",
-  "includesDeviceHistory": "この端末でログインせずに終えたチャレンジも含めています。",
+  "rankProgressValue": "{rank} ({done} / {total})",
+  "signInNote": "You need an account to keep your rank.",
+  "signInLink": "Log in here",
+  "nextRankTitle": "Next goal",
+  "journeyTitle": "Road to the black belt in scoring",
+  "includesDeviceHistory": "This includes challenges you finished on this device without logging in.",
   "tour": {
-    "label": "道場の見方を見る",
-    "prev": "戻る",
-    "next": "次へ",
-    "done": "閉じる",
+    "label": "How to read the Dojo",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Close",
     "progress": "{current} / {total}",
     "currentRank": {
-      "title": "現在の段級位",
-      "description": "5級から初段（黒帯）までのうち、取得した級が帯の色で塗られます。昇級試験に合格すると 1 つ進みます。"
+      "title": "Your current rank",
+      "description": "Of the ranks from 5 Kyu to Shodan (the black belt), the ones you have earned are filled in with their belt color. Passing a promotion exam moves you up one."
     },
     "nextRank": {
-      "title": "次の目標の級",
-      "description": "いま取り組む級です。級名を押すと合格基準と前提のレッスンを確認できます。"
+      "title": "The rank you are aiming for",
+      "description": "The rank to work on now. Select the rank name to see its pass criterion and the lessons it builds on."
     },
     "stages": {
-      "title": "学ぶ → 練習する → 認定される",
-      "description": "5級から初段（黒帯）まで、級ごとにこの順で進みます。数字はそれぞれの済んだ数です。"
+      "title": "Learn → Practice → Get certified",
+      "description": "For every rank from 5 Kyu to Shodan (the black belt), you go through these in this order. The numbers show how many of each you have done."
     },
     "blackBelt": {
-      "title": "黒帯（初段）とは",
-      "description": "麻雀の点数計算を滞りなくこなせる力の認定です。5級から順に昇級試験に合格し、初段で黒帯になります。"
+      "title": "What the black belt (Shodan) means",
+      "description": "It certifies that you can handle riichi mahjong scoring smoothly. Pass the promotion exams in order from 5 Kyu, and at Shodan you earn the black belt."
     },
     "locked": {
-      "title": "試験は下の級から順に",
-      "description": "段級位は下の級から順に取得します。上の級のレッスンは先に進められますが、試験は順番に受けます。"
+      "title": "Exams go in order from the lowest rank",
+      "description": "Ranks are earned in order from the lowest one. You can go ahead with the lessons of higher ranks, but you take the exams in order."
     }
   },
-  "lockedNote": "下の級から順に取得すると受験できます",
-  "lessonDone": "完了",
-  "practiceDone": "挑戦済み",
-  "examLead": "前提のレッスンの内容を身につけたら、試験に挑戦しましょう。",
-  "viewExam": "試験の内容を見る",
-  "chaptersTitle": "前提となるレッスン",
-  "comingSoonTitle": "次の段級位",
-  "comingSoon": "取得できる段級位はすべて取得済みです。新しい段級位は準備中です。",
+  "lockedNote": "Earn the lower ranks in order to take this exam",
+  "lessonDone": "Completed",
+  "practiceDone": "Attempted",
+  "examLead": "Once you have mastered the lessons this rank builds on, take on the exam.",
+  "viewExam": "See the exam details",
+  "chaptersTitle": "Lessons this rank builds on",
+  "comingSoonTitle": "Next rank",
+  "comingSoon": "You have earned every rank available. New ranks are in preparation.",
   "status": {
-    "achieved": "取得済み",
-    "next": "次の目標",
-    "unachieved": "未取得"
+    "achieved": "Earned",
+    "next": "Next goal",
+    "unachieved": "Not yet earned"
   },
   "rankDetail": {
-    "title": "{rank}の合格基準",
-    "description": "麻雀の点数計算の{rank}。合格基準は「{criterion}」。受験前に取り組むレッスンと試験の内容を確認できます。",
-    "examLeadWithoutChapters": "準備ができたら、試験に挑戦しましょう。"
+    "title": "{rank} pass criterion",
+    "description": "{rank} in riichi mahjong scoring. Pass criterion: {criterion}. See the lessons to work through before the exam and what the exam covers.",
+    "examLeadWithoutChapters": "When you are ready, take on the exam."
   },
-  "practicalTitle": "次は実戦で磨こう",
-  "practicalDescription": "黒帯で身につけた点数計算を、実際の手牌で。和了形と聴牌形の点数計算に挑戦できます。",
-  "practicalCta": "実戦練習へ"
+  "practicalTitle": "Next, sharpen your skills for real games",
+  "practicalDescription": "Put the scoring you learned for the black belt to work on real hands. Take on scoring winning hands and tenpai hands.",
+  "practicalCta": "Go to real-game practice"
 }
