@@ -178,76 +178,76 @@
       "pitfall": "Kan dora are not dora only for the player who made the kan. Whoever makes the kan, the kan dora apply to every player in that hand. And when the player who made the kan wins, the kan dora are worth 1 han each like any other dora, with no special bonus."
     },
     "tehai": {
-      "term": "手牌",
-      "reading": "テハイ",
-      "definition": "自分の手元にある牌の全体。通常は13枚で、アガリ牌を加えた14枚で和了の形になる。鳴いてさらした面子も手牌の一部として数える。",
-      "usage": "点数計算は手牌全体を「4つの面子と1つの雀頭」（面子手）に分け、面子ごと・雀頭・待ちの形・アガリ方の符を足して求めます。鳴いてさらした面子も手牌の一部なので符に数え、暗槓も手牌の面子として符が付きます。\n翻は手牌の形（役）とドラで決まります。同じ14枚でも、どの3枚を面子と見るかで符や役が変わることがあり、その場合は点数が高くなる分け方で計算します。",
-      "caseStudy": "三萬・四萬・五萬、六筒・七筒・八筒、白・白・白、二索・三索・四索、東・東（東場）という手牌は、順子3つ（0符）、白の暗刻（8符）、場風の雀頭（2符）という分け方になります。役は役牌（白）の1翻です。\n配牌の13枚は「あと1枚足せば和了形」を目指して入れ替えていき、聴牌したら残る1枚（アガリ牌）を待ちます。",
-      "pitfall": "「手牌＝手の中に伏せている牌」と思われがちですが、点数計算では鳴いてさらした面子も手牌に含めます。鳴いた面子は明刻・明槓として符を数え、鳴いていない部分だけで符を計算するわけではありません。\nまた、和了形は14枚ですが、カンをしていれば15枚・16枚になります。槓子は4枚で1面子です。"
+      "term": "Hand",
+      "reading": "tehai",
+      "definition": "All the tiles in front of you. Normally 13 tiles; adding the winning tile makes 14, the shape of a win. Sets you have called and exposed also count as part of your hand.",
+      "usage": "Score calculation splits the whole hand into four sets and a pair (a standard hand), then adds the fu of each set, the pair, the wait and the way you won. Called sets are part of the hand, so their fu counts too, and a closed quad earns fu as one of the hand's sets.\nHan is decided by the shape of the hand (its yaku) and by dora. The same 14 tiles can sometimes be split into sets in more than one way, giving different fu or yaku; in that case you score the split that gives the higher score.",
+      "caseStudy": "A hand of 3-4-5 man, 6-7-8 pin, three white dragons, 2-3-4 sou and a pair of East (in the East round) splits into three sequences (0 fu), a closed triplet of white dragons (8 fu) and a round-wind pair (2 fu). Its yaku is yakuhai (white dragon), 1 han.\nYou swap tiles in your starting 13 aiming for a shape that wins with one more tile, and once you are tenpai you wait for that last tile (the winning tile).",
+      "pitfall": "People tend to think the hand means only the tiles standing hidden in front of you, but for score calculation the called, exposed sets are part of the hand too. Called sets are counted as open triplets or open quads for fu; you do not calculate fu from the uncalled part alone.\nAlso, a winning hand has 14 tiles, but with a kan it has 15 or 16. A quad is four tiles that make one set."
     },
     "mentsu": {
-      "term": "面子",
-      "reading": "メンツ",
-      "definition": "3枚1組（順子・刻子）または4枚1組（槓子）の、点数計算で1つの単位として扱われる牌の組。面子手のアガリは4つの面子と1つの雀頭でできており、符は面子の種類ごとに決まる。",
-      "usage": "符計算の中心は面子です。順子は常に0符、刻子は暗刻が中張牌4符・么九牌8符、明刻がその半分の2符・4符、槓子は暗槓が16符・32符、明槓が8符・16符です。同じ牌でも「順子か刻子か」「暗か明か」「中張牌か么九牌か」の3つの軸で符が決まります。\n翻の面でも、順子で作る役（平和・一盃口・三色同順）と刻子で作る役（対々和・三暗刻）が分かれています。",
-      "caseStudy": "四萬・五萬・六萬の順子は0符、五萬の暗刻は4符、五萬をポンした明刻は2符、五萬の暗槓は16符、五萬の明槓は8符です。同じ五萬を3〜4枚使っていても、面子の作り方で符は0符から16符まで開きます。\n一萬・一萬・一萬なら暗刻8符、明刻4符、暗槓32符、明槓16符と、么九牌はすべて倍です。",
-      "pitfall": "順子には符が付かないので、「面子の数が多いほど符が高い」わけではありません。4面子すべてが順子なら面子の符は0です。\nまた、対子（2枚）は面子ではありません。雀頭として1組だけ使え、面子としての符は付きません。七対子は対子7組ですが面子手ではないため、面子の符は数えず25符で固定です。"
+      "term": "Set",
+      "reading": "mentsu",
+      "definition": "A group of three tiles (a sequence or a triplet) or four tiles (a quad) that score calculation treats as one unit. A standard winning hand is four sets and a pair, and fu is decided by the kind of each set.",
+      "usage": "Sets are the core of fu calculation. A sequence is always 0 fu. A closed triplet is 4 fu for simples and 8 fu for terminals and honors, and an open triplet is half that, 2 fu and 4 fu. A closed quad is 16 fu and 32 fu, and an open quad 8 fu and 16 fu. Even with the same tiles, three axes decide the fu: sequence or triplet, closed or open, and simples or terminals and honors.\nFor han too, there are yaku built from sequences (pinfu, iipeikou, sanshoku) and yaku built from triplets (toitoi, sanankou).",
+      "caseStudy": "A 4-5-6 man sequence is 0 fu, a closed triplet of 5 man is 4 fu, an open triplet of 5 man made by pon is 2 fu, a closed quad of 5 man is 16 fu and an open quad of 5 man is 8 fu. With three or four of the same 5 man, the way you make the set spreads the fu from 0 fu to 16 fu.\nWith three 1 man, it is 8 fu as a closed triplet, 4 fu as an open triplet, 32 fu as a closed quad and 16 fu as an open quad: terminals and honors double every value.",
+      "pitfall": "Sequences earn no fu, so more sets does not mean more fu. If all four sets are sequences, the sets contribute 0 fu.\nAlso, a pair (two tiles) is not a set. You can use exactly one as the hand's pair, and it earns no set fu. Chiitoitsu is seven pairs, but it is not a standard hand, so no set fu is counted and it is fixed at 25 fu."
     },
     "shuntsu": {
-      "term": "順子",
-      "reading": "シュンツ",
-      "definition": "同じ種類の数牌が3つ連続した面子。符は常に0符で、鳴いていても手の内でも変わらない。字牌では作れない。",
-      "usage": "順子は0符です。暗（手の内）でもチーして作った明順でも変わらず、中張牌でも老頭牌を含んでいても0符です。4面子すべてを順子にして雀頭を役牌以外にし、両面待ちで門前ロン・ツモすれば、符の付く要素が無くなり平和になります。\n順子は翻の面では平和・一盃口（同じ順子2組）・三色同順（3色で同じ数の順子）・一気通貫（1色で123・456・789）の材料です。",
-      "caseStudy": "二萬・三萬・四萬も、七筒・八筒・九筒も0符です。七筒・八筒・九筒には老頭牌の九筒が入っていますが、順子である限り符は付きません。\n四萬・五萬・六萬と四萬・五萬・六萬（同じ順子2組）は一盃口（門前1翻）、三萬・四萬・五萬と三筒・四筒・五筒と三索・四索・五索は三色同順（門前2翻・鳴き1翻）です。",
-      "pitfall": "順子は数牌の連番で作りますが、九・一・二のように9から1へ回り込むことはできません。八・九・一は順子ではありません。\nまた、順子は同じ色の中でしか作れません。三萬・四筒・五索は順子ではなく、バラバラの3枚です。字牌には数が無いので順子になりません。"
+      "term": "Sequence",
+      "reading": "shuntsu",
+      "definition": "A set of three consecutive number tiles of the same suit. It is always 0 fu, whether called or kept in your hand. Honor tiles cannot form one.",
+      "usage": "A sequence is 0 fu. That holds whether it is closed (kept in your hand) or open (made by chii), and whether it is made of simples or includes a terminal. Make all four sets sequences, use a pair that is not a value tile, and win with a two-sided wait by closed ron or tsumo, and nothing earns fu: that is pinfu.\nFor han, sequences are the material for pinfu, iipeikou (two identical sequences), sanshoku (the same sequence in all three suits) and ittsu (1-2-3, 4-5-6 and 7-8-9 in one suit).",
+      "caseStudy": "2-3-4 man and 7-8-9 pin are both 0 fu. 7-8-9 pin contains the terminal 9 pin, but as long as it is a sequence it earns no fu.\nTwo 4-5-6 man sequences (two identical sequences) are iipeikou (1 han, closed only), and 3-4-5 man, 3-4-5 pin and 3-4-5 sou are sanshoku (2 han closed, 1 han open).",
+      "pitfall": "Sequences are runs of number tiles, but they do not wrap around from 9 to 1, as in 9-1-2. 8-9-1 is not a sequence.\nSequences also have to be within one suit. 3 man, 4 pin and 5 sou are not a sequence, just three unrelated tiles. Honor tiles have no numbers, so they never form sequences."
     },
     "koutsu": {
-      "term": "刻子",
-      "reading": "コーツ",
-      "definition": "同じ牌を3枚集めた面子。手の内で揃えた暗刻と、ポンで作った明刻とで符が倍違う。",
-      "usage": "刻子の符は「暗か明か」と「中張牌か么九牌か」で決まります。暗刻は中張牌4符・么九牌8符、明刻は中張牌2符・么九牌4符です。ポンで作った刻子は明刻、手の内で3枚揃えた刻子は暗刻ですが、ロンで3枚目を揃えた刻子は明刻として数えます。\n翻の面では、役牌の刻子で1翻、4面子すべて刻子なら対々和（2翻）、暗刻が3つで三暗刻（2翻）、4つで四暗刻（役満）です。",
-      "caseStudy": "五筒を手の内で3枚揃えれば暗刻で4符、五筒をポンすれば明刻で2符です。東を手の内で3枚揃えれば暗刻8符、ポンすれば明刻4符です。\n五筒・五筒と待っていて（双碰待ち）ロンで五筒を引いた場合、完成した五筒の刻子は明刻扱いで2符です。同じ形をツモで完成させれば暗刻で4符です。",
-      "pitfall": "「手の内で完成した刻子はすべて暗刻」ではありません。ロンで完成した刻子は、他家の捨て牌を使っているので明刻として数えます。ツモで完成させた場合だけ暗刻です。\nまた、刻子と対子は別物です。同じ牌2枚は対子で、面子ではなく雀頭にしかなりません。"
+      "term": "Triplet",
+      "reading": "koutsu",
+      "definition": "A set of three identical tiles. A closed triplet completed in your hand and an open triplet made by pon differ by double in fu.",
+      "usage": "A triplet's fu depends on whether it is closed or open and on whether it is simples or terminals and honors. A closed triplet is 4 fu for simples and 8 fu for terminals and honors; an open triplet is 2 fu for simples and 4 fu for terminals and honors. A triplet made by pon is open and one you gather in your own hand is closed, but a triplet completed by ron with its third tile counts as open.\nFor han, a value-tile triplet gives 1 han, all four sets as triplets give toitoi (2 han), three closed triplets give sanankou (2 han), and four give suuankou (a yakuman).",
+      "caseStudy": "Gather three 5 pin in your hand and you have a closed triplet worth 4 fu; call pon on 5 pin and it is an open triplet worth 2 fu. Three East gathered in your hand are a closed triplet worth 8 fu, and called with pon they are an open triplet worth 4 fu.\nIf you were waiting with a pair of 5 pin (a pair wait) and win by ron on 5 pin, the completed 5 pin triplet counts as open: 2 fu. Complete the same shape by tsumo and it is a closed triplet: 4 fu.",
+      "pitfall": "Not every triplet completed in your hand is closed. A triplet completed by ron uses another player's discard, so it counts as open. Only one completed by tsumo is closed.\nAlso, a triplet and a pair are different things. Two identical tiles are a pair: not a set, and usable only as the hand's pair."
     },
     "kantsu": {
-      "term": "槓子",
-      "reading": "カンツ",
-      "definition": "同じ牌を4枚集めた面子。カンを宣言して初めて槓子として扱われ、4枚持っていても宣言しなければ刻子と余り牌のままになる。符は面子の中で最も高い。",
-      "usage": "槓子の符は刻子の4倍で、面子の中で最も高くなります。暗槓は中張牌16符・么九牌32符、明槓は中張牌8符・么九牌16符です。カンをすると嶺上牌を1枚引き、槓ドラも増えます。\n翻の面では、槓子は刻子として扱われ、役牌の槓子なら役牌1翻、対々和や三暗刻の材料にもなります。槓子3つで三槓子（2翻）、4つで四槓子（役満）です。",
-      "caseStudy": "五萬の暗槓は16符、東の暗槓は32符です。東の暗槓を1つ持つ手は、副底20符と合わせるだけで52符になり、門前ロンなら62符→70符です。同じ東を暗刻で持っていれば8符なので、カンをするかどうかで符が4倍変わります。\n五萬をポンしていて4枚目を引き、加槓すれば明槓で8符、五萬をポンせず4枚とも手の内にあって暗槓すれば16符です。",
-      "pitfall": "同じ牌を4枚持っていても、カンを宣言しなければ槓子にはなりません。宣言しないままだと「刻子＋余り1枚」として扱われ、その牌は面子にも雀頭にも使えないため和了形になりません。\nまた、カンをすると手牌が1枚増えて見えますが、槓子は4枚で1面子です。面子の数が増えるわけではありません。"
+      "term": "Quad",
+      "reading": "kantsu",
+      "definition": "A set of four identical tiles. It counts as a quad only once you declare kan; holding four without declaring leaves you with a triplet and a spare tile. Its fu is the highest of any set.",
+      "usage": "A quad earns four times the fu of a triplet, the highest of any set. A closed quad is 16 fu for simples and 32 fu for terminals and honors; an open quad is 8 fu for simples and 16 fu for terminals and honors. Declaring kan also lets you draw a replacement tile from the dead wall and adds a kan dora.\nFor han, a quad is treated as a triplet: a quad of a value tile gives 1 han of yakuhai, and quads count toward toitoi and sanankou. Three quads give sankantsu (2 han), and four give suukantsu (a yakuman).",
+      "caseStudy": "A closed quad of 5 man is 16 fu and a closed quad of East is 32 fu. A hand with one closed quad of East reaches 52 fu with just the 20 base fu, and with a closed ron 62 fu, rounded up to 70 fu. The same East as a closed triplet is 8 fu, so declaring kan or not changes the fu fourfold.\nIf you have called pon on 5 man and then draw the fourth and add it (an added kan), it is an open quad worth 8 fu. If you never called pon and all four 5 man are in your hand, a closed kan makes a closed quad worth 16 fu.",
+      "pitfall": "Holding four identical tiles does not make a quad unless you declare kan. Without the declaration they are a triplet plus one spare tile, and that spare cannot be used in a set or the pair, so the hand cannot win.\nAlso, a kan seems to add a tile to your hand, but a quad is four tiles that make one set. It does not increase the number of sets."
     },
     "toitsu": {
-      "term": "対子",
-      "reading": "トイツ",
-      "definition": "同じ牌2枚の組。アガリの形では1組だけが雀頭になり、7組そろえると七対子になる。",
-      "usage": "対子は面子ではないので、面子としての符は付きません。和了形では1組だけを雀頭として使い、雀頭の符（役牌なら2符・それ以外0符）だけが付きます。対子を2組持って刻子の完成を待つ形が双碰待ちです。\n対子を7組そろえれば七対子（2翻・25符固定）です。",
-      "caseStudy": "三萬・三萬を雀頭にすれば0符、白・白を雀頭にすれば2符です。三萬・三萬と白・白を持って双碰待ちにすると、どちらでアガっても待ちの符は0符ですが、完成した刻子の符（ロンなら明刻扱い）が付きます。\n七対子は、東・東、白・白、一萬・一萬……のように対子7組で和了形になり、面子手ではないので符は25符で固定です。",
-      "pitfall": "対子が2組以上あるとき、どちらを雀頭にするかは自由ですが、残りは面子にならないので、対子が3組以上ある手は和了形になりません（七対子を除く）。\nまた、同じ牌4枚を「対子2組」と数えることは、一般的なルールでは七対子でも認められません。"
+      "term": "Matching pair",
+      "reading": "toitsu",
+      "definition": "Any two identical tiles. In a winning hand exactly one of them is the hand's pair, and seven of them make chiitoitsu (seven pairs).",
+      "usage": "A matching pair is not a set, so it earns no set fu. In a winning hand you use exactly one as the hand's pair, and it earns only pair fu (2 fu for a value tile, 0 fu otherwise). Holding two pairs and waiting to complete either into a triplet is a pair wait.\nSeven pairs give chiitoitsu (2 han, fixed at 25 fu).",
+      "caseStudy": "A pair of 3 man as the hand's pair is 0 fu, and a pair of white dragons is 2 fu. Hold a pair of 3 man and a pair of white dragons for a pair wait, and whichever tile you win on, the wait itself earns 0 fu, but the completed triplet earns its fu (counted as open on a ron).\nChiitoitsu wins with seven pairs, such as East-East, white-white, 1 man-1 man and so on. It is not a standard hand, so it is fixed at 25 fu.",
+      "pitfall": "When you have two or more pairs, you are free to choose which one is the hand's pair, but the others do not become sets, so a hand with three or more pairs cannot win (except as chiitoitsu).\nAlso, under common rules four identical tiles cannot be counted as two pairs, not even for chiitoitsu."
     },
     "jantou": {
-      "term": "雀頭",
-      "reading": "ジャントウ",
-      "definition": "アガリの形にちょうど1組だけ含まれる対子。アタマとも呼ぶ。数牌なら0符、役牌なら2符が付く。",
-      "usage": "雀頭の符は、三元牌なら2符、自風・場風の風牌なら2符、それ以外（数牌・オタ風）なら0符です。自風と場風が同じ牌（連風牌）の雀頭は、2符とするルールと4符とするルールがあります。\n雀頭を1枚だけ持って残りを待つ形が単騎待ちで、待ちの符として2符が付きます。平和は「雀頭が役牌でない」ことが条件です。",
-      "caseStudy": "東場の南家が東を雀頭にすれば場風で2符、南なら自風で2符、西や北ならオタ風で0符、五萬なら0符です。\n白を雀頭にした手は、面子がすべて順子で両面待ちでも平和になりません。雀頭の2符が付いて、門前ロンなら20符＋10符＋2符＝32符→40符です。",
-      "pitfall": "「雀頭が字牌なら必ず2符」ではありません。役牌に当たる字牌だけが2符で、オタ風の雀頭は0符です。同じ西でも、西家の雀頭なら2符、それ以外の家なら0符です。\nまた、雀頭は和了形に必ず1組だけ必要です。4面子だけで雀頭が無い14枚は和了形ではありません。"
+      "term": "Pair",
+      "reading": "jantou",
+      "definition": "The one pair of identical tiles that every winning hand contains exactly once. Also called the head (atama). It is 0 fu if it is a pair of number tiles and 2 fu if it is a pair of value tiles.",
+      "usage": "The pair earns 2 fu for a dragon, 2 fu for your seat wind or the round wind, and 0 fu otherwise (number tiles and non-value winds). For a pair of a tile that is both your seat wind and the round wind (a double wind), some rules give 2 fu and others 4 fu.\nHolding one tile of the pair and waiting for its match is a single-tile wait, which earns 2 fu for the wait. Pinfu requires that the pair is not a value tile.",
+      "caseStudy": "For the South player in the East round, a pair of East is the round wind (2 fu), a pair of South is the seat wind (2 fu), a pair of West or North is a non-value wind (0 fu), and a pair of 5 man is 0 fu.\nA hand with a pair of white dragons is not pinfu even if every set is a sequence and the wait is two-sided. The pair adds 2 fu, so a closed ron is 20 + 10 + 2 = 32 fu, rounded up to 40 fu.",
+      "pitfall": "An honor pair is not always 2 fu. Only honors that are value tiles earn 2 fu, and a pair of a non-value wind is 0 fu. The same West pair is 2 fu for the West player and 0 fu for anyone else.\nAlso, a winning hand needs exactly one pair. Fourteen tiles of four sets with no pair are not a winning hand."
     },
     "mentsute": {
-      "term": "面子手",
-      "reading": "メンツテ",
-      "definition": "4つの面子と1つの雀頭でできた、麻雀のもっとも基本的なアガリの形。七対子や国士無双といった特殊な形以外はすべて面子手であり、符計算もこの形を前提に組み立てる。",
-      "usage": "符計算は面子手を前提に組み立てられています。副底20符に、4つの面子の符、雀頭の符、待ちの符、アガリ方の符（門前ロン10符・ツモ2符）を足し、10符単位に切り上げます。\n面子手でない七対子（25符固定）と国士無双（役満）は、この積み上げを行いません。",
-      "caseStudy": "二萬・三萬・四萬、六筒・七筒・八筒、四索・五索・六索、白・白・白、東・東（オタ風）の手は、面子手として順子3つ（0符）、白の暗刻（8符）、オタ風の雀頭（0符）で、両面待ちの門前ロンなら20符＋10符＋8符＝38符→40符です。\n同じ14枚を別の分け方で面子手にできることもあり、その場合は点数が高い方で計算します。",
-      "pitfall": "面子手は「4面子1雀頭」であって、「4面子」だけでも「3面子2雀頭」でも和了形になりません。雀頭がちょうど1組、面子がちょうど4つです。\nまた、面子手の符計算では順子に符が付かないので、順子ばかりの手は副底の20符に近い符になります。それが平和（20符固定）の考え方の元です。"
+      "term": "Standard hand",
+      "reading": "mentsute",
+      "definition": "The most basic winning shape in mahjong: four sets and a pair. Every hand except special shapes such as chiitoitsu and kokushi musou (thirteen orphans) is a standard hand, and fu calculation is built on this shape.",
+      "usage": "Fu calculation assumes a standard hand. To the 20 base fu you add the fu of the four sets, the fu of the pair, the fu of the wait and the fu for the way you won (10 fu for a closed ron, 2 fu for tsumo), then round up to the next 10.\nChiitoitsu (fixed at 25 fu) and kokushi musou (a yakuman), which are not standard hands, skip this build-up.",
+      "caseStudy": "A hand of 2-3-4 man, 6-7-8 pin, 4-5-6 sou, three white dragons and a pair of East (a non-value wind here) is a standard hand of three sequences (0 fu), a closed triplet of white dragons (8 fu) and a non-value wind pair (0 fu). Won by closed ron on a two-sided wait, it is 20 + 10 + 8 = 38 fu, rounded up to 40 fu.\nThe same 14 tiles can sometimes be split into a standard hand in more than one way; in that case you score the split with the higher score.",
+      "pitfall": "A standard hand is four sets and one pair. Four sets alone do not make a winning hand, and neither do three sets and two pairs: exactly one pair and exactly four sets.\nAlso, in a standard hand sequences earn no fu, so a hand full of sequences ends up close to the 20 base fu. That is the idea behind pinfu (fixed at 20 fu)."
     },
     "chiitoitsu": {
-      "term": "七対子",
-      "reading": "チートイツ",
-      "definition": "対子7組でアガる特殊な形の役。面子手ではないため符を積み上げず、符は25符で固定される。門前でしか成立しない。",
-      "usage": "七対子は面子手ではないので、面子・雀頭・待ちの符を積み上げず、25符で固定です。門前ロンの10符もツモの2符も加算せず、切り上げもしません。翻は2翻で、他の役（断么九・混一色など）やドラは重なります。\n点数は25符2翻で子1600点・親2400点、25符3翻で子3200点、4翻で子6400点です。",
-      "caseStudy": "一萬・一萬、四筒・四筒、七索・七索、東・東、白・白、五萬・五萬、九筒・九筒の7組で和了すれば七対子です。ロンでもツモでも25符で、役は七対子の2翻です。\n七対子にドラが2枚乗れば4翻で子6400点、混一色（門前3翻）が重なれば5翻で満貫です。",
-      "pitfall": "七対子は門前でしか成立しません。ポン・チーをした時点で対子7組の形は作れなくなります。\nまた、同じ牌4枚を対子2組として数えることは一般に認められません。七対子には7種類の牌が必要です。25符は固定なので、「切り上げて30符」にはなりません。"
+      "term": "Seven pairs",
+      "reading": "chiitoitsu",
+      "definition": "A yaku with a special shape: you win with seven pairs. It is not a standard hand, so its fu is not built up and is fixed at 25 fu. It is valid only with a closed hand.",
+      "usage": "Chiitoitsu is not a standard hand, so the fu for sets, the pair and the wait is not added; it is fixed at 25 fu. Neither the 10 fu for a closed ron nor the 2 fu for tsumo is added, and the fu is not rounded up. It is worth 2 han, and other yaku (tanyao, honitsu and so on) and dora stack on top of it.\nAt 25 fu, 2 han is 1,600 points for a non-dealer and 2,400 for the dealer; 3 han is 3,200 for a non-dealer, and 4 han is 6,400 for a non-dealer.",
+      "caseStudy": "Win with the seven pairs 1 man-1 man, 4 pin-4 pin, 7 sou-7 sou, East-East, white-white, 5 man-5 man and 9 pin-9 pin and you have chiitoitsu. It is 25 fu whether by ron or by tsumo, and its yaku is chiitoitsu, 2 han.\nWith two dora, chiitoitsu becomes 4 han and 6,400 for a non-dealer; with honitsu (3 han closed) on top it is 5 han, a mangan.",
+      "pitfall": "Chiitoitsu is valid only with a closed hand. Once you call pon or chii, you can no longer make the shape of seven pairs.\nAlso, four identical tiles generally cannot be counted as two pairs: chiitoitsu needs seven different pairs. The 25 fu is fixed, so it never rounds up to 30 fu."
     },
     "menzen": {
       "term": "門前",
