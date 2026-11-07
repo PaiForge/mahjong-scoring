@@ -214,6 +214,16 @@ export const TERMINOLOGY = [
     note: "The 2 fu for winning by tsumo (not added to a pinfu tsumo).",
   },
   {
+    ja: ["待ち符"],
+    en: "wait fu",
+    note: "The 2 fu for a single-tile, closed or edge wait. Two-sided and pair waits earn none.",
+  },
+  {
+    ja: ["特例等の加符"],
+    en: "open pinfu adjustment",
+    note: "The 10 fu that lifts an open hand with no other fu (20 fu) to 30 fu. Name the fu breakdown row Open pinfu adjustment.",
+  },
+  {
     ja: ["符の切り上げ"],
     en: "rounding up fu",
     note: "Rounding the total fu up to the next 10. Keep it distinct from kiriage mangan.",
@@ -586,6 +596,46 @@ export const TERMINOLOGY = [
     avoid: ["session", "sessions"],
   },
   {
+    ja: ["道場"],
+    en: "Dojo",
+    note: "The page that shows your rank and the road to the black belt. A screen name, so always capitalized.",
+  },
+  {
+    ja: ["ライフ"],
+    en: "lives",
+    note: "The mistakes left in a challenge before it ends. Lives as the label even when one is left.",
+  },
+  {
+    ja: ["スコア"],
+    en: "score",
+    note: "The number of correct answers in a challenge ({score} correct). Keep it distinct from points (点数), the value of a hand.",
+  },
+  {
+    ja: ["正答率"],
+    en: "accuracy",
+    note: "The share of correct answers in a challenge, as a percentage (Accuracy 80%).",
+  },
+  {
+    ja: ["自己ベスト", "これまでのベスト"],
+    en: "personal best",
+    note: "Your best challenge score on the same practice and setting. New personal best! when it is beaten.",
+  },
+  {
+    ja: ["経験値"],
+    en: "EXP",
+    note: "Experience points earned by practicing. Always written EXP, as in +10 EXP and Lv.3.",
+  },
+  {
+    ja: ["回数制限", "無料枠"],
+    en: "daily limit",
+    note: "The number of free questions a day for some practice menus. Free questions for the remaining count; it resets at midnight Japan time (JST).",
+  },
+  {
+    ja: ["黒帯"],
+    en: "black belt",
+    note: "Shodan, the goal of the rank path. The path itself is the Road to the black belt in scoring.",
+  },
+  {
     ja: ["段級位"],
     en: "rank",
     note: "The kyu and dan ranks as a whole (5 Kyu up to Shodan).",
@@ -607,7 +657,7 @@ export const TERMINOLOGY = [
   },
   {
     ja: ["昇級試験", "昇段試験"],
-    en: "rank exam",
-    note: "The exam that awards the next kyu or dan rank. Promotion for 昇級 / 昇段.",
+    en: "promotion exam",
+    note: "The exam that awards the next kyu or dan rank, for both 昇級 and 昇段. As a title, the rank comes first: 5 Kyu Promotion Exam; a menu name reads Promotion Exam: Scoring Pinfu.",
   },
 ] as const satisfies readonly TermEntry[];

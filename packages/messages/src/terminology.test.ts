@@ -104,6 +104,38 @@ describe("完訳の辞書が訳語表に従う", () => {
   });
 });
 
+describe("練習の画面が訳語表に従う", () => {
+  it("モードと画面の呼び名は訳語表の表記（UI のラベルなので先頭だけ大文字）", () => {
+    // チャレンジ / トレーニング / 模試 / 道場 は画面をまたいで同じ語で呼ぶ。
+    // ボタン・見出し・タブバーで別の語になると、同じモードが別物に見える
+    expect(en.training.modeLabel).toBe(termOf("トレーニング"));
+    expect(en.examTraining.pageTitle).toContain(termOf("模試"));
+    expect(en.nav.dojo).toBe(termOf("道場"));
+    expect(en.dojo.title).toBe(termOf("道場"));
+    expect(en.exp.label).toBe(termOf("経験値"));
+    expect(en.challenge.lives.toLowerCase()).toBe(termOf("ライフ"));
+    expect(en.challenge.score.toLowerCase()).toBe(termOf("スコア"));
+    expect(en.challenge.record.bestLabel.toLowerCase()).toBe(
+      termOf("自己ベスト"),
+    );
+  });
+
+  it("符の内訳の理由は、レッスン・用語集と同じ訳語で書く", () => {
+    // 答え合わせの内訳（fuBreakdown.reasons）は core の符の理由の構造を辞書で描いたもの。
+    // 内訳の語でレッスンや用語集を引き直すので、教材の訳語と食い違わせない
+    const reasons = en.challenge.fuBreakdown.reasons;
+    expect(reasons.futei.toLowerCase()).toBe(termOf("副底"));
+    expect(reasons.menzenRon.toLowerCase()).toBe(termOf("門前加符"));
+    expect(reasons.kuiPinfu.toLowerCase()).toBe(termOf("特例等の加符"));
+    expect(reasons.jantouReasons.bakaze).toBe(termOf("場風"));
+    expect(reasons.jantouReasons.jikaze).toBe(termOf("自風"));
+    const machi = reasons.machi.toLowerCase();
+    for (const japanese of ["単騎", "嵌張", "辺張"]) {
+      expect(machi).toContain(`{${termOf(japanese)}}`);
+    }
+  });
+});
+
 /**
  * 用語集の 1 語の文言（見出し語・読み）
  *
