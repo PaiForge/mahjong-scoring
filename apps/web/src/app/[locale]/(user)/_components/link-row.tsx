@@ -5,6 +5,7 @@ import {
   FOCUS_RING_CLASSES,
   ROW_LINK_TITLE_CLASSES,
 } from "@/app/_components/_lib/link-classes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { ChevronRightIcon } from "./icons/chevron-right-icon";
 
 /**
@@ -72,6 +73,13 @@ interface LinkRowProps {
   readonly description?: string;
   /** 行末に置く要素（順位・バッジなど） */
   readonly trailing?: ReactNode;
+  /**
+   * リンク先が今のページと別の言語のとき、その言語（英語のページから
+   * 日本語だけのページへ張るときの `"ja"`）。渡すと `next/link` ではなく素の
+   * `<a hrefLang>` にして文書ごと読み込む（`<html lang>` と辞書は文書の
+   * 読み込みでしか切り替わらない）。同じ言語なら省く
+   */
+  readonly hrefLang?: SupportedLocale;
 }
 
 /**
@@ -94,40 +102,50 @@ export function LinkRow({
   title,
   description,
   trailing,
+  hrefLang,
 }: LinkRowProps) {
-  return (
-    <li className={ROW_ITEM_CLASSES}>
-      <Link
-        href={href}
-        className={`group items-start transition-colors hover:bg-surface-50 ${ROW_INNER_CLASSES} ${FOCUS_RING_CLASSES}`}
-      >
-        {/* 行頭・行末の要素はタイトル 1 行目の行ボックス（text-sm = 20px）に
+  const className = `group items-start transition-colors hover:bg-surface-50 ${ROW_INNER_CLASSES} ${FOCUS_RING_CLASSES}`;
+  const content = (
+    <>
+      {/* 行頭・行末の要素はタイトル 1 行目の行ボックス（text-sm = 20px）に
             中央揃えする。絵文字やアイコンは文字サイズで高さが変わるため、
             上端揃えのままだとタイトルとの視覚的な高さがずれる。 */}
-        {leading !== undefined && (
-          <span className="flex min-h-5 shrink-0 items-center">{leading}</span>
-        )}
-        <span className="min-w-0 flex-1">
-          <span className={`block text-sm font-bold ${ROW_LINK_TITLE_CLASSES}`}>
-            {title}
+      {leading !== undefined && (
+        <span className="flex min-h-5 shrink-0 items-center">{leading}</span>
+      )}
+      <span className="min-w-0 flex-1">
+        <span className={`block text-sm font-bold ${ROW_LINK_TITLE_CLASSES}`}>
+          {title}
+        </span>
+        {description !== undefined && (
+          <span className="mt-0.5 block text-xs text-surface-400">
+            {description}
           </span>
-          {description !== undefined && (
-            <span className="mt-0.5 block text-xs text-surface-400">
-              {description}
-            </span>
-          )}
-        </span>
-        {trailing !== undefined && (
-          <span className="flex min-h-5 shrink-0 items-center">{trailing}</span>
         )}
-        {/* 行全体が押せることを右端の矢印でも示す（お知らせ一覧の行と同じ） */}
-        <span
-          aria-hidden="true"
-          className="flex min-h-5 shrink-0 items-center text-surface-400 group-hover:text-foreground"
-        >
-          <ChevronRightIcon />
-        </span>
-      </Link>
+      </span>
+      {trailing !== undefined && (
+        <span className="flex min-h-5 shrink-0 items-center">{trailing}</span>
+      )}
+      {/* 行全体が押せることを右端の矢印でも示す（お知らせ一覧の行と同じ） */}
+      <span
+        aria-hidden="true"
+        className="flex min-h-5 shrink-0 items-center text-surface-400 group-hover:text-foreground"
+      >
+        <ChevronRightIcon />
+      </span>
+    </>
+  );
+  return (
+    <li className={ROW_ITEM_CLASSES}>
+      {hrefLang === undefined ? (
+        <Link href={href} className={className}>
+          {content}
+        </Link>
+      ) : (
+        <a href={href} hrefLang={hrefLang} className={className}>
+          {content}
+        </a>
+      )}
     </li>
   );
 }

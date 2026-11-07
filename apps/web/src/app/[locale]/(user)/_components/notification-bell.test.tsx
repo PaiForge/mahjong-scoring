@@ -27,6 +27,11 @@ import { NotificationBell } from "./notification-bell";
 
 const refreshProfile = vi.fn(async () => undefined);
 
+/** 日本語のページ（表は日本語のリンクに影響しないので空でよい） */
+const JA_LINKS = { locale: "ja", table: {} } as const;
+/** 英語のページ（通知ページは英語で公開していない） */
+const EN_LINKS = { locale: "en", table: {} } as const;
+
 function authState(overrides: Record<string, unknown> = {}) {
   mockUseAuth.mockReturnValue({
     user: { id: "user-1" },
@@ -43,19 +48,19 @@ describe("NotificationBell", () => {
 
   it("未ログインなら出さない", () => {
     authState({ user: null, profile: undefined });
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     expect(screen.queryByRole("link")).toBeNull();
   });
 
   it("プロフィールが届くまでは出さない（アバターと同時に現れる）", () => {
     authState({ profile: undefined });
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     expect(screen.queryByRole("link")).toBeNull();
   });
 
   it("未読が無くてもベルは出し、バッジは出さない", () => {
     authState();
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     const link = screen.getByRole("link", { name: "bell" });
     expect(link.getAttribute("href")).toBe("/mypage/notifications");
     expect(screen.queryByText("0")).toBeNull();
@@ -65,7 +70,7 @@ describe("NotificationBell", () => {
     authState({
       profile: { avatarUrl: null, name: "たろう", unreadNotificationCount: 3 },
     });
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     expect(screen.getByRole("link", { name: "bellUnread" })).toBeDefined();
     expect(screen.getByText("3")).toBeDefined();
   });
@@ -78,13 +83,13 @@ describe("NotificationBell", () => {
         unreadNotificationCount: 120,
       },
     });
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     expect(screen.getByText("99+")).toBeDefined();
   });
 
   it("既読イベントでプロフィール（未読数）を取り直す", () => {
     authState();
-    render(<NotificationBell />);
+    render(<NotificationBell localeLinks={JA_LINKS} />);
     expect(refreshProfile).not.toHaveBeenCalled();
 
     act(() => dispatchNotificationsRead());
@@ -93,5 +98,13 @@ describe("NotificationBell", () => {
     // イベント名が変わっていないことも確かめる（ページ側が同じ名前で投げる）
     act(() => window.dispatchEvent(new Event(NOTIFICATIONS_READ_EVENT)));
     expect(refreshProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("英語のページでは、英語版の無い通知ページへのベルを出さない", () => {
+    authState({
+      profile: { avatarUrl: null, name: "たろう", unreadNotificationCount: 3 },
+    });
+    render(<NotificationBell localeLinks={EN_LINKS} />);
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

@@ -13,6 +13,10 @@ import {
   type ScoreTableViewMode,
 } from "@mahjong-scoring/features/score-table/score-grid";
 import type { Role, WinType } from "@mahjong-scoring/core";
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 import { NormalScoreTable } from "./normal-score-table";
 import { HighScoreTable } from "./high-score-table";
 import { KiriageManganNote } from "./kiriage-mangan-note";
@@ -39,6 +43,12 @@ interface ScoreTableProps {
    * 答え合わせの参照用モーダルでは誤タップで数字が消えないよう無効にする。
    */
   readonly blurToggleEnabled?: boolean;
+  /**
+   * 表を置いているページの言語。英語のページでは、英語版の無い設定ページへの
+   * 導線を「日本語のみ」と示す。省略時は既定の言語（答え合わせ・レッスンの
+   * モーダルは日本語のページでだけ開く）
+   */
+  readonly pageLocale?: SupportedLocale;
 }
 
 /**
@@ -57,6 +67,7 @@ export function ScoreTable({
   initialWinType = "ron",
   initialViewMode = "normal",
   blurToggleEnabled = true,
+  pageLocale = DEFAULT_LOCALE,
 }: ScoreTableProps) {
   const t = useTranslations("scoreTable");
   const highlightRef = useRef<HTMLTableCellElement>(null);
@@ -167,7 +178,7 @@ export function ScoreTable({
       {/* 切り上げ満貫が動かすのは符×翻の表だけなので、満貫+ の表では出さない */}
       {viewMode === "normal" && (
         <div className="mt-2">
-          <KiriageManganNote enabled={kiriageMangan} />
+          <KiriageManganNote enabled={kiriageMangan} pageLocale={pageLocale} />
         </div>
       )}
     </div>

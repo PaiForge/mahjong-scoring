@@ -2,12 +2,17 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useLocale } from "next-intl";
 import { isRole, isWinType } from "@mahjong-scoring/core";
 import type { Role, WinType } from "@mahjong-scoring/core";
 import {
   parseScoreTableFocusFromParams,
   type ScoreTableFocus,
 } from "@mahjong-scoring/features/score-table/focus";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 import { ScoreTable } from "./score-table";
 
 /** URL のクエリから読み取った、表の注目対象とタブ初期値 */
@@ -72,6 +77,7 @@ function ScoreTableQueryReader({ onRead }: ScoreTableQueryReaderProps) {
  */
 export function ScoreTableFromQuery() {
   const [query, setQuery] = useState<ScoreTableQuery | undefined>(undefined);
+  const locale = useLocale();
 
   return (
     <>
@@ -82,6 +88,7 @@ export function ScoreTableFromQuery() {
         focus={query?.focus}
         initialRole={query?.initialRole ?? "ko"}
         initialWinType={query?.initialWinType ?? "ron"}
+        pageLocale={isSupportedLocale(locale) ? locale : DEFAULT_LOCALE}
       />
     </>
   );

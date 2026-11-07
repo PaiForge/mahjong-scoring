@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { createPortal } from "react-dom";
@@ -10,14 +9,31 @@ import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { DRAWER_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { stripLocalePrefix } from "@/i18n/public-path";
+import { resolveNavTarget, type LocaleLinks } from "./_lib/locale-links";
+import { LanguageSwitcher } from "./language-switcher";
+import { JapaneseOnlyMark, LocaleNavLink } from "./locale-nav-link";
 
 /**
  * ハンバーガーメニュー（左スライドのドロワー）。
  * blindfold-chess の MobileMenu を移植。PC・モバイル共通のナビゲーションとして使用する。
+ *
+ * 項目の下に言語切替（`LanguageSwitcher`）を置く。狭い画面ではヘッダーに
+ * 切替を出さないので、ここが常設の入口になる（JavaScript の無い閲覧者と
+ * クローラーにはフッターの切替がある。ドロワーはマウント後にしか描かない）。
+ *
+ * 英語のページでは、英語版の無い項目を日本語のページへ素のリンクで向け、
+ * 「日本語のみ」と添える（英語の存在しない URL を作らない。`resolveNavTarget`）。
+ * 選択中の判定はロケール接頭辞を外したパスで行う。
  */
-export function NavMenu() {
+export function NavMenu({
+  localeLinks,
+}: {
+  /** 今のページの言語と公開 href の表（ヘッダーがサーバーで作って渡す） */
+  readonly localeLinks: LocaleLinks;
+}) {
   const t = useTranslations("nav");
-  const pathname = usePathname();
+  const pathname = stripLocalePrefix(usePathname());
   const [isOpen, setIsOpen] = useState(false);
   // ドロワーの中のリンクを先読みしてよいか。ドロワーは閉じていても描画したままで、
   // `<Link>` の監視範囲（画面外 200px まで）に掛かるため、放っておくとページを開いた
@@ -112,10 +128,12 @@ export function NavMenu() {
               <nav className="space-y-1 px-4 py-6">
                 {DRAWER_NAV_ITEMS.map((item) => {
                   const isActive = isNavItemActive(pathname, item.href);
+                  const target = resolveNavTarget(item.href, localeLinks);
                   return (
-                    <Link
+                    <LocaleNavLink
                       key={item.href}
-                      href={item.href}
+                      navTarget={target}
+                      linkKind="plain"
                       prefetch={wantsPrefetch ? undefined : false}
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${FOCUS_RING_CLASSES} ${
@@ -125,11 +143,25 @@ export function NavMenu() {
                       }`}
                     >
                       {item.icon}
-                      {t(item.labelKey)}
-                    </Link>
+                      <span>
+                        {t(item.labelKey)}
+                        {target.crossLocale && (
+                          <JapaneseOnlyMark
+                            label={t("language.japaneseOnly")}
+                          />
+                        )}
+                      </span>
+                    </LocaleNavLink>
                   );
                 })}
               </nav>
+
+              <div className="space-y-2 border-t border-panel px-8 py-4">
+                <p className="text-xs font-bold text-muted-foreground">
+                  {t("language.label")}
+                </p>
+                <LanguageSwitcher localeLinks={localeLinks} variant="stacked" />
+              </div>
             </div>
           </>,
           document.body,

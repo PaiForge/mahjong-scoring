@@ -56,6 +56,27 @@ interface NormalScoreTableProps {
  * （`table-fixed` は幅を指定していない列に残りを均等に配る）、
  * 見出しの「符＼翻」が折り返さない最小限に取る。
  */
+/**
+ * 符の列の見出し（「符＼翻」）を組む
+ * 符翻見出し
+ *
+ * 符・翻の接尾辞は本来は数の直後に連結する語で、英語では数と離すために
+ * 先頭に空白を持つ（" fu" / " han"）。見出しでは空白を落とす。区切りは
+ * 和文なら全角の「＼」、ラテン文字なら半角の「\」にする — 列は「符＼翻」が
+ * 折り返さない最小限の幅（`SCORE_TABLE_FU_COLUMN_CLASS`）しか無く、全角の
+ * 区切りを欧文に挟むと 1 字ぶん広がって見出しが隣の列へはみ出すため。
+ * 日本語の見出しは今までどおり「符＼翻」。
+ *
+ * @param fuSuffix - `scoreTable.fuSuffix`
+ * @param hanSuffix - `scoreTable.hanSuffix`
+ */
+export function fuHanHeading(fuSuffix: string, hanSuffix: string): string {
+  const fu = fuSuffix.trim();
+  const han = hanSuffix.trim();
+  const latin = /^[\x20-\x7e]+$/.test(`${fu}${han}`);
+  return `${fu}${latin ? "\\" : "＼"}${han}`;
+}
+
 export function NormalScoreTable({
   scoreGrid,
   activeTab,
@@ -77,9 +98,7 @@ export function NormalScoreTable({
             density="dense"
             className={SCORE_TABLE_FU_COLUMN_CLASS}
           >
-            {t("fuSuffix")}
-            {"＼"}
-            {t("hanSuffix")}
+            {fuHanHeading(t("fuSuffix"), t("hanSuffix"))}
           </DataTableHeaderCell>
           {HAN_COLS.map((han) => (
             <DataTableHeaderCell
