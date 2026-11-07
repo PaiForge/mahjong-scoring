@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { BeltBadge } from "@/app/[locale]/(user)/_components/belt-badge";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import type { RankStatus } from "@mahjong-scoring/features/ranks/rank-status";
@@ -7,6 +5,7 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 import { rankHref } from "@mahjong-scoring/features/routes";
 
 import { RankStatusBadge } from "../ranks/_components/rank-status-badge";
+import { DojoLink, type DojoLinkLocale } from "./dojo-link";
 
 interface RankHeadingProps {
   readonly rankSlug: RankSlug;
@@ -24,6 +23,11 @@ interface RankHeadingProps {
   readonly tDojo: (key: string) => string;
   /** スポットライトツアーが照らす対象の id */
   readonly dataTourId?: string;
+  /**
+   * 級の詳細へのリンクを張るページの言語（省略時は日本語のページと同じ
+   * リンク。日本語だけで出している画面から使うとき）
+   */
+  readonly linkLocale?: DojoLinkLocale;
 }
 
 /**
@@ -52,17 +56,22 @@ export function RankHeading({
   tRanks,
   tDojo,
   dataTourId,
+  linkLocale,
 }: RankHeadingProps) {
   return (
     <div className="flex items-center gap-3" data-tour-id={dataTourId}>
       <BeltBadge slug={rankSlug} />
       <h3 className="min-w-0 flex-1 text-base font-bold">
-        <Link href={rankHref(rankSlug)} className={TEXT_LINK_CLASSES}>
+        <DojoLink
+          path={rankHref(rankSlug)}
+          linkLocale={linkLocale}
+          className={TEXT_LINK_CLASSES}
+        >
           {tRanks("heading", {
             rank: tRanks(`names.${rankSlug}`),
             criterion: tRanks(`criteria.${rankSlug}`),
           })}
-        </Link>
+        </DojoLink>
       </h3>
       {status !== undefined && (
         <RankStatusBadge status={status} tDojo={tDojo} />

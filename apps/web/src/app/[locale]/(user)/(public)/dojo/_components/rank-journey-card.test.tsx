@@ -47,6 +47,7 @@ describe("RankJourneyCard", () => {
             completedLessonSlugs: new Set(["mangan-ko-ron"]),
           }),
           expanded: true,
+          locale: "ja",
         })}
       </div>,
     );
@@ -89,6 +90,7 @@ describe("RankJourneyCard", () => {
         {await RankJourneyCard({
           journey: { ...base, chapters },
           expanded: true,
+          locale: "ja",
         })}
       </div>,
     );
@@ -108,6 +110,7 @@ describe("RankJourneyCard", () => {
         {await RankJourneyCard({
           journey: rankJourney("kyu-4"),
           expanded: false,
+          locale: "ja",
         })}
       </div>,
     );
@@ -128,6 +131,7 @@ describe("RankJourneyCard", () => {
         RankJourneyCard({
           journey: rankJourney(slug),
           expanded: false,
+          locale: "ja",
         }),
       ),
     );
@@ -148,6 +152,7 @@ describe("RankJourneyCard", () => {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
           expanded: false,
+          locale: "ja",
         }),
       ),
     );
@@ -168,6 +173,7 @@ describe("RankJourneyCard", () => {
             achievedRankSlugs: [...achievedRankSlugs],
           }),
           expanded: false,
+          locale: "ja",
         }),
       ),
     );
@@ -182,5 +188,37 @@ describe("RankJourneyCard", () => {
         (article) => article.textContent?.includes("lockedNote") ?? false,
       ),
     ).toEqual([false, true, false, true]);
+  });
+
+  it("英語の道場では、級の詳細・レッスン・練習・試験・各段の一覧を英語の URL で張る", async () => {
+    const { container } = render(
+      <div>
+        {await RankJourneyCard({
+          journey: rankJourney("kyu-5"),
+          expanded: true,
+          locale: "en",
+        })}
+      </div>,
+    );
+
+    const links = hrefs(container);
+    expect(links).toContain("/en/dojo/ranks/kyu-5");
+    for (const chapterSlug of RANK_REGISTRY[0].learnChapterSlugs) {
+      expect(links).toContain(`/en/lessons/${chapterSlug}`);
+    }
+    expect(links).toContain("/en/practice/score-table?variant=ko_mangan_plus");
+    expect(links).toContain("/en/exam/mangan");
+    // どの行き先も英語で公開しているので、言語をまたぐリンクは無い
+    expect(container.querySelector("a[hreflang]")).toBeNull();
+    expect(container.textContent).not.toContain("language.japaneseOnly");
+    expect(
+      Array.from(container.querySelectorAll("[data-stage] a")).map((a) =>
+        a.getAttribute("href"),
+      ),
+    ).toEqual([
+      "/en/lessons?rank=kyu-5",
+      "/en/practice?rank=kyu-5",
+      "/en/exam/mangan",
+    ]);
   });
 });
