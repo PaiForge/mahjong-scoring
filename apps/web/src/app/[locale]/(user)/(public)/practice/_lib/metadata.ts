@@ -5,12 +5,14 @@ import {
   createMetadata,
   createNamespaceMetadata,
   createTitleOnlyMetadata,
+  type MetadataLocaleOptions,
 } from "@/app/_lib/metadata";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
 import { practiceHref } from "@mahjong-scoring/features/routes";
 
@@ -23,6 +25,14 @@ import { practiceHref } from "@mahjong-scoring/features/routes";
  * intro への内部リンクは辿らせるため follow は残す。
  */
 const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
+
+/*
+ * どのヘルパーも末尾の `options.locale`（省略時は日本語）で辞書・canonical・
+ * OGP の言語を決める（`@/app/_lib/metadata` と同じ契約）。辞書は
+ * `getTranslations({ locale, namespace })` で引き、リクエストのロケールに落とさない。
+ * slug から導くパスはロケール非依存のまま渡し、言語のパスへの変換は
+ * `createMetadata` に任せる。
+ */
 
 /**
  * 練習の説明ページ（`/practice/<slug>`）の metadata を生成する。
@@ -40,24 +50,31 @@ const PRACTICE_SUBPAGE_ROBOTS = { index: false, follow: true } as const;
  * canonical は待ち」のような誤配線が typecheck を通ってしまうため。
  *
  * @param slug - 練習のスラッグ
+ * @param options - 言語（省略時は日本語）
  */
 export async function createPracticeMetadata(
   slug: PracticeMenuSlug,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
+  const { locale = DEFAULT_LOCALE } = options;
   const { namespace } = practiceMenuBySlug(slug);
   // 昇級試験は「昇級試験：〜」で始まり教本と衝突しないのでそのまま。練習は教本の
   // 同名章（「雀頭の符計算」等）と title が同じになるため「〜の練習」にする
   if (isExamMenu(slug)) {
-    return createNamespaceMetadata(namespace, { path: practiceHref(slug) });
+    return createNamespaceMetadata(namespace, {
+      path: practiceHref(slug),
+      locale,
+    });
   }
   const [t, tPractice] = await Promise.all([
-    getTranslations(namespace),
-    getTranslations("practice"),
+    getTranslations({ locale, namespace }),
+    getTranslations({ locale, namespace: "practice" }),
   ]);
   return createMetadata({
     title: tPractice("introTitle", { title: t("title") }),
     description: t("description"),
     path: practiceHref(slug),
+    locale,
   });
 }
 
@@ -74,12 +91,19 @@ export async function createPracticeMetadata(
  * コピペで「View は雀頭・タイトルは待ち」の食い違いが typecheck を通る。
  *
  * @param slug - 練習のスラッグ
+ * @param options - 言語（省略時は日本語）
  */
 export async function createPracticePlayMetadata(
   slug: PracticeMenuSlug,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
   return {
-    ...(await createTitleOnlyMetadata(practiceMenuBySlug(slug).namespace)),
+    ...(await createTitleOnlyMetadata(
+      practiceMenuBySlug(slug).namespace,
+      undefined,
+      undefined,
+      options,
+    )),
     robots: PRACTICE_SUBPAGE_ROBOTS,
   };
 }
@@ -95,12 +119,19 @@ export async function createPracticePlayMetadata(
  * `createPracticePlayMetadata` を使う。
  *
  * @param namespace - 翻訳名前空間（例: "score"）
+ * @param options - 言語（省略時は日本語）
  */
 export async function createFreePracticePlayMetadata(
   namespace: string,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
   return {
-    ...(await createTitleOnlyMetadata(namespace)),
+    ...(await createTitleOnlyMetadata(
+      namespace,
+      undefined,
+      undefined,
+      options,
+    )),
     robots: PRACTICE_SUBPAGE_ROBOTS,
   };
 }
@@ -118,25 +149,29 @@ export async function createFreePracticePlayMetadata(
  * 「ミスは1回まで」のように本番のルールを述べていて模試には当てはまらない）。
  *
  * @param slug - 練習のスラッグ
+ * @param options - 言語（省略時は日本語）
  */
 export async function createPracticeTrainingMetadata(
   slug: PracticeMenuSlug,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
+  const { locale = DEFAULT_LOCALE } = options;
   const { namespace } = practiceMenuBySlug(slug);
   if (isExamMenu(slug)) {
     const [t, tExamTraining] = await Promise.all([
-      getTranslations(namespace),
-      getTranslations("examTraining"),
+      getTranslations({ locale, namespace }),
+      getTranslations({ locale, namespace: "examTraining" }),
     ]);
     return {
       ...createMetadata({
         title: tExamTraining("pageTitle", { title: t("title") }),
+        locale,
       }),
       robots: PRACTICE_SUBPAGE_ROBOTS,
     };
   }
   return {
-    ...(await createNamespaceMetadata(namespace)),
+    ...(await createNamespaceMetadata(namespace, { locale })),
     robots: PRACTICE_SUBPAGE_ROBOTS,
   };
 }

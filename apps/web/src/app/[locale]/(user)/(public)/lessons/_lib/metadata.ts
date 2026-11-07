@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 
-import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import {
+  createNamespaceMetadata,
+  type MetadataLocaleOptions,
+} from "@/app/_lib/metadata";
 
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { jstDayStartIso } from "@mahjong-scoring/features/jst";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
@@ -19,17 +23,28 @@ import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-n
  * canonical のパスと辞書ネームスペースをどちらも slug から導出する。
  * og:type は article（公開日は `CURRICULUM` の `publishedAt`）。
  *
+ * `options.locale`（省略時は日本語）で辞書・canonical・OGP の言語を決める。
+ * `CURRICULUM` の `publishedAt` は日本語の章の公開日なので、英語では
+ * `article:published_time` を出さない — 翻訳の公開日の記録がまだ無く、
+ * 日本語の日付やビルド時刻で代用すると、実際と違う公開日を名乗ることになる。
+ * 英語の章を公開するときは、翻訳の公開日を持たせてからここで出す。
+ *
  * @param slug - 対象章のスラッグ
+ * @param options - 言語（省略時は日本語）
  */
 export async function createLearnMetadata(
   slug: CurriculumChapterSlug,
+  options: MetadataLocaleOptions = {},
 ): Promise<Metadata> {
+  const { locale = DEFAULT_LOCALE } = options;
   const base = await createNamespaceMetadata(chapterNamespace(slug), {
     title: "pageTitle",
     description: "pageDescription",
     path: chapterHref(slug),
+    locale,
   });
-  const publishedAt = getChapterBySlug(slug)?.publishedAt;
+  const publishedAt =
+    locale === DEFAULT_LOCALE ? getChapterBySlug(slug)?.publishedAt : undefined;
   return {
     ...base,
     // 章は読み物なので og:type は website ではなく article。公開日も添える
