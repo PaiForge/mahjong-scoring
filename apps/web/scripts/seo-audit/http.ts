@@ -34,19 +34,22 @@
  *    も、日本語・公開した英語は 200 の RSC、未公開の英語は 404
  * 6. 未知の slug・言語・`/ja` の別名・管理画面・API・認証・静的ファイル・robots.txt。
  *    英語の用語は、slug の形に合わない語が proxy の hard 404、形に合うが無い語が
- *    ページ（`dynamicParams = false`）の 404 + noindex
+ *    ページ（`dynamicParams = false`）の 404 + noindex。robots.txt の Disallow は
+ *    移行前の行がそのまま並び、その後ろに英語の追加分（`EN_ROBOTS_DISALLOW_ADDITIONS`）
  * 7. noindex — 日本語の noindex ページは meta robots が noindex で、親の googlebot の
  *    index が残らない
  * 8. 認証 — ゲスト・壊れた cookie・ログイン済み（dev-seed のユーザー。ローカルの
  *    Supabase に対してだけ）で `/` と `/dashboard` を確かめ、ログイン済みの HTML が
  *    共有キャッシュに載らず、後続のゲストに漏れない。ログイン済みの `/en` は
- *    英語の LP のまま（英語の dashboard は未公開なので rewrite しない）
+ *    英語の dashboard（noindex・`lang="en"`・canonical 無し）へ rewrite され共有キャッシュ
+ *    不可、ゲストの `/en` は英語の LP のまま
  * 9. SNS・構造化データ — bot の User-Agent で取得した head の title・description・
  *    og・twitter、og:image の実体（200・PNG・寸法）、JSON-LD
  * 10. 英語の noindex — `EN_NOINDEX_PATHS` の全 URL をゲストで取得し、200 なら
  *    `lang="en"`・noindex（meta robots か `X-Robots-Tag`）・hreflang 無し・canonical が
  *    自分か無し、3xx なら Location が `/en/` 配下（日本語へ落ちていない）。結果の
  *    ページは状態（searchParams・cookie）が無いので 200 か説明ページへの 3xx。
+ *    要ログインのページ（マイページ等）はゲストでは `/en/sign-in?redirect=…` への 3xx。
  *    動的でもよい（静的生成は索引対象だけの要件）
  *
  * `--origin` は手元のサーバー（localhost / 127.0.0.1 / [::1]）に限る。
@@ -78,6 +81,7 @@ import {
   BASELINE_HTTP_CHANGES,
   BASELINE_ROBOTS_DISALLOW,
   EN_NOINDEX_PATHS,
+  EN_ROBOTS_DISALLOW_ADDITIONS,
   isEnIndexable,
   parseSiteUrl,
   SITE_ORIGIN,
@@ -453,10 +457,9 @@ async function auditRsc(context: Context): Promise<void> {
     "/en/lessons/about-this-app",
   ];
   const notFoundPaths = [
-    "/en/sign-in",
-    "/en/mypage",
     "/en/leaderboard",
-    "/en/dashboard",
+    "/en/plan",
+    "/en/announcements",
     "/en/admin",
   ];
   let requests = 0;
@@ -730,9 +733,14 @@ async function auditEdgeCases(context: Context): Promise<void> {
     .split("\n")
     .map((line) => /^Disallow:\s*(\S+)/i.exec(line.trim())?.[1])
     .filter((value): value is string => value !== undefined);
-  if (JSON.stringify(disallow) !== JSON.stringify(BASELINE_ROBOTS_DISALLOW)) {
+  // 移行前の行は順序ごとそのまま残し、英語の追加分はその後ろに並ぶ
+  const expectedDisallow = [
+    ...BASELINE_ROBOTS_DISALLOW,
+    ...EN_ROBOTS_DISALLOW_ADDITIONS,
+  ];
+  if (JSON.stringify(disallow) !== JSON.stringify(expectedDisallow)) {
     failures.push(
-      `robots.txt の Disallow が ${disallow.join(" ")}（移行前 ${BASELINE_ROBOTS_DISALLOW.join(" ")}）`,
+      `robots.txt の Disallow が ${disallow.join(" ")}（期待 ${expectedDisallow.join(" ")}。移行前 ${BASELINE_ROBOTS_DISALLOW.join(" ")} + 英語 ${EN_ROBOTS_DISALLOW_ADDITIONS.join(" ")}）`,
     );
   }
   context.report.check(
@@ -838,6 +846,23 @@ function isEnglishLandingPage(fetched: Fetched): boolean {
   );
 }
 
+/**
+ * 英語の dashboard（ログイン済みの `/en` の rewrite 先）の応答か
+ *
+ * 200・`lang="en"`・noindex（meta robots か `X-Robots-Tag`）・canonical 無し。
+ * LP のまま（canonical が `/en`・索引対象）なら偽になる。
+ */
+function isEnglishDashboard(fetched: Fetched): boolean {
+  const head = headOf(fetched);
+  return (
+    fetched.status === 200 &&
+    head !== undefined &&
+    head.lang === "en" &&
+    head.canonicals.length === 0 &&
+    (headerNoindex(fetched) || isNoindex(head.robots))
+  );
+}
+
 /** dev-seed のユーザーでログインし、要求に載せる cookie を返す */
 async function signIn(): Promise<{ cookie: string } | { error: string }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -883,6 +908,15 @@ async function auditAuth(context: Context): Promise<void> {
   const guestTop = await get(context, "/");
   if (!isLandingPage(guestTop))
     failures.push(`ゲストの / が LP でない（${guestTop.status}）`);
+  const guestEnTop = await get(context, "/en");
+  if (!isEnglishLandingPage(guestEnTop))
+    failures.push(`ゲストの /en が英語の LP でない（${guestEnTop.status}）`);
+  const guestEnDashboard = await get(context, "/en/dashboard");
+  if (guestEnDashboard.status !== 307 || guestEnDashboard.location !== "/en") {
+    failures.push(
+      `ゲストの /en/dashboard: ${guestEnDashboard.status} ${guestEnDashboard.location}（期待 307 → /en）`,
+    );
+  }
   const guestDashboard = await get(context, "/dashboard");
   if (guestDashboard.status !== 307 || guestDashboard.location !== "/") {
     failures.push(
@@ -931,22 +965,31 @@ async function auditAuth(context: Context): Promise<void> {
     if (dashboard.status === 200 && !isPrivate(dashboard)) {
       failures.push("ログイン済みの /dashboard が共有キャッシュ可能");
     }
-    // 英語の dashboard は未公開なので、ログイン済みでも /en は英語の LP のまま
+    // ログイン済みの /en は英語の dashboard へ rewrite する（アドレスバーは /en のまま）
     const enTop = await get(context, "/en", headers);
-    if (!isEnglishLandingPage(enTop)) {
+    if (!isEnglishDashboard(enTop)) {
       failures.push(
-        `ログイン済みの /en が英語の LP でない（${enTop.status} ${enTop.location}。dashboard へ rewrite していないか）`,
+        `ログイン済みの /en が英語の dashboard（noindex・lang="en"・canonical 無し）でない（${enTop.status} ${enTop.location}。LP のままか）`,
       );
     }
-    if (enTop.headers.get("set-cookie") && !isPrivate(enTop)) {
+    if (!isPrivate(enTop)) {
       failures.push(
-        "ログイン済みの /en が cookie を書いたのに共有キャッシュ可能",
+        `ログイン済みの /en が共有キャッシュ可能（Cache-Control: ${enTop.headers.get("cache-control") ?? "(なし)"}）`,
       );
+    }
+    const enDashboard = await get(context, "/en/dashboard", headers);
+    if (enDashboard.status === 200 && !isPrivate(enDashboard)) {
+      failures.push("ログイン済みの /en/dashboard が共有キャッシュ可能");
     }
     const after = await get(context, "/");
     if (!isLandingPage(after))
       failures.push(
         "ログイン済みの要求の後、ゲストの / が LP でない（キャッシュの混入）",
+      );
+    const enAfter = await get(context, "/en");
+    if (!isEnglishLandingPage(enAfter))
+      failures.push(
+        "ログイン済みの要求の後、ゲストの /en が英語の LP でない（キャッシュの混入）",
       );
   }
   context.report.check(
@@ -1091,7 +1134,9 @@ async function auditSocial(
  * `X-Robots-Tag` の noindex・hreflang 無し・canonical は自分か無し。親の
  * robots / googlebot に index を残さない）。3xx は英語の中で閉じる（Location が
  * `/en/` 配下。日本語のページへ落とさない）。結果のページは状態（searchParams・
- * cookie）が無いと説明ページへ戻すことがあるので 3xx を認める。
+ * cookie）が無いと説明ページへ戻すことがあるので 3xx を認める。要ログインの
+ * ページ（マイページ等）はゲストを英語のログイン（`/en/sign-in?redirect=…`）へ、
+ * dashboard は英語の LP（`/en`）へ送る。
  *
  * @param path - 監査するサーバーの英語のパス（`/en/...`）
  * @param fetched - ゲストの応答

@@ -11,9 +11,11 @@ import { getIndexableAlternates, productionUrl } from "@/i18n/seo-alternates";
 import {
   ALLOWED_NEW_JA_STATIC,
   BASELINE_HTTP_CHANGES,
+  BASELINE_ROBOTS_DISALLOW,
   EN_INDEXABLE_PATHS,
   EN_INDEXABLE_TEMPLATES,
   EN_NOINDEX_PATHS,
+  EN_ROBOTS_DISALLOW_ADDITIONS,
   expectedAlternates,
   expectedEnIndexablePaths,
   expectedUrl,
@@ -50,7 +52,10 @@ const SAMPLE_PATHS: readonly string[] = [
   "/practice/jantou-fu/result",
   "/mypage",
   "/sign-in",
+  "/preferences",
   "/u/alice",
+  "/announcements",
+  "/terms",
   "/leaderboard/monthly/jantou-fu",
   "/admin",
   "/nonexistent",
@@ -131,6 +136,48 @@ describe("監査の期待値とアプリの公開状態", () => {
     for (const path of EN_NOINDEX_PATHS) {
       expect(isEnIndexable(path), path).toBe(false);
     }
+  });
+
+  it("英語の noindex に会員の画面（認証・ダッシュボード・マイページ・設定の 18 件）が入る", () => {
+    const member = [
+      "/sign-in",
+      "/sign-up",
+      "/sign-up/verify-email",
+      "/forgot-password",
+      "/reset-password",
+      "/banned",
+      "/dashboard",
+      "/mypage",
+      "/mypage/account",
+      "/mypage/account/delete",
+      "/mypage/challenges",
+      "/mypage/challenges/results",
+      "/mypage/notifications",
+      "/mypage/plan",
+      "/mypage/profile/edit",
+      "/mypage/setup-username",
+      "/preferences",
+      "/preferences/yaku-order",
+    ];
+    expect(EN_NOINDEX_PATHS).toEqual(expect.arrayContaining(member));
+    expect(EN_NOINDEX_PATHS).toHaveLength(54 + 6 + member.length);
+  });
+
+  it("robots.txt の Disallow は日本語の行をそのまま保ち、英語のマイページと公開プロフィールを足す", async () => {
+    const { default: robots } = await import("@/app/robots");
+    const { rules } = robots();
+    const disallow = Array.isArray(rules) ? undefined : rules.disallow;
+    expect(BASELINE_ROBOTS_DISALLOW).toEqual([
+      "/admin",
+      "/mypage",
+      "/api",
+      "/u/",
+    ]);
+    expect(EN_ROBOTS_DISALLOW_ADDITIONS).toEqual(["/en/mypage", "/en/u/"]);
+    expect(disallow).toEqual([
+      ...BASELINE_ROBOTS_DISALLOW,
+      ...EN_ROBOTS_DISALLOW_ADDITIONS,
+    ]);
   });
 
   it.each(SAMPLE_PATHS.map((path) => [path]))(
