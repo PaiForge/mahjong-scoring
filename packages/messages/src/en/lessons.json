@@ -229,73 +229,73 @@
     "achievement": "You can now look at a tenpai shape and tell whether its wait earns fu (closed, edge and single-tile waits are 2 fu; two-sided and pair waits are 0 fu)."
   },
   "tehaiFu": {
-    "condition": "{bakaze}場・{jikaze}家・{winType, select, tsumo {ツモ} other {ロン}}和了",
-    "questionPrompt": "手牌全体の符を選んでください",
+    "condition": "{bakaze} round, {jikaze} seat, win by {winType, select, tsumo {tsumo} other {ron}}",
+    "questionPrompt": "Choose the fu for the whole hand",
     "questions": {
       "furoRon": {
-        "hint": "副露してのロンには、門前ロンの加符もツモ符も付きません。白の明刻と待ちを足して、最後に切り上げます。",
-        "explanation": "副底 20 符 ＋ 白の明刻 4 符 ＋ 嵌張待ち 2 符 = 26 符を切り上げて 30 符です。副露してのロンなので和了の符は付きません。"
+        "hint": "A ron with called sets gets neither the closed ron bonus nor tsumo fu. Add the open triplet of white dragons and the wait, then round up at the end.",
+        "explanation": "20 base fu + 4 fu for the open triplet of white dragons + 2 fu for the closed wait = 26 fu, rounded up to 30 fu. It is a ron with called sets, so nothing is added for how you won."
       },
       "furoTsumo": {
-        "hint": "副露していても、ツモ和了ならツモ符が付きます。",
-        "explanation": "副底 20 符 ＋ ツモ符 2 符 ＋ 白の明刻 4 符 ＋ 八筒の暗刻 4 符 ＋ 嵌張待ち 2 符 = 32 符を切り上げて 40 符です。ツモ符を忘れると 30 符になります。"
+        "hint": "Even with called sets, a tsumo win gets tsumo fu.",
+        "explanation": "20 base fu + 2 tsumo fu + 4 fu for the open triplet of white dragons + 4 fu for the closed triplet of 8 pin + 2 fu for the closed wait = 32 fu, rounded up to 40 fu. Forget the tsumo fu and you get 30 fu."
       },
       "shanponRon": {
-        "hint": "双碰待ちをロンしたとき、ロン牌を含む方の刻子は明刻として数えます。",
-        "explanation": "副底 20 符 ＋ 門前ロン 10 符 ＋ 九萬と一筒の暗刻 8 符ずつ ＋ ロンで完成した白の明刻 4 符 = 50 符です。白を暗刻と数えると 54 符で、60 符になってしまいます。"
+        "hint": "When you win by ron on a pair wait, the triplet that contains the ron tile counts as an open triplet.",
+        "explanation": "20 base fu + 10 fu closed ron bonus + 8 fu each for the closed triplets of 9 man and 1 pin + 4 fu for the open triplet of white dragons completed by the ron = 50 fu. Count the white dragons as a closed triplet and you get 54 fu, which rounds up to 60 fu."
       },
       "nanBakaze": {
-        "hint": "南場の場風は南です。",
-        "explanation": "副底 20 符 ＋ ツモ符 2 符 ＋ 九萬の暗刻 8 符 ＋ 南の雀頭（場風）2 符 = 32 符を切り上げて 40 符です。東を場風と取り違えると 30 符になります。"
+        "hint": "In the South round, the round wind is South.",
+        "explanation": "20 base fu + 2 tsumo fu + 8 fu for the closed triplet of 9 man + 2 fu for the pair of South (round wind) = 32 fu, rounded up to 40 fu. Mistake East for the round wind and you get 30 fu."
       }
     },
-    "achievement": "副底・和了の符・面子・雀頭・待ちを足して切り上げ、手牌全体の符を出せるようになりました。"
+    "achievement": "You can now work out the fu for a whole hand by adding the base fu, the fu for how you won, the sets, the pair and the wait, then rounding up."
   },
   "chiitoitsuScore": {
-    "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score",
     "questions": {
       "only": {
-        "hint": "七対子はツモでもロンでも 25 符です。25 符 2 翻の子のロンを表で引きます。",
-        "explanation": "七対子は 25 符。25 符 2 翻の子のロンは 1,600 点です。"
+        "hint": "Chiitoitsu is 25 fu by tsumo or by ron. Look up a non-dealer ron at 25 fu 2 han in the table.",
+        "explanation": "Chiitoitsu is 25 fu. A non-dealer ron at 25 fu 2 han is 1,600 points."
       },
       "tanyao": {
-        "hint": "役が複合しても符は 25 符のまま。変わるのは翻数だけです。",
-        "explanation": "断么九が複合して 3 翻、符は 25 符のままです。25 符 3 翻の子のロンは 3,200 点です。"
+        "hint": "When other yaku are added, the fu stay at 25. Only the han change.",
+        "explanation": "With tanyao added it is 3 han, and the fu stay at 25. A non-dealer ron at 25 fu 3 han is 3,200 points."
       },
       "riichiTanyao": {
-        "hint": "符は 25 符のまま 4 翻。子の表の右端です。",
-        "explanation": "立直・断么九が複合して 4 翻、符は 25 符のままです。25 符 4 翻の子のロンは 6,400 点です。"
+        "hint": "The fu stay at 25, and it is 4 han: the right end of the non-dealer table.",
+        "explanation": "With riichi and tanyao added it is 4 han, and the fu stay at 25. A non-dealer ron at 25 fu 4 han is 6,400 points."
       },
       "oyaRiichi": {
-        "hint": "親の表も同じ 25 符です。3 翻の親のロンを引きます。",
-        "explanation": "立直が複合して 3 翻、符は 25 符です。25 符 3 翻の親のロンは 4,800 点です。"
+        "hint": "The dealer table uses the same 25 fu. Look up a dealer ron at 3 han.",
+        "explanation": "With riichi added it is 3 han, at 25 fu. A dealer ron at 25 fu 3 han is 4,800 points."
       }
     },
-    "achievement": "七対子の符が 25 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
+    "achievement": "You can now use the fixed 25 fu of chiitoitsu to look up the score in the table when other yaku are added."
   },
   "pinfuScore": {
-    "condition": "{role, select, oya {親} other {子}}・{winType, select, tsumo {ツモ} other {ロン}}・{yaku}（{han}翻）",
-    "questionPrompt": "点数を選んでください（ツモは子 / 親の支払い）",
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score (for a tsumo, the non-dealer / dealer payments)",
     "questions": {
       "ron": {
-        "hint": "平和のロンは 30 符です。30 符 1 翻の子のロンを表で引きます。",
-        "explanation": "平和のロンは門前ロンの加符が付いて 30 符。30 符 1 翻の子のロンは 1,000 点です。"
+        "hint": "A pinfu ron is 30 fu. Look up a non-dealer ron at 30 fu 1 han in the table.",
+        "explanation": "A pinfu ron gets the closed ron bonus and is 30 fu. A non-dealer ron at 30 fu 1 han is 1,000 points."
       },
       "tsumo": {
-        "hint": "平和のツモは 20 符です。ツモの支払いは表のツモの行（子 / 親）で引きます。",
-        "explanation": "平和のツモは 20 符で、門前清自摸和が付いて 2 翻です。20 符 2 翻の子のツモは、子が 400 点・親が 700 点を払います。"
+        "hint": "A pinfu tsumo is 20 fu. Look up the tsumo payments in the tsumo row of the table (non-dealer / dealer).",
+        "explanation": "A pinfu tsumo is 20 fu, and with menzen tsumo added it is 2 han. On a non-dealer tsumo at 20 fu 2 han, each non-dealer pays 400 points and the dealer pays 700 points."
       },
       "tanyaoRon": {
-        "hint": "断么九が複合しても、ロンなら 30 符のままです。",
-        "explanation": "断么九が複合して 2 翻、符は 30 符のままです。30 符 2 翻の子のロンは 2,000 点です。"
+        "hint": "Even with tanyao added, a ron stays at 30 fu.",
+        "explanation": "With tanyao added it is 2 han, and the fu stay at 30. A non-dealer ron at 30 fu 2 han is 2,000 points."
       },
       "tanyaoTsumo": {
-        "hint": "断么九が複合しても、ツモなら 20 符のままです。",
-        "explanation": "門前清自摸和・断么九が複合して 3 翻、符は 20 符のままです。20 符 3 翻の子のツモは、子が 700 点・親が 1,300 点を払います。"
+        "hint": "Even with tanyao added, a tsumo stays at 20 fu.",
+        "explanation": "With menzen tsumo and tanyao added it is 3 han, and the fu stay at 20. On a non-dealer tsumo at 20 fu 3 han, each non-dealer pays 700 points and the dealer pays 1,300 points."
       }
     },
-    "achievement": "平和の符がツモ 20 符・ロン 30 符で決まっていることを使って、役が複合したときの点数を表から引けるようになりました。"
+    "achievement": "You can now use the fixed fu of pinfu (20 fu by tsumo, 30 fu by ron) to look up the score in the table when other yaku are added."
   },
   "menzenMentsuScore": {
     "condition": "{handShape, select, furo {副露} other {門前}}・{winType, select, tsumo {ツモ} other {ロン}}・積み上げた符 {extraFu} 符",
