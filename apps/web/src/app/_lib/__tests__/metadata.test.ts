@@ -1,3 +1,7 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl/server", async () => await import("./locale-intl-mock"));
@@ -578,11 +582,30 @@ describe("buildSocialCard", () => {
   });
 });
 
+/** `apps/web/public`（OGP 画像の置き場） */
+const PUBLIC_DIR = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../../../public",
+);
+
 describe("サイトの既定値", () => {
   it("日本語の既定タイトルと OGP 画像は既存の値のまま", () => {
     expect(DEFAULT_TITLE).toBe("麻雀点数計算教室 - 麻雀の点数計算トレーニング");
     expect(OG_IMAGE).toEqual(EXPECTED_IMAGE);
   });
+
+  it.each(["ja", "en"] as const)(
+    "%s の OGP 画像は public/ に実在し、宣言した寸法の PNG",
+    (locale) => {
+      const { ogImage } = siteIdentity(locale);
+      const png = readFileSync(join(PUBLIC_DIR, ogImage.url));
+
+      // PNG の IHDR（16 バイト目から幅・高さが 4 バイトずつ、ビッグエンディアン）
+      expect(png.subarray(1, 4).toString("ascii")).toBe("PNG");
+      expect(png.readUInt32BE(16)).toBe(ogImage.width);
+      expect(png.readUInt32BE(20)).toBe(ogImage.height);
+    },
+  );
 
   it("英語はブランド名に英語のタグラインを添える", () => {
     expect(siteIdentity("en").defaultTitle).toBe(
