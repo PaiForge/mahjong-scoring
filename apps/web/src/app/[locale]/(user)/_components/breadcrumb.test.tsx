@@ -65,23 +65,18 @@ describe("Breadcrumb", () => {
   });
 
   it("英語は英語で出していないページ（404 になる /en/...）へリンクせず、JSON-LD にも載せない", () => {
-    const { container, getByLabelText, getByText } = renderIn("en");
-
-    // ホーム（/en）と「Reference」（/en/reference）は英語では未公開
-    expect(getByLabelText("Home").tagName).toBe("SPAN");
-    expect(getByText("Reference").tagName).toBe("SPAN");
-    expect(hrefs(container)).toEqual([]);
-    // 残るのは現在地だけで、BreadcrumbList として意味を持たないので出さない
-    expect(readSchema(container)).toBeNull();
-  });
-
-  it("英語で公開しているページは英語の URL へリンクし、JSON-LD の item も英語のページ", () => {
-    const { container } = renderIn("en", [
-      { label: "Score table", href: "/reference/score-table" },
-      { label: "Details" },
+    // 練習一覧・練習の説明ページは英語では未公開。ホーム（/en）は公開している
+    const { container, getByLabelText, getByText } = renderIn("en", [
+      { label: "Practice", href: "/practice" },
+      { label: "Pair fu", href: "/practice/jantou-fu" },
+      { label: "Play" },
     ]);
 
-    expect(hrefs(container)).toEqual(["/en/reference/score-table"]);
+    expect(getByLabelText("Home").getAttribute("href")).toBe("/en");
+    expect(getByText("Practice").tagName).toBe("SPAN");
+    expect(getByText("Pair fu").tagName).toBe("SPAN");
+    // 未公開の段は文字だけ残し、/en/practice のような存在しない URL を作らない
+    expect(hrefs(container)).toEqual(["/en"]);
     expect(readSchema(container)).toEqual({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -89,10 +84,44 @@ describe("Breadcrumb", () => {
         {
           "@type": "ListItem",
           position: 1,
-          name: "Score table",
-          item: `${SITE_URL}/en/reference/score-table`,
+          name: "Home",
+          item: `${SITE_URL}/en`,
         },
-        { "@type": "ListItem", position: 2, name: "Details" },
+        { "@type": "ListItem", position: 2, name: "Play" },
+      ],
+    });
+  });
+
+  it("JSON-LD に載る段が 2 つ未満（ホームだけ）なら BreadcrumbList として意味を持たないので出さない", () => {
+    const { container } = renderIn("en", []);
+
+    expect(hrefs(container)).toEqual(["/en"]);
+    expect(readSchema(container)).toBeNull();
+  });
+
+  it("英語で公開しているページは英語の URL へリンクし、JSON-LD の item も英語のページ", () => {
+    // ホーム（/en）と早見表のハブ（/en/reference）は英語で公開している
+    const { container, getByLabelText } = renderIn("en");
+
+    expect(getByLabelText("Home").getAttribute("href")).toBe("/en");
+    expect(hrefs(container)).toEqual(["/en", "/en/reference"]);
+    expect(readSchema(container)).toEqual({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: `${SITE_URL}/en`,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Reference",
+          item: `${SITE_URL}/en/reference`,
+        },
+        { "@type": "ListItem", position: 3, name: "Score table" },
       ],
     });
   });
