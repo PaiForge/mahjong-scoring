@@ -7,6 +7,7 @@ import { AnnouncementStatus } from "@/lib/announcement-status";
 import {
   DEFAULT_LOCALE,
   pickByLocale,
+  type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 
 /**
@@ -55,6 +56,48 @@ export async function getPublishedAnnouncementsPaginated(
   `);
 
   return rows;
+}
+
+/**
+ * その言語で書かれた公開お知らせだけをページネーション取得する（fallback 無し）
+ * 言語一致の公開お知らせ取得
+ *
+ * @description
+ * {@link getPublishedAnnouncementsPaginated} と違い、要求した言語の行が無い
+ * slug は他の言語（日本語）で埋めずに結果から落とす。英語の画面は英訳して
+ * 公開した行だけを出す方針で、日本語の本文を英語の画面に混ぜないため。
+ * (slug, locale) は一意（`uq_announcements_slug_locale`）なので、言語で絞れば
+ * slug の重複排除は要らない。並び順は既存のクエリと同じ
+ * pinned_at DESC NULLS LAST, published_at DESC。
+ *
+ * 日本語の画面とアプリ向け API（`DEFAULT_LOCALE` 固定）は従来の
+ * fallback 付きのクエリを使い続ける。既存のクエリの意味を変えると
+ * 日本語とモバイルの一覧が変わるので、別の関数として足している。
+ *
+ * @param locale - 取得する言語（この言語の行だけ）
+ * @param limit - 取得件数
+ * @param offset - 読み飛ばす件数
+ */
+export async function getPublishedAnnouncementsExact(
+  locale: SupportedLocale,
+  limit: number,
+  offset: number,
+): Promise<Announcement[]> {
+  return db
+    .select()
+    .from(announcements)
+    .where(
+      and(
+        eq(announcements.status, AnnouncementStatus.Published),
+        eq(announcements.locale, locale),
+      ),
+    )
+    .orderBy(
+      sql`${announcements.pinnedAt} DESC NULLS LAST`,
+      desc(announcements.publishedAt),
+    )
+    .limit(limit)
+    .offset(offset);
 }
 
 /** 公開お知らせの件数（slug ごとに 1 件としてカウント） */
