@@ -111,7 +111,7 @@ const MENTSU_SHAPES = {
  * 条件文の値のうち、言語で変わる語の組み立て方
  * 条件文の言語別オプション
  *
- * どちらも省略時は日本語（モバイル・既存の呼び出しの出力を変えない）。
+ * いずれも省略時は日本語（モバイル・既存の呼び出しの出力を変えない）。
  * features は辞書を読まないので、言語ごとの語は描く側が辞書から引いて渡す。
  */
 export interface LessonConditionOptions {
@@ -125,13 +125,23 @@ export interface LessonConditionOptions {
    * web は `lessons.yakuJoiner`（英語は「 + 」）を渡す
    */
   readonly yakuJoiner?: string;
+  /**
+   * 役名（core の日本語の役名。例: 七対子・断么九）を表示名にする関数。
+   * 省略時は core の名前そのまま（モバイル・日本語の出力を変えない）。
+   *
+   * web は `yakuLabel(name, t("yakuNames"))` を渡す。`yakuNames` の日本語の値は
+   * core の役名と一致するので、日本語のページで渡しても出力は変わらない。
+   * `agariScore.yaku`（練習の表示名）を渡さないのは、日本語の値が core と字の違う行
+   * （「断幺九」と core の「断么九」等）があり、日本語の条件文が変わるため
+   */
+  readonly yakuName?: (name: string) => string;
 }
 
 /**
  * 条件文（辞書の `lessons.<messageKey>.condition`）へ差し込む値
  * 条件文の値
  *
- * 言語で変わる語（風の名前・役のつなぎ）は `options` で受ける。
+ * 言語で変わる語（風の名前・役名・役のつなぎ）は `options` で受ける。
  * features は日本語固定のモバイルと共有するので引数を足す形で広げ、
  * 省略時は従来どおり日本語の値を返す。
  *
@@ -145,11 +155,15 @@ export function lessonConditionValues(
   options?: LessonConditionOptions,
 ): Record<string, string | number> {
   const kazeName = options?.kazeName ?? getKazeName;
+  const yakuName = options?.yakuName ?? ((name: string) => name);
   switch (prompt.kind) {
     case "tier":
       return { han: prompt.han, tier: tScoreTable(prompt.tierKey) };
     case "yaku":
-      return { yaku: prompt.yaku, state: prompt.naki ? "naki" : "menzen" };
+      return {
+        yaku: yakuName(prompt.yaku),
+        state: prompt.naki ? "naki" : "menzen",
+      };
     case "jantou":
       return {
         bakaze: kazeName(prompt.bakaze),
@@ -169,7 +183,9 @@ export function lessonConditionValues(
       return {
         role: prompt.role,
         winType: prompt.winType,
-        yaku: prompt.yaku.join(options?.yakuJoiner ?? "＋"),
+        yaku: prompt.yaku
+          .map((name) => yakuName(name))
+          .join(options?.yakuJoiner ?? "＋"),
         han: prompt.han,
       };
     case "extraFu":

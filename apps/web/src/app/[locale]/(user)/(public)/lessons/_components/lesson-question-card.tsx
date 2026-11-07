@@ -26,6 +26,7 @@ import {
   lessonChoiceLabel,
   lessonConditionValues,
 } from "@mahjong-scoring/features/lessons/quiz-labels";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 
 /**
  * 選択肢の文字の大きさ
@@ -130,11 +131,15 @@ interface LessonQuestionCardProps {
  * 呼び出し側が置く。
  *
  * @design 言語で変わる語は辞書から引いて features に渡す
- * 条件文の風の名前は `common.kazeNames.<kazeNameKey(kaze)>`、役のつなぎは
- * `lessons.yakuJoiner`、選択肢・正解の点数の桁区切りはページの言語で組む。
+ * 条件文の風の名前は `common.kazeNames.<kazeNameKey(kaze)>`、役名は
+ * `yakuNames.<key>`（`yakuLabel`）、役のつなぎは `lessons.yakuJoiner`、
+ * 選択肢・正解の点数の桁区切りはページの言語で組む。
  * features の `quiz-labels` は日本語固定のモバイルと共有していて辞書を読まず、
  * 省略時は日本語の値を返すため。日本語の辞書の値は省略時と同じ文字列なので、
- * 日本語のページの出力は変わらない。言語は `usePageLocale()`（URL から読む）で
+ * 日本語のページの出力は変わらない。役名を `agariScore.yaku`（練習の表示名）で
+ * 引かないのも同じ理由で、あちらの日本語は「断幺九」等 core の「断么九」と字が
+ * 違い、日本語の条件文が変わる。`yakuNames` の日本語は core の役名と一致する
+ * （`yaku-names.test.ts` が守る）。言語は `usePageLocale()`（URL から読む）で
  * 取る — 体験ページ（`MentsuFuTryBoard`）からも置かれ、呼び出し側に
  * locale を通させないため。
  */
@@ -150,6 +155,7 @@ export function LessonQuestionCard({
   const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
   const tCommon = useTranslations("common");
+  const tYakuNames = useTranslations("yakuNames");
   const locale = usePageLocale();
 
   const isAnswered = selected !== undefined;
@@ -174,6 +180,8 @@ export function LessonQuestionCard({
             lessonConditionValues(question.prompt, tScoreTable, {
               // 例: common.kazeNames.ton
               kazeName: (kaze) => tCommon(`kazeNames.${kazeNameKey(kaze)}`),
+              // 例: yakuNames.chiitoitsu
+              yakuName: (name) => yakuLabel(name, tYakuNames),
               yakuJoiner: t("yakuJoiner"),
             }),
           )}

@@ -47,8 +47,8 @@
     "goHome": "Go home without waiting"
   },
   "signedOut": {
-    "description": "You have been signed out. Sign in again and this lesson's completion will be saved when you open the home page.",
-    "signIn": "Sign in"
+    "description": "You have been logged out. Log in again and this lesson's completion will be saved when you open the home page.",
+    "signIn": "Log in"
   },
   "signUp": {
     "title": "Create an account to track your lesson progress",

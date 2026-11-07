@@ -29,7 +29,7 @@ function renderIn(locale: "ja" | "en", ui: ReactElement) {
 
 /** 確認問題の 1 問目（または key の問題）を描く */
 function card(
-  slug: "jantou-fu" | "chiitoitsu-score" | "mangan-ko-ron",
+  slug: "jantou-fu" | "chiitoitsu-score" | "mangan-ko-ron" | "yaku",
   messageKey: string,
   questionKey?: string,
 ) {
@@ -81,6 +81,24 @@ describe("LessonQuestionCard の条件文", () => {
     renderIn("ja", card("chiitoitsu-score", "chiitoitsuScore", "tanyao"));
 
     expect(condition()).toContain("＋");
+  });
+
+  it("英語のページでは役名を英語の役名の辞書から引く（漢字を残さない）", () => {
+    renderIn("en", card("chiitoitsu-score", "chiitoitsuScore", "tanyao"));
+
+    expect(condition()).toBe("Non-dealer, ron, Chiitoitsu + Tanyao (3 han)");
+  });
+
+  it("日本語のページの役名は core の役名のまま（七対子＋断么九）", () => {
+    renderIn("ja", card("chiitoitsu-score", "chiitoitsuScore", "tanyao"));
+
+    expect(condition()).toContain("七対子＋断么九");
+  });
+
+  it("役の問題の英語のページでも役名を英語で出す", () => {
+    renderIn("en", card("yaku", "yaku"));
+
+    expect(condition()).not.toMatch(/[\u3040-\u30ff\u4e00-\u9fff]/u);
   });
 
   it("選択肢の点数はページの言語の桁区切りで出す", () => {

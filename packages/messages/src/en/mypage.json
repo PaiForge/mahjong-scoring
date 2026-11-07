@@ -6,6 +6,10 @@
   "activityTitle": "Activity",
   "loadFailed": "Could not load My Page.",
   "retry": "Reload",
+  "error": {
+    "title": "We couldn't load My Page",
+    "description": "This may be a temporary problem. Please try again."
+  },
   "cards": {
     "challenges": {
       "title": "My Records",
