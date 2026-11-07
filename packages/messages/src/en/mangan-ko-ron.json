@@ -1,10 +1,10 @@
 {
   "learn": {
-    "pageTitle": "子のロン（満貫以上）",
-    "pageDescription": "子が満貫以上をロンしたときの点数を、符を使わずに覚えます。",
-    "bodyTitle": "まずは一番簡単な子のロンから",
-    "body1": "麻雀の点数計算でややこしいのは符が絡む計算です。\nしかし、[[mangan|満貫]]以上は符の計算をする必要はありません。",
-    "body2": "満貫以上の点数計算は、満貫の8000点を基準に、1.5倍、2倍、3倍、4倍で計上すればいいだけです。\n",
-    "body3": "点数の増え方は単純ですが、翻数のレンジが[[baiman|倍満]]だと少し広くなっているのでそこだけは注意が必要です。\n（例えば、10翻は[[sanbaiman|三倍満]]ではなくて倍満）"
+    "pageTitle": "Mangan and Above: Non-Dealer Ron Scores",
+    "pageDescription": "Learn the riichi mahjong scores for a non-dealer ron of mangan or more, without counting fu.",
+    "bodyTitle": "Start with the simplest case: a non-dealer ron",
+    "body1": "The confusing part of riichi mahjong scoring is the calculation that involves fu.\nFrom [[mangan|mangan]] up, however, you do not need to count fu at all.",
+    "body2": "Scores of mangan and above are simply mangan's 8,000 points multiplied by 1.5, 2, 3 or 4.",
+    "body3": "The steps are simple, but watch out for one thing: the han range for [[baiman|baiman]] is a little wider than the others.\n(For example, 10 han is baiman, not [[sanbaiman|sanbaiman]].)"
   }
 }
