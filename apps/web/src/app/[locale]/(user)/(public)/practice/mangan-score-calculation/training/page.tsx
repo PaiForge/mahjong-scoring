@@ -15,11 +15,24 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ManganScoreCalculationTrainingView } from "../_components/mangan-score-calculation-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/training">): Promise<Metadata> {
+  await prepareRouteLocale(
+    params,
+    "/practice/mangan-score-calculation/training",
+  );
   return createPracticeTrainingMetadata(PRACTICE_SLUG.manganScoreCalculation);
 }
 
-export default function ManganScoreCalculationTrainingPage() {
+export default async function ManganScoreCalculationTrainingPage({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/training">) {
+  await prepareRouteLocale(
+    params,
+    "/practice/mangan-score-calculation/training",
+  );
   return <ManganScoreCalculationTrainingView />;
 }

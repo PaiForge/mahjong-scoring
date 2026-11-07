@@ -18,12 +18,19 @@ import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { createTitleOnlyMetadata } from "@/app/_lib/metadata";
 
 import { ResetPasswordForm } from "./_components/reset-password-form";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reset-password">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/reset-password");
   return createTitleOnlyMetadata("resetPassword", "pageTitle");
 }
 
-export default async function ResetPasswordPage() {
+export default async function ResetPasswordPage({
+  params,
+}: PageProps<"/[locale]/reset-password">) {
+  await prepareRouteLocale(params, "/reset-password");
   const t = await getTranslations("resetPassword");
 
   return (

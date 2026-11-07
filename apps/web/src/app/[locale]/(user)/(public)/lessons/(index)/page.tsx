@@ -55,6 +55,7 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 import { fetchCompletedLessonSlugs } from "../_lib/lesson-progress";
 import { LESSONS_PATH, RANK_PARAM } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 interface LearnIndexPageProps {
   readonly searchParams: Promise<
@@ -74,7 +75,10 @@ function resolveRankFilter(
   return rank;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/lessons");
   return createNamespaceMetadata("learnCurriculum.index", {
     title: "pageTitle",
     description: "pageDescription",
@@ -83,8 +87,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LearnIndexPage({
+  params,
   searchParams,
-}: LearnIndexPageProps) {
+}: LearnIndexPageProps & Pick<PageProps<"/[locale]/lessons">, "params">) {
+  await prepareRouteLocale(params, "/lessons");
   const rank = resolveRankFilter((await searchParams)[RANK_PARAM]);
   if (rank !== undefined) return <RankLessonsIndex rank={rank} />;
 

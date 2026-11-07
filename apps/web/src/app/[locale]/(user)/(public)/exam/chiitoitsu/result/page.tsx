@@ -19,15 +19,27 @@ import {
   createPracticeResultPage,
 } from "@/app/[locale]/(user)/(public)/practice/_lib/create-practice-result-page";
 import { ChiitoitsuExamResultView } from "../_components/chiitoitsu-exam-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.chiitoitsuExam;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/chiitoitsu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ChiitoitsuExamResultView, {
+const PracticeResultPage = createPracticeResultPage(ChiitoitsuExamResultView, {
   slug: SLUG,
 });
+
+export default async function ChiitoitsuExamResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/exam/chiitoitsu/result">) {
+  await prepareRouteLocale(params, "/exam/chiitoitsu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

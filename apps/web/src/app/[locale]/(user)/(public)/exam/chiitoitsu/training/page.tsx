@@ -17,11 +17,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { ChiitoitsuExamTrainingView } from "../_components/chiitoitsu-exam-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/chiitoitsu/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.chiitoitsuExam);
 }
 
-export default function ChiitoitsuExamTrainingPage() {
+export default async function ChiitoitsuExamTrainingPage({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu/training">) {
+  await prepareRouteLocale(params, "/exam/chiitoitsu/training");
   return <ChiitoitsuExamTrainingView />;
 }

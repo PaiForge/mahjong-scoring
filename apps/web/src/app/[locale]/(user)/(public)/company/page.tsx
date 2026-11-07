@@ -22,15 +22,22 @@ import {
   LegalParagraph,
   LegalSection,
 } from "../_components/legal-article";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/company">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/company");
   return createNamespaceMetadata("company", {
     title: "pageTitle",
     path: "/company",
   });
 }
 
-export default async function CompanyPage() {
+export default async function CompanyPage({
+  params,
+}: PageProps<"/[locale]/company">) {
+  await prepareRouteLocale(params, "/company");
   const t = await getTranslations("company");
 
   return (

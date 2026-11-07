@@ -22,13 +22,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { MachiFuResultView } from "../_components/machi-fu-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.machiFu;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/machi-fu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/machi-fu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(MachiFuResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(MachiFuResultView, {
+  slug: SLUG,
+});
+
+export default async function MachiFuResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/machi-fu/result">) {
+  await prepareRouteLocale(params, "/practice/machi-fu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

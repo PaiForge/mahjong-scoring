@@ -1,6 +1,8 @@
 import { messages } from "@mahjong-scoring/messages/ja";
 import type { Messages } from "next-intl";
 
+import type { MessagesForLocale } from "./request";
+
 type MessageNamespace = keyof typeof messages;
 
 /**
@@ -25,7 +27,7 @@ type MessageNamespace = keyof typeof messages;
  * 逆に、サーバーでしか読まない名前空間を足したときは、ここに加えて
  * 辞書を軽く保つ。
  *
- * 残った辞書をルートレイアウトから外してページごとに渡す分割は見送った。
+ * 残った辞書を言語レイアウト（`[locale]/layout.tsx`）から外してページごとに渡す分割は見送った。
  * LP の HTML を 42KB → 14KB にしても Lighthouse（Lantern）の LCP は変わらず
  * （2026-10 に `next start` で実測）、名前空間とページの対応を保つ手間に
  * 見合わない。
@@ -76,49 +78,77 @@ export const SERVER_ONLY_MESSAGE_NAMESPACES = [
 /**
  * 管理画面（`/admin`）の配下だけに渡す名前空間
  *
- * 管理画面のクライアントコンポーネントは `admin.*` しか引かない。ルートの辞書に
- * 入れるとユーザー向けの全ページが運ぶので、`admin/layout.tsx` が入れ子の
- * `NextIntlClientProvider` でこれだけを渡す（use-intl の Provider は `messages` を
- * 渡すと親の辞書を引き継がず置き換えるため、管理画面の配下ではこれが辞書の全部になる）。
+ * 管理画面のクライアントコンポーネントは `admin.*` しか引かない。ユーザー向けの辞書に
+ * 入れると全ページが運ぶので、`admin/layout.tsx`（管理画面だけのルートレイアウト）が
+ * 自分の `NextIntlClientProvider` でこれだけを渡す。管理画面の配下ではこれが辞書の
+ * 全部になる（ユーザー向けの言語レイアウトの辞書は管理画面に届かない）。
  */
 export const ADMIN_MESSAGE_NAMESPACES = [
   "admin",
 ] as const satisfies readonly MessageNamespace[];
 
+/** クライアントの辞書から外す名前空間（サーバー専用 + 管理画面専用） */
+const NON_CLIENT_NAMESPACES: ReadonlySet<string> = new Set<string>([
+  ...SERVER_ONLY_MESSAGE_NAMESPACES,
+  ...ADMIN_MESSAGE_NAMESPACES,
+]);
+
 /**
- * 辞書から名前空間を除いたものを返す
+ * 言語の辞書から、ユーザー向けのクライアントが引く名前空間だけを選ぶ
+ * クライアント辞書選択
  *
- * 型は `Omit<typeof messages, ...>` に絞らず、Provider が受け取る `Messages`
- * のまま返す。`Object.fromEntries` の戻り値を Omit に絞るには型の断定が要り、
- * 絞ったところで読む側（`useTranslations` のキー）は辞書の型から検査されない
- * ため、得るものが無い。
+ * `[locale]/layout.tsx` の `NextIntlClientProvider` に渡す。受け取るのは
+ * リクエストの言語の辞書 1 つ（`loadMessages(locale)`）で、両方の言語の辞書を
+ * 束ねて渡すことはしない。渡した辞書は全ページの HTML と遷移ごとの RSC 応答に
+ * 載るので、英語を足しても日本語のページが運ぶ辞書は増えない（逆も同じ）。
+ * サーバー専用・管理画面専用の名前空間を外す規則は言語によらず同じ。
+ *
+ * 英語の辞書は完訳の名前空間しか持たないので、結果も完訳の名前空間だけになる。
+ * 足りない名前空間を日本語で埋めない（`loadMessages` の TSDoc）。
+ *
+ * 型は `Omit<...>` に絞らず、Provider が受け取る `Messages`（next-intl の辞書の型。
+ * web は辞書の形を型に載せていないので任意の木）で返す。絞ったところで読む側
+ * （`useTranslations` のキー）は辞書の型から検査されないため、得るものが無い。
+ * `AbstractIntlMessages`（文字列と入れ子だけ）にしないのは、辞書に配列の値
+ * （`mypage.heatmap.monthNames`。`t.raw` で読む）があり、その形に収まらないため
+ * （収めるには型の断定が要る）。
+ *
+ * @param dictionary - リクエストの言語の辞書（`loadMessages` の戻り値）
  */
-function omitNamespaces(excluded: ReadonlySet<string>): Messages {
+export function selectClientMessages(dictionary: MessagesForLocale): Messages {
   return Object.fromEntries(
-    Object.entries(messages).filter(([namespace]) => !excluded.has(namespace)),
+    Object.entries(dictionary).filter(
+      ([namespace]) => !NON_CLIENT_NAMESPACES.has(namespace),
+    ),
   );
 }
 
-/** ルートレイアウトの `NextIntlClientProvider` に渡す辞書（全ページのクライアントが引く分） */
-export const clientMessages: Messages = omitNamespaces(
-  new Set<string>([
-    ...SERVER_ONLY_MESSAGE_NAMESPACES,
-    ...ADMIN_MESSAGE_NAMESPACES,
-  ]),
-);
+/**
+ * 日本語のクライアント辞書
+ *
+ * 旧ルートレイアウト（`app/layout.tsx`）が import している。ルートレイアウトを
+ * 撤去したら、この export も消してよい（新しい呼び出し側は
+ * {@link selectClientMessages} を使う）。
+ */
+export const clientMessages: Messages = selectClientMessages(messages);
 
 /**
  * 管理画面と共有するクライアントコンポーネント（`app/_components/`）が引く名前空間
  *
- * 管理画面の Provider は辞書を置き換えるので、管理画面のシェルに置く共有部品
- * （`BrandLogo` の `nav`）の名前空間もここで渡し直す。ルートの辞書からは外さない
+ * 管理画面の Provider はユーザー向けの辞書を引き継がないので、管理画面のシェルに置く共有部品
+ * （`BrandLogo` の `nav`）の名前空間もここで渡し直す。ユーザー向けの辞書からは外さない
  * （ユーザー向けの画面でも同じ部品が引くため）。
  */
 const ADMIN_SHARED_MESSAGE_NAMESPACES = [
   "nav",
 ] as const satisfies readonly MessageNamespace[];
 
-/** 管理画面の `NextIntlClientProvider` に渡す辞書 */
+/**
+ * 管理画面の `NextIntlClientProvider` に渡す辞書
+ *
+ * 管理画面は日本語固定（英語の版を作らない）なので、言語を受け取らず日本語の
+ * 辞書から選ぶ。
+ */
 export const adminClientMessages: Messages = Object.fromEntries(
   [...ADMIN_MESSAGE_NAMESPACES, ...ADMIN_SHARED_MESSAGE_NAMESPACES].map(
     (namespace) => [namespace, messages[namespace]],

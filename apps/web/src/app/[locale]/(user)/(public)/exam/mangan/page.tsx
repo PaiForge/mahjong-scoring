@@ -32,12 +32,19 @@ import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/
 import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
 import { ExamConditions } from "../_components/exam-conditions";
 import { ManganExamHowToPlay } from "./_components/mangan-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/mangan">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/mangan");
   return createPracticeMetadata(PRACTICE_SLUG.manganExam);
 }
 
-export default function ManganExamPage() {
+export default async function ManganExamPage({
+  params,
+}: PageProps<"/[locale]/exam/mangan">) {
+  await prepareRouteLocale(params, "/exam/mangan");
   return (
     <PracticeIntroContent
       namespace="manganExamChallenge"

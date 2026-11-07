@@ -15,12 +15,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { HanCountHowToPlay } from "./_components/han-count-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/han-count">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/han-count");
   return createPracticeMetadata(PRACTICE_SLUG.hanCount);
 }
 
-export default function HanCountPage() {
+export default async function HanCountPage({
+  params,
+}: PageProps<"/[locale]/practice/han-count">) {
+  await prepareRouteLocale(params, "/practice/han-count");
   return (
     <PracticeIntroContent
       namespace="hanCountChallenge"

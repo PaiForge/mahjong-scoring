@@ -15,12 +15,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { JantouFuHowToPlay } from "./_components/jantou-fu-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/jantou-fu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/jantou-fu");
   return createPracticeMetadata(PRACTICE_SLUG.jantouFu);
 }
 
-export default function JantouFuPage() {
+export default async function JantouFuPage({
+  params,
+}: PageProps<"/[locale]/practice/jantou-fu">) {
+  await prepareRouteLocale(params, "/practice/jantou-fu");
   return (
     <PracticeIntroContent
       namespace="jantouFu"

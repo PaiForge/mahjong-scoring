@@ -2,8 +2,12 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ScoreCalculationPlayView } from "../_components/score-calculation-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/score-calculation/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.scoreCalculation);
 }
 
@@ -21,6 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 問題別の回答結果を sessionStorage に保存
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default function ScoreCalculationPlayPage() {
+export default async function ScoreCalculationPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/play">) {
+  await prepareRouteLocale(params, "/practice/score-calculation/play");
   return <ScoreCalculationPlayView />;
 }

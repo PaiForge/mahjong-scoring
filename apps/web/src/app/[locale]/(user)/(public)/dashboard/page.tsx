@@ -5,6 +5,7 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { getOptionalUser } from "@/lib/auth";
 
 import { HomeDashboard } from "./_components/home-dashboard";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /**
  * ダッシュボード
@@ -20,11 +21,17 @@ import { HomeDashboard } from "./_components/home-dashboard";
  * requireConfirmedUser は使わない。未ログインの直アクセスは proxy が
  * 「/」へ redirect するが、proxy を経由しない経路に備えてページ側でも弾く。
  */
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/dashboard">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/dashboard");
   return createPrivateMetadata("nav", "home");
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: PageProps<"/[locale]/dashboard">) {
+  await prepareRouteLocale(params, "/dashboard");
   const user = await getOptionalUser();
   if (!user) {
     redirect("/");

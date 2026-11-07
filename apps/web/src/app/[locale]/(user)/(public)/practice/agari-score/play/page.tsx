@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { createFreePracticePlayMetadata } from "../../_lib/metadata";
 import { AgariScoreBoard } from "../_components/agari-score-board";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/agari-score/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/agari-score/play");
   return createFreePracticePlayMetadata("agariScore");
 }
 
@@ -20,6 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 正誤表示後、「次へ」で新しい問題を生成（自動次へ設定時は正解で自動遷移）
  * 4. 任意のタイミングで設定画面に戻るか終了できる
  */
-export default function ScorePlayPage() {
+export default async function ScorePlayPage({
+  params,
+}: PageProps<"/[locale]/practice/agari-score/play">) {
+  await prepareRouteLocale(params, "/practice/agari-score/play");
   return <AgariScoreBoard />;
 }

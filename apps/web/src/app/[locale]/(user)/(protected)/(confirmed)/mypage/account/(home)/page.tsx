@@ -50,8 +50,12 @@ import { getAccountLoginState } from "@/lib/users/login-methods";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
 import { EmailCard } from "../_components/email-card";
 import { LoginMethodsCard } from "../_components/login-methods-card";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/account">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/account");
   return createPrivateMetadata("mypageAccount");
 }
 
@@ -60,8 +64,11 @@ interface MypageAccountPageProps {
 }
 
 export default async function MypageAccountPage({
+  params: routeParams,
   searchParams,
-}: MypageAccountPageProps) {
+}: MypageAccountPageProps &
+  Pick<PageProps<"/[locale]/mypage/account">, "params">) {
+  await prepareRouteLocale(routeParams, "/mypage/account");
   const { user } = await requireConfirmedUser();
   const [t, state, params] = await Promise.all([
     getTranslations("mypageAccount"),

@@ -23,19 +23,25 @@ import { sanitizeInternalRedirect } from "@/lib/redirect";
 import { EmailPasswordForm } from "./_components/email-password-form";
 import { GoogleOAuthButton } from "./_components/google-oauth-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 認証状態に依存するため、ビルド時のプリレンダリングを無効化 */
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/sign-in">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/sign-in");
   return createTitleOnlyMetadata("auth", "signInPageTitle");
 }
 
 export default async function SignInPage({
+  params,
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; redirect?: string }>;
-}) {
+} & Pick<PageProps<"/[locale]/sign-in">, "params">) {
+  await prepareRouteLocale(params, "/sign-in");
   const { error, redirect: redirectParam } = await searchParams;
   const sanitizedRedirect = sanitizeInternalRedirect(redirectParam);
 

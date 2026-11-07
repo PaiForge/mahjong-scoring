@@ -62,12 +62,19 @@ import { RankJourneyCard } from "../_components/rank-journey-card";
 import { RankProgressBar } from "../_components/rank-progress-bar";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/dojo">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/dojo");
   return createNamespaceMetadata("dojo", { path: DOJO_PATH });
 }
 
-export default async function DojoPage() {
+export default async function DojoPage({
+  params,
+}: PageProps<"/[locale]/dojo">) {
+  await prepareRouteLocale(params, "/dojo");
   const [t, user] = await Promise.all([
     getTranslations("dojo"),
     getOptionalUser(),

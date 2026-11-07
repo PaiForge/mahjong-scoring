@@ -22,13 +22,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { YakuResultView } from "../_components/yaku-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.yaku;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/yaku/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/yaku/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(YakuResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(YakuResultView, {
+  slug: SLUG,
+});
+
+export default async function YakuResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/yaku/result">) {
+  await prepareRouteLocale(params, "/practice/yaku/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

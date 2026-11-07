@@ -2,8 +2,12 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { HanCountPlayView } from "../_components/han-count-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/han-count/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/han-count/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.hanCount);
 }
 
@@ -20,6 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 制限時間経過またはミス3回で終了
  * 4. スコアを保存し、result ページへリダイレクト
  */
-export default function HanCountPlayPage() {
+export default async function HanCountPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/han-count/play">) {
+  await prepareRouteLocale(params, "/practice/han-count/play");
   return <HanCountPlayView />;
 }

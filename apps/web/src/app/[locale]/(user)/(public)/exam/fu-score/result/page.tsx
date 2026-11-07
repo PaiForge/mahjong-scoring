@@ -19,15 +19,27 @@ import {
   createPracticeResultPage,
 } from "@/app/[locale]/(user)/(public)/practice/_lib/create-practice-result-page";
 import { FuScoreExamResultView } from "../_components/fu-score-exam-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.fuScoreExam;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/fu-score/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/fu-score/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(FuScoreExamResultView, {
+const PracticeResultPage = createPracticeResultPage(FuScoreExamResultView, {
   slug: SLUG,
 });
+
+export default async function FuScoreExamResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/exam/fu-score/result">) {
+  await prepareRouteLocale(params, "/exam/fu-score/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

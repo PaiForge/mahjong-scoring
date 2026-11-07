@@ -34,12 +34,19 @@ import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/
 import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
 import { ExamConditions } from "../_components/exam-conditions";
 import { FuExamHowToPlay } from "./_components/fu-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/fu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/fu");
   return createPracticeMetadata(PRACTICE_SLUG.fuExam);
 }
 
-export default function FuExamPage() {
+export default async function FuExamPage({
+  params,
+}: PageProps<"/[locale]/exam/fu">) {
+  await prepareRouteLocale(params, "/exam/fu");
   return (
     <PracticeIntroContent
       namespace="fuExamChallenge"

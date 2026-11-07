@@ -12,12 +12,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { FuroScoreGuide } from "./_components/furo-score-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/furo-score">) {
+  await prepareRouteLocale(params, "/lessons/furo-score");
   return createLearnMetadata("furo-score");
 }
 
-export default function LearnFuroScorePage() {
+export default async function LearnFuroScorePage({
+  params,
+}: PageProps<"/[locale]/lessons/furo-score">) {
+  await prepareRouteLocale(params, "/lessons/furo-score");
   return (
     <LearnPageLayout slug="furo-score">
       <FuroScoreGuide />

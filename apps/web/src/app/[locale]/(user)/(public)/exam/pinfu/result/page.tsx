@@ -19,15 +19,27 @@ import {
   createPracticeResultPage,
 } from "@/app/[locale]/(user)/(public)/practice/_lib/create-practice-result-page";
 import { PinfuExamResultView } from "../_components/pinfu-exam-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.pinfuExam;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/pinfu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/pinfu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(PinfuExamResultView, {
+const PracticeResultPage = createPracticeResultPage(PinfuExamResultView, {
   slug: SLUG,
 });
+
+export default async function PinfuExamResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/exam/pinfu/result">) {
+  await prepareRouteLocale(params, "/exam/pinfu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

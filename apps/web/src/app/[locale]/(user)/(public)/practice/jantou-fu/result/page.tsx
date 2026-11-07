@@ -22,13 +22,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { JantouFuResultView } from "../_components/jantou-fu-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.jantouFu;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/jantou-fu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/jantou-fu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(JantouFuResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(JantouFuResultView, {
+  slug: SLUG,
+});
+
+export default async function JantouFuResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/jantou-fu/result">) {
+  await prepareRouteLocale(params, "/practice/jantou-fu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

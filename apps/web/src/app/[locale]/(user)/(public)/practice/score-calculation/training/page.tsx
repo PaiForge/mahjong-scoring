@@ -15,11 +15,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { ScoreCalculationTrainingView } from "../_components/score-calculation-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/score-calculation/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.scoreCalculation);
 }
 
-export default function ScoreCalculationTrainingPage() {
+export default async function ScoreCalculationTrainingPage({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/training">) {
+  await prepareRouteLocale(params, "/practice/score-calculation/training");
   return <ScoreCalculationTrainingView />;
 }

@@ -1,12 +1,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { JantouFuGuide } from "./_components/jantou-fu-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/jantou-fu">) {
+  await prepareRouteLocale(params, "/lessons/jantou-fu");
   return createLearnMetadata("jantou-fu");
 }
 
-export default function LearnJantouFuPage() {
+export default async function LearnJantouFuPage({
+  params,
+}: PageProps<"/[locale]/lessons/jantou-fu">) {
+  await prepareRouteLocale(params, "/lessons/jantou-fu");
   return (
     <LearnPageLayout slug="jantou-fu">
       <JantouFuGuide />

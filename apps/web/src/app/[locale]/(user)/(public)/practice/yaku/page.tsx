@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { YakuHowToPlay } from "./_components/yaku-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/yaku">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/yaku");
   return createPracticeMetadata(PRACTICE_SLUG.yaku);
 }
 
@@ -20,7 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * 2. 練習の説明と「開始」ボタン、教本ページへのリンクが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
-export default function YakuPage() {
+export default async function YakuPage({
+  params,
+}: PageProps<"/[locale]/practice/yaku">) {
+  await prepareRouteLocale(params, "/practice/yaku");
   return (
     <PracticeIntroContent
       namespace="yaku"

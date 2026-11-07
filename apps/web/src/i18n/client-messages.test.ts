@@ -4,14 +4,16 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { messages } from "@mahjong-scoring/messages/ja";
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import { describe, expect, it } from "vitest";
 
 import {
   ADMIN_MESSAGE_NAMESPACES,
   SERVER_ONLY_MESSAGE_NAMESPACES,
   adminClientMessages,
-  clientMessages,
+  selectClientMessages,
 } from "./client-messages";
+import { loadMessages } from "./request";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const WEB_SRC = resolve(HERE, "..");
@@ -133,7 +135,7 @@ describe("クライアントに渡す辞書", () => {
     // 共有部品の名前空間（`nav`）は両方の辞書に入るので重複を除く
     const actual = [
       ...new Set([
-        ...Object.keys(clientMessages),
+        ...Object.keys(selectClientMessages(messages)),
         ...Object.keys(adminClientMessages),
       ]),
     ].sort();
@@ -143,6 +145,54 @@ describe("クライアントに渡す辞書", () => {
   it("サーバー専用と管理画面の名前空間は重ならない", () => {
     for (const namespace of ADMIN_MESSAGE_NAMESPACES) {
       expect(SERVER_ONLY_MESSAGE_NAMESPACES).not.toContain(namespace);
+    }
+  });
+});
+
+describe("言語ごとのクライアント辞書", () => {
+  /** 辞書の名前空間の一覧（並べ替え済み） */
+  function namespaceKeys(dictionary: object): string[] {
+    return Object.keys(dictionary).sort();
+  }
+
+  it("loadMessages は言語ごとに 1 つの辞書だけを返し、英語に日本語を混ぜない", async () => {
+    expect(await loadMessages("ja")).toBe(messages);
+    expect(await loadMessages("en")).toBe(enMessages);
+  });
+
+  it("英語のクライアント辞書は英語の辞書からサーバー専用・管理画面の名前空間を除いたもの", () => {
+    const excluded = new Set<string>([
+      ...SERVER_ONLY_MESSAGE_NAMESPACES,
+      ...ADMIN_MESSAGE_NAMESPACES,
+    ]);
+    const client = selectClientMessages(enMessages);
+    expect(namespaceKeys(client)).toEqual(
+      namespaceKeys(enMessages).filter((namespace) => !excluded.has(namespace)),
+    );
+    for (const [namespace, value] of Object.entries(client)) {
+      // 値は英語の辞書の名前空間そのもの（日本語の同じ名前空間ではない）
+      expect(value).toBe(enMessages[namespace as keyof typeof enMessages]);
+    }
+  });
+
+  it("英語のクライアント辞書は未訳の名前空間を持たない（日本語で埋めない）", () => {
+    const client = selectClientMessages(enMessages);
+    const translated = new Set(Object.keys(enMessages));
+    expect(Object.keys(client).filter((ns) => !translated.has(ns))).toEqual([]);
+    expect(Object.keys(client).length).toBeLessThan(
+      Object.keys(selectClientMessages(messages)).length,
+    );
+  });
+
+  it("サーバー専用の名前空間はどの言語のクライアント辞書にも入らない", () => {
+    for (const dictionary of [messages, enMessages]) {
+      const client = selectClientMessages(dictionary);
+      for (const namespace of [
+        ...SERVER_ONLY_MESSAGE_NAMESPACES,
+        ...ADMIN_MESSAGE_NAMESPACES,
+      ]) {
+        expect(Object.keys(client)).not.toContain(namespace);
+      }
     }
   });
 });

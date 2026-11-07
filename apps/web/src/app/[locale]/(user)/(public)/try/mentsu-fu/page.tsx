@@ -30,12 +30,19 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { chapterHref, PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
 import { MentsuFuTryBoard } from "./_components/mentsu-fu-try-board";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/try/mentsu-fu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/try/mentsu-fu");
   return createNamespaceMetadata("tryMentsuFu", { path: "/try/mentsu-fu" });
 }
 
-export default async function TryMentsuFuPage() {
+export default async function TryMentsuFuPage({
+  params,
+}: PageProps<"/[locale]/try/mentsu-fu">) {
+  await prepareRouteLocale(params, "/try/mentsu-fu");
   const t = await getTranslations("tryMentsuFu");
 
   return (

@@ -2,8 +2,12 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { YakuHanPlayView } from "../_components/yaku-han-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/yaku-han/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/yaku-han/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.yakuHan);
 }
 
@@ -21,6 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 制限時間経過またはミス3回で終了
  * 4. スコアを保存し、result ページへリダイレクト
  */
-export default function YakuHanPlayPage() {
+export default async function YakuHanPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/yaku-han/play">) {
+  await prepareRouteLocale(params, "/practice/yaku-han/play");
   return <YakuHanPlayView />;
 }

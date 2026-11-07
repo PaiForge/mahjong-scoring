@@ -15,11 +15,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { MachiFuTrainingView } from "../_components/machi-fu-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/machi-fu/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/machi-fu/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.machiFu);
 }
 
-export default function MachiFuTrainingPage() {
+export default async function MachiFuTrainingPage({
+  params,
+}: PageProps<"/[locale]/practice/machi-fu/training">) {
+  await prepareRouteLocale(params, "/practice/machi-fu/training");
   return <MachiFuTrainingView />;
 }

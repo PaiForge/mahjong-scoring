@@ -5,6 +5,7 @@ import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { getAuthenticatedUser } from "../../../../../lib/auth";
 import { getLatestBanReason, isUserBanned } from "../../../../../lib/ban";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /**
  * BAN ページ
@@ -12,7 +13,10 @@ import { getLatestBanReason, isUserBanned } from "../../../../../lib/ban";
  * @description BAN されたユーザーに表示されるページ。BAN 理由を表示する。
  * @flow 認証チェック → BAN チェック → 最新の BAN 理由を取得して表示
  */
-export default async function BannedPage() {
+export default async function BannedPage({
+  params,
+}: PageProps<"/[locale]/banned">) {
+  await prepareRouteLocale(params, "/banned");
   const t = await getTranslations("banned");
 
   // 未認証なら getAuthenticatedUser が /sign-in へリダイレクトする

@@ -15,12 +15,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ScoreCalculationHowToPlay } from "./_components/score-calculation-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/score-calculation");
   return createPracticeMetadata(PRACTICE_SLUG.scoreCalculation);
 }
 
-export default function ScoreCalculationPage() {
+export default async function ScoreCalculationPage({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation">) {
+  await prepareRouteLocale(params, "/practice/score-calculation");
   return (
     <PracticeIntroContent
       namespace="scoreCalculationChallenge"

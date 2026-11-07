@@ -31,6 +31,8 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { getPublication, isPublished } from "@/i18n/route-policy";
 
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
@@ -44,7 +46,11 @@ import {
   getGlossaryTermViews,
 } from "@/lib/glossary/queries";
 import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
-import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
+import {
+  GLOSSARY_PATH,
+  glossaryTermHref,
+} from "@mahjong-scoring/features/glossary/routes";
+import { isSupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { JsonLd } from "@/app/[locale]/(user)/_components/json-ld";
 import { RelatedTerms } from "../_components/related-terms";
@@ -55,19 +61,36 @@ import { buildDefinedTermSchema } from "../_lib/json-ld";
 import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
 
 interface GlossaryTermPageProps {
-  readonly params: Promise<{ readonly slug: string }>;
+  readonly params: Promise<{ readonly locale: string; readonly slug: string }>;
 }
 
 export const dynamicParams = false;
 
-export function generateStaticParams(): { slug: string }[] {
-  return GLOSSARY_TERM_SLUGS.map((slug) => ({ slug }));
+/**
+ * 言語ごとに、その言語で公開している用語だけを列挙する
+ *
+ * 親の言語レイアウトが列挙した言語ごとに呼ばれる。英語の用語集は未公開
+ * （`route-policy.ts` の許可リストに無い）なので英語では空になり、
+ * `dynamicParams = false` と合わせて `/en/reference/glossary/<slug>` は描画前に
+ * 404 になる。日本語は全用語が公開（sitemap に載る）なので、列挙は従来と同じ。
+ */
+export function generateStaticParams({
+  params,
+}: {
+  readonly params: { readonly locale: string };
+}): { slug: string }[] {
+  const { locale } = params;
+  if (!isSupportedLocale(locale)) return [];
+  return GLOSSARY_TERM_SLUGS.filter((slug) =>
+    isPublished(getPublication(glossaryTermHref(slug), locale)),
+  ).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: GlossaryTermPageProps): Promise<Metadata> {
   const { slug } = await params;
+  await prepareRouteLocale(params, `/reference/glossary/${slug}`);
   const [term, t] = await Promise.all([
     getGlossaryTermViewBySlug(slug),
     getTranslations("glossary"),
@@ -90,6 +113,7 @@ export default async function GlossaryTermPage({
   params,
 }: GlossaryTermPageProps) {
   const { slug } = await params;
+  await prepareRouteLocale(params, `/reference/glossary/${slug}`);
   const [term, t, tHub, ad] = await Promise.all([
     getGlossaryTermViewBySlug(slug),
     getTranslations("glossary"),

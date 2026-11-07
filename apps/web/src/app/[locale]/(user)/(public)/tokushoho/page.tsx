@@ -27,6 +27,7 @@ import {
   LegalSection,
 } from "../_components/legal-article";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 項目の並び。辞書のキーと一致させる */
 const PLAIN_SECTIONS = [
@@ -45,14 +46,20 @@ const TRADE_SECTIONS = [
   "environment",
 ] as const;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/tokushoho">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/tokushoho");
   return createNamespaceMetadata("tokushoho", {
     title: "pageTitle",
     path: "/tokushoho",
   });
 }
 
-export default async function TokushohoPage() {
+export default async function TokushohoPage({
+  params,
+}: PageProps<"/[locale]/tokushoho">) {
+  await prepareRouteLocale(params, "/tokushoho");
   const t = await getTranslations("tokushoho");
 
   return (

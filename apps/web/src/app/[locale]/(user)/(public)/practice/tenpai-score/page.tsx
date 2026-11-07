@@ -24,8 +24,12 @@ import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { TenpaiScoreHelpTour } from "./_components/tenpai-score-help-tour";
 import { TenpaiScoreSetupForm } from "./_components/tenpai-score-setup-form";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/tenpai-score">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/tenpai-score");
   // slug "tenpai-score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
   // createPracticeMetadata を使えない。パスをここで明示する（リテラルで書くのは
   // seo-coverage.test.ts がソースの文字列で canonical を検査するため）。
@@ -34,7 +38,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function TenpaiScoreSetupPage() {
+export default async function TenpaiScoreSetupPage({
+  params,
+}: PageProps<"/[locale]/practice/tenpai-score">) {
+  await prepareRouteLocale(params, "/practice/tenpai-score");
   const t = await getTranslations("tenpaiScore");
   const tp = await getTranslations("practice");
   const ad = await getNativeAdCreative("practice-intro-native-ad");

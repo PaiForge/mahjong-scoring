@@ -3,8 +3,12 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { ManganScoreCalculationPlayView } from "../_components/mangan-score-calculation-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.manganScoreCalculation);
 }
 
@@ -22,7 +26,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 問題別の回答結果を sessionStorage に保存
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default function ManganScoreCalculationPlayPage() {
+export default async function ManganScoreCalculationPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/play">) {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation/play");
   return (
     <Suspense>
       <ManganScoreCalculationPlayView />

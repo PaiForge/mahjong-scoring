@@ -15,12 +15,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { FuDoublingGuide } from "./_components/fu-doubling-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/fu-doubling">) {
+  await prepareRouteLocale(params, "/lessons/fu-doubling");
   return createLearnMetadata("fu-doubling");
 }
 
-export default function LearnFuDoublingPage() {
+export default async function LearnFuDoublingPage({
+  params,
+}: PageProps<"/[locale]/lessons/fu-doubling">) {
+  await prepareRouteLocale(params, "/lessons/fu-doubling");
   return (
     <LearnPageLayout slug="fu-doubling">
       <FuDoublingGuide />

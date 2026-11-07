@@ -11,6 +11,7 @@ import {
 import { buildSiteSchema } from "@/app/_lib/site-schema";
 
 import { LandingPage } from "./_components/landing-page";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /**
  * トップページ（LP）
@@ -50,7 +51,8 @@ export const metadata: Metadata = {
   }),
 };
 
-export default async function Home() {
+export default async function Home({ params }: PageProps<"/[locale]">) {
+  await prepareRouteLocale(params, "/");
   const tCompany = await getTranslations("company");
 
   return (

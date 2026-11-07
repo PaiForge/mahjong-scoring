@@ -26,14 +26,21 @@ import {
   REFERENCE_PATH,
   REFERENCE_YAKU_PATH,
 } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reference/yaku">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/reference/yaku");
   return createNamespaceMetadata("reference.yaku", {
     path: REFERENCE_YAKU_PATH,
   });
 }
 
-export default async function ReferenceYakuPage() {
+export default async function ReferenceYakuPage({
+  params,
+}: PageProps<"/[locale]/reference/yaku">) {
+  await prepareRouteLocale(params, "/reference/yaku");
   const t = await getTranslations("reference.yaku");
   const tHub = await getTranslations("reference");
   const ads = await getNativeAdPlacements("yaku-reference-native-ad");

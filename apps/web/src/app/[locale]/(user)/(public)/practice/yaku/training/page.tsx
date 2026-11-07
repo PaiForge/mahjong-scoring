@@ -15,11 +15,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { YakuTrainingView } from "../_components/yaku-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/yaku/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/yaku/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.yaku);
 }
 
-export default function YakuTrainingPage() {
+export default async function YakuTrainingPage({
+  params,
+}: PageProps<"/[locale]/practice/yaku/training">) {
+  await prepareRouteLocale(params, "/practice/yaku/training");
   return <YakuTrainingView />;
 }

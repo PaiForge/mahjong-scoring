@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { MentsuJantouFuHowToPlay } from "./_components/mentsu-jantou-fu-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mentsu-jantou-fu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mentsu-jantou-fu");
   return createPracticeMetadata(PRACTICE_SLUG.mentsuJantouFu);
 }
 
@@ -20,7 +24,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * 2. 練習の説明と「開始」ボタン、教本ページへのリンクが表示される
  * 3. 「開始」を押すと play ページへ遷移
  */
-export default function MentsuJantouFuPage() {
+export default async function MentsuJantouFuPage({
+  params,
+}: PageProps<"/[locale]/practice/mentsu-jantou-fu">) {
+  await prepareRouteLocale(params, "/practice/mentsu-jantou-fu");
   return (
     <PracticeIntroContent
       namespace="mentsuJantouFu"

@@ -3,8 +3,12 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { TotalFuHowToPlay } from "./_components/total-fu-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/total-fu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/total-fu");
   return createPracticeMetadata(PRACTICE_SLUG.totalFu);
 }
 
@@ -23,7 +27,10 @@ export async function generateMetadata(): Promise<Metadata> {
  * 2. 出題例と出題範囲セレクタ、「開始」ボタン、教本ページへのリンクが表示される
  * 3. 範囲を選んで「開始」を押すと play ページへ遷移（variant クエリ付き）
  */
-export default function TotalFuPage() {
+export default async function TotalFuPage({
+  params,
+}: PageProps<"/[locale]/practice/total-fu">) {
+  await prepareRouteLocale(params, "/practice/total-fu");
   return (
     <PracticeIntroContent
       namespace="totalFu"

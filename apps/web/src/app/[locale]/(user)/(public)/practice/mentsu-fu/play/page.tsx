@@ -2,8 +2,12 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { MentsuFuPlayView } from "../_components/mentsu-fu-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mentsu-fu/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mentsu-fu/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.mentsuFu);
 }
 
@@ -21,6 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 4. 制限時間経過またはミス3回で終了
  * 5. スコアを保存し、result ページへリダイレクト
  */
-export default function MentsuFuPlayPage() {
+export default async function MentsuFuPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/mentsu-fu/play">) {
+  await prepareRouteLocale(params, "/practice/mentsu-fu/play");
   return <MentsuFuPlayView />;
 }

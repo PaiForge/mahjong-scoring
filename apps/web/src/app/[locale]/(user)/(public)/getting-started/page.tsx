@@ -28,8 +28,12 @@ import { SignUpPanel } from "@/app/[locale]/(user)/_components/sign-up-panel";
 
 import { StepCard } from "./_components/step-card";
 import { LESSONS_PATH, PRACTICE_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/getting-started">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/getting-started");
   return createNamespaceMetadata("gettingStarted", {
     title: "pageTitle",
     description: "pageDescription",
@@ -37,7 +41,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function GettingStartedPage() {
+export default async function GettingStartedPage({
+  params,
+}: PageProps<"/[locale]/getting-started">) {
+  await prepareRouteLocale(params, "/getting-started");
   const t = await getTranslations("gettingStarted");
 
   return (

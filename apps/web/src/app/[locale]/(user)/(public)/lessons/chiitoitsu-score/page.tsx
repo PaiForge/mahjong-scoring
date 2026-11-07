@@ -10,12 +10,19 @@
 import { createLearnMetadata } from "../_lib/metadata";
 import { LearnPageLayout } from "../_components/learn-page-layout";
 import { ChiitoitsuScoreGuide } from "./_components/chiitoitsu-score-guide";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export function generateMetadata() {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/lessons/chiitoitsu-score">) {
+  await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
   return createLearnMetadata("chiitoitsu-score");
 }
 
-export default function LearnChiitoitsuScorePage() {
+export default async function LearnChiitoitsuScorePage({
+  params,
+}: PageProps<"/[locale]/lessons/chiitoitsu-score">) {
+  await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
   return (
     <LearnPageLayout slug="chiitoitsu-score">
       <ChiitoitsuScoreGuide />

@@ -28,15 +28,22 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
 
 import { ContactForm } from "../_components/contact-form";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/contact">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/contact");
   return createNamespaceMetadata("contact", {
     title: "pageTitle",
     path: "/contact",
   });
 }
 
-export default async function ContactPage() {
+export default async function ContactPage({
+  params,
+}: PageProps<"/[locale]/contact">) {
+  await prepareRouteLocale(params, "/contact");
   const t = await getTranslations("contact");
 
   return (
