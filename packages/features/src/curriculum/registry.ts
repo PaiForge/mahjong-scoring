@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
 import type {
   PracticeMenuSlug,
   PracticeVariantOf,
@@ -82,6 +83,8 @@ interface CurriculumChapterEntry {
    * 見える。推測で入れないこと — 実際に書き直した日だけ）。
    */
   readonly publishedAt: string;
+  /** 翻訳のページを公開した日（{@link CurriculumChapter.translatedAt}） */
+  readonly translatedAt?: Readonly<Partial<Record<"en", string>>>;
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceLinks?: readonly PracticeLink[];
@@ -350,6 +353,19 @@ export interface CurriculumChapter {
    * 見える。推測で入れないこと — 実際に書き直した日だけ）。
    */
   readonly publishedAt: string;
+  /**
+   * 翻訳のページを公開した日（言語 → ISO 8601 の日付、JST）
+   *
+   * `publishedAt` は日本語の章の公開日で、英語のページの公開日ではない。
+   * 英語の章の Article の `datePublished`・`article:published_time`・章末の
+   * 「{date} 公開」はここに値がある章だけ出し、無ければ出さない。日本語の
+   * 公開日やビルド時刻で代用すると、実際と違う公開日を名乗ることになるため。
+   *
+   * 値は **その言語のページを実際に配信した日** を入れる（実装した日や
+   * 翻訳をコミットした日ではない）。配信の日は実装の時点では決まらないので、
+   * 公開してから足す。
+   */
+  readonly translatedAt?: Readonly<Partial<Record<"en", string>>>;
   readonly section: CurriculumSection;
   readonly order: number;
   readonly practiceLinks?: readonly PracticeLink[];
@@ -425,6 +441,25 @@ export function getChapterBySlug(
   slug: CurriculumChapterSlug,
 ): CurriculumChapter | undefined {
   return CURRICULUM_BY_SLUG.get(slug);
+}
+
+/**
+ * その言語のページの公開日を返す
+ * 言語別公開日取得
+ *
+ * 日本語（既定）は `publishedAt`、それ以外の言語は `translatedAt` のその言語の
+ * 値。翻訳の公開日が無ければ undefined を返し、呼び出し側は公開日を出さない
+ * （日本語の公開日で代用しない。理由は {@link CurriculumChapter.translatedAt}）。
+ *
+ * @param chapter 対象章
+ * @param locale ページの言語
+ */
+export function chapterPublishedAtFor(
+  chapter: CurriculumChapter,
+  locale: SupportedLocale,
+): string | undefined {
+  if (locale === DEFAULT_LOCALE) return chapter.publishedAt;
+  return chapter.translatedAt?.[locale];
 }
 
 /**
