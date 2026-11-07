@@ -136,6 +136,47 @@ describe("練習の画面が訳語表に従う", () => {
   });
 });
 
+describe("認証とアカウントの画面が訳語表に従う", () => {
+  it("ナビ・設定と認証の画面で、ログイン・新規登録・ログアウトを同じ語で呼ぶ", () => {
+    // ナビの「ログイン」と認証の画面の見出し・リンクが "Log in" と "Sign in" に割れると、
+    // 同じ操作が別物に見える
+    expect(en.nav.login.toLowerCase()).toBe(termOf("ログイン"));
+    expect(en.auth.signInPageTitle).toBe(en.nav.login);
+    expect(en.auth.signInLinkText).toBe(en.nav.login);
+    expect(en.settings.account.signIn).toBe(en.nav.login);
+    expect(en.nav.signUp.toLowerCase()).toBe(termOf("新規登録"));
+    expect(en.signUp.pageTitle).toBe(en.nav.signUp);
+    expect(en.auth.signUpLinkText).toBe(en.nav.signUp);
+    expect(en.settings.account.signUp).toBe(en.nav.signUp);
+    expect(en.nav.signOut.toLowerCase()).toBe(termOf("ログアウト"));
+    expect(en.settings.account.signOut).toBe(en.nav.signOut);
+  });
+
+  it("ユーザー名・メールアドレスは登録の画面と設定で同じラベル", () => {
+    expect(en.setupUsername.usernameLabel.toLowerCase()).toBe(
+      termOf("ユーザー名"),
+    );
+    expect(en.settings.account.username).toBe(en.setupUsername.usernameLabel);
+    expect(en.setupUsername.displayNameLabel.toLowerCase()).toBe(
+      termOf("表示名"),
+    );
+    expect(en.auth.emailLabel.toLowerCase()).toBe(termOf("メールアドレス"));
+    expect(en.signUp.emailLabel).toBe(en.auth.emailLabel);
+    expect(en.forgotPassword.emailLabel).toBe(en.auth.emailLabel);
+    expect(en.settings.account.email).toBe(en.auth.emailLabel);
+  });
+
+  it("サインインの失敗は、アカウントの有無を区別しない 1 文", () => {
+    // メールアドレスが登録済みかどうかを画面から読めないようにする（アカウントの列挙を防ぐ）。
+    // 「アカウントが無い」「パスワードだけが違う」と言い分けない
+    const message = en.auth.emailSignInError.toLowerCase();
+    expect(message).toContain("email address or password");
+    expect(message).not.toMatch(
+      /\b(?:no account|not registered|not found|does not exist|doesn't exist)\b/,
+    );
+  });
+});
+
 /**
  * 用語集の 1 語の文言（見出し語・読み）
  *
