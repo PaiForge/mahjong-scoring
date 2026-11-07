@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { internalLocalePath } from "@/i18n/public-path";
 import type { ActionResult } from "@/lib/action-types";
 import {
   partitionLessonSlugs,
@@ -17,6 +18,7 @@ import {
   isLessonChapterSlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
+import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import {
   isQuizLessonSlug,
   type QuizLessonSlug,
@@ -96,10 +98,42 @@ export type CompleteLessonsResult = ActionResult<
 >;
 
 /**
- * 認証済みユーザーの完了を冪等に記録し、完了を読む画面を捨てる
+ * 完了を読む画面（ロケール非依存のパス）
  *
- * 完了を読むのはレッスンの目次・ダッシュボードの「次にやること」・道場の行程。
- * レッスンページ自体は静的で完了状態を持たないため捨てない。
+ * レッスンの目次・ダッシュボードの「次にやること」・道場の行程。レッスンの
+ * ページ自体は静的で完了状態を持たないため含めない。
+ */
+const COMPLETION_READER_PATHS = [
+  LESSONS_PATH,
+  "/dashboard",
+  DOJO_PATH,
+] as const;
+
+/**
+ * 完了を読む画面のキャッシュを、両言語の分とも捨てる
+ *
+ * @design 言語ごとの内部パスと、接頭辞なしのパスの両方で呼ぶ
+ * ページの実体は `app/[locale]/...` にあり、日本語の公開 URL（`/lessons`）も
+ * proxy が内部の `/ja/lessons` へ rewrite して描く。キャッシュの実体は内部の
+ * パスにあるので、`SUPPORTED_LOCALES` を回して `internalLocalePath`
+ * （`/ja/lessons`・`/en/lessons`）で捨てる。英語の画面は日本語のパスを捨てても
+ * 捨てられないため、言語ごとに呼ぶ必要がある。
+ * 接頭辞なしのパス（`/lessons`）で捨てたときに内部の `/ja/lessons` に効くかは
+ * 確かめていないので、従来の 1 行も残す。存在しないパスの `revalidatePath` は
+ * 何もしないだけで、両方呼んで損は無い。
+ */
+function revalidateCompletionReaders(): void {
+  for (const path of COMPLETION_READER_PATHS) {
+    revalidatePath(path);
+    for (const locale of SUPPORTED_LOCALES) {
+      revalidatePath(internalLocalePath(path, locale));
+    }
+  }
+}
+
+/**
+ * 認証済みユーザーの完了を冪等に記録し、完了を読む画面を捨てる
+ * （{@link revalidateCompletionReaders}）
  *
  * 退会を受け付けた後には書かない（`recordLessonCompletions`）。そのとき false を返す。
  */
@@ -110,9 +144,7 @@ async function recordCompletions(
   if (slugs.length === 0) return true;
   if (!(await recordLessonCompletions(userId, slugs))) return false;
 
-  revalidatePath(LESSONS_PATH);
-  revalidatePath("/dashboard");
-  revalidatePath(DOJO_PATH);
+  revalidateCompletionReaders();
   return true;
 }
 
