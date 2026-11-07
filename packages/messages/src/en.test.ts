@@ -154,12 +154,16 @@ const JAPANESE_CHARACTERS = new RegExp(
  * 併記する。ロゴはサイト名を二色に分けて描くので、その 2 つも同じ扱い。
  * 言語切替の「日本語」は、どの言語のページでも各言語をその言語の名前で示す慣例に
  * 従う（英語のページでも "Japanese" ではなく「日本語」と出す）。
+ * 運営事業者名（`company.name.value`。運営者ページと JSON-LD の `parentOrganization.name`）は
+ * 法人の登記上の名前で、英語の正式な表記は決まっていない。推測で英語名を作らず
+ * （ブランド名と同じ扱い）、英語の正式名が決まったら英語の値に差し替えてここから外す。
  */
 const JAPANESE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
   "metadata.siteName",
   "nav.brandMahjong",
   "nav.brandScoring",
   "nav.language.ja",
+  "company.name.value",
 ]);
 
 /**
@@ -185,6 +189,24 @@ const LEADING_SPACE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
  */
 const SEPARATOR_KEYS: ReadonlySet<string> = new Set([
   "reference.yaku.exampleLabelSeparator",
+]);
+
+/**
+ * 数式の前後に連結する断片（空の値・前後の空白を持ってよい）
+ *
+ * 「なぜ点数計算は複雑なのか」の手順は `{prefix}<数式>{suffix}` の形で描き、
+ * 日本語でも断片が空（数式で文が始まる）や空白で数式と区切る形をしている。英語でも
+ * 語順によって空になったり、数式との間の空白を値の側に持ったりする。呼び出し側を
+ * ICU の文型に改めたら、ここから外す。
+ */
+const INLINE_FORMULA_FRAGMENT_KEYS: ReadonlySet<string> = new Set([
+  "whyScoringIsComplex.learn.step1Prefix",
+  "whyScoringIsComplex.learn.step1Mid",
+  "whyScoringIsComplex.learn.step1Suffix",
+  "whyScoringIsComplex.learn.step2Prefix",
+  "whyScoringIsComplex.learn.step2Suffix",
+  "whyScoringIsComplex.learn.step3Prefix",
+  "whyScoringIsComplex.learn.step3Suffix",
 ]);
 
 /** 訳し残しの目印（翻訳の途中で置きがちな仮の値） */
@@ -231,6 +253,7 @@ describe("完訳の名前空間は日本語と同じ形を持つ", () => {
 describe("訳し残しが無い", () => {
   it("空の値・空白だけの値を持たない", () => {
     const empty = pairedLeaves()
+      .filter((leaf) => !INLINE_FORMULA_FRAGMENT_KEYS.has(leaf.key))
       .filter((leaf) => typeof leaf.en === "string" && leaf.en.trim() === "")
       .map((leaf) => leaf.key);
     expect(empty).toEqual([]);
@@ -240,6 +263,7 @@ describe("訳し残しが無い", () => {
     const padded = pairedLeaves()
       .filter((leaf) => typeof leaf.en === "string")
       .filter((leaf) => !SEPARATOR_KEYS.has(leaf.key))
+      .filter((leaf) => !INLINE_FORMULA_FRAGMENT_KEYS.has(leaf.key))
       .filter((leaf) => {
         const value = String(leaf.en);
         const leading = /^\s/.test(value);
@@ -259,13 +283,19 @@ describe("訳し残しが無い", () => {
     expect(placeholders).toEqual([]);
   });
 
-  it("日本語の文字を残さない（ブランド名だけは日本語のまま持つ）", () => {
-    const japanese = pairedLeaves()
-      .filter((leaf) => !JAPANESE_ALLOWED_KEYS.has(leaf.key))
-      .filter((leaf) => JAPANESE_CHARACTERS.test(String(leaf.en)))
-      .map((leaf) => `${leaf.key}: ${String(leaf.en)}`);
-    expect(japanese).toEqual([]);
-  });
+  // 名前空間ごとに分ける: 翻訳は名前空間のファイル単位で進めるので、どの名前空間が
+  // 訳し終わったか（緑になったか）をテスト名で読めるようにする
+  it.each(EN_TRANSLATED_NAMESPACES)(
+    "%s に日本語の文字を残さない（ブランド名・運営事業者名だけは日本語のまま持つ）",
+    (namespace) => {
+      const japanese = pairedLeaves()
+        .filter((leaf) => leaf.key.startsWith(`${namespace}.`))
+        .filter((leaf) => !JAPANESE_ALLOWED_KEYS.has(leaf.key))
+        .filter((leaf) => JAPANESE_CHARACTERS.test(String(leaf.en)))
+        .map((leaf) => `${leaf.key}: ${String(leaf.en)}`);
+      expect(japanese).toEqual([]);
+    },
+  );
 
   it("日本語のまま持つ値は日本語の辞書と同じ値", () => {
     const allowed = pairedLeaves().filter((leaf) =>

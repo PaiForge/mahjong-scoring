@@ -1,0 +1,168 @@
+{
+  "tocLink": "目次へ",
+  "sections": {
+    "introduction": "はじめに",
+    "mangan": "満貫以上の計算",
+    "fu": "符の計算",
+    "yaku": "翻数の計算",
+    "score": "点数計算基礎",
+    "memorization": "点数記憶術"
+  },
+  "chapters": {
+    "aboutThisApp": {
+      "title": "このアプリについて",
+      "description": "このアプリの特徴と、学習の進め方"
+    },
+    "whyScoringIsHardToLearn": {
+      "title": "点数計算ができるようにならない理由",
+      "description": "作者が点数計算でつまずいた 3 つの理由"
+    },
+    "whyScoringIsComplex": {
+      "title": "点数計算が複雑な理由",
+      "description": "計算は公式どおりで単純。難しいのは場合分けの多さ"
+    },
+    "manganKoRon": {
+      "title": "子のロン",
+      "description": "満貫8000点を基準に1.5・2・3・4倍"
+    },
+    "manganOyaRon": {
+      "title": "親のロン",
+      "description": "満貫以上は子のロンの1.5倍"
+    },
+    "manganKoTsumo": {
+      "title": "子のツモ",
+      "description": "満貫以上は子のロンの半分を親が、さらに半分を子が払う"
+    },
+    "manganOyaTsumo": {
+      "title": "親のツモ",
+      "description": "満貫以上は親のロンを3で割り、子3人が同額を払う"
+    },
+    "jantouFu": {
+      "title": "雀頭の符",
+      "description": "符が付くのは三元牌と場風・自風だけ"
+    },
+    "mentsuFu": {
+      "title": "面子の符",
+      "description": "符が付くのは刻子・槓子。明暗と么九牌かで決まる"
+    },
+    "machiFu": {
+      "title": "待ちの符",
+      "description": "嵌張・辺張・単騎だけが2符"
+    },
+    "tehaiFu": {
+      "title": "手牌全体の符",
+      "description": "符が付く6か所を足して10符単位に切り上げ"
+    },
+    "yaku": {
+      "title": "役と翻数の数え方",
+      "description": "翻数は役とドラの合計。鳴くと消える役・下がる役がある"
+    },
+    "chiitoitsuScore": {
+      "title": "七対子での点数計算",
+      "description": "25符固定の特殊な役"
+    },
+    "pinfuScore": {
+      "title": "平和での点数計算",
+      "description": "ツモなら20符・ロンなら30符"
+    },
+    "menzenMentsuScore": {
+      "title": "平和以外の門前面子手の点数計算",
+      "description": "ツモは30符から・ロンは40符から"
+    },
+    "furoScore": {
+      "title": "鳴いた手の点数計算",
+      "description": "ロンだけが門前より10符低い"
+    },
+    "fuDoubling": {
+      "title": "符が倍になるのは1翻上がるのと同じ",
+      "description": "点数表に潜む規則性 — 25符2翻と50符1翻は同じ点数"
+    },
+    "tsumoPayments": {
+      "title": "親ツモの列は覚えなくていい",
+      "description": "点数表に潜む規則性 — 親ツモのオールは子ツモの下段と同じ"
+    },
+    "ronToTsumo": {
+      "title": "ツモは子のロンを半分ずつにすれば出る",
+      "description": "点数表に潜む規則性 — 子のロンを2回半分にすると子ツモになる"
+    },
+    "oyaRonScores": {
+      "title": "親ロンでの効率的な点数の覚え方",
+      "description": "点数表に潜む規則性 — 親のロンは子の1.5倍。ずれる14マスだけを覚える"
+    }
+  },
+  "index": {
+    "pageTitle": "レッスン",
+    "pageDescription": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンです。順に進められます。",
+    "progressLabel": "{done} / {total} レッスン完了",
+    "nextChapterBadge": "次はここから",
+    "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！",
+    "unavailableBadge": "アプリ版は準備中",
+    "columnBadge": "コラム",
+    "rankFilterTitle": "{rank}のレッスン",
+    "allLessonsLink": "すべてのレッスンを見る"
+  },
+  "chapter": {
+    "completeCta": "このレッスンを完了にする",
+    "completing": "完了を記録しています…",
+    "completedMark": "完了済み",
+    "loginPromptCta": "完了を記録するにはログイン",
+    "chapterNavLabel": "レッスンの移動",
+    "prevChapterLabel": "前のレッスン",
+    "nextChapterLabel": "次のレッスン",
+    "updateFailedToast": "完了を記録できませんでした。再度お試しください。",
+    "publishedOn": "{date} 公開"
+  },
+  "scoreTable": {
+    "tableKo": "子の点数",
+    "tableOya": "親の点数",
+    "colWin": "和了",
+    "tsumo": "ツモ",
+    "ron": "ロン",
+    "hanUnit": "{value}翻",
+    "colExtraFu": "積み上げた符",
+    "fuUnit": "{value}符",
+    "fuRange": "{from}〜{to}符",
+    "mangan": "満貫",
+    "colFuHan": "符＼翻",
+    "colHan": "翻",
+    "colBeforeCeil": "切り上げ前",
+    "colKoRon": "子のロン",
+    "colDerived": "半分ずつにすると",
+    "colScore": "点数",
+    "colActualPay": "実際に払う"
+  },
+  "tenpaneTable": {
+    "colExample": "例",
+    "colSum": "計算",
+    "colFu": "符",
+    "sum": "{start}＋{extra}＝{total}",
+    "fu": "{value}符",
+    "fuExact": "{value}符（ちょうど）"
+  },
+  "tenpaneExamples": {
+    "two": "嵌張・辺張・単騎の待ち、または役牌の雀頭（2符）",
+    "yaochuAnkou": "么九牌の暗刻1つ（8符）",
+    "yaochuAnkouPlusTwo": "么九牌の暗刻＋2符の待ちか雀頭（10符）",
+    "yaochuAnkouChunchanAnkou": "么九牌の暗刻＋中張牌の暗刻（12符）",
+    "chunchanAnkan": "中張牌の暗槓（16符）",
+    "yaochuAnkan": "么九牌の暗槓（32符）",
+    "yaochuMinkan": "么九牌の明槓（16符）"
+  },
+  "halvingDiagram": {
+    "ronLabel": "子のロン",
+    "oyaLabel": "親が出す",
+    "koLabel": "子が出す",
+    "arrowLabel": "半分",
+    "resultLabel": "点数表の子ツモ"
+  },
+  "exampleTable": {
+    "colTiles": "牌",
+    "colKind": "種類",
+    "colFu": "符"
+  },
+  "formula": {
+    "fu": "符",
+    "han": "翻数",
+    "ceil": "切り上げ"
+  }
+}

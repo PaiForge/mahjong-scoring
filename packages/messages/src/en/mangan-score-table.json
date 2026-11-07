@@ -1,0 +1,14 @@
+{
+  "colType": "種類",
+  "colHan": "翻数",
+  "colScore": "点数",
+  "colNote": "備考",
+  "colKoEach": "子（1人）",
+  "colOya": "親",
+  "colTotal": "合計",
+  "noteMangan": "-",
+  "noteHaneman": "満貫の1.5倍",
+  "noteBaiman": "満貫の2倍",
+  "noteSanbaiman": "満貫の3倍",
+  "noteYakuman": "満貫の4倍"
+}

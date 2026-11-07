@@ -74,6 +74,13 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  *
  * 点数表の数値（`1000`・`2000/4000` 等）は辞書の外（`@mahjong-scoring/core` の値と
  * 呼び出し側の書式）にあり、ここでは扱わない。
+ *
+ * フェーズ 2（公開教材: LP・レッスンの目次と 19 章・早見表のハブ・役一覧・用語集）で
+ * `errorPage` より後の 27 名前空間を足した。翻訳を名前空間のファイル単位で並列に
+ * 進めるため、先に日本語の写しを置いてここへ移し、各名前空間の訳が終わったことは
+ * `en.test.ts` の「日本語の文字を残さない」（名前空間ごと）が緑になることで確かめる。
+ * `gettingStarted`（英語 LP のヒーロー CTA は公開まで `/lessons` を指す）と
+ * `lessons`（英語の章では確認問題を出さない）はフェーズ 3 で訳すので未着手のまま。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -85,6 +92,33 @@ export const EN_TRANSLATED_NAMESPACES = [
   "notifications",
   "notFound",
   "errorPage",
+  "glossary",
+  "learnCurriculum",
+  "landing",
+  "company",
+  "ranks",
+  "nativeAd",
+  "yakuNames",
+  "manganKoRon",
+  "manganOyaRon",
+  "manganKoTsumo",
+  "manganOyaTsumo",
+  "manganScoreTable",
+  "yaku",
+  "whyScoringIsHardToLearn",
+  "whyScoringIsComplex",
+  "jantouFu",
+  "mentsuFu",
+  "machiFu",
+  "tehaiFu",
+  "chiitoitsuScore",
+  "pinfuScore",
+  "menzenMentsuScore",
+  "furoScore",
+  "fuDoubling",
+  "tsumoPayments",
+  "ronToTsumo",
+  "oyaRonScores",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -115,7 +149,6 @@ export const EN_PENDING_NAMESPACES = [
   "settings",
   "deleteAccount",
   "announcements",
-  "landing",
   "gettingStarted",
   "tryDemo",
   "tryMentsuFu",
@@ -127,37 +160,14 @@ export const EN_PENDING_NAMESPACES = [
   "training",
   "examTraining",
   "exp",
-  "manganKoRon",
-  "manganScoreTable",
-  "manganOyaRon",
-  "manganKoTsumo",
-  "manganOyaTsumo",
-  "jantouFu",
-  "machiFu",
-  "mentsuFu",
   "mentsuJantouFu",
-  "tehaiFu",
-  "pinfuScore",
-  "chiitoitsuScore",
-  "menzenMentsuScore",
-  "furoScore",
-  "fuDoubling",
-  "tsumoPayments",
-  "ronToTsumo",
-  "oyaRonScores",
   "totalFu",
-  "yaku",
-  "glossary",
   "tenpaiScore",
   "agariScore",
   "aboutThisApp",
-  "whyScoringIsHardToLearn",
-  "whyScoringIsComplex",
-  "learnCurriculum",
   "terms",
   "privacy",
   "legal",
-  "company",
   "contact",
   "auth",
   "signUp",
@@ -176,7 +186,6 @@ export const EN_PENDING_NAMESPACES = [
   "scoreTableChallenge",
   "scoreCalculationChallenge",
   "dojo",
-  "ranks",
   "fuExamChallenge",
   "fuScoreExamChallenge",
   "scoreExamChallenge",
@@ -186,7 +195,6 @@ export const EN_PENDING_NAMESPACES = [
   "manganScoreCalculationChallenge",
   "hanCountChallenge",
   "yakuHanChallenge",
-  "nativeAd",
   "practiceQuota",
   "plan",
   "mypagePlan",
@@ -195,7 +203,6 @@ export const EN_PENDING_NAMESPACES = [
   "lessons",
   "mobilePlan",
   "mobileApp",
-  "yakuNames",
 ] as const satisfies readonly MessageNamespace[];
 
 /**
