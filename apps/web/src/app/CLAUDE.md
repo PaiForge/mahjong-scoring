@@ -35,8 +35,9 @@ page.tsx と loading.tsx を退避して、ローディング境界が兄弟ル�
 管理画面からも使うときだけ。`app/_components/` と `admin/` から `[locale]/(user)/_components/` を
 import しない（依存の向きを一方向に保つ。ルートの `eslint.config.mjs` が弾く）。
 
-例外は 1 つだけ: ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないが
-ユーザーに見える画面なので、ブランド UI を使う。
+`<html>` を持つルートレイアウトは `[locale]/layout.tsx`（ユーザー向け。`lang` は URL の言語）と
+`admin/layout.tsx`（管理画面）の 2 つ。`app/layout.tsx` は素通しで、`app/not-found.tsx`（どの言語の
+ルートにも当たらない URL の 404）と `app/global-error.tsx` は自分で `<html>` を描く。
 
 管理画面（`data-skin="plain"`）は別のビジュアル言語。ページ送りも `AdminPaginationNav` を持ち、
 ボタン・入力欄・状態チップは `admin/_lib/` の `adminButtonClasses()` / `ADMIN_INPUT_CLASSES` /
@@ -175,7 +176,7 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
 - `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —
-  ルートレイアウトの `AppTileImageProvider`（`_contexts/tile-image-context.tsx`）が
+  ルートレイアウト（`[locale]/layout.tsx`・`admin/layout.tsx`）の `AppTileImageProvider`（`_contexts/tile-image-context.tsx`）が
   パッケージの `TileImageProvider` で参照先を差し替えている。パッケージ既定の
   base64 埋め込み（data URI）に戻さないこと。牌を並べるページの HTML が 1〜5MB になる
 - `public/tiles/` は `pnpm --filter web tiles:generate` で生成する。パッケージを更新したら

@@ -1,76 +1,20 @@
-import type { Metadata } from "next";
-import { EnvironmentRibbon } from "env-ribbon";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
-import { GlobalToaster } from "@/app/_components/global-toaster";
-import { GoogleAnalytics } from "@/app/_components/google-analytics";
-import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
-import { ScrollReset } from "@/app/_components/scroll-reset";
-import { AuthProvider } from "@/app/_contexts/auth-context";
-import { AppTileImageProvider } from "@/app/_contexts/tile-image-context";
-import {
-  buildSocialCard,
-  DEFAULT_TITLE,
-  SITE_DESCRIPTION,
-  SITE_NAME,
-} from "@/app/_lib/metadata";
-import { SITE_URL } from "@/config";
-import { clientMessages } from "@/i18n/client-messages";
-import "./globals.css";
+import type { ReactNode } from "react";
 
-export const metadata: Metadata = {
-  // 各ページの alternates.canonical と OGP の相対パスを絶対 URL へ解決する基準。
-  // これが無いと canonical が出力されず、プレビュードメインと重複評価される。
-  metadataBase: new URL(SITE_URL),
-  title: DEFAULT_TITLE,
-  description: SITE_DESCRIPTION,
-  authors: [{ name: SITE_NAME }],
-  // 既定は index, follow（明示しなくても同じ）。max-image-preview:large が無いと
-  // Discover と画像付きの検索結果に大きな画像で出ない。noindex を持つページは
-  // 自分の robots でこのオブジェクトごと置き換えるため影響しない。
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
-  // metadata を持たないページ（banned 等）へのフォールバック。
-  // og:url はここに書かない — 書くと canonical を持たないページまで
-  // トップページの URL を名乗ってしまう。トップの og:url は
-  // (home)/page.tsx が自分で持つ。
-  ...buildSocialCard({ title: DEFAULT_TITLE, description: SITE_DESCRIPTION }),
-};
-
-export default async function RootLayout({
-  children,
-}: {
-  readonly children: React.ReactNode;
-}) {
-  const locale = await getLocale();
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-
-  return (
-    <html lang={locale}>
-      <body className="min-h-screen overflow-x-hidden">
-        <ScrollReset />
-        <AppVersionWatcher />
-        {/* 辞書はクライアントが引く名前空間だけ渡す。渡したものは全ページの HTML と
-            遷移ごとの RSC 応答に載るため（`i18n/client-messages.ts`）。
-            サーバーコンポーネントの getTranslations() は request.ts の全辞書を読む */}
-        <NextIntlClientProvider messages={clientMessages}>
-          <AppTileImageProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </AppTileImageProvider>
-          <GlobalToaster />
-        </NextIntlClientProvider>
-        {gaId && <GoogleAnalytics gaId={gaId} />}
-        <EnvironmentRibbon />
-      </body>
-    </html>
-  );
+/**
+ * ルートレイアウト（素通し）
+ *
+ * @description
+ * `<html>`・Provider・既定の metadata はルートごとのレイアウトが持つ:
+ * ユーザー向け画面は `[locale]/layout.tsx`（`lang` を URL の言語から決める）、管理画面は
+ * `admin/layout.tsx`。ここは子をそのまま返すだけで、何も描かない。
+ *
+ * @design ファイル自体は残す
+ * 消すと、どのルートレイアウトにも属さない `app/not-found.tsx`（存在しない URL の 404。
+ * 自分で `<html>` を描く）を包むレイアウトが無くなり、Next の build が
+ * 「doesn't have a root layout」で止まる。next-intl の文書（locale segment を root に
+ * 置く構成）と同じ形で、素通しのレイアウトを置く。ここで `getLocale()` や `headers()` を
+ * 読むと全ページが動的になるので、言語には触れない。
+ */
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return children;
 }

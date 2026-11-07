@@ -124,15 +124,6 @@ export function selectClientMessages(dictionary: MessagesForLocale): Messages {
 }
 
 /**
- * 日本語のクライアント辞書
- *
- * 旧ルートレイアウト（`app/layout.tsx`）が import している。ルートレイアウトを
- * 撤去したら、この export も消してよい（新しい呼び出し側は
- * {@link selectClientMessages} を使う）。
- */
-export const clientMessages: Messages = selectClientMessages(messages);
-
-/**
  * 管理画面と共有するクライアントコンポーネント（`app/_components/`）が引く名前空間
  *
  * 管理画面の Provider はユーザー向けの辞書を引き継がないので、管理画面のシェルに置く共有部品
