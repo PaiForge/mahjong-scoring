@@ -1,90 +1,90 @@
 {
-  "pageTitle": "アカウント",
+  "pageTitle": "Account",
   "login": {
-    "title": "ログイン情報",
-    "email": "メールアドレス",
-    "provider": "ログイン方法",
+    "title": "Login details",
+    "email": "Email address",
+    "provider": "Login method",
     "providers": {
-      "email": "メールアドレスとパスワード",
-      "google": "Google アカウント",
-      "apple": "Apple アカウント"
+      "email": "Email address and password",
+      "google": "Google account",
+      "apple": "Apple account"
     },
     "unknown": "—"
   },
   "email": {
-    "title": "メールアドレス",
-    "change": "変更する",
-    "cancel": "キャンセル",
-    "newEmailLabel": "新しいメールアドレス",
+    "title": "Email address",
+    "change": "Change",
+    "cancel": "Cancel",
+    "newEmailLabel": "New email address",
     "newEmailPlaceholder": "mail@example.com",
-    "submit": "確認メールを送る",
-    "submitting": "送信中...",
-    "pending": "{email} への変更を確認しています。変更前と変更後の両方のアドレスに届いた確認メールのリンクを開くと、変更が完了します。",
-    "relayBlocked": "Apple の「メールを非公開」のアドレスには確認メールを送れないため、メールアドレスの変更とパスワードの設定はできません。",
-    "sentToast": "確認メールを送りました。変更前と変更後の両方のアドレスに届きます。",
+    "submit": "Send confirmation email",
+    "submitting": "Sending...",
+    "pending": "We are confirming the change to {email}. The change is complete once you open the links in the confirmation emails sent to both your current and your new address.",
+    "relayBlocked": "Confirmation emails cannot be sent to an Apple “Hide My Email” address, so you cannot change your email address or set a password.",
+    "sentToast": "Confirmation emails sent. They go to both your current and your new address.",
     "errors": {
-      "invalidEmail": "メールアドレスの形式が正しくありません。",
-      "sameEmail": "今のメールアドレスと同じです。",
-      "emailUnavailable": "このメールアドレスには変更できません。",
-      "relayAddress": "Apple の「メールを非公開」のアドレスからは変更できません。",
-      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
-      "sendFailed": "確認メールを送れませんでした。もう一度お試しください。",
-      "unauthorized": "ログインの状態が切れました。もう一度ログインしてください。",
-      "banned": "この操作は行えません。"
+      "invalidEmail": "The email address is not in a valid format.",
+      "sameEmail": "This is the same as your current email address.",
+      "emailUnavailable": "You cannot change to this email address.",
+      "relayAddress": "You cannot change from an Apple “Hide My Email” address.",
+      "rateLimited": "Too many requests. Please wait a while and try again.",
+      "sendFailed": "Could not send the confirmation email. Please try again.",
+      "unauthorized": "You are no longer logged in. Please log in again.",
+      "banned": "You cannot perform this action."
     }
   },
   "methods": {
-    "title": "ログイン方法",
+    "title": "Login methods",
     "password": {
-      "set": "設定済み",
-      "unset": "未設定",
-      "setup": "パスワードを設定",
-      "change": "パスワードを変更",
-      "sending": "送信中...",
-      "relayBlocked": "Apple の非公開のメールアドレスには設定のメールを送れません。",
-      "sentToast": "パスワード設定のメールを {email} に送りました。メールのリンクから新しいパスワードを決めてください。"
+      "set": "Set",
+      "unset": "Not set",
+      "setup": "Set a password",
+      "change": "Change password",
+      "sending": "Sending...",
+      "relayBlocked": "The setup email cannot be sent to an Apple private email address.",
+      "sentToast": "We sent a password setup email to {email}. Use the link in the email to choose a new password."
     },
     "google": {
-      "add": "Google アカウントを追加",
-      "adding": "Google へ移動中..."
+      "add": "Add a Google account",
+      "adding": "Going to Google..."
     },
     "apple": {
-      "privateRelay": "非公開のメールアドレス"
+      "privateRelay": "Private email address"
     },
-    "remove": "外す",
-    "removing": "外しています...",
+    "remove": "Remove",
+    "removing": "Removing...",
     "cannotRemove": {
-      "lastWebMethod": "外すと web でログインできる手段が無くなります。先にパスワードを設定するか、別の Google アカウントを追加してください。"
+      "lastWebMethod": "If you remove this, you will have no way left to log in on the web. Set a password or add another Google account first."
     },
     "confirmRemove": {
-      "title": "{provider}の連携を外しますか？",
-      "message": "{email} ではログインできなくなります。",
-      "ok": "外す",
-      "cancel": "キャンセル"
+      "title": "Unlink {provider}?",
+      "message": "You will no longer be able to log in with {email}.",
+      "ok": "Remove",
+      "cancel": "Cancel"
     },
-    "removedToast": "連携を外しました。",
+    "removedToast": "Unlinked.",
     "errors": {
-      "removal:notLinked": "この連携は見つかりませんでした。画面を読み込み直してください。",
-      "removal:notRemovable": "この連携は外せません。",
-      "removal:lastWebMethod": "外すと web でログインできる手段が無くなります。先にパスワードを設定するか、別の Google アカウントを追加してください。",
-      "appleUnavailable": "Apple に接続できませんでした。しばらくしてからもう一度お試しください。",
-      "unlinkFailed": "連携を外せませんでした。もう一度お試しください。",
-      "relayAddress": "Apple の非公開のメールアドレスには設定のメールを送れません。",
-      "noEmail": "メールアドレスが未設定のため送れません。",
-      "sendFailed": "メールを送れませんでした。もう一度お試しください。",
-      "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
-      "unauthorized": "ログインの状態が切れました。もう一度ログインしてください。",
-      "banned": "この操作は行えません。",
-      "unknown": "通信できませんでした。もう一度お試しください。"
+      "removal:notLinked": "This link could not be found. Please reload the page.",
+      "removal:notRemovable": "This link cannot be removed.",
+      "removal:lastWebMethod": "If you remove this, you will have no way left to log in on the web. Set a password or add another Google account first.",
+      "appleUnavailable": "Could not connect to Apple. Please wait a while and try again.",
+      "unlinkFailed": "Could not unlink. Please try again.",
+      "relayAddress": "The setup email cannot be sent to an Apple private email address.",
+      "noEmail": "The email cannot be sent because no email address is set.",
+      "sendFailed": "Could not send the email. Please try again.",
+      "rateLimited": "Too many requests. Please wait a while and try again.",
+      "unauthorized": "You are no longer logged in. Please log in again.",
+      "banned": "You cannot perform this action.",
+      "unknown": "Could not connect. Please try again."
     }
   },
   "notices": {
-    "linkedGoogle": "Google アカウントを追加しました。",
-    "linkDuplicate": "この Google アカウントは、すでにこのアカウントか別のアカウントに連携されています。",
-    "linkFailed": "Google アカウントを追加できませんでした。もう一度お試しください。",
-    "emailChangePending": "確認を受け付けました。もう 1 通の確認メールのリンクも開くと、メールアドレスの変更が完了します。",
-    "emailChangeDone": "メールアドレスを変更しました。",
-    "emailChangeLinkInvalid": "メールアドレス変更のリンクが無効か、有効期限が切れています。もう一度変更を始めてください。"
+    "linkedGoogle": "Google account added.",
+    "linkDuplicate": "This Google account is already linked to this account or to another account.",
+    "linkFailed": "Could not add the Google account. Please try again.",
+    "emailChangePending": "Confirmation received. Open the link in the other confirmation email as well to finish changing your email address.",
+    "emailChangeDone": "Your email address has been changed.",
+    "emailChangeLinkInvalid": "The link to change your email address is invalid or has expired. Please start the change again."
   },
-  "deleteAccountLink": "アカウントを削除"
+  "deleteAccountLink": "Delete account"
 }

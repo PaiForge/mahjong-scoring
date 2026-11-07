@@ -1,13 +1,13 @@
 {
-  "pageTitle": "お知らせ",
-  "pageDescription": "運営からのお知らせ一覧です。",
-  "listTitle": "お知らせ一覧",
-  "viewAll": "すべて見る",
-  "pinned": "固定",
-  "empty": "お知らせはまだありません。",
-  "notFound": "お知らせが見つかりません",
-  "backToList": "お知らせ一覧へ戻る",
-  "loadFailed": "お知らせを読み込めませんでした。",
-  "retry": "もう一度読み込む",
-  "loadMore": "さらに読み込む"
+  "pageTitle": "Announcements",
+  "pageDescription": "Announcements from the operator of this site.",
+  "listTitle": "All announcements",
+  "viewAll": "View all",
+  "pinned": "Pinned",
+  "empty": "No announcements yet.",
+  "notFound": "Announcement not found",
+  "backToList": "Back to all announcements",
+  "loadFailed": "Could not load announcements.",
+  "retry": "Reload",
+  "loadMore": "Load more"
 }
