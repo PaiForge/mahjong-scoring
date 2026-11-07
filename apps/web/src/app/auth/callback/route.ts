@@ -42,9 +42,11 @@ import {
  *
  * このルートは `app/[locale]` の外にあり（`/en/auth/callback` は無い。proxy の
  * `isNonLocalizedPath` がロケール化しない）、URL から言語を知れない。そこで入口
- * — OAuth の `redirectTo`（Google のボタン）、認証メールのボタン（英語のボタンだけ
- * `&locale=en`）、パスワードの再設定の `redirectTo` — が `locale=<言語>` を付け、
- * ここで {@link readCallbackLocale} が検証する（無効・無ければ日本語）。
+ * — OAuth の `redirectTo`（Google のボタン・Google の追加）、認証メールのボタン、
+ * パスワードの再設定の `redirectTo` — が、英語のときだけ `locale=en` を付け、
+ * ここで {@link readCallbackLocale} が検証する（無効・無ければ日本語）。日本語の
+ * 入口は `locale` を付けず、戻り先の文字列を従来のままにする（日本語の挙動と、
+ * 本番の Supabase の Redirect URLs の許可リストとの照合を変えないため）。
  *
  * - 固定の着地（setup-username・再設定・サインインの失敗・マイページ・
  *   アカウントのページの報せ）は {@link landing} で、その言語で公開しているページなら

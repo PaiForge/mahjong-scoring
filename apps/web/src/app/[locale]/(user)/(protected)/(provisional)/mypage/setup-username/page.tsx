@@ -5,13 +5,11 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
-import { localizedHref } from "@/i18n/public-path";
 import { requireProvisionalUser } from "@/lib/auth";
 
 import { UsernameForm } from "./_components/username-form";
+import { setupUsernameGuardOptions } from "./_lib/guard-options";
 import { prepareRouteLocale } from "@/i18n/route-locale";
-
-const PATH = "/mypage/setup-username";
 
 export async function generateMetadata({
   params,
@@ -26,7 +24,8 @@ export async function generateMetadata({
  * @description 確認メールのリンクや Google から着いた、プロフィールの無い人が
  * ユーザー名と表示名を決めて登録を終えるページ。英語のページ（`/en/...`）へは
  * `/auth/callback` が `locale` を見て送る。ガードの飛ばし先（ログイン・BAN・
- * マイページ）もページの言語で、ログイン後はこのページ（同じ言語）へ戻す。
+ * マイページ）もページの言語。英語では未ログインのときログイン後にこのページへ
+ * 戻す（日本語は従来どおり戻り先を付けない。`setupUsernameGuardOptions`）。
  * @flow ガード → フォーム → 登録完了でページの言語のトップ（ログイン済みは
  * ダッシュボード）へ
  */
@@ -34,7 +33,7 @@ export default async function SetupUsernamePage({
   params,
 }: PageProps<"/[locale]/mypage/setup-username">) {
   const locale = await prepareRouteLocale(params, "/mypage/setup-username");
-  await requireProvisionalUser({ returnTo: localizedHref(PATH, locale) });
+  await requireProvisionalUser(setupUsernameGuardOptions(locale));
   const t = await getTranslations("setupUsername");
 
   return (

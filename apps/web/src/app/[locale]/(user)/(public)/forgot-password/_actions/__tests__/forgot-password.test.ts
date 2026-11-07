@@ -2,7 +2,8 @@
  * パスワードリセットメール送信 Server Action のテスト
  *
  * @description
- * - `redirectTo` に送信元のページの言語（`currentLocale()`）を `locale` として付ける
+ * - 英語のページから送ったときだけ `redirectTo` に `locale=en` を付ける
+ *   （日本語は従来の文字列のまま）
  * - 送信の失敗は成功に畳む（アカウントの列挙を防ぐ）
  * - レート制限にかかったら送らずに制限の結果を返す
  */
@@ -39,21 +40,19 @@ beforeEach(() => {
 
 describe("forgotPassword", () => {
   it.each([
-    ["ja", "https://example.test/auth/callback?type=recovery&locale=ja"],
+    // 日本語は従来の文字列のまま（locale を付けない）
+    ["ja", "https://example.test/auth/callback?type=recovery"],
     ["en", "https://example.test/auth/callback?type=recovery&locale=en"],
-  ])(
-    "送信元の言語が %s なら redirectTo に locale を付ける",
-    async (locale, redirectTo) => {
-      mockCurrentLocale.mockResolvedValue(locale);
+  ])("送信元の言語が %s のときの redirectTo", async (locale, redirectTo) => {
+    mockCurrentLocale.mockResolvedValue(locale);
 
-      const result = await forgotPassword("a@example.test");
+    const result = await forgotPassword("a@example.test");
 
-      expect(result).toEqual({ success: true });
-      expect(mockResetPasswordForEmail).toHaveBeenCalledWith("a@example.test", {
-        redirectTo,
-      });
-    },
-  );
+    expect(result).toEqual({ success: true });
+    expect(mockResetPasswordForEmail).toHaveBeenCalledWith("a@example.test", {
+      redirectTo,
+    });
+  });
 
   it("送信に失敗しても成功を返す", async () => {
     mockResetPasswordForEmail.mockResolvedValue({ error: { message: "x" } });

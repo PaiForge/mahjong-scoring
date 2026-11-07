@@ -4,24 +4,26 @@ import { redirect } from "next/navigation";
 
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
-import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { localizedHref } from "@/i18n/public-path";
 import { getAuthenticatedUser } from "../../../../../lib/auth";
 import { getLatestBanReason, isUserBanned } from "../../../../../lib/ban";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
+import { bannedPageMetadata } from "./_lib/banned-metadata";
+
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/banned">): Promise<Metadata> {
   const locale = await prepareRouteLocale(params, "/banned");
-  return createPrivateMetadata("banned", "title", { locale });
+  return bannedPageMetadata(locale);
 }
 
 /**
  * BAN ページ
  *
  * @description BAN されたユーザーに表示されるページ。BAN 理由を表示する。
- * 本人だけが見る通知なので、どの言語でも検索エンジンに載せない（`createPrivateMetadata`）。
+ * 英語では本人向けの title と noindex を付ける。日本語の head は従来のまま
+ * （`bannedPageMetadata`）。
  * @flow 認証チェック → BAN チェック → 最新の BAN 理由を取得して表示。
  * 未認証はページの言語のログインへ、BAN されていなければページの言語のトップへ
  */

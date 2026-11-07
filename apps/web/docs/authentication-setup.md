@@ -71,10 +71,11 @@ Dashboard の両方を更新してください。
 [resend-smtp-setup.md](resend-smtp-setup.md) の「3. Email Templates」を参照してください。
 本番で独自ドメインから送るには、同じ文書の Resend の設定が先に要ります。
 
-認証の入口（Google のボタン・メールの英語のボタン・パスワードの再設定）は
-`/auth/callback` に `locale` の query を付け、コールバックがその言語のページ
-（英語なら `/en/...`）に着かせます。戻り先の形は従来の `?type=recovery`・`?next=` と同じ
-`/auth/callback?...` で、Redirect URLs（`https://your-domain.com/**`）に足すものはありません。
+認証の入口（Google のボタン・メールの英語のボタン・パスワードの再設定）は、英語の
+ページからのときだけ `/auth/callback` に `locale=en` の query を付け、コールバックが
+英語のページ（`/en/...`）に着かせます。日本語の入口の戻り先の文字列は従来のまま
+（`locale` 無し）です。英語の戻り先も従来の `?type=recovery`・`?next=` と同じ
+`/auth/callback?...` の形で、Redirect URLs（`https://your-domain.com/**`）に足すものはありません。
 
 ### Authentication > Rate Limits
 
