@@ -245,7 +245,9 @@ export const EN_NOT_FOUND_NAMESPACES = [
  * （`company`）、広告の札（`nativeAd`）と、本文から開く点数表のモーダル
  * （`scoreTable`）。章末の確認問題・完了の画面・次のレッスンの抜粋（`lessons`）、
  * 級のゴールの案内（`ranks`）、完了後の練習への導線（`practice`）も読む。確認問題の
- * 部品が読む `common`（ツモ / ロンの札等）はシェルに含まれる。
+ * 部品が読む `common`（ツモ / ロンの札等）はシェルに含まれる。確認問題の条件文は
+ * 役名を役名の辞書（`yakuNames`）で描くので、それも読む（役名の出ない章でも
+ * 確認問題の部品が引く）。
  *
  * 確認問題・完了はログインが要り、ログイン・登録の画面を英語で出すまでは章の依存に
  * 含めていなかった。会員の画面を英語で出すのと一緒に足した。
@@ -260,6 +262,7 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
   "lessons",
   "ranks",
   "practice",
+  "yakuNames",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
@@ -531,11 +534,11 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  *   試験の案内（`ranks`）、広告
  * - `/try/agari-score`・`/try/mentsu-fu` — 体験の本文（`tryDemo`・`tryMentsuFu`）と、借りている
  *   練習の部品（`/try/agari-score` は答え合わせの役名 `yakuNames`、`/try/mentsu-fu` は
- *   確認問題の部品 `lessons` と面子の符の `mentsuFu`）
+ *   確認問題の部品 `lessons`（条件文の役名を引く `yakuNames` も）と面子の符の `mentsuFu`）
  * - `/getting-started` — はじめ方（`gettingStarted`）
  * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
  *   練習・チャレンジの見本（`practice`（章の共通に含む）・`challenge`・`tenpaiScore`・
- *   `agariScore`・`manganScoreCalculationChallenge`・`jantouFu`。見本の役名は `yakuNames`）
+ *   `agariScore`・`manganScoreCalculationChallenge`・`jantouFu`。見本の役名は `yakuNames`（章の共通に含む））
  * - 認証 — `/sign-in`（`auth`）、`/sign-up`（`signUp`・`auth`・パスワードの規則の
  *   `validation`）、`/sign-up/verify-email`（`verifyEmail`・`auth`）、`/forgot-password`
  *   （`forgotPassword`）、`/reset-password`（`resetPassword`・`validation`）、`/banned`
@@ -567,7 +570,6 @@ export const EN_ROUTE_NAMESPACES = {
     "agariScore",
     "manganScoreCalculationChallenge",
     "jantouFu",
-    "yakuNames",
   ],
   "/lessons/why-scoring-is-hard-to-learn": [
     ...EN_LESSON_CHAPTER_NAMESPACES,
@@ -597,7 +599,7 @@ export const EN_ROUTE_NAMESPACES = {
     "manganOyaTsumo",
     "manganScoreTable",
   ],
-  "/lessons/yaku": [...EN_LESSON_CHAPTER_NAMESPACES, "yaku", "yakuNames"],
+  "/lessons/yaku": [...EN_LESSON_CHAPTER_NAMESPACES, "yaku"],
   "/lessons/jantou-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "jantouFu"],
   "/lessons/mentsu-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "mentsuFu"],
   "/lessons/machi-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "machiFu"],
@@ -696,6 +698,7 @@ export const EN_ROUTE_NAMESPACES = {
     "practice",
     "ranks",
     "mentsuFu",
+    "yakuNames",
   ],
   "/dojo": [
     ...EN_SHELL_NAMESPACES,

@@ -232,8 +232,9 @@ describe("英語で公開するルートの依存", () => {
     expect(routeNamespaces("/dojo")).toEqual(expect.arrayContaining(all));
   });
 
-  it("面子の符の体験は確認問題の部品（lessons）を、和了形・聴牌形の設定は設定の名前空間を読む", () => {
+  it("面子の符の体験は確認問題の部品（lessons と条件文の役名の yakuNames）を、和了形・聴牌形の設定は設定の名前空間を読む", () => {
     expect(routeNamespaces("/try/mentsu-fu")).toContain("lessons");
+    expect(routeNamespaces("/try/mentsu-fu")).toContain("yakuNames");
     for (const route of ["/practice/agari-score", "/practice/tenpai-score"]) {
       expect(routeNamespaces(route), route).toContain("settings");
     }
@@ -266,7 +267,7 @@ describe("英語で公開するルートの依存", () => {
   );
 
   it.each(EN_LESSON_ROUTES.map((route) => [route]))(
-    "%s は章の名前空間（slug の camelCase）と章のレイアウト・確認問題と完了の名前空間を読む",
+    "%s は章の名前空間（slug の camelCase）と章のレイアウト・確認問題（条件文の役名を含む）と完了の名前空間を読む",
     (route) => {
       const namespaces = routeNamespaces(route);
       const camel = route
@@ -283,6 +284,7 @@ describe("英語で公開するルートの依存", () => {
           "lessons",
           "ranks",
           "practice",
+          "yakuNames",
           "common",
         ]),
       );
