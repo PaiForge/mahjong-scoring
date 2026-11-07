@@ -1,72 +1,72 @@
 {
   "learn": {
-    "pageTitle": "手牌全体の符計算",
-    "checklistTitle": "符を数える場所のチェックリスト",
-    "checklistLead": "符が付く場所は6つです。\nこれらすべてを足し合わせていくことで[[tehai|手牌]]全体の符を計上することができます。",
-    "checklistColPlace": "数える場所",
-    "checklistColFu": "符",
+    "pageTitle": "Riichi Mahjong Fu: Counting the Whole Hand",
+    "checklistTitle": "Checklist of where fu come from",
+    "checklistLead": "Fu come from six places.\nAdd them all up and you have the fu for the whole [[tehai|hand]].",
+    "checklistColPlace": "Where",
+    "checklistColFu": "Fu",
     "checklistRows": {
       "futei": {
-        "label": "副底",
-        "condition": "和了したすべての手に付く",
-        "fu": "20符"
+        "label": "Base fu (futei)",
+        "condition": "Every winning hand",
+        "fu": "20 fu"
       },
       "menzenRon": {
-        "label": "門前ロンの加符",
-        "condition": "門前でロン和了したとき",
-        "fu": "10符"
+        "label": "Closed ron bonus",
+        "condition": "When you win by ron with a closed hand",
+        "fu": "10 fu"
       },
       "tsumo": {
-        "label": "ツモ符",
-        "condition": "ツモ和了したとき（副露していても付く）",
-        "fu": "2符"
+        "label": "Tsumo fu",
+        "condition": "When you win by tsumo (even with calls)",
+        "fu": "2 fu"
       },
       "mentsu": {
-        "label": "面子の符",
-        "condition": "刻子・槓子があるとき（順子は0符）",
-        "fu": "2〜32符"
+        "label": "Fu for sets",
+        "condition": "When you have triplets or quads (sequences are 0 fu)",
+        "fu": "2–32 fu"
       },
       "jantou": {
-        "label": "雀頭の符",
-        "condition": "雀頭が三元牌・場風牌・自風牌のとき",
-        "fu": "2符"
+        "label": "Fu for the pair",
+        "condition": "When the pair is dragons, the round wind or your seat wind",
+        "fu": "2 fu"
       },
       "machi": {
-        "label": "待ちの符",
-        "condition": "単騎・嵌張・辺張で和了したとき",
-        "fu": "2符"
+        "label": "Fu for the wait",
+        "condition": "When you win on a single-tile, closed or edge wait",
+        "fu": "2 fu"
       }
     },
-    "checklistAgariNote": "※ [[menzen-ron-kafu|門前ロンの加符]]と[[tsumo-fu|ツモ符]]が同時に付くことはありません。[[menzen|門前]]ロンなら10符、[[tsumo|ツモ]]なら2符、[[furo|副露]]しての[[ron|ロン]]ならどちらも付きません。",
-    "checklistOrderBody": "どの順番で足していくかは自分がやりやすいように決めるといいと思います。しかし、漏れがないように注意する必要はあります。",
-    "checklistRoundBody": "符の合算ができたら、最後に[[fu-kiriage|10符単位へ切り上げ]]を行います。\n22符なら30符、32符なら40符です。切り上げまで済ませた値が、その手牌の符です。",
-    "checklistChapterRefBody": "面子・雀頭・待ちの数え方は、<mentsuLink></mentsuLink>・<jantouLink></jantouLink>・<machiLink></machiLink>の章のとおりです。",
-    "checklistColumnLabel": "コラム",
-    "checklistColumnTitle": "チェックリストを通らない2つの手",
-    "checklistColumnBody": "七対子は、ツモでもロンでも25符で固定です。<br></br>平和のツモも例外で、副底の20符のままになります（ツモの2符を足しません）。<br></br>この2つだけは積み上げずに符が決まります。くわしくは<chiitoitsuLink></chiitoitsuLink>・<pinfuLink></pinfuLink>の章で扱います。",
-    "commonMistakesTitle": "手牌の符計算でよくある間違い",
-    "commonMistakesLead": "[[fu|符]]の数え方をひととおり覚えても、実際の対局では合計を間違えることがよくあります。\nとくに次の3つは間違えやすいポイントです。",
-    "pageDescription": "手牌全体の符の数え方を解説。符が付く6つの場所をチェックリストにまとめ、ツモ符の計上忘れ、ロン時の刻子の明暗判定、自風・場風の誤認といった間違えやすいポイントも扱います。",
-    "tsumoFuTitle": "ツモ符の計上忘れ",
-    "tsumoFuBody1": "ツモで[[hora|和了]]した場合、門前であるかどうかに関係なく2符が付きます。\n副露をしていてもツモ和了であればツモ符は加算されるため、見落とさないようにしましょう。",
-    "tsumoFuBody2": "役の「門前清自摸和（メンゼンツモ）」は門前限定の役ですが、ツモ符はあくまで和了方法に対して付く符であり、副露の有無は関係ありません。\nこの2つを混同しないことが大切です。",
-    "ronKoutsuTitle": "ロン牌を含む刻子の誤計上",
-    "ronKoutsuBody1": "[[shanpon|シャンポン]]待ちでロンした場合、ロン牌を含む方の[[koutsu|刻子]]は[[minkou|明刻]]として扱います。\n手牌に2枚持っていても、最後の1枚は他家の捨て牌を利用しているため[[ankou|暗刻]]にはなりません。",
-    "ronKoutsuBody2": "一方、ツモで完成した場合は暗刻になります。\n同じシャンポン[[machi|待ち]]でも和了方法によって符が変わるため、ロンかツモかを必ず確認しましょう。",
-    "kazeTitle": "自風・場風の誤認",
-    "kazeBody1": "南入（南場に入ること）した後は場風が南に変わりますが、東場の感覚が残っていて東を場風と勘違いするミスが起こりがちです。\n場風と自風の両方を正しく把握することが、[[jantou|雀頭]]の符を正確に計算する前提になります。",
-    "kazeBody2": "なお、場風・自風かどうかで符が変わるのは雀頭だけです。\n[[kazehai|風牌]]の刻子は場風牌・自風牌・[[otakaze|オタ風]]のどれであっても明刻4符・暗刻8符で変わりません（風牌は[[yaochuuhai|么九牌]]だからです）。\n取り違えたときに影響するのは、雀頭の符と[[yakuhai|役牌]]の翻数です。",
-    "tsumoExample": "副露あり・ツモ和了の例",
-    "tsumoExampleAnnotation": "→ ツモ符 2符",
-    "ronKoutsuExampleRon": "シャンポン待ちをロン（三索）",
-    "ronKoutsuExampleRonAnnotation": "→ 三索は明刻（2符）",
-    "ronKoutsuExampleTsumo": "シャンポン待ちをツモ（三索）",
-    "ronKoutsuExampleTsumoAnnotation": "→ 三索は暗刻（4符）",
-    "kazeExampleBakaze": "東場・南家 — 東の雀頭",
-    "kazeExampleBakazeAnnotation": "→ 場風牌（2符）",
-    "kazeExampleJikaze": "東場・南家 — 南の雀頭",
-    "kazeExampleJikazeAnnotation": "→ 自風牌（2符）",
-    "kazeExampleOtakaze": "東場・南家 — 西の雀頭",
-    "kazeExampleOtakazeAnnotation": "→ オタ風（0符）"
+    "checklistAgariNote": "* The [[menzen-ron-kafu|closed ron bonus]] and [[tsumo-fu|tsumo fu]] never apply together. A [[menzen|closed hand]] winning by ron gets 10 fu, a [[tsumo|tsumo]] win gets 2 fu, and a [[ron|ron]] win after a [[furo|call]] gets neither.",
+    "checklistOrderBody": "Add them up in whatever order works best for you. Just be careful not to miss any.",
+    "checklistRoundBody": "Once you have the total, finish by [[fu-kiriage|rounding up to the next 10 fu]].\n22 fu becomes 30 fu, and 32 fu becomes 40 fu. The value after rounding up is the hand's fu.",
+    "checklistChapterRefBody": "How to count sets, the pair and the wait is covered in the lessons <mentsuLink></mentsuLink>, <jantouLink></jantouLink> and <machiLink></machiLink>.",
+    "checklistColumnLabel": "Column",
+    "checklistColumnTitle": "Two hands that skip the checklist",
+    "checklistColumnBody": "Chiitoitsu (seven pairs) is always 25 fu, whether you win by tsumo or by ron.<br></br>A pinfu tsumo is also an exception: it stays at the 20 fu base (you do not add the 2 tsumo fu).<br></br>Only these two hands get their fu without adding anything up. They are covered in the lessons <chiitoitsuLink></chiitoitsuLink> and <pinfuLink></pinfuLink>.",
+    "commonMistakesTitle": "Common mistakes when counting a hand's fu",
+    "commonMistakesLead": "Even once you know how to count [[fu|fu]], it is easy to get the total wrong in a real game.\nThese three points are where mistakes happen most often.",
+    "pageDescription": "How to count fu for a whole riichi mahjong hand: a checklist of the six places fu come from, plus common mistakes such as forgetting tsumo fu, treating a ron triplet as closed, and mixing up the seat and round winds.",
+    "tsumoFuTitle": "Forgetting tsumo fu",
+    "tsumoFuBody1": "When you [[hora|win]] by tsumo, you get 2 fu whether or not your hand is closed.\nTsumo fu are added even if you have made calls, so do not overlook them.",
+    "tsumoFuBody2": "The yaku menzen tsumo (fully closed hand by self-draw) needs a closed hand, but tsumo fu are given for how you won, and calls make no difference to them.\nKeep these two apart.",
+    "ronKoutsuTitle": "Counting the ron triplet as closed",
+    "ronKoutsuBody1": "When you win by ron on a [[shanpon|pair wait]] (shanpon), the triplet completed by the ron tile counts as an [[minkou|open triplet]].\nYou held two of those tiles, but the last one came from another player's discard, so it is not a [[ankou|closed triplet]].",
+    "ronKoutsuBody2": "If you complete it by tsumo instead, it is a closed triplet.\nThe same pair [[machi|wait]] gives different fu depending on how you win, so always check whether it was ron or tsumo.",
+    "kazeTitle": "Mixing up the seat and round winds",
+    "kazeBody1": "Once the game moves into the South round, the round wind becomes South, but it is easy to keep thinking of East as the round wind.\nKnowing both the round wind and your seat wind is the starting point for counting the fu for the [[jantou|pair]] correctly.",
+    "kazeBody2": "Note that the round and seat winds only change the fu for the pair.\nA triplet of [[kazehai|wind tiles]] is always 4 fu open and 8 fu closed, whether it is the round wind, your seat wind or a [[otakaze|guest wind]] (wind tiles are [[yaochuuhai|terminals and honors]]).\nMixing them up affects only the fu for the pair and the han from [[yakuhai|yakuhai]].",
+    "tsumoExample": "Example: open hand, won by tsumo",
+    "tsumoExampleAnnotation": "→ Tsumo fu: 2 fu",
+    "ronKoutsuExampleRon": "Pair wait won by ron (3-sou)",
+    "ronKoutsuExampleRonAnnotation": "→ 3-sou is an open triplet (2 fu)",
+    "ronKoutsuExampleTsumo": "Pair wait won by tsumo (3-sou)",
+    "ronKoutsuExampleTsumoAnnotation": "→ 3-sou is a closed triplet (4 fu)",
+    "kazeExampleBakaze": "East round, South seat: a pair of East",
+    "kazeExampleBakazeAnnotation": "→ Round wind (2 fu)",
+    "kazeExampleJikaze": "East round, South seat: a pair of South",
+    "kazeExampleJikazeAnnotation": "→ Seat wind (2 fu)",
+    "kazeExampleOtakaze": "East round, South seat: a pair of West",
+    "kazeExampleOtakazeAnnotation": "→ Guest wind (0 fu)"
   }
 }
