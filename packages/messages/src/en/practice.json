@@ -58,7 +58,7 @@
       "shortTitle": "Set and pair fu"
     },
     "totalFu": {
-      "title": "Total Fu of a Hand",
+      "title": "Total Fu for the Hand",
       "shortTitle": "Total fu"
     },
     "yakuHan": {
@@ -74,7 +74,7 @@
       "shortTitle": "Table lookup"
     },
     "scoreCalculation": {
-      "title": "Instant Score Answers",
+      "title": "Instant Score Calculation",
       "shortTitle": "Instant score"
     },
     "hanCount": {
@@ -90,7 +90,7 @@
       "shortTitle": "Mangan exam"
     },
     "fuExam": {
-      "title": "Promotion Exam: Total Fu of a Hand",
+      "title": "Promotion Exam: Total Fu for the Hand",
       "shortTitle": "Fu exam"
     },
     "chiitoitsuExam": {
@@ -102,7 +102,7 @@
       "shortTitle": "Pinfu exam"
     },
     "fuScoreExam": {
-      "title": "Promotion Exam: Scoring 30 to 50 Fu",
+      "title": "Promotion Exam: Scoring 30 to 50 Fu Hands",
       "shortTitle": "30–50 fu exam"
     },
     "scoreExam": {
@@ -111,11 +111,11 @@
     }
   },
   "agariScoreBanner": {
-    "title": "Scoring Winning Hands",
+    "title": "Winning Hand Scoring Practice",
     "description": "Calculate the yaku, han, fu and points from a winning hand, and practice all the way to calling out the score."
   },
   "tenpaiScoreBanner": {
-    "title": "Scoring Tenpai Hands",
+    "title": "Tenpai Hand Scoring Practice",
     "description": "Find the waits in a tenpai hand and calculate the tsumo and ron scores for each wait. You can also practice how the score changes between the higher and lower winning tiles."
   },
   "orDivider": "or",
