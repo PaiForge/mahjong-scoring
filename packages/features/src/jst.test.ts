@@ -140,6 +140,65 @@ describe("formatJstDayKeyLong", () => {
   });
 });
 
+describe("表示の関数の言語（locale）", () => {
+  // en-US の時刻と AM/PM の間は ICU の版により狭い空白（U+202F）になる。
+  // 空白の種類ではなく並びを確かめる
+  const normalizeSpaces = (text: string): string => text.replace(/\s/gu, " ");
+
+  it("locale を省くと日本語の出力と同じ（既存の呼び出しが変わらない）", () => {
+    const instant = new Date("2026-10-01T23:30:00Z");
+    expect(formatJstDateTime(instant)).toBe(formatJstDateTime(instant, "ja"));
+    expect(formatJstDateLong(instant)).toBe(formatJstDateLong(instant, "ja"));
+    expect(formatJstDayKeyLong("2026-04-02")).toBe(
+      formatJstDayKeyLong("2026-04-02", "ja"),
+    );
+  });
+
+  it("英語の日時は en-US の書式で、時刻は JST のまま", () => {
+    // UTC 23:22 は JST の翌日 08:22
+    expect(
+      normalizeSpaces(
+        formatJstDateTime(new Date("2026-09-18T23:22:00Z"), "en"),
+      ),
+    ).toBe("Sep 19, 2026, 8:22 AM");
+  });
+
+  it("英語の日時は午後を PM で書く", () => {
+    expect(
+      normalizeSpaces(
+        formatJstDateTime(new Date("2026-10-02T06:05:00Z"), "en"),
+      ),
+    ).toBe("Oct 2, 2026, 3:05 PM");
+  });
+
+  it("英語の長い日付は「月 日, 年」で、日付は JST で切る", () => {
+    // UTC 15:00 は JST の翌日 0:00
+    expect(formatJstDateLong(new Date("2026-10-20T15:00:00Z"), "en")).toBe(
+      "October 21, 2026",
+    );
+  });
+
+  it("英語の日付キーの長い形", () => {
+    expect(formatJstDayKeyLong("2026-10-02", "en")).toBe("October 2, 2026");
+  });
+});
+
+describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
+  "英語の表示（実行環境のタイムゾーンが %s）",
+  (tz) => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("英語でも JST の日付で切る", () => {
+      vi.stubEnv("TZ", tz);
+      expect(formatJstDateLong(new Date("2026-10-01T15:30:00Z"), "en")).toBe(
+        "October 2, 2026",
+      );
+    });
+  },
+);
+
 describe("formatJstDayKeyMonthDay", () => {
   it("日付キーを「月/日」にする（0 埋めしない）", () => {
     expect(formatJstDayKeyMonthDay("2026-04-02")).toBe("4/2");

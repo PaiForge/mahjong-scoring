@@ -20,8 +20,17 @@
  * postgres.js は `date` 型を文字列で返すので、DB が JST で切った暦日を `Date` に
  * 組み直さない。
  *
+ * 表示の関数（`formatJst*`）は省略可能な `locale` を受ける。英語（`en`）は
+ * `en-US` の書式で、**時刻は英語でも JST のまま**（サービスの暦は JST で、
+ * 英語の画面でも「今日」「期限」は JST で切る。変えるのは表記だけ）。
+ * `locale` を省くと日本語（`ja-JP`）で、日本語固定の読み手（モバイル・
+ * 既存の呼び出し）の出力は変わらない。日付の区切り（`jstStartOfDay` 等の
+ * 業務境界）は言語に依らない。
+ *
  * このモジュールは純粋。
  */
+
+import { DEFAULT_LOCALE, type SupportedLocale } from "./i18n/locales";
 
 /** `Intl.DateTimeFormat` の `timeZone` に渡す JST の識別子 */
 export const JST_TIME_ZONE = "Asia/Tokyo";
@@ -141,15 +150,29 @@ export function parseJstDateTimeLocal(value: string): Date | null {
   return instant;
 }
 
-const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hour12: false,
-  timeZone: JST_TIME_ZONE,
-});
+const JST_DATE_TIME_FORMATS: Readonly<
+  Record<SupportedLocale, Intl.DateTimeFormat>
+> = {
+  ja: new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: JST_TIME_ZONE,
+  }),
+  // 英語は en-US の既定の並び（「Sep 19, 2026, 8:22 AM」）。12 時間表記は
+  // en-US の慣習に合わせる。時刻は JST のまま
+  en: new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: JST_TIME_ZONE,
+  }),
+};
 
 /**
  * 日時を JST の「2026/10/02 10:30」の形にする
@@ -157,27 +180,50 @@ const JST_DATE_TIME_FORMAT = new Intl.DateTimeFormat("ja-JP", {
  *
  * 時刻は 24 時間表記。サーバーで描く画面とクライアントで描く画面が同じ文字列を
  * 出すよう、実行環境のタイムゾーンに依らず JST で整形する。
+ * 英語は「Oct 2, 2026, 10:30 AM」（JST の時刻を en-US の書式で）。
+ *
+ * @param instant - 表示する瞬間
+ * @param locale - 表示する言語（省略時は日本語）
  */
-export function formatJstDateTime(instant: Date): string {
-  return JST_DATE_TIME_FORMAT.format(instant);
+export function formatJstDateTime(
+  instant: Date,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return JST_DATE_TIME_FORMATS[locale].format(instant);
 }
 
-const JST_DATE_LONG_FORMAT = new Intl.DateTimeFormat("ja-JP", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: JST_TIME_ZONE,
-});
+const JST_DATE_LONG_FORMATS: Readonly<
+  Record<SupportedLocale, Intl.DateTimeFormat>
+> = {
+  ja: new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: JST_TIME_ZONE,
+  }),
+  en: new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: JST_TIME_ZONE,
+  }),
+};
 
 /**
  * 日時を JST の「2026年10月2日」の形にする
  * JST日付長形式表示
  *
  * 曜日や時刻は出さない。{@link formatJstDateTime} と同じく、実行環境の
- * タイムゾーンに依らず JST の日付で整形する。
+ * タイムゾーンに依らず JST の日付で整形する。英語は「October 2, 2026」。
+ *
+ * @param instant - 表示する瞬間
+ * @param locale - 表示する言語（省略時は日本語）
  */
-export function formatJstDateLong(instant: Date): string {
-  return JST_DATE_LONG_FORMAT.format(instant);
+export function formatJstDateLong(
+  instant: Date,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return JST_DATE_LONG_FORMATS[locale].format(instant);
 }
 
 /**
@@ -185,10 +231,16 @@ export function formatJstDateLong(instant: Date): string {
  * JST日付キー長形式表示
  *
  * 日付だけを持つ値（章の公開日・ヒートマップの日付キー）向けの
- * {@link formatJstDateLong}。
+ * {@link formatJstDateLong}。英語は「October 2, 2026」。
+ *
+ * @param dayKey - JST の日付（`YYYY-MM-DD`）
+ * @param locale - 表示する言語（省略時は日本語）
  */
-export function formatJstDayKeyLong(dayKey: string): string {
-  return formatJstDateLong(new Date(jstDayStartIso(dayKey)));
+export function formatJstDayKeyLong(
+  dayKey: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return formatJstDateLong(new Date(jstDayStartIso(dayKey)), locale);
 }
 
 /**

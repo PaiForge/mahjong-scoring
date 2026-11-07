@@ -1,3 +1,10 @@
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
+
+import { localizedHref } from "@/i18n/public-path";
+
 /**
  * 内部パスのサニタイズ。ユーザー入力由来のリダイレクト先文字列を検証し、
  * 外部ドメインへの誘導（open redirect）を防ぐ。
@@ -41,8 +48,19 @@ export function sanitizeInternalRedirect(value: unknown): string | undefined {
  * 組み立て側はエンコードをここに一本化し、呼び出し側で `encodeURIComponent`
  * を書かない（書く位置が揃わず二重エンコード・未エンコードの取り違えが起きる）。
  *
- * @param path サインイン後に戻す内部パス（未エンコード）
+ * `locale` はサインインページ自身の言語で、英語なら `/en/sign-in?...` を返す
+ * （`localizedHref`。日本語は恒等なので省略時の出力は従来と同じ）。戻り先の
+ * `path` には触らない — 呼び出し側が公開 URL（英語なら `/en/...`）で渡す。
+ * ページのガードはパスを知らない（`headers()` からは取れない）ので、
+ * 戻り先は自分のパスを知っているページが組んで渡す。`/en/...` の戻り先は
+ * {@link sanitizeInternalRedirect} をそのまま通る。
+ *
+ * @param path サインイン後に戻す内部パス（未エンコード。公開 URL の形）
+ * @param locale サインインページの言語（省略時は日本語）
  */
-export function buildSignInHref(path: string): string {
-  return `/sign-in?redirect=${encodeURIComponent(path)}`;
+export function buildSignInHref(
+  path: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return localizedHref(`/sign-in?redirect=${encodeURIComponent(path)}`, locale);
 }
