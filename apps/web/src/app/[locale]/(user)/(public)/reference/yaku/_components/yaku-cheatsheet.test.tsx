@@ -2,7 +2,8 @@
  * 役の早見表の役名・牌の見出しの言語対応のテスト
  *
  * @description
- * - 日本語: 役名は core の `YAKU_HAN_ENTRIES.name` と同じ文字列（表示を変えない）
+ * - 日本語: 役名は core の `YAKU_HAN_ENTRIES.name` と同じ文字列（表示を変えない。
+ *   `locale` を省いた呼び出し — 点数訓練のモーダル — も同じ）
  * - 英語: 役名を辞書 `yakuNames`、役牌の牌の見出しを `reference.yaku.variants`
  *   から引き、core の日本語の役名・牌の名前を描かない
  *
@@ -47,7 +48,7 @@ function renderCheatsheet(locale: "ja" | "en") {
       locale={locale}
       messages={locale === "ja" ? jaMessages : englishLike}
     >
-      <YakuCheatsheet withAnchors />
+      <YakuCheatsheet withAnchors locale={locale} />
     </NextIntlClientProvider>,
   );
 }
@@ -57,6 +58,17 @@ afterEach(() => {
 });
 
 describe("YakuCheatsheet", () => {
+  it("locale を省くと日本語と同じく core の役名を出す", () => {
+    render(
+      <NextIntlClientProvider locale="ja" messages={englishLike}>
+        <YakuCheatsheet />
+      </NextIntlClientProvider>,
+    );
+    for (const entry of SHOWN) {
+      expect(screen.getByText(entry.name), entry.name).toBeDefined();
+    }
+  });
+
   it("日本語では core の役名をそのまま出す", () => {
     renderCheatsheet("ja");
     for (const entry of SHOWN) {

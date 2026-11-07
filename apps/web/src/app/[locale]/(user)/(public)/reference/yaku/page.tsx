@@ -30,6 +30,7 @@ import {
   REFERENCE_YAKU_PATH,
 } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 
 export async function generateMetadata({
   params,
@@ -62,6 +63,9 @@ export default async function ReferenceYakuPage({
       <YakuCheatsheet
         withAnchors
         withNakiFilter
+        // 日本語では渡さない（既定が日本語）。クライアント部品の props は RSC の
+        // ペイロードとして HTML に載るので、渡すと日本語の HTML が変わる
+        {...(locale === DEFAULT_LOCALE ? {} : { locale })}
         ads={ads.map((ad) => (
           <LinkRowList key={ad.id}>
             <NativeAdRow creative={ad} />

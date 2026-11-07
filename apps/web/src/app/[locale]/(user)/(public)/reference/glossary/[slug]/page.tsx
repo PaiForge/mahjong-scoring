@@ -99,7 +99,7 @@ export async function generateMetadata({
   );
   const [term, t] = await Promise.all([
     getGlossaryTermViewBySlug(slug, locale),
-    getTranslations({ locale, namespace: "glossary" }),
+    getTranslations("glossary"),
   ]);
   // 本番では dynamicParams = false が未知の slug をここへ通さない。
   // 開発サーバーは列挙を無視して描画するため、その場合だけここを通る

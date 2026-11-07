@@ -16,15 +16,18 @@ import {
  * 一覧ページ（索引・分類の両方）と、関連語・プレビューの解決がここを通る。
  * 並び・索引の行は言語で変わる（日本語は読みの五十音、英語は見出し語の英字）ため、
  * ページが `prepareRouteLocale` で確定させた言語を受け取る。`getLocale()` で
- * 引かないのは、言語の出所をページの入口 1 か所に揃えるため（辞書は同じ言語で
- * 引くよう `getTranslations` に明示で渡す）。
+ * 引かないのは、言語の出所をページの入口 1 か所に揃えるため。辞書はリクエストの
+ * 言語（入口の `prepareRouteLocale` が `setRequestLocale` で確定させた、`locale` と
+ * 同じ値）で引く。`getTranslations({ locale, namespace: "glossary" })` の形に
+ * しないのは、`client-messages.test.ts` が `namespace: "<名前空間>"` をレジストリの
+ * クライアント参照として数え、サーバー専用の `glossary` を違反と判定するため。
  *
  * @param locale - ページの言語
  */
 export async function getGlossaryTermViews(
   locale: SupportedLocale,
 ): Promise<readonly GlossaryTermView[]> {
-  const t = await getTranslations({ locale, namespace: "glossary" });
+  const t = await getTranslations("glossary");
   return glossaryTermViews((key) => t(key), locale);
 }
 
@@ -40,7 +43,7 @@ export async function getGlossaryTermViewBySlug(
   slug: string,
   locale: SupportedLocale,
 ): Promise<GlossaryTermView | undefined> {
-  const t = await getTranslations({ locale, namespace: "glossary" });
+  const t = await getTranslations("glossary");
   return glossaryTermViewBySlug(slug, (key) => t(key), locale);
 }
 
