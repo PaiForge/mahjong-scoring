@@ -42,12 +42,15 @@ vi.mock(
  */
 vi.mock(
   "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-toc-link",
-  () => ({
-    // 本物の CurriculumTocLink（`/lessons` への Link）の描画結果を素の <a> で模すモック。
-    // `[locale]` の動的セグメントが `/lessons` に一致するため no-html-link-for-pages が掛かる
-
-    CurriculumTocLink: () => <a data-testid="toc-link" href="/lessons" />,
-  }),
+  async () => {
+    // 本物と同じく next/link で描く（素の <a href="/lessons"> は `[locale]` の動的
+    // セグメントに一致して no-html-link-for-pages に掛かる）。vi.mock は import より
+    // 先に巻き上がるので、factory の中で読む
+    const { default: Link } = await import("next/link");
+    return {
+      CurriculumTocLink: () => <Link data-testid="toc-link" href="/lessons" />,
+    };
+  },
 );
 
 vi.mock(
