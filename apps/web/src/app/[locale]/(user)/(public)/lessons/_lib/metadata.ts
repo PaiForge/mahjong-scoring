@@ -9,6 +9,7 @@ import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { jstDayStartIso } from "@mahjong-scoring/features/jst";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 import {
+  chapterPublishedAtFor,
   getChapterBySlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
@@ -24,10 +25,11 @@ import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-n
  * og:type は article（公開日は `CURRICULUM` の `publishedAt`）。
  *
  * `options.locale`（省略時は日本語）で辞書・canonical・OGP の言語を決める。
- * `CURRICULUM` の `publishedAt` は日本語の章の公開日なので、英語では
- * `article:published_time` を出さない — 翻訳の公開日の記録がまだ無く、
- * 日本語の日付やビルド時刻で代用すると、実際と違う公開日を名乗ることになる。
- * 英語の章を公開するときは、翻訳の公開日を持たせてからここで出す。
+ * `article:published_time` はその言語のページの公開日で、日本語は
+ * `CURRICULUM` の `publishedAt`、英語は `translatedAt.en`
+ * （`chapterPublishedAtFor`）。英語は翻訳の公開日が記録された章だけ出し、
+ * 無ければ出さない — 日本語の日付やビルド時刻で代用すると、実際と違う
+ * 公開日を名乗ることになる。
  *
  * @param slug - 対象章のスラッグ
  * @param options - 言語（省略時は日本語）
@@ -43,8 +45,8 @@ export async function createLearnMetadata(
     path: chapterHref(slug),
     locale,
   });
-  const publishedAt =
-    locale === DEFAULT_LOCALE ? getChapterBySlug(slug)?.publishedAt : undefined;
+  const chapter = getChapterBySlug(slug);
+  const publishedAt = chapter && chapterPublishedAtFor(chapter, locale);
   return {
     ...base,
     // 章は読み物なので og:type は website ではなく article。公開日も添える

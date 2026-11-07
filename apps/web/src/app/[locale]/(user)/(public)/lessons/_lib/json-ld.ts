@@ -30,12 +30,13 @@ import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum
  * Article は言語ページごとに別のエンティティになる。`headline`・`description`・
  * `inLanguage`・画像・運営組織の説明もその言語にする。`datePublished` には
  * その言語のページを公開した日を渡す（英語なら翻訳の公開日。日本語の章の
- * 公開日やビルド時刻で代用しない）。
+ * 公開日やビルド時刻で代用しない）。その言語の公開日が無い（翻訳の公開日を
+ * まだ記録していない）ときは `publishedAt` を渡さず、`datePublished` を出さない。
  *
  * @param params.slug 章のスラッグ
  * @param params.headline 章タイトル（h1 と同じ文字列）
  * @param params.description 章の説明（meta description と同じ）
- * @param params.publishedAt 公開日（`CURRICULUM` の `publishedAt`）
+ * @param params.publishedAt その言語のページの公開日（`chapterPublishedAtFor`）。無ければ省く
  * @param params.operatorName 運営事業者名（辞書 `company.name.value`）
  * @param params.locale ページの言語（省略時は日本語）
  */
@@ -50,7 +51,7 @@ export function buildLearnArticleSchema({
   readonly slug: CurriculumChapterSlug;
   readonly headline: string;
   readonly description: string;
-  readonly publishedAt: string;
+  readonly publishedAt?: string;
   readonly operatorName: string;
   readonly locale?: SupportedLocale;
 }) {
@@ -66,7 +67,7 @@ export function buildLearnArticleSchema({
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     inLanguage: locale,
     image: [`${SITE_URL}${identity.ogImage.url}`],
-    datePublished: jstDayStartIso(publishedAt),
+    ...(publishedAt ? { datePublished: jstDayStartIso(publishedAt) } : {}),
     articleSection: identity.name,
     author: organization,
     publisher: organization,
