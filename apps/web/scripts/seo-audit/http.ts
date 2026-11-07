@@ -24,7 +24,8 @@
  *    HTML の hreflang が sitemap と同じ。hreflang の相手も 200・索引対象・自己 canonical
  *    （DB 由来のお知らせ詳細のような動的ページもここで見る）
  * 3. 未公開の英語 — 移行前の日本語の URL に `/en` を付けたものは、公開した英語
- *    （完全一致の行と、用語のページのテンプレートに合うもの）を除き
+ *    （索引させるページ・用語のページのテンプレートに合うもの・索引させないページ
+ *    `EN_NOINDEX_PATHS`。最後のものは 10 で見る）を除き
  *    すべて hard 404 + `X-Robots-Tag: noindex` + meta robots noindex（index を併記しない）
  * 4. 言語の判定 — cookie（`NEXT_LOCALE`）・`Accept-Language`・bot の User-Agent・
  *    query のどの組み合わせでも、ステータス・Location・canonical・lang・robots・
@@ -42,6 +43,11 @@
  *    英語の LP のまま（英語の dashboard は未公開なので rewrite しない）
  * 9. SNS・構造化データ — bot の User-Agent で取得した head の title・description・
  *    og・twitter、og:image の実体（200・PNG・寸法）、JSON-LD
+ * 10. 英語の noindex — `EN_NOINDEX_PATHS` の全 URL をゲストで取得し、200 なら
+ *    `lang="en"`・noindex（meta robots か `X-Robots-Tag`）・hreflang 無し・canonical が
+ *    自分か無し、3xx なら Location が `/en/` 配下（日本語へ落ちていない）。結果の
+ *    ページは状態（searchParams・cookie）が無いので 200 か説明ページへの 3xx。
+ *    動的でもよい（静的生成は索引対象だけの要件）
  *
  * `--origin` は手元のサーバー（localhost / 127.0.0.1 / [::1]）に限る。
  * 本番や Preview に向けて走らせない（ログインの検査が dev-seed の資格情報を使う）。
@@ -324,6 +330,9 @@ const VARIANT_SAMPLE_PATHS = [
   "/reference/score-table",
   "/en/reference/score-table",
   "/en/practice",
+  "/en/practice/jantou-fu",
+  "/en/dojo",
+  "/en/dashboard",
   "/en",
   "/lessons",
   "/en/lessons",
@@ -438,12 +447,17 @@ async function auditRsc(context: Context): Promise<void> {
     "/en/lessons",
     "/en/lessons/jantou-fu",
     "/en/reference/glossary",
+    "/en/practice",
+    "/en/practice/jantou-fu",
+    "/en/getting-started",
+    "/en/lessons/about-this-app",
   ];
   const notFoundPaths = [
-    "/en/practice",
+    "/en/sign-in",
+    "/en/mypage",
+    "/en/leaderboard",
+    "/en/dashboard",
     "/en/admin",
-    "/en/lessons/about-this-app",
-    "/en/getting-started",
   ];
   let requests = 0;
   for (const [label, headers] of headerSets) {
@@ -595,6 +609,18 @@ const EDGE_CASES: readonly EdgeCase[] = [
     path: "/en/reference/glossary/audit-unknown-term",
     expect: "404 + noindex（ページの 404）",
     check: expectNoindexNotFound,
+  },
+  {
+    // 段級位の slug の形に合わない値は許可リストのテンプレートに当たらず、proxy が 404 にする
+    path: "/en/dojo/ranks/__audit_unknown__",
+    expect: "hard 404 + noindex",
+    check: expectHardNotFound,
+  },
+  {
+    // 形に合うが段級位に無い値は proxy を通り、ページが 404（か noindex）にする
+    path: "/en/dojo/ranks/audit-unknown-rank",
+    expect: "404 か noindex（ページの 404）",
+    check: expectNotIndexable,
   },
   { path: "/fr/practice", expect: "404", check: expectStatus(404) },
   { path: "/fr", expect: "404", check: expectStatus(404) },
@@ -955,10 +981,14 @@ const SOCIAL_SAMPLES: readonly { path: string; locale: string }[] = [
   { path: "/", locale: "ja" },
   { path: "/reference/score-table", locale: "ja" },
   { path: "/lessons/jantou-fu", locale: "ja" },
+  { path: "/practice/jantou-fu", locale: "ja" },
+  { path: "/getting-started", locale: "ja" },
   { path: "/en", locale: "en" },
   { path: "/en/reference/score-table", locale: "en" },
   { path: "/en/lessons/jantou-fu", locale: "en" },
   { path: "/en/reference/glossary/jantou", locale: "en" },
+  { path: "/en/practice/jantou-fu", locale: "en" },
+  { path: "/en/getting-started", locale: "en" },
 ];
 
 /** 英語の公開パス（`/en/...`）をロケール非依存のパスにする */
@@ -1054,6 +1084,68 @@ async function auditSocial(
   );
 }
 
+/**
+ * 英語の noindex の 1 応答の問題（無ければ空）
+ *
+ * 200 は英語の文書として noindex で出す（`lang="en"`・meta robots か
+ * `X-Robots-Tag` の noindex・hreflang 無し・canonical は自分か無し。親の
+ * robots / googlebot に index を残さない）。3xx は英語の中で閉じる（Location が
+ * `/en/` 配下。日本語のページへ落とさない）。結果のページは状態（searchParams・
+ * cookie）が無いと説明ページへ戻すことがあるので 3xx を認める。
+ *
+ * @param path - 監査するサーバーの英語のパス（`/en/...`）
+ * @param fetched - ゲストの応答
+ */
+function englishNoindexProblems(path: string, fetched: Fetched): string[] {
+  if (fetched.status >= 300 && fetched.status < 400) {
+    return fetched.location.startsWith("/en/") || fetched.location === "/en"
+      ? []
+      : [
+          `${fetched.status} → ${fetched.location || "(Location なし)"}（英語の外へ転送）`,
+        ];
+  }
+  if (fetched.status !== 200) return [`status ${fetched.status}`];
+  const head = headOf(fetched);
+  if (!head) return ["HTML でない"];
+  const problems: string[] = [];
+  if (head.lang !== "en") problems.push(`lang=${head.lang}`);
+  if (!headerNoindex(fetched) && !isNoindex(head.robots))
+    problems.push("noindex が無い（meta robots・X-Robots-Tag とも）");
+  if (hasExplicitIndex(head.robots) || hasExplicitIndex(head.googlebot))
+    problems.push("robots / googlebot に index が残る");
+  if (head.alternates.length > 0)
+    problems.push(
+      `hreflang がある（${head.alternates.map((alternate) => alternate.hreflang).join(" ")}）`,
+    );
+  const self = `${SITE_ORIGIN}${path}`;
+  if (
+    head.canonicals.length > 1 ||
+    (head.canonicals.length === 1 && head.canonicals[0] !== self)
+  ) {
+    problems.push(`canonical ${head.canonicals.join(" ")}（自分か無しを期待）`);
+  }
+  return problems;
+}
+
+/** 10. 英語の noindex */
+async function auditEnglishNoindex(context: Context): Promise<void> {
+  const failures: string[] = [];
+  let redirected = 0;
+  for (const path of EN_NOINDEX_PATHS) {
+    const enPath = `/en${path}`;
+    const fetched = await get(context, enPath);
+    if (fetched.status >= 300 && fetched.status < 400) redirected += 1;
+    for (const problem of englishNoindexProblems(enPath, fetched)) {
+      failures.push(`${enPath}: ${problem}`);
+    }
+  }
+  context.report.check(
+    "英語の noindex（ゲスト）",
+    `${EN_NOINDEX_PATHS.length} URL（うち 3xx ${redirected} 件）`,
+    failures,
+  );
+}
+
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const origin = readArg(argv, "origin");
@@ -1092,6 +1184,7 @@ async function main(): Promise<void> {
   await auditEdgeCases(context);
   await auditJapaneseNoindex(context);
   await auditAuth(context);
+  await auditEnglishNoindex(context);
   await auditSocial(
     context,
     new Set(

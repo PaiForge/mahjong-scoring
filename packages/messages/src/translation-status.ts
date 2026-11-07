@@ -79,8 +79,11 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  * `errorPage` より後の 27 名前空間を足した。翻訳を名前空間のファイル単位で並列に
  * 進めるため、先に日本語の写しを置いてここへ移し、各名前空間の訳が終わったことは
  * `en.test.ts` の「日本語の文字を残さない」（名前空間ごと）が緑になることで確かめる。
- * `gettingStarted`（英語 LP のヒーロー CTA は公開まで `/lessons` を指す）と
- * `lessons`（英語の章では確認問題を出さない）はフェーズ 3 で訳すので未着手のまま。
+ *
+ * 練習・昇級試験・道場・体験・はじめ方・はじめに（ゲストが登録なしで回せる学習の輪）を
+ * 英語で出すときに `practice` より後の 29 名前空間を同じ手順で足した。`lessons`
+ * （確認問題の部品。`/try/mentsu-fu` が読む）と `settings`（和了形・聴牌形の設定
+ * フォームが読む）もここで訳す。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -238,7 +241,8 @@ export const EN_NOT_FOUND_NAMESPACES = [
  * 見出し（`learnCurriculum`）、本文の用語のモーダル（`glossary`）、著者の表記
  * （`company`）、広告の札（`nativeAd`）と、本文から開く点数表のモーダル
  * （`scoreTable`）。`lessons`（確認問題・完了・次のレッスン・段級位の目標）は
- * 英語の章では出さないので含めない（フェーズ 3 で訳す）。
+ * 完訳だが、章の確認問題・完了はログインが要り英語ではまだ出ないので含めない
+ * （ログインの画面を英語で出すときに章の依存へ足す）。
  */
 const EN_LESSON_CHAPTER_NAMESPACES = [
   ...EN_SHELL_NAMESPACES,
@@ -247,6 +251,199 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
   "company",
   "nativeAd",
   "scoreTable",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
+ * 英語で公開するチャレンジ型の練習（昇級試験を含む）の説明ページと、その名前空間
+ * 英語の練習一覧
+ *
+ * messages は練習のレジストリ（features）に依存しない（依存の向きは features →
+ * messages）ので写して持つ。写し元は features `practice-menu-types.ts` の
+ * `PRACTICE_MENU_REGISTRY`（`practiceHref(slug)` と `namespace`。並びも同じ）。web の
+ * 許可リスト（`i18n/translated-publications.ts`）とこの表から作るルートのキーの一致は
+ * アプリ側の `publication-gate.test.ts` が検査する。`exam` は昇級試験（`basePath` が
+ * `/exam/<級>`）。
+ */
+const EN_PRACTICE_MENUS = [
+  { path: "/practice/jantou-fu", namespace: "jantouFu", exam: false },
+  { path: "/practice/machi-fu", namespace: "machiFu", exam: false },
+  { path: "/practice/mentsu-fu", namespace: "mentsuFu", exam: false },
+  {
+    path: "/practice/mentsu-jantou-fu",
+    namespace: "mentsuJantouFu",
+    exam: false,
+  },
+  { path: "/practice/total-fu", namespace: "totalFu", exam: false },
+  { path: "/practice/yaku", namespace: "yaku", exam: false },
+  {
+    path: "/practice/score-table",
+    namespace: "scoreTableChallenge",
+    exam: false,
+  },
+  {
+    path: "/practice/score-calculation",
+    namespace: "scoreCalculationChallenge",
+    exam: false,
+  },
+  { path: "/practice/han-count", namespace: "hanCountChallenge", exam: false },
+  { path: "/practice/yaku-han", namespace: "yakuHanChallenge", exam: false },
+  {
+    path: "/practice/mangan-score-calculation",
+    namespace: "manganScoreCalculationChallenge",
+    exam: false,
+  },
+  { path: "/exam/mangan", namespace: "manganExamChallenge", exam: true },
+  { path: "/exam/fu", namespace: "fuExamChallenge", exam: true },
+  {
+    path: "/exam/chiitoitsu",
+    namespace: "chiitoitsuExamChallenge",
+    exam: true,
+  },
+  { path: "/exam/pinfu", namespace: "pinfuExamChallenge", exam: true },
+  { path: "/exam/fu-score", namespace: "fuScoreExamChallenge", exam: true },
+  { path: "/exam/score", namespace: "scoreExamChallenge", exam: true },
+] as const satisfies readonly {
+  readonly path: string;
+  readonly namespace: EnTranslatedNamespace;
+  readonly exam: boolean;
+}[];
+
+/**
+ * 全練習の名前空間（練習一覧・道場・体験のカードが variant のラベルで読む）
+ * 英語の全練習名前空間
+ */
+const EN_ALL_PRACTICE_NAMESPACES: readonly EnTranslatedNamespace[] =
+  EN_PRACTICE_MENUS.map((menu) => menu.namespace);
+
+/**
+ * 練習・昇級試験の説明ページが読む名前空間（練習の名前空間を除く）
+ * 英語の練習説明名前空間
+ *
+ * `PracticeIntroContent` が常に読む `challenge`・`practice`・`training`・`dojo`・
+ * `ranks`、関連レッスン（`learnCurriculum`）、広告（`nativeAd`）。昇級試験は模試の
+ * 案内（`examTraining`）も読む（{@link practiceMenuRoutes}）。
+ */
+const EN_PRACTICE_INTRO_NAMESPACES = [
+  ...EN_SHELL_NAMESPACES,
+  "challenge",
+  "practice",
+  "training",
+  "dojo",
+  "ranks",
+  "learnCurriculum",
+  "nativeAd",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
+ * 練習・昇級試験の play が読む名前空間（練習の名前空間を除く）
+ * 英語の練習 play 名前空間
+ *
+ * チャレンジの殻・時計・判定（`challenge`・`practice`）、答え合わせの点数表の
+ * 参照（`scoreTable`）、回数制限と課金の案内（`practiceQuota`）、役名（`agariScore`
+ * の `yaku`）。
+ */
+const EN_PRACTICE_PLAY_NAMESPACES = [
+  ...EN_SHELL_NAMESPACES,
+  "challenge",
+  "practice",
+  "scoreTable",
+  "practiceQuota",
+  "agariScore",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
+ * 練習・昇級試験の training（模試）が読む名前空間（練習の名前空間を除く）
+ * 英語の練習 training 名前空間
+ *
+ * play に加えて、`createTrainingView` が読む `training`・`examTraining`。
+ */
+const EN_PRACTICE_TRAINING_NAMESPACES = [
+  ...EN_PRACTICE_PLAY_NAMESPACES,
+  "training",
+  "examTraining",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
+ * 練習・昇級試験の result が読む名前空間（練習の名前空間を除く）
+ * 英語の練習 result 名前空間
+ *
+ * 結果の見出しと記録（`challenge`・`practice`）、獲得 EXP（`exp`）、昇級の案内
+ * （`ranks`）、答え合わせ（`scoreTable`・`agariScore`）、広告。昇級試験は合否
+ * （`examResult`）も読む。ランキングのプレビュー（`leaderboard`）は英語では出さない。
+ */
+const EN_PRACTICE_RESULT_NAMESPACES = [
+  ...EN_SHELL_NAMESPACES,
+  "challenge",
+  "practice",
+  "exp",
+  "ranks",
+  "scoreTable",
+  "agariScore",
+  "nativeAd",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
+ * 練習・昇級試験の説明・play・training・result のルートと名前空間
+ * 英語の練習ルート依存名前空間
+ *
+ * 各ルートは共通の束（{@link EN_PRACTICE_INTRO_NAMESPACES} 等）に、レジストリの
+ * `namespace`（練習ごとの文言）を足す。昇級試験は説明・play に模試の案内
+ * （`examTraining`。training は束に含む）、result に合否（`examResult`）を足す。
+ */
+function practiceMenuRoutes(): Readonly<
+  Record<string, readonly EnTranslatedNamespace[]>
+> {
+  const routes: Record<string, readonly EnTranslatedNamespace[]> = {};
+  for (const { path, namespace, exam } of EN_PRACTICE_MENUS) {
+    const examTraining: readonly EnTranslatedNamespace[] = exam
+      ? ["examTraining"]
+      : [];
+    const examResult: readonly EnTranslatedNamespace[] = exam
+      ? ["examResult"]
+      : [];
+    routes[path] = [
+      ...EN_PRACTICE_INTRO_NAMESPACES,
+      namespace,
+      ...examTraining,
+    ];
+    routes[`${path}/play`] = [
+      ...EN_PRACTICE_PLAY_NAMESPACES,
+      namespace,
+      ...examTraining,
+    ];
+    routes[`${path}/training`] = [
+      ...EN_PRACTICE_TRAINING_NAMESPACES,
+      namespace,
+    ];
+    routes[`${path}/result`] = [
+      ...EN_PRACTICE_RESULT_NAMESPACES,
+      namespace,
+      ...examResult,
+    ];
+  }
+  return routes;
+}
+
+/**
+ * 和了形・聴牌形の点数計算（終わりの無い練習）の設定と play が読む名前空間
+ * 英語の無限訓練名前空間
+ *
+ * 設定フォーム（`settings`・`agariScore`）、盤面と答え合わせ（`agariScore`・
+ * `scoreTable`・`challenge`）、役の早見表のモーダル（`reference`）、残り回数と
+ * 課金の案内（`practiceQuota`・`training`）、`practice`。聴牌形は自分の文言
+ * （`tenpaiScore`）を足し、設定フォームは和了形のものを共有する。設定ページは
+ * 広告（`nativeAd`）も読む。
+ */
+const EN_ENDLESS_PRACTICE_NAMESPACES = [
+  ...EN_SHELL_NAMESPACES,
+  "agariScore",
+  "practice",
+  "challenge",
+  "scoreTable",
+  "reference",
+  "settings",
+  "training",
+  "practiceQuota",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
@@ -261,11 +458,18 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
  * 完訳であることを検査する）。
  *
  * 各ルートの名前空間は、page と、そこから import で届く `_components`・features の
- * `use-*.ts` が `getTranslations` / `useTranslations` で引く名前空間をソースから
- * 列挙した。レジストリが持つ名前空間の宣言（練習のレジストリの `namespace:` 等）は
- * 描画で読むものではないので数えない。英語で出さない部品（章の確認問題・完了・
- * 練習カード・昇級試験の案内）だけが読む名前空間（`lessons`・`practice`・
- * `challenge`）は含めない。
+ * `use-*.ts` が `getTranslations` / `useTranslations` で引く名前空間と、Server Action が
+ * 描く JSX の名前空間をソースから列挙した。練習の説明・play・training・result の
+ * 共通の部品（`PracticeIntroContent`・`createPracticeResultPage`・`createTrainingView`
+ * 等）はレジストリの `namespace` で `getTranslations` / `useTranslations` を呼ぶので、
+ * 練習ごとの名前空間はレジストリの `namespace` から数える（{@link EN_PRACTICE_MENUS}）。
+ * 練習一覧・道場・体験のカードは variant のラベルで全練習の名前空間を読む
+ * （{@link EN_ALL_PRACTICE_NAMESPACES}）。束は、そのルートの部品がどれかの状態
+ * （未ログイン・回数切れ・答え合わせ等）で読む名前空間の和で、常に全部を描くとは限らない。
+ * 英語で出さない部品だけが読む名前空間は含めない — 章の確認問題・完了（`lessons`。
+ * `/try/mentsu-fu` は確認問題の部品を借りるので読む）、ランキングのプレビュー
+ * （`leaderboard`。英語ではランキングを提供せず、`/leaderboard` が未公開の間は
+ * プレビューも出さない）。
  *
  * - `/` — LP の各節（`landing`）、運営者の表記（`company`）、目次（`learnCurriculum`）
  * - `/lessons` — 目次と進捗（`learnCurriculum`）、段級位での絞り込み（`ranks`）、広告（`nativeAd`）
@@ -280,6 +484,23 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
  * - `/reference/glossary/[slug]` — 用語の本文（`glossary`）、パンくず（`reference`）、
  *   その語を扱うレッスン（`learnCurriculum`）、広告
  * - `/reference/score-table` — 表（`scoreTable`）とほかの早見表（`reference`）
+ * - `/reference/demo` — 点数計算のデモ（`reference`）と、借りている点数計算の
+ *   盤面・答え合わせの部品（`agariScore`・`challenge`・`scoreTable`・`practice`・
+ *   `ranks`・`practiceQuota`・`scoreCalculationChallenge`・`manganScoreCalculationChallenge`）
+ * - `/practice` — 一覧・絞り込み・カード（`practice`・`ranks`・`dojo`・全練習の名前空間）、
+ *   関連レッスン（`learnCurriculum`）、残り回数（`practiceQuota`）、広告
+ * - 練習・昇級試験の説明・play・training・result — {@link practiceMenuRoutes}
+ * - `/practice/agari-score`・`/practice/tenpai-score` と `/play` —
+ *   {@link EN_ENDLESS_PRACTICE_NAMESPACES}
+ * - `/dojo` — 段級位と行程（`dojo`・`ranks`・`learnCurriculum`・`practice`・全練習の名前空間）
+ * - `/dojo/ranks/[slug]` — 級の詳細（`dojo`・`ranks`）、前提のレッスン（`learnCurriculum`）、
+ *   試験の案内（`ranks`）、広告
+ * - `/try/agari-score`・`/try/mentsu-fu` — 体験の本文（`tryDemo`・`tryMentsuFu`）と、借りている
+ *   練習の部品（`/try/mentsu-fu` は確認問題の部品 `lessons` と面子の符の `mentsuFu`）
+ * - `/getting-started` — はじめ方（`gettingStarted`）
+ * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
+ *   練習・チャレンジの見本（`practice`・`challenge`・`tenpaiScore`・`agariScore`・
+ *   `manganScoreCalculationChallenge`・`jantouFu`）
  *
  * ルートを足すときはその page・`_components`・使う features の `use-*.ts` が引く
  * 名前空間をソースから列挙して足し、先にそれらを完訳にする。
@@ -287,6 +508,16 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
 export const EN_ROUTE_NAMESPACES = {
   "/": [...EN_SHELL_NAMESPACES, "landing", "company", "learnCurriculum"],
   "/lessons": [...EN_SHELL_NAMESPACES, "learnCurriculum", "ranks", "nativeAd"],
+  "/lessons/about-this-app": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "aboutThisApp",
+    "practice",
+    "challenge",
+    "tenpaiScore",
+    "agariScore",
+    "manganScoreCalculationChallenge",
+    "jantouFu",
+  ],
   "/lessons/why-scoring-is-hard-to-learn": [
     ...EN_LESSON_CHAPTER_NAMESPACES,
     "whyScoringIsHardToLearn",
@@ -355,4 +586,77 @@ export const EN_ROUTE_NAMESPACES = {
     "nativeAd",
   ],
   "/reference/score-table": [...EN_SHELL_NAMESPACES, "scoreTable", "reference"],
+  "/reference/demo": [
+    ...EN_SHELL_NAMESPACES,
+    "reference",
+    "agariScore",
+    "scoreTable",
+    "challenge",
+    "practice",
+    "ranks",
+    "practiceQuota",
+    "scoreCalculationChallenge",
+    "manganScoreCalculationChallenge",
+  ],
+  "/practice": [
+    ...EN_SHELL_NAMESPACES,
+    "practice",
+    "ranks",
+    "dojo",
+    "learnCurriculum",
+    "practiceQuota",
+    "nativeAd",
+    ...EN_ALL_PRACTICE_NAMESPACES,
+  ],
+  ...practiceMenuRoutes(),
+  "/practice/agari-score": [...EN_ENDLESS_PRACTICE_NAMESPACES, "nativeAd"],
+  "/practice/agari-score/play": EN_ENDLESS_PRACTICE_NAMESPACES,
+  "/practice/tenpai-score": [
+    ...EN_ENDLESS_PRACTICE_NAMESPACES,
+    "tenpaiScore",
+    "nativeAd",
+  ],
+  "/practice/tenpai-score/play": [
+    ...EN_ENDLESS_PRACTICE_NAMESPACES,
+    "tenpaiScore",
+  ],
+  "/getting-started": [...EN_SHELL_NAMESPACES, "gettingStarted"],
+  "/try/agari-score": [
+    ...EN_SHELL_NAMESPACES,
+    "tryDemo",
+    "agariScore",
+    "training",
+    "scoreTable",
+    "challenge",
+    "reference",
+    "practice",
+    "ranks",
+    "practiceQuota",
+    "scoreCalculationChallenge",
+    "manganScoreCalculationChallenge",
+  ],
+  "/try/mentsu-fu": [
+    ...EN_SHELL_NAMESPACES,
+    "tryMentsuFu",
+    "lessons",
+    "scoreTable",
+    "practice",
+    "ranks",
+    "mentsuFu",
+  ],
+  "/dojo": [
+    ...EN_SHELL_NAMESPACES,
+    "dojo",
+    "ranks",
+    "learnCurriculum",
+    "practice",
+    ...EN_ALL_PRACTICE_NAMESPACES,
+  ],
+  "/dojo/ranks/[slug]": [
+    ...EN_SHELL_NAMESPACES,
+    "dojo",
+    "ranks",
+    "learnCurriculum",
+    "nativeAd",
+  ],
 } as const satisfies Readonly<Record<string, readonly EnTranslatedNamespace[]>>;

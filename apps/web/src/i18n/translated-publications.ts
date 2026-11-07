@@ -58,16 +58,20 @@ interface TranslatedPublicationTable {
 /**
  * 英語で公開するレッスンの章（`/lessons/<slug>`）
  *
- * 目次に載る 20 章のうち `about-this-app`（はじめに）を除く 19 章。はじめには
- * アプリの使い方（練習・チャレンジ・道場の画面の紹介）の章で、紹介する画面が
- * どれも英語で未公開のため、それらを訳すフェーズ 3 で一緒に訳す。それまで
- * 英語の目次では「日本語のみ」の印付きで日本語の章へリンクする。
+ * 目次に載る 20 章すべて。はじめに（`about-this-app`）はアプリの使い方
+ * （練習・チャレンジ・道場の画面の紹介）の章で、紹介する画面が英語で未公開の
+ * 間は外していた。練習・昇級試験・道場を英語で出すのと一緒に公開した
+ * （本文から練習へのリンクは英語の練習を指す）。
+ *
+ * 章の確認問題・完了は英語では出ない（ログインが要り、ログインの画面が英語で
+ * 未公開のため）。`/sign-in` を英語で公開すると章ごとに現れる。
  *
  * クライアントからも読む表なので、カリキュラムのレジストリを import せず
  * 文字列で持つ。レジストリとの食い違い（章の改名・追加）は
  * `translated-publications.test.ts` が落とす。
  */
 const EN_LESSON_PATHS = [
+  "/lessons/about-this-app",
   "/lessons/why-scoring-is-hard-to-learn",
   "/lessons/why-scoring-is-complex",
   "/lessons/mangan-ko-ron",
@@ -90,19 +94,94 @@ const EN_LESSON_PATHS = [
 ] as const;
 
 /**
+ * 英語で公開するチャレンジ型の練習（昇級試験を含む）の説明ページ
+ *
+ * 練習のレジストリ（`PRACTICE_MENU_REGISTRY`）の 17 件の `practiceHref(slug)` と
+ * 同じ並び。練習 11 種は `/practice/<slug>`、昇級試験 6 種はレジストリの
+ * `basePath`（`/exam/<級>`）。この表はクライアントからも読むので、レジストリを
+ * import せず文字列で持つ（レジストリは練習の生成・判定まで引き込む）。
+ * レジストリとの食い違い（練習の追加・改名・`basePath` の変更）は
+ * `translated-publications.test.ts` が落とす。
+ *
+ * 説明ページは索引させ、配下の play / training / result は索引させない
+ * （{@link PRACTICE_SUBPAGES}）。日本語と同じ分類。
+ */
+const EN_PRACTICE_MENU_PATHS = [
+  "/practice/jantou-fu",
+  "/practice/machi-fu",
+  "/practice/mentsu-fu",
+  "/practice/mentsu-jantou-fu",
+  "/practice/total-fu",
+  "/practice/yaku",
+  "/practice/score-table",
+  "/practice/score-calculation",
+  "/practice/han-count",
+  "/practice/yaku-han",
+  "/practice/mangan-score-calculation",
+  "/exam/mangan",
+  "/exam/fu",
+  "/exam/chiitoitsu",
+  "/exam/pinfu",
+  "/exam/fu-score",
+  "/exam/score",
+] as const;
+
+/** チャレンジ型の練習の、説明ページ配下の画面（どれも閲覧者ごとの内容で noindex） */
+const PRACTICE_SUBPAGES = ["play", "training", "result"] as const;
+
+/**
+ * 英語で公開する、終わりの無い練習（和了形・聴牌形の点数計算）の設定ページ
+ *
+ * 設定ページは索引させ、`/play` は索引させない（日本語と同じ分類）。
+ */
+const EN_ENDLESS_PRACTICE_PATHS = [
+  "/practice/agari-score",
+  "/practice/tenpai-score",
+] as const;
+
+/**
  * 言語ごとの公開ページ（許可リスト）
  *
  * ここに無いパスはその言語では `unpublished`。英語のページを公開するときは、
  * そのページの英語の本文・metadata が揃っていることを確かめてから足す
  * （依存する名前空間が完訳であることは `publication-gate.test.ts` が検査する）。
  *
- * 英語で公開するのは次の公開単位（どれも `published-indexable`）:
+ * 英語で公開するのは次の公開単位。
+ *
+ * `published-indexable`（静的生成・sitemap・hreflang の対象）:
  *
  * - トップ（LP）`/`
- * - レッスンの目次 `/lessons` と 19 章（{@link EN_LESSON_PATHS}）
+ * - レッスンの目次 `/lessons` と 20 章（{@link EN_LESSON_PATHS}。はじめにを含む）
  * - 早見表のハブ `/reference`・役一覧 `/reference/yaku`・用語集の一覧
  *   `/reference/glossary`・点数表 `/reference/score-table`
  * - 用語のページ `/reference/glossary/[slug]`（テンプレート）
+ * - 練習の一覧 `/practice`、練習 11 種と昇級試験 6 種の説明ページ
+ *   （{@link EN_PRACTICE_MENU_PATHS}）、和了形・聴牌形の設定ページ
+ *   （{@link EN_ENDLESS_PRACTICE_PATHS}）
+ * - はじめ方 `/getting-started`、体験 `/try/agari-score`・`/try/mentsu-fu`、
+ *   点数計算のデモ `/reference/demo`
+ *
+ * `published-noindex`（出すが sitemap・hreflang に載せない）:
+ *
+ * - 練習・昇級試験の play / training / result（{@link PRACTICE_SUBPAGES}）と、
+ *   和了形・聴牌形の `/play`
+ * - 道場 `/dojo` と段級位の詳細 `/dojo/ranks/[slug]`（テンプレート）
+ *
+ * @design 索引させるのは「日本語で索引対象かつ静的」なページだけ
+ * 英語の索引対象は、クローラーが見る初期 HTML を静的生成で返すのが規約。道場の
+ * 2 ページは日本語では索引対象だが、cookie を読み閲覧者の段級位・完了で中身が
+ * 変わる動的ページで、この規約に合わない。`/lessons` のように公共部分だけを
+ * 静的にして本人の状態をクライアントで後付けする案は、道場の中身の大半が閲覧者に
+ * 依るため見合わない。そこで道場は英語では noindex で出し、英語の検索の受け皿は
+ * 練習の説明ページが担う。play / training / result は日本語でも noindex で、
+ * 閲覧者ごとの内容（多くは動的）なので英語も noindex（静的である必要は無い）。
+ *
+ * @design 登録・ログイン・ダッシュボード・マイページ・ランキング・料金は英語で出さない
+ * 練習と試験はゲストが登録なしで回せる学習の輪で、ここまでを英語にした。会員の
+ * 画面（認証・ダッシュボード・マイページ・設定）は次の段で訳す。ランキングと
+ * 公開プロフィールは他の利用者の自由入力を見せる画面で、英語では提供しない。
+ * 英語のページから未公開の画面への導線は「日本語のみ」の印付きで日本語の
+ * ページへ送る（`(user)/_components/_lib/locale-nav-target.ts`）。
  *
  * @design 用語のページはテンプレートで持つ
  * 用語 64 件を 1 行ずつ並べると、用語を足したときに許可リストが黙って腐る。
@@ -123,6 +202,10 @@ const EN_LESSON_PATHS = [
  * レジストリで弾くのは内部の `/ja` への rewrite と重なると 500 になるためで、
  * 英語の URL は rewrite しないので同じ問題は起きない（HTTP 監査の
  * `scripts/seo-audit/http.ts` が実応答の 404 を確かめる）。
+ *
+ * 段級位の詳細 `/dojo/ranks/[slug]` も同じ理由でテンプレートで持つ（段級位の
+ * レジストリはクライアントに載せない。展開は `route-policy.ts` が `RANK_SLUGS` で
+ * 行う）。形に合わない slug は proxy の 404、形に合うが無い段級位はページの 404。
  */
 const TRANSLATED_PUBLICATIONS: Readonly<
   Record<TranslatedLocale, TranslatedPublicationTable>
@@ -136,12 +219,37 @@ const TRANSLATED_PUBLICATIONS: Readonly<
       ["/reference/yaku", "published-indexable"],
       ["/reference/glossary", "published-indexable"],
       ["/reference/score-table", "published-indexable"],
+      ["/practice", "published-indexable"],
+      ...EN_PRACTICE_MENU_PATHS.map(
+        (path) => [path, "published-indexable"] as const,
+      ),
+      ...EN_ENDLESS_PRACTICE_PATHS.map(
+        (path) => [path, "published-indexable"] as const,
+      ),
+      ["/getting-started", "published-indexable"],
+      ["/try/agari-score", "published-indexable"],
+      ["/try/mentsu-fu", "published-indexable"],
+      ["/reference/demo", "published-indexable"],
+      ...EN_PRACTICE_MENU_PATHS.flatMap((path) =>
+        PRACTICE_SUBPAGES.map(
+          (subpage) => [`${path}/${subpage}`, "published-noindex"] as const,
+        ),
+      ),
+      ...EN_ENDLESS_PRACTICE_PATHS.map(
+        (path) => [`${path}/play`, "published-noindex"] as const,
+      ),
+      ["/dojo", "published-noindex"],
     ]),
     templates: [
       {
         template: "/reference/glossary/[slug]",
         pattern: /^\/reference\/glossary\/[a-z][a-z0-9-]*$/,
         publication: "published-indexable",
+      },
+      {
+        template: "/dojo/ranks/[slug]",
+        pattern: /^\/dojo\/ranks\/[a-z][a-z0-9-]*$/,
+        publication: "published-noindex",
       },
     ],
   },

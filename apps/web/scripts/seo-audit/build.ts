@@ -29,10 +29,15 @@
  *    許可したパスは移行前に動的で、いまは動的でない。
  *    `generateStaticParams` が日本語で 0 件のルートは失敗（静的な URL が丸ごと消える）
  * 3. 英語の成果物 — 英語は公開したページだけが 200 で、他は not-found の成果物。
- *    用語のページ（テンプレート）は baseline の日本語の索引対象のうち
- *    テンプレートに合うものを期待する（`expectedEnIndexablePaths`）
+ *    200 の静的な HTML を期待するのは、索引させるページ全部と、索引させない
+ *    ページのうち日本語で静的なもの（baseline の静的生成の台帳で判定する）。
+ *    索引させないページは動的でよく（結果・試験の play / result・道場は日本語でも
+ *    動的）、静的 / 動的が日本語と食い違ったら失敗。静的な noindex の英語は
+ *    meta robots が noindex。用語のページ（テンプレート）は baseline の日本語の
+ *    索引対象のうちテンプレートに合うものを期待する（`expectedEnIndexablePaths`）
  * 4. canonical の台帳 — 移行前の HTML ごとの canonical の文字列と robots が同じ。
- *    canonical は 1 本だけ。公開 URL に内部の `/ja` が出ない
+ *    canonical は 1 本だけ。公開 URL に内部の `/ja` が出ない。英語の索引対象は
+ *    自己 canonical、英語の noindex は自己 canonical か canonical 無し
  * 5. hreflang — HTML の alternate が期待値（`expectations.ts` の規則）と一致し、
  *    相手が 200・索引対象・自己 canonical で、相手からも同じ集合が返る
  * 6. 初期 HTML の本文 — 静的な索引対象のページは、JS を実行しない HTML の見える
@@ -356,21 +361,67 @@ function auditDynamicLedger(
   );
 }
 
-/** 3. 英語の成果物 */
+/**
+ * 移行前に日本語で静的生成されていたページ（ロケール非依存のパス）
+ *
+ * baseline の静的生成の台帳（移行前の `prerender-manifest.json`。移行前は接頭辞が
+ * 無いのでキーがそのまま公開パス）。いまの成果物ではなく移行前の台帳で見るのは、
+ * 日本語の静的 / 動的が移行で変わらないことを前提に、英語の期待値を日本語の
+ * 移行前の分類から独立に決めるため（いまの成果物で決めると、日本語ごと動的に
+ * 崩れたときに英語の期待値も一緒に動いて見逃す）。
+ */
+function japaneseStaticAtBaseline(baseline: Baseline): ReadonlySet<string> {
+  return new Set(
+    baseline.build.prerendered
+      .filter(
+        (route) =>
+          route.routeType === "page" &&
+          route.status !== 404 &&
+          !route.key.startsWith("/_"),
+      )
+      .map((route) => route.key),
+  );
+}
+
+/** ロケール非依存のパスを英語の公開パスにする */
+function englishPublicPath(path: string): string {
+  return `/en${path === "/" ? "" : path}`;
+}
+
+/**
+ * 3. 英語の成果物
+ *
+ * 英語の noindex は動的でよい（閲覧者ごとの内容で、日本語でも動的なものが多い。
+ * 静的生成が要るのはクローラーが初期 HTML を読む索引対象だけ）。noindex の
+ * 静的 / 動的は日本語の移行前の分類と同じであることを求める。
+ */
 function auditEnglishArtifacts(
   report: Report,
+  baseline: Baseline,
   current: BuildArtifacts,
   pages: readonly StaticPage[],
   jaIndexable: ReadonlySet<string>,
 ): void {
-  const expected = new Set(
-    [...expectedEnIndexablePaths(jaIndexable), ...EN_NOINDEX_PATHS].map(
-      (path) => `/en${path === "/" ? "" : path}`,
+  const jaStatic = japaneseStaticAtBaseline(baseline);
+  const staticNoindex = EN_NOINDEX_PATHS.filter((path) => jaStatic.has(path));
+  const dynamicNoindex = new Set(
+    EN_NOINDEX_PATHS.filter((path) => !jaStatic.has(path)).map(
+      englishPublicPath,
     ),
   );
-  const ok = new Set(
-    pages.filter((page) => page.locale === "en").map((page) => page.publicPath),
+  const expected = new Set(
+    [...expectedEnIndexablePaths(jaIndexable), ...staticNoindex].map(
+      englishPublicPath,
+    ),
   );
+  const englishPages = pages.filter((page) => page.locale === "en");
+  const ok = new Set(englishPages.map((page) => page.publicPath));
+  const notNoindexPages = englishPages
+    .filter(
+      (page) =>
+        EN_NOINDEX_PATHS.includes(page.path) && !isNoindex(page.head.robots),
+    )
+    .map((page) => page.publicPath);
   const notFound = current.prerendered.filter(
     (route) =>
       route.routeType === "page" &&
@@ -393,13 +444,19 @@ function auditEnglishArtifacts(
   }
   report.check(
     "英語の成果物",
-    `200 の静的ページ ${ok.size} 件（期待 ${expected.size} 件）、not-found の成果物 ${notFound.length} 件`,
+    `200 の静的ページ ${ok.size} 件（期待 ${expected.size} 件。索引対象 ${expected.size - staticNoindex.length}・日本語で静的な noindex ${staticNoindex.length}）、動的な noindex ${dynamicNoindex.size} 件（成果物に無くてよい。判定は baseline の静的生成の台帳）、not-found の成果物 ${notFound.length} 件`,
     [
       ...difference(expected, ok).map(
         (path) => `公開したのに 200 の静的な HTML が無い: ${path}`,
       ),
-      ...difference(ok, expected).map(
-        (path) => `未公開なのに 200 で静的生成: ${path}`,
+      ...difference(ok, expected).map((path) =>
+        dynamicNoindex.has(path)
+          ? `日本語で動的な noindex が英語だけ 200 で静的生成: ${path}`
+          : `未公開なのに 200 で静的生成: ${path}`,
+      ),
+      ...notNoindexPages.map(
+        (path) =>
+          `英語の noindex のページに meta robots noindex が無い: ${path}`,
       ),
       ...notNoindex.map((key) => `not-found の成果物に noindex が無い: ${key}`),
     ],
@@ -468,15 +525,21 @@ function auditCanonicalLedger(
           `${pageLabel(page)}: 内部の /${DEFAULT_LOCALE} が出ている ${url}`,
       ),
   );
+  // 英語の索引対象は自己 canonical。noindex は日本語と同じく canonical を
+  // 持たなくてよい（持つなら自分）
   const enCanonical = pages
     .filter((page) => page.locale !== DEFAULT_LOCALE)
     .flatMap((page) => {
       const expected = expectedUrl(page.path, page.locale);
-      return page.head.canonicals.length === 1 &&
-        page.head.canonicals[0] === expected
+      const selfCanonical =
+        page.head.canonicals.length === 1 &&
+        page.head.canonicals[0] === expected;
+      const allowNone =
+        !isEnIndexable(page.path) && page.head.canonicals.length === 0;
+      return selfCanonical || allowNone
         ? []
         : [
-            `${pageLabel(page)}: canonical ${page.head.canonicals.join(" ") || "(なし)"}（期待 ${expected}）`,
+            `${pageLabel(page)}: canonical ${page.head.canonicals.join(" ") || "(なし)"}（期待 ${expected}${isEnIndexable(page.path) ? "" : " か無し"}）`,
           ];
     });
   report.check(
@@ -869,7 +932,7 @@ function main(): void {
 
   auditStaticLedger(report, baseline, current);
   auditDynamicLedger(report, baseline, current);
-  auditEnglishArtifacts(report, current, pages, jaIndexable);
+  auditEnglishArtifacts(report, baseline, current, pages, jaIndexable);
   auditCanonicalLedger(report, baseline, serverAppDir, pages);
   auditHreflang(report, pages, jaIndexable);
   auditInitialBody(report, pages, jaIndexable);

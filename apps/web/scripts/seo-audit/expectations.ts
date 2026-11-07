@@ -36,13 +36,16 @@ export const SITE_ORIGIN = PRODUCTION_SITE_URL;
  * 英語で出して索引させるページ（ロケール非依存のパス。完全一致の行）
  *
  * `route-policy.ts` の英語の許可リストのうち `published-indexable` の完全一致の行。
- * トップ・レッスンの目次と 19 章（はじめに `about-this-app` を除く）・早見表の
- * ハブ・役一覧・用語集の一覧・点数表。用語のページはテンプレート
+ * トップ・レッスンの目次と 20 章・早見表のハブ・役一覧・用語集の一覧・点数表と、
+ * 練習・昇級試験・はじめ方・体験の 25 ページ（練習の一覧、練習 11 種と昇級試験
+ * 6 種の説明、和了形・聴牌形の設定、はじめ方、体験 2 つ、点数計算のデモ）。
+ * どれも日本語で索引対象かつ静的生成のページ。用語のページはテンプレート
  * （{@link EN_INDEXABLE_TEMPLATES}）で持つ。
  */
 export const EN_INDEXABLE_PATHS: readonly string[] = [
   "/",
   "/lessons",
+  "/lessons/about-this-app",
   "/lessons/why-scoring-is-hard-to-learn",
   "/lessons/why-scoring-is-complex",
   "/lessons/mangan-ko-ron",
@@ -66,6 +69,30 @@ export const EN_INDEXABLE_PATHS: readonly string[] = [
   "/reference/yaku",
   "/reference/glossary",
   "/reference/score-table",
+  "/practice",
+  "/practice/jantou-fu",
+  "/practice/machi-fu",
+  "/practice/mentsu-fu",
+  "/practice/mentsu-jantou-fu",
+  "/practice/total-fu",
+  "/practice/yaku",
+  "/practice/score-table",
+  "/practice/score-calculation",
+  "/practice/han-count",
+  "/practice/yaku-han",
+  "/practice/mangan-score-calculation",
+  "/practice/agari-score",
+  "/practice/tenpai-score",
+  "/exam/mangan",
+  "/exam/fu",
+  "/exam/chiitoitsu",
+  "/exam/pinfu",
+  "/exam/fu-score",
+  "/exam/score",
+  "/getting-started",
+  "/try/agari-score",
+  "/try/mentsu-fu",
+  "/reference/demo",
 ];
 
 /**
@@ -118,8 +145,58 @@ export function expectedEnIndexablePaths(
   return [...EN_INDEXABLE_PATHS, ...new Set(templated)];
 }
 
-/** 英語で出しているが索引させないページ（いまは無い） */
-export const EN_NOINDEX_PATHS: readonly string[] = [];
+/** チャレンジ型の練習（昇級試験を含む）の説明ページ（`EN_INDEXABLE_PATHS` の部分集合） */
+const EN_CHALLENGE_PRACTICE_PATHS: readonly string[] = [
+  "/practice/jantou-fu",
+  "/practice/machi-fu",
+  "/practice/mentsu-fu",
+  "/practice/mentsu-jantou-fu",
+  "/practice/total-fu",
+  "/practice/yaku",
+  "/practice/score-table",
+  "/practice/score-calculation",
+  "/practice/han-count",
+  "/practice/yaku-han",
+  "/practice/mangan-score-calculation",
+  "/exam/mangan",
+  "/exam/fu",
+  "/exam/chiitoitsu",
+  "/exam/pinfu",
+  "/exam/fu-score",
+  "/exam/score",
+];
+
+/**
+ * 英語で出しているが索引させないページ（ロケール非依存のパス）
+ *
+ * `route-policy.ts` の英語の `published-noindex`。練習・昇級試験の play / training /
+ * result（17 × 3）、和了形・聴牌形の play、道場、段級位の詳細 6 件。段級位の詳細は
+ * アプリではテンプレート（`/dojo/ranks/[slug]`）だが、監査はレジストリを読まない
+ * （モジュールの TSDoc）ので slug を文字列で並べる。`expectations.test.ts` が
+ * route-policy の集合との一致を落とす。
+ *
+ * @design 英語の noindex は動的でよい
+ * どれも閲覧者ごとの内容（結果の cookie と searchParams・受験資格のガード・本人の
+ * 段級位）で、日本語でも多くが動的に描かれる。静的生成を求めるのはクローラーが
+ * 初期 HTML を読む索引対象だけで、noindex の静的 / 動的は日本語の分類（baseline の
+ * 静的生成の台帳）に従う。build の監査はこれらのうち日本語で静的だったものだけを
+ * 200 の静的な HTML として期待し、HTTP の監査は全件をゲストで取得して noindex・
+ * 言語・hreflang を確かめる。
+ */
+export const EN_NOINDEX_PATHS: readonly string[] = [
+  ...EN_CHALLENGE_PRACTICE_PATHS.flatMap((path) =>
+    ["play", "training", "result"].map((subpage) => `${path}/${subpage}`),
+  ),
+  "/practice/agari-score/play",
+  "/practice/tenpai-score/play",
+  "/dojo",
+  "/dojo/ranks/kyu-5",
+  "/dojo/ranks/kyu-4",
+  "/dojo/ranks/kyu-3",
+  "/dojo/ranks/kyu-2",
+  "/dojo/ranks/kyu-1",
+  "/dojo/ranks/dan-1",
+];
 
 /**
  * 移行で baseline から意図して変わる HTTP の応答（パス → 期待する応答）

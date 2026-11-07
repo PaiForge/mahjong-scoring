@@ -35,15 +35,27 @@ describe("resolvePublishedHref", () => {
       "ja",
       "/practice/jantou-fu/play?variant=all",
     ],
+    ["/practice", "en", "/en/practice"],
+    [
+      "/practice/jantou-fu/play?variant=all",
+      "en",
+      "/en/practice/jantou-fu/play?variant=all",
+    ],
+    ["/exam/fu/result", "en", "/en/exam/fu/result"],
+    ["/lessons/about-this-app", "en", "/en/lessons/about-this-app"],
+    ["/getting-started", "en", "/en/getting-started"],
+    ["/dojo", "en", "/en/dojo"],
+    ["/dojo/ranks/kyu-5", "en", "/en/dojo/ranks/kyu-5"],
   ] as const)("%s（%s）→ %s", (path, locale, expected) => {
     expect(resolvePublishedHref(path, locale)).toBe(expected);
   });
 
   it.each([
-    ["/practice", "en"],
-    ["/lessons/about-this-app", "en"],
-    ["/getting-started", "en"],
     ["/dashboard", "en"],
+    ["/sign-in", "en"],
+    ["/leaderboard", "en"],
+    ["/plan", "en"],
+    ["/mypage", "en"],
     ["/nonexistent", "ja"],
   ] as const)("未公開の %s（%s）はリンクを作らない", (path, locale) => {
     expect(resolvePublishedHref(path, locale)).toBeUndefined();

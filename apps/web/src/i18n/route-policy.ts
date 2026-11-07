@@ -16,12 +16,15 @@
  * 一律に転送する、のいずれも採らない — 中身の薄い・日本語と重複した英語 URL が
  * 索引され、未完成のページへ内部リンクが張られるため。
  * 「すべて英語で出してから noindex にする」既定も持たない。
- * 英語で公開するのはトップ（LP）・レッスンの目次と 19 章（はじめにを除く）・
- * 早見表のハブ・役一覧・用語集（一覧と全用語）・点数表。許可リストの実体は
- * クライアントからも読める `translated-publications.ts` にある（理由と公開単位の
- * 一覧は同ファイルの TSDoc）。英語のページを足すときはそちらに 1 行足す。
- * 動的ルートのテンプレート（用語のページ）は同ファイルが形だけで判定し、
- * 具体的なパスの列挙は下の {@link EN_PUBLISHED_PATHS} がレジストリで展開する。
+ * 英語で公開するのは、索引させるページとしてトップ（LP）・レッスンの目次と
+ * 20 章・早見表のハブ・役一覧・用語集（一覧と全用語）・点数表・点数計算のデモ・
+ * 練習の一覧と練習 / 昇級試験の説明ページ・和了形と聴牌形の設定・はじめ方・体験、
+ * 索引させないページとして練習 / 昇級試験の play・training・result、和了形と
+ * 聴牌形の play、道場と段級位の詳細。許可リストの実体はクライアントからも読める
+ * `translated-publications.ts` にある（理由と公開単位の一覧は同ファイルの TSDoc）。
+ * 英語のページを足すときはそちらに 1 行足す。動的ルートのテンプレート（用語の
+ * ページ・段級位の詳細）は同ファイルが形だけで判定し、具体的なパスの列挙は下の
+ * {@link EN_PUBLISHED_PATHS} がレジストリで展開する。
  *
  * **日本語は既存の分類をそのまま取り込む。** sitemap に載るページ
  * （`sitemap-routes.ts`）が `published-indexable`、それ以外の実在するページ
@@ -49,9 +52,11 @@ import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
 import { glossaryTermHref } from "@mahjong-scoring/features/glossary/routes";
 import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-types";
+import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
 import {
   AGARI_SCORE_PRACTICE_HREF,
   practiceHref,
+  rankHref,
   TENPAI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 
@@ -193,13 +198,16 @@ export function isPublished(publication: Publication): boolean {
  */
 const TEMPLATE_EXPANSIONS: Readonly<Record<string, readonly string[]>> = {
   "/reference/glossary/[slug]": GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
+  "/dojo/ranks/[slug]": RANK_SLUGS.map(rankHref),
 };
 
 /**
  * 英語で公開しているパスの一覧（sitemap・言語切替の表・監査が列挙に使う）
  *
  * 許可リストの完全一致の行と、動的ルートのテンプレートを
- * {@link TEMPLATE_EXPANSIONS} で展開した具体的なパス（用語 64 件）。並びは
+ * {@link TEMPLATE_EXPANSIONS} で展開した具体的なパス（用語 64 件・段級位 6 件）。
+ * `published-noindex` のページも含む（索引させるかは {@link getPublication} で
+ * 引く。sitemap は `published-indexable` だけを載せる）。並びは
  * 完全一致の行（許可リストの順）→ テンプレートの展開（レジストリの順）。
  * 英語は許可リストなので有限に列挙できる。日本語は動的ルートを含むため
  * 列挙の関数を持たない（sitemap は `sitemap-routes.ts` を読む）。

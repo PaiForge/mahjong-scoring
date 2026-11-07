@@ -131,17 +131,35 @@ describe("MobileTabBarView", () => {
     expect(screen.queryByRole("navigation")).toBeNull();
   });
 
-  it("英語のページでは英語版の無いタブを出さず、英語で公開しているタブだけを /en の href で出す", () => {
+  it("英語のページでは英語で公開しているタブを /en の href で出す（ホーム・道場・練習・レッスン・点数表）", () => {
     renderAt("/en/reference/score-table", false, "en");
 
-    // 英語で公開しているのはホーム・レッスン・点数表。道場・練習は英語で未公開なので、
-    // 英語の名前のまま日本語のページへ飛ばすタブも、/en を付けた存在しない URL も出さない
     expect(
       screen.getAllByRole("link").map((link) => link.getAttribute("href")),
-    ).toEqual(["/en", "/en/lessons", "/en/reference/score-table"]);
+    ).toEqual([
+      "/en",
+      "/en/dojo",
+      "/en/practice",
+      "/en/lessons",
+      "/en/reference/score-table",
+    ]);
     expect(
       screen.getByRole("link", { name: /点数表/ }).className.split(" "),
     ).toContain("text-foreground");
+  });
+
+  it("英語版の無いタブは出さない（英語の名前のまま日本語へ飛ばすタブも、存在しない /en の URL も出さない）", () => {
+    // 道場・練習が英語で未公開だった頃の表（ホーム・レッスン・点数表だけ）
+    const table: LocaleLinkTable = Object.fromEntries(
+      Object.entries(LOCALE_LINK_TABLE).filter(
+        ([path]) => path !== "/dojo" && path !== "/practice",
+      ),
+    );
+    renderAt("/en/reference/score-table", false, "en", table);
+
+    expect(
+      screen.getAllByRole("link").map((link) => link.getAttribute("href")),
+    ).toEqual(["/en", "/en/lessons", "/en/reference/score-table"]);
   });
 
   it("英語で公開しているタブが 1 つだけならバーごと出さない", () => {
@@ -157,23 +175,14 @@ describe("MobileTabBarView", () => {
     expect(screen.queryByRole("link")).toBeNull();
   });
 
-  it("英語で公開したタブが増えれば /en の href で出し、接頭辞を外して選択中を判定する", () => {
-    // 将来、練習一覧も英語で公開したときの表
-    renderAt("/en/practice/jantou-fu", false, "en", {
-      ...LOCALE_LINK_TABLE,
-      "/practice": { ja: "/practice", en: "/en/practice" },
-    });
+  it("英語の配下のページでも接頭辞を外して親のタブを選択中にする", () => {
+    renderAt("/en/practice/jantou-fu", false, "en");
 
     const practice = screen.getByRole("link", { name: /練習/ });
     expect(practice.getAttribute("href")).toBe("/en/practice");
     expect(practice.className.split(" ")).toContain("text-foreground");
     expect(
-      screen.getAllByRole("link").map((link) => link.getAttribute("href")),
-    ).toEqual([
-      "/en",
-      "/en/practice",
-      "/en/lessons",
-      "/en/reference/score-table",
-    ]);
+      screen.getByRole("link", { name: /道場/ }).className.split(" "),
+    ).not.toContain("text-foreground");
   });
 });

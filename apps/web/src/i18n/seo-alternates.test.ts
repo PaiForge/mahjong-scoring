@@ -29,6 +29,14 @@ describe("getIndexableAlternates", () => {
     ["/reference/yaku"],
     ["/reference/glossary"],
     ["/reference/glossary/jantou"],
+    ["/practice"],
+    ["/practice/jantou-fu"],
+    ["/exam/mangan"],
+    ["/practice/agari-score"],
+    ["/getting-started"],
+    ["/lessons/about-this-app"],
+    ["/reference/demo"],
+    ["/try/mentsu-fu"],
   ])("両言語で公開したページ %s も ja・en・x-default", (path) => {
     expect(getIndexableAlternates(path)).toEqual({
       ja: `${ORIGIN}${path}`,
@@ -38,12 +46,14 @@ describe("getIndexableAlternates", () => {
   });
 
   it.each([
-    ["/practice"],
-    ["/getting-started"],
-    ["/lessons/about-this-app"],
-    ["/reference/demo"],
+    ["/plan"],
+    ["/leaderboard"],
+    ["/contact"],
+    // 英語では出すが索引させない（cookie を読む動的ページ）
+    ["/dojo"],
+    ["/dojo/ranks/kyu-5"],
   ])(
-    "日本語だけのページ %s は ja と x-default だけ（未訳の英語を挙げない）",
+    "日本語だけで索引させるページ %s は ja と x-default だけ（未訳・noindex の英語を挙げない）",
     (path) => {
       const alternates = getIndexableAlternates(path);
       expect(Object.keys(alternates)).toEqual(["ja", "x-default"]);
@@ -62,6 +72,9 @@ describe("getIndexableAlternates", () => {
   it.each([
     // noindex のページ
     ["/practice/jantou-fu/play"],
+    ["/practice/jantou-fu/result"],
+    ["/exam/mangan/training"],
+    ["/practice/agari-score/play"],
     ["/sign-in"],
     ["/mypage"],
     ["/u/alice"],
