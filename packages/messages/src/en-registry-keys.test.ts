@@ -15,8 +15,8 @@ import { messages as ja } from "./ja";
  * 日本語にあるキーは英語にもある。ここでは、写した一覧が日本語にも英語にも
  * 実在すること（写し間違い・レジストリとのずれ）を確かめる。
  *
- * 未着手の名前空間に属するレジストリ由来のキー（`practice.practices.<messageKey>`・
- * `<namespace>.variants.<key>`）は対象外。それらの名前空間を完訳にするときに、ここへ足す。
+ * 未着手の名前空間に属するレジストリ由来のキーは対象外。それらの名前空間を完訳に
+ * するときに、ここへ足す。
  */
 const REGISTRY_KEYS: readonly (readonly [string, readonly string[]])[] = [
   // features `reference/related-references.ts` の ReferenceKey →
@@ -272,6 +272,148 @@ const REGISTRY_KEYS: readonly (readonly [string, readonly string[]])[] = [
       (slug) => `names.${slug}`,
     ),
   ],
+  // features `practice-menu-types.ts` の PRACTICE_MENU_REGISTRY の messageKey →
+  // `practice.practices.<messageKey>.{title,shortTitle}`（練習一覧のカード・説明ページの
+  // 見出し・道場の行程・`practiceDisplayTitle` が引く）
+  [
+    "practice",
+    [
+      "jantouFu",
+      "machiFu",
+      "mentsuFu",
+      "mentsuJantouFu",
+      "totalFu",
+      "yaku",
+      "scoreTable",
+      "scoreCalculation",
+      "hanCount",
+      "yakuHan",
+      "manganScoreCalculation",
+      "manganExam",
+      "fuExam",
+      "chiitoitsuExam",
+      "pinfuExam",
+      "fuScoreExam",
+      "scoreExam",
+    ].flatMap((messageKey) => [
+      `practices.${messageKey}.title`,
+      `practices.${messageKey}.shortTitle`,
+    ]),
+  ],
+  // features `practice-menu-types.ts` の PRACTICE_MENU_REGISTRY の variants →
+  // `<namespace>.variants.<key>.{label,hint}`（`VariantStartPanel`・カードの variant ラベル）
+  [
+    "totalFu",
+    ["up_to_40", "up_to_60", "all"].flatMap((key) => [
+      `variants.${key}.label`,
+      `variants.${key}.hint`,
+    ]),
+  ],
+  [
+    "scoreTableChallenge",
+    [
+      "ko_mangan_plus",
+      "oya_mangan_plus",
+      "ko_non_mangan",
+      "oya_non_mangan",
+      "all",
+    ].flatMap((key) => [`variants.${key}.label`, `variants.${key}.hint`]),
+  ],
+  [
+    "yakuHanChallenge",
+    ["no_kuisagari", "kuisagari", "all"].flatMap((key) => [
+      `variants.${key}.label`,
+      `variants.${key}.hint`,
+    ]),
+  ],
+  // features `yaku/yaku-labels.ts` の YAKU_TO_KEY の値（core が出す役名・ドラ・連風牌を含む）→
+  // `agariScore.yaku.<key>`（練習の役の選択肢・答え合わせの役名が引く）
+  [
+    "agariScore",
+    [
+      "riichi",
+      "ippatsu",
+      "menzen_tsumo",
+      "tanyao",
+      "pinfu",
+      "iipeiko",
+      "yakuhai",
+      "ton",
+      "nan",
+      "sha",
+      "pei",
+      "haku",
+      "hatsu",
+      "chun",
+      "jikaze",
+      "bakaze",
+      "renfonpai",
+      "sanshoku_doujun",
+      "itsu",
+      "chanta",
+      "chiitoitsu",
+      "toitoi",
+      "sanankou",
+      "sanshoku_doukou",
+      "sankantsu",
+      "shosangen",
+      "honroto",
+      "double_riichi",
+      "honitsu",
+      "junchan",
+      "ryanpeiko",
+      "chinitsu",
+      "kokushi",
+      "suanko",
+      "daisangen",
+      "tsuiso",
+      "shousushi",
+      "daisushi",
+      "chinroto",
+      "ryuiso",
+      "chuuren",
+      "sukantsu",
+      "tenhou",
+      "chihou",
+      "dora",
+      "uraDora",
+    ].map((key) => `yaku.${key}`),
+  ],
+  // core `score/tiers.ts` の MANGAN_PLUS_TIERS の nameKey（`scoreLevelNameKey`）のうち
+  // HIGH_SCORES に無いもの → `scoreTable.doubleYakuman`（練習の答え合わせの区分名）
+  ["scoreTable", ["doubleYakuman"]],
+  // core `core/kaze.ts` の KazeNameKey → `common.kazeNames.<key>`（場風・自風の表示）
+  ["common", ["ton", "nan", "sha", "pei"].map((key) => `kazeNames.${key}`)],
+];
+
+/**
+ * レジストリから組み立てて引く辞書の入れ子（葉ではなく、配下を部品が引くもの）
+ *
+ * features `lessons/registry.ts` の QUIZ_LESSON_REGISTRY の messageKey →
+ * `lessons.<messageKey>`（確認問題の部品 `LessonQuestionCard` が `condition`・
+ * `questionPrompt`・`questions.<key>.{hint,explanation}` を引く。問題のキーは
+ * レジストリにあるので、ここでは入れ子の存在だけを写す。葉の形は `en.test.ts` が
+ * 日本語との一致で検査する）。
+ */
+const REGISTRY_GROUPS: readonly (readonly [string, readonly string[]])[] = [
+  [
+    "lessons",
+    [
+      "manganKoRon",
+      "manganKoTsumo",
+      "manganOyaRon",
+      "manganOyaTsumo",
+      "yaku",
+      "jantouFu",
+      "mentsuFu",
+      "machiFu",
+      "tehaiFu",
+      "chiitoitsuScore",
+      "pinfuScore",
+      "menzenMentsuScore",
+      "furoScore",
+    ],
+  ],
 ];
 
 /** `a.b.c` のパスで辞書の値を引く */
@@ -293,6 +435,14 @@ describe("レジストリ由来の辞書キー（英語の完訳の名前空間�
       const path = `${namespace}.${key}`;
       expect(typeof lookup(ja, path), `ja: ${path}`).toBe("string");
       expect(typeof lookup(en, path), `en: ${path}`).toBe("string");
+    }
+  });
+
+  it.each(REGISTRY_GROUPS)("%s の入れ子", (namespace, keys) => {
+    for (const key of keys) {
+      const path = `${namespace}.${key}`;
+      expect(typeof lookup(ja, path), `ja: ${path}`).toBe("object");
+      expect(typeof lookup(en, path), `en: ${path}`).toBe("object");
     }
   });
 });

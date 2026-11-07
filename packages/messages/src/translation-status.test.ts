@@ -14,7 +14,7 @@ import {
 const translated: ReadonlySet<string> = new Set(EN_TRANSLATED_NAMESPACES);
 
 /**
- * 英語で公開するレッスンの章（目次の 20 章から、はじめに `about-this-app` を除く 19 章）
+ * 英語で公開するレッスンの章（目次の 20 章すべて）
  *
  * messages はカリキュラムのレジストリ（features）に依存しないので写して持つ。
  * 写し元は features `curriculum/registry.ts` の章の slug と、web
@@ -22,6 +22,7 @@ const translated: ReadonlySet<string> = new Set(EN_TRANSLATED_NAMESPACES);
  * `publication-gate.test.ts` が許可リストとこの表のキーの一致を検査する）。
  */
 const EN_LESSON_ROUTES = [
+  "/lessons/about-this-app",
   "/lessons/why-scoring-is-hard-to-learn",
   "/lessons/why-scoring-is-complex",
   "/lessons/mangan-ko-ron",
@@ -42,6 +43,43 @@ const EN_LESSON_ROUTES = [
   "/lessons/tsumo-payments",
   "/lessons/oya-ron-scores",
 ] as const;
+
+/**
+ * 英語で公開するチャレンジ型の練習（昇級試験を含む）の説明ページと名前空間
+ *
+ * 写し元は features `practice-menu-types.ts` の `PRACTICE_MENU_REGISTRY`
+ * （`practiceHref(slug)` と `namespace`）。web の許可リストとの一致はアプリ側の
+ * `publication-gate.test.ts` が検査する。
+ */
+const PRACTICE_MENUS = [
+  ["/practice/jantou-fu", "jantouFu"],
+  ["/practice/machi-fu", "machiFu"],
+  ["/practice/mentsu-fu", "mentsuFu"],
+  ["/practice/mentsu-jantou-fu", "mentsuJantouFu"],
+  ["/practice/total-fu", "totalFu"],
+  ["/practice/yaku", "yaku"],
+  ["/practice/score-table", "scoreTableChallenge"],
+  ["/practice/score-calculation", "scoreCalculationChallenge"],
+  ["/practice/han-count", "hanCountChallenge"],
+  ["/practice/yaku-han", "yakuHanChallenge"],
+  ["/practice/mangan-score-calculation", "manganScoreCalculationChallenge"],
+  ["/exam/mangan", "manganExamChallenge"],
+  ["/exam/fu", "fuExamChallenge"],
+  ["/exam/chiitoitsu", "chiitoitsuExamChallenge"],
+  ["/exam/pinfu", "pinfuExamChallenge"],
+  ["/exam/fu-score", "fuScoreExamChallenge"],
+  ["/exam/score", "scoreExamChallenge"],
+] as const;
+
+/** 練習の説明ページ配下の画面 */
+const PRACTICE_SUBPAGES = ["play", "training", "result"] as const;
+
+/** ルートが読む名前空間（キーを string で引くため型を広げる） */
+function routeNamespaces(route: string): readonly string[] {
+  const routes: Readonly<Record<string, readonly string[]>> =
+    EN_ROUTE_NAMESPACES;
+  return routes[route] ?? [];
+}
 
 describe("英語の翻訳状況の一覧", () => {
   it("日本語の名前空間は完訳・未着手・対象外のどれか 1 つに必ず入る", () => {
@@ -72,7 +110,7 @@ describe("英語の翻訳状況の一覧", () => {
 });
 
 describe("英語で公開するルートの依存", () => {
-  it("英語で公開するルートは公開単位の表どおり（用語のページはテンプレートで 1 行）", () => {
+  it("英語で公開するルートは公開単位の表どおり（用語のページ・段級位の詳細はテンプレートで 1 行）", () => {
     expect(Object.keys(EN_ROUTE_NAMESPACES)).toEqual([
       "/",
       "/lessons",
@@ -82,8 +120,69 @@ describe("英語で公開するルートの依存", () => {
       "/reference/glossary",
       "/reference/glossary/[slug]",
       "/reference/score-table",
+      "/reference/demo",
+      "/practice",
+      ...PRACTICE_MENUS.flatMap(([path]) => [
+        path,
+        ...PRACTICE_SUBPAGES.map((subpage) => `${path}/${subpage}`),
+      ]),
+      "/practice/agari-score",
+      "/practice/agari-score/play",
+      "/practice/tenpai-score",
+      "/practice/tenpai-score/play",
+      "/getting-started",
+      "/try/agari-score",
+      "/try/mentsu-fu",
+      "/dojo",
+      "/dojo/ranks/[slug]",
     ]);
   });
+
+  it.each(
+    PRACTICE_MENUS.flatMap(([path, namespace]) =>
+      [path, ...PRACTICE_SUBPAGES.map((subpage) => `${path}/${subpage}`)].map(
+        (route) => [route, namespace] as const,
+      ),
+    ),
+  )(
+    "%s はレジストリの namespace（%s）と練習の共通の名前空間を読む",
+    (route, namespace) => {
+      expect(routeNamespaces(route)).toEqual(
+        expect.arrayContaining([namespace, "challenge", "practice"]),
+      );
+    },
+  );
+
+  it("昇級試験は説明・play・training で模試の案内、result で合否を読む", () => {
+    for (const [path] of PRACTICE_MENUS.filter(([menuPath]) =>
+      menuPath.startsWith("/exam/"),
+    )) {
+      for (const route of [path, `${path}/play`, `${path}/training`]) {
+        expect(routeNamespaces(route), route).toContain("examTraining");
+      }
+      expect(routeNamespaces(`${path}/result`)).toContain("examResult");
+    }
+  });
+
+  it("練習一覧と道場は全練習の名前空間を読む（カードの variant ラベル）", () => {
+    const all = PRACTICE_MENUS.map(([, namespace]) => namespace);
+    expect(routeNamespaces("/practice")).toEqual(expect.arrayContaining(all));
+    expect(routeNamespaces("/dojo")).toEqual(expect.arrayContaining(all));
+  });
+
+  it("面子の符の体験は確認問題の部品（lessons）を、和了形・聴牌形の設定は設定の名前空間を読む", () => {
+    expect(routeNamespaces("/try/mentsu-fu")).toContain("lessons");
+    for (const route of ["/practice/agari-score", "/practice/tenpai-score"]) {
+      expect(routeNamespaces(route), route).toContain("settings");
+    }
+  });
+
+  it.each(Object.keys(EN_ROUTE_NAMESPACES).map((route) => [route]))(
+    "%s はランキングの名前空間を読まない（英語ではランキングを提供しない）",
+    (route) => {
+      expect(routeNamespaces(route)).not.toContain("leaderboard");
+    },
+  );
 
   it.each(Object.entries(EN_ROUTE_NAMESPACES))(
     "%s が読む名前空間はすべて完訳",
@@ -107,8 +206,7 @@ describe("英語で公開するルートの依存", () => {
   it.each(EN_LESSON_ROUTES.map((route) => [route]))(
     "%s は章の名前空間（slug の camelCase）と章のレイアウトの名前空間を読み、確認問題の名前空間は読まない",
     (route) => {
-      const namespaces: readonly string[] =
-        EN_ROUTE_NAMESPACES[route as keyof typeof EN_ROUTE_NAMESPACES];
+      const namespaces = routeNamespaces(route);
       const camel = route
         .slice("/lessons/".length)
         .replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());

@@ -190,6 +190,19 @@ describe("英語で公開したページは英語のまま通す", () => {
     ["/en/reference/glossary"],
     ["/en/reference/glossary/jantou"],
     ["/en/reference/glossary/menzen-ron-kafu"],
+    ["/en/lessons/about-this-app"],
+    ["/en/practice"],
+    ["/en/practice/jantou-fu"],
+    ["/en/practice/jantou-fu/play"],
+    ["/en/practice/jantou-fu/result"],
+    ["/en/practice/agari-score/play"],
+    ["/en/exam/mangan"],
+    ["/en/exam/mangan/training"],
+    ["/en/getting-started"],
+    ["/en/try/mentsu-fu"],
+    ["/en/reference/demo"],
+    ["/en/dojo"],
+    ["/en/dojo/ranks/kyu-5"],
   ])("%s", async (path) => {
     const response = await proxy(makeRequest(path));
     expect(response.status).toBe(200);
@@ -216,10 +229,15 @@ describe("英語で公開したページは英語のまま通す", () => {
 
 describe("未公開の英語 URL は 404 + noindex", () => {
   it.each([
-    ["/en/practice"],
-    ["/en/lessons/about-this-app"],
-    ["/en/getting-started"],
-    ["/en/reference/demo"],
+    ["/en/sign-in"],
+    ["/en/sign-up"],
+    ["/en/mypage"],
+    ["/en/leaderboard"],
+    ["/en/plan"],
+    ["/en/dojo/ranks"],
+    // 段級位の slug の形に合わない（形に合う未知の段級位はページが 404 にする）
+    ["/en/dojo/ranks/__unknown__"],
+    ["/en/practice/jantou-fu/extra"],
     ["/en/reference/glossary/__unknown__"],
     ["/en/reference/glossary/jantou/extra"],
     ["/en/dashboard"],
@@ -229,7 +247,7 @@ describe("未公開の英語 URL は 404 + noindex", () => {
     ["/en/auth/callback"],
     ["/en/robots.txt"],
     ["/en/reference/score-table/extra"],
-    ["/EN/practice"],
+    ["/EN/dashboard"],
   ])("%s", async (path) => {
     const response = await proxy(makeRequest(path));
     expect(response.status).toBe(404);
@@ -241,7 +259,7 @@ describe("未公開の英語 URL は 404 + noindex", () => {
 
   it("未公開の判定はセッション更新より前（404 に Set-Cookie を載せない）", async () => {
     supabase.cookiesToSet = [{ name: "sb", value: "x", options: {} }];
-    const response = await proxy(makeRequest("/en/practice"));
+    const response = await proxy(makeRequest("/en/dashboard"));
     expect(supabase.getClaims).not.toHaveBeenCalled();
     expect(response.headers.get("set-cookie")).toBeNull();
   });
@@ -422,7 +440,7 @@ describe("Supabase の環境変数が無くても i18n は通す", () => {
   });
 
   it("未公開の英語は 404 のまま", async () => {
-    const response = await proxy(makeRequest("/en/practice"));
+    const response = await proxy(makeRequest("/en/dashboard"));
     expect(response.status).toBe(404);
   });
 });
