@@ -49,7 +49,7 @@ import { ChapterTocList } from "@/app/[locale]/(user)/(public)/lessons/_componen
 import { CurriculumTocLink } from "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-toc-link";
 import { ExamCtaCard } from "@/app/[locale]/(user)/(public)/lessons/_components/exam-cta-card";
 import { fetchCompletedLessonSlugs } from "@/app/[locale]/(user)/(public)/lessons/_lib/lesson-progress";
-import { createMetadata, robotsForPublication } from "@/app/_lib/metadata";
+import { createMetadata } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
@@ -59,6 +59,7 @@ import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
 import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { DOJO_PATH, rankHref } from "@mahjong-scoring/features/routes";
 
+import { withPublicationRobots } from "../../_lib/publication-metadata";
 import { RankStatusBadge } from "../_components/rank-status-badge";
 
 interface RankDetailPageProps {
@@ -80,9 +81,8 @@ export async function generateMetadata({
     getTranslations({ locale, namespace: "ranks" }),
   ]);
   const rankName = tRanks(`names.${rank.slug}`);
-  const robots = robotsForPublication(rankHref(rank.slug), locale);
-  return {
-    ...createMetadata({
+  return withPublicationRobots(
+    createMetadata({
       title: t("rankDetail.title", { rank: rankName }),
       description: t("rankDetail.description", {
         rank: rankName,
@@ -91,8 +91,9 @@ export async function generateMetadata({
       path: rankHref(rank.slug),
       locale,
     }),
-    ...(robots === undefined ? {} : { robots }),
-  };
+    rankHref(rank.slug),
+    locale,
+  );
 }
 
 export default async function RankDetailPage({ params }: RankDetailPageProps) {

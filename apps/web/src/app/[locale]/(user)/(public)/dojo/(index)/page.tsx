@@ -42,7 +42,8 @@
  * 日本語では索引対象だが、中身の大半（現在の段級位・行程の進み具合）が閲覧者に
  * 依る動的ページで、英語の索引対象の規約（静的生成）に合わない。英語は
  * 公開状態の表で `published-noindex` にし、robots はその表から引く
- * （`robotsForPublication`。日本語は undefined で従来の指定のまま）。英語の索引は
+ * （`withPublicationRobots`。noindex のときは hreflang も外して自己 canonical だけを
+ * 残す。日本語は従来の指定のまま）。英語の索引は
  * 練習・試験の説明ページが受ける。
  *
  * @design リンクはページの言語で張る
@@ -65,10 +66,7 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { fetchCompletedLessonSlugs } from "@/app/[locale]/(user)/(public)/lessons/_lib/lesson-progress";
 import { fetchAttemptedPractices } from "@/app/[locale]/(user)/(public)/dashboard/_lib/attempted-practices";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
-import {
-  createNamespaceMetadata,
-  robotsForPublication,
-} from "@/app/_lib/metadata";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { localizedHref } from "@/i18n/public-path";
@@ -86,6 +84,7 @@ import { DojoLink } from "../_components/dojo-link";
 import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
 import { RankProgressBar } from "../_components/rank-progress-bar";
+import { withPublicationRobots } from "../_lib/publication-metadata";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
@@ -116,11 +115,11 @@ export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/dojo">): Promise<Metadata> {
   const locale = await prepareRouteLocale(params, "/dojo");
-  const robots = robotsForPublication(DOJO_PATH, locale);
-  return {
-    ...(await createNamespaceMetadata("dojo", { path: DOJO_PATH, locale })),
-    ...(robots === undefined ? {} : { robots }),
-  };
+  return withPublicationRobots(
+    await createNamespaceMetadata("dojo", { path: DOJO_PATH, locale }),
+    DOJO_PATH,
+    locale,
+  );
 }
 
 export default async function DojoPage({
