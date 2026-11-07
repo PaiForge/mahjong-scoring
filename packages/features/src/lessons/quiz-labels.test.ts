@@ -116,6 +116,32 @@ describe("lessonConditionValues", () => {
     ).toBe("立直 + 平和 + 断么九");
   });
 
+  it("yakuName を省くと役名は core の日本語のまま（役の問題も同じ）", () => {
+    expect(
+      lessonConditionValues(
+        { kind: "yaku", yaku: "混一色", naki: true },
+        tScoreTable,
+      ),
+    ).toEqual({ yaku: "混一色", state: "naki" });
+  });
+
+  it("yakuName を渡すと役名を 1 つずつ変換してからつなぐ", () => {
+    const yakuName = (name: string): string => `en:${name}`;
+    expect(
+      lessonConditionValues(agari, tScoreTable, {
+        yakuName,
+        yakuJoiner: " + ",
+      }).yaku,
+    ).toBe("en:立直 + en:平和 + en:断么九");
+    expect(
+      lessonConditionValues(
+        { kind: "yaku", yaku: "混一色", naki: false },
+        tScoreTable,
+        { yakuName },
+      ),
+    ).toEqual({ yaku: "en:混一色", state: "menzen" });
+  });
+
   it("片方だけ渡しても、もう片方は日本語の既定のまま", () => {
     expect(
       lessonConditionValues(agari, tScoreTable, { kazeName: () => "X" }).yaku,
