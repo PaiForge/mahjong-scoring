@@ -71,6 +71,32 @@ const PRACTICE_MENUS = [
   ["/exam/score", "scoreExamChallenge"],
 ] as const;
 
+/**
+ * 英語で出すが索引させない会員の画面（認証・ダッシュボード・マイページ・設定）
+ *
+ * 写し元は web `i18n/translated-publications.ts` の許可リスト（並びも同じ）。
+ */
+const MEMBER_ROUTES = [
+  "/sign-in",
+  "/sign-up",
+  "/sign-up/verify-email",
+  "/forgot-password",
+  "/reset-password",
+  "/banned",
+  "/dashboard",
+  "/mypage",
+  "/mypage/account",
+  "/mypage/account/delete",
+  "/mypage/challenges",
+  "/mypage/challenges/results",
+  "/mypage/notifications",
+  "/mypage/plan",
+  "/mypage/profile/edit",
+  "/mypage/setup-username",
+  "/preferences",
+  "/preferences/yaku-order",
+] as const;
+
 /** 練習の説明ページ配下の画面 */
 const PRACTICE_SUBPAGES = ["play", "training", "result"] as const;
 
@@ -135,7 +161,43 @@ describe("英語で公開するルートの依存", () => {
       "/try/mentsu-fu",
       "/dojo",
       "/dojo/ranks/[slug]",
+      ...MEMBER_ROUTES,
     ]);
+  });
+
+  it("会員の画面は 18 ルートで、それぞれ自分の画面の名前空間を読む", () => {
+    expect(MEMBER_ROUTES).toHaveLength(18);
+    expect(routeNamespaces("/sign-in")).toContain("auth");
+    expect(routeNamespaces("/sign-up")).toEqual(
+      expect.arrayContaining(["signUp", "auth", "validation"]),
+    );
+    expect(routeNamespaces("/reset-password")).toEqual(
+      expect.arrayContaining(["resetPassword", "validation"]),
+    );
+    expect(routeNamespaces("/dashboard")).toEqual(
+      expect.arrayContaining(["dashboard", "announcements", "dojo", "ranks"]),
+    );
+    for (const route of ["/mypage/challenges", "/mypage/notifications"]) {
+      expect(routeNamespaces(route), route).toContain("pagination");
+    }
+    for (const route of ["/preferences", "/preferences/yaku-order"]) {
+      expect(routeNamespaces(route), route).toEqual(
+        expect.arrayContaining(["settings", "agariScore"]),
+      );
+    }
+  });
+
+  it("ダッシュボードとチャレンジの成績は全練習の名前空間を読む（表示名・土俵のラベルの variant）", () => {
+    const all = PRACTICE_MENUS.map(([, namespace]) => namespace);
+    for (const route of [
+      "/dashboard",
+      "/mypage/challenges",
+      "/mypage/challenges/results",
+    ]) {
+      expect(routeNamespaces(route), route).toEqual(
+        expect.arrayContaining(all),
+      );
+    }
   });
 
   it.each(
@@ -204,7 +266,7 @@ describe("英語で公開するルートの依存", () => {
   );
 
   it.each(EN_LESSON_ROUTES.map((route) => [route]))(
-    "%s は章の名前空間（slug の camelCase）と章のレイアウトの名前空間を読み、確認問題の名前空間は読まない",
+    "%s は章の名前空間（slug の camelCase）と章のレイアウト・確認問題と完了の名前空間を読む",
     (route) => {
       const namespaces = routeNamespaces(route);
       const camel = route
@@ -218,9 +280,12 @@ describe("英語で公開するルートの依存", () => {
           "company",
           "nativeAd",
           "scoreTable",
+          "lessons",
+          "ranks",
+          "practice",
+          "common",
         ]),
       );
-      expect(namespaces).not.toContain("lessons");
     },
   );
 

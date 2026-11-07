@@ -49,6 +49,7 @@ describe("getIndexableAlternates", () => {
     ["/plan"],
     ["/leaderboard"],
     ["/contact"],
+    ["/terms"],
     // 英語では出すが索引させない（cookie を読む動的ページ）
     ["/dojo"],
     ["/dojo/ranks/kyu-5"],
@@ -75,8 +76,12 @@ describe("getIndexableAlternates", () => {
     ["/practice/jantou-fu/result"],
     ["/exam/mangan/training"],
     ["/practice/agari-score/play"],
+    // 英語でも出すが両言語で索引させない会員の画面（hreflang は空のまま）
     ["/sign-in"],
+    ["/sign-up"],
+    ["/dashboard"],
     ["/mypage"],
+    ["/preferences"],
     ["/u/alice"],
     // 実在しないページ
     ["/nonexistent"],

@@ -49,7 +49,8 @@ const EN_INDEXABLE_EXACT_PATHS = [
 /**
  * 英語で出すが索引させない公開単位（完全一致の行）
  *
- * 練習・昇級試験の play / training / result、和了形・聴牌形の play、道場。
+ * 練習・昇級試験の play / training / result、和了形・聴牌形の play、道場、
+ * 会員の画面（{@link EN_MEMBER_PATHS}）。
  */
 const EN_NOINDEX_EXACT_PATHS = [
   ...PRACTICE_MENU_SLUGS.flatMap((slug) =>
@@ -60,6 +61,28 @@ const EN_NOINDEX_EXACT_PATHS = [
   `${AGARI_SCORE_PRACTICE_HREF}/play`,
   `${TENPAI_SCORE_PRACTICE_HREF}/play`,
   "/dojo",
+];
+
+/** 英語で出すが索引させない会員の画面（認証・ダッシュボード・マイページ・設定の 18 ページ） */
+const EN_MEMBER_PATHS = [
+  "/sign-in",
+  "/sign-up",
+  "/sign-up/verify-email",
+  "/forgot-password",
+  "/reset-password",
+  "/banned",
+  "/dashboard",
+  "/mypage",
+  "/mypage/account",
+  "/mypage/account/delete",
+  "/mypage/challenges",
+  "/mypage/challenges/results",
+  "/mypage/notifications",
+  "/mypage/plan",
+  "/mypage/profile/edit",
+  "/mypage/setup-username",
+  "/preferences",
+  "/preferences/yaku-order",
 ];
 
 describe("getTranslatedPublication", () => {
@@ -91,9 +114,28 @@ describe("getTranslatedPublication", () => {
     ).toBe("published-noindex");
   });
 
-  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材、noindex 54）", () => {
+  it("会員の画面（認証・ダッシュボード・マイページ・設定）18 ページは出すが索引させない", () => {
+    expect(EN_MEMBER_PATHS).toHaveLength(18);
+    for (const path of EN_MEMBER_PATHS) {
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-noindex",
+      );
+    }
+    expect(
+      getTranslatedPublication("/sign-in?redirect=%2Fen%2Fmypage", "en"),
+    ).toBe("published-noindex");
+    expect(
+      getTranslatedPublication("/mypage/challenges/results?page=2", "en"),
+    ).toBe("published-noindex");
+  });
+
+  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材、noindex 54 + 会員の画面 18）", () => {
     expect([...translatedPublishedPaths("en")].sort()).toEqual(
-      [...EN_INDEXABLE_EXACT_PATHS, ...EN_NOINDEX_EXACT_PATHS].sort(),
+      [
+        ...EN_INDEXABLE_EXACT_PATHS,
+        ...EN_NOINDEX_EXACT_PATHS,
+        ...EN_MEMBER_PATHS,
+      ].sort(),
     );
     expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54);
     expect(
@@ -153,13 +195,20 @@ describe("getTranslatedPublication", () => {
   });
 
   it.each([
-    ["/dashboard"],
-    ["/sign-in"],
-    ["/sign-up"],
-    ["/mypage"],
     ["/leaderboard"],
+    ["/leaderboard/weekly/jantou-fu"],
+    ["/u/alice"],
+    ["/announcements"],
+    ["/announcements/some-news"],
     ["/plan"],
-    ["/preferences"],
+    ["/contact"],
+    ["/contact/confirm"],
+    ["/terms"],
+    ["/privacy"],
+    ["/tokushoho"],
+    ["/company"],
+    ["/mypage/unknown"],
+    ["/sign-in/extra"],
     ["/dojo/ranks"],
     ["/practice/agari-score/result"],
     ["/practice/jantou-fu/extra"],
@@ -182,8 +231,8 @@ describe("getTranslatedPublication", () => {
 
   it("route-policy の英語の判定と一致する（判定を二重に持たない）", () => {
     for (const path of [
-      "/dashboard",
-      "/sign-in",
+      "/leaderboard",
+      "/u/alice",
       "/reference/glossary/unknown-term",
       "/dojo/ranks/unknown-rank",
       ...EN_PUBLISHED_PATHS,

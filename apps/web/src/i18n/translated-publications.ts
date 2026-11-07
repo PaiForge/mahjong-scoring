@@ -63,8 +63,8 @@ interface TranslatedPublicationTable {
  * 間は外していた。練習・昇級試験・道場を英語で出すのと一緒に公開した
  * （本文から練習へのリンクは英語の練習を指す）。
  *
- * 章の確認問題・完了は英語では出ない（ログインが要り、ログインの画面が英語で
- * 未公開のため）。`/sign-in` を英語で公開すると章ごとに現れる。
+ * 章の確認問題・完了も英語で出す（ログインが要る部分は、英語で公開している
+ * ログイン・登録の画面へ案内する）。
  *
  * クライアントからも読む表なので、カリキュラムのレジストリを import せず
  * 文字列で持つ。レジストリとの食い違い（章の改名・追加）は
@@ -140,6 +140,40 @@ const EN_ENDLESS_PRACTICE_PATHS = [
 ] as const;
 
 /**
+ * 英語で出すが索引させない会員の画面（認証・ダッシュボード・マイページ・設定）
+ *
+ * どれも閲覧者ごとの内容（ログイン状態・本人の記録・端末の設定）で動的のまま
+ * 出し、英語では `robotsForPublication(path, locale)` が noindex を付ける。
+ * 日本語の robots（認証・設定は meta 無し、マイページは `createPrivateMetadata` の
+ * noindex）は変えない — 日本語の認証ページに meta noindex を足すのは既存の
+ * 出力の変更になる。英語のマイページは robots.txt でも除外する（`app/robots.ts`）。
+ */
+const EN_MEMBER_PATHS = [
+  // 認証フロー・BAN 通知
+  "/sign-in",
+  "/sign-up",
+  "/sign-up/verify-email",
+  "/forgot-password",
+  "/reset-password",
+  "/banned",
+  // ログイン済みトップの実体（ログイン済みの `/en` を proxy がここへ rewrite する）
+  "/dashboard",
+  // マイページ（要ログイン）
+  "/mypage",
+  "/mypage/account",
+  "/mypage/account/delete",
+  "/mypage/challenges",
+  "/mypage/challenges/results",
+  "/mypage/notifications",
+  "/mypage/plan",
+  "/mypage/profile/edit",
+  "/mypage/setup-username",
+  // 個人設定
+  "/preferences",
+  "/preferences/yaku-order",
+] as const;
+
+/**
  * 言語ごとの公開ページ（許可リスト）
  *
  * ここに無いパスはその言語では `unpublished`。英語のページを公開するときは、
@@ -166,6 +200,8 @@ const EN_ENDLESS_PRACTICE_PATHS = [
  * - 練習・昇級試験の play / training / result（{@link PRACTICE_SUBPAGES}）と、
  *   和了形・聴牌形の `/play`
  * - 道場 `/dojo` と段級位の詳細 `/dojo/ranks/[slug]`（テンプレート）
+ * - 会員の画面 18 ページ（{@link EN_MEMBER_PATHS}）: 認証（ログイン・登録・
+ *   メール確認待ち・パスワードの再設定・BAN 通知）・ダッシュボード・マイページ・設定
  *
  * @design 索引させるのは「日本語で索引対象かつ静的」なページだけ
  * 英語の索引対象は、クローラーが見る初期 HTML を静的生成で返すのが規約。道場の
@@ -176,10 +212,16 @@ const EN_ENDLESS_PRACTICE_PATHS = [
  * 練習の説明ページが担う。play / training / result は日本語でも noindex で、
  * 閲覧者ごとの内容（多くは動的）なので英語も noindex（静的である必要は無い）。
  *
- * @design 登録・ログイン・ダッシュボード・マイページ・ランキング・料金は英語で出さない
- * 練習と試験はゲストが登録なしで回せる学習の輪で、ここまでを英語にした。会員の
- * 画面（認証・ダッシュボード・マイページ・設定）は次の段で訳す。ランキングと
- * 公開プロフィールは他の利用者の自由入力を見せる画面で、英語では提供しない。
+ * @design 会員の画面は英語で出すが索引させない
+ * 練習と試験はゲストが登録なしで回せる学習の輪で、先にここまでを英語にした。
+ * 続いて会員の画面（認証・レッスンの確認問題と完了・ダッシュボード・マイページ・
+ * 設定）を英語にした。機能の画面は検索流入の受け皿ではないので、すべて
+ * `published-noindex`（動的のまま。sitemap・hreflang に載せない）。英語の noindex は
+ * `robotsForPublication(path, locale)` で付け、日本語の robots は変えない。
+ *
+ * @design ランキング・公開プロフィール・お知らせ・料金・問い合わせ・規約は英語で出さない
+ * ランキングと公開プロフィールは他の利用者の自由入力を見せる画面で、英語では
+ * 提供しない。お知らせ・料金・問い合わせ・規約類は英語の本文を持たない。
  * 英語のページから未公開の画面への導線は「日本語のみ」の印付きで日本語の
  * ページへ送る（`(user)/_components/_lib/locale-nav-target.ts`）。
  *
@@ -239,6 +281,7 @@ const TRANSLATED_PUBLICATIONS: Readonly<
         (path) => [`${path}/play`, "published-noindex"] as const,
       ),
       ["/dojo", "published-noindex"],
+      ...EN_MEMBER_PATHS.map((path) => [path, "published-noindex"] as const),
     ]),
     templates: [
       {

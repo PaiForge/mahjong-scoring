@@ -182,6 +182,24 @@ describe("英語は許可リストで公開する", () => {
       `${AGARI_SCORE_PRACTICE_HREF}/play`,
       `${TENPAI_SCORE_PRACTICE_HREF}/play`,
       "/dojo",
+      "/sign-in",
+      "/sign-up",
+      "/sign-up/verify-email",
+      "/forgot-password",
+      "/reset-password",
+      "/banned",
+      "/dashboard",
+      "/mypage",
+      "/mypage/account",
+      "/mypage/account/delete",
+      "/mypage/challenges",
+      "/mypage/challenges/results",
+      "/mypage/notifications",
+      "/mypage/plan",
+      "/mypage/profile/edit",
+      "/mypage/setup-username",
+      "/preferences",
+      "/preferences/yaku-order",
       ...RANK_SLUGS.map(rankHref),
     ];
     expect([...EN_PUBLISHED_PATHS].sort()).toEqual(
@@ -235,20 +253,26 @@ describe("英語は許可リストで公開する", () => {
   );
 
   it.each([
-    ["/dashboard"],
-    ["/sign-in"],
-    ["/sign-up"],
-    ["/mypage"],
     ["/leaderboard"],
+    ["/leaderboard/monthly/jantou-fu"],
+    ["/u/alice"],
+    ["/announcements"],
     ["/plan"],
-    ["/preferences"],
+    ["/contact"],
+    ["/terms"],
   ])("%s は英語で unpublished（日本語では公開している）", (path) => {
     expect(getPublication(path, "en")).toBe("unpublished");
     expect(isPublished(getPublication(path, "ja"))).toBe(true);
   });
 
+  it("会員の画面は両言語で出すが索引させない（英語の noindex は日本語の分類と揃う）", () => {
+    for (const path of ["/sign-in", "/dashboard", "/mypage", "/preferences"]) {
+      expect(getPublication(path, "en"), path).toBe("published-noindex");
+      expect(getPublication(path, "ja"), path).toBe("published-noindex");
+    }
+  });
+
   it.each([
-    ["/dashboard"],
     ["/admin"],
     ["/api/version"],
     ["/auth/callback"],
