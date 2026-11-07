@@ -4,9 +4,9 @@ import { getTranslations } from "next-intl/server";
 import { JsonLd } from "@/app/[locale]/(user)/_components/json-ld";
 
 import {
+  buildAlternates,
   buildSocialCard,
-  DEFAULT_TITLE,
-  SITE_DESCRIPTION,
+  siteIdentity,
 } from "@/app/_lib/metadata";
 import { buildSiteSchema } from "@/app/_lib/site-schema";
 
@@ -42,14 +42,36 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
  * 理由は `apps/web/src/app/loading-boundaries.test.ts`）、group だけが残っている。再び動的にする
  * ときは loading.tsx をこの group に置く。page.tsx を 1 つ上に移すと、そのときに兄弟を巻き込む。
  */
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-  ...buildSocialCard({
-    title: DEFAULT_TITLE,
-    description: SITE_DESCRIPTION,
-    path: "/",
-  }),
-};
+
+/**
+ * トップページの canonical・hreflang・og:url 入りのカード
+ *
+ * @design alternates は `buildAlternates` から組む（手書きの `{ canonical: "/" }` にしない）
+ * 他の索引対象ページと同じく、HTML の hreflang（`ja` + `x-default`）を公開状態
+ * （`route-policy.ts`）から組み、sitemap の `/` の alternate と一致させる。以前は
+ * canonical だけを手書きしていたため、`/` だけ HTML に hreflang が無く sitemap と
+ * 食い違っていた。日本語の canonical は `buildAlternates("/", "ja")` でも `/` のまま。
+ *
+ * 静的生成を保つため cookie / headers を読まない。言語は `params`（親の言語
+ * レイアウトの `generateStaticParams` が列挙）から `prepareRouteLocale` で確定させ、
+ * 確定した言語を metadata のヘルパーに明示で渡す。英語の `/` は未公開なので
+ * ここで 404 になり、英語の値は組まれない。
+ */
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/");
+  const identity = siteIdentity(locale);
+  return {
+    alternates: buildAlternates("/", locale),
+    ...buildSocialCard({
+      title: identity.defaultTitle,
+      description: identity.description,
+      path: "/",
+      locale,
+    }),
+  };
+}
 
 export default async function Home({ params }: PageProps<"/[locale]">) {
   await prepareRouteLocale(params, "/");
