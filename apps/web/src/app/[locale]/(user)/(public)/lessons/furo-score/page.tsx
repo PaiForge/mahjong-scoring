@@ -17,16 +17,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/furo-score">) {
-  await prepareRouteLocale(params, "/lessons/furo-score");
-  return createLearnMetadata("furo-score");
+  const locale = await prepareRouteLocale(params, "/lessons/furo-score");
+  return createLearnMetadata("furo-score", { locale });
 }
 
 export default async function LearnFuroScorePage({
   params,
 }: PageProps<"/[locale]/lessons/furo-score">) {
-  await prepareRouteLocale(params, "/lessons/furo-score");
+  const locale = await prepareRouteLocale(params, "/lessons/furo-score");
   return (
-    <LearnPageLayout slug="furo-score">
+    <LearnPageLayout slug="furo-score" locale={locale}>
       <FuroScoreGuide />
     </LearnPageLayout>
   );

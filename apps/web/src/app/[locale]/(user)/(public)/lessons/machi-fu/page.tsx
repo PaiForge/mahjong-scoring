@@ -6,16 +6,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/machi-fu">) {
-  await prepareRouteLocale(params, "/lessons/machi-fu");
-  return createLearnMetadata("machi-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/machi-fu");
+  return createLearnMetadata("machi-fu", { locale });
 }
 
 export default async function LearnMachiFuPage({
   params,
 }: PageProps<"/[locale]/lessons/machi-fu">) {
-  await prepareRouteLocale(params, "/lessons/machi-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/machi-fu");
   return (
-    <LearnPageLayout slug="machi-fu">
+    <LearnPageLayout slug="machi-fu" locale={locale}>
       <MachiFuGuide />
     </LearnPageLayout>
   );

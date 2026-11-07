@@ -82,4 +82,17 @@ describe("buildLearnArticleSchema", () => {
     });
     expect(schema.author.description).not.toBe(JA_DESCRIPTION);
   });
+
+  it("その言語の公開日が無ければ datePublished を出さない（日本語の日付で代用しない）", () => {
+    const schema = buildLearnArticleSchema({
+      slug: "jantou-fu",
+      headline: "Pair fu",
+      description: "Learn pair fu",
+      operatorName: "Fuji LLC",
+      locale: "en",
+    });
+
+    expect(schema).not.toHaveProperty("datePublished");
+    expect(schema).toMatchObject({ "@type": "Article", inLanguage: "en" });
+  });
 });

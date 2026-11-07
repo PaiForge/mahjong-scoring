@@ -21,16 +21,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/oya-ron-scores">) {
-  await prepareRouteLocale(params, "/lessons/oya-ron-scores");
-  return createLearnMetadata("oya-ron-scores");
+  const locale = await prepareRouteLocale(params, "/lessons/oya-ron-scores");
+  return createLearnMetadata("oya-ron-scores", { locale });
 }
 
 export default async function LearnOyaRonScoresPage({
   params,
 }: PageProps<"/[locale]/lessons/oya-ron-scores">) {
-  await prepareRouteLocale(params, "/lessons/oya-ron-scores");
+  const locale = await prepareRouteLocale(params, "/lessons/oya-ron-scores");
   return (
-    <LearnPageLayout slug="oya-ron-scores">
+    <LearnPageLayout slug="oya-ron-scores" locale={locale}>
       <OyaRonScoresGuide />
     </LearnPageLayout>
   );

@@ -15,16 +15,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/chiitoitsu-score">) {
-  await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
-  return createLearnMetadata("chiitoitsu-score");
+  const locale = await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
+  return createLearnMetadata("chiitoitsu-score", { locale });
 }
 
 export default async function LearnChiitoitsuScorePage({
   params,
 }: PageProps<"/[locale]/lessons/chiitoitsu-score">) {
-  await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
+  const locale = await prepareRouteLocale(params, "/lessons/chiitoitsu-score");
   return (
-    <LearnPageLayout slug="chiitoitsu-score">
+    <LearnPageLayout slug="chiitoitsu-score" locale={locale}>
       <ChiitoitsuScoreGuide />
     </LearnPageLayout>
   );

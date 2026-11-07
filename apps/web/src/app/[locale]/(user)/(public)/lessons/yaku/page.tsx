@@ -6,16 +6,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/yaku">) {
-  await prepareRouteLocale(params, "/lessons/yaku");
-  return createLearnMetadata("yaku");
+  const locale = await prepareRouteLocale(params, "/lessons/yaku");
+  return createLearnMetadata("yaku", { locale });
 }
 
 export default async function LearnYakuPage({
   params,
 }: PageProps<"/[locale]/lessons/yaku">) {
-  await prepareRouteLocale(params, "/lessons/yaku");
+  const locale = await prepareRouteLocale(params, "/lessons/yaku");
   return (
-    <LearnPageLayout slug="yaku">
+    <LearnPageLayout slug="yaku" locale={locale}>
       <YakuGuide />
     </LearnPageLayout>
   );

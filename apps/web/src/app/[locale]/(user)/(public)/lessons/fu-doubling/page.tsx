@@ -20,16 +20,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/fu-doubling">) {
-  await prepareRouteLocale(params, "/lessons/fu-doubling");
-  return createLearnMetadata("fu-doubling");
+  const locale = await prepareRouteLocale(params, "/lessons/fu-doubling");
+  return createLearnMetadata("fu-doubling", { locale });
 }
 
 export default async function LearnFuDoublingPage({
   params,
 }: PageProps<"/[locale]/lessons/fu-doubling">) {
-  await prepareRouteLocale(params, "/lessons/fu-doubling");
+  const locale = await prepareRouteLocale(params, "/lessons/fu-doubling");
   return (
-    <LearnPageLayout slug="fu-doubling">
+    <LearnPageLayout slug="fu-doubling" locale={locale}>
       <FuDoublingGuide />
     </LearnPageLayout>
   );

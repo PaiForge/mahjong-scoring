@@ -20,16 +20,22 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/menzen-mentsu-score">) {
-  await prepareRouteLocale(params, "/lessons/menzen-mentsu-score");
-  return createLearnMetadata("menzen-mentsu-score");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/menzen-mentsu-score",
+  );
+  return createLearnMetadata("menzen-mentsu-score", { locale });
 }
 
 export default async function LearnMenzenMentsuScorePage({
   params,
 }: PageProps<"/[locale]/lessons/menzen-mentsu-score">) {
-  await prepareRouteLocale(params, "/lessons/menzen-mentsu-score");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/menzen-mentsu-score",
+  );
   return (
-    <LearnPageLayout slug="menzen-mentsu-score">
+    <LearnPageLayout slug="menzen-mentsu-score" locale={locale}>
       <MenzenMentsuScoreGuide />
     </LearnPageLayout>
   );

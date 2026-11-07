@@ -6,16 +6,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/mentsu-fu">) {
-  await prepareRouteLocale(params, "/lessons/mentsu-fu");
-  return createLearnMetadata("mentsu-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/mentsu-fu");
+  return createLearnMetadata("mentsu-fu", { locale });
 }
 
 export default async function LearnMentsuFuPage({
   params,
 }: PageProps<"/[locale]/lessons/mentsu-fu">) {
-  await prepareRouteLocale(params, "/lessons/mentsu-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/mentsu-fu");
   return (
-    <LearnPageLayout slug="mentsu-fu">
+    <LearnPageLayout slug="mentsu-fu" locale={locale}>
       <MentsuFuGuide />
     </LearnPageLayout>
   );

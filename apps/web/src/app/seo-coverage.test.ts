@@ -122,7 +122,12 @@ function declaresCanonical(source: string, urlPath: string): boolean {
   }
   const lessonMatch = /^\/lessons\/([^/]+)$/.exec(urlPath);
   if (lessonMatch) {
-    return source.includes(`createLearnMetadata("${lessonMatch[1]}")`);
+    // 第 2 引数（`{ locale }`）があってもよいが、第 1 引数は自分の slug の
+    // 文字列そのものに限る（別の章の slug の写し間違いを通さない）
+    const slug = lessonMatch[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(
+      String.raw`createLearnMetadata\(\s*"${slug}"\s*[,)]`,
+    ).test(source);
   }
   // 練習の説明ページ: URL はレジストリの basePath（/exam 配下の昇級試験を含む）
   // から引くため、/practice/ 前置きの正規表現ではなく basePath の逆引きで判定する

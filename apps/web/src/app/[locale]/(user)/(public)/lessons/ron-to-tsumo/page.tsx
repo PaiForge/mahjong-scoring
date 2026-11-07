@@ -22,16 +22,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/ron-to-tsumo">) {
-  await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
-  return createLearnMetadata("ron-to-tsumo");
+  const locale = await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
+  return createLearnMetadata("ron-to-tsumo", { locale });
 }
 
 export default async function LearnRonToTsumoPage({
   params,
 }: PageProps<"/[locale]/lessons/ron-to-tsumo">) {
-  await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
+  const locale = await prepareRouteLocale(params, "/lessons/ron-to-tsumo");
   return (
-    <LearnPageLayout slug="ron-to-tsumo">
+    <LearnPageLayout slug="ron-to-tsumo" locale={locale}>
       <RonToTsumoGuide />
     </LearnPageLayout>
   );

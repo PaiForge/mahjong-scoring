@@ -7,13 +7,16 @@ import { LinkRowList } from "@/app/[locale]/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { resolvePublishedHref } from "@/i18n/navigation";
 import { collectTermSlugsInNamespace } from "@/lib/glossary/message-terms";
 import { resolveTermPreviews } from "@/lib/glossary/queries";
 import {
+  chapterPublishedAtFor,
   getChapterBySlug,
   isColumnChapter,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { stepAfterLesson } from "@mahjong-scoring/features/journey/journey";
 import {
   isQuizLessonSlug,
@@ -38,9 +41,21 @@ import { NextLessonPreview } from "./next-lesson-preview";
 import { RankGoalPanel } from "./rank-goal-panel";
 import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
 
+/**
+ * 完了の記録に要るログイン画面。この画面をページの言語で出しているときだけ
+ * 確認問題・完了ボタンを出す（{@link LearnPageLayout} の `@design`）
+ */
+const SIGN_IN_PATH = "/sign-in";
+
 interface LearnPageLayoutProps {
   /** 対象章のスラッグ。辞書ネームスペースもここから導出する */
   readonly slug: CurriculumChapterSlug;
+  /**
+   * ページの言語（`prepareRouteLocale` の戻り値）。広告・JSON-LD・公開日の書式・
+   * 前後のリンク・確認問題を出すかをこの言語で決める。省略できない —
+   * 渡し忘れると英語のページが日本語の公開日や広告を出すので、型で止める
+   */
+  readonly locale: SupportedLocale;
   /** 章の本文 */
   readonly children: ReactNode;
 }
@@ -69,7 +84,21 @@ interface LearnPageLayoutProps {
  * - 章末（`footer`）: ネイティブ広告（掲載中の広告があるときだけ。本文や
  *   練習への CTA より前には出さない。枠の無い行の形 — 練習カードの形は
  *   練習カードの並ぶ所でしか周りに溶けない）→ 前後のレッスンへのリンク → 公開日
- *   （`CURRICULUM` の `publishedAt`。Article の datePublished と同じ日付）
+ *   （その言語のページの公開日。Article の datePublished と同じ日付）
+ *
+ * @design 公開日はその言語のページの公開日だけを出す
+ * 日本語は `CURRICULUM` の `publishedAt`、英語は `translatedAt.en`
+ * （`chapterPublishedAtFor`）。英語の公開日が記録されていない章では、章末の
+ * 「{date} 公開」も Article の `datePublished` も出さない。日本語の公開日や
+ * ビルド時刻で代用すると、実際と違う公開日を名乗ることになる。
+ *
+ * @design 確認問題・完了ボタンは、その言語にログイン画面があるときだけ出す
+ * 完了の記録にはログインが要る。ページの言語でログイン画面（`/sign-in`）を
+ * 出していない間（英語の章はフェーズ 3 まで）は、確認問題（`LessonView`）と
+ * 完了ボタンを出さず、本文 → 練習・試験への導線 → 章末だけを出す。確認問題を
+ * 解いた先が日本語の登録画面になるのを避けるため。判定は言語の分岐ではなく
+ * 公開状態なので、その言語のログイン画面を公開すれば何も書き換えずに現れる。
+ * 練習・試験への導線も同じく行き先の公開状態で出し分ける（`ChapterRelatedLinks`）。
  *
  * @design cookie を読まない
  * ここで `getOptionalUser()` を呼ぶと章ページ全体が動的になり、CDN キャッシュに
@@ -80,6 +109,7 @@ interface LearnPageLayoutProps {
  */
 export async function LearnPageLayout({
   slug,
+  locale,
   children,
 }: LearnPageLayoutProps) {
   const namespace = chapterNamespace(slug);
@@ -91,13 +121,15 @@ export async function LearnPageLayout({
     getTranslations("company"),
   ]);
   const chapter = getChapterBySlug(slug);
-  const quizLesson = quizLessonBySlug(slug);
+  const publishedAt = chapter && chapterPublishedAtFor(chapter, locale);
+  const interactive = resolvePublishedHref(SIGN_IN_PATH, locale) !== undefined;
+  const quizLesson = interactive ? quizLessonBySlug(slug) : undefined;
 
   // 章の本文はすべて辞書にあるため、名前空間ごと走査すれば、その章が
   // リンクしている用語は漏れなく集まる。章側での列挙は要らない。
   const [termPreviews, ad] = await Promise.all([
     resolveTermPreviews(collectTermSlugsInNamespace(namespace)),
-    getNativeAdCreative("learn-chapter-native-ad"),
+    getNativeAdCreative("learn-chapter-native-ad", locale),
   ]);
 
   const body = (
@@ -118,17 +150,17 @@ export async function LearnPageLayout({
           <NativeAdRow creative={ad} />
         </LinkRowList>
       )}
-      <ChapterNav slug={slug} />
+      <ChapterNav slug={slug} locale={locale} />
       {/*
         章の鮮度を読者と検索側に示す（Article の datePublished と同じ日付）。
         本文の前ではなく末尾に置く — 白カードは他のページでは節の見出し
         （濃い緑の pill）から始まり、その手前に日付の 1 行が入ると、この
         ページだけ書き出しの形が違って見える。読み終えた人が見る位置で足りる
       */}
-      {chapter && (
+      {publishedAt && (
         <p className="text-xs text-surface-500">
           {tChapter("publishedOn", {
-            date: formatPublishedDate(chapter.publishedAt),
+            date: formatPublishedDate(publishedAt, locale),
           })}
         </p>
       )}
@@ -152,8 +184,9 @@ export async function LearnPageLayout({
             slug,
             headline: t("pageTitle"),
             description: t("pageDescription"),
-            publishedAt: chapter.publishedAt,
+            publishedAt,
             operatorName: tCompany("name.value"),
+            locale,
           })}
         />
       )}
@@ -163,18 +196,18 @@ export async function LearnPageLayout({
         <LessonView
           slug={quizLesson.slug}
           messageKey={quizLesson.messageKey}
-          next={await nextStepAfter(quizLesson.slug)}
+          next={await nextStepAfter(quizLesson.slug, locale)}
           explanation={body}
-          related={<ChapterRelatedLinks slug={slug} />}
+          related={<ChapterRelatedLinks slug={slug} locale={locale} />}
           footer={footer}
         />
       ) : (
         <div className="space-y-10">
           {body}
-          {chapter && !isColumnChapter(chapter) && (
+          {interactive && chapter && !isColumnChapter(chapter) && (
             <ChapterCompleteButton slug={slug} />
           )}
-          <ChapterRelatedLinks slug={slug} />
+          <ChapterRelatedLinks slug={slug} locale={locale} />
           {footer}
         </div>
       )}
@@ -191,7 +224,7 @@ export async function LearnPageLayout({
  * 残りを添える。道筋の順の一歩で、記録のときにサーバーが本人の進み具合から
  * 求めた一歩を返したら `LessonView` がそちらを使う。
  */
-async function nextStepAfter(slug: QuizLessonSlug) {
+async function nextStepAfter(slug: QuizLessonSlug, locale: SupportedLocale) {
   const [t, tAll] = await Promise.all([
     getTranslations("lessons"),
     getTranslations(),
@@ -208,13 +241,16 @@ async function nextStepAfter(slug: QuizLessonSlug) {
   return {
     href: journeyStepHref(step),
     label: t(`nextStep.${step.kind}`, { title: journeyStepTitle(step, tAll) }),
-    preview: nextLesson ? <NextLessonPreview slug={nextLesson} /> : undefined,
+    preview: nextLesson ? (
+      <NextLessonPreview slug={nextLesson} locale={locale} />
+    ) : undefined,
     previewLessonSlug: nextLesson,
     goal:
       step.kind === "lesson" || rank === undefined ? undefined : (
         <RankGoalPanel
           rankSlug={rank.slug}
           examSlug={menuTypeToSlug(rank.exam.menuType)}
+          locale={locale}
         />
       ),
   };
