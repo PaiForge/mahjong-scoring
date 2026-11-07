@@ -18,9 +18,10 @@ import {
  * ページが `prepareRouteLocale` で確定させた言語を受け取る。`getLocale()` で
  * 引かないのは、言語の出所をページの入口 1 か所に揃えるため。辞書はリクエストの
  * 言語（入口の `prepareRouteLocale` が `setRequestLocale` で確定させた、`locale` と
- * 同じ値）で引く。`getTranslations({ locale, namespace: "glossary" })` の形に
- * しないのは、`client-messages.test.ts` が `namespace: "<名前空間>"` をレジストリの
- * クライアント参照として数え、サーバー専用の `glossary` を違反と判定するため。
+ * 同じ値）で引く。言語と名前空間をオブジェクトで渡す形の `getTranslations` に
+ * しないのは、`client-messages.test.ts` がオブジェクトの名前空間の指定を
+ * レジストリのクライアント参照として数え、サーバー専用の `glossary` を違反と
+ * 判定するため。
  *
  * @param locale - ページの言語
  */
