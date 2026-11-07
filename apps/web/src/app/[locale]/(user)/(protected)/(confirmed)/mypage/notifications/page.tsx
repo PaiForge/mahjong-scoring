@@ -25,12 +25,15 @@ import { NotificationItem } from "./_components/notification-item";
 import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
 import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+
+import { confirmedGuardOptions } from "../../_lib/guard-options";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/mypage/notifications">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/mypage/notifications");
-  return createPrivateMetadata("notifications");
+  const locale = await prepareRouteLocale(params, MYPAGE_NOTIFICATIONS_PATH);
+  return createPrivateMetadata("notifications", "pageTitle", { locale });
 }
 
 interface NotificationsPageProps {
@@ -42,8 +45,13 @@ export default async function NotificationsPage({
   searchParams,
 }: NotificationsPageProps &
   Pick<PageProps<"/[locale]/mypage/notifications">, "params">) {
-  await prepareRouteLocale(routeParams, "/mypage/notifications");
-  const { user } = await requireConfirmedUser();
+  const locale = await prepareRouteLocale(
+    routeParams,
+    MYPAGE_NOTIFICATIONS_PATH,
+  );
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(MYPAGE_NOTIFICATIONS_PATH, locale),
+  );
   const params = await searchParams;
   const page = parsePageParam(params.page);
 
@@ -54,10 +62,14 @@ export default async function NotificationsPage({
       countUnreadNotifications(user.id),
     ]);
 
+  // ページ送りはこのページ自身なので、同じ言語のまま移る
   const buildHref = (p: number) =>
-    p > 1
-      ? `${MYPAGE_NOTIFICATIONS_PATH}?page=${p}`
-      : MYPAGE_NOTIFICATIONS_PATH;
+    resolveNavTargetFor(
+      p > 1
+        ? `${MYPAGE_NOTIFICATIONS_PATH}?page=${p}`
+        : MYPAGE_NOTIFICATIONS_PATH,
+      locale,
+    ).href;
 
   return (
     <MypageSubpageLayout title={t("pageTitle")}>

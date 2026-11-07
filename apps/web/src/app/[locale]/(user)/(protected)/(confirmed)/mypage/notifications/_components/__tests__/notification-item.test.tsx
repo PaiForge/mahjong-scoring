@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-const { mockMarkRead } = vi.hoisted(() => ({ mockMarkRead: vi.fn() }));
+const { mockMarkRead, locale } = vi.hoisted(() => ({
+  mockMarkRead: vi.fn(),
+  locale: { current: "ja" as "ja" | "en" },
+}));
 
-vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+vi.mock("next-intl", async () => ({
+  ...(await import("@/test/intl-mock")),
+  useLocale: () => locale.current,
+}));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock("../../_actions/mark-read", () => ({
   markNotificationReadAction: mockMarkRead,
@@ -29,6 +35,7 @@ function item(
 
 beforeEach(() => {
   vi.clearAllMocks();
+  locale.current = "ja";
   mockMarkRead.mockResolvedValue({ success: true });
 });
 
@@ -45,6 +52,21 @@ describe("NotificationItem", () => {
     ).toBeDefined();
     expect(screen.getByText("2026/10/01 12:00")).toBeDefined();
     expect(screen.getByRole("link").getAttribute("href")).toBe("/mypage/plan");
+  });
+
+  it("英語のページでは日時を英語の書式（時刻は JST）にし、英語のプラン状況へ張る", () => {
+    locale.current = "en";
+    render(
+      <ul>
+        <NotificationItem notification={item()} />
+      </ul>,
+    );
+
+    // ICU の版によって PM の前が狭い空白（U+202F）になるので \s で受ける
+    expect(screen.getByText(/^Oct 1, 2026, 12:00\sPM$/)).toBeDefined();
+    expect(screen.getByRole("link").getAttribute("href")).toBe(
+      "/en/mypage/plan",
+    );
   });
 
   it("未読は点を出し、押すと既読にしてベルに知らせる", async () => {

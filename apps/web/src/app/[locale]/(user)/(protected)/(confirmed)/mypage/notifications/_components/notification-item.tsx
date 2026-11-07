@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+
+import { localizedHref } from "@/i18n/public-path";
 
 import {
   FOCUS_RING_CLASSES,
@@ -36,14 +38,24 @@ interface NotificationItemProps {
  * したらベルに知らせる（`dispatchNotificationsRead`）。
  *
  * 遷移先を持たない種別（退役した種別）は押せない行として出す。
+ *
+ * 文面・日時・遷移先はページの言語で出す。遷移先（`notificationHref`）は
+ * どれもマイページの下位（いまはプラン状況だけ）で、通知の一覧を出している
+ * 言語では出しているので、ここでは公開状態を読まずに同じ言語の href にする
+ * （`localizedHref`。日本語は恒等）。英語で出していない行き先を足すと、
+ * `mypage-link-targets.test.ts` が落ちる。日時の時刻は言語によらず JST。
  */
 export function NotificationItem({ notification }: NotificationItemProps) {
+  const locale = useLocale();
   const t = useTranslations("notifications");
   const isUnread = notification.readAt === undefined;
-  const href = notificationHref(notification.type);
+  const destination = notificationHref(notification.type);
+  const href =
+    destination === undefined ? undefined : localizedHref(destination, locale);
   const message = buildNotificationMessage(
     notification.type,
     notification.metadata,
+    locale,
   );
 
   function handleClick() {
@@ -67,7 +79,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         <span className="mt-0.5 block text-xs tabular-nums text-surface-400">
           {/* 相対表記（「3 日前」）にしない。サーバーで描いた文字列をそのまま
               出すので、クライアントの時計とのずれでハイドレーションが崩れない */}
-          {formatJstDateTime(notification.createdAt)}
+          {formatJstDateTime(notification.createdAt, locale)}
         </span>
       </span>
       {isUnread && (
