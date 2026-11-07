@@ -426,52 +426,52 @@
       "pitfall": "You can declare riichi only with a closed hand. After a pon, a chii or a daiminkan you cannot declare riichi (a closed kan is fine).\nAlso, after riichi you cannot change your hand, so if you let a winning tile pass (furiten) you can no longer win by ron for the rest of the hand. Declaring riichi on your very first turn is double riichi (2 han)."
     },
     "fu": {
-      "term": "符",
-      "reading": "フ",
-      "definition": "手牌の細かい形を点数に反映するための単位。副底の20符を土台に、面子・雀頭・待ち・アガリ方の符を足し、最後に10符単位へ切り上げる。翻と組み合わせて点数が決まる。",
-      "usage": "符は「副底20符＋面子の符＋雀頭の符＋待ちの符＋アガリ方の符」を足し、10符単位に切り上げて求めます。面子は順子0符・刻子と槓子は種類で2〜32符、雀頭は役牌なら2符、待ちは嵌張・辺張・単騎で2符、アガリ方は門前ロン10符・ツモ2符です。\n例外として、七対子は25符固定、平和のツモは20符固定です。符と翻から基本点は「符 × 2の（翻＋2）乗」で求まり、点数表はこれを人数分に増やして切り上げたものです。",
-      "caseStudy": "順子3つ・白の暗刻（8符）・数牌の雀頭（0符）・両面待ち（0符）を門前ロン（10符）すれば、20＋8＋10＝38符→40符です。同じ手をツモれば20＋8＋2＝30符です。\n40符1翻は子1300点、40符2翻は2600点、3翻は5200点、4翻は満貫（8000点）です。翻が1つ増えるごとに点数はおよそ倍になります。",
-      "pitfall": "「鳴くと符が無くなる」わけではありません。鳴いた手でも副底20符と明刻・明槓・雀頭・待ちの符は数えます。無くなるのは門前ロンの10符だけです。\nまた、5翻以上の手は符を数えなくても点数が決まります（満貫以上）。符が点数に影響するのは4翻以下の手だけです。"
+      "term": "Fu",
+      "reading": "fu",
+      "definition": "The unit (minipoints) that turns the fine details of a hand into points. Starting from the 20 base fu, you add the fu for sets, the pair, the wait and the way you won, then round up to the next 10. Together with han, it decides the score.",
+      "usage": "Fu is base fu (20) + set fu + pair fu + wait fu + fu for the way you won, rounded up to the next 10. Sequences are 0 fu, triplets and quads 2 to 32 fu depending on their kind, the pair 2 fu if it is a value tile, the wait 2 fu for a closed, edge or single-tile wait, and the way you won 10 fu for a closed ron and 2 fu for tsumo.\nThe exceptions are chiitoitsu, fixed at 25 fu, and a pinfu tsumo, fixed at 20 fu. From fu and han, the basic points are fu times 2 to the power of (han + 2), and the scoring table is that value multiplied out for the paying players and rounded up.",
+      "caseStudy": "Three sequences, a closed triplet of white dragons (8 fu), a number-tile pair (0 fu) and a two-sided wait (0 fu), won by closed ron (10 fu), make 20 + 8 + 10 = 38 fu, rounded up to 40 fu. Win the same hand by tsumo and it is 20 + 8 + 2 = 30 fu.\nAt 40 fu, 1 han is 1,300 points for a non-dealer, 2 han is 2,600, 3 han is 5,200 and 4 han is mangan (8,000). Each extra han roughly doubles the score.",
+      "pitfall": "Calling does not take away your fu. An open hand still counts the 20 base fu and the fu of open triplets, open quads, the pair and the wait. The only thing it loses is the 10 fu for a closed ron.\nAlso, a hand of 5 han or more has its score decided without counting fu (mangan or higher). Fu affects the score only for hands of 4 han or less."
     },
     "futei": {
-      "term": "副底",
-      "reading": "フーテイ",
-      "definition": "どんな手にも無条件で付く20符。符計算の出発点であり、面子がすべて順子で待ちも0符なら、この20符だけが残る。",
-      "usage": "副底はどんな和了にも付く20符で、符計算の出発点です。面子・雀頭・待ち・アガリ方の符をここに足していきます。平和のツモは副底の20符だけで計算し、切り上げもしないので20符固定です。\n鳴いている手をロンして、副底の20符に何も足されない場合（鳴き平和形のロン）は、30符として計算するのが一般的です。",
-      "caseStudy": "順子4つ・数牌の雀頭・両面待ちの門前手をツモれば、副底20符にツモ符が付かず（平和）、20符のままです。同じ手をロンすれば20符＋門前ロン10符＝30符です。\n順子4つ・数牌の雀頭・両面待ちの鳴いた手をロンすれば、計算上は20符ですが、30符に切り上げて扱います。",
-      "pitfall": "副底の20符は「20符の手」という意味ではなく、すべての手に含まれる土台です。符計算で「20符」と言うときは、平和のツモか鳴き平和形のロン（30符扱い）のように、土台に何も足されない場合を指します。\n七対子は副底から積み上げず25符固定なので、副底の考え方は当てはまりません。"
+      "term": "Base fu",
+      "reading": "fuutei",
+      "definition": "The 20 fu that every hand gets unconditionally. It is the starting point of fu calculation, and if every set is a sequence and the wait is worth 0 fu, these 20 fu are all that remain.",
+      "usage": "Base fu are the 20 fu that every win gets, the starting point of fu calculation. You add the fu for sets, the pair, the wait and the way you won on top of them. A pinfu tsumo is calculated with the 20 base fu alone and is not rounded up, so it is fixed at 20 fu.\nWhen an open hand wins by ron and nothing is added to the 20 base fu (the open pinfu shape won by ron), it is generally scored as 30 fu.",
+      "caseStudy": "A closed hand of four sequences, a number-tile pair and a two-sided wait, won by tsumo, adds no tsumo fu to the 20 base fu (pinfu) and stays at 20 fu. Win the same hand by ron and it is 20 fu + 10 fu (closed ron) = 30 fu.\nAn open hand of four sequences, a number-tile pair and a two-sided wait, won by ron, is 20 fu on paper, but it is treated as 30 fu.",
+      "pitfall": "The 20 base fu do not mean that every hand is a 20 fu hand; they are the base included in every hand. When fu calculation speaks of 20 fu, it means a case where nothing is added to that base, such as a pinfu tsumo, or the open pinfu shape won by ron (treated as 30 fu).\nChiitoitsu does not build up from the base fu and is fixed at 25 fu, so the idea of base fu does not apply to it."
     },
     "menzen-ron-kafu": {
-      "term": "門前ロン加符",
-      "reading": "メンゼンロンカフ",
-      "definition": "門前のままロンでアガったときに加算される10符。門前清栄和加符ともいう。ツモアガリや鳴いている手には付かない。",
-      "usage": "門前ロン加符は、門前（暗槓を除き一度も鳴いていない）でロンしたときだけ加算される10符です。ツモには付かず、代わりにツモ符の2符が付きます。鳴いている手のロンにはどちらも付きません。\n平和のロンが30符なのは、副底20符にこの10符を足したものです。",
-      "caseStudy": "順子4つ・数牌の雀頭・両面待ちの門前手をロンすれば20符＋10符＝30符（平和ロン）、ツモすれば20符（平和ツモ）です。\n順子3つ・白の暗刻・数牌の雀頭を両面待ちで門前ロンすれば20＋10＋8＝38→40符、同じ手を白をポンして作っていれば20＋4＝24→30符で、10符と暗刻・明刻の差で符が変わります。",
-      "pitfall": "門前ロン加符は「ロンすると必ず付く10符」ではありません。鳴いている手のロンには付きません。\nまた、門前ツモには付きません。門前でツモった手は門前清自摸和（1翻）の役とツモ符（2符）が付くだけで、10符は加算しません。"
+      "term": "Closed ron bonus",
+      "reading": "menzen ron kafu",
+      "definition": "The 10 fu added when you win by ron with a closed hand. Also called menzen kafu. It does not apply to a tsumo win or to an open hand.",
+      "usage": "The closed ron bonus is 10 fu added only when you win by ron with a closed hand (one that has never called, closed kans aside). It does not apply to a tsumo, which gets the 2 fu tsumo fu instead. An open hand winning by ron gets neither.\nA pinfu ron is 30 fu because it is the 20 base fu plus these 10 fu.",
+      "caseStudy": "A closed hand of four sequences, a number-tile pair and a two-sided wait is 20 + 10 = 30 fu by ron (pinfu ron) and 20 fu by tsumo (pinfu tsumo).\nThree sequences, a closed triplet of white dragons and a number-tile pair, won by closed ron on a two-sided wait, make 20 + 10 + 8 = 38 fu, rounded up to 40 fu. Had you made the same hand by calling pon on the white dragons, it would be 20 + 4 = 24 fu, rounded up to 30 fu: the 10 fu and the difference between a closed and an open triplet change the fu.",
+      "pitfall": "The closed ron bonus is not 10 fu that every ron gets. An open hand winning by ron does not get it.\nNor does a closed tsumo get it. A closed hand won by tsumo gets only the yaku menzen tsumo (1 han) and the tsumo fu (2 fu); the 10 fu are not added."
     },
     "tsumo-fu": {
-      "term": "ツモ符",
-      "reading": "ツモフ",
-      "definition": "ツモでアガったときに加算される2符。ただし平和はツモ符を取らず、20符のまま計算する。嶺上開花（カンの後に引いた嶺上牌でのツモアガリ）にも通常どおりツモ符を加算するかどうかはルールによって異なる。",
-      "usage": "ツモ符は、面子手をツモで和了したときに付く2符です。門前かどうかに関係なく付き、鳴いた手のツモにも加算します。平和だけは例外でツモ符を取らず、20符で固定です。\n嶺上開花（カンの後の嶺上牌でのツモ）にツモ符を加えるかどうかはルールによって異なります。",
-      "caseStudy": "白をポンした手（役牌1翻）を両面待ちでツモれば、20符＋2符（ツモ）＋4符（白の明刻）＝26符→30符で、役牌1翻30符の子は500・1000です。\n順子3つ・五萬の暗刻・数牌の雀頭を両面待ちで門前ツモすれば、20＋2＋4＝26→30符で、門前ツモ1翻30符です。平和ではないのでツモ符が付きます。",
-      "pitfall": "「ツモ符は門前限定」ではありません。門前限定なのは門前清自摸和（1翻の役）で、ツモ符の2符は鳴いていても付きます。\nまた、平和ツモにツモ符を加えない（20符固定）のが標準です。ツモ符を加えて30符とするルールは一部にありますが、その場合は平和ツモが20符2翻ではなく30符2翻になります。"
+      "term": "Tsumo fu",
+      "reading": "tsumo fu",
+      "definition": "The 2 fu added when you win by tsumo. Pinfu, however, does not take tsumo fu and is calculated at 20 fu. Whether rinshan kaihou (a tsumo win on the replacement tile drawn after a kan) adds tsumo fu as usual depends on the rules.",
+      "usage": "Tsumo fu are the 2 fu a standard hand earns when it wins by tsumo. They apply whether or not the hand is closed, and are added to an open hand's tsumo too. Pinfu alone is the exception: it does not take tsumo fu and is fixed at 20 fu.\nWhether rinshan kaihou (a tsumo on the replacement tile after a kan) adds tsumo fu depends on the rules.",
+      "caseStudy": "A hand that called pon on white dragons (1 han of yakuhai) and wins by tsumo on a two-sided wait is 20 fu + 2 fu (tsumo) + 4 fu (open triplet of white dragons) = 26 fu, rounded up to 30 fu; a non-dealer with 1 han of yakuhai at 30 fu collects 500/1,000.\nThree sequences, a closed triplet of 5 man and a number-tile pair, won by closed tsumo on a two-sided wait, make 20 + 2 + 4 = 26 fu, rounded up to 30 fu: menzen tsumo, 1 han 30 fu. It is not pinfu, so the tsumo fu applies.",
+      "pitfall": "Tsumo fu are not limited to closed hands. What is closed only is menzen tsumo (a 1 han yaku); the 2 tsumo fu apply even when you have called.\nAlso, the standard is not to add tsumo fu to a pinfu tsumo (fixed at 20 fu). Some rules do add it to make 30 fu, and under those rules a pinfu tsumo is 30 fu 2 han instead of 20 fu 2 han."
     },
     "fu-kiriage": {
-      "term": "符の切り上げ",
-      "reading": "フノキリアゲ",
-      "definition": "符をすべて足したあと、10符単位へ切り上げる操作。22符なら30符になる。切り上げた符で点数表を引く。",
-      "usage": "符をすべて足したあと、1の位を切り上げて10符単位にします。22符→30符、32符→40符、44符→50符です。切り上げた符で点数表を引きます。\n七対子の25符と平和ツモの20符は切り上げません。また、30符・40符のようにちょうどの符はそのままです。",
-      "caseStudy": "副底20符＋白の暗刻8符＋嵌張待ち2符＋門前ロン10符＝40符なら切り上げは不要です。副底20符＋五萬の暗刻4符＋門前ロン10符＝34符なら40符に切り上げます。\n34符と38符はどちらも40符に切り上げるので同じ点数（40符2翻なら子2600点）ですが、30符ちょうどの手は切り上げず30符2翻（子2000点）です。1符の差が、切り上げで10符の差になることがあります。",
-      "pitfall": "切り上げは「最後に1回だけ」行います。面子ごとに切り上げたり、途中で切り上げてから足したりはしません。\nまた、切り上げ満貫とは別の話です。符の切り上げは符を10の単位にそろえる操作で、切り上げ満貫は30符4翻・60符3翻の点数を満貫に切り上げるルールです。"
+      "term": "Rounding up fu",
+      "reading": "fu no kiriage",
+      "definition": "Rounding the total fu up to the next 10 after adding everything. 22 fu becomes 30 fu. You look up the score in the scoring table with the rounded fu.",
+      "usage": "After adding all the fu, you round up the ones digit to a multiple of 10: 22 fu becomes 30 fu, 32 fu becomes 40 fu and 44 fu becomes 50 fu. You look up the score in the scoring table with the rounded fu.\nThe 25 fu of chiitoitsu and the 20 fu of a pinfu tsumo are not rounded up. A total that is already a multiple of 10, such as 30 fu or 40 fu, stays as it is.",
+      "caseStudy": "20 base fu + 8 fu for a closed triplet of white dragons + 2 fu for a closed wait + 10 fu for a closed ron = 40 fu needs no rounding. 20 base fu + 4 fu for a closed triplet of 5 man + 10 fu for a closed ron = 34 fu rounds up to 40 fu.\n34 fu and 38 fu both round up to 40 fu, so they score the same (2,600 points for a non-dealer at 40 fu 2 han), but a hand at exactly 30 fu is not rounded and stays at 30 fu 2 han (2,000 points for a non-dealer). A difference of 1 fu can become a difference of 10 fu after rounding.",
+      "pitfall": "You round up only once, at the end. You do not round each set separately, or round partway and then keep adding.\nAlso, this is a different thing from kiriage mangan. Rounding up fu brings the fu to a multiple of 10; kiriage mangan is a rule that rounds the score of 30 fu 4 han and 60 fu 3 han up to mangan."
     },
     "pinfu": {
-      "term": "平和",
-      "reading": "ピンフ",
-      "definition": "面子がすべて順子、雀頭が役牌でなく、待ちが両面という条件を満たす門前限定の1翻役。符が付く要素がひとつもないため、20符で固定される。",
-      "usage": "平和は門前限定の1翻役で、面子がすべて順子・雀頭が役牌でない・両面待ちの3つが条件です。符の付く要素が無いため、ツモなら副底の20符のまま（ツモ符を加えない）、ロンなら門前ロン加符を足して30符です。\n平和のツモは20符2翻（平和＋門前ツモ）で子400・700、親700オール、平和のロンは30符1翻で子1000点・親1500点です。",
-      "caseStudy": "二萬・三萬・四萬、五筒・六筒・七筒、七索・八索・九索、四萬・五萬（三萬・六萬待ち）、雀頭が北（東場の南家ならオタ風）の門前手は平和です。ロンなら30符1翻、ツモなら20符2翻です。\n同じ手でも雀頭が白なら平和ではなく、雀頭の2符が付いて門前ロンで32符→40符、ツモで24符→30符です。",
-      "pitfall": "「符が20符なら平和」ではありません。平和は役であり、3つの条件で決まります。逆に、平和の条件を満たしていれば、ロンでは30符になっても平和です。\nまた、待ちが両面に見えても、辺張・嵌張と解釈しないとアガれない形や、双碰で完成した場合は平和になりません。三面待ちの一部が両面でない場合も、両面でアガった牌でなければ平和は付きません。"
+      "term": "Pinfu",
+      "reading": "pinfu",
+      "definition": "A closed-only 1 han yaku that requires every set to be a sequence, the pair not to be a value tile, and the wait to be two-sided. Nothing in the hand earns fu, so it is fixed at 20 fu.",
+      "usage": "Pinfu is a closed-only 1 han yaku with three conditions: every set is a sequence, the pair is not a value tile, and the wait is two-sided. Nothing in the hand earns fu, so by tsumo it stays at the 20 base fu (no tsumo fu is added), and by ron the closed ron bonus is added for 30 fu.\nA pinfu tsumo is 20 fu 2 han (pinfu plus menzen tsumo): 400/700 for a non-dealer and 700 all for the dealer. A pinfu ron is 30 fu 1 han: 1,000 points for a non-dealer and 1,500 for the dealer.",
+      "caseStudy": "A closed hand of 2-3-4 man, 5-6-7 pin, 7-8-9 sou, 4-5 man (waiting on 3 or 6 man) and a pair of North (a non-value wind for the South player in the East round) is pinfu. By ron it is 30 fu 1 han, and by tsumo 20 fu 2 han.\nIf the same hand had a pair of white dragons instead, it would not be pinfu: the pair earns 2 fu, giving 32 fu, rounded up to 40 fu, by closed ron, and 24 fu, rounded up to 30 fu, by tsumo.",
+      "pitfall": "A 20 fu hand is not automatically pinfu. Pinfu is a yaku, decided by its three conditions. Conversely, a hand that meets the pinfu conditions is still pinfu even though a ron makes it 30 fu.\nAlso, even if the wait looks two-sided, the hand is not pinfu if it can only win when read as an edge or closed wait, or if it is completed as a pair wait. When only part of a three-sided wait is two-sided, pinfu applies only if the winning tile is one that completes the two-sided wait."
     },
     "han": {
       "term": "翻",
