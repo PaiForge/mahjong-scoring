@@ -1,104 +1,104 @@
 {
-  "title": "聴牌形の点数計算",
-  "description": "聴牌形から待ち牌を読み、待ちごとにツモ・ロンの点数を答える実戦形式の練習",
-  "exitToast": "聴牌形の点数計算を終了しました",
+  "title": "Tenpai Hand Scoring Practice",
+  "description": "Game-style riichi mahjong scoring practice: read the waits of a tenpai hand, then score each wait by tsumo and by ron.",
+  "exitToast": "You left Tenpai Hand Scoring Practice",
   "help": {
-    "label": "この練習の進め方を見る",
-    "title": "練習の進め方",
+    "label": "How this practice works",
+    "title": "How this practice works",
     "slides": {
       "machi": {
-        "title": "① 待ち牌を選ぶ",
-        "caption": "聴牌形と場風・自風・ドラが表示されます。待ち牌をすべて選んで回答すると、牌ごとに正誤が枠の色で表示されます。"
+        "title": "1. Pick the waits",
+        "caption": "You see a tenpai hand with the round wind, your seat wind and the dora. Select every winning tile and answer; the frame color of each tile shows whether it was right."
       },
       "cells": {
-        "title": "② 待ちごとに点数を答える",
-        "caption": "待ち × ツモ/ロン のマスを押すと回答欄が出て、{fields, select, hanFu {翻・符・点数} other {点数}}を当てはめられます。同じ点数になるマスは「同じ回答にする」で 1 つにまとめられます。役が無くロンできない待ちは「役なし」を押します。"
+        "title": "2. Score each wait",
+        "caption": "Press a cell in the wait × tsumo/ron grid to open the answer fields and enter {fields, select, hanFu {the han, the fu and the score} other {the score}}. Cells with the same score can be joined into one with Same answer. For a wait that has no yaku and cannot win by ron, press No yaku."
       },
       "result": {
-        "title": "③ 答え合わせ",
-        "caption": "待ち牌当ての結果と、待ちごとの正解の点数がツモ・ロンのタブで並びます。タブを切り替えると、その和了形のあなたの回答と内訳（役・符）を確認できます。"
+        "title": "3. Review",
+        "caption": "You see how you did on the waits, then the correct score for each wait on the Tsumo and Ron tabs. Switch tabs to check your answer and the breakdown (yaku and fu) for each winning hand."
       }
     },
-    "prev": "戻る",
-    "next": "次へ"
+    "prev": "Back",
+    "next": "Next"
   },
   "tour": {
-    "label": "この画面の操作を見る",
-    "prev": "戻る",
-    "next": "次へ",
-    "done": "閉じる",
+    "label": "How to use this screen",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Close",
     "progress": "{current} / {total}",
     "board": {
-      "title": "聴牌形",
-      "description": "13 枚の聴牌形です。場風・自風・ドラも点数に関わります。"
+      "title": "Tenpai hand",
+      "description": "A tenpai hand of 13 tiles. The round wind, your seat wind and the dora also affect the score."
     },
     "picker": {
-      "title": "待ち牌を選ぶ",
-      "description": "待ち牌をすべて押して選びます。複数あります。"
+      "title": "Pick the waits",
+      "description": "Press every winning tile to select it. There is more than one."
     },
     "machiSubmit": {
-      "title": "待ちを回答する",
-      "description": "回答すると牌ごとに正誤が枠の色で出ます。そのあと点数計算へ進みます。"
+      "title": "Answer the waits",
+      "description": "After you answer, the frame color of each tile shows whether it was right. Then you move on to scoring."
     },
     "cells": {
-      "title": "待ち × ツモ/ロン のマス",
-      "description": "マスを押すと下に回答欄が出ます。待ちが違っても点数が同じになることはよくあるので、同じ列（ツモ / ロン）のマスは「同じ回答にする」で 1 つにつなげ、1 回の入力で済ませられます。"
+      "title": "Wait × tsumo/ron cells",
+      "description": "Press a cell to open the answer fields below. Different waits often give the same score, so you can join cells in the same column (tsumo or ron) with Same answer and fill them in once."
     },
     "answerForm": {
-      "title": "回答欄",
-      "description": "選んだマスに当てはめる{fields, select, hanFu {翻・符・点数} other {点数}}を入れます。当てはめると、同じ列の次の未回答のマスが続けて回答中になります（列が埋まるともう一方の列の先頭へ移ります）。役が無くロンできない待ちは、ロンのマスを選ぶと出る「役なし」を押すとその場で当てはまります。"
+      "title": "Answer fields",
+      "description": "Enter {fields, select, hanFu {the han, the fu and the score} other {the score}} for the selected cells. Once you apply it, the next unanswered cell in the same column is selected (when a column is full, the top of the other column is next). For a wait that has no yaku and cannot win by ron, select its ron cell and press No yaku to apply it right away."
     },
     "cellsSubmit": {
-      "title": "回答する",
-      "description": "全マスが埋まり、回答中のマスが無くなると押せます。まとめて答え合わせします。"
+      "title": "Answer",
+      "description": "Becomes available once every cell is filled and none is still being answered. All cells are checked together."
     }
   },
   "notes": {
-    "mentsuOnly": "※ 面子手のみ出題します（七対子・国士無双は出ません）",
-    "multiWait": "※ 2 面待ち以上の聴牌形だけを出題します"
+    "mentsuOnly": "Note: only standard hands (four sets and a pair) are asked; no chiitoitsu or kokushi musou.",
+    "multiWait": "Note: only tenpai hands with two or more winning tiles are asked."
   },
   "machi": {
-    "prompt": "待ち牌をすべて選んでください",
-    "selectedCount": "{count} 種類を選択中",
-    "submit": "待ちを回答する",
-    "proceed": "点数計算へ進む",
-    "correct": "正解！待ちは {count} 種類です",
-    "incorrect": "不正解。正解の待ちを確認して点数計算へ進みましょう",
+    "prompt": "Select every winning tile",
+    "selectedCount": "Selected: {count}",
+    "submit": "Answer the waits",
+    "proceed": "Go on to scoring",
+    "correct": "Correct! Winning tiles: {count}",
+    "incorrect": "Incorrect. Check the correct waits, then go on to scoring.",
     "suits": {
-      "manzu": "萬子",
-      "pinzu": "筒子",
-      "souzu": "索子",
-      "jihai": "字牌"
+      "manzu": "Man",
+      "pinzu": "Pin",
+      "souzu": "Sou",
+      "jihai": "Honors"
     }
   },
   "cells": {
-    "prompt": "待ちごとにツモ・ロンの点数を回答してください",
-    "wait": "待ち",
-    "tsumo": "ツモ",
-    "ron": "ロン",
-    "unanswered": "未回答",
-    "answering": "回答中",
-    "answeringTogether": "まとめて回答中",
-    "joinable": "同じ回答にする",
-    "removeFromSelection": "{hai} を選択から外す",
-    "assign": "選んだマスに当てはめる",
-    "noYaku": "役なし（ロンできない）",
-    "noYakuShort": "役なし",
-    "submit": "回答する",
-    "remaining": "未回答のマスがあと {count} つあります",
-    "selecting": "選んだマスに当てはめるか、選択を解くと回答できます"
+    "prompt": "Score each wait by tsumo and by ron",
+    "wait": "Wait",
+    "tsumo": "Tsumo",
+    "ron": "Ron",
+    "unanswered": "Unanswered",
+    "answering": "Answering",
+    "answeringTogether": "Answering together",
+    "joinable": "Same answer",
+    "removeFromSelection": "Remove {hai} from the selection",
+    "assign": "Apply to selected cells",
+    "noYaku": "No yaku (cannot win by ron)",
+    "noYakuShort": "No yaku",
+    "submit": "Answer",
+    "remaining": "Cells left to answer: {count}",
+    "selecting": "Apply your answer to the selected cells or clear the selection to answer."
   },
   "result": {
-    "machiTitle": "待ち牌当ての結果",
-    "summaryTitle": "待ちごとの点数計算の結果",
+    "machiTitle": "Wait results",
+    "summaryTitle": "Scores for each wait",
     "notApplicable": "—",
-    "noYakuDetail": "この待ちは役が無く、ロンでは和了れません。"
+    "noYakuDetail": "This wait has no yaku, so it cannot win by ron."
   },
   "board": {
-    "correct": "正解！",
-    "correctLabel": "正解",
-    "incorrectLabel": "不正解",
-    "generationFailed": "この条件に合う問題を作れませんでした。出題条件を変えてお試しください。",
-    "backToSetup": "設定に戻る"
+    "correct": "Correct!",
+    "correctLabel": "Correct",
+    "incorrectLabel": "Incorrect",
+    "generationFailed": "We couldn't make a question that fits these conditions. Try changing the question settings.",
+    "backToSetup": "Back to settings"
   }
 }
