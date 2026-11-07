@@ -474,100 +474,100 @@
       "pitfall": "A 20 fu hand is not automatically pinfu. Pinfu is a yaku, decided by its three conditions. Conversely, a hand that meets the pinfu conditions is still pinfu even though a ron makes it 30 fu.\nAlso, even if the wait looks two-sided, the hand is not pinfu if it can only win when read as an edge or closed wait, or if it is completed as a pair wait. When only part of a three-sided wait is two-sided, pinfu applies only if the winning tile is one that completes the two-sided wait."
     },
     "han": {
-      "term": "翻",
-      "reading": "ハン",
-      "definition": "役やドラで数える点数の単位。翻が1つ増えるごとに点数はおよそ倍になる。符と翻の組み合わせで点数が決まる。",
-      "usage": "翻は役とドラで数えます。基本点は「符 × 2の（翻＋2）乗」で、翻が1つ増えると基本点は倍になります。子のロンは基本点の4倍、親のロンは6倍で、それぞれ100点単位に切り上げます。\n5翻以上は符に関係なく満貫（5翻）・跳満（6〜7翻）・倍満（8〜10翻）・三倍満（11〜12翻）・数え役満（13翻以上）です。4翻以下は符と組み合わせて点数表を引きます。",
-      "caseStudy": "30符1翻は基本点240で子1000点・親1500点、30符2翻は基本点480で子2000点・親2900点、30符3翻は3900点・5800点、30符4翻は7700点・11600点です。\n役牌1翻の手にドラが4枚乗れば5翻で、符に関係なく満貫（子8000点・親12000点）です。",
-      "pitfall": "翻と符は別の軸です。「翻が高い＝符も高い」ではなく、平和のように符が最低の20符で翻が積み上がる手もあれば、符は70符でも1翻の手もあります。\nまた、ドラの翻は役ではないので、ドラだけでは翻があってもアガれません。"
+      "term": "Han",
+      "reading": "han",
+      "definition": "The scoring unit counted from yaku and dora. Each extra han roughly doubles the score. The combination of fu and han decides the score.",
+      "usage": "Han are counted from yaku and dora. The basic points are fu times 2 to the power of (han + 2), so each extra han doubles the basic points. A non-dealer's ron is four times the basic points and a dealer's ron six times, each rounded up to the next 100.\nAt 5 han or more the score no longer depends on fu: mangan (5 han), haneman (6 to 7 han), baiman (8 to 10 han), sanbaiman (11 to 12 han) and counted yakuman (13 han or more). At 4 han or less you look up the score in the scoring table together with the fu.",
+      "caseStudy": "30 fu 1 han has 240 basic points: 1,000 for a non-dealer and 1,500 for the dealer. 30 fu 2 han has 480 basic points: 2,000 for a non-dealer and 2,900 for the dealer. 30 fu 3 han is 3,900 and 5,800, and 30 fu 4 han is 7,700 and 11,600.\nA 1 han yakuhai hand with four dora is 5 han, a mangan regardless of fu (8,000 for a non-dealer, 12,000 for the dealer).",
+      "pitfall": "Han and fu are separate axes. More han does not mean more fu: some hands, like pinfu, stack up han at the minimum of 20 fu, while others have 70 fu but only 1 han.\nAlso, han from dora are not a yaku, so dora alone do not let you win, even though they add han."
     },
     "oya": {
-      "term": "親",
-      "reading": "オヤ",
-      "definition": "その局に最初に配牌を取る家。アガったときの点数は子の1.5倍で、ツモられたときの支払いも重い。アガるか聴牌で流局すると連荘し、本場が積まれる。",
-      "usage": "親のアガリ点は子の1.5倍です。ロンなら基本点の6倍（子は4倍）を放銃者から受け取り、ツモなら基本点の2倍を3人全員から受け取ります（オール）。\n親が和了するか、流局時に聴牌していれば連荘で、本場が1つ積まれます。子がツモったときは、親は基本点の2倍（子の倍）を払います。",
-      "caseStudy": "30符2翻は子のロンで2000点、親のロンで2900点です。親が30符2翻をツモれば1000点オール（合計3000点）、子が30符2翻をツモれば親から1000点・子から500点ずつ（合計2000点）です。\n親の満貫は12000点で、ツモなら4000点オールです。",
-      "pitfall": "親の点数は「子の点数を1.5倍して切り上げる」ではなく、基本点から別に計算します。30符1翻は子1000点ですが親は1500点、30符2翻は子2000点に対して親2900点で、単純な1.5倍にはなりません。\nまた、親は子にツモられたときの支払いも重く、子の満貫ツモでは親が4000点を払います。"
+      "term": "Dealer",
+      "reading": "oya",
+      "definition": "The player who takes their starting tiles first in a hand (East). A dealer's win scores 1.5 times a non-dealer's, and the dealer also pays more when another player wins by tsumo. If the dealer wins, or is tenpai at an exhaustive draw, the dealer keeps the deal (renchan) and an honba is added.",
+      "usage": "A dealer's win scores 1.5 times a non-dealer's. On a ron, the dealer receives six times the basic points (a non-dealer gets four times) from the player who dealt in; on a tsumo, the dealer receives twice the basic points from each of the three other players (all).\nIf the dealer wins, or is tenpai at an exhaustive draw, the dealer keeps the deal and one honba is added. When a non-dealer wins by tsumo, the dealer pays twice the basic points (double what a non-dealer pays).",
+      "caseStudy": "30 fu 2 han is 2,000 points on a non-dealer's ron and 2,900 on the dealer's ron. If the dealer wins 30 fu 2 han by tsumo, it is 1,000 all (3,000 in total); if a non-dealer wins 30 fu 2 han by tsumo, the dealer pays 1,000 and each non-dealer pays 500 (2,000 in total).\nA dealer's mangan is 12,000 points, or 4,000 all by tsumo.",
+      "pitfall": "The dealer's score is not the non-dealer's score multiplied by 1.5 and rounded up; it is calculated separately from the basic points. 30 fu 1 han is 1,000 for a non-dealer and 1,500 for the dealer, but 30 fu 2 han is 2,000 for a non-dealer against 2,900 for the dealer, not a simple 1.5 times.\nThe dealer also pays more when a non-dealer wins by tsumo: on a non-dealer's mangan tsumo, the dealer pays 4,000 points."
     },
     "ko": {
-      "term": "子",
-      "reading": "コ",
-      "definition": "親以外の3人の家。アガリ点は親より低いが、ツモアガリのときは親から多く受け取る。",
-      "usage": "子のアガリ点は基本点の4倍（ロン）で、100点単位に切り上げます。ツモなら親から基本点の2倍、他の子から基本点ずつ受け取ります。\n子の満貫は8000点（ツモなら親4000・子2000）、跳満12000点、倍満16000点、三倍満24000点、役満32000点です。",
-      "caseStudy": "子の30符1翻はロンで1000点、ツモなら親500点・子300点ずつ（基本点240の2倍と1倍を切り上げ）です。40符2翻はロンで2600点、ツモなら親1300点・子700点ずつです。\n子が満貫をツモれば、親が4000点・子2人が2000点ずつ払います。",
-      "pitfall": "子のツモは「3人で等分」ではありません。親が倍を払い、子は半分ずつです。30符2翻の子ツモは親1000点・子500点で、合計2000点になります。\nまた、子が放銃した場合、親の和了なら子のときの1.5倍の点数を1人で払うことになります。"
+      "term": "Non-dealer",
+      "reading": "ko",
+      "definition": "Any of the three players other than the dealer. A non-dealer's win scores less than the dealer's, but on a tsumo win the non-dealer collects more from the dealer.",
+      "usage": "A non-dealer's win is four times the basic points (on a ron), rounded up to the next 100. On a tsumo, the non-dealer receives twice the basic points from the dealer and the basic points from each other non-dealer.\nA non-dealer's mangan is 8,000 points (4,000 from the dealer and 2,000 from each non-dealer by tsumo), haneman 12,000, baiman 16,000, sanbaiman 24,000 and yakuman 32,000.",
+      "caseStudy": "A non-dealer's 30 fu 1 han is 1,000 points by ron; by tsumo, the dealer pays 500 and each non-dealer pays 300 (twice and once the 240 basic points, rounded up). 40 fu 2 han is 2,600 by ron; by tsumo, the dealer pays 1,300 and each non-dealer pays 700.\nWhen a non-dealer wins a mangan by tsumo, the dealer pays 4,000 points and the two non-dealers pay 2,000 each.",
+      "pitfall": "A non-dealer's tsumo is not split equally three ways. The dealer pays double and the non-dealers pay half as much each. A non-dealer's tsumo at 30 fu 2 han is 1,000 from the dealer and 500 from each non-dealer, 2,000 in total.\nAlso, when a non-dealer deals in to the dealer, that one player pays 1.5 times what a non-dealer's win would cost."
     },
     "mangan": {
-      "term": "満貫",
-      "reading": "マンガン",
-      "definition": "点数の区切りのひとつで、子8000点・親12000点。5翻、または符と翻から計算した点数が満貫を超えたときに適用される。",
-      "usage": "満貫は子8000点・親12000点で、5翻の手はすべて満貫です。4翻以下でも、符と翻から計算した基本点（符 × 2の（翻＋2）乗）が2000点以上になる場合は満貫に切り上げます。具体的には4翻40符以上と3翻70符以上が該当し、30符4翻（基本点1920）と60符3翻（同じく1920）だけが満貫に届かず子7700点です。\n30符4翻と60符3翻を満貫にする切り上げ満貫は、採用するかどうかがルールによって分かれます。",
-      "caseStudy": "立直・門前ツモ・平和・ドラ2の5翻は満貫で、子なら8000点（ツモ親4000・子2000）、親なら12000点（4000オール）です。\n役牌・ドラ3の4翻でも、40符あれば基本点2560で満貫の2000を超えるので8000点です。同じ4翻でも30符なら基本点1920で満貫に届かず、子7700点・親11600点です。",
-      "pitfall": "「4翻は満貫」ではありません。30符4翻は満貫に届かない7700点で、切り上げ満貫を採用している場でだけ8000点になります。逆に3翻でも70符以上なら満貫です。\nまた、満貫を超える点数（跳満以上）は翻数だけで決まり、符は関係しません。"
+      "term": "Mangan",
+      "reading": "mangan",
+      "definition": "A limit hand worth 8,000 points for a non-dealer and 12,000 for the dealer. It applies at 5 han, or when the score calculated from fu and han would go above mangan.",
+      "usage": "Mangan is 8,000 points for a non-dealer and 12,000 for the dealer, and every 5 han hand is a mangan. Even at 4 han or less, if the basic points calculated from fu and han (fu times 2 to the power of (han + 2)) reach 2,000 or more, the score is capped at mangan. In practice that means 4 han at 40 fu or more and 3 han at 70 fu or more; only 30 fu 4 han (1,920 basic points) and 60 fu 3 han (also 1,920) fall short of mangan, at 7,700 points for a non-dealer.\nWhether 30 fu 4 han and 60 fu 3 han are rounded up to mangan (kiriage mangan) depends on the rules.",
+      "caseStudy": "Riichi, menzen tsumo, pinfu and two dora make 5 han, a mangan: 8,000 points for a non-dealer (4,000 from the dealer and 2,000 from each non-dealer by tsumo) and 12,000 for the dealer (4,000 all).\nEven a 4 han hand of yakuhai and three dora is 8,000 points if it has 40 fu, because its 2,560 basic points exceed the mangan line of 2,000. At 30 fu the same 4 han has 1,920 basic points and falls short of mangan: 7,700 for a non-dealer and 11,600 for the dealer.",
+      "pitfall": "4 han is not always a mangan. 30 fu 4 han is 7,700, short of mangan, and becomes 8,000 only at tables that play kiriage mangan. Conversely, even 3 han is a mangan at 70 fu or more.\nAlso, scores above mangan (haneman and up) are decided by han alone; fu does not matter."
     },
     "haneman": {
-      "term": "跳満",
-      "reading": "ハネマン",
-      "definition": "6翻・7翻の点数区分で、子12000点・親18000点。満貫の1.5倍にあたる。",
-      "usage": "跳満は6翻・7翻の手の点数で、子12000点・親18000点です。満貫の1.5倍で、符は関係しません。ツモなら子は親6000・子3000、親は6000オールです。",
-      "caseStudy": "立直・門前ツモ・平和・一盃口・ドラ2の6翻は跳満です。混一色（門前3翻）・役牌・ドラ3の7翻も跳満で、どちらも子12000点です。\n7翻に本場が2本あれば12000＋600＝12600点です。\n子の跳満ツモは親6000点・子3000点ずつ、親の跳満ツモは6000点オールです。跳満は「満貫の1.5倍」と覚えておくと、8000→12000、12000→18000の対応がすぐに出ます。",
-      "pitfall": "跳満は6翻と7翻の両方で、7翻でも倍満にはなりません。倍満は8翻からです。\nまた、跳満以上は符を数える必要がありません。符が高くても低くても、6翻なら12000点です。"
+      "term": "Haneman",
+      "reading": "haneman",
+      "definition": "The scoring tier for 6 and 7 han: 12,000 points for a non-dealer and 18,000 for the dealer, 1.5 times a mangan.",
+      "usage": "Haneman is the score of a 6 or 7 han hand: 12,000 points for a non-dealer and 18,000 for the dealer. It is 1.5 times a mangan, and fu does not matter. By tsumo, a non-dealer collects 6,000 from the dealer and 3,000 from each non-dealer, and the dealer collects 6,000 all.",
+      "caseStudy": "Riichi, menzen tsumo, pinfu, iipeikou and two dora make 6 han, a haneman. Honitsu (3 han closed), yakuhai and three dora make 7 han, also a haneman; both are 12,000 points for a non-dealer.\nA 7 han hand at 2 honba is 12,000 + 600 = 12,600 points.\nOn a non-dealer's haneman tsumo, the dealer pays 6,000 and each non-dealer 3,000; on the dealer's haneman tsumo it is 6,000 all. Remember haneman as 1.5 times a mangan, and the pairs 8,000 to 12,000 and 12,000 to 18,000 come to mind at once.",
+      "pitfall": "Haneman covers both 6 and 7 han; 7 han is not a baiman. Baiman starts at 8 han.\nAlso, from haneman up you do not need to count fu. High fu or low, 6 han is 12,000 points."
     },
     "baiman": {
-      "term": "倍満",
-      "reading": "バイマン",
-      "definition": "8翻から10翻の点数区分で、子16000点・親24000点。満貫の2倍にあたる。",
-      "usage": "倍満は8翻から10翻の手の点数で、子16000点・親24000点です。満貫の2倍で、符は関係しません。ツモなら子は親8000・子4000、親は8000オールです。",
-      "caseStudy": "清一色（門前6翻）・立直・門前ツモの8翻は倍満です。混一色・対々和・役牌2つ・ドラ3の8翻（鳴き）も倍満です。\n10翻でも倍満で、11翻から三倍満です。\n子の倍満ツモは親8000点・子4000点ずつ、親の倍満ツモは8000点オールです。倍満は「満貫の2倍」で、8000→16000、12000→24000です。",
-      "pitfall": "8翻・9翻・10翻はすべて同じ倍満です。9翻や10翻だからといって点数は上がりません。\nまた、役満は翻数で数える役ではなく、13翻に達したときの数え役満とは別に、役自体が役満の点数を持っています。"
+      "term": "Baiman",
+      "reading": "baiman",
+      "definition": "The scoring tier for 8 to 10 han: 16,000 points for a non-dealer and 24,000 for the dealer, twice a mangan.",
+      "usage": "Baiman is the score of an 8 to 10 han hand: 16,000 points for a non-dealer and 24,000 for the dealer. It is twice a mangan, and fu does not matter. By tsumo, a non-dealer collects 8,000 from the dealer and 4,000 from each non-dealer, and the dealer collects 8,000 all.",
+      "caseStudy": "Chinitsu (6 han closed), riichi and menzen tsumo make 8 han, a baiman. An open hand with honitsu, toitoi, two yakuhai and three dora (9 han) is also a baiman.\nEven 10 han is a baiman; sanbaiman starts at 11 han.\nOn a non-dealer's baiman tsumo, the dealer pays 8,000 and each non-dealer 4,000; on the dealer's baiman tsumo it is 8,000 all. Baiman is twice a mangan: 8,000 to 16,000 and 12,000 to 24,000.",
+      "pitfall": "8, 9 and 10 han are all the same baiman. 9 or 10 han does not raise the score.\nAlso, yakuman is not a yaku you reach by counting han. Apart from the counted yakuman that applies once you reach 13 han, yakuman yaku carry the yakuman score in their own right."
     },
     "sanbaiman": {
-      "term": "三倍満",
-      "reading": "サンバイマン",
-      "definition": "11翻・12翻の点数区分で、子24000点・親36000点。満貫の3倍にあたる。",
-      "usage": "三倍満は11翻・12翻の手の点数で、子24000点・親36000点です。満貫の3倍で、符は関係しません。ツモなら子は親12000・子6000、親は12000オールです。\n13翻以上は数え役満（子32000点）ですが、数え役満を採用せず13翻以上も三倍満とするルールもあります。",
-      "caseStudy": "清一色・一気通貫・立直・門前ツモ・ドラ2の12翻は三倍満です。清一色・立直・一発・門前ツモ・裏ドラ3の12翻も三倍満で、子24000点です。\n子の三倍満ツモは親12000点・子6000点ずつ、親の三倍満ツモは12000点オールです。三倍満は「満貫の3倍」で、8000→24000、12000→36000です。",
-      "pitfall": "三倍満は11翻と12翻で、10翻は倍満です。「10翻を超えたら三倍満」ではなく11翻からです。\nまた、13翻に達したときに数え役満になるかどうかはルール次第で、採用していない場では13翻以上も三倍満（24000点）です。"
+      "term": "Sanbaiman",
+      "reading": "sanbaiman",
+      "definition": "The scoring tier for 11 and 12 han: 24,000 points for a non-dealer and 36,000 for the dealer, three times a mangan.",
+      "usage": "Sanbaiman is the score of an 11 or 12 han hand: 24,000 points for a non-dealer and 36,000 for the dealer. It is three times a mangan, and fu does not matter. By tsumo, a non-dealer collects 12,000 from the dealer and 6,000 from each non-dealer, and the dealer collects 12,000 all.\n13 han or more is a counted yakuman (32,000 for a non-dealer), but some rules do not use counted yakuman and score 13 han or more as sanbaiman too.",
+      "caseStudy": "Chinitsu, ittsu, riichi, menzen tsumo and two dora make 12 han, a sanbaiman. Chinitsu, riichi, ippatsu, menzen tsumo and three ura-dora also make 12 han, a sanbaiman worth 24,000 points for a non-dealer.\nOn a non-dealer's sanbaiman tsumo, the dealer pays 12,000 and each non-dealer 6,000; on the dealer's sanbaiman tsumo it is 12,000 all. Sanbaiman is three times a mangan: 8,000 to 24,000 and 12,000 to 36,000.",
+      "pitfall": "Sanbaiman is 11 and 12 han; 10 han is a baiman. It does not start as soon as you pass 10 han in some vague sense; it starts exactly at 11 han.\nAlso, whether reaching 13 han makes a counted yakuman depends on the rules; at tables that do not use it, 13 han or more is still a sanbaiman (24,000 points)."
     },
     "kazoe-yakuman": {
-      "term": "数え役満",
-      "reading": "カゾエヤクマン",
-      "definition": "役満の役ではないが、翻数が13翻以上に達したことで役満と同じ点数になるもの。子32000点・親48000点。",
-      "usage": "数え役満は、役満の役が無くても翻数の合計が13翻以上になったときに、役満と同じ点数（子32000点・親48000点）とするものです。符は関係しません。\n採用するかどうかはルールによって異なり、採用しない場では13翻以上も三倍満（子24000点）です。",
-      "caseStudy": "清一色（6翻）・立直（1翻）・一発（1翻）・門前ツモ（1翻）・ドラ2・裏ドラ2の13翻は数え役満です。清一色・対々和・三暗刻・役牌・ドラ4の13翻（鳴き）も数え役満です。\n数え役満は役満と同じ32000点で、ツモなら親16000・子8000です。",
-      "pitfall": "数え役満は「役満の役」ではありません。国士無双や大三元のような役満と数え役満は複合しません（役満の手は翻数を数えません）。\nまた、数え役満をダブル役満にするルールは一般にありません。26翻あっても数え役満は1つ分の32000点です。"
+      "term": "Counted yakuman",
+      "reading": "kazoe yakuman",
+      "definition": "A hand without a yakuman yaku that scores the same as a yakuman because its han reach 13 or more: 32,000 points for a non-dealer and 48,000 for the dealer.",
+      "usage": "A counted yakuman gives a hand the yakuman score (32,000 for a non-dealer, 48,000 for the dealer) when its han add up to 13 or more, even without a yakuman yaku. Fu does not matter.\nWhether it is used differs by rule set; where it is not, 13 han or more is a sanbaiman (24,000 for a non-dealer).",
+      "caseStudy": "Chinitsu (6 han), riichi (1 han), ippatsu (1 han), menzen tsumo (1 han), two dora and two ura-dora make 13 han, a counted yakuman. An open hand with chinitsu, toitoi, sanankou and four dora is also 13 han, a counted yakuman.\nA counted yakuman is the same 32,000 points as a yakuman: 16,000 from the dealer and 8,000 from each non-dealer by tsumo.",
+      "pitfall": "A counted yakuman is not a yakuman yaku. Yakuman such as kokushi musou or daisangen do not combine with a counted yakuman (a yakuman hand does not count han at all).\nAlso, rules that make a counted yakuman a double yakuman are generally not used. Even 26 han is one counted yakuman, worth 32,000."
     },
     "yakuman": {
-      "term": "役満",
-      "reading": "ヤクマン",
-      "definition": "国士無双や大三元など、特別に高い点数が定められている役。子32000点・親48000点で、符や翻の積み上げはしない。",
-      "usage": "役満は子32000点・親48000点で、符も翻も数えません。国士無双・大三元・四暗刻・字一色・緑一色・清老頭・小四喜・大四喜・四槓子・九蓮宝燈・天和・地和などが役満です。\n四暗刻単騎・国士無双十三面・純正九蓮宝燈・大四喜をダブル役満（64000点）とするルールや、複数の役満を合算するルール（複合役満）を採用するかどうかは場によります。",
-      "caseStudy": "大三元を鳴いて作っても役満で、子32000点です。四暗刻はツモでのみ成立し、双碰待ちをロンした場合は暗刻が3つになって三暗刻・対々和の手になります（単騎待ちならロンでも四暗刻）。\n役満のツモは子なら親16000・子8000、親なら16000オールです。",
-      "pitfall": "役満の手ではドラや他の役を数えません。「役満＋ドラ3」で点数が上がることはありません（複合役満のルールで別の役満と重なる場合を除く）。\nまた、役満は「13翻」ではありません。翻数で数えるのは数え役満で、役満はそれ自体が固定の点数を持つ役です。"
+      "term": "Yakuman",
+      "reading": "yakuman",
+      "definition": "Yaku given a specially high fixed score, such as kokushi musou and daisangen. 32,000 points for a non-dealer and 48,000 for the dealer, with no build-up of fu or han.",
+      "usage": "Yakuman is 32,000 points for a non-dealer and 48,000 for the dealer, and neither fu nor han are counted. Kokushi musou, daisangen, suuankou, tsuuiisou, ryuuiisou, chinroutou, shousuushii, daisuushii, suukantsu, chuuren poutou, tenhou, chiihou and others are yakuman.\nWhether a table plays rules that make suuankou tanki, kokushi musou with a 13-sided wait, junsei chuuren poutou or daisuushii a double yakuman (64,000 points), or that add up several yakuman (combined yakuman), depends on the table.",
+      "caseStudy": "Daisangen is a yakuman even when made by calling: 32,000 points for a non-dealer. Suuankou is valid only by tsumo; winning a pair wait by ron leaves three closed triplets, making a hand of sanankou and toitoi (with a single-tile wait, suuankou is valid even by ron).\nA yakuman tsumo is 16,000 from the dealer and 8,000 from each non-dealer for a non-dealer, and 16,000 all for the dealer.",
+      "pitfall": "A yakuman hand does not count dora or other yaku. Yakuman plus three dora does not raise the score (except when, under combined-yakuman rules, it overlaps with another yakuman).\nAlso, a yakuman is not 13 han. Counting han is what a counted yakuman does; a yakuman is a yaku with its own fixed score."
     },
     "kiriage-mangan": {
-      "term": "切り上げ満貫",
-      "reading": "キリアゲマンガン",
-      "definition": "30符4翻（子7700点）や60符3翻を満貫として扱うルール。採用するかは場のルール次第で、標準ではない。",
-      "usage": "切り上げ満貫は、30符4翻（子7700点・親11600点）と60符3翻（子7700点・親11600点）を満貫（子8000点・親12000点）として扱うルールです。ツモの場合も同じで、30符4翻のツモ（子2000・3900、親3900オール）が満貫のツモ（子2000・4000、親4000オール）になります。\n採用するかどうかは場のルール次第で、標準ではありません。",
-      "caseStudy": "立直・門前ツモ・ドラ2の4翻を30符でアガった場合、切り上げ満貫なしなら子2000・3900、ありなら子2000・4000です。\n60符3翻は、たとえば么九牌の暗刻を3つ含む手（暗刻だけで24符）を門前でロンした場合（20＋10＋24＝54符→60符）などで、三暗刻・役牌の3翻なら切り上げ満貫なしで子7700点、ありで8000点です。",
-      "pitfall": "切り上げ満貫は符の切り上げ（10符単位にそろえる操作）とは別のルールです。符の切り上げはどのルールでも行いますが、切り上げ満貫は採用していない場も多くあります。\n対象は30符4翻と60符3翻だけで、40符3翻（子5200点）や50符3翻（子6400点）は満貫になりません。"
+      "term": "Kiriage mangan",
+      "reading": "kiriage mangan",
+      "definition": "A rule that treats 30 fu 4 han (7,700 for a non-dealer) and 60 fu 3 han as mangan. Whether it is used depends on the table, and it is not standard.",
+      "usage": "Kiriage mangan is a rule that treats 30 fu 4 han (7,700 for a non-dealer, 11,600 for the dealer) and 60 fu 3 han (7,700 for a non-dealer, 11,600 for the dealer) as mangan (8,000 for a non-dealer, 12,000 for the dealer). The same goes for tsumo: a 30 fu 4 han tsumo (2,000/3,900 for a non-dealer, 3,900 all for the dealer) becomes a mangan tsumo (2,000/4,000 for a non-dealer, 4,000 all for the dealer).\nWhether it is used depends on the table's rules, and it is not standard.",
+      "caseStudy": "A 4 han hand of riichi, menzen tsumo and two dora won at 30 fu is 2,000/3,900 for a non-dealer without kiriage mangan and 2,000/4,000 with it.\n60 fu 3 han happens, for example, when a closed hand with three closed triplets of terminals or honors (24 fu from those triplets alone) wins by ron (20 + 10 + 24 = 54 fu, rounded up to 60 fu). With 3 han of sanankou and yakuhai, it is 7,700 for a non-dealer without kiriage mangan and 8,000 with it.",
+      "pitfall": "Kiriage mangan is a separate rule from rounding up fu (bringing the fu to a multiple of 10). Rounding up fu happens under every rule set, but many tables do not use kiriage mangan.\nIt covers only 30 fu 4 han and 60 fu 3 han; 40 fu 3 han (5,200 for a non-dealer) and 50 fu 3 han (6,400 for a non-dealer) do not become mangan."
     },
     "honba": {
-      "term": "本場",
-      "reading": "ホンバ",
-      "definition": "親の連荘や流局で積み重なる回数。1本場につきアガリ点に300点が加算される（ツモなら1人あたり100点ずつ）。",
-      "usage": "本場は1本場につき300点をアガリ点に加算します。ロンなら放銃者が300点×本場数を上乗せし、ツモなら3人が100点×本場数ずつ上乗せします。\n本場は親が連荘するか流局するたびに1つ増え、子が和了すると0に戻ります（親が和了しても連荘なので積まれ続けます）。",
-      "caseStudy": "2本場で子が30符2翻（2000点）をロンすれば、2000＋600＝2600点を放銃者から受け取ります。2本場で子が30符2翻をツモれば、親1000＋200、子500＋200ずつで合計2600点です。\n満貫の8000点も3本場なら8900点です。",
-      "pitfall": "本場の加算は点数表の点数に「後から足す」もので、翻や符には関係しません。満貫以上でも加算されます。\nまた、本場の300点は放銃者（ツモなら3人）が払うもので、供託の立直棒（1000点）とは別です。立直棒は場に置かれたものを和了者が取ります。"
+      "term": "Honba",
+      "reading": "honba",
+      "definition": "A counter that builds up when the dealer keeps the deal or a hand ends in a draw. Each honba adds 300 points to the winning score (100 points from each player on a tsumo).",
+      "usage": "Each honba adds 300 points to the winning score. On a ron, the player who dealt in adds 300 times the number of honba; on a tsumo, each of the three players adds 100 times the number of honba.\nThe honba count goes up by one every time the dealer keeps the deal or a hand ends in a draw, and it goes back to 0 when a non-dealer wins (a dealer's win keeps the deal, so the count keeps building).",
+      "caseStudy": "At 2 honba, a non-dealer who wins 30 fu 2 han (2,000 points) by ron receives 2,000 + 600 = 2,600 points from the player who dealt in. At 2 honba, a non-dealer who wins 30 fu 2 han by tsumo receives 1,000 + 200 from the dealer and 500 + 200 from each non-dealer, 2,600 in total.\nA mangan's 8,000 points become 8,900 at 3 honba.",
+      "pitfall": "Honba points are added on top of the score from the scoring table afterwards; they have nothing to do with han or fu. They are added even to mangan and above.\nAlso, the 300 honba points are paid by the player who dealt in (or by all three on a tsumo), and they are separate from the riichi sticks on the table (1,000 points each). The winner takes the riichi sticks that were placed on the table."
     },
     "bazoro": {
-      "term": "場ゾロ",
-      "reading": "バゾロ",
-      "definition": "点数計算のときに翻数へ常に2翻分を上乗せする仕組み。バンバンとも呼ぶ。基本点が「符 × 2の（翻＋2）乗」で求まるのはこのため。",
-      "usage": "場ゾロは、基本点を求める式「符 × 2の（翻＋2）乗」の「＋2」にあたる部分です。実際の翻数に常に2翻を上乗せして計算するため、1翻の手でも2の3乗＝8倍から始まります。\n点数表はこの式で計算された基本点を、子のロンなら4倍・親のロンなら6倍して100点単位に切り上げたものです。",
-      "caseStudy": "30符1翻の基本点は30 × 2の（1＋2）乗＝30 × 8＝240で、子のロンは240 × 4＝960→1000点、親のロンは240 × 6＝1440→1500点です。\n40符2翻なら40 × 2の4乗＝640で、子のロン2560→2600点、親のロン3840→3900点です。",
-      "pitfall": "場ゾロの2翻は点数表に最初から織り込まれているので、自分で翻数に2を足して点数表を引いてはいけません。「1翻」の手は点数表の1翻の欄を見ます。\nまた、場ゾロは役でもドラでもなく、翻数の申告にも含めません。"
+      "term": "Bazoro",
+      "reading": "bazoro",
+      "definition": "The mechanism that always adds 2 han to the han count when calculating a score. Also called banban. It is why the basic points are fu times 2 to the power of (han + 2).",
+      "usage": "Bazoro is the + 2 in the formula for basic points, fu times 2 to the power of (han + 2). The calculation always adds 2 han to the actual han, so even a 1 han hand starts at 2 to the power of 3, a multiplier of 8.\nThe scoring table is the basic points from this formula, multiplied by 4 for a non-dealer's ron or by 6 for a dealer's ron and rounded up to the next 100.",
+      "caseStudy": "The basic points of 30 fu 1 han are 30 x 2 to the power of (1 + 2) = 30 x 8 = 240; a non-dealer's ron is 240 x 4 = 960, rounded up to 1,000 points, and a dealer's ron is 240 x 6 = 1,440, rounded up to 1,500 points.\nFor 40 fu 2 han it is 40 x 2 to the power of 4 = 640: a non-dealer's ron is 2,560, rounded up to 2,600 points, and a dealer's ron is 3,840, rounded up to 3,900 points.",
+      "pitfall": "The 2 han of bazoro are already built into the scoring table, so do not add 2 to your han yourself before looking up the table. For a 1 han hand, look at the 1 han column of the table.\nAlso, bazoro is neither a yaku nor dora, and it is not included when you announce your han."
     }
   }
 }
