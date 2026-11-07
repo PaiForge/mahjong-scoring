@@ -27,9 +27,12 @@ import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
  * sitemap の静的ルート定義
  * サイトマップ静的ルート
  *
- * `url` は SITE_URL からの相対パス（トップは ""）。sitemap.ts が
- * changeFrequency / priority ごと消費し、seo-coverage.test.ts が
- * 「掲載ページが実在し canonical を持つ」ことの検査に使う。
+ * `url` は SITE_URL からの相対パスで、ロケール非依存の日本語のパス（トップは ""）。
+ * sitemap.ts が changeFrequency / priority ごと消費し、seo-coverage.test.ts が
+ * 「掲載ページが実在し canonical を持つ」ことの検査に使う。英語の URL はここに
+ * 足さない — sitemap.ts が英語の公開状態（`route-policy.ts`）から同じ項目を
+ * `/en` 付きで足す（このモジュールは route-policy に読まれる側で、逆に読むと
+ * 循環する）。
  * DB 由来のお知らせ詳細はここに載らない（sitemap.ts が実行時に取得する）。
  */
 export const STATIC_SITEMAP_ROUTE_DEFS = [
@@ -89,10 +92,13 @@ export const PRACTICE_SITEMAP_PATHS: readonly string[] =
 /**
  * 用語ページのパス一覧（`/reference/glossary/<slug>`）
  *
- * INDEXABLE_PATHS には入れない。seo-coverage.test.ts はパスを page.tsx の
- * ディレクトリ名に突き合わせるため、動的セグメント（`[slug]`）で受ける
- * ページは解決できない（お知らせ詳細と同じ理由）。用語が辞書に揃っている
- * ことは `lib/glossary/glossary-i18n-integrity.test.ts` が別途保証する。
+ * INDEXABLE_PATHS には入れない。INDEXABLE_PATHS は静的なページの集合で、
+ * seo-coverage.test.ts はその各パスを page.tsx のテンプレートに完全一致で
+ * 引き、ソースの canonical を検査する。動的セグメント（`[slug]`）で受ける
+ * ページは、同テストがテンプレートの形（`/reference/glossary/[slug]`）への
+ * 当てはまりだけを検査し、canonical は build の監査が HTML で確かめる。
+ * 用語が辞書に揃っていることは `lib/glossary/glossary-i18n-integrity.test.ts`
+ * が別途保証する。
  */
 export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
   GLOSSARY_TERM_SLUGS.map(glossaryTermHref);
@@ -101,7 +107,7 @@ export const GLOSSARY_SITEMAP_PATHS: readonly string[] =
  * 段級位の詳細ページのパス一覧（`/dojo/ranks/<slug>`）
  *
  * 用語ページと同じ理由で INDEXABLE_PATHS には入れない（動的セグメントで
- * 受けるページは seo-coverage.test.ts がディレクトリ名に解決できない）。
+ * 受けるページ）。
  */
 export const RANK_SITEMAP_PATHS: readonly string[] = RANK_SLUGS.map(rankHref);
 
