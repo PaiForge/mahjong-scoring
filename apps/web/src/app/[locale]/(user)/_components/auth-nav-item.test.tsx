@@ -6,6 +6,8 @@
  * - アバター未設定: 既定のユーザーアイコンを出す
  * - プロフィール取得中: アイコン → アバターの差し替わりを見せないためスケルトンを続ける
  * - 未ログイン: ログイン / 新規登録の導線を出す
+ * - 英語のページ: 英語で公開しているログイン・登録・マイページ・設定は `/en` の
+ *   リンクで、英語版の無い先は日本語のページへ「日本語のみ」と添えて向ける
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
@@ -22,7 +24,13 @@ vi.mock(
 
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
-vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
+// 公開 href の表（locale-link-table）が読む next-intl のナビゲーションは、
+// モジュールの評価時に redirect / permanentRedirect を束ねる
+vi.mock("next/navigation", async () => ({
+  ...(await import("@/test/navigation-mock")),
+  redirect: vi.fn(),
+  permanentRedirect: vi.fn(),
+}));
 
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
@@ -33,6 +41,7 @@ vi.mock("next/image", () => ({
   ),
 }));
 
+import { LOCALE_LINK_TABLE } from "./_lib/locale-link-table";
 import { AuthNavItem } from "./auth-nav-item";
 
 // ---------------------------------------------------------------------------
@@ -41,8 +50,10 @@ import { AuthNavItem } from "./auth-nav-item";
 
 /** 日本語のページ（表は日本語のリンクに影響しないので空でよい） */
 const JA_LINKS = { locale: "ja", table: {} } as const;
-/** 英語のページ（ログイン・マイページ・設定は英語で公開していない） */
-const EN_LINKS = { locale: "en", table: {} } as const;
+/** 英語のページ（今の公開状態の表。ログイン・登録・マイページ・設定は英語で公開している） */
+const EN_LINKS = { locale: "en", table: LOCALE_LINK_TABLE } as const;
+/** 英語のページで、ログイン・マイページ・設定を英語で公開していない表 */
+const EN_LINKS_WITHOUT_MEMBER_PAGES = { locale: "en", table: {} } as const;
 
 function authState(overrides: Record<string, unknown> = {}) {
   mockUseAuth.mockReturnValue({
@@ -102,18 +113,53 @@ describe("AuthNavItem", () => {
     expect(hrefs).toEqual(["/sign-in", "/sign-up"]);
   });
 
-  it("英語のページでは、英語版の無いログイン / 新規登録の導線を出さない", () => {
+  it("英語のページでは、未ログインのログイン / 新規登録の導線を英語のページへ向ける", () => {
     authState({ user: null, profile: undefined });
 
     const { container } = render(<AuthNavItem localeLinks={EN_LINKS} />);
 
-    expect(container.querySelectorAll("a")).toHaveLength(0);
+    const links = [...container.querySelectorAll("a")];
+    expect(links.map((a) => a.getAttribute("href"))).toEqual([
+      "/en/sign-in",
+      "/en/sign-up",
+    ]);
+    for (const link of links) {
+      expect(link.getAttribute("hrefLang")).toBeNull();
+    }
   });
 
-  it("英語のページのメニューは、日本語のページへ素のリンクで向けて日本語のみと示す", () => {
+  it("英語のページのメニューは、英語のマイページ・設定へ印なしで向ける", () => {
     authState();
 
     const { container } = render(<AuthNavItem localeLinks={EN_LINKS} />);
+
+    const links = [...container.querySelectorAll("a")];
+    expect(links.map((a) => a.getAttribute("href"))).toEqual([
+      "/en/mypage",
+      "/en/preferences",
+    ]);
+    for (const link of links) {
+      expect(link.getAttribute("hrefLang")).toBeNull();
+      expect(link.textContent).not.toContain("language.japaneseOnly");
+    }
+  });
+
+  it("ログイン・登録の英語版が無い表では、未ログインの導線を出さない（英語の名前のまま日本語へ飛ばさない）", () => {
+    authState({ user: null, profile: undefined });
+
+    const { container } = render(
+      <AuthNavItem localeLinks={EN_LINKS_WITHOUT_MEMBER_PAGES} />,
+    );
+
+    expect(container.querySelectorAll("a")).toHaveLength(0);
+  });
+
+  it("マイページ・設定の英語版が無い表では、メニューを日本語のページへ素のリンクで向けて日本語のみと示す", () => {
+    authState();
+
+    const { container } = render(
+      <AuthNavItem localeLinks={EN_LINKS_WITHOUT_MEMBER_PAGES} />,
+    );
 
     const links = [...container.querySelectorAll("a")];
     expect(links.map((a) => a.getAttribute("href"))).toEqual([
