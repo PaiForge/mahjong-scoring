@@ -37,6 +37,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
 import { localizedHref, splitHref } from "@/i18n/public-path";
+import { getPublication } from "@/i18n/route-policy";
 import { getIndexableAlternates } from "@/i18n/seo-alternates";
 
 import {
@@ -166,6 +167,28 @@ export const DEFAULT_TITLE = JA_IDENTITY.defaultTitle;
 export interface MetadataLocaleOptions {
   /** 表示する言語（省略時は日本語）。辞書・URL・OGP 画像がこの言語になる */
   readonly locale?: SupportedLocale;
+}
+
+/**
+ * その言語で `published-noindex` のページに付ける robots
+ * 公開状態のrobots
+ *
+ * 日本語では索引対象で、英語では閲覧者ごとの内容のため noindex で出すページ
+ * （道場 `/dojo`・`/dojo/ranks/<級>`）がある。言語で分岐せず公開状態の表
+ * （`route-policy.ts`）から決めるので、英語の公開状態を変えればここも追従する。
+ * indexable・unpublished のときは `undefined` を返し、呼び出し側の既存の指定
+ * （日本語の出力）をそのまま使わせる。
+ *
+ * @param path - ロケール非依存のパス
+ * @param locale - 表示している言語
+ */
+export function robotsForPublication(
+  path: string,
+  locale: SupportedLocale,
+): Metadata["robots"] | undefined {
+  return getPublication(path, locale) === "published-noindex"
+    ? { index: false, follow: true }
+    : undefined;
 }
 
 /**
