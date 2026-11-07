@@ -1,6 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
-import { getKazeName, getKeyForKazehai, isOya } from "./kaze";
+import { getKazeName, getKeyForKazehai, isOya, kazeNameKey } from "./kaze";
+
+describe("kazeNameKey", () => {
+  it("東南西北を辞書キー ton / nan / sha / pei に写す", () => {
+    expect(kazeNameKey(HaiKind.Ton)).toBe("ton");
+    expect(kazeNameKey(HaiKind.Nan)).toBe("nan");
+    expect(kazeNameKey(HaiKind.Sha)).toBe("sha");
+    expect(kazeNameKey(HaiKind.Pei)).toBe("pei");
+  });
+});
 
 describe("getKazeName", () => {
   it("東を返す", () => {
