@@ -32,9 +32,13 @@ interface ErrorFallbackProps {
  * 文言はすべて props で受け取り、この部品自身は `useTranslations` を呼ばない
  * （NextIntlClientProvider が HMR 等で一時的に欠落しても描けるように）。
  * 日本語だけのページの error.tsx は日本語の文言を直接渡してよく、既定値も
- * 日本語にしてある。英語でも出る境界（`[locale]/(user)/error.tsx`）は、
- * `errorPage` 名前空間から引いた文言を見出しから再試行ボタンまで全部渡す
- * （1 つでも省くと、英語のページに日本語の既定値が混ざる）。
+ * 日本語にしてある。英語でも出る境界（`[locale]/(user)/error.tsx`・
+ * `practice/error.tsx`）は、`errorPage` 名前空間から引いた文言を見出しから
+ * 再試行ボタンまで全部渡す（1 つでも省くと、英語のページに日本語の既定値が混ざる）。
+ *
+ * 戻りリンク・再試行の既定値（日本語）は、日本語だけのページの境界
+ * （マイページ・ランキング）が省略して使っているので残している。それらが英語で
+ * 公開されるときに文言を渡す形へ直し、既定値を外してラベルを必須にする。
  */
 export function ErrorFallback({
   error,
