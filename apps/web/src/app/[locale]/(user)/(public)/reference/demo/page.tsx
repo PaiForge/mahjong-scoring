@@ -25,14 +25,21 @@ import { createNamespaceMetadata } from "@/app/_lib/metadata";
 import { ReferenceDemoBoard } from "./_components/reference-demo-board";
 import { ReferenceDemoSpotlightTour } from "./_components/reference-demo-spotlight-tour";
 import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reference/demo">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/reference/demo");
   return createNamespaceMetadata("reference.demo", {
     path: "/reference/demo",
   });
 }
 
-export default async function ReferenceDemoPage() {
+export default async function ReferenceDemoPage({
+  params,
+}: PageProps<"/[locale]/reference/demo">) {
+  await prepareRouteLocale(params, "/reference/demo");
   const tHub = await getTranslations("reference");
   const t = await getTranslations("reference.demo");
 

@@ -29,15 +29,22 @@ import { KanaRowNav } from "./_components/kana-row-nav";
 import { KanaTermList } from "./_components/kana-term-list";
 import { buildDefinedTermSetSchema } from "./_lib/json-ld";
 import { REFERENCE_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reference/glossary">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/reference/glossary");
   // canonical はリテラルで渡す（seo-coverage.test.ts がページのソースを
   // 読んで「自分のパスと一致する canonical か」を検査するため）。
   // sitemap 側は GLOSSARY_PATH から組み立てるので、両者がずれるとテストが落ちる。
   return createNamespaceMetadata("glossary", { path: "/reference/glossary" });
 }
 
-export default async function GlossaryIndexPage() {
+export default async function GlossaryIndexPage({
+  params,
+}: PageProps<"/[locale]/reference/glossary">) {
+  await prepareRouteLocale(params, "/reference/glossary");
   const [t, tHub, terms, ads] = await Promise.all([
     getTranslations("glossary"),
     getTranslations("reference"),

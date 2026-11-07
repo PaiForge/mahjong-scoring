@@ -31,8 +31,12 @@ import {
   REFERENCE_PATH,
   REFERENCE_YAKU_PATH,
 } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reference">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/reference");
   return createNamespaceMetadata("reference", { path: REFERENCE_PATH });
 }
 
@@ -43,7 +47,10 @@ interface ReferenceLinkDef {
   readonly icon: React.ReactNode;
 }
 
-export default async function ReferenceHubPage() {
+export default async function ReferenceHubPage({
+  params,
+}: PageProps<"/[locale]/reference">) {
+  await prepareRouteLocale(params, "/reference");
   const t = await getTranslations("reference");
 
   const links: readonly ReferenceLinkDef[] = [
