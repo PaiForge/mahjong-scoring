@@ -88,6 +88,7 @@ import tokushoho from "./ja/tokushoho.json";
 import notifications from "./ja/notifications.json";
 import lessons from "./ja/lessons.json";
 import notFound from "./ja/not-found.json";
+import errorPage from "./ja/error-page.json";
 import mobilePlan from "./ja/mobile-plan.json";
 import mobileApp from "./ja/mobile-app.json";
 
@@ -196,6 +197,7 @@ export const messages = {
   notifications,
   lessons,
   notFound,
+  errorPage,
   mobilePlan,
   mobileApp,
 };

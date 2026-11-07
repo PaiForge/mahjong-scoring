@@ -6,6 +6,7 @@ import footer from "./en/footer.json";
 import common from "./en/common.json";
 import notifications from "./en/notifications.json";
 import notFound from "./en/not-found.json";
+import errorPage from "./en/error-page.json";
 import type {
   EnTranslatedNamespace,
   MessagesShape,
@@ -38,6 +39,7 @@ export const messages = {
   common,
   notifications,
   notFound,
+  errorPage,
 } satisfies Pick<MessagesShape, EnTranslatedNamespace>;
 
 /** 英語の辞書の型（完訳の名前空間 → 文言の木） */

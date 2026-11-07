@@ -68,7 +68,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  * - `metadata` — サイト名・既定のタイトルと説明（`app/_lib/metadata.ts`）
  * - `common` — 遷移待ちの表示（`link-pending.tsx` の `loading`。404 の `LinkButton` が
  *   使う）と参照モーダルの閉じる（`reference-modal.tsx` の `close`。点数表のモーダル）
- * - `notFound` — 404 の見出しと説明
+ * - `notFound` — 404 の見出しと説明・ボタン（`goHome` / `toPractice`）
+ * - `errorPage` — エラー境界の見出し・説明・ボタン（`app/error.tsx`・
+ *   `app/global-error.tsx`・`(user)/error.tsx` の直書きを統括が辞書へ移したもの）
  *
  * 点数表の数値（`1000`・`2000/4000` 等）は辞書の外（`@mahjong-scoring/core` の値と
  * 呼び出し側の書式）にあり、ここでは扱わない。
@@ -82,6 +84,7 @@ export const EN_TRANSLATED_NAMESPACES = [
   "common",
   "notifications",
   "notFound",
+  "errorPage",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
