@@ -8,10 +8,14 @@
  * - 未ログイン: ログイン / 新規登録の導線を出す
  * - 英語のページ: 英語で公開しているログイン・登録・マイページ・設定は `/en` の
  *   リンクで、英語版の無い先は日本語のページへ「日本語のみ」と添えて向ける
+ * - ログアウト: 今の言語のトップ（日本語は `/`、英語は `/en`）へ送り、着いた先で
+ *   完了のトーストを出す
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { routerPush } from "@/test/navigation-mock";
+import { takeToastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 
 // ---------------------------------------------------------------------------
 // Mocks (hoisted)
@@ -54,6 +58,14 @@ const JA_LINKS = { locale: "ja", table: {} } as const;
 const EN_LINKS = { locale: "en", table: LOCALE_LINK_TABLE } as const;
 /** 英語のページで、ログイン・マイページ・設定を英語で公開していない表 */
 const EN_LINKS_WITHOUT_MEMBER_PAGES = { locale: "en", table: {} } as const;
+
+/** アカウントメニューを開いてログアウトを押し、`signOut` の完了まで待つ */
+async function signOutFromMenu(): Promise<void> {
+  fireEvent.click(screen.getByRole("button", { name: "account" }));
+  await act(async () => {
+    fireEvent.click(screen.getByRole("menuitem", { name: "signOut" }));
+  });
+}
 
 function authState(overrides: Record<string, unknown> = {}) {
   mockUseAuth.mockReturnValue({
@@ -170,5 +182,32 @@ describe("AuthNavItem", () => {
       expect(link.getAttribute("hrefLang")).toBe("ja");
       expect(link.textContent).toContain("language.japaneseOnly");
     }
+  });
+
+  it("日本語のページでログアウトすると日本語のトップへ送り、着いた先でトーストを出す", async () => {
+    authState({ signOut: vi.fn().mockResolvedValue(undefined) });
+
+    render(<AuthNavItem localeLinks={JA_LINKS} />);
+    await signOutFromMenu();
+
+    expect(routerPush).toHaveBeenCalledWith("/");
+    expect(takeToastOnArrival("/")).toEqual({
+      message: "signOutSuccess",
+      tone: "success",
+    });
+  });
+
+  it("英語のページでログアウトすると英語のトップ（/en）へ送り、着いた先でトーストを出す", async () => {
+    authState({ signOut: vi.fn().mockResolvedValue(undefined) });
+
+    render(<AuthNavItem localeLinks={EN_LINKS} />);
+    await signOutFromMenu();
+
+    expect(routerPush).toHaveBeenCalledWith("/en");
+    // 着地の判定はアドレスバーの形（`/en`）から接頭辞を外して比べる
+    expect(takeToastOnArrival("/en")).toEqual({
+      message: "signOutSuccess",
+      tone: "success",
+    });
   });
 });

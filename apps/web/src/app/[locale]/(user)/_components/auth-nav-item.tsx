@@ -13,6 +13,7 @@ import {
   TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import { localizedHref } from "@/i18n/public-path";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { resolveNavTarget, type LocaleLinks } from "./_lib/locale-links";
 import { JapaneseOnlyMark, LocaleNavLink } from "./locale-nav-link";
@@ -51,13 +52,26 @@ export function AuthNavItem({
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const { locale } = localeLinks;
+
   const handleSignOut = useCallback(async () => {
     setIsOpen(false);
     await signOut();
-    // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）
-    toastOnArrival("/", t("signOutSuccess"), "success");
-    router.push("/");
-  }, [signOut, t, router]);
+    // 行き先は今の言語のトップ（`localizedHref("/", locale)`。日本語は `/`、英語は
+    // `/en`）。素の `/` に送ると英語でログアウトした人が日本語の LP に着く。
+    // 英語のトップも日本語と同じく、未ログインなら LP、ログイン済みなら proxy が
+    // dashboard へ rewrite するので、どちらの言語でも同じ体験になる（登録完了・
+    // 退会完了の行き先と同じ規則）。言語は `useLocale()` ではなく、ヘッダーが
+    // 渡す `localeLinks.locale` を読む — メニューのリンクと同じ値で、型が
+    // 対応言語に絞られている。`@/i18n/navigation` の `useRouter` は公開状態の表ごと
+    // クライアントの JS に載るので使わない。
+    // トーストの預かりは接頭辞の無いパスで渡す（`toastOnArrival` が着地側と
+    // 揃えて接頭辞を外して比べる）。トップに着いてから出す（ここで出すと表示時間が
+    // 遷移の裏で減る）。
+    const next = "/";
+    toastOnArrival(next, t("signOutSuccess"), "success");
+    router.push(localizedHref(next, locale));
+  }, [signOut, t, router, locale]);
 
   useEffect(() => {
     function handleMouseDown(event: MouseEvent) {
