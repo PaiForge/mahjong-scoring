@@ -29,17 +29,23 @@ import {
  * 2. 外部 URL のパスからロケールとロケール非依存のパスを決める。
  *    `Accept-Language` と cookie は見ない（言語は URL だけで決める）
  * 3. **未公開の英語 URL は 404 + noindex**（`/en/admin`・`/en/api/...`・
- *    `/en/auth/callback` を含む）。外部から来た `/ja/...` は、接頭辞なしの
- *    日本語ページが実在するときだけ next-intl の正規化（接頭辞なしへの
- *    リダイレクト）に任せ、実在しなければ 404。日本語の未知の用語もここで
- *    404 にする（rewrite 後の dynamicParams = false が 500 になるのを防ぐ）。
- *    既存の日本語 URL を `/ja` へ転送することはない
+ *    `/en/auth/callback` を含む）。英語で公開しているかは許可リスト
+ *    （`translated-publications.ts`。公開単位の一覧は同ファイルの TSDoc）を
+ *    `getPublication` で引いて決め、ここで公開範囲を持たない。外部から来た
+ *    `/ja/...` は、接頭辞なしの日本語ページが実在するときだけ next-intl の正規化
+ *    （接頭辞なしへのリダイレクト）に任せ、実在しなければ 404。日本語の未知の
+ *    用語もここで 404 にする（rewrite 後の dynamicParams = false が 500 になるのを
+ *    防ぐ）。英語の用語は許可リストのテンプレートが slug の形だけで通し、未知の語は
+ *    ページの dynamicParams = false が 404 にする（英語は rewrite しないので 500 に
+ *    ならない）。既存の日本語 URL を `/ja` へ転送することはない
  * 4. Supabase のセッションを更新する。更新した cookie はリクエストの cookie に
  *    書き戻し（後段のサーバーコンポーネントが新しいトークンを読む）、
  *    応答の `Set-Cookie` にも全属性ごと載せる
  * 5. ログイン済みの `/` を内部の `/ja/dashboard` へ rewrite する（アドレスバーは
  *    `/` のまま）。未ログインの `/dashboard` 直アクセスは同じ言語の LP へ HTTP の
- *    リダイレクト。英語は `/en` も dashboard も未公開なので対象にならない
+ *    リダイレクト。英語は LP（`/en`）を公開しているが dashboard は未公開なので、
+ *    ログイン済みでも `/en` は英語の LP のまま（{@link canRewriteToDashboard}）。
+ *    `/en/dashboard` は 3 で 404 になる
  * 6. next-intl の middleware を最後に 1 回だけ呼び、その応答（内部 rewrite と
  *    ロケールのリクエストヘッダ）をそのまま返す。セッション更新の cookie と
  *    ヘッダはその応答に足す。cookie 更新用に別の `NextResponse.next()` を作って
@@ -126,12 +132,14 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 /**
  * proxy が HTTP 404 を返すべき外部パスか
  *
- * - 英語（接頭辞の大文字小文字を問わない）で未公開のパス
+ * - 英語（接頭辞の大文字小文字を問わない）で未公開のパス（許可リストに無いパス）
  * - `/ja` 接頭辞付きで、接頭辞なしの日本語ページが実在しないパス
  * - 日本語の用語集の未知 slug（レジストリで全件が確定している）
  *
  * 用語以外の接頭辞の無い日本語のパスは従来どおり Next に任せる。
  * DB 由来の slug など、日本語の URL の集合を公開状態の表で制限しないため。
+ * 英語の用語のページは許可リストがテンプレート（slug の形）で通すので、
+ * 形に合う未知の語はここでは 404 にしない（ページの dynamicParams = false が返す）。
  */
 function shouldRespondNotFound(external: ExternalPath): boolean {
   if (external.prefix === undefined)
@@ -163,7 +171,8 @@ function isUnknownGlossaryPath(path: string): boolean {
 /**
  * ログイン済みのトップを dashboard へ rewrite してよい言語か
  *
- * 日本語だけ。英語の dashboard を公開するとき（認証済みの `/en` を内部の
+ * 日本語だけ。英語は LP を公開しているが dashboard は未公開なので、ログイン済みの
+ * `/en` も LP を出す。英語の dashboard を公開するとき（認証済みの `/en` を内部の
  * `/en/dashboard` へ rewrite する）は、next-intl が `/en/dashboard` を
  * 書き換え不要と判定して rewrite を出さないため、この合成のままでは動かない。
  * 英語を解禁するときに合成の方法を決め、テストを足す。
