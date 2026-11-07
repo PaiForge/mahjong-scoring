@@ -152,11 +152,14 @@ const JAPANESE_CHARACTERS = new RegExp(
  * サイト名は日本語のブランド名を保つ。英語の正式なブランド名は推測で作らず、
  * 英語の説明（"Riichi Mahjong Scoring"）はキャッチコピー（`metadata.siteTagline`）が
  * 併記する。ロゴはサイト名を二色に分けて描くので、その 2 つも同じ扱い。
+ * 言語切替の「日本語」は、どの言語のページでも各言語をその言語の名前で示す慣例に
+ * 従う（英語のページでも "Japanese" ではなく「日本語」と出す）。
  */
 const JAPANESE_ALLOWED_KEYS: ReadonlySet<string> = new Set([
   "metadata.siteName",
   "nav.brandMahjong",
   "nav.brandScoring",
+  "nav.language.ja",
 ]);
 
 /**
