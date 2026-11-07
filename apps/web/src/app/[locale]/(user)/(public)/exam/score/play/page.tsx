@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.scoreExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/score/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/score/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/score/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -39,6 +39,6 @@ const ExamPlayPage = createExamPlayPage(ScoreExamPlayView, { slug: SLUG });
 export default async function ScoreExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/score/play">) {
-  await prepareRouteLocale(params, "/exam/score/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/score/play");
+  return <ExamPlayPage locale={locale} />;
 }

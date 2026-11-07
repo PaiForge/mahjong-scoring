@@ -22,8 +22,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/fu-score/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/fu-score/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.fuScoreExam);
+  const locale = await prepareRouteLocale(params, "/exam/fu-score/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.fuScoreExam, { locale });
 }
 
 export default async function FuScoreExamTrainingPage({

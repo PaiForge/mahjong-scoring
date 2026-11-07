@@ -22,8 +22,10 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/chiitoitsu/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/chiitoitsu/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.chiitoitsuExam);
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.chiitoitsuExam, {
+    locale,
+  });
 }
 
 export default async function ChiitoitsuExamTrainingPage({

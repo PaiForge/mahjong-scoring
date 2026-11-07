@@ -22,8 +22,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/mangan/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/mangan/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganExam);
+  const locale = await prepareRouteLocale(params, "/exam/mangan/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganExam, { locale });
 }
 
 export default async function ManganExamTrainingPage({

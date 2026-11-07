@@ -10,6 +10,8 @@ import {
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { practiceHref } from "@mahjong-scoring/features/routes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { localizedHref } from "@/i18n/public-path";
 
 /**
  * 昇級試験の受験ガード（play ページ用）
@@ -29,11 +31,23 @@ import { practiceHref } from "@mahjong-scoring/features/routes";
  * 仮にこのガードを迂回してプレイしても、採点（`submitExamResult`）と
  * 昇級判定（`gradeExamRun`）がサーバー側で同じ資格・順序を強制するため、
  * 飛び級は成立しない。
+ *
+ * 戻し先は play ページと同じ言語の説明ページ（英語の play からは `/en/exam/<級>`）。
+ * 素の `practiceHref(slug)` へ送ると英語の受験者が日本語の説明ページへ落ち、
+ * 言語切替を押さないと英語へ戻れない。説明ページは play と同じ公開単位で、
+ * play を出している言語では必ず出しているため、公開状態を引き直さず
+ * `localizedHref` で接頭辞だけ付ける（日本語は恒等で、戻し先の URL は変わらない）。
+ * next-intl の `redirect` は locale の指定を要る形なので、リンクと同じ
+ * `localizedHref` に揃える。
+ *
+ * @param slug - 昇級試験のスラッグ
+ * @param locale - play ページの言語（ページの `prepareRouteLocale` の戻り値）
  */
 export async function redirectUnlessExamEligible(
   slug: PracticeMenuSlug,
+  locale: SupportedLocale,
 ): Promise<void> {
-  const introHref = practiceHref(slug);
+  const introHref = localizedHref(practiceHref(slug), locale);
   const user = await getOptionalUser();
   if (!user) {
     redirect(introHref);

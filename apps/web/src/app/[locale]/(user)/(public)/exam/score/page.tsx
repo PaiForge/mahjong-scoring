@@ -35,8 +35,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/score">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/score");
-  return createPracticeMetadata(PRACTICE_SLUG.scoreExam);
+  const locale = await prepareRouteLocale(params, "/exam/score");
+  return createPracticeMetadata(PRACTICE_SLUG.scoreExam, { locale });
 }
 
 export default async function ScoreExamPage({

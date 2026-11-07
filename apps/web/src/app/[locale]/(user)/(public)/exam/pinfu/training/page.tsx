@@ -22,8 +22,8 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/pinfu/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/pinfu/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.pinfuExam);
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.pinfuExam, { locale });
 }
 
 export default async function PinfuExamTrainingPage({

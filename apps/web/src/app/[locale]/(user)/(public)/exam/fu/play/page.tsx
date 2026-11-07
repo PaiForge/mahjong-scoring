@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.fuExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/fu/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/fu/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/fu/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -37,6 +37,6 @@ const ExamPlayPage = createExamPlayPage(FuExamPlayView, { slug: SLUG });
 export default async function FuExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/fu/play">) {
-  await prepareRouteLocale(params, "/exam/fu/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/fu/play");
+  return <ExamPlayPage locale={locale} />;
 }

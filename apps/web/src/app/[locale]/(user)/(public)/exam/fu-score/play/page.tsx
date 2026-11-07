@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.fuScoreExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/fu-score/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/fu-score/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/fu-score/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -38,6 +38,6 @@ const ExamPlayPage = createExamPlayPage(FuScoreExamPlayView, { slug: SLUG });
 export default async function FuScoreExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/fu-score/play">) {
-  await prepareRouteLocale(params, "/exam/fu-score/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/fu-score/play");
+  return <ExamPlayPage locale={locale} />;
 }
