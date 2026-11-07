@@ -40,8 +40,14 @@ function childText(parent: Element, name: string): string | undefined {
  * @param xml - sitemap.xml の本文
  */
 export function parseSitemap(xml: string): ParsedSitemap {
-  const document = new JSDOM(xml, { contentType: "application/xml" }).window
-    .document;
+  let document: Document;
+  try {
+    // jsdom は整形式でない XML を例外で返す（parsererror 要素を作るとは限らない）
+    document = new JSDOM(xml, { contentType: "application/xml" }).window
+      .document;
+  } catch (error) {
+    return { entries: [], error: String(error) };
+  }
   const parserError = document.getElementsByTagName("parsererror")[0];
   if (parserError) {
     return { entries: [], error: parserError.textContent ?? "parsererror" };

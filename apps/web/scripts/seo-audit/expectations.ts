@@ -61,6 +61,20 @@ export const BASELINE_HTTP_CHANGES: ReadonlyMap<
 ]);
 
 /**
+ * 移行前の robots.txt の Disallow（出現順）
+ *
+ * 英語の分類で robots.txt を一括で書き換えない（未公開の英語は proxy の 404 +
+ * noindex で止め、Disallow で代用しない — Disallow したページはクロールされず
+ * noindex も読まれない）。日本語の既存の除外はそのまま残す。
+ */
+export const BASELINE_ROBOTS_DISALLOW: readonly string[] = [
+  "/admin",
+  "/mypage",
+  "/api",
+  "/u/",
+];
+
+/**
  * 静的生成に新しく加わってよい日本語のパス
  *
  * 移行前に要求ごとに描画していたページが静的になるのは、明示した変更に限って
