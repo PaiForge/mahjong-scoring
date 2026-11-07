@@ -1,21 +1,21 @@
 {
-  "pass": "合格",
-  "fail": "不合格",
-  "scoreLine": "{correct} 問正解 / 合格ライン {minScore} 問",
-  "remaining": "あと {count} 問",
-  "correctLegend": "正解",
-  "minScoreLegend": "合格ライン",
-  "averageTimeLabel": "平均回答時間",
-  "averageTimeValue": "{seconds} 秒",
+  "pass": "Passed",
+  "fail": "Not passed",
+  "scoreLine": "{correct} correct / pass line {minScore}",
+  "remaining": "{count} short of passing",
+  "correctLegend": "Correct",
+  "minScoreLegend": "Pass line",
+  "averageTimeLabel": "Average answer time",
+  "averageTimeValue": "{seconds} s",
   "averageTimeNone": "—",
-  "requiredPaceLabel": "合格ペース",
-  "requiredPaceValue": "{seconds} 秒/問",
-  "endedByGoal": "合格ラインに到達して終了",
-  "endedByMistake": "{n} 問目の誤答で終了",
-  "endedByTime": "時間切れで終了",
+  "requiredPaceLabel": "Pace needed to pass",
+  "requiredPaceValue": "{seconds} s per question",
+  "endedByGoal": "Ended on reaching the pass line",
+  "endedByMistake": "Ended by a wrong answer on question {n}",
+  "endedByTime": "Ended when time ran out",
   "status": {
-    "sending": "合否を判定しています…",
-    "queued": "合否の判定を送れませんでした。次に通信できたときに送ります（合格なら、そのとき段級位が付きます）。",
-    "notRecorded": "この試験は判定されませんでした。"
+    "sending": "Checking whether you passed…",
+    "queued": "Could not send your result. It will be sent the next time you are online (if you passed, you will get the rank then).",
+    "notRecorded": "This exam was not judged."
   }
 }
