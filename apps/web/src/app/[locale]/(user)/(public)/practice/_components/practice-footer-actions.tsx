@@ -3,13 +3,16 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { localizedHref } from "@/i18n/public-path";
+import { usePageLocale } from "../_hooks/use-page-locale";
 
 /**
  * 練習画面フッターの操作リンク1件（わからない / 次の問題へ / 終了する / やめる）
  * 練習フッター操作
  *
  * 盤面の下に置く控えめなテキスト操作。`href` を渡すと `next/link` の
- * リンク、`onClick` を渡すとボタンになる。
+ * リンク、`onClick` を渡すとボタンになる。`href` はロケール非依存で受け取り、
+ * 今の言語の URL にして張る（英語の盤面から日本語の説明へ落とさない）。
  *
  * 文字の高さ（20px）だけをタップ領域にすると指では狭すぎるため、
  * `min-h-11`（44px）で領域を確保する。見た目は文字と下線のままで、
@@ -27,10 +30,11 @@ type PracticeFooterActionProps = { readonly children: ReactNode } & (
 const ACTION_CLASSES = `inline-flex min-h-11 items-center justify-center px-4 text-sm ${TEXT_LINK_CLASSES}`;
 
 export function PracticeFooterAction(props: PracticeFooterActionProps) {
+  const locale = usePageLocale();
   if ("href" in props) {
     return (
       <Link
-        href={props.href}
+        href={localizedHref(props.href, locale)}
         onClick={props.onClick}
         className={ACTION_CLASSES}
       >

@@ -5,7 +5,7 @@ import {
   useVerifiedChallenge,
 } from "../_hooks/use-verified-challenge";
 import { type ReactNode, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useLocalizedRouter } from "../_hooks/use-localized-router";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
@@ -354,7 +354,7 @@ export function createTrainingView<
     const tExamTraining = useTranslations("examTraining");
     const tq = useTranslations("practiceQuota");
     const tt = useTranslations("training");
-    const router = useRouter();
+    const router = useLocalizedRouter();
     const boardState = useBoardState(props);
     const session = useTrainingSession();
     const {

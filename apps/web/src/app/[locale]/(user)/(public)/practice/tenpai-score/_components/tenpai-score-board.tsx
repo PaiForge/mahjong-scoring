@@ -1,7 +1,8 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocalizedRouter } from "../../_hooks/use-localized-router";
 import { useTranslations } from "next-intl";
 import { toast } from "react-hot-toast";
 import { isOya } from "@mahjong-scoring/core";
@@ -45,7 +46,7 @@ function TenpaiScoreBoardInner() {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
   const tt = useTranslations("training");
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const {
     currentQuestion,

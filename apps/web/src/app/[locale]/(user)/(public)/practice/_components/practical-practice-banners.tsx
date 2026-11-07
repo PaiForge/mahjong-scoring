@@ -12,6 +12,8 @@ import { TehaiHand } from "../../_components/tehai-hand";
 import { TileSet } from "@/app/[locale]/(user)/_components/tile-set";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
 import { PracticeEntryQuota } from "./practice-entry-quota";
 
 // 三筒で和了するデモから1枚抜いた、三筒・六筒待ちの聴牌形。
@@ -21,10 +23,17 @@ const TENPAI_TILES = splitAgariHai(
 ).closedTiles;
 
 async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
-  const t = await getTranslations("practice");
+  const [t, locale] = await Promise.all([
+    getTranslations("practice"),
+    currentLocale(),
+  ]);
   const isScore = menu === "agari-score";
   const key = isScore ? "agariScoreBanner" : "tenpaiScoreBanner";
-  const href = isScore ? AGARI_SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF;
+  // 行き先の説明・設定のページは練習一覧と同じ言語で公開している（その言語の URL）
+  const href = resolveNavTargetFor(
+    isScore ? AGARI_SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF,
+    locale,
+  ).href;
   return (
     // 基礎練習のカード（PracticeCard）と同じ組み方: カード自体は押せる面では
     // なく、右下の「くわしく見る」だけがリンク。行き先は play ではなく説明と

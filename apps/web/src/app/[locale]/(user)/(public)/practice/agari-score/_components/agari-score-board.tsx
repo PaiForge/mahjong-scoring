@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocalizedRouter } from "../../_hooks/use-localized-router";
 import { Suspense } from "react";
 import { isOya } from "@mahjong-scoring/core";
 import { toast } from "react-hot-toast";
@@ -53,7 +54,7 @@ import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 function AgariScoreBoardInner() {
   const t = useTranslations("agariScore");
   const tt = useTranslations("training");
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const searchParams = useSearchParams();
   const {
     currentQuestion,

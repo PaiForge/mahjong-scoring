@@ -10,6 +10,8 @@ import type {
   PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
 import { practicePlayHref } from "@mahjong-scoring/features/routes";
+import { localizedHref } from "@/i18n/public-path";
+import { usePageLocale } from "../_hooks/use-page-locale";
 import {
   PRACTICE_START_CTA_BLOCK_CLASS,
   PRACTICE_START_CTA_HINT_CLASS,
@@ -38,9 +40,11 @@ interface TrainingChallengeCtaProps {
 
 function ChallengeButton({ href }: { readonly href: string }) {
   const tt = useTranslations("training");
+  // href はロケール非依存。今の言語の play へ送る（英語の training から日本語へ落とさない）
+  const locale = usePageLocale();
 
   return (
-    <LinkButton href={href} size="lg" fullWidth>
+    <LinkButton href={localizedHref(href, locale)} size="lg" fullWidth>
       <PlayIcon className="size-4" />
       {tt("challengeButton")}
     </LinkButton>

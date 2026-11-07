@@ -9,6 +9,8 @@ import type { RankSlug } from "@mahjong-scoring/features/ranks/registry";
 
 import { PracticeChapterSection } from "./practice-chapter-section";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
 
 interface PracticeListGuidesProps {
   /** 並べるレッスン（カリキュラムの順）。0 件なら節ごと出さない */
@@ -37,7 +39,10 @@ export async function PracticeListGuides({
   chapters,
   ranks,
 }: PracticeListGuidesProps) {
-  const t = await getTranslations("practice");
+  const [t, locale] = await Promise.all([
+    getTranslations("practice"),
+    currentLocale(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -58,7 +63,7 @@ export async function PracticeListGuides({
           </ol>
           <div className="text-center">
             <Link
-              href={DOJO_PATH}
+              href={resolveNavTargetFor(DOJO_PATH, locale).href}
               className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
             >
               {t("modes.dojoLink")}

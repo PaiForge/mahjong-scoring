@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { localizedHref } from "@/i18n/public-path";
+import { usePageLocale } from "../_hooks/use-page-locale";
 import { useSearchParams } from "next/navigation";
 import { Fragment, Suspense, type ReactNode } from "react";
 
@@ -106,6 +108,8 @@ function FilteredList({
   guides,
   selected,
 }: FilteredListProps) {
+  // 絞り込みは同じページの切り替え。今の言語の一覧のまま
+  const locale = usePageLocale();
   const visible = items.filter((item) => matchesPracticeFilter(selected, item));
   const adIndex = Math.min(AD_GRID_POSITION, visible.length);
   const guide = guides?.find((item) =>
@@ -140,7 +144,10 @@ function FilteredList({
                 return (
                   <Link
                     key={option.label}
-                    href={practiceListHref(option.filter)}
+                    href={localizedHref(
+                      practiceListHref(option.filter),
+                      locale,
+                    )}
                     // 同じページ内の切り替えなので、押すたびに先頭へ戻さない
                     scroll={false}
                     aria-current={isActive ? "true" : undefined}
