@@ -149,5 +149,11 @@
     "switchToSelect": "Choose the score from a list",
     "switchToTiles": "Choose the score from tiles"
   },
+  "errorBoundary": {
+    "title": "We couldn't load this practice",
+    "description": "A temporary problem may have occurred. Please try again.",
+    "retry": "Try again",
+    "backToList": "Back to the practice menus"
+  },
   "titleWithVariant": "{title} ({variant})"
 }

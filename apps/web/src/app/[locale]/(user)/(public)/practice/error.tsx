@@ -33,8 +33,11 @@ function practiceListHref(locale: SupportedLocale): string {
  * ユーザーが練習一覧へ戻れるようにする。
  *
  * 英語の練習でも出る境界なので、文言は辞書から引き `ErrorFallback` に全部渡す
- * （1 つでも省くと英語のページに日本語の既定値が混ざる）。見出し・説明・再試行は
- * `errorPage`（境界の共通の文言）、戻りリンクは `challenge.backToList`。
+ * （1 つでも省くと英語のページに日本語の既定値が混ざる）。文言は練習専用の
+ * `practice.errorBoundary` に置く。共通の `errorPage`（「問題が発生しました」）や
+ * `challenge.backToList`（「練習一覧に戻る」）で代用しない — 日本語の練習の
+ * エラー画面は「練習を読み込めませんでした」「練習一覧へ戻る」で出してきた文言で、
+ * 英語化で日本語の出力を変えないため、ja の値はその文字列のまま持つ。
  */
 export default function PracticeError({
   error,
@@ -43,8 +46,7 @@ export default function PracticeError({
   readonly error: Error & { digest?: string };
   readonly reset: () => void;
 }) {
-  const t = useTranslations("errorPage");
-  const tChallenge = useTranslations("challenge");
+  const t = useTranslations("practice.errorBoundary");
   const rawLocale = useLocale();
   const locale = isSupportedLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
 
@@ -57,7 +59,7 @@ export default function PracticeError({
       description={t("description")}
       retryLabel={t("retry")}
       backHref={practiceListHref(locale)}
-      backLabel={tChallenge("backToList")}
+      backLabel={t("backToList")}
     />
   );
 }
