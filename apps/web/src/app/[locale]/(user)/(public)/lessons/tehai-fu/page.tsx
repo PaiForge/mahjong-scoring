@@ -6,16 +6,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/tehai-fu">) {
-  await prepareRouteLocale(params, "/lessons/tehai-fu");
-  return createLearnMetadata("tehai-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/tehai-fu");
+  return createLearnMetadata("tehai-fu", { locale });
 }
 
 export default async function LearnTehaiFuPage({
   params,
 }: PageProps<"/[locale]/lessons/tehai-fu">) {
-  await prepareRouteLocale(params, "/lessons/tehai-fu");
+  const locale = await prepareRouteLocale(params, "/lessons/tehai-fu");
   return (
-    <LearnPageLayout slug="tehai-fu">
+    <LearnPageLayout slug="tehai-fu" locale={locale}>
       <TehaiFuGuide />
     </LearnPageLayout>
   );

@@ -15,16 +15,16 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/pinfu-score">) {
-  await prepareRouteLocale(params, "/lessons/pinfu-score");
-  return createLearnMetadata("pinfu-score");
+  const locale = await prepareRouteLocale(params, "/lessons/pinfu-score");
+  return createLearnMetadata("pinfu-score", { locale });
 }
 
 export default async function LearnPinfuScorePage({
   params,
 }: PageProps<"/[locale]/lessons/pinfu-score">) {
-  await prepareRouteLocale(params, "/lessons/pinfu-score");
+  const locale = await prepareRouteLocale(params, "/lessons/pinfu-score");
   return (
-    <LearnPageLayout slug="pinfu-score">
+    <LearnPageLayout slug="pinfu-score" locale={locale}>
       <PinfuScoreGuide />
     </LearnPageLayout>
   );
