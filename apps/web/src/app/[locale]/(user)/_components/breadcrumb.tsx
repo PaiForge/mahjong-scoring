@@ -3,7 +3,7 @@ import { useLocale, useTranslations } from "next-intl";
 
 import { SITE_URL } from "@/config";
 import { localizedHref, splitHref } from "@/i18n/public-path";
-import { getPublication } from "@/i18n/route-policy";
+import { getTranslatedPublication } from "@/i18n/translated-publications";
 
 import {
   DEFAULT_LOCALE,
@@ -58,9 +58,13 @@ function resolveCrumb(
   locale: SupportedLocale,
 ): ResolvedCrumb {
   if (path === undefined) return { label, href: undefined, inSchema: true };
+  // 公開状態は軽い許可リスト（`translated-publications.ts`）から引く。パンくずは
+  // クライアントのツリーからも描かれ、`route-policy.ts` を読むと sitemap の
+  // レジストリごとクライアントの JS に載るため
   const published =
     locale === DEFAULT_LOCALE ||
-    getPublication(splitHref(path).pathname, locale) !== "unpublished";
+    getTranslatedPublication(splitHref(path).pathname, locale) !==
+      "unpublished";
   return published
     ? { label, href: localizedHref(path, locale), inSchema: true }
     : { label, href: undefined, inSchema: false };

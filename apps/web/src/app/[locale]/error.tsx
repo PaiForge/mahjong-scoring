@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 // ブランド UI のボタンを使う。
 import { buttonClasses } from "@/app/[locale]/(user)/_components/_lib/button-classes";
 import { Button } from "@/app/[locale]/(user)/_components/button";
-import { resolvePublishedHref } from "@/i18n/navigation";
+import { publishedHomeHref } from "@/i18n/translated-publications";
 
 /**
  * 言語レイアウト直下のエラー境界
@@ -44,9 +44,11 @@ export default function LocaleError({
         <p className="text-sm text-surface-600 mb-8">{t("description")}</p>
         <div className="flex flex-wrap gap-3 justify-center">
           <Button onClick={reset}>{t("retry")}</Button>
-          {/* その言語のトップが未公開なら日本語のトップへ（404 へ案内しない） */}
+          {/* その言語のトップが未公開なら日本語のトップへ（404 へ案内しない）。
+              公開状態はクライアントから読める軽い表から引く（route-policy は
+              sitemap のレジストリごとクライアントの JS に載るため） */}
           <Link
-            href={resolvePublishedHref("/", locale) ?? "/"}
+            href={publishedHomeHref(locale)}
             className={buttonClasses({ variant: "neutral" })}
           >
             {t("goHome")}

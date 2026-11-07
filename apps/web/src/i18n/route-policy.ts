@@ -16,7 +16,9 @@
  * 一律に転送する、のいずれも採らない — 中身の薄い・日本語と重複した英語 URL が
  * 索引され、未完成のページへ内部リンクが張られるため。
  * 「すべて英語で出してから noindex にする」既定も持たない。
- * いま英語で公開するのは点数表（`/reference/score-table`）だけ。
+ * いま英語で公開するのは点数表（`/reference/score-table`）だけ。許可リストの
+ * 実体はクライアントからも読める `translated-publications.ts` にある（理由は同
+ * ファイルの TSDoc）。英語のページを足すときはそちらに 1 行足す。
  *
  * **日本語は既存の分類をそのまま取り込む。** sitemap に載るページ
  * （`sitemap-routes.ts`）が `published-indexable`、それ以外の実在するページ
@@ -48,28 +50,16 @@ import {
   TENPAI_SCORE_PRACTICE_HREF,
 } from "@mahjong-scoring/features/routes";
 
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
+
 import { splitHref } from "./public-path";
+import {
+  getTranslatedPublication,
+  translatedPublishedPaths,
+  type Publication,
+} from "./translated-publications";
 
-/**
- * ページの公開状態
- *
- * - `unpublished` — その言語では出していない。英語なら proxy が 404 を返す
- * - `published-noindex` — 出しているが索引させない。sitemap・hreflang に載せない
- *   （noindex 指定のページ、robots で除外したページ、認証フロー等を含む）
- * - `published-indexable` — 出して索引させる。canonical・sitemap・hreflang の対象
- */
-export type Publication =
-  "unpublished" | "published-noindex" | "published-indexable";
-
-/**
- * 英語で公開するページ（許可リスト）
- *
- * ここに無いパスは英語では `unpublished`。英語のページを公開するときは、
- * そのページの英語の本文・metadata が揃っていることを確かめてから足す。
- */
-const EN_PUBLICATIONS: ReadonlyMap<string, Publication> = new Map([
-  ["/reference/score-table", "published-indexable"],
-]);
+export type { Publication } from "./translated-publications";
 
 /** 日本語で索引させるページ（sitemap に載るページ。DB 由来のお知らせ詳細を除く） */
 const JA_INDEXABLE_PATHS: ReadonlySet<string> = new Set([
@@ -176,7 +166,9 @@ export function getPublication(
   locale: SupportedLocale,
 ): Publication {
   const { pathname } = splitHref(path);
-  if (locale === "en") return EN_PUBLICATIONS.get(pathname) ?? "unpublished";
+  if (locale !== DEFAULT_LOCALE) {
+    return getTranslatedPublication(pathname, locale);
+  }
   return classifyJapanese(pathname);
 }
 
@@ -191,6 +183,5 @@ export function isPublished(publication: Publication): boolean {
  * 英語は許可リストなので有限に列挙できる。日本語は動的ルートを含むため
  * 列挙の関数を持たない（sitemap は `sitemap-routes.ts` を読む）。
  */
-export const EN_PUBLISHED_PATHS: readonly string[] = [
-  ...EN_PUBLICATIONS.keys(),
-];
+export const EN_PUBLISHED_PATHS: readonly string[] =
+  translatedPublishedPaths("en");
