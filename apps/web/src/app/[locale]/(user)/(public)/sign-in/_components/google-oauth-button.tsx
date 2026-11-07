@@ -7,6 +7,9 @@ import { GoogleIcon } from "@/app/[locale]/(user)/_components/icons/google-icon"
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { createClient } from "@/lib/supabase/client";
 
+import { buildOAuthCallbackTarget } from "../_lib/oauth-callback-url";
+import { useSupportedLocale } from "../_lib/use-supported-locale";
+
 const LABEL_KEYS = {
   signIn: { idle: "googleOAuth", loading: "googleOAuthLoading" },
   signUp: { idle: "googleOAuthSignUp", loading: "googleOAuthSignUpLoading" },
@@ -15,7 +18,13 @@ const LABEL_KEYS = {
 /**
  * Google OAuth サインインボタン
  *
- * @param redirectTo ログイン成功時の遷移先。未指定または無効な場合は `/mypage`。
+ * 英語のページでは `/auth/callback` に `locale=en` と言語付きの `next` を付ける。
+ * 日本語では戻り先の文字列を従来のまま（`locale` 無し、`next` は指定があるときだけ）に
+ * する。理由と組み方は {@link buildOAuthCallbackTarget}。`Accept-Language`・cookie では
+ * 言語を推測しない。
+ *
+ * @param redirectTo ログイン成功時の遷移先（公開 URL の形。英語なら `/en/...`）。
+ *   未指定ならページの言語の `/mypage`（日本語はコールバックの既定に任せる）。
  *   `page.tsx` 側で `sanitizeInternalRedirect` 済みの値を受け取る想定。
  *   `/auth/callback` に `next` クエリとして渡し、コールバック内で再検証される。
  * @param intent ラベルの出し分け。OAuth は登録とログインが同じ操作なので、
@@ -29,24 +38,26 @@ export function GoogleOAuthButton({
   readonly intent?: "signIn" | "signUp";
 }) {
   const t = useTranslations("auth");
+  const locale = useSupportedLocale();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
     const supabase = createClient();
     setIsLoading(true);
     try {
-      const callbackUrl = new URL("/auth/callback", window.location.origin);
-      if (redirectTo) {
-        callbackUrl.searchParams.set("next", redirectTo);
-      }
+      const target = buildOAuthCallbackTarget(
+        window.location.origin,
+        locale,
+        redirectTo,
+      );
       // Google から戻って着いた先で出す。ユーザー名が未設定（新規登録）なら
       // コールバックがユーザー名の設定へ送り、着地先が違うので預かりは捨てられる
       // （そちらは設定を終えたときに「登録が完了しました」を出す）
-      toastOnArrival(redirectTo ?? "/mypage", t("signInSuccess"), "success");
+      toastOnArrival(target.landing, t("signInSuccess"), "success");
       await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: callbackUrl.toString(),
+          redirectTo: target.redirectTo,
         },
       });
     } catch {

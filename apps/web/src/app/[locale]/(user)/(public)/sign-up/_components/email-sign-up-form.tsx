@@ -7,21 +7,31 @@ import { useTranslations } from "next-intl";
 
 import { MIN_PASSWORD_LENGTH } from "@mahjong-scoring/features/account/password";
 
+import { localizedHref } from "@/i18n/public-path";
+
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
 import { usePasswordFormMessages } from "../../_hooks/use-password-form-messages";
 import { AuthTextField } from "../../_components/auth-text-field";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
 import { AuthFormError } from "../../_components/auth-form-error";
+import { useSupportedLocale } from "../../sign-in/_lib/use-supported-locale";
 import { signUp } from "../_actions/sign-up";
 
 /**
  * メールアドレス/パスワードによるサインアップフォーム
  * メール登録フォーム
+ *
+ * 送信後の確認待ちのページへは今の言語のまま遷移する（英語なら
+ * `/en/sign-up/verify-email`。どちらの言語でも公開している）。接頭辞は
+ * `localizedHref` で付ける。`@/i18n/navigation` の `useRouter` はクライアントから
+ * 読まない — 公開状態の表（`route-policy.ts`）ごとクライアントの JS に載るため
+ * （`client-bundle-boundaries.test.ts`）。
  */
 export function EmailSignUpForm() {
   const t = useTranslations("signUp");
   const { validatePair, mapPasswordError } = usePasswordFormMessages("signUp");
   const router = useRouter();
+  const locale = useSupportedLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,7 +46,12 @@ export function EmailSignUpForm() {
         mapPasswordError(code) ??
         (code === "rateLimited" ? t("rateLimited") : t("emailSignUpError")),
       onSuccess: () => {
-        router.push(`/sign-up/verify-email?email=${encodeURIComponent(email)}`);
+        router.push(
+          localizedHref(
+            `/sign-up/verify-email?email=${encodeURIComponent(email)}`,
+            locale,
+          ),
+        );
       },
     });
   };

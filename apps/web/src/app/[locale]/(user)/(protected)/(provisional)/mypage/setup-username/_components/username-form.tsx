@@ -3,11 +3,16 @@
 import { type FormEvent, useCallback, useState } from "react";
 import { ProfileTextField } from "@/app/[locale]/(user)/(protected)/_components/profile-text-field";
 
-import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
+import { localizedHref } from "@/i18n/public-path";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 import {
   generateUsername,
   USERNAME_MAX_LENGTH,
@@ -29,6 +34,8 @@ import { Button } from "@/app/[locale]/(user)/_components/button";
 export function UsernameForm() {
   const t = useTranslations("setupUsername");
   const router = useRouter();
+  const rawLocale = useLocale();
+  const locale = isSupportedLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
@@ -82,9 +89,13 @@ export function UsernameForm() {
       // 挟まず、マイページからいつでも編集できるままにする — 登録の直後に
       // 任意のフォームが続くと「まだ登録の続き」に見え、最初の学習までの
       // 距離が伸びる。
+      // 遷移先は今の言語のトップ（`localizedHref`。英語は `/en`。ログイン済みの
+      // `/en` も proxy が dashboard へ rewrite するので日本語と同じ着地になる）。
+      // `@/i18n/navigation` は公開状態の表ごとクライアントの JS に載るので読まない。
+      // トーストの預かりはロケール非依存のパス（`toastOnArrival` が接頭辞を外して比べる）。
       const next = "/";
       toastOnArrival(next, t("registered"), "success");
-      router.push(next);
+      router.push(localizedHref(next, locale));
     } catch {
       setError(getValidationMessage("unknown"));
       setIsSubmitting(false);

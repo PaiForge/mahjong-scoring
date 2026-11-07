@@ -35,7 +35,12 @@ export type AccountPageNotice = (typeof ACCOUNT_PAGE_NOTICES)[number];
 
 const noticeSet: ReadonlySet<string> = new Set(ACCOUNT_PAGE_NOTICES);
 
-/** アカウントのページの URL（報せ付き） */
+/**
+ * アカウントのページの URL（報せ付き）
+ *
+ * ロケール非依存のパスを返す。`/auth/callback` は入口が付けた `locale` で
+ * これをその言語の公開 URL（英語なら `/en/mypage/account?notice=…`）にしてから送る。
+ */
 export function accountPageHref(notice?: AccountPageNotice): string {
   return notice === undefined
     ? ACCOUNT_PAGE_PATH
