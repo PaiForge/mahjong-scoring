@@ -6,9 +6,11 @@ import {
   ProfileTextField,
 } from "@/app/[locale]/(user)/(protected)/_components/profile-text-field";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+
+import { localizedHref } from "@/i18n/public-path";
 
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 
@@ -36,6 +38,9 @@ const KNOWN_ERROR_KEYS = new Set<string>([
 /**
  * プロフィール（表示名・自己紹介・SNS）編集フォーム。アバターは別コンポーネント。
  * プロフィール編集フォーム
+ *
+ * 保存したら同じ言語のマイページへ戻す（`localizedHref`。日本語は恒等）。
+ * マイページはこの画面を出している言語では必ず出している。
  */
 export function ProfileForm({
   initial,
@@ -43,6 +48,7 @@ export function ProfileForm({
   /** 各欄の初期値。空欄は null ではなく空文字で渡す */
   readonly initial: ProfileInput;
 }) {
+  const locale = useLocale();
   const t = useTranslations("profileEdit");
   const router = useRouter();
 
@@ -79,7 +85,7 @@ export function ProfileForm({
       }
 
       toast.success(t("success"));
-      router.push("/mypage");
+      router.push(localizedHref("/mypage", locale));
     } catch {
       setError(t("error"));
       setIsSubmitting(false);
