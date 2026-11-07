@@ -22,6 +22,13 @@
  * 入れるため、お知らせ詳細・公開プロフィールと同じくこのまま受け入れている。
  * 本物の 404 が要るなら、ページを静的にして取得状態をクライアントで重ねる。
  *
+ * @design 英語では noindex で出す
+ * 道場（`/dojo`）と同じく閲覧者の取得状態・完了を描く動的ページで、英語の
+ * 索引対象の規約（静的生成）に合わない。英語は公開状態の表で
+ * `published-noindex`（テンプレート。`RANK_SLUGS` で展開）にし、robots はその表から
+ * 引く（`robotsForPublication`。日本語は undefined で従来の指定のまま）。
+ * 広告は英語で出さない（`getNativeAdCreative` に言語を渡す）。
+ *
  * @flow
  * 1. 道場の行程（黒帯への道）のカードの級名から遷移する
  * 2. 前提となる教本の章を読む（読了チェックが進捗を示す）
@@ -42,7 +49,7 @@ import { ChapterTocList } from "@/app/[locale]/(user)/(public)/lessons/_componen
 import { CurriculumTocLink } from "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-toc-link";
 import { ExamCtaCard } from "@/app/[locale]/(user)/(public)/lessons/_components/exam-cta-card";
 import { fetchCompletedLessonSlugs } from "@/app/[locale]/(user)/(public)/lessons/_lib/lesson-progress";
-import { createMetadata } from "@/app/_lib/metadata";
+import { createMetadata, robotsForPublication } from "@/app/_lib/metadata";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
@@ -62,30 +69,35 @@ export async function generateMetadata({
   params,
 }: RankDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
+  const locale = await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
   const rank = rankBySlug(slug);
   // 未知の slug は本文が notFound() を呼び、Next が noindex を付けた
   // not-found を描く。ここでは何も宣言しない
   if (!rank) return {};
 
   const [t, tRanks] = await Promise.all([
-    getTranslations("dojo"),
-    getTranslations("ranks"),
+    getTranslations({ locale, namespace: "dojo" }),
+    getTranslations({ locale, namespace: "ranks" }),
   ]);
   const rankName = tRanks(`names.${rank.slug}`);
-  return createMetadata({
-    title: t("rankDetail.title", { rank: rankName }),
-    description: t("rankDetail.description", {
-      rank: rankName,
-      criterion: tRanks(`criteria.${rank.slug}`),
+  const robots = robotsForPublication(rankHref(rank.slug), locale);
+  return {
+    ...createMetadata({
+      title: t("rankDetail.title", { rank: rankName }),
+      description: t("rankDetail.description", {
+        rank: rankName,
+        criterion: tRanks(`criteria.${rank.slug}`),
+      }),
+      path: rankHref(rank.slug),
+      locale,
     }),
-    path: rankHref(rank.slug),
-  });
+    ...(robots === undefined ? {} : { robots }),
+  };
 }
 
 export default async function RankDetailPage({ params }: RankDetailPageProps) {
   const { slug } = await params;
-  await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
+  const locale = await prepareRouteLocale(params, `/dojo/ranks/${slug}`);
   const rank = rankBySlug(slug);
   if (!rank) notFound();
 
@@ -94,7 +106,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
     getTranslations("ranks"),
     getOptionalUser(),
     fetchCompletedLessonSlugs(),
-    getNativeAdCreative("rank-detail-native-ad"),
+    getNativeAdCreative("rank-detail-native-ad", locale),
   ]);
   const achievedSlugs = user ? await getUserRankSlugs(user.id) : [];
   const rankName = tRanks(`names.${rank.slug}`);
@@ -152,6 +164,7 @@ export default async function RankDetailPage({ params }: RankDetailPageProps) {
 
         <ExamCtaCard
           slug={menuTypeToSlug(rank.exam.menuType)}
+          locale={locale}
           lead={
             hasChapters
               ? t("examLead")
