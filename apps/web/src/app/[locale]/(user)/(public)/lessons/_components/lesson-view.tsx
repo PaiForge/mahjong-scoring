@@ -5,7 +5,6 @@ import { useCallback, useRef, useState, type ReactNode } from "react";
 import { scrollToAnchor } from "@/app/[locale]/(user)/(public)/practice/_lib/scroll-anchor";
 import { useAuth } from "@/app/_contexts/auth-context";
 import { logExternalError } from "@/lib/log-error";
-import { buildSignInHref } from "@/lib/redirect";
 import {
   isSameChoice,
   type LessonChoice,
@@ -13,7 +12,8 @@ import {
 import { LESSON_PHASES } from "@mahjong-scoring/features/lessons/lesson-phase";
 import { lessonQuiz } from "@mahjong-scoring/features/lessons/quizzes";
 import type { QuizLessonSlug } from "@mahjong-scoring/features/lessons/registry";
-import { chapterHref } from "@mahjong-scoring/features/routes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 
 import { completeLesson } from "../_actions/complete-lesson";
 import type { LessonFollowUp } from "@mahjong-scoring/features/lessons/follow-up";
@@ -37,8 +37,22 @@ interface LessonViewProps {
   readonly slug: QuizLessonSlug;
   /** 確認問題の辞書の名前空間（`lessons.<messageKey>`） */
   readonly messageKey: string;
-  /** 完了を記録できたあとの主導線（{@link LessonNextLink}） */
+  /** 完了を記録できたあとの主導線（{@link LessonNextLink}。ページの言語の公開 URL） */
   readonly next: LessonNextLink;
+  /**
+   * セッション切れのときにログインし直す画面の URL（戻り先はこの章）。
+   * ページの言語の公開 URL でサーバーが組む
+   */
+  readonly signInHref: string;
+  /** 未ログインで解き終えた人を送る登録画面（`resolveNavTargetFor("/sign-up", locale)`） */
+  readonly signUpTarget: NavTarget;
+  /** 保存に失敗したときの補助リンクのホーム（ページの言語の公開 URL） */
+  readonly homeHref: string;
+  /**
+   * ページの言語。記録のときにサーバーが返した本人の次の一歩
+   * （`JourneyStep`。言語を持たない）を、この言語の公開 URL にするのに使う
+   */
+  readonly locale: SupportedLocale;
   /** 本文（章の本文そのもの。見出しを含む。サーバーで描いたもの） */
   readonly explanation: ReactNode;
   /**
@@ -117,11 +131,19 @@ interface FetchedFollowUp {
  * 問題と選択肢は slug から features の `lessonQuiz` で引き、条件文・
  * ヒント・解説・達成の文言は確認問題の辞書（`lessons.<messageKey>`）から引く。
  * 進行はレッスンの種類で分岐させない。
+ *
+ * 遷移先（次の一歩・ログイン・登録・ホーム）はページの言語の公開 URL で
+ * 親のサーバーコンポーネント（`LearnPageLayout`）から受け取り、ここでは
+ * 組まない。クライアントは公開状態を読めないため。
  */
 export function LessonView({
   slug,
   messageKey,
   next,
+  signInHref,
+  signUpTarget,
+  homeHref,
+  locale,
   explanation,
   related,
   footer,
@@ -310,7 +332,10 @@ export function LessonView({
         saveState={saveState}
         next={next}
         progressStep={followUp?.next}
-        signInHref={buildSignInHref(chapterHref(slug))}
+        signInHref={signInHref}
+        signUpTarget={signUpTarget}
+        homeHref={homeHref}
+        locale={locale}
         onRetrySave={handleRetrySave}
         onReviewBody={handleReviewBody}
         related={related}

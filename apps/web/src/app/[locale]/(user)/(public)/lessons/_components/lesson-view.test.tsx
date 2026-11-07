@@ -32,14 +32,38 @@ const { readPendingLessonCompletions } =
   await import("../_lib/pending-completions-storage");
 const { LessonView } = await import("./lesson-view");
 
+/**
+ * 親のサーバーコンポーネント（`LearnPageLayout`）が言語ごとに組んで渡す張る先。
+ * `LessonView` はこれを描くだけで、自分では組まない
+ */
+const PAGE_LINKS = {
+  ja: {
+    signInHref: "/sign-in?redirect=%2Flessons%2Fmangan-ko-ron",
+    signUpTarget: { href: "/sign-up", crossLocale: false },
+    homeHref: "/",
+    locale: "ja",
+  },
+  en: {
+    signInHref: "/en/sign-in?redirect=%2Fen%2Flessons%2Fmangan-ko-ron",
+    signUpTarget: { href: "/en/sign-up", crossLocale: false },
+    homeHref: "/en",
+    locale: "en",
+  },
+} as const;
+
 /** ページと同じく、本文のアンカー（ContentContainer の id）の中に描く */
-function renderLesson() {
+function renderLesson(locale: "ja" | "en" = "ja") {
+  const prefix = locale === "en" ? "/en" : "";
   return render(
     <div id={LESSON_SCROLL_ANCHOR_ID}>
       <LessonView
         slug="mangan-ko-ron"
         messageKey="manganKoRon"
-        next={{ href: "/lessons/mangan-ko-tsumo", label: "nextLesson" }}
+        next={{
+          href: `${prefix}/lessons/mangan-ko-tsumo`,
+          label: "nextLesson",
+        }}
+        {...PAGE_LINKS[locale]}
         explanation={<p data-testid="explanation" />}
         related={<p data-testid="related" />}
       />
@@ -206,6 +230,23 @@ describe("LessonView", () => {
       expect(readPendingLessonCompletions()[0]).not.toHaveProperty("userId");
     });
 
+    it("英語のページでは、登録と登録しない人の次の一歩を英語の公開 URL へ張る", async () => {
+      renderLesson("en");
+      startQuiz();
+      answerAll(["8,000", "12,000", "32,000"]);
+
+      expect(
+        (await screen.findByRole("link", { name: "signUp.cta" })).getAttribute(
+          "href",
+        ),
+      ).toBe("/en/sign-up");
+      expect(
+        screen
+          .getByRole("link", { name: "signUp.secondary" })
+          .getAttribute("href"),
+      ).toBe("/en/lessons/mangan-ko-tsumo");
+    });
+
     it("通信に失敗しても、未ログインなら失敗の注記ではなく登録への誘導を出し、完了は預ける", async () => {
       mockCompleteLesson.mockRejectedValueOnce(new Error("network"));
       const errorSpy = vi
@@ -271,6 +312,7 @@ describe("LessonView", () => {
             label: "nextLesson",
             preview: <p data-testid="preview" />,
           }}
+          {...PAGE_LINKS.ja}
           explanation={<p />}
         />,
       );
@@ -383,6 +425,40 @@ describe("LessonView", () => {
       expect(readPendingLessonCompletions()).toEqual([]);
       expect(screen.queryByRole("link", { name: "nextLesson" })).toBeNull();
       errorSpy.mockRestore();
+    });
+
+    it("英語のページでは、保存の失敗のホームとログインし直しを英語の公開 URL へ張る", async () => {
+      mockCompleteLesson.mockRejectedValueOnce(new Error("network"));
+      const errorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+      const { unmount } = renderLesson("en");
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      await screen.findByTestId("lesson-save-failed");
+      expect(
+        screen
+          .getByRole("link", { name: "saveFailed.goHome" })
+          .getAttribute("href"),
+      ).toBe("/en");
+      errorSpy.mockRestore();
+      unmount();
+
+      mockCompleteLesson.mockResolvedValueOnce({
+        success: true,
+        skipped: "anonymous",
+      });
+      renderLesson("en");
+      startQuiz();
+      answerAll(["8,000", "12,000", "16,000"]);
+
+      await screen.findByTestId("lesson-signed-out");
+      expect(
+        screen
+          .getByRole("link", { name: "signedOut.signIn" })
+          .getAttribute("href"),
+      ).toBe("/en/sign-in?redirect=%2Fen%2Flessons%2Fmangan-ko-ron");
     });
 
     it("サーバーにセッションが無ければ本人の id 付きで預け、ログインし直す導線を出す", async () => {

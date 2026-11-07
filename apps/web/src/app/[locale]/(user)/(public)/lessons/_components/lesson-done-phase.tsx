@@ -10,8 +10,11 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { SignUpPanel } from "@/app/[locale]/(user)/_components/sign-up-panel";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { JudgementMark } from "@/app/[locale]/(user)/(public)/practice/_components/judgement-mark";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import { localizedHref } from "@/i18n/public-path";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import type { JourneyStep } from "@mahjong-scoring/features/journey/journey";
 import {
   journeyStepHref,
@@ -45,6 +48,9 @@ export type SaveState =
  *
  * これは道筋の順の一歩で、記録のときにサーバーが本人の進み具合を踏まえた
  * 一歩を返したらそちらを使う（{@link CompletionActions}）
+ *
+ * `href` はページの言語の公開 URL（日本語は接頭辞なし・英語は `/en/...`）で、
+ * サーバー（`LearnPageLayout`）が組んで渡す
  */
 export interface LessonNextLink {
   readonly href: string;
@@ -71,6 +77,9 @@ export function LessonDonePhase({
   next,
   progressStep,
   signInHref,
+  signUpTarget,
+  homeHref,
+  locale,
   onRetrySave,
   onReviewBody,
   related,
@@ -83,7 +92,14 @@ export function LessonDonePhase({
   readonly next: LessonNextLink;
   /** 本人の進み具合を踏まえた次の一歩。あれば `next` より優先する */
   readonly progressStep: JourneyStep | undefined;
+  /** ログインし直す画面の URL（ページの言語の公開 URL。戻り先はこの章） */
   readonly signInHref: string;
+  /** 未ログインで終えた人を送る登録画面 */
+  readonly signUpTarget: NavTarget;
+  /** 保存に失敗したときに補助リンクで進むホーム（ページの言語の公開 URL） */
+  readonly homeHref: string;
+  /** ページの言語（本人の次の一歩の href を組むのに使う） */
+  readonly locale: SupportedLocale;
   readonly onRetrySave: () => void;
   /** 本文の段階を履歴に積んで本文へ戻る */
   readonly onReviewBody: () => void;
@@ -148,6 +164,9 @@ export function LessonDonePhase({
             next={next}
             progressStep={progressStep}
             signInHref={signInHref}
+            signUpTarget={signUpTarget}
+            homeHref={homeHref}
+            locale={locale}
             onRetrySave={onRetrySave}
           />
           {/* 全問正解でも表を見返したい人へ。次の一歩の下に移動だけの
@@ -181,6 +200,9 @@ interface CompletionActionsProps {
   /** 本人の進み具合を踏まえた次の一歩。あれば `next` より優先する */
   readonly progressStep: JourneyStep | undefined;
   readonly signInHref: string;
+  readonly signUpTarget: NavTarget;
+  readonly homeHref: string;
+  readonly locale: SupportedLocale;
   readonly onRetrySave: () => void;
 }
 
@@ -204,12 +226,24 @@ interface CompletionActionsProps {
  * - 未ログイン: 登録への誘導（今の完了も引き継がれると添える）。補助リンクは
  *   登録せずに道筋の順の次の一歩へ進む
  * - セッション切れ: ログインし直す導線
+ *
+ * @design 張る先はページの言語のまま
+ * 道筋の順の一歩・ホーム・ログイン・登録はサーバーが言語付きで組んだ値を描く
+ * だけにする。本人の一歩（`progressStep`）だけは Server Action が言語を持たない
+ * `JourneyStep` で返すので、ここで `localizedHref` を掛ける。行き先（レッスン・
+ * 練習・昇級試験）は確認問題を出す言語ではどれも公開済みで、`localizedHref` は
+ * 公開状態を読まない純粋な変換なのでクライアントで呼んでよい（日本語では恒等）。
+ * 登録は `SignUpPanel` に `navTarget` で渡し、登録画面が今の言語で未公開なら
+ * 「日本語のみ」の印付きで日本語の登録へ送る。
  */
 function CompletionActions({
   saveState,
   next,
   progressStep,
   signInHref,
+  signUpTarget,
+  homeHref,
+  locale,
   onRetrySave,
 }: CompletionActionsProps) {
   const t = useTranslations("lessons");
@@ -236,7 +270,7 @@ function CompletionActions({
             href={
               usePlanned || progressStep === undefined
                 ? next.href
-                : journeyStepHref(progressStep)
+                : localizedHref(journeyStepHref(progressStep), locale)
             }
             size="lg"
             fullWidth
@@ -270,7 +304,7 @@ function CompletionActions({
               {t("saveFailed.retry")}
             </Button>
             <div className="text-center">
-              <Link href="/" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+              <Link href={homeHref} className={`text-sm ${TEXT_LINK_CLASSES}`}>
                 {t("saveFailed.goHome")}
               </Link>
             </div>
@@ -298,6 +332,7 @@ function CompletionActions({
           title={t("signUp.title")}
           description={t("signUp.description")}
           cta={t("signUp.cta")}
+          navTarget={signUpTarget}
           secondary={{ label: t("signUp.secondary"), href: next.href }}
         />
       );

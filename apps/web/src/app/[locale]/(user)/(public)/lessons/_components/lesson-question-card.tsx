@@ -12,6 +12,8 @@ import { JudgementMark } from "@/app/[locale]/(user)/(public)/practice/_componen
 import { PromptLabel } from "@/app/[locale]/(user)/(public)/practice/_components/prompt-label";
 import { QuestionPrompt } from "@/app/[locale]/(user)/(public)/practice/_components/question-prompt";
 import { getFeedbackStyles } from "@/app/[locale]/(user)/(public)/practice/_lib/feedback-styles";
+import { usePageLocale } from "@/app/[locale]/(user)/(public)/practice/_hooks/use-page-locale";
+import { kazeNameKey } from "@mahjong-scoring/core";
 import {
   choiceKey,
   isSameChoice,
@@ -126,6 +128,15 @@ interface LessonQuestionCardProps {
  * レッスンの確認問題（`LessonView`）と、はじめ方ガイドから開く 1 問だけの
  * 体験ページで共有する。進行（何問目か・次へ・ヒントのボタン）は持たず、
  * 呼び出し側が置く。
+ *
+ * @design 言語で変わる語は辞書から引いて features に渡す
+ * 条件文の風の名前は `common.kazeNames.<kazeNameKey(kaze)>`、役のつなぎは
+ * `lessons.yakuJoiner`、選択肢・正解の点数の桁区切りはページの言語で組む。
+ * features の `quiz-labels` は日本語固定のモバイルと共有していて辞書を読まず、
+ * 省略時は日本語の値を返すため。日本語の辞書の値は省略時と同じ文字列なので、
+ * 日本語のページの出力は変わらない。言語は `usePageLocale()`（URL から読む）で
+ * 取る — 体験ページ（`MentsuFuTryBoard`）からも置かれ、呼び出し側に
+ * locale を通させないため。
  */
 export function LessonQuestionCard({
   messageKey,
@@ -138,6 +149,8 @@ export function LessonQuestionCard({
   const t = useTranslations("lessons");
   const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
+  const tCommon = useTranslations("common");
+  const locale = usePageLocale();
 
   const isAnswered = selected !== undefined;
   const isCorrect = isAnswered && isSameChoice(selected, question.answer);
@@ -158,7 +171,11 @@ export function LessonQuestionCard({
         >
           {tLesson(
             "condition",
-            lessonConditionValues(question.prompt, tScoreTable),
+            lessonConditionValues(question.prompt, tScoreTable, {
+              // 例: common.kazeNames.ton
+              kazeName: (kaze) => tCommon(`kazeNames.${kazeNameKey(kaze)}`),
+              yakuJoiner: t("yakuJoiner"),
+            }),
           )}
         </p>
         <PromptTiles prompt={question.prompt} />
@@ -193,7 +210,7 @@ export function LessonQuestionCard({
             {isCorrect
               ? t("correct")
               : t("incorrect", {
-                  answer: lessonAnswerLabel(question.answer, t),
+                  answer: lessonAnswerLabel(question.answer, t, locale),
                 })}
           </p>
         )}
@@ -223,7 +240,7 @@ export function LessonQuestionCard({
               bgClass={bgClass}
               className={choiceTextClass(choice)}
             >
-              {lessonChoiceLabel(choice, t)}
+              {lessonChoiceLabel(choice, t, locale)}
             </ChoiceButton>
           );
         })}

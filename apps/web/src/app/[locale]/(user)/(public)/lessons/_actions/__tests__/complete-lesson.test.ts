@@ -134,6 +134,27 @@ describe("completeLesson", () => {
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dojo");
   });
 
+  it("完了を読む画面は、両言語の内部パスと接頭辞なしのパスの両方で捨てる", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
+
+    await completeLesson("mangan-ko-ron");
+
+    const paths = mockRevalidatePath.mock.calls.map(([path]) => path);
+    expect(new Set(paths)).toEqual(
+      new Set([
+        "/lessons",
+        "/ja/lessons",
+        "/en/lessons",
+        "/dashboard",
+        "/ja/dashboard",
+        "/en/dashboard",
+        "/dojo",
+        "/ja/dojo",
+        "/en/dojo",
+      ]),
+    );
+  });
+
   it("記録したら、本人の進み具合から次の一歩と級の進み具合を 1 回の読み取りで返す", async () => {
     mockAuthenticateAndCheckBan.mockResolvedValue({ user: { id: "user-123" } });
     mockFetchJourneyInput.mockResolvedValue({
