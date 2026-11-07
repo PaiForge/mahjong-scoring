@@ -4,8 +4,8 @@
  * @description
  * - 既定（設定なし）: 用語ページへの `<a href>` を描く
  * - 用語リンクをオフ: 表示語だけを地の文として残し、リンクを描かない
- * - 英語のページ: 英語の用語ページへ張る（英語で出していなければ日本語の
- *   ページへ `hrefLang="ja"` で向ける）
+ * - 英語のページ: 英語で公開している用語ページ（`/en/reference/glossary/<slug>`）へ
+ *   言語またぎの印なしで張る
  */
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -66,7 +66,7 @@ describe("TermLink", () => {
     expect(container.textContent).toBe("平和");
   });
 
-  it("英語のページでは、その言語の公開状態に合わせて用語ページへ張る", () => {
+  it("英語のページでは英語の用語ページへ張り、hrefLang を付けない", () => {
     const { container } = render(
       withLocale(
         "en",
@@ -77,15 +77,13 @@ describe("TermLink", () => {
     );
 
     const anchor = container.querySelector("a");
-    if (
-      getTranslatedPublication("/reference/glossary/pinfu", "en") ===
-      "unpublished"
-    ) {
-      expect(anchor?.getAttribute("href")).toBe("/reference/glossary/pinfu");
-      expect(anchor?.getAttribute("hrefLang")).toBe("ja");
-    } else {
-      expect(anchor?.getAttribute("href")).toBe("/en/reference/glossary/pinfu");
-      expect(anchor?.getAttribute("hrefLang")).toBeNull();
-    }
+    expect(anchor?.getAttribute("href")).toBe("/en/reference/glossary/pinfu");
+    expect(anchor?.getAttribute("hrefLang")).toBeNull();
+  });
+
+  it("前提: 用語ページは英語で公開している（取り下げたら日本語への向け先を検査する）", () => {
+    expect(getTranslatedPublication("/reference/glossary/pinfu", "en")).toBe(
+      "published-indexable",
+    );
   });
 });

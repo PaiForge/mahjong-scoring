@@ -5,8 +5,8 @@
  * - 用語リンクを押すと、その語の意味と用語ページへの導線が出る
  * - 同じモーダルに、用語リンクを切る設定への導線が出る
  *   （設定ページを自分から見に行く読者しか設定に辿り着けない状態を避ける）
- * - 英語のページでは 2 本の導線をその言語で張り、英語で出していない
- *   ページ（設定）は日本語のページへ「日本語のみ」と添えて向ける
+ * - 英語のページでは、英語で公開している用語ページへは英語のページへ張り、
+ *   英語で出していない設定ページへは日本語のページへ「日本語のみ」と添えて向ける
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -86,21 +86,13 @@ describe("GlossaryTermModalProvider", () => {
     expect(screen.queryByText(JAPANESE_ONLY)).toBeNull();
   });
 
-  it("英語のページでは用語ページへの導線を、公開状態に合わせて張る", () => {
+  it("英語のページでは用語ページへの導線を英語のページへ張る", () => {
     renderChapter("en");
     fireEvent.click(screen.getByRole("link", { name: "平和" }));
 
     const details = screen.getByRole("link", { name: "用語ページを見る" });
-    if (
-      getTranslatedPublication("/reference/glossary/pinfu", "en") ===
-      "unpublished"
-    ) {
-      expect(details.getAttribute("href")).toBe("/reference/glossary/pinfu");
-      expect(details.getAttribute("hrefLang")).toBe("ja");
-    } else {
-      expect(details.getAttribute("href")).toBe("/en/reference/glossary/pinfu");
-      expect(details.getAttribute("hrefLang")).toBeNull();
-    }
+    expect(details.getAttribute("href")).toBe("/en/reference/glossary/pinfu");
+    expect(details.getAttribute("hrefLang")).toBeNull();
   });
 
   it("英語のページで英語版の無い設定へは、日本語のページへ「日本語のみ」と添えて向ける", () => {
@@ -110,13 +102,15 @@ describe("GlossaryTermModalProvider", () => {
     const settings = screen.getByRole("link", {
       name: "用語リンクなしで表示する",
     });
-    if (getTranslatedPublication("/preferences", "en") === "unpublished") {
-      expect(settings.getAttribute("href")).toBe("/preferences#term-links");
-      expect(settings.getAttribute("hrefLang")).toBe("ja");
-      expect(screen.getByText(JAPANESE_ONLY)).toBeDefined();
-    } else {
-      expect(settings.getAttribute("href")).toBe("/en/preferences#term-links");
-      expect(screen.queryByText(JAPANESE_ONLY)).toBeNull();
-    }
+    expect(settings.getAttribute("href")).toBe("/preferences#term-links");
+    expect(settings.getAttribute("hrefLang")).toBe("ja");
+    expect(screen.getByText(JAPANESE_ONLY)).toBeDefined();
+  });
+
+  it("前提: 用語ページは英語で公開し、設定ページは公開していない", () => {
+    expect(getTranslatedPublication("/reference/glossary/pinfu", "en")).toBe(
+      "published-indexable",
+    );
+    expect(getTranslatedPublication("/preferences", "en")).toBe("unpublished");
   });
 });
