@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
+import { currentLocale } from "@/i18n/current-locale";
+import { localizedHref } from "@/i18n/public-path";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
 import { PracticeEntryQuota } from "../../practice/_components/practice-entry-quota";
@@ -8,6 +10,8 @@ import {
   PracticeStartCtaDivider,
   TrainingStartBlock,
 } from "../../practice/_components/practice-start-cta";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
+import { ExamGateLinksProvider } from "./exam-gate-links";
 import { ExamStartGate } from "./exam-start-gate";
 
 interface ExamStartCtaProps {
@@ -37,25 +41,36 @@ interface ExamStartCtaProps {
  *
  * Server Component。模試側の文言はここで引き、本番側はクライアントの
  * ゲートが自分で引く（資格の解決を待つ間もこのブロックの寸法は変わらない）。
+ *
+ * 言語は自分で取る（`currentLocale()`。ページの `prepareRouteLocale` の後に
+ * 描かれる前提）。本番・模試の行き先はページの言語の接頭辞を付けてから渡す。
+ * play / training は説明ページと同じ公開単位で、説明ページを出している言語では
+ * 必ず出しているため、公開状態を引き直さず `localizedHref` で付ける（既に
+ * 接頭辞の付いた href には二重に付かないので、呼び出し側が付けて渡しても同じ）。
+ * 受験できないときの登録・道場の行き先は公開状態で解決し（`resolveExamGateLinks`）、
+ * Provider でゲートへ渡す。
  */
 export async function ExamStartCta({
   slug,
   playHref,
   trainingHref,
 }: ExamStartCtaProps) {
-  const [tp, tExamTraining] = await Promise.all([
+  const [tp, tExamTraining, locale] = await Promise.all([
     getTranslations("practice"),
     getTranslations("examTraining"),
+    currentLocale(),
   ]);
 
   return (
     <div className={PRACTICE_START_CTA_FRAME_CLASS}>
-      <ExamStartGate slug={slug} playHref={playHref} />
+      <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+        <ExamStartGate slug={slug} playHref={localizedHref(playHref, locale)} />
+      </ExamGateLinksProvider>
 
       <PracticeStartCtaDivider label={tp("orDivider")} />
 
       <TrainingStartBlock
-        href={trainingHref}
+        href={localizedHref(trainingHref, locale)}
         label={tExamTraining("startButton")}
         hint={tExamTraining("hint")}
       />

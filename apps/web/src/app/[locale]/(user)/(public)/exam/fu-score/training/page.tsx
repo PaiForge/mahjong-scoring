@@ -18,6 +18,8 @@ import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { FuScoreExamTrainingView } from "../_components/fu-score-exam-training-view";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
@@ -29,6 +31,11 @@ export async function generateMetadata({
 export default async function FuScoreExamTrainingPage({
   params,
 }: PageProps<"/[locale]/exam/fu-score/training">) {
-  await prepareRouteLocale(params, "/exam/fu-score/training");
-  return <FuScoreExamTrainingView />;
+  const locale = await prepareRouteLocale(params, "/exam/fu-score/training");
+  // 末尾の本番への導線（受験ゲート）が、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <FuScoreExamTrainingView />
+    </ExamGateLinksProvider>
+  );
 }
