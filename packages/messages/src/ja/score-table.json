@@ -22,5 +22,6 @@
   "sanbaiman": "三倍満",
   "yakuman": "役満",
   "kiriageManganStatus": "切り上げ満貫：{state, select, on {あり} other {なし}}",
+  "kiriageManganStatusSeparator": "・",
   "kiriageManganStatusLink": "設定を変更"
 }
