@@ -23,6 +23,11 @@ describe("prepareRouteLocale", () => {
     ["ja", "/practice/jantou-fu/play"],
     ["ja", "/u/alice"],
     ["en", "/reference/score-table"],
+    ["en", "/"],
+    ["en", "/lessons"],
+    ["en", "/lessons/jantou-fu"],
+    ["en", "/reference/yaku"],
+    ["en", "/reference/glossary/jantou"],
   ] as const)(
     "%s の公開ページ %s はロケールを確定して返す",
     async (locale, path) => {
@@ -45,9 +50,11 @@ describe("prepareRouteLocale", () => {
   );
 
   it.each([
-    ["en", "/"],
     ["en", "/practice"],
-    ["en", "/lessons/jantou-fu"],
+    ["en", "/dashboard"],
+    ["en", "/getting-started"],
+    ["en", "/lessons/about-this-app"],
+    ["en", "/reference/demo"],
     ["ja", "/nonexistent"],
   ] as const)(
     "%s で未公開のパス %s は 404（日本語の本文で代用しない）",
