@@ -33,6 +33,8 @@ import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_c
 import { ExamConditions } from "../_components/exam-conditions";
 import { ManganExamHowToPlay } from "./_components/mangan-exam-how-to-play";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
@@ -44,13 +46,16 @@ export async function generateMetadata({
 export default async function ManganExamPage({
   params,
 }: PageProps<"/[locale]/exam/mangan">) {
-  await prepareRouteLocale(params, "/exam/mangan");
+  const locale = await prepareRouteLocale(params, "/exam/mangan");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
   return (
-    <PracticeIntroContent
-      namespace="manganExamChallenge"
-      slug={PRACTICE_SLUG.manganExam}
-      howToPlay={<ManganExamHowToPlay />}
-      notice={<ExamConditions slug={PRACTICE_SLUG.manganExam} />}
-    />
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="manganExamChallenge"
+        slug={PRACTICE_SLUG.manganExam}
+        howToPlay={<ManganExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.manganExam} />}
+      />
+    </ExamGateLinksProvider>
   );
 }

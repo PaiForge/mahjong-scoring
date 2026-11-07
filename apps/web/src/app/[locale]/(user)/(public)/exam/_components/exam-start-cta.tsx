@@ -10,8 +10,6 @@ import {
   PracticeStartCtaDivider,
   TrainingStartBlock,
 } from "../../practice/_components/practice-start-cta";
-import { resolveExamGateLinks } from "../_lib/exam-gate-links";
-import { ExamGateLinksProvider } from "./exam-gate-links";
 import { ExamStartGate } from "./exam-start-gate";
 
 interface ExamStartCtaProps {
@@ -47,8 +45,12 @@ interface ExamStartCtaProps {
  * play / training は説明ページと同じ公開単位で、説明ページを出している言語では
  * 必ず出しているため、公開状態を引き直さず `localizedHref` で付ける（既に
  * 接頭辞の付いた href には二重に付かないので、呼び出し側が付けて渡しても同じ）。
- * 受験できないときの登録・道場の行き先は公開状態で解決し（`resolveExamGateLinks`）、
- * Provider でゲートへ渡す。
+ * 受験できないときの登録・道場の行き先は、試験の説明ページ（page.tsx）が
+ * 公開状態で解決し（`resolveExamGateLinks`）、`ExamGateLinksProvider` で
+ * ゲートへ渡す。ここで解決しないのは、このモジュールが練習の共有の部品から
+ * 文書コメントの `import()` で参照されており、公開状態の表（サーバー専用）を
+ * 読み込むとクライアントのツリーの境界の検査（`client-bundle-boundaries.test.ts`）が
+ * 練習の部品からその表へ届く鎖として数えるため。
  */
 export async function ExamStartCta({
   slug,
@@ -63,9 +65,7 @@ export async function ExamStartCta({
 
   return (
     <div className={PRACTICE_START_CTA_FRAME_CLASS}>
-      <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
-        <ExamStartGate slug={slug} playHref={localizedHref(playHref, locale)} />
-      </ExamGateLinksProvider>
+      <ExamStartGate slug={slug} playHref={localizedHref(playHref, locale)} />
 
       <PracticeStartCtaDivider label={tp("orDivider")} />
 
