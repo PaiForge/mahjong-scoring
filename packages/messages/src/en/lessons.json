@@ -57,80 +57,80 @@
     "secondary": "Continue without signing up"
   },
   "manganKoRon": {
-    "condition": "子・ロン・{han}翻（{tier}）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "Non-dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
     "questions": {
       "mangan": {
-        "hint": "基準となる点数を思い出しましょう。",
-        "explanation": "5 翻は満貫で、子のロンは 8,000 点です。"
+        "hint": "Recall the score everything else is based on.",
+        "explanation": "5 han is mangan, and a non-dealer ron of mangan is 8,000 points."
       },
       "haneman": {
-        "hint": "6〜7 翻は跳満。満貫の 1.5 倍です。",
-        "explanation": "6 翻は跳満で、満貫 8,000 点の 1.5 倍の 12,000 点です。"
+        "hint": "6 to 7 han is haneman: 1.5 times mangan.",
+        "explanation": "6 han is haneman: 1.5 times the 8,000 points of mangan, or 12,000 points."
       },
       "baiman": {
-        "hint": "8〜10 翻は倍満。満貫の 2 倍です。",
-        "explanation": "8 翻は倍満で、満貫 8,000 点の 2 倍の 16,000 点です。"
+        "hint": "8 to 10 han is baiman: twice mangan.",
+        "explanation": "8 han is baiman: twice the 8,000 points of mangan, or 16,000 points."
       }
     },
-    "achievement": "子が満貫以上をロンしたときの点数を、翻数から言えるようになりました。"
+    "achievement": "You can now give the score of a non-dealer ron of mangan or more from its han."
   },
   "manganKoTsumo": {
-    "condition": "子・ツモ・{han}翻（{tier}）",
-    "questionPrompt": "支払い（子 / 親）を選んでください",
+    "condition": "Non-dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose the payments (non-dealer / dealer)",
     "questions": {
       "mangan": {
-        "hint": "満貫の子のロンは 8,000 点。半分が親、そのまた半分が子の支払いです。",
-        "explanation": "満貫は合計 8,000 点。親が 4,000 点、子がひとり 2,000 点ずつ払います。"
+        "hint": "A non-dealer mangan ron is 8,000 points. Half of it is what the dealer pays, and half of that again is what each non-dealer pays.",
+        "explanation": "Mangan is 8,000 points in total. The dealer pays 4,000 points, and each non-dealer pays 2,000 points."
       },
       "haneman": {
-        "hint": "跳満の子のロンは 12,000 点。半分にして、もう一度半分にします。",
-        "explanation": "跳満は合計 12,000 点。親が 6,000 点、子がひとり 3,000 点ずつ払います。"
+        "hint": "A non-dealer haneman ron is 12,000 points. Halve it, then halve it again.",
+        "explanation": "Haneman is 12,000 points in total. The dealer pays 6,000 points, and each non-dealer pays 3,000 points."
       },
       "baiman": {
-        "hint": "倍満の子のロンは 16,000 点です。",
-        "explanation": "倍満は合計 16,000 点。親が 8,000 点、子がひとり 4,000 点ずつ払います。"
+        "hint": "A non-dealer baiman ron is 16,000 points.",
+        "explanation": "Baiman is 16,000 points in total. The dealer pays 8,000 points, and each non-dealer pays 4,000 points."
       }
     },
-    "achievement": "子が満貫以上をツモしたときの支払いを、子のロンの点数から出せるようになりました。"
+    "achievement": "You can now work out the payments for a non-dealer tsumo of mangan or more from the non-dealer ron score."
   },
   "manganOyaRon": {
-    "condition": "親・ロン・{han}翻（{tier}）",
-    "questionPrompt": "点数を選んでください",
+    "condition": "Dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
     "questions": {
       "mangan": {
-        "hint": "子の満貫は 8,000 点。親はその 1.5 倍です。",
-        "explanation": "5 翻は満貫で、親のロンは子の 8,000 点の 1.5 倍の 12,000 点です。"
+        "hint": "A non-dealer mangan is 8,000 points. The dealer gets 1.5 times that.",
+        "explanation": "5 han is mangan, and a dealer ron is 1.5 times the non-dealer's 8,000 points, or 12,000 points."
       },
       "haneman": {
-        "hint": "子の跳満は 12,000 点。親はその 1.5 倍です。",
-        "explanation": "6 翻は跳満で、親のロンは子の 12,000 点の 1.5 倍の 18,000 点です。"
+        "hint": "A non-dealer haneman is 12,000 points. The dealer gets 1.5 times that.",
+        "explanation": "6 han is haneman, and a dealer ron is 1.5 times the non-dealer's 12,000 points, or 18,000 points."
       },
       "baiman": {
-        "hint": "倍満は満貫の 2 倍。親の満貫は 12,000 点です。",
-        "explanation": "8 翻は倍満で、親のロンは親の満貫 12,000 点の 2 倍の 24,000 点です。"
+        "hint": "Baiman is twice mangan. A dealer mangan is 12,000 points.",
+        "explanation": "8 han is baiman, and a dealer ron is twice the dealer mangan of 12,000 points, or 24,000 points."
       }
     },
-    "achievement": "親が満貫以上をロンしたときの点数を、子の点数の 1.5 倍として言えるようになりました。"
+    "achievement": "You can now give the score of a dealer ron of mangan or more as 1.5 times the non-dealer score."
   },
   "manganOyaTsumo": {
-    "condition": "親・ツモ・{han}翻（{tier}）",
-    "questionPrompt": "子ひとりの支払いを選んでください",
+    "condition": "Dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose what each non-dealer pays",
     "questions": {
       "mangan": {
-        "hint": "親の満貫のロンは 12,000 点。子 3 人で等分します。",
-        "explanation": "満貫は合計 12,000 点。子 3 人が 4,000 点ずつ払う「4,000 オール」です。"
+        "hint": "A dealer mangan ron is 12,000 points. The three non-dealers split it equally.",
+        "explanation": "Mangan is 12,000 points in total. The three non-dealers pay 4,000 points each: “4,000 all”."
       },
       "haneman": {
-        "hint": "親の跳満のロンは 18,000 点。3 で割ります。",
-        "explanation": "跳満は合計 18,000 点。子 3 人が 6,000 点ずつ払う「6,000 オール」です。"
+        "hint": "A dealer haneman ron is 18,000 points. Divide it by 3.",
+        "explanation": "Haneman is 18,000 points in total. The three non-dealers pay 6,000 points each: “6,000 all”."
       },
       "baiman": {
-        "hint": "親の倍満のロンは 24,000 点です。",
-        "explanation": "倍満は合計 24,000 点。子 3 人が 8,000 点ずつ払う「8,000 オール」です。"
+        "hint": "A dealer baiman ron is 24,000 points.",
+        "explanation": "Baiman is 24,000 points in total. The three non-dealers pay 8,000 points each: “8,000 all”."
       }
     },
-    "achievement": "親が満貫以上をツモしたときの支払いを、親のロンを 3 で割って出せるようになりました。"
+    "achievement": "You can now work out the payments for a dealer tsumo of mangan or more by dividing the dealer ron score by 3."
   },
   "yaku": {
     "condition": "{state, select, naki {鳴き} other {門前}}・{yaku}",
