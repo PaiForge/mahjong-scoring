@@ -384,6 +384,53 @@ const REGISTRY_KEYS: readonly (readonly [string, readonly string[]])[] = [
   ["scoreTable", ["doubleYakuman"]],
   // core `core/kaze.ts` の KazeNameKey → `common.kazeNames.<key>`（場風・自風の表示）
   ["common", ["ton", "nan", "sha", "pei"].map((key) => `kazeNames.${key}`)],
+  // web `mypage/(home)/page.tsx` の `tHeatmap.raw("monthNames")`（月の 0〜11 を添字で引く
+  // `heatmap-utils.ts` の `monthNames[month]`）と、`heatmap-grid.tsx` の曜日の札
+  // （月・水・金の行だけ `t("dayLabels.mon" | "wed" | "fri")`）
+  [
+    "mypage",
+    [
+      ...Array.from(
+        { length: 12 },
+        (_, month) => `heatmap.monthNames.${month}`,
+      ),
+      ...["mon", "wed", "fri"].map((day) => `heatmap.dayLabels.${day}`),
+    ],
+  ],
+  // features `account/username-error-message.ts` の UsernameErrorMessageKey →
+  // `setupUsername.validation.<key>`（`username-form.tsx` の
+  // `t(`validation.${usernameErrorMessageKey(errorKey)}`)`）
+  [
+    "setupUsername",
+    [
+      "tooShort",
+      "tooLong",
+      "invalidFormat",
+      "reserved",
+      "prohibited",
+      "taken",
+      "alreadySet",
+      "displayNameTooLong",
+      "displayNameProhibited",
+      "rateLimited",
+      "unauthorized",
+      "banned",
+      "error",
+    ].map((key) => `validation.${key}`),
+  ],
+  // features `account/password.ts` の PASSWORD_VALIDATION_ERROR_KEYS（Zod のメッセージと
+  // Server Action の `password:<key>`）→ `validation.password.<key>`（web
+  // `(public)/_hooks/use-password-form-messages.ts` の `useTranslations("validation.password")`）
+  [
+    "validation",
+    ["tooShort", "missingLetter", "missingDigit", "weak"].map(
+      (key) => `password.${key}`,
+    ),
+  ],
+  // web `use-password-form-messages.ts` の `usePasswordFormMessages(namespace)` が
+  // 画面の名前空間から引く `passwordMismatch`（登録 `signUp`・再設定 `resetPassword`）
+  ["signUp", ["passwordMismatch"]],
+  ["resetPassword", ["passwordMismatch"]],
 ];
 
 /**
