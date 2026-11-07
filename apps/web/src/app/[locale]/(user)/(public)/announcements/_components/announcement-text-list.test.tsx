@@ -42,4 +42,56 @@ describe("AnnouncementTextList", () => {
       "/announcements/update",
     );
   });
+
+  it("張り方を渡さなければ同じ言語のリンクで、「日本語のみ」の印を付けない", () => {
+    const { getByRole } = render(
+      <AnnouncementTextList
+        announcements={[announcement]}
+        locale="ja"
+        pinnedLabel="固定"
+      />,
+    );
+
+    const link = getByRole("link");
+    expect(link.hasAttribute("hreflang")).toBe(false);
+    expect(link.textContent).not.toContain("Japanese only");
+  });
+
+  it("張り先が言語をまたぐ行は、日本語の詳細へ印付きの素のリンクにする", () => {
+    const { getByRole } = render(
+      <AnnouncementTextList
+        announcements={[{ ...announcement, title: "Update", locale: "en" }]}
+        locale="en"
+        pinnedLabel="Pinned"
+        detailLink={{
+          targetFor: (path) => ({ href: path, crossLocale: true }),
+          japaneseOnlyLabel: "Japanese only",
+        }}
+      />,
+    );
+
+    const link = getByRole("link");
+    expect(link.getAttribute("href")).toBe("/announcements/update");
+    expect(link.getAttribute("hreflang")).toBe("ja");
+    expect(link.textContent).toContain("UpdateJapanese only");
+  });
+
+  it("張り先が同じ言語の行は、その href の通常のリンクで印を付けない", () => {
+    const { getByRole } = render(
+      <AnnouncementTextList
+        announcements={[announcement]}
+        locale="en"
+        pinnedLabel="Pinned"
+        detailLink={{
+          targetFor: (path) => ({ href: `/en${path}`, crossLocale: false }),
+          japaneseOnlyLabel: "Japanese only",
+        }}
+      />,
+    );
+
+    const link = getByRole("link");
+    expect(link.getAttribute("href")).toBe("/en/announcements/update");
+    expect(link.hasAttribute("hreflang")).toBe(false);
+    expect(link.textContent).not.toContain("Japanese only");
+  });
 });

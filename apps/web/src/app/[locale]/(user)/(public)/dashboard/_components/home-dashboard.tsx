@@ -4,6 +4,7 @@ import { fetchCompletedLessonSlugs } from "@/app/[locale]/(user)/(public)/lesson
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { selectDashboardGuidance } from "@mahjong-scoring/features/dashboard/guidance";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { fetchAchievedRankSlugs } from "../_lib/achieved-ranks";
 import { fetchAttemptedPractices } from "../_lib/attempted-practices";
@@ -16,6 +17,11 @@ import { PendingLessonSync } from "./pending-lesson-sync";
 interface HomeDashboardProps {
   /** ログインしている本人の id（ページが cookie から確定したもの） */
   readonly userId: string;
+  /**
+   * ページの言語（`prepareRouteLocale` が確定したもの）。「次にやること」の
+   * 行き先とお知らせの出し方をこの言語で決める
+   */
+  readonly locale: SupportedLocale;
 }
 
 /**
@@ -37,7 +43,7 @@ interface HomeDashboardProps {
  * 失敗した完了が端末に残っていれば、ここで本人の記録にして「次にやること」を
  * 組み直す。
  */
-export async function HomeDashboard({ userId }: HomeDashboardProps) {
+export async function HomeDashboard({ userId, locale }: HomeDashboardProps) {
   const [t, completedLessonSlugs, attemptedPractices, achievedRankSlugs] =
     await Promise.all([
       getTranslations("nav"),
@@ -60,7 +66,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
       <div className="space-y-8">
         <PendingLessonSync userId={userId} />
 
-        <NextStepSection journey={journey} />
+        <NextStepSection journey={journey} locale={locale} />
 
         {nextChapter && (
           <ContinueLearningSection
@@ -71,7 +77,7 @@ export async function HomeDashboard({ userId }: HomeDashboardProps) {
 
         {showAgariScorePractice && <AgariScorePracticeSection />}
 
-        <HomeAnnouncements />
+        <HomeAnnouncements locale={locale} />
       </div>
     </ContentContainer>
   );
