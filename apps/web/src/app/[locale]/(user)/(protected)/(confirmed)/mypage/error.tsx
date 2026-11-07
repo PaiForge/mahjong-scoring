@@ -10,10 +10,15 @@ import { publishedHomeHref } from "@/i18n/translated-publications";
  *
  * 認証必須の Server Action / DB クエリ失敗をページ単位で隔離する。
  *
- * マイページは英語でも出すので、文言は `errorPage` 名前空間から見出し・説明・
- * 再試行・ホームへの戻りまで全部渡す（`ErrorFallback` の既定値は日本語で、
- * 1 つでも省くと英語のページに日本語が混ざる）。ホームへの戻り先はその言語の
- * トップ（未公開なら日本語のトップ）。`(user)/error.tsx` と同じ形。
+ * マイページは英語でも出すので、見出しから再試行・ホームへの戻りまで全部辞書から
+ * 渡す（`ErrorFallback` の既定値は日本語で、1 つでも省くと英語のページに日本語が
+ * 混ざる）。ホームへの戻り先はその言語のトップ（未公開なら日本語のトップ）。
+ *
+ * 見出し・説明は汎用の `errorPage` ではなく `mypage.error` から引く。日本語は
+ * 英語化の前に直書きしていた「マイページを読み込めませんでした」の文言のままで、
+ * `errorPage` の「問題が発生しました」に寄せると日本語の表示が変わるため。
+ * 再試行・ホームへの戻りは `errorPage` を引く（日本語の値が `ErrorFallback` の
+ * 既定値と同じ文字列なので、日本語の表示は変わらない）。
  */
 export default function MypageError({
   error,
@@ -22,7 +27,8 @@ export default function MypageError({
   readonly error: Error & { digest?: string };
   readonly reset: () => void;
 }) {
-  const t = useTranslations("errorPage");
+  const t = useTranslations("mypage");
+  const tErrorPage = useTranslations("errorPage");
   const locale = useLocale();
 
   return (
@@ -30,11 +36,11 @@ export default function MypageError({
       error={error}
       reset={reset}
       logTag="Mypage"
-      title={t("title")}
-      description={t("description")}
+      title={t("error.title")}
+      description={t("error.description")}
       backHref={publishedHomeHref(locale)}
-      backLabel={t("goHome")}
-      retryLabel={t("retry")}
+      backLabel={tErrorPage("goHome")}
+      retryLabel={tErrorPage("retry")}
     />
   );
 }
