@@ -1,0 +1,114 @@
+{
+  "timeRemaining": "残り {seconds} 秒",
+  "score": "スコア",
+  "correct": "正解",
+  "incorrect": "不正解",
+  "lives": "ライフ",
+  "startButton": "スタート",
+  "retryButton": "もう一度",
+  "changeSettingsButton": "設定を変更する",
+  "backToList": "練習一覧に戻る",
+  "backToDojo": "道場に戻る",
+  "resultSectionTitle": "結果",
+  "resultAccuracy": "正答率 {accuracy}%",
+  "revealMistakesHint": "間違えた問題の解説を開きます",
+  "resultUnavailable": "結果を表示できません。結果はアプリを閉じると消えるため、もう一度挑戦してください。",
+  "gameOverMistakes": "ミス {limit} 回で終了",
+  "gameOverTime": "タイムアップ",
+  "pause": "一時停止",
+  "resume": "再開",
+  "resultSuffix": "結果",
+  "quit": {
+    "message": "現在の進捗は保存されません。",
+    "confirm": "中止する",
+    "cancel": "続ける",
+    "practice": {
+      "title": "チャレンジを中止しますか？",
+      "toast": "チャレンジを中止しました"
+    },
+    "exam": {
+      "title": "試験を中止しますか？",
+      "toast": "試験を中止しました"
+    }
+  },
+  "quitButton": "中止する",
+  "signUpCta": {
+    "sectionTitle": "スコアの記録",
+    "message": "無料登録するとスコアが記録されます",
+    "description": "アカウントを作成すると獲得した経験値が保存され、上達を確認できます。",
+    "cta": "無料登録",
+    "signInLink": "ログイン",
+    "leaderboard": {
+      "message": "無料登録すると、あなたのスコアもランキングに載ります",
+      "description": "チャレンジの成績が記録され、自己ベストでほかの人と順位を競えます。"
+    }
+  },
+  "record": {
+    "sectionTitle": "あなたの記録",
+    "thisTimeLabel": "今回",
+    "lastLabel": "前回",
+    "bestLabel": "これまでのベスト",
+    "scoreUnit": "{score} 問",
+    "newBest": "自己ベスト更新！",
+    "firstRecord": "初めての記録",
+    "viewMyRecords": "マイレコードで推移を見る",
+    "loadFailed": "記録を読み込めませんでした",
+    "loadFailedDescription": "時間をおいてページを再読み込みしてください。",
+    "comparisonLoadFailed": "過去の記録を読み込めませんでした"
+  },
+  "openInScoreTable": "点数表で見る",
+  "openInYakuList": "役一覧で見る",
+  "yakuBreakdown": {
+    "total": "合計",
+    "han": "{count}翻",
+    "yakuman": "役満",
+    "doubleYakuman": "ダブル役満",
+    "cappedNote": "13翻以上は役満",
+    "cap": "{han} → {cap}",
+    "capWithNote": "{han} → {cap}（{note}）"
+  },
+  "scoreBreakdown": {
+    "toggle": "内訳を確認",
+    "fuTab": "符 {value}符",
+    "hanTab": "翻数 {count}翻"
+  },
+  "fuBreakdown": {
+    "breakdownTotal": "合計",
+    "roundedUp": "切り上げ後",
+    "fuSuffix": "{value}符",
+    "reasons": {
+      "futei": "副底",
+      "chiitoitsu": "七対子",
+      "pinfuTsumo": "平和ツモ",
+      "tsumo": "ツモ",
+      "menzenRon": "門前加符",
+      "kuiPinfu": "特例等の加符",
+      "mentsu": "{yaochu, select, yes {么九牌} other {中張牌}}{open, select, yes {明} other {暗}}{kantsu, select, yes {槓子} other {刻子}}",
+      "jantou": "雀頭({reasons})",
+      "jantouReasons": {
+        "bakaze": "場風",
+        "jikaze": "自風",
+        "sangenpai": "三元牌"
+      },
+      "jantouReasonSeparator": "・",
+      "machi": "{machi, select, tanki {単騎待ち} kanchan {嵌張待ち} penchan {辺張待ち} other {待ち}}"
+    }
+  },
+  "connectionError": "通信に失敗しました。もう一度開始してください。",
+  "retryConnection": "もう一度開始する",
+  "recording": {
+    "offlineTitle": "記録付きのチャレンジを始められません",
+    "offlineMessage": "通信できないため、成績を記録するチャレンジを始められませんでした。通信できる場所でもう一度お試しください。トレーニングは通信しなくても練習できます。",
+    "retry": "もう一度試す",
+    "training": "トレーニングで練習する",
+    "connectionLost": "通信が途切れました。回答はまだ採点されていません。",
+    "resumeConnectionLost": "通信が途切れました。再接続すると、止めたところから再開します。",
+    "reconnect": "再接続する",
+    "status": {
+      "sending": "成績を記録しています…",
+      "recorded": "成績を記録しました",
+      "queued": "成績を送れませんでした。次に通信できたときに送ります。",
+      "notRecorded": "このチャレンジの成績は記録されませんでした。"
+    }
+  }
+}

@@ -34,6 +34,35 @@ import fuDoubling from "./en/fu-doubling.json";
 import tsumoPayments from "./en/tsumo-payments.json";
 import ronToTsumo from "./en/ron-to-tsumo.json";
 import oyaRonScores from "./en/oya-ron-scores.json";
+import practice from "./en/practice.json";
+import challenge from "./en/challenge.json";
+import training from "./en/training.json";
+import examTraining from "./en/exam-training.json";
+import examResult from "./en/exam-result.json";
+import exp from "./en/exp.json";
+import practiceQuota from "./en/practice-quota.json";
+import dojo from "./en/dojo.json";
+import aboutThisApp from "./en/about-this-app.json";
+import gettingStarted from "./en/getting-started.json";
+import tryDemo from "./en/try-demo.json";
+import agariScore from "./en/agari-score.json";
+import tenpaiScore from "./en/tenpai-score.json";
+import settings from "./en/settings.json";
+import mentsuJantouFu from "./en/mentsu-jantou-fu.json";
+import totalFu from "./en/total-fu.json";
+import scoreTableChallenge from "./en/score-table-challenge.json";
+import scoreCalculationChallenge from "./en/score-calculation-challenge.json";
+import manganScoreCalculationChallenge from "./en/mangan-score-calculation-challenge.json";
+import hanCountChallenge from "./en/han-count-challenge.json";
+import yakuHanChallenge from "./en/yaku-han-challenge.json";
+import fuExamChallenge from "./en/fu-exam-challenge.json";
+import fuScoreExamChallenge from "./en/fu-score-exam-challenge.json";
+import scoreExamChallenge from "./en/score-exam-challenge.json";
+import pinfuExamChallenge from "./en/pinfu-exam-challenge.json";
+import chiitoitsuExamChallenge from "./en/chiitoitsu-exam-challenge.json";
+import manganExamChallenge from "./en/mangan-exam-challenge.json";
+import lessons from "./en/lessons.json";
+import tryMentsuFu from "./en/try-mentsu-fu.json";
 import type {
   EnTranslatedNamespace,
   MessagesShape,
@@ -94,6 +123,35 @@ export const messages = {
   tsumoPayments,
   ronToTsumo,
   oyaRonScores,
+  practice,
+  challenge,
+  training,
+  examTraining,
+  examResult,
+  exp,
+  practiceQuota,
+  dojo,
+  aboutThisApp,
+  gettingStarted,
+  tryDemo,
+  agariScore,
+  tenpaiScore,
+  settings,
+  mentsuJantouFu,
+  totalFu,
+  scoreTableChallenge,
+  scoreCalculationChallenge,
+  manganScoreCalculationChallenge,
+  hanCountChallenge,
+  yakuHanChallenge,
+  fuExamChallenge,
+  fuScoreExamChallenge,
+  scoreExamChallenge,
+  pinfuExamChallenge,
+  chiitoitsuExamChallenge,
+  manganExamChallenge,
+  lessons,
+  tryMentsuFu,
 } satisfies Pick<MessagesShape, EnTranslatedNamespace>;
 
 /** 英語の辞書の型（完訳の名前空間 → 文言の木） */

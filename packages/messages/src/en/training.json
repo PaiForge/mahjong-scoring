@@ -1,0 +1,11 @@
+{
+  "modeLabel": "トレーニング",
+  "startButton": "トレーニング",
+  "revealButton": "わからない",
+  "nextButton": "次の問題へ",
+  "exitButton": "終了する",
+  "exitToast": "トレーニングを終了しました",
+  "modeActive": "トレーニングモードで練習中",
+  "challengePrompt": "準備はいいですか？",
+  "challengeButton": "チャレンジを始める"
+}
