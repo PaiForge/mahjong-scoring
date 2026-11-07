@@ -11,6 +11,18 @@ vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 const { TryBoard } = await import("./try-board");
 
+/** 日本語のページの張る先（`resolveNavTargetFor` は日本語では入力をそのまま返す） */
+const JA_TARGETS = {
+  signUpTarget: { href: "/sign-up", crossLocale: false },
+  browseTarget: { href: "/practice", crossLocale: false },
+} as const;
+
+/** 英語のページの張る先（登録は英語で未公開、練習一覧は公開） */
+const EN_TARGETS = {
+  signUpTarget: { href: "/sign-up", crossLocale: true },
+  browseTarget: { href: "/en/practice", crossLocale: false },
+} as const;
+
 /** ラベルから select を引く（紐付いていなければ取得に失敗する） */
 function select(label: string) {
   return screen.getByLabelText(label) as HTMLSelectElement;
@@ -35,7 +47,7 @@ describe("TryBoard", () => {
   });
 
   it("最初は出題文と回答フォームを出し、登録への誘導はまだ出さない", () => {
-    render(<TryBoard />);
+    render(<TryBoard {...JA_TARGETS} />);
 
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
     expect(select("form.labels.han")).toBeTruthy();
@@ -43,7 +55,7 @@ describe("TryBoard", () => {
   });
 
   it("回答すると答え合わせと登録への誘導を出し、フッターの「わからない」を消す", () => {
-    render(<TryBoard />);
+    render(<TryBoard {...JA_TARGETS} />);
 
     choose("form.labels.han", 1);
     choose("form.labels.fu", 40);
@@ -61,7 +73,7 @@ describe("TryBoard", () => {
   });
 
   it("「わからない」で回答せずに正解を開示しても登録への誘導を出す", () => {
-    render(<TryBoard />);
+    render(<TryBoard {...JA_TARGETS} />);
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
@@ -70,12 +82,26 @@ describe("TryBoard", () => {
   });
 
   it("答え合わせのあとの導線は、答え合わせが出てから出す", () => {
-    render(<TryBoard afterAnswer={<p>after-answer</p>} />);
+    render(<TryBoard {...JA_TARGETS} afterAnswer={<p>after-answer</p>} />);
 
     expect(screen.queryByText("after-answer")).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
     expect(screen.getByText("after-answer")).toBeTruthy();
+  });
+
+  it("英語のページでは、登録を印付きの日本語の登録へ、練習一覧を英語の練習一覧へ張る", () => {
+    render(<TryBoard {...EN_TARGETS} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    const signUp = screen.getByRole("link", { name: /signUp\.cta/ });
+    expect(signUp.getAttribute("href")).toBe("/sign-up");
+    expect(signUp.getAttribute("hrefLang")).toBe("ja");
+    expect(signUp.textContent).toContain("language.japaneseOnly");
+    const browse = screen.getByRole("link", { name: "signUp.browse" });
+    expect(browse.getAttribute("href")).toBe("/en/practice");
+    expect(browse.getAttribute("hrefLang")).toBeNull();
   });
 });
