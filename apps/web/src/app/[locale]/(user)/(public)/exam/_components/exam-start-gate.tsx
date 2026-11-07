@@ -9,6 +9,7 @@ import { fetchViewerRankSlugs } from "@/app/_lib/viewer-ranks";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { PlayIcon } from "@/app/[locale]/(user)/_components/icons/play-icon";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { JapaneseOnlyMark } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -24,7 +25,8 @@ import {
   rankTier,
   type RankSlug,
 } from "@mahjong-scoring/features/ranks/registry";
-import { DOJO_PATH } from "@mahjong-scoring/features/routes";
+
+import { useExamGateLinks } from "./exam-gate-links";
 
 interface ExamStartGateProps {
   /** 昇級試験の練習スラッグ（例: "pinfu-exam"） */
@@ -106,6 +108,15 @@ function CtaBlock({
  * ページの受験ガードと `submitExamResult` の採点ガードがサーバー側で
  * 行う。そのため段級位の取得に失敗したときは開始ボタンへ fail-open して
  * よい — 資格がなければ開始した先でサーバーが説明ページへ戻す。
+ *
+ * @design 登録・道場の行き先は Provider から受け取る
+ * 行き先が今のページの言語で公開しているかはクライアントで判定できない
+ * （公開状態の表はサーバー専用）。試験のページが `ExamGateLinksProvider` で
+ * 解決済みの行き先を渡し、ここはそれを描くだけにする。言語をまたぐ行き先
+ * （英語のページから日本語だけの登録へ）は素の `<a hrefLang="ja">` にして
+ * 「日本語のみ」の印を添える（クライアント遷移で言語をまたぐと、英語の文書に
+ * 日本語の本文が載る）。Provider の外では日本語のページと同じ行き先になる。
+ * 開始ボタンの行き先（`playHref`）は呼び出し側がページの言語で組んで渡す。
  */
 export function ExamStartGate({
   slug,
@@ -115,6 +126,8 @@ export function ExamStartGate({
   const t = useTranslations("ranks");
   const tc = useTranslations("challenge");
   const tExamTraining = useTranslations("examTraining");
+  const tNav = useTranslations("nav");
+  const links = useExamGateLinks();
   const { user, isLoading } = useAuth();
   // undefined は「未取得または取得失敗」。取得完了は hasFetched で区別する
   const [rankSlugs, setRankSlugs] = useState<readonly RankSlug[] | undefined>(
@@ -156,8 +169,16 @@ export function ExamStartGate({
     // 分岐を 2 画面続けて見せることになる
     return (
       <CtaBlock hint={t("examGate.signUpNote")}>
-        <LinkButton href="/sign-up" variant="secondary" size="lg" fullWidth>
+        <LinkButton
+          navTarget={links.signUp}
+          variant="secondary"
+          size="lg"
+          fullWidth
+        >
           {t("examGate.signUpButton")}
+          {links.signUp.crossLocale && (
+            <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+          )}
           <ChevronRightIcon className="size-4" />
         </LinkButton>
       </CtaBlock>
@@ -182,13 +203,16 @@ export function ExamStartGate({
         {/* 帯色は「この試験の級」ではなく「先に取る級」。押した先の道場が
             出すのはその級の前提章と試験で、色もそちらに揃える */}
         <LinkButton
-          href={DOJO_PATH}
+          navTarget={links.dojo}
           variant="belt"
           size="lg"
           fullWidth
           className={beltButtonVarsClass(eligibility.requiredRank.slug)}
         >
           {t("examGate.dojoButton")}
+          {links.dojo.crossLocale && (
+            <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+          )}
           <ChevronRightIcon className="size-4" />
         </LinkButton>
       </CtaBlock>

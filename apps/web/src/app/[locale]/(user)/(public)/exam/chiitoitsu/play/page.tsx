@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.chiitoitsuExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/chiitoitsu/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/chiitoitsu/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -37,6 +37,6 @@ const ExamPlayPage = createExamPlayPage(ChiitoitsuExamPlayView, { slug: SLUG });
 export default async function ChiitoitsuExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/chiitoitsu/play">) {
-  await prepareRouteLocale(params, "/exam/chiitoitsu/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu/play");
+  return <ExamPlayPage locale={locale} />;
 }

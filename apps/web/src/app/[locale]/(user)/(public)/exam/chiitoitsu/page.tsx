@@ -33,24 +33,29 @@ import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_c
 import { ExamConditions } from "../_components/exam-conditions";
 import { ChiitoitsuExamHowToPlay } from "./_components/chiitoitsu-exam-how-to-play";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/chiitoitsu">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/chiitoitsu");
-  return createPracticeMetadata(PRACTICE_SLUG.chiitoitsuExam);
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu");
+  return createPracticeMetadata(PRACTICE_SLUG.chiitoitsuExam, { locale });
 }
 
 export default async function ChiitoitsuExamPage({
   params,
 }: PageProps<"/[locale]/exam/chiitoitsu">) {
-  await prepareRouteLocale(params, "/exam/chiitoitsu");
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
   return (
-    <PracticeIntroContent
-      namespace="chiitoitsuExamChallenge"
-      slug={PRACTICE_SLUG.chiitoitsuExam}
-      howToPlay={<ChiitoitsuExamHowToPlay />}
-      notice={<ExamConditions slug={PRACTICE_SLUG.chiitoitsuExam} />}
-    />
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="chiitoitsuExamChallenge"
+        slug={PRACTICE_SLUG.chiitoitsuExam}
+        howToPlay={<ChiitoitsuExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.chiitoitsuExam} />}
+      />
+    </ExamGateLinksProvider>
   );
 }

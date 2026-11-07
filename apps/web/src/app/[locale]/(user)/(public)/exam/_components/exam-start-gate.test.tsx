@@ -32,6 +32,7 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 
+import { ExamGateLinksProvider, type ExamGateLinks } from "./exam-gate-links";
 import { ExamStartGate } from "./exam-start-gate";
 
 const PLAY_HREF = "/exam/pinfu/play#practice";
@@ -201,5 +202,60 @@ describe("ExamStartGate", () => {
     renderGate();
 
     expect(await screen.findByText("startButton")).toBeTruthy();
+  });
+});
+
+describe("ExamStartGate の行き先の言語", () => {
+  /** 英語のページで解決した行き先（登録は英語で未公開、道場は公開） */
+  const EN_LINKS: ExamGateLinks = {
+    signUp: { href: "/sign-up", crossLocale: true },
+    dojo: { href: "/en/dojo", crossLocale: false },
+  };
+
+  function renderEnglishGate() {
+    return render(
+      <ExamGateLinksProvider links={EN_LINKS}>
+        <ExamStartGate slug="pinfu-exam" playHref="/en/exam/pinfu/play" />
+      </ExamGateLinksProvider>,
+    );
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("英語で未公開の登録へは、日本語の文書として読み込むリンクと「日本語のみ」の印で送る", async () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+
+    renderEnglishGate();
+
+    await screen.findByText("examGate.signUpButton");
+    const link = document.querySelector('a[href="/sign-up"]');
+    expect(link?.getAttribute("hreflang")).toBe("ja");
+    expect(link?.textContent).toContain("language.japaneseOnly");
+  });
+
+  it("英語で公開している道場へは、英語の道場へ同じ言語のまま送る", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5"]);
+
+    renderEnglishGate();
+
+    await screen.findByText("examGate.dojoButton");
+    const link = document.querySelector('a[href="/en/dojo"]');
+    expect(link).not.toBeNull();
+    expect(link?.hasAttribute("hreflang")).toBe(false);
+    expect(link?.textContent).not.toContain("language.japaneseOnly");
+  });
+
+  it("Provider の外では日本語のページと同じ行き先で、印を付けない", async () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+
+    renderGate();
+
+    await screen.findByText("examGate.signUpButton");
+    const link = document.querySelector('a[href="/sign-up"]');
+    expect(link?.hasAttribute("hreflang")).toBe(false);
+    expect(link?.textContent).not.toContain("language.japaneseOnly");
   });
 });

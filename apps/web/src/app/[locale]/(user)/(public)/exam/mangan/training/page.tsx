@@ -18,17 +18,24 @@ import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { ManganExamTrainingView } from "../_components/mangan-exam-training-view";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/mangan/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/mangan/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganExam);
+  const locale = await prepareRouteLocale(params, "/exam/mangan/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganExam, { locale });
 }
 
 export default async function ManganExamTrainingPage({
   params,
 }: PageProps<"/[locale]/exam/mangan/training">) {
-  await prepareRouteLocale(params, "/exam/mangan/training");
-  return <ManganExamTrainingView />;
+  const locale = await prepareRouteLocale(params, "/exam/mangan/training");
+  // 末尾の本番への導線（受験ゲート）が、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <ManganExamTrainingView />
+    </ExamGateLinksProvider>
+  );
 }

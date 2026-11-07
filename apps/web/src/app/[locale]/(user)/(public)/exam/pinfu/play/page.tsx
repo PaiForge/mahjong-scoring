@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.pinfuExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/pinfu/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/pinfu/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -38,6 +38,6 @@ const ExamPlayPage = createExamPlayPage(PinfuExamPlayView, { slug: SLUG });
 export default async function PinfuExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/pinfu/play">) {
-  await prepareRouteLocale(params, "/exam/pinfu/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/play");
+  return <ExamPlayPage locale={locale} />;
 }

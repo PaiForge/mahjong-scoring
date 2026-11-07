@@ -37,18 +37,41 @@
  * 2. 次の目標の級から、レッスン / 練習 / 試験へ進む
  *    （見方は見出しの横の「?」のツアーで説明する）
  * 3. 合格すると結果ページの昇級バナーと本ページ・マイページの表示が更新される
+ *
+ * @design 英語では noindex で出す
+ * 日本語では索引対象だが、中身の大半（現在の段級位・行程の進み具合）が閲覧者に
+ * 依る動的ページで、英語の索引対象の規約（静的生成）に合わない。英語は
+ * 公開状態の表で `published-noindex` にし、robots はその表から引く
+ * （`withPublicationRobots`。noindex のときは hreflang も外して自己 canonical だけを
+ * 残す。日本語は従来の指定のまま）。英語の索引は
+ * 練習・試験の説明ページが受ける。
+ *
+ * @design リンクはページの言語で張る
+ * 練習・級・レッスンへのリンクは公開状態で張る先を決める（同じ言語で公開して
+ * いればその言語の href、未公開なら日本語の href に「日本語のみ」の印）。
+ * ログインは言語をまたいでも成立するので、未公開の言語からも印付きで出し、
+ * ログイン後にこの言語の道場へ戻す（`?redirect=`）。日本語では戻り先を付けず
+ * 従来の `/sign-in` のまま。
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { fetchCompletedLessonSlugs } from "@/app/[locale]/(user)/(public)/lessons/_lib/lesson-progress";
 import { fetchAttemptedPractices } from "@/app/[locale]/(user)/(public)/dashboard/_lib/attempted-practices";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
+import { localizedHref } from "@/i18n/public-path";
+import { buildSignInHref } from "@/lib/redirect";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { getOptionalUser } from "@/lib/auth";
 import { getUserRankSlugs } from "@/lib/db/rank-queries";
 import { buildJourney } from "@mahjong-scoring/features/journey/journey";
@@ -57,28 +80,62 @@ import {
   highestRank,
 } from "@mahjong-scoring/features/ranks/registry";
 
+import { DojoLink } from "../_components/dojo-link";
 import { DojoSpotlightTour } from "../_components/dojo-spotlight-tour";
 import { RankJourneyCard } from "../_components/rank-journey-card";
 import { RankProgressBar } from "../_components/rank-progress-bar";
+import { withPublicationRobots } from "../_lib/publication-metadata";
 import { DOJO_TOUR_ID } from "../_lib/tour-ids";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
+/** ログインのページ（ロケール非依存のパス） */
+const SIGN_IN_PATH = "/sign-in";
+
+/** 練習一覧の実戦形式の練習（黒帯を取った人への導線） */
+const PRACTICAL_PRACTICE_HREF = "/practice?mode=practical";
+
+/**
+ * 未ログインの人へのログインの導線
+ *
+ * ログインがこの言語で未公開なら、日本語のログインへ言語をまたいで送り、
+ * ログイン後にこの言語の道場へ戻す。同じ言語で出しているなら従来どおり
+ * 戻り先を付けない（日本語の href を変えない）。
+ */
+function signInTarget(locale: SupportedLocale): NavTarget {
+  const target = resolveNavTargetFor(SIGN_IN_PATH, locale);
+  if (!target.crossLocale) return target;
+  return {
+    href: buildSignInHref(localizedHref(DOJO_PATH, locale)),
+    crossLocale: true,
+  };
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/dojo">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/dojo");
-  return createNamespaceMetadata("dojo", { path: DOJO_PATH });
+  const locale = await prepareRouteLocale(params, "/dojo");
+  return withPublicationRobots(
+    await createNamespaceMetadata("dojo", { path: DOJO_PATH, locale }),
+    DOJO_PATH,
+    locale,
+  );
 }
 
 export default async function DojoPage({
   params,
 }: PageProps<"/[locale]/dojo">) {
-  await prepareRouteLocale(params, "/dojo");
-  const [t, user] = await Promise.all([
+  const locale = await prepareRouteLocale(params, "/dojo");
+  const [t, tNav, user] = await Promise.all([
     getTranslations("dojo"),
+    getTranslations("nav"),
     getOptionalUser(),
   ]);
+  const linkLocale = {
+    locale,
+    japaneseOnlyLabel: tNav("language.japaneseOnly"),
+  };
+  const signIn = signInTarget(locale);
   const [rankSlugs, completedLessonSlugs, attemptedPractices] =
     await Promise.all([
       user ? getUserRankSlugs(user.id) : [],
@@ -109,9 +166,16 @@ export default async function DojoPage({
           {!user && (
             <p className="text-xs text-surface-500">
               {t("signInNote")}{" "}
-              <Link href="/sign-in" className={TEXT_LINK_CLASSES}>
+              <LocaleNavLink
+                navTarget={signIn}
+                linkKind="plain"
+                className={TEXT_LINK_CLASSES}
+              >
                 {t("signInLink")}
-              </Link>
+              </LocaleNavLink>
+              {signIn.crossLocale && (
+                <JapaneseOnlyMark label={linkLocale.japaneseOnlyLabel} />
+              )}
             </p>
           )}
         </div>
@@ -122,9 +186,13 @@ export default async function DojoPage({
             <p className="text-sm leading-relaxed text-surface-700">
               {t("practicalDescription")}
             </p>
-            <Link href="/practice?mode=practical" className={TEXT_LINK_CLASSES}>
+            <DojoLink
+              path={PRACTICAL_PRACTICE_HREF}
+              linkLocale={linkLocale}
+              className={TEXT_LINK_CLASSES}
+            >
               {t("practicalCta")} →
-            </Link>
+            </DojoLink>
           </section>
         )}
 
@@ -133,7 +201,11 @@ export default async function DojoPage({
           // あり、すぐ上の区切りバーでも次の級が淡い帯色で示されているため、
           // 見出しを重ねると同じことを 3 度言う。節の名前は読み上げ用に残す
           <section aria-label={t("nextRankTitle")}>
-            <RankJourneyCard journey={journey.current} expanded />
+            <RankJourneyCard
+              journey={journey.current}
+              expanded
+              locale={locale}
+            />
           </section>
         )}
 
@@ -147,7 +219,11 @@ export default async function DojoPage({
           <ol className="space-y-4">
             {journey.ranks.map((rankJourney) => (
               <li key={rankJourney.rank.slug}>
-                <RankJourneyCard journey={rankJourney} expanded={false} />
+                <RankJourneyCard
+                  journey={rankJourney}
+                  expanded={false}
+                  locale={locale}
+                />
               </li>
             ))}
           </ol>

@@ -31,24 +31,29 @@ import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_c
 import { ExamConditions } from "../_components/exam-conditions";
 import { PinfuExamHowToPlay } from "./_components/pinfu-exam-how-to-play";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/pinfu">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/pinfu");
-  return createPracticeMetadata(PRACTICE_SLUG.pinfuExam);
+  const locale = await prepareRouteLocale(params, "/exam/pinfu");
+  return createPracticeMetadata(PRACTICE_SLUG.pinfuExam, { locale });
 }
 
 export default async function PinfuExamPage({
   params,
 }: PageProps<"/[locale]/exam/pinfu">) {
-  await prepareRouteLocale(params, "/exam/pinfu");
+  const locale = await prepareRouteLocale(params, "/exam/pinfu");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
   return (
-    <PracticeIntroContent
-      namespace="pinfuExamChallenge"
-      slug={PRACTICE_SLUG.pinfuExam}
-      howToPlay={<PinfuExamHowToPlay />}
-      notice={<ExamConditions slug={PRACTICE_SLUG.pinfuExam} />}
-    />
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="pinfuExamChallenge"
+        slug={PRACTICE_SLUG.pinfuExam}
+        howToPlay={<PinfuExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.pinfuExam} />}
+      />
+    </ExamGateLinksProvider>
   );
 }

@@ -31,24 +31,29 @@ import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_c
 import { ExamConditions } from "../_components/exam-conditions";
 import { ScoreExamHowToPlay } from "./_components/score-exam-how-to-play";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/score">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/score");
-  return createPracticeMetadata(PRACTICE_SLUG.scoreExam);
+  const locale = await prepareRouteLocale(params, "/exam/score");
+  return createPracticeMetadata(PRACTICE_SLUG.scoreExam, { locale });
 }
 
 export default async function ScoreExamPage({
   params,
 }: PageProps<"/[locale]/exam/score">) {
-  await prepareRouteLocale(params, "/exam/score");
+  const locale = await prepareRouteLocale(params, "/exam/score");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
   return (
-    <PracticeIntroContent
-      namespace="scoreExamChallenge"
-      slug={PRACTICE_SLUG.scoreExam}
-      howToPlay={<ScoreExamHowToPlay />}
-      notice={<ExamConditions slug={PRACTICE_SLUG.scoreExam} />}
-    />
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="scoreExamChallenge"
+        slug={PRACTICE_SLUG.scoreExam}
+        howToPlay={<ScoreExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.scoreExam} />}
+      />
+    </ExamGateLinksProvider>
   );
 }

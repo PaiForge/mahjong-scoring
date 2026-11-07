@@ -25,8 +25,8 @@ const SLUG = PRACTICE_SLUG.scoreExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/score/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/score/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/score/result");
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";

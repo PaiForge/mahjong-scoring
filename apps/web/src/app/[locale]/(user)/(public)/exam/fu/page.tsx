@@ -35,24 +35,29 @@ import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_c
 import { ExamConditions } from "../_components/exam-conditions";
 import { FuExamHowToPlay } from "./_components/fu-exam-how-to-play";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/fu">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/fu");
-  return createPracticeMetadata(PRACTICE_SLUG.fuExam);
+  const locale = await prepareRouteLocale(params, "/exam/fu");
+  return createPracticeMetadata(PRACTICE_SLUG.fuExam, { locale });
 }
 
 export default async function FuExamPage({
   params,
 }: PageProps<"/[locale]/exam/fu">) {
-  await prepareRouteLocale(params, "/exam/fu");
+  const locale = await prepareRouteLocale(params, "/exam/fu");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
   return (
-    <PracticeIntroContent
-      namespace="fuExamChallenge"
-      slug={PRACTICE_SLUG.fuExam}
-      howToPlay={<FuExamHowToPlay />}
-      notice={<ExamConditions slug={PRACTICE_SLUG.fuExam} />}
-    />
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="fuExamChallenge"
+        slug={PRACTICE_SLUG.fuExam}
+        howToPlay={<FuExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.fuExam} />}
+      />
+    </ExamGateLinksProvider>
   );
 }

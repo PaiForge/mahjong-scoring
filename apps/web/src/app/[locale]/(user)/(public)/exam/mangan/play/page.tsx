@@ -10,8 +10,8 @@ const SLUG = PRACTICE_SLUG.manganExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/mangan/play">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/mangan/play");
-  return createPracticePlayMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/mangan/play");
+  return createPracticePlayMetadata(SLUG, { locale });
 }
 
 /**
@@ -37,6 +37,6 @@ const ExamPlayPage = createExamPlayPage(ManganExamPlayView, { slug: SLUG });
 export default async function ManganExamPlayPage({
   params,
 }: PageProps<"/[locale]/exam/mangan/play">) {
-  await prepareRouteLocale(params, "/exam/mangan/play");
-  return <ExamPlayPage />;
+  const locale = await prepareRouteLocale(params, "/exam/mangan/play");
+  return <ExamPlayPage locale={locale} />;
 }

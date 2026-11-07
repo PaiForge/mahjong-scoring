@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 
 import { redirectUnlessExamEligible } from "./exam-guard";
@@ -25,6 +26,11 @@ interface ExamPlayPageConfig {
  * 呼び出し元の page.tsx には `export const dynamic = "force-dynamic"` が
  * 必要（ガードが cookie を読むため。Next.js の規約上ファイルごとに書く
  * 必要があり、この関数では担保できない）。
+ *
+ * 返す部品は `locale`（page.tsx の `prepareRouteLocale` の戻り値）を必須で
+ * 受け、受験ガードの戻し先をその言語の説明ページにする。省略可能にすると、
+ * 渡し忘れた級だけ英語の受験者を日本語の説明ページへ落とすことになり、
+ * 型で止まらない。
  */
 export function createExamPlayPage(
   PlayView: ComponentType,
@@ -32,8 +38,12 @@ export function createExamPlayPage(
 ) {
   const { slug } = config;
 
-  return async function ExamPlayPage() {
-    await redirectUnlessExamEligible(slug);
+  return async function ExamPlayPage({
+    locale,
+  }: {
+    readonly locale: SupportedLocale;
+  }) {
+    await redirectUnlessExamEligible(slug, locale);
     return <PlayView />;
   };
 }

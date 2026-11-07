@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { DoneMark } from "@/app/[locale]/(user)/_components/done-mark";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import {
@@ -20,6 +18,7 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { practiceListHref } from "../../practice/_lib/practice-web-routes";
+import { DojoLink, type DojoLinkLocale } from "./dojo-link";
 
 interface RankStageProgressProps {
   readonly journey: RankJourney;
@@ -39,6 +38,11 @@ interface RankStageProgressProps {
   readonly className?: string;
   /** スポットライトツアーが照らす対象の id */
   readonly dataTourId?: string;
+  /**
+   * 各段の一覧へのリンクを張るページの言語（省略時は日本語のページと同じ
+   * リンク。日本語だけで出している画面から使うとき）
+   */
+  readonly linkLocale?: DojoLinkLocale;
 }
 
 /** 1 段分の表示 */
@@ -104,6 +108,7 @@ export function RankStageProgress({
   isCurrentRank = false,
   className,
   dataTourId,
+  linkLocale,
 }: RankStageProgressProps) {
   const learn = countProgress(journey.chapters);
   const practice = countProgress(journey.practices);
@@ -184,12 +189,13 @@ export function RankStageProgress({
             ].join(" ")}
           >
             {isCurrentRank ? (
-              <Link
-                href={stageHref(cell.stage, journey)}
+              <DojoLink
+                path={stageHref(cell.stage, journey)}
+                linkLocale={linkLocale}
                 className={`group ${cellClasses} ${rounded} transition-colors hover:bg-surface-900/5 ${FOCUS_RING_CLASSES}`}
               >
                 {content}
-              </Link>
+              </DojoLink>
             ) : (
               <div className={cellClasses}>{content}</div>
             )}

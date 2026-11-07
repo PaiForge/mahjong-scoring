@@ -18,17 +18,24 @@ import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { FuExamTrainingView } from "../_components/fu-exam-training-view";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../../_lib/exam-gate-links";
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/fu/training">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/fu/training");
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.fuExam);
+  const locale = await prepareRouteLocale(params, "/exam/fu/training");
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.fuExam, { locale });
 }
 
 export default async function FuExamTrainingPage({
   params,
 }: PageProps<"/[locale]/exam/fu/training">) {
-  await prepareRouteLocale(params, "/exam/fu/training");
-  return <FuExamTrainingView />;
+  const locale = await prepareRouteLocale(params, "/exam/fu/training");
+  // 末尾の本番への導線（受験ゲート）が、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <FuExamTrainingView />
+    </ExamGateLinksProvider>
+  );
 }

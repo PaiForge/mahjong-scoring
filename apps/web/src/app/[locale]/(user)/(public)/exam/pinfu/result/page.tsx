@@ -26,8 +26,8 @@ const SLUG = PRACTICE_SLUG.pinfuExam;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/exam/pinfu/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/exam/pinfu/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/result");
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";
