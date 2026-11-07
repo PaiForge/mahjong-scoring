@@ -17,11 +17,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { PinfuExamTrainingView } from "../_components/pinfu-exam-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/pinfu/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/pinfu/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.pinfuExam);
 }
 
-export default function PinfuExamTrainingPage() {
+export default async function PinfuExamTrainingPage({
+  params,
+}: PageProps<"/[locale]/exam/pinfu/training">) {
+  await prepareRouteLocale(params, "/exam/pinfu/training");
   return <PinfuExamTrainingView />;
 }

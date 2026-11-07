@@ -19,15 +19,27 @@ import {
   createPracticeResultPage,
 } from "@/app/[locale]/(user)/(public)/practice/_lib/create-practice-result-page";
 import { ManganExamResultView } from "../_components/mangan-exam-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.manganExam;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/mangan/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/mangan/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ManganExamResultView, {
+const PracticeResultPage = createPracticeResultPage(ManganExamResultView, {
   slug: SLUG,
 });
+
+export default async function ManganExamResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/exam/mangan/result">) {
+  await prepareRouteLocale(params, "/exam/mangan/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

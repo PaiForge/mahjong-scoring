@@ -30,12 +30,19 @@ import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/
 import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
 import { ExamConditions } from "../_components/exam-conditions";
 import { FuScoreExamHowToPlay } from "./_components/fu-score-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/fu-score">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/fu-score");
   return createPracticeMetadata(PRACTICE_SLUG.fuScoreExam);
 }
 
-export default function FuScoreExamPage() {
+export default async function FuScoreExamPage({
+  params,
+}: PageProps<"/[locale]/exam/fu-score">) {
+  await prepareRouteLocale(params, "/exam/fu-score");
   return (
     <PracticeIntroContent
       namespace="fuScoreExamChallenge"

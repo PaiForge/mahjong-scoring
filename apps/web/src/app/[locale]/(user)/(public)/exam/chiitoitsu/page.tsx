@@ -32,12 +32,19 @@ import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/
 import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
 import { ExamConditions } from "../_components/exam-conditions";
 import { ChiitoitsuExamHowToPlay } from "./_components/chiitoitsu-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/chiitoitsu");
   return createPracticeMetadata(PRACTICE_SLUG.chiitoitsuExam);
 }
 
-export default function ChiitoitsuExamPage() {
+export default async function ChiitoitsuExamPage({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu">) {
+  await prepareRouteLocale(params, "/exam/chiitoitsu");
   return (
     <PracticeIntroContent
       namespace="chiitoitsuExamChallenge"

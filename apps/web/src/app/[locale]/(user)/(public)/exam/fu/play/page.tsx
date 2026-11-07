@@ -3,10 +3,14 @@ import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { createExamPlayPage } from "../../_lib/create-exam-play-page";
 import { FuExamPlayView } from "../_components/fu-exam-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.fuExam;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/fu/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/fu/play");
   return createPracticePlayMetadata(SLUG);
 }
 
@@ -28,4 +32,11 @@ export async function generateMetadata(): Promise<Metadata> {
 // 受験ガードが cookie を読むため動的レンダリングを明示する
 export const dynamic = "force-dynamic";
 
-export default createExamPlayPage(FuExamPlayView, { slug: SLUG });
+const ExamPlayPage = createExamPlayPage(FuExamPlayView, { slug: SLUG });
+
+export default async function FuExamPlayPage({
+  params,
+}: PageProps<"/[locale]/exam/fu/play">) {
+  await prepareRouteLocale(params, "/exam/fu/play");
+  return <ExamPlayPage />;
+}

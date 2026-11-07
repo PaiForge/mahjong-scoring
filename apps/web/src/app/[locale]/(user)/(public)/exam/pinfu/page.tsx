@@ -30,12 +30,19 @@ import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/
 import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
 import { ExamConditions } from "../_components/exam-conditions";
 import { PinfuExamHowToPlay } from "./_components/pinfu-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/pinfu">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/pinfu");
   return createPracticeMetadata(PRACTICE_SLUG.pinfuExam);
 }
 
-export default function PinfuExamPage() {
+export default async function PinfuExamPage({
+  params,
+}: PageProps<"/[locale]/exam/pinfu">) {
+  await prepareRouteLocale(params, "/exam/pinfu");
   return (
     <PracticeIntroContent
       namespace="pinfuExamChallenge"

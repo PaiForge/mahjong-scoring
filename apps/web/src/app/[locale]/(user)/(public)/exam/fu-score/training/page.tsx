@@ -17,11 +17,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { FuScoreExamTrainingView } from "../_components/fu-score-exam-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/fu-score/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/fu-score/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.fuScoreExam);
 }
 
-export default function FuScoreExamTrainingPage() {
+export default async function FuScoreExamTrainingPage({
+  params,
+}: PageProps<"/[locale]/exam/fu-score/training">) {
+  await prepareRouteLocale(params, "/exam/fu-score/training");
   return <FuScoreExamTrainingView />;
 }

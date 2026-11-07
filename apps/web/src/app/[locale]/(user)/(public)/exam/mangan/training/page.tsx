@@ -17,11 +17,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
 import { ManganExamTrainingView } from "../_components/mangan-exam-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/mangan/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/exam/mangan/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.manganExam);
 }
 
-export default function ManganExamTrainingPage() {
+export default async function ManganExamTrainingPage({
+  params,
+}: PageProps<"/[locale]/exam/mangan/training">) {
+  await prepareRouteLocale(params, "/exam/mangan/training");
   return <ManganExamTrainingView />;
 }
