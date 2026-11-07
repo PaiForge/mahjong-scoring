@@ -330,100 +330,100 @@
       "pitfall": "Calling does not lower every yaku by one han. Only some yaku lose han; yakuhai, toitoi, sanankou, sankantsu and others keep their han when you call.\nOn the other hand, riichi, pinfu, iipeikou, chiitoitsu, menzen tsumo and others are not reduced but closed only: they disappear the moment you call."
     },
     "hora": {
-      "term": "和了",
-      "reading": "ホーラ",
-      "definition": "アガること。手牌がアガリの形に整い、かつ役が1つ以上あるときに宣言できる。ロンとツモの2通りがある。",
-      "usage": "和了したときに点数計算が始まります。手牌を4面子1雀頭に分けて符を数え、役とドラで翻を数え、符と翻の組み合わせで点数表を引きます。5翻以上は符に関係なく満貫以上の点数です。\nロンなら放銃した1人が全額を払い、ツモなら3人で分けて払います。親の和了は子の1.5倍です。",
-      "caseStudy": "順子3つ・白の暗刻・数牌の雀頭を両面待ちで門前ロンした手は、20符＋門前ロン10符＋暗刻8符＝38符→40符で、役牌1翻なら子2600点です。同じ手を門前ツモすれば役牌＋門前ツモの2翻、符は20＋2＋8＝30符で、子なら500・1000、親なら1000オールです。\n役がひとつも無い手は、和了形が完成していてもアガれません。",
-      "pitfall": "和了形が完成しただけでは和了できません。役が最低1つ必要で、ドラは役ではありません。\nまた、自分の捨て牌の中に待ち牌がある（フリテン）ときはロンできず、ツモでしか和了できません。立直後に見逃した牌もフリテンになります。"
+      "term": "Win",
+      "reading": "houra",
+      "definition": "Completing your hand to win. You can declare it when your hand is in a winning shape and has at least one yaku. There are two ways to win: ron and tsumo.",
+      "usage": "Score calculation starts when you win. You split the hand into four sets and a pair and count the fu, count the han from yaku and dora, and look up the score for that combination of fu and han in the scoring table. At 5 han or more the hand scores mangan or higher regardless of fu.\nOn a ron, the one player who dealt in pays the whole amount; on a tsumo, the three other players share the payment. A dealer's win is worth 1.5 times a non-dealer's.",
+      "caseStudy": "A hand of three sequences, a closed triplet of white dragons and a number-tile pair, won by closed ron on a two-sided wait, is 20 fu + 10 fu (closed ron) + 8 fu (closed triplet) = 38 fu, rounded up to 40 fu; with 1 han of yakuhai that is 2,600 points for a non-dealer. Win the same hand by closed tsumo and it has 2 han (yakuhai plus menzen tsumo) and 20 + 2 + 8 = 30 fu: 500/1,000 for a non-dealer and 1,000 all for the dealer.\nA hand with no yaku at all cannot win, even if its winning shape is complete.",
+      "pitfall": "A complete winning shape is not enough to win. You need at least one yaku, and dora are not a yaku.\nAlso, when one of your winning tiles is among your own discards (furiten), you cannot win by ron, only by tsumo. A tile you let pass after riichi also puts you in furiten."
     },
     "ron": {
-      "term": "ロン",
-      "reading": "ロン",
-      "definition": "他家の捨て牌でアガること。門前なら10符が加算される。ロンで完成した刻子は暗刻ではなく明刻として数える点に注意。",
-      "usage": "ロンで和了すると、門前なら門前ロン加符の10符が付きます。鳴いている手のロンには付きません。ロンで完成した刻子は明刻として数え、双碰待ちのロンでは完成した刻子の符が暗刻の半分になります。\n点数は放銃者が全額を払います。本場があれば1本場につき300点を放銃者が上乗せします。",
-      "caseStudy": "平和の手を門前でロンすれば20符＋10符＝30符で、平和1翻なら子1000点・親1500点です。同じ手をツモれば平和・ツモの2翻20符で、子400・700、親700オールです。\n五萬・五萬と東・東の双碰待ちで東をロンした場合、東の刻子は明刻扱いで4符（ツモなら暗刻8符）です。",
-      "pitfall": "ロンは「他家の捨て牌で和了する」ことで、副露（鳴き）ではありません。ロンしても門前は保たれ、門前ロン加符が付きます。\nまた、フリテン（自分の捨て牌に待ち牌がある）ではロンできません。捨て牌を見て自分の待ちと照らし合わせておく必要があります。"
+      "term": "Ron",
+      "reading": "ron",
+      "definition": "Winning on another player's discard. With a closed hand it adds 10 fu. Note that a triplet completed by ron counts as an open triplet, not a closed one.",
+      "usage": "Winning by ron with a closed hand adds the 10 fu closed ron bonus. An open hand winning by ron does not get it. A triplet completed by ron counts as open, so on a ron with a pair wait the completed triplet earns half the fu of a closed triplet.\nThe player who dealt in pays the whole score. If there are honba, the player who dealt in adds 300 points per honba.",
+      "caseStudy": "A pinfu hand won by closed ron is 20 + 10 = 30 fu; with 1 han of pinfu that is 1,000 points for a non-dealer and 1,500 for the dealer. Win the same hand by tsumo and it is pinfu plus menzen tsumo, 2 han 20 fu: 400/700 for a non-dealer and 700 all for the dealer.\nWith a pair wait on 5 man and East, winning by ron on East makes the East triplet count as open: 4 fu (8 fu as a closed triplet on a tsumo).",
+      "pitfall": "Ron means winning on another player's discard; it is not a call. The hand stays closed after a ron, and the closed ron bonus applies.\nAlso, you cannot win by ron while in furiten (when one of your winning tiles is among your own discards). Check your discards against your wait."
     },
     "tsumo": {
-      "term": "ツモ",
-      "reading": "ツモ",
-      "definition": "自分で引いてきた牌でアガること。面子手では2符が加算される（平和のみ例外）。点数は放銃者ひとりではなく全員から受け取る。",
-      "usage": "ツモで和了すると面子手では2符（ツモ符）が付きます。平和だけは例外で、ツモ符を加えず20符のままです。門前でツモれば門前清自摸和（1翻）が付きます。鳴いている手のツモは、役は付きませんがツモ符の2符は付きます。\n支払いは3人で分け、子の和了なら親が倍・子が半分、親の和了なら3人が同額（オール）です。",
-      "caseStudy": "30符2翻を子がツモれば、親から1000点・子2人から500点ずつで合計2000点です。親が30符2翻をツモれば1000点オールで合計3000点です。\n白をポンした手（役牌1翻）を両面待ちでツモれば、20符＋2符＋4符（明刻）＝26符→30符で、役は役牌の1翻だけです。門前ツモの役は鳴いていると付きません。",
-      "pitfall": "「ツモは門前でしか役にならない」のは門前清自摸和の話で、ツモ符の2符は鳴いていても付きます。\n逆に、平和のツモには2符が付きません。平和は「符の付く要素が無い」ことが条件で、ツモ符を取ると矛盾するため、20符のまま計算します（ツモ符を加えて30符とするルールもありますが、標準的ではありません）。"
+      "term": "Tsumo",
+      "reading": "tsumo",
+      "definition": "Winning on a tile you drew yourself. In a standard hand it adds 2 fu (pinfu is the only exception). You collect the score from every other player rather than from a single player.",
+      "usage": "Winning by tsumo with a standard hand adds 2 fu (tsumo fu). Pinfu alone is the exception: it does not add tsumo fu and stays at 20 fu. A tsumo with a closed hand also gets menzen tsumo (1 han). An open hand winning by tsumo gets no yaku for it, but it still earns the 2 tsumo fu.\nThe payment is split among the three other players: for a non-dealer's win the dealer pays double and the non-dealers pay half, and for a dealer's win all three pay the same amount (all).",
+      "caseStudy": "When a non-dealer wins 30 fu 2 han by tsumo, the dealer pays 1,000 and the two non-dealers pay 500 each, 2,000 in total. When the dealer wins 30 fu 2 han by tsumo, it is 1,000 all, 3,000 in total.\nA hand that called pon on white dragons (1 han of yakuhai) and wins by tsumo on a two-sided wait is 20 + 2 + 4 (open triplet) = 26 fu, rounded up to 30 fu, and its only yaku is yakuhai, 1 han. Menzen tsumo does not apply to an open hand.",
+      "pitfall": "The idea that tsumo is only a yaku with a closed hand is about menzen tsumo; the 2 tsumo fu apply even to an open hand.\nConversely, a pinfu tsumo does not get the 2 fu. Pinfu requires that nothing in the hand earns fu, and adding tsumo fu would contradict that, so you calculate it at 20 fu (some rules add the tsumo fu to make 30 fu, but that is not standard)."
     },
     "tenpai": {
-      "term": "聴牌",
-      "reading": "テンパイ",
-      "definition": "あと1枚でアガリになる状態。この状態で受け入れている牌がアガリ牌になる。",
-      "usage": "聴牌そのものには符も翻も付きませんが、待ちの形が符を決めます。聴牌したときに「何を待っている形か」（両面・嵌張・辺張・双碰・単騎）で、和了時の待ちの符（0符または2符）が決まります。\n門前で聴牌すれば立直をかけられます。流局時に聴牌していれば、ノーテンの人から罰符（合計3000点）を受け取ります。",
-      "caseStudy": "三萬・四萬を持って二萬と五萬を待つ形は両面待ちの聴牌で、待ちの符は0符です。三萬・五萬を持って四萬を待つ形は嵌張待ちの聴牌で、和了時に2符が付きます。\n形は同じでも、待ち牌をすでに自分で捨てている場合はフリテンで、ロンできません。",
-      "pitfall": "聴牌は「あと1枚で和了形」という状態であって、和了ではありません。役が無くても聴牌はできますが、役が無ければアガれません（役の無い聴牌でも、流局時の聴牌料は受け取れます）。\nまた、待ち牌が場に4枚とも見えている場合（純カラ）でも形の上では聴牌です。"
+      "term": "Tenpai",
+      "reading": "tenpai",
+      "definition": "A ready hand: one tile away from winning. The tiles it can accept in this state are its winning tiles.",
+      "usage": "Being tenpai earns no fu or han by itself, but the shape of the wait decides fu. The shape you are waiting with when you reach tenpai (two-sided, closed, edge, pair or single-tile) decides the wait fu (0 fu or 2 fu) when you win.\nOnce a closed hand is tenpai you can declare riichi. If you are tenpai at an exhaustive draw, you collect the noten penalty (3,000 points in total) from the players who are not.",
+      "caseStudy": "Holding 3 man and 4 man and waiting on 2 man or 5 man is tenpai with a two-sided wait, and the wait earns 0 fu. Holding 3 man and 5 man and waiting on 4 man is tenpai with a closed wait, and it earns 2 fu when you win.\nEven with the same shape, if you have already discarded one of your winning tiles yourself, you are in furiten and cannot win by ron.",
+      "pitfall": "Tenpai means one tile away from a winning shape; it is not a win. You can be tenpai without a yaku, but you cannot win without one (even a tenpai hand with no yaku collects the tenpai payment at an exhaustive draw).\nAlso, even if all four of your winning tiles are already visible on the table (junkara), the hand is still tenpai in shape."
     },
     "machi": {
-      "term": "待ち",
-      "reading": "マチ",
-      "definition": "聴牌のときにアガリ牌を待っている形。両面・嵌張・辺張・双碰・単騎の5種類があり、どの形でアガったかで符が変わる。",
-      "usage": "待ちの符は、両面と双碰が0符、嵌張・辺張・単騎が2符です。両面待ちであることは平和の条件でもあります。\nひとつの聴牌形が複数の待ちとして解釈できる場合は、点数が高くなる解釈で計算します。",
-      "caseStudy": "四萬・五萬で三萬・六萬を待つのが両面（0符）、四萬・六萬で五萬を待つのが嵌張（2符）、八萬・九萬で七萬を待つのが辺張（2符）、五萬・五萬と東・東で待つのが双碰（0符）、白1枚で白を待つのが単騎（2符）です。\n二萬・三萬・四萬・四萬で四萬を待つ形は、「二萬・三萬の両面待ちで四萬が雀頭」とも「二萬・三萬・四萬の順子と四萬の単騎待ち」とも取れ、単騎と見れば2符が付きます。",
-      "pitfall": "同じ牌を待っていても、手の中の形によって符が変わります。「三萬・六萬待ち」でも、四萬・五萬からの両面なら0符です。\nまた、待ちの符は和了時に1回だけ付くもので、待ち牌の種類が多いほど符が高いわけではありません。三面待ち（例: 二萬・三萬・四萬・五萬・六萬で一萬・四萬・七萬待ち）は両面待ちとして0符です。"
+      "term": "Wait",
+      "reading": "machi",
+      "definition": "The shape in which a tenpai hand waits for its winning tile. There are five kinds (two-sided, closed, edge, pair and single-tile), and the fu depends on which shape you won with.",
+      "usage": "Wait fu is 0 fu for a two-sided wait and a pair wait, and 2 fu for a closed wait, an edge wait and a single-tile wait. A two-sided wait is also a condition of pinfu.\nWhen one tenpai shape can be read as more than one wait, you score the reading that gives the higher score.",
+      "caseStudy": "Waiting on 3 man or 6 man with 4-5 man is a two-sided wait (0 fu), waiting on 5 man with 4 and 6 man is a closed wait (2 fu), waiting on 7 man with 8-9 man is an edge wait (2 fu), waiting with pairs of 5 man and East is a pair wait (0 fu), and waiting on a white dragon with a single white dragon is a single-tile wait (2 fu).\nThe shape 2-3-4-4 man waiting on 4 man can be read either as a two-sided wait on 2-3 man with 4 man as the pair, or as a 2-3-4 man sequence and a single-tile wait on 4 man; read as a single-tile wait, it earns 2 fu.",
+      "pitfall": "Even when you wait on the same tiles, the fu depends on the shape in your hand. A wait on 3 man and 6 man from 4-5 man is two-sided and earns 0 fu.\nAlso, wait fu is added only once when you win; more kinds of winning tiles do not mean more fu. A three-sided wait (for example 2-3-4-5-6 man waiting on 1, 4 or 7 man) counts as a two-sided wait: 0 fu."
     },
     "ryanmen": {
-      "term": "両面",
-      "reading": "リャンメン",
-      "definition": "順子の途中2枚を持ち、その両端どちらでもアガれる待ち。アガリ牌が2種類あって受け入れが広く、符は0符。平和の条件のひとつでもある。",
-      "usage": "両面待ちは0符です。平和の条件のひとつでもあり、面子がすべて順子・雀頭が役牌でない・両面待ちの3つがそろった門前の手が平和になります。\n和了牌が2種類あるため、聴牌の形として最も和了しやすく、符が付かないぶん翻で点数を伸ばす手作りになります。",
-      "caseStudy": "四萬・五萬で三萬・六萬を待つのが両面待ちです。四萬・五萬・六萬と六萬・七萬なら五萬・八萬待ちで、これも両面です。\n順子3つと四萬・五萬の両面待ち、雀頭が数牌の門前の手をロンすれば平和で30符1翻（子1000点）、ツモすれば平和・ツモの20符2翻（子400・700）です。",
-      "pitfall": "一萬・二萬で三萬を待つ形は、片側が端で塞がっているため両面ではなく辺張（2符）です。両面は「両側どちらでもアガれる」形だけを指します。\nまた、四萬・六萬で五萬を待つ嵌張は、間の1種類しか待てないので両面ではありません。待ち牌が2種類あっても、四萬・四萬と七萬・七萬の双碰待ちは両面ではなく双碰（0符）です。"
+      "term": "Two-sided wait",
+      "reading": "ryanmen",
+      "definition": "A wait where you hold two consecutive tiles of a sequence and can win on the tile at either end. It has two kinds of winning tile, so it accepts many tiles, and it earns 0 fu. It is also one of the conditions of pinfu.",
+      "usage": "A two-sided wait is 0 fu. It is also one of the conditions of pinfu: a closed hand where every set is a sequence, the pair is not a value tile and the wait is two-sided is pinfu.\nWith two kinds of winning tile, it is the easiest tenpai shape to win with, and because it earns no fu, hands built around it raise their score through han.",
+      "caseStudy": "Waiting on 3 man or 6 man with 4-5 man is a two-sided wait. 4-5-6 man plus 6-7 man waits on 5 man or 8 man, and that is two-sided as well.\nA closed hand of three sequences, a two-sided wait on 4-5 man and a number-tile pair is pinfu: 30 fu 1 han (1,000 for a non-dealer) by ron, and pinfu plus tsumo, 20 fu 2 han (400/700 for a non-dealer), by tsumo.",
+      "pitfall": "Waiting on 3 man with 1-2 man is not two-sided, because one side is blocked by the end of the suit: it is an edge wait (2 fu). Two-sided refers only to shapes that can win on either side.\nAlso, waiting on 5 man with 4 and 6 man is a closed wait, which can only take the one tile in the middle, so it is not two-sided. And even with two kinds of winning tile, a wait with pairs of 4 man and 7 man is not two-sided but a pair wait (0 fu)."
     },
     "kanchan": {
-      "term": "嵌張",
-      "reading": "カンチャン",
-      "definition": "数がひとつ空いた2枚を持ち、その間の牌を待つ形。アガリ牌は1種類で、符は2符。",
-      "usage": "嵌張待ちは2符です。両面待ちに比べて和了牌が1種類しか無いぶん、符で優遇されています。平和にはなりません（平和は両面待ちが条件）。\n複数の解釈ができる形では、嵌張と見た方が点数が高くなるならそちらで計算します。",
-      "caseStudy": "四萬・六萬で五萬を待つのが嵌張待ちです。順子3つ・数牌の雀頭・嵌張待ちを門前ロンすれば20符＋10符＋2符＝32符→40符で、役が立直だけなら40符1翻で子1300点です。両面待ちだった場合の30符1翻（子1000点）より符の分だけ高くなります。\n二萬・二萬・三萬・五萬で四萬を待つ形は「三萬・五萬の嵌張＋二萬の雀頭」で、四萬を引いて三萬・四萬・五萬の順子が完成し、嵌張の2符が付きます。",
-      "pitfall": "嵌張待ちは「真ん中を待つ」形ですが、四萬・五萬・六萬・七萬で四萬・七萬を待つ両面待ちと混同しやすい形があります。手の中で隣り合わない2枚で間を待つのが嵌張です。\nまた、待ち牌が1種類だからといって符が付くとは限りません。双碰待ちも1種類ずつ2つの待ちですが0符です。"
+      "term": "Closed wait",
+      "reading": "kanchan",
+      "definition": "A shape where you hold two tiles with a gap of one number and wait for the tile in between. It has one kind of winning tile and earns 2 fu.",
+      "usage": "A closed wait is 2 fu. It has only one kind of winning tile compared with a two-sided wait, and fu compensates for that. It cannot be pinfu (pinfu requires a two-sided wait).\nWhen a shape can be read in more than one way and reading it as a closed wait gives the higher score, you score it that way.",
+      "caseStudy": "Waiting on 5 man with 4 and 6 man is a closed wait. A closed hand of three sequences, a number-tile pair and a closed wait, won by ron, is 20 + 10 + 2 = 32 fu, rounded up to 40 fu; if its only yaku is riichi, 40 fu 1 han is 1,300 points for a non-dealer. That is more than the 30 fu 1 han (1,000 for a non-dealer) it would score with a two-sided wait, by the amount of the extra fu.\nThe shape 2-2-3-5 man waiting on 4 man is a closed wait on 3 and 5 man plus a pair of 2 man: drawing 4 man completes a 3-4-5 man sequence, and the closed wait earns 2 fu.",
+      "pitfall": "A closed wait waits for the middle tile, and some shapes are easy to confuse with it, such as 4-5-6-7 man waiting on 4 or 7 man. A closed wait is two tiles that are not next to each other in your hand, waiting for the tile between them.\nAlso, waiting on a single kind of tile does not always mean you earn fu. A pair wait waits on one tile for each of its two pairs, and it is 0 fu."
     },
     "penchan": {
-      "term": "辺張",
-      "reading": "ペンチャン",
-      "definition": "1・2で3を待つ、または8・9で7を待つ形。端が塞がっているためアガリ牌は1種類で、符は2符。",
-      "usage": "辺張待ちは2符です。一萬・二萬で三萬を待つ形と、八萬・九萬で七萬を待つ形の2つだけで、どちらも端が塞がっているため和了牌は1種類です。平和にはなりません。\n辺張と両面の両方に解釈できる形では、点数が高い方で計算します。",
-      "caseStudy": "一萬・二萬で三萬を待てば辺張（2符）、八索・九索で七索を待っても辺張（2符）です。\n七萬・八萬・九萬・九萬で九萬を待つ形は、「七萬・八萬の両面（六萬・九萬待ち）＋九萬の雀頭」とも「七萬・八萬・九萬の順子＋九萬の単騎」とも取れます。両面と見れば0符で平和の条件にも合い、単騎と見れば2符が付くので、点数の高い方で計算します。",
-      "pitfall": "辺張は「端の牌を待つ」ではなく「端に寄った2枚で内側の1種類を待つ」形です。二萬・三萬で一萬・四萬を待つのは両面で、一萬を引いても辺張ではありません。\nまた、辺張は数牌の1・2または8・9だけで起こり、字牌には辺張待ちがありません。"
+      "term": "Edge wait",
+      "reading": "penchan",
+      "definition": "Waiting on 3 with 1-2, or on 7 with 8-9. One end is blocked, so there is only one kind of winning tile, and it earns 2 fu.",
+      "usage": "An edge wait is 2 fu. There are only two such shapes, 1-2 man waiting on 3 man and 8-9 man waiting on 7 man (and the same in the other suits), and in both one end is blocked, so there is only one kind of winning tile. It cannot be pinfu.\nWhen a shape can be read as either an edge wait or a two-sided wait, you score the reading with the higher score.",
+      "caseStudy": "Waiting on 3 man with 1-2 man is an edge wait (2 fu), and waiting on 7 sou with 8-9 sou is also an edge wait (2 fu).\nThe shape 7-8-9-9 man waiting on 9 man can be read either as a two-sided wait on 7-8 man (waiting on 6 or 9 man) plus a pair of 9 man, or as a 7-8-9 man sequence plus a single-tile wait on 9 man. Read as two-sided it is 0 fu and meets the pinfu condition; read as a single-tile wait it earns 2 fu. You score whichever reading is higher.",
+      "pitfall": "An edge wait is not waiting on an end tile; it is two tiles pushed against the end of the suit, waiting on the one tile inside. 2-3 man waiting on 1 or 4 man is two-sided, and winning on 1 man does not make it an edge wait.\nAlso, an edge wait occurs only with the 1-2 or 8-9 of a number suit; honor tiles have no edge waits."
     },
     "shanpon": {
-      "term": "双碰",
-      "reading": "シャンポン",
-      "definition": "対子を2組持ち、どちらかが刻子になるのを待つ形。待ちそのものは0符だが、完成した刻子の符が付く。",
-      "usage": "双碰待ちそのものは0符ですが、和了で完成する刻子の符が付きます。ツモなら暗刻（中張牌4符・么九牌8符）、ロンなら明刻（2符・4符）です。\n2組の対子のどちらが刻子になり、どちらが雀頭になるかで、雀頭の符（役牌なら2符）も変わります。",
-      "caseStudy": "五萬・五萬と白・白の双碰待ちで、白をツモれば白の暗刻8符＋五萬の雀頭0符、白をロンすれば白の明刻4符＋五萬の雀頭0符、五萬をツモれば五萬の暗刻4符＋白の雀頭2符です。\n同じ聴牌形でも、どちらの牌でどうアガるかで符が4符から8符まで変わります。",
-      "pitfall": "「双碰は待ちの符が付かないから損」ではありません。待ちの符は0符ですが、完成した刻子の符が付くので、嵌張・辺張の2符より高くなることがほとんどです。\nまた、双碰待ちのロンで完成した刻子は明刻です。「手の内で完成したから暗刻」と数えるのは誤りです。"
+      "term": "Pair wait",
+      "reading": "shanpon",
+      "definition": "A shape where you hold two pairs and wait for either one to become a triplet. The wait itself is 0 fu, but the completed triplet earns its fu.",
+      "usage": "A pair wait is 0 fu by itself, but the triplet completed by the win earns fu: as a closed triplet on a tsumo (4 fu for simples, 8 fu for terminals and honors), and as an open triplet on a ron (2 fu and 4 fu).\nWhich of the two pairs becomes the triplet and which stays as the pair also changes the pair fu (2 fu for a value tile).",
+      "caseStudy": "With a pair wait on 5 man and white dragons, winning by tsumo on a white dragon gives a closed triplet of white dragons (8 fu) plus a 5 man pair (0 fu); winning by ron on a white dragon gives an open triplet of white dragons (4 fu) plus a 5 man pair (0 fu); and winning by tsumo on 5 man gives a closed triplet of 5 man (4 fu) plus a white dragon pair (2 fu).\nWith the same tenpai shape, the fu ranges from 4 fu to 8 fu depending on which tile you win on and how.",
+      "pitfall": "A pair wait is not a bad deal just because it earns no wait fu. The wait itself is 0 fu, but the completed triplet earns fu, so it nearly always earns more than the 2 fu of a closed or edge wait.\nAlso, a triplet completed by ron on a pair wait is an open triplet. Counting it as closed because it was completed in your hand is a mistake."
     },
     "tanki": {
-      "term": "単騎",
-      "reading": "タンキ",
-      "definition": "雀頭になる牌を1枚で待つ形。アガリ牌は1種類で、符は2符。",
-      "usage": "単騎待ちは2符です。雀頭になる牌を1枚持ってもう1枚を待つ形で、和了牌は1種類です。平和にはなりません。\n七対子は常に単騎待ちですが、25符固定なので単騎の2符は加算しません。国士無双も同様に符を数えません。",
-      "caseStudy": "順子4つが完成していて白1枚で白を待つ形が単騎待ちです。門前ロンなら20符＋10符＋2符（単騎）＋2符（白の雀頭）＝34符→40符です。\n二萬・三萬・四萬・四萬で四萬を待つ形は、「順子＋四萬の単騎」と見ることも「二萬・三萬の両面＋四萬の雀頭」と見ることもでき、点数の高い方で計算します。\n順子3つ・五萬の暗刻（4符）に白の単騎待ち（雀頭2符＋単騎2符）を門前ロンすれば、20＋10＋4＋2＋2＝38符→40符です。同じ手を両面待ちにできれば符は下がりますが、単騎は待ち牌を自分で選べる（雀頭を変えられる）自由度があります。",
-      "pitfall": "単騎待ちは雀頭を待つ形で、待ち牌が1種類だからといってすべてが単騎ではありません。嵌張・辺張も1種類待ちですが別の形です。\nまた、七対子の最後の1枚も単騎待ちですが、七対子は25符固定なので2符は付きません。"
+      "term": "Single-tile wait",
+      "reading": "tanki",
+      "definition": "Waiting with one tile for its match to complete the pair. There is one kind of winning tile, and it earns 2 fu.",
+      "usage": "A single-tile wait is 2 fu. You hold one tile of the pair and wait for the other, so there is one kind of winning tile. It cannot be pinfu.\nChiitoitsu is always a single-tile wait, but it is fixed at 25 fu, so the 2 fu are not added. Kokushi musou does not count fu either.",
+      "caseStudy": "Four complete sequences and a single white dragon waiting on another white dragon is a single-tile wait. By closed ron it is 20 + 10 + 2 (single-tile wait) + 2 (white dragon pair) = 34 fu, rounded up to 40 fu.\nThe shape 2-3-4-4 man waiting on 4 man can be read as a sequence plus a single-tile wait on 4 man, or as a two-sided wait on 2-3 man plus a 4 man pair, and you score the reading with the higher score.\nThree sequences and a closed triplet of 5 man (4 fu) with a single-tile wait on a white dragon (2 fu for the pair plus 2 fu for the wait), won by closed ron, is 20 + 10 + 4 + 2 + 2 = 38 fu, rounded up to 40 fu. If you could turn the same hand into a two-sided wait the fu would drop, but a single-tile wait lets you choose your winning tile (you can change the pair).",
+      "pitfall": "A single-tile wait is waiting on the pair, and not every wait on a single kind of tile is a single-tile wait. Closed waits and edge waits also wait on one kind of tile, but they are different shapes.\nAlso, the last tile of chiitoitsu is a single-tile wait too, but chiitoitsu is fixed at 25 fu, so the 2 fu do not apply."
     },
     "yaku": {
-      "term": "役",
-      "reading": "ヤク",
-      "definition": "アガるために最低1つ必要な、手牌の形や条件に付けられた名前。それぞれ翻数を持ち、点数の土台になる。ドラは翻を増やすが役ではない。",
-      "usage": "役が1つ以上無ければ和了できません。役の翻数を合計し、ドラの翻を足したものが手の翻数で、符と組み合わせて点数が決まります。5翻以上なら符に関係なく満貫以上です。\n役には門前限定のもの（立直・平和・一盃口・七対子など）、鳴くと翻が下がるもの（三色同順・混一色など）、鳴いても変わらないもの（役牌・対々和など）があります。",
-      "caseStudy": "立直（1翻）・門前ツモ（1翻）・平和（1翻）の手にドラが1枚あれば4翻です。20符4翻で子1300・2600、親2600オールです。\n役牌の白だけの1翻の手は、40符なら子1300点、ドラが3枚乗れば4翻40符で子8000点（満貫）です。",
-      "pitfall": "ドラは役ではありません。ドラが何枚あっても、役が無ければアガれません。\nまた、役の翻数は「その役が何翻か」であって、符とは別の軸です。同じ1翻でも符が違えば点数は変わり、同じ40符でも翻が違えば点数は倍々で変わります。"
+      "term": "Yaku",
+      "reading": "yaku",
+      "definition": "Named hand shapes or conditions, at least one of which you need in order to win. Each has its own han value and forms the base of the score. Dora add han but are not a yaku.",
+      "usage": "You cannot win without at least one yaku. The han of all your yaku plus the han from dora make the hand's han, and together with the fu that decides the score. At 5 han or more the hand scores mangan or higher regardless of fu.\nSome yaku require a closed hand (riichi, pinfu, iipeikou, chiitoitsu and so on), some lose han when you call (sanshoku, honitsu and so on), and some keep their han when you call (yakuhai, toitoi and so on).",
+      "caseStudy": "A hand with riichi (1 han), menzen tsumo (1 han) and pinfu (1 han) plus one dora is 4 han. At 20 fu 4 han that is 1,300/2,600 for a non-dealer and 2,600 all for the dealer.\nA 1 han hand with only yakuhai (white dragon) is 1,300 points for a non-dealer at 40 fu; with three dora it becomes 4 han 40 fu, 8,000 points for a non-dealer (mangan).",
+      "pitfall": "Dora are not a yaku. However many dora you hold, you cannot win without a yaku.\nAlso, a yaku's han is simply how many han that yaku is worth, and it is a separate axis from fu. At the same 1 han, different fu give different scores, and at the same 40 fu, each extra han doubles the score."
     },
     "riichi": {
-      "term": "立直",
-      "reading": "リーチ",
-      "definition": "門前で聴牌したときに宣言できる1翻の役。宣言後は手を変えられず、1000点を供託する。",
-      "usage": "立直は門前限定の1翻役で、宣言時に1000点を供託します。立直後は一発（立直後1巡以内の和了で1翻）と裏ドラが乗る可能性があり、和了時の翻数が大きく伸びることがあります。\n符には影響しません。立直をかけても符は手の形どおりに数えます。",
-      "caseStudy": "立直のみの手を30符でロンすれば1翻で子1000点、一発が付けば2翻で2000点、裏ドラが1枚乗れば3翻で3900点です。\n立直・門前ツモ・平和の手にドラ1枚・裏ドラ1枚なら5翻で満貫（子8000点）です。供託した1000点は和了した人が受け取ります。",
-      "pitfall": "立直は門前でしか宣言できません。ポン・チー・大明槓をしていると立直はかけられません（暗槓は可）。\nまた、立直後は手を変えられないため、待ち牌を見逃す（フリテン）と以後ロンできなくなります。第1巡目に立直すればダブル立直（2翻）です。"
+      "term": "Riichi",
+      "reading": "riichi",
+      "definition": "A 1 han yaku you can declare when your closed hand is tenpai. After declaring it you cannot change your hand, and you put a 1,000-point riichi stick on the table.",
+      "usage": "Riichi is a closed-only 1 han yaku, and you put down 1,000 points when you declare it. After riichi you may also get ippatsu (1 han for winning within one go-around after riichi) and ura-dora, so the han at the time of the win can grow a lot.\nRiichi has no effect on fu. After riichi you still count fu from the shape of the hand as usual.",
+      "caseStudy": "A riichi-only hand won by ron at 30 fu is 1 han, 1,000 points for a non-dealer; with ippatsu it is 2 han and 2,000 points, and with one ura-dora on top it is 3 han and 3,900 points.\nA hand with riichi, menzen tsumo and pinfu plus one dora and one ura-dora is 5 han, a mangan (8,000 points for a non-dealer). The 1,000 points put on the table go to the player who wins.",
+      "pitfall": "You can declare riichi only with a closed hand. After a pon, a chii or a daiminkan you cannot declare riichi (a closed kan is fine).\nAlso, after riichi you cannot change your hand, so if you let a winning tile pass (furiten) you can no longer win by ron for the rest of the hand. Declaring riichi on your very first turn is double riichi (2 han)."
     },
     "fu": {
       "term": "符",
