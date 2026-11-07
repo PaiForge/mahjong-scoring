@@ -149,5 +149,11 @@
     "switchToSelect": "点数を選択欄から選ぶ",
     "switchToTiles": "点数をタイルから選ぶ"
   },
+  "errorBoundary": {
+    "title": "練習を読み込めませんでした",
+    "description": "一時的な問題が発生した可能性があります。もう一度お試しください。",
+    "retry": "もう一度試す",
+    "backToList": "練習一覧へ戻る"
+  },
   "titleWithVariant": "{title}（{variant}）"
 }

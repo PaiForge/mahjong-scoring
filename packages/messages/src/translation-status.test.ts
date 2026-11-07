@@ -237,6 +237,40 @@ describe("英語で公開するルートの依存", () => {
     expect(EN_ROUTE_NAMESPACES["/reference/yaku"]).toContain("yakuNames");
   });
 
+  it.each(
+    [
+      // 練習の答え合わせの役の内訳（共有の YakuBreakdown）と役の早見表
+      ...PRACTICE_MENUS.map(([path]) => `${path}/result`),
+      ...[
+        "/practice/score-calculation",
+        "/practice/han-count",
+        "/practice/yaku-han",
+        "/practice/yaku",
+        "/practice/mangan-score-calculation",
+        "/exam/mangan",
+        "/exam/chiitoitsu",
+        "/exam/pinfu",
+        "/exam/fu-score",
+        "/exam/score",
+      ].flatMap((path) => [`${path}/play`, `${path}/training`]),
+      // 遊び方のヘルプが出題の見本の役名を描く説明ページ
+      "/practice/yaku",
+      "/practice/yaku-han",
+      "/practice/mangan-score-calculation",
+      // 和了形・聴牌形の内訳・役チップ・役なしの表
+      "/practice/agari-score",
+      "/practice/agari-score/play",
+      "/practice/tenpai-score",
+      "/practice/tenpai-score/play",
+      // 点数計算の盤面を借りる体験・デモ・はじめに
+      "/try/agari-score",
+      "/reference/demo",
+      "/lessons/about-this-app",
+    ].map((route) => [route]),
+  )("%s は練習の役名を描く部品の役名（yakuNames）を読む", (route) => {
+    expect(routeNamespaces(route)).toContain("yakuNames");
+  });
+
   it("点数表は表と関連の早見表の名前空間を読む", () => {
     expect(EN_ROUTE_NAMESPACES["/reference/score-table"]).toEqual(
       expect.arrayContaining(["scoreTable", "reference"]),

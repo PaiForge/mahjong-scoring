@@ -117,6 +117,11 @@ const NOINDEX_MARKERS = [
   "robots: { index: false",
 ] as const;
 
+/** 正規表現の特殊文字を逃がす（slug やキーを正規表現へ埋め込むため） */
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /** ページソースが urlPath への canonical を宣言しているか */
 function declaresCanonical(source: string, urlPath: string): boolean {
   if (urlPath === "/") {
@@ -126,7 +131,7 @@ function declaresCanonical(source: string, urlPath: string): boolean {
   if (lessonMatch) {
     // 第 2 引数（`{ locale }`）があってもよいが、第 1 引数は自分の slug の
     // 文字列そのものに限る（別の章の slug の写し間違いを通さない）
-    const slug = lessonMatch[1].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const slug = escapeRegExp(lessonMatch[1]);
     return new RegExp(
       String.raw`createLearnMetadata\(\s*"${slug}"\s*[,)]`,
     ).test(source);
@@ -140,11 +145,19 @@ function declaresCanonical(source: string, urlPath: string): boolean {
     const slugKey = Object.entries(PRACTICE_SLUG).find(
       ([, slug]) => slug === practiceSlug,
     )?.[0];
-    return (
-      source.includes(`createPracticeMetadata("${practiceSlug}")`) ||
-      (slugKey !== undefined &&
-        source.includes(`createPracticeMetadata(PRACTICE_SLUG.${slugKey})`))
-    );
+    // 第 2 引数（`{ locale }`）があってもよいが、第 1 引数は自分の slug の
+    // 文字列か、値が自分の slug の `PRACTICE_SLUG.<キー>` に限る（別の練習の
+    // slug の写し間違いを通さない）。`[,)]` で終端を見るので、`PRACTICE_SLUG.fu`
+    // が `PRACTICE_SLUG.fuExam` の前方一致で通ることも無い
+    const slugTokens = [
+      `"${escapeRegExp(practiceSlug)}"`,
+      ...(slugKey === undefined
+        ? []
+        : [String.raw`PRACTICE_SLUG\.${escapeRegExp(slugKey)}`]),
+    ];
+    return new RegExp(
+      String.raw`createPracticeMetadata\(\s*(?:${slugTokens.join("|")})\s*[,)]`,
+    ).test(source);
   }
   // path オプション（path: "/x"）と createTitleOnlyMetadata の第 3 引数
   // （, "/x"）の両方を受ける。パスは文字列でも、features の定数

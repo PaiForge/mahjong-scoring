@@ -262,7 +262,9 @@ const EN_LESSON_CHAPTER_NAMESPACES = [
  * `PRACTICE_MENU_REGISTRY`（`practiceHref(slug)` と `namespace`。並びも同じ）。web の
  * 許可リスト（`i18n/translated-publications.ts`）とこの表から作るルートのキーの一致は
  * アプリ側の `publication-gate.test.ts` が検査する。`exam` は昇級試験（`basePath` が
- * `/exam/<級>`）。
+ * `/exam/<級>`）。`introNamespaces` は説明ページだけが追加で読む名前空間 — 役の練習・
+ * 翻数の練習・満貫の点数計算は、遊び方のヘルプ（`*-how-to-play.tsx`）が出題の見本の
+ * 役名を `yakuNames` で描く（役の練習は役の早見表のモーダルも開く）。
  */
 const EN_PRACTICE_MENUS = [
   { path: "/practice/jantou-fu", namespace: "jantouFu", exam: false },
@@ -274,7 +276,12 @@ const EN_PRACTICE_MENUS = [
     exam: false,
   },
   { path: "/practice/total-fu", namespace: "totalFu", exam: false },
-  { path: "/practice/yaku", namespace: "yaku", exam: false },
+  {
+    path: "/practice/yaku",
+    namespace: "yaku",
+    exam: false,
+    introNamespaces: ["yakuNames"],
+  },
   {
     path: "/practice/score-table",
     namespace: "scoreTableChallenge",
@@ -286,11 +293,17 @@ const EN_PRACTICE_MENUS = [
     exam: false,
   },
   { path: "/practice/han-count", namespace: "hanCountChallenge", exam: false },
-  { path: "/practice/yaku-han", namespace: "yakuHanChallenge", exam: false },
+  {
+    path: "/practice/yaku-han",
+    namespace: "yakuHanChallenge",
+    exam: false,
+    introNamespaces: ["yakuNames"],
+  },
   {
     path: "/practice/mangan-score-calculation",
     namespace: "manganScoreCalculationChallenge",
     exam: false,
+    introNamespaces: ["yakuNames"],
   },
   { path: "/exam/mangan", namespace: "manganExamChallenge", exam: true },
   { path: "/exam/fu", namespace: "fuExamChallenge", exam: true },
@@ -306,6 +319,7 @@ const EN_PRACTICE_MENUS = [
   readonly path: string;
   readonly namespace: EnTranslatedNamespace;
   readonly exam: boolean;
+  readonly introNamespaces?: readonly EnTranslatedNamespace[];
 }[];
 
 /**
@@ -340,7 +354,9 @@ const EN_PRACTICE_INTRO_NAMESPACES = [
  *
  * チャレンジの殻・時計・判定（`challenge`・`practice`）、答え合わせの点数表の
  * 参照（`scoreTable`）、回数制限と課金の案内（`practiceQuota`）、役名（`agariScore`
- * の `yaku`）。
+ * の `yaku`）。答え合わせの役の内訳（共有の `YakuBreakdown`）・翻数の練習の出題と一覧・
+ * 満貫の点数計算の成立役の表と、そこから開く役の早見表は、core の役名を `yakuNames`
+ * で描く（点数系の練習と昇級試験の play が読む。符だけの練習は読まないが、束は和で持つ）。
  */
 const EN_PRACTICE_PLAY_NAMESPACES = [
   ...EN_SHELL_NAMESPACES,
@@ -349,6 +365,7 @@ const EN_PRACTICE_PLAY_NAMESPACES = [
   "scoreTable",
   "practiceQuota",
   "agariScore",
+  "yakuNames",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
@@ -368,8 +385,9 @@ const EN_PRACTICE_TRAINING_NAMESPACES = [
  * 英語の練習 result 名前空間
  *
  * 結果の見出しと記録（`challenge`・`practice`）、獲得 EXP（`exp`）、昇級の案内
- * （`ranks`）、答え合わせ（`scoreTable`・`agariScore`）、広告。昇級試験は合否
- * （`examResult`）も読む。ランキングのプレビュー（`leaderboard`）は英語では出さない。
+ * （`ranks`）、答え合わせ（`scoreTable`・`agariScore`。役の内訳と役の早見表の役名は
+ * `yakuNames`）、広告。昇級試験は合否（`examResult`）も読む。ランキングのプレビュー
+ * （`leaderboard`）は英語では出さない。
  */
 const EN_PRACTICE_RESULT_NAMESPACES = [
   ...EN_SHELL_NAMESPACES,
@@ -379,6 +397,7 @@ const EN_PRACTICE_RESULT_NAMESPACES = [
   "ranks",
   "scoreTable",
   "agariScore",
+  "yakuNames",
   "nativeAd",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
@@ -394,7 +413,10 @@ function practiceMenuRoutes(): Readonly<
   Record<string, readonly EnTranslatedNamespace[]>
 > {
   const routes: Record<string, readonly EnTranslatedNamespace[]> = {};
-  for (const { path, namespace, exam } of EN_PRACTICE_MENUS) {
+  for (const menu of EN_PRACTICE_MENUS) {
+    const { path, namespace, exam } = menu;
+    const introNamespaces: readonly EnTranslatedNamespace[] =
+      "introNamespaces" in menu ? menu.introNamespaces : [];
     const examTraining: readonly EnTranslatedNamespace[] = exam
       ? ["examTraining"]
       : [];
@@ -405,6 +427,7 @@ function practiceMenuRoutes(): Readonly<
       ...EN_PRACTICE_INTRO_NAMESPACES,
       namespace,
       ...examTraining,
+      ...introNamespaces,
     ];
     routes[`${path}/play`] = [
       ...EN_PRACTICE_PLAY_NAMESPACES,
@@ -432,7 +455,8 @@ function practiceMenuRoutes(): Readonly<
  * `scoreTable`・`challenge`）、役の早見表のモーダル（`reference`）、残り回数と
  * 課金の案内（`practiceQuota`・`training`）、`practice`。聴牌形は自分の文言
  * （`tenpaiScore`）を足し、設定フォームは和了形のものを共有する。設定ページは
- * 広告（`nativeAd`）も読む。
+ * 広告（`nativeAd`）も読む。答え合わせの役の内訳・役チップ・役なしの表と役の早見表は
+ * core の役名を `yakuNames` で描く（設定ページも遊び方のヘルプで同じ部品を描く）。
  */
 const EN_ENDLESS_PRACTICE_NAMESPACES = [
   ...EN_SHELL_NAMESPACES,
@@ -444,6 +468,7 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
   "settings",
   "training",
   "practiceQuota",
+  "yakuNames",
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
@@ -486,7 +511,8 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * - `/reference/score-table` — 表（`scoreTable`）とほかの早見表（`reference`）
  * - `/reference/demo` — 点数計算のデモ（`reference`）と、借りている点数計算の
  *   盤面・答え合わせの部品（`agariScore`・`challenge`・`scoreTable`・`practice`・
- *   `ranks`・`practiceQuota`・`scoreCalculationChallenge`・`manganScoreCalculationChallenge`）
+ *   `ranks`・`practiceQuota`・`scoreCalculationChallenge`・`manganScoreCalculationChallenge`・
+ *   役名の `yakuNames`）
  * - `/practice` — 一覧・絞り込み・カード（`practice`・`ranks`・`dojo`・全練習の名前空間）、
  *   関連レッスン（`learnCurriculum`）、残り回数（`practiceQuota`）、広告
  * - 練習・昇級試験の説明・play・training・result — {@link practiceMenuRoutes}
@@ -496,11 +522,12 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * - `/dojo/ranks/[slug]` — 級の詳細（`dojo`・`ranks`）、前提のレッスン（`learnCurriculum`）、
  *   試験の案内（`ranks`）、広告
  * - `/try/agari-score`・`/try/mentsu-fu` — 体験の本文（`tryDemo`・`tryMentsuFu`）と、借りている
- *   練習の部品（`/try/mentsu-fu` は確認問題の部品 `lessons` と面子の符の `mentsuFu`）
+ *   練習の部品（`/try/agari-score` は答え合わせの役名 `yakuNames`、`/try/mentsu-fu` は
+ *   確認問題の部品 `lessons` と面子の符の `mentsuFu`）
  * - `/getting-started` — はじめ方（`gettingStarted`）
  * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
  *   練習・チャレンジの見本（`practice`・`challenge`・`tenpaiScore`・`agariScore`・
- *   `manganScoreCalculationChallenge`・`jantouFu`）
+ *   `manganScoreCalculationChallenge`・`jantouFu`。見本の役名は `yakuNames`）
  *
  * ルートを足すときはその page・`_components`・使う features の `use-*.ts` が引く
  * 名前空間をソースから列挙して足し、先にそれらを完訳にする。
@@ -517,6 +544,7 @@ export const EN_ROUTE_NAMESPACES = {
     "agariScore",
     "manganScoreCalculationChallenge",
     "jantouFu",
+    "yakuNames",
   ],
   "/lessons/why-scoring-is-hard-to-learn": [
     ...EN_LESSON_CHAPTER_NAMESPACES,
@@ -597,6 +625,7 @@ export const EN_ROUTE_NAMESPACES = {
     "practiceQuota",
     "scoreCalculationChallenge",
     "manganScoreCalculationChallenge",
+    "yakuNames",
   ],
   "/practice": [
     ...EN_SHELL_NAMESPACES,
@@ -634,6 +663,7 @@ export const EN_ROUTE_NAMESPACES = {
     "practiceQuota",
     "scoreCalculationChallenge",
     "manganScoreCalculationChallenge",
+    "yakuNames",
   ],
   "/try/mentsu-fu": [
     ...EN_SHELL_NAMESPACES,
