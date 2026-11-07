@@ -9,10 +9,15 @@ import { EN_PUBLISHED_PATHS, getPublication } from "@/i18n/route-policy";
 import { getIndexableAlternates, productionUrl } from "@/i18n/seo-alternates";
 
 import {
+  ALLOWED_NEW_JA_STATIC,
+  BASELINE_HTTP_CHANGES,
   EN_INDEXABLE_PATHS,
+  EN_INDEXABLE_TEMPLATES,
   EN_NOINDEX_PATHS,
   expectedAlternates,
+  expectedEnIndexablePaths,
   expectedUrl,
+  isEnIndexable,
   parseSiteUrl,
 } from "./expectations";
 
@@ -23,11 +28,21 @@ import {
  * `expectations.ts` の TSDoc）。その代わり、ここで両者が一致することを確かめる。
  */
 
-/** 規則を突き合わせるパス（索引対象・noindex・未公開・英語の公開を含む） */
-const SAMPLE_PATHS: readonly string[] = [
+/**
+ * 日本語で索引させるパス（アプリの sitemap の静的な項目）
+ *
+ * 監査は baseline（移行前の sitemap）を日本語の索引対象として読む。日本語の
+ * 索引対象は移行で変えないので、ここではアプリの同じ集合で代用する。
+ */
+const JA_INDEXABLE: readonly string[] = [
   ...INDEXABLE_PATHS,
   ...GLOSSARY_SITEMAP_PATHS,
   ...RANK_SITEMAP_PATHS,
+];
+
+/** 規則を突き合わせるパス（索引対象・noindex・未公開・英語の公開を含む） */
+const SAMPLE_PATHS: readonly string[] = [
+  ...JA_INDEXABLE,
   ...EN_PUBLISHED_PATHS,
   "/announcements/sample-announcement",
   "/practice/jantou-fu/play",
@@ -38,14 +53,47 @@ const SAMPLE_PATHS: readonly string[] = [
   "/leaderboard/monthly/jantou-fu",
   "/admin",
   "/nonexistent",
+  "/reference/glossary/unknown-term",
+  "/reference/glossary/__unknown__",
 ];
 
 describe("監査の期待値とアプリの公開状態", () => {
-  it("英語で索引させるパスは route-policy の published-indexable と同じ集合", () => {
-    expect([...EN_INDEXABLE_PATHS].sort()).toEqual(
+  it("英語で索引させるパスの展開（日本語の索引対象のうちテンプレートに合うものを含む）は route-policy の published-indexable と同じ集合", () => {
+    expect([...expectedEnIndexablePaths(JA_INDEXABLE)].sort()).toEqual(
       EN_PUBLISHED_PATHS.filter(
         (path) => getPublication(path, "en") === "published-indexable",
       ).sort(),
+    );
+  });
+
+  it("展開に重複が無い", () => {
+    const expanded = expectedEnIndexablePaths(JA_INDEXABLE);
+    expect(new Set(expanded).size).toBe(expanded.length);
+  });
+
+  it("英語のテンプレートは用語のページだけで、全用語が当たる", () => {
+    expect([...EN_INDEXABLE_TEMPLATES.keys()]).toEqual([
+      "/reference/glossary/[slug]",
+    ]);
+    for (const path of GLOSSARY_SITEMAP_PATHS) {
+      expect(isEnIndexable(path), path).toBe(true);
+    }
+  });
+
+  it.each(SAMPLE_PATHS.map((path) => [path]))(
+    "%s を英語で索引させるかは route-policy と一致する",
+    (path) => {
+      expect(isEnIndexable(path)).toBe(
+        getPublication(path, "en") === "published-indexable",
+      );
+    },
+  );
+
+  it("英語のトップは 200 に変わり、レッスンの目次だけが日本語で新たに静的になる", () => {
+    expect(BASELINE_HTTP_CHANGES.get("/en")).toEqual({ status: 200 });
+    expect(ALLOWED_NEW_JA_STATIC).toEqual(["/lessons"]);
+    expect(EN_INDEXABLE_PATHS).toEqual(
+      expect.arrayContaining([...ALLOWED_NEW_JA_STATIC]),
     );
   });
 

@@ -13,6 +13,36 @@ import {
 
 const translated: ReadonlySet<string> = new Set(EN_TRANSLATED_NAMESPACES);
 
+/**
+ * 英語で公開するレッスンの章（目次の 20 章から、はじめに `about-this-app` を除く 19 章）
+ *
+ * messages はカリキュラムのレジストリ（features）に依存しないので写して持つ。
+ * 写し元は features `curriculum/registry.ts` の章の slug と、web
+ * `i18n/translated-publications.ts` の許可リスト（アプリ側の
+ * `publication-gate.test.ts` が許可リストとこの表のキーの一致を検査する）。
+ */
+const EN_LESSON_ROUTES = [
+  "/lessons/why-scoring-is-hard-to-learn",
+  "/lessons/why-scoring-is-complex",
+  "/lessons/mangan-ko-ron",
+  "/lessons/mangan-ko-tsumo",
+  "/lessons/mangan-oya-ron",
+  "/lessons/mangan-oya-tsumo",
+  "/lessons/yaku",
+  "/lessons/jantou-fu",
+  "/lessons/mentsu-fu",
+  "/lessons/machi-fu",
+  "/lessons/tehai-fu",
+  "/lessons/chiitoitsu-score",
+  "/lessons/pinfu-score",
+  "/lessons/menzen-mentsu-score",
+  "/lessons/furo-score",
+  "/lessons/fu-doubling",
+  "/lessons/ron-to-tsumo",
+  "/lessons/tsumo-payments",
+  "/lessons/oya-ron-scores",
+] as const;
+
 describe("英語の翻訳状況の一覧", () => {
   it("日本語の名前空間は完訳・未着手・対象外のどれか 1 つに必ず入る", () => {
     // ja に名前空間を足して一覧への追記を忘れると、英語でその名前空間を
@@ -42,8 +72,15 @@ describe("英語の翻訳状況の一覧", () => {
 });
 
 describe("英語で公開するルートの依存", () => {
-  it("フェーズ 1 の英語ページは点数表だけ", () => {
+  it("英語で公開するルートは公開単位の表どおり（用語のページはテンプレートで 1 行）", () => {
     expect(Object.keys(EN_ROUTE_NAMESPACES)).toEqual([
+      "/",
+      "/lessons",
+      ...EN_LESSON_ROUTES,
+      "/reference",
+      "/reference/yaku",
+      "/reference/glossary",
+      "/reference/glossary/[slug]",
       "/reference/score-table",
     ]);
   });
@@ -66,6 +103,41 @@ describe("英語で公開するルートの依存", () => {
       );
     },
   );
+
+  it.each(EN_LESSON_ROUTES.map((route) => [route]))(
+    "%s は章の名前空間（slug の camelCase）と章のレイアウトの名前空間を読み、確認問題の名前空間は読まない",
+    (route) => {
+      const namespaces: readonly string[] =
+        EN_ROUTE_NAMESPACES[route as keyof typeof EN_ROUTE_NAMESPACES];
+      const camel = route
+        .slice("/lessons/".length)
+        .replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+      expect(namespaces).toEqual(
+        expect.arrayContaining([
+          camel,
+          "learnCurriculum",
+          "glossary",
+          "company",
+          "nativeAd",
+          "scoreTable",
+        ]),
+      );
+      expect(namespaces).not.toContain("lessons");
+    },
+  );
+
+  it("満貫の 4 章は満貫の表、役の章は役名の名前空間を読む", () => {
+    for (const route of [
+      "/lessons/mangan-ko-ron",
+      "/lessons/mangan-ko-tsumo",
+      "/lessons/mangan-oya-ron",
+      "/lessons/mangan-oya-tsumo",
+    ] as const) {
+      expect(EN_ROUTE_NAMESPACES[route]).toContain("manganScoreTable");
+    }
+    expect(EN_ROUTE_NAMESPACES["/lessons/yaku"]).toContain("yakuNames");
+    expect(EN_ROUTE_NAMESPACES["/reference/yaku"]).toContain("yakuNames");
+  });
 
   it("点数表は表と関連の早見表の名前空間を読む", () => {
     expect(EN_ROUTE_NAMESPACES["/reference/score-table"]).toEqual(

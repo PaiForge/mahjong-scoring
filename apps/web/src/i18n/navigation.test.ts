@@ -25,6 +25,11 @@ describe("resolvePublishedHref", () => {
     ],
     // 日本語は接頭辞なしの最終 URL（/ja を経由しない）
     ["/", "ja", "/"],
+    // 英語のトップは /en（末尾スラッシュを付けない）
+    ["/", "en", "/en"],
+    ["/lessons/jantou-fu", "en", "/en/lessons/jantou-fu"],
+    ["/lessons?rank=kyu-5", "en", "/en/lessons?rank=kyu-5"],
+    ["/reference/glossary/jantou", "en", "/en/reference/glossary/jantou"],
     [
       "/practice/jantou-fu/play?variant=all",
       "ja",
@@ -35,8 +40,9 @@ describe("resolvePublishedHref", () => {
   });
 
   it.each([
-    ["/", "en"],
     ["/practice", "en"],
+    ["/lessons/about-this-app", "en"],
+    ["/getting-started", "en"],
     ["/dashboard", "en"],
     ["/nonexistent", "ja"],
   ] as const)("未公開の %s（%s）はリンクを作らない", (path, locale) => {

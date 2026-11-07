@@ -231,15 +231,128 @@ export const EN_NOT_FOUND_NAMESPACES = [
 ] as const satisfies readonly EnTranslatedNamespace[];
 
 /**
+ * 英語のレッスンの章がどれも読む名前空間（章の名前空間を除く）
+ * 英語の章の共通名前空間
+ *
+ * 章のレイアウト（`lessons/_components/learn-page-layout.tsx`）が引く目次・章の
+ * 見出し（`learnCurriculum`）、本文の用語のモーダル（`glossary`）、著者の表記
+ * （`company`）、広告の札（`nativeAd`）と、本文から開く点数表のモーダル
+ * （`scoreTable`）。`lessons`（確認問題・完了・次のレッスン・段級位の目標）は
+ * 英語の章では出さないので含めない（フェーズ 3 で訳す）。
+ */
+const EN_LESSON_CHAPTER_NAMESPACES = [
+  ...EN_SHELL_NAMESPACES,
+  "learnCurriculum",
+  "glossary",
+  "company",
+  "nativeAd",
+  "scoreTable",
+] as const satisfies readonly EnTranslatedNamespace[];
+
+/**
  * 英語で公開するルートと、そのルートが読む名前空間
  * 英語ルートの依存名前空間
  *
- * キーはロケールの接頭辞を除いたパス。値の型が完訳の名前空間だけを受け付けるので、
+ * キーはロケールの接頭辞を除いたパス。動的ルートはページのテンプレート
+ * （`/reference/glossary/[slug]`）で 1 行に書く（アプリの公開の関所
+ * `publication-gate.test.ts` が、許可リストの具体的なパスをテンプレートへ畳んで
+ * このキーの集合と比べる）。値の型が完訳の名前空間だけを受け付けるので、
  * 未着手の名前空間を書くと型検査で落ちる（実行時にも `translation-status.test.ts` が
- * 完訳であることを検査する）。フェーズ 1 の英語ページは点数表だけ。ルートを足すときは
- * その page・`_components`・使う features の `use-*.ts` が引く名前空間をソースから
- * 列挙して足し、先にそれらを完訳にする。
+ * 完訳であることを検査する）。
+ *
+ * 各ルートの名前空間は、page と、そこから import で届く `_components`・features の
+ * `use-*.ts` が `getTranslations` / `useTranslations` で引く名前空間をソースから
+ * 列挙した。レジストリが持つ名前空間の宣言（練習のレジストリの `namespace:` 等）は
+ * 描画で読むものではないので数えない。英語で出さない部品（章の確認問題・完了・
+ * 練習カード・昇級試験の案内）だけが読む名前空間（`lessons`・`practice`・
+ * `challenge`）は含めない。
+ *
+ * - `/` — LP の各節（`landing`）、運営者の表記（`company`）、目次（`learnCurriculum`）
+ * - `/lessons` — 目次と進捗（`learnCurriculum`）、段級位での絞り込み（`ranks`）、広告（`nativeAd`）
+ * - `/lessons/<slug>` — {@link EN_LESSON_CHAPTER_NAMESPACES} と章の名前空間
+ *   （`chapterNamespace(slug)` = slug の camelCase。数式の `\text{…}` の語
+ *   `formula.*` もここ）。満貫の 4 章は満貫の表（`manganScoreTable`）、役の章は
+ *   鳴きの比較表の役名（`yakuNames`）も読む
+ * - `/reference` — ハブの見出しと各早見表の紹介（`reference`）
+ * - `/reference/yaku` — 役一覧（`reference`）、役名（`yakuNames`）、例の手牌の
+ *   ツモ / ロンの札（`common`）、広告（`nativeAd`）
+ * - `/reference/glossary` — 用語の一覧と索引（`glossary`）、ほかの早見表（`reference`）、広告
+ * - `/reference/glossary/[slug]` — 用語の本文（`glossary`）、パンくず（`reference`）、
+ *   その語を扱うレッスン（`learnCurriculum`）、広告
+ * - `/reference/score-table` — 表（`scoreTable`）とほかの早見表（`reference`）
+ *
+ * ルートを足すときはその page・`_components`・使う features の `use-*.ts` が引く
+ * 名前空間をソースから列挙して足し、先にそれらを完訳にする。
  */
 export const EN_ROUTE_NAMESPACES = {
+  "/": [...EN_SHELL_NAMESPACES, "landing", "company", "learnCurriculum"],
+  "/lessons": [...EN_SHELL_NAMESPACES, "learnCurriculum", "ranks", "nativeAd"],
+  "/lessons/why-scoring-is-hard-to-learn": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "whyScoringIsHardToLearn",
+  ],
+  "/lessons/why-scoring-is-complex": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "whyScoringIsComplex",
+  ],
+  "/lessons/mangan-ko-ron": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "manganKoRon",
+    "manganScoreTable",
+  ],
+  "/lessons/mangan-ko-tsumo": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "manganKoTsumo",
+    "manganScoreTable",
+  ],
+  "/lessons/mangan-oya-ron": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "manganOyaRon",
+    "manganScoreTable",
+  ],
+  "/lessons/mangan-oya-tsumo": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "manganOyaTsumo",
+    "manganScoreTable",
+  ],
+  "/lessons/yaku": [...EN_LESSON_CHAPTER_NAMESPACES, "yaku", "yakuNames"],
+  "/lessons/jantou-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "jantouFu"],
+  "/lessons/mentsu-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "mentsuFu"],
+  "/lessons/machi-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "machiFu"],
+  "/lessons/tehai-fu": [...EN_LESSON_CHAPTER_NAMESPACES, "tehaiFu"],
+  "/lessons/chiitoitsu-score": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "chiitoitsuScore",
+  ],
+  "/lessons/pinfu-score": [...EN_LESSON_CHAPTER_NAMESPACES, "pinfuScore"],
+  "/lessons/menzen-mentsu-score": [
+    ...EN_LESSON_CHAPTER_NAMESPACES,
+    "menzenMentsuScore",
+  ],
+  "/lessons/furo-score": [...EN_LESSON_CHAPTER_NAMESPACES, "furoScore"],
+  "/lessons/fu-doubling": [...EN_LESSON_CHAPTER_NAMESPACES, "fuDoubling"],
+  "/lessons/ron-to-tsumo": [...EN_LESSON_CHAPTER_NAMESPACES, "ronToTsumo"],
+  "/lessons/tsumo-payments": [...EN_LESSON_CHAPTER_NAMESPACES, "tsumoPayments"],
+  "/lessons/oya-ron-scores": [...EN_LESSON_CHAPTER_NAMESPACES, "oyaRonScores"],
+  "/reference": [...EN_SHELL_NAMESPACES, "reference"],
+  "/reference/yaku": [
+    ...EN_SHELL_NAMESPACES,
+    "reference",
+    "yakuNames",
+    "nativeAd",
+  ],
+  "/reference/glossary": [
+    ...EN_SHELL_NAMESPACES,
+    "glossary",
+    "reference",
+    "nativeAd",
+  ],
+  "/reference/glossary/[slug]": [
+    ...EN_SHELL_NAMESPACES,
+    "glossary",
+    "reference",
+    "learnCurriculum",
+    "nativeAd",
+  ],
   "/reference/score-table": [...EN_SHELL_NAMESPACES, "scoreTable", "reference"],
 } as const satisfies Readonly<Record<string, readonly EnTranslatedNamespace[]>>;

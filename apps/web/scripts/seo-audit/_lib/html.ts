@@ -53,6 +53,15 @@ export interface HtmlBody {
   readonly mainTd: number;
   /** hidden の祖先の下にある h1 の文言（本文が外出しされた兆候） */
   readonly hiddenH1s: readonly string[];
+  /**
+   * 文書全体の、`rel` に `sponsored` を持つリンクの数（hidden の下も数える）
+   *
+   * ネイティブ広告のリンク（アプリの `NATIVE_AD_LINK_PROPS`）は必ず
+   * `rel="sponsored …"` を持つ。広告の札の文言は言語ごとの辞書にあり監査からは
+   * 知り得ないので、広告の有無はこの属性で判定する。Suspense で後から差し込む
+   * 部分（hidden の下）にある広告も配信されるので数える。
+   */
+  readonly sponsoredLinks: number;
 }
 
 /** HTML を解析して document を返す（スクリプトは実行しない） */
@@ -199,6 +208,9 @@ export function readBody(document: Document): HtmlBody {
     hiddenH1s: [...document.querySelectorAll("h1")]
       .filter((h1) => isHidden(h1))
       .map((h1) => (h1.textContent ?? "").trim()),
+    sponsoredLinks: [...document.querySelectorAll("a[rel]")].filter((link) =>
+      attr(link, "rel").toLowerCase().split(/\s+/).includes("sponsored"),
+    ).length,
   };
 }
 

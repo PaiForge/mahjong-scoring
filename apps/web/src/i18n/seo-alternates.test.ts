@@ -23,7 +23,26 @@ describe("getIndexableAlternates", () => {
     ).toEqual(["ja", "en", "x-default"]);
   });
 
-  it.each([["/"], ["/practice"], ["/lessons/jantou-fu"], ["/reference/yaku"]])(
+  it.each([
+    ["/lessons/jantou-fu"],
+    ["/lessons"],
+    ["/reference/yaku"],
+    ["/reference/glossary"],
+    ["/reference/glossary/jantou"],
+  ])("両言語で公開したページ %s も ja・en・x-default", (path) => {
+    expect(getIndexableAlternates(path)).toEqual({
+      ja: `${ORIGIN}${path}`,
+      en: `${ORIGIN}/en${path}`,
+      "x-default": `${ORIGIN}${path}`,
+    });
+  });
+
+  it.each([
+    ["/practice"],
+    ["/getting-started"],
+    ["/lessons/about-this-app"],
+    ["/reference/demo"],
+  ])(
     "日本語だけのページ %s は ja と x-default だけ（未訳の英語を挙げない）",
     (path) => {
       const alternates = getIndexableAlternates(path);
@@ -32,9 +51,10 @@ describe("getIndexableAlternates", () => {
     },
   );
 
-  it("日本語トップは末尾スラッシュ無しの origin（sitemap・canonical の出力に揃える）", () => {
+  it("トップは日本語が末尾スラッシュ無しの origin、英語が /en（sitemap・canonical の出力に揃える）", () => {
     expect(getIndexableAlternates("/")).toEqual({
       ja: ORIGIN,
+      en: `${ORIGIN}/en`,
       "x-default": ORIGIN,
     });
   });

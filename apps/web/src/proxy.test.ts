@@ -180,11 +180,48 @@ describe("言語は URL だけで決める（Accept-Language・cookie で転送�
   });
 });
 
-describe("未公開の英語 URL は 404 + noindex", () => {
+describe("英語で公開したページは英語のまま通す", () => {
   it.each([
     ["/en"],
-    ["/en/practice"],
+    ["/en/lessons"],
     ["/en/lessons/jantou-fu"],
+    ["/en/reference"],
+    ["/en/reference/yaku"],
+    ["/en/reference/glossary"],
+    ["/en/reference/glossary/jantou"],
+    ["/en/reference/glossary/menzen-ron-kafu"],
+  ])("%s", async (path) => {
+    const response = await proxy(makeRequest(path));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    // 外部と内部の URL が同じなので rewrite は要らない
+    expect(rewriteTarget(response)).toBeNull();
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
+  });
+
+  it("英語の用語は形（英小文字で始まる英数字とハイフン）だけで通し、未知の語の 404 はページの dynamicParams = false に任せる", async () => {
+    // 許可リストは用語のページをテンプレートで持ち、proxy はレジストリを引かない。
+    // 英語の URL は内部の /ja へ rewrite しないので、日本語で起きる
+    // NoFallbackError（500）の経路に乗らず、ページが 404 + noindex を返す
+    // （scripts/seo-audit/http.ts の EDGE_CASES が実応答で確かめる）
+    const response = await proxy(
+      makeRequest("/en/reference/glossary/unknown-term"),
+    );
+    expect(response.status).toBe(200);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
+  });
+});
+
+describe("未公開の英語 URL は 404 + noindex", () => {
+  it.each([
+    ["/en/practice"],
+    ["/en/lessons/about-this-app"],
+    ["/en/getting-started"],
+    ["/en/reference/demo"],
+    ["/en/reference/glossary/__unknown__"],
+    ["/en/reference/glossary/jantou/extra"],
     ["/en/dashboard"],
     ["/en/admin"],
     ["/en/admin/users"],
@@ -200,12 +237,6 @@ describe("未公開の英語 URL は 404 + noindex", () => {
     expect(await response.text()).toContain('content="noindex"');
     expect(response.headers.get("location")).toBeNull();
     expect(rewriteTarget(response)).toBeNull();
-  });
-
-  it("ログイン済みでも /en は dashboard へ rewrite しない（英語の dashboard は未公開）", async () => {
-    supabase.authenticated = true;
-    const response = await proxy(makeRequest("/en"));
-    expect(response.status).toBe(404);
   });
 
   it("未公開の判定はセッション更新より前（404 に Set-Cookie を載せない）", async () => {
@@ -261,6 +292,16 @@ describe("認証によるトップの出し分け", () => {
     supabase.authenticated = true;
     const response = await proxy(makeRequest("/?from=mail"));
     expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja/dashboard?from=mail`);
+  });
+
+  it("ログイン済みの /en は英語の LP のまま（英語の dashboard は未公開なので rewrite しない）", async () => {
+    supabase.authenticated = true;
+    const response = await proxy(makeRequest("/en"));
+    expect(response.status).toBe(200);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
+    expect(response.headers.get("cache-control")).toBeNull();
   });
 
   it("未ログインの / は LP（Cache-Control を付けない）", async () => {

@@ -25,14 +25,17 @@
  *    ページ以外の静的ルート（robots・sitemap・アイコン・API）も残る
  * 2. 動的ルートの台帳 — 日本語で要求ごとに描画するルートの集合が移行前と同じ。
  *    `generateStaticParams` が日本語で 0 件のルートは失敗（静的な URL が丸ごと消える）
- * 3. 英語の成果物 — 英語は公開したページだけが 200 で、他は not-found の成果物
+ * 3. 英語の成果物 — 英語は公開したページだけが 200 で、他は not-found の成果物。
+ *    用語のページ（テンプレート）は baseline の日本語の索引対象のうち
+ *    テンプレートに合うものを期待する（`expectedEnIndexablePaths`）
  * 4. canonical の台帳 — 移行前の HTML ごとの canonical の文字列と robots が同じ。
  *    canonical は 1 本だけ。公開 URL に内部の `/ja` が出ない
  * 5. hreflang — HTML の alternate が期待値（`expectations.ts` の規則）と一致し、
  *    相手が 200・索引対象・自己 canonical で、相手からも同じ集合が返る
  * 6. 初期 HTML の本文 — 静的な索引対象のページは、JS を実行しない HTML の見える
  *    `<main>` に空でない h1 と本文がある（Suspense で本文が末尾の hidden に回って
- *    いない）。点数表は表の th / td と既知の点数まで見る
+ *    いない）。点数表は表の th / td と既知の点数まで見る。英語の索引対象には
+ *    広告のリンク（`rel="sponsored"`）が無い（英語では広告を出さない）
  * 7. sitemap — 名前空間付きの XML として解析し、日本語の掲載 URL・lastmod・
  *    changefreq・priority・並びが移行前と同じ、英語は索引対象だけが 1 回ずつ、
  *    alternate が HTML と同じ、掲載 URL が noindex / 404 でない
@@ -74,10 +77,11 @@ import { parseSitemap, type SitemapEntry } from "./_lib/sitemap-xml";
 import {
   ALLOWED_NEW_JA_STATIC,
   AUDIT_LOCALES,
-  EN_INDEXABLE_PATHS,
   EN_NOINDEX_PATHS,
   expectedAlternates,
+  expectedEnIndexablePaths,
   expectedUrl,
+  isEnIndexable,
   parseSiteUrl,
   SITE_ORIGIN,
 } from "./expectations";
@@ -344,9 +348,10 @@ function auditEnglishArtifacts(
   report: Report,
   current: BuildArtifacts,
   pages: readonly StaticPage[],
+  jaIndexable: ReadonlySet<string>,
 ): void {
   const expected = new Set(
-    [...EN_INDEXABLE_PATHS, ...EN_NOINDEX_PATHS].map(
+    [...expectedEnIndexablePaths(jaIndexable), ...EN_NOINDEX_PATHS].map(
       (path) => `/en${path === "/" ? "" : path}`,
     ),
   );
@@ -482,11 +487,7 @@ function expectedAlternatesOf(
   path: string,
   jaIndexable: ReadonlySet<string>,
 ): Readonly<Record<string, string>> {
-  return expectedAlternates(
-    path,
-    jaIndexable.has(path),
-    EN_INDEXABLE_PATHS.includes(path),
-  );
+  return expectedAlternates(path, jaIndexable.has(path), isEnIndexable(path));
 }
 
 /** 5. hreflang */
@@ -585,8 +586,15 @@ function auditInitialBody(
     const indexable =
       page.locale === DEFAULT_LOCALE
         ? jaIndexable.has(page.path)
-        : EN_INDEXABLE_PATHS.includes(page.path);
+        : isEnIndexable(page.path);
     const found = problems(page);
+    // 英語では広告を出さない。札の文言は辞書にあり監査は知らないので、
+    // 広告のリンクが必ず持つ rel="sponsored" で判定する
+    if (page.locale !== DEFAULT_LOCALE && page.body.sponsoredLinks > 0) {
+      found.push(
+        `広告のリンク（rel="sponsored"）が ${page.body.sponsoredLinks} 本ある（英語では広告を出さない）`,
+      );
+    }
     if (indexable) {
       checked += 1;
       for (const problem of found)
@@ -597,7 +605,7 @@ function auditInitialBody(
   }
   report.check(
     "初期 HTML の本文（静的な索引対象）",
-    `${checked} 件を検査（点数表は th / td と既知の点数まで）`,
+    `${checked} 件を検査（点数表は th / td と既知の点数まで、英語は広告の有無も）`,
     failures,
     notes,
   );
@@ -673,7 +681,7 @@ function auditSitemap(
       }
     }
   }
-  const expectedEnglish = EN_INDEXABLE_PATHS.map((path) =>
+  const expectedEnglish = expectedEnIndexablePaths(jaIndexable).map((path) =>
     expectedUrl(path, "en"),
   );
   failures.push(
@@ -754,7 +762,7 @@ function auditSocial(
     const indexable =
       page.locale === DEFAULT_LOCALE
         ? jaIndexable.has(page.path)
-        : EN_INDEXABLE_PATHS.includes(page.path);
+        : isEnIndexable(page.path);
     if (!indexable) continue;
     checked += 1;
     const { head } = page;
@@ -848,7 +856,7 @@ function main(): void {
 
   auditStaticLedger(report, baseline, current);
   auditDynamicLedger(report, baseline, current);
-  auditEnglishArtifacts(report, current, pages);
+  auditEnglishArtifacts(report, current, pages, jaIndexable);
   auditCanonicalLedger(report, baseline, serverAppDir, pages);
   auditHreflang(report, pages, jaIndexable);
   auditInitialBody(report, pages, jaIndexable);

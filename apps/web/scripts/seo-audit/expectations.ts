@@ -33,11 +33,90 @@ export const AUDIT_LOCALES: readonly string[] = [
 export const SITE_ORIGIN = PRODUCTION_SITE_URL;
 
 /**
- * 英語で出して索引させるページ（ロケール非依存のパス）
+ * 英語で出して索引させるページ（ロケール非依存のパス。完全一致の行）
  *
- * `route-policy.ts` の英語の許可リストのうち `published-indexable` のもの。
+ * `route-policy.ts` の英語の許可リストのうち `published-indexable` の完全一致の行。
+ * トップ・レッスンの目次と 19 章（はじめに `about-this-app` を除く）・早見表の
+ * ハブ・役一覧・用語集の一覧・点数表。用語のページはテンプレート
+ * （{@link EN_INDEXABLE_TEMPLATES}）で持つ。
  */
-export const EN_INDEXABLE_PATHS: readonly string[] = ["/reference/score-table"];
+export const EN_INDEXABLE_PATHS: readonly string[] = [
+  "/",
+  "/lessons",
+  "/lessons/why-scoring-is-hard-to-learn",
+  "/lessons/why-scoring-is-complex",
+  "/lessons/mangan-ko-ron",
+  "/lessons/mangan-ko-tsumo",
+  "/lessons/mangan-oya-ron",
+  "/lessons/mangan-oya-tsumo",
+  "/lessons/yaku",
+  "/lessons/jantou-fu",
+  "/lessons/mentsu-fu",
+  "/lessons/machi-fu",
+  "/lessons/tehai-fu",
+  "/lessons/chiitoitsu-score",
+  "/lessons/pinfu-score",
+  "/lessons/menzen-mentsu-score",
+  "/lessons/furo-score",
+  "/lessons/fu-doubling",
+  "/lessons/ron-to-tsumo",
+  "/lessons/tsumo-payments",
+  "/lessons/oya-ron-scores",
+  "/reference",
+  "/reference/yaku",
+  "/reference/glossary",
+  "/reference/score-table",
+];
+
+/**
+ * 英語で出して索引させる動的ルートのテンプレート（テンプレート → 当てるパスの形）
+ *
+ * 用語のページ。監査は用語のレジストリを読まない（アプリのモジュールを import
+ * しない。理由はモジュールの TSDoc）ので、具体的な URL は baseline の日本語の
+ * 索引対象のうちテンプレートに合うものから導く（{@link expectedEnIndexablePaths}）。
+ * 日本語で索引させている用語だけが英語の期待値になり、用語の追加・削除は
+ * baseline を採り直すまで期待値に入らない。
+ */
+export const EN_INDEXABLE_TEMPLATES: ReadonlyMap<string, RegExp> = new Map([
+  ["/reference/glossary/[slug]", /^\/reference\/glossary\/[a-z][a-z0-9-]*$/],
+]);
+
+/**
+ * 英語で索引させるパスか（完全一致の行かテンプレートに合う）
+ *
+ * テンプレートは形だけを見る（`route-policy.ts` と同じ）。slug の実在は
+ * ページが確かめるので、期待する具体的な URL の列挙には
+ * {@link expectedEnIndexablePaths} を使う。
+ *
+ * @param path - ロケール非依存のパス
+ */
+export function isEnIndexable(path: string): boolean {
+  if (EN_INDEXABLE_PATHS.includes(path)) return true;
+  return [...EN_INDEXABLE_TEMPLATES.values()].some((pattern) =>
+    pattern.test(path),
+  );
+}
+
+/**
+ * 英語で索引させる具体的なパスの一覧（期待値）
+ *
+ * 完全一致の行に、日本語の索引対象（baseline の sitemap）のうちテンプレートに
+ * 合うものを足す。英語の成果物・sitemap・HTTP の期待値に使う。
+ *
+ * @param jaIndexable - 日本語で索引させるロケール非依存のパス
+ */
+export function expectedEnIndexablePaths(
+  jaIndexable: Iterable<string>,
+): readonly string[] {
+  const templated = [...jaIndexable].filter(
+    (path) =>
+      !EN_INDEXABLE_PATHS.includes(path) &&
+      [...EN_INDEXABLE_TEMPLATES.values()].some((pattern) =>
+        pattern.test(path),
+      ),
+  );
+  return [...EN_INDEXABLE_PATHS, ...new Set(templated)];
+}
 
 /** 英語で出しているが索引させないページ（いまは無い） */
 export const EN_NOINDEX_PATHS: readonly string[] = [];
@@ -46,7 +125,8 @@ export const EN_NOINDEX_PATHS: readonly string[] = [];
  * 移行で baseline から意図して変わる HTTP の応答（パス → 期待する応答）
  *
  * - `/en`・`/en/...` は移行前もルートが無く 404 だった。英語で公開した
- *   ページだけが 200 になり、未公開の英語は 404 + noindex のまま
+ *   ページだけが 200 になり、未公開の英語は 404 + noindex のまま。`/en` は
+ *   英語の LP（ログイン済みでも dashboard へ rewrite しない。英語の dashboard は未公開）
  * - `/ja` は移行前は 404。移行後は外部から来た `/ja/...` を接頭辞なしの日本語
  *   URL へ 307 で正規化する（`/ja` を公開 URL として出さないため）。日本語の
  *   正規の URL のリダイレクトではない
@@ -55,7 +135,7 @@ export const BASELINE_HTTP_CHANGES: ReadonlyMap<
   string,
   { readonly status: number; readonly location?: string }
 > = new Map([
-  ["/en", { status: 404 }],
+  ["/en", { status: 200 }],
   ["/en/reference/score-table", { status: 200 }],
   ["/ja", { status: 307, location: "/" }],
 ]);
@@ -78,9 +158,12 @@ export const BASELINE_ROBOTS_DISALLOW: readonly string[] = [
  * 静的生成に新しく加わってよい日本語のパス
  *
  * 移行前に要求ごとに描画していたページが静的になるのは、明示した変更に限って
- * 認める（ここに足す）。いまは無い — 移行で日本語の静的 / 動的は変えない。
+ * 認める（ここに足す）。移行で日本語の静的 / 動的は変えないのが原則で、例外は
+ * レッスンの目次 `/lessons` だけ — 英語の索引対象は静的生成が規約で、目次の
+ * 公共部分（章の並び）は閲覧者に依らないため、日本語ごと静的にした（本人の完了の
+ * 印・`?rank=` の絞り込みはクライアントで付ける）。
  */
-export const ALLOWED_NEW_JA_STATIC: readonly string[] = [];
+export const ALLOWED_NEW_JA_STATIC: readonly string[] = ["/lessons"];
 
 /**
  * ロケール非依存のパスを、その言語の本番の絶対 URL にする
