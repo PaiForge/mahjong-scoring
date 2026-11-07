@@ -250,84 +250,84 @@
       "pitfall": "Chiitoitsu is valid only with a closed hand. Once you call pon or chii, you can no longer make the shape of seven pairs.\nAlso, four identical tiles generally cannot be counted as two pairs: chiitoitsu needs seven different pairs. The 25 fu is fixed, so it never rounds up to 30 fu."
     },
     "menzen": {
-      "term": "門前",
-      "reading": "メンゼン",
-      "definition": "ポン・チー・明槓をしていない状態。門前のままロンでアガると10符が加算され、立直や七対子など門前でしか成立しない役も使える。暗槓をしても門前は崩れない。",
-      "usage": "門前でロンすると門前ロン加符の10符が付きます。ツモの場合は門前でも2符（ツモ符）だけで、10符は付きません。暗槓は鳴きではないので門前を保ちます。\n翻の面では、立直・門前清自摸和・一盃口・平和・七対子など門前限定の役が使えるほか、三色同順や混一色のような食い下がりのある役も本来の翻数で数えられます。",
-      "caseStudy": "順子3つ・暗刻1つ（中張牌4符）・数牌の雀頭を両面待ちでロンした手は、門前なら20符＋10符＋4符＝34符→40符、ポンして同じ形にしていれば20符＋2符（明刻）＝22符→30符です。\n門前で聴牌すれば立直をかけられ、立直1翻・一発・裏ドラの上乗せも狙えます。",
-      "pitfall": "「門前＝一度も鳴いていない」ではありません。暗槓は鳴きに数えないので、暗槓をしていても門前です。\n逆に、ロンで和了した手は門前でも「門前ツモ」の役は付きません。門前ツモは自分でツモった場合だけの役で、ロンには門前ロン加符の10符が付くだけです。"
+      "term": "Closed hand",
+      "reading": "menzen",
+      "definition": "A hand that has made no pon, no chii and no open kan. Winning by ron with a closed hand adds 10 fu, and yaku that require a closed hand, such as riichi and chiitoitsu, are available. A closed kan does not open the hand.",
+      "usage": "Winning by ron with a closed hand adds the 10 fu closed ron bonus. On a tsumo, even a closed hand gets only 2 fu (tsumo fu), not the 10 fu. A closed kan is not a call, so the hand stays closed.\nFor han, closed-only yaku such as riichi, menzen tsumo, iipeikou, pinfu and chiitoitsu are available, and yaku that lose han when open, such as sanshoku and honitsu, count at their full value.",
+      "caseStudy": "A hand of three sequences, one closed triplet of simples (4 fu) and a number-tile pair, won by ron on a two-sided wait, is 20 + 10 + 4 = 34 fu, rounded up to 40 fu, if it is closed. If you had made the same shape by calling pon, it would be 20 + 2 (open triplet) = 22 fu, rounded up to 30 fu.\nOnce a closed hand is tenpai you can declare riichi, which gives 1 han for riichi plus the chance of ippatsu and ura-dora on top.",
+      "pitfall": "A closed hand does not simply mean a hand that has never declared anything. A closed kan does not count as a call, so a hand with a closed kan is still closed.\nConversely, a closed hand won by ron does not get the yaku menzen tsumo. Menzen tsumo is a yaku only for winning on your own draw; a ron just earns the 10 fu closed ron bonus."
     },
     "furo": {
-      "term": "副露",
-      "reading": "フーロ",
-      "definition": "他家の捨て牌を使って面子を作ること。鳴きとも呼ぶ。ポン・チー・大明槓の3つがあり、副露すると門前ではなくなるため、門前限定の役が消え、食い下がりのある役は翻が下がる。",
-      "usage": "副露すると門前ではなくなり、門前ロン加符の10符と門前限定の役（立直・平和・一盃口・七対子など）が使えなくなります。鳴いて作った面子は明刻・明槓として符を数え、チーした順子は0符のままです。\n食い下がりのある役（三色同順・一気通貫・混一色など）は翻が1つ下がります。役牌・対々和・断么九（喰いタンありのルール）などは鳴いても翻が変わりません。",
-      "caseStudy": "白をポンし、四萬・五萬・六萬をチーして、残りを手の内で作った手は、白の明刻4符に加えて副底20符と待ちの符だけで、門前ロンの10符は付きません。役は役牌（白）の1翻です。\n門前で混一色3翻の手を、途中で1回ポンすれば混一色は2翻になります。",
-      "pitfall": "副露しても符が無くなるわけではありません。副底の20符は付きますし、明刻・明槓・待ち・雀頭の符も数えます。無くなるのは門前ロンの10符と門前限定の役です。\nまた、ロンで和了することは副露ではありません。ロンは他家の捨て牌で和了することで、ロンしても門前のままです。"
+      "term": "Call",
+      "reading": "furo",
+      "definition": "Making a set with another player's discard, also known as naki. There are three kinds: pon, chii and open kan (daiminkan). Once you call, the hand is no longer closed: closed-only yaku are lost, and yaku that lose han when open drop by one han.",
+      "usage": "Once you call, your hand is no longer closed, and you lose the 10 fu closed ron bonus and the closed-only yaku (riichi, pinfu, iipeikou, chiitoitsu and so on). A set made by calling counts its fu as an open triplet or open quad, and a sequence made by chii stays at 0 fu.\nYaku that lose han when open (sanshoku, ittsu, honitsu and so on) drop by one han. Yakuhai, toitoi and tanyao (under rules that allow kuitan) keep their han when you call.",
+      "caseStudy": "A hand that calls pon on white dragons and chii for 4-5-6 man and builds the rest in hand earns 4 fu for the open triplet of white dragons plus only the 20 base fu and the wait fu; the 10 fu closed ron bonus does not apply. Its yaku is yakuhai (white dragon), 1 han.\nA closed honitsu worth 3 han drops to 2 han of honitsu if you call pon even once along the way.",
+      "pitfall": "Calling does not take away all your fu. You still get the 20 base fu, and you still count the fu of open triplets, open quads, the wait and the pair. What you lose is the 10 fu closed ron bonus and the closed-only yaku.\nAlso, winning by ron is not a call. A ron wins on another player's discard, and the hand stays closed after a ron."
     },
     "pon": {
-      "term": "ポン",
-      "reading": "ポン",
-      "definition": "他家が捨てた牌で刻子を作る鳴き。手の内の対子と合わせて明刻になる。どの家からでも鳴ける。",
-      "usage": "ポンで作った刻子は明刻で、符は中張牌2符・么九牌4符です。暗刻の半分ですが、順子と違って符は付きます。ポンをすると門前ではなくなるため、門前ロンの10符と門前限定の役を失います。\n役牌をポンすれば役牌1翻が確定するので、役なしを避ける最も手軽な手段です。",
-      "caseStudy": "白をポンすれば明刻4符で役牌1翻、五萬をポンすれば明刻2符で役は付きません。\n五萬・五萬を手の内で持っていて、ポンせずに3枚目をツモれば暗刻4符、ポンすれば明刻2符です。ポンは手を速く進められる代わりに符が半分になります。",
-      "pitfall": "ポンは「同じ牌を3枚集める」宣言なので、対子を持っていることが条件です。1枚しか持っていない牌はポンできません。\nまた、ポンをすると門前が崩れるため、立直はかけられなくなります。ポンで役牌以外の刻子を作った場合、役が無ければアガれないので、鳴く前に役の当てを付けておく必要があります。"
+      "term": "Pon",
+      "reading": "pon",
+      "definition": "A call that makes a triplet with a tile another player discarded. Together with a pair in your hand it becomes an open triplet. You can call it on a discard from any player.",
+      "usage": "A triplet made by pon is an open triplet: 2 fu for simples and 4 fu for terminals and honors. That is half of a closed triplet, but unlike a sequence it does earn fu. Calling pon opens your hand, so you lose the 10 fu closed ron bonus and the closed-only yaku.\nCalling pon on a value tile secures 1 han of yakuhai, so it is the easiest way to avoid a hand with no yaku.",
+      "caseStudy": "Calling pon on white dragons gives an open triplet worth 4 fu and 1 han of yakuhai; calling pon on 5 man gives an open triplet worth 2 fu and no yaku.\nIf you hold a pair of 5 man in your hand and draw the third yourself instead of calling, you have a closed triplet worth 4 fu; call pon and it is an open triplet worth 2 fu. Pon speeds up your hand at the cost of half the fu.",
+      "pitfall": "Pon is a declaration that completes three identical tiles, so you need to hold a pair of that tile. You cannot call pon on a tile you hold only one of.\nAlso, calling pon opens your hand, so you can no longer declare riichi. If you make a triplet that is not a value tile by pon, you cannot win without a yaku, so plan where your yaku will come from before you call."
     },
     "chii": {
-      "term": "チー",
-      "reading": "チー",
-      "definition": "他家が捨てた牌で順子を作る鳴き。上家（左隣）からしか鳴けない。順子は0符なので、チーをしても符は増えない。",
-      "usage": "チーで作った順子は0符です。順子の符は暗でも明でも0符なので、チーによって符が増えることはありません。ただしチーをすると門前ではなくなり、門前ロンの10符と門前限定の役を失います。\n三色同順や一気通貫のような順子の役は、チーで作ると翻が1つ下がります（食い下がり）。",
-      "caseStudy": "四萬・六萬を持っていて、上家が五萬を捨てたらチーで四萬・五萬・六萬の順子ができます。符は0符です。\n三色同順を門前で作れば2翻、チーをして作れば1翻です。混一色をチーで作れば3翻が2翻になります。",
-      "pitfall": "チーは上家（左隣）の捨て牌からしかできません。対面や下家が捨てた牌ではチーできず、ポンかカンだけです。\nまた、チーは順子を作る鳴きなので、字牌はチーできません。「チーは符が増えないから損をしない」と考えがちですが、門前ロンの10符と門前限定の役を失う点は同じです。"
+      "term": "Chii",
+      "reading": "chii",
+      "definition": "A call that makes a sequence with a tile another player discarded. You can call it only on a discard from the player on your left. A sequence is 0 fu, so calling chii adds no fu.",
+      "usage": "A sequence made by chii is 0 fu. Sequences are 0 fu whether closed or open, so chii never adds fu. Calling chii does open your hand, however, and you lose the 10 fu closed ron bonus and the closed-only yaku.\nSequence yaku such as sanshoku and ittsu drop by one han when completed by chii (kuisagari).",
+      "caseStudy": "If you hold 4 man and 6 man and the player on your left discards 5 man, you can call chii to make a 4-5-6 man sequence. Its fu is 0 fu.\nSanshoku is 2 han when made with a closed hand and 1 han when made with chii. Honitsu made with chii drops from 3 han to 2 han.",
+      "pitfall": "You can call chii only on a discard from the player on your left. On a tile discarded by the player across from you or on your right you cannot call chii, only pon or kan.\nAlso, chii is a call that makes a sequence, so you cannot call chii on honor tiles. It is tempting to think chii costs nothing because it adds no fu, but you still lose the 10 fu closed ron bonus and the closed-only yaku, just as with any call."
     },
     "kan": {
-      "term": "カン",
-      "reading": "カン",
-      "definition": "同じ牌4枚で槓子を作る宣言。手の内の4枚で行う暗槓と、鳴いて作る明槓（大明槓・加槓）がある。カンをするとドラが増え、嶺上牌を引く。",
-      "usage": "カンで作った槓子の符は刻子の4倍で、暗槓は中張牌16符・么九牌32符、明槓は中張牌8符・么九牌16符です。暗槓は門前を崩しませんが、大明槓と加槓は門前ではない状態です（加槓はもともとポンしているので門前ではありません）。\nカンをすると槓ドラが増え、嶺上牌を引きます。嶺上牌で和了すれば嶺上開花（1翻）です。",
-      "caseStudy": "東を手の内に4枚持っていて暗槓すれば32符で、門前も保てるので立直もかけられます。東をポンしていて4枚目を引き加槓すれば明槓で16符です。\n五萬の暗槓を1つ含む門前ロンの手は、20符＋10符＋16符＝46符→50符になり、他の符が無くても50符です。",
-      "pitfall": "4枚持っているだけではカンにはなりません。宣言して初めて槓子として符が付き、宣言しなければ「刻子＋余り」のままです。\nまた、カンは常に得というわけではありません。槓ドラは全員に乗るので相手の手も高くなりますし、明槓は門前を崩します。立直後の暗槓は待ちが変わる場合はできません。"
+      "term": "Kan",
+      "reading": "kan",
+      "definition": "A declaration that makes a quad from four identical tiles. There is the closed kan, made with four tiles from your own hand, and the open kan, made by calling (daiminkan, or an added kan). A kan adds a dora and lets you draw a replacement tile from the dead wall.",
+      "usage": "A quad made by kan earns four times the fu of a triplet: a closed quad is 16 fu for simples and 32 fu for terminals and honors, and an open quad 8 fu for simples and 16 fu for terminals and honors. A closed kan keeps your hand closed, but after a daiminkan or an added kan the hand is open (an added kan builds on a pon, so the hand was already open).\nA kan adds a kan dora and lets you draw a replacement tile from the dead wall. Winning on that replacement tile is rinshan kaihou (1 han).",
+      "caseStudy": "If you hold four East in your hand and declare a closed kan, you earn 32 fu and keep the hand closed, so you can still declare riichi. If you called pon on East and then draw the fourth and add it, it is an open quad worth 16 fu.\nA closed hand won by ron that includes one closed quad of 5 man is 20 + 10 + 16 = 46 fu, rounded up to 50 fu: 50 fu even with no other fu.",
+      "pitfall": "Holding four tiles does not make a kan. Only once you declare it does it count as a quad and earn its fu; without the declaration it stays a triplet plus a spare tile.\nAlso, a kan is not always a gain. The kan dora apply to everyone, so your opponents' hands can grow too, and an open kan opens your hand. After riichi, you cannot declare a closed kan if it would change your wait."
     },
     "ankou": {
-      "term": "暗刻",
-      "reading": "アンコー",
-      "definition": "鳴かずに自分で3枚揃えた刻子。明刻の倍の符が付く。ただしロンで3枚目が揃った刻子は明刻として数える。",
-      "usage": "暗刻の符は中張牌4符・么九牌8符で、明刻の倍です。ロンで3枚目が揃った刻子は暗刻ではなく明刻として数えるので、暗刻になるのは手の内で揃えた刻子と、ツモで完成させた刻子です。\n翻の面では、暗刻3つで三暗刻（2翻）、4つで四暗刻（役満）です。",
-      "caseStudy": "手の内で東を3枚揃えれば暗刻8符、五萬を3枚揃えれば暗刻4符です。\n五萬・五萬と白・白の双碰待ちで、五萬をツモれば五萬の暗刻（4符）ですが、五萬をロンすれば明刻（2符）です。同じ形でもアガり方で符が変わります。\n暗刻を3つ持つ手は三暗刻（2翻）で、暗刻だけで12〜24符付きます。門前ロンなら20符＋10符に加わるので、三暗刻の手は50〜60符になることが多く、2翻でも子3200点・4000点と点数が伸びます。",
-      "pitfall": "「鳴いていない刻子はすべて暗刻」ではありません。ロンで完成させた刻子は明刻として数えます。双碰待ちをロンで和了したときに間違えやすい点です。\nまた、暗刻は「暗（手の内）の刻子」であって、暗槓とは別です。暗槓は4枚の槓子で符は暗刻の4倍です。"
+      "term": "Closed triplet",
+      "reading": "ankou",
+      "definition": "A triplet you complete yourself without calling. It earns twice the fu of an open triplet. A triplet whose third tile came from a ron, however, counts as an open triplet.",
+      "usage": "A closed triplet is 4 fu for simples and 8 fu for terminals and honors, double the open triplet. A triplet completed by ron counts as an open triplet, not a closed one, so the closed triplets are the ones you gather in your hand and the ones you complete by tsumo.\nFor han, three closed triplets give sanankou (2 han), and four give suuankou (a yakuman).",
+      "caseStudy": "Three East gathered in your hand are a closed triplet worth 8 fu, and three 5 man are a closed triplet worth 4 fu.\nWith a pair wait on 5 man and white dragons, winning by tsumo on 5 man gives a closed triplet of 5 man (4 fu), but winning by ron on 5 man gives an open triplet (2 fu). The same shape earns different fu depending on how you win.\nA hand with three closed triplets has sanankou (2 han), and those triplets alone earn 12 to 24 fu. With a closed ron they add to 20 + 10 fu, so sanankou hands often reach 50 or 60 fu, and even at 2 han they score 3,200 or 4,000 points for a non-dealer.",
+      "pitfall": "Not every uncalled triplet is a closed triplet. A triplet completed by ron counts as open. This is easy to get wrong when you win a pair wait by ron.\nAlso, a closed triplet is a triplet kept in your hand, and it is not the same as a closed quad. A closed quad is a set of four tiles that earns four times the fu of a closed triplet."
     },
     "minkou": {
-      "term": "明刻",
-      "reading": "ミンコー",
-      "definition": "ポンで作った刻子。ロンで完成した刻子も明刻として扱う。符は暗刻の半分。",
-      "usage": "明刻の符は中張牌2符・么九牌4符で、暗刻の半分です。ポンで作った刻子と、ロンで3枚目が揃った刻子が明刻です。\n翻の面では、明刻も刻子なので役牌の刻子なら1翻、対々和の材料にもなります。ただし三暗刻・四暗刻には数えられません。",
-      "caseStudy": "白をポンすれば明刻4符、五萬をポンすれば明刻2符です。\n五萬・五萬と白・白の双碰待ちで白をロンすれば、白の刻子は明刻扱いで4符です。この手はポンしていなければ門前なので、門前ロンの10符は付きます。\n明刻を4つ集めた手は対々和（2翻）です。中張牌の明刻4つなら8符、么九牌の明刻4つなら16符で、鳴いているので門前ロンの10符は付きません。20符＋8符＝28符→30符、20符＋16符＝36符→40符です。",
-      "pitfall": "ロンで完成した刻子が明刻になるのは、他家の捨て牌を使って完成させているからです。門前ロンの10符が付くかどうかとは別の話で、門前でロンした手にも明刻扱いの刻子は存在します。\nまた、明刻と明槓は別です。明槓は4枚の槓子で、符は明刻の4倍です。"
+      "term": "Open triplet",
+      "reading": "minkou",
+      "definition": "A triplet made by pon. A triplet completed by ron is also treated as an open triplet. It earns half the fu of a closed triplet.",
+      "usage": "An open triplet is 2 fu for simples and 4 fu for terminals and honors, half of a closed triplet. Triplets made by pon, and triplets whose third tile came from a ron, are open triplets.\nFor han, an open triplet is still a triplet: a value-tile triplet gives 1 han, and open triplets count toward toitoi. They do not count toward sanankou or suuankou, though.",
+      "caseStudy": "Calling pon on white dragons gives an open triplet worth 4 fu, and calling pon on 5 man gives one worth 2 fu.\nWith a pair wait on 5 man and white dragons, winning by ron on a white dragon makes the white dragon triplet count as open: 4 fu. If the hand made no pon, it is still closed, so the 10 fu closed ron bonus applies.\nA hand of four open triplets is toitoi (2 han). Four open triplets of simples earn 8 fu and four of terminals and honors earn 16 fu, and because the hand is open there is no 10 fu closed ron bonus: 20 + 8 = 28 fu, rounded up to 30 fu, and 20 + 16 = 36 fu, rounded up to 40 fu.",
+      "pitfall": "A triplet completed by ron becomes open because it was completed with another player's discard. This is a separate matter from whether the 10 fu closed ron bonus applies: even a closed hand won by ron can contain a triplet counted as open.\nAlso, an open triplet and an open quad are different. An open quad is a set of four tiles that earns four times the fu of an open triplet."
     },
     "ankan": {
-      "term": "暗槓",
-      "reading": "アンカン",
-      "definition": "手の内の4枚だけで作る槓子。鳴いていない扱いなので門前は崩れず、符は暗刻の4倍と符計算の中で最も高い。",
-      "usage": "暗槓の符は中張牌16符・么九牌32符で、面子の中で最も高い符です。暗槓は鳴きではないので門前を保ち、立直もかけられます（立直後の暗槓は待ちが変わらない場合だけ）。\n暗槓をすると槓ドラが増え、嶺上牌を引きます。暗槓は三暗刻・四暗刻の暗刻としても数えます。",
-      "caseStudy": "東を暗槓した門前の手は、暗槓だけで32符です。副底20符と門前ロン10符を足すと62符→70符で、役牌（場風）1翻だけでも子2300点です。\n五萬の暗槓なら16符で、20符＋10符＋16符＝46符→50符です。",
-      "pitfall": "暗槓は門前を崩しませんが、「鳴いていないから何の影響も無い」わけではありません。槓ドラが全員に乗り、嶺上牌を引く分だけ山が減ります。\nまた、暗槓の4枚は両端を伏せてさらすので、他家にも槓子があることは分かります。手の内に伏せたままにはできません。"
+      "term": "Closed quad",
+      "reading": "ankan",
+      "definition": "A quad made only from four tiles in your own hand. It is not treated as a call, so the hand stays closed, and its fu is four times that of a closed triplet, the highest in fu calculation.",
+      "usage": "A closed quad is 16 fu for simples and 32 fu for terminals and honors, the highest fu of any set. A closed kan is not a call, so the hand stays closed and you can still declare riichi (after riichi, a closed kan is allowed only if it does not change your wait).\nA closed kan adds a kan dora and lets you draw a replacement tile from the dead wall. A closed quad also counts as a closed triplet for sanankou and suuankou.",
+      "caseStudy": "A closed hand with a closed quad of East earns 32 fu from that quad alone. Add 20 base fu and 10 fu for a closed ron and it is 62 fu, rounded up to 70 fu: even with only 1 han of yakuhai (the round wind), that is 2,300 points for a non-dealer.\nA closed quad of 5 man is 16 fu: 20 + 10 + 16 = 46 fu, rounded up to 50 fu.",
+      "pitfall": "A closed kan does not open the hand, but that does not mean it has no effect because nothing was called. The kan dora applies to everyone, and the wall shrinks by the replacement tile you draw.\nAlso, the four tiles of a closed quad are laid out with both ends face down, so the other players can see that you have a quad. You cannot keep it hidden in your hand."
     },
     "minkan": {
-      "term": "明槓",
-      "reading": "ミンカン",
-      "definition": "他家の牌を使って作る槓子。捨て牌に対する大明槓と、ポン済みの刻子に4枚目を足す加槓がある。どちらも門前ではなくなる。",
-      "usage": "明槓の符は中張牌8符・么九牌16符で、暗槓の半分・明刻の4倍です。大明槓（捨て牌でカン）をすると門前ではなくなります。加槓（ポンした刻子に4枚目を足す）はもともとポンしているので門前ではありません。\n明槓も槓ドラを増やし、嶺上牌を引きます。",
-      "caseStudy": "五萬をポンしていて4枚目の五萬を引いたら加槓でき、明槓8符になります。ポンのままなら明刻2符なので、加槓で符が4倍になります。\n東を3枚持っていて他家が東を捨てたら大明槓で明槓16符です。ただし大明槓をすると門前が崩れるので、立直はかけられなくなります。",
-      "pitfall": "加槓は「ポンした牌の4枚目を自分で引いたとき」だけできます。他家が捨てた4枚目で加槓することはできません。\nまた、大明槓は「同じ牌3枚を手の内に持っている」ことが条件です。ポンしていない状態で、対子に他家の捨て牌を足してもカンにはなりません（それはポンです）。"
+      "term": "Open quad",
+      "reading": "minkan",
+      "definition": "A quad made using another player's tile. There is the daiminkan, called on a discard, and the added kan, which adds the fourth tile to a triplet you already made by pon. Either way the hand is no longer closed.",
+      "usage": "An open quad is 8 fu for simples and 16 fu for terminals and honors: half a closed quad and four times an open triplet. A daiminkan (a kan on a discard) opens your hand. An added kan (adding the fourth tile to a triplet made by pon) builds on a pon, so the hand was already open.\nAn open kan also adds a kan dora and lets you draw a replacement tile from the dead wall.",
+      "caseStudy": "If you have called pon on 5 man and draw the fourth 5 man, you can make an added kan, an open quad worth 8 fu. Left as a pon it would be an open triplet worth 2 fu, so the added kan multiplies the fu by four.\nIf you hold three East and another player discards East, a daiminkan gives an open quad worth 16 fu. A daiminkan opens your hand, though, so you can no longer declare riichi.",
+      "pitfall": "An added kan is possible only when you draw the fourth tile of a tile you called pon on yourself. You cannot make an added kan with a fourth tile another player discards.\nAlso, a daiminkan requires that you hold three of the same tile in your hand. Adding another player's discard to a pair in your hand, without having called pon, is not a kan (that is a pon)."
     },
     "kuisagari": {
-      "term": "食い下がり",
-      "reading": "クイサガリ",
-      "definition": "鳴くと翻数が下がる役のこと。三色同順や一気通貫などが該当し、門前で2翻の役が鳴くと1翻になる。鳴いても翻が変わらない役、鳴くと成立しない役もある。",
-      "usage": "食い下がりは翻数だけの話で、符には関係しません。門前で2翻の役が鳴いて1翻になるだけで、明刻・明槓の符は通常どおり数えます。\n食い下がる役は、三色同順（2→1翻）・一気通貫（2→1翻）・混全帯么九（2→1翻）・純全帯么九（3→2翻）・混一色（3→2翻）・清一色（6→5翻）です。役牌・対々和・三暗刻などは鳴いても翻が変わりません。",
-      "caseStudy": "門前で混一色と役牌を作れば3翻＋1翻＝4翻ですが、1回でもポン・チーをすれば混一色が2翻に下がり、合計3翻です。\n門前で三色同順（2翻）の手をチーで完成させると1翻になります。断么九は、喰いタンありのルールなら鳴いても1翻のまま、喰いタンなしなら鳴いた時点で消えます。",
-      "pitfall": "「鳴くとすべての役が1翻下がる」わけではありません。食い下がりがあるのは一部の役だけで、役牌・対々和・三暗刻・三槓子などは鳴いても翻が変わりません。\n一方、立直・平和・一盃口・七対子・門前ツモなどは食い下がりではなく「門前限定」で、鳴いた時点で消えます。"
+      "term": "Open-hand han reduction",
+      "reading": "kuisagari",
+      "definition": "The rule that some yaku are worth fewer han if you call. It applies to yaku such as sanshoku and ittsu, where a yaku worth 2 han with a closed hand becomes 1 han after a call. Some yaku keep their han when you call, and others are not valid at all once you call.",
+      "usage": "Kuisagari is only about han; it has nothing to do with fu. A yaku worth 2 han closed simply becomes 1 han after a call, and open triplets and open quads earn their fu as usual.\nThe yaku that lose han are sanshoku (2 to 1 han), ittsu (2 to 1 han), chanta (2 to 1 han), junchan (3 to 2 han), honitsu (3 to 2 han) and chinitsu (6 to 5 han). Yakuhai, toitoi, sanankou and others keep their han when you call.",
+      "caseStudy": "A closed hand with honitsu and yakuhai is 3 + 1 = 4 han, but call pon or chii even once and honitsu drops to 2 han, for 3 han in total.\nA hand aiming for sanshoku (2 han closed) becomes 1 han if completed by chii. Tanyao stays at 1 han after a call under rules that allow kuitan, and disappears the moment you call under rules that do not.",
+      "pitfall": "Calling does not lower every yaku by one han. Only some yaku lose han; yakuhai, toitoi, sanankou, sankantsu and others keep their han when you call.\nOn the other hand, riichi, pinfu, iipeikou, chiitoitsu, menzen tsumo and others are not reduced but closed only: they disappear the moment you call."
     },
     "hora": {
       "term": "和了",
