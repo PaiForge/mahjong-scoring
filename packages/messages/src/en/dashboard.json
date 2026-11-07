@@ -1,28 +1,28 @@
 {
-  "title": "ダッシュボード",
-  "continueLearningTitle": "レッスンの続き",
+  "title": "Dashboard",
+  "continueLearningTitle": "Continue your lessons",
   "pendingLessons": {
-    "syncing": "終えたレッスンの完了を記録しています…",
-    "synced": "レッスンの完了を記録しました",
-    "failed": "終えたレッスンの完了を記録できませんでした。",
-    "retry": "再試行"
+    "syncing": "Recording the lessons you finished as completed…",
+    "synced": "Lessons recorded as completed",
+    "failed": "Could not record the lessons you finished as completed.",
+    "retry": "Try again"
   },
-  "recommendedPracticeTitle": "おすすめの練習",
-  "agariScorePracticeHint": "段級位はすべて取得しました。和了形の点数計算で腕を磨き続けましょう。",
+  "recommendedPracticeTitle": "Recommended practice",
+  "agariScorePracticeHint": "You have earned every rank. Keep sharpening your skills with score calculation for winning hands.",
   "nextStep": {
-    "title": "次にやること",
+    "title": "What to do next",
     "steps": {
       "lesson": {
-        "firstCta": "最初のレッスン「{title}」を始める",
-        "cta": "「{title}」のレッスンを始める"
+        "firstCta": "Start your first lesson, “{title}”",
+        "cta": "Start the lesson “{title}”"
       },
       "practice": {
-        "cta": "「{title}」に挑戦する"
+        "cta": "Take on “{title}”"
       },
       "exam": {
-        "cta": "{title}の内容を見る"
+        "cta": "See what the {title} covers"
       }
     },
-    "choosePractice": "自分で練習を選ぶ"
+    "choosePractice": "Choose a practice yourself"
   }
 }
