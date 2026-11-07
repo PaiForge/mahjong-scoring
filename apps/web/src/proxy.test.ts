@@ -203,6 +203,11 @@ describe("英語で公開したページは英語のまま通す", () => {
     ["/en/reference/demo"],
     ["/en/dojo"],
     ["/en/dojo/ranks/kyu-5"],
+    ["/en/sign-in"],
+    ["/en/sign-up"],
+    ["/en/mypage"],
+    ["/en/mypage/challenges/results"],
+    ["/en/preferences"],
   ])("%s", async (path) => {
     const response = await proxy(makeRequest(path));
     expect(response.status).toBe(200);
@@ -229,25 +234,27 @@ describe("英語で公開したページは英語のまま通す", () => {
 
 describe("未公開の英語 URL は 404 + noindex", () => {
   it.each([
-    ["/en/sign-in"],
-    ["/en/sign-up"],
-    ["/en/mypage"],
     ["/en/leaderboard"],
+    ["/en/leaderboard/monthly/jantou-fu"],
+    ["/en/u/alice"],
+    ["/en/announcements"],
     ["/en/plan"],
+    ["/en/contact"],
+    ["/en/terms"],
+    ["/en/mypage/unknown"],
     ["/en/dojo/ranks"],
     // 段級位の slug の形に合わない（形に合う未知の段級位はページが 404 にする）
     ["/en/dojo/ranks/__unknown__"],
     ["/en/practice/jantou-fu/extra"],
     ["/en/reference/glossary/__unknown__"],
     ["/en/reference/glossary/jantou/extra"],
-    ["/en/dashboard"],
     ["/en/admin"],
     ["/en/admin/users"],
     ["/en/api/version"],
     ["/en/auth/callback"],
     ["/en/robots.txt"],
     ["/en/reference/score-table/extra"],
-    ["/EN/dashboard"],
+    ["/EN/leaderboard"],
   ])("%s", async (path) => {
     const response = await proxy(makeRequest(path));
     expect(response.status).toBe(404);
@@ -259,7 +266,7 @@ describe("未公開の英語 URL は 404 + noindex", () => {
 
   it("未公開の判定はセッション更新より前（404 に Set-Cookie を載せない）", async () => {
     supabase.cookiesToSet = [{ name: "sb", value: "x", options: {} }];
-    const response = await proxy(makeRequest("/en/dashboard"));
+    const response = await proxy(makeRequest("/en/leaderboard"));
     expect(supabase.getClaims).not.toHaveBeenCalled();
     expect(response.headers.get("set-cookie")).toBeNull();
   });
@@ -312,14 +319,67 @@ describe("認証によるトップの出し分け", () => {
     expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja/dashboard?from=mail`);
   });
 
-  it("ログイン済みの /en は英語の LP のまま（英語の dashboard は未公開なので rewrite しない）", async () => {
+  it("ログイン済みの /en は /en/dashboard へ rewrite（アドレスバーは /en のまま・共有キャッシュさせない・ロケールのヘッダが en）", async () => {
     supabase.authenticated = true;
+    const response = await proxy(makeRequest("/en"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(rewriteTarget(response)).toBe(`${ORIGIN}/en/dashboard`);
+    expect(response.headers.get("x-middleware-next")).toBeNull();
+    expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+  });
+
+  it("ログイン済みの /en の query は rewrite 先に引き継ぐ", async () => {
+    supabase.authenticated = true;
+    const response = await proxy(makeRequest("/en?from=mail"));
+    expect(rewriteTarget(response)).toBe(`${ORIGIN}/en/dashboard?from=mail`);
+  });
+
+  it("英語の dashboard への rewrite は、next-intl が組む日本語の rewrite と同じ形のヘッダを後段へ渡す", async () => {
+    supabase.authenticated = true;
+    const headers = { cookie: "sb-access-token=t; other=1", "x-custom": "v" };
+    const ja = await proxy(makeRequest("/", headers));
+    const en = await proxy(makeRequest("/en", headers));
+    const responseHeaderNames = (response: Response): string[] =>
+      [...response.headers.keys()].sort();
+    // 応答のヘッダの名前の集合が同じ（x-middleware-override-headers・
+    // x-middleware-request-* の展開・x-middleware-rewrite・cache-control）
+    expect(responseHeaderNames(en)).toEqual(responseHeaderNames(ja));
+    expect(en.headers.get("x-middleware-override-headers")).toBe(
+      ja.headers.get("x-middleware-override-headers"),
+    );
+    for (const name of ["cookie", "x-custom"]) {
+      expect(forwardedRequestHeader(en, name), name).toBe(
+        forwardedRequestHeader(ja, name),
+      );
+    }
+    expect(forwardedRequestHeader(ja, "x-next-intl-locale")).toBe("ja");
+    expect(forwardedRequestHeader(en, "x-next-intl-locale")).toBe("en");
+  });
+
+  it("未ログインの /en は英語の LP（rewrite せず Cache-Control を付けない）", async () => {
     const response = await proxy(makeRequest("/en"));
     expect(response.status).toBe(200);
     expect(rewriteTarget(response)).toBeNull();
     expect(response.headers.get("x-middleware-next")).toBe("1");
     expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
     expect(response.headers.get("cache-control")).toBeNull();
+  });
+
+  it("未ログインの /en/dashboard は英語の LP へ HTTP リダイレクト", async () => {
+    const response = await proxy(makeRequest("/en/dashboard"));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(`${ORIGIN}/en`);
+  });
+
+  it("ログイン済みの /en/dashboard はそのまま通す（外部と内部の URL が同じ）", async () => {
+    supabase.authenticated = true;
+    const response = await proxy(makeRequest("/en/dashboard"));
+    expect(response.status).toBe(200);
+    expect(rewriteTarget(response)).toBeNull();
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+    expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("en");
   });
 
   it("未ログインの / は LP（Cache-Control を付けない）", async () => {
@@ -367,18 +427,21 @@ describe("セッション更新の cookie と i18n の合成", () => {
   });
 
   it.each([
-    ["/practice", `${ORIGIN}/ja/practice`, false],
-    ["/", `${ORIGIN}/ja/dashboard`, true],
+    ["/practice", `${ORIGIN}/ja/practice`, false, "ja"],
+    ["/", `${ORIGIN}/ja/dashboard`, true, "ja"],
+    ["/en", `${ORIGIN}/en/dashboard`, true, "en"],
   ])(
     "%s: rewrite とロケールのヘッダを保ったまま、新しい cookie を後段と応答の両方へ渡す",
-    async (path, target, authenticated) => {
+    async (path, target, authenticated, locale) => {
       supabase.authenticated = authenticated;
       const response = await proxy(
         makeRequest(path, { cookie: "sb-access-token=old-token; other=1" }),
       );
 
       expect(rewriteTarget(response)).toBe(target);
-      expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe("ja");
+      expect(forwardedRequestHeader(response, "x-next-intl-locale")).toBe(
+        locale,
+      );
       // 後段（サーバーコンポーネント）が読む cookie は更新後の値
       const forwardedCookie = forwardedRequestHeader(response, "cookie") ?? "";
       expect(forwardedCookie).toContain("sb-access-token=new-token");
@@ -440,7 +503,7 @@ describe("Supabase の環境変数が無くても i18n は通す", () => {
   });
 
   it("未公開の英語は 404 のまま", async () => {
-    const response = await proxy(makeRequest("/en/dashboard"));
+    const response = await proxy(makeRequest("/en/leaderboard"));
     expect(response.status).toBe(404);
   });
 });
