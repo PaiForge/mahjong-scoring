@@ -1,7 +1,12 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
+import { currentLocale } from "@/i18n/current-locale";
 import type { CurriculumChapterSlug } from "@mahjong-scoring/features/curriculum/registry";
 
 import { chapterTocHref } from "../_lib/toc-anchor";
@@ -20,6 +25,15 @@ import { LESSONS_PATH } from "@mahjong-scoring/features/routes";
  * ラベルは「目次へ」だけで何の目次かを言わない。3 つの呼び出し元はいずれも
  * 直前に章の並びと見出し（「教本の続き」「前提となる教本の章」）を出して
  * いるため、リンク自身が主語を繰り返す必要がない。
+ *
+ * 行き先は今のページの言語の目次（英語の練習の説明・級の詳細からは
+ * `/en/lessons`）。素の `/lessons` へクライアント遷移すると、英語の文書のまま
+ * 日本語の目次が載る（`<html lang>` と辞書は文書の読み込み時に決まるため。
+ * `LocaleNavLink` の TSDoc）。言語は props で受けず `currentLocale()` で取る —
+ * 呼び出し元（練習の説明・級の詳細・ダッシュボード）はページの
+ * `prepareRouteLocale` の後に描かれる。目次がその言語で未公開なら日本語の
+ * 目次へ文書ごと移り、「日本語のみ」の印を添える。日本語のページの href は
+ * `/lessons`（`#chapter-<slug>` 付きを含む）のまま変えない。
  */
 interface CurriculumTocLinkProps {
   /**
@@ -39,15 +53,23 @@ export async function CurriculumTocLink({
   align = "end",
 }: CurriculumTocLinkProps = {}) {
   const t = await getTranslations("learnCurriculum");
+  const locale = await currentLocale();
+  const target = resolveNavTargetFor(
+    focusSlug ? chapterTocHref(focusSlug) : LESSONS_PATH,
+    locale,
+  );
+  const tNav = target.crossLocale ? await getTranslations("nav") : undefined;
 
   return (
     <div className={align === "center" ? "text-center" : "text-right"}>
-      <Link
-        href={focusSlug ? chapterTocHref(focusSlug) : LESSONS_PATH}
+      <LocaleNavLink
+        navTarget={target}
+        linkKind="plain"
         className={`text-sm font-medium ${TEXT_LINK_CLASSES}`}
       >
         {t("tocLink")}
-      </Link>
+        {tNav && <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />}
+      </LocaleNavLink>
     </div>
   );
 }
