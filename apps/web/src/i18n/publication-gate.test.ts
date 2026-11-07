@@ -14,6 +14,7 @@ import { describe, expect, it } from "vitest";
 import { collectPages } from "@/test/collect-pages";
 
 import { EN_PUBLISHED_PATHS } from "./route-policy";
+import { translatedTemplateOf } from "./translated-publications";
 
 /**
  * 英語の公開の関所と、ページの入口のロケール確定を検査する
@@ -21,7 +22,10 @@ import { EN_PUBLISHED_PATHS } from "./route-policy";
  * 1. 英語で公開するルート（`route-policy.ts` の許可リスト）と、英語ルートの依存
  *    名前空間（`translation-status.ts` の `EN_ROUTE_NAMESPACES`）が同じ集合で、
  *    依存がすべて完訳であること。英語の辞書は完訳の名前空間しか持たず日本語へ
- *    fallback しないので、未訳の名前空間を読むルートを公開すると画面に辞書キーが出る
+ *    fallback しないので、未訳の名前空間を読むルートを公開すると画面に辞書キーが出る。
+ *    動的ルート（用語のページ）は、具体的なパス（`/reference/glossary/jantou`）を
+ *    ページのテンプレート（`/reference/glossary/[slug]`）へ畳んでから比べる。
+ *    依存の表はテンプレートで 1 行、page.tsx もテンプレートで 1 つだから
  * 2. `app/[locale]/(user)` の全 page.tsx が、ページ本体と `generateMetadata` の両方で
  *    `prepareRouteLocale` を自分のパスで呼ぶこと。呼ばないページは未訳の英語を
  *    描画前に止められず、翻訳の前にロケールが確定しないので静的生成も失う
@@ -74,11 +78,34 @@ function declarationBody(source: string, head: RegExp): string | undefined {
   return next === -1 ? rest : rest.slice(0, next);
 }
 
+/**
+ * 英語で公開する具体的なパスを、公開の単位（ページのテンプレート）へ畳む
+ *
+ * 許可リストの完全一致の行はそのまま、テンプレートに当たるパスはテンプレートにする。
+ */
+function publicationUnitOf(path: string): string {
+  return translatedTemplateOf(path, "en") ?? path;
+}
+
+/** 英語で公開する単位（重複を除いた、ページのテンプレートの集合） */
+const EN_PUBLISHED_UNITS: readonly string[] = [
+  ...new Set(EN_PUBLISHED_PATHS.map(publicationUnitOf)),
+];
+
 describe("英語の公開の関所", () => {
-  it("英語で公開するルートと、英語ルートの依存名前空間の表が同じ集合", () => {
-    expect([...EN_PUBLISHED_PATHS].sort()).toEqual(
+  it("英語で公開するルートと、英語ルートの依存名前空間の表が同じ集合（テンプレートへ畳んで比べる）", () => {
+    expect([...EN_PUBLISHED_UNITS].sort()).toEqual(
       Object.keys(EN_ROUTE_NAMESPACES).sort(),
     );
+  });
+
+  it("用語のページは 1 つのテンプレートに畳まれる（具体的なパスを依存の表に並べない）", () => {
+    expect(EN_PUBLISHED_UNITS).toContain("/reference/glossary/[slug]");
+    expect(
+      EN_PUBLISHED_UNITS.filter((unit) =>
+        unit.startsWith("/reference/glossary/"),
+      ),
+    ).toEqual(["/reference/glossary/[slug]"]);
   });
 
   it.each(Object.entries(EN_ROUTE_NAMESPACES))(
@@ -98,10 +125,10 @@ describe("英語の公開の関所", () => {
     );
   });
 
-  it.each(EN_PUBLISHED_PATHS.map((path) => [path]))(
+  it.each(EN_PUBLISHED_UNITS.map((unit) => [unit]))(
     "英語で公開する %s は app/[locale] に実在するページ",
-    (path) => {
-      expect(localePages.has(path)).toBe(true);
+    (unit) => {
+      expect(localePages.has(unit)).toBe(true);
     },
   );
 });
