@@ -1,20 +1,20 @@
 {
-  "pageTitle": "運営者情報",
-  "description": "麻雀点数計算教室を運営する事業者の名称・所在地・事業内容。",
+  "pageTitle": "Operator Information",
+  "description": "The name, address and business of the company that operates this riichi mahjong scoring site.",
   "name": {
-    "title": "事業者名",
+    "title": "Company name",
     "value": "富士エンタープライズ"
   },
   "location": {
-    "title": "所在地",
-    "value": "〒107-0061\n東京都港区北青山1-3-3 三橋ビル 3階"
+    "title": "Address",
+    "value": "3F Mitsuhashi Building, 1-3-3 Kita-Aoyama\nMinato-ku, Tokyo 107-0061, Japan"
   },
   "business": {
-    "title": "事業内容",
-    "item1": "システム開発受託事業",
-    "item2": "アプリケーション開発・運営事業",
-    "item3": "Webコンテンツ事業",
-    "item4": "ITコンサルティング事業（新規システム開発、検索エンジンマーケティング等）"
+    "title": "Business",
+    "item1": "Contract software development",
+    "item2": "Application development and operation",
+    "item3": "Web content",
+    "item4": "IT consulting (new system development, search engine marketing and more)"
   },
-  "moreInfo": "詳細は<link>コーポレートサイト</link>をご覧ください。"
+  "moreInfo": "For details, see our <link>corporate website</link> (in Japanese)."
 }

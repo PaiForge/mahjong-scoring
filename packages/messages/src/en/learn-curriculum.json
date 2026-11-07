@@ -1,168 +1,168 @@
 {
-  "tocLink": "目次へ",
+  "tocLink": "Contents",
   "sections": {
-    "introduction": "はじめに",
-    "mangan": "満貫以上の計算",
-    "fu": "符の計算",
-    "yaku": "翻数の計算",
-    "score": "点数計算基礎",
-    "memorization": "点数記憶術"
+    "introduction": "Introduction",
+    "mangan": "Mangan and Above",
+    "fu": "Calculating Fu",
+    "yaku": "Counting Han",
+    "score": "Score Calculation Basics",
+    "memorization": "Memorizing Scores"
   },
   "chapters": {
     "aboutThisApp": {
-      "title": "このアプリについて",
-      "description": "このアプリの特徴と、学習の進め方"
+      "title": "About This App",
+      "description": "What this app offers and how to study with it"
     },
     "whyScoringIsHardToLearn": {
-      "title": "点数計算ができるようにならない理由",
-      "description": "作者が点数計算でつまずいた 3 つの理由"
+      "title": "Why Scoring Is Hard to Learn",
+      "description": "Three reasons the author struggled to learn score calculation"
     },
     "whyScoringIsComplex": {
-      "title": "点数計算が複雑な理由",
-      "description": "計算は公式どおりで単純。難しいのは場合分けの多さ"
+      "title": "Why Scoring Is Complex",
+      "description": "The formula itself is simple; the hard part is the number of cases"
     },
     "manganKoRon": {
-      "title": "子のロン",
-      "description": "満貫8000点を基準に1.5・2・3・4倍"
+      "title": "Non-Dealer Ron",
+      "description": "From 8,000 points for mangan, multiply by 1.5, 2, 3 and 4"
     },
     "manganOyaRon": {
-      "title": "親のロン",
-      "description": "満貫以上は子のロンの1.5倍"
+      "title": "Dealer Ron",
+      "description": "From mangan up, 1.5 times the non-dealer ron score"
     },
     "manganKoTsumo": {
-      "title": "子のツモ",
-      "description": "満貫以上は子のロンの半分を親が、さらに半分を子が払う"
+      "title": "Non-Dealer Tsumo",
+      "description": "From mangan up, the dealer pays half of the non-dealer ron score and each non-dealer pays half of that"
     },
     "manganOyaTsumo": {
-      "title": "親のツモ",
-      "description": "満貫以上は親のロンを3で割り、子3人が同額を払う"
+      "title": "Dealer Tsumo",
+      "description": "From mangan up, divide the dealer ron score by 3 and each of the three non-dealers pays that amount"
     },
     "jantouFu": {
-      "title": "雀頭の符",
-      "description": "符が付くのは三元牌と場風・自風だけ"
+      "title": "Fu for the Pair",
+      "description": "Only a pair of dragons, the round wind or the seat wind earns fu"
     },
     "mentsuFu": {
-      "title": "面子の符",
-      "description": "符が付くのは刻子・槓子。明暗と么九牌かで決まる"
+      "title": "Fu for Sets",
+      "description": "Only triplets and quads earn fu, set by open or closed and by terminals and honors or simples"
     },
     "machiFu": {
-      "title": "待ちの符",
-      "description": "嵌張・辺張・単騎だけが2符"
+      "title": "Fu for the Wait",
+      "description": "Only closed, edge and single-tile waits earn 2 fu"
     },
     "tehaiFu": {
-      "title": "手牌全体の符",
-      "description": "符が付く6か所を足して10符単位に切り上げ"
+      "title": "Fu for the Whole Hand",
+      "description": "Add up the six sources of fu and round up to the next 10"
     },
     "yaku": {
-      "title": "役と翻数の数え方",
-      "description": "翻数は役とドラの合計。鳴くと消える役・下がる役がある"
+      "title": "Counting Yaku and Han",
+      "description": "Han is the total of yaku and dora; calling makes some yaku vanish or lose han"
     },
     "chiitoitsuScore": {
-      "title": "七対子での点数計算",
-      "description": "25符固定の特殊な役"
+      "title": "Scoring Chiitoitsu (Seven Pairs)",
+      "description": "A special yaku fixed at 25 fu"
     },
     "pinfuScore": {
-      "title": "平和での点数計算",
-      "description": "ツモなら20符・ロンなら30符"
+      "title": "Scoring Pinfu",
+      "description": "20 fu by tsumo, 30 fu by ron"
     },
     "menzenMentsuScore": {
-      "title": "平和以外の門前面子手の点数計算",
-      "description": "ツモは30符から・ロンは40符から"
+      "title": "Scoring Closed Hands Other Than Pinfu",
+      "description": "Tsumo starts at 30 fu, ron at 40 fu"
     },
     "furoScore": {
-      "title": "鳴いた手の点数計算",
-      "description": "ロンだけが門前より10符低い"
+      "title": "Scoring Open Hands",
+      "description": "Only ron is 10 fu lower than for a closed hand"
     },
     "fuDoubling": {
-      "title": "符が倍になるのは1翻上がるのと同じ",
-      "description": "点数表に潜む規則性 — 25符2翻と50符1翻は同じ点数"
+      "title": "Doubling the Fu Equals One More Han",
+      "description": "A pattern in the scoring table: 25 fu 2 han and 50 fu 1 han score the same"
     },
     "tsumoPayments": {
-      "title": "親ツモの列は覚えなくていい",
-      "description": "点数表に潜む規則性 — 親ツモのオールは子ツモの下段と同じ"
+      "title": "No Need to Memorize the Dealer Tsumo Column",
+      "description": "A pattern in the scoring table: each payment on a dealer tsumo equals the dealer's share of a non-dealer tsumo"
     },
     "ronToTsumo": {
-      "title": "ツモは子のロンを半分ずつにすれば出る",
-      "description": "点数表に潜む規則性 — 子のロンを2回半分にすると子ツモになる"
+      "title": "Halve the Non-Dealer Ron to Get Tsumo",
+      "description": "A pattern in the scoring table: halving the non-dealer ron score twice gives the non-dealer tsumo payments"
     },
     "oyaRonScores": {
-      "title": "親ロンでの効率的な点数の覚え方",
-      "description": "点数表に潜む規則性 — 親のロンは子の1.5倍。ずれる14マスだけを覚える"
+      "title": "Memorizing Dealer Ron Scores Efficiently",
+      "description": "A pattern in the scoring table: dealer ron is 1.5 times non-dealer ron, so memorize only the 14 cells that differ"
     }
   },
   "index": {
-    "pageTitle": "レッスン",
-    "pageDescription": "麻雀の点数計算を、短い説明と確認問題で 1 つずつ身につけるレッスンです。順に進められます。",
-    "progressLabel": "{done} / {total} レッスン完了",
-    "nextChapterBadge": "次はここから",
-    "allCompletedMessage": "すべてのレッスンを完了しました。おつかれさまでした！",
-    "unavailableBadge": "アプリ版は準備中",
-    "columnBadge": "コラム",
-    "rankFilterTitle": "{rank}のレッスン",
-    "allLessonsLink": "すべてのレッスンを見る"
+    "pageTitle": "Riichi Mahjong Scoring Lessons",
+    "pageDescription": "Learn riichi mahjong scoring one step at a time with short lessons on fu, han, mangan and dealer and non-dealer payments. Take them in order.",
+    "progressLabel": "{done} / {total} lessons completed",
+    "nextChapterBadge": "Next up",
+    "allCompletedMessage": "You have completed every lesson. Great work!",
+    "unavailableBadge": "Coming soon to the app",
+    "columnBadge": "Column",
+    "rankFilterTitle": "{rank} lessons",
+    "allLessonsLink": "View all lessons"
   },
   "chapter": {
-    "completeCta": "このレッスンを完了にする",
-    "completing": "完了を記録しています…",
-    "completedMark": "完了済み",
-    "loginPromptCta": "完了を記録するにはログイン",
-    "chapterNavLabel": "レッスンの移動",
-    "prevChapterLabel": "前のレッスン",
-    "nextChapterLabel": "次のレッスン",
-    "updateFailedToast": "完了を記録できませんでした。再度お試しください。",
-    "publishedOn": "{date} 公開"
+    "completeCta": "Mark this lesson as complete",
+    "completing": "Recording your completion…",
+    "completedMark": "Completed",
+    "loginPromptCta": "Log in to record your completion",
+    "chapterNavLabel": "Lesson navigation",
+    "prevChapterLabel": "Previous lesson",
+    "nextChapterLabel": "Next lesson",
+    "updateFailedToast": "Could not record your completion. Please try again.",
+    "publishedOn": "Published {date}"
   },
   "scoreTable": {
-    "tableKo": "子の点数",
-    "tableOya": "親の点数",
-    "colWin": "和了",
-    "tsumo": "ツモ",
-    "ron": "ロン",
-    "hanUnit": "{value}翻",
-    "colExtraFu": "積み上げた符",
-    "fuUnit": "{value}符",
-    "fuRange": "{from}〜{to}符",
-    "mangan": "満貫",
-    "colFuHan": "符＼翻",
-    "colHan": "翻",
-    "colBeforeCeil": "切り上げ前",
-    "colKoRon": "子のロン",
-    "colDerived": "半分ずつにすると",
-    "colScore": "点数",
-    "colActualPay": "実際に払う"
+    "tableKo": "Non-dealer scores",
+    "tableOya": "Dealer scores",
+    "colWin": "Win",
+    "tsumo": "Tsumo",
+    "ron": "Ron",
+    "hanUnit": "{value} han",
+    "colExtraFu": "Fu added",
+    "fuUnit": "{value} fu",
+    "fuRange": "{from}–{to} fu",
+    "mangan": "Mangan",
+    "colFuHan": "Fu × Han",
+    "colHan": "Han",
+    "colBeforeCeil": "Before rounding",
+    "colKoRon": "Non-dealer ron",
+    "colDerived": "Halved",
+    "colScore": "Points",
+    "colActualPay": "Actual payment"
   },
   "tenpaneTable": {
-    "colExample": "例",
-    "colSum": "計算",
-    "colFu": "符",
-    "sum": "{start}＋{extra}＝{total}",
-    "fu": "{value}符",
-    "fuExact": "{value}符（ちょうど）"
+    "colExample": "Example",
+    "colSum": "Sum",
+    "colFu": "Fu",
+    "sum": "{start} + {extra} = {total}",
+    "fu": "{value} fu",
+    "fuExact": "{value} fu (exact)"
   },
   "tenpaneExamples": {
-    "two": "嵌張・辺張・単騎の待ち、または役牌の雀頭（2符）",
-    "yaochuAnkou": "么九牌の暗刻1つ（8符）",
-    "yaochuAnkouPlusTwo": "么九牌の暗刻＋2符の待ちか雀頭（10符）",
-    "yaochuAnkouChunchanAnkou": "么九牌の暗刻＋中張牌の暗刻（12符）",
-    "chunchanAnkan": "中張牌の暗槓（16符）",
-    "yaochuAnkan": "么九牌の暗槓（32符）",
-    "yaochuMinkan": "么九牌の明槓（16符）"
+    "two": "A closed, edge or single-tile wait, or a value-tile pair (2 fu)",
+    "yaochuAnkou": "One closed triplet of terminals or honors (8 fu)",
+    "yaochuAnkouPlusTwo": "A closed triplet of terminals or honors + a 2-fu wait or pair (10 fu)",
+    "yaochuAnkouChunchanAnkou": "A closed triplet of terminals or honors + a closed triplet of simples (12 fu)",
+    "chunchanAnkan": "A closed quad of simples (16 fu)",
+    "yaochuAnkan": "A closed quad of terminals or honors (32 fu)",
+    "yaochuMinkan": "An open quad of terminals or honors (16 fu)"
   },
   "halvingDiagram": {
-    "ronLabel": "子のロン",
-    "oyaLabel": "親が出す",
-    "koLabel": "子が出す",
-    "arrowLabel": "半分",
-    "resultLabel": "点数表の子ツモ"
+    "ronLabel": "Non-dealer ron",
+    "oyaLabel": "Dealer pays",
+    "koLabel": "Each non-dealer pays",
+    "arrowLabel": "Half",
+    "resultLabel": "Non-dealer tsumo in the scoring table"
   },
   "exampleTable": {
-    "colTiles": "牌",
-    "colKind": "種類",
-    "colFu": "符"
+    "colTiles": "Tiles",
+    "colKind": "Type",
+    "colFu": "Fu"
   },
   "formula": {
-    "fu": "符",
-    "han": "翻数",
-    "ceil": "切り上げ"
+    "fu": "fu",
+    "han": "han",
+    "ceil": "round up"
   }
 }
