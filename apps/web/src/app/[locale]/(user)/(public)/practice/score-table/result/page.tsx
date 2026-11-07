@@ -20,13 +20,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { ScoreTableResultView } from "../_components/score-table-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.scoreTable;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-table/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/score-table/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ScoreTableResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(ScoreTableResultView, {
+  slug: SLUG,
+});
+
+export default async function ScoreTableResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/score-table/result">) {
+  await prepareRouteLocale(params, "/practice/score-table/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

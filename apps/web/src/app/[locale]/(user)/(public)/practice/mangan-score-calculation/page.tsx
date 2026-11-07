@@ -15,12 +15,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ManganScoreCalculationHowToPlay } from "./_components/mangan-score-calculation-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation");
   return createPracticeMetadata(PRACTICE_SLUG.manganScoreCalculation);
 }
 
-export default function ManganScoreCalculationPage() {
+export default async function ManganScoreCalculationPage({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation">) {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation");
   return (
     <PracticeIntroContent
       namespace="manganScoreCalculationChallenge"

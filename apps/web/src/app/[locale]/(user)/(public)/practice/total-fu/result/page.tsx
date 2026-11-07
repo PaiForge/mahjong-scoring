@@ -22,13 +22,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { TotalFuResultView } from "../_components/total-fu-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.totalFu;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/total-fu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/total-fu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(TotalFuResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(TotalFuResultView, {
+  slug: SLUG,
+});
+
+export default async function TotalFuResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/total-fu/result">) {
+  await prepareRouteLocale(params, "/practice/total-fu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

@@ -18,12 +18,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { YakuHanHowToPlay } from "./_components/yaku-han-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/yaku-han">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/yaku-han");
   return createPracticeMetadata(PRACTICE_SLUG.yakuHan);
 }
 
-export default function YakuHanPage() {
+export default async function YakuHanPage({
+  params,
+}: PageProps<"/[locale]/practice/yaku-han">) {
+  await prepareRouteLocale(params, "/practice/yaku-han");
   return (
     <PracticeIntroContent
       namespace="yakuHanChallenge"

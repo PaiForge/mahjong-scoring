@@ -48,12 +48,19 @@ import {
   practiceRanks,
 } from "@mahjong-scoring/features/practice/rank-practices";
 import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice");
   return createNamespaceMetadata("practice", { path: PRACTICE_PATH });
 }
 
-export default async function PracticePage() {
+export default async function PracticePage({
+  params,
+}: PageProps<"/[locale]/practice">) {
+  await prepareRouteLocale(params, "/practice");
   const [t, tRanks, ad] = await Promise.all([
     getTranslations("practice"),
     getTranslations("ranks"),

@@ -20,15 +20,30 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { ManganScoreCalculationResultView } from "../_components/mangan-score-calculation-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.manganScoreCalculation;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(ManganScoreCalculationResultView, {
-  slug: SLUG,
-});
+const PracticeResultPage = createPracticeResultPage(
+  ManganScoreCalculationResultView,
+  {
+    slug: SLUG,
+  },
+);
+
+export default async function ManganScoreCalculationResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/mangan-score-calculation/result">) {
+  await prepareRouteLocale(params, "/practice/mangan-score-calculation/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

@@ -24,8 +24,12 @@ import { PracticeChapterSection } from "../_components/practice-chapter-section"
 import { ScoreSetupForm } from "./_components/score-setup-form";
 import { AgariScoreHelpTour } from "./_components/agari-score-help-tour";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/agari-score">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/agari-score");
   // slug "agari-score" は練習レジストリ（PRACTICE_MENU_SLUGS）に載らないため
   // createPracticeMetadata を使えない。パスをここで明示する。
   return createNamespaceMetadata("agariScore", {
@@ -33,7 +37,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function ScoreSetupPage() {
+export default async function ScoreSetupPage({
+  params,
+}: PageProps<"/[locale]/practice/agari-score">) {
+  await prepareRouteLocale(params, "/practice/agari-score");
   const t = await getTranslations("agariScore");
   const tp = await getTranslations("practice");
   const ad = await getNativeAdCreative("practice-intro-native-ad");

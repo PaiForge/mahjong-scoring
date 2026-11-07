@@ -19,12 +19,19 @@ import type { Metadata } from "next";
 import { createPracticeMetadata } from "../_lib/metadata";
 import { PracticeIntroContent } from "../_components/practice-intro-content";
 import { ScoreTableHowToPlay } from "./_components/score-table-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-table">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/score-table");
   return createPracticeMetadata(PRACTICE_SLUG.scoreTable);
 }
 
-export default function ScoreTablePage() {
+export default async function ScoreTablePage({
+  params,
+}: PageProps<"/[locale]/practice/score-table">) {
+  await prepareRouteLocale(params, "/practice/score-table");
   return (
     <PracticeIntroContent
       namespace="scoreTableChallenge"

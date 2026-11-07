@@ -2,8 +2,12 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticePlayMetadata } from "../../_lib/metadata";
 import { TotalFuPlayView } from "../_components/total-fu-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/total-fu/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/total-fu/play");
   return createPracticePlayMetadata(PRACTICE_SLUG.totalFu);
 }
 
@@ -20,6 +24,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * 3. 回答するとその手牌の符の内訳が表示される
  * 4. 制限時間経過またはミス3回で終了し、result ページへリダイレクト
  */
-export default function TotalFuPlayPage() {
+export default async function TotalFuPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/total-fu/play">) {
+  await prepareRouteLocale(params, "/practice/total-fu/play");
   return <TotalFuPlayView />;
 }

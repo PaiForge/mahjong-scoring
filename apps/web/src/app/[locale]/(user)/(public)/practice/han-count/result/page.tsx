@@ -20,13 +20,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { HanCountResultView } from "../_components/han-count-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.hanCount;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/han-count/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/han-count/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(HanCountResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(HanCountResultView, {
+  slug: SLUG,
+});
+
+export default async function HanCountResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/han-count/result">) {
+  await prepareRouteLocale(params, "/practice/han-count/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

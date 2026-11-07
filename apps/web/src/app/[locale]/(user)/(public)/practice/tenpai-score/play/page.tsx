@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { createFreePracticePlayMetadata } from "../../_lib/metadata";
 import { TenpaiScoreBoard } from "../_components/tenpai-score-board";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/tenpai-score/play">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/tenpai-score/play");
   return createFreePracticePlayMetadata("tenpaiScore");
 }
 
@@ -23,6 +27,9 @@ export async function generateMetadata(): Promise<Metadata> {
  *    （自動次へ設定時は待ち・全マス正解で自動遷移）
  * 5. 任意のタイミングで設定画面に戻るか終了できる
  */
-export default function TenpaiScorePlayPage() {
+export default async function TenpaiScorePlayPage({
+  params,
+}: PageProps<"/[locale]/practice/tenpai-score/play">) {
+  await prepareRouteLocale(params, "/practice/tenpai-score/play");
   return <TenpaiScoreBoard />;
 }

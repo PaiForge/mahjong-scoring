@@ -22,13 +22,27 @@ import {
   createPracticeResultPage,
 } from "../../_lib/create-practice-result-page";
 import { MentsuFuResultView } from "../_components/mentsu-fu-result-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 const SLUG = PRACTICE_SLUG.mentsuFu;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/mentsu-fu/result">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/mentsu-fu/result");
   return createPracticeResultMetadata(SLUG);
 }
 
 export const dynamic = "force-dynamic";
 
-export default createPracticeResultPage(MentsuFuResultView, { slug: SLUG });
+const PracticeResultPage = createPracticeResultPage(MentsuFuResultView, {
+  slug: SLUG,
+});
+
+export default async function MentsuFuResultPage({
+  params,
+  searchParams,
+}: PageProps<"/[locale]/practice/mentsu-fu/result">) {
+  await prepareRouteLocale(params, "/practice/mentsu-fu/result");
+  return <PracticeResultPage searchParams={searchParams} />;
+}

@@ -15,11 +15,18 @@ import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
 import type { Metadata } from "next";
 import { createPracticeTrainingMetadata } from "../../_lib/metadata";
 import { HanCountTrainingView } from "../_components/han-count-training-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/han-count/training">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/practice/han-count/training");
   return createPracticeTrainingMetadata(PRACTICE_SLUG.hanCount);
 }
 
-export default function HanCountTrainingPage() {
+export default async function HanCountTrainingPage({
+  params,
+}: PageProps<"/[locale]/practice/han-count/training">) {
+  await prepareRouteLocale(params, "/practice/han-count/training");
   return <HanCountTrainingView />;
 }
