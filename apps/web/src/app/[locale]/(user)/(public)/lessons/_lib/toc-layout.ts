@@ -1,14 +1,13 @@
 /**
- * 目次（`CurriculumToc`）のレイアウト定数
+ * 目次（`CurriculumTocView`）のレイアウト定数
  *
  * @description
- * 実描画（`curriculum-toc.tsx`）と読み込み中スケルトン
- * （`curriculum-toc-skeleton.tsx`）で共有する。破線ガイド線は bullet 中心に
- * 載せる絶対座標で置いており、bullet サイズ・章行のインデントと連動するため、
- * どちらか一方だけを直すとズレる。片側に持たせず必ずここを経由させること。
+ * セクションの枠（`curriculum-toc-view.tsx`: bullet と破線ガイド線）と
+ * 章の行（`chapter-row.tsx`: 行のインデントと「次はここから」の実線）で共有する。
+ * 破線ガイド線と実線はどちらも bullet 中心に載せる絶対座標で置いており、
+ * bullet サイズ・章行のインデントと連動するため、どちらか一方だけを直すと
+ * ズレる。片側に持たせず必ずここを経由させること。
  */
-
-import type { CurriculumSection } from "@mahjong-scoring/features/curriculum/registry";
 
 /**
  * セクション bullet のサイズ。
@@ -40,25 +39,7 @@ export const CHAPTER_ROW_BOX_CLASS = "relative py-3 pl-7 pr-2";
 
 /**
  * 章行の共通クラス（中身を横 1 列に並べる行）。
- * コラムの行とスケルトンが使う。レッスンの行はタイトルと説明文を縦に
- * 積むため、{@link CHAPTER_ROW_BOX_CLASS} にグリッドを足して組む
+ * コラムの行が使う。レッスンの行はタイトルと説明文を縦に積むため、
+ * {@link CHAPTER_ROW_BOX_CLASS} にグリッドを足して組む
  */
 export const CHAPTER_ROW_BASE_CLASS = `${CHAPTER_ROW_BOX_CLASS} flex items-start gap-3`;
-
-/**
- * セクションラベルのプレースホルダ幅
- *
- * 実際のラベル（`learnCurriculum.sections.*`）の文字数に合わせた概算。
- * 文言を大きく変えたときはここも合わせる。目次を抜粋して見せる場所
- * （道場の前提章）のスケルトンも同じ幅を使うため、片側に置かない。
- */
-export const SECTION_LABEL_WIDTH_CLASS: Readonly<
-  Record<CurriculumSection, string>
-> = {
-  introduction: "w-20",
-  mangan: "w-32",
-  yaku: "w-20",
-  fu: "w-20",
-  score: "w-24",
-  memorization: "w-20",
-};
