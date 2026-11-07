@@ -1,12 +1,44 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
 import { CurriculumToc } from "./curriculum-toc";
 import type {
   CurriculumChapter,
   CurriculumSection,
 } from "@mahjong-scoring/features/curriculum/registry";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
-vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
+const { requestLocale } = vi.hoisted(() => ({
+  requestLocale: { current: "ja" as SupportedLocale },
+}));
+
+vi.mock("next-intl/server", async () => ({
+  ...(await import("@/test/intl-mock")),
+  getLocale: () => Promise.resolve(requestLocale.current),
+}));
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+// 英語の公開状態は許可リストの中身に依らず固定する（about-this-app だけ未公開）。
+// 日本語は本物の解決（入力をそのまま返す）を通す
+vi.mock(
+  "@/app/[locale]/(user)/_components/_lib/locale-nav-target",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("@/app/[locale]/(user)/_components/_lib/locale-nav-target")
+      >();
+    return {
+      resolveNavTargetFor: (path: string, locale: SupportedLocale) => {
+        if (locale === "ja") return actual.resolveNavTargetFor(path, locale);
+        return path === "/lessons/about-this-app"
+          ? { href: path, crossLocale: true }
+          : { href: `/en${path}`, crossLocale: false };
+      },
+    };
+  },
+);
+
+afterEach(() => {
+  requestLocale.current = "ja";
+});
 
 const chapters: readonly CurriculumChapter[] = [
   {
@@ -411,6 +443,52 @@ describe("CurriculumToc", () => {
         row?.querySelector('[data-testid="curriculum-next-badge"]'),
       ).toBeNull();
       expect(row?.getAttribute("aria-current")).toBeNull();
+    });
+  });
+
+  describe("リクエストの言語", () => {
+    it("日本語では next/link のまま「日本語のみ」の印を持たない", async () => {
+      const { container } = render(
+        await CurriculumToc({
+          headingLevel: 2,
+          section,
+          chapters,
+          completedSlugs: new Set<string>(),
+          nextSlug: undefined,
+        }),
+      );
+      for (const anchor of container.querySelectorAll("a")) {
+        expect(anchor.hasAttribute("hrefLang")).toBe(false);
+        expect(anchor.textContent).not.toContain("japaneseOnly");
+      }
+    });
+
+    it("英語では、英語で出している章は /en の href、出していない章は「日本語のみ」の印付きの日本語のリンク", async () => {
+      requestLocale.current = "en";
+      const { container } = render(
+        await CurriculumToc({
+          headingLevel: 2,
+          section,
+          chapters,
+          completedSlugs: new Set<string>(),
+          nextSlug: undefined,
+        }),
+      );
+      const crossRow = container.querySelector(
+        '[data-chapter-slug="about-this-app"] a',
+      );
+      expect(crossRow?.getAttribute("href")).toBe("/lessons/about-this-app");
+      expect(crossRow?.getAttribute("hrefLang")).toBe("ja");
+      expect(crossRow?.textContent).toContain("japaneseOnly");
+
+      const sameRow = container.querySelector(
+        '[data-chapter-slug="why-scoring-is-complex"] a',
+      );
+      expect(sameRow?.getAttribute("href")).toBe(
+        "/en/lessons/why-scoring-is-complex",
+      );
+      expect(sameRow?.hasAttribute("hrefLang")).toBe(false);
+      expect(sameRow?.textContent).not.toContain("japaneseOnly");
     });
   });
 });
