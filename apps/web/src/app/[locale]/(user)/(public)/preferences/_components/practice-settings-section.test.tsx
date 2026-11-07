@@ -106,6 +106,47 @@ describe.each(ROWS)("PracticeSettingsSection の$name", ({ key, on, title }) => 
   });
 });
 
+describe("PracticeSettingsSection の料金ページへの導線", () => {
+  it("言語をまたぐ張り方を渡すと、日本語の料金ページへ hrefLang 付きで張り日本語のみの印を添える", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    render(
+      <PracticeSettingsSection
+        planLink={{
+          navTarget: { href: "/plan", crossLocale: true },
+          japaneseOnlyLabel: "language.japaneseOnly",
+        }}
+      />,
+    );
+    const links = screen.getAllByText("practiceToolsPro.link");
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      const anchor = link.closest("a");
+      expect(anchor?.getAttribute("href")).toBe("/plan");
+      expect(anchor?.getAttribute("hrefLang")).toBe("ja");
+    }
+    expect(screen.getAllByText("language.japaneseOnly")).toHaveLength(2);
+  });
+
+  it("張り方を渡さなければ hrefLang も日本語のみの印も付けない（日本語のページの出力）", () => {
+    useAuth.mockReturnValue({
+      user: { id: "u1" },
+      isLoading: false,
+      profile: profileWith([]),
+      isProfileLoading: false,
+    });
+    render(<PracticeSettingsSection />);
+    for (const link of screen.getAllByText("practiceToolsPro.link")) {
+      expect(link.closest("a")?.hasAttribute("hrefLang")).toBe(false);
+    }
+    expect(screen.queryByText("language.japaneseOnly")).toBeNull();
+  });
+});
+
 describe("PracticeSettingsSection の Pro の 2 行", () => {
   it("片方を切り替えても他方の保存値は変わらない", () => {
     useAuth.mockReturnValue({

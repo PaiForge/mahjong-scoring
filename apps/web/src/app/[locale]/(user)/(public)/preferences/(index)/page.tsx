@@ -54,8 +54,9 @@
  *
  * 英語でも同じ構成で出す（静的のまま。英語は noindex — `createPreferencesMetadata`）。
  * 会員登録・ログインの導線は同じ言語で張り、公開プロフィール（ブロックした人の行）と
- * 料金ページ（Pro の行）は英語で出していないので日本語のページを指す。クライアントの
- * 部品は公開状態を読まないので、張り方はここで決めて渡す。
+ * 料金ページ（Pro の行）は英語で出していないので日本語のページを指し、「日本語のみ」の
+ * 印を添える。クライアントの部品は公開状態を読まないので、張り方はここで決めて渡す。
+ * 料金ページの張り方は日本語では渡さない（部品の従来の `next/link` の出力のまま保つ）。
  */
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -65,6 +66,8 @@ import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { publicProfileHref } from "@/lib/users/public-profile-href";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { AnchorScroll } from "../_components/anchor-scroll";
 import { BlockedUsersSection } from "../_components/blocked-users-section";
@@ -101,6 +104,13 @@ export default async function PreferencesPage({
       .crossLocale,
     japaneseOnlyLabel: tNav("language.japaneseOnly"),
   };
+  const planLink =
+    locale === DEFAULT_LOCALE
+      ? undefined
+      : {
+          navTarget: resolveNavTargetFor(PLAN_PAGE_HREF, locale),
+          japaneseOnlyLabel: tNav("language.japaneseOnly"),
+        };
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
@@ -117,7 +127,7 @@ export default async function PreferencesPage({
 
             <section className="space-y-4">
               <SectionTitle>{t("practiceSectionTitle")}</SectionTitle>
-              <PracticeSettingsSection />
+              <PracticeSettingsSection planLink={planLink} />
             </section>
 
             <section className="space-y-4">
