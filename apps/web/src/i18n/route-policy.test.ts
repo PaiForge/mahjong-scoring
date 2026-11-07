@@ -12,8 +12,15 @@ import { collectPages } from "@/test/collect-pages";
 import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
 import { glossaryTermHref } from "@mahjong-scoring/features/glossary/routes";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
+import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-types";
 import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
-import { chapterHref, rankHref } from "@mahjong-scoring/features/routes";
+import {
+  AGARI_SCORE_PRACTICE_HREF,
+  chapterHref,
+  practiceHref,
+  rankHref,
+  TENPAI_SCORE_PRACTICE_HREF,
+} from "@mahjong-scoring/features/routes";
 
 import {
   EN_PUBLISHED_PATHS,
@@ -147,22 +154,58 @@ describe("日本語の公開状態は既存の分類を取り込む", () => {
 });
 
 describe("英語は許可リストで公開する", () => {
-  it("英語で公開するのは公開単位の表どおり（すべて索引させる）", () => {
-    const expected = [
+  it("英語で公開するのは公開単位の表どおり", () => {
+    const indexable = [
       "/",
       "/lessons",
-      ...CURRICULUM.filter((chapter) => chapter.slug !== "about-this-app").map(
-        (chapter) => chapterHref(chapter.slug),
-      ),
+      ...CURRICULUM.map((chapter) => chapterHref(chapter.slug)),
       "/reference",
       "/reference/yaku",
       "/reference/glossary",
       "/reference/score-table",
+      "/practice",
+      ...PRACTICE_MENU_SLUGS.map((slug) => practiceHref(slug)),
+      AGARI_SCORE_PRACTICE_HREF,
+      TENPAI_SCORE_PRACTICE_HREF,
+      "/getting-started",
+      "/try/agari-score",
+      "/try/mentsu-fu",
+      "/reference/demo",
       ...GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
     ];
-    expect([...EN_PUBLISHED_PATHS].sort()).toEqual([...expected].sort());
-    for (const path of EN_PUBLISHED_PATHS) {
+    const noindex = [
+      ...PRACTICE_MENU_SLUGS.flatMap((slug) =>
+        ["play", "training", "result"].map(
+          (subpage) => `${practiceHref(slug)}/${subpage}`,
+        ),
+      ),
+      `${AGARI_SCORE_PRACTICE_HREF}/play`,
+      `${TENPAI_SCORE_PRACTICE_HREF}/play`,
+      "/dojo",
+      ...RANK_SLUGS.map(rankHref),
+    ];
+    expect([...EN_PUBLISHED_PATHS].sort()).toEqual(
+      [...indexable, ...noindex].sort(),
+    );
+    for (const path of indexable) {
       expect(getPublication(path, "en"), path).toBe("published-indexable");
+    }
+    for (const path of noindex) {
+      expect(getPublication(path, "en"), path).toBe("published-noindex");
+    }
+  });
+
+  it("英語で索引させるページは日本語でも索引させる（英語だけの索引対象を作らない）", () => {
+    for (const path of EN_PUBLISHED_PATHS) {
+      if (getPublication(path, "en") !== "published-indexable") continue;
+      expect(getPublication(path, "ja"), path).toBe("published-indexable");
+    }
+  });
+
+  it("日本語で索引対象の道場・段級位の詳細は、英語では出すが索引させない（cookie を読む動的ページのため）", () => {
+    for (const path of ["/dojo", ...RANK_SLUGS.map(rankHref)]) {
+      expect(getPublication(path, "ja"), path).toBe("published-indexable");
+      expect(getPublication(path, "en"), path).toBe("published-noindex");
     }
   });
 
@@ -192,11 +235,13 @@ describe("英語は許可リストで公開する", () => {
   );
 
   it.each([
-    ["/lessons/about-this-app"],
-    ["/reference/demo"],
-    ["/getting-started"],
-    ["/practice"],
-    ["/dojo"],
+    ["/dashboard"],
+    ["/sign-in"],
+    ["/sign-up"],
+    ["/mypage"],
+    ["/leaderboard"],
+    ["/plan"],
+    ["/preferences"],
   ])("%s は英語で unpublished（日本語では公開している）", (path) => {
     expect(getPublication(path, "en")).toBe("unpublished");
     expect(isPublished(getPublication(path, "ja"))).toBe(true);
@@ -212,6 +257,9 @@ describe("英語は許可リストで公開する", () => {
     ["/reference/score-tables"],
     ["/reference/glossary/__unknown__"],
     ["/reference/glossary/jantou/extra"],
+    ["/dojo/ranks/__unknown__"],
+    ["/dojo/ranks"],
+    ["/practice/nonexistent/play"],
   ])("%s は英語で unpublished", (path) => {
     expect(getPublication(path, "en")).toBe("unpublished");
   });
@@ -232,6 +280,9 @@ describe("英語は許可リストで公開する", () => {
     );
     expect(getPublication("/reference/glossary/jantou?x=1", "en")).toBe(
       "published-indexable",
+    );
+    expect(getPublication("/practice/jantou-fu/play?variant=all", "en")).toBe(
+      "published-noindex",
     );
   });
 });

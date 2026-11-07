@@ -23,7 +23,7 @@ import { translatedTemplateOf } from "./translated-publications";
  *    名前空間（`translation-status.ts` の `EN_ROUTE_NAMESPACES`）が同じ集合で、
  *    依存がすべて完訳であること。英語の辞書は完訳の名前空間しか持たず日本語へ
  *    fallback しないので、未訳の名前空間を読むルートを公開すると画面に辞書キーが出る。
- *    動的ルート（用語のページ）は、具体的なパス（`/reference/glossary/jantou`）を
+ *    動的ルート（用語のページ・段級位の詳細）は、具体的なパス（`/reference/glossary/jantou`）を
  *    ページのテンプレート（`/reference/glossary/[slug]`）へ畳んでから比べる。
  *    依存の表はテンプレートで 1 行、page.tsx もテンプレートで 1 つだから
  * 2. `app/[locale]/(user)` の全 page.tsx が、ページ本体と `generateMetadata` の両方で
@@ -106,6 +106,13 @@ describe("英語の公開の関所", () => {
         unit.startsWith("/reference/glossary/"),
       ),
     ).toEqual(["/reference/glossary/[slug]"]);
+  });
+
+  it("段級位の詳細は 1 つのテンプレートに畳まれる（6 級を依存の表に並べない）", () => {
+    expect(EN_PUBLISHED_UNITS).toContain("/dojo/ranks/[slug]");
+    expect(
+      EN_PUBLISHED_UNITS.filter((unit) => unit.startsWith("/dojo/ranks/")),
+    ).toEqual(["/dojo/ranks/[slug]"]);
   });
 
   it.each(Object.entries(EN_ROUTE_NAMESPACES))(

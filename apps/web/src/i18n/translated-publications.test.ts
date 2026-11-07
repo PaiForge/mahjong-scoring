@@ -3,7 +3,15 @@ import { describe, expect, it } from "vitest";
 import { CURRICULUM } from "@mahjong-scoring/features/curriculum/registry";
 import { GLOSSARY_TERM_SLUGS } from "@mahjong-scoring/features/glossary/registry";
 import { glossaryTermHref } from "@mahjong-scoring/features/glossary/routes";
-import { chapterHref } from "@mahjong-scoring/features/routes";
+import { PRACTICE_MENU_SLUGS } from "@mahjong-scoring/features/practice-menu-types";
+import { RANK_SLUGS } from "@mahjong-scoring/features/ranks/registry";
+import {
+  AGARI_SCORE_PRACTICE_HREF,
+  chapterHref,
+  practiceHref,
+  rankHref,
+  TENPAI_SCORE_PRACTICE_HREF,
+} from "@mahjong-scoring/features/routes";
 
 import { EN_PUBLISHED_PATHS, getPublication } from "./route-policy";
 import {
@@ -14,22 +22,49 @@ import {
   translatedTemplateOf,
 } from "./translated-publications";
 
-/** 英語で公開する公開単位（完全一致の行） */
-const EN_EXACT_PATHS = [
+/**
+ * 英語で出して索引させる公開単位（完全一致の行）
+ *
+ * 練習・昇級試験の説明ページはレジストリ（`practiceHref`）から組み、許可リストが
+ * 文字列で持つ表とレジストリの食い違い（練習の追加・改名・`basePath` の変更）を落とす。
+ */
+const EN_INDEXABLE_EXACT_PATHS = [
   "/",
   "/lessons",
-  ...CURRICULUM.filter((chapter) => chapter.slug !== "about-this-app").map(
-    (chapter) => chapterHref(chapter.slug),
-  ),
+  ...CURRICULUM.map((chapter) => chapterHref(chapter.slug)),
   "/reference",
   "/reference/yaku",
   "/reference/glossary",
   "/reference/score-table",
+  "/practice",
+  ...PRACTICE_MENU_SLUGS.map((slug) => practiceHref(slug)),
+  AGARI_SCORE_PRACTICE_HREF,
+  TENPAI_SCORE_PRACTICE_HREF,
+  "/getting-started",
+  "/try/agari-score",
+  "/try/mentsu-fu",
+  "/reference/demo",
+];
+
+/**
+ * 英語で出すが索引させない公開単位（完全一致の行）
+ *
+ * 練習・昇級試験の play / training / result、和了形・聴牌形の play、道場。
+ */
+const EN_NOINDEX_EXACT_PATHS = [
+  ...PRACTICE_MENU_SLUGS.flatMap((slug) =>
+    ["play", "training", "result"].map(
+      (subpage) => `${practiceHref(slug)}/${subpage}`,
+    ),
+  ),
+  `${AGARI_SCORE_PRACTICE_HREF}/play`,
+  `${TENPAI_SCORE_PRACTICE_HREF}/play`,
+  "/dojo",
 ];
 
 describe("getTranslatedPublication", () => {
-  it("英語の許可リストの完全一致の行は公開して索引させる（query・hash は無視）", () => {
-    for (const path of EN_EXACT_PATHS) {
+  it("英語の許可リストの索引対象の行は公開して索引させる（query・hash は無視）", () => {
+    for (const path of EN_INDEXABLE_EXACT_PATHS) {
       expect(getTranslatedPublication(path, "en"), path).toBe(
         "published-indexable",
       );
@@ -40,28 +75,44 @@ describe("getTranslatedPublication", () => {
     expect(getTranslatedPublication("/lessons?rank=5-kyu", "en")).toBe(
       "published-indexable",
     );
+    expect(getTranslatedPublication("/practice?rank=kyu-5", "en")).toBe(
+      "published-indexable",
+    );
   });
 
-  it("完全一致の行は公開単位どおり（トップ・目次・はじめにを除く 19 章・早見表 4 ページ）", () => {
+  it("練習・昇級試験の play / training / result・無限訓練の play・道場は出すが索引させない", () => {
+    for (const path of EN_NOINDEX_EXACT_PATHS) {
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-noindex",
+      );
+    }
+    expect(
+      getTranslatedPublication("/practice/total-fu/play?variant=all", "en"),
+    ).toBe("published-noindex");
+  });
+
+  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材、noindex 54）", () => {
     expect([...translatedPublishedPaths("en")].sort()).toEqual(
-      [...EN_EXACT_PATHS].sort(),
+      [...EN_INDEXABLE_EXACT_PATHS, ...EN_NOINDEX_EXACT_PATHS].sort(),
     );
+    expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54);
     expect(
       translatedPublishedPaths("en").filter((path) =>
         path.startsWith("/lessons/"),
       ),
-    ).toHaveLength(19);
+    ).toHaveLength(20);
   });
 
-  it("はじめに（about-this-app）は英語で出さない（紹介する画面が英語で未公開）", () => {
+  it("はじめに（about-this-app）を英語で出して索引させる（紹介する練習・道場の画面を英語で出す）", () => {
     expect(getTranslatedPublication("/lessons/about-this-app", "en")).toBe(
-      "unpublished",
+      "published-indexable",
     );
   });
 
-  it("用語のページはテンプレートで公開し、全用語が当たる", () => {
+  it("用語のページと段級位の詳細はテンプレートで公開し、全用語・全段級位が当たる", () => {
     expect(translatedPublishedTemplates("en")).toEqual([
       "/reference/glossary/[slug]",
+      "/dojo/ranks/[slug]",
     ]);
     for (const slug of GLOSSARY_TERM_SLUGS) {
       const path = glossaryTermHref(slug);
@@ -72,28 +123,51 @@ describe("getTranslatedPublication", () => {
         "/reference/glossary/[slug]",
       );
     }
-  });
-
-  it("slug の形（英小文字で始まる英数字とハイフン）に合わない語は unpublished（proxy が 404 にする）", () => {
-    expect(
-      getTranslatedPublication("/reference/glossary/__unknown__", "en"),
-    ).toBe("unpublished");
-  });
-
-  it("テンプレートに合うがレジストリに無い slug も許可リストは公開と返す（404 はページの dynamicParams = false が返す）", () => {
-    expect(
-      getTranslatedPublication("/reference/glossary/unknown-term", "en"),
-    ).toBe("published-indexable");
+    for (const slug of RANK_SLUGS) {
+      const path = rankHref(slug);
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-noindex",
+      );
+      expect(translatedTemplateOf(path, "en")).toBe("/dojo/ranks/[slug]");
+    }
   });
 
   it.each([
-    ["/practice"],
+    ["/reference/glossary/__unknown__"],
+    ["/dojo/ranks/__unknown__"],
+    ["/dojo/ranks/Kyu-5"],
+  ])(
+    "slug の形（英小文字で始まる英数字とハイフン）に合わない %s は unpublished（proxy が 404 にする）",
+    (path) => {
+      expect(getTranslatedPublication(path, "en")).toBe("unpublished");
+    },
+  );
+
+  it("テンプレートに合うがレジストリに無い slug も許可リストは公開と返す（404 はページが返す）", () => {
+    expect(
+      getTranslatedPublication("/reference/glossary/unknown-term", "en"),
+    ).toBe("published-indexable");
+    expect(getTranslatedPublication("/dojo/ranks/unknown-rank", "en")).toBe(
+      "published-noindex",
+    );
+  });
+
+  it.each([
     ["/dashboard"],
-    ["/getting-started"],
-    ["/reference/demo"],
+    ["/sign-in"],
+    ["/sign-up"],
+    ["/mypage"],
+    ["/leaderboard"],
+    ["/plan"],
+    ["/preferences"],
+    ["/dojo/ranks"],
+    ["/practice/agari-score/result"],
+    ["/practice/jantou-fu/extra"],
+    ["/exam/mangan/extra"],
     ["/reference/glossary/"],
     ["/reference/glossary/jantou/extra"],
     ["/reference/glossary/Jantou"],
+    ["/dojo/ranks/kyu-5/extra"],
     ["/lessons/jantou-fu/extra"],
   ])("%s は英語で unpublished", (path) => {
     expect(getTranslatedPublication(path, "en")).toBe("unpublished");
@@ -103,13 +177,15 @@ describe("getTranslatedPublication", () => {
   it("完全一致の行はテンプレートに畳まない", () => {
     expect(translatedTemplateOf("/reference/glossary", "en")).toBeUndefined();
     expect(translatedTemplateOf("/lessons/jantou-fu", "en")).toBeUndefined();
+    expect(translatedTemplateOf("/dojo", "en")).toBeUndefined();
   });
 
   it("route-policy の英語の判定と一致する（判定を二重に持たない）", () => {
     for (const path of [
-      "/practice",
-      "/lessons/about-this-app",
+      "/dashboard",
+      "/sign-in",
       "/reference/glossary/unknown-term",
+      "/dojo/ranks/unknown-rank",
       ...EN_PUBLISHED_PATHS,
     ]) {
       expect(getPublication(path, "en")).toBe(
@@ -118,10 +194,11 @@ describe("getTranslatedPublication", () => {
     }
   });
 
-  it("EN_PUBLISHED_PATHS は完全一致の行とテンプレートの展開（全用語）", () => {
+  it("EN_PUBLISHED_PATHS は完全一致の行とテンプレートの展開（全用語・全段級位）", () => {
     expect(EN_PUBLISHED_PATHS).toEqual([
       ...translatedPublishedPaths("en"),
       ...GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
+      ...RANK_SLUGS.map(rankHref),
     ]);
   });
 });
