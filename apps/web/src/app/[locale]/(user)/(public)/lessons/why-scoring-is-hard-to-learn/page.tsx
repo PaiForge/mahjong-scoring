@@ -22,16 +22,22 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/lessons/why-scoring-is-hard-to-learn">) {
-  await prepareRouteLocale(params, "/lessons/why-scoring-is-hard-to-learn");
-  return createLearnMetadata("why-scoring-is-hard-to-learn");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/why-scoring-is-hard-to-learn",
+  );
+  return createLearnMetadata("why-scoring-is-hard-to-learn", { locale });
 }
 
 export default async function LearnWhyScoringIsHardToLearnPage({
   params,
 }: PageProps<"/[locale]/lessons/why-scoring-is-hard-to-learn">) {
-  await prepareRouteLocale(params, "/lessons/why-scoring-is-hard-to-learn");
+  const locale = await prepareRouteLocale(
+    params,
+    "/lessons/why-scoring-is-hard-to-learn",
+  );
   return (
-    <LearnPageLayout slug="why-scoring-is-hard-to-learn">
+    <LearnPageLayout slug="why-scoring-is-hard-to-learn" locale={locale}>
       <WhyScoringIsHardToLearnGuide />
     </LearnPageLayout>
   );
