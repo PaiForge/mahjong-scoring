@@ -78,7 +78,14 @@ web と同じ画面をネイティブで出す Expo アプリ。web 側の作業
 
 ## i18n
 
-- `next-intl` をルーティングなしで使用（locale は `ja` 固定、将来英語対応予定）
+- web の URL は「日本語は接頭辞なし・英語は `/en`」（next-intl の `as-needed`。言語は URL だけで決め、
+  `Accept-Language`・cookie で推測しない）。ユーザー向けのルートは `apps/web/src/app/[locale]/` の下。
+  規則の全文は `apps/web/src/i18n/` の各ファイルの TSDoc（`routing.ts`・`route-policy.ts`）
+- **英語は許可リストで公開する。** 英語で出すページは `apps/web/src/i18n/translated-publications.ts` に
+  載ったものだけで、他の `/en/...` は proxy が 404 + noindex を返す。page / layout の入口は
+  `prepareRouteLocale(params, path)` で言語を確定させる（未公開なら 404）。リンク・hreflang・sitemap・
+  言語切替は公開状態の表から組み、`/en` を手で付けない（`localizedHref` / `resolvePublishedHref`）
+- 英語の辞書（`packages/messages/src/en.ts`）は完訳の名前空間だけを束ねる。英語で日本語へ fallback しない
 - 辞書: `packages/messages/src/ja/<名前空間>.json`（名前空間ごとに 1 ファイル。モバイルと共有）。
   `src/ja.ts` が束ねて `messages` として公開する。名前空間を足したらそこに 1 行足す（`ja.test.ts` が食い違いを落とす）
 - サーバーコンポーネント: `getTranslations()` / クライアントコンポーネント: `useTranslations()`
