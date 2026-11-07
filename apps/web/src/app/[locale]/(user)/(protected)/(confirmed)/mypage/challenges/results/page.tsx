@@ -20,16 +20,24 @@ import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/reque
 import { ResultsTable } from "./_components/results-table";
 import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/challenges/results">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/challenges/results");
   return createPrivateMetadata("mypage.challengeResults");
 }
 
-export default async function ChallengeResultsPage({ searchParams }: Props) {
+export default async function ChallengeResultsPage({
+  params: routeParams,
+  searchParams,
+}: Props & Pick<PageProps<"/[locale]/mypage/challenges/results">, "params">) {
+  await prepareRouteLocale(routeParams, "/mypage/challenges/results");
   const t = await getTranslations("mypage.challengeResults");
   const tChallenges = await getTranslations("mypage.challenges");
   const tRoot = await getTranslations();

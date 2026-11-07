@@ -8,12 +8,19 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { requireProvisionalUser } from "@/lib/auth";
 
 import { UsernameForm } from "./_components/username-form";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/setup-username">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/setup-username");
   return createPrivateMetadata("setupUsername", "title");
 }
 
-export default async function SetupUsernamePage() {
+export default async function SetupUsernamePage({
+  params,
+}: PageProps<"/[locale]/mypage/setup-username">) {
+  await prepareRouteLocale(params, "/mypage/setup-username");
   await requireProvisionalUser();
   const t = await getTranslations("setupUsername");
 

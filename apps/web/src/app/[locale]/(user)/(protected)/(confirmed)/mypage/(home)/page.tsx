@@ -25,12 +25,19 @@ import { ExpActivityHeatmap } from "./_components/exp-activity-heatmap";
 import { DESKTOP_WEEKS, buildHeatmapLayout } from "./_lib/heatmap-utils";
 import { publicProfileHref } from "@/lib/users/public-profile-href";
 import { DOJO_PATH } from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage");
   return createPrivateMetadata("mypage");
 }
 
-export default async function MyPage() {
+export default async function MyPage({
+  params,
+}: PageProps<"/[locale]/mypage">) {
+  await prepareRouteLocale(params, "/mypage");
   const t = await getTranslations("mypage");
   const tHeatmap = await getTranslations("mypage.heatmap");
   const tRanks = await getTranslations("ranks");

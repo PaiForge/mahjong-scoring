@@ -24,8 +24,12 @@ import { MarkAllReadButton } from "./_components/mark-all-read-button";
 import { NotificationItem } from "./_components/notification-item";
 import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
 import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/notifications">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/notifications");
   return createPrivateMetadata("notifications");
 }
 
@@ -34,8 +38,11 @@ interface NotificationsPageProps {
 }
 
 export default async function NotificationsPage({
+  params: routeParams,
   searchParams,
-}: NotificationsPageProps) {
+}: NotificationsPageProps &
+  Pick<PageProps<"/[locale]/mypage/notifications">, "params">) {
+  await prepareRouteLocale(routeParams, "/mypage/notifications");
   const { user } = await requireConfirmedUser();
   const params = await searchParams;
   const page = parsePageParam(params.page);

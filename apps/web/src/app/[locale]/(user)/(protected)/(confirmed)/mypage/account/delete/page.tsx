@@ -15,12 +15,19 @@ import { requireConfirmedUser } from "@/lib/auth";
 import { DeleteAccountButton } from "./_components/delete-account-button";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/account/delete">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/account/delete");
   return createPrivateMetadata("deleteAccount");
 }
 
-export default async function DeleteAccountPage() {
+export default async function DeleteAccountPage({
+  params,
+}: PageProps<"/[locale]/mypage/account/delete">) {
+  await prepareRouteLocale(params, "/mypage/account/delete");
   await requireConfirmedUser();
   const t = await getTranslations("deleteAccount");
   const tAccount = await getTranslations("mypageAccount");

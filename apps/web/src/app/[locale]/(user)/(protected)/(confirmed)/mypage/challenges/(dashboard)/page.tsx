@@ -25,8 +25,12 @@ import {
   selectRecordBoard,
 } from "@mahjong-scoring/features/my-record/requested-board";
 import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/challenges">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/challenges");
   return createPrivateMetadata("mypage.challenges");
 }
 
@@ -39,8 +43,11 @@ interface ChallengesPageProps {
 }
 
 export default async function ChallengesPage({
+  params,
   searchParams,
-}: ChallengesPageProps) {
+}: ChallengesPageProps &
+  Pick<PageProps<"/[locale]/mypage/challenges">, "params">) {
+  await prepareRouteLocale(params, "/mypage/challenges");
   const t = await getTranslations("mypage.challenges");
 
   const { user } = await requireConfirmedUser();

@@ -16,12 +16,19 @@ import { getProfileForEdit } from "@/lib/db/queries";
 import { AvatarUpload } from "../_components/avatar-upload";
 import { ProfileForm } from "../_components/profile-form";
 import { MypageSubpageLayout } from "../../../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/profile/edit">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/profile/edit");
   return createPrivateMetadata("profileEdit");
 }
 
-export default async function ProfileEditPage() {
+export default async function ProfileEditPage({
+  params,
+}: PageProps<"/[locale]/mypage/profile/edit">) {
+  await prepareRouteLocale(params, "/mypage/profile/edit");
   const t = await getTranslations("profileEdit");
 
   const { user } = await requireConfirmedUser();

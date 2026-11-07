@@ -29,8 +29,12 @@ import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
 import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/plan">): Promise<Metadata> {
+  await prepareRouteLocale(params, "/mypage/plan");
   return createPrivateMetadata("mypagePlan");
 }
 
@@ -98,8 +102,10 @@ interface MypagePlanPageProps {
  * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
  */
 export default async function MypagePlanPage({
+  params,
   searchParams,
-}: MypagePlanPageProps) {
+}: MypagePlanPageProps & Pick<PageProps<"/[locale]/mypage/plan">, "params">) {
+  await prepareRouteLocale(params, "/mypage/plan");
   const { user } = await requireConfirmedUser();
   const [t, purchases, grants, { status }] = await Promise.all([
     getTranslations("mypagePlan"),
