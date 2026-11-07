@@ -9,6 +9,8 @@
  *   --origin http://localhost:3198 --baseline <dir>
  * ```
  *
+ * `--out <file>` を付けると、全件の明細を JSON で書き出す（標準出力は 1 検査 40 件で切る）。
+ *
  * build の成果物では見えない振る舞い — proxy の 404・リダイレクト・言語の判定・
  * cookie とキャッシュ・動的ページ — を、実際の応答で確かめる。検索エンジンが
  * 見るのは HTML・HTTP・XML の実出力なので、ソースや型ではなくそれを正本にする。
@@ -40,6 +42,8 @@
  * `--origin` は手元のサーバー（localhost / 127.0.0.1 / [::1]）に限る。
  * 本番や Preview に向けて走らせない（ログインの検査が dev-seed の資格情報を使う）。
  */
+import { resolve } from "node:path";
+
 import { createServerClient } from "@supabase/ssr";
 
 import { readBaseline, stripOrigin } from "./_lib/baseline";
@@ -56,6 +60,7 @@ import {
   printReport,
   readArg,
   type Report,
+  writeReportJson,
 } from "./_lib/report";
 import { parseSitemap } from "./_lib/sitemap-xml";
 import {
@@ -967,6 +972,8 @@ async function main(): Promise<void> {
   await auditAuth(context);
   await auditSocial(context);
 
+  const out = readArg(argv, "out");
+  if (out) writeReportJson(resolve(out), report);
   process.exitCode = printReport("SEO HTTP 監査", report) ? 0 : 1;
 }
 

@@ -5,6 +5,7 @@
  * まとめて出す。1 件でも失敗があれば終了コード 1。成果物が無い・読めない
  * 検査は skip ではなく失敗として積む（ゲートで「見なかった」を合格にしない）。
  */
+import { writeFileSync } from "node:fs";
 
 /** 検査 1 件の結果 */
 export interface CheckResult {
@@ -45,6 +46,16 @@ export function createReport(): Report {
     },
     results: () => results,
   };
+}
+
+/**
+ * 結果の全件を JSON で書き出す（標準出力は明細を {@link MAX_LINES} 件で切るため）
+ *
+ * @param path - 書き出し先
+ * @param report - 結果
+ */
+export function writeReportJson(path: string, report: Report): void {
+  writeFileSync(path, `${JSON.stringify(report.results(), null, 2)}\n`);
 }
 
 /** 明細を出す上限（多すぎると要約が読めない。件数は summary に出る） */

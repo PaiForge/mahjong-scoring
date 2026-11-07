@@ -8,6 +8,8 @@
  * pnpm --filter @mahjong-scoring/web exec tsx scripts/seo-audit/build.ts --baseline <dir>
  * ```
  *
+ * `--out <file>` を付けると、全件の明細を JSON で書き出す（標準出力は 1 検査 40 件で切る）。
+ *
  * 英語を足す移行で、日本語の検索資産（URL・canonical・静的生成・sitemap）を
  * 1 本も失わないことを、build の見た目ではなく成果物そのもの（manifest・
  * `.next/server/app` の HTML・sitemap.xml）で確かめる。比較は公開 URL に
@@ -66,6 +68,7 @@ import {
   printReport,
   readArg,
   type Report,
+  writeReportJson,
 } from "./_lib/report";
 import { parseSitemap, type SitemapEntry } from "./_lib/sitemap-xml";
 import {
@@ -852,6 +855,8 @@ function main(): void {
   auditSitemap(report, baseline, serverAppDir, pages, jaIndexable);
   auditSocial(report, pages, jaIndexable);
 
+  const out = readArg(argv, "out");
+  if (out) writeReportJson(resolve(out), report);
   process.exitCode = printReport("SEO build 監査", report) ? 0 : 1;
 }
 
