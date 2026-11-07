@@ -27,8 +27,11 @@ const SLUG = PRACTICE_SLUG.manganScoreCalculation;
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/mangan-score-calculation/result">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/practice/mangan-score-calculation/result");
-  return createPracticeResultMetadata(SLUG);
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/mangan-score-calculation/result",
+  );
+  return createPracticeResultMetadata(SLUG, { locale });
 }
 
 export const dynamic = "force-dynamic";

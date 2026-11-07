@@ -20,11 +20,13 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/practice/mangan-score-calculation/training">): Promise<Metadata> {
-  await prepareRouteLocale(
+  const locale = await prepareRouteLocale(
     params,
     "/practice/mangan-score-calculation/training",
   );
-  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganScoreCalculation);
+  return createPracticeTrainingMetadata(PRACTICE_SLUG.manganScoreCalculation, {
+    locale,
+  });
 }
 
 export default async function ManganScoreCalculationTrainingPage({
