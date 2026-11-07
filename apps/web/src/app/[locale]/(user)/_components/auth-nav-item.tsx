@@ -14,6 +14,11 @@ import {
 } from "@/app/_components/_lib/link-classes";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
+import { resolveNavTarget, type LocaleLinks } from "./_lib/locale-links";
+import { JapaneseOnlyMark, LocaleNavLink } from "./locale-nav-link";
+
+const MENU_ITEM_CLASSES =
+  "block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none";
 
 /**
  * ヘッダー右側のアカウント表示。
@@ -27,8 +32,19 @@ import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
  * その新規登録も緑の塗りにはしない。ヘッダーは遷移の場であって
  * 登録の本命導線は LP ヒーローや結果画面の CTA が持つため、ここはアバター
  * （細線の円）と同じ重さに揃え、認証状態が変わっても右端の重量を一定に保つ。
+ *
+ * 英語のページでは、英語版の無いログイン / 新規登録の導線を出さない。
+ * ヘッダーの 1 行に「日本語のみ」と添える幅が無く、英語の名前のまま日本語の
+ * 画面へ飛ばすと行き先の言語を偽るため（英語の点数表を読むのにログインは
+ * 要らない。日本語へは言語切替で移れる）。メニューの中の項目は幅があるので、
+ * 日本語のページへ素のリンクで向けて「日本語のみ」と添える。
  */
-export function AuthNavItem() {
+export function AuthNavItem({
+  localeLinks,
+}: {
+  /** 今のページの言語と公開 href の表（ヘッダーがサーバーで作って渡す） */
+  readonly localeLinks: LocaleLinks;
+}) {
   const t = useTranslations("nav");
   const router = useRouter();
   const { user, isLoading, profile, isProfileLoading, signOut } = useAuth();
@@ -67,16 +83,19 @@ export function AuthNavItem() {
   }
 
   if (!user) {
+    const signIn = resolveNavTarget("/sign-in", localeLinks);
+    const signUp = resolveNavTarget("/sign-up", localeLinks);
+    if (signIn.crossLocale || signUp.crossLocale) return undefined;
     return (
       <div className="flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
         <DeferredPrefetchLink
-          href="/sign-in"
+          href={signIn.href}
           className={`font-medium whitespace-nowrap ${TEXT_LINK_CLASSES}`}
         >
           {t("login")}
         </DeferredPrefetchLink>
         <DeferredPrefetchLink
-          href="/sign-up"
+          href={signUp.href}
           className={`rounded-lg border border-panel bg-card px-2.5 py-1 font-bold whitespace-nowrap text-action transition-colors hover:border-primary-300 hover:bg-brand-subtle sm:px-3 sm:py-1.5 ${FOCUS_RING_CLASSES}`}
         >
           {t("signUp")}
@@ -122,22 +141,27 @@ export function AuthNavItem() {
         aria-hidden={!isOpen}
         className={`absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-panel bg-card shadow-lg ${isOpen ? "" : "invisible"}`}
       >
-        <DeferredPrefetchLink
-          href="/mypage"
-          role="menuitem"
-          onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"
-        >
-          {t("mypage")}
-        </DeferredPrefetchLink>
-        <DeferredPrefetchLink
-          href={PREFERENCES_PATH}
-          role="menuitem"
-          onClick={() => setIsOpen(false)}
-          className="block border-b border-surface-100 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:bg-surface-100 focus-visible:bg-surface-100 focus-visible:outline-none"
-        >
-          {t("settings")}
-        </DeferredPrefetchLink>
+        {[
+          { path: "/mypage", label: t("mypage") },
+          { path: PREFERENCES_PATH, label: t("settings") },
+        ].map(({ path, label }) => {
+          const target = resolveNavTarget(path, localeLinks);
+          return (
+            <LocaleNavLink
+              key={path}
+              navTarget={target}
+              linkKind="deferred"
+              role="menuitem"
+              onClick={() => setIsOpen(false)}
+              className={MENU_ITEM_CLASSES}
+            >
+              {label}
+              {target.crossLocale && (
+                <JapaneseOnlyMark label={t("language.japaneseOnly")} />
+              )}
+            </LocaleNavLink>
+          );
+        })}
         <button
           type="button"
           role="menuitem"

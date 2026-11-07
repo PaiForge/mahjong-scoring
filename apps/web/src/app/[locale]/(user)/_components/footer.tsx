@@ -1,16 +1,46 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
 import { BrandLogo } from "@/app/_components/brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
+import { getLocaleLinks } from "./_lib/locale-link-table";
+import { resolveNavTarget, type NavTarget } from "./_lib/locale-links";
+import { LanguageSwitcher } from "./language-switcher";
+import { JapaneseOnlyMark, LocaleNavLink } from "./locale-nav-link";
+
+/**
+ * フッターの「その他」の列のリンク（辞書キー `footer.<labelKey>`）
+ *
+ * キーは型で辞書と結ばれる（`footer` 名前空間の文言のキー）。
+ */
+const OTHER_LINKS = [
+  { href: "/terms", labelKey: "terms" },
+  { href: "/privacy", labelKey: "privacy" },
+  { href: "/contact", labelKey: "contact" },
+  { href: "/tokushoho", labelKey: "tokushoho" },
+  { href: "/company", labelKey: "company" },
+] as const;
+
 /**
  * フッター。
  * blindfold-chess の Footer を移植。カテゴリ列 + 区切り線 + コピーライト。
+ *
+ * @design 言語切替を通常のリンクで常設する
+ * 「言語」の列に `LanguageSwitcher` を置く。ヘッダーの切替は md 以上だけ、
+ * ドロワーの切替はマウント後にしか描かれないので、ここが JavaScript の無い
+ * 閲覧者とクローラーにも届く切替になる（初期 HTML に素の `<a href>` で出る）。
+ * 自動の転送・言語の提案はしない。
+ *
+ * 英語のページでは、英語版の無いページへのリンクを `/en` を付けずに日本語の
+ * ページへ素のリンクで向け、「日本語のみ」と添える。ロゴは読み上げだけで添える。
  */
 export async function Footer() {
   const t = await getTranslations("footer");
+  const tNav = await getTranslations("nav");
+  const localeLinks = await getLocaleLinks();
+  const japaneseOnly = tNav("language.japaneseOnly");
+  const homeTarget = resolveNavTarget("/", localeLinks);
 
   return (
     <footer className="mt-auto border-t border-panel bg-card">
@@ -22,12 +52,15 @@ export async function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <Link
-                  href={chapterHref("about-this-app")}
-                  className={TEXT_LINK_CLASSES}
+                <FooterLink
+                  target={resolveNavTarget(
+                    chapterHref("about-this-app"),
+                    localeLinks,
+                  )}
+                  japaneseOnly={japaneseOnly}
                 >
                   {t("aboutThisApp")}
-                </Link>
+                </FooterLink>
               </li>
             </ul>
           </div>
@@ -37,44 +70,63 @@ export async function Footer() {
               {t("other")}
             </h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>
-                <Link href="/terms" className={TEXT_LINK_CLASSES}>
-                  {t("terms")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className={TEXT_LINK_CLASSES}>
-                  {t("privacy")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className={TEXT_LINK_CLASSES}>
-                  {t("contact")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/tokushoho" className={TEXT_LINK_CLASSES}>
-                  {t("tokushoho")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/company" className={TEXT_LINK_CLASSES}>
-                  {t("company")}
-                </Link>
-              </li>
+              {OTHER_LINKS.map(({ href, labelKey }) => (
+                <li key={href}>
+                  <FooterLink
+                    target={resolveNavTarget(href, localeLinks)}
+                    japaneseOnly={japaneseOnly}
+                  >
+                    {t(labelKey)}
+                  </FooterLink>
+                </li>
+              ))}
             </ul>
+          </div>
+
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
+              {tNav("language.label")}
+            </h3>
+            <LanguageSwitcher localeLinks={localeLinks} variant="stacked" />
           </div>
         </nav>
 
         <div className="border-t border-panel pt-6">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <LocaleNavLink navTarget={homeTarget} linkKind="plain">
               <BrandLogo size="sm" />
-            </Link>
+              {homeTarget.crossLocale && (
+                <JapaneseOnlyMark label={japaneseOnly} visuallyHidden />
+              )}
+            </LocaleNavLink>
             <p className="text-xs text-muted-foreground">{t("copyright")}</p>
           </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+/** フッターのテキストリンク 1 つ（言語をまたぐなら「日本語のみ」と添える） */
+function FooterLink({
+  target,
+  japaneseOnly,
+  children,
+}: {
+  readonly target: NavTarget;
+  readonly japaneseOnly: string;
+  readonly children: React.ReactNode;
+}) {
+  return (
+    <>
+      <LocaleNavLink
+        navTarget={target}
+        linkKind="plain"
+        className={TEXT_LINK_CLASSES}
+      >
+        {children}
+      </LocaleNavLink>
+      {target.crossLocale && <JapaneseOnlyMark label={japaneseOnly} />}
+    </>
   );
 }

@@ -2,9 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { useBodyScrollLock } from "@/app/_hooks/use-body-scroll-lock";
-import { MobileTabBar } from "./mobile-tab-bar";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { MobileTabBarView } from "./mobile-tab-bar-view";
+import { LOCALE_LINK_TABLE } from "./_lib/locale-link-table";
+import type { LocaleLinkTable } from "./_lib/locale-links";
 
-vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
+// 公開 href の表（locale-link-table）が読む next-intl のナビゲーションは、
+// モジュールの評価時に redirect / permanentRedirect を束ねる
+vi.mock("next/navigation", async () => ({
+  ...(await import("@/test/navigation-mock")),
+  redirect: vi.fn(),
+  permanentRedirect: vi.fn(),
+}));
 
 import { setPathname } from "@/test/navigation-mock";
 
@@ -14,11 +23,16 @@ function OpenOverlay() {
   return null;
 }
 
-function renderAt(pathname: string, overlay = false) {
+function renderAt(
+  pathname: string,
+  overlay = false,
+  locale: SupportedLocale = "ja",
+  table: LocaleLinkTable = LOCALE_LINK_TABLE,
+) {
   setPathname(pathname);
   render(
     <NextIntlClientProvider
-      locale="ja"
+      locale={locale}
       messages={{
         nav: {
           home: "ホーム",
@@ -31,13 +45,13 @@ function renderAt(pathname: string, overlay = false) {
         },
       }}
     >
-      <MobileTabBar />
+      <MobileTabBarView localeLinks={{ locale, table }} />
       {overlay && <OpenOverlay />}
     </NextIntlClientProvider>,
   );
 }
 
-describe("MobileTabBar", () => {
+describe("MobileTabBarView", () => {
   it("通常のページでは描画する", () => {
     renderAt("/practice");
 
@@ -95,5 +109,49 @@ describe("MobileTabBar", () => {
     expect(
       screen.getByRole("link", { name: /ホーム/ }).className.split(" "),
     ).not.toContain("text-foreground");
+  });
+
+  it("日本語のページでは今までどおりの href を張る", () => {
+    renderAt("/practice");
+
+    expect(
+      screen.getAllByRole("link").map((link) => link.getAttribute("href")),
+    ).toEqual([
+      "/",
+      "/dojo",
+      "/practice",
+      "/lessons",
+      "/reference/score-table",
+    ]);
+  });
+
+  it("英語のページでは接頭辞を外して選択中とセッション中を判定する", () => {
+    renderAt("/en/practice/jantou-fu/play", false, "en");
+
+    expect(screen.queryByRole("navigation")).toBeNull();
+  });
+
+  it("英語のページでは英語版の無いタブを出さず、残りが 1 つならバーごと出さない", () => {
+    renderAt("/en/reference/score-table", false, "en");
+
+    // 英語で公開しているのは点数表だけ。英語の名前のまま日本語のページへ
+    // 飛ばすタブも、/en を付けた存在しない URL も出さない
+    expect(screen.queryByRole("navigation")).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("英語で公開したタブが増えれば /en の href で出し、接頭辞を外して選択中を判定する", () => {
+    // 将来、練習一覧も英語で公開したときの表
+    renderAt("/en/practice/jantou-fu", false, "en", {
+      ...LOCALE_LINK_TABLE,
+      "/practice": { ja: "/practice", en: "/en/practice" },
+    });
+
+    const practice = screen.getByRole("link", { name: /練習/ });
+    expect(practice.getAttribute("href")).toBe("/en/practice");
+    expect(practice.className.split(" ")).toContain("text-foreground");
+    expect(
+      screen.getAllByRole("link").map((link) => link.getAttribute("href")),
+    ).toEqual(["/en/practice", "/en/reference/score-table"]);
   });
 });

@@ -10,7 +10,7 @@ type AnchorProps = Omit<ComponentProps<"a">, "href" | "hrefLang">;
 
 interface LocaleNavLinkProps extends AnchorProps {
   /** `resolveNavTarget()` が返した張る先 */
-  readonly target: NavTarget;
+  readonly navTarget: NavTarget;
   /**
    * 同じ言語の遷移に使うリンク。常設のリンク（ヘッダー・タブバー）は
    * `"deferred"`（`DeferredPrefetchLink`）、それ以外は `"plain"`（`next/link`）
@@ -35,7 +35,7 @@ interface LocaleNavLinkProps extends AnchorProps {
  * 置き場所ごとに見せ方（文字で添える / 読み上げだけ）が違うため。
  */
 export function LocaleNavLink({
-  target,
+  navTarget: target,
   linkKind,
   prefetch,
   ...props

@@ -8,11 +8,33 @@ import { TAB_BAR_NAV_ITEMS, isNavItemActive } from "./_lib/nav-items";
 import { isSessionRoute } from "@/app/_components/_lib/session-routes";
 import { DeferredPrefetchLink } from "./deferred-prefetch-link";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { stripLocalePrefix } from "@/i18n/public-path";
+import { resolveNavTarget, type LocaleLinks } from "./_lib/locale-links";
 
 const SCROLL_DEAD_ZONE = 10;
 
-export function MobileTabBar() {
-  const pathname = usePathname();
+/**
+ * モバイル下部のタブバー（クライアント側の本体）
+ * タブバー
+ *
+ * 選択中の判定・セッション中の判定は、ロケール接頭辞を外したパス
+ * （`/en/reference/score-table` → `/reference/score-table`）で行う。既存の
+ * ルートの判定はロケール非依存のパスを前提に書かれているため。
+ *
+ * 英語のページでは、英語版の無いタブを出さない。5 つ並ぶタブには
+ * 「日本語のみ」と添える幅が無く、英語の名前のまま日本語のページへ
+ * 飛ばすと行き先の言語を偽ることになるため（ドロワーには「日本語のみ」と
+ * 添えて残す）。残るタブが 1 つ以下ならタブバーごと出さない — 行き先が
+ * 今のページしか無いバーは画面の下端を塞ぐだけになる。日本語のページでは
+ * 全タブを今までどおり出す。
+ */
+export function MobileTabBarView({
+  localeLinks,
+}: {
+  /** 今のページの言語と公開 href の表（`MobileTabBar` がサーバーで作って渡す） */
+  readonly localeLinks: LocaleLinks;
+}) {
+  const pathname = stripLocalePrefix(usePathname());
   const t = useTranslations("nav");
   const [isVisible, setIsVisible] = useState(true);
   const isOverlayOpen = useIsOverlayOpen();
@@ -42,6 +64,14 @@ export function MobileTabBar() {
     return undefined;
   }
 
+  const items = TAB_BAR_NAV_ITEMS.flatMap((item) => {
+    const target = resolveNavTarget(item.href, localeLinks);
+    return target.crossLocale ? [] : [{ item, href: target.href }];
+  });
+  if (items.length < 2) {
+    return undefined;
+  }
+
   return (
     <>
       {/* 固定の nav がフッターを覆わないようにするスペーサー。
@@ -58,12 +88,12 @@ export function MobileTabBar() {
         } ${isVisible ? "translate-y-0" : "translate-y-full"}`}
       >
         <ul className="flex items-stretch px-2 py-1">
-          {TAB_BAR_NAV_ITEMS.map((item) => {
+          {items.map(({ item, href }) => {
             const isActive = isNavItemActive(pathname, item.href);
             return (
               <li key={item.href} className="flex-1">
                 <DeferredPrefetchLink
-                  href={item.href}
+                  href={href}
                   className={`flex w-full flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-xs transition-colors ${FOCUS_RING_CLASSES} ${
                     isActive
                       ? "text-foreground"

@@ -10,6 +10,7 @@ import { NOTIFICATIONS_READ_EVENT } from "@/lib/notifications/read-event";
 
 import { BellIcon } from "./icons/bell-icon";
 import { MYPAGE_NOTIFICATIONS_PATH } from "@mahjong-scoring/features/routes";
+import { resolveNavTarget, type LocaleLinks } from "./_lib/locale-links";
 
 /** これを超える未読数は「99+」にまとめる（バッジが横に伸びないように） */
 const MAX_BADGE_COUNT = 99;
@@ -27,8 +28,17 @@ const MAX_BADGE_COUNT = 99;
  *
  * 未読が無いときもベルは出す（ある時だけ出ると「通知の場所」が覚えられない）。
  * 位置はアバターの左。アバターと同じ 32px の円に収め、右端の重さを揃える。
+ *
+ * 英語のページでは、通知ページに英語版が無ければベルを出さない。アイコンだけの
+ * ボタンに「日本語のみ」と添える場所が無く、英語の点数表を読むのに通知は
+ * 要らないため（未読はアカウントの言語に関わらず日本語のページで見られる）。
  */
-export function NotificationBell() {
+export function NotificationBell({
+  localeLinks,
+}: {
+  /** 今のページの言語と公開 href の表（ヘッダーがサーバーで作って渡す） */
+  readonly localeLinks: LocaleLinks;
+}) {
   const t = useTranslations("notifications");
   const { user, profile, refreshProfile } = useAuth();
 
@@ -44,6 +54,8 @@ export function NotificationBell() {
   // プロフィールが届くまでは出さない（アバターと同時に現れる）。
   // 未ログイン・仮登録（プロフィール無し）には通知ページ自体が無い
   if (!user || !profile) return undefined;
+  const target = resolveNavTarget(MYPAGE_NOTIFICATIONS_PATH, localeLinks);
+  if (target.crossLocale) return undefined;
 
   const count = profile.unreadNotificationCount;
   const label = count > 0 ? t("bellUnread", { count }) : t("bell");
@@ -52,7 +64,7 @@ export function NotificationBell() {
     // 押す頻度が低い導線なので viewport でのプリフェッチは切る。通知ページは
     // 動的で、ヘッダーに常にあるベルを毎ページ先読みするとその分サーバーを叩く
     <Link
-      href={MYPAGE_NOTIFICATIONS_PATH}
+      href={target.href}
       prefetch={false}
       aria-label={label}
       title={label}
