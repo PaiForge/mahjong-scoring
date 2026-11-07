@@ -13,6 +13,10 @@ import {
 } from "@/app/[locale]/(user)/_components/link-row";
 import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
 import { getNativeAdCreative } from "@/lib/ads/creatives";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { resolvePublishedHref } from "@/i18n/navigation";
+import { currentLocale } from "@/i18n/current-locale";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 import type { PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
@@ -24,11 +28,22 @@ import { isExamMenu } from "@mahjong-scoring/features/practice/catalog";
 import { practiceListHref } from "../_lib/practice-web-routes";
 import {
   DOJO_PATH,
+  LEADERBOARD_PATH,
   PRACTICE_PATH,
   practicePlayHref,
   practiceTrainingHref,
 } from "@mahjong-scoring/features/routes";
 import { PRACTICE_SCROLL_HASH } from "../_lib/scroll-anchor";
+
+/** `LinkRow` の href・hrefLang（言語をまたぐなら文書ごと読み込む `<a hrefLang="ja">`） */
+function linkRowTarget(target: {
+  readonly href: string;
+  readonly crossLocale: boolean;
+}) {
+  return target.crossLocale
+    ? ({ href: target.href, hrefLang: DEFAULT_LOCALE } as const)
+    : { href: target.href };
+}
 
 interface PracticeIntroContentProps {
   /** i18n ネームスペース（例: "jantouFu"） */
@@ -62,6 +77,22 @@ interface PracticeIntroContentProps {
  * レッスンのセクションは {@link PracticeRelatedChapters} が練習と昇級試験の
  * どちらかで見出しと章の集合を決める（結果ページと共有する）。練習ページ側で
  * パスを渡したり表示可否を切り替えたりはしない。
+ *
+ * @design 言語は自分で取る
+ * 練習・昇級試験の説明ページの多くがこの部品を使うため、locale は props で通さず
+ * `currentLocale()` で取る。ページの `prepareRouteLocale`（`setRequestLocale`）が
+ * 先に走っている前提で、そうでないと headers を読み静的生成を失う。取った言語で
+ * 広告（日本語以外では出さない）・開始ボタンと行リンクの href（その言語で公開して
+ * いれば同じ言語の URL。`resolveNavTargetFor`）・ランキングのプレビューを決める。
+ * 開始ボタンへ渡す href（`ExamStartCta`・`PracticeStartCta` の `playHref` 等）は
+ * その言語の最終 URL で、受け取る側で接頭辞を付け直さない。
+ *
+ * @design ランキングのプレビューは `/leaderboard` を公開している言語だけ
+ * プレビューは他の利用者の表示名を見せ、行き先もランキングの画面。その言語で
+ * ランキングを公開していなければ出さない（`resolvePublishedHref` が undefined）。
+ * 判定は言語の分岐ではなく公開状態なので、英語のランキングを公開すれば何も
+ * 書き換えずに現れる。判定はここ（サーバー）で行い、Server Action を呼ぶ
+ * クライアントの `LeaderboardPreviewLoader` に公開状態の判定を持ち込まない。
  */
 export async function PracticeIntroContent({
   namespace,
@@ -76,7 +107,12 @@ export async function PracticeIntroContent({
   const tt = await getTranslations("training");
   const tDojo = await getTranslations("dojo");
   const tRanks = await getTranslations("ranks");
+  const locale = await currentLocale();
   const isExam = isExamMenu(slug);
+  /** 今の言語で張る href（日本語は入力のまま） */
+  const hrefFor = (path: string) => resolveNavTargetFor(path, locale).href;
+  const showLeaderboard =
+    !isExam && resolvePublishedHref(LEADERBOARD_PATH, locale) !== undefined;
   // 昇級試験は練習一覧のカードにならず道場から入るため、親も道場にする
   const parent = isExam
     ? { label: tDojo("title"), href: DOJO_PATH }
@@ -89,6 +125,7 @@ export async function PracticeIntroContent({
   // 広告は開始の導線とレッスンの後ろに置く（始める前に目に入れない）
   const ad = await getNativeAdCreative(
     isExam ? "exam-intro-native-ad" : "practice-intro-native-ad",
+    locale,
   );
 
   return (
@@ -119,8 +156,12 @@ export async function PracticeIntroContent({
              出す。模試は誰でも受けられる */
           <ExamStartCta
             slug={slug}
-            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
-            trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            playHref={hrefFor(
+              `${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`,
+            )}
+            trainingHref={hrefFor(
+              `${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`,
+            )}
           />
         ) : practiceMenuBySlug(slug).hasSetup ? (
           /* 出題設定（バリアント）を持つ練習は、選択パネルが開始導線まで
@@ -129,8 +170,12 @@ export async function PracticeIntroContent({
           <VariantStartPanel slug={slug} />
         ) : showTraining ? (
           <PracticeStartCta
-            playHref={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
-            trainingHref={`${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            playHref={hrefFor(
+              `${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`,
+            )}
+            trainingHref={hrefFor(
+              `${practiceTrainingHref(slug)}${PRACTICE_SCROLL_HASH}`,
+            )}
             labels={buildPracticeStartCtaLabels(
               { challenge: tc, practice: tp, training: tt },
               practiceMenuBySlug(slug),
@@ -138,7 +183,7 @@ export async function PracticeIntroContent({
           />
         ) : (
           <LinkButton
-            href={`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`}
+            href={hrefFor(`${practicePlayHref(slug)}${PRACTICE_SCROLL_HASH}`)}
             size="lg"
             fullWidth
           >
@@ -163,7 +208,12 @@ export async function PracticeIntroContent({
         {examRank && (
           <LinkRowList>
             <LinkRow
-              href={practiceListHref({ kind: "rank", value: examRank.slug })}
+              {...linkRowTarget(
+                resolveNavTargetFor(
+                  practiceListHref({ kind: "rank", value: examRank.slug }),
+                  locale,
+                ),
+              )}
               leading={
                 <span className="text-base" aria-hidden="true">
                   ✏️
@@ -181,7 +231,7 @@ export async function PracticeIntroContent({
 
         {/* ランキングはタブバーに置かず、練習の入口で上位を見せて導線にする。
             昇級試験は記録を残さないため出さない */}
-        {!isExam && <LeaderboardPreviewLoader slug={slug} />}
+        {showLeaderboard && <LeaderboardPreviewLoader slug={slug} />}
       </div>
     </ContentContainer>
   );

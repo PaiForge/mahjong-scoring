@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import { currentLocale } from "@/i18n/current-locale";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
 import { ArrowUturnLeftIcon } from "@/app/[locale]/(user)/_components/icons/arrow-uturn-left-icon";
 import { RotateCcwIcon } from "@/app/[locale]/(user)/_components/icons/rotate-ccw-icon";
@@ -28,11 +30,15 @@ export async function ResultPrimaryAction({
   primaryAction = "retry",
 }: ResultPrimaryActionProps) {
   const tc = await getTranslations("challenge");
+  // href の props はロケール非依存。今の言語の URL にしてから張る（英語の結果から
+  // 日本語の play・道場へ落とさない）
+  const locale = await currentLocale();
+  const hrefFor = (path: string) => resolveNavTargetFor(path, locale).href;
 
   if (primaryAction === "parent") {
     const parent = resultBreadcrumbParent(introHref);
     return (
-      <LinkButton href={parent.href} size="lg" fullWidth>
+      <LinkButton href={hrefFor(parent.href)} size="lg" fullWidth>
         <ArrowUturnLeftIcon className="size-4" />
         {tc(parent.namespace === "dojo" ? "backToDojo" : "backToList")}
       </LinkButton>
@@ -40,7 +46,11 @@ export async function ResultPrimaryAction({
   }
 
   return (
-    <LinkButton href={`${playHref}${PRACTICE_SCROLL_HASH}`} size="lg" fullWidth>
+    <LinkButton
+      href={hrefFor(`${playHref}${PRACTICE_SCROLL_HASH}`)}
+      size="lg"
+      fullWidth
+    >
       <RotateCcwIcon className="size-4" />
       {tc("retryButton")}
     </LinkButton>

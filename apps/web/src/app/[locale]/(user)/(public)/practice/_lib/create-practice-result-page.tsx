@@ -35,9 +35,12 @@ import { parseResultSearchParams } from "./parse-result-search-params";
 import { debugResultDelay } from "./debug-delay";
 import { tryFetch } from "./try-fetch";
 import {
+  LEADERBOARD_PATH,
   practiceHref,
   practicePlayHref,
 } from "@mahjong-scoring/features/routes";
+import { resolvePublishedHref } from "@/i18n/navigation";
+import { currentLocale } from "@/i18n/current-locale";
 import { PracticeRelatedChapters } from "../_components/practice-related-chapters";
 import { practiceSetupHref } from "./practice-web-routes";
 import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
@@ -196,6 +199,14 @@ interface PracticeResultPageProps {
  *    - ランキングを持たない練習（昇級試験）では境界ごと出さない
  *
  * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
+ *
+ * 言語は `currentLocale()` で取る（多くの結果ページが使うため props で通さない。
+ * ページの `prepareRouteLocale` が先に走る前提）。View に渡す href
+ * （`playHref`・`introHref`・`settingsHref`）はロケール非依存のままで、描く側
+ * （`ResultView`）が今の言語の URL にする。ランキングのプレビューと、その下の
+ * 登録 CTA は `/leaderboard` をその言語で公開しているときだけ出す — 他の利用者の
+ * 表示名を見せる画面で、英語では提供していない（判定は公開状態なので、英語の
+ * ランキングを公開すれば何も書き換えずに現れる）。
  */
 export function createPracticeResultPage(
   ResultView: ComponentType<PracticeResultViewProps>,
@@ -220,10 +231,11 @@ export function createPracticeResultPage(
   }: PracticeResultPageProps) {
     // 即時描画に必要な最小限のデータだけ親で解決する。
     // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
-    const [resolvedSearchParams, t, tp] = await Promise.all([
+    const [resolvedSearchParams, t, tp, locale] = await Promise.all([
       searchParams,
       getTranslations(namespace),
       getTranslations("practice"),
+      currentLocale(),
     ]);
     const practiceTitle = t("title");
 
@@ -240,8 +252,12 @@ export function createPracticeResultPage(
     const variantLabel = hasSetup
       ? tp("variantLabel", { label: t(`variants.${variant}.label`) })
       : undefined;
-    // 上位を出すランキング。範囲を絞った回は「すべて」に寄る
-    const leaderboardBoard = resolveLeaderboardBoard(slug, variant);
+    // 上位を出すランキング。範囲を絞った回は「すべて」に寄る。ランキングを
+    // その言語で公開していなければ出さない
+    const leaderboardBoard =
+      resolvePublishedHref(LEADERBOARD_PATH, locale) === undefined
+        ? undefined
+        : resolveLeaderboardBoard(slug, variant);
 
     return (
       <ResultView
@@ -286,6 +302,7 @@ export function createPracticeResultPage(
                 grantId={grantId}
                 menuType={menuType}
                 variant={variant}
+                returnTo={practiceHref(slug)}
               />
             </Suspense>
           )
@@ -322,10 +339,13 @@ async function AsyncResultBlock({
   grantId,
   menuType,
   variant,
+  returnTo,
 }: {
   readonly grantId: string | undefined;
   readonly menuType: PracticeMenuType;
   readonly variant: string;
+  /** 登録 CTA のログインのあとに戻す先（ロケール非依存。練習の説明ページ） */
+  readonly returnTo: string;
 }) {
   // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
   // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
@@ -343,7 +363,7 @@ async function AsyncResultBlock({
   }
 
   if (!user.value) {
-    return <SignUpCta />;
+    return <SignUpCta returnTo={returnTo} />;
   }
 
   const userId = user.value.id;
