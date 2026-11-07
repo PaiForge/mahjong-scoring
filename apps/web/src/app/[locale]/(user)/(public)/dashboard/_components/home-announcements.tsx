@@ -57,7 +57,9 @@ function fetchHomeAnnouncements(locale: SupportedLocale) {
  *   出せる情報が無いのに場所だけを取る。「すべて見る」の行き先（`/announcements`）は
  *   英語で未公開なので、日本語の一覧へ素の `<a hrefLang="ja">` で張り、
  *   「日本語のみ」の印を添える（英語の存在しない URL を作らず、クライアント遷移で
- *   英語の文書に日本語の本文を載せない）
+ *   英語の文書に日本語の本文を載せない）。各行の詳細（`/announcements/<slug>`）も
+ *   英語で未公開なので、同じく日本語の詳細へ印付きの素のリンクで張る
+ *   （`AnnouncementTextList` の `detailLink`）
  */
 export async function HomeAnnouncements({ locale }: HomeAnnouncementsProps) {
   const [t, tNav, announcements] = await Promise.all([
@@ -70,7 +72,17 @@ export async function HomeAnnouncements({ locale }: HomeAnnouncementsProps) {
     return undefined;
   }
 
+  const japaneseOnlyLabel = tNav("language.japaneseOnly");
   const viewAll = resolveNavTargetFor(ANNOUNCEMENTS_PATH, locale);
+  // 各行の詳細（/announcements/<slug>）も英語では未公開。日本語は既定の張り方の
+  // まま（行のリンクの出力を変えない）
+  const detailLink =
+    locale === DEFAULT_LOCALE
+      ? undefined
+      : {
+          targetFor: (path: string) => resolveNavTargetFor(path, locale),
+          japaneseOnlyLabel,
+        };
 
   return (
     <div className="space-y-4">
@@ -84,6 +96,7 @@ export async function HomeAnnouncements({ locale }: HomeAnnouncementsProps) {
             announcements={announcements}
             locale={locale}
             pinnedLabel={t("pinned")}
+            detailLink={detailLink}
           />
           <div className="text-right">
             <LocaleNavLink
@@ -91,7 +104,7 @@ export async function HomeAnnouncements({ locale }: HomeAnnouncementsProps) {
               linkKind="plain"
               className={`inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-surface-600 transition-colors hover:bg-surface-50 hover:text-foreground ${FOCUS_RING_CLASSES}`}
             >
-              {linkLabel(t("viewAll"), viewAll, tNav("language.japaneseOnly"))}
+              {linkLabel(t("viewAll"), viewAll, japaneseOnlyLabel)}
               <span aria-hidden="true">
                 <ChevronRightIcon />
               </span>

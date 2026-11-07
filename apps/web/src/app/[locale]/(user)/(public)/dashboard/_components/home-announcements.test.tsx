@@ -91,6 +91,31 @@ describe("HomeAnnouncements", () => {
     expect(link?.textContent).toContain("language.japaneseOnly");
   });
 
+  it("英語の各行は英語で未公開の詳細なので、日本語の詳細へ印付きで文書ごと移る", async () => {
+    mockExact.mockResolvedValue([announcementOf("en", "New feature")]);
+
+    const { container } = render(await HomeAnnouncements({ locale: "en" }));
+
+    const row = Array.from(container.querySelectorAll("a")).find((a) =>
+      a.textContent?.includes("New feature"),
+    );
+    expect(row?.getAttribute("href")).toBe("/announcements/new-feature");
+    expect(row?.getAttribute("hreflang")).toBe("ja");
+    expect(row?.textContent).toContain("language.japaneseOnly");
+  });
+
+  it("日本語の各行は従来どおり同じ言語の詳細へ印なしで張る", async () => {
+    mockPaginated.mockResolvedValue([announcementOf("ja", "新機能")]);
+
+    const { container } = render(await HomeAnnouncements({ locale: "ja" }));
+
+    const row = Array.from(container.querySelectorAll("a")).find((a) =>
+      a.textContent?.includes("新機能"),
+    );
+    expect(row?.getAttribute("href")).toBe("/announcements/new-feature");
+    expect(row?.hasAttribute("hreflang")).toBe(false);
+  });
+
   it("英語で英訳の行が 0 件なら節ごと出さない", async () => {
     mockExact.mockResolvedValue([]);
 
