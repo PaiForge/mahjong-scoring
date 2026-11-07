@@ -44,8 +44,16 @@ interface SchemaNode {
   readonly inLanguage?: string;
 }
 
+/** トップのページの props（`searchParams` は読まないが型が要求する） */
+function pageProps(locale: string) {
+  return {
+    params: Promise.resolve({ locale }),
+    searchParams: Promise.resolve({}),
+  };
+}
+
 async function renderSchema(locale: "ja" | "en"): Promise<unknown> {
-  const page = await Home({ params: Promise.resolve({ locale }) });
+  const page = await Home(pageProps(locale));
   const { container } = render(page);
   const script = container.querySelector('script[type="application/ld+json"]');
   if (script === null) throw new Error("JSON-LD が無い");
@@ -87,8 +95,6 @@ describe("Home の JSON-LD", () => {
 
   it("英語のトップが未公開なら 404", async () => {
     enPublished.current = new Set();
-    await expect(
-      Home({ params: Promise.resolve({ locale: "en" }) }),
-    ).rejects.toThrow("notFound");
+    await expect(Home(pageProps("en"))).rejects.toThrow("notFound");
   });
 });
