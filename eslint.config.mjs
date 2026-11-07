@@ -69,9 +69,9 @@ export default [
     // AdminPaginationNav と、部品を自前で持つ。app/_components はユーザー向け画面と
     // 管理画面の両方が使う共有部品で、ここから (user)/_components を読むと依存が
     // 双方向になる。どちらも (user)/_components（ブランド UI）を import しない
-    // （ルートの CLAUDE.md「共通UIコンポーネント」）。app/not-found.tsx と
-    // app/global-error.tsx はどちらの配下でもなく、自前の HTML とインラインの
-    // スタイルで描くので、この files には掛けていない。
+    // （ルートの CLAUDE.md「共通UIコンポーネント」）。app/not-found.tsx（日本語の
+    // ユーザー向けの 404。ブランド UI で描く）と app/global-error.tsx はどちらの
+    // 配下でもないので、この files には掛けていない。
     // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
     // 置き換えるため、features 向けの上の設定と files が重ならない独立した項目にする
     files: [

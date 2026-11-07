@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SITE_NAME } from "@/app/_lib/metadata";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 import { messages } from "@mahjong-scoring/messages/ja";
+import "./globals.css";
 
 const { notFound } = messages;
 
@@ -14,81 +19,48 @@ export const metadata: Metadata = {
 /**
  * Not Found（どのルートにも当たらない URL）
  *
- * `app/[locale]` にも `admin` にも当たらない URL の 404。ユーザー向けのページが
- * `notFound()` を呼んだときは `[locale]/not-found.tsx`（言語レイアウトの中、
- * 言語別）が出る。
+ * `app/[locale]` にも `admin` にも当たらない URL（`/no-such-page` 等）の 404。
+ * ユーザー向けのページが `notFound()` を呼んだときは `[locale]/not-found.tsx`
+ * （言語レイアウトの中、言語別）が出る。
  *
  * ルートレイアウトは言語ごと（`[locale]/layout.tsx`）と管理画面
- * （`admin/layout.tsx`）に分かれており、この画面を包むレイアウトは無い。
- * そのため `<html>` / `<body>` から自前で書き、言語の判定もしない
- * （判定のために headers を読むと静的に返せない）。文言は日本語の辞書の
- * `notFound` 名前空間をサーバーで読む（Provider の外なので `getTranslations`
- * は使わない。クライアントへ辞書は渡らない）。スタイルは globals.css に頼らず
- * インラインで持つ（`global-error.tsx` と同じ理由）。Next が 404 の応答に
- * noindex を入れるが、metadata でも明示する。
+ * （`admin/layout.tsx`）に分かれており、この画面を包むレイアウトは素通しの
+ * `app/layout.tsx` だけ。そのため `<html>` / `<body>` とグローバル CSS を自分で
+ * 持ち、言語の判定はしない（判定のために headers を読むと静的に返せない）。
+ * 外部の URL で言語の接頭辞が無いのは日本語なので、日本語で描く。
+ *
+ * @design 移行前と同じ部品・同じ導線で描く
+ * 言語レイアウトを導入する前は、この 404 はルートレイアウト（globals.css と
+ * Provider）の中で `ContentContainer`・`LinkButton` を使い、「ホームへ戻る」と
+ * 「練習一覧へ」を出していた。古いリンクや打ち間違いで来た人を練習へ戻す
+ * 導線なので、同じ見た目と 2 つのリンクを保つ。辞書の Provider の外なので、
+ * 文言は日本語の辞書の `notFound` 名前空間をサーバーで直接読み、
+ * `useTranslations` を呼ぶ部品（パンくず等）は使わない。クライアントへ辞書は
+ * 渡らない。Next が 404 の応答に noindex を入れるが、metadata でも明示する。
  */
 export default function NotFound() {
   return (
     <html lang="ja">
-      <body
-        style={{
-          margin: 0,
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          backgroundColor: "#f8fafc",
-          color: "#0f172a",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <main style={{ textAlign: "center", padding: "2rem" }}>
-          <p
-            style={{
-              fontSize: "3.75rem",
-              fontWeight: 300,
-              color: "#94a3b8",
-              margin: "0 0 1rem",
-            }}
-          >
-            404
-          </p>
-          <h1
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 700,
-              margin: "0 0 0.75rem",
-            }}
-          >
-            {notFound.title}
-          </h1>
-          <p
-            style={{
-              fontSize: "0.875rem",
-              color: "#475569",
-              margin: "0 0 2rem",
-            }}
-          >
-            {notFound.description}
-          </p>
-          {/* 遷移先とルートレイアウトが別なので、Next が全ページの読み込みで遷移する */}
-          <Link
-            href="/"
-            style={{
-              display: "inline-block",
-              padding: "0.5rem 1.5rem",
-              // 主操作の色（globals.css の --color-action）
-              backgroundColor: "#007a3d",
-              color: "#ffffff",
-              borderRadius: "0.5rem",
-              textDecoration: "none",
-              fontSize: "0.875rem",
-              fontWeight: 700,
-            }}
-          >
-            {notFound.goHome}
-          </Link>
-        </main>
+      <body className="min-h-screen overflow-x-hidden">
+        <ContentContainer>
+          <div className="flex flex-col items-center text-center py-12">
+            <p className="text-6xl font-light text-surface-400 mb-4">404</p>
+            <PageTitle className="mb-3">{notFound.title}</PageTitle>
+            <p className="text-sm text-surface-600 mb-8">
+              {notFound.description}
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              {/* 遷移先とルートレイアウトが別なので、Next が全ページの読み込みで遷移する */}
+              <LinkButton href="/">{notFound.goHome}</LinkButton>
+              <Link
+                href={PRACTICE_PATH}
+                className="inline-flex items-center justify-center rounded-lg border border-surface-300 px-6 py-2.5 text-sm font-semibold text-surface-700 transition-colors hover:bg-surface-100"
+              >
+                {notFound.toPractice}
+              </Link>
+            </div>
+          </div>
+        </ContentContainer>
       </body>
     </html>
   );
