@@ -2,9 +2,9 @@
 
 import type { ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 
+import { JapaneseOnlyMark } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
@@ -17,7 +17,10 @@ import {
 } from "@mahjong-scoring/features/quota/limits";
 import { buildSignInHref } from "@/lib/redirect";
 
+import { usePageLocale } from "../_hooks/use-page-locale";
+import { clientNavTarget } from "../_lib/client-nav-target";
 import { PRACTICE_SCROLL_ANCHOR_ID } from "../_lib/scroll-anchor";
+import { PracticeNavLink } from "./practice-nav-link";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -48,6 +51,9 @@ interface PracticeQuotaPaywallProps {
  * - ログイン済み: Pro の料金ページへ
  *
  * ログイン後は今の play へ戻す（`buildSignInHref`）。設定を選び直させない。
+ * 戻り先は `usePathname()`（next/navigation）なので今のページの公開 URL（英語なら
+ * `/en/...`）のまま。ログイン・登録・料金がその言語で未公開なら「日本語のみ」の印付きで
+ * 日本語のページへ文書ごと送る（`clientNavTarget`）。
  * 模試（`exam/<級>/training`）でも同じ画面で、見出しと戻るリンクの文言だけ
  * 呼び出し側が差し替える。
  */
@@ -60,10 +66,18 @@ export function PracticeQuotaPaywall({
   onBackToSetup,
 }: PracticeQuotaPaywallProps) {
   const t = useTranslations("practiceQuota.paywall");
+  const tNav = useTranslations("nav.language");
+  const locale = usePageLocale();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const query = searchParams.toString();
-  const signInHref = buildSignInHref(query ? `${pathname}?${query}` : pathname);
+  const signInTarget = clientNavTarget(
+    buildSignInHref(query ? `${pathname}?${query}` : pathname),
+    locale,
+  );
+  const signUpTarget = clientNavTarget("/sign-up", locale);
+  const planTarget = clientNavTarget(PLAN_PAGE_HREF, locale);
+  const japaneseOnly = tNav("japaneseOnly");
 
   return (
     <ContentContainer id={PRACTICE_SCROLL_ANCHOR_ID} fillViewport>
@@ -86,12 +100,18 @@ export function PracticeQuotaPaywall({
 
         {!signedIn && (
           <div className={`flex flex-col items-center ${SUB_LINK_GAP}`}>
-            <LinkButton href={signInHref} size="lg" fullWidth>
+            <LinkButton navTarget={signInTarget} size="lg" fullWidth>
               {t("signInCta")}
+              {signInTarget.crossLocale && (
+                <JapaneseOnlyMark label={japaneseOnly} />
+              )}
             </LinkButton>
-            <Link href="/sign-up" className={`text-sm ${TEXT_LINK_CLASSES}`}>
+            <PracticeNavLink
+              navTarget={signUpTarget}
+              className={`text-sm ${TEXT_LINK_CLASSES}`}
+            >
               {t("signUpLink")}
-            </Link>
+            </PracticeNavLink>
           </div>
         )}
 
@@ -111,12 +131,15 @@ export function PracticeQuotaPaywall({
           </div>
           <div className={`flex flex-col items-center ${SUB_LINK_GAP}`}>
             <LinkButton
-              href={PLAN_PAGE_HREF}
+              navTarget={planTarget}
               variant={signedIn ? "primary" : "secondary"}
               size="lg"
               fullWidth
             >
               {t("planCta")}
+              {planTarget.crossLocale && (
+                <JapaneseOnlyMark label={japaneseOnly} />
+              )}
             </LinkButton>
             <p className="text-xs text-surface-500">{t("noAutoRenew")}</p>
           </div>

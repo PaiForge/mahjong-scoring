@@ -2,7 +2,6 @@
 
 import { memo, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { isOya } from "@mahjong-scoring/core";
 import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
@@ -16,6 +15,9 @@ import {
 import { TehaiHand } from "../../_components/tehai-hand";
 import { useAutoScale } from "../../_hooks/use-auto-scale";
 import { RiichiStick } from "./riichi-stick";
+import { PracticeNavLink } from "./practice-nav-link";
+import { usePageLocale } from "../_hooks/use-page-locale";
+import { clientNavTarget } from "../_lib/client-nav-target";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { HelpIconButton } from "@/app/[locale]/(user)/_components/help-icon-button";
 import { InfoModal } from "@/app/[locale]/(user)/_components/info-modal";
@@ -106,6 +108,11 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
   tourId,
 }: TehaiDisplayProps) {
   const t = useTranslations("common");
+  // 設定の画面がその言語で未公開なら「日本語のみ」の印付きで日本語の設定へ送る
+  const settingsTarget = clientNavTarget(
+    preferencesHref(PREFERENCE_ANCHORS.doraDisplay),
+    usePageLocale(),
+  );
   const doraDisplay = useDoraDisplayMode();
   const isIndicator = doraDisplay === "indicator";
   const [showDoraInfo, setShowDoraInfo] = useState(false);
@@ -222,12 +229,12 @@ export const TehaiDisplay = memo(function TehaiDisplayComponent({
           // 表示牌のまま出すかドラそのものに読み替えるかは設定で切り替える。
           // 本文で「設定から変えられる」と言うだけでは辿り着けないので、
           // その項目へ直接飛ぶリンクを閉じるボタンの下に置く
-          <Link
-            href={preferencesHref(PREFERENCE_ANCHORS.doraDisplay)}
+          <PracticeNavLink
+            navTarget={settingsTarget}
             className={TEXT_LINK_CLASSES}
           >
             {t("doraInfoSettingsLink")}
-          </Link>
+          </PracticeNavLink>
         }
       >
         <p className="whitespace-pre-line">
