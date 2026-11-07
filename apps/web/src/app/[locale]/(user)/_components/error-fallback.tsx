@@ -21,15 +21,20 @@ interface ErrorFallbackProps {
   readonly backHref?: string;
   /** 戻りリンクのラベル（既定: 「ホームへ戻る」） */
   readonly backLabel?: string;
+  /** 再試行ボタンのラベル（既定: 「もう一度試す」） */
+  readonly retryLabel?: string;
 }
 
 /**
  * (user) シェル配下のエラー境界の共通フォールバック UI
  * エラーフォールバック
  *
- * NextIntlClientProvider が HMR 等で一時的に欠落するリスクを避けるため、
- * useTranslations は使わず、各 error.tsx が日本語文言を props で
- * ハードコード指定する（error boundary の HMR 耐性を優先する設計判断）。
+ * 文言はすべて props で受け取り、この部品自身は `useTranslations` を呼ばない
+ * （NextIntlClientProvider が HMR 等で一時的に欠落しても描けるように）。
+ * 日本語だけのページの error.tsx は日本語の文言を直接渡してよく、既定値も
+ * 日本語にしてある。英語でも出る境界（`[locale]/(user)/error.tsx`）は、
+ * `errorPage` 名前空間から引いた文言を見出しから再試行ボタンまで全部渡す
+ * （1 つでも省くと、英語のページに日本語の既定値が混ざる）。
  */
 export function ErrorFallback({
   error,
@@ -39,6 +44,7 @@ export function ErrorFallback({
   logTag,
   backHref = "/",
   backLabel = "ホームへ戻る",
+  retryLabel = "もう一度試す",
 }: ErrorFallbackProps) {
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
@@ -56,7 +62,7 @@ export function ErrorFallback({
         <PageTitle>{title}</PageTitle>
         <p className="text-sm text-surface-600">{description}</p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button onClick={reset}>もう一度試す</Button>
+          <Button onClick={reset}>{retryLabel}</Button>
           <Link
             href={backHref}
             className={buttonClasses({ variant: "neutral" })}
