@@ -110,15 +110,15 @@
       "fuNotRequired": "Not needed from mangan up"
     },
     "options": {
-      "hanSuffix": "han",
-      "fuSuffix": "fu",
+      "hanSuffix": " han",
+      "fuSuffix": " fu",
       "mangan": "Mangan",
       "haneman": "Haneman",
       "baiman": "Baiman",
       "sanbaiman": "Sanbaiman",
       "yakuman": "Yakuman",
       "doubleYakuman": "Double yakuman",
-      "all": "all"
+      "all": " all"
     },
     "buttons": {
       "answer": "Answer"
@@ -145,7 +145,7 @@
       "toggle": "Show the breakdown"
     },
     "next": "Next question",
-    "pointSuffix": "points",
+    "pointSuffix": " points",
     "openInScoreTable": "View in the scoring table",
     "viewYakuList": "Check the yaku list",
     "openYakuInList": "View in the yaku list",

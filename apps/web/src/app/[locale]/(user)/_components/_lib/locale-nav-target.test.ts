@@ -20,8 +20,8 @@ describe("resolveNavTargetFor", () => {
   });
 
   it("英語のページから英語で未公開のページへは日本語の href のまま言語をまたぐ", () => {
-    expect(resolveNavTargetFor("/practice?variant=all", "en")).toEqual({
-      href: "/practice?variant=all",
+    expect(resolveNavTargetFor("/plan?x=1", "en")).toEqual({
+      href: "/plan?x=1",
       crossLocale: true,
     });
   });

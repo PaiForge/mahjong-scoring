@@ -117,9 +117,7 @@ describe("sitemap", () => {
   it("日本語だけのページは ja と x-default、両言語のページは ja・en・x-default を持つ", async () => {
     const byUrl = new Map((await sitemap()).map((entry) => [entry.url, entry]));
     expect(
-      Object.keys(
-        byUrl.get(`${SITE_URL}/practice`)?.alternates?.languages ?? {},
-      ),
+      Object.keys(byUrl.get(`${SITE_URL}/plan`)?.alternates?.languages ?? {}),
     ).toEqual(["ja", "x-default"]);
     expect(
       Object.keys(

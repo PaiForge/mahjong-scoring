@@ -325,24 +325,24 @@ describe("createMetadata", () => {
   });
 
   it("path を渡すと canonical・hreflang・og:url が付く", () => {
-    expect(createMetadata({ title: "練習", path: "/practice" })).toEqual({
-      title: "練習 - 麻雀点数計算教室",
+    expect(createMetadata({ title: "料金", path: "/plan" })).toEqual({
+      title: "料金 - 麻雀点数計算教室",
       // 日本語だけで索引させるページの hreflang は実在する日本語と x-default だけ
       alternates: {
-        canonical: "/practice",
-        languages: { ja: "/practice", "x-default": "/practice" },
+        canonical: "/plan",
+        languages: { ja: "/plan", "x-default": "/plan" },
       },
       openGraph: {
         type: "website",
         siteName: "麻雀点数計算教室",
         locale: "ja_JP",
-        title: "練習 - 麻雀点数計算教室",
+        title: "料金 - 麻雀点数計算教室",
         images: [EXPECTED_IMAGE],
-        url: "/practice",
+        url: "/plan",
       },
       twitter: {
         card: "summary_large_image",
-        title: "練習 - 麻雀点数計算教室",
+        title: "料金 - 麻雀点数計算教室",
         images: [EXPECTED_IMAGE],
       },
     });
@@ -472,11 +472,10 @@ describe("locale を渡したとき（英語）", () => {
 
   it("英語で索引させない画面は自己 canonical を持てるが、hreflang に英語を挙げない", () => {
     expect(
-      createMetadata({ title: "Practice", path: "/practice", locale: "en" })
-        .alternates,
+      createMetadata({ title: "Plan", path: "/plan", locale: "en" }).alternates,
     ).toEqual({
-      canonical: "/en/practice",
-      languages: { ja: "/practice", "x-default": "/practice" },
+      canonical: "/en/plan",
+      languages: { ja: "/plan", "x-default": "/plan" },
     });
   });
 
