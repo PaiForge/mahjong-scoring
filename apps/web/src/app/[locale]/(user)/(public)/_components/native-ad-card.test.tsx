@@ -10,6 +10,8 @@ import type { NativeAdView } from "@mahjong-scoring/features/ads/native-ad";
 import { NativeAdCard } from "./native-ad-card";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
+// 手牌の帯の牌画像（LocaleHai）はクライアントの useLocale / useTranslations で alt を決める
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 const creative: NativeAdView = {
   id: "c1",

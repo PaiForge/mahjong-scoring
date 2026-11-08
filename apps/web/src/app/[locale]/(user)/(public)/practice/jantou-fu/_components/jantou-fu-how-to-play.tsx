@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { DemoChoiceCell } from "../../_components/demo-choice-cell";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
 import { QuestionPrompt } from "../../_components/question-prompt";
@@ -39,7 +39,7 @@ export function JantouFuHowToPlay() {
         {DEMO_CHOICES.map((hai, i) => (
           <DemoChoiceCell key={i}>
             <div className="scale-125">
-              <Hai hai={hai} />
+              <LocaleHai hai={hai} />
             </div>
           </DemoChoiceCell>
         ))}

@@ -4,7 +4,7 @@ import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { haiIdToMpsz } from "@mahjong-scoring/core";
 import type { HaiKindId, MachiSelectionJudgement } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import {
   MACHI_TILE_MARK_CLASSES,
   machiTileMark,
@@ -87,7 +87,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                 className={`flex min-h-12 flex-col items-center justify-center rounded-lg border px-0.5 py-1 transition-colors sm:min-h-16 sm:rounded-xl ${FOCUS_RING_CLASSES} ${tileClasses(isSelected, mark, judged)}`}
               >
                 <span className="origin-center scale-75 sm:scale-100">
-                  <Hai hai={hai} size="sm" />
+                  <LocaleHai hai={hai} size="sm" />
                 </span>
               </button>
             );

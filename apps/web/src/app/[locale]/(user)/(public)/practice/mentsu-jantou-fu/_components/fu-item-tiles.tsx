@@ -2,7 +2,8 @@
 
 import { MentsuType } from "@mahjong-scoring/core";
 import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
-import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
+import { Furo } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 
 /**
  * 牌の描き分けに必要な回答行の情報
@@ -55,7 +56,7 @@ export function FuItemTiles({
     ) : (
       <div className="flex gap-0.5">
         {item.tiles.map((tile, i) => (
-          <Hai
+          <LocaleHai
             key={i}
             hai={tile}
             size="sm"

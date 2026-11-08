@@ -1,7 +1,7 @@
 "use client";
 
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 
 /** 注釈の意味づけと色の対応表 */
 const ANNOTATION_TONE_CLASS = {
@@ -36,13 +36,13 @@ export function TehaiFuExample({
       <div className="flex items-center gap-2">
         <div className="flex items-end gap-0.5">
           {tiles.map((tile, i) => (
-            <Hai key={i} hai={tile} rotated={i === rotatedIndex} />
+            <LocaleHai key={i} hai={tile} rotated={i === rotatedIndex} />
           ))}
         </div>
         {agariHai != null && (
           <>
             <span className="text-xs text-surface-400">+</span>
-            <Hai hai={agariHai} />
+            <LocaleHai hai={agariHai} />
           </>
         )}
       </div>

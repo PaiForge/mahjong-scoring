@@ -6,7 +6,7 @@ import type {
   TenpaiScoreQuestion,
 } from "@mahjong-scoring/core";
 import { haiIdToMpsz } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import {
   cellKeyOf,
   type MachiCellRef,
@@ -243,7 +243,7 @@ export function WaitCellGrid({
             <tr key={wait.agariHai}>
               <th scope="row" className="p-1 text-center align-middle">
                 <span className="inline-flex justify-center">
-                  <Hai hai={wait.agariHai} size="sm" />
+                  <LocaleHai hai={wait.agariHai} size="sm" />
                 </span>
               </th>
               {renderCell({ agariHai: wait.agariHai, isTsumo: true })}
