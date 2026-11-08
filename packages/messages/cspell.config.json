@@ -1,0 +1,6 @@
+{
+  "version": "0.2",
+  "language": "en-US",
+  "noConfigSearch": true,
+  "ignoreRegExpList": ["Urls", "Email"]
+}
