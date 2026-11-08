@@ -20,15 +20,34 @@ import { PRACTICE_QUOTA_LIMITS } from "@mahjong-scoring/features/quota/limits";
 import { OfferPurchaseButton } from "./_components/offer-purchase-button";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+
+/**
+ * 金額の書式の地域（`Intl.NumberFormat` のロケール）
+ *
+ * 通貨・税・販売地域は言語で変えない（日本円・税込のまま）。区切りと通貨記号の
+ * 並びだけをページの言語に合わせる（英語は `¥480`）。英語の購入者には
+ * `plan.offers.shared` の「Prices are in Japanese yen (JPY)」と
+ * `plan.offers.taxIncluded` で通貨と税込を知らせ、請求通貨は Stripe の
+ * Checkout が表示する。マイページの購入状況（`mypage/plan/page.tsx`）と同じ表で、
+ * `lib/billing/prices.ts` へは移さない（購入の共有ロジックの担当と重ならないよう
+ * ページに持つ）。
+ */
+const AMOUNT_FORMAT_LOCALES = {
+  ja: "ja-JP",
+  en: "en-US",
+} as const satisfies Record<SupportedLocale, string>;
 
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/plan">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/plan");
+  const locale = await prepareRouteLocale(params, "/plan");
   // パスはリテラルで書く（seo-coverage.test が canonical の宣言を文字列で検査する）
   return createNamespaceMetadata("plan", {
     title: "pageTitle",
     path: PLAN_PAGE_HREF,
+    locale,
   });
 }
 
@@ -62,12 +81,24 @@ export const revalidate = 3600;
  * 1. 特典を読む → 売り方を選んで「購入する」
  * 2. 未ログインなら「ログインして購入」でサインインへ（戻り先はこのページ）
  * 3. ログイン済みなら Stripe の決済画面へ → 完了すると `/mypage/plan` に戻る
+ *
+ * @design 英語の料金ページと英語からの購入
+ * ページの言語（`prepareRouteLocale` の戻り値）を metadata・金額の書式
+ * （{@link AMOUNT_FORMAT_LOCALES}）・本文のリンク・購入ボタンに明示で渡す。
+ * 特商法の表記と購入状況へのリンクは公開状態の表から張る先を決める
+ * （`resolveNavTargetFor`。英語で公開していれば `/en/...`）。購入ボタンは
+ * クライアント部品なので公開状態を読まず、言語だけを props で受けて
+ * サインインの戻り先（英語の料金ページ）と Server Action の引数に使う。
+ * Checkout の言語・戻り先は予約に保存した言語から組まれる。
  */
 export default async function PlanPage({
   params,
 }: PageProps<"/[locale]/plan">) {
-  await prepareRouteLocale(params, "/plan");
+  const locale = await prepareRouteLocale(params, "/plan");
   const t = await getTranslations("plan");
+  const amountLocale = AMOUNT_FORMAT_LOCALES[locale];
+  const tokushohoHref = resolveNavTargetFor("/tokushoho", locale).href;
+  const mypagePlanHref = resolveNavTargetFor(MYPAGE_PLAN_PATH, locale).href;
   const prices = await getOfferPrices("pro");
   const plan = PLANS.pro;
 
@@ -141,7 +172,11 @@ export default async function PlanPage({
                   <p className="text-2xl font-bold tabular-nums">
                     {price ? (
                       <>
-                        {formatAmount(price.amount, price.currency)}
+                        {formatAmount(
+                          price.amount,
+                          price.currency,
+                          amountLocale,
+                        )}
                         <span className="ml-1 text-xs font-medium text-surface-500">
                           {t("offers.taxIncluded")}
                         </span>
@@ -153,7 +188,10 @@ export default async function PlanPage({
                     )}
                   </p>
                   <div className="mt-auto">
-                    <OfferPurchaseButton offer={plan.offers[offer].key} />
+                    <OfferPurchaseButton
+                      offer={plan.offers[offer].key}
+                      locale={locale}
+                    />
                   </div>
                 </div>
               );
@@ -176,7 +214,7 @@ export default async function PlanPage({
           <p className="text-sm">
             {t.rich("notes.tokushoho", {
               link: (chunks) => (
-                <Link href="/tokushoho" className={TEXT_LINK_CLASSES}>
+                <Link href={tokushohoHref} className={TEXT_LINK_CLASSES}>
                   {chunks}
                 </Link>
               ),
@@ -185,7 +223,7 @@ export default async function PlanPage({
         </section>
 
         <p className="text-center text-sm">
-          <Link href={MYPAGE_PLAN_PATH} className={TEXT_LINK_CLASSES}>
+          <Link href={mypagePlanHref} className={TEXT_LINK_CLASSES}>
             {t("manageLink")}
           </Link>
         </p>

@@ -48,7 +48,7 @@ describe("createCheckoutSession", () => {
     }
     expect(mocks.open).not.toHaveBeenCalled();
   });
-  it("現在の origin と認証した本人で手続きを開始する", async () => {
+  it("現在の origin と認証した本人で手続きを開始する（言語の省略は日本語）", async () => {
     await expect(createCheckoutSession("pass")).rejects.toThrow(
       "NEXT_REDIRECT:https://checkout.stripe.com/x",
     );
@@ -57,6 +57,7 @@ describe("createCheckoutSession", () => {
       "u1@example.com",
       "pass",
       "http://localhost:3000",
+      "ja",
     );
   });
   it("origin がなければ SITE_URL", async () => {
@@ -69,8 +70,36 @@ describe("createCheckoutSession", () => {
       "u1@example.com",
       "lifetime",
       "https://score.mahjong.help",
+      "ja",
     );
   });
+  it("購入ボタンのページの言語を手続きへ渡す（英語）", async () => {
+    await expect(createCheckoutSession("pass", "en")).rejects.toThrow(
+      "NEXT_REDIRECT",
+    );
+    expect(mocks.open).toHaveBeenCalledWith(
+      "u1",
+      "u1@example.com",
+      "pass",
+      "http://localhost:3000",
+      "en",
+    );
+  });
+  it.each(["fr", "EN", "", "/en"])(
+    "対応していない言語 %j は日本語として手続きを開始する",
+    async (locale) => {
+      await expect(createCheckoutSession("pass", locale)).rejects.toThrow(
+        "NEXT_REDIRECT",
+      );
+      expect(mocks.open).toHaveBeenCalledWith(
+        "u1",
+        "u1@example.com",
+        "pass",
+        "http://localhost:3000",
+        "ja",
+      );
+    },
+  );
   it.each([
     "alreadyActive",
     "checkoutInProgress",
