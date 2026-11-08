@@ -22,6 +22,7 @@ import {
   LegalList,
   LegalParagraph,
   LegalSection,
+  LegalTranslationNote,
 } from "../_components/legal-article";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
@@ -39,23 +40,25 @@ const GOOGLE_LINKS = {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/privacy">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/privacy");
+  const locale = await prepareRouteLocale(params, "/privacy");
   return createNamespaceMetadata("privacy", {
     title: "pageTitle",
     path: "/privacy",
+    locale,
   });
 }
 
 export default async function PrivacyPage({
   params,
 }: PageProps<"/[locale]/privacy">) {
-  await prepareRouteLocale(params, "/privacy");
+  const locale = await prepareRouteLocale(params, "/privacy");
   const t = await getTranslations("privacy");
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <LegalArticle>
+        <LegalTranslationNote path="/privacy" locale={locale} />
         <LegalSection title={t("intro.title")}>
           <LegalParagraph>
             {t("intro.body", { siteName: SITE_NAME })}
@@ -101,7 +104,11 @@ export default async function PrivacyPage({
           <LegalParagraph>
             {t.rich("analytics.note", {
               link: (chunks) => (
-                <LegalLink href={GOOGLE_LINKS.privacyPolicy} external>
+                <LegalLink
+                  href={GOOGLE_LINKS.privacyPolicy}
+                  locale={locale}
+                  external
+                >
                   {chunks}
                 </LegalLink>
               ),
@@ -119,7 +126,11 @@ export default async function PrivacyPage({
           <LegalParagraph>
             {t.rich("ads.optOut", {
               link: (chunks) => (
-                <LegalLink href={GOOGLE_LINKS.adsSettings} external>
+                <LegalLink
+                  href={GOOGLE_LINKS.adsSettings}
+                  locale={locale}
+                  external
+                >
                   {chunks}
                 </LegalLink>
               ),
@@ -128,7 +139,11 @@ export default async function PrivacyPage({
           <LegalParagraph>
             {t.rich("ads.learnMore", {
               link: (chunks) => (
-                <LegalLink href={GOOGLE_LINKS.partnerSites} external>
+                <LegalLink
+                  href={GOOGLE_LINKS.partnerSites}
+                  locale={locale}
+                  external
+                >
                   {chunks}
                 </LegalLink>
               ),
@@ -154,7 +169,9 @@ export default async function PrivacyPage({
           <LegalParagraph>
             {t.rich("publicInfo.body", {
               preferences: (chunks) => (
-                <LegalLink href={PREFERENCES_PATH}>{chunks}</LegalLink>
+                <LegalLink href={PREFERENCES_PATH} locale={locale}>
+                  {chunks}
+                </LegalLink>
               ),
             })}
           </LegalParagraph>
@@ -182,21 +199,29 @@ export default async function PrivacyPage({
             <li>
               {t.rich("rights.item1", {
                 profile: (chunks) => (
-                  <LegalLink href="/mypage/profile/edit">{chunks}</LegalLink>
+                  <LegalLink href="/mypage/profile/edit" locale={locale}>
+                    {chunks}
+                  </LegalLink>
                 ),
               })}
             </li>
             <li>
               {t.rich("rights.item2", {
                 deleteAccount: (chunks) => (
-                  <LegalLink href="/mypage/account/delete">{chunks}</LegalLink>
+                  <LegalLink href="/mypage/account/delete" locale={locale}>
+                    {chunks}
+                  </LegalLink>
                 ),
               })}
             </li>
             <li>
               {t.rich("rights.item3", {
                 link: (chunks) => (
-                  <LegalLink href={GOOGLE_LINKS.adsSettings} external>
+                  <LegalLink
+                    href={GOOGLE_LINKS.adsSettings}
+                    locale={locale}
+                    external
+                  >
                     {chunks}
                   </LegalLink>
                 ),
@@ -205,7 +230,9 @@ export default async function PrivacyPage({
             <li>
               {t.rich("rights.item4", {
                 contact: (chunks) => (
-                  <LegalLink href="/contact">{chunks}</LegalLink>
+                  <LegalLink href="/contact" locale={locale}>
+                    {chunks}
+                  </LegalLink>
                 ),
               })}
             </li>
@@ -223,7 +250,11 @@ export default async function PrivacyPage({
           </LegalList>
         </LegalSection>
 
-        <LegalClosing page="privacy" lastUpdated={LAST_UPDATED} />
+        <LegalClosing
+          page="privacy"
+          lastUpdated={LAST_UPDATED}
+          locale={locale}
+        />
       </LegalArticle>
     </ContentContainer>
   );

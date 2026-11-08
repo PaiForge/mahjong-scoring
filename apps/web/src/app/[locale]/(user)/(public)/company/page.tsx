@@ -27,17 +27,18 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/company">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/company");
+  const locale = await prepareRouteLocale(params, "/company");
   return createNamespaceMetadata("company", {
     title: "pageTitle",
     path: "/company",
+    locale,
   });
 }
 
 export default async function CompanyPage({
   params,
 }: PageProps<"/[locale]/company">) {
-  await prepareRouteLocale(params, "/company");
+  const locale = await prepareRouteLocale(params, "/company");
   const t = await getTranslations("company");
 
   return (
@@ -64,7 +65,7 @@ export default async function CompanyPage({
         <LegalParagraph>
           {t.rich("moreInfo", {
             link: (chunks) => (
-              <LegalLink href={CORPORATE_SITE_URL} external>
+              <LegalLink href={CORPORATE_SITE_URL} locale={locale} external>
                 {chunks}
               </LegalLink>
             ),

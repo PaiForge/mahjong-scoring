@@ -25,6 +25,7 @@ import {
   LegalLink,
   LegalParagraph,
   LegalSection,
+  LegalTranslationNote,
 } from "../_components/legal-article";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import { prepareRouteLocale } from "@/i18n/route-locale";
@@ -49,23 +50,25 @@ const TRADE_SECTIONS = [
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/tokushoho">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/tokushoho");
+  const locale = await prepareRouteLocale(params, "/tokushoho");
   return createNamespaceMetadata("tokushoho", {
     title: "pageTitle",
     path: "/tokushoho",
+    locale,
   });
 }
 
 export default async function TokushohoPage({
   params,
 }: PageProps<"/[locale]/tokushoho">) {
-  await prepareRouteLocale(params, "/tokushoho");
+  const locale = await prepareRouteLocale(params, "/tokushoho");
   const t = await getTranslations("tokushoho");
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <LegalArticle>
+        <LegalTranslationNote path="/tokushoho" locale={locale} />
         {PLAIN_SECTIONS.map((key) => (
           <LegalSection key={key} title={t(`${key}.title`)}>
             <LegalParagraph>{t(`${key}.value`)}</LegalParagraph>
@@ -76,7 +79,9 @@ export default async function TokushohoPage({
           <LegalParagraph>
             {t.rich("contact.value", {
               contact: (chunks) => (
-                <LegalLink href="/contact">{chunks}</LegalLink>
+                <LegalLink href="/contact" locale={locale}>
+                  {chunks}
+                </LegalLink>
               ),
             })}
           </LegalParagraph>
@@ -86,7 +91,9 @@ export default async function TokushohoPage({
           <LegalParagraph>
             {t.rich("price.value", {
               plan: (chunks) => (
-                <LegalLink href={PLAN_PAGE_HREF}>{chunks}</LegalLink>
+                <LegalLink href={PLAN_PAGE_HREF} locale={locale}>
+                  {chunks}
+                </LegalLink>
               ),
             })}
           </LegalParagraph>
