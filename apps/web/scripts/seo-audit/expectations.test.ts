@@ -15,11 +15,13 @@ import {
   EN_INDEXABLE_PATHS,
   EN_INDEXABLE_TEMPLATES,
   EN_NOINDEX_PATHS,
+  EN_NOINDEX_TEMPLATES,
   EN_ROBOTS_DISALLOW_ADDITIONS,
   expectedAlternates,
   expectedEnIndexablePaths,
   expectedUrl,
   isEnIndexable,
+  isEnNoindex,
   matchStaticMigrations,
   parseSiteUrl,
 } from "./expectations";
@@ -65,6 +67,9 @@ const SAMPLE_PATHS: readonly string[] = [
   "/dojo/ranks/__unknown__",
   "/dashboard",
   "/plan",
+  "/contact/confirm",
+  "/announcements/__audit_unknown__",
+  "/announcements/a/b",
 ];
 
 describe("監査の期待値とアプリの公開状態", () => {
@@ -105,6 +110,38 @@ describe("監査の期待値とアプリの公開状態", () => {
     expect(EN_INDEXABLE_PATHS).toEqual(
       expect.arrayContaining([...ALLOWED_NEW_JA_STATIC]),
     );
+  });
+
+  // 段級位の詳細は監査が実在の 6 件を文字列で持つ（アプリは形で判定する）ので、
+  // 形に合うが無い段級位（ページの 404）は比べない。http.ts の未知の slug の検査が見る
+  it.each(
+    SAMPLE_PATHS.filter(
+      (path) => path !== "/dojo/ranks/audit-unknown-rank",
+    ).map((path) => [path]),
+  )(
+    "%s を英語で出して索引させないかは route-policy と一致する（テンプレートを含む）",
+    (path) => {
+      expect(isEnNoindex(path)).toBe(
+        getPublication(path, "en") === "published-noindex",
+      );
+    },
+  );
+
+  it("英語の noindex のテンプレートはお知らせの詳細だけで、具体的な URL へ展開しない", () => {
+    expect([...EN_NOINDEX_TEMPLATES.keys()]).toEqual(["/announcements/[slug]"]);
+    expect(
+      EN_PUBLISHED_PATHS.filter((path) => path.startsWith("/announcements/")),
+    ).toEqual([]);
+    expect(
+      EN_NOINDEX_PATHS.filter((path) => path.startsWith("/announcements/")),
+    ).toEqual([]);
+  });
+
+  it("英語の料金とお知らせの一覧は baseline の 404 から 200 に変わる", () => {
+    expect(BASELINE_HTTP_CHANGES.get("/en/plan")).toEqual({ status: 200 });
+    expect(BASELINE_HTTP_CHANGES.get("/en/announcements")).toEqual({
+      status: 200,
+    });
   });
 
   it("英語で出して索引させないパスは route-policy の published-noindex と同じ集合", () => {
@@ -160,7 +197,27 @@ describe("監査の期待値とアプリの公開状態", () => {
       "/preferences/yaku-order",
     ];
     expect(EN_NOINDEX_PATHS).toEqual(expect.arrayContaining(member));
-    expect(EN_NOINDEX_PATHS).toHaveLength(54 + 6 + member.length);
+    expect(EN_NOINDEX_PATHS).toHaveLength(54 + 6 + member.length + 3);
+  });
+
+  it("英語の noindex にお問い合わせの確認・完了とお知らせの一覧が入り、法務・料金は索引対象", () => {
+    expect(EN_NOINDEX_PATHS).toEqual(
+      expect.arrayContaining([
+        "/contact/confirm",
+        "/contact/success",
+        "/announcements",
+      ]),
+    );
+    expect(EN_INDEXABLE_PATHS).toEqual(
+      expect.arrayContaining([
+        "/terms",
+        "/privacy",
+        "/tokushoho",
+        "/company",
+        "/contact",
+        "/plan",
+      ]),
+    );
   });
 
   it("robots.txt の Disallow は日本語の行をそのまま保ち、英語のマイページと公開プロフィールを足す", async () => {

@@ -38,7 +38,9 @@ export const SITE_ORIGIN = PRODUCTION_SITE_URL;
  * `route-policy.ts` の英語の許可リストのうち `published-indexable` の完全一致の行。
  * トップ・レッスンの目次と 20 章・早見表のハブ・役一覧・用語集の一覧・点数表と、
  * 練習・昇級試験・はじめ方・体験の 25 ページ（練習の一覧、練習 11 種と昇級試験
- * 6 種の説明、和了形・聴牌形の設定、はじめ方、体験 2 つ、点数計算のデモ）。
+ * 6 種の説明、和了形・聴牌形の設定、はじめ方、体験 2 つ、点数計算のデモ）、
+ * 法務・運営情報・お問い合わせの入力・料金の 6 ページ（利用規約・プライバシー
+ * ポリシー・特商法の表記・運営者情報・お問い合わせ・料金）。
  * どれも日本語で索引対象かつ静的生成のページ。用語のページはテンプレート
  * （{@link EN_INDEXABLE_TEMPLATES}）で持つ。
  */
@@ -93,6 +95,12 @@ export const EN_INDEXABLE_PATHS: readonly string[] = [
   "/try/agari-score",
   "/try/mentsu-fu",
   "/reference/demo",
+  "/terms",
+  "/privacy",
+  "/tokushoho",
+  "/company",
+  "/contact",
+  "/plan",
 ];
 
 /**
@@ -197,8 +205,10 @@ const EN_MEMBER_NOINDEX_PATHS: readonly string[] = [
  * 英語で出しているが索引させないページ（ロケール非依存のパス）
  *
  * `route-policy.ts` の英語の `published-noindex`。練習・昇級試験の play / training /
- * result（17 × 3）、和了形・聴牌形の play、道場、段級位の詳細 6 件と、会員の画面 18 件
- * （{@link EN_MEMBER_NOINDEX_PATHS}）。段級位の詳細は
+ * result（17 × 3）、和了形・聴牌形の play、道場、段級位の詳細 6 件、会員の画面 18 件
+ * （{@link EN_MEMBER_NOINDEX_PATHS}）と、お問い合わせの確認・完了、お知らせの一覧。
+ * お知らせの詳細は DB 由来で具体的な URL を列挙できないので、テンプレート
+ * （{@link EN_NOINDEX_TEMPLATES}）で持つ。段級位の詳細は
  * アプリではテンプレート（`/dojo/ranks/[slug]`）だが、監査はレジストリを読まない
  * （モジュールの TSDoc）ので slug を文字列で並べる。`expectations.test.ts` が
  * route-policy の集合との一致を落とす。
@@ -226,14 +236,44 @@ export const EN_NOINDEX_PATHS: readonly string[] = [
   "/dojo/ranks/kyu-1",
   "/dojo/ranks/dan-1",
   ...EN_MEMBER_NOINDEX_PATHS,
+  "/contact/confirm",
+  "/contact/success",
+  "/announcements",
 ];
+
+/**
+ * 英語で出しているが索引させない動的ルートのテンプレート（テンプレート → 当てるパスの形）
+ *
+ * お知らせの詳細。英語で書いた行だけを出し（日本語へ fallback しない）、英語の行が
+ * 無い slug はページが 404 にする。slug は DB 由来で、アプリも具体的なパスへ展開
+ * しない（`route-policy.ts` の `TEMPLATE_EXPANSIONS` が空）。監査は日本語の URL に
+ * `/en` を付けた未公開の英語の検査（hard 404）からこの形のパスを外し、未知の slug は
+ * 「404 か noindex」の 1 件で見る（`http.ts` の `/en/announcements/__audit_unknown__`）。
+ */
+export const EN_NOINDEX_TEMPLATES: ReadonlyMap<string, RegExp> = new Map([
+  ["/announcements/[slug]", /^\/announcements\/[^/]+$/],
+]);
+
+/**
+ * 英語で出しているが索引させないパスか（完全一致の行かテンプレートに合う）
+ *
+ * @param path - ロケール非依存のパス
+ */
+export function isEnNoindex(path: string): boolean {
+  if (EN_NOINDEX_PATHS.includes(path)) return true;
+  return [...EN_NOINDEX_TEMPLATES.values()].some((pattern) =>
+    pattern.test(path),
+  );
+}
 
 /**
  * 移行で baseline から意図して変わる HTTP の応答（パス → 期待する応答）
  *
  * - `/en`・`/en/...` は移行前もルートが無く 404 だった。英語で公開した
  *   ページだけが 200 になり、未公開の英語は 404 + noindex のまま。`/en` は
- *   ゲストには英語の LP（ログイン済みは英語の dashboard へ rewrite する。認証の検査が見る）
+ *   ゲストには英語の LP（ログイン済みは英語の dashboard へ rewrite する。認証の検査が見る）。
+ *   baseline に載る英語の URL のうち、料金 `/en/plan` とお知らせの一覧
+ *   `/en/announcements`（noindex。英訳の行が無い DB でも「まだ無い」の 200）も公開した
  * - `/ja` は移行前は 404。移行後は外部から来た `/ja/...` を接頭辞なしの日本語
  *   URL へ 307 で正規化する（`/ja` を公開 URL として出さないため）。日本語の
  *   正規の URL のリダイレクトではない
@@ -244,6 +284,8 @@ export const BASELINE_HTTP_CHANGES: ReadonlyMap<
 > = new Map([
   ["/en", { status: 200 }],
   ["/en/reference/score-table", { status: 200 }],
+  ["/en/plan", { status: 200 }],
+  ["/en/announcements", { status: 200 }],
   ["/ja", { status: 307, location: "/" }],
 ]);
 

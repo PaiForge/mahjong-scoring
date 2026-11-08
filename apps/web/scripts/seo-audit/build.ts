@@ -34,7 +34,10 @@
  *    索引させないページは動的でよく（結果・試験の play / result・道場は日本語でも
  *    動的）、静的 / 動的が日本語と食い違ったら失敗。静的な noindex の英語は
  *    meta robots が noindex。用語のページ（テンプレート）は baseline の日本語の
- *    索引対象のうちテンプレートに合うものを期待する（`expectedEnIndexablePaths`）
+ *    索引対象のうちテンプレートに合うものを期待する（`expectedEnIndexablePaths`）。
+ *    お知らせの一覧は日本語でも動的なので英語も動的な noindex（成果物に無くてよい）。
+ *    お知らせの詳細（`EN_NOINDEX_TEMPLATES`）は DB 由来で具体的な URL を列挙せず、
+ *    英語のプリレンダーを持たない（あれば「未公開なのに 200 で静的生成」で落ちる）
  * 4. canonical の台帳 — 移行前の HTML ごとの canonical の文字列と robots が同じ。
  *    canonical は 1 本だけ。公開 URL に内部の `/ja` が出ない。英語の索引対象は
  *    自己 canonical、英語の noindex は自己 canonical か canonical 無し

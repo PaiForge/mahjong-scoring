@@ -25,7 +25,8 @@
  *    （DB 由来のお知らせ詳細のような動的ページもここで見る）
  * 3. 未公開の英語 — 移行前の日本語の URL に `/en` を付けたものは、公開した英語
  *    （索引させるページ・用語のページのテンプレートに合うもの・索引させないページ
- *    `EN_NOINDEX_PATHS`。最後のものは 10 で見る）を除き
+ *    `EN_NOINDEX_PATHS` とお知らせの詳細のテンプレート `EN_NOINDEX_TEMPLATES`。
+ *    前者は 10、後者は 6 の未知の slug で見る）を除き
  *    すべて hard 404 + `X-Robots-Tag: noindex` + meta robots noindex（index を併記しない）
  * 4. 言語の判定 — cookie（`NEXT_LOCALE`）・`Accept-Language`・bot の User-Agent・
  *    query のどの組み合わせでも、ステータス・Location・canonical・lang・robots・
@@ -34,7 +35,8 @@
  *    も、日本語・公開した英語は 200 の RSC、未公開の英語は 404
  * 6. 未知の slug・言語・`/ja` の別名・管理画面・API・認証・静的ファイル・robots.txt。
  *    英語の用語は、slug の形に合わない語が proxy の hard 404、形に合うが無い語が
- *    ページ（`dynamicParams = false`）の 404 + noindex。robots.txt の Disallow は
+ *    ページ（`dynamicParams = false`）の 404 + noindex。英語のお知らせの詳細は形を
+ *    問わず proxy を通り、英語の行が無い slug はページの 404（か noindex）。robots.txt の Disallow は
  *    移行前の行がそのまま並び、その後ろに英語の追加分（`EN_ROBOTS_DISALLOW_ADDITIONS`）
  * 7. noindex — 日本語の noindex ページは meta robots が noindex で、親の googlebot の
  *    index が残らない
@@ -83,6 +85,7 @@ import {
   EN_NOINDEX_PATHS,
   EN_ROBOTS_DISALLOW_ADDITIONS,
   isEnIndexable,
+  isEnNoindex,
   parseSiteUrl,
   SITE_ORIGIN,
 } from "./expectations";
@@ -311,7 +314,7 @@ async function auditUnpublishedEnglish(
   japanesePaths: readonly string[],
 ): Promise<void> {
   const targets = japanesePaths.filter(
-    (path) => !isEnIndexable(path) && !EN_NOINDEX_PATHS.includes(path),
+    (path) => !isEnIndexable(path) && !isEnNoindex(path),
   );
   const failures: string[] = [];
   for (const path of targets) {
@@ -455,13 +458,12 @@ async function auditRsc(context: Context): Promise<void> {
     "/en/practice/jantou-fu",
     "/en/getting-started",
     "/en/lessons/about-this-app",
-  ];
-  const notFoundPaths = [
-    "/en/leaderboard",
     "/en/plan",
+    "/en/terms",
+    "/en/contact",
     "/en/announcements",
-    "/en/admin",
   ];
+  const notFoundPaths = ["/en/leaderboard", "/en/admin"];
   let requests = 0;
   for (const [label, headers] of headerSets) {
     for (const path of okPaths) {
@@ -622,6 +624,13 @@ const EDGE_CASES: readonly EdgeCase[] = [
   {
     // 形に合うが段級位に無い値は proxy を通り、ページが 404（か noindex）にする
     path: "/en/dojo/ranks/audit-unknown-rank",
+    expect: "404 か noindex（ページの 404）",
+    check: expectNotIndexable,
+  },
+  {
+    // お知らせの詳細は DB 由来で形を問わず proxy を通り、英語の行が無い slug は
+    // ページが 404 にする（日本語の本文で代用しない）
+    path: "/en/announcements/__audit_unknown__",
     expect: "404 か noindex（ページの 404）",
     check: expectNotIndexable,
   },
