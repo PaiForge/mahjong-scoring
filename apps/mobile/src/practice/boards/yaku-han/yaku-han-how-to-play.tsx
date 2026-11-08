@@ -1,6 +1,5 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 
 import { QuestionPrompt } from "../../components/question-prompt";
 import { YakuHanPrompt } from "./yaku-han-prompt";
@@ -25,15 +24,10 @@ const DEMO_IS_MENZEN = false;
  */
 export function YakuHanHowToPlay() {
   const t = useTranslations("yakuHanChallenge");
-  const tYakuNames = useTranslations("yakuNames");
 
   return (
     <View style={styles.root}>
-      <YakuHanPrompt
-        // 例: yakuNames.sanshoku_doujun（完成形のキーで grep したときにここへ着地させるための例）
-        yakuName={yakuLabel(DEMO_YAKU, tYakuNames)}
-        isMenzen={DEMO_IS_MENZEN}
-      />
+      <YakuHanPrompt yakuName={DEMO_YAKU} isMenzen={DEMO_IS_MENZEN} />
       <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
     </View>
   );
