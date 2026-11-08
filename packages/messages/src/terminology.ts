@@ -69,13 +69,20 @@ export interface TermEntry {
  *
  * 並びは用語の系統順（麻雀全般 → 牌の種類 → 場と席 → 点数の単位 → 和了の仕方 →
  * 打点の区分 → 親子と場の点棒 → 手の構成 → 鳴きと門前 → 待ち → 役とドラ →
- * アプリの画面の呼び名 → 段級位 → アカウントと認証）。
+ * アプリの画面の呼び名 → 段級位 → アカウントと認証 → 料金と運営・法務）。
  *
  * アカウントと認証の語は、ナビ・設定・認証の画面・マイページで同じ語を使うために載せる
  * （ナビの「ログイン」と認証の画面の見出しが "Log in" と "Sign in" に割れると、別の
  * 操作に見える）。動詞は log in / log out / sign up に揃え、Google と Apple のボタン名
  * だけは提供元の英語の表記（Sign in with Google / Sign in with Apple）に合わせる —
  * 提供元のロゴと並ぶ固有の名前で、案内文もその名前で指すため。
+ *
+ * 料金と運営・法務の語は、料金ページ・マイページの購入状況・特商法の表記・利用規約・
+ * プライバシーポリシー・フッターで同じ語を使うために載せる（料金ページの「30 日パス」と
+ * 購入履歴の品目、規約の「期間パス」が別の英語になると、同じ商品が別物に見える）。
+ * 通貨・税・販売地域は英語のページでも変えない（日本円・税込のまま）ので、価格を
+ * ドルに見せる語（"$"・"USD"）や、自動更新のある定期購読に見せる語は訳に使わない。
+ * 法務のページ名（利用規約・プライバシーポリシー）はページの題とリンクで先頭を大文字にする。
  */
 export const TERMINOLOGY = [
   {
@@ -730,5 +737,40 @@ export const TERMINOLOGY = [
     ja: ["アカウント停止"],
     en: "suspended",
     note: "Your account has been suspended. Use suspended, not banned, in the text shown to users (banned stays as an internal key name).",
+  },
+  {
+    ja: ["Pro プラン"],
+    en: "Pro plan",
+    note: "The paid plan. Pro alone on badges and plan status (Pro (Lifetime)). It never renews automatically, so do not call it a subscription.",
+  },
+  {
+    ja: ["30 日パス", "30日パス", "期間パス"],
+    en: "30-day pass",
+    note: "Pro for 30 days from purchase, with no automatic renewal. 30-day Pass as an offer title; the pass in running text once the 30-day pass has been named.",
+  },
+  {
+    ja: ["買い切り"],
+    en: "lifetime",
+    note: "A one-time Pro purchase with no expiry, covering the features available at the time of purchase. Lifetime as a label; the lifetime purchase in running text.",
+  },
+  {
+    ja: ["利用規約"],
+    en: "terms of service",
+    note: "Terms of Service as the page title and in links.",
+  },
+  {
+    ja: ["プライバシーポリシー"],
+    en: "privacy policy",
+    note: "Privacy Policy as the page title and in links.",
+  },
+  {
+    ja: ["特定商取引法", "特商法"],
+    en: "Specified Commercial Transactions Act",
+    note: "The Japanese law, a proper name, so always capitalized. 特定商取引法に基づく表記 is Legal Notice (Specified Commercial Transactions Act) as the page title and Specified Commercial Transactions Act Disclosure in the footer and links.",
+  },
+  {
+    ja: ["運営者"],
+    en: "operator",
+    note: "The business that runs this site (granted by the operator, the operator is not responsible). Operator Information as the page name for 運営者情報.",
   },
 ] as const satisfies readonly TermEntry[];

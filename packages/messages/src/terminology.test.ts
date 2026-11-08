@@ -177,6 +177,46 @@ describe("認証とアカウントの画面が訳語表に従う", () => {
   });
 });
 
+describe("料金と法務の画面が訳語表に従う", () => {
+  it("料金ページとマイページの購入状況で、プランと売り方を同じ語で呼ぶ", () => {
+    // 料金ページで選んだ売り方と購入履歴の品目が別の英語になると、買った物が別物に見える
+    expect(en.plan.pageTitle.toLowerCase()).toBe(
+      termOf("Pro プラン").toLowerCase(),
+    );
+    expect(en.mypagePlan.pageTitle).toBe(en.plan.pageTitle);
+    expect(en.plan.offers.pass.title.toLowerCase()).toBe(termOf("30 日パス"));
+    expect(en.mypagePlan.history.kind.pass.toLowerCase()).toBe(
+      termOf("30日パス"),
+    );
+    expect(en.plan.offers.lifetime.title.toLowerCase()).toBe(
+      termOf("買い切り"),
+    );
+    expect(en.mypagePlan.history.kind.lifetime).toBe(
+      en.plan.offers.lifetime.title,
+    );
+  });
+
+  it("料金ページは日本円で税込のまま売ることを英語でも書く", () => {
+    // 英語のページでも通貨・税・販売地域は変えない。価格の記号（¥）だけでは
+    // 中国の元と読まれうるので、通貨を語で示す
+    expect(en.plan.offers.shared).toContain("Japanese yen (JPY)");
+    expect(en.plan.offers.taxIncluded).toBe("tax included");
+  });
+
+  it("法務のページ名は訳語表の語で、フッターとページの題で揃える", () => {
+    expect(en.footer.terms.toLowerCase()).toBe(termOf("利用規約"));
+    expect(en.footer.privacy.toLowerCase()).toBe(
+      termOf("プライバシーポリシー"),
+    );
+    const act = termOf("特定商取引法");
+    expect(en.footer.tokushoho).toContain(act);
+    expect(en.tokushoho.pageTitle).toContain(act);
+    expect(en.plan.notes.tokushoho).toContain(
+      `<link>${en.footer.tokushoho}</link>`,
+    );
+  });
+});
+
 /**
  * 用語集の 1 語の文言（見出し語・読み）
  *
