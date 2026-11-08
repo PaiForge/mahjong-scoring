@@ -217,6 +217,69 @@ describe("料金と法務の画面が訳語表に従う", () => {
   });
 });
 
+describe("アプリのプラン画面が Apple の表記と料金ページの語に従う", () => {
+  it("「購入を復元」は Apple の表記どおり Restore Purchases（見出しとボタン）", () => {
+    // 購入者は Apple の設定・購入シートの語と見比べる。"Restore purchase" に揺れると
+    // 別の操作に見える
+    expect(en.mobilePlan.restore.button).toBe(termOf("購入を復元"));
+    expect(en.mobilePlan.restore.title).toBe(termOf("購入を復元"));
+  });
+
+  it("購入元は App Store / Web で、web の購入状況と同じ語", () => {
+    expect(en.mobilePlan.history.providers.apple).toBe(termOf("App Store"));
+    expect(en.mobilePlan.history.providers.apple).toBe(
+      en.mypagePlan.history.provider.apple,
+    );
+    expect(en.mobilePlan.history.providers.stripe).toBe("Web");
+    expect(en.mobilePlan.history.providers.stripe).toBe(
+      en.mypagePlan.history.provider.stripe,
+    );
+  });
+
+  it("支払いの案内は App Store を名指しする", () => {
+    expect(en.mobilePlan.notes.appleBilling).toContain(termOf("App Store"));
+  });
+
+  it("プラン画面に旧称の Apple ID を書かない（Apple Account に改称済み）", () => {
+    // avoid は小文字 1 語の照合なので、2 語の旧称はここで直接落とす
+    expect(termOf("Apple ID")).toBe("Apple Account");
+    const offending = entries(en.mobilePlan, "mobilePlan")
+      .filter(([, value]) => /\bApple ID\b/i.test(value))
+      .map(([key]) => key);
+    expect(offending).toEqual([]);
+  });
+
+  it("売り方の名前・状態は web の料金ページ・購入状況と同じ語", () => {
+    // アプリで買った商品と web の料金ページ・購入履歴の品目が別の英語になると、
+    // 同じ商品が別物に見える
+    expect(en.mobilePlan.title).toBe(en.plan.pageTitle);
+    expect(en.mobilePlan.offers.pass.title).toBe(en.plan.offers.pass.title);
+    expect(en.mobilePlan.offers.lifetime.title).toBe(
+      en.plan.offers.lifetime.title,
+    );
+    expect(en.mobilePlan.history.kind.pass).toBe(
+      en.mypagePlan.history.kind.pass,
+    );
+    expect(en.mobilePlan.history.kind.pass.toLowerCase()).toBe(
+      termOf("30 日パス"),
+    );
+    expect(en.mobilePlan.history.kind.lifetime).toBe(
+      en.plan.offers.lifetime.title,
+    );
+    expect(en.mobilePlan.status.pass).toBe(en.mypagePlan.status.pass);
+    expect(en.mobilePlan.status.lifetime).toBe(en.mypagePlan.status.lifetime);
+  });
+
+  it("アプリのプラン画面は通貨・税を書かない（価格は StoreKit が出す）", () => {
+    // 価格と通貨は App Store が地域ごとに決めて表示する。web の「日本円・税込」を
+    // アプリに写すと、App Store の表示と食い違う
+    const offending = entries(en.mobilePlan, "mobilePlan")
+      .filter(([, value]) => /\b(?:yen|JPY|USD|tax)\b|[$¥]/i.test(value))
+      .map(([key]) => key);
+    expect(offending).toEqual([]);
+  });
+});
+
 /**
  * 用語集の 1 語の文言（見出し語・読み）
  *

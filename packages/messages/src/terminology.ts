@@ -69,7 +69,8 @@ export interface TermEntry {
  *
  * 並びは用語の系統順（麻雀全般 → 牌の種類 → 場と席 → 点数の単位 → 和了の仕方 →
  * 打点の区分 → 親子と場の点棒 → 手の構成 → 鳴きと門前 → 待ち → 役とドラ →
- * アプリの画面の呼び名 → 段級位 → アカウントと認証 → 料金と運営・法務）。
+ * アプリの画面の呼び名 → 段級位 → アカウントと認証 → 料金と運営・法務 →
+ * 購入の提供元（Apple・Stripe））。
  *
  * アカウントと認証の語は、ナビ・設定・認証の画面・マイページで同じ語を使うために載せる
  * （ナビの「ログイン」と認証の画面の見出しが "Log in" と "Sign in" に割れると、別の
@@ -83,6 +84,17 @@ export interface TermEntry {
  * 通貨・税・販売地域は英語のページでも変えない（日本円・税込のまま）ので、価格を
  * ドルに見せる語（"$"・"USD"）や、自動更新のある定期購読に見せる語は訳に使わない。
  * 法務のページ名（利用規約・プライバシーポリシー）はページの題とリンクで先頭を大文字にする。
+ *
+ * 購入の提供元の語（購入を復元・アプリ内課金・App Store・Apple Account・Stripe の
+ * Checkout）は、Apple と Stripe が自分の画面で使う英語の表記そのものにする。購入者は
+ * アプリのボタンと、その先の Apple の購入シート・設定・領収書を見比べるので、語が
+ * 揃っていないと同じ操作に見えない。訳者が自然に書くと "Restore purchase"・"Apple ID" に
+ * 揺れるため、表で先に固定する。「購入を復元」は Apple の表記どおり複数形・語頭大文字の
+ * "Restore Purchases" で、ボタンと見出しの両方に使う。Apple ID は 2024 年 9 月に
+ * Apple Account へ改称されたので、旧称は英語の辞書に書かない — ただし `avoid` は
+ * 小文字 1 語の照合なので "Apple ID" の 2 語は載せられず、`terminology.test.ts` が
+ * プラン画面の辞書に現れないことを直接検査する。Sign in with Apple はアカウントと
+ * 認証の「ログイン」の行の補足に既にあり、ここでは繰り返さない。
  */
 export const TERMINOLOGY = [
   {
@@ -772,5 +784,30 @@ export const TERMINOLOGY = [
     ja: ["運営者"],
     en: "operator",
     note: "The business that runs this site (granted by the operator, the operator is not responsible). Operator Information as the page name for 運営者情報.",
+  },
+  {
+    ja: ["購入を復元"],
+    en: "Restore Purchases",
+    note: "Apple's own label for bringing back in-app purchases, written exactly so (plural, both words capitalized) on the button and the section title. Not Restore purchase.",
+  },
+  {
+    ja: ["アプリ内課金"],
+    en: "in-app purchase",
+    note: "Apple's term for buying inside the iOS app. Lowercase in running text; it is a one-time purchase here, never a subscription.",
+  },
+  {
+    ja: ["App Store"],
+    en: "App Store",
+    note: "Apple's store, a proper name. Purchases made in the iOS app are paid through the App Store, and Apple sends the receipt. App Store as the provider in the purchase history.",
+  },
+  {
+    ja: ["Apple アカウント", "Apple ID"],
+    en: "Apple Account",
+    note: "Apple renamed Apple ID to Apple Account in September 2024. Always Apple Account; never write Apple ID in the English dictionaries.",
+  },
+  {
+    ja: ["Stripe の購入画面"],
+    en: "checkout",
+    note: "Stripe Checkout, where purchases on the web are paid. The checkout page in running text. The App Store purchase sheet in the iOS app is the purchase screen, not checkout.",
   },
 ] as const satisfies readonly TermEntry[];
