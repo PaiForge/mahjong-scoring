@@ -126,6 +126,52 @@ export default [
     },
   },
   {
+    // アプリ（apps/mobile/src）は端末の言語で表示を変える。言語に依る 2 つの入口を
+    // 1 か所に絞る:
+    // - 牌画像は `LocaleHai`（components/locale-hai.tsx）で描く。ネイティブの `Hai` は
+    //   accessibilityLabel の既定が日本語の牌名（getHaiName）だけで言語を渡す口が無く、
+    //   直接使うと英語の端末で VoiceOver が日本語の牌名を読む。`LocaleHai` は日本語以外で
+    //   だけ辞書の牌名を渡し、日本語の読み上げは変えない
+    // - 辞書（@mahjong-scoring/messages/ja・/en）を直接 import しない。辞書は端末の言語で
+    //   起動時に 1 回選ぶ（lib/app-locale.ts の APP_MESSAGES。選ぶのは features の
+    //   messages-for-locale.ts だけで、apps/mobile の外なのでここには掛からない）。
+    //   直接読むと、辞書の Provider の外で ja を固定で引く書き方（以前の購入の同期）が戻り、
+    //   英語の端末に日本語が出る
+    // テスト（*.test.ts）は辞書の中身を ja / en と突き合わせるために直接読むので除く
+    // （Node で走り、画面を描かない）。
+    // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
+    // 置き換えるため、features・admin・web の [locale] 向けの上の設定と files が重ならない
+    // 独立した項目にする
+    files: ["apps/mobile/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/mobile/src/components/locale-hai.tsx",
+      "apps/mobile/src/**/*.test.ts",
+    ],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@pai-forge/mahjong-react-ui",
+              importNames: ["Hai"],
+              message:
+                "アプリの画面では Hai ではなく components/locale-hai の LocaleHai を使う（英語の端末で牌の読み上げを英語の牌名にするため）",
+            },
+            ...[
+              "@mahjong-scoring/messages/ja",
+              "@mahjong-scoring/messages/en",
+            ].map((name) => ({
+              name,
+              message:
+                "辞書は lib/app-locale.ts の APP_MESSAGES か use-intl（useTranslations）から引く（端末の言語で選んだ辞書を使うため）",
+            })),
+          ],
+        },
+      ],
+    },
+  },
+  {
     // 牌の並び（理牌）の順を決めるのは riichi-mahjong だけにする。牌種 ID は
     // 数値なので `(a, b) => a - b` でも並ぶが、それを許すと牌の順の定義が
     // アプリのあちこちに散り、赤 5 のような ID の大小と一致しない牌で
