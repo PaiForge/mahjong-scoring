@@ -101,7 +101,63 @@ export interface AuditIssue {
  * 訳で正しいのか（例: 「日本語の `1日` は英語で `a day` と書く」）を書く。理由の無い例外・
  * 指摘の出ない例外は `translation-audit.test.ts` が落とす。
  */
-export const TRANSLATION_AUDIT_ALLOW: Readonly<Record<string, string>> = {};
+export const TRANSLATION_AUDIT_ALLOW: Readonly<Record<string, string>> = {
+  // 「1つ」「1問ごと」「1日」のような数え方の 1 は、英語では each・a・per で書く
+  // （`a` / `an` は数の語として数えない — NUMBER_WORDS の注）
+  "number:chiitoitsuScore.learn.pageDescription":
+    "「25符の1パターン」の 1 は「常に同じ」の意味で、英語は always 25 fu と書く",
+  "number:examTraining.hint": "「1問ごと」は英語で after each question と書く",
+  "number:practice.modeTrainingHint":
+    "「1問ごと」は英語で after each question と書く",
+  "number:gettingStarted.steps.learn.description":
+    "「1から学ぶ」は「最初から」の慣用句で、英語は from the very beginning と書く",
+  "number:glossary.captions.mentsuteShape":
+    "「4面子1雀頭」の 1 雀頭は英語で a pair と書く",
+  "number:glossary.terms.mentsute.definition":
+    "「1つの雀頭」は英語で a pair と書く",
+  "number:glossary.terms.fu-kiriage.usage":
+    "「1の位」は英語で the ones digit と書く",
+  "number:glossary.terms.han.definition":
+    "「翻が1つ増えるごとに」は英語で each extra han と書く",
+  "number:glossary.terms.han.usage":
+    "「翻が1つ増えると」は英語で each extra han と書く",
+  "number:glossary.terms.honba.definition":
+    "「1本場につき」「1人あたり」は英語で each honba・each player と書く",
+  "number:glossary.terms.ron.usage": "「1本場につき」は英語で per honba と書く",
+  "number:glossary.terms.ryanmen.usage":
+    "「3つがそろった」の 3 は直前に列挙した平和の条件の数で、英語は 3 つの条件をそのまま並べて書く",
+  "number:glossary.terms.shuntsu.usage":
+    "順子の 123・456・789 を、英語は牌 1 枚ずつを区切って 1-2-3・4-5-6・7-8-9 と書く",
+  "number:machiFu.learn.twoFuBody":
+    "辺張の 12・89 を、英語は牌 1 枚ずつを区切って 1-2・8-9 と書く",
+  "number:glossary.terms.tehai.usage":
+    "「どの3枚を面子と見るか」を英語は split into sets in more than one way と書き、面子が 3 枚であることは sets が持つ",
+  "number:manganScoreTable.colKoEach":
+    "表の列名「子（1人）」の 1 人は、英語で Non-dealer (each) と書く",
+  "number:mypageAccount.notices.emailChangePending":
+    "「もう 1 通の確認メール」は 2 通のうち残りの方なので、英語は the other confirmation email と書く",
+  "number:oyaRonScores.learn.summaryCleanRows":
+    "「1つもない」は英語で no cells と否定で書く",
+  "number:practiceQuota.entry.reset":
+    "「0:00（日本時間）」は英語で midnight Japan time と書く",
+  "number:practiceQuota.entry.signIn":
+    "「1日 {limit} 問」の 1 日は英語で a day と書く",
+  "number:practiceQuota.paywall.bodyAnonymous":
+    "「1 日 {limit} 問」の 1 日は英語で a day と書く",
+  "number:practiceQuota.paywall.bodySignedIn":
+    "「1 日」は a day、「0:00（日本時間）」は midnight Japan time と英語で書く",
+  "number:ronToTsumo.learn.whyBody1": "「4分の1」は英語で a quarter と書く",
+  "number:ronToTsumo.learn.whyBody2": "「4分の1」は英語で a quarter と書く",
+  "number:settings.yakuOrder.moveDownAria":
+    "並べ替えのボタンの読み上げで、「1 つ下へ」は英語で Move down と書く（1 回で 1 つ動く）",
+  "number:settings.yakuOrder.moveUpAria":
+    "並べ替えのボタンの読み上げで、「1 つ上へ」は英語で Move up と書く（1 回で 1 つ動く）",
+  // 語順の違いで数が別の断片へ移るもの（画面は断片の間に牌・用語を挟んで 1 文に組む）
+  "number:whyScoringIsComplex.learn.step1Mid":
+    "英語は substitute 30 for … and 3 for … の語順で、30 は step1Prefix に移る",
+  "number:whyScoringIsComplex.learn.step1Suffix":
+    "英語は substitute 30 for … and 3 for … の語順で、3 は step1Mid に移る",
+};
 
 /** 例外の一覧のキー（`"<規則>:<キー>"`） */
 export function auditAllowKey(rule: AuditRule, key: string): string {
