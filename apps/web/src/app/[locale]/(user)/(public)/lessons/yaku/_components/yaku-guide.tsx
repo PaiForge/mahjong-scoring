@@ -1,4 +1,9 @@
-import Link from "next/link";
+import { currentLocale } from "@/i18n/current-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import {
+  JapaneseOnlyMark,
+  LocaleNavLink,
+} from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { getTranslations } from "next-intl/server";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { GuideFigure } from "../../_components/guide-figure";
@@ -8,7 +13,12 @@ import { YakuNakiComparisonTable } from "../../_components/yaku-naki-comparison-
 import { REFERENCE_YAKU_PATH } from "@mahjong-scoring/features/routes";
 
 export async function YakuGuide() {
-  const t = await getTranslations("yaku.learn");
+  const [t, tNav, locale] = await Promise.all([
+    getTranslations("yaku.learn"),
+    getTranslations("nav.language"),
+    currentLocale(),
+  ]);
+  const referenceTarget = resolveNavTargetFor(REFERENCE_YAKU_PATH, locale);
 
   return (
     <div className="space-y-10">
@@ -34,12 +44,16 @@ export async function YakuGuide() {
           <YakuNakiComparisonTable />
         </GuideFigure>
 
-        <Link
-          href={REFERENCE_YAKU_PATH}
+        <LocaleNavLink
+          navTarget={referenceTarget}
+          linkKind="plain"
           className={`block text-center text-sm font-medium ${TEXT_LINK_CLASSES}`}
         >
           {t("referenceLink")}
-        </Link>
+          {referenceTarget.crossLocale && (
+            <JapaneseOnlyMark label={tNav("japaneseOnly")} />
+          )}
+        </LocaleNavLink>
       </GuideSection>
     </div>
   );

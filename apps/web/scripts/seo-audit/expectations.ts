@@ -264,15 +264,10 @@ export const BASELINE_ROBOTS_DISALLOW: readonly string[] = [
 /**
  * 移行で robots.txt の Disallow に足した英語の行（出現順。baseline の行の後ろに並ぶ）
  *
- * Disallow は前方一致なので日本語の行は `/en/...` に掛からない。英語でも公開した
- * マイページ（ページは noindex）を日本語と同じく除外する。`/en/u/` は英語では未公開
- * （proxy の 404）だが、「任意の文字列で URL が作れる」という公開プロフィールの除外の
- * 意図を英語にも当てる。HTTP の監査は「baseline の行がそのまま + この行」を期待する。
+ * 英語は noindex・認証ガード・404 を検索エンジンに読ませるため追加しない。
+ * HTTP の監査は日本語の baseline の行だけが維持されることを期待する。
  */
-export const EN_ROBOTS_DISALLOW_ADDITIONS: readonly string[] = [
-  "/en/mypage",
-  "/en/u/",
-];
+export const EN_ROBOTS_DISALLOW_ADDITIONS: readonly string[] = [];
 
 /**
  * 日本語で動的（要求ごとに描画）から静的生成へ移したことを認めるパス

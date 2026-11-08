@@ -5,12 +5,12 @@ import { SITE_URL } from "@/config";
 import robots from "./robots";
 
 describe("robots", () => {
-  it("日本語の除外の行をそのまま保ち、英語のマイページと公開プロフィールを足す", () => {
+  it("日本語の除外を維持し、英語の noindex と404のクロールを妨げない", () => {
     const { rules } = robots();
     expect(rules).toEqual({
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/mypage", "/api", "/u/", "/en/mypage", "/en/u/"],
+      disallow: ["/admin", "/mypage", "/api", "/u/"],
     });
   });
 
