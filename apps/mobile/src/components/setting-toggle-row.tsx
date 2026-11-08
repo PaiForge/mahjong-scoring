@@ -1,9 +1,11 @@
 import { Children, Fragment, useEffect, useState, type ReactNode } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import type { PreferenceAnchor } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { usePreferenceAnchor } from "../preferences/preference-anchor";
+import { useAppLocale } from "../lib/use-app-locale";
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors } from "../lib/theme";
@@ -69,7 +71,7 @@ const THUMB_TRAVEL = TRACK_WIDTH - THUMB_SIZE - THUMB_INSET * 2;
 
 interface SettingToggleRowProps {
   readonly title: string;
-  /** 補足説明。辞書の改行は無視してスマホの幅で折り返す（{@link joinDescriptionLines}） */
+  /** 補足説明。辞書の改行はつないでスマホの幅で折り返す（{@link joinDescriptionLines}） */
   readonly description?: string;
   readonly checked: boolean;
   readonly onChange: (checked: boolean) => void;
@@ -95,15 +97,32 @@ interface SettingToggleRowProps {
 }
 
 /**
- * 辞書の補足説明の改行を取り除く
+ * 辞書の補足説明の改行を、その言語の語のつなぎ方で 1 段落にする
  *
- * 辞書の説明文は web の広い幅で読みやすいよう文の切れ目に改行を持つ。
- * スマホの幅ではその改行の直前でも折り返しが起き、「き、」のような
- * 1〜2 文字の行ができる。日本語は語間に空白が要らないので、改行を
- * 取り除いて幅なりに折り返す。
+ * 辞書の説明文は web の広い幅で読みやすいよう文の切れ目に改行を持つ
+ * （web はその改行をそのまま描くので、辞書は変えない）。スマホの幅では
+ * その改行の直前でも折り返しが起き、「き、」のような 1〜2 文字の行が
+ * できるので、改行をつないで幅なりに折り返す。
+ *
+ * つなぎ方は言語に依る:
+ * - 日本語は語間に空白が要らないので、改行を取り除くだけ（空文字でつなぐ）。
+ *   改行の前後の文字には触れない（移行前と同じ出力を保つ）
+ * - 英語は語の切れ目が空白なので、改行を 1 つの空白に置き換える。空文字で
+ *   つなぐと "(a double wind)is scored" のように前後の語がくっつく。改行の
+ *   前後に既に空白があっても二重にしない（`\s*\n\s*` を 1 つの空白にする）
+ *
+ * 言語を引数で受ける純粋な形にしておき、行の部品は `useAppLocale()` の値を渡す。
  */
-function joinDescriptionLines(description: string): string {
-  return description.replace(/\n/g, "");
+export function joinDescriptionLines(
+  description: string,
+  locale: SupportedLocale,
+): string {
+  switch (locale) {
+    case "ja":
+      return description.replace(/\n/g, "");
+    case "en":
+      return description.replace(/\s*\n\s*/g, " ");
+  }
 }
 
 /**
@@ -126,6 +145,7 @@ export function SettingToggleRow({
   anchor,
 }: SettingToggleRowProps) {
   const anchorTarget = usePreferenceAnchor(anchor);
+  const locale = useAppLocale();
   // 描画の間ずっと同じ値を使う（ref ではなく state の初期化で 1 度だけ作る）
   const [position] = useState(() => new Animated.Value(checked ? 1 : 0));
 
@@ -177,7 +197,7 @@ export function SettingToggleRow({
         )}
         {description !== undefined && (
           <Text style={styles.description}>
-            {joinDescriptionLines(description)}
+            {joinDescriptionLines(description, locale)}
           </Text>
         )}
       </View>
@@ -193,7 +213,7 @@ export function SettingToggleRow({
 interface SettingLinkRowProps {
   readonly onPress: () => void;
   readonly title: string;
-  /** 補足説明。辞書の改行は無視してスマホの幅で折り返す */
+  /** 補足説明。辞書の改行はつないでスマホの幅で折り返す（{@link joinDescriptionLines}） */
   readonly description?: string;
   /**
    * 設定画面の項目（web の要素の id）。`/preferences?item=` で指されたら
@@ -215,6 +235,7 @@ export function SettingLinkRow({
   anchor,
 }: SettingLinkRowProps) {
   const anchorTarget = usePreferenceAnchor(anchor);
+  const locale = useAppLocale();
   return (
     <Pressable
       onPress={onPress}
@@ -231,7 +252,7 @@ export function SettingLinkRow({
         <Text style={[styles.title, styles.linkTitle]}>{title}</Text>
         {description !== undefined && (
           <Text style={styles.description}>
-            {joinDescriptionLines(description)}
+            {joinDescriptionLines(description, locale)}
           </Text>
         )}
       </View>
