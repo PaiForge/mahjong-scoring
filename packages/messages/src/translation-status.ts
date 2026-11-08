@@ -95,6 +95,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  * 4 名前空間を同じ手順で足した。`recordCta`・`mobilePlan`・`mobileApp` はアプリだけが
  * 読む（web の `recordCta` はランキングを英語で公開しているときだけ出る）。
  * `leaderboard` はアプリの「ランキングでの順位」と設定のプライバシーの行が読む。
+ *
+ * web の iOS アプリの入手導線（LP の節・フッター。`app-download-panel.tsx`）を英語で
+ * 出すときに `appDownload` を同じ手順で足した。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -188,6 +191,7 @@ export const EN_TRANSLATED_NAMESPACES = [
   "leaderboard",
   "mobilePlan",
   "mobileApp",
+  "appDownload",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */

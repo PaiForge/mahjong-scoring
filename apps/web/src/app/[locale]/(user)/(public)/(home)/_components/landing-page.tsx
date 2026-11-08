@@ -1,5 +1,6 @@
 import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
+import { AppSection } from "./app-section";
 import { HeroSection } from "./hero-section";
 import { PracticeSection } from "./practice-section";
 import { ReferenceSection } from "./reference-section";
@@ -20,6 +21,7 @@ export function LandingPage({ locale }: { readonly locale: SupportedLocale }) {
       <PracticeSection locale={locale} />
       <ReferenceSection locale={locale} />
       <LearnSection locale={locale} />
+      <AppSection locale={locale} />
     </>
   );
 }

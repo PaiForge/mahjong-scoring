@@ -15,7 +15,7 @@ import {
   SITE_DESCRIPTION,
   SITE_NAME,
 } from "@/app/_lib/metadata";
-import { SITE_URL } from "@/config";
+import { IOS_APP_STORE_ID, SITE_URL } from "@/config";
 import { selectClientMessages } from "@/i18n/client-messages";
 import { loadMessages } from "@/i18n/request";
 import { routing } from "@/i18n/routing";
@@ -61,6 +61,11 @@ const JA_ROOT_METADATA: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // iOS Safari の Smart App Banner（上端の「App Store で入手 / 開く」の帯）。
+  // 表示・インストール済みの判定・閉じた後の扱いは OS が持ち、他のブラウザと
+  // Android では何も出ない。全ページに出すため、ページ側で上書きしない。
+  // 帯の文言と国のストアは OS が端末の設定で決めるので、英語も同じ値を持つ。
+  itunes: { appId: IOS_APP_STORE_ID },
   // metadata を持たないページ（banned 等）へのフォールバック。
   // og:url はここに書かない — 書くと canonical を持たないページまで
   // トップページの URL を名乗ってしまう。トップの og:url は
@@ -85,6 +90,7 @@ async function buildEnglishRootMetadata(): Promise<Metadata> {
     description: metadata.siteDescription,
     authors: [{ name: metadata.siteName }],
     robots: JA_ROOT_METADATA.robots,
+    itunes: JA_ROOT_METADATA.itunes,
   };
 }
 

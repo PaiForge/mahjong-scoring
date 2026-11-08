@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { AppDownloadPanel } from "@/app/[locale]/(user)/_components/app-download/app-download-panel";
 import { BrandLogo } from "@/app/_components/brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
@@ -45,7 +46,7 @@ export async function Footer() {
   return (
     <footer className="mt-auto border-t border-panel bg-card">
       <div className="mx-auto max-w-7xl space-y-8 px-4 sm:px-6 lg:px-8 py-8">
-        <nav className="grid grid-cols-2 gap-8 md:grid-cols-3">
+        <nav className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">
               {t("introduction")}
@@ -88,6 +89,18 @@ export async function Footer() {
               {tNav("language.label")}
             </h3>
             <LanguageSwitcher localeLinks={localeLinks} variant="stacked" />
+          </div>
+
+          {/* 狭い画面では 2 列目に収めず 1 行を使う（バッジの横幅） */}
+          <div className="col-span-2 space-y-3 md:col-span-1">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("app")}
+            </h3>
+            <AppDownloadPanel
+              locale={localeLinks.locale}
+              size="sm"
+              align="start"
+            />
           </div>
         </nav>
 

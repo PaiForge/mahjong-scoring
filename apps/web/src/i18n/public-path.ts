@@ -151,7 +151,7 @@ const PUBLIC_ASSET_PATHS: ReadonlySet<string> = new Set([
 ]);
 
 /** `public/` 配下のディレクトリ（中身ごと i18n の外） */
-const PUBLIC_ASSET_DIRECTORIES = ["/tiles"] as const;
+const PUBLIC_ASSET_DIRECTORIES = ["/tiles", "/badges"] as const;
 
 /**
  * ロケール化しない（`app/[locale]` の外にある）パスのセグメント接頭辞
