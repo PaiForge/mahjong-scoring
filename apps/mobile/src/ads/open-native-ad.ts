@@ -1,4 +1,6 @@
 import { Linking } from "react-native";
+import type { Messages } from "use-intl";
+import { APP_MESSAGES } from "../lib/app-locale";
 
 /**
  * 広告のリンクを OS に開かせる
@@ -18,14 +20,28 @@ export function openNativeAd(href: string): void {
 }
 
 /**
- * 日本語の一覧の区切り（辞書の `common.listSeparator` の ja と同じ値）
+ * アプリの言語の一覧の区切り（辞書の `common.listSeparator`。日本語は `、`、英語は `, `）
  *
- * TODO(T2→統合): アプリの言語の解決（`lib/app-locale.ts` の `APP_LOCALE` /
- * `APP_MESSAGES`）が入ったら、既定値をアプリの言語の `common.listSeparator`
- * （ja `、` / en `, `）に替える。呼び出し側（`native-ad-row.tsx` /
- * `native-ad-card.tsx`）はフックで区切りを引かずにこの既定値に任せる。
+ * 読み上げの名前を組む {@link nativeAdAccessibilityLabel} はフックではない関数で、
+ * 辞書の Provider の外からも呼べる形にしてあるため、`useAppLocale()` /
+ * `useTranslations()` ではなく、Provider と同じ起動時に決めた辞書（`APP_MESSAGES`。
+ * `APP_LOCALE` の辞書）から直接引く。言語は起動中に変わらないので、モジュールの
+ * 評価時に 1 回読めば足りる。呼び出し側（`native-ad-row.tsx` / `native-ad-card.tsx`）は
+ * 区切りを渡さずこの既定値に任せる。
+ *
+ * 辞書の型は `Record<string, any>` なので文字列であることを確かめて読む。キーは ja / en の
+ * どちらの辞書にもあり（辞書のテストが形の一致を固定する）、無ければ辞書の誤りなので
+ * 黙って別の区切りに落とさず投げる。
  */
-const DEFAULT_LIST_SEPARATOR = "、";
+const DEFAULT_LIST_SEPARATOR: string = readListSeparator(APP_MESSAGES);
+
+function readListSeparator(messages: Messages): string {
+  const separator: unknown = messages.common?.listSeparator;
+  if (typeof separator !== "string") {
+    throw new Error("辞書に common.listSeparator（文字列）がありません");
+  }
+  return separator;
+}
 
 /**
  * 広告の読み上げの名前。カードも行も 1 つの読み上げ単位になり、中の「PR」は
@@ -33,12 +49,12 @@ const DEFAULT_LIST_SEPARATOR = "、";
  * 広告読み上げ名
  *
  * 区切りは言語に依る（日本語は `、`、英語は `, `。辞書の `common.listSeparator`）。
- * この関数はフックの外から呼べるよう区切りを引数で受け、省略時は既定の区切り。
+ * この関数はフックの外から呼べるよう区切りを引数で受け、省略時はアプリの言語の区切り。
  * 説明の無い広告は区切りを重ねない。
  *
  * @param badgeLabel - 広告の印（「PR」）
  * @param ad - 広告の題名と説明
- * @param separator - 読み上げの区切り（省略時は既定の区切り）
+ * @param separator - 読み上げの区切り（省略時はアプリの言語の `common.listSeparator`）
  */
 export function nativeAdAccessibilityLabel(
   badgeLabel: string,
