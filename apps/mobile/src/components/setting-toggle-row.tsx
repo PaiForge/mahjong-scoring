@@ -1,5 +1,6 @@
 import { Children, Fragment, useEffect, useState, type ReactNode } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslations } from "use-intl";
 import type { PreferenceAnchor } from "@mahjong-scoring/features/settings/preference-anchors";
 
 import { usePreferenceAnchor } from "../preferences/preference-anchor";
@@ -272,11 +273,14 @@ export function SettingLockedRow({
   anchor,
 }: SettingLockedRowProps) {
   const anchorTarget = usePreferenceAnchor(anchor);
+  // 読み上げの区切りは言語に依る（日本語「、」・英語「, 」）
+  const tCommon = useTranslations("common");
+  const separator = tCommon("listSeparator");
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
-      accessibilityLabel={`${title}、${badge}、${note}`}
+      accessibilityLabel={[title, badge, note].join(separator)}
       testID={testID}
       ref={anchorTarget?.ref}
       onLayout={anchorTarget?.onLayout}
