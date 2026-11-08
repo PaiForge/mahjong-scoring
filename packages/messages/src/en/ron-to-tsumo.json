@@ -4,7 +4,7 @@
     "pageDescription": "One of the patterns hidden in the riichi mahjong scoring table: halve a non-dealer ron and round up to get what the dealer pays, then halve again and round up to get what each non-dealer pays. In the dividing direction, rounding never throws it off.",
     "divideTitle": "The two tsumo numbers are the non-dealer ron divided",
     "divideBody1": "When a [[ko|non-dealer]] [[hora|wins]] by [[tsumo|tsumo]], the score is written as two numbers. The top is what each non-dealer pays, and the bottom is what the [[oya|dealer]] pays.\nYou do not have to memorize these two apart from the [[ron|ron]] score. They come from the non-dealer ron by division alone.",
-    "divideBody2": "A non-dealer ron is four shares of base points. If the same hand wins by tsumo, each non-dealer pays one share and the dealer pays two.\nAll three can be written as “so many shares of base points”, so the ratio is always as follows.",
+    "divideBody2": "A non-dealer ron is four shares of base points. If the same hand wins by tsumo, each non-dealer pays one share and the dealer pays two.\nAll three can be written as \"so many shares of base points\", so the ratio is always as follows.",
     "divideBody3": "Halve the ron and you get what the dealer pays; halve that again and you get what each non-dealer pays — that is all the ratio says.",
     "basePointsNote": "* Base points, and why the result is rounded up to the next 100 points, are covered in <link></link>",
     "divideBody4": "There is one concern. The scoring table lists numbers after rounding, so if rounding came out differently after dividing, this shortcut would not work.\nTo give the conclusion first: in the dividing direction, it never does. We check why in the last section.",

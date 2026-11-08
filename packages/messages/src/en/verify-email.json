@@ -4,7 +4,7 @@
   "sentTo": "We've sent a verification email to the following address.",
   "sent": "We've sent a verification email to the address you registered.",
   "mailSubject": "麻雀点数計算教室 - メールアドレスの確認 / Confirm your email address",
-  "checkInbox": "Open the email with the subject “{subject}” and click the link in it to activate your account.",
+  "checkInbox": "Open the email with the subject \"{subject}\" and click the link in it to activate your account.",
   "troubleTitle": "If the email doesn't arrive",
   "troubleDelay": "It can take a few minutes to arrive.",
   "troubleSpam": "Check whether it went to your spam folder or to the Promotions tab in Gmail.",

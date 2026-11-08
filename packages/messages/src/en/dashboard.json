@@ -13,11 +13,11 @@
     "title": "What to do next",
     "steps": {
       "lesson": {
-        "firstCta": "Start your first lesson, “{title}”",
-        "cta": "Start the lesson “{title}”"
+        "firstCta": "Start your first lesson, \"{title}\"",
+        "cta": "Start the lesson \"{title}\""
       },
       "practice": {
-        "cta": "Take on “{title}”"
+        "cta": "Take on \"{title}\""
       },
       "exam": {
         "cta": "See what the {title} covers"

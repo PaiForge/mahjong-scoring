@@ -119,15 +119,15 @@
     "questions": {
       "mangan": {
         "hint": "A dealer mangan ron is 12,000 points. The three non-dealers split it equally.",
-        "explanation": "Mangan is 12,000 points in total. The three non-dealers pay 4,000 points each: “4,000 all”."
+        "explanation": "Mangan is 12,000 points in total. The three non-dealers pay 4,000 points each: \"4,000 all\"."
       },
       "haneman": {
         "hint": "A dealer haneman ron is 18,000 points. Divide it by 3.",
-        "explanation": "Haneman is 18,000 points in total. The three non-dealers pay 6,000 points each: “6,000 all”."
+        "explanation": "Haneman is 18,000 points in total. The three non-dealers pay 6,000 points each: \"6,000 all\"."
       },
       "baiman": {
         "hint": "A dealer baiman ron is 24,000 points.",
-        "explanation": "Baiman is 24,000 points in total. The three non-dealers pay 8,000 points each: “8,000 all”."
+        "explanation": "Baiman is 24,000 points in total. The three non-dealers pay 8,000 points each: \"8,000 all\"."
       }
     },
     "achievement": "You can now work out the payments for a dealer tsumo of mangan or more by dividing the dealer ron score by 3."
