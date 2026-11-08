@@ -19,7 +19,7 @@ vi.mock("@/lib/announcements/queries", () => announcementMocks);
 
 import sitemap from "./sitemap";
 
-/** DB の公開済みお知らせの見本（日本語だけ。英語のお知らせは未公開） */
+/** DB の公開済みお知らせの見本（日本語の sitemap に載る。英語のお知らせは noindex で sitemap に載せない） */
 const PUBLISHED_ANNOUNCEMENTS = [
   { slug: "fixture-a", publishedAt: new Date("2026-10-01T00:00:00Z") },
   { slug: "fixture-b", publishedAt: null },
@@ -116,15 +116,26 @@ describe("sitemap", () => {
 
   it("日本語だけのページは ja と x-default、両言語のページは ja・en・x-default を持つ", async () => {
     const byUrl = new Map((await sitemap()).map((entry) => [entry.url, entry]));
-    expect(
-      Object.keys(byUrl.get(`${SITE_URL}/plan`)?.alternates?.languages ?? {}),
-    ).toEqual(["ja", "x-default"]);
-    expect(
-      Object.keys(
-        byUrl.get(`${SITE_URL}/en/reference/score-table`)?.alternates
-          ?.languages ?? {},
-      ),
-    ).toEqual(["ja", "en", "x-default"]);
+    // お知らせは英語で出すが索引させない（英語で書いた行だけ）ので、日本語だけで索引させる
+    for (const path of ["/announcements", "/announcements/fixture-a"]) {
+      expect(
+        Object.keys(
+          byUrl.get(`${SITE_URL}${path}`)?.alternates?.languages ?? {},
+        ),
+        path,
+      ).toEqual(["ja", "x-default"]);
+    }
+    for (const url of [
+      `${SITE_URL}/en/reference/score-table`,
+      `${SITE_URL}/plan`,
+      `${SITE_URL}/en/plan`,
+      `${SITE_URL}/en/terms`,
+    ]) {
+      expect(
+        Object.keys(byUrl.get(url)?.alternates?.languages ?? {}),
+        url,
+      ).toEqual(["ja", "en", "x-default"]);
+    }
   });
 
   it("英語の項目は日本語の同じページの changefreq・priority を引き継ぐ", async () => {

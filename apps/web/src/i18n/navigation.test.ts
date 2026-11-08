@@ -54,6 +54,11 @@ describe("resolvePublishedHref", () => {
     ],
     ["/mypage", "en", "/en/mypage"],
     ["/preferences/yaku-order", "en", "/en/preferences/yaku-order"],
+    ["/terms", "en", "/en/terms"],
+    ["/contact", "en", "/en/contact"],
+    ["/plan", "en", "/en/plan"],
+    ["/announcements", "en", "/en/announcements"],
+    ["/announcements/some-news", "en", "/en/announcements/some-news"],
   ] as const)("%s（%s）→ %s", (path, locale, expected) => {
     expect(resolvePublishedHref(path, locale)).toBe(expected);
   });
@@ -61,10 +66,7 @@ describe("resolvePublishedHref", () => {
   it.each([
     ["/leaderboard", "en"],
     ["/u/alice", "en"],
-    ["/announcements", "en"],
-    ["/plan", "en"],
-    ["/contact", "en"],
-    ["/terms", "en"],
+    ["/leaderboard/monthly/jantou-fu", "en"],
     ["/nonexistent", "ja"],
   ] as const)("未公開の %s（%s）はリンクを作らない", (path, locale) => {
     expect(resolvePublishedHref(path, locale)).toBeUndefined();

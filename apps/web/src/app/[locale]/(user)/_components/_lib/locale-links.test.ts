@@ -20,7 +20,7 @@ describe("LOCALE_LINK_TABLE", () => {
   });
 
   it("英語で未公開のページは持たない", () => {
-    expect(LOCALE_LINK_TABLE["/plan"]).toBeUndefined();
+    expect(LOCALE_LINK_TABLE["/leaderboard"]).toBeUndefined();
   });
 });
 
@@ -40,8 +40,8 @@ describe("resolveNavTarget", () => {
   });
 
   it("英語のページから英語で未公開のページへは /en を付けず、言語をまたぐと示す", () => {
-    expect(resolveNavTarget("/plan", en)).toEqual({
-      href: "/plan",
+    expect(resolveNavTarget("/leaderboard", en)).toEqual({
+      href: "/leaderboard",
       crossLocale: true,
     });
   });
@@ -84,7 +84,7 @@ describe("languageOptions", () => {
   });
 
   it("対訳の無いページでは英語をリンクにしない（別の英語ページへ向けない）", () => {
-    expect(languageOptions("/plan", "", ja)).toEqual([
+    expect(languageOptions("/leaderboard", "", ja)).toEqual([
       { kind: "current", locale: "ja" },
       { kind: "unavailable", locale: "en" },
     ]);

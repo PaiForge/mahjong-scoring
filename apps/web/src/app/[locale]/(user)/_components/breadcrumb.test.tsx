@@ -65,16 +65,16 @@ describe("Breadcrumb", () => {
   });
 
   it("英語は英語で出していないページ（404 になる /en/...）へリンクせず、JSON-LD にも載せない", () => {
-    // ランキング・料金は英語では未公開。ホーム（/en）は公開している
+    // ランキング・公開プロフィールは英語では未公開。ホーム（/en）は公開している
     const { container, getByLabelText, getByText } = renderIn("en", [
       { label: "Leaderboard", href: "/leaderboard" },
-      { label: "Plan", href: "/plan" },
+      { label: "Profile", href: "/u/alice" },
       { label: "Play" },
     ]);
 
     expect(getByLabelText("Home").getAttribute("href")).toBe("/en");
     expect(getByText("Leaderboard").tagName).toBe("SPAN");
-    expect(getByText("Plan").tagName).toBe("SPAN");
+    expect(getByText("Profile").tagName).toBe("SPAN");
     // 未公開の段は文字だけ残し、/en/leaderboard のような存在しない URL を作らない
     expect(hrefs(container)).toEqual(["/en"]);
     expect(readSchema(container)).toEqual({

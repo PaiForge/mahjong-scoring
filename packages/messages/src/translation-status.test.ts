@@ -97,6 +97,20 @@ const MEMBER_ROUTES = [
   "/preferences/yaku-order",
 ] as const;
 
+/** 英語で公開する法務・運営情報・お問い合わせ・料金・お知らせのルート（許可リストの並び） */
+const LEGAL_AND_INFO_ROUTES = [
+  "/terms",
+  "/privacy",
+  "/tokushoho",
+  "/company",
+  "/contact",
+  "/contact/confirm",
+  "/contact/success",
+  "/plan",
+  "/announcements",
+  "/announcements/[slug]",
+] as const;
+
 /** 練習の説明ページ配下の画面 */
 const PRACTICE_SUBPAGES = ["play", "training", "result"] as const;
 
@@ -136,7 +150,7 @@ describe("英語の翻訳状況の一覧", () => {
 });
 
 describe("英語で公開するルートの依存", () => {
-  it("英語で公開するルートは公開単位の表どおり（用語のページ・段級位の詳細はテンプレートで 1 行）", () => {
+  it("英語で公開するルートは公開単位の表どおり（用語のページ・段級位の詳細・お知らせの詳細はテンプレートで 1 行）", () => {
     expect(Object.keys(EN_ROUTE_NAMESPACES)).toEqual([
       "/",
       "/lessons",
@@ -162,7 +176,29 @@ describe("英語で公開するルートの依存", () => {
       "/dojo",
       "/dojo/ranks/[slug]",
       ...MEMBER_ROUTES,
+      ...LEGAL_AND_INFO_ROUTES,
     ]);
+  });
+
+  it("法務の 3 ページは条文と共通（最終更新日・参考訳の注記）の名前空間を、お知らせの一覧はページ送りと広告を読む", () => {
+    for (const [route, namespace] of [
+      ["/terms", "terms"],
+      ["/privacy", "privacy"],
+      ["/tokushoho", "tokushoho"],
+    ] as const) {
+      expect(routeNamespaces(route), route).toEqual(
+        expect.arrayContaining([namespace, "legal"]),
+      );
+    }
+    expect(routeNamespaces("/company")).toContain("company");
+    for (const route of ["/contact", "/contact/confirm", "/contact/success"]) {
+      expect(routeNamespaces(route), route).toContain("contact");
+    }
+    expect(routeNamespaces("/plan")).toContain("plan");
+    expect(routeNamespaces("/announcements")).toEqual(
+      expect.arrayContaining(["announcements", "pagination", "nativeAd"]),
+    );
+    expect(routeNamespaces("/announcements/[slug]")).toContain("announcements");
   });
 
   it("会員の画面は 18 ルートで、それぞれ自分の画面の名前空間を読む", () => {

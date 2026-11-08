@@ -174,6 +174,30 @@ const EN_MEMBER_PATHS = [
 ] as const;
 
 /**
+ * 英語で公開する法務・運営情報とお問い合わせの入力（索引させる）
+ *
+ * 利用規約・プライバシーポリシー・特定商取引法に基づく表記・運営者情報・
+ * お問い合わせの入力ページ。どれも日本語で索引対象かつ静的生成のページで、
+ * 英語も同じ分類にする。規約類の英語は参考訳で、正文は日本語版（ページが
+ * 日本語の同じページへの案内を出す）。お問い合わせの確認・完了は日本語と同じく
+ * 索引させない（{@link EN_CONTACT_FLOW_PATHS}）。
+ */
+const EN_LEGAL_PATHS = [
+  "/terms",
+  "/privacy",
+  "/tokushoho",
+  "/company",
+  "/contact",
+] as const;
+
+/**
+ * 英語で公開するお問い合わせの確認・完了（索引させない）
+ *
+ * 入力の内容（query）を表示する確認と、送信後の完了。日本語でも noindex。
+ */
+const EN_CONTACT_FLOW_PATHS = ["/contact/confirm", "/contact/success"] as const;
+
+/**
  * 言語ごとの公開ページ（許可リスト）
  *
  * ここに無いパスはその言語では `unpublished`。英語のページを公開するときは、
@@ -194,6 +218,9 @@ const EN_MEMBER_PATHS = [
  *   （{@link EN_ENDLESS_PRACTICE_PATHS}）
  * - はじめ方 `/getting-started`、体験 `/try/agari-score`・`/try/mentsu-fu`、
  *   点数計算のデモ `/reference/demo`
+ * - 法務・運営情報（利用規約 `/terms`・プライバシーポリシー `/privacy`・特商法の表記
+ *   `/tokushoho`・運営者情報 `/company`）とお問い合わせの入力 `/contact`
+ *   （{@link EN_LEGAL_PATHS}）、料金 `/plan`
  *
  * `published-noindex`（出すが sitemap・hreflang に載せない）:
  *
@@ -202,6 +229,8 @@ const EN_MEMBER_PATHS = [
  * - 道場 `/dojo` と段級位の詳細 `/dojo/ranks/[slug]`（テンプレート）
  * - 会員の画面 18 ページ（{@link EN_MEMBER_PATHS}）: 認証（ログイン・登録・
  *   メール確認待ち・パスワードの再設定・BAN 通知）・ダッシュボード・マイページ・設定
+ * - お問い合わせの確認・完了（{@link EN_CONTACT_FLOW_PATHS}）
+ * - お知らせの一覧 `/announcements` と詳細 `/announcements/[slug]`（テンプレート）
  *
  * @design 索引させるのは「日本語で索引対象かつ静的」なページだけ
  * 英語の索引対象は、クローラーが見る初期 HTML を静的生成で返すのが規約。道場の
@@ -219,11 +248,29 @@ const EN_MEMBER_PATHS = [
  * `published-noindex`（動的のまま。sitemap・hreflang に載せない）。英語の noindex は
  * `robotsForPublication(path, locale)` で付け、日本語の robots は変えない。
  *
- * @design ランキング・公開プロフィール・お知らせ・料金・問い合わせ・規約は英語で出さない
+ * @design 法務・お問い合わせ・料金は英語で出して索引させる
+ * 規約類・運営者情報・お問い合わせの入力・料金は、日本語で索引対象かつ静的生成の
+ * ページで、英語も同じ分類（`published-indexable`）にする。英語の購入の流れ
+ * （`/en/plan` → Checkout → `/en/mypage/plan`）を英語のまま通すために、料金と
+ * 特商法の表記・規約を一緒に出す。規約類の英語は参考訳で、正文は日本語版。
+ * 訳文は事業者のレビューを経てから本番に出す（ここに行を足したブランチを本番へ
+ * 入れることが公開の承認になる）。
+ *
+ * @design お知らせは英語で出すが索引させず、日本語へ fallback しない
+ * お知らせの英語は、英語で書いて公開した行だけを出す（一覧は英語の行だけを数えて
+ * 並べ、詳細は英語の行が無い slug を 404 にする。日本語の本文を英語の URL で
+ * 出さない）。英訳のお知らせはまだ少なく検索の受け皿にならないうえ、索引対象は
+ * 静的生成が規約で、一覧は `?page=` のページ送り・詳細は DB 由来のため、静的に
+ * するにはページ送りをパスに移し、全言語の公開 slug をビルド時に引く変更が要る。
+ * 日本語の動的 / 静的の分類を変えずに済む noindex（動的のまま）を採った。英訳の
+ * お知らせが増えて索引させたくなったら、静的化と sitemap の言語ごとの列挙を
+ * 一緒に足す。詳細はテンプレート（`/announcements/[slug]`）で持ち、形は日本語の
+ * 索引対象の判定（`route-policy.ts` の `JA_INDEXABLE_PATTERNS`）と同じ。
+ *
+ * @design ランキング・公開プロフィールは英語で出さない
  * ランキングと公開プロフィールは他の利用者の自由入力を見せる画面で、英語では
- * 提供しない。お知らせ・料金・問い合わせ・規約類は英語の本文を持たない。
- * 英語のページから未公開の画面への導線は「日本語のみ」の印付きで日本語の
- * ページへ送る（`(user)/_components/_lib/locale-nav-target.ts`）。
+ * 提供しない。英語のページから未公開の画面への導線は「日本語のみ」の印付きで
+ * 日本語のページへ送る（`(user)/_components/_lib/locale-nav-target.ts`）。
  *
  * @design 用語のページはテンプレートで持つ
  * 用語 64 件を 1 行ずつ並べると、用語を足したときに許可リストが黙って腐る。
@@ -248,6 +295,11 @@ const EN_MEMBER_PATHS = [
  * 段級位の詳細 `/dojo/ranks/[slug]` も同じ理由でテンプレートで持つ（段級位の
  * レジストリはクライアントに載せない。展開は `route-policy.ts` が `RANK_SLUGS` で
  * 行う）。形に合わない slug は proxy の 404、形に合うが無い段級位はページの 404。
+ *
+ * お知らせの詳細 `/announcements/[slug]` は DB 由来で slug の形を決められないので、
+ * 日本語と同じく「区切りを含まない 1 段」をすべて通す。英語の行が無い slug
+ * （`/announcements/__audit_unknown__` を含む）はページが 404 にする。noindex なので
+ * 具体的なパスへは展開しない（`route-policy.ts` の `TEMPLATE_EXPANSIONS` は空）。
  */
 const TRANSLATED_PUBLICATIONS: Readonly<
   Record<TranslatedLocale, TranslatedPublicationTable>
@@ -272,6 +324,8 @@ const TRANSLATED_PUBLICATIONS: Readonly<
       ["/try/agari-score", "published-indexable"],
       ["/try/mentsu-fu", "published-indexable"],
       ["/reference/demo", "published-indexable"],
+      ...EN_LEGAL_PATHS.map((path) => [path, "published-indexable"] as const),
+      ["/plan", "published-indexable"],
       ...EN_PRACTICE_MENU_PATHS.flatMap((path) =>
         PRACTICE_SUBPAGES.map(
           (subpage) => [`${path}/${subpage}`, "published-noindex"] as const,
@@ -282,6 +336,10 @@ const TRANSLATED_PUBLICATIONS: Readonly<
       ),
       ["/dojo", "published-noindex"],
       ...EN_MEMBER_PATHS.map((path) => [path, "published-noindex"] as const),
+      ...EN_CONTACT_FLOW_PATHS.map(
+        (path) => [path, "published-noindex"] as const,
+      ),
+      ["/announcements", "published-noindex"],
     ]),
     templates: [
       {
@@ -292,6 +350,11 @@ const TRANSLATED_PUBLICATIONS: Readonly<
       {
         template: "/dojo/ranks/[slug]",
         pattern: /^\/dojo\/ranks\/[a-z][a-z0-9-]*$/,
+        publication: "published-noindex",
+      },
+      {
+        template: "/announcements/[slug]",
+        pattern: /^\/announcements\/[^/]+$/,
         publication: "published-noindex",
       },
     ],

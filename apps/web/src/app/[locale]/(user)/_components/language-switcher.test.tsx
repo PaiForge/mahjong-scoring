@@ -67,7 +67,7 @@ describe("LanguageSwitcher", () => {
   });
 
   it("対訳の無いページでは英語をリンクにせず、英語版が無いと示す", () => {
-    const html = renderHtml("ja", "/plan");
+    const html = renderHtml("ja", "/leaderboard");
 
     expect(html).not.toContain("<a ");
     expect(html).toContain("このページの英語版はありません");
@@ -76,7 +76,7 @@ describe("LanguageSwitcher", () => {
   it.each(["inline", "stacked"] as const)(
     "%s でも英語版が無いことは読み上げと title だけで示し、見える文を足さない",
     (variant) => {
-      const html = renderHtml("ja", "/plan", variant);
+      const html = renderHtml("ja", "/leaderboard", variant);
 
       expect(html).not.toMatch(/<p[^>]*>このページの英語版はありません<\/p>/);
       expect(html).toContain('title="このページの英語版はありません"');

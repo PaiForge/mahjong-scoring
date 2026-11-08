@@ -197,9 +197,11 @@ describe("loading.tsx の境界", () => {
  * prerender manifest のキーはロケールを展開した後の実パス（`/ja/practice`）で、
  * 生成元の app route（`srcRoute`）は `/[locale]/practice`。app route の単位で
  * 「プリレンダーがあるか」を見ると、英語の not-found の成果物だけを持つ動的
- * ルート（`/[locale]/announcements` は `/en/announcements` だけが 404 として
- * プリレンダーされる）を静的と誤認するので、言語ごとに数える（分類の実装は
- * `scripts/seo-audit/_lib/build-artifacts.ts`。build の監査と同じもの）。
+ * ルート（英語で未公開の `/[locale]/leaderboard` は `/en/leaderboard` だけが 404
+ * としてプリレンダーされる）を静的と誤認するので、言語ごとに数える（分類の実装は
+ * `scripts/seo-audit/_lib/build-artifacts.ts`。build の監査と同じもの）。英語で
+ * 公開した動的ルート（`/[locale]/announcements` とその詳細）は英語も 200 の動的
+ * ページで、プリレンダーを持たない。
  */
 describe("DYNAMIC_ROUTES とビルド成果物", () => {
   const nextDir = join(APP_DIR, "..", "..", ".next");

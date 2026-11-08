@@ -77,7 +77,7 @@ const EXCLUDED_PATHS: ReadonlyMap<string, string> = new Map([
 const DYNAMIC_TEMPLATES: ReadonlyMap<string, string> = new Map([
   [
     "/announcements/[slug]",
-    "DB 由来。sitemap.ts が公開済みの slug を実行時に引き、ページが canonical を持つ",
+    "DB 由来。sitemap.ts が公開済みの slug を実行時に引き、ページが canonical を持つ。英語は英語で書いた行だけを noindex の動的ページで出し（日本語へ fallback しない）、sitemap に載せない",
   ],
   [
     "/reference/glossary/[slug]",

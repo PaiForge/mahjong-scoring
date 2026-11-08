@@ -40,6 +40,12 @@ describe("prepareRouteLocale", () => {
     ["en", "/sign-in"],
     ["en", "/mypage"],
     ["en", "/preferences"],
+    ["en", "/terms"],
+    ["en", "/contact"],
+    ["en", "/contact/success"],
+    ["en", "/plan"],
+    ["en", "/announcements"],
+    ["en", "/announcements/some-news"],
   ] as const)(
     "%s の公開ページ %s はロケールを確定して返す",
     async (locale, path) => {
@@ -64,11 +70,9 @@ describe("prepareRouteLocale", () => {
   it.each([
     ["en", "/leaderboard"],
     ["en", "/u/alice"],
-    ["en", "/announcements"],
-    ["en", "/plan"],
-    ["en", "/contact"],
-    ["en", "/terms"],
+    ["en", "/leaderboard/monthly/jantou-fu"],
     ["en", "/dojo/ranks/__unknown__"],
+    ["en", "/announcements/some-news/extra"],
     ["ja", "/nonexistent"],
   ] as const)(
     "%s で未公開のパス %s は 404（日本語の本文で代用しない）",
