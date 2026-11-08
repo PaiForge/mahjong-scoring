@@ -23,9 +23,11 @@
  * 表示の関数（`formatJst*`）は省略可能な `locale` を受ける。英語（`en`）は
  * `en-US` の書式で、**時刻は英語でも JST のまま**（サービスの暦は JST で、
  * 英語の画面でも「今日」「期限」は JST で切る。変えるのは表記だけ）。
- * `locale` を省くと日本語（`ja-JP`）で、日本語固定の読み手（モバイル・
- * 既存の呼び出し）の出力は変わらない。日付の区切り（`jstStartOfDay` 等の
- * 業務境界）は言語に依らない。
+ * `locale` を省くと日本語（`ja-JP`）で、`locale` を渡さない既存の呼び出しの
+ * 出力は変わらない。モバイルは端末の言語から決めたアプリの言語
+ * （`useAppLocale()`）を必ず渡す — 渡さないと英語の端末で日付だけ日本語の
+ * 書式が残る。web は表示中のページの言語を渡す。日付の区切り
+ * （`jstStartOfDay` 等の業務境界）は言語に依らない。
  *
  * このモジュールは純粋。
  */
@@ -243,14 +245,36 @@ export function formatJstDayKeyLong(
   return formatJstDateLong(new Date(jstDayStartIso(dayKey)), locale);
 }
 
+const JST_MONTH_DAY_FORMATS: Readonly<
+  Partial<Record<SupportedLocale, Intl.DateTimeFormat>>
+> = {
+  // 英語は en-US の「Oct 2」。数字だけの「10/2」は英語でも読めるが、日本語の
+  // 画面の書式をそのまま残すことになるので、月を略称で書く en-US の慣習に合わせる
+  en: new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: JST_TIME_ZONE,
+  }),
+};
+
 /**
  * JST の日付（`YYYY-MM-DD`）を「10/2」の形にする
  * JST日付キー月日表示
  *
- * 棒グラフの軸のように幅が限られる所で使う。文字列を分解するだけで
- * ロケールにもタイムゾーンにも依らない。月日は 0 埋めしない。
+ * 棒グラフの軸のように幅が限られる所で使う。日本語は文字列を分解するだけで
+ * 実行環境のタイムゾーンに依らない。月日は 0 埋めしない。英語は「Oct 2」
+ * （`en-US` の `month: "short", day: "numeric"`。JST の 0:00 を JST で整形する
+ * ので、日付はずれない）。
+ *
+ * @param dayKey - JST の日付（`YYYY-MM-DD`）
+ * @param locale - 表示する言語（省略時は日本語。従来の「10/2」のまま）
  */
-export function formatJstDayKeyMonthDay(dayKey: string): string {
+export function formatJstDayKeyMonthDay(
+  dayKey: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  const format = JST_MONTH_DAY_FORMATS[locale];
+  if (format) return format.format(new Date(jstDayStartIso(dayKey)));
   const [, month, day] = dayKey.split("-");
   return `${Number(month)}/${Number(day)}`;
 }

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { MOBILE_WEB_PAGES } from "@mahjong-scoring/features/i18n/web-locale-path";
 import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import {
   EN_NOT_FOUND_NAMESPACES,
@@ -13,7 +14,7 @@ import { describe, expect, it } from "vitest";
 
 import { collectPages } from "@/test/collect-pages";
 
-import { EN_PUBLISHED_PATHS } from "./route-policy";
+import { EN_PUBLISHED_PATHS, getPublication } from "./route-policy";
 import {
   translatedPublishedTemplates,
   translatedTemplateOf,
@@ -34,6 +35,11 @@ import {
  * 2. `app/[locale]/(user)` の全 page.tsx が、ページ本体と `generateMetadata` の両方で
  *    `prepareRouteLocale` を自分のパスで呼ぶこと。呼ばないページは未訳の英語を
  *    描画前に止められず、翻訳の前にロケールが確定しないので静的生成も失う
+ * 3. アプリ（iOS）がブラウザで開く web のページ（features の `MOBILE_WEB_PAGES`）が
+ *    英語で公開済み（`published-indexable`）であること。アプリは英語の端末で
+ *    `webLocalePath` により `/en/...` を開き、web の公開状態の表を知らない。
+ *    閉じた集合なのでここで固定すれば、英語の公開を外したときにアプリのリンクが
+ *    404 になるのを統合前に止められる
  */
 
 const APP_DIR = join(dirname(fileURLToPath(import.meta.url)), "../app");
@@ -198,6 +204,15 @@ describe("ページの入口のロケール確定", () => {
       expect(
         paths.filter((path) => path !== normalizeTemplate(template)),
       ).toEqual([]);
+    },
+  );
+});
+
+describe("アプリが開く web のページ", () => {
+  it.each(MOBILE_WEB_PAGES.map((path) => [path]))(
+    "アプリがブラウザで開く web のページは英語で公開済み（%s が published-indexable）",
+    (path) => {
+      expect(getPublication(path, "en")).toBe("published-indexable");
     },
   );
 });
