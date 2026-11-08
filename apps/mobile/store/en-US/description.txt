@@ -19,7 +19,7 @@ QUICK REFERENCE
 A scoring table of dealer and non-dealer ron and tsumo scores by fu and han, a yaku list and a glossary.
 
 PRO PLAN
-Pro lets you practice scoring winning hands and tenpai hands, and the 1 Kyu and Shodan mock exams, with no daily limit. It also adds answer-time tracking and hand display options (tiles randomly upside down, unsorted hands). Choose the 30-day pass or the lifetime purchase. Both are one-time in-app purchases through the App Store, and neither renews automatically.
+Pro removes the daily limit on Winning Hand Scoring Practice, Tenpai Hand Scoring Practice and the 1 Kyu and Shodan mock exams. It also adds answer-time tracking and hand display options (tiles randomly upside down, unsorted hands). Choose the 30-day pass or the lifetime purchase. Both are one-time in-app purchases through the App Store, and neither renews automatically.
 
 AN ACCOUNT IS OPTIONAL
 You can use the lessons, practice menus and quick reference without an account. Sign up with your email address or Sign in with Apple to keep your challenge records and earn ranks.
