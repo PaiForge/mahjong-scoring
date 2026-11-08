@@ -1,0 +1,119 @@
+# App Store のスクリーンショットを撮る（8 画面。名前は 01〜08 の並べる順）。
+# 6.9 インチ（App Store Connect が必須とするサイズ）の iPhone 17 Pro Max に Release ビルドを入れて流す。
+#
+#   pnpm --filter @mahjong-scoring/mobile sim:release "iPhone 17 Pro Max"
+#   SIMULATOR_NAME="iPhone 17 Pro Max" MAESTRO_LOCALE=en MAESTRO_OUTPUT_DIR=<置き場所> \
+#     pnpm --filter @mahjong-scoring/mobile maestro store-screenshots
+#
+# 画面の選定と順の理由・状態の用意（時計の固定・販売中のプラン）は README.md。
+# 文言を待つところは「英語|日本語」の正規表現にし、MAESTRO_LOCALE=ja でも同じ 8 画面を撮れる
+# ようにしてある（要素は testID で引く）。英語の文言の確認は english-smoke の役目で、ここは撮るだけ。
+# 1〜7 はゲスト（入れたばかりの人が見る画面）、8 だけ無料の alice@（購入履歴が無く、
+# プランを選ぶ欄が出る）。手元の web（:3000）と dev seed が要る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+# 01 ホーム: 次にやること 1 つ（学ぶ → 練習する → 認定される の入口）
+- extendedWaitUntil:
+    visible: "What to do next|次にやること"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: 01-home
+# 02 練習一覧（基礎練習）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
+- extendedWaitUntil:
+    visible:
+      id: "practice-mode"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: 02-practice-list
+# 03 チャレンジの盤面（雀頭の符）。カウントダウン（3, 2, 1）が明けてから撮る
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/play"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible: "^[123]$"
+    timeout: 8000
+- takeScreenshot: 03-challenge-board
+# 04 答え合わせ（1 つ答えた後の正誤の表示）
+- tapOn:
+    id: "choice-0"
+- waitForAnimationToEnd
+- takeScreenshot: 04-answer-check
+# チャレンジを中止して離れる（ゲストなので記録は残らない）
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "Quit this challenge\\?|チャレンジを中止しますか？"
+    timeout: 5000
+- tapOn: "Quit|中止する"
+# 05 レッスン（雀頭の符の本文の先頭）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons/jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "screen-back"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: 05-lesson
+# 06 点数表（タブ）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://score-table"
+- extendedWaitUntil:
+    visible: "Riichi Mahjong Scoring Table|点数早見表"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: 06-score-table
+# 07 道場（段級位の道筋）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://dojo"
+- extendedWaitUntil:
+    visible: "Dojo|道場"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: 07-dojo
+# 08 Pro プラン（alice@。マイページの行から開く）
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "What to do next|次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: alice@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "What to do next|次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-plan"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-plan"
+- extendedWaitUntil:
+    visible:
+      id: "plan-status"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: 08-plan

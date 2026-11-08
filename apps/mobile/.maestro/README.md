@@ -3,6 +3,76 @@
 操作と撮影のフロー。流し方・`testID` の引き方・Android の注意は `apps/mobile/CLAUDE.md`「確かめ方」。
 画面を変えたら該当のフローを流し、無ければここに足して、この一覧にも 1 行書く。
 
+## 端末の言語（`MAESTRO_LOCALE`）
+
+アプリは端末の言語で辞書を選ぶ（英語の端末なら英語の画面）。`scripts/maestro.sh` は流す前に
+シミュレーターの言語を `MAESTRO_LOCALE`（`ja` / `en`。既定 `ja`）に合わせる。端末の
+`AppleLanguages` の先頭と `AppleLocale`（`ja` / `ja_JP`、`en-US` / `en_US`）を読み、違うときだけ
+書いて端末を再起動する（値は再起動で効く）。同じ言語で続けて流すときは再起動しない。
+
+- 下の一覧のフローは、`english-smoke` と `store-screenshots` を除いて日本語の文言で書いてあり、
+  既定の `ja` で流す。英語に写さないのは日本語の画面の確認を失うため
+- 英語の画面は `english-smoke` と `store-screenshots` を `MAESTRO_LOCALE=en` で流して確かめる
+- シミュレーターの既定は英語なので、`maestro.sh` を通さず `maestro test` を直接流すと日本語の
+  フローは最初の「次にやること」の待ちで落ちる
+- `launchApp` の `arguments` で `-AppleLanguages` を渡す方式は採らない。Maestro が iOS でそれを
+  アプリの起動引数として渡す確証が無く、システムの確認（リンクを開く・パスワードの保存）の
+  言語も端末の設定に従うため
+
+```sh
+MAESTRO_LOCALE=en pnpm --filter @mahjong-scoring/mobile maestro english-smoke
+```
+
+## 英語のフロー
+
+- `english-smoke` — 英語の端末でゲストのホーム（"What to do next"）・練習一覧 → 雀頭の符の説明 →
+  トレーニングの盤面で 1 問・レッスン 1 章、起動し直して `bob@` でマイページ → Pro プラン（"Pro plan"・
+  "Restore Purchases"）→ 設定を開き、英語の辞書の文言で確かめて `01-home` … `08-settings` を撮る。
+  プラン画面と設定は日本語の文字（かな・カナ・漢字・和文の句読点と括弧）が見えないことまで確かめる
+  （広告の行と牌の読み上げは辞書の外なので、他の画面では見ない。PNG を目で見る）。`MAESTRO_LOCALE=en`
+- `store-screenshots` — App Store のスクリーンショットの 8 画面を撮る。下の「ストア用の撮影」
+
+## ストア用の撮影（`store-screenshots`）
+
+App Store Connect が必須とする 6.9 インチの `iPhone 17 Pro Max` に Release ビルドを入れて流す。
+PNG は Git に入れない（フローから撮り直せ、版を上げるたびに差し替えるバイナリになる）。
+`MAESTRO_OUTPUT_DIR` で手元の置き場所に出し、App Store Connect へ上げるときはそこから取る。
+
+```sh
+pnpm --filter @mahjong-scoring/mobile sim:release "iPhone 17 Pro Max"
+# 時計・電波・電池の表示を固定する（任意。端末を再起動すると外れるので、言語を替えた後に掛ける）
+xcrun simctl status_bar booted override --time 9:41 --batteryState charged \
+  --batteryLevel 100 --cellularBars 4 --wifiBars 3
+SIMULATOR_NAME="iPhone 17 Pro Max" MAESTRO_LOCALE=en MAESTRO_OUTPUT_DIR=<置き場所> \
+  pnpm --filter @mahjong-scoring/mobile maestro store-screenshots
+```
+
+時計を固定するなら、先に同じ言語で一度 `maestro.sh` を流して言語を合わせておく（言語を替えると
+端末を再起動し、固定が外れる）。
+
+撮る画面と順（ストアの検索結果に出るのは先頭の 3 枚なので、アプリで何ができるかを先に置く）:
+
+1. `01-home` — ホームの「次にやること」。学ぶ → 練習する → 認定される の道筋の入口で、
+   アプリの使い方が 1 枚で分かる
+2. `02-practice-list` — 練習一覧（基礎練習）。練習の数と幅を見せる
+3. `03-challenge-board` — チャレンジの盤面（雀頭の符）。牌を見て答える中心の操作
+4. `04-answer-check` — 1 つ答えた後の正誤の表示。その場で答え合わせできること
+5. `05-lesson` — レッスンの本文の先頭。練習の前に読める教本があること
+6. `06-score-table` — 点数表。引ける早見表があること
+7. `07-dojo` — 道場（段級位の道筋）。目標があること
+8. `08-plan` — Pro プラン。課金は最後に置く（何ができるアプリかを先に見せる）
+
+1〜7 はゲスト（入れたばかりの人が見る画面。ユーザー名や記録が写らない）、8 だけ無料の `alice@`
+（購入履歴が無く、プランを選ぶ欄が出る）。Pro の `bob@` は web で買った履歴の行（購入元「Web」）が
+写るので使わない（アプリの中で他の購入の経路を見せない。審査ガイドライン 3.1.1）。プランを選ぶ欄は
+販売中（手元の web の `.env.local` に Apple の Product ID が 2 つある）ときだけ出て、価格は
+StoreKit の値（取れなければ購入画面で確かめる旨の案内 `mobilePlan.offers.priceUnavailable`）になる。
+練習一覧の 3 枚目には広告のカード（手元の web の広告配信の中身）が出るので、撮った PNG で中身を確かめる。
+
+文言を待つところは「英語|日本語」の正規表現にしてあり、`MAESTRO_LOCALE=ja` でも同じ 8 画面を撮れる。
+
+## 日本語のフロー
+
 - `home-guest` — ゲストのホーム。記録の案内（登録 CTA）から登録画面へ
 - `home-username-missing` — ユーザー名未設定（`ivan@`）でログイン → ユーザー名の設定へ
   送られる → ホームにユーザー名の案内

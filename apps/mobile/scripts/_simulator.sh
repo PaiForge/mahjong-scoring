@@ -40,3 +40,54 @@ simulator_name() {
   xcrun simctl list devices -j |
     jq -r --arg udid "$1" '.devices[][] | select(.udid == $udid) | .name' | head -1
 }
+
+# 端末の言語（maestro.sh が MAESTRO_LOCALE に合わせる）
+#
+# アプリは端末の言語（iOS の優先する言語の先頭）で辞書を選ぶので、Maestro の文言の確認は
+# 端末の言語に依る。言語は .GlobalDomain の AppleLanguages（優先する言語の並び）と
+# AppleLocale（地域の書式）で、書いた値は端末を再起動するまで効かない。読み書きは起動中の
+# 端末にしかできない（simctl spawn は起動中の端末の中でコマンドを走らせる）。
+
+# 引数: アプリの言語（ja / en）。標準出力に「AppleLanguages の先頭 AppleLocale」、知らない言語なら失敗
+#
+# en は地域付きの en-US / en_US にする。iOS が英語の端末に既定で入れる値がこれで、
+# 日付・数の書式の地域もそれに揃う
+simulator_language_values() {
+  case "$1" in
+    ja) echo "ja ja_JP" ;;
+    en) echo "en-US en_US" ;;
+    *)
+      echo "simulator: 言語「$1」は扱わない（ja / en）" >&2
+      return 1
+      ;;
+  esac
+}
+
+# 引数: UDID（起動中）。標準出力に AppleLanguages の先頭（例: ja / en-US）、未設定なら空
+#
+# defaults read は配列を「(」「    "en-US",」…「)」の行で出す。2 行目が先頭の要素で、
+# 引用符（- を含む値にだけ付く）・カンマ・字下げを落とす
+simulator_language() {
+  { xcrun simctl spawn "$1" defaults read .GlobalDomain AppleLanguages 2>/dev/null || true; } |
+    sed -n '2p' | tr -d '[:space:]",'
+}
+
+# 引数: UDID（起動中）。標準出力に AppleLocale（例: ja_JP / en_US）、未設定なら空
+simulator_locale() {
+  xcrun simctl spawn "$1" defaults read .GlobalDomain AppleLocale 2>/dev/null || true
+}
+
+# 引数: UDID（起動中）・アプリの言語（ja / en）。端末の言語を書き、再起動して起動完了まで待つ
+#
+# 再起動するのは、AppleLanguages / AppleLocale が起動時にしか読まれないため（書いただけでは
+# アプリにもシステムの確認の画面にも効かない）。入れてあるアプリとその保存した状態は残る
+set_simulator_language() {
+  local udid="$1" values lang locale
+  values=$(simulator_language_values "$2") || return 1
+  read -r lang locale <<<"$values"
+  xcrun simctl spawn "$udid" defaults write .GlobalDomain AppleLanguages -array "$lang"
+  xcrun simctl spawn "$udid" defaults write .GlobalDomain AppleLocale -string "$locale"
+  xcrun simctl shutdown "$udid"
+  xcrun simctl boot "$udid"
+  xcrun simctl bootstatus "$udid" -b >/dev/null
+}
