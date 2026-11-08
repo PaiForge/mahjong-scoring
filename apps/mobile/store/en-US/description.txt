@@ -1,0 +1,27 @@
+Learn riichi mahjong scoring step by step, from counting fu to calling out the final score. A study app built for beginners: you can start even if you know nothing about scoring yet.
+
+LEARN FROM THE BASICS
+The lessons form a structured curriculum. Each lesson explains one point in a short text, and many end with a few questions so you can check what you read right away. Study them in order from start to finish and you will be able to calculate scores at a real table.
+
+LEARN BY PRACTICING
+Practice menus cover every level, from simple fu calculations and the han of each yaku to full score calculation: fu for the pair, the wait and sets, total fu for the hand, identifying the yaku, scoring table lookup, and scoring mangan and above.
+- Challenge: a time limit and a mistake limit. Go for your personal best.
+- Training: no time limit. Check your answer after each question and practice as often as you like.
+
+PRACTICE FOR REAL GAMES
+- Winning Hand Scoring Practice: work out the yaku, han, fu and points from a winning hand.
+- Tenpai Hand Scoring Practice: find the waits in a tenpai hand and answer the tsumo and ron scores for each wait.
+
+THE ROAD TO THE BLACK BELT
+The Dojo shows every rank from 5 Kyu to Shodan, the black belt in scoring. For each rank you learn with the lessons, practice, and then get certified by passing a promotion exam. Exams go in order from the lowest rank. A mock exam gives you the same questions as the real exam with no time limit.
+
+QUICK REFERENCE
+A scoring table of dealer and non-dealer ron and tsumo scores by fu and han, a yaku list and a glossary.
+
+PRO PLAN
+Pro lets you practice scoring winning hands and tenpai hands, and the 1 Kyu and Shodan mock exams, with no daily limit. It also adds answer-time tracking and hand display options (tiles randomly upside down, unsorted hands). Choose the 30-day pass or the lifetime purchase. Both are one-time in-app purchases through the App Store, and neither renews automatically.
+
+AN ACCOUNT IS OPTIONAL
+You can use the lessons, practice menus and quick reference without an account. Sign up with your email address or Sign in with Apple to keep your challenge records and earn ranks.
+
+The app is shown in English or Japanese to match the language of your device.
