@@ -146,7 +146,7 @@ const EN_ENDLESS_PRACTICE_PATHS = [
  * 出し、英語では `robotsForPublication(path, locale)` が noindex を付ける。
  * 日本語の robots（認証・設定は meta 無し、マイページは `createPrivateMetadata` の
  * noindex）は変えない — 日本語の認証ページに meta noindex を足すのは既存の
- * 出力の変更になる。英語のマイページは robots.txt でも除外する（`app/robots.ts`）。
+ * 出力の変更になる。英語のマイページは noindex を読ませるためクロールを許可する。
  */
 const EN_MEMBER_PATHS = [
   // 認証フロー・BAN 通知
