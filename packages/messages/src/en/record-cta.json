@@ -1,45 +1,45 @@
 {
   "home": {
     "signUp": {
-      "message": "無料登録で、学習の進み具合をアカウントに残せます",
-      "description": "終えたレッスンが機種変更しても消えず、web でも続きから学べます。"
+      "message": "Sign up for free to keep your progress in your account",
+      "description": "The lessons you finish won't be lost when you change phones, and you can continue on the web."
     },
     "username": {
-      "message": "ユーザー名を決めると、学習の進み具合をアカウントに残せます",
-      "description": "終えたレッスンが機種変更しても消えず、web でも続きから学べます。"
+      "message": "Set a username to keep your progress in your account",
+      "description": "The lessons you finish won't be lost when you change phones, and you can continue on the web."
     }
   },
   "mypage": {
     "signUp": {
-      "message": "無料登録すると、ここにあなたの記録が並びます",
-      "description": "段級位・毎日の経験値・チャレンジの成績を、マイページでまとめて確かめられます。"
+      "message": "Sign up for free to see your records here",
+      "description": "See your rank, daily EXP and challenge results together on My Page."
     },
     "username": {
-      "message": "ユーザー名を決めると、ここにあなたの記録が並びます",
-      "description": "段級位・毎日の経験値・チャレンジの成績を、マイページでまとめて確かめられます。"
+      "message": "Set a username to see your records here",
+      "description": "See your rank, daily EXP and challenge results together on My Page."
     }
   },
   "result": {
     "signUp": {
-      "message": "無料登録すると、チャレンジの成績が記録されます",
-      "description": "経験値が貯まり、成績の推移をマイレコードで確かめられます。"
+      "message": "Sign up for free to record your challenge results",
+      "description": "You earn EXP, and you can follow how your results change in My Records."
     },
     "username": {
-      "message": "ユーザー名を決めると、チャレンジの成績が記録されます",
-      "description": "経験値が貯まり、成績の推移をマイレコードで確かめられます。"
+      "message": "Set a username to record your challenge results",
+      "description": "You earn EXP, and you can follow how your results change in My Records."
     }
   },
   "lesson": {
     "signUp": {
-      "message": "アカウントを作ってレッスンの進捗を記録しよう",
-      "description": "無料登録すると、終えたレッスンがアカウントに残ります。機種変更しても消えず、web でも続きから学べます。"
+      "message": "Create an account to record your lesson progress",
+      "description": "Sign up for free and the lessons you finish are kept in your account. They won't be lost when you change phones, and you can continue on the web."
     },
     "username": {
-      "message": "ユーザー名を決めてレッスンの進捗を記録しよう",
-      "description": "ユーザー名を決めると、終えたレッスンがアカウントに残ります。機種変更しても消えず、web でも続きから学べます。"
+      "message": "Set a username to record your lesson progress",
+      "description": "Set a username and the lessons you finish are kept in your account. They won't be lost when you change phones, and you can continue on the web."
     }
   },
-  "signUp": "無料登録",
-  "signIn": "ログイン",
-  "setUsername": "ユーザー名を決める"
+  "signUp": "Sign up",
+  "signIn": "Log in",
+  "setUsername": "Set your username"
 }

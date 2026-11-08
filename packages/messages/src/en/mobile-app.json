@@ -1,13 +1,13 @@
 {
-  "goHome": "ホームに戻る",
+  "goHome": "Back to Home",
   "errorBoundary": {
-    "title": "問題が発生しました",
-    "description": "画面を表示できませんでした。もう一度試すか、ホームに戻ってください。",
-    "retry": "もう一度試す"
+    "title": "Something went wrong",
+    "description": "We couldn't show this screen. Try again or go back home.",
+    "retry": "Try again"
   },
   "updateRequired": {
-    "title": "アップデートが必要です",
-    "description": "このバージョンのアプリはご利用いただけなくなりました。ストアから最新のバージョンにアップデートしてください。",
-    "openStore": "ストアでアップデート"
+    "title": "Update required",
+    "description": "This version of the app can no longer be used. Please update to the latest version in the App Store.",
+    "openStore": "Update in the App Store"
   }
 }
