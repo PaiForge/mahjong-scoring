@@ -27,9 +27,10 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://practice"
+# ToggleGroup は選択肢ごとに <testID>-<値> を付け、容器には testID を付けない
 - extendedWaitUntil:
     visible:
-      id: "practice-mode"
+      id: "practice-mode-basic"
     timeout: 10000
 - assertVisible: "Scoring Practice"
 - assertVisible: ".*Basic practice.*"

@@ -26,9 +26,10 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://practice"
+# ToggleGroup は選択肢ごとに <testID>-<値> を付け、容器には testID を付けない
 - extendedWaitUntil:
     visible:
-      id: "practice-mode"
+      id: "practice-mode-basic"
     timeout: 10000
 - waitForAnimationToEnd
 - takeScreenshot: 02-practice-list
@@ -45,11 +46,6 @@ appId: help.mahjong.score
     notVisible: "^[123]$"
     timeout: 8000
 - takeScreenshot: 03-challenge-board
-# 04 答え合わせ（1 つ答えた後の正誤の表示）
-- tapOn:
-    id: "choice-0"
-- waitForAnimationToEnd
-- takeScreenshot: 04-answer-check
 # チャレンジを中止して離れる（ゲストなので記録は残らない）
 - tapOn:
     id: "screen-back"
@@ -57,6 +53,31 @@ appId: help.mahjong.score
     visible: "Quit this challenge\\?|チャレンジを中止しますか？"
     timeout: 5000
 - tapOn: "Quit|中止する"
+# 04 答え合わせ（1 つ答えた後の正誤の表示）。チャレンジは答えると自動で次の問題へ進み、
+# 撮れるのは次の問題の盤面になるので、正誤の表示のまま「次の問題へ」で止まるトレーニングの
+# 盤面で撮る（正解で自動で次へ進む設定の既定はオフ。ゲストの初期状態はこの既定）。
+# 「次の問題へ」のボタンは答えるまで読み上げの木から外してあるので、見えたら止まった合図になる
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/jantou-fu/training"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- tapOn:
+    id: "choice-0"
+- extendedWaitUntil:
+    visible: "Next question|次の問題へ"
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: 04-answer-check
+# トレーニングを閉じる（説明画面へ戻り、終了の知らせが出る）
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "Training finished|トレーニングを終了しました"
+    timeout: 5000
 # 05 レッスン（雀頭の符の本文の先頭）
 - runFlow:
     file: _open-link.yaml
