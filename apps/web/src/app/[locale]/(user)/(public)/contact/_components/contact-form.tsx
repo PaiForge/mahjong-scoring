@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
+
+import { localizedHref } from "@/i18n/public-path";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 import { AuthFormError } from "../../_components/auth-form-error";
 import { AuthSubmitButton } from "../../_components/auth-submit-button";
@@ -21,9 +27,12 @@ import { CONTACT_LIMITS, parseContactForm } from "@/lib/validations/contact";
  * 送信はしない。検証を通ったら内容をクエリに載せて確認画面へ進む。
  * 確認画面の「入力画面に戻る」から戻ってきたときは、同じクエリで各欄を
  * 埋め直す（`useSearchParams()` を読むため、呼び出し側で Suspense に包む）。
+ * 確認画面は同じ言語のもの（英語の入力画面から `/en/contact/confirm`）。
  */
 export function ContactForm() {
   const t = useTranslations("contact");
+  const rawLocale = useLocale();
+  const locale = isSupportedLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -43,7 +52,12 @@ export function ContactForm() {
     }
     setError(undefined);
     setIsNavigating(true);
-    router.push(`/contact/confirm?${buildContactParams(parsed.value)}`);
+    router.push(
+      localizedHref(
+        `/contact/confirm?${buildContactParams(parsed.value)}`,
+        locale,
+      ),
+    );
   };
 
   return (

@@ -91,6 +91,49 @@ describe("sendContactMail", () => {
     );
   });
 
+  describe("UI の言語", () => {
+    /** 日本語の UI から送ったときの本文（従来のメールそのもの） */
+    const JA_TEXT = [
+      "お名前: 山田 太郎",
+      "メールアドレス: taro@example.com",
+      "件名: 点数表について",
+      "",
+      "1 行目\n<b>2 行目</b> & 記号",
+    ].join("\n");
+    const JA_HTML =
+      "<p><strong>お名前:</strong> 山田 太郎</p>" +
+      "<p><strong>メールアドレス:</strong> taro@example.com</p>" +
+      "<p><strong>件名:</strong> 点数表について</p>" +
+      "<p>1 行目<br>&lt;b&gt;2 行目&lt;/b&gt; &amp; 記号</p>";
+
+    it.each([
+      ["省略", undefined],
+      ["日本語", "ja"],
+      ["対応していない言語", "fr"],
+    ])(
+      "%sなら本文に何も足さない（日本語の UI からのメールは従来のまま）",
+      async (_label, uiLocale) => {
+        await sendContactMail(input, uiLocale);
+
+        const payload = mockSend.mock.calls[0][0];
+        expect(payload.text).toBe(JA_TEXT);
+        expect(payload.html).toBe(JA_HTML);
+        expect(payload.subject).toBe("[麻雀点数計算教室] 点数表について");
+      },
+    );
+
+    it("英語の UI からなら本文の先頭に「UI の言語: en」の 1 行を足し、件名・ラベルは変えない", async () => {
+      await sendContactMail(input, "en");
+
+      const payload = mockSend.mock.calls[0][0];
+      expect(payload.text).toBe(`UI の言語: en\n${JA_TEXT}`);
+      expect(payload.html).toBe(
+        `<p><strong>UI の言語:</strong> en</p>${JA_HTML}`,
+      );
+      expect(payload.subject).toBe("[麻雀点数計算教室] 点数表について");
+    });
+  });
+
   it("Resend がエラーを返したら sendFailed", async () => {
     mockSend.mockResolvedValue({
       data: null,

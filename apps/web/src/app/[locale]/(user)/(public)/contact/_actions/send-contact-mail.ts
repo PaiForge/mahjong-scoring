@@ -11,6 +11,10 @@ import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { parseContactForm } from "@/lib/validations/contact";
 import type { ContactValidationErrorKey } from "@/lib/validations/contact";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * 問い合わせ送信の失敗理由
@@ -36,9 +40,21 @@ export type SendContactMailResult = ActionResult<SendContactMailError>;
  * メーラーの「返信」でそのまま返せる。
  *
  * 送信設定（`readOperatorMailConfig`）が揃っていなければ送らずに `sendFailed`。
+ *
+ * 日本語以外の UI から来た問い合わせは、本文（text・html とも）の先頭に
+ * `UI の言語: en` の 1 行を足す。英語で来た問い合わせだと運営が一目で分かり、
+ * 返信の言語を決められるようにするため。日本語の UI からの問い合わせには
+ * 何も足さない（従来のメールのまま）。件名・ラベル・利用者の本文は変えず、
+ * 利用者の文章を翻訳して送ることもしない。
+ *
+ * @param input - 入力フォームの内容（検証前）
+ * @param uiLocale - 送信した画面の言語。クライアントが明示で渡す
+ *   （Server Action にリクエストのロケールが届くかに依らないため）。
+ *   対応言語でない値・省略は日本語として扱う
  */
 export async function sendContactMail(
   input: unknown,
+  uiLocale?: string,
 ): Promise<SendContactMailResult> {
   const rateLimited = await enforceIpRateLimit("contact");
   if (rateLimited) {
@@ -59,6 +75,15 @@ export async function sendContactMail(
     return { error: "sendFailed" };
   }
 
+  // 運営向けのラベルなので日本語のまま（辞書に載せない）。値は対応言語のコードだけ
+  const uiLanguage =
+    // Server Action の引数は外から任意の値で叩けるので、型に頼らず確かめる
+    typeof uiLocale === "string" &&
+    isSupportedLocale(uiLocale) &&
+    uiLocale !== DEFAULT_LOCALE
+      ? uiLocale
+      : undefined;
+
   const resend = new Resend(mail.apiKey);
   try {
     const { error } = await resend.emails.send({
@@ -67,6 +92,7 @@ export async function sendContactMail(
       replyTo: email,
       subject: `[${SITE_NAME}] ${subject}`,
       text: [
+        ...(uiLanguage ? [`UI の言語: ${uiLanguage}`] : []),
         `お名前: ${name}`,
         `メールアドレス: ${email}`,
         `件名: ${subject}`,
@@ -74,6 +100,9 @@ export async function sendContactMail(
         message,
       ].join("\n"),
       html: [
+        ...(uiLanguage
+          ? [`<p><strong>UI の言語:</strong> ${uiLanguage}</p>`]
+          : []),
         `<p><strong>お名前:</strong> ${escapeHtml(name)}</p>`,
         `<p><strong>メールアドレス:</strong> ${escapeHtml(email)}</p>`,
         `<p><strong>件名:</strong> ${escapeHtml(subject)}</p>`,

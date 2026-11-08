@@ -1,7 +1,13 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+
+import { localizedHref } from "@/i18n/public-path";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 import { AuthFormError } from "../../_components/auth-form-error";
 import { useAuthFormSubmit } from "../../_hooks/use-auth-form-submit";
@@ -21,19 +27,25 @@ interface ContactConfirmProps {
  *
  * 内容は表示だけのカード（細枠・影なし）に並べる。「入力画面に戻る」は
  * 同じ内容をクエリに載せて入力画面へ戻り、「送信する」で Server Action を
- * 呼んで完了画面へ進む。
+ * 呼んで完了画面へ進む。戻り先・完了画面は同じ言語のページ。
+ *
+ * Server Action には UI の言語を引数で明示して渡す（運営宛てのメールに
+ * 書き添えるため）。Server Action がリクエストのロケールを受け取れるかに
+ * 依らず、テストで固定できる形にしている。
  */
 export function ContactConfirm({ formData }: ContactConfirmProps) {
   const t = useTranslations("contact");
+  const rawLocale = useLocale();
+  const locale = isSupportedLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
   const router = useRouter();
   const { error, isLoading, submit } = useAuthFormSubmit();
 
   const handleSend = () => {
     void submit({
-      action: () => sendContactMail(formData),
+      action: () => sendContactMail(formData, locale),
       mapError: (code) => t(`errors.${code}`),
       onSuccess: () => {
-        router.push("/contact/success");
+        router.push(localizedHref("/contact/success", locale));
       },
     });
   };
@@ -64,7 +76,10 @@ export function ContactConfirm({ formData }: ContactConfirmProps) {
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row">
         <LinkButton
-          href={`/contact?${buildContactParams(formData)}`}
+          href={localizedHref(
+            `/contact?${buildContactParams(formData)}`,
+            locale,
+          )}
           variant="neutral"
           size="lg"
           fullWidth
