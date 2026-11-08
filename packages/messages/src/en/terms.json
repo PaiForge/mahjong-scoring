@@ -1,117 +1,117 @@
 {
-  "pageTitle": "利用規約",
-  "description": "麻雀点数計算教室の利用規約。アカウント、データの取り扱い、退会、禁止事項、通報とブロック、免責事項について定めます。",
+  "pageTitle": "Terms of Service",
+  "description": "The terms of service of this riichi mahjong scoring site. They cover accounts, how your data is handled, deleting your account, prohibited conduct, reporting and blocking, and disclaimers.",
   "acceptance": {
-    "title": "規約の承諾",
-    "body": "本利用規約（以下「本規約」）は、{siteName}（以下「本サービス」）の利用条件を定めるものです。本サービスを利用することで、本規約に同意したものとみなされます。本規約に同意いただけない場合は、本サービスの利用をお控えください。\n本規約において「運営者」とは、本サービスを提供・運営する事業者（<company>運営者情報</company>）をいいます。"
+    "title": "Acceptance of the Terms",
+    "body": "These Terms of Service (the \"Terms\") set out the conditions for using {siteName} (the \"Service\"). By using the Service, you are deemed to have agreed to these Terms. If you do not agree to these Terms, please do not use the Service.\nIn these Terms, the \"Operator\" means the business that provides and runs the Service (see <company>Operator Information</company>)."
   },
   "service": {
-    "title": "サービスの説明",
-    "body": "本サービスは、麻雀の点数計算を学ぶための Web アプリケーションおよび iOS アプリです。レッスン、練習、昇級試験、ランキングなどの機能を提供します。ランキング・公開プロフィール・プロフィールの編集は Web アプリケーションの機能で、iOS アプリでは他のユーザーの情報を表示せず、自分の順位だけを表示します。基本機能は無料で、一部の練習の回数制限を外す有料プラン（Pro）があります。"
+    "title": "About the Service",
+    "body": "The Service is a web application and an iOS app for learning riichi mahjong score calculation. It offers features such as lessons, practice, promotion exams and leaderboards. Leaderboards, public profiles and profile editing are features of the web application. The iOS app does not show other users' information and shows only your own place. The basic features are free, and there is a paid plan (Pro) that removes the limit on how much you can use some practices."
   },
   "account": {
-    "title": "アカウント",
-    "body": "レッスンや練習はアカウントを登録せずに利用できます。チャレンジの記録、ランキングへの参加、段級位の取得にはアカウントの登録が必要です。アカウントを登録した場合、次の点にご注意ください。",
-    "item1": "認証情報（パスワード等）は、ユーザー自身の責任において厳重に管理してください。",
-    "item2": "第三者によるアカウントの不正使用によって生じた損害について、運営者は責任を負いません。"
+    "title": "Accounts",
+    "body": "You can use lessons and practice without creating an account. You need an account to keep challenge records, take part in the leaderboards and earn ranks. If you create an account, please note the following.",
+    "item1": "You are responsible for keeping your login credentials (such as your password) secure.",
+    "item2": "The Operator is not responsible for any damage caused by a third party's unauthorized use of your account."
   },
   "data": {
-    "title": "データの取り扱い",
-    "warning": "記録が残るかどうかは、アカウントの有無によって異なります。",
-    "guest": "アカウントを登録していない場合、チャレンジの成績は保存されません。お使いの端末（ブラウザ）に残るのは、ルール設定・ドラの表示方法・役の並び順・出題設定などの設定のみで、これらはブラウザのサイトデータを削除すると消えます。運営者はこれらの設定を復元できません。",
-    "member": "アカウントを登録すると、チャレンジの成績・経験値・レッスンの完了状況・段級位がサーバーに保存され、別の端末からログインしても引き継がれます。記録を残したい場合はアカウントの登録をおすすめします。"
+    "title": "How your data is handled",
+    "warning": "Whether your records are kept depends on whether you have an account.",
+    "guest": "If you have not created an account, your challenge results are not saved. The only things kept on your device (browser) are settings, such as the rule settings, how dora are shown, the order of yaku and the question settings. They are lost when you clear your browser's site data, and the Operator cannot restore them.",
+    "member": "When you create an account, your challenge results, EXP, lesson completions and rank are saved on the server, and they carry over when you log in from another device. If you want to keep your records, we recommend creating an account."
   },
   "publicInfo": {
-    "title": "公開される情報",
-    "body": "次の情報は、Web アプリケーションの公開プロフィールおよびランキングで、ログインしていない人を含むすべての閲覧者に表示されます。",
-    "item1": "ユーザー名、表示名、アバター画像",
-    "item2": "自己紹介、SNS のアカウント名（登録した場合）",
-    "item3": "チャレンジの成績（ランキングに掲載されるもの）",
-    "note": "ランキングへの掲載は<preferences>設定</preferences>（iOS アプリの設定からも可）でいつでも止められます（成績の記録自体は残ります）。メールアドレスが公開されることはありません。"
+    "title": "Information shown publicly",
+    "body": "The following information is shown on public profiles and leaderboards in the web application to every visitor, including people who are not logged in.",
+    "item1": "Username, display name and avatar image",
+    "item2": "Bio and social media account names (if you add them)",
+    "item3": "Challenge results (those listed on the leaderboards)",
+    "note": "You can stop being listed on the leaderboards at any time in <preferences>Settings</preferences> (also from the settings in the iOS app). Your results are still recorded. Your email address is never made public."
   },
   "deletion": {
-    "title": "退会",
-    "body": "退会（アカウントの削除）はマイページからいつでも行えます。退会後は同じアカウントでログインできず、この操作は取り消せません。退会時のデータの取り扱いは次のとおりです。",
-    "item1": "表示名・アバター画像・自己紹介・SNS のアカウント名は削除されます。",
-    "item2": "チャレンジの成績（途中のチャレンジを含む）・経験値・レッスンの完了状況・段級位・お知らせの通知・ブロックしたユーザーの一覧は削除され、ランキングからも消えます。",
-    "item3": "ユーザー名は、他の人が同じ名前で登録することを防ぐために保持されます。そのため、同じユーザー名では再登録できません。",
-    "item4": "不正利用の調査と対応のため、操作の履歴（ログイン・プロフィール更新・退会などの種類と日時）、運営者の対応記録、通報の記録は退会後も保持されます。",
-    "item5": "有料プランの購入記録は削除され、未使用の期間があっても返金はされません。"
+    "title": "Deleting your account",
+    "body": "You can delete your account at any time from My Page. After you delete it, you cannot log in with the same account, and this cannot be undone. When you delete your account, your data is handled as follows.",
+    "item1": "Your display name, avatar image, bio and social media account names are deleted.",
+    "item2": "Your challenge results (including challenges in progress), EXP, lesson completions, rank, announcement notifications and list of blocked users are deleted, and you are removed from the leaderboards.",
+    "item3": "Your username is kept so that no one else can sign up with the same name. For this reason, you cannot sign up again with the same username.",
+    "item4": "To investigate and deal with misuse, the history of your actions (the type and time of logins, profile updates, account deletion and so on), the Operator's records of the actions it took, and the records of reports are kept even after you delete your account.",
+    "item5": "Your paid plan purchase records are deleted, and no refund is given even if part of a period is unused."
   },
   "paidPlan": {
-    "title": "有料プラン",
-    "body": "有料プラン（Pro）は、料金ページに表示した価格で、期間パスまたは買い切りとして購入できます。購入にあたっては次の点に同意いただきます。",
-    "item1": "料金は料金ページに税込で表示します。支払いは決済代行事業者（Stripe）の決済画面で行い、運営者はカード情報を保持しません。",
-    "item2": "期間パスは購入時に表示した期間で終了し、自動更新はありません。有効期間中に再度購入した場合、新しい期間は現在の期間の終了後に始まります。",
-    "item3": "デジタルコンテンツの性質上、購入後の返金・キャンセルはできません。ただし運営者の責めに帰すべき事由で特典を提供できない場合はこの限りではありません。",
-    "item4": "買い切りで利用できる機能は購入時点のものです。運営者は今後追加する機能を期間パスのみの特典とすることがあります。",
-    "item5": "運営者は、価格や特典の内容を変更することがあります。変更は本サービス上での告知をもって行い、購入済みの期間パス・買い切りには遡って適用しません。",
-    "item6": "退会すると購入記録は削除され、未使用の期間があっても返金はされません。アカウントの停止（利用規約違反）の場合も同様です。"
+    "title": "Paid plan",
+    "body": "The paid plan (Pro) can be bought as a pass for a fixed period or as a lifetime purchase, at the price shown on the pricing page. By buying it, you agree to the following.",
+    "item1": "Prices are shown on the pricing page with tax included. You pay on the checkout screen of our payment processor (Stripe), and the Operator does not keep your card details.",
+    "item2": "A pass ends after the period shown at the time of purchase and does not renew automatically. If you buy again while a pass is active, the new period starts after the current period ends.",
+    "item3": "Because of the nature of digital content, purchases cannot be refunded or canceled after you buy them. This does not apply if the Operator cannot provide the benefits for reasons the Operator is responsible for.",
+    "item4": "The features available with a lifetime purchase are those available at the time of purchase. The Operator may make features it adds in the future a benefit of the pass only.",
+    "item5": "The Operator may change prices and what the benefits include. Changes are made by announcing them on the Service, and they do not apply retroactively to passes or lifetime purchases already bought.",
+    "item6": "If you delete your account, your purchase records are deleted, and no refund is given even if part of a period is unused. The same applies if your account is suspended (for violating these Terms)."
   },
   "responsibilities": {
-    "title": "ユーザーの責任",
-    "body": "本サービスの利用にあたり、次の点についてご理解ください。",
-    "item1": "本サービスの利用は、ユーザー自身の責任において行ってください。",
-    "item2": "インターネット接続に必要な機器、ソフトウェア、通信料金等は、ユーザーの負担と責任で準備してください。",
-    "item3": "ブラウザの設定や端末の管理は、ユーザー自身で適切に行ってください。"
+    "title": "Your responsibilities",
+    "body": "Please understand the following when you use the Service.",
+    "item1": "You use the Service at your own responsibility.",
+    "item2": "You are responsible for preparing, at your own cost, the devices, software, data charges and anything else you need to connect to the internet.",
+    "item3": "Please manage your browser settings and your devices properly yourself."
   },
   "prohibited": {
-    "title": "禁止事項",
-    "body": "運営者は、不適切な内容の掲載や他のユーザーへの迷惑行為を一切容認しません。本サービスの利用にあたり、次の行為を禁止します。",
-    "item1": "本サービスの運営を妨害する行為",
-    "item2": "本サービスに過度な負荷をかける行為",
-    "item3": "本サービスの脆弱性を探索・悪用する行為",
-    "item4": "複数のアカウントの作成や自動化ツールの使用など、不正な方法でランキングや段級位を操作する行為",
-    "item5": "他のユーザーや第三者になりすます行為",
-    "item6": "他のユーザーや第三者を誹謗中傷する、差別する、脅迫する、またはつきまとう・嫌がらせをする行為",
-    "item7": "性的・暴力的・差別的な表現、その他公序良俗に反する内容をプロフィール（ユーザー名・表示名・自己紹介・アバター画像・SNS のアカウント名）に掲載する行為",
-    "item8": "宣伝・勧誘・スパムを目的とする内容をプロフィールに掲載する行為",
-    "item9": "虚偽の通報など、通報の仕組みを濫用する行為",
-    "item10": "その他、法令に違反する行為または公序良俗に反する行為",
-    "note": "プロフィールに不適切な語句が含まれる場合、運営者はその保存を受け付けないことがあります。"
+    "title": "Prohibited conduct",
+    "body": "The Operator does not tolerate inappropriate content or causing trouble for other users in any form. When you use the Service, the following conduct is prohibited.",
+    "item1": "Interfering with the operation of the Service",
+    "item2": "Putting an excessive load on the Service",
+    "item3": "Searching for or exploiting vulnerabilities in the Service",
+    "item4": "Manipulating the leaderboards or ranks by improper means, such as creating multiple accounts or using automation tools",
+    "item5": "Pretending to be another user or a third party",
+    "item6": "Defaming, discriminating against, threatening, stalking or harassing other users or third parties",
+    "item7": "Putting sexual, violent or discriminatory expressions, or any other content contrary to public order and morals, in your profile (username, display name, bio, avatar image or social media account names)",
+    "item8": "Putting content meant for advertising, solicitation or spam in your profile",
+    "item9": "Misusing the reporting system, such as by making false reports",
+    "item10": "Any other conduct that violates laws or regulations or is contrary to public order and morals",
+    "note": "If your profile contains inappropriate words, the Operator may refuse to save it."
   },
   "reporting": {
-    "title": "通報とブロック",
-    "body": "Web アプリケーションで、他のユーザーのプロフィールに不適切な内容がある場合や、迷惑行為を受けた場合は、そのユーザーの公開プロフィールから運営者に通報できます。また、ユーザーをブロックすると、そのユーザーはあなたが見るランキングと公開プロフィールに表示されなくなります。通報とブロックにはログインが必要です。",
-    "item1": "運営者は、通報を受けてから 24 時間以内に内容を確認し、本規約に違反すると判断した場合は、該当する内容の削除やアカウントの停止などの対応を行います。",
-    "item2": "通報したことや通報した人が、通報された相手に知らされることはありません。ブロックしたことも相手には通知されません。",
-    "item3": "ブロックは Web アプリケーションの設定からいつでも解除できます。",
-    "item4": "ログインしていない場合や、プロフィール以外の問題を知らせたい場合は、<contact>お問い合わせフォーム</contact>からご連絡ください。"
+    "title": "Reporting and blocking",
+    "body": "In the web application, if another user's profile contains inappropriate content or another user is causing you trouble, you can report that user to the Operator from their public profile. You can also block a user, and that user will no longer appear on the leaderboards and public profiles you see. You need to be logged in to report or block.",
+    "item1": "The Operator reviews a report within 24 hours of receiving it. If the Operator judges that the content violates these Terms, it takes action such as removing that content or suspending the account.",
+    "item2": "The reported user is never told that a report was made or who made it. The other user is not notified when you block them either.",
+    "item3": "You can unblock a user at any time in the settings of the web application.",
+    "item4": "If you are not logged in, or you want to tell the Operator about a problem other than a profile, please get in touch through the <contact>contact form</contact>."
   },
   "intellectualProperty": {
-    "title": "知的財産権",
-    "body": "本サービスに含まれるコンテンツ、デザイン、ロゴ、ソフトウェアなどの知的財産権は、運営者またはライセンサーに帰属します。ユーザーは、これらを無断で複製、転載、改変することはできません。"
+    "title": "Intellectual property",
+    "body": "The intellectual property rights in the content, design, logos, software and other materials included in the Service belong to the Operator or its licensors. You may not copy, republish or modify them without permission."
   },
   "disclaimer": {
-    "title": "免責事項",
-    "accuracy": "本サービスの点数計算やレッスンの内容は正確を期していますが、麻雀のルールは採用する取り決めによって異なるため、運営者はその正確性・完全性を保証しません。",
-    "body": "運営者は、次の事項について責任を負いません。",
-    "item1": "本サービスの利用により生じた損害",
-    "item2": "本サービスの中断、停止、終了、または内容の変更により生じた損害",
-    "item3": "ユーザーのデータの消失により生じた損害"
+    "title": "Disclaimer",
+    "accuracy": "We aim for accuracy in the score calculations and lesson content of the Service, but riichi mahjong rules differ depending on the rules a table agrees on, so the Operator does not guarantee that they are accurate or complete.",
+    "body": "The Operator is not responsible for the following.",
+    "item1": "Damage resulting from your use of the Service",
+    "item2": "Damage resulting from the interruption, suspension or ending of the Service, or from changes to its content",
+    "item3": "Damage resulting from the loss of user data"
   },
   "liability": {
-    "title": "責任の制限",
-    "body": "本サービスは「現状のまま」提供されます。運営者は、本サービスの完全性、正確性、有用性、安全性などについて、いかなる保証も行いません。"
+    "title": "Limitation of liability",
+    "body": "The Service is provided \"as is\". The Operator makes no guarantee of any kind about the completeness, accuracy, usefulness, safety or other qualities of the Service."
   },
   "serviceChanges": {
-    "title": "サービスの変更・終了",
-    "body": "運営者は、ユーザーへの事前通知なく、本サービスの内容を変更し、または本サービスの提供を終了することがあります。"
+    "title": "Changes to or ending of the Service",
+    "body": "The Operator may change the content of the Service, or stop providing the Service, without notifying users in advance."
   },
   "suspension": {
-    "title": "利用の停止",
-    "body": "運営者は、ユーザーが本規約に違反した場合、事前の通知なく、そのユーザーのプロフィールの内容（表示名・自己紹介・アバター画像・SNS のアカウント名）を削除し、またはアカウントを停止して本サービスの利用を制限することがあります。"
+    "title": "Suspension of use",
+    "body": "If a user violates these Terms, the Operator may, without prior notice, delete the content of that user's profile (display name, bio, avatar image and social media account names), or suspend the account and restrict that user's use of the Service."
   },
   "governingLaw": {
-    "title": "準拠法",
-    "body": "本規約の解釈および適用は、日本法に準拠するものとします。"
+    "title": "Governing law",
+    "body": "The interpretation and application of these Terms are governed by the laws of Japan."
   },
   "revision": {
-    "title": "規約の変更",
-    "body": "運営者は、必要に応じて本規約を変更することがあります。変更後の規約は、本ページに掲載した時点で効力を生じるものとします。"
+    "title": "Changes to these Terms",
+    "body": "The Operator may change these Terms when needed. The changed Terms take effect when they are posted on this page."
   },
   "contact": {
-    "title": "お問い合わせ",
-    "body": "本規約に関するお問い合わせは、<contact>お問い合わせフォーム</contact>からお願いします。"
+    "title": "Contact",
+    "body": "For questions about these Terms, please use the <contact>contact form</contact>."
   }
 }
