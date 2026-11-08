@@ -1,6 +1,5 @@
 import { memo, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import { presentTehai } from "@mahjong-scoring/features/board/hand-presentation";
 import {
@@ -13,6 +12,7 @@ import { AutoScale } from "../components/auto-scale";
 import { FuroTiles } from "./furo-tiles";
 import { colors } from "../lib/theme";
 import type { TehaiHandProps } from "@mahjong-scoring/features/board/tehai-hand-props";
+import { LocaleHai } from "../components/locale-hai";
 
 /** 和了牌ラベルが牌の上に足す高さ（px） */
 const AGARI_LABEL_HEIGHT = 12;
@@ -47,7 +47,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
     >
       <View style={styles.group} pointerEvents="none">
         {presented.closed.map((tile, i) => (
-          <Hai key={i} hai={tile.hai} size="sm" inverted={tile.inverted} />
+          <LocaleHai
+            key={i}
+            hai={tile.hai}
+            size="sm"
+            inverted={tile.inverted}
+          />
         ))}
       </View>
       {presented.agari !== undefined && (
@@ -67,7 +72,7 @@ export const TehaiHand = memo(function TehaiHandComponent({
               {agariLabel}
             </Text>
           )}
-          <Hai
+          <LocaleHai
             hai={presented.agari.hai}
             size="sm"
             highlighted

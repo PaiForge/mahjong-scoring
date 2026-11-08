@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Grid } from "../../../components/grid";
@@ -14,6 +13,7 @@ import { ChoiceButton } from "../../components/choice-button";
 import { QuestionPlaceholder } from "../../components/question-placeholder";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { choiceFeedbackProps } from "../../feedback-styles";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /** 場風・自風の提示 */
 function KazeContext({
@@ -84,7 +84,7 @@ export function JantouFuBoard({
               isCorrect: choice.isCorrect,
             })}
           >
-            <Hai hai={choice.hai} size="md" />
+            <LocaleHai hai={choice.hai} size="md" />
           </ChoiceButton>
         ))}
       </Grid>

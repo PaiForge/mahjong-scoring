@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
@@ -15,6 +14,7 @@ import { InsetRing } from "../../../components/inset-ring";
 import { PressableSurface } from "../../../components/pressable-surface";
 import { borderWidth, colors, radius } from "../../../lib/theme";
 import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /** 牌の枠と背景（判定前は選択、判定後は正誤の配色。web の `tileClasses`） */
 function tileStyle(
@@ -69,7 +69,7 @@ export const MachiPicker = memo(function MachiPickerComponent({
                   style={[styles.tile, tileStyle(isSelected, mark, judged)]}
                   pressedStyle={styles.pressed}
                 >
-                  <Hai hai={hai} size="xs" />
+                  <LocaleHai hai={hai} size="xs" />
                   {isSelected && !judged && (
                     <InsetRing
                       color={colors.selected}

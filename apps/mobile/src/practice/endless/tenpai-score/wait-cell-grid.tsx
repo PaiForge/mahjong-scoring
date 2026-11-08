@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Fragment, type ReactNode } from "react";
 import {
   Pressable,
@@ -25,6 +24,7 @@ import {
 import { InsetRing } from "../../../components/inset-ring";
 import { PressableSurface } from "../../../components/pressable-surface";
 import { borderWidth, colors, radius } from "../../../lib/theme";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /** マス 1 つの高さ（px）。回答の文字が 3 行まで収まる高さ */
 const ROW_HEIGHT = 64;
@@ -251,7 +251,7 @@ export function WaitCellGrid({
         <View style={styles.cells}>
           {question.waits.map((wait) => (
             <View key={wait.agariHai} style={styles.waitCell}>
-              <Hai hai={wait.agariHai} size="sm" />
+              <LocaleHai hai={wait.agariHai} size="sm" />
             </View>
           ))}
         </View>

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import type {
@@ -11,6 +10,7 @@ import { orderFuHan } from "@mahjong-scoring/features/settings/fu-han-order";
 import { TehaiHand } from "../../board/tehai-hand";
 import { useFuHanOrder } from "../../hooks/use-display-settings-store";
 import { colors, radius } from "../../lib/theme";
+import { LocaleHai } from "../../components/locale-hai";
 
 /** 出題があらかじめ示している値のピル（鳴き・翻数）。琥珀色は「前提」の色 */
 function VisualPill({ label }: { readonly label: string }) {
@@ -46,7 +46,7 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
         {subject.groups.map((group, i) => (
           <View key={i} style={styles.tiles}>
             {group.map((hai, j) => (
-              <Hai key={j} hai={hai} size={size} alt="" />
+              <LocaleHai key={j} hai={hai} size={size} alt="" />
             ))}
           </View>
         ))}
@@ -54,7 +54,7 @@ function SubjectContent({ subject }: { readonly subject: ResolvedSubject }) {
       {subject.agariHai !== undefined && (
         <>
           <Text style={styles.plus}>+</Text>
-          <Hai hai={subject.agariHai} size={size} alt="" />
+          <LocaleHai hai={subject.agariHai} size={size} alt="" />
         </>
       )}
     </View>
