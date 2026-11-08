@@ -149,6 +149,37 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       expect(keys.size).toBe(1);
       expect(mocks.create.mock.calls[0]).toEqual(mocks.create.mock.calls[1]);
     });
+    it("言語を省略した購入開始は日本語の予約になる", async () => {
+      await start();
+      const [row] = await billingTestDb().select().from(billingCheckouts);
+      expect(row?.locale).toBe("ja");
+      expect(mocks.create.mock.calls[0]?.[0]).toMatchObject({
+        locale: "ja",
+        cancel_url: "http://localhost:3000/plan",
+      });
+    });
+    it("英語の購入開始は予約に言語を保存し、別の言語で押し直しても予約の言語の Session に戻る", async () => {
+      const origin = "http://localhost:3000";
+      const english = await openCheckout(
+        owner,
+        undefined,
+        "pass",
+        origin,
+        "en",
+      );
+      expect(mocks.create.mock.calls[0]?.[0]).toMatchObject({
+        locale: "en",
+        cancel_url: `${origin}/en/plan`,
+        success_url: `${origin}/api/stripe/checkout/complete?session_id={CHECKOUT_SESSION_ID}&locale=en`,
+      });
+      // 冪等パラメータを変えないため、未精算の予約は言語を問わず再利用する
+      expect(
+        await openCheckout(owner, undefined, "pass", origin, "ja"),
+      ).toEqual(english);
+      expect(mocks.create).toHaveBeenCalledTimes(1);
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((row) => row.locale)).toEqual(["en"]);
+    });
     it("別の売り方でも新しい Session を作らない", async () => {
       await start();
       expect(await start("lifetime")).toEqual({ error: "checkoutInProgress" });
