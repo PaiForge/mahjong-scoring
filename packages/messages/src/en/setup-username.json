@@ -12,7 +12,7 @@
   "displayNamePlaceholder": "e.g. Tsumo Master",
   "displayNameCanChange": "You can change your display name later",
   "displayNameMaxLength": "Up to 50 characters",
-  "appPublicNotice": "Your username and Challenge results are shown on the web leaderboard. If you don't want to appear there, turn on “Hide me from the leaderboard” in Settings after signing up. Your public profile on the web (your username's page) stays even if you leave the leaderboard.",
+  "appPublicNotice": "Your username and Challenge results are shown on the web leaderboard. If you don't want to appear there, turn on \"Hide me from the leaderboard\" in Settings after signing up. Your public profile on the web (your username's page) stays even if you leave the leaderboard.",
   "submit": "Sign up",
   "submitting": "Signing up...",
   "registered": "You're all signed up",

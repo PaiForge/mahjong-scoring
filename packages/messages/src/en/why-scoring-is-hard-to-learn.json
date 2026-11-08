@@ -3,13 +3,13 @@
     "pageTitle": "Why Riichi Mahjong Scoring Is Hard to Learn",
     "pageDescription": "The three reasons I, the author, struggled to learn riichi mahjong scoring, and how they shaped the way this app is built.",
     "reasonsTitle": "Three reasons I struggled",
-    "lead1": "Riichi mahjong scoring is hard.\nHere, “being able to score” means being able to recite the correct score smoothly whenever you [[hora|win]] a hand at a real table.",
+    "lead1": "Riichi mahjong scoring is hard.\nHere, \"being able to score\" means being able to recite the correct score smoothly whenever you [[hora|win]] a hand at a real table.",
     "lead2": "It took me a very long time to get there myself.\nLooking back, I think these were the reasons I could not learn scoring quickly.",
     "reason1Summary": "It was so complex that I could not even tell what I did not understand",
     "reason2Summary": "I did not get enough repetition",
     "reason3Summary": "I could not cope with the subtleties of playing at a real table",
     "reason1Title": "It was so complex that I could not even tell what I did not understand",
-    "reason1Body1": "First, if you try to calculate scores below [[mangan|mangan]] without understanding fu, it naturally makes no sense.\nFor example, someone once told me, “In mahjong the score just doubles with every han, so even a grade-schooler can work it out.”\nIn reality, though, scores often do not simply double, as in 1000, 2000, 3900 or 2000, 3900, 7700.",
+    "reason1Body1": "First, if you try to calculate scores below [[mangan|mangan]] without understanding fu, it naturally makes no sense.\nFor example, someone once told me, \"In mahjong the score just doubles with every han, so even a grade-schooler can work it out.\"\nIn reality, though, scores often do not simply double, as in 1000, 2000, 3900 or 2000, 3900, 7700.",
     "reason1Note": "* There is a reason scores grow this irregularly; it is explained in another lesson.",
     "reason1Body2": "Also, whether a score involves fu or is mangan and above, you need to understand yaku and count han.\nScoring is built from several skills combined like this, so there is a lot to learn in the first place, and I did not know what to learn first.",
     "reason2Title": "I did not get enough repetition",
@@ -19,6 +19,6 @@
     "reason3Body1": "If you are trying to learn scoring, you probably want to play at a physical mahjong table rather than online.\nAfter all, online mahjong calculates the score for you.",
     "reason3Body2": "Even so, after using other apps heavily until I could score instantly, I still could not score that quickly at a real table.\nLooking back, I think it was because real games differ in many ways from the scoring problems an app gives you: from your starting hand you have to anticipate, to some extent, which yaku you will build, and you have to hand over point sticks.",
     "afterwordTitle": "What this app does",
-    "afterword": "This app is built to remove these three stumbling blocks one by one. How it does so is described in “<link></link>”."
+    "afterword": "This app is built to remove these three stumbling blocks one by one. How it does so is described in \"<link></link>\"."
   }
 }

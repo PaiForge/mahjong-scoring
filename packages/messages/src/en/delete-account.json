@@ -20,7 +20,7 @@
   "rateLimited": "Too many requests. Please wait a while and try again.",
   "banned": "Your account is suspended, so you cannot perform this action.",
   "networkError": "Could not connect. Please try again where you have a signal.",
-  "appleRequired": "If you log in with Apple, you need to confirm with Apple before deleting your account. Press “Delete my account” again and complete the confirmation with Apple.",
-  "appleMismatch": "Please confirm with the Apple ID you use for this account.",
+  "appleRequired": "If you log in with Apple, you need to confirm with Apple before deleting your account. Press \"Delete my account\" again and complete the confirmation with Apple.",
+  "appleMismatch": "Please confirm with the Apple Account you use for this account.",
   "appleNotSupported": "If you log in with Apple, please delete your account from the iPhone app."
 }

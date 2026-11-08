@@ -52,7 +52,7 @@
     },
     "score": {
       "title": "Score",
-      "description": "{fields, select, hanFu {Choose the score from the han and the fu.} other {Choose the score from the hand and the conditions of the win. Your answer is checked as soon as you choose.}} For a non-dealer tsumo, choose the pair of payments from each non-dealer and from the dealer (300/500 means 300 from each non-dealer and 500 from the dealer). For a dealer tsumo, choose the “all” amount."
+      "description": "{fields, select, hanFu {Choose the score from the han and the fu.} other {Choose the score from the hand and the conditions of the win. Your answer is checked as soon as you choose.}} For a non-dealer tsumo, choose the pair of payments from each non-dealer and from the dealer (300/500 means 300 from each non-dealer and 500 from the dealer). For a dealer tsumo, choose the \"all\" amount."
     },
     "scoreInput": {
       "title": "Switch the input style",
