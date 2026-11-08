@@ -37,6 +37,12 @@ describe("getIndexableAlternates", () => {
     ["/lessons/about-this-app"],
     ["/reference/demo"],
     ["/try/mentsu-fu"],
+    ["/terms"],
+    ["/privacy"],
+    ["/tokushoho"],
+    ["/company"],
+    ["/contact"],
+    ["/plan"],
   ])("両言語で公開したページ %s も ja・en・x-default", (path) => {
     expect(getIndexableAlternates(path)).toEqual({
       ja: `${ORIGIN}${path}`,
@@ -46,13 +52,13 @@ describe("getIndexableAlternates", () => {
   });
 
   it.each([
-    ["/plan"],
     ["/leaderboard"],
-    ["/contact"],
-    ["/terms"],
     // 英語では出すが索引させない（cookie を読む動的ページ）
     ["/dojo"],
     ["/dojo/ranks/kyu-5"],
+    // 英語では英語で書いた行だけを出し、索引させない（fallback 無しの動的ページ）
+    ["/announcements"],
+    ["/announcements/some-news"],
   ])(
     "日本語だけで索引させるページ %s は ja と x-default だけ（未訳・noindex の英語を挙げない）",
     (path) => {

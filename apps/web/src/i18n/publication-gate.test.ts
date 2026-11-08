@@ -14,7 +14,10 @@ import { describe, expect, it } from "vitest";
 import { collectPages } from "@/test/collect-pages";
 
 import { EN_PUBLISHED_PATHS } from "./route-policy";
-import { translatedTemplateOf } from "./translated-publications";
+import {
+  translatedPublishedTemplates,
+  translatedTemplateOf,
+} from "./translated-publications";
 
 /**
  * 英語の公開の関所と、ページの入口のロケール確定を検査する
@@ -25,7 +28,9 @@ import { translatedTemplateOf } from "./translated-publications";
  *    fallback しないので、未訳の名前空間を読むルートを公開すると画面に辞書キーが出る。
  *    動的ルート（用語のページ・段級位の詳細）は、具体的なパス（`/reference/glossary/jantou`）を
  *    ページのテンプレート（`/reference/glossary/[slug]`）へ畳んでから比べる。
- *    依存の表はテンプレートで 1 行、page.tsx もテンプレートで 1 つだから
+ *    依存の表はテンプレートで 1 行、page.tsx もテンプレートで 1 つだから。具体的なパスへ
+ *    展開しないテンプレート（DB 由来のお知らせの詳細）も公開の単位なので、許可リストの
+ *    テンプレートそのものも単位に含める
  * 2. `app/[locale]/(user)` の全 page.tsx が、ページ本体と `generateMetadata` の両方で
  *    `prepareRouteLocale` を自分のパスで呼ぶこと。呼ばないページは未訳の英語を
  *    描画前に止められず、翻訳の前にロケールが確定しないので静的生成も失う
@@ -87,9 +92,17 @@ function publicationUnitOf(path: string): string {
   return translatedTemplateOf(path, "en") ?? path;
 }
 
-/** 英語で公開する単位（重複を除いた、ページのテンプレートの集合） */
+/**
+ * 英語で公開する単位（重複を除いた、ページのテンプレートの集合）
+ *
+ * 展開しないテンプレート（`/announcements/[slug]`）は具体的なパスを持たないので、
+ * 許可リストのテンプレートを直接足す。
+ */
 const EN_PUBLISHED_UNITS: readonly string[] = [
-  ...new Set(EN_PUBLISHED_PATHS.map(publicationUnitOf)),
+  ...new Set([
+    ...EN_PUBLISHED_PATHS.map(publicationUnitOf),
+    ...translatedPublishedTemplates("en"),
+  ]),
 ];
 
 describe("英語の公開の関所", () => {
@@ -113,6 +126,13 @@ describe("英語の公開の関所", () => {
     expect(
       EN_PUBLISHED_UNITS.filter((unit) => unit.startsWith("/dojo/ranks/")),
     ).toEqual(["/dojo/ranks/[slug]"]);
+  });
+
+  it("お知らせの詳細は具体的なパスへ展開しないが、テンプレートで公開の単位になる", () => {
+    expect(
+      EN_PUBLISHED_PATHS.filter((path) => path.startsWith("/announcements/")),
+    ).toEqual([]);
+    expect(EN_PUBLISHED_UNITS).toContain("/announcements/[slug]");
   });
 
   it.each(Object.entries(EN_ROUTE_NAMESPACES))(
