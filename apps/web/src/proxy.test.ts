@@ -208,6 +208,13 @@ describe("英語で公開したページは英語のまま通す", () => {
     ["/en/mypage"],
     ["/en/mypage/challenges/results"],
     ["/en/preferences"],
+    ["/en/terms"],
+    ["/en/contact"],
+    ["/en/contact/success"],
+    ["/en/plan"],
+    ["/en/announcements"],
+    // お知らせの詳細は DB 由来で形を問わず通し、英語の行が無い slug はページが 404 にする
+    ["/en/announcements/some-news"],
   ])("%s", async (path) => {
     const response = await proxy(makeRequest(path));
     expect(response.status).toBe(200);
@@ -237,10 +244,8 @@ describe("未公開の英語 URL は 404 + noindex", () => {
     ["/en/leaderboard"],
     ["/en/leaderboard/monthly/jantou-fu"],
     ["/en/u/alice"],
-    ["/en/announcements"],
-    ["/en/plan"],
-    ["/en/contact"],
-    ["/en/terms"],
+    ["/en/u/bob"],
+    ["/en/announcements/some-news/extra"],
     ["/en/mypage/unknown"],
     ["/en/dojo/ranks"],
     // 段級位の slug の形に合わない（形に合う未知の段級位はページが 404 にする）
