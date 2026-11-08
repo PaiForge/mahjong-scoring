@@ -6,10 +6,11 @@
  *
  * - **fallback 付き**（{@link getPublishedAnnouncementsPaginated}・
  *   {@link getPublishedAnnouncementCount}・{@link getPublishedAnnouncement}・
- *   {@link getPublishedAnnouncementSlugsForSitemap}）: 日本語の画面とアプリ向け API 用。
- *   slug を 1 件として数え、要求した言語の行が無ければ日本語（`DEFAULT_LOCALE`）で埋める
- * - **言語一致**（`*Exact`）: 英語の画面用。その言語で書いて公開した行だけを引き、
- *   他の言語で埋めない
+ *   {@link getPublishedAnnouncementSlugsForSitemap}）: 日本語の画面と、アプリ向け API の
+ *   既定（`?locale=` 未指定・`ja`・未対応の値）用。slug を 1 件として数え、要求した言語の
+ *   行が無ければ日本語（`DEFAULT_LOCALE`）で埋める
+ * - **言語一致**（`*Exact`）: 英語の画面と、アプリ向け API の `?locale=en` 用。その言語で
+ *   書いて公開した行だけを引き、他の言語で埋めない
  *
  * @design 英語のお知らせは fallback 無し・noindex・動的ページのまま
  * 英語の一覧は {@link getPublishedAnnouncementsExact} +
@@ -100,8 +101,8 @@ export async function getPublishedAnnouncementsPaginated(
  * slug の重複排除は要らない。並び順は既存のクエリと同じ
  * pinned_at DESC NULLS LAST, published_at DESC。
  *
- * 日本語の画面とアプリ向け API（`DEFAULT_LOCALE` 固定）は従来の
- * fallback 付きのクエリを使い続ける。既存のクエリの意味を変えると
+ * 日本語の画面とアプリ向け API の既定（`?locale=` 未指定・`ja`）は従来の
+ * fallback 付きのクエリを使い続ける（アプリ向け API の `?locale=en` はこの関数）。既存のクエリの意味を変えると
  * 日本語とモバイルの一覧が変わるので、別の関数として足している。
  *
  * @param locale - 取得する言語（この言語の行だけ）
@@ -154,8 +155,8 @@ export async function getPublishedAnnouncementCount(): Promise<number> {
  * 行しか無い slug は数えない（一覧に出ない行を数えると、空のページが生まれる）。
  * (slug, locale) は一意（`uq_announcements_slug_locale`）なので、言語で絞れば
  * 1 行 = 1 slug になり `COUNT(DISTINCT slug)` は要らない。日本語の画面と
- * アプリ向け API は従来の {@link getPublishedAnnouncementCount}
- * （DISTINCT の件数）のまま。
+ * アプリ向け API の既定（`?locale=` 未指定・`ja`）は従来の
+ * {@link getPublishedAnnouncementCount}（DISTINCT の件数）のまま。
  *
  * @param locale - 数える言語（この言語の行だけ）
  */
@@ -238,7 +239,8 @@ export const getPublishedAnnouncement = cache(
  * 英語の詳細ページ用。要求した言語の行が無ければ、他の言語（日本語）の行が
  * 公開されていても null を返し、呼び出し側は 404 にする（日本語の本文を
  * 英語の画面に出さない）。(slug, locale) は一意（`uq_announcements_slug_locale`）
- * なので高々 1 行。日本語の画面とアプリ向け API は従来の
+ * なので高々 1 行。英語の詳細ページとアプリ向け API の `?locale=en` が使う。
+ * 日本語の画面とアプリ向け API の既定（`?locale=` 未指定・`ja`）は従来の
  * {@link getPublishedAnnouncement}（fallback 付き）のまま。
  *
  * `generateMetadata` と page 本体の両方から同じ引数で呼ばれるため、

@@ -1,9 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCount, mockPage, mockOne, mockClientIp } = vi.hoisted(() => ({
+const {
+  mockCount,
+  mockPage,
+  mockOne,
+  mockCountExact,
+  mockPageExact,
+  mockOneExact,
+  mockClientIp,
+} = vi.hoisted(() => ({
   mockCount: vi.fn(),
   mockPage: vi.fn(),
   mockOne: vi.fn(),
+  mockCountExact: vi.fn(),
+  mockPageExact: vi.fn(),
+  mockOneExact: vi.fn(),
   mockClientIp: vi.fn(),
 }));
 
@@ -11,6 +22,9 @@ vi.mock("../announcements/queries", () => ({
   getPublishedAnnouncementCount: mockCount,
   getPublishedAnnouncementsPaginated: mockPage,
   getPublishedAnnouncement: mockOne,
+  getPublishedAnnouncementCountExact: mockCountExact,
+  getPublishedAnnouncementsExact: mockPageExact,
+  getPublishedAnnouncementExact: mockOneExact,
 }));
 vi.mock("../client-ip", () => ({ getClientIp: mockClientIp }));
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
@@ -37,6 +51,19 @@ const row = {
   updatedAt: new Date("2026-10-01T00:00:00.000Z"),
 };
 
+const enRow = {
+  ...row,
+  id: "2",
+  title: "Release",
+  content: "# Release\n\nBody",
+  locale: "en",
+};
+
+const getOne = (query: string) =>
+  new Request(
+    `https://example.test/api/mobile/v1/announcements/release${query}`,
+  );
+
 beforeEach(() => {
   vi.clearAllMocks();
   _resetStore();
@@ -47,6 +74,9 @@ beforeEach(() => {
     { ...row, slug: "b", pinnedAt: null, publishedAt: null },
   ]);
   mockOne.mockResolvedValue(row);
+  mockCountExact.mockResolvedValue(3);
+  mockPageExact.mockResolvedValue([enRow]);
+  mockOneExact.mockResolvedValue(enRow);
 });
 
 describe("handleReadAnnouncements", () => {
@@ -99,6 +129,46 @@ describe("handleReadAnnouncements", () => {
     expect(await response.json()).toMatchObject({ page: 1, totalPages: 1 });
   });
 
+  it("locale 未指定・ja・未対応の値は従来の ja（fallback 付き・DISTINCT の件数）で引く", async () => {
+    for (const query of ["?page=1", "?page=1&locale=ja", "?page=1&locale=xx"]) {
+      vi.clearAllMocks();
+      mockCount.mockResolvedValue(45);
+      mockPage.mockResolvedValue([row]);
+
+      const response = await handleReadAnnouncements(get(query));
+
+      expect(mockCount).toHaveBeenCalledWith();
+      expect(mockPage).toHaveBeenCalledWith("ja", 20, 0);
+      expect(mockCountExact).not.toHaveBeenCalled();
+      expect(mockPageExact).not.toHaveBeenCalled();
+      expect(await response.json()).toMatchObject({
+        items: [{ slug: "release", title: "リリース" }],
+        totalPages: 3,
+      });
+    }
+  });
+
+  it("locale=en は英訳の行だけを引き、件数も英語の行だけで数える", async () => {
+    const response = await handleReadAnnouncements(get("?page=9&locale=en"));
+
+    expect(mockCountExact).toHaveBeenCalledWith("en");
+    expect(mockPageExact).toHaveBeenCalledWith("en", 20, 0);
+    expect(mockCount).not.toHaveBeenCalled();
+    expect(mockPage).not.toHaveBeenCalled();
+    expect(await response.json()).toEqual({
+      items: [
+        {
+          slug: "release",
+          title: "Release",
+          publishedAt: "2026-10-01T00:00:00.000Z",
+          pinned: true,
+        },
+      ],
+      page: 1,
+      totalPages: 1,
+    });
+  });
+
   it("DB の失敗は 500 serverError", async () => {
     mockCount.mockRejectedValue(new Error("down"));
 
@@ -131,6 +201,53 @@ describe("handleReadAnnouncement", () => {
       content: "# リリース\n\n本文",
       publishedAt: "2026-10-01T00:00:00.000Z",
     });
+  });
+
+  it("locale 未指定・ja・未対応の値は従来の ja（fallback 付き）で引く", async () => {
+    for (const request of [
+      undefined,
+      getOne(""),
+      getOne("?locale=ja"),
+      getOne("?locale=xx"),
+    ]) {
+      vi.clearAllMocks();
+      mockOne.mockResolvedValue(row);
+
+      const response = await handleReadAnnouncement("release", request);
+
+      expect(mockOne).toHaveBeenCalledWith("release", "ja");
+      expect(mockOneExact).not.toHaveBeenCalled();
+      expect(await response.json()).toMatchObject({ title: "リリース" });
+    }
+  });
+
+  it("locale=en は英語の行を返す", async () => {
+    const response = await handleReadAnnouncement(
+      "release",
+      getOne("?locale=en"),
+    );
+
+    expect(mockOneExact).toHaveBeenCalledWith("release", "en");
+    expect(mockOne).not.toHaveBeenCalled();
+    expect(await response.json()).toEqual({
+      slug: "release",
+      title: "Release",
+      content: "# Release\n\nBody",
+      publishedAt: "2026-10-01T00:00:00.000Z",
+    });
+  });
+
+  it("locale=en で英語の行が無ければ、日本語の行があっても 404 notFound", async () => {
+    mockOneExact.mockResolvedValue(null);
+
+    const response = await handleReadAnnouncement(
+      "release",
+      getOne("?locale=en"),
+    );
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "notFound" });
+    expect(mockOne).not.toHaveBeenCalled();
   });
 
   it("公開中でなければ 404 notFound", async () => {

@@ -12,6 +12,7 @@ import { LinkRowList } from "../components/link-row";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { colors } from "../lib/theme";
+import { useAppLocale } from "../lib/use-app-locale";
 
 /**
  * ホームのお知らせの節（web のダッシュボードの `HomeAnnouncements`）
@@ -19,13 +20,15 @@ import { colors } from "../lib/theme";
  *
  * 一覧の 1 ページ目の先頭を数件だけ出す（並びは一覧と同じでピン留めが先）。
  * 読み込み中と読めなかったときは節ごと出さない — ホームの主役は「次に
- * やること」で、お知らせの失敗をそこに並べて見せない。
+ * やること」で、お知らせの失敗をそこに並べて見せない。英語の端末では
+ * 英訳して公開した記事だけを出す（英訳が無ければ空の案内）。
  */
 export function HomeAnnouncements() {
   const t = useTranslations("announcements");
   const router = useRouter();
+  const locale = useAppLocale();
   const { state } = useAnnouncementRead(
-    useCallback(() => fetchAnnouncements(1), []),
+    useCallback(() => fetchAnnouncements(1, locale), [locale]),
   );
   if (state.kind !== "loaded") return null;
   const items = state.value.items.slice(0, HOME_ANNOUNCEMENTS_LIMIT);
