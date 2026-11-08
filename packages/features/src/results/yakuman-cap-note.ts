@@ -1,10 +1,10 @@
 import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
-/** `challenge.yakuBreakdown` の翻訳関数（`han` の件数補間を含む） */
+/** `challenge.yakuBreakdown` の翻訳関数（`han` の件数補間と、`cap` / `capWithNote` の文型を含む） */
 export type YakuBreakdownTranslator = (
   key: string,
-  values?: Record<string, number>,
+  values?: Record<string, string | number>,
 ) => string;
 
 /**
@@ -17,6 +17,10 @@ export type YakuBreakdownTranslator = (
  * 翻数の内訳（web・モバイルの `YakuBreakdown`）
  * の `note` に渡す。結果ページの問題別詳細と模試の答え合わせの両方から使い、
  * 同じ手に別の注記が付かないようにする。
+ *
+ * 矢印と括弧の文型は辞書の `cap`（`{han} → {cap}`）と `capWithNote`
+ * （`{han} → {cap}（{note}）`）が決める。日本語の値は従来の文字列と同じ形で、
+ * 英語のページに全角の括弧を残さないため関数には書かない。
  *
  * 打ち止め先は役満単位（`yakumanMultiplier`）から導く。点数表早引きの結果は
  * 役満単位を持たない（出題が翻数と符だけ）ため、無ければ注記を出さない。
@@ -38,7 +42,9 @@ export function buildYakumanCapNote(
   const capHan = YAKUMAN_HAN * Math.max(yakumanMultiplier, 1);
   if (rawTotal <= capHan || rawTotal < YAKUMAN_HAN) return undefined;
 
-  const capLabel = yakumanMultiplier >= 2 ? t("doubleYakuman") : t("yakuman");
-  const note = `${t("han", { count: rawTotal })} → ${capLabel}`;
-  return yakumanMultiplier >= 2 ? note : `${note}（${t("cappedNote")}）`;
+  const han = t("han", { count: rawTotal });
+  if (yakumanMultiplier >= 2) {
+    return t("cap", { han, cap: t("doubleYakuman") });
+  }
+  return t("capWithNote", { han, cap: t("yakuman"), note: t("cappedNote") });
 }

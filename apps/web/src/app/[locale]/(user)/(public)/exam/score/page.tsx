@@ -1,0 +1,59 @@
+/**
+ * 昇段試験（あらゆる手の点数計算） 説明
+ *
+ * @description
+ * 昇段試験の説明ページ。役の表示なしで、出題範囲を絞らない手牌から点数を
+ * 答える試験形式のチャレンジ。平和・七対子・面子手（門前・副露）・満貫以上が
+ * 区別なく出る。通常チャレンジと異なりミス1回で終了する（レジストリの
+ * mistakeLimit: 1）。模試（`training`。時間無制限・記録なしのトレーニング）を持つ。
+ *
+ * @flow
+ * 1. 道場・ダッシュボードの試験カードから遷移
+ *    （練習一覧には並ばない。入口は段級位の側が持つ）
+ * 2. 問題方式のデモ（役一覧なし）と合格条件、「スタート」（本番）と
+ *    「模試を受ける」のボタンが表示される。本番は受験資格が無ければ登録・
+ *    道場への導線になる
+ * 3. 「スタート」を押すと play ページへ、「模試を受ける」を押すと training
+ *    ページへ遷移
+ *
+ * @design 下の級の試験と器を分ける理由
+ *
+ * 出題形式も回答フォームも 1級 までの試験と同じで、違うのは出題条件だけ。
+ * それでも1つの試験にまとめないのは、合否が段級位ごとに決まる必要が
+ * あるため。昇段判定は「次に取る段級位の試験の走行で合格点に達したか」を
+ * 見るので、混ぜると「1級は取れたが初段はまだ」という状態が表せない。
+ * 段級位1つにつき試験1つ、が段級位レジストリの前提でもある。
+ */
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
+import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
+import { ExamConditions } from "../_components/exam-conditions";
+import { ScoreExamHowToPlay } from "./_components/score-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/score">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/exam/score");
+  return createPracticeMetadata(PRACTICE_SLUG.scoreExam, { locale });
+}
+
+export default async function ScoreExamPage({
+  params,
+}: PageProps<"/[locale]/exam/score">) {
+  const locale = await prepareRouteLocale(params, "/exam/score");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="scoreExamChallenge"
+        slug={PRACTICE_SLUG.scoreExam}
+        howToPlay={<ScoreExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.scoreExam} />}
+      />
+    </ExamGateLinksProvider>
+  );
+}

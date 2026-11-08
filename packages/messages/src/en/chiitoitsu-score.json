@@ -1,0 +1,17 @@
+{
+  "learn": {
+    "pageTitle": "Riichi Mahjong Chiitoitsu Scoring: Always 25 Fu",
+    "pageDescription": "How to score chiitoitsu (seven pairs) in riichi mahjong: always 25 fu, by tsumo or by ron, with a table of scores for each han to memorize.",
+    "onePatternTitle": "Chiitoitsu has one pattern: 25 fu",
+    "onePatternBody1": "[[chiitoitsu|Chiitoitsu]] (seven pairs) is always 25 fu.",
+    "onePatternBody2": "Every way of adding fu you have learned so far adds an even number, so 25 fu may seem very strange.\nStill, it is best not to think too hard about it and simply accept and memorize it as a fixed rule.",
+    "columnLabel": "Column",
+    "columnTitle": "Why such an odd number as 25 fu?",
+    "columnBody": "The odd figure of 25 fu is said to be a remnant of the days when chiitoitsu was scored as 50 fu 1 han.<br></br>Reading it as 25 fu 2 han gives the same score (1,600 points for a non-dealer ron either way).<br></br>This app uses 25 fu 2 han, the form most commonly used.",
+    "compositeTitle": "Still 25 fu with other yaku",
+    "compositeBody1": "Chiitoitsu can combine with yaku such as tanyao (all simples), honitsu (half flush) and [[riichi|riichi]], but even then it stays at 25 fu. Only the han change.",
+    "compositeBody2": "Chiitoitsu can only be made with a [[menzen|closed hand]]. Since you cannot call, there is no room for fu from [[furo|calls]] either.\nOn top of that, chiitoitsu adds no fu for [[mentsu|sets]] or the [[machi|wait]], and none of the fu tied to how you [[hora|win]], such as [[tsumo-fu|tsumo fu]]. 25 fu is not the result of adding anything up; it is literally a fixed value.",
+    "compositeBody3": "Once the han reach [[mangan|mangan]] or more, you no longer need to think about the 25 fu at all.",
+    "practiceCta": "Practice chiitoitsu scoring"
+  }
+}

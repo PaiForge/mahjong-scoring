@@ -1,0 +1,317 @@
+"use client";
+
+import { useMemo, useCallback } from "react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useLocale, useTranslations } from "next-intl";
+
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { localizedHref } from "@/i18n/public-path";
+import { MY_RECORD_RESULTS_PATH } from "../_lib/paths";
+
+import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
+import {
+  getComparisonLabelKey,
+  getNavigablePreviousPeriod,
+  getPreviousPeriodLabel,
+} from "@mahjong-scoring/features/my-record/period";
+import {
+  AVG_SCORE_FRACTION_DIGITS,
+  formatAvgScore,
+} from "@mahjong-scoring/features/my-record/stats";
+import type { ChallengeAttempt } from "@mahjong-scoring/features/my-record/types";
+import {
+  DATE_PERIOD_VALUES,
+  isDatePeriod,
+} from "@mahjong-scoring/features/my-record/types";
+import { useDashboardData } from "../_hooks/use-dashboard-data";
+import {
+  DashboardContentSkeleton,
+  DashboardSkeleton,
+} from "./dashboard-skeleton";
+import { AttemptHistoryTable } from "./attempt-history-table";
+import { StatsCard } from "./stats-card";
+import { SkeletonBar } from "@/app/_components/skeleton-bar";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { PracticeLinkButton } from "@/app/[locale]/(user)/_components/practice-link-button";
+import { PRACTICE_PATH, practiceHref } from "@mahjong-scoring/features/routes";
+import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
+
+const ScoreChart = dynamic(
+  () => import("./score-chart").then((mod) => mod.ScoreChart),
+  {
+    ssr: false,
+    loading: () => <SkeletonBar radius="lg" className="h-[250px] w-full" />,
+  },
+);
+
+const selectClassName =
+  "px-3 py-2.5 rounded-lg border border-surface-400 bg-white text-surface-900 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-primary-400";
+
+interface ChallengeDashboardProps {
+  /** サーバーサイドでプリフェッチした、記録を持つ土俵の一覧 */
+  readonly initialBoards: readonly PracticeBoard[];
+  /** 初期選択の土俵（`?menu=&variant=` の指定、無ければ先頭） */
+  readonly initialBoard: PracticeBoard | undefined;
+  /** サーバーサイドでプリフェッチした初期チャレンジデータ（デフォルト期間・初期選択の土俵） */
+  readonly initialAttempts: {
+    readonly current: readonly ChallengeAttempt[];
+    readonly previous: readonly ChallengeAttempt[];
+  };
+}
+
+/**
+ * マイレコードのダッシュボード本体。
+ * フィルター、KPIカード、チャート、履歴テーブルを表示する。
+ * サーバーサイドでプリフェッチした初期データを受け取り、初回の useEffect を省略する。
+ * ダッシュボード
+ *
+ * リンク（全履歴・練習の説明ページ・練習一覧）はページの言語のまま張る
+ * （`localizedHref`。日本語は恒等）。行き先はどれもマイレコードを出している
+ * 言語で出している画面（全履歴は同じマイページの下位、練習は記録を持つ
+ * チャレンジ型の練習すべて。`mypage-link-targets.test.ts` が検査する）ので、
+ * ここで公開状態を読まない。チャートの軸と履歴の日時もページの言語の書式にする。
+ */
+export function ChallengeDashboard({
+  initialBoards,
+  initialBoard,
+  initialAttempts,
+}: ChallengeDashboardProps) {
+  const locale = useLocale();
+  const t = useTranslations("mypage.challenges");
+  const tRoot = useTranslations();
+  const {
+    selectedBoard,
+    setSelectedBoard,
+    selectedPeriod,
+    setSelectedPeriod,
+    isLoading,
+    availableBoards,
+    currentStats,
+    bestScoreComparison,
+    avgScoreComparison,
+    chartData,
+    tableRows,
+    hasMoreResults,
+  } = useDashboardData({
+    initialBoards,
+    initialBoard,
+    initialAttempts,
+    locale,
+  });
+  const practiceListHref = localizedHref(PRACTICE_PATH, locale);
+
+  const comparisonLabel = t(getComparisonLabelKey(selectedPeriod));
+  const navigablePrevPeriod = getNavigablePreviousPeriod(selectedPeriod);
+
+  const handlePeriodChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      if (isDatePeriod(value)) setSelectedPeriod(value);
+    },
+    [setSelectedPeriod],
+  );
+
+  const handleBoardChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      // select の value は土俵キー。一覧に無い値（改竄）は無視する
+      const board = (availableBoards ?? []).find(
+        (candidate) => practiceBoardKey(candidate) === e.target.value,
+      );
+      if (board) setSelectedBoard(board);
+    },
+    [availableBoards, setSelectedBoard],
+  );
+
+  // useCallback ではなく useMemo を使用: undefined を返すケースがあるため
+  const handlePreviousPeriodClick = useMemo(
+    () =>
+      navigablePrevPeriod
+        ? () => setSelectedPeriod(navigablePrevPeriod)
+        : undefined,
+    [navigablePrevPeriod, setSelectedPeriod],
+  );
+
+  const boardOptions = useMemo(
+    () =>
+      (availableBoards ?? []).map((board) => ({
+        value: practiceBoardKey(board),
+        label: boardLabel(board, tRoot),
+      })),
+    [availableBoards, tRoot],
+  );
+
+  if (
+    availableBoards === undefined ||
+    (isLoading && availableBoards.length === 0)
+  ) {
+    return <DashboardSkeleton />;
+  }
+
+  if (availableBoards.length === 0) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-surface-500">{t("noData")}</p>
+        {/* 記録が 1 件も無い人にとって、このページは行き止まりになる。
+            記録を作れる唯一の場所である練習一覧へ送る */}
+        <LinkButton href={practiceListHref} className="mt-6">
+          {t("goToPractice")}
+        </LinkButton>
+      </div>
+    );
+  }
+
+  return (
+    // 横のはみ出しはこの階層で抑えない。`overflow-x-hidden` を張ると
+    // overflow-y の使用値も auto に落ちるため、末尾の CTA のフォーカスリングが
+    // 右と下の両方で切り落とされ、同じ `PracticeLinkButton` を使っている
+    // 教本の章末のボタンと見た目が変わる。はみ出す当人（チャートの
+    // `overflow-hidden`、履歴の表の `overflow-x-auto`）と、最後の受け皿で
+    // ある body の `overflow-x-hidden` に任せる。
+    <div className="space-y-6">
+      <SectionTitle>{t("records")}</SectionTitle>
+
+      <select
+        value={selectedPeriod}
+        onChange={handlePeriodChange}
+        className={`block w-full sm:w-48 ${selectClassName}`}
+      >
+        {DATE_PERIOD_VALUES.map((period) => (
+          <option key={period} value={period}>
+            {t(`periods.${period}`)}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={selectedBoard ? practiceBoardKey(selectedBoard) : ""}
+        onChange={handleBoardChange}
+        className={`block w-full sm:w-64 ${selectClassName}`}
+      >
+        {boardOptions.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {isLoading ? (
+        <DashboardContentSkeleton />
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <StatsCard
+              label={t("bestScore")}
+              value={
+                currentStats.bestScore !== undefined
+                  ? currentStats.bestScore.toString()
+                  : "-"
+              }
+              comparison={{
+                change: bestScoreComparison,
+                label: comparisonLabel,
+              }}
+            />
+            <StatsCard
+              label={t("avgScore")}
+              value={formatAvgScore(currentStats.avgCompletionScore)}
+              info={t("avgScoreInfo")}
+              comparison={{
+                change: avgScoreComparison,
+                label: comparisonLabel,
+                // 値自身と同じ桁で増減を出す
+                fractionDigits: AVG_SCORE_FRACTION_DIGITS,
+              }}
+            />
+          </div>
+
+          <div className="min-w-0 overflow-hidden space-y-4">
+            <h3 className="text-sm font-bold text-surface-900">
+              {t("scoreTrend")}
+            </h3>
+            <ScoreChart
+              data={chartData}
+              emptyMessage={t("noData")}
+              yAxisLabel={t("scoreUnit")}
+              currentLabel={t(`periods.${selectedPeriod}`)}
+              previousLabel={t(
+                `periods.${getPreviousPeriodLabel(selectedPeriod)}`,
+              )}
+              onPreviousLabelClick={handlePreviousPeriodClick}
+            />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-surface-900">
+              {t("recentHistory")}
+            </h3>
+            <AttemptHistoryTable
+              attempts={tableRows}
+              emptyMessage={t("noData")}
+              headers={{
+                date: t("tableDate"),
+                correctAnswers: t("tableCorrectAnswers"),
+                incorrectAnswers: t("tableIncorrectAnswers"),
+              }}
+            />
+            {hasMoreResults && (
+              <div className="text-center">
+                <Link
+                  href={localizedHref(MY_RECORD_RESULTS_PATH, locale)}
+                  className={`text-sm ${TEXT_LINK_CLASSES}`}
+                >
+                  {t("viewAllResults")}
+                </Link>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* 見ている土俵をそのまま解き直す導線。
+          行き先は play ではなく練習の説明ページにする — 記録を眺めていた人が
+          押した次の瞬間にカウントダウンが始まるのは重く、チャレンジと
+          トレーニングのどちらで解き直すかもここでは決まっていない。
+          選択中のバリアントを `?variant=` で運ぶので、説明ページの
+          選択パネルはその設定を選んだ状態で開く（記録が積まれている土俵と
+          そのまま始めたときの土俵が一致する）。
+          読み込み中も出しっぱなしにするのは、リンク先が選択した土俵だけで
+          決まり、成績の取得を待つ必要が無いため */}
+      {selectedBoard && (
+        <div
+          className={`flex flex-col ${SUB_LINK_GAP} border-t border-panel pt-4`}
+        >
+          <PracticeLinkButton
+            href={localizedHref(
+              practiceHref(
+                menuTypeToSlug(selectedBoard.menuType),
+                selectedBoard.variant,
+              ),
+              locale,
+            )}
+            label={t("tryChallenge", {
+              title: boardLabel(selectedBoard, tRoot),
+            })}
+          />
+          {/* 見ている土俵以外へ移りたい人の出口。押して始める面はボタンが
+              持っているので、こちらは移動するだけのテキストリンクにする。
+              間隔は結果画面と同じ SUB_LINK_GAP（リンク側に mt-* を足さない）。
+              記録が 1 件も無いときの空表示と同じ「練習一覧へ」を使う —
+              行き先が同じものを別の名前で呼ばない */}
+          <p className="text-center">
+            <Link
+              href={practiceListHref}
+              className={`text-sm ${TEXT_LINK_CLASSES}`}
+            >
+              {t("goToPractice")}
+            </Link>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

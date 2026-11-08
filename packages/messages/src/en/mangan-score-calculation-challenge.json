@@ -1,0 +1,33 @@
+{
+  "title": "Scoring Mangan and Above",
+  "description": "Practice answering the riichi mahjong score of a mangan-or-higher hand, with its yaku and han shown",
+  "questionPrompt": "Answer the score for this win",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": " all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": " points",
+  "generating": "Generating questions...",
+  "yakuListTitle": "Yaku in the hand",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "summarySeparator": ", "
+}

@@ -1,0 +1,11 @@
+{
+  "modeLabel": "Training",
+  "startButton": "Training",
+  "revealButton": "I don't know",
+  "nextButton": "Next question",
+  "exitButton": "Finish",
+  "exitToast": "Training finished",
+  "modeActive": "Practicing in training mode",
+  "challengePrompt": "Ready for the real thing?",
+  "challengeButton": "Start a challenge"
+}

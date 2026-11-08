@@ -20,6 +20,15 @@ describe("useYakuLabel", () => {
     });
     expect(result.current("未知の役")).toBe("未知の役");
   });
+
+  it("ドラ・裏ドラ・連風牌も辞書の表示名で引く（日本語の表示は core の名前と同じ）", () => {
+    const { result } = renderHook(() => useYakuLabel(), {
+      wrapper: IntlWrapper,
+    });
+    expect(result.current("ドラ")).toBe("ドラ");
+    expect(result.current("裏ドラ")).toBe("裏ドラ");
+    expect(result.current("連風牌")).toBe("連風牌");
+  });
 });
 
 describe("useYakuOptions", () => {

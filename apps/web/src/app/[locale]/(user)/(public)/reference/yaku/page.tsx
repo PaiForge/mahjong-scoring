@@ -1,0 +1,83 @@
+/**
+ * 役一覧（チートシート）
+ *
+ * @description
+ * 各役を翻数別に一覧表示するビジュアル早見表。一覧そのものは
+ * `YakuCheatsheet` が持ち、点数訓練の答え合わせから開くモーダルと共有する。
+ * 各カードは `yakuAnchorId` の id を持ち、教本（/lessons/yaku）から
+ * 役名リンクで直接開いた状態に着地できる。一覧の上の切り替えで、鳴いたときの
+ * 扱い（門前限定・食い下がり・鳴いても同じ）で絞り込める。
+ *
+ * 役名は辞書 `yakuNames`（日本語は core の役名そのもの、英語はローマ字の慣用名）
+ * から引く。metadata・広告には入口の `prepareRouteLocale` が確定させた言語を渡す。
+ *
+ * @flow
+ * リファレンスハブ（/reference）の「役一覧」カードか、教本の翻数別まとめの
+ * 役名リンクから遷移して閲覧する。一覧の下の「ほかの早見表」から点数表・用語集へ。
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { LinkRowList } from "@/app/[locale]/(user)/_components/link-row";
+import { NativeAdRow } from "@/app/[locale]/(user)/_components/native-ad-row";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { getNativeAdPlacements } from "@/lib/ads/creatives";
+import { RelatedReferencesSection } from "../_components/related-references-section";
+import { YakuCheatsheet } from "./_components/yaku-cheatsheet";
+import {
+  REFERENCE_PATH,
+  REFERENCE_YAKU_PATH,
+} from "@mahjong-scoring/features/routes";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/reference/yaku">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/reference/yaku");
+  return createNamespaceMetadata("reference.yaku", {
+    path: REFERENCE_YAKU_PATH,
+    locale,
+  });
+}
+
+export default async function ReferenceYakuPage({
+  params,
+}: PageProps<"/[locale]/reference/yaku">) {
+  const locale = await prepareRouteLocale(params, "/reference/yaku");
+  const t = await getTranslations("reference.yaku");
+  const tHub = await getTranslations("reference");
+  const ads = await getNativeAdPlacements("yaku-reference-native-ad", locale);
+
+  return (
+    <ContentContainer
+      breadcrumb={[
+        { label: tHub("title"), href: REFERENCE_PATH },
+        { label: t("title") },
+      ]}
+    >
+      <PageTitle>{t("title")}</PageTitle>
+
+      {/* 役のカードは 1 枚ずつ細枠を持つので、広告の行も細枠の 1 枚にする */}
+      <YakuCheatsheet
+        withAnchors
+        withNakiFilter
+        // 日本語では渡さない（既定が日本語）。クライアント部品の props は RSC の
+        // ペイロードとして HTML に載るので、渡すと日本語の HTML が変わる
+        {...(locale === DEFAULT_LOCALE ? {} : { locale })}
+        ads={ads.map((ad) => (
+          <LinkRowList key={ad.id}>
+            <NativeAdRow creative={ad} />
+          </LinkRowList>
+        ))}
+      />
+
+      <p className="mt-6 text-sm text-surface-500">{t("nakiNote")}</p>
+
+      <div className="mt-10">
+        <RelatedReferencesSection current="yaku" />
+      </div>
+    </ContentContainer>
+  );
+}

@@ -268,4 +268,33 @@ describe("buildSignInHref", () => {
     );
     expect(sanitizeInternalRedirect(value)).toBe("/preferences#rules");
   });
+
+  it("言語を省くと日本語（接頭辞なし）を渡したときと同じ", () => {
+    expect(buildSignInHref("/mypage")).toBe("/sign-in?redirect=%2Fmypage");
+    expect(buildSignInHref("/mypage", "ja")).toBe(buildSignInHref("/mypage"));
+  });
+
+  it("英語はサインインページに /en を付け、戻り先は渡されたまま", () => {
+    expect(buildSignInHref("/en/mypage/plan", "en")).toBe(
+      "/en/sign-in?redirect=%2Fen%2Fmypage%2Fplan",
+    );
+  });
+
+  it("英語の戻り先（/en/...）も sanitizeInternalRedirect を通る", () => {
+    const href = buildSignInHref("/en/lessons/jantou-fu?x=1", "en");
+    const value = new URL(href, "http://localhost").searchParams.get(
+      "redirect",
+    );
+    expect(sanitizeInternalRedirect(value)).toBe("/en/lessons/jantou-fu?x=1");
+  });
+});
+
+describe("sanitizeInternalRedirect（英語の公開 URL）", () => {
+  it("/en と /en/... をそのまま通す", () => {
+    expect(sanitizeInternalRedirect("/en")).toBe("/en");
+    expect(sanitizeInternalRedirect("/en/mypage")).toBe("/en/mypage");
+    expect(sanitizeInternalRedirect("/en/practice?variant=all")).toBe(
+      "/en/practice?variant=all",
+    );
+  });
 });

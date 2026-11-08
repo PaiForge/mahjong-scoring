@@ -20,7 +20,7 @@ import {
   fetchAvailableBoards,
   fetchChallengeAttempts,
   getChallengeResultsPaginated,
-} from "@/app/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries";
+} from "@/app/[locale]/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries";
 import { parsePageParam } from "../pagination";
 
 import { authorizeMobileRequest } from "./auth";

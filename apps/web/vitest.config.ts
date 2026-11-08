@@ -12,8 +12,10 @@ export default defineConfig({
     server: {
       deps: {
         // 牌画像ライブラリは react-native を import するため、変換対象に含めて
-        // 下の alias（web 用 shim）を効かせる。
-        inline: [/@pai-forge\/mahjong-react-ui/],
+        // 下の alias（web 用 shim）を効かせる。next-intl の ESM は拡張子なしの
+        // `next/server` を import するので、外部依存のまま Node に読ませると解決できない
+        // （proxy・navigation のテストが next-intl を mock せずに読むため変換対象にする）。
+        inline: [/@pai-forge\/mahjong-react-ui/, /next-intl/],
       },
     },
   },

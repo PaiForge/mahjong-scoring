@@ -65,6 +65,23 @@ describe("toastOnArrival", () => {
     expect(reloaded.takeToastOnArrival("/mypage")).toBeNull();
   });
 
+  it("英語のページでは着地先の /en 接頭辞を外して比べる（預ける href はロケール非依存）", () => {
+    toastOnArrival("/practice/jantou-fu", "Practice ended");
+    expect(takeToastOnArrival("/en/practice/jantou-fu")?.message).toBe(
+      "Practice ended",
+    );
+  });
+
+  it("接頭辞付きの href を預けても、接頭辞なしの着地先と同じパスとして比べる", () => {
+    toastOnArrival("/en/practice?variant=all", "Practice ended");
+    expect(takeToastOnArrival("/practice")?.message).toBe("Practice ended");
+  });
+
+  it("英語の別のページに着いたら出さない（接頭辞を外しても別のパス）", () => {
+    toastOnArrival("/practice/jantou-fu", "Practice ended");
+    expect(takeToastOnArrival("/en/practice")).toBeNull();
+  });
+
   it("壊れた写しは無視する", () => {
     sessionStorage.setItem("toast-on-arrival", "{");
     expect(takeToastOnArrival("/")).toBeNull();

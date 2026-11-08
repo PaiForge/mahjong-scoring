@@ -167,6 +167,32 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
 - 辞書は web と同じもの（`@mahjong-scoring/messages`）を use-intl で読む
 
+## 言語
+
+アプリの表示言語は日本語と英語。**端末のアプリ優先言語で決まり、アプリ内に切り替えの設定は無い。**
+
+- 言語は起動時に 1 回だけ決める（`lib/app-locale.ts` の `APP_LOCALE` / `APP_MESSAGES`）。
+  `expo-localization` の `getLocales()` の言語タグを features の `resolveAppLocale()` に渡し、
+  `ja-*` は日本語、`en-*` は英語、どちらも無い端末は英語。辞書は `messagesForLocale()` で選ぶ
+  （アプリが辞書を丸ごと読むのはここだけ）。起動中の言語の変化には追従しない — iOS はアプリの
+  言語を変えるとアプリを再起動する
+- 切り替えは OS に任せる。`app.json` の `expo-localization` の `supportedLocales`（`ja`・`en`）が
+  `CFBundleLocalizations` になり、iOS の「設定 > アプリ > 言語」が出る。Apple でログインの
+  ボタン・購入シート・共有など OS 側の画面もその言語で出る。アプリ内に設定を置くと、ゲストにも
+  設定画面を開かせることになる（設定はログイン中だけの規約）
+- ホーム画面の名前は `app.json` の `locales`（`locales/ja.json`・`en.json` の `CFBundleDisplayName`）で
+  言語ごとに持つ。英語は切れない長さ（"Mahjong Scoring"）。画面の文言はここに置かず辞書に置く
+- 画面で言語が要るときは `useAppLocale()`（`lib/use-app-locale.ts`）で読み、言語を画面ごとに
+  決めない。辞書の Provider の外（ルートの先頭で動く購入の同期の `createTranslator`）だけは
+  `APP_LOCALE` / `APP_MESSAGES` を直接読む
+- web のページを開くリンクは features の `webLocalePath(path, locale)` を通す（英語は `/en` を前置）。
+  アプリが開く web のページは `MOBILE_WEB_PAGES` に載せ、web 側のテストが英語で公開済みであることを固定する
+- 一覧・読み上げの区切りは辞書の `common.listSeparator`（日本語は `、`、英語は `, `）で `join` し、
+  `、` をリテラルで書かない
+- 牌は `LocaleHai`（`components/locale-hai.tsx`）で描く。ライブラリの `Hai` の読み上げは日本語の
+  牌の名前なので、英語では辞書の `common.tileNames` を渡す
+- 日付は features の書式関数に言語を渡す。時刻の基準は言語に依らず JST
+
 ## 確かめ方
 
 - **見た目と動きは iOS シミュレーターの Release ビルドで確かめる。** web 版
@@ -183,6 +209,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   でシミュレーターを名前で引いて流し、撮った画面のパスを出す（`MAESTRO_OUTPUT_DIR` で
   出力先を指定する）。撮った PNG は Read で開いて見る。画面を変えたら該当のフローを
   流し、無ければ足す。既存のフローの一覧と各フローが確かめることは `.maestro/README.md`
+- アプリは端末の言語で表示を変えるので、`maestro.sh` はフローを流す前にシミュレーターの言語を
+  `MAESTRO_LOCALE`（既定 `ja`）に合わせる。既存のフローは日本語の文言で要素を待つので既定のまま流し、
+  英語の画面は `MAESTRO_LOCALE=en` で英語のフローを流す
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
   押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい。
   その代わり文言を変えるとフローが落ちるので、辞書の文言を変えたら `.maestro/` をその文言で grep する

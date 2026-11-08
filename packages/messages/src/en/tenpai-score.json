@@ -1,0 +1,104 @@
+{
+  "title": "Tenpai Hand Scoring Practice",
+  "description": "Game-style riichi mahjong scoring practice: read the waits of a tenpai hand, then score each wait by tsumo and by ron.",
+  "exitToast": "You left Tenpai Hand Scoring Practice",
+  "help": {
+    "label": "How this practice works",
+    "title": "How this practice works",
+    "slides": {
+      "machi": {
+        "title": "1. Pick the waits",
+        "caption": "You see a tenpai hand with the round wind, your seat wind and the dora. Select every winning tile and answer; the frame color of each tile shows whether it was right."
+      },
+      "cells": {
+        "title": "2. Score each wait",
+        "caption": "Press a cell in the wait × tsumo/ron grid to open the answer fields and enter {fields, select, hanFu {the han, the fu and the score} other {the score}}. Cells with the same score can be joined into one with Same answer. For a wait that has no yaku and cannot win by ron, press No yaku."
+      },
+      "result": {
+        "title": "3. Review",
+        "caption": "You see how you did on the waits, then the correct score for each wait on the Tsumo and Ron tabs. Switch tabs to check your answer and the breakdown (yaku and fu) for each winning hand."
+      }
+    },
+    "prev": "Back",
+    "next": "Next"
+  },
+  "tour": {
+    "label": "How to use this screen",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Close",
+    "progress": "{current} / {total}",
+    "board": {
+      "title": "Tenpai hand",
+      "description": "A tenpai hand of 13 tiles. The round wind, your seat wind and the dora also affect the score."
+    },
+    "picker": {
+      "title": "Pick the waits",
+      "description": "Press every winning tile to select it. There is more than one."
+    },
+    "machiSubmit": {
+      "title": "Answer the waits",
+      "description": "After you answer, the frame color of each tile shows whether it was right. Then you move on to scoring."
+    },
+    "cells": {
+      "title": "Wait × tsumo/ron cells",
+      "description": "Press a cell to open the answer fields below. Different waits often give the same score, so you can join cells in the same column (tsumo or ron) with Same answer and fill them in once."
+    },
+    "answerForm": {
+      "title": "Answer fields",
+      "description": "Enter {fields, select, hanFu {the han, the fu and the score} other {the score}} for the selected cells. Once you apply it, the next unanswered cell in the same column is selected (when a column is full, the top of the other column is next). For a wait that has no yaku and cannot win by ron, select its ron cell and press No yaku to apply it right away."
+    },
+    "cellsSubmit": {
+      "title": "Answer",
+      "description": "Becomes available once every cell is filled and none is still being answered. All cells are checked together."
+    }
+  },
+  "notes": {
+    "mentsuOnly": "Note: only standard hands (four sets and a pair) are asked; no chiitoitsu or kokushi musou.",
+    "multiWait": "Note: only tenpai hands with two or more winning tiles are asked."
+  },
+  "machi": {
+    "prompt": "Select every winning tile",
+    "selectedCount": "Selected: {count}",
+    "submit": "Answer the waits",
+    "proceed": "Go on to scoring",
+    "correct": "Correct! Winning tiles: {count}",
+    "incorrect": "Incorrect. Check the correct waits, then go on to scoring.",
+    "suits": {
+      "manzu": "Man",
+      "pinzu": "Pin",
+      "souzu": "Sou",
+      "jihai": "Honors"
+    }
+  },
+  "cells": {
+    "prompt": "Score each wait by tsumo and by ron",
+    "wait": "Wait",
+    "tsumo": "Tsumo",
+    "ron": "Ron",
+    "unanswered": "Unanswered",
+    "answering": "Answering",
+    "answeringTogether": "Answering together",
+    "joinable": "Same answer",
+    "removeFromSelection": "Remove {hai} from the selection",
+    "assign": "Apply to selected cells",
+    "noYaku": "No yaku (cannot win by ron)",
+    "noYakuShort": "No yaku",
+    "submit": "Answer",
+    "remaining": "Cells left to answer: {count}",
+    "selecting": "Apply your answer to the selected cells or clear the selection to answer."
+  },
+  "result": {
+    "machiTitle": "Wait results",
+    "summaryTitle": "Scores for each wait",
+    "notApplicable": "—",
+    "noYakuDetail": "This wait has no yaku, so it cannot win by ron."
+  },
+  "board": {
+    "correct": "Correct!",
+    "correctLabel": "Correct",
+    "incorrectLabel": "Incorrect",
+    "generationFailed": "We couldn't make a question that fits these conditions. Try changing the question settings.",
+    "backToSetup": "Back to settings"
+  }
+}

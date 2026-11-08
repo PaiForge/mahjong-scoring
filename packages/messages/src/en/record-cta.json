@@ -1,0 +1,45 @@
+{
+  "home": {
+    "signUp": {
+      "message": "Sign up for free to keep your progress in your account",
+      "description": "The lessons you finish won't be lost when you change phones, and you can continue on the web."
+    },
+    "username": {
+      "message": "Set a username to keep your progress in your account",
+      "description": "The lessons you finish won't be lost when you change phones, and you can continue on the web."
+    }
+  },
+  "mypage": {
+    "signUp": {
+      "message": "Sign up for free to see your records here",
+      "description": "See your rank, daily EXP and challenge results together on My Page."
+    },
+    "username": {
+      "message": "Set a username to see your records here",
+      "description": "See your rank, daily EXP and challenge results together on My Page."
+    }
+  },
+  "result": {
+    "signUp": {
+      "message": "Sign up for free to record your challenge results",
+      "description": "You earn EXP, and you can follow how your results change in My Records."
+    },
+    "username": {
+      "message": "Set a username to record your challenge results",
+      "description": "You earn EXP, and you can follow how your results change in My Records."
+    }
+  },
+  "lesson": {
+    "signUp": {
+      "message": "Create an account to record your lesson progress",
+      "description": "Sign up for free and the lessons you finish are kept in your account. They won't be lost when you change phones, and you can continue on the web."
+    },
+    "username": {
+      "message": "Set a username to record your lesson progress",
+      "description": "Set a username and the lessons you finish are kept in your account. They won't be lost when you change phones, and you can continue on the web."
+    }
+  },
+  "signUp": "Sign up",
+  "signIn": "Log in",
+  "setUsername": "Set your username"
+}

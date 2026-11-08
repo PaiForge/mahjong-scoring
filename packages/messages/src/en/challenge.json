@@ -1,0 +1,114 @@
+{
+  "timeRemaining": "{seconds} s left",
+  "score": "Score",
+  "correct": "Correct",
+  "incorrect": "Incorrect",
+  "lives": "Lives",
+  "startButton": "Start",
+  "retryButton": "Try again",
+  "changeSettingsButton": "Change settings",
+  "backToList": "Back to the practice menus",
+  "backToDojo": "Back to the Dojo",
+  "resultSectionTitle": "Result",
+  "resultAccuracy": "Accuracy {accuracy}%",
+  "revealMistakesHint": "Opens the explanations for the questions you got wrong",
+  "resultUnavailable": "The result cannot be shown. Results are cleared when you close the app, so please try again.",
+  "gameOverMistakes": "Ended after {limit} mistakes",
+  "gameOverTime": "Time's up",
+  "pause": "Pause",
+  "resume": "Resume",
+  "resultSuffix": "Result",
+  "quit": {
+    "message": "Your current progress will not be saved.",
+    "confirm": "Quit",
+    "cancel": "Keep going",
+    "practice": {
+      "title": "Quit this challenge?",
+      "toast": "Challenge quit"
+    },
+    "exam": {
+      "title": "Quit this exam?",
+      "toast": "Exam quit"
+    }
+  },
+  "quitButton": "Quit",
+  "signUpCta": {
+    "sectionTitle": "Score records",
+    "message": "Sign up for free to keep a record of your scores",
+    "description": "With an account, the EXP you earn is saved so you can see how you are improving.",
+    "cta": "Sign up for free",
+    "signInLink": "Log in",
+    "leaderboard": {
+      "message": "Sign up for free and your score will appear on the leaderboard too",
+      "description": "Your challenge results are recorded, and your personal best is ranked against other players."
+    }
+  },
+  "record": {
+    "sectionTitle": "Your records",
+    "thisTimeLabel": "This time",
+    "lastLabel": "Last time",
+    "bestLabel": "Personal best",
+    "scoreUnit": "{score} correct",
+    "newBest": "New personal best!",
+    "firstRecord": "Your first record",
+    "viewMyRecords": "See your progress in My Records",
+    "loadFailed": "Could not load your records",
+    "loadFailedDescription": "Please wait a while and reload the page.",
+    "comparisonLoadFailed": "Could not load your past records"
+  },
+  "openInScoreTable": "View in the scoring table",
+  "openInYakuList": "View in the yaku list",
+  "yakuBreakdown": {
+    "total": "Total",
+    "han": "{count} han",
+    "yakuman": "Yakuman",
+    "doubleYakuman": "Double yakuman",
+    "cappedNote": "13 han or more is yakuman",
+    "cap": "{han} → {cap}",
+    "capWithNote": "{han} → {cap} ({note})"
+  },
+  "scoreBreakdown": {
+    "toggle": "Show the breakdown",
+    "fuTab": "Fu: {value} fu",
+    "hanTab": "Han: {count} han"
+  },
+  "fuBreakdown": {
+    "breakdownTotal": "Total",
+    "roundedUp": "Rounded up",
+    "fuSuffix": "{value} fu",
+    "reasons": {
+      "futei": "Base fu",
+      "chiitoitsu": "Seven pairs",
+      "pinfuTsumo": "Pinfu tsumo",
+      "tsumo": "Tsumo",
+      "menzenRon": "Closed ron bonus",
+      "kuiPinfu": "Open pinfu adjustment",
+      "mentsu": "{yaochu, select, yes {Terminal/honor} other {Simple}} {open, select, yes {open} other {closed}} {kantsu, select, yes {quad} other {triplet}}",
+      "jantou": "Pair ({reasons})",
+      "jantouReasons": {
+        "bakaze": "round wind",
+        "jikaze": "seat wind",
+        "sangenpai": "dragon"
+      },
+      "jantouReasonSeparator": ", ",
+      "machi": "{machi, select, tanki {Single-tile wait} kanchan {Closed wait} penchan {Edge wait} other {Wait}}"
+    }
+  },
+  "connectionError": "The connection failed. Please start again.",
+  "retryConnection": "Start again",
+  "recording": {
+    "offlineTitle": "Cannot start a recorded challenge",
+    "offlineMessage": "You are offline, so a challenge that records your results could not start. Please try again where you have a connection. Training works without a connection.",
+    "retry": "Try again",
+    "training": "Practice in training mode",
+    "connectionLost": "The connection was lost. Your answer has not been graded yet.",
+    "resumeConnectionLost": "The connection was lost. Reconnect to resume from where you stopped.",
+    "reconnect": "Reconnect",
+    "status": {
+      "sending": "Recording your results…",
+      "recorded": "Results recorded",
+      "queued": "Could not send your results. They will be sent the next time you are online.",
+      "notRecorded": "The results of this challenge were not recorded."
+    }
+  }
+}

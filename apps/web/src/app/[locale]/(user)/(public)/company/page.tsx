@@ -1,0 +1,77 @@
+/**
+ * 運営者情報
+ *
+ * @description
+ * 本サービスを提供する事業者の名称・所在地・事業内容。利用規約と
+ * プライバシーポリシーが「運営者」と呼ぶ主体の実体で、内容は
+ * blindfold-chess の同ページと同じ（同じ事業者が運営しているため）。
+ * 事業者の情報を変えるときは両方のサイトで揃えること。
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
+import { CORPORATE_SITE_URL } from "@/config";
+
+import {
+  LegalArticle,
+  LegalLink,
+  LegalList,
+  LegalParagraph,
+  LegalSection,
+} from "../_components/legal-article";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/company">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/company");
+  return createNamespaceMetadata("company", {
+    title: "pageTitle",
+    path: "/company",
+    locale,
+  });
+}
+
+export default async function CompanyPage({
+  params,
+}: PageProps<"/[locale]/company">) {
+  const locale = await prepareRouteLocale(params, "/company");
+  const t = await getTranslations("company");
+
+  return (
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <PageTitle>{t("pageTitle")}</PageTitle>
+      <LegalArticle>
+        <LegalSection title={t("name.title")}>
+          <LegalParagraph>{t("name.value")}</LegalParagraph>
+        </LegalSection>
+
+        <LegalSection title={t("location.title")}>
+          <LegalParagraph>{t("location.value")}</LegalParagraph>
+        </LegalSection>
+
+        <LegalSection title={t("business.title")}>
+          <LegalList>
+            <li>{t("business.item1")}</li>
+            <li>{t("business.item2")}</li>
+            <li>{t("business.item3")}</li>
+            <li>{t("business.item4")}</li>
+          </LegalList>
+        </LegalSection>
+
+        <LegalParagraph>
+          {t.rich("moreInfo", {
+            link: (chunks) => (
+              <LegalLink href={CORPORATE_SITE_URL} locale={locale} external>
+                {chunks}
+              </LegalLink>
+            ),
+          })}
+        </LegalParagraph>
+      </LegalArticle>
+    </ContentContainer>
+  );
+}

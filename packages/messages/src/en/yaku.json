@@ -1,0 +1,49 @@
+{
+  "title": "Identify the Yaku",
+  "generating": "Generating a problem...",
+  "description": "Look at a hand and select every yaku it has",
+  "selectYaku": "Select all the yaku in this hand",
+  "checkButton": "Check answer",
+  "answerButton": "Submit",
+  "result": {
+    "problemDetails": "Problem details",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Yaku in the hand",
+    "yourAnswer": "Your answer",
+    "none": "None"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "learn": {
+    "pageTitle": "How to Count Han from Yaku in Riichi Mahjong",
+    "pageDescription": "Han is the total of the yaku in a winning hand. Learn what yaku do and how closed and open hands (kuisagari) change their han, so you can count han correctly.",
+    "whatIsYakuTitle": "Yaku and han",
+    "whatIsYakuBody1": "Han is determined by the [[yaku|yaku]] the hand has when you [[hora|win]] and the number of [[dora|dora]] in your [[tehai|hand]].",
+    "whatIsYakuBody2": "Dora are easy: you just count them.",
+    "whatIsYakuBody3": "Yaku, on the other hand, require you to judge whether each one is complete.\nSome yaku change their han depending on whether you have made [[furo|calls]], and it is common for several yaku to combine in one hand.\nFor these reasons, it takes some practice before you can reliably count the han of the yaku in a hand.",
+    "menzenNakiTitle": "Closed and open hands (kuisagari)",
+    "menzenNakiBody1": "Some yaku no longer count once you call ([[pon|pon]], [[chii|chii]] or [[minkan|open kan]]).\nFor example, Riichi, [[pinfu|Pinfu]], Iipeikou and [[chiitoitsu|Chiitoitsu]] only count in a [[menzen|closed hand]].",
+    "menzenNakiBody2": "Other yaku still count after you call, but are worth less.\nThis is generally called \"[[kuisagari|kuisagari]]\" (reduced when open).",
+    "menzenNakiBody3": "For example, Sanshoku Doujun, Ittsu, Honitsu and Chinitsu all have this kuisagari property.\nA kuisagari yaku is worth 1 han less when open than when closed.",
+    "menzenNakiBody4": "Some yaku, on the other hand, such as Tanyao and Toitoi, keep the same han even when open.",
+    "referenceLink": "See the han of other yaku in the list",
+    "summaryTitle": "Han when closed vs. open",
+    "summaryBody": "Here are the yaku from the previous section, with their han when closed and when open.",
+    "summaryNote": "* A \"✕\" in the Open column means the yaku does not count when the hand is open.",
+    "colYaku": "Yaku",
+    "colMenzen": "Closed",
+    "colNaki": "Open",
+    "notEstablished": "✕",
+    "notEstablishedLabel": "Does not count",
+    "nakiKinds": {
+      "menzenOnly": "Closed only",
+      "kuisagari": "Reduced when open",
+      "unchanged": "Same when open"
+    },
+    "hanUnit": "{count} han",
+    "yakuman": "Yakuman"
+  }
+}

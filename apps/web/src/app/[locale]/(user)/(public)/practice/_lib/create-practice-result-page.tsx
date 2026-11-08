@@ -1,0 +1,418 @@
+import type { Metadata } from "next";
+import type { ComponentType } from "react";
+import { Suspense } from "react";
+import { getTranslations } from "next-intl/server";
+
+import {
+  createResultMetadata,
+  type MetadataLocaleOptions,
+} from "@/app/_lib/metadata";
+
+import type {
+  PracticeMenuSlug,
+  PracticeMenuType,
+} from "@mahjong-scoring/features/practice-menu-types";
+import {
+  isExamMenuType,
+  practiceMenuBySlug,
+} from "@mahjong-scoring/features/practice-menu-types";
+import { getExpInfoByChallengeResultId } from "@/lib/db/save-exp";
+import { getScoreComparison } from "@/lib/db/score-comparison-queries";
+import { getOptionalUser } from "@/lib/auth";
+
+import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
+import { ExamResultSummary } from "@/app/[locale]/(user)/(public)/exam/_components/exam-result-summary";
+
+import { RecordSection } from "../_components/record-section";
+import { PromotionBanner } from "../_components/promotion-banner";
+import { BoardLeaderboardPreview } from "../_components/leaderboard-preview";
+import { LeaderboardSkeleton } from "../_components/leaderboard-skeleton";
+import { ResultBlockSkeleton } from "../_components/result-block-skeleton";
+import { RecordUnavailable } from "../_components/record-unavailable";
+import { LeaderboardSignUpCta, SignUpCta } from "../_components/sign-up-cta";
+import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
+import { parseResultSearchParams } from "./parse-result-search-params";
+import { debugResultDelay } from "./debug-delay";
+import { tryFetch } from "./try-fetch";
+import {
+  LEADERBOARD_PATH,
+  practiceHref,
+  practicePlayHref,
+} from "@mahjong-scoring/features/routes";
+import { resolvePublishedHref } from "@/i18n/navigation";
+import { currentLocale } from "@/i18n/current-locale";
+import { PracticeRelatedChapters } from "../_components/practice-related-chapters";
+import { practiceSetupHref } from "./practice-web-routes";
+import { resolveLeaderboardBoard } from "@mahjong-scoring/features/leaderboard/boards";
+import type { PracticeBoard } from "@mahjong-scoring/features/practice-menu-types";
+
+/** 取得失敗のログに付ける発生箇所タグ */
+const LOG_TAG = "createPracticeResultPage";
+
+/**
+ * 結果ページ View Component の props 型
+ * 練習結果ビュープロパティ
+ */
+export interface PracticeResultViewProps {
+  /** ページタイトル（練習名） */
+  readonly practiceTitle: string;
+  /** リトライ用のプレイページURL */
+  readonly playHref: string;
+  /**
+   * 練習説明ページ（イントロ）の URL（例: "/practice/jantou-fu"）。
+   * パンくずの中間リンクに使う。説明ページを持たない練習では省略し、
+   * その場合は中間項目をリンクなしのテキストとして表示する。
+   */
+  readonly introHref?: string;
+  /**
+   * 出題設定へのリンク先（説明ページの設定セクション）。
+   * 出題設定を持たない練習では undefined で、「設定を変更する」ボタンを出さない。
+   */
+  readonly settingsHref?: string;
+  /**
+   * 主ボタンの役割（既定 "retry"）。
+   *
+   * 練習は「もう一度」が主ボタンで、親一覧への戻りは補助リンク。昇級試験に
+   * 合格したときは逆で、次に行くのは道場（次の級）であり再挑戦は主導線では
+   * ないため "parent" にして主従を入れ替える。不合格なら練習と同じ "retry"。
+   */
+  readonly primaryAction?: "retry" | "parent";
+  /** 正答数（URL クエリ `?correct=` から親 Server Component が parse して渡す） */
+  readonly correct: number;
+  /** 総出題数（URL クエリ `?total=` から親 Server Component が parse して渡す） */
+  readonly total: number;
+  /**
+   * 問題別フィードバック一覧に並ぶ問題数（{@link listedProblemCount}）。
+   * 時間切れで終わったチャレンジでは `total` より 1 つ多い（答えられなかった
+   * 最後の問題も載る）。一覧の読み込み中に確保するスケルトンの行数に使う
+   */
+  readonly listedProblemCount: number;
+  /**
+   * この回の ID（URL クエリ `?run=`。play 画面の `useFinishRedirect` が終了
+   * 時刻を付ける）。問題別フィードバック一覧は sessionStorage の保存が
+   * この回のものであるときだけ出す。付いていない・壊れているときは undefined
+   */
+  readonly runId: number | undefined;
+  /**
+   * 走った出題設定のバリアントの表示名（「設定: 食い下がりなし」の形）。
+   * 設定を持たない練習では undefined で、行自体を出さない。
+   */
+  readonly variantLabel?: string;
+  /**
+   * 昇級バナーのブロック（昇級がなければ undefined）。
+   * URL クエリ `?promoted=` 由来の候補を `user_ranks` と突き合わせて描画する
+   * 非同期ツリー。結果セクションの直後に表示される。
+   */
+  readonly promotionBlock?: React.ReactNode;
+  /**
+   * 「結果」節の中身の差し替え。省略時は正解 / 不正解の積み上げ棒
+   * （`ResultScoreBar`）。昇級試験は合否サマリ（`ExamResultSummary`）を渡す。
+   */
+  readonly summary?: React.ReactNode;
+  /**
+   * 経験値セクション / 登録 CTA のブロック。
+   * `<Suspense fallback={<ResultBlockSkeleton />}>` で包まれた
+   * 非同期ツリーを Server 側で組み立てて渡す。
+   *
+   * EXP も過去記録も持たない練習（昇級試験）では undefined で、節ごと出さない。
+   */
+  readonly resultBlock?: React.ReactNode;
+  /**
+   * リーダーボードプレビューのブロック。
+   * `<Suspense fallback={<LeaderboardSkeleton />}>` で包まれた
+   * 非同期ツリーを Server 側で組み立てて渡す。
+   *
+   * ランキングを持たない練習（昇級試験）では undefined で、節ごと出さない。
+   */
+  readonly leaderboardBlock?: React.ReactNode;
+  /**
+   * 練習種別ごとの追加コンテンツ（問題別フィードバック一覧など）。
+   * 現状はカスタムビュー (`createCustomResultView`) のみが使用する。
+   * `resultBlock` と `leaderboardBlock` の間に描画される。
+   */
+  readonly children?: React.ReactNode;
+  /**
+   * 関連するレッスン（昇級試験は前提となるレッスン）のセクション。
+   * 説明ページと同じ集合・同じ見出し（`PracticeRelatedChapters`）。
+   * ページの最下部に描画される。
+   */
+  readonly chaptersBlock?: React.ReactNode;
+}
+
+interface ResultPageConfig {
+  /**
+   * ルートスラッグ（例: "jantou-fu"）。
+   * ランキングの練習種別・辞書 namespace・プレイページ / 説明ページの URL は
+   * すべてレジストリと命名規約から導出する。
+   */
+  readonly slug: PracticeMenuSlug;
+}
+
+/**
+ * 結果ページのメタデータを生成する
+ * 結果ページメタデータ
+ *
+ * 各 page.tsx の `generateMetadata` から練習の slug を渡して呼ぶ。
+ * 辞書 namespace をレジストリから引くため、page.tsx 側に namespace を
+ * 書かずに済む（`createPracticeResultPage` と同じ slug 1 つで完結する）。
+ * `options.locale` はページの `prepareRouteLocale` の戻り値を渡す（省略時は日本語）。
+ */
+export async function createPracticeResultMetadata(
+  slug: PracticeMenuSlug,
+  options: MetadataLocaleOptions = {},
+): Promise<Metadata> {
+  return createResultMetadata(practiceMenuBySlug(slug).namespace, options);
+}
+
+/** Next.js 16 のページ props（searchParams は Promise） */
+interface PracticeResultPageProps {
+  readonly searchParams: Promise<
+    Record<string, string | readonly string[] | undefined>
+  >;
+}
+
+/**
+ * 練習結果ページを生成するファクトリー関数
+ * 練習結果ページ生成
+ *
+ * 練習ごとに渡すのは slug 1 つで、ランキングの練習種別・練習名・プレイページ /
+ * 説明ページの URL はレジストリ（`practiceMenuBySlug`）と `/practice/<slug>`
+ * の命名規約から導出する。
+ *
+ * 設計: CLS 改善のために 2 つの Suspense 境界を導入している:
+ *
+ * 1. **即時描画（親 Server Component）**
+ *    - PageTitle / SectionTitle("結果") / ResultScoreBar / アクションボタン
+ *    - これらは URL クエリ (`?correct=&total=&time=`) のみで描画可能
+ *
+ * 2. **`<Suspense fallback={<ResultBlockSkeleton />}>`**
+ *    - `AsyncResultBlock`: 認証判定 + EXP / 過去記録比較の取得 +
+ *      `RecordSection` / `SignUpCta` / `RecordUnavailable` のいずれかを描画
+ *
+ * 3. **`<Suspense fallback={<LeaderboardSkeleton />}>`**
+ *    - `AsyncLeaderboardBlock`: `BoardLeaderboardPreview` で全期間の上位を描画。
+ *      未ログインならその下に `LeaderboardSignUpCta`（上位が空なら表ごと出さない）
+ *    - 出すのは遊んだ範囲を含む練習のランキング（`resolveLeaderboardBoard`）。
+ *      範囲を絞った回も「すべて」の上位を出す — 絞った範囲はランキングを
+ *      持たないので、遊んだ土俵そのままでは何も出ず、範囲によって結果ページの
+ *      構成が変わる
+ *    - ランキングを持たない練習（昇級試験）では境界ごと出さない
+ *
+ * 2 と 3 は互いに並列に解決され、遅い方に全体が引っ張られないストリーミング表示となる。
+ *
+ * 言語は `currentLocale()` で取る（多くの結果ページが使うため props で通さない。
+ * ページの `prepareRouteLocale` が先に走る前提）。View に渡す href
+ * （`playHref`・`introHref`・`settingsHref`）はロケール非依存のままで、描く側
+ * （`ResultView`）が今の言語の URL にする。ランキングのプレビューと、その下の
+ * 登録 CTA は `/leaderboard` をその言語で公開しているときだけ出す — 他の利用者の
+ * 表示名を見せる画面で、英語では提供していない（判定は公開状態なので、英語の
+ * ランキングを公開すれば何も書き換えずに現れる）。
+ */
+export function createPracticeResultPage(
+  ResultView: ComponentType<PracticeResultViewProps>,
+  config: ResultPageConfig,
+) {
+  const { slug } = config;
+  const { menuType, namespace, timeLimit, hasSetup } = practiceMenuBySlug(slug);
+  // 昇級試験は「繰り返し伸ばす」種類の練習ではないため、成績を横に並べる
+  // 機能をどれも持たない。EXP も付与せず、ランキングのプレビューも、
+  // 過去記録との比較とマイレコードへの導線も出さない。代わりに「結果」節を
+  // 合否サマリに差し替える（合格ラインは段級位レジストリが持つ）
+  const isExam = isExamMenuType(menuType);
+  const examMinScore = isExam
+    ? rankRequiringMenu(menuType)?.requirement.minScore
+    : undefined;
+  if (isExam && examMinScore === undefined) {
+    throw new Error(`昇級試験 ${slug} の合格ラインが RANK_REGISTRY に無い`);
+  }
+
+  return async function PracticeResultPage({
+    searchParams,
+  }: PracticeResultPageProps) {
+    // 即時描画に必要な最小限のデータだけ親で解決する。
+    // URL クエリ (`searchParams`) と、練習名（翻訳キー）。
+    const [resolvedSearchParams, t, tp, locale] = await Promise.all([
+      searchParams,
+      getTranslations(namespace),
+      getTranslations("practice"),
+      currentLocale(),
+    ]);
+    const practiceTitle = t("title");
+
+    const {
+      variant,
+      grantId,
+      promotedSlugs,
+      correct: safeCorrect,
+      total: safeTotal,
+      elapsedMs: safeElapsedMs,
+      finishReason,
+      runId,
+    } = parseResultSearchParams(resolvedSearchParams, slug);
+    const variantLabel = hasSetup
+      ? tp("variantLabel", { label: t(`variants.${variant}.label`) })
+      : undefined;
+    // 上位を出すランキング。範囲を絞った回は「すべて」に寄る。ランキングを
+    // その言語で公開していなければ出さない
+    const leaderboardBoard =
+      resolvePublishedHref(LEADERBOARD_PATH, locale) === undefined
+        ? undefined
+        : resolveLeaderboardBoard(slug, variant);
+
+    return (
+      <ResultView
+        practiceTitle={practiceTitle}
+        playHref={practicePlayHref(slug, variant)}
+        introHref={practiceHref(slug)}
+        settingsHref={practiceSetupHref(slug, variant)}
+        correct={safeCorrect}
+        total={safeTotal}
+        listedProblemCount={listedProblemCount(safeTotal, finishReason)}
+        runId={runId}
+        variantLabel={variantLabel}
+        // 合格したら主ボタンは道場へ。合否の判定は summary 側と同じ規則
+        primaryAction={
+          examMinScore !== undefined && safeCorrect >= examMinScore
+            ? "parent"
+            : "retry"
+        }
+        summary={
+          examMinScore !== undefined ? (
+            <ExamResultSummary
+              correct={safeCorrect}
+              total={safeTotal}
+              elapsedMs={safeElapsedMs}
+              minScore={examMinScore}
+              timeLimitSec={timeLimit}
+            />
+          ) : undefined
+        }
+        promotionBlock={
+          promotedSlugs.length > 0 ? (
+            // バナーは付加情報のため fallback は出さない（解決後に現れる）
+            <Suspense>
+              <PromotionBanner slugs={promotedSlugs} />
+            </Suspense>
+          ) : undefined
+        }
+        resultBlock={
+          isExam ? undefined : (
+            <Suspense fallback={<ResultBlockSkeleton />}>
+              <AsyncResultBlock
+                grantId={grantId}
+                menuType={menuType}
+                variant={variant}
+                returnTo={practiceHref(slug)}
+              />
+            </Suspense>
+          )
+        }
+        leaderboardBlock={
+          leaderboardBoard === undefined ? undefined : (
+            <Suspense fallback={<LeaderboardSkeleton />}>
+              <AsyncLeaderboardBlock board={leaderboardBoard} />
+            </Suspense>
+          )
+        }
+        chaptersBlock={<PracticeRelatedChapters slug={slug} />}
+      />
+    );
+  };
+}
+
+/**
+ * 記録セクション / 登録 CTA を非同期に解決して描画する
+ * 非同期結果ブロック
+ *
+ * 認証状態の判定と EXP・過去記録比較の取得を内包し、ストリーミング境界内で
+ * 完結させる。
+ * ログイン済み → `RecordSection`（EXP は grant があるときだけ、過去記録比較は常に）
+ * 未ログイン → `SignUpCta`
+ * 認証状態を訊けなかった → `RecordUnavailable`
+ *
+ * ログイン済みで grant が無い場合（スコア保存に失敗した等）も比較だけの
+ * `RecordSection` を描画する — どの分岐でも 1 セクションが必ず現れることで、
+ * `ResultBlockSkeleton` との置換でレイアウトが動かない。
+ * 昇級試験はこのブロック自体を持たない（factory 側で undefined）。
+ */
+async function AsyncResultBlock({
+  grantId,
+  menuType,
+  variant,
+  returnTo,
+}: {
+  readonly grantId: string | undefined;
+  readonly menuType: PracticeMenuType;
+  readonly variant: string;
+  /** 登録 CTA のログインのあとに戻す先（ロケール非依存。練習の説明ページ） */
+  readonly returnTo: string;
+}) {
+  // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
+  // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
+  await debugResultDelay();
+
+  const user = await tryFetch(LOG_TAG, "failed to resolve user", () =>
+    getOptionalUser(),
+  );
+
+  // 認証状態を訊けなかったときは、ログイン済みかどうかが判らない。登録 CTA に
+  // 倒すとログイン済みの人へ「登録するとスコアが記録されます」と言うことになり、
+  // 記録されている側の人を誤解させる。読み込めなかったとだけ伝える。
+  if (!user.ok) {
+    return <RecordUnavailable />;
+  }
+
+  if (!user.value) {
+    return <SignUpCta returnTo={returnTo} />;
+  }
+
+  const userId = user.value.id;
+
+  const [fetchedExpInfo, fetchedComparison] = await Promise.all([
+    grantId
+      ? tryFetch(LOG_TAG, "failed to fetch exp info", () =>
+          getExpInfoByChallengeResultId(userId, grantId),
+        )
+      : undefined,
+    tryFetch(LOG_TAG, "failed to fetch score comparison", () =>
+      getScoreComparison(userId, menuType, variant, grantId),
+    ),
+  ]);
+
+  // 比較サマリは取得の成否ごと渡す。失敗を「無い」に倒すと、3 行すべてが
+  // 「—」になってまだ 1 回も走っていない人の画面と区別がつかなくなるため、
+  // 断りを出すかどうかは `RecordSection` が決める。
+  //
+  // EXP は倒してよい。付与そのものが無い回（`?grant=` を持たない訪問）が
+  // 普通にあり、そのときも表示は出ないため、読めなかった回だけが
+  // 何かを主張することにはならない。
+  return (
+    <RecordSection
+      expInfo={fetchedExpInfo?.ok ? fetchedExpInfo.value : undefined}
+      comparison={fetchedComparison}
+      menuType={menuType}
+      variant={variant}
+    />
+  );
+}
+
+/**
+ * リーダーボードプレビューを非同期に解決して描画する
+ * 非同期リーダーボード
+ */
+async function AsyncLeaderboardBlock({
+  board,
+}: {
+  readonly board: PracticeBoard;
+}) {
+  // デバッグ用: `DEBUG_RESULT_DELAY_MS` が設定されていれば指定 ms 待機。
+  // 本番では no-op（debugResultDelay 内で NODE_ENV をチェック）。
+  await debugResultDelay();
+
+  return (
+    <BoardLeaderboardPreview
+      board={board}
+      guestFooter={<LeaderboardSignUpCta />}
+    />
+  );
+}

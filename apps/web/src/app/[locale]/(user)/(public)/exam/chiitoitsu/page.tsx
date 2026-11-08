@@ -1,0 +1,61 @@
+/**
+ * 昇級試験（七対子の点数計算） 説明
+ *
+ * @description
+ * 昇級試験の説明ページ。役の表示なしで七対子の手牌から翻数を数え、25符の
+ * 点数を答える試験形式のチャレンジ。通常チャレンジと異なりミス1回で終了する
+ * （レジストリの mistakeLimit: 1）。模試（`training`。時間無制限・記録なしのトレーニング）を持つ。
+ *
+ * @flow
+ * 1. 道場・教本の七対子の章・ダッシュボードの試験カードから遷移
+ *    （練習一覧には並ばない。入口は段級位の側が持つ）
+ * 2. 問題方式のデモと合格条件、「スタート」（本番）と「模試を受ける」の
+ *    ボタンが表示される。本番は受験資格が無ければ登録・道場への導線になる
+ * 3. 「スタート」を押すと play ページへ、「模試を受ける」を押すと training
+ *    ページへ遷移
+ *
+ * @design 章の練習（`/practice/agari-score` の七対子絞り込み）の上に作らなかった理由
+ *
+ * 教本の七対子の章が案内している練習は和了形の点数計算の絞り込みで、終了条件を持たず
+ * 記録も取らない。出題設定はすべてクエリに露出していて改竄でき、合否が段級位
+ * という永続的な記録になる試験の器としては要件が噛み合わない（満貫の昇級試験と
+ * 同じ理由）。
+ *
+ * 代わりに他の試験と同じ分離軸を踏襲する: 出題は core の
+ * `generateValidScoreQuestion`、盤面の状態は `useScoreQuestionBoard`、
+ * 回答フォームは `ScoreAnswerForm` を共有し、器（ディレクトリと出題条件）だけを
+ * 分ける。
+ */
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
+import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
+import { ExamConditions } from "../_components/exam-conditions";
+import { ChiitoitsuExamHowToPlay } from "./_components/chiitoitsu-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu");
+  return createPracticeMetadata(PRACTICE_SLUG.chiitoitsuExam, { locale });
+}
+
+export default async function ChiitoitsuExamPage({
+  params,
+}: PageProps<"/[locale]/exam/chiitoitsu">) {
+  const locale = await prepareRouteLocale(params, "/exam/chiitoitsu");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="chiitoitsuExamChallenge"
+        slug={PRACTICE_SLUG.chiitoitsuExam}
+        howToPlay={<ChiitoitsuExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.chiitoitsuExam} />}
+      />
+    </ExamGateLinksProvider>
+  );
+}

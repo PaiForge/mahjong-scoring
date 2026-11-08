@@ -1,10 +1,42 @@
 import { describe, expect, it } from "vitest";
+// core は辞書のパッケージに依存しないため、区分名の一致の検査だけ日本語の辞書の JSON を直接読む
+import jaScoreTable from "../../../messages/src/ja/score-table.json";
+import { ScoreLevel } from "../core/constants";
 import {
   clampHanToYakuman,
+  getScoreLevelName,
   isFuRelevant,
   isYakumanHan,
+  MANGAN_PLUS_TIERS,
+  scoreLevelNameKey,
   YAKUMAN_HAN,
 } from "./tiers";
+
+describe("scoreLevelNameKey", () => {
+  it("満貫以上の区分は MANGAN_PLUS_TIERS の key を返す", () => {
+    expect(scoreLevelNameKey(ScoreLevel.Mangan)).toBe("mangan");
+    expect(scoreLevelNameKey(ScoreLevel.Haneman)).toBe("haneman");
+    expect(scoreLevelNameKey(ScoreLevel.Baiman)).toBe("baiman");
+    expect(scoreLevelNameKey(ScoreLevel.Sanbaiman)).toBe("sanbaiman");
+    expect(scoreLevelNameKey(ScoreLevel.Yakuman)).toBe("yakuman");
+    expect(scoreLevelNameKey(ScoreLevel.DoubleYakuman)).toBe("doubleYakuman");
+  });
+
+  it("満貫未満・不明な値は undefined", () => {
+    expect(scoreLevelNameKey(ScoreLevel.Normal)).toBeUndefined();
+    expect(scoreLevelNameKey("Unknown")).toBeUndefined();
+  });
+
+  it("日本語の辞書 scoreTable.<key> の値は getScoreLevelName（nameJa）と一致する", () => {
+    const names: Readonly<Record<string, unknown>> = jaScoreTable;
+    for (const tier of MANGAN_PLUS_TIERS) {
+      const key = scoreLevelNameKey(tier.level);
+      expect(key, tier.level).toBe(tier.key);
+      expect(names[tier.key], tier.key).toBe(tier.nameJa);
+      expect(getScoreLevelName(tier.level)).toBe(tier.nameJa);
+    }
+  });
+});
 
 describe("clampHanToYakuman", () => {
   it("役満未満の翻数はそのまま返す", () => {

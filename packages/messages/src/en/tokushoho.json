@@ -1,0 +1,52 @@
+{
+  "pageTitle": "Legal Notice (Specified Commercial Transactions Act)",
+  "description": "The disclosures under the Specified Commercial Transactions Act for the paid plan (Pro) of this riichi mahjong scoring site: the seller, prices, payment method, when the service is provided, and returns and cancellations.",
+  "seller": {
+    "title": "Seller",
+    "value": "富士エンタープライズ"
+  },
+  "representative": {
+    "title": "Person responsible for operations",
+    "value": "Disclosed without delay upon request."
+  },
+  "address": {
+    "title": "Address",
+    "value": "3F Mitsuhashi Building, 1-3-3 Kita-Aoyama\nMinato-ku, Tokyo 107-0061, Japan"
+  },
+  "phone": {
+    "title": "Phone number",
+    "value": "Disclosed without delay upon request."
+  },
+  "contact": {
+    "title": "Contact",
+    "value": "Please contact us through the <contact>contact form</contact>."
+  },
+  "price": {
+    "title": "Price",
+    "value": "The prices shown on the <plan>pricing page</plan> (consumption tax included)."
+  },
+  "extraFees": {
+    "title": "Fees other than the price",
+    "value": "You pay the internet connection charges needed to use the service."
+  },
+  "paymentMethod": {
+    "title": "Payment method",
+    "value": "Credit card (paid on the checkout page of Stripe, our payment processor)."
+  },
+  "paymentTiming": {
+    "title": "Payment timing",
+    "value": "Payment is made when you complete the purchase."
+  },
+  "delivery": {
+    "title": "When the service is provided",
+    "value": "You can use it right after payment is complete. The pass is valid for 30 days from when payment is complete, and the lifetime purchase is valid with no expiry."
+  },
+  "returns": {
+    "title": "Returns and cancellations",
+    "value": "Because of the nature of digital content, purchases cannot be returned, refunded or canceled. The pass does not renew automatically, and you go back to the free plan when it ends."
+  },
+  "environment": {
+    "title": "Supported browsers",
+    "value": "The latest versions of Google Chrome, Safari, Microsoft Edge and Firefox."
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "learn": {
+    "pageTitle": "Riichi Mahjong Fu: Counting the Whole Hand",
+    "checklistTitle": "Checklist of where fu come from",
+    "checklistLead": "Fu come from six places.\nAdd them all up and you have the fu for the whole [[tehai|hand]].",
+    "checklistColPlace": "Where",
+    "checklistColFu": "Fu",
+    "checklistRows": {
+      "futei": {
+        "label": "Base fu (futei)",
+        "condition": "Every winning hand",
+        "fu": "20 fu"
+      },
+      "menzenRon": {
+        "label": "Closed ron bonus",
+        "condition": "When you win by ron with a closed hand",
+        "fu": "10 fu"
+      },
+      "tsumo": {
+        "label": "Tsumo fu",
+        "condition": "When you win by tsumo (even with calls)",
+        "fu": "2 fu"
+      },
+      "mentsu": {
+        "label": "Fu for sets",
+        "condition": "When you have triplets or quads (sequences are 0 fu)",
+        "fu": "2–32 fu"
+      },
+      "jantou": {
+        "label": "Fu for the pair",
+        "condition": "When the pair is dragons, the round wind or your seat wind",
+        "fu": "2 fu"
+      },
+      "machi": {
+        "label": "Fu for the wait",
+        "condition": "When you win on a single-tile, closed or edge wait",
+        "fu": "2 fu"
+      }
+    },
+    "checklistAgariNote": "* The [[menzen-ron-kafu|closed ron bonus]] and [[tsumo-fu|tsumo fu]] never apply together. A [[menzen|closed hand]] winning by ron gets 10 fu, a [[tsumo|tsumo]] win gets 2 fu, and a [[ron|ron]] win after a [[furo|call]] gets neither.",
+    "checklistOrderBody": "Add them up in whatever order works best for you. Just be careful not to miss any.",
+    "checklistRoundBody": "Once you have the total, finish by [[fu-kiriage|rounding up to the next 10 fu]].\n22 fu becomes 30 fu, and 32 fu becomes 40 fu. The value after rounding up is the hand's fu.",
+    "checklistChapterRefBody": "How to count sets, the pair and the wait is covered in the lessons <mentsuLink></mentsuLink>, <jantouLink></jantouLink> and <machiLink></machiLink>.",
+    "checklistColumnLabel": "Column",
+    "checklistColumnTitle": "Two hands that skip the checklist",
+    "checklistColumnBody": "Chiitoitsu (seven pairs) is always 25 fu, whether you win by tsumo or by ron.<br></br>A pinfu tsumo is also an exception: it stays at the 20 fu base (you do not add the 2 tsumo fu).<br></br>Only these two hands get their fu without adding anything up. They are covered in the lessons <chiitoitsuLink></chiitoitsuLink> and <pinfuLink></pinfuLink>.",
+    "commonMistakesTitle": "Common mistakes when counting a hand's fu",
+    "commonMistakesLead": "Even once you know how to count [[fu|fu]], it is easy to get the total wrong in a real game.\nThese three points are where mistakes happen most often.",
+    "pageDescription": "How to count fu for a whole riichi mahjong hand: a checklist of the six places fu come from, plus common mistakes such as forgetting tsumo fu, treating a ron triplet as closed, and mixing up the seat and round winds.",
+    "tsumoFuTitle": "Forgetting tsumo fu",
+    "tsumoFuBody1": "When you [[hora|win]] by tsumo, you get 2 fu whether or not your hand is closed.\nTsumo fu are added even if you have made calls, so do not overlook them.",
+    "tsumoFuBody2": "The yaku menzen tsumo (fully closed hand by self-draw) needs a closed hand, but tsumo fu are given for how you won, and calls make no difference to them.\nKeep these two apart.",
+    "ronKoutsuTitle": "Counting the ron triplet as closed",
+    "ronKoutsuBody1": "When you win by ron on a [[shanpon|pair wait]] (shanpon), the triplet completed by the ron tile counts as an [[minkou|open triplet]].\nYou held two of those tiles, but the last one came from another player's discard, so it is not a [[ankou|closed triplet]].",
+    "ronKoutsuBody2": "If you complete it by tsumo instead, it is a closed triplet.\nThe same pair [[machi|wait]] gives different fu depending on how you win, so always check whether it was ron or tsumo.",
+    "kazeTitle": "Mixing up the seat and round winds",
+    "kazeBody1": "Once the game moves into the South round, the round wind becomes South, but it is easy to keep thinking of East as the round wind.\nKnowing both the round wind and your seat wind is the starting point for counting the fu for the [[jantou|pair]] correctly.",
+    "kazeBody2": "Note that the round and seat winds only change the fu for the pair.\nA triplet of [[kazehai|wind tiles]] is always 4 fu open and 8 fu closed, whether it is the round wind, your seat wind or a [[otakaze|guest wind]] (wind tiles are [[yaochuuhai|terminals and honors]]).\nMixing them up affects only the fu for the pair and the han from [[yakuhai|yakuhai]].",
+    "tsumoExample": "Example: open hand, won by tsumo",
+    "tsumoExampleAnnotation": "→ Tsumo fu: 2 fu",
+    "ronKoutsuExampleRon": "Pair wait won by ron (3-sou)",
+    "ronKoutsuExampleRonAnnotation": "→ 3-sou is an open triplet (2 fu)",
+    "ronKoutsuExampleTsumo": "Pair wait won by tsumo (3-sou)",
+    "ronKoutsuExampleTsumoAnnotation": "→ 3-sou is a closed triplet (4 fu)",
+    "kazeExampleBakaze": "East round, South seat: a pair of East",
+    "kazeExampleBakazeAnnotation": "→ Round wind (2 fu)",
+    "kazeExampleJikaze": "East round, South seat: a pair of South",
+    "kazeExampleJikazeAnnotation": "→ Seat wind (2 fu)",
+    "kazeExampleOtakaze": "East round, South seat: a pair of West",
+    "kazeExampleOtakazeAnnotation": "→ Guest wind (0 fu)"
+  }
+}

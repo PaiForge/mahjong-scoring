@@ -9,7 +9,7 @@ const { mockBoards, mockAttempts, mockResults } = vi.hoisted(() => ({
 
 vi.mock("./auth", async () => await import("@/test/mobile-auth-mock"));
 vi.mock(
-  "@/app/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries",
+  "@/app/[locale]/(user)/(protected)/(confirmed)/mypage/challenges/_lib/queries",
   () => ({
     fetchAvailableBoards: mockBoards,
     fetchChallengeAttempts: mockAttempts,

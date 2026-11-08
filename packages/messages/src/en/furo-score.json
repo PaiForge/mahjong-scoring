@@ -1,0 +1,24 @@
+{
+  "learn": {
+    "pageTitle": "Riichi Mahjong Scoring for Open Hands",
+    "pageDescription": "How to score an open (called) hand in riichi mahjong. The only difference from a closed hand is that a ron gets no closed ron bonus; the fu for tsumo are the same as for a closed hand. Also covers the 30 fu of the open pinfu shape.",
+    "startTitle": "Calling removes the closed ron bonus",
+    "startBody1": "Once you call, neither [[chiitoitsu|chiitoitsu]] nor [[pinfu|pinfu]] is possible.\nOnly [[mentsute|standard hands]] remain, so this one lesson covers everything about scoring open hands.",
+    "startBody2": "There is only one difference from a [[menzen|closed hand]].\nThe 10 fu [[menzen-ron-kafu|closed ron bonus]] that a [[ron|ron]] used to get is no longer added once you call.",
+    "startBody3": "The fu for [[tsumo|tsumo]], on the other hand, are exactly the same as for a closed hand.\nThe 2 fu for tsumo are given for the way you [[hora|win]], and have nothing to do with whether you have called.",
+    "startBody4": "So a ron with an open hand is 10 fu lower than a ron with the same hand closed.\nThe only exception is the shape where the built-up fu are 0, which the column at the end of this lesson covers (the open pinfu shape).",
+    "roundTitle": "Only ron starts from 20 fu",
+    "roundBody1": "You count the same way as for a closed hand: add the 20 base fu, the fu for how you won and the fu built up by the [[mentsu|sets]], the [[jantou|pair]] and the [[machi|wait]], then round up to the next 10 fu.\nThe only thing that changes is where a ron starts.",
+    "roundBody2": "Tsumo starts from 22 fu, the same as a closed hand: the 20 base fu plus 2 fu for tsumo.\nRon gets no closed ron bonus, so it starts from the 20 base fu alone.\nThe one exception is a ron where the built-up fu are 0: it is 30 fu, not 20 fu (this is the open pinfu shape covered in the column below).",
+    "ronTitle": "Ron (from 20 base fu)",
+    "ronNote": "The starting point of 20 fu is a multiple of 10, so just as with a closed ron, the total avoids rounding up only when the built-up fu are an exact multiple of 10.\nSince the starting point is 10 fu lower than for a closed hand, the same hand comes out 10 fu lower than a closed ron.",
+    "tsumoTitle": "Tsumo (from 22 fu: 20 base fu + 2 fu for tsumo)",
+    "tsumoNote": "Tsumo is exactly the same as for a closed hand: if the built-up fu are 8, 18 and so on, the total is exact; if they are 10, 20 and so on, it rounds up.",
+    "roundBody3": "With a closed hand, ron gave more fu, but once you call, it can flip so that tsumo gives more.\nFor a hand with 10 built-up fu, ron is 20 + 10 = 30 fu exactly, while tsumo is 22 + 10 = 32 fu, which rounds up to 40 fu. The same thing happens when the built-up fu are 20, 30 and so on.",
+    "columnLabel": "Column",
+    "columnTitle": "The 30 fu of the open pinfu shape",
+    "columnBody1": "Every set is a sequence, the pair is not yakuhai and the wait is two-sided: if you win this shape by ron with an open hand, the built-up fu are 0, so the total is 20 fu.<br></br>But 20 fu is reserved for a pinfu tsumo, so this shape is treated as 30 fu.",
+    "columnExample": "The sets are all sequences, the pair is 8-sou and the wait is two-sided, so the built-up fu are 0. The hand is 30 fu, not 20 fu (its yaku is tanyao, 1 han).",
+    "practiceCta": "Practice scoring open hands"
+  }
+}

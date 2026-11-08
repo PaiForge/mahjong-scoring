@@ -20,6 +20,12 @@ import {
  *
  * 表をシートに載せて開いている場合は、移動する前に `onLeave` でシートを
  * 閉じる。開いたままだと設定画面の上にシートが残る（用語シートと同じ）。
+ *
+ * 状態とリンクの間の区切りは web と同じ辞書キー
+ * （`scoreTable.kiriageManganStatusSeparator`。日本語は中黒「・」、英語は中点「·」）
+ * から引き、直書きしない。アプリは今は日本語だけで出しているが、約物を辞書に
+ * 寄せておけば言語を足したときに日本語の約物が混ざらない。日本語の中黒は前後に
+ * 空きを取らないため、web のような左右の余白は付けていない。
  */
 export function KiriageManganNote({
   enabled,
@@ -35,7 +41,7 @@ export function KiriageManganNote({
   return (
     <Text style={styles.text}>
       {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
-      {"・"}
+      {t("kiriageManganStatusSeparator")}
       <Text
         accessibilityRole="link"
         onPress={() => {

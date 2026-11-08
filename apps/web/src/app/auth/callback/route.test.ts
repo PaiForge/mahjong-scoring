@@ -9,6 +9,9 @@
  * - `type=email_change`: 1 通目（セッション無し）は `emailChangePending`、2 通目は
  *   `emailChangeDone`、無効なリンクはログイン中なら `emailChangeLinkInvalid`。
  *   未ログインはサインインへ送る
+ * - `locale`: 入口が付けた言語で固定の着地を組む。`locale=en` なら英語で公開している
+ *   ページ（setup-username・再設定・サインイン・マイページ・アカウントのページ）は
+ *   `/en/...`。`next` は言語付きのまま使う。無い・不正な値は日本語（従来の着地）
  */
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -236,5 +239,131 @@ describe("GET /auth/callback — メールアドレス変更の確認", () => {
       expect(redirectedTo()).toBe(`${ORIGIN}/sign-in?error=email_link_invalid`);
       expect(mockLogActivityEvent).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe("GET /auth/callback — 着地の言語（locale）", () => {
+  const SIGNED_IN = { data: { session: SESSION }, error: null };
+
+  it("locale=en でプロフィールが無ければ、next を捨てて英語のユーザー名の設定へ", async () => {
+    mockExchangeCodeForSession.mockResolvedValue(SIGNED_IN);
+    mockGetProfileByUserId.mockResolvedValue(undefined);
+
+    await callback("code=abc&locale=en&next=%2Fen%2Fmypage");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/en/mypage/setup-username`);
+  });
+
+  it("locale=en でプロフィールがあれば、言語付きの next へそのまま送る", async () => {
+    mockExchangeCodeForSession.mockResolvedValue(SIGNED_IN);
+
+    await callback("code=abc&locale=en&next=%2Fen%2Fpractice%2Fjantou-fu");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/en/practice/jantou-fu`);
+  });
+
+  it("locale=en で next が無ければ英語のマイページへ", async () => {
+    mockVerifyOtp.mockResolvedValue(SIGNED_IN);
+
+    await callback("token_hash=th&type=signup&locale=en");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/en/mypage`);
+  });
+
+  it.each([
+    ["token_hash の再設定", "token_hash=th&type=recovery&locale=en"],
+    ["PKCE の再設定", "code=abc&type=recovery&locale=en"],
+  ])("locale=en の%sは英語の再設定のページへ", async (_label, query) => {
+    mockVerifyOtp.mockResolvedValue({ data: {}, error: null });
+    mockExchangeCodeForSession.mockResolvedValue(SIGNED_IN);
+
+    await callback(query);
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/en/reset-password`);
+  });
+
+  it("locale=en で認証に失敗したら英語のサインインへ auth_callback_error を付けて送る", async () => {
+    mockVerifyOtp.mockResolvedValue({
+      data: { session: null },
+      error: { message: "invalid" },
+    });
+
+    await callback("token_hash=th&type=signup&locale=en");
+
+    expect(redirectedTo()).toBe(
+      `${ORIGIN}/en/sign-in?error=auth_callback_error`,
+    );
+  });
+
+  it("locale=en でメールのリンクが無効なら、未ログインは英語のサインインへ email_link_invalid", async () => {
+    mockGetOptionalUser.mockResolvedValue(null);
+
+    await callback("error=access_denied&error_code=otp_expired&locale=en");
+
+    expect(redirectedTo()).toBe(
+      `${ORIGIN}/en/sign-in?error=email_link_invalid`,
+    );
+  });
+
+  it("locale=en のメールアドレス変更の完了は英語のアカウントのページへ報せ付きで", async () => {
+    mockVerifyOtp.mockResolvedValue(SIGNED_IN);
+
+    await callback("token_hash=th&type=email_change&locale=en");
+
+    expect(redirectedTo()).toBe(
+      `${ORIGIN}/en/mypage/account?notice=emailChangeDone`,
+    );
+  });
+
+  it("locale=en のメールアドレス変更の 1 通目は、未ログインなら英語のサインインへ英語のアカウントのページを戻り先にして", async () => {
+    mockVerifyOtp.mockResolvedValue({ data: { session: null }, error: null });
+    mockGetOptionalUser.mockResolvedValue(null);
+
+    await callback("token_hash=th&type=email_change&locale=en");
+
+    const url = new URL(redirectedTo());
+    expect(url.pathname).toBe("/en/sign-in");
+    expect(url.searchParams.get("redirect")).toBe(
+      "/en/mypage/account?notice=emailChangePending",
+    );
+  });
+
+  it("locale=en の Google の追加の戻りは英語のアカウントのページへ", async () => {
+    await callback("link=google&error=access_denied&locale=en");
+
+    expect(redirectedTo()).toBe(
+      `${ORIGIN}/en/mypage/account?notice=linkFailed`,
+    );
+  });
+
+  it.each([
+    ["locale が無い", "token_hash=th&type=recovery"],
+    ["対応していない locale", "token_hash=th&type=recovery&locale=fr"],
+    ["接頭辞の形の locale", "token_hash=th&type=recovery&locale=%2Fen"],
+    ["大文字の locale", "token_hash=th&type=recovery&locale=EN"],
+    ["既定の言語の locale", "token_hash=th&type=recovery&locale=ja"],
+  ])("%s ときは日本語の着地（接頭辞なし）", async (_label, query) => {
+    mockVerifyOtp.mockResolvedValue({ data: {}, error: null });
+
+    await callback(query);
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/reset-password`);
+  });
+
+  it("locale が不正なら、プロフィールが無いときも日本語のユーザー名の設定へ", async () => {
+    mockExchangeCodeForSession.mockResolvedValue(SIGNED_IN);
+    mockGetProfileByUserId.mockResolvedValue(undefined);
+
+    await callback("code=abc&locale=fr");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/mypage/setup-username`);
+  });
+
+  it("locale=ja（日本語のボタン・OAuth）の成功は従来どおりのマイページへ", async () => {
+    mockExchangeCodeForSession.mockResolvedValue(SIGNED_IN);
+
+    await callback("code=abc&locale=ja&next=%2Fmypage");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/mypage`);
   });
 });

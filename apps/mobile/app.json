@@ -7,6 +7,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "mahjong-scoring",
+    "locales": {
+      "ja": "./locales/ja.json",
+      "en": "./locales/en.json"
+    },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "help.mahjong.score",
@@ -84,7 +88,13 @@
       ],
       "expo-apple-authentication",
       "expo-iap",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": ["ja", "en"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": false

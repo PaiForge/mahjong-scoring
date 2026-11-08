@@ -1,0 +1,27 @@
+{
+  "learn": {
+    "pageTitle": "Why Riichi Mahjong Scoring Feels Complicated",
+    "pageDescription": "Why riichi mahjong scoring feels complicated, explained by working through the scoring formula with fu and han.",
+    "scoringIsSimpleTitle": "With the formula, the calculation itself is simple",
+    "scoringIsSimpleBody1": "Riichi mahjong scoring looks complicated at first, but the mechanism itself is simple.\nThat is because there is a formula for working out the score, and the calculation just follows it.",
+    "scoringIsSimpleBody2": "For example, here is the formula for scores that involve fu, which is said to be the hardest part.",
+    "exampleIntro": "A non-dealer [[ron|ron]] with 30 fu and 3 han scores 3900. Try calculating this case yourself.\nBroken down, the steps are as follows.",
+    "step1Prefix": "In the formula, substitute 30 for ",
+    "step1Mid": " and 3 for ",
+    "step1Suffix": ".",
+    "step2Prefix": "Calculate ",
+    "step2Suffix": ".",
+    "step3Prefix": "Calculate ",
+    "step3Suffix": ".",
+    "step4": "Round the result, 3840, up to the next hundred.",
+    "calculatorNote": "With a calculator, this is easy to work out.",
+    "memorizeNote": "But doing this calculation every time you win takes time and effort, so you should memorize the scoring table and be able to answer instantly.",
+    "kuku": "In principle, it is the same as memorizing the multiplication tables in elementary school.\nIn mahjong, however, you have to split into many cases, such as whether you are the dealer and whether you won by [[tsumo|tsumo]] or by ron.",
+    "practiceNeeded": "That makes riichi mahjong scoring far harder than the multiplication tables, and it takes a fair amount of practice before you can give the score instantly in real games.",
+    "formula": {
+      "fu": "fu",
+      "han": "han",
+      "roundUp": "round up"
+    }
+  }
+}

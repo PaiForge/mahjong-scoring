@@ -1,0 +1,26 @@
+{
+  "pageTitle": "Delete account",
+  "sectionTitle": "Confirm",
+  "warning": "Once you delete your account, you will no longer be able to log in with it. This cannot be undone.",
+  "consequences": {
+    "personalData": "Your personal information, such as your avatar, display name, bio and social media accounts, will be deleted.",
+    "scoresRemoved": "Your results will be deleted and will no longer appear on the leaderboard.",
+    "usernameLocked": "Your username is kept to prevent reuse, so you cannot sign up again with the same name."
+  },
+  "confirmButton": "Delete my account",
+  "deleting": "Deleting…",
+  "confirmTitle": "Are you sure you want to delete your account?",
+  "confirmMessage": "This cannot be undone. Once you delete your account, you will no longer be able to log in with it.",
+  "confirmOk": "Delete account",
+  "confirmCancel": "Cancel",
+  "error": "Could not delete your account. Please wait a while and try again.",
+  "successToast": "Your account has been deleted",
+  "acceptedToast": "Your request to delete your account has been received. It may take a little while to finish.",
+  "backToAccount": "Back to Account",
+  "rateLimited": "Too many requests. Please wait a while and try again.",
+  "banned": "Your account is suspended, so you cannot perform this action.",
+  "networkError": "Could not connect. Please try again where you have a signal.",
+  "appleRequired": "If you log in with Apple, you need to confirm with Apple before deleting your account. Press \"Delete my account\" again and complete the confirmation with Apple.",
+  "appleMismatch": "Please confirm with the Apple Account you use for this account.",
+  "appleNotSupported": "If you log in with Apple, please delete your account from the iPhone app."
+}

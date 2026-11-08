@@ -1,0 +1,27 @@
+{
+  "pageTitle": "Getting Started with Riichi Mahjong Scoring",
+  "pageDescription": "A guide to getting started with riichi mahjong scoring. Pick the practice that suits your level and master counting fu and calling out the score, even as a beginner.",
+  "steps": {
+    "tryout": {
+      "title": "Try it first",
+      "description": "Solve one scoring question for a winning hand",
+      "cta": "Try a question"
+    },
+    "practice": {
+      "title": "Solve easy questions",
+      "description": "If you cannot calculate scores yet, start with simple fu questions",
+      "cta": "Start practicing",
+      "sub": "See all practice menus"
+    },
+    "learn": {
+      "title": "Learn the theory",
+      "description": "Learn everything about scoring from the very beginning",
+      "cta": "Start reading"
+    }
+  },
+  "signUp": {
+    "title": "Create an account to keep your records",
+    "description": "A free account saves your learning progress.",
+    "cta": "Sign up for free"
+  }
+}

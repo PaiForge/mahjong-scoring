@@ -1,10 +1,10 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
 import { colors } from "../../../lib/theme";
 import { PromptLabel } from "../../components/prompt-label";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /**
  * 待ち符の出題提示（待ち牌 + 和了牌）
@@ -31,7 +31,7 @@ export function MachiFuPrompt({
         <PromptLabel>{t("machiLabel")}</PromptLabel>
         <View style={styles.tiles}>
           {tiles.map((tile, i) => (
-            <Hai key={i} hai={tile} size="lg" />
+            <LocaleHai key={i} hai={tile} size="lg" />
           ))}
         </View>
       </View>
@@ -40,7 +40,7 @@ export function MachiFuPrompt({
 
       <View style={styles.group}>
         <PromptLabel>{t("agariLabel")}</PromptLabel>
-        <Hai hai={agariHai} size="lg" />
+        <LocaleHai hai={agariHai} size="lg" />
       </View>
     </View>
   );

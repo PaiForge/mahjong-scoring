@@ -1,4 +1,6 @@
 import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 import {
   ANNOUNCEMENTS_PATH,
   DOJO_PATH,
@@ -80,25 +82,42 @@ export type AnnouncementLinkTarget =
  * web のページをブラウザで開く。価格・特商法のページはリンクにしない。それ以外（`https://` 等）はブラウザに渡す。
  * サイト自身の URL（`https://<サイト>/lessons`）もパスと同じに扱う。
  *
+ * 言語はブラウザで開く web のページにだけ効く（`webLocalePath`。英語は
+ * `/en/...`）。英語の端末の記事は英語の一覧・詳細からしか出ないので、
+ * そこから開く web のページも英語にする（英語で未公開のページなら web が
+ * 404 + noindex を返す。公開状態は web が持ち、アプリは見ない）。アプリの
+ * 中で開くパスは言語を持たない（画面の言語は端末の言語で決まる）ので
+ * そのまま。リンクにしない規則（価格・特商法）も言語に依らない。外のサイトの
+ * URL は変えない。
+ *
  * @param href - 本文のリンク先
  * @param siteUrl - web のサイトの URL（末尾の `/` なし）
+ * @param locale - アプリの言語（`useAppLocale()`）
  */
 export function resolveAnnouncementLink(
   href: string,
   siteUrl: string,
+  locale: SupportedLocale,
 ): AnnouncementLinkTarget {
-  const path = href.startsWith(`${siteUrl}/`)
+  const sitePath = href.startsWith(`${siteUrl}/`)
     ? href.slice(siteUrl.length)
     : href;
-  if (!path.startsWith("/") || path.startsWith("//")) {
+  if (!sitePath.startsWith("/") || sitePath.startsWith("//")) {
     return { kind: "browser", url: href };
   }
-  const [pathname = path] = path.split(/[?#]/, 1);
-  const suffix = path.slice(pathname.length);
+  // web の言語付き URL も、アプリの遷移・購入リンクの除外は同じ規則で判定する。
+  // /english のような別のセグメントは取り除かない。query と hash は保つ。
+  const path = sitePath.replace(/^\/(?:en|ja)(?=\/|[?#]|$)/, "") || "/";
+  const normalizedPath = /^[?#]/.test(path) ? `/${path}` : path;
+  const [pathname = normalizedPath] = normalizedPath.split(/[?#]/, 1);
+  const suffix = normalizedPath.slice(pathname.length);
   if (matchesPrefix(pathname, UNLINKED_PATH_PREFIXES)) return { kind: "text" };
   const alias = APP_PATH_ALIASES.get(pathname);
   if (alias !== undefined) return { kind: "app", path: `${alias}${suffix}` };
   return matchesPrefix(pathname, APP_PATH_PREFIXES)
-    ? { kind: "app", path }
-    : { kind: "browser", url: `${siteUrl}${path}` };
+    ? { kind: "app", path: normalizedPath }
+    : {
+        kind: "browser",
+        url: `${siteUrl}${webLocalePath(normalizedPath, locale)}`,
+      };
 }

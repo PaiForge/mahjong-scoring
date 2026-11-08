@@ -1,5 +1,6 @@
 "use client";
 
+import { stripLocalePrefix } from "@/i18n/public-path";
 import { safeSessionStorage } from "@/lib/safe-storage";
 
 /**
@@ -25,6 +26,14 @@ import { safeSessionStorage } from "@/lib/safe-storage";
  *
  * 遷移を伴わない報せ（その場に留まる保存完了など）はここを通さず `toast()` を
  * 直接呼ぶこと。着地を待てないまま宙に浮く。
+ *
+ * **着地の判定はロケール接頭辞を外したパスで比べる。** 呼び出し側が預ける href は
+ * ロケール非依存（`/practice/jantou-fu`）で、遷移は `@/i18n/navigation` の
+ * `useRouter` が今の言語の接頭辞を付ける。GlobalToaster が渡す `usePathname()`
+ * （next/navigation）はアドレスバーの形（英語なら `/en/practice/jantou-fu`）。
+ * 預ける側と取り出す側の両方で `stripLocalePrefix` を通し、同じ形で比べる。
+ * 片方だけ外すと英語のページで着地の判定が常に外れる。管理画面のパスは接頭辞を
+ * 持たないので恒等。
  */
 
 /**
@@ -78,9 +87,12 @@ function readStored(): PendingToast | null {
   return null;
 }
 
-/** 着地判定はパスだけで行う。クエリ・ハッシュは同じページの中の状態なので見ない */
+/**
+ * 着地判定に使うパス。クエリ・ハッシュは同じページの中の状態なので見ない。
+ * ロケール接頭辞も外す（英語の `/en/...` と預けたロケール非依存の href を揃える）
+ */
 function pathnameOf(href: string): string {
-  return href.split(/[?#]/)[0] ?? href;
+  return stripLocalePrefix(href.split(/[?#]/)[0] ?? href);
 }
 
 /** 遷移先 `href` に着いたら `message` を出すよう預ける */
@@ -96,11 +108,13 @@ export function toastOnArrival(
 /**
  * 預かりを取り出す（着地先が違えば捨てるだけ）。
  * pathname が変わるたびに呼ぶ前提で、呼べば必ず空になる。
+ *
+ * @param pathname - 今のアドレスバーのパス（`/en/...` のままでよい。接頭辞はここで外す）
  */
 export function takeToastOnArrival(pathname: string): ArrivalToast | null {
   const queued = pending ?? readStored();
   pending = null;
   safeSessionStorage.removeItem(STORAGE_KEY);
-  if (queued?.pathname !== pathname) return null;
+  if (queued?.pathname !== pathnameOf(pathname)) return null;
   return { message: queued.message, tone: queued.tone };
 }

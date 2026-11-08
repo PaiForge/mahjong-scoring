@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { HaiKindId } from "@mahjong-scoring/core";
@@ -20,6 +19,7 @@ import { MACHI_TILE_MARK_STYLES } from "./machi-tile-mark-styles";
 import { NoYakuResultDisplay } from "./no-yaku-result-display";
 import { PANEL_BORDER, WaitCellTabs } from "./wait-cell-tabs";
 import type { TenpaiScoreResultProps } from "@mahjong-scoring/features/practice/tenpai-score/result-props";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /**
  * 判定の印を付けた牌 1 枚
@@ -43,7 +43,7 @@ function MarkedHai({
         mark ? MACHI_TILE_MARK_STYLES[mark] : styles.unmarked,
       ]}
     >
-      <Hai hai={hai} size="xs" />
+      <LocaleHai hai={hai} size="xs" />
     </View>
   );
 }

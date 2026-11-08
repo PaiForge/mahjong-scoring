@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import type { JudgementResult } from "@mahjong-scoring/core";
@@ -10,6 +9,7 @@ import {
 
 import { borderWidth, colors, radius } from "../../../lib/theme";
 import { JudgementMark } from "../../components/judgement-mark";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /** パネルの上枠の太さ。選択中のタブがこの分だけ下へ伸びて枠を覆う */
 export const PANEL_BORDER = borderWidth.panel;
@@ -102,7 +102,7 @@ export function WaitCellTabs({
           >
             <View style={styles.tabHead}>
               <Text style={styles.tabText}>{winLabel}</Text>
-              <Hai hai={cell.agariHai} size="xs" />
+              <LocaleHai hai={cell.agariHai} size="xs" />
               {verdict !== undefined && (
                 <JudgementMark verdict={verdict} size={14} />
               )}

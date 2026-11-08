@@ -1,0 +1,48 @@
+{
+  "title": "Fu for the Wait",
+  "generating": "Generating questions...",
+  "description": "Check the wait and the winning tile, then answer the fu for the wait",
+  "machiLabel": "Wait",
+  "agariLabel": "Winning tile",
+  "questionPrompt": "Answer the fu for this wait",
+  "fuOption": "{value} fu",
+  "result": {
+    "problemDetails": "Question details",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "learn": {
+    "pageTitle": "Riichi Mahjong Fu for the Wait: Kanchan, Penchan, Tanki",
+    "pageDescription": "How the wait adds fu in riichi mahjong: two-sided (ryanmen), closed (kanchan), edge (penchan), single-tile (tanki) and pair (shanpon) waits, with tile images.",
+    "whatIsMachi": "What are fu for the wait?",
+    "whatIsMachiBody": "Depending on the shape of your [[tenpai|ready hand]], fu may be added when you [[hora|win]]. The narrower the [[machi|wait]], the more likely it is to add fu.",
+    "twoFuTitle": "Waits worth 2 fu",
+    "twoFuBody": "Three waits add 2 fu: the [[kanchan|closed wait]] (kanchan), the [[penchan|edge wait]] (penchan) and the [[tanki|single-tile wait]] (tanki). They accept few tiles and are weak waits. An edge wait comes in two forms: 1-2 waiting on 3, and 8-9 waiting on 7.",
+    "twoFuExamples": "2 fu examples",
+    "kanchanLabel": "Closed wait",
+    "penchanLabel": "Edge wait",
+    "tankiLabel": "Single-tile wait",
+    "zeroFuTitle": "Waits worth 0 fu",
+    "zeroFuBody": "The [[ryanmen|two-sided wait]] (ryanmen) and the [[shanpon|pair wait]] (shanpon) are 0 fu. They accept many tiles and are considered strong waits.",
+    "zeroFuExamples": "0 fu examples",
+    "ryanmenLabel": "Two-sided wait",
+    "shanponLabel": "Pair wait",
+    "nobetanNote": "* A nobetan (a run of four such as 2-3-4-5, waiting on 2 or 5) counts as a single-tile wait and adds 2 fu.",
+    "summaryTitle": "Summary",
+    "colMachi": "Shape",
+    "colType": "Wait",
+    "colFu": "Fu",
+    "rowKanchan": "Closed wait (kanchan)",
+    "rowPenchan": "Edge wait (penchan)",
+    "rowTanki": "Single-tile wait (tanki)",
+    "rowRyanmen": "Two-sided wait (ryanmen)",
+    "rowShanpon": "Pair wait (shanpon)",
+    "fuUnit": "{value} fu"
+  }
+}

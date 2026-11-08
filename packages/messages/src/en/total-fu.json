@@ -1,0 +1,35 @@
+{
+  "title": "Total Fu for the Hand",
+  "description": "Add up the fu of a whole riichi mahjong hand and answer the total after rounding up, in one go",
+  "prompt": "Answer the total fu for this hand",
+  "generating": "Generating questions...",
+  "fuOption": "{value} fu",
+  "fuSuffix": "{value} fu",
+  "breakdownTotal": "Total",
+  "roundedUp": "Rounded up",
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "variants": {
+    "up_to_40": {
+      "label": "Up to 40 fu",
+      "hint": "Pinfu tsumo, chiitoitsu, 30 fu and 40 fu: the range that comes up most in real games"
+    },
+    "up_to_60": {
+      "label": "Up to 60 fu",
+      "hint": "Everything up to 40 fu, plus 50 fu and 60 fu hands where closed triplets and quads pile up"
+    },
+    "all": {
+      "label": "All",
+      "hint": "Every hand, including the rare ones of 70 fu or more"
+    }
+  }
+}

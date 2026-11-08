@@ -1,0 +1,54 @@
+{
+  "title": "Scoring Table Lookup",
+  "generating": "Generating questions...",
+  "description": "Practice answering the riichi mahjong score for dealer or non-dealer, tsumo or ron, han and fu",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "selectScore": "Select a score",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": " points",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": " all",
+  "answer": "Submit",
+  "questionLabel": "Answer the score for these conditions",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "variants": {
+    "ko_mangan_plus": {
+      "label": "Non-dealer, mangan+",
+      "hint": "Look up non-dealer scores at the five limit levels, from mangan to yakuman"
+    },
+    "oya_mangan_plus": {
+      "label": "Dealer, mangan+",
+      "hint": "Look up dealer scores at the five limit levels, from mangan to yakuman"
+    },
+    "ko_non_mangan": {
+      "label": "Non-dealer, below mangan",
+      "hint": "Look up the non-dealer scoring table for 20 to 60 fu × 1 to 3 han"
+    },
+    "oya_non_mangan": {
+      "label": "Dealer, below mangan",
+      "hint": "Look up the dealer scoring table for 20 to 60 fu × 1 to 3 han"
+    },
+    "all": {
+      "label": "All",
+      "hint": "The whole table: dealer and non-dealer, mangan and above included"
+    }
+  },
+  "summarySeparator": ", "
+}

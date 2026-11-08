@@ -1,0 +1,25 @@
+{
+  "pageTitle": "Notifications",
+  "bell": "Notifications",
+  "bellUnread": "Notifications ({count} unread)",
+  "unread": "Unread",
+  "unreadCount": "{count} unread",
+  "markAllRead": "Mark all as read",
+  "markAllReadFailed": "Could not mark notifications as read. Please wait a moment and try again.",
+  "empty": "No notifications yet",
+  "emptyHint": "We will let you know here about things that concern you, such as buying Pro or Pro expiring.",
+  "loadFailed": "Could not load notifications.",
+  "loadMore": "Load more",
+  "messages": {
+    "purchaseCompletedPass": "Your purchase of Pro (30-day pass) is complete. You can use Pro features until {until}.",
+    "purchaseCompletedLifetime": "Your purchase of Pro (lifetime) is complete. You can use Pro features from now on.",
+    "purchaseCompleted": "Your purchase of Pro is complete.",
+    "benefitGrantedUntil": "The operator has granted you Pro. You can use Pro features until {until}.",
+    "benefitGranted": "The operator has granted you Pro (no expiry).",
+    "planExpired": "Your Pro has expired and you are back on the free plan.",
+    "purchaseRefunded": "Your purchase of Pro was cancelled because it was refunded.",
+    "purchaseRevoked": "Your purchase of Pro was cancelled.",
+    "benefitGrantRevoked": "The Pro granted to you by the operator was withdrawn.",
+    "unknown": "You have a new notification."
+  }
+}

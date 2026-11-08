@@ -1,0 +1,41 @@
+{
+  "title": "Fu for Sets and the Pair",
+  "generating": "Generating questions...",
+  "description": "Answer the fu for every set and the pair in a riichi mahjong hand, one at a time",
+  "questionPrompt": "Answer the fu for each one",
+  "pair": "Pair",
+  "fuSuffix": "{value} fu",
+  "correctAnswer": "Correct answer: {fu} fu",
+  "result": {
+    "problemDetails": "Question details",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correctItemCount": "{correct}/{total} correct"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "help": {
+    "label": "See how fu are counted",
+    "title": "How fu are counted in this practice",
+    "ronKoutsu": {
+      "title": "A triplet's fu depends on tsumo or ron",
+      "body": "When you win a pair wait by ron, the triplet completed by the ron counts as an open triplet. You held two of its tiles in your hand, but the last one came from another player's discard (for simples, 2 fu instead of 4 fu). The tile with the same frame as in the hand shows which part of the hand you won on."
+    },
+    "jantou": {
+      "title": "The pair has nothing to do with the wait",
+      "body": "The fu for the pair depend only on whether its tile is the round wind, your seat wind or a dragon. Winning on a single-tile wait does not change the fu for the pair: the 2 fu for a single-tile wait belong to the wait, not to the pair."
+    },
+    "shuntsu": {
+      "title": "A sequence is always 0 fu",
+      "body": "Even when you win on a closed wait or an edge wait, the sequence itself stays at 0 fu. Those 2 fu also belong to the wait."
+    },
+    "scope": {
+      "title": "What this practice does not count",
+      "body": "The 20 base fu, the tsumo fu and the fu for the wait do not belong to a single set or the pair, so you do not answer them here. To practice the fu of a whole hand including them, try \"Total Fu for the Hand\"."
+    }
+  }
+}

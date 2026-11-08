@@ -1,0 +1,33 @@
+import { getTranslations } from "next-intl/server";
+
+import { QuestionPrompt } from "../../_components/question-prompt";
+import { YakuHanPrompt } from "./yaku-han-prompt";
+
+/**
+ * デモ用の固定例: 三色同順（鳴き）
+ *
+ * 値は表示名ではなく出題と同じ core の役名（識別子）。表示名は `YakuHanPrompt` が
+ * 辞書（`yakuNames.sanshoku_doujun`）から引くので、英語のページには英語で出る。
+ */
+const DEMO_YAKU = "三色同順";
+const DEMO_IS_MENZEN = false;
+
+/**
+ * 役翻数練習の「問題方式」ビジュアルデモ
+ * 役翻数 遊び方デモ
+ *
+ * 実際の出題（役名・門前/鳴きの状態提示と出題文）を静的に再現し、どのような
+ * 問題が出るかを端的に示す。翻数の選択肢そのものは今後変更の可能性があるため
+ * プレビューには含めない（何を答えるかは出題文が示す）。
+ */
+export async function YakuHanHowToPlay() {
+  const t = await getTranslations("yakuHanChallenge");
+
+  return (
+    <div className="space-y-4">
+      <YakuHanPrompt yakuName={DEMO_YAKU} isMenzen={DEMO_IS_MENZEN} />
+
+      <QuestionPrompt>{t("selectHan")}</QuestionPrompt>
+    </div>
+  );
+}

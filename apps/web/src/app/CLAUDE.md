@@ -9,10 +9,13 @@ web の App Router 配下だけに関わる規約。用語・ルート構成・�
 `_` プレフィックスを付ける（`_components/` `_hooks/` `_lib/`）。App Router のルート解決対象から
 外れ、ルートセグメントと区別できる。
 
-`(list)` / `(index)` / `(home)` / `(dashboard)` の route group は、index ページだけが動的なときに
-page.tsx と loading.tsx を退避して、ローディング境界が兄弟ルート（`[id]` 等）の祖先に
-ならないようにするためのもの（下の「ローディング境界」）。一段上へ動かすと
-`loading-boundaries.test.ts` が落ちる。
+`(list)` / `(index)` / `(home)` / `(dashboard)` / `(form)` の route group は、index ページだけが動的な
+ときに page.tsx と loading.tsx を退避して、ローディング境界が兄弟ルート（`[id]` 等）の祖先に
+ならないようにするためのもの（下の「ローディング境界」）。loading.tsx を持つ group
+（`dojo/(index)`・`mypage/(home)`・`admin/users/(list)` 等）から一段上へ動かすと
+`loading-boundaries.test.ts` が落ちる。page.tsx だけの group（`lessons/(index)`・`practice/(index)`・
+`reference/(index)` 等）は、ページが静的になって loading.tsx を外した跡で、group 自体は境界の
+役目を持たない（URL にも出ない）。そのページを動的に戻すときは、その group に loading.tsx を置く。
 
 ## `"use client"`
 
@@ -26,17 +29,18 @@ page.tsx と loading.tsx を退避して、ローディング境界が兄弟ル�
 
 置き場所は 2 つ。ディレクトリで「管理画面が使うか」を表現している。
 
-| ディレクトリ                           | 中身                                                                                                                                                                                                     |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/app/_components/`        | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
-| `apps/web/src/app/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
+| ディレクトリ                                    | 中身                                                                                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/_components/`                 | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
+| `apps/web/src/app/[locale]/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
 
-新しい共通コンポーネントは原則 `(user)/_components/` に置く。`app/_components/` へ足すのは
-管理画面からも使うときだけ。`app/_components/` と `admin/` から `(user)/_components/` を
+新しい共通コンポーネントは原則 `[locale]/(user)/_components/` に置く。`app/_components/` へ足すのは
+管理画面からも使うときだけ。`app/_components/` と `admin/` から `[locale]/(user)/_components/` を
 import しない（依存の向きを一方向に保つ。ルートの `eslint.config.mjs` が弾く）。
 
-例外は 1 つだけ: ルートの `app/not-found.tsx` / `app/error.tsx` — `(user)` 配下ではないが
-ユーザーに見える画面なので、ブランド UI を使う。
+`<html>` を持つルートレイアウトは `[locale]/layout.tsx`（ユーザー向け。`lang` は URL の言語）と
+`admin/layout.tsx`（管理画面）の 2 つ。`app/layout.tsx` は素通しで、`app/not-found.tsx`（どの言語の
+ルートにも当たらない URL の 404）と `app/global-error.tsx` は自分で `<html>` を描く。
 
 管理画面（`data-skin="plain"`）は別のビジュアル言語。ページ送りも `AdminPaginationNav` を持ち、
 ボタン・入力欄・状態チップは `admin/_lib/` の `adminButtonClasses()` / `ADMIN_INPUT_CLASSES` /
@@ -62,7 +66,7 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
   同じ緑の塗りの丸に白抜きの太字で、大きさは添える文字に合わせて em で決まる。素の「?」の文字や線画の
   アイコンをページ側で書かない（地の文に紛れて押せることが伝わらない）
 - ヘルプは 2 種類。`HelpTourModal`（`practice/_components/`）は練習の設定画面の「?」から、開始前に
-  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js、`(user)/_components/`）は
+  流れを実コンポーネントのカルーセルで通しで見せる。`SpotlightTour`（driver.js、`[locale]/(user)/_components/`）は
   練習の play 画面や道場の見出しの「?」から、今画面にある要素を順に照らして 1〜2 文で説明する。段階で
   画面が変わる練習は全段階の手順を渡し、無い要素はツアーが飛ばす（`data-tour-id` で対象を引く）。
   説明を文章のモーダルで読ませない。ページの見方の説明を見出しと本文の間の地の文に置かない —
@@ -100,19 +104,19 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 | 正解・完了 | `success`                           | 正誤の正解・役の正解チップ・済みマーク・正答バー                     |
 | 採点待ち   | `pending` / `pending-border`        | 押した選択肢が採点を待つ間。正誤のどちらとも読めない灰               |
 
-選択中のタイルは `(user)/_components/_lib/selection-classes.ts`（アプリは `InsetRing` + `colors.selected`）。
+選択中のタイルは `[locale]/(user)/_components/_lib/selection-classes.ts`（アプリは `InsetRing` + `colors.selected`）。
 麻雀卓（`primary-800`）・ヒートマップ・段級位の帯色・教材カテゴリ・順位の色はそれぞれの
 役割の色で、ここには寄せない。表の見出し・本文中の強調値・メニューの hover は緑にしない。
 
-### ボタン（`(user)/_components/`）
+### ボタン（`[locale]/(user)/_components/`）
 
 - `Button` — `<button>` のボタン。`LinkButton` — `next/link` のボタン
-- 見た目は `(user)/_components/_lib/button-classes.ts` の `buttonClasses()` に集約。`border bg-primary-500 ...` のような一式をページ側で直接書かない
+- 見た目は `[locale]/(user)/_components/_lib/button-classes.ts` の `buttonClasses()` に集約。`border bg-primary-500 ...` のような一式をページ側で直接書かない
 - `variant`（primary / secondary / neutral / danger / warning / dangerOutline）、`size`（sm / md / lg / xl）、`fullWidth`、`disabled` で指定する。`className` は余白などレイアウト調整用で、色・枠・影を上書きしない
 - 無効時は `disabled` を渡す。呼び出し側で `<span aria-disabled>` を書き分けない（`LinkButton` が span を描画する）
 - 外部リンクの `<a>` など上記に乗らない要素には `buttonClasses()` を直接使う
 - 「押せる面」（カード全体がリンクになっているもの。`LinkRow` 等）はボタンではないため対象外
-- 管理画面（`/admin`）は別のビジュアル言語のため対象外。`(user)/_components/` に置いているのはその意思表示でもある
+- 管理画面（`/admin`）は別のビジュアル言語のため対象外。`[locale]/(user)/_components/` に置いているのはその意思表示でもある
 
 ### テキストリンク（`_components/_lib/link-classes.ts`）
 
@@ -146,12 +150,13 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 遷移で効かない）と実測の記録は `loading-boundaries.test.ts` の頭にある。ここには操作だけ書く。
 
 - ページを動的にしたとき（cookie を読む・`searchParams` を使う・`force-dynamic` を付ける）は、
-  テストの `DYNAMIC_ROUTES` と leaf の loading.tsx を一緒に足す。静的にしたら両方を外す。
-  新しい練習の `/practice/<slug>/result` も動的
+  テストの `DYNAMIC_ROUTES` と leaf の loading.tsx を一緒に足す。静的にしたら両方を外す
+  （閲覧者に依る部分をクライアントで後から付けて静的にした前例が `/lessons`。完了の印は
+  Server Action で取る。経緯は `DYNAMIC_ROUTES` の TSDoc）。新しい練習の `/practice/<slug>/result` も動的
 - 静的な親と動的な子が同居するルートは、動的な子の leaf にだけ置く
   （`practice/<slug>/result/loading.tsx`、`exam/<級>/play/loading.tsx`）。index だけ動的なときは
-  page.tsx と loading.tsx を route group に退避する（`lessons/(index)`, `mypage/(home)`,
-  `admin/(dashboard)`, `admin/users/(list)`）
+  page.tsx と loading.tsx を route group に退避する（`dojo/(index)`, `leaderboard/(index)`,
+  `mypage/(home)`, `admin/(dashboard)`, `admin/users/(list)`）
 - ページを消した・改名したあとは `apps/web` で `npx next build` を回して `.next` を作り直してから
   tsc とテストを見る。`.next/types/validator.ts`（tsconfig が include）が消したページを参照したまま
   残って tsc が「Cannot find module …/page.js」で落ち、このテストも古い manifest と突き合わせて
@@ -175,7 +180,7 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 ## 牌画像（@pai-forge/mahjong-react-ui）
 
 - `Hai` コンポーネントで牌を表示。画像は `public/tiles/*.webp`（静的ファイル）を参照する —
-  ルートレイアウトの `AppTileImageProvider`（`_contexts/tile-image-context.tsx`）が
+  ルートレイアウト（`[locale]/layout.tsx`・`admin/layout.tsx`）の `AppTileImageProvider`（`_contexts/tile-image-context.tsx`）が
   パッケージの `TileImageProvider` で参照先を差し替えている。パッケージ既定の
   base64 埋め込み（data URI）に戻さないこと。牌を並べるページの HTML が 1〜5MB になる
 - `public/tiles/` は `pnpm --filter web tiles:generate` で生成する。パッケージを更新したら
@@ -189,8 +194,8 @@ import しない（依存の向きを一方向に保つ。ルートの `eslint.c
 制限時間 60 秒・ミス 3 回で終了。ページ遷移直後にカウントダウン（3, 2, 1）→ タイマー開始で、
 「準備はいいですか？」のような確認画面は出さない。共通フックは `packages/features/src/session/`
 （`use-timed-session.ts`, `use-game-timer.ts`, `use-countdown.ts`）で、web は
-`(user)/(public)/practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を
-通して使う。円形タイマーは `(user)/(public)/practice/_components/quiz-timer.tsx`。
+`[locale]/(user)/(public)/practice/_hooks/use-timed-session.ts` 等の薄いラッパー（スクロールと端末ローカル設定を渡す）を
+通して使う。円形タイマーは `[locale]/(user)/(public)/practice/_components/quiz-timer.tsx`。
 
 ## 文言
 

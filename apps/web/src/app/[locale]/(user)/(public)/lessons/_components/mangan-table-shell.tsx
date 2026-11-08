@@ -1,0 +1,139 @@
+import type { ReactNode } from "react";
+import { getLocale, getTranslations } from "next-intl/server";
+import { HIGH_SCORES, type Role, type WinType } from "@mahjong-scoring/core";
+
+import {
+  DATA_TABLE_ALIGN_CLASS,
+  DATA_TABLE_CELL_PADDING,
+  DataTable,
+  DataTableHeaderCell,
+} from "@/app/[locale]/(user)/_components/data-table";
+
+import { hanDisplayFor } from "@mahjong-scoring/features/curriculum/han-display";
+
+import { ScoreTableReferenceLink } from "./score-table-reference-link";
+
+/** 満貫以上早見表の1行分のデータ */
+type ManganTableRow = (typeof HIGH_SCORES)[number];
+
+/** 種類・翻数に続く列の定義 */
+export interface ManganTableColumn {
+  /** manganScoreTable 名前空間のヘッダーキー */
+  readonly headerKey: string;
+  readonly align: "left" | "right";
+  /** セルに追加するクラス（強調表示など） */
+  readonly cellClassName: string;
+}
+
+interface ManganTableShellProps {
+  /** 表の点数の親子。右下の早見表リンクが開くタブに使う */
+  readonly role: Role;
+  /** 表の点数のロンツモ。右下の早見表リンクが開くタブに使う */
+  readonly winType: WinType;
+  readonly columns: readonly ManganTableColumn[];
+  /** 翻数列を表示するか（既定: 表示する） */
+  readonly showHan?: boolean;
+  /**
+   * 種類・翻数に続くセルの内容（columns と同じ順・同じ数）
+   *
+   * @param row - 満貫以上の1帯
+   * @param t - manganScoreTable 名前空間の翻訳関数（備考などで使う）
+   */
+  readonly renderCells: (
+    row: ManganTableRow,
+    t: (key: string) => string,
+  ) => readonly ReactNode[];
+}
+
+/**
+ * 満貫以上早見表の外殻
+ * 満貫早見表シェル
+ *
+ * 満貫以上は翻数だけで点数が決まるため、どの表も「種類・翻数」の2列で始まる。
+ * その2列と枠・ヘッダー・行の体裁をここに集約し、各表は続く列の定義と
+ * セルの値だけを持つ。
+ *
+ * セルの余白は見出し行・「種類・翻数」・値の列すべて `dense`（狭い画面で
+ * だけ左右を詰める）。「種類・翻数」に続く列が 2 つ並ぶ表（子ツモの
+ * 「子（1人）／親／合計」）は、既定の px-4 では狭い画面で枠から溢れる。
+ * 値の列だけ詰めて先頭 2 列を px-4 のままにすると、320px の子ツモで
+ * 7px の横スクロールが残る（実測）。
+ *
+ * 翻数の範囲（「6 〜 7」/ 英語「6–7」）はページの言語の書式で出す。言語は
+ * `getLocale()` で取る — この表は章本文の部品の中（各満貫の表）から描かれ、
+ * 言語を props で渡す経路が無いため。ページの入口（`prepareRouteLocale`）が
+ * 先に `setRequestLocale` を済ませているので headers を読まず、静的生成を壊さない
+ * （`setRequestLocale` より前に呼ばれる経路で使うとページが動的になる）。
+ */
+export async function ManganTableShell({
+  role,
+  winType,
+  columns,
+  showHan = true,
+  renderCells,
+}: ManganTableShellProps) {
+  const t = await getTranslations("manganScoreTable");
+  const tScore = await getTranslations("scoreTable");
+  const hanDisplay = hanDisplayFor(await getLocale());
+
+  return (
+    <div className="space-y-2">
+      <DataTable
+        header={
+          <>
+            <DataTableHeaderCell align="left" density="dense">
+              {t("colType")}
+            </DataTableHeaderCell>
+            {showHan && (
+              <DataTableHeaderCell align="right" density="dense">
+                {t("colHan")}
+              </DataTableHeaderCell>
+            )}
+            {columns.map((column) => (
+              <DataTableHeaderCell
+                key={column.headerKey}
+                align={column.align}
+                density="dense"
+              >
+                {t(column.headerKey)}
+              </DataTableHeaderCell>
+            ))}
+          </>
+        }
+      >
+        {HIGH_SCORES.map((row) => (
+          <tr key={row.nameKey} className="bg-white">
+            <td
+              className={`${DATA_TABLE_CELL_PADDING.dense} font-medium text-surface-900`}
+            >
+              {tScore(row.nameKey)}
+            </td>
+            {showHan && (
+              <td
+                className={`${DATA_TABLE_CELL_PADDING.dense} text-right text-surface-600`}
+              >
+                {hanDisplay[row.nameKey]}
+              </td>
+            )}
+            {renderCells(row, t).map((cell, index) => {
+              const column = columns[index];
+              return (
+                <td
+                  key={column.headerKey}
+                  className={`${DATA_TABLE_CELL_PADDING.dense} ${DATA_TABLE_ALIGN_CLASS[column.align]} ${column.cellClassName}`}
+                >
+                  {cell}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </DataTable>
+      <ScoreTableReferenceLink
+        role={role}
+        winType={winType}
+        viewMode="high_score"
+      />
+    </div>
+  );
+}

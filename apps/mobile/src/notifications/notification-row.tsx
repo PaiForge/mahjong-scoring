@@ -14,6 +14,7 @@ import {
 import { CheckIcon, ClockIcon, CloseIcon } from "../components/icons/icons";
 import { LinkRow } from "../components/link-row";
 import { colors } from "../lib/theme";
+import { useAppLocale } from "../lib/use-app-locale";
 
 /**
  * 通知 1 行（web の `NotificationItem`）
@@ -42,13 +43,18 @@ export function NotificationRow({
   readonly onRead: () => void;
 }) {
   const t = useTranslations("notifications");
+  const tCommon = useTranslations("common");
+  const locale = useAppLocale();
   const router = useRouter();
   const message = buildNotificationMessage(
     notification.type,
     notification.metadata,
   );
   const text = t(`messages.${message.key}`, message.values);
-  const date = formatJstDateTime(new Date(notification.createdAt));
+  // 日時は JST のまま、表記だけアプリの言語に合わせる
+  const date = formatJstDateTime(new Date(notification.createdAt), locale);
+  // 読み上げの区切りは言語に依る（日本語「、」・英語「, 」）
+  const separator = tCommon("listSeparator");
   const href = notificationHref(notification.type);
   const leading = <NotificationTypeIcon type={notification.type} />;
   const trailing = read ? undefined : <UnreadDot />;
@@ -74,7 +80,9 @@ export function NotificationRow({
       trailing={trailing}
       plainTitle={read}
       accessibilityLabel={
-        read ? `${text}、${date}` : `${t("unread")}、${text}、${date}`
+        read
+          ? [text, date].join(separator)
+          : [t("unread"), text, date].join(separator)
       }
       onPress={() => {
         if (!read) onRead();

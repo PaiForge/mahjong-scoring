@@ -938,6 +938,18 @@ export const billingCheckouts = pgTable(
     durationDays: integer("duration_days"),
     stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
     origin: text("origin").notNull(),
+    /**
+     * 予約時の UI の言語（`ja` / `en`）。Checkout の `locale`・`cancel_url`・
+     * 完了の着地の言語の元
+     *
+     * 予約から Session のパラメータを再生成するのが再試行の契約なので、言語も
+     * 列に持つ（呼び出し時の値を使わない。使うと同じ冪等キーで別のパラメータを
+     * 送り得る）。既存の行は日本語の購入だったので既定は `ja`。CHECK 制約は
+     * 足さない — 対応言語は `@mahjong-scoring/features/i18n/locales` の定数で、
+     * SQL に写すと二重管理になる。読む側（`checkoutSessionParams`）が
+     * `isSupportedLocale` で絞る
+     */
+    locale: varchar("locale", { length: 5 }).notNull().default("ja"),
     stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
       length: 255,
     }).unique(),

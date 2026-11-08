@@ -6,9 +6,17 @@ import Link from "next/link";
 /**
  * Global Error
  *
- * RootLayout 自体が落ちた際の最終フォールバック。
+ * ルートレイアウト（言語レイアウト `[locale]/layout.tsx` か管理画面の
+ * `admin/layout.tsx`）自体が落ちた際の最終フォールバック。
  * NextIntlClientProvider や Tailwind が機能しない可能性があるため、
  * <html>/<body> から自前で記述し、スタイルはインラインで持つ。
+ *
+ * 文言は辞書（`errorPage` 名前空間の `title` / `reloadDescription` / `goHome`）と
+ * 同じものを直書きしている。Provider の外なので `useTranslations` は使えず、
+ * かといって `@mahjong-scoring/messages/ja` を import すると、この境界は全ページの
+ * クライアント JS に入るため辞書全体（300KB 超）が全ページに載る。
+ * TODO: messages パッケージが名前空間単位の入口を出したら、`errorPage` だけを
+ * import して差し替える（言語は `<html lang>` と合わせて日本語固定のまま）。
  */
 export default function GlobalError({
   error,

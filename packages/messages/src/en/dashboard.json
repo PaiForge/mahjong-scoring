@@ -1,0 +1,28 @@
+{
+  "title": "Dashboard",
+  "continueLearningTitle": "Continue your lessons",
+  "pendingLessons": {
+    "syncing": "Recording the lessons you finished as completed…",
+    "synced": "Lessons recorded as completed",
+    "failed": "Could not record the lessons you finished as completed.",
+    "retry": "Try again"
+  },
+  "recommendedPracticeTitle": "Recommended practice",
+  "agariScorePracticeHint": "You have earned every rank. Keep sharpening your skills with score calculation for winning hands.",
+  "nextStep": {
+    "title": "What to do next",
+    "steps": {
+      "lesson": {
+        "firstCta": "Start your first lesson, \"{title}\"",
+        "cta": "Start the lesson \"{title}\""
+      },
+      "practice": {
+        "cta": "Take on \"{title}\""
+      },
+      "exam": {
+        "cta": "See what the {title} covers"
+      }
+    },
+    "choosePractice": "Choose a practice yourself"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "learn": {
+    "pageTitle": "About This App: Learn Riichi Mahjong Scoring",
+    "pageDescription": "A study app built to help you learn riichi mahjong scoring efficiently.",
+    "introTitle": "What this app is",
+    "lead1": "This is a study app for learning riichi mahjong scoring.\nHere, knowing how to score means being able to call out the correct score without hesitation when you [[hora|win]] in a real game at the table.",
+    "lead2": "Scoring has plenty of places where people stumble.\nThis app is designed so that you can get a firm grip on the key points of scoring even if you start with no prior knowledge at all.",
+    "featuresTitle": "What makes this app different",
+    "feature1Title": "Start easy, a little at a time",
+    "feature1Body1": "Scoring combines several pieces of knowledge: yaku, han, fu and points.",
+    "feature1Body2": "So the app starts with hands of [[mangan|mangan]] and above, where you do not have to count fu. Among the calculations that involve fu, it then moves on step by step: the hands you meet most often, the ones you can work out quickly with a technique, and finally the rare ones that are hard to calculate.",
+    "feature1Preview": "The <link>{title}</link> practice screen",
+    "feature2Title": "Solve plenty of questions yourself",
+    "feature2Body1": "Just listening to or reading explanations rarely makes scoring stick.\nIn this app you read a short explanation and then solve questions right away, learning by doing.",
+    "feature2Body2": "The practice menus have a mode called Challenge, with a time limit and a mistake limit.",
+    "feature2Preview": "The challenge screen of the <link>{title}</link> practice",
+    "feature3Title": "Solve in a form close to a real game",
+    "feature3Body1": "Even once you can solve scoring questions in an app, you may not be able to calculate as fast at a real table.\nThat is because many questions show only the winning hand that has already [[hora|won]], leaving out the context of a real game.",
+    "feature3Body2": "For example, the questions may not handle [[riichi|riichi]] or [[uradora|ura-dora]] at all. And even for a [[tehai|hand]] where drawing 2 pin gives you sanshoku but 5 pin leaves you with only tanyao, the question may fix the winning tile to a single one.",
+    "feature3Body3": "This app also has a practice where you find the waits from a tenpai hand and answer the tsumo and ron scores for each wait.\nOnce you can solve those, your scoring at a real table is sure to have improved.",
+    "feature3Preview": "The <link>{title}</link> practice screen",
+    "howToTitle": "How to use it",
+    "howToBody": "The curriculum is built so that, even with no prior knowledge, studying it in order from start to finish leaves you able to calculate scores.\nIf you already know the basics, you can also use only the practice menus for the areas you find difficult."
+  }
+}

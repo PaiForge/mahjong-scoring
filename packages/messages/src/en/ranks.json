@@ -1,0 +1,64 @@
+{
+  "names": {
+    "kyu-5": "5 Kyu",
+    "kyu-4": "4 Kyu",
+    "kyu-3": "3 Kyu",
+    "kyu-2": "2 Kyu",
+    "kyu-1": "1 Kyu",
+    "dan-1": "Shodan (1 Dan)"
+  },
+  "criteria": {
+    "kyu-5": "Can calculate scores of mangan and above",
+    "kyu-4": "Can calculate the fu of a hand",
+    "kyu-3": "Can calculate scores for chiitoitsu (seven pairs)",
+    "kyu-2": "Can calculate scores for pinfu",
+    "kyu-1": "Can calculate scores for 30 to 50 fu",
+    "dan-1": "Can calculate the score of any hand"
+  },
+  "promotion": {
+    "title": {
+      "kyu": "Congratulations on your promotion!",
+      "dan": "Congratulations on reaching dan rank!"
+    },
+    "message": {
+      "kyu": "You have been promoted to {rank}",
+      "dan": "You have been promoted to {rank}"
+    }
+  },
+  "examTitle": {
+    "kyu": "{rank} Promotion Exam",
+    "dan": "{rank} Promotion Exam"
+  },
+  "practiceLink": {
+    "title": "{rank} practice menus",
+    "description": "Practice what the exam covers"
+  },
+  "examCta": {
+    "lead": "Once you have mastered this lesson, take on the exam.",
+    "criterionLabel": "Pass criterion",
+    "viewExam": "See the exam details"
+  },
+  "heading": "{rank} — {criterion}",
+  "rankPassConditionsTitle": "{rank} pass conditions",
+  "passConditions": "Pass with {minScore} correct answers within {timeLimit} seconds (mistake limit: {mistakeLimit})",
+  "goalLoading": "Loading the pass conditions",
+  "goalLoadFailed": "Could not load the pass conditions.",
+  "goalRetry": "Try again",
+  "examGate": {
+    "signUpButton": "Create an account",
+    "signUpNote": "You need an account to take this exam.",
+    "locked": "This is the {examTitle}. You need to earn {requiredRank} before taking it.",
+    "dojoButton": "Check your next goal in the Dojo",
+    "usernameButton": "Set a username",
+    "usernameNote": "You need to set a username to take this exam."
+  },
+  "pillLinkLabel": "See the pass criterion for {rank}",
+  "stages": {
+    "learn": "Learn",
+    "practice": "Practice",
+    "exam": "Exam"
+  },
+  "stageCount": "{done} / {total}",
+  "stageExamNotPassed": "Not passed",
+  "stageExamPassed": "Passed"
+}

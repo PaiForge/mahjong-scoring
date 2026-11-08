@@ -77,4 +77,14 @@ describe("formatAmount", () => {
   it("USD はセント単位を 100 で割る", () => {
     expect(formatAmount(1480, "usd")).toContain("14.80");
   });
+
+  it("言語を省くと ja-JP の書式（日本語の画面の出力を固定する）", () => {
+    expect(formatAmount(1480, "jpy")).toBe(formatAmount(1480, "jpy", "ja-JP"));
+    expect(formatAmount(1480, "jpy")).toBe("￥1,480");
+  });
+
+  it("英語の画面は en-US を渡す（円は ¥ と桁区切り、小数なし）", () => {
+    expect(formatAmount(1480, "jpy", "en-US")).toBe("¥1,480");
+    expect(formatAmount(1480, "usd", "en-US")).toBe("$14.80");
+  });
 });

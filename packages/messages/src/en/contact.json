@@ -1,0 +1,42 @@
+{
+  "pageTitle": "Contact",
+  "description": "If you have a question, feedback or a bug to report, please send it to us here.",
+  "form": {
+    "sectionTitle": "Contact form",
+    "name": "Name",
+    "email": "Email address",
+    "emailPlaceholder": "mail@example.com",
+    "subject": "Subject",
+    "message": "Message",
+    "messageCounter": "{count} / {max} characters",
+    "submit": "Review",
+    "backToForm": "Back to the form",
+    "send": "Send",
+    "sending": "Sending..."
+  },
+  "confirm": {
+    "title": "Review your message",
+    "sectionTitle": "Your message",
+    "description": "Your message will be sent as shown below. If it looks right, press \"Send\"."
+  },
+  "success": {
+    "title": "Message sent",
+    "message": "Thank you for contacting us. We will read your message and reply to the email address you entered.",
+    "backToHome": "Back to home"
+  },
+  "errors": {
+    "nameRequired": "Please enter your name",
+    "nameMaxLength": "Your name must be 100 characters or fewer",
+    "nameInvalid": "Your name cannot contain line breaks",
+    "emailInvalid": "Please enter a valid email address",
+    "subjectRequired": "Please enter a subject",
+    "subjectMaxLength": "The subject must be 200 characters or fewer",
+    "subjectInvalid": "The subject cannot contain line breaks",
+    "messageMinLength": "Your message must be at least 10 characters",
+    "messageMaxLength": "Your message must be 5,000 characters or fewer",
+    "invalidInput": "Some of your entries are not valid. Please go back to the form and check them.",
+    "rateLimited": "Too many requests. Please wait a while and try again.",
+    "sendFailed": "Could not send your message. Please wait a while and try again.",
+    "unknown": "Could not send your message. Please wait a while and try again."
+  }
+}

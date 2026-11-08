@@ -1,0 +1,20 @@
+{
+  "pageTitle": "Operator Information",
+  "description": "The name, address and business of the company that operates this riichi mahjong scoring site.",
+  "name": {
+    "title": "Company name",
+    "value": "富士エンタープライズ"
+  },
+  "location": {
+    "title": "Address",
+    "value": "3F Mitsuhashi Building, 1-3-3 Kita-Aoyama\nMinato-ku, Tokyo 107-0061, Japan"
+  },
+  "business": {
+    "title": "Business",
+    "item1": "Contract software development",
+    "item2": "Application development and operation",
+    "item3": "Web content",
+    "item4": "IT consulting (new system development, search engine marketing and more)"
+  },
+  "moreInfo": "For details, see our <link>corporate website</link> (in Japanese)."
+}

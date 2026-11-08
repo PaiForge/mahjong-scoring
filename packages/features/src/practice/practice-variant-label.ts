@@ -33,17 +33,23 @@ export function practiceVariantLabel(
  *
  * 例: 「点数早見表（子の満貫以上）」。バリアント名を添えない練習は練習名だけ。
  *
+ * 括弧の付け方は辞書の `practice.titleWithVariant`（ICU の `{title}` と `{variant}`）が
+ * 決める。日本語は全角の括弧（`{title}（{variant}）`）で従来と同じ文字列、英語は
+ * 半角の括弧と空白。文型を関数に書くと、英語のページに全角の括弧が残る。
+ *
  * @param tAll - 辞書全体を引ける翻訳関数（`getTranslations()` / `useTranslations()`）
  * @param slug - 練習のスラッグ
  * @param variant - 送り先のバリアント
  */
 export function practiceDisplayTitle(
-  tAll: (key: string) => string,
+  tAll: (key: string, values?: Record<string, string>) => string,
   slug: PracticeMenuSlug,
   variant: string | undefined,
 ): string {
   // 例: practice.practices.machiFu.title（完成形のキーで grep したときにここへ着地させるための例）
   const title = tAll(`practice.${practiceTitleKey(slug)}`);
   const variantLabel = practiceVariantLabel(tAll, slug, variant);
-  return variantLabel ? `${title}（${variantLabel}）` : title;
+  return variantLabel
+    ? tAll("practice.titleWithVariant", { title, variant: variantLabel })
+    : title;
 }

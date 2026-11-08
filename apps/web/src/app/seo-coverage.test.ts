@@ -4,9 +4,15 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { collectPages } from "@/test/collect-pages";
+import { collectPageTemplates } from "@/test/collect-pages";
 
-import { INDEXABLE_PATHS } from "@/app/_lib/sitemap-routes";
+import {
+  GLOSSARY_SITEMAP_PATHS,
+  INDEXABLE_PATHS,
+  RANK_SITEMAP_PATHS,
+} from "@/app/_lib/sitemap-routes";
+import { EN_PUBLISHED_PATHS } from "@/i18n/route-policy";
+import { translatedTemplateOf } from "@/i18n/translated-publications";
 import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
 import {
   PRACTICE_SLUG,
@@ -26,9 +32,23 @@ import * as routes from "@mahjong-scoring/features/routes";
  * 3. `(user)` 配下の公開ページは「sitemap 掲載」「noindex」「除外理由の明示」の
  *    いずれかに必ず分類される — 新規ページが無分類のまま出荷されるのを防ぐ
  *
+ * 4. 動的セグメントで受けるページ（`[slug]` 等）は {@link DYNAMIC_TEMPLATES} に
+ *    扱いを明示する — 3 の分類は静的なパスでしか判定できないので、明示が無いと
+ *    新しい動的ページが無検査で出荷される
+ * 5. 英語で公開するパス（`route-policy.ts` の許可リスト）は `app/[locale]` 配下の
+ *    実在する page.tsx に解決できる（用語の具体的なパスは許可リストのテンプレート
+ *    `/reference/glossary/[slug]` へ畳んで引く）
+ *
  * 分類に失敗したら: sitemap-routes.ts に載せて canonical を付けるか、
  * noindex 系ヘルパー（createPracticePlayMetadata / createPrivateMetadata 等）を
  * 使うか、このファイルの EXCLUDED_PATHS に理由付きで追加すること。
+ *
+ * ページはロケール非依存のテンプレートで引く（`app/[locale]/(user)/(public)/company` →
+ * `/company`）。sitemap のパスもテンプレートもロケール接頭辞を持たない形なので、
+ * そのまま突き合わせられる。`[locale]` を残したキー（`/[locale]/company`）で引くと、
+ * すべてのページが「動的セグメントを含む」側に落ちて検査されなくなる。
+ * 実際の HTML の canonical・hreflang・robots は build の監査
+ * （`scripts/seo-audit/build.ts`）が成果物で確かめる。ここはソースの構造検査。
  */
 const APP_DIR = dirname(fileURLToPath(import.meta.url));
 
@@ -48,6 +68,45 @@ const EXCLUDED_PATHS: ReadonlyMap<string, string> = new Map([
   ["/preferences/yaku-order", "ユーザー個別設定（設定の子ページ）"],
 ]);
 
+/**
+ * 動的セグメントで受けるページの扱い（テンプレート → 理由）
+ *
+ * 3 の分類は静的なパスでしか判定できないので、動的ページはここで扱いを明示する。
+ * 動的ページを足したらここに足す（無ければテストが落ちる）。
+ */
+const DYNAMIC_TEMPLATES: ReadonlyMap<string, string> = new Map([
+  [
+    "/announcements/[slug]",
+    "DB 由来。sitemap.ts が公開済みの slug を実行時に引き、ページが canonical を持つ。英語は英語で書いた行だけを noindex の動的ページで出し（日本語へ fallback しない）、sitemap に載せない",
+  ],
+  [
+    "/reference/glossary/[slug]",
+    "用語レジストリの全 slug を sitemap に載せる（GLOSSARY_SITEMAP_PATHS）",
+  ],
+  [
+    "/dojo/ranks/[slug]",
+    "段級位レジストリの全 slug を sitemap に載せる（RANK_SITEMAP_PATHS）",
+  ],
+  [
+    "/leaderboard/[period]/[module]",
+    "ランキングの詳細。sitemap に載せない（期間 × 練習の組み合わせ）",
+  ],
+  ["/u/[username]", "公開プロフィール。robots で除外（ソフト 404 対策）"],
+]);
+
+/** 動的セグメントを含むテンプレートを、具体的なパスに当てる正規表現にする */
+function templatePattern(template: string): RegExp {
+  const source = template
+    .split("/")
+    .map((segment) =>
+      /^\[[^\]]+\]$/.test(segment)
+        ? "[^/]+"
+        : segment.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    )
+    .join("/");
+  return new RegExp(`^${source}$`);
+}
+
 /** ページソースにこれが含まれていれば noindex（検索除外）を宣言しているとみなす */
 const NOINDEX_MARKERS = [
   "createPracticePlayMetadata(",
@@ -58,6 +117,11 @@ const NOINDEX_MARKERS = [
   "robots: { index: false",
 ] as const;
 
+/** 正規表現の特殊文字を逃がす（slug やキーを正規表現へ埋め込むため） */
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /** ページソースが urlPath への canonical を宣言しているか */
 function declaresCanonical(source: string, urlPath: string): boolean {
   if (urlPath === "/") {
@@ -65,7 +129,12 @@ function declaresCanonical(source: string, urlPath: string): boolean {
   }
   const lessonMatch = /^\/lessons\/([^/]+)$/.exec(urlPath);
   if (lessonMatch) {
-    return source.includes(`createLearnMetadata("${lessonMatch[1]}")`);
+    // 第 2 引数（`{ locale }`）があってもよいが、第 1 引数は自分の slug の
+    // 文字列そのものに限る（別の章の slug の写し間違いを通さない）
+    const slug = escapeRegExp(lessonMatch[1]);
+    return new RegExp(
+      String.raw`createLearnMetadata\(\s*"${slug}"\s*[,)]`,
+    ).test(source);
   }
   // 練習の説明ページ: URL はレジストリの basePath（/exam 配下の昇級試験を含む）
   // から引くため、/practice/ 前置きの正規表現ではなく basePath の逆引きで判定する
@@ -76,11 +145,19 @@ function declaresCanonical(source: string, urlPath: string): boolean {
     const slugKey = Object.entries(PRACTICE_SLUG).find(
       ([, slug]) => slug === practiceSlug,
     )?.[0];
-    return (
-      source.includes(`createPracticeMetadata("${practiceSlug}")`) ||
-      (slugKey !== undefined &&
-        source.includes(`createPracticeMetadata(PRACTICE_SLUG.${slugKey})`))
-    );
+    // 第 2 引数（`{ locale }`）があってもよいが、第 1 引数は自分の slug の
+    // 文字列か、値が自分の slug の `PRACTICE_SLUG.<キー>` に限る（別の練習の
+    // slug の写し間違いを通さない）。`[,)]` で終端を見るので、`PRACTICE_SLUG.fu`
+    // が `PRACTICE_SLUG.fuExam` の前方一致で通ることも無い
+    const slugTokens = [
+      `"${escapeRegExp(practiceSlug)}"`,
+      ...(slugKey === undefined
+        ? []
+        : [String.raw`PRACTICE_SLUG\.${escapeRegExp(slugKey)}`]),
+    ];
+    return new RegExp(
+      String.raw`createPracticeMetadata\(\s*(?:${slugTokens.join("|")})\s*[,)]`,
+    ).test(source);
   }
   // path オプション（path: "/x"）と createTitleOnlyMetadata の第 3 引数
   // （, "/x"）の両方を受ける。パスは文字列でも、features の定数
@@ -101,7 +178,13 @@ function pathConstantNames(urlPath: string): readonly string[] {
 }
 
 describe("SEO カバレッジ", () => {
-  const pages = collectPages(APP_DIR);
+  const templates = collectPageTemplates(APP_DIR);
+  const pages: ReadonlyMap<string, string> = new Map(
+    [...templates].map(([template, page]) => [template, page.file]),
+  );
+  const dynamicTemplates = [...templates.values()].filter((page) =>
+    page.template.includes("["),
+  );
 
   it("page.tsx が見つかる（テスト自体の健全性）", () => {
     expect(pages.size).toBeGreaterThan(0);
@@ -136,8 +219,7 @@ describe("SEO カバレッジ", () => {
   it.each(publicPages.map(([urlPath]) => [urlPath]))(
     "%s は sitemap 掲載 / noindex / 除外理由の明示のいずれかに分類される",
     (urlPath) => {
-      // 動的セグメントは対象外（canonical / noindex を自前で条件分岐するため
-      // ページ単位で管理する。announcements/[slug] は DB 由来で sitemap に載る）
+      // 動的セグメントは DYNAMIC_TEMPLATES で扱いを明示する（下のテスト）
       if (urlPath.includes("[")) return;
       if (INDEXABLE_PATHS.includes(urlPath)) return;
       if (EXCLUDED_PATHS.has(urlPath)) return;
@@ -148,6 +230,54 @@ describe("SEO カバレッジ", () => {
         "sitemap-routes.ts に載せて canonical を付けるか、noindex 系ヘルパーを使うか、" +
           "seo-coverage.test.ts の EXCLUDED_PATHS に理由付きで追加すること",
       ).toBe(true);
+    },
+  );
+
+  it.each(
+    dynamicTemplates
+      .filter((page) => page.file.includes(`${sep}(user)${sep}`))
+      .map((page) => [page.template]),
+  )("動的ページ %s は DYNAMIC_TEMPLATES に扱いが明示されている", (template) => {
+    expect(
+      DYNAMIC_TEMPLATES.has(template),
+      "seo-coverage.test.ts の DYNAMIC_TEMPLATES に、sitemap・canonical・noindex の扱いを理由付きで足すこと",
+    ).toBe(true);
+  });
+
+  it("DYNAMIC_TEMPLATES はすべて実在する動的ページを指す", () => {
+    const stale = [...DYNAMIC_TEMPLATES.keys()].filter(
+      (template) => !pages.has(template),
+    );
+    expect(stale, `page.tsx の無いテンプレート: ${stale.join(", ")}`).toEqual(
+      [],
+    );
+  });
+
+  it.each(
+    [...GLOSSARY_SITEMAP_PATHS, ...RANK_SITEMAP_PATHS].map((path) => [path]),
+  )("sitemap の動的ページ %s は実在する動的ページに解決できる", (path) => {
+    const matched = dynamicTemplates.filter((page) =>
+      templatePattern(page.template).test(path),
+    );
+    expect(
+      matched.map((page) => page.template),
+      "sitemap-routes.ts に載っているが、受ける動的ページ（[slug]）が無い",
+    ).toHaveLength(1);
+  });
+
+  // 用語のページは許可リストがテンプレート（`/reference/glossary/[slug]`）で持ち、
+  // `EN_PUBLISHED_PATHS` はそれを具体的なパス（`/reference/glossary/jantou`）へ展開した
+  // 一覧。page.tsx はテンプレートのキーで集めているので、具体的なパスは許可リストの
+  // テンプレートへ畳んでから引く（完全一致の行はそのまま引く）。
+  it.each(EN_PUBLISHED_PATHS.map((path) => [path]))(
+    "英語で公開する %s は app/[locale] 配下の実在する page.tsx に解決できる",
+    (path) => {
+      const page = templates.get(translatedTemplateOf(path, "en") ?? path);
+      expect(
+        page,
+        "route-policy.ts の英語の許可リストにあるが page.tsx が無い",
+      ).toBeDefined();
+      expect(page?.localized).toBe(true);
     },
   );
 });

@@ -32,6 +32,27 @@ describe("buildNotificationMessage", () => {
     });
   });
 
+  it("英語を渡すと期限を英語の日付（JST で切る）で差し込む", () => {
+    expect(
+      buildNotificationMessage(
+        "purchase_completed",
+        // UTC 15:30 は JST の翌日
+        { kind: "pass", expiresAt: "2026-10-30T15:30:00.000Z" },
+        "en",
+      ),
+    ).toEqual({
+      key: "purchaseCompletedPass",
+      values: { until: "October 31, 2026" },
+    });
+  });
+
+  it("言語を省くと日本語を渡したときと同じ（アプリの呼び出しが変わらない）", () => {
+    const metadata = { expiresAt: "2026-10-31T03:00:00.000Z" };
+    expect(buildNotificationMessage("benefit_granted", metadata)).toEqual(
+      buildNotificationMessage("benefit_granted", metadata, "ja"),
+    );
+  });
+
   it("期限が日時として読めなければ期限を差し込まない文面", () => {
     expect(
       buildNotificationMessage("purchase_completed", {

@@ -14,6 +14,7 @@ import { LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
 import { SectionTitle } from "../../components/section-title";
 import { colors } from "../../lib/theme";
+import { useAppLocale } from "../../lib/use-app-locale";
 import { useLoadMore } from "../../lib/use-load-more";
 
 /**
@@ -26,7 +27,8 @@ import { useLoadMore } from "../../lib/use-load-more";
  *
  * web と違うもの: ページ送りの代わりに、末尾の「さらに読み込む」で次の
  * ページを下に足す（マイレコードの全履歴と同じ）。画面に戻るたびに
- * 1 ページ目から読み直す。
+ * 1 ページ目から読み直す。英語の端末では英訳して公開した記事だけを並べる
+ * （日本語の記事を英語の画面に混ぜない）。
  *
  * @flow ホームの「お知らせ」の「すべて見る」 → 一覧 → 各お知らせ
  */
@@ -42,13 +44,18 @@ export default function AnnouncementsScreen() {
 function AnnouncementList() {
   const t = useTranslations("announcements");
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.announcementsIndex);
+  const locale = useAppLocale();
   const { state, reload } = useAnnouncementRead(
-    useCallback(() => fetchAnnouncements(1), []),
+    useCallback(() => fetchAnnouncements(1, locale), [locale]),
   );
   const firstPage = state.kind === "loaded" ? state.value : undefined;
+  const fetchPage = useCallback(
+    (page: number) => fetchAnnouncements(page, locale),
+    [locale],
+  );
   const { items, hasMore, loading, error, loadMore } = useLoadMore(
     firstPage,
-    fetchAnnouncements,
+    fetchPage,
   );
 
   if (state.kind === "loading") return <LoadingIndicator />;

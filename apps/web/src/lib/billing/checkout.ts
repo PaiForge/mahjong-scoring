@@ -20,6 +20,10 @@ import {
 } from "@mahjong-scoring/features/billing/plans";
 import { recordPurchaseFromCheckoutSession } from "./purchases";
 import { getStripe } from "./stripe";
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * 購入手続きの拒否理由。販売中のパスも買い切りも追加購入させない。
@@ -54,12 +58,22 @@ const MAX_RESERVATION_ATTEMPTS = 2;
  * 「期限が切れました。もう一度押してください」を 1 回挟む理由が利用者側に
  * 無いため。やり直しでも購入可否（有効な購入の有無）は予約・発行の両方の
  * トランザクションで改めて確かめる
+ *
+ * `locale` は押した画面の UI の言語で、新しい予約に保存する。Checkout の
+ * `locale`・`cancel_url`・完了の着地の言語は予約の値から組む（呼び出し時の
+ * 値を Session のパラメータに直接使わない。再試行は予約から再生成する契約）。
+ * 未精算の予約を再利用するときは言語を問わずそれを返す — 別の言語で押し
+ * 直しても予約の言語の Session になる。冪等パラメータを変えないため。
+ * 予約の期限（1 時間）が切れれば新しい予約で新しい言語になる。
+ *
+ * @param locale - 押した画面の UI の言語。省略時は日本語（既存の呼び出しの挙動）
  */
 export async function openCheckout(
   userId: string,
   email: string | undefined,
   offerKey: OfferKey,
   origin: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): Promise<{ readonly url: string } | { readonly error: CheckoutError }> {
   const customerId = await getOrCreateStripeCustomerId(userId, email);
   for (let attempt = 1; ; attempt++) {
@@ -68,6 +82,7 @@ export async function openCheckout(
       customerId,
       offerKey,
       origin,
+      locale,
     );
     if (result.error !== "checkoutExpired") return result;
     if (attempt >= MAX_RESERVATION_ATTEMPTS) return result;
@@ -80,6 +95,7 @@ async function reserveAndActivate(
   customerId: string,
   offerKey: OfferKey,
   origin: string,
+  locale: SupportedLocale,
 ): Promise<
   | { readonly url: string; readonly error?: undefined }
   | { readonly error: CheckoutError; readonly url?: undefined }
@@ -101,6 +117,7 @@ async function reserveAndActivate(
           isNull(billingCheckouts.settledAt),
         ),
       );
+    // 未精算の予約は言語が違っても再利用する（予約の言語の Session のまま）
     if (pending) return pending;
     const plan = PLANS.pro;
     const offer = plan.offers[offerKey];
@@ -116,6 +133,7 @@ async function reserveAndActivate(
           offer.kind === PurchaseKind.Pass ? offer.durationDays : null,
         stripePriceId: getOfferPriceId(plan.key, offerKey),
         origin,
+        locale,
         expiresAt: reservationExpiresAt(now),
       })
       .returning();

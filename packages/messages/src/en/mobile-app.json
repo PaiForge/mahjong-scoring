@@ -1,0 +1,13 @@
+{
+  "goHome": "Back to Home",
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "We couldn't show this screen. Try again or go back home.",
+    "retry": "Try again"
+  },
+  "updateRequired": {
+    "title": "Update required",
+    "description": "This version of the app can no longer be used. Please update to the latest version in the App Store.",
+    "openStore": "Update in the App Store"
+  }
+}

@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 
 import { Chip } from "../../../components/chip";
@@ -17,12 +18,13 @@ export function YakuHanPrompt({
   yakuName,
   isMenzen,
 }: {
-  /** 出題する役名 */
+  /** 出題する役名（core の日本語識別子。表示時に辞書で訳す） */
   readonly yakuName: string;
   /** 門前で出題されているか（false は鳴き） */
   readonly isMenzen: boolean;
 }) {
   const t = useTranslations("yakuHanChallenge");
+  const tYakuNames = useTranslations("yakuNames");
 
   return (
     <View style={styles.root}>
@@ -31,7 +33,8 @@ export function YakuHanPrompt({
           {yakuHanStateLabel(isMenzen, t)}
         </Chip>
       </View>
-      <Text style={styles.yakuName}>{yakuName}</Text>
+      {/* 例: yakuNames.sanshoku_doujun */}
+      <Text style={styles.yakuName}>{yakuLabel(yakuName, tYakuNames)}</Text>
     </View>
   );
 }

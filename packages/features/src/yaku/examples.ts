@@ -62,18 +62,38 @@ export interface YakuExampleHand {
  */
 export interface YakuExampleSet {
   /**
-   * この例が示す牌の名前
+   * この例が示す牌の名前（日本語）
    *
    * 役牌のように1つの役を複数の牌で示す役だけが持つ。例が1つしかない役は
    * 見出す相手がいないので持たない。役名（`YAKU_EXAMPLES` のキー）と同じく
    * 日本語のドメイン語彙をそのまま値にする。
+   *
+   * 画面に出す見出しは {@link variantKey} から辞書で引く（web）。この日本語の
+   * 値は、まだ辞書を引かずにそのまま表示しているモバイルの役一覧のために残して
+   * いる（モバイルが `reference.yaku.variants.<key>` を引くようになれば外せる）。
+   * 2 つが食い違わないことは `examples.test.ts` が日本語の辞書と突き合わせて守る。
    */
   readonly variant?: string;
+  /**
+   * この例が示す牌の辞書キー（`reference.yaku.variants.<key>`）
+   *
+   * {@link variant} と必ず対で持つ。見出しを日本語の値のまま描くと英語の
+   * 役一覧に漢字（白・發・中）が残るため、表示はこのキーで辞書から引く。
+   */
+  readonly variantKey?: YakuExampleVariantKey;
   /** 門前形 */
   readonly menzen: YakuExampleHand;
   /** 副露形。門前限定役は持たない。 */
   readonly naki?: YakuExampleHand;
 }
+
+/**
+ * 例示の牌の見出しの辞書キー
+ *
+ * 三元牌の役牌を牌ごとに並べる見出しだけが使う。値は辞書
+ * `reference.yaku.variants` のキーと同じ文字列（変換の表を持たない）。
+ */
+export type YakuExampleVariantKey = "haku" | "hatsu" | "chun";
 
 /** チートシートに載せない役（状況役） */
 export const YAKU_CHEATSHEET_EXCLUDED: ReadonlySet<string> = new Set([
@@ -105,16 +125,19 @@ export const YAKU_EXAMPLES: Readonly<
   役牌: [
     {
       variant: "白",
+      variantKey: "haku",
       menzen: { mpsz: "234m567m234p99s555z" },
       naki: { mpsz: "234m567m234p99s[5=55z]" },
     },
     {
       variant: "發",
+      variantKey: "hatsu",
       menzen: { mpsz: "234m567m234p99s666z" },
       naki: { mpsz: "234m567m234p99s[6=66z]" },
     },
     {
       variant: "中",
+      variantKey: "chun",
       menzen: { mpsz: "234m567m234p99s777z" },
       naki: { mpsz: "234m567m234p99s[7=77z]" },
     },

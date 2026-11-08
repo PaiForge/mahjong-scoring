@@ -2,11 +2,13 @@ import { useCallback, useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useTranslations } from "use-intl";
+import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 
 import { fetchBanNotice } from "../auth/account-api";
 import { refreshAccount, useAuth } from "../auth/use-auth";
 import { TextLink } from "../components/text-link";
 import { SITE_URL } from "../lib/app-site-url";
+import { useAppLocale } from "../lib/use-app-locale";
 import { panelFrame } from "../lib/panel-styles";
 import { colors, radius } from "../lib/theme";
 
@@ -22,7 +24,8 @@ type ReasonState =
  *
  * アカウント状態の API が `banned` を返した人に、web と同じ見出し・本文・
  * 理由（運営が BAN のときに書いたもの）・問い合わせの案内を出す。問い合わせは
- * マイページの「その他」と同じく web のページをブラウザで開く。
+ * マイページの「その他」と同じく web のページをブラウザで開く（英語の端末では
+ * `/en/contact`）。
  *
  * web は BAN 中の人をどのページからも `/banned` へ送るが、アプリはゲストでも
  * 使える練習・レッスンをそのまま開かせる（記録・試験・購入はサーバーが弾く）。
@@ -35,6 +38,7 @@ type ReasonState =
 export function BanNotice() {
   const t = useTranslations("banned");
   const tFooter = useTranslations("footer");
+  const locale = useAppLocale();
   const { user } = useAuth();
   const userId = user?.id;
   const [state, setState] = useState<ReasonState>({ kind: "loading" });
@@ -75,7 +79,11 @@ export function BanNotice() {
       <Text style={styles.body}>{t("contact")}</Text>
       <View style={styles.link}>
         <TextLink
-          onPress={() => void Linking.openURL(`${SITE_URL}/contact`)}
+          onPress={() =>
+            void Linking.openURL(
+              `${SITE_URL}${webLocalePath("/contact", locale)}`,
+            )
+          }
           testID="ban-notice-contact"
         >
           {tFooter("contact")}

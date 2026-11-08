@@ -13,12 +13,39 @@ describe("mobileAnnouncementApiPath", () => {
       "/api/mobile/v1/announcements/a%2Fb",
     );
   });
+
+  it("ja と省略は同じ従来のパス（古いアプリと同じ URL）", () => {
+    expect(mobileAnnouncementApiPath("release", "ja")).toBe(
+      "/api/mobile/v1/announcements/release",
+    );
+    expect(mobileAnnouncementApiPath("release", "ja")).toBe(
+      mobileAnnouncementApiPath("release"),
+    );
+  });
+
+  it("英語は ?locale=en を付ける", () => {
+    expect(mobileAnnouncementApiPath("a/b", "en")).toBe(
+      "/api/mobile/v1/announcements/a%2Fb?locale=en",
+    );
+  });
 });
 
 describe("mobileAnnouncementsApiUrl", () => {
   it("ページ番号をクエリに載せる", () => {
     expect(mobileAnnouncementsApiUrl(2)).toBe(
       "/api/mobile/v1/announcements?page=2",
+    );
+  });
+
+  it("ja と省略は同じ従来の URL（古いアプリと同じ URL）", () => {
+    expect(mobileAnnouncementsApiUrl(2, "ja")).toBe(
+      "/api/mobile/v1/announcements?page=2",
+    );
+  });
+
+  it("英語は &locale=en を付ける", () => {
+    expect(mobileAnnouncementsApiUrl(2, "en")).toBe(
+      "/api/mobile/v1/announcements?page=2&locale=en",
     );
   });
 });

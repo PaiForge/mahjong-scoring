@@ -1,0 +1,10 @@
+{
+  "title": "Try a Riichi Mahjong Scoring Question",
+  "description": "Solve one riichi mahjong scoring question without signing up. Read the hand and the situation, then answer the han, fu and points, in the same format as the real practice.",
+  "signUp": {
+    "title": "Create an account and keep practicing",
+    "description": "A free account saves your learning progress. Work up step by step, starting with practice menus focused on one topic, such as fu or han.",
+    "cta": "Sign up for free",
+    "browse": "Browse the practice menus without signing up"
+  }
+}

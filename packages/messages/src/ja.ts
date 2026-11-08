@@ -88,8 +88,10 @@ import tokushoho from "./ja/tokushoho.json";
 import notifications from "./ja/notifications.json";
 import lessons from "./ja/lessons.json";
 import notFound from "./ja/not-found.json";
+import errorPage from "./ja/error-page.json";
 import mobilePlan from "./ja/mobile-plan.json";
 import mobileApp from "./ja/mobile-app.json";
+import yakuNames from "./ja/yaku-names.json";
 
 /**
  * 日本語の辞書（全名前空間）
@@ -196,8 +198,10 @@ export const messages = {
   notifications,
   lessons,
   notFound,
+  errorPage,
   mobilePlan,
   mobileApp,
+  yakuNames,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

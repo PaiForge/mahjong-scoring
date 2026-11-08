@@ -1,0 +1,32 @@
+{
+  "title": "Promotion Exam: Score Calculation",
+  "description": "A dan promotion exam with no yaku or fu shown: answer the score of any riichi mahjong hand. Pinfu, chiitoitsu, open hands and mangan and above all appear. You can make at most one mistake",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "questionPrompt": "Answer the score for this win",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": " all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": " points",
+  "generating": "Generating questions...",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get every kind of winning hand. Neither the yaku nor the fu are shown, so build up the fu yourself, count the han and answer the score. Pinfu, chiitoitsu, open hands and mangan and above all appear, so the range is not narrowed down."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "summarySeparator": ", "
+}

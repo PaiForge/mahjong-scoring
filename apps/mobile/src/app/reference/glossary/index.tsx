@@ -70,7 +70,7 @@ export default function GlossaryIndexScreen() {
         rows={KANA_ROWS.map((row) => ({
           row,
           label: t("kanaRowHeading", { row }),
-          terms: terms.filter((term) => term.kanaRow === row),
+          terms: terms.filter((term) => term.indexRow === row),
         }))}
         onOpen={(href) => router.push(href)}
         ads={ads}

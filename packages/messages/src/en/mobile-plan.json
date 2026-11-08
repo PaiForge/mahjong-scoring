@@ -1,0 +1,81 @@
+{
+  "title": "Pro plan",
+  "loadFailed": "Could not load your plan details.",
+  "recording": "Recording your purchase. Please wait on this screen.",
+  "status": {
+    "title": "Current status",
+    "free": "Free plan",
+    "freeHint": "Buy Pro to keep practicing score calculation with no daily limit.",
+    "lifetime": "Pro (Lifetime)",
+    "lifetimeHint": "You can use the Pro features available at the time of purchase for good.",
+    "pass": "Pro (until {until})",
+    "passHint": "When it expires, you go back to the free plan.",
+    "granted": "Pro (granted)",
+    "grantedUntil": "Pro (granted, until {until})",
+    "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased."
+  },
+  "offers": {
+    "title": "Choose a plan",
+    "shared": "Both give the same Pro features. No automatic renewal.",
+    "sharedLifetimeOnly": "Pay once to use the Pro features. No automatic renewal.",
+    "lifetimeScope": "The lifetime purchase does not include features added in the future.",
+    "pass": {
+      "title": "30-day Pass",
+      "description": "For 30 days from purchase"
+    },
+    "lifetime": {
+      "title": "Lifetime",
+      "description": "Pay once and use the features available at purchase with no expiry"
+    },
+    "priceUnavailable": "Please check the price on the purchase screen",
+    "buy": "Buy"
+  },
+  "alreadyActive": "You already have an active purchase, so you cannot buy more. You can buy a pass again after it expires.",
+  "alreadyActiveLifetimeOnly": "You already have an active purchase, so you cannot buy more. If you have a 30-day pass, you can buy the lifetime purchase after it expires.",
+  "notes": {
+    "title": "Before you buy",
+    "noAutoRenew": "Neither the 30-day pass nor the lifetime purchase renews automatically.",
+    "noAutoRenewLifetimeOnly": "The lifetime purchase does not renew automatically.",
+    "pass": "When the 30-day pass expires, you go back to the free plan. You cannot buy more while it is active, but you can buy it again after it expires.",
+    "snapshot": "Your purchase covers the Pro benefits at the time you buy. Even if the benefits change later, what you bought stays the same.",
+    "noRefund": "Refund requests are handled by Apple. We cannot issue refunds directly.",
+    "deletion": "If you delete your account, your purchase records are deleted and no refund is given.",
+    "appleBilling": "Payment is processed through the App Store. Apple sends the receipt."
+  },
+  "restore": {
+    "title": "Restore Purchases",
+    "button": "Restore Purchases",
+    "hint": "Use this if you bought the lifetime purchase on another device or reinstalled the app. A 30-day pass comes back when you log in.",
+    "hintLifetimeOnly": "Use this if you bought the lifetime purchase on another device or reinstalled the app."
+  },
+  "history": {
+    "title": "Purchase history",
+    "empty": "No purchases yet",
+    "date": "Purchase date",
+    "item": "Item",
+    "provider": "Purchased via",
+    "state": "Status",
+    "kind": {
+      "pass": "30-day pass",
+      "lifetime": "Lifetime"
+    },
+    "providers": {
+      "stripe": "Web",
+      "apple": "App Store"
+    },
+    "states": {
+      "active": "Active",
+      "scheduled": "Not started yet",
+      "expired": "Expired",
+      "refunded": "Refunded"
+    }
+  },
+  "purchaseRecorded": "Your purchase has been recorded. Thank you!",
+  "purchaseFailed": "Could not complete the purchase. Please try again later.",
+  "purchaseDeferred": "Your purchase is waiting for approval. Pro becomes active once it is approved.",
+  "ownedByAnotherAccount": "This purchase is recorded under a different account. Please log in with the account you used to buy it.",
+  "restored": "Your purchases have been restored.",
+  "nothingToRestore": "There were no purchases to restore.",
+  "restoreFailed": "Could not restore your purchases. Please check your connection and try again.",
+  "paywallCta": "See the Pro plan"
+}

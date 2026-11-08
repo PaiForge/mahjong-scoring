@@ -1,0 +1,6 @@
+{
+  "label": "EXP",
+  "earned": "+{amount} EXP",
+  "level": "Lv.{level}",
+  "levelUp": "Level up!"
+}

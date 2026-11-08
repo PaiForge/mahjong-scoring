@@ -1,0 +1,110 @@
+/**
+ * 特定商取引法に基づく表記
+ *
+ * @description
+ * 有料プラン（Pro）を販売するために特定商取引法が求める表示。本文はすべて
+ * 辞書（`tokushoho` 名前空間）にあり、このファイルは項目の並びと文中リンクの
+ * 張り先だけを持つ。事業者名と所在地は `company` の表示と一致させること。
+ * 価格は料金ページ（`/plan`）が Stripe から読んで出すので、ここには書かない。
+ *
+ * 運営責任者と電話番号は特定商取引法 11 条ただし書の省略表示（「請求があった
+ * 場合には遅滞なく開示」）で、ページにも辞書にも実際の値を書かない。氏名を
+ * 載せると氏名の検索でこのサイトに行き着くため。noindex で隠す案は、noindex に
+ * 従わないクローラーや魚拓に残るので採らなかった。省略表示の要件として、
+ * 請求（お問い合わせフォーム経由）には遅滞なく応じること。
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { createNamespaceMetadata } from "@/app/_lib/metadata";
+
+import {
+  LegalArticle,
+  LegalLink,
+  LegalParagraph,
+  LegalSection,
+  LegalTranslationNote,
+} from "../_components/legal-article";
+import { PLAN_PAGE_HREF } from "@mahjong-scoring/features/billing/plans";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+/** 項目の並び。辞書のキーと一致させる */
+const PLAIN_SECTIONS = [
+  "seller",
+  "representative",
+  "address",
+  "phone",
+] as const;
+
+const TRADE_SECTIONS = [
+  "extraFees",
+  "paymentMethod",
+  "paymentTiming",
+  "delivery",
+  "returns",
+  "environment",
+] as const;
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/tokushoho">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/tokushoho");
+  return createNamespaceMetadata("tokushoho", {
+    title: "pageTitle",
+    path: "/tokushoho",
+    locale,
+  });
+}
+
+export default async function TokushohoPage({
+  params,
+}: PageProps<"/[locale]/tokushoho">) {
+  const locale = await prepareRouteLocale(params, "/tokushoho");
+  const t = await getTranslations("tokushoho");
+
+  return (
+    <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
+      <PageTitle>{t("pageTitle")}</PageTitle>
+      <LegalArticle>
+        <LegalTranslationNote path="/tokushoho" locale={locale} />
+        {PLAIN_SECTIONS.map((key) => (
+          <LegalSection key={key} title={t(`${key}.title`)}>
+            <LegalParagraph>{t(`${key}.value`)}</LegalParagraph>
+          </LegalSection>
+        ))}
+
+        <LegalSection title={t("contact.title")}>
+          <LegalParagraph>
+            {t.rich("contact.value", {
+              contact: (chunks) => (
+                <LegalLink href="/contact" locale={locale}>
+                  {chunks}
+                </LegalLink>
+              ),
+            })}
+          </LegalParagraph>
+        </LegalSection>
+
+        <LegalSection title={t("price.title")}>
+          <LegalParagraph>
+            {t.rich("price.value", {
+              plan: (chunks) => (
+                <LegalLink href={PLAN_PAGE_HREF} locale={locale}>
+                  {chunks}
+                </LegalLink>
+              ),
+            })}
+          </LegalParagraph>
+        </LegalSection>
+
+        {TRADE_SECTIONS.map((key) => (
+          <LegalSection key={key} title={t(`${key}.title`)}>
+            <LegalParagraph>{t(`${key}.value`)}</LegalParagraph>
+          </LegalSection>
+        ))}
+      </LegalArticle>
+    </ContentContainer>
+  );
+}

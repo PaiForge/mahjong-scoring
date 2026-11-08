@@ -207,7 +207,7 @@ export const ALL_VARIANT = "all";
  * - `apps/web/src/app/seo-coverage.test.ts` — 全 slug の `page.tsx` と canonical を確かめる
  *
  * **(c) 忘れると黙って既定に落ちる（grep で確かめる）**
- * - `apps/web/src/app/(user)/(public)/practice/_lib/board-area-height.ts` —
+ * - `apps/web/src/app/[locale]/(user)/(public)/practice/_lib/board-area-height.ts` —
  *   `BOARD_AREA_HEIGHT` に実測の高さを足し、`BOARD_HEIGHT_BY_SLUG` に slug を足す。
  *   後者は `Partial` で、無い練習は `scoreExam` の高さで待つ（高さを足せば
  *   `_components/play-board-skeleton.tsx` の `SHAPES` は型で追記を求める）
@@ -217,7 +217,7 @@ export const ALL_VARIANT = "all";
  *   フィールドの有無で見分けるため、新しい形は既存の分岐に紛れるか最後の分岐に落ちる
  *
  * **新しく作るファイル**（既存の練習、例えば `machi-fu` を手本にする）:
- * web `apps/web/src/app/(user)/(public)/practice/<slug>/{page,play/page,training/page,result/page,result/loading}.tsx`
+ * web `apps/web/src/app/[locale]/(user)/(public)/practice/<slug>/{page,play/page,training/page,result/page,result/loading}.tsx`
  * と `_components/`、モバイル `apps/mobile/src/practice/boards/<slug>/index.tsx`、
  * core `packages/core/src/problem/<slug>/`、features `packages/features/src/practice/<slug>/types.ts`、
  * 辞書 `packages/messages/src/ja/<namespace>.json`。

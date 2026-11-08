@@ -17,5 +17,12 @@
   "account": "アカウント",
   "menu": "メニュー",
   "close": "閉じる",
-  "back": "戻る"
+  "back": "戻る",
+  "language": {
+    "label": "言語",
+    "ja": "日本語",
+    "en": "English",
+    "enUnavailable": "このページの英語版はありません",
+    "japaneseOnly": "日本語のみ"
+  }
 }

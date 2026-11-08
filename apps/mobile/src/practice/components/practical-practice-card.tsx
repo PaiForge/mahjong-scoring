@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -15,6 +14,7 @@ import { PracticeEntryQuota } from "../quota/practice-entry-quota";
 import { ChevronRightIcon } from "../../components/icons/icons";
 import { panelFrame } from "../../lib/panel-styles";
 import { colors, radius } from "../../lib/theme";
+import { LocaleHai } from "../../components/locale-hai";
 
 /** 三筒で和了するデモから 1 枚抜いた、三筒・六筒待ちの聴牌形（web と同じ） */
 const TENPAI_TILES = splitAgariHai(
@@ -81,7 +81,7 @@ export function PracticalPracticeCard({
             <View style={styles.waits}>
               {WAIT_TILES.map((tile) => (
                 <View key={tile} style={styles.wait}>
-                  <Hai hai={tile} size="sm" alt="" />
+                  <LocaleHai hai={tile} size="sm" alt="" />
                   <Text style={styles.waitText}>
                     {t("preview.ron")}
                     {"\n"}

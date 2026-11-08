@@ -63,7 +63,9 @@
     "han": "{count}翻",
     "yakuman": "役満",
     "doubleYakuman": "ダブル役満",
-    "cappedNote": "13翻以上は役満"
+    "cappedNote": "13翻以上は役満",
+    "cap": "{han} → {cap}",
+    "capWithNote": "{han} → {cap}（{note}）"
   },
   "scoreBreakdown": {
     "toggle": "内訳を確認",
@@ -73,7 +75,24 @@
   "fuBreakdown": {
     "breakdownTotal": "合計",
     "roundedUp": "切り上げ後",
-    "fuSuffix": "{value}符"
+    "fuSuffix": "{value}符",
+    "reasons": {
+      "futei": "副底",
+      "chiitoitsu": "七対子",
+      "pinfuTsumo": "平和ツモ",
+      "tsumo": "ツモ",
+      "menzenRon": "門前加符",
+      "kuiPinfu": "特例等の加符",
+      "mentsu": "{yaochu, select, yes {么九牌} other {中張牌}}{open, select, yes {明} other {暗}}{kantsu, select, yes {槓子} other {刻子}}",
+      "jantou": "雀頭({reasons})",
+      "jantouReasons": {
+        "bakaze": "場風",
+        "jikaze": "自風",
+        "sangenpai": "三元牌"
+      },
+      "jantouReasonSeparator": "・",
+      "machi": "{machi, select, tanki {単騎待ち} kanchan {嵌張待ち} penchan {辺張待ち} other {待ち}}"
+    }
   },
   "connectionError": "通信に失敗しました。もう一度開始してください。",
   "retryConnection": "もう一度開始する",
