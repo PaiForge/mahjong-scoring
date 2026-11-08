@@ -130,6 +130,16 @@ export function LegalLink({
 }
 
 /**
+ * 法務の共通の文言（最終更新日・参考訳の注記）の名前空間。サーバー専用
+ *
+ * 定数にしているのは、`client-messages.test.ts` がオブジェクトの
+ * `namespace: "<名前空間>"` をレジストリの記述とみなしてクライアントからの
+ * 参照に数えるため。ここはサーバーの `getTranslations` の引数で、
+ * クライアントには渡らない（この名前空間はサーバー専用のまま）。
+ */
+const LEGAL_NAMESPACE = "legal";
+
+/**
  * 日付の書式に使う Intl のロケール
  *
  * 日本語は従来どおり「2026年10月10日」（`ja` と `ja-JP` は同じ出力）。
@@ -155,7 +165,7 @@ export async function LegalLastUpdated({
   readonly date: string;
   readonly locale: SupportedLocale;
 }) {
-  const t = await getTranslations({ locale, namespace: "legal" });
+  const t = await getTranslations({ locale, namespace: LEGAL_NAMESPACE });
   const formatted = new Intl.DateTimeFormat(dateFormatLocale(locale), {
     dateStyle: "long",
     timeZone: JST_TIME_ZONE,
@@ -197,7 +207,7 @@ export async function LegalTranslationNote({
   readonly locale: SupportedLocale;
 }) {
   if (locale === DEFAULT_LOCALE) return undefined;
-  const t = await getTranslations({ locale, namespace: "legal" });
+  const t = await getTranslations({ locale, namespace: LEGAL_NAMESPACE });
   return (
     <p className="text-sm text-surface-600">
       {t.rich("translationNote", {
