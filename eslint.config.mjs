@@ -95,6 +95,35 @@ export default [
     },
   },
   {
+    // ユーザー向け画面（apps/web/src/app/[locale]）は牌画像を `LocaleHai`
+    // （[locale]/(user)/_components/locale-hai.tsx）で描く。`@pai-forge/mahjong-react-ui`
+    // の `Hai` は alt の既定が日本語の牌名（getHaiName）だけで言語を渡す口が無く、
+    // 直接使うと英語のページの alt が日本語のまま残る（スクリーンリーダー・画像検索が
+    // 読む）。`LocaleHai` は英語のページでだけ辞書の英語の牌名を渡し、日本語の出力は
+    // 変えない。`HaiBack`・`Furo` 等の他の export は対象外（`Furo` が内部で描く牌の alt
+    // は日本語のまま）。管理画面（/admin）は日本語だけなので `Hai` を直接使ってよい。
+    // `[locale]` はグロブの文字クラスにならないよう角括弧をエスケープする。
+    // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
+    // 置き換えるため、features・admin 向けの上の設定と files が重ならない独立した項目にする
+    files: ["apps/web/src/app/\\[locale\\]/**/*.{js,jsx,ts,tsx}"],
+    ignores: ["apps/web/src/app/\\[locale\\]/(user)/_components/locale-hai.tsx"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@pai-forge/mahjong-react-ui",
+              importNames: ["Hai"],
+              message:
+                "ユーザー向け画面では Hai ではなく [locale]/(user)/_components/locale-hai の LocaleHai を使う（英語のページで alt を英語の牌名にするため）",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // 牌の並び（理牌）の順を決めるのは riichi-mahjong だけにする。牌種 ID は
     // 数値なので `(a, b) => a - b` でも並ぶが、それを許すと牌の順の定義が
     // アプリのあちこちに散り、赤 5 のような ID の大小と一致しない牌で
