@@ -26,6 +26,7 @@ import {
   EN_PUBLISHED_PATHS,
   getPublication,
   isPublished,
+  TEMPLATE_EXPANSIONS,
   type Publication,
 } from "./route-policy";
 import {
@@ -171,6 +172,12 @@ describe("英語は許可リストで公開する", () => {
       "/try/agari-score",
       "/try/mentsu-fu",
       "/reference/demo",
+      "/terms",
+      "/privacy",
+      "/tokushoho",
+      "/company",
+      "/contact",
+      "/plan",
       ...GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
     ];
     const noindex = [
@@ -200,6 +207,9 @@ describe("英語は許可リストで公開する", () => {
       "/mypage/setup-username",
       "/preferences",
       "/preferences/yaku-order",
+      "/contact/confirm",
+      "/contact/success",
+      "/announcements",
       ...RANK_SLUGS.map(rankHref),
     ];
     expect([...EN_PUBLISHED_PATHS].sort()).toEqual(
@@ -232,7 +242,21 @@ describe("英語は許可リストで公開する", () => {
   });
 
   it.each(translatedPublishedTemplates("en").map((template) => [template]))(
-    "公開テンプレート %s は具体的なパスへ展開される（展開の表の書き忘れが無い）",
+    "公開テンプレート %s は展開の表に載っている（展開の表の書き忘れが無い）",
+    (template) => {
+      expect(
+        template in TEMPLATE_EXPANSIONS,
+        "許可リストにテンプレートを足したら route-policy.ts の TEMPLATE_EXPANSIONS にも足すこと（展開しないなら空配列）",
+      ).toBe(true);
+      const expanded = EN_PUBLISHED_PATHS.filter(
+        (path) => translatedTemplateOf(path, "en") === template,
+      );
+      expect(expanded).toEqual(TEMPLATE_EXPANSIONS[template]);
+    },
+  );
+
+  it.each([["/reference/glossary/[slug]"], ["/dojo/ranks/[slug]"]])(
+    "レジストリが値を持つテンプレート %s はレジストリの全値へ展開される",
     (template) => {
       const expanded = EN_PUBLISHED_PATHS.filter(
         (path) => translatedTemplateOf(path, "en") === template,
@@ -242,27 +266,60 @@ describe("英語は許可リストで公開する", () => {
     },
   );
 
+  it("DB 由来のお知らせの詳細は展開しない（空配列）が、英語でどの slug も noindex で出す（行の有無はページが確かめる）", () => {
+    expect(TEMPLATE_EXPANSIONS["/announcements/[slug]"]).toEqual([]);
+    for (const path of [
+      "/announcements/sample-announcement",
+      "/announcements/__audit_unknown__",
+    ]) {
+      expect(translatedTemplateOf(path, "en"), path).toBe(
+        "/announcements/[slug]",
+      );
+      expect(getPublication(path, "en"), path).toBe("published-noindex");
+    }
+    expect(getPublication("/announcements/a/b", "en")).toBe("unpublished");
+  });
+
   it.each([...userPages.keys()].map((template) => [template]))(
     "%s は許可リストに無ければ英語で unpublished（すべて英語にしてから noindex にする既定を持たない）",
     (template) => {
       for (const path of concretePaths(template)) {
         if (EN_PUBLISHED_PATHS.includes(path)) continue;
+        // 展開しないテンプレート（お知らせの詳細）に合うパスは許可リストの側
+        if (translatedTemplateOf(path, "en") !== undefined) continue;
         expect(getPublication(path, "en")).toBe("unpublished");
       }
     },
   );
 
-  it.each([
-    ["/leaderboard"],
-    ["/leaderboard/monthly/jantou-fu"],
-    ["/u/alice"],
-    ["/announcements"],
-    ["/plan"],
-    ["/contact"],
-    ["/terms"],
-  ])("%s は英語で unpublished（日本語では公開している）", (path) => {
-    expect(getPublication(path, "en")).toBe("unpublished");
-    expect(isPublished(getPublication(path, "ja"))).toBe(true);
+  it.each([["/leaderboard"], ["/leaderboard/monthly/jantou-fu"], ["/u/alice"]])(
+    "%s は英語で unpublished（日本語では公開している）",
+    (path) => {
+      expect(getPublication(path, "en")).toBe("unpublished");
+      expect(isPublished(getPublication(path, "ja"))).toBe(true);
+    },
+  );
+
+  it("法務・運営情報・お問い合わせの入力・料金は両言語で索引させる", () => {
+    for (const path of [
+      "/terms",
+      "/privacy",
+      "/tokushoho",
+      "/company",
+      "/contact",
+      "/plan",
+    ]) {
+      expect(getPublication(path, "en"), path).toBe("published-indexable");
+      expect(getPublication(path, "ja"), path).toBe("published-indexable");
+    }
+  });
+
+  it("お知らせの一覧は日本語では索引させるが、英語では出して索引させない（fallback 無しの動的ページ）", () => {
+    expect(getPublication("/announcements", "ja")).toBe("published-indexable");
+    expect(getPublication("/announcements", "en")).toBe("published-noindex");
+    expect(getPublication("/announcements/sample-announcement", "ja")).toBe(
+      "published-indexable",
+    );
   });
 
   it("会員の画面は両言語で出すが索引させない（英語の noindex は日本語の分類と揃う）", () => {

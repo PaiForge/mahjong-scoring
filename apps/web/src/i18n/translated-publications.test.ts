@@ -22,6 +22,16 @@ import {
   translatedTemplateOf,
 } from "./translated-publications";
 
+/** 英語で出して索引させる法務・運営情報・お問い合わせの入力・料金 */
+const EN_LEGAL_AND_PLAN_PATHS = [
+  "/terms",
+  "/privacy",
+  "/tokushoho",
+  "/company",
+  "/contact",
+  "/plan",
+];
+
 /**
  * 英語で出して索引させる公開単位（完全一致の行）
  *
@@ -44,13 +54,14 @@ const EN_INDEXABLE_EXACT_PATHS = [
   "/try/agari-score",
   "/try/mentsu-fu",
   "/reference/demo",
+  ...EN_LEGAL_AND_PLAN_PATHS,
 ];
 
 /**
  * 英語で出すが索引させない公開単位（完全一致の行）
  *
  * 練習・昇級試験の play / training / result、和了形・聴牌形の play、道場、
- * 会員の画面（{@link EN_MEMBER_PATHS}）。
+ * お問い合わせの確認・完了、お知らせの一覧、会員の画面（{@link EN_MEMBER_PATHS}）。
  */
 const EN_NOINDEX_EXACT_PATHS = [
   ...PRACTICE_MENU_SLUGS.flatMap((slug) =>
@@ -61,6 +72,9 @@ const EN_NOINDEX_EXACT_PATHS = [
   `${AGARI_SCORE_PRACTICE_HREF}/play`,
   `${TENPAI_SCORE_PRACTICE_HREF}/play`,
   "/dojo",
+  "/contact/confirm",
+  "/contact/success",
+  "/announcements",
 ];
 
 /** 英語で出すが索引させない会員の画面（認証・ダッシュボード・マイページ・設定の 18 ページ） */
@@ -129,7 +143,7 @@ describe("getTranslatedPublication", () => {
     ).toBe("published-noindex");
   });
 
-  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材、noindex 54 + 会員の画面 18）", () => {
+  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材 + 法務・料金 6、noindex 54 + お問い合わせ・お知らせ 3 + 会員の画面 18）", () => {
     expect([...translatedPublishedPaths("en")].sort()).toEqual(
       [
         ...EN_INDEXABLE_EXACT_PATHS,
@@ -137,7 +151,7 @@ describe("getTranslatedPublication", () => {
         ...EN_MEMBER_PATHS,
       ].sort(),
     );
-    expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54);
+    expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54 + 3);
     expect(
       translatedPublishedPaths("en").filter((path) =>
         path.startsWith("/lessons/"),
@@ -151,10 +165,41 @@ describe("getTranslatedPublication", () => {
     );
   });
 
+  it("法務・運営情報・お問い合わせの入力・料金は出して索引させ、お問い合わせの確認・完了とお知らせは索引させない", () => {
+    for (const path of EN_LEGAL_AND_PLAN_PATHS) {
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-indexable",
+      );
+    }
+    for (const path of [
+      "/contact/confirm",
+      "/contact/success",
+      "/announcements",
+      "/announcements?page=2",
+    ]) {
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-noindex",
+      );
+    }
+  });
+
+  it("お知らせの詳細はテンプレートで出して索引させない（DB 由来なのでどの slug も通し、行の有無はページが確かめる）", () => {
+    for (const path of [
+      "/announcements/some-news",
+      "/announcements/__audit_unknown__",
+    ]) {
+      expect(getTranslatedPublication(path, "en"), path).toBe(
+        "published-noindex",
+      );
+      expect(translatedTemplateOf(path, "en")).toBe("/announcements/[slug]");
+    }
+  });
+
   it("用語のページと段級位の詳細はテンプレートで公開し、全用語・全段級位が当たる", () => {
     expect(translatedPublishedTemplates("en")).toEqual([
       "/reference/glossary/[slug]",
       "/dojo/ranks/[slug]",
+      "/announcements/[slug]",
     ]);
     for (const slug of GLOSSARY_TERM_SLUGS) {
       const path = glossaryTermHref(slug);
@@ -198,15 +243,9 @@ describe("getTranslatedPublication", () => {
     ["/leaderboard"],
     ["/leaderboard/weekly/jantou-fu"],
     ["/u/alice"],
-    ["/announcements"],
-    ["/announcements/some-news"],
-    ["/plan"],
-    ["/contact"],
-    ["/contact/confirm"],
-    ["/terms"],
-    ["/privacy"],
-    ["/tokushoho"],
-    ["/company"],
+    ["/announcements/some-news/extra"],
+    ["/contact/unknown"],
+    ["/plan/extra"],
     ["/mypage/unknown"],
     ["/sign-in/extra"],
     ["/dojo/ranks"],
@@ -243,7 +282,7 @@ describe("getTranslatedPublication", () => {
     }
   });
 
-  it("EN_PUBLISHED_PATHS は完全一致の行とテンプレートの展開（全用語・全段級位）", () => {
+  it("EN_PUBLISHED_PATHS は完全一致の行とテンプレートの展開（全用語・全段級位。お知らせの詳細は展開しない）", () => {
     expect(EN_PUBLISHED_PATHS).toEqual([
       ...translatedPublishedPaths("en"),
       ...GLOSSARY_TERM_SLUGS.map(glossaryTermHref),
