@@ -1,3 +1,4 @@
+import { AppSection } from "./app-section";
 import { HeroSection } from "./hero-section";
 import { PracticeSection } from "./practice-section";
 import { ReferenceSection } from "./reference-section";
@@ -10,6 +11,7 @@ export function LandingPage() {
       <PracticeSection />
       <ReferenceSection />
       <LearnSection />
+      <AppSection />
     </>
   );
 }

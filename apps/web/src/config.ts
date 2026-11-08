@@ -28,3 +28,12 @@ export const CORPORATE_SITE_URL = "https://www.fuji.llc/";
  * （`<meta name="apple-itunes-app">`。ルートレイアウトの metadata）が読む。
  */
 export const IOS_APP_STORE_ID = "6820905974";
+
+/**
+ * iOS アプリの App Store のページ
+ * iOSアプリURL
+ *
+ * App Store のバッジと QR コードの行き先。アプリ名の部分（URL の slug）は
+ * App Store が名前の変更に合わせて変えるので持たず、ID だけで組む。
+ */
+export const IOS_APP_STORE_URL = `https://apps.apple.com/jp/app/id${IOS_APP_STORE_ID}`;

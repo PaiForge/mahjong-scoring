@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
+import { AppDownloadPanel } from "@/app/(user)/_components/app-download/app-download-panel";
 import { BrandLogo } from "@/app/_components/brand-logo";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { chapterHref } from "@mahjong-scoring/features/routes";
@@ -63,6 +64,14 @@ export async function Footer() {
                 </Link>
               </li>
             </ul>
+          </div>
+
+          {/* 狭い画面では 2 列目に収めず 1 行を使う（バッジの横幅） */}
+          <div className="col-span-2 space-y-3 md:col-span-1">
+            <h3 className="text-sm font-semibold text-foreground">
+              {t("app")}
+            </h3>
+            <AppDownloadPanel size="sm" align="start" />
           </div>
         </nav>
 
