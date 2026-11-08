@@ -1,4 +1,6 @@
 import { GLOSSARY_PATH } from "@mahjong-scoring/features/glossary/routes";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 import {
   ANNOUNCEMENTS_PATH,
   DOJO_PATH,
@@ -80,12 +82,22 @@ export type AnnouncementLinkTarget =
  * web のページをブラウザで開く。価格・特商法のページはリンクにしない。それ以外（`https://` 等）はブラウザに渡す。
  * サイト自身の URL（`https://<サイト>/lessons`）もパスと同じに扱う。
  *
+ * 言語はブラウザで開く web のページにだけ効く（`webLocalePath`。英語は
+ * `/en/...`）。英語の端末の記事は英語の一覧・詳細からしか出ないので、
+ * そこから開く web のページも英語にする（英語で未公開のページなら web が
+ * 404 + noindex を返す。公開状態は web が持ち、アプリは見ない）。アプリの
+ * 中で開くパスは言語を持たない（画面の言語は端末の言語で決まる）ので
+ * そのまま。リンクにしない規則（価格・特商法）も言語に依らない。外のサイトの
+ * URL は変えない。
+ *
  * @param href - 本文のリンク先
  * @param siteUrl - web のサイトの URL（末尾の `/` なし）
+ * @param locale - アプリの言語（`useAppLocale()`）
  */
 export function resolveAnnouncementLink(
   href: string,
   siteUrl: string,
+  locale: SupportedLocale,
 ): AnnouncementLinkTarget {
   const path = href.startsWith(`${siteUrl}/`)
     ? href.slice(siteUrl.length)
@@ -100,5 +112,5 @@ export function resolveAnnouncementLink(
   if (alias !== undefined) return { kind: "app", path: `${alias}${suffix}` };
   return matchesPrefix(pathname, APP_PATH_PREFIXES)
     ? { kind: "app", path }
-    : { kind: "browser", url: `${siteUrl}${path}` };
+    : { kind: "browser", url: `${siteUrl}${webLocalePath(path, locale)}` };
 }
