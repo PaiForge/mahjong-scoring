@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useLocale, useTimeZone, useTranslations } from "use-intl";
+import { useTimeZone, useTranslations } from "use-intl";
 import type { MobileAnnouncementSummary } from "@mahjong-scoring/features/announcements/mobile-api";
 import {
   ANNOUNCEMENT_LIST_DATE_OPTIONS,
@@ -9,6 +9,7 @@ import { announcementHref } from "@mahjong-scoring/features/routes";
 
 import { Chip } from "../components/chip";
 import { LinkRow } from "../components/link-row";
+import { useAppLocale } from "../lib/use-app-locale";
 
 /**
  * お知らせ 1 行（web の `AnnouncementTextList` の 1 行）
@@ -25,7 +26,7 @@ export function AnnouncementRow({
 }) {
   const t = useTranslations("announcements");
   const router = useRouter();
-  const locale = useLocale();
+  const locale = useAppLocale();
   const timeZone = useTimeZone();
   return (
     <LinkRow
