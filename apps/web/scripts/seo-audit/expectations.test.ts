@@ -173,7 +173,7 @@ describe("監査の期待値とアプリの公開状態", () => {
       "/api",
       "/u/",
     ]);
-    expect(EN_ROBOTS_DISALLOW_ADDITIONS).toEqual(["/en/mypage", "/en/u/"]);
+    expect(EN_ROBOTS_DISALLOW_ADDITIONS).toEqual([]);
     expect(disallow).toEqual([
       ...BASELINE_ROBOTS_DISALLOW,
       ...EN_ROBOTS_DISALLOW_ADDITIONS,
