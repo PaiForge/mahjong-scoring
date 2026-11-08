@@ -106,7 +106,9 @@ export default [
     // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
     // 置き換えるため、features・admin 向けの上の設定と files が重ならない独立した項目にする
     files: ["apps/web/src/app/\\[locale\\]/**/*.{js,jsx,ts,tsx}"],
-    ignores: ["apps/web/src/app/\\[locale\\]/(user)/_components/locale-hai.tsx"],
+    ignores: [
+      "apps/web/src/app/\\[locale\\]/(user)/_components/locale-hai.tsx",
+    ],
     rules: {
       "@typescript-eslint/no-restricted-imports": [
         "error",
