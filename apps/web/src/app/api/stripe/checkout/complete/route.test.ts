@@ -140,6 +140,55 @@ describe("GET /api/stripe/checkout/complete", () => {
   });
 });
 
+describe("着地の言語（success_url の locale が運ぶ）", () => {
+  it("英語の Session は英語のマイページへ着地する", async () => {
+    const res = await GET(request("?session_id=cs_1&locale=en"));
+    expect(res.headers.get("location")).toBe(
+      `${ORIGIN}/en/mypage/plan?status=success`,
+    );
+  });
+
+  it("日本語の locale=ja は接頭辞なしのマイページへ（英語対応の前と同じ着地）", async () => {
+    const res = await GET(request("?session_id=cs_1&locale=ja"));
+    expect(res.headers.get("location")).toBe(
+      `${ORIGIN}/mypage/plan?status=success`,
+    );
+  });
+
+  it("対応言語でない locale は日本語に倒す", async () => {
+    const res = await GET(request("?session_id=cs_1&locale=fr"));
+    expect(res.headers.get("location")).toBe(
+      `${ORIGIN}/mypage/plan?status=success`,
+    );
+  });
+
+  it("session_id が無くても言語は保つ", async () => {
+    const res = await GET(request("?locale=en"));
+    expect(res.headers.get("location")).toBe(`${ORIGIN}/en/mypage/plan`);
+  });
+
+  it("一時的な失敗の pending も同じ言語へ", async () => {
+    mockSessionsRetrieve.mockRejectedValue(new Error("stripe down"));
+    const res = await GET(request("?session_id=cs_1&locale=en"));
+    expect(res.headers.get("location")).toBe(
+      `${ORIGIN}/en/mypage/plan?status=pending`,
+    );
+  });
+
+  it("未ログインは英語のサインインへ送り、戻り先に locale を残す（サインイン後も英語で着地する）", async () => {
+    mockGetOptionalVerifiedUser.mockResolvedValue(undefined);
+
+    const res = await GET(request("?session_id=cs_1&locale=en"));
+
+    expect(res.headers.get("location")).toBe(
+      `${ORIGIN}/en/sign-in?redirect=${encodeURIComponent(
+        "/api/stripe/checkout/complete?session_id=cs_1&locale=en",
+      )}`,
+    );
+    expect(mockSessionsRetrieve).not.toHaveBeenCalled();
+  });
+});
+
 it("記録できない支払いを成功表示にしない", async () => {
   mockRecordPurchase.mockResolvedValue({
     outcome: "ignored",
