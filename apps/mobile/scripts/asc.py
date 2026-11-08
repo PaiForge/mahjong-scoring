@@ -18,6 +18,9 @@ App Store Connect はほとんどの欠けを提出のときに 1 つずつ拒�
 の未設定・コンテンツの権利の未回答・プライバシーポリシーの URL の無いロケール）は
 API でしか「未設定」と分からない。項目は Parqsee（同じチームの Mac アプリ）の
 1.0 の提出で要ったものに、このアプリのアプリ内課金の分を足したもの。
+ロケールごとの項目（説明文・キーワード・サポート URL・アプリ内課金のローカライズ）は
+日本語（ja）と英語（en-US）の両方を見て、ロケールそのものが無いときも欠けとして出す
+（英語の素材は store/en-US/。ASC へ貼るのは別の承認で行う）。
 
 `audit` が見られないもの:
 
@@ -73,6 +76,11 @@ NOTIFICATION_URL = "https://score.mahjong.help/api/apple/notifications"
 # 最初に作った非更新サブスクの 30 日パス。消耗型に作り直したあとも消さずに
 # 残してあり、審査には出さない（理由は web の `record.ts` の `APPLE_PRODUCT_TYPES`）
 UNSUBMITTED_PRODUCT_IDS = {"help.mahjong.score.pro.pass30"}
+
+# 製品ページとアプリ内課金に要るロケール。アプリは日本語と英語で出し（端末の言語で決まる）、
+# 英語の端末のストアと購入シートにも英語を出すため、English (U.S.) も欠けとして数える。
+# 英語の素材は store/en-US/ にあり、ASC へ貼るのは別の承認で行う（store/README.md）
+REQUIRED_LOCALES = ("ja", "en-US")
 
 # App Store Connect がバージョンの編集を許している状態。audit はこの 1 つを見る。
 # READY_FOR_REVIEW は、まだ送っていない下書きの提出に入っているバージョン
@@ -232,7 +240,14 @@ def audit(version: str | None) -> int:
             la = loc["attributes"]
             a.check(f"privacy policy URL [{la['locale']}]", bool(la["privacyPolicyUrl"]), str(la["privacyPolicyUrl"]))
 
-    for loc in get(f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations")["data"]:
+    version_locs = get(f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations")["data"]
+    # ロケールそのものが無いと下の for に行が出ないので、要るロケールの欠けは先に数える
+    version_locales = {loc["attributes"]["locale"] for loc in version_locs}
+    for locale in REQUIRED_LOCALES:
+        if locale not in version_locales:
+            for field in ("description", "keywords", "supportUrl"):
+                a.check(f"{field} [{locale}]", False, "バージョンにこのロケールが無い（素材は store/README.md）")
+    for loc in version_locs:
         la = loc["attributes"]
         for field in ("description", "keywords", "supportUrl"):
             a.check(f"{field} [{la['locale']}]", bool(la[field]))
@@ -267,7 +282,9 @@ def audit(version: str | None) -> int:
             loc["attributes"]["locale"]
             for loc in get(f"/v2/inAppPurchases/{iap['id']}/inAppPurchaseLocalizations")["data"]
         ]
-        a.check(f"{ia['productId']} localization [ja]", "ja" in locales, ", ".join(locales))
+        # 表示名・説明は購入シートと領収書に出る。英語は store/en-US/iap/<Product ID>.json
+        for locale in REQUIRED_LOCALES:
+            a.check(f"{ia['productId']} localization [{locale}]", locale in locales, ", ".join(locales))
         shot = get(f"/v2/inAppPurchases/{iap['id']}/appStoreReviewScreenshot")["data"]
         a.check(
             f"{ia['productId']} review screenshot",
