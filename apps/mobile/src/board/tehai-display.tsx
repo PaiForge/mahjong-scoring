@@ -2,7 +2,6 @@ import { memo, useMemo, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { isOya } from "@mahjong-scoring/core";
 import type { HaiKindId, Tehai } from "@mahjong-scoring/core";
 import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
@@ -29,6 +28,7 @@ import {
   PREFERENCE_ANCHORS,
   preferencesItemHref,
 } from "@mahjong-scoring/features/settings/preference-anchors";
+import { LocaleHai } from "../components/locale-hai";
 
 /** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
 const TEXT_ROW_HEIGHT = 22;
@@ -63,7 +63,7 @@ function DoraGroup({
       )}
       <View style={styles.doraTiles} pointerEvents="none">
         {tiles.map((tile, i) => (
-          <Hai key={i} hai={tile} size="sm" />
+          <LocaleHai key={i} hai={tile} size="sm" />
         ))}
       </View>
     </View>

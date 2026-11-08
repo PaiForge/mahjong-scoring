@@ -1,6 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import type {
   HaiKindId,
   MentsuBreakdownCandidate,
@@ -17,6 +16,7 @@ import { TehaiHand } from "./tehai-hand";
 import { ReferenceLinkButton } from "../practice/components/reference-link-button";
 import { useMentsuBreakdown } from "@mahjong-scoring/features/board/use-mentsu-breakdown";
 import type { TehaiMentsuBreakdownProps } from "@mahjong-scoring/features/board/tehai-mentsu-breakdown-props";
+import { LocaleHai } from "../components/locale-hai";
 
 function ClosedTiles({
   hais,
@@ -28,7 +28,12 @@ function ClosedTiles({
   return (
     <View style={styles.tiles} pointerEvents="none">
       {hais.map((kindId, i) => (
-        <Hai key={i} hai={kindId} size="sm" highlighted={i === agariHaiIndex} />
+        <LocaleHai
+          key={i}
+          hai={kindId}
+          size="sm"
+          highlighted={i === agariHaiIndex}
+        />
       ))}
     </View>
   );

@@ -1,13 +1,14 @@
 import { Image, StyleSheet, View } from "react-native";
 import {
   getHaiSizePixels,
-  Hai,
   toTileImageSource,
   useTileImage,
   type HaiSize,
 } from "@pai-forge/mahjong-react-ui";
 import { MentsuType, Tacha } from "@mahjong-scoring/core";
 import type { CompletedMentsu, Furo } from "@mahjong-scoring/core";
+
+import { LocaleHai } from "../components/locale-hai";
 
 /** 横向きに置く牌が無い（暗槓・鳴いていない面子）ことを表す位置 */
 const NO_ROTATION = -1;
@@ -69,8 +70,8 @@ export function FuroTiles({
     return (
       <View style={styles.row} pointerEvents="none">
         <TileBack size={size} />
-        <Hai hai={hais[1]} size={size} />
-        <Hai hai={hais[2]} size={size} />
+        <LocaleHai hai={hais[1]} size={size} />
+        <LocaleHai hai={hais[2]} size={size} />
         <TileBack size={size} />
       </View>
     );
@@ -79,7 +80,7 @@ export function FuroTiles({
   return (
     <View style={styles.row} pointerEvents="none">
       {hais.map((hai, i) => (
-        <Hai key={i} hai={hai} size={size} rotated={i === rotated} />
+        <LocaleHai key={i} hai={hai} size={size} rotated={i === rotated} />
       ))}
     </View>
   );

@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { parseHais, parseKazehai } from "@mahjong-scoring/core";
@@ -9,6 +8,7 @@ import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/
 import { colors } from "../../../lib/theme";
 import { AnswerComparison } from "../../components/answer-comparison";
 import { ProblemListAccordion } from "../../components/problem-list-accordion";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /** 雀頭符の問題別結果（web の `JantouFuProblemList` の移植） */
 export function JantouFuProblemList({
@@ -21,7 +21,7 @@ export function JantouFuProblemList({
 
   const haiWithFu = (hai: HaiKindId | undefined, fu: number) => (
     <View style={styles.haiWithFu}>
-      {hai !== undefined && <Hai hai={hai} size="sm" />}
+      {hai !== undefined && <LocaleHai hai={hai} size="sm" />}
       <Text style={styles.fu}>{t("fu", { value: fu })}</Text>
     </View>
   );
