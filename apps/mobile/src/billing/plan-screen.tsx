@@ -295,7 +295,15 @@ function Offers({
   );
 }
 
-/** ご購入前に（購入の条件） */
+/**
+ * ご購入前に（購入の条件）
+ *
+ * @description
+ * 箇条書きの印は言語に依らない `•`（U+2022）をコードに持つ。和文の中黒 `・` は英語の画面に
+ * 日本語の文字として残り（english-smoke の日本語の文字の検査が落とす）、印は訳文ではないので
+ * 辞書にも置かない。レッスン本文・お知らせの箇条書きと同じ印。`•` は `・` より幅が狭いので
+ * 行の `gap` で本文との間を空ける。
+ */
 function Notes({ lineup }: { readonly lineup: PlanLineup }) {
   const t = useTranslations("mobilePlan.notes");
   const keys = planNoteKeysOf(lineup);
@@ -305,7 +313,7 @@ function Notes({ lineup }: { readonly lineup: PlanLineup }) {
       <View style={styles.notes}>
         {keys.map((key) => (
           <View key={key} style={styles.noteRow}>
-            <Text style={styles.hint}>・</Text>
+            <Text style={styles.hint}>•</Text>
             <Text style={[styles.hint, styles.noteText]}>{t(key)}</Text>
           </View>
         ))}
@@ -482,6 +490,7 @@ const styles = StyleSheet.create({
   },
   noteRow: {
     flexDirection: "row",
+    gap: 4,
   },
   noteText: {
     flex: 1,
