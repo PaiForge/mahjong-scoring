@@ -14,7 +14,7 @@ import {
   SITE_DESCRIPTION,
   SITE_NAME,
 } from "@/app/_lib/metadata";
-import { SITE_URL } from "@/config";
+import { IOS_APP_STORE_ID, SITE_URL } from "@/config";
 import { clientMessages } from "@/i18n/client-messages";
 import "./globals.css";
 
@@ -39,6 +39,10 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  // iOS Safari の Smart App Banner（上端の「App Store で入手 / 開く」の帯）。
+  // 表示・インストール済みの判定・閉じた後の扱いは OS が持ち、他のブラウザと
+  // Android では何も出ない。全ページに出すため、ページ側で上書きしない。
+  itunes: { appId: IOS_APP_STORE_ID },
   // metadata を持たないページ（banned 等）へのフォールバック。
   // og:url はここに書かない — 書くと canonical を持たないページまで
   // トップページの URL を名乗ってしまう。トップの og:url は

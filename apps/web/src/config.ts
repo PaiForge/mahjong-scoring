@@ -19,3 +19,12 @@ export const SITE_URL = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
  * 指す先。1 箇所に持ち、どちらかだけ古い URL を指し続けないようにする。
  */
 export const CORPORATE_SITE_URL = "https://www.fuji.llc/";
+
+/**
+ * iOS アプリの App Store Connect の数値の App ID
+ * iOSアプリID
+ *
+ * `apps/mobile/eas.json` の `ascAppId` と同じ値。iOS Safari の Smart App Banner
+ * （`<meta name="apple-itunes-app">`。ルートレイアウトの metadata）が読む。
+ */
+export const IOS_APP_STORE_ID = "6820905974";
