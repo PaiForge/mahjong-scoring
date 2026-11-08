@@ -28,6 +28,7 @@ import {
   LegalList,
   LegalParagraph,
   LegalSection,
+  LegalTranslationNote,
 } from "../_components/legal-article";
 import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
@@ -38,29 +39,33 @@ const LAST_UPDATED = "2026-10-10";
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/terms">): Promise<Metadata> {
-  await prepareRouteLocale(params, "/terms");
+  const locale = await prepareRouteLocale(params, "/terms");
   return createNamespaceMetadata("terms", {
     title: "pageTitle",
     path: "/terms",
+    locale,
   });
 }
 
 export default async function TermsPage({
   params,
 }: PageProps<"/[locale]/terms">) {
-  await prepareRouteLocale(params, "/terms");
+  const locale = await prepareRouteLocale(params, "/terms");
   const t = await getTranslations("terms");
 
   return (
     <ContentContainer breadcrumb={[{ label: t("pageTitle") }]}>
       <PageTitle>{t("pageTitle")}</PageTitle>
       <LegalArticle>
+        <LegalTranslationNote path="/terms" locale={locale} />
         <LegalSection title={t("acceptance.title")}>
           <LegalParagraph>
             {t.rich("acceptance.body", {
               siteName: SITE_NAME,
               company: (chunks) => (
-                <LegalLink href="/company">{chunks}</LegalLink>
+                <LegalLink href="/company" locale={locale}>
+                  {chunks}
+                </LegalLink>
               ),
             })}
           </LegalParagraph>
@@ -98,7 +103,9 @@ export default async function TermsPage({
           <LegalParagraph>
             {t.rich("publicInfo.note", {
               preferences: (chunks) => (
-                <LegalLink href={PREFERENCES_PATH}>{chunks}</LegalLink>
+                <LegalLink href={PREFERENCES_PATH} locale={locale}>
+                  {chunks}
+                </LegalLink>
               ),
             })}
           </LegalParagraph>
@@ -162,7 +169,9 @@ export default async function TermsPage({
             <li>
               {t.rich("reporting.item4", {
                 contact: (chunks) => (
-                  <LegalLink href="/contact">{chunks}</LegalLink>
+                  <LegalLink href="/contact" locale={locale}>
+                    {chunks}
+                  </LegalLink>
                 ),
               })}
             </li>
@@ -199,7 +208,7 @@ export default async function TermsPage({
           <LegalParagraph>{t("governingLaw.body")}</LegalParagraph>
         </LegalSection>
 
-        <LegalClosing page="terms" lastUpdated={LAST_UPDATED} />
+        <LegalClosing page="terms" lastUpdated={LAST_UPDATED} locale={locale} />
       </LegalArticle>
     </ContentContainer>
   );
