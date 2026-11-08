@@ -90,6 +90,11 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  *
  * 法務・運営情報（利用規約・プライバシーポリシー・特商法の表記）・お問い合わせ・料金を
  * 英語で出すときに `terms` より後の 6 名前空間を同じ手順で足した。
+ *
+ * iOS アプリ（`apps/mobile`）を端末の言語で英語にするときに `recordCta` より後の
+ * 4 名前空間を同じ手順で足した。`recordCta`・`mobilePlan`・`mobileApp` はアプリだけが
+ * 読む（web の `recordCta` はランキングを英語で公開しているときだけ出る）。
+ * `leaderboard` はアプリの「ランキングでの順位」と設定のプライバシーの行が読む。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -179,6 +184,10 @@ export const EN_TRANSLATED_NAMESPACES = [
   "contact",
   "plan",
   "tokushoho",
+  "recordCta",
+  "leaderboard",
+  "mobilePlan",
+  "mobileApp",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -204,14 +213,16 @@ export const EN_EXCLUDED_NAMESPACES = [
  * （英語の辞書に無いキーは画面に辞書キーがそのまま出る。日本語へ fallback しない）。
  * 訳し終えたら名前空間ごと {@link EN_TRANSLATED_NAMESPACES} へ移し、`en/` に
  * ファイルを置いて `en.ts` に束ねる。並びは `ja.ts` と同じ。
+ *
+ * 残る `publicProfile`・`report` は、英語で公開しない UGC（他の利用者の表示名・
+ * 自己紹介・通報）の画面の名前空間。web だけが読み、英語の公開範囲から外す判断
+ * （ランキング・公開プロフィールは英語で出さない）が変わるまで訳さない。公開しない
+ * 画面の訳文は検査もレビューも受けずに腐るため、「一般提供までに全名前空間を完訳」の
+ * 明示の例外にする。
  */
 export const EN_PENDING_NAMESPACES = [
-  "recordCta",
   "publicProfile",
   "report",
-  "leaderboard",
-  "mobilePlan",
-  "mobileApp",
 ] as const satisfies readonly MessageNamespace[];
 
 /**
