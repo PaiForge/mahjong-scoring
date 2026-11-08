@@ -12,7 +12,7 @@ PRACTICE FOR REAL GAMES
 - Winning Hand Scoring Practice: work out the yaku, han, fu and points from a winning hand.
 - Tenpai Hand Scoring Practice: find the waits in a tenpai hand and answer the tsumo and ron scores for each wait.
 
-THE ROAD TO THE BLACK BELT
+ROAD TO THE BLACK BELT IN SCORING
 The Dojo shows every rank from 5 Kyu to Shodan, the black belt in scoring. For each rank you learn with the lessons, practice, and then get certified by passing a promotion exam. Exams go in order from the lowest rank. A mock exam gives you the same questions as the real exam with no time limit.
 
 QUICK REFERENCE
