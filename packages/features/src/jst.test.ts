@@ -204,7 +204,31 @@ describe("formatJstDayKeyMonthDay", () => {
     expect(formatJstDayKeyMonthDay("2026-04-02")).toBe("4/2");
     expect(formatJstDayKeyMonthDay("2026-10-31")).toBe("10/31");
   });
+
+  it("日本語を明示しても省略時と同じ従来の文字列", () => {
+    expect(formatJstDayKeyMonthDay("2026-10-02", "ja")).toBe("10/2");
+    expect(formatJstDayKeyMonthDay("2026-10-02")).toBe("10/2");
+  });
+
+  it("英語は en-US の略称の月で「Oct 2」", () => {
+    expect(formatJstDayKeyMonthDay("2026-10-02", "en")).toBe("Oct 2");
+    expect(formatJstDayKeyMonthDay("2026-12-31", "en")).toBe("Dec 31");
+  });
 });
+
+describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
+  "英語の月日（実行環境のタイムゾーンが %s）",
+  (tz) => {
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
+    it("実行環境のタイムゾーンに依らず日付キーの日を出す", () => {
+      vi.stubEnv("TZ", tz);
+      expect(formatJstDayKeyMonthDay("2026-01-01", "en")).toBe("Jan 1");
+    });
+  },
+);
 
 describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
   "datetime-local の変換（実行環境のタイムゾーンが %s）",
