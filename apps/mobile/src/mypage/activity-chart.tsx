@@ -11,6 +11,7 @@ import { menuTypeToMessageKey } from "@mahjong-scoring/features/practice-menu-ty
 
 import { panelFrame } from "../lib/panel-styles";
 import { colors, radius } from "../lib/theme";
+import { useAppLocale } from "../lib/use-app-locale";
 
 const BAR_AREA_HEIGHT = 116;
 const BAR_MIN_HEIGHT = 4;
@@ -28,6 +29,9 @@ export function ActivityChart({
   readonly days: readonly MobileMypageActivityDay[];
 }) {
   const t = useTranslations("mypage.heatmap");
+  // 軸の月日・内訳の日付は JST のまま、表記をアプリの言語に合わせる
+  // （日本語「10/2」「2026年10月2日」・英語「Oct 2」「October 2, 2026」）
+  const locale = useAppLocale();
   const [selectedDate, setSelectedDate] = useState<string | undefined>();
   const maxExp = Math.max(0, ...days.map((day) => day.exp));
   const hasAnyActivity = maxExp > 0;
@@ -80,7 +84,7 @@ export function ActivityChart({
               <Text
                 style={[styles.dateLabel, isSelected && styles.dateSelected]}
               >
-                {formatJstDayKeyMonthDay(day.date)}
+                {formatJstDayKeyMonthDay(day.date, locale)}
               </Text>
             </Pressable>
           );
@@ -113,6 +117,7 @@ export function ActivityChart({
 function DayDetail({ day }: { readonly day: MobileMypageActivityDay }) {
   const t = useTranslations("mypage.heatmap");
   const tMenu = useTranslations("practice.practices");
+  const locale = useAppLocale();
   const expSuffix = t("expSuffix");
   const { rows, otherExp } = buildExpBreakdown(day.expByMenuType);
   const lines = [
@@ -128,7 +133,9 @@ function DayDetail({ day }: { readonly day: MobileMypageActivityDay }) {
 
   return (
     <>
-      <Text style={styles.detailDate}>{formatJstDayKeyLong(day.date)}</Text>
+      <Text style={styles.detailDate}>
+        {formatJstDayKeyLong(day.date, locale)}
+      </Text>
       <Text style={styles.detailTotal}>
         {t("total")}: {day.exp} {expSuffix}
       </Text>

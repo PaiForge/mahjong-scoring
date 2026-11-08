@@ -4,6 +4,7 @@ import { formatDate } from "@mahjong-scoring/features/my-record/stats";
 
 import { DataTable, type DataTableColumn } from "../components/data-table";
 import { colors } from "../lib/theme";
+import { useAppLocale } from "../lib/use-app-locale";
 
 /** 「2026/10/05 23:51」が 14pt で 1 行に収まる幅 */
 const DATE_COLUMN_WIDTH = 140;
@@ -25,7 +26,8 @@ function missColor(incorrectAnswers: number): string {
  * チャレンジ履歴テーブル
  *
  * 日時（JST）・正解数・ミス数。`boardLabelOf` を渡すと種目の列を足す
- * （全履歴。土俵を混ぜて並べるため）。
+ * （全履歴。土俵を混ぜて並べるため）。日時は JST のまま、表記をアプリの言語に
+ * 合わせる（英語は「Oct 5, 2026, 11:51 PM」）。
  */
 export function AttemptTable({
   attempts,
@@ -43,6 +45,7 @@ export function AttemptTable({
   readonly emptyMessage: string;
   readonly boardLabelOf?: (attempt: ChallengeAttempt) => string;
 }) {
+  const locale = useAppLocale();
   if (attempts.length === 0) {
     return (
       <View style={styles.empty}>
@@ -67,7 +70,7 @@ export function AttemptTable({
       columns={columns}
       rows={attempts.map((attempt) => [
         <Text key="date" style={styles.cell}>
-          {formatDate(attempt.createdAt)}
+          {formatDate(attempt.createdAt, locale)}
         </Text>,
         ...(boardLabelOf === undefined
           ? []
