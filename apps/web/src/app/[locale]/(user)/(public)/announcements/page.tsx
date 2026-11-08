@@ -66,7 +66,7 @@ interface Props {
 export async function generateMetadata({
   params,
 }: PageProps<"/[locale]/announcements">): Promise<Metadata> {
-  const locale = await prepareRouteLocale(params, ANNOUNCEMENTS_PATH);
+  const locale = await prepareRouteLocale(params, "/announcements");
   const metadata = await createNamespaceMetadata("announcements", {
     title: "pageTitle",
     description: "pageDescription",
@@ -88,7 +88,7 @@ async function detailLinkFor(
   locale: SupportedLocale,
 ): Promise<AnnouncementDetailLink | undefined> {
   if (locale === DEFAULT_LOCALE) return undefined;
-  const tNav = await getTranslations({ locale, namespace: "nav" });
+  const tNav = await getTranslations("nav");
   return {
     targetFor: (path) => resolveNavTargetFor(path, locale),
     japaneseOnlyLabel: tNav("language.japaneseOnly"),
@@ -99,9 +99,9 @@ export default async function AnnouncementsPage({
   params,
   searchParams,
 }: Props & Pick<PageProps<"/[locale]/announcements">, "params">) {
-  const locale = await prepareRouteLocale(params, ANNOUNCEMENTS_PATH);
+  const locale = await prepareRouteLocale(params, "/announcements");
   const { page } = await searchParams;
-  const t = await getTranslations({ locale, namespace: "announcements" });
+  const t = await getTranslations("announcements");
 
   const requestedPage = parsePageParam(page);
   const totalCount = await countAnnouncementsFor(locale);

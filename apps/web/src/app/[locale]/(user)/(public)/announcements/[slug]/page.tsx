@@ -51,12 +51,12 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const path = `${ANNOUNCEMENTS_PATH}/${slug}`;
-  const locale = await prepareRouteLocale(params, path);
+  const path = `/announcements/${slug}`;
+  const locale = await prepareRouteLocale(params, `/announcements/${slug}`);
   const announcement = await findAnnouncementFor(slug, locale);
 
   if (!announcement) {
-    const t = await getTranslations({ locale, namespace: "announcements" });
+    const t = await getTranslations("announcements");
     return createMetadata({ title: t("notFound"), locale });
   }
 
@@ -78,11 +78,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function AnnouncementDetailPage({ params }: Props) {
   const { slug } = await params;
-  const locale = await prepareRouteLocale(
-    params,
-    `${ANNOUNCEMENTS_PATH}/${slug}`,
-  );
-  const t = await getTranslations({ locale, namespace: "announcements" });
+  const locale = await prepareRouteLocale(params, `/announcements/${slug}`);
+  const t = await getTranslations("announcements");
 
   const announcement = await findAnnouncementFor(slug, locale);
 
