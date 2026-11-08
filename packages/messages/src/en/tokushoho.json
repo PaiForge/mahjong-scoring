@@ -1,52 +1,52 @@
 {
-  "pageTitle": "特定商取引法に基づく表記",
-  "description": "麻雀点数計算教室の有料プラン（Pro）に関する特定商取引法に基づく表記。販売事業者、価格、支払方法、提供時期、返品・キャンセルについて。",
+  "pageTitle": "Legal Notice (Specified Commercial Transactions Act)",
+  "description": "The disclosures under the Specified Commercial Transactions Act for the paid plan (Pro) of this riichi mahjong scoring site: the seller, prices, payment method, when the service is provided, and returns and cancellations.",
   "seller": {
-    "title": "販売事業者",
+    "title": "Seller",
     "value": "富士エンタープライズ"
   },
   "representative": {
-    "title": "運営責任者",
-    "value": "請求があった場合には遅滞なく開示いたします。"
+    "title": "Person responsible for operations",
+    "value": "Disclosed without delay upon request."
   },
   "address": {
-    "title": "所在地",
-    "value": "〒107-0061\n東京都港区北青山1-3-3 三橋ビル 3階"
+    "title": "Address",
+    "value": "3F Mitsuhashi Building, 1-3-3 Kita-Aoyama\nMinato-ku, Tokyo 107-0061, Japan"
   },
   "phone": {
-    "title": "電話番号",
-    "value": "請求があった場合には遅滞なく開示いたします。"
+    "title": "Phone number",
+    "value": "Disclosed without delay upon request."
   },
   "contact": {
-    "title": "お問い合わせ",
-    "value": "<contact>お問い合わせフォーム</contact>からご連絡ください。"
+    "title": "Contact",
+    "value": "Please contact us through the <contact>contact form</contact>."
   },
   "price": {
-    "title": "販売価格",
-    "value": "<plan>料金ページ</plan>に表示した価格（消費税込み）。"
+    "title": "Price",
+    "value": "The prices shown on the <plan>pricing page</plan> (consumption tax included)."
   },
   "extraFees": {
-    "title": "商品代金以外の必要料金",
-    "value": "インターネット接続に必要な通信料金はお客様のご負担です。"
+    "title": "Fees other than the price",
+    "value": "You pay the internet connection charges needed to use the service."
   },
   "paymentMethod": {
-    "title": "支払方法",
-    "value": "クレジットカード（決済代行事業者 Stripe の決済画面で行います）。"
+    "title": "Payment method",
+    "value": "Credit card (paid on the checkout page of Stripe, our payment processor)."
   },
   "paymentTiming": {
-    "title": "支払時期",
-    "value": "購入手続きの完了時に決済されます。"
+    "title": "Payment timing",
+    "value": "Payment is made when you complete the purchase."
   },
   "delivery": {
-    "title": "サービスの提供時期",
-    "value": "決済完了後、直ちにご利用いただけます。期間パスは決済完了時から 30 日間、買い切りは期限なく有効です。"
+    "title": "When the service is provided",
+    "value": "You can use it right after payment is complete. The pass is valid for 30 days from when payment is complete, and the lifetime purchase is valid with no expiry."
   },
   "returns": {
-    "title": "返品・キャンセル",
-    "value": "デジタルコンテンツの性質上、購入後の返品・返金・キャンセルはできません。期間パスは自動更新されず、期間の終了後に無料プランへ戻ります。"
+    "title": "Returns and cancellations",
+    "value": "Because of the nature of digital content, purchases cannot be returned, refunded or canceled. The pass does not renew automatically, and you go back to the free plan when it ends."
   },
   "environment": {
-    "title": "動作環境",
-    "value": "最新版の Google Chrome、Safari、Microsoft Edge、Firefox。"
+    "title": "Supported browsers",
+    "value": "The latest versions of Google Chrome, Safari, Microsoft Edge and Firefox."
   }
 }

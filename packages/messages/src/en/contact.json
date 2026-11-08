@@ -1,42 +1,42 @@
 {
-  "pageTitle": "お問い合わせ",
-  "description": "ご質問やご意見、不具合の報告などがありましたら、こちらからお送りください。",
+  "pageTitle": "Contact",
+  "description": "If you have a question, feedback or a bug to report, please send it to us here.",
   "form": {
-    "sectionTitle": "お問い合わせフォーム",
-    "name": "お名前",
-    "email": "メールアドレス",
+    "sectionTitle": "Contact form",
+    "name": "Name",
+    "email": "Email address",
     "emailPlaceholder": "mail@example.com",
-    "subject": "件名",
-    "message": "お問い合わせ内容",
-    "messageCounter": "{count} / {max} 文字",
-    "submit": "確認画面へ",
-    "backToForm": "入力画面に戻る",
-    "send": "送信する",
-    "sending": "送信中..."
+    "subject": "Subject",
+    "message": "Message",
+    "messageCounter": "{count} / {max} characters",
+    "submit": "Review",
+    "backToForm": "Back to the form",
+    "send": "Send",
+    "sending": "Sending..."
   },
   "confirm": {
-    "title": "送信内容の確認",
-    "sectionTitle": "送信内容",
-    "description": "以下の内容で送信します。よろしければ「送信する」を押してください。"
+    "title": "Review your message",
+    "sectionTitle": "Your message",
+    "description": "Your message will be sent as shown below. If it looks right, press \"Send\"."
   },
   "success": {
-    "title": "送信完了",
-    "message": "お問い合わせありがとうございます。内容を確認のうえ、ご記入いただいたメールアドレスへ返信いたします。",
-    "backToHome": "ホームに戻る"
+    "title": "Message sent",
+    "message": "Thank you for contacting us. We will read your message and reply to the email address you entered.",
+    "backToHome": "Back to home"
   },
   "errors": {
-    "nameRequired": "お名前を入力してください",
-    "nameMaxLength": "お名前は100文字以内で入力してください",
-    "nameInvalid": "お名前に改行を含めることはできません",
-    "emailInvalid": "有効なメールアドレスを入力してください",
-    "subjectRequired": "件名を入力してください",
-    "subjectMaxLength": "件名は200文字以内で入力してください",
-    "subjectInvalid": "件名に改行を含めることはできません",
-    "messageMinLength": "お問い合わせ内容は10文字以上で入力してください",
-    "messageMaxLength": "お問い合わせ内容は5000文字以内で入力してください",
-    "invalidInput": "入力内容に誤りがあります。入力画面に戻ってご確認ください。",
-    "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください。",
-    "sendFailed": "送信に失敗しました。しばらく経ってから再度お試しください。",
-    "unknown": "送信に失敗しました。しばらく経ってから再度お試しください。"
+    "nameRequired": "Please enter your name",
+    "nameMaxLength": "Your name must be 100 characters or fewer",
+    "nameInvalid": "Your name cannot contain line breaks",
+    "emailInvalid": "Please enter a valid email address",
+    "subjectRequired": "Please enter a subject",
+    "subjectMaxLength": "The subject must be 200 characters or fewer",
+    "subjectInvalid": "The subject cannot contain line breaks",
+    "messageMinLength": "Your message must be at least 10 characters",
+    "messageMaxLength": "Your message must be 5,000 characters or fewer",
+    "invalidInput": "Some of your entries are not valid. Please go back to the form and check them.",
+    "rateLimited": "Too many requests. Please wait a while and try again.",
+    "sendFailed": "Could not send your message. Please wait a while and try again.",
+    "unknown": "Could not send your message. Please wait a while and try again."
   }
 }
