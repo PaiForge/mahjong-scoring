@@ -1,50 +1,50 @@
 {
-  "pageTitle": "Pro プラン",
-  "description": "和了形・聴牌形の点数計算と 1級・初段の模試を回数制限なしで練習できる有料プラン。30 日パスと買い切りから選べます。自動更新はありません。",
+  "pageTitle": "Pro plan",
+  "description": "A paid plan for practicing score calculation of winning hands and tenpai hands, and the 1 Kyu and Shodan mock exams, with no daily limit. Choose a 30-day pass or a lifetime purchase. No automatic renewal.",
   "perks": {
-    "title": "Pro でできること",
-    "unlimitedTitle": "回数を気にせず練習",
-    "unlimited": "和了形・聴牌形の点数計算と 1級・初段の模試が無制限",
-    "toolsTitle": "練習の表示と計測",
-    "tools": "回答時間の計測と、手牌の表示の調整（上下ランダム・理牌なし）",
-    "freeLimits": "ログイン後の無料枠：和了形の点数計算は 1 日 {agari} 問／聴牌形の点数計算は 1 日 {tenpai} 問／1級・初段の模試は 1 日 {exam} 問ずつ"
+    "title": "What Pro gives you",
+    "unlimitedTitle": "Practice as much as you like",
+    "unlimited": "Unlimited scoring of winning hands and tenpai hands, and unlimited 1 Kyu and Shodan mock exams",
+    "toolsTitle": "Practice display and timing",
+    "tools": "Answer-time tracking and hand display options (tiles randomly upside down, unsorted hands)",
+    "freeLimits": "Free daily limits after logging in: scoring winning hands, {agari} questions a day / scoring tenpai hands, {tenpai} questions a day / 1 Kyu and Shodan mock exams, {exam} questions a day each"
   },
   "offers": {
-    "title": "プランを選ぶ",
-    "shared": "どちらも同じ Pro 機能。自動更新はありません。",
-    "lifetimeScope": "買い切りに今後の追加機能は含まれません。",
+    "title": "Choose a plan",
+    "shared": "Both give the same Pro features. No automatic renewal. Prices are in Japanese yen (JPY).",
+    "lifetimeScope": "The lifetime purchase does not include features added in the future.",
     "pass": {
-      "title": "30 日パス",
-      "description": "購入から30日間"
+      "title": "30-day Pass",
+      "description": "For 30 days from purchase"
     },
     "lifetime": {
-      "title": "買い切り",
-      "description": "一度の支払いで、購入時の機能を期限なしで利用"
+      "title": "Lifetime",
+      "description": "Pay once and use the features available at purchase with no expiry"
     },
-    "priceUnavailable": "価格は購入画面でご確認ください",
-    "buy": "購入する",
-    "signInToBuy": "ログインして購入",
-    "taxIncluded": "税込"
+    "priceUnavailable": "Please check the price on the checkout page",
+    "buy": "Buy",
+    "signInToBuy": "Log in to buy",
+    "taxIncluded": "tax included"
   },
   "notes": {
-    "title": "ご購入前に",
-    "pass": "30日パスは期限が来ると無料プランに戻ります。有効期間中の追加購入はできませんが、期限切れ後に再購入できます。",
-    "snapshot": "購入対象は手続き開始時に表示された特典です。手続き中に特典が変更されても対象は変わりません。",
-    "noRefund": "デジタルコンテンツのため、購入後の返金はできません。",
-    "receipt": "支払いは Stripe の決済画面で行い、カード情報は当サイトに保存されません。領収書は Stripe からメールで届きます。",
-    "deletion": "退会すると購入記録は削除され、返金もされません。",
-    "tokushoho": "詳しくは<link>特定商取引法に基づく表記</link>をご覧ください。"
+    "title": "Before you buy",
+    "pass": "When the 30-day pass expires, you go back to the free plan. You cannot buy more while it is active, but you can buy it again after it expires.",
+    "snapshot": "Your purchase covers the benefits shown when you started checkout. Even if the benefits change during checkout, what you buy stays the same.",
+    "noRefund": "Because this is digital content, purchases cannot be refunded.",
+    "receipt": "You pay on Stripe's checkout page, and your card details are not stored on this site. Stripe emails you the receipt.",
+    "deletion": "If you delete your account, your purchase records are deleted and no refund is given.",
+    "tokushoho": "For details, see the <link>Specified Commercial Transactions Act Disclosure</link>."
   },
-  "manageLink": "購入状況・購入履歴を確認",
+  "manageLink": "View your purchase status and history",
   "errors": {
-    "unauthorized": "ログインが必要です",
-    "banned": "このアカウントでは購入できません",
-    "rateLimited": "操作が速すぎます。少し待ってからお試しください。",
-    "invalidOffer": "選択されたプランが見つかりません",
-    "checkoutFailed": "購入画面を開けませんでした。時間をおいてお試しください。",
-    "alreadyActive": "有効な購入があるため、追加購入はできません。パスは期限切れ後に再購入できます。",
-    "checkoutInProgress": "別の売り方で購入手続き中です。先に選んだ購入ボタンから再開してください。手続きは開始から1時間で期限切れになります。",
-    "checkoutExpired": "購入手続きを開始できませんでした。しばらくしてからもう一度購入ボタンを押してください。",
-    "checkoutPending": "前回の決済を確認しました。マイページで購入状況を確認してください。"
+    "unauthorized": "You need to log in",
+    "banned": "Purchases are not available for this account",
+    "rateLimited": "You are going too fast. Please wait a moment and try again.",
+    "invalidOffer": "The selected plan was not found",
+    "checkoutFailed": "Could not open the checkout page. Please try again later.",
+    "alreadyActive": "You already have an active purchase, so you cannot buy more. You can buy a pass again after it expires.",
+    "checkoutInProgress": "A checkout for the other option is in progress. Please resume it from the buy button you chose first. A checkout expires 1 hour after it starts.",
+    "checkoutExpired": "Could not start checkout. Please wait a moment and press the buy button again.",
+    "checkoutPending": "We found your previous payment. Please check your purchase status on My Page."
   }
 }
