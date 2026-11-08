@@ -205,22 +205,24 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# メール件名・本文のサイト名は src/messages/ja.json の metadata.siteName を正典とする。
+# メール件名・本文のサイト名は packages/messages の metadata.siteName を正典とする。
 # Supabase は config.toml を直接読むため定数 import ができず、以下の subject だけは
 # 手で持つ。templates/*.html は scripts/generate-email-templates.ts の生成物で、
 # subject と同じ文字列を <title> に出す（文言は scripts/email-templates/contents.ts）。
-# サイト名や件名を変更したら ja.json・contents.ts・以下の subject を揃え、
-# pnpm --filter web email:generate でテンプレートを作り直すこと。
+# 件名は「<サイト名> - <日本語の見出し> / <英語の見出し>」の日英併記（1 通で両言語）。
+# サイト名や件名を変更したら辞書（確認メールは verifyEmail.mailSubject も）・
+# contents.ts・以下の subject を揃え、pnpm --filter web email:generate で
+# テンプレートを作り直すこと。本番の Dashboard の Subject にも貼り直す。
 [auth.email.template.confirmation]
-subject = "麻雀点数計算教室 - メールアドレスの確認"
+subject = "麻雀点数計算教室 - メールアドレスの確認 / Confirm your email address"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.recovery]
-subject = "麻雀点数計算教室 - パスワードのリセット"
+subject = "麻雀点数計算教室 - パスワードのリセット / Reset your password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "麻雀点数計算教室 - メールアドレス変更の確認"
+subject = "麻雀点数計算教室 - メールアドレス変更の確認 / Confirm your email address change"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.sms]

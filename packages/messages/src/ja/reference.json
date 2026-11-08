@@ -25,6 +25,11 @@
       "menzenOnly": "門前限定",
       "kuisagari": "食い下がり",
       "unchanged": "鳴いても同じ"
+    },
+    "variants": {
+      "haku": "白",
+      "hatsu": "發",
+      "chun": "中"
     }
   },
   "glossary": {

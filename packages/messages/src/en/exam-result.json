@@ -1,0 +1,21 @@
+{
+  "pass": "Passed",
+  "fail": "Not passed",
+  "scoreLine": "{correct} correct / pass line {minScore}",
+  "remaining": "{count} short of passing",
+  "correctLegend": "Correct",
+  "minScoreLegend": "Pass line",
+  "averageTimeLabel": "Average answer time",
+  "averageTimeValue": "{seconds} s",
+  "averageTimeNone": "—",
+  "requiredPaceLabel": "Pace needed to pass",
+  "requiredPaceValue": "{seconds} s per question",
+  "endedByGoal": "Ended on reaching the pass line",
+  "endedByMistake": "Ended by a wrong answer on question {n}",
+  "endedByTime": "Ended when time ran out",
+  "status": {
+    "sending": "Checking whether you passed…",
+    "queued": "Could not send your result. It will be sent the next time you are online (if you passed, you will get the rank then).",
+    "notRecorded": "This exam was not judged."
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Promotion Exam: Scoring Chiitoitsu",
+  "description": "A promotion exam with no yaku shown: count the han of a riichi mahjong chiitoitsu (seven pairs) hand and answer the score at 25 fu. You can make at most one mistake",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "questionPrompt": "Answer the score for this win",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": " all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": " points",
+  "generating": "Generating questions...",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get hands won with chiitoitsu. The yaku are not shown, so count the han yourself and answer the score from the 25 fu column of the scoring table."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "summarySeparator": ", "
+}

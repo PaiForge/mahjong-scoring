@@ -1,0 +1,159 @@
+{
+  "title": "Scoring Practice",
+  "description": "Riichi mahjong scoring practice that takes you step by step from the basics of counting fu to calling out the score.",
+  "detail": "See details",
+  "learn": "View the lesson",
+  "attempted": "Attempted",
+  "cardExample": {
+    "units": {
+      "fu": "Fu?",
+      "han": "Han?",
+      "score": "Points?",
+      "yaku": "Yaku?"
+    },
+    "naki": "Called",
+    "yakuName": "Honitsu",
+    "fuHanExample": {
+      "fu": "30 fu",
+      "han": "4 han"
+    },
+    "manganHan": "5 han"
+  },
+  "progress": "Learning progress",
+  "progressSignInPrompt": "Sign in to keep a record of your learning",
+  "categories": {
+    "fuCalculation": {
+      "title": "Fu calculation",
+      "short": "Fu"
+    },
+    "han": {
+      "title": "Han",
+      "short": "Han"
+    },
+    "scoring": {
+      "title": "Score calculation",
+      "short": "Points"
+    }
+  },
+  "filter": {
+    "label": "Filter the practice menus",
+    "all": "All",
+    "listHeading": "Practice menus"
+  },
+  "practices": {
+    "jantouFu": {
+      "title": "Fu for the Pair",
+      "shortTitle": "Pair fu"
+    },
+    "machiFu": {
+      "title": "Fu for the Wait",
+      "shortTitle": "Wait fu"
+    },
+    "mentsuFu": {
+      "title": "Fu for Sets",
+      "shortTitle": "Set fu"
+    },
+    "mentsuJantouFu": {
+      "title": "Fu for Sets and the Pair",
+      "shortTitle": "Set and pair fu"
+    },
+    "totalFu": {
+      "title": "Total Fu for the Hand",
+      "shortTitle": "Total fu"
+    },
+    "yakuHan": {
+      "title": "Han for Each Yaku",
+      "shortTitle": "Yaku han"
+    },
+    "yaku": {
+      "title": "Identify the Yaku",
+      "shortTitle": "Yaku"
+    },
+    "scoreTable": {
+      "title": "Scoring Table Lookup",
+      "shortTitle": "Table lookup"
+    },
+    "scoreCalculation": {
+      "title": "Instant Score Calculation",
+      "shortTitle": "Instant score"
+    },
+    "hanCount": {
+      "title": "Instant Han Count",
+      "shortTitle": "Instant han"
+    },
+    "manganScoreCalculation": {
+      "title": "Scoring Mangan and Above",
+      "shortTitle": "Mangan+"
+    },
+    "manganExam": {
+      "title": "Promotion Exam: Scoring Mangan and Above",
+      "shortTitle": "Mangan exam"
+    },
+    "fuExam": {
+      "title": "Promotion Exam: Total Fu for the Hand",
+      "shortTitle": "Fu exam"
+    },
+    "chiitoitsuExam": {
+      "title": "Promotion Exam: Scoring Chiitoitsu",
+      "shortTitle": "Chiitoitsu exam"
+    },
+    "pinfuExam": {
+      "title": "Promotion Exam: Scoring Pinfu",
+      "shortTitle": "Pinfu exam"
+    },
+    "fuScoreExam": {
+      "title": "Promotion Exam: Scoring 30 to 50 Fu Hands",
+      "shortTitle": "30–50 fu exam"
+    },
+    "scoreExam": {
+      "title": "Promotion Exam: Score Calculation",
+      "shortTitle": "Scoring exam"
+    }
+  },
+  "agariScoreBanner": {
+    "title": "Winning Hand Scoring Practice",
+    "description": "Calculate the yaku, han, fu and points from a winning hand, and practice all the way to calling out the score."
+  },
+  "tenpaiScoreBanner": {
+    "title": "Tenpai Hand Scoring Practice",
+    "description": "Find the waits in a tenpai hand and calculate the tsumo and ron scores for each wait. You can also practice how the score changes between the higher and lower winning tiles."
+  },
+  "orDivider": "or",
+  "modeChallengeHint": "Go for a record: {timeLimit}-second time limit, ends after {mistakeLimit} mistakes",
+  "modeTrainingHint": "No time limit; check your answer after each question and practice as often as you like",
+  "settingsTitle": "Settings",
+  "requiredKnowledge": "Related lessons",
+  "relatedRanks": "Related ranks",
+  "variantLabel": "Setting: {label}",
+  "introTitle": "{title}: Riichi Mahjong Practice",
+  "modes": {
+    "label": "Practice type",
+    "basic": "Basic practice",
+    "practical": "Real-game practice",
+    "dojoLink": "Go to the Dojo"
+  },
+  "preview": {
+    "tsumo": "Tsumo",
+    "score": "Count the yaku, han and fu. How many points?",
+    "ron": "Ron ? points",
+    "tsumoScore": "Tsumo ? points"
+  },
+  "tryLinks": {
+    "title": "Try it in practice",
+    "backToHome": "Back to home"
+  },
+  "scoreInput": {
+    "bands": "Score range",
+    "nonMangan": "Below mangan",
+    "manganPlus": "Mangan+",
+    "switchToSelect": "Choose the score from a list",
+    "switchToTiles": "Choose the score from tiles"
+  },
+  "errorBoundary": {
+    "title": "We couldn't load this practice",
+    "description": "A temporary problem may have occurred. Please try again.",
+    "retry": "Try again",
+    "backToList": "Back to the practice menus"
+  },
+  "titleWithVariant": "{title} ({variant})"
+}

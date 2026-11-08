@@ -13,7 +13,7 @@
  *
  * 利用規約への同意は、登録の手段（Apple・メール）より上に置いた一文で取る
  * （web の登録画面と同じ）。規約とプライバシーポリシーはマイページの「その他」と
- * 同じく web のページをブラウザで開く。
+ * 同じく web のページをブラウザで開く（英語の端末では `/en/terms`・`/en/privacy`）。
  */
 import { useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
@@ -23,6 +23,7 @@ import {
   MIN_PASSWORD_LENGTH,
   validatePasswordPair,
 } from "@mahjong-scoring/features/account/password";
+import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 
 import { AppleSignInSection } from "../../auth/apple-sign-in-section";
 import { FormMessage } from "../../auth/form-message";
@@ -35,6 +36,7 @@ import { TextLink } from "../../components/text-link";
 import { SITE_URL } from "../../lib/app-site-url";
 import { InlineTextLink } from "../../lessons/components/chapter-link";
 import { colors } from "../../lib/theme";
+import { useAppLocale } from "../../lib/use-app-locale";
 
 /** 登録の失敗を辞書の文言に写すための分類 */
 type SignUpFailure = "weak" | "rateLimited" | "networkError" | "failed";
@@ -53,6 +55,7 @@ export default function SignUpScreen() {
   const t = useTranslations("signUp");
   const tAuth = useTranslations("auth");
   const tPassword = useTranslations("validation.password");
+  const locale = useAppLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -125,14 +128,22 @@ export default function SignUpScreen() {
         {t.rich("consent", {
           terms: (chunks) => (
             <InlineTextLink
-              onPress={() => void Linking.openURL(`${SITE_URL}/terms`)}
+              onPress={() =>
+                void Linking.openURL(
+                  `${SITE_URL}${webLocalePath("/terms", locale)}`,
+                )
+              }
             >
               {chunks}
             </InlineTextLink>
           ),
           privacy: (chunks) => (
             <InlineTextLink
-              onPress={() => void Linking.openURL(`${SITE_URL}/privacy`)}
+              onPress={() =>
+                void Linking.openURL(
+                  `${SITE_URL}${webLocalePath("/privacy", locale)}`,
+                )
+              }
             >
               {chunks}
             </InlineTextLink>

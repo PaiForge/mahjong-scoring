@@ -1,0 +1,13 @@
+{
+  "title": "Try a Riichi Mahjong Fu Question",
+  "description": "Solve one riichi mahjong fu calculation question, no sign-up needed. Look at a single set and answer how many fu it is worth.",
+  "learnCta": "Learn the fu for sets in the lesson",
+  "practiceTitle": "Try it in practice",
+  "browsePractices": "See all practice menus",
+  "backToHome": "Back to home",
+  "signUp": {
+    "title": "Create an account to keep practicing",
+    "description": "Sign up for free to save your learning progress. You can work up step by step, starting with practice focused on one area such as fu or han.",
+    "cta": "Sign up for free"
+  }
+}

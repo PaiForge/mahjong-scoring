@@ -1,0 +1,58 @@
+{
+  "title": "Quick Reference",
+  "sectionTitle": "Find what you want to look up",
+  "description": "Quick-reference tables for checking scores and yaku at a glance.",
+  "relatedTitle": "Other quick references",
+  "scoreTable": {
+    "title": "Scoring Table",
+    "description": "Look up dealer and non-dealer ron and tsumo scores in a fu × han table."
+  },
+  "yaku": {
+    "title": "Yaku List",
+    "description": "A quick reference of each yaku's han (closed, and reduced when open) with example hands.",
+    "hanUnit": "{count} han",
+    "yakuman": "Yakuman",
+    "nakiHan": "Open: {count} han",
+    "menzenOnly": "Closed only",
+    "exampleMenzen": "Closed",
+    "exampleNaki": "Open",
+    "exampleLabelSeparator": " / ",
+    "nakiNote": "* Yaku without a label keep the same han when the hand is open.",
+    "inThisHand": "Yaku in this hand",
+    "nakiFilterLabel": "Filter by how an open hand affects the yaku",
+    "nakiFilters": {
+      "all": "All",
+      "menzenOnly": "Closed only",
+      "kuisagari": "Reduced when open",
+      "unchanged": "Same when open"
+    },
+    "variants": {
+      "haku": "White Dragon (haku)",
+      "hatsu": "Green Dragon (hatsu)",
+      "chun": "Red Dragon (chun)"
+    }
+  },
+  "glossary": {
+    "title": "Glossary",
+    "description": "Look up the terms used in score calculation, with meanings and example hands."
+  },
+  "demo": {
+    "title": "Linked Reference Sample",
+    "description": "When you review an answer in practice, tapping a score or a yaku name opens the scoring table or the yaku list right there. Try it with this one answered problem.",
+    "tour": {
+      "label": "See how this page works",
+      "prev": "Back",
+      "next": "Next",
+      "done": "Close",
+      "progress": "{current} / {total}",
+      "yaku": {
+        "title": "Tap a yaku",
+        "description": "Tapping a yaku name opens the yaku list with that yaku's example hand expanded."
+      },
+      "score": {
+        "title": "Tap the score",
+        "description": "Tapping the correct score opens the scoring table with that score's cell marked."
+      }
+    }
+  }
+}

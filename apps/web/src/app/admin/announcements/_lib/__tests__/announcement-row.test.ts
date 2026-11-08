@@ -2,10 +2,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+import { revalidatePath } from "next/cache";
+
 import { toJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
 import type { AnnouncementInput } from "../validation";
-import { resolvePinnedAt, toAnnouncementRow } from "../announcement-row";
+import {
+  resolvePinnedAt,
+  revalidateAnnouncementPaths,
+  toAnnouncementRow,
+} from "../announcement-row";
 
 const NOW = new Date("2026-08-15T12:00:00.000Z");
 /** 過去にピン留めしたときの時刻 */
@@ -135,3 +141,32 @@ describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
     });
   },
 );
+
+describe("revalidateAnnouncementPaths", () => {
+  afterEach(() => {
+    vi.mocked(revalidatePath).mockClear();
+  });
+
+  it("従来の 3 行（管理画面・接頭辞なしの一覧と詳細）に、言語ごとの内部パスの一覧と詳細を足して 7 回呼ぶ", () => {
+    revalidateAnnouncementPaths("release-notes");
+
+    expect(vi.mocked(revalidatePath).mock.calls).toEqual([
+      ["/admin/announcements"],
+      ["/announcements"],
+      ["/announcements/release-notes"],
+      ["/ja/announcements"],
+      ["/ja/announcements/release-notes"],
+      ["/en/announcements"],
+      ["/en/announcements/release-notes"],
+    ]);
+  });
+
+  it("管理画面のパスには言語の接頭辞を付けない（app/[locale] の外）", () => {
+    revalidateAnnouncementPaths("release-notes");
+
+    const paths = vi.mocked(revalidatePath).mock.calls.map(([path]) => path);
+    expect(paths.filter((path) => path.includes("/admin"))).toEqual([
+      "/admin/announcements",
+    ]);
+  });
+});

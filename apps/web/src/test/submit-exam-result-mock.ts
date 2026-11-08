@@ -11,7 +11,7 @@ import { vi } from "vitest";
  *
  * ```ts
  * vi.mock(
- *   "@/app/(user)/(public)/exam/_actions/submit-exam-result",
+ *   "@/app/[locale]/(user)/(public)/exam/_actions/submit-exam-result",
  *   async () => await import("@/test/submit-exam-result-mock"),
  * );
  * ```

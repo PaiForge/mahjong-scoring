@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>麻雀点数計算教室 - メールアドレス変更の確認</title>
+    <title>麻雀点数計算教室 - メールアドレス変更の確認 / Confirm your email address change</title>
   </head>
   <body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5;">
@@ -17,7 +17,7 @@
               </td>
             </tr>
             <tr>
-              <td style="padding: 32px;">
+              <td lang="ja" style="padding: 32px;">
                 <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #1a1a1a;">メールアドレス変更の確認</h2>
                 <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #444444;">
                   メールアドレスを <strong>{{ .NewEmail }}</strong> に変更するリクエストを受け付けました。以下のボタンをクリックして、変更を確認してください。
@@ -33,6 +33,26 @@
                 </table>
                 <p style="margin: 24px 0 0; font-size: 13px; line-height: 1.6; color: #888888;">
                   この変更をリクエストした覚えがない場合は、このメールを無視してください。メールアドレスは変更されません。
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td lang="en" style="padding: 32px; border-top: 1px solid #e5e5e5;">
+                <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #1a1a1a;">Confirm your email address change</h2>
+                <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #444444;">
+                  We received a request to change your email address to <strong>{{ .NewEmail }}</strong>. Click the button below to confirm the change.
+                </p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td align="center" style="padding: 8px 0;">
+                      <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&amp;type=email_change&amp;locale=en" target="_blank" style="display: inline-block; padding: 12px 32px; background-color: #1a1a1a; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 500; border-radius: 6px;">
+                        Confirm email change
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin: 24px 0 0; font-size: 13px; line-height: 1.6; color: #888888;">
+                  If you didn't request this change, you can ignore this email. Your email address won't be changed.
                 </p>
               </td>
             </tr>

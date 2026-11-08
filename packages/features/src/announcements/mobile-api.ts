@@ -1,11 +1,30 @@
 import { z } from "zod";
 
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+
 /**
  * アプリ向けのお知らせの API の契約（パス・応答）
  *
  * お知らせは誰が読んでも同じ公開の記事なので、他のアプリ向け API と違い
  * ログインを要らない（`Authorization` を付けずに読む）。
+ *
+ * @design 言語は任意の `?locale=ja|en`
+ * アプリは端末の言語（`APP_LOCALE`）を付けて呼び、英語の端末には英訳して
+ * 公開した記事だけを返させる（日本語の記事を英語の画面に混ぜない）。
+ * `ja` と省略は同じ URL（クエリを付けない）にする — ストアに出ている古い版の
+ * アプリは `locale` を付けずに呼び、従来どおり日本語（英語の行しか無い記事は
+ * その行で埋める fallback 付き）の応答を受ける。サーバーは未指定・未対応の値も
+ * 従来の応答にする。応答の形は言語で変えない。
  */
+
+/**
+ * `locale` を API のクエリの値にする。既定（ja）と省略は付けない（従来の URL のまま）
+ */
+function localeQueryValue(
+  locale: SupportedLocale | undefined,
+): string | undefined {
+  return locale === undefined || locale === DEFAULT_LOCALE ? undefined : locale;
+}
 
 const MOBILE_API_PREFIX = "/api/mobile/v1";
 
@@ -19,20 +38,37 @@ export const MOBILE_ANNOUNCEMENTS_API_PATH = `${MOBILE_API_PREFIX}/announcements
  * お知らせの一覧の API の URL（パス + クエリ）
  * お知らせ一覧API URL
  *
+ * `locale` が既定（ja）以外のときだけ `&locale=` を付ける（ja と省略は従来の URL）。
+ *
  * @param page - 1 始まりのページ番号
+ * @param locale - 読む記事の言語。省略は既定（ja）
  */
-export function mobileAnnouncementsApiUrl(page: number): string {
-  return `${MOBILE_ANNOUNCEMENTS_API_PATH}?page=${page}`;
+export function mobileAnnouncementsApiUrl(
+  page: number,
+  locale?: SupportedLocale,
+): string {
+  const url = `${MOBILE_ANNOUNCEMENTS_API_PATH}?page=${page}`;
+  const value = localeQueryValue(locale);
+  return value === undefined ? url : `${url}&locale=${value}`;
 }
 
 /**
  * お知らせ 1 件を返す API のパス（GET）
  * お知らせ詳細APIパス
  *
+ * `locale` が既定（ja）以外のときだけ `?locale=` を付ける（ja と省略は従来のパス）。
+ * 英語では英訳の行が無い記事は 404 `notFound` になる。
+ *
  * @param slug - お知らせの slug（web の `/announcements/<slug>` と同じ）
+ * @param locale - 読む記事の言語。省略は既定（ja）
  */
-export function mobileAnnouncementApiPath(slug: string): string {
-  return `${MOBILE_ANNOUNCEMENTS_API_PATH}/${encodeURIComponent(slug)}`;
+export function mobileAnnouncementApiPath(
+  slug: string,
+  locale?: SupportedLocale,
+): string {
+  const path = `${MOBILE_ANNOUNCEMENTS_API_PATH}/${encodeURIComponent(slug)}`;
+  const value = localeQueryValue(locale);
+  return value === undefined ? path : `${path}?locale=${value}`;
 }
 
 /**
@@ -87,7 +123,8 @@ export interface MobileAnnouncementResponse {
  * お知らせの API 固有の失敗の理由
  *
  * - `notFound` — その slug の公開中のお知らせが無い（404。取り下げられた・
- *   下書きに戻された記事を、前に読んだ一覧から開いたとき）
+ *   下書きに戻された記事を、前に読んだ一覧から開いたとき。`locale=en` では
+ *   英訳の行が無い記事も — 本文のリンクが日本語だけの記事を指したとき）
  */
 export const MOBILE_ANNOUNCEMENT_ERROR_CODES = ["notFound"] as const;
 

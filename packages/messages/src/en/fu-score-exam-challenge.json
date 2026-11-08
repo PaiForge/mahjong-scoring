@@ -1,0 +1,32 @@
+{
+  "title": "Promotion Exam: Scoring 30 to 50 Fu Hands",
+  "description": "A promotion exam with no yaku or fu shown: build up the fu of a standard riichi mahjong hand, count the han and answer the score. Open hands appear too. You can make at most one mistake",
+  "oya": "Dealer",
+  "ko": "Non-dealer",
+  "tsumo": "Tsumo",
+  "ron": "Ron",
+  "han": "{count} han",
+  "fu": "{count} fu",
+  "questionPrompt": "Answer the score for this win",
+  "selectScore": "Select a score",
+  "fromKo": "From each non-dealer",
+  "fromOya": "From the dealer",
+  "koTsumoScore": "Score (from each non-dealer / from the dealer)",
+  "all": " all",
+  "answer": "Submit",
+  "revealedAnswer": "Correct answer: <answer></answer>",
+  "pointSuffix": " points",
+  "generating": "Generating questions...",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get winning hands below mangan at 30 to 50 fu. Neither the yaku nor the fu are shown, so build up the fu yourself, count the han and answer the score from the scoring table. Open hands appear too."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "summarySeparator": ", "
+}

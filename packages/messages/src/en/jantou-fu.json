@@ -1,0 +1,53 @@
+{
+  "title": "Fu for the Pair",
+  "generating": "Generating questions...",
+  "description": "Check the round wind and seat wind, then answer the fu for the pair",
+  "bakaze": "Round wind",
+  "jikaze": "Seat wind",
+  "selectCorrectHead": "Select the pair worth 2 fu or more",
+  "fu": "{value} fu",
+  "result": {
+    "problemDetails": "Question details",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "learn": {
+    "pageTitle": "Riichi Mahjong Fu for the Pair (Jantou)",
+    "pageDescription": "How the pair adds fu in riichi mahjong: dragon pairs, round and seat wind pairs, and the double wind pair, explained with tile images.",
+    "whatIsJantou": "What is the pair (jantou)?",
+    "whatIsJantouBody": "The [[jantou|pair]] (jantou) is the two identical tiles ([[toitsu|toitsu]]) that every [[hora|winning]] [[tehai|hand]] contains exactly once.\nIt is also called the head (atama).\nDepending on which tile makes up the pair, it can add fu.",
+    "yakuhaiTitle": "Yakuhai pair: 2 fu",
+    "yakuhaiBody": "A pair of [[sangenpai|dragon tiles]] (haku, hatsu, chun) always adds 2 fu.\nA pair of [[kazehai|wind tiles]] is also worth 2 fu when the wind is the round wind or your seat wind.",
+    "sangenExamples": "Dragon examples",
+    "kazeExamples": "Wind examples (East round, South seat)",
+    "labelHaku": "Haku",
+    "labelHatsu": "Hatsu",
+    "labelChun": "Chun",
+    "labelBakaze": "Round wind (East)",
+    "labelJikaze": "Seat wind (South)",
+    "noFuTitle": "Pairs with no fu: 0 fu",
+    "noFuBody": "A pair of [[shuupai|number tiles]] or of a [[otakaze|guest wind]] (otakaze) adds no fu.",
+    "noFuExamples": "0 fu examples",
+    "labelSuuhaiManzu": "Number tile (1-man)",
+    "labelSuuhaiPinzu": "Number tile (5-pin)",
+    "labelOtakaze": "Guest wind (West, in the East round from the South seat)",
+    "summaryTitle": "Summary",
+    "colType": "Pair",
+    "colFu": "Fu",
+    "rowSangen": "Dragons (haku, hatsu, chun)",
+    "rowBakaze": "Round wind",
+    "rowJikaze": "Seat wind",
+    "rowOther": "Number tiles, guest winds",
+    "fuUnit": "{value} fu",
+    "columnLabel": "Column",
+    "columnTitle": "Fu for a double wind pair (round wind = seat wind)",
+    "columnBody": "When the round wind and your seat wind are the same tile (for example, East for the East seat in the East round), that tile is called a double wind.<br></br>How many fu a double wind pair adds depends on the rules.<br></br>Some rules count it as 2 fu for the round wind plus 2 fu for the seat wind, 4 fu in total, while others give it a flat 2 fu like any other yakuhai pair.<br></br>Check which rule is in use before you play.",
+    "columnSettingsNote": "* In this app you can switch in <settingsLink>Settings</settingsLink> whether a double wind pair counts as 4 fu"
+  }
+}

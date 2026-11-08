@@ -5,26 +5,171 @@ import {
   type ScoreDetail,
 } from "@pai-forge/riichi-mahjong";
 import { calculateMentsuFu, isOpenMentsuAt } from "../core/score-table-math";
-import { jantouFuReasons } from "../problem/shared/jantou-fu";
+import {
+  jantouFuReasons,
+  type JantouFuReason,
+} from "../problem/shared/jantou-fu";
 import { FU_STEP, FUTEI_FU } from "./mentsu-tehai-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
 
-/** 符が付く待ち形の日本語ラベル */
-const MACHI_LABELS: Readonly<Record<string, string>> = {
-  Tanki: "単騎待ち",
-  Kanchan: "嵌張待ち",
-  Penchan: "辺張待ち",
+/**
+ * 雀頭が役牌である理由の、言語に依らない名前
+ * 雀頭役牌理由キー
+ *
+ * {@link FuReasonSpec} の `jantou` が持つ。辞書の
+ * `challenge.fuBreakdown.reasons.jantouReasons.<key>` のキーと同じ文字列。
+ */
+export type JantouFuReasonKey = "bakaze" | "jikaze" | "sangenpai";
+
+/**
+ * 符が付く待ちの、言語に依らない名前
+ * 待ち符キー
+ *
+ * {@link FuReasonSpec} の `machi` が持つ。`other` はライブラリが待ちの種類を
+ * 返さなかった（または符の付く 3 種に当たらない）ときで、日本語は「待ち」。
+ * 辞書の `challenge.fuBreakdown.reasons.machi` の `select` の選択肢と同じ文字列。
+ */
+export type FuMachiKey = "tanki" | "kanchan" | "penchan" | "other";
+
+/**
+ * 符の理由の構造
+ * 符理由
+ *
+ * 内訳の 1 行が「なぜその符か」を、言語に依らない形で持つ。描く側が言語ごとの
+ * 文言にする（web・モバイルは辞書の `challenge.fuBreakdown.reasons.*` を
+ * features の `fuReasonLabel` で引く）。{@link FuDetail.reason}（日本語の文言）は
+ * これから {@link formatFuReasonJa} で組む。
+ *
+ * core の文字列を直接英語にしないのは、モバイル（日本語固定）と保存済みの内訳
+ * （`reason` は日本語のまま sessionStorage・DB に残る）が `reason` を読むため。
+ * 構造を足すだけなら、それらは何も変わらない。
+ *
+ * - `futei` — 副底（国士無双の便宜上の 1 行も同じ）
+ * - `chiitoitsu` — 七対子 25 符
+ * - `pinfuTsumo` — 平和ツモ 20 符
+ * - `tsumo` — ツモ符
+ * - `menzenRon` — 門前加符
+ * - `mentsu` — 刻子・槓子の符（么九牌か・明か・槓子か）
+ * - `jantou` — 役牌の雀頭（理由は場風・自風・三元牌の順。連風牌は場風と自風の 2 つ）
+ * - `machi` — 待ち符
+ * - `kuiPinfu` — 特例等の加符（喰い平和の合計 20 符を 30 符に切り上げる 10 符）
+ */
+export type FuReasonSpec =
+  | { readonly kind: "futei" }
+  | { readonly kind: "chiitoitsu" }
+  | { readonly kind: "pinfuTsumo" }
+  | { readonly kind: "tsumo" }
+  | { readonly kind: "menzenRon" }
+  | {
+      readonly kind: "mentsu";
+      readonly yaochu: boolean;
+      readonly open: boolean;
+      readonly kantsu: boolean;
+    }
+  | {
+      readonly kind: "jantou";
+      readonly reasons: readonly JantouFuReasonKey[];
+    }
+  | { readonly kind: "machi"; readonly machi: FuMachiKey }
+  | { readonly kind: "kuiPinfu" };
+
+/**
+ * 雀頭の理由（`jantouFuReasons` の日本語の語彙）から {@link JantouFuReasonKey} への対応
+ *
+ * `jantouFuReasons` の戻り値の型（日本語の union）は符の計算が読むので変えず、
+ * 構造へはこの表で写す。
+ */
+const JANTOU_REASON_KEYS: Readonly<Record<JantouFuReason, JantouFuReasonKey>> =
+  {
+    場風: "bakaze",
+    自風: "jikaze",
+    三元牌: "sangenpai",
+  };
+
+/** {@link JantouFuReasonKey} の日本語（`jantouFuReasons` の語彙と同じ文字列） */
+const JANTOU_REASON_LABELS: Readonly<Record<JantouFuReasonKey, string>> = {
+  bakaze: "場風",
+  jikaze: "自風",
+  sangenpai: "三元牌",
 };
+
+/** ライブラリの待ちの種類から {@link FuMachiKey} への対応（符が付く待ちだけ） */
+const MACHI_KEYS: Readonly<Record<string, FuMachiKey>> = {
+  Tanki: "tanki",
+  Kanchan: "kanchan",
+  Penchan: "penchan",
+};
+
+/** 符が付く待ち形の日本語ラベル */
+const MACHI_LABELS: Readonly<Record<FuMachiKey, string>> = {
+  tanki: "単騎待ち",
+  kanchan: "嵌張待ち",
+  penchan: "辺張待ち",
+  other: "待ち",
+};
+
+/**
+ * 符の理由の日本語の文言
+ * 符理由日本語表記
+ *
+ * {@link FuDetail.reason} はすべてここから組む（「副底」「么九牌暗刻子」
+ * 「雀頭(場風・自風)」「嵌張待ち」…）。この文字列はモバイルの表示と保存済みの
+ * 内訳がそのまま読む契約なので変えない（`fu-calculator.test.ts` が固定する）。
+ * 辞書の ja の `challenge.fuBreakdown.reasons.*` も同じ文字列を返すように
+ * 書いてあり、features の `fu-reason-label.test.ts` が一致を固定する。
+ *
+ * @param spec - 符の理由の構造
+ */
+export function formatFuReasonJa(spec: FuReasonSpec): string {
+  switch (spec.kind) {
+    case "futei":
+      return "副底";
+    case "chiitoitsu":
+      return "七対子";
+    case "pinfuTsumo":
+      return "平和ツモ";
+    case "tsumo":
+      return "ツモ";
+    case "menzenRon":
+      return "門前加符";
+    case "kuiPinfu":
+      return "特例等の加符";
+    case "mentsu":
+      return `${yaochuLabel(spec.yaochu)}${openLabel(spec.open)}${spec.kantsu ? "槓子" : "刻子"}`;
+    case "jantou":
+      return `雀頭(${spec.reasons.map((key) => JANTOU_REASON_LABELS[key]).join("・")})`;
+    case "machi":
+      return MACHI_LABELS[spec.machi];
+  }
+}
 
 /**
  * 符計算の内訳詳細
  * 符内訳
  */
 export interface FuDetail {
-  /** 理由（例: 副底, 中張牌 暗刻 等） */
+  /**
+   * 理由の日本語の文言（例: 副底, 中張牌暗刻子 等）
+   *
+   * `spec` を持つ行では {@link formatFuReasonJa}(spec) と一致する。
+   */
   readonly reason: string;
   /** 符数 */
   readonly fu: number;
+  /**
+   * 理由の構造。描く側が言語ごとの文言にする
+   *
+   * core が組む内訳（{@link convertScoreDetailToFuDetails}）は必ず持つ。
+   * 省略可能なのは、この項目を足す前に保存された内訳（sessionStorage・DB に
+   * 残る `reason` と `fu` だけの行）も同じ型で読むため。持たない行は
+   * `reason`（日本語）をそのまま描く（features の `fuReasonLabel`）。
+   */
+  readonly spec?: FuReasonSpec;
+}
+
+/** 構造から内訳の 1 行を組む（`reason` は構造から組んだ日本語の文言） */
+function fuDetailOf(spec: FuReasonSpec, fu: number): FuDetail {
+  return { reason: formatFuReasonJa(spec), fu, spec };
 }
 
 /** 面子手の構造（面子符・雀頭符の内訳はここからしか復元できない） */
@@ -42,12 +187,16 @@ function specialFuDetails(
   isTsumo: boolean,
 ): FuDetail[] | undefined {
   const { fuResult, structure } = detail;
-  if (structure.type === "Chiitoitsu") return [{ reason: "七対子", fu: 25 }];
+  if (structure.type === "Chiitoitsu") {
+    return [fuDetailOf({ kind: "chiitoitsu" }, 25)];
+  }
   // 国士無双（便宜上）
-  if (structure.type === "Kokushi") return [{ reason: "副底", fu: FUTEI_FU }];
+  if (structure.type === "Kokushi") {
+    return [fuDetailOf({ kind: "futei" }, FUTEI_FU)];
+  }
   // 平和ツモの特例（符合計が20符の場合）
   if (fuResult.total === FUTEI_FU && isTsumo) {
-    return [{ reason: "平和ツモ", fu: FUTEI_FU }];
+    return [fuDetailOf({ kind: "pinfuTsumo" }, FUTEI_FU)];
   }
   return undefined;
 }
@@ -55,9 +204,7 @@ function specialFuDetails(
 /** 和了符（ツモ / 門前加符）。付かなければ undefined */
 function agariFuDetail(agari: number, isTsumo: boolean): FuDetail | undefined {
   if (agari <= 0) return undefined;
-  return isTsumo
-    ? { reason: "ツモ", fu: agari }
-    : { reason: "門前加符", fu: agari };
+  return fuDetailOf({ kind: isTsumo ? "tsumo" : "menzenRon" }, agari);
 }
 
 /**
@@ -76,16 +223,14 @@ function mentsuFuDetails(
     if (mentsu.type === MentsuType.Shuntsu) continue;
     const isYao = isYaochu(mentsu.hais[0]);
     const isOpen = isOpenMentsuAt(structure, index, isTsumo);
-    const fu = calculateMentsuFu({
-      isKantsu: mentsu.type === MentsuType.Kantsu,
-      isOpen,
-      isYaochu: isYao,
-    });
-    const typeLabel = mentsu.type === MentsuType.Kantsu ? "槓子" : "刻子";
-    details.push({
-      reason: `${yaochuLabel(isYao)}${openLabel(isOpen)}${typeLabel}`,
-      fu,
-    });
+    const isKantsu = mentsu.type === MentsuType.Kantsu;
+    const fu = calculateMentsuFu({ isKantsu, isOpen, isYaochu: isYao });
+    details.push(
+      fuDetailOf(
+        { kind: "mentsu", yaochu: isYao, open: isOpen, kantsu: isKantsu },
+        fu,
+      ),
+    );
   }
   return details;
 }
@@ -98,7 +243,13 @@ function jantouFuDetail(
   jikaze: Kazehai,
 ): FuDetail {
   const reasons = jantouFuReasons(structure.jantou.hais[0], bakaze, jikaze);
-  return { reason: `雀頭(${reasons.join("・")})`, fu };
+  return fuDetailOf(
+    {
+      kind: "jantou",
+      reasons: reasons.map((reason) => JANTOU_REASON_KEYS[reason]),
+    },
+    fu,
+  );
 }
 
 /** 待ち符。付かなければ undefined */
@@ -107,9 +258,8 @@ function machiFuDetail(
   machiType: ScoreDetail["machiType"],
 ): FuDetail | undefined {
   if (machi <= 0) return undefined;
-  const machiLabel =
-    machiType !== undefined ? MACHI_LABELS[machiType] : undefined;
-  return { reason: machiLabel ?? "待ち", fu: machi };
+  const key = machiType !== undefined ? MACHI_KEYS[machiType] : undefined;
+  return fuDetailOf({ kind: "machi", machi: key ?? "other" }, machi);
 }
 
 /**
@@ -121,6 +271,8 @@ function machiFuDetail(
  *
  * 和了牌の位置（どの面子を完成させたか）は `detail.structure.agari` が持つので
  * 引数には取らない。明暗はそこから引く（{@link isOpenMentsuAt}）。
+ *
+ * 各行は理由の構造（`spec`）と、そこから組んだ日本語の文言（`reason`）の両方を持つ。
  *
  * @param detail - ライブラリの ScoreDetail
  * @param config - 和了状況（ツモ/ロン、場風、自風）
@@ -141,7 +293,7 @@ export function convertScoreDetailToFuDetails(
   const mentsuHand = structure.type === "Mentsu" ? structure : undefined;
 
   const result: FuDetail[] = [
-    { reason: "副底", fu: details.base },
+    fuDetailOf({ kind: "futei" }, details.base),
     ...optional(agariFuDetail(details.agari, config.isTsumo)),
     ...(details.mentsu > 0 && mentsuHand
       ? mentsuFuDetails(mentsuHand, config.isTsumo)
@@ -162,7 +314,7 @@ export function convertScoreDetailToFuDetails(
   // 喰い平和の特例（合計20符を30符に切り上げ）
   const rawSum = result.reduce((acc, d) => acc + d.fu, 0);
   if (rawSum === FUTEI_FU && !config.isTsumo) {
-    result.push({ reason: "特例等の加符", fu: FU_STEP });
+    result.push(fuDetailOf({ kind: "kuiPinfu" }, FU_STEP));
   }
 
   return result;

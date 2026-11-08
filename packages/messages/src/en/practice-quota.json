@@ -1,0 +1,32 @@
+{
+  "proBadge": "Pro",
+  "remaining": "{count, select, 0 {This is your last question for today} other {Questions left today: {count}}}",
+  "planLink": "How to keep going without limits",
+  "paywall": {
+    "title": "That's all of today's free questions",
+    "bodySignedIn": "You have reached the free daily limit for this practice ({limit} questions a day). You can practice again from midnight Japan time (JST).",
+    "bodyAnonymous": "Without logging in, this practice is limited to {limit} questions a day. Log in to solve up to {signedInLimit} questions a day.",
+    "perksTitle": "What Pro gives you",
+    "perkUnlimited": "Practice scoring winning hands and tenpai hands, and the 1 Kyu and Shodan mock exams, with no daily limit",
+    "perkTools": "Answer-time tracking and hand display options (tiles randomly upside down, unsorted hands)",
+    "planCta": "See Pro pricing and plans",
+    "noAutoRenew": "No automatic renewal",
+    "signInCta": "Log in",
+    "signUpLink": "Create a free account",
+    "backToSetup": "Back to the practice",
+    "backToExam": "Back to the exam details"
+  },
+  "rateLimited": "You are going too fast. Please wait a moment and try again.",
+  "answerTime": "Answer time: {seconds} s",
+  "entry": {
+    "loading": "Checking today's free questions…",
+    "unavailable": "Could not check today's free questions. They will be checked again when you start.",
+    "remaining": "Free questions today: {remaining} / {limit} left",
+    "exhausted": "Today's free questions are used up",
+    "reset": "Resets every day at midnight Japan time (JST)",
+    "signIn": "Log in for up to {limit} free questions a day",
+    "unlimited": "You can practice with no daily limit",
+    "proUnlimited": "You can practice with no daily limit",
+    "plan": "<badge></badge><text>for unlimited practice</text>"
+  }
+}

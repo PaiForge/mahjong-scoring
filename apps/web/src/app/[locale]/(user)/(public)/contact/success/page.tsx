@@ -1,0 +1,43 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
+import { localizedHref } from "@/i18n/public-path";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/contact/success">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/contact/success");
+  return createPrivateMetadata("contact.success", "title", { locale });
+}
+
+/** お問い合わせの送信完了。「ホームへ」は同じ言語のトップへ戻す */
+export default async function ContactSuccessPage({
+  params,
+}: PageProps<"/[locale]/contact/success">) {
+  const locale = await prepareRouteLocale(params, "/contact/success");
+  const t = await getTranslations("contact");
+
+  return (
+    <ContentContainer breadcrumb={[{ label: t("success.title") }]}>
+      <PageTitle>{t("success.title")}</PageTitle>
+      <div className="w-full max-w-lg mx-auto space-y-6">
+        <p className="text-surface-700 leading-relaxed">
+          {t("success.message")}
+        </p>
+        <LinkButton
+          href={localizedHref("/", locale)}
+          variant="neutral"
+          size="lg"
+          fullWidth
+        >
+          {t("success.backToHome")}
+        </LinkButton>
+      </div>
+    </ContentContainer>
+  );
+}

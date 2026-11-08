@@ -33,26 +33,30 @@ Resend のダッシュボードで必要な DNS レコード（SPF、DKIM、DMAR
 
 ローカルの `config.toml`（`[auth.email.template.*]` セクション）および `supabase/templates/` 内の HTML ファイルは **ローカル開発専用** です。本番の Supabase プロジェクトには自動的に同期 **されません**。
 
-本番環境で同じブランドテンプレートを使用するには:
+3 通とも 1 通の中に日本語と英語を併記します。件名は「サイト名 - 日本語の見出し / 英語の見出し」、本文は日本語の段の後に英語の段で、ボタンも 2 つ（日本語のボタンは日本語のページへ、英語のボタンは英語のページ `/en/...` へ着く）です。Supabase は言語別のテンプレートを持たないので、言語ごとに送り分けません（iOS のアプリの登録・再設定も同じ 3 通を受けます）。
 
-1. Supabase Dashboard で **Authentication** > **Email** > **Templates** タブに移動
+本番環境で同じブランドテンプレートを使用するには、**本番の Supabase Dashboard（Authentication > Emails > Templates）で 3 通の Subject と HTML を貼り替えます**（自動同期はありません。テンプレートや件名を変えたリリースのたびに行います）:
+
+1. Supabase Dashboard で **Authentication** > **Emails** > **Templates** タブに移動
 2. 各テンプレートタイプについて、対応するローカルファイルから HTML コンテンツをコピー:
 
-   | テンプレートタイプ       | ローカルファイル                       | Subject                                       |
-   | ------------------------ | -------------------------------------- | --------------------------------------------- |
-   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数計算教室 - メールアドレスの確認`     |
-   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数計算教室 - パスワードのリセット`     |
-   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数計算教室 - メールアドレス変更の確認` |
+   | テンプレートタイプ       | ローカルファイル                       | Subject                                                                           |
+   | ------------------------ | -------------------------------------- | --------------------------------------------------------------------------------- |
+   | **Confirm signup**       | `supabase/templates/confirmation.html` | `麻雀点数計算教室 - メールアドレスの確認 / Confirm your email address`            |
+   | **Reset password**       | `supabase/templates/recovery.html`     | `麻雀点数計算教室 - パスワードのリセット / Reset your password`                   |
+   | **Change email address** | `supabase/templates/email_change.html` | `麻雀点数計算教室 - メールアドレス変更の確認 / Confirm your email address change` |
 
 3. 各テンプレートについて:
-   - **Subject** を上記の値に設定
+   - **Subject** を上記の値に設定（`config.toml` の `subject` と同じ文字列。確認メールの件名はメール確認待ちのページにも表示しているので、1 文字でも違うと利用者が受信箱で探せません）
    - **Body** をローカルファイルの HTML コンテンツで置換
    - テンプレート変数（`{{ .SiteURL }}`、`{{ .TokenHash }}`、`{{ .NewEmail }}` など）がそのまま保持されていることを確認
+   - ボタンのリンクが 2 本あり、2 本目（英語）の末尾が `&amp;locale=en` であることを確認
 4. 各テンプレートで **Save** をクリック
+5. 貼り替えた後、本番で登録の確認メールを 1 通送り、件名が併記になっていること・英語のボタンで `/en/mypage/setup-username`（ユーザー名が設定済みなら `/en/mypage`）に着くことを確かめる
 
-3 通ともリンクは `{{ .ConfirmationURL }}` ではなく `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=...` の形です。`ConfirmationURL` は PKCE の `?code=` で戻るため、登録や変更を始めた端末と別の端末（スマホのメールアプリ等）で開くと完了できません。`token_hash` は `/auth/callback` が検証するので端末を選びません。
+3 通ともリンクは `{{ .ConfirmationURL }}` ではなく `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=...` の形です。`ConfirmationURL` は PKCE の `?code=` で戻るため、登録や変更を始めた端末と別の端末（スマホのメールアプリ等）で開くと完了できません。`token_hash` は `/auth/callback` が検証するので端末を選びません。英語のボタンは同じリンクに `&locale=en` を足したもので、`/auth/callback` がこれを見て着地（ユーザー名の設定・パスワードの再設定・アカウントのページ等）を英語のページにします。`locale` の無いリンク（日本語のボタン・貼り替え前の旧いテンプレート）は日本語のページに着きます。
 
-> **Important:** HTML は `scripts/email-templates/contents.ts` から `pnpm --filter web email:generate` で生成します（HTML を直接編集しない。テストが生成物との一致を検査します）。文言や件名を変えたら、生成し直して `config.toml` の `subject` を揃え、Supabase Dashboard にも手動で貼り直してください。自動同期はありません。
+> **Important:** HTML は `scripts/email-templates/contents.ts` から `pnpm --filter web email:generate` で生成します（HTML を直接編集しない。テストが生成物との一致を検査します）。文言や件名を変えたら、生成し直して `config.toml` の `subject`（確認メールは辞書の `verifyEmail.mailSubject` も）を揃え、本番の Supabase Dashboard にも Subject と HTML を手動で貼り直してください。自動同期はありません。英語の文言は辞書ではなく `contents.ts` に直接持っています。
 
 ## 4. Testing
 

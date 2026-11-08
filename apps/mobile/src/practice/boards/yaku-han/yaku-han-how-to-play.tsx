@@ -4,7 +4,13 @@ import { useTranslations } from "use-intl";
 import { QuestionPrompt } from "../../components/question-prompt";
 import { YakuHanPrompt } from "./yaku-han-prompt";
 
-/** デモ用の固定例: 三色同順（鳴き） */
+/**
+ * デモ用の固定例: 三色同順（鳴き）
+ *
+ * 値は表示名ではなく出題と同じ core の役名（識別子）。表示名は辞書
+ * （`yakuNames.sanshoku_doujun`）から引くので、英語の端末には英語で出る。
+ * `yakuNames` の日本語は core の役名と一致するので、日本語の表示は変わらない。
+ */
 const DEMO_YAKU = "三色同順";
 const DEMO_IS_MENZEN = false;
 

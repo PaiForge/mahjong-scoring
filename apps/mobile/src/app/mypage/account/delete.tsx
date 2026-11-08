@@ -93,10 +93,14 @@ export default function DeleteAccountScreen() {
       <SectionTitle>{t("sectionTitle")}</SectionTitle>
       <Text style={styles.warning}>{t("warning")}</Text>
       <View style={[panelFrame, styles.consequences]}>
+        {/*
+          印は言語に依らない `•`（U+2022）。和文の中黒 `・` は英語の画面に日本語の文字として
+          残り、印は訳文ではないので辞書にも置かない（プラン画面・レッスン本文と同じ印）
+        */}
         {(["personalData", "scoresRemoved", "usernameLocked"] as const).map(
           (key) => (
             <Text key={key} style={styles.consequence}>
-              {`・${t(`consequences.${key}`)}`}
+              {`• ${t(`consequences.${key}`)}`}
             </Text>
           ),
         )}

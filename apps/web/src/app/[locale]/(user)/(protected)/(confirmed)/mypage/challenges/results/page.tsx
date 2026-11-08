@@ -1,0 +1,112 @@
+/**
+ * チャレンジ全履歴
+ *
+ * @description チャレンジモードの全チャレンジ結果をページネーション付きテーブルで表示する。
+ *   土俵（練習種別 × バリアント）によるフィルタリングが可能（`?menu=&variant=`）。
+ * @flow ダッシュボード「すべての結果を見る」 → 全履歴閲覧 → ページ遷移 → メニュー絞り込み
+ */
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+
+import { PaginationNav } from "@/app/[locale]/(user)/_components/pagination-nav";
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { createPrivateMetadata } from "@/app/_lib/metadata";
+import { requireConfirmedUser } from "@/lib/auth";
+import { parsePageParam } from "@/lib/pagination";
+
+import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
+import { getChallengeResultsPaginated } from "../_lib/queries";
+import { resolveRequestedBoard } from "@mahjong-scoring/features/my-record/requested-board";
+import { ResultsTable } from "./_components/results-table";
+import { MY_RECORD_PATH } from "@mahjong-scoring/features/routes";
+import { MypageSubpageLayout } from "../../_components/mypage-subpage-layout";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+
+import { confirmedGuardOptions } from "../../../_lib/guard-options";
+import { MY_RECORD_RESULTS_PATH } from "../_lib/paths";
+
+interface Props {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/mypage/challenges/results">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/mypage/challenges/results");
+  return createPrivateMetadata("mypage.challengeResults", "pageTitle", {
+    locale,
+  });
+}
+
+export default async function ChallengeResultsPage({
+  params: routeParams,
+  searchParams,
+}: Props & Pick<PageProps<"/[locale]/mypage/challenges/results">, "params">) {
+  const locale = await prepareRouteLocale(
+    routeParams,
+    "/mypage/challenges/results",
+  );
+  const t = await getTranslations("mypage.challengeResults");
+  const tChallenges = await getTranslations("mypage.challenges");
+  const tRoot = await getTranslations();
+  const params = await searchParams;
+
+  const { user } = await requireConfirmedUser(
+    confirmedGuardOptions(MY_RECORD_RESULTS_PATH, locale),
+  );
+
+  const page = parsePageParam(params.page);
+
+  const board = resolveRequestedBoard(params);
+
+  const { items, totalPages, currentPage } = await getChallengeResultsPaginated(
+    user.id,
+    page,
+    board,
+  );
+
+  const buildHref = (p: number) => {
+    const urlParams = new URLSearchParams();
+    if (p > 1) urlParams.set("page", String(p));
+    if (board) {
+      urlParams.set("menu", board.menuType);
+      urlParams.set("variant", board.variant);
+    }
+    const qs = urlParams.toString();
+    // ページ送りはこのページ自身なので、同じ言語のまま移る
+    return resolveNavTargetFor(
+      `${MY_RECORD_RESULTS_PATH}${qs ? `?${qs}` : ""}`,
+      locale,
+    ).href;
+  };
+
+  return (
+    <MypageSubpageLayout
+      title={t("pageTitle")}
+      parents={[{ label: tChallenges("pageTitle"), href: MY_RECORD_PATH }]}
+    >
+      <div className="space-y-6">
+        <SectionTitle>{t("sectionTitle")}</SectionTitle>
+        <ResultsTable
+          items={items}
+          emptyMessage={t("empty")}
+          headers={{
+            date: t("tableDate"),
+            menu: t("tableMenu"),
+            correctAnswers: t("tableCorrectAnswers"),
+            incorrectAnswers: t("tableIncorrectAnswers"),
+          }}
+          getBoardLabel={(item) => boardLabel(item, tRoot)}
+          locale={locale}
+        />
+
+        <PaginationNav
+          currentPage={currentPage}
+          totalPages={totalPages}
+          buildHref={buildHref}
+        />
+      </div>
+    </MypageSubpageLayout>
+  );
+}

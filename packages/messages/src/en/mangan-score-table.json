@@ -1,0 +1,14 @@
+{
+  "colType": "Limit",
+  "colHan": "Han",
+  "colScore": "Points",
+  "colNote": "Note",
+  "colKoEach": "Non-dealer (each)",
+  "colOya": "Dealer",
+  "colTotal": "Total",
+  "noteMangan": "-",
+  "noteHaneman": "1.5× mangan",
+  "noteBaiman": "2× mangan",
+  "noteSanbaiman": "3× mangan",
+  "noteYakuman": "4× mangan"
+}

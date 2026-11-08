@@ -1,0 +1,50 @@
+{
+  "pageTitle": "Pro plan",
+  "description": "A paid plan for practicing score calculation of winning hands and tenpai hands, and the 1 Kyu and Shodan mock exams, with no daily limit. Choose a 30-day pass or a lifetime purchase. No automatic renewal.",
+  "perks": {
+    "title": "What Pro gives you",
+    "unlimitedTitle": "Practice as much as you like",
+    "unlimited": "Unlimited scoring of winning hands and tenpai hands, and unlimited 1 Kyu and Shodan mock exams",
+    "toolsTitle": "Practice display and timing",
+    "tools": "Answer-time tracking and hand display options (tiles randomly upside down, unsorted hands)",
+    "freeLimits": "Free daily limits after logging in: scoring winning hands, {agari} questions a day / scoring tenpai hands, {tenpai} questions a day / 1 Kyu and Shodan mock exams, {exam} questions a day each"
+  },
+  "offers": {
+    "title": "Choose a plan",
+    "shared": "Both give the same Pro features. No automatic renewal. Prices are in Japanese yen (JPY).",
+    "lifetimeScope": "The lifetime purchase does not include features added in the future.",
+    "pass": {
+      "title": "30-day Pass",
+      "description": "For 30 days from purchase"
+    },
+    "lifetime": {
+      "title": "Lifetime",
+      "description": "Pay once and use the features available at purchase with no expiry"
+    },
+    "priceUnavailable": "Please check the price on the checkout page",
+    "buy": "Buy",
+    "signInToBuy": "Log in to buy",
+    "taxIncluded": "tax included"
+  },
+  "notes": {
+    "title": "Before you buy",
+    "pass": "When the 30-day pass expires, you go back to the free plan. You cannot buy more while it is active, but you can buy it again after it expires.",
+    "snapshot": "Your purchase covers the benefits shown when you started checkout. Even if the benefits change during checkout, what you buy stays the same.",
+    "noRefund": "Because this is digital content, purchases cannot be refunded.",
+    "receipt": "You pay on Stripe's checkout page, and your card details are not stored on this site. Stripe emails you the receipt.",
+    "deletion": "If you delete your account, your purchase records are deleted and no refund is given.",
+    "tokushoho": "For details, see the <link>Specified Commercial Transactions Act Disclosure</link>."
+  },
+  "manageLink": "View your purchase status and history",
+  "errors": {
+    "unauthorized": "You need to log in",
+    "banned": "Purchases are not available for this account",
+    "rateLimited": "You are going too fast. Please wait a moment and try again.",
+    "invalidOffer": "The selected plan was not found",
+    "checkoutFailed": "Could not open the checkout page. Please try again later.",
+    "alreadyActive": "You already have an active purchase, so you cannot buy more. You can buy a pass again after it expires.",
+    "checkoutInProgress": "A checkout for the other option is in progress. Please resume it from the buy button you chose first. A checkout expires 1 hour after it starts.",
+    "checkoutExpired": "Could not start checkout. Please wait a moment and press the buy button again.",
+    "checkoutPending": "We found your previous payment. Please check your purchase status on My Page."
+  }
+}

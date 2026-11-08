@@ -1,0 +1,35 @@
+{
+  "title": "Han for Each Yaku",
+  "generating": "Generating questions...",
+  "description": "Practice answering the han of a riichi mahjong yaku from its name and whether the hand is open. Watch out for yaku whose han changes between closed and open hands (kuisagari), and choose the correct answer from 1 to 6 han or yakuman.",
+  "menzen": "Closed",
+  "naki": "Open",
+  "selectHan": "Select the han",
+  "hanOption": "{count} han",
+  "yakuman": "Yakuman",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "variants": {
+    "no_kuisagari": {
+      "label": "Without kuisagari",
+      "hint": "Regular yaku whose han stays the same when you call (1 to 3 han)"
+    },
+    "kuisagari": {
+      "label": "With kuisagari",
+      "hint": "Yaku whose han changes between closed and open hands (sanshoku, ittsu, honitsu and more)"
+    },
+    "all": {
+      "label": "All",
+      "hint": "Every yaku, yakuman included"
+    }
+  }
+}

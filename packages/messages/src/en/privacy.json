@@ -1,0 +1,102 @@
+{
+  "pageTitle": "Privacy Policy",
+  "description": "The privacy policy of this riichi mahjong scoring site: the information we collect and why, cookies, analytics and ads, settings stored on your device, and how your information is handled when you delete your account.",
+  "intro": {
+    "title": "Our approach",
+    "body": "{siteName} (\"the Site\") respects the privacy of its users and works to protect their personal information. This Privacy Policy explains what information the Site collects, what it uses the information for, and how it stores it."
+  },
+  "collected": {
+    "title": "Information we collect",
+    "body": "The Site collects the following information.",
+    "account": "Account information — your email address and login credentials. Passwords are stored hashed, so not even the operator can see the original text. If you log in with Google, Google provides your email address, name and profile picture to the authentication service. Of these, the Site uses your email address to identify your account, and never copies your name or picture into your profile automatically.",
+    "profile": "Profile information — your username and, if you choose to add them, a display name, avatar image, bio, and X, Instagram and YouTube account names. Everything from the display name onward is added in the profile editor of the web app; the iOS app does not accept it (and does not access your photo library).",
+    "records": "Usage records — challenge results, EXP, completed lessons, rank, leaderboard display settings, and your list of blocked users.",
+    "reports": "Report details — who made the report and which user was reported, the reason and details of the report, and the reported user's profile at the time of the report (display name, bio, avatar image and social media account names). A reported user is never told who reported them.",
+    "purchase": "Purchase information — the date, contents and price of your paid plan purchases, and your customer ID and payment IDs at our payment processor (Stripe). Your credit card number is handled by Stripe and is never sent to or stored by the Site.",
+    "activity": "Activity history — the type and time of actions such as logging in, updating your profile and deleting your account. Records of actions taken by the operator, such as suspending an account, include the IP address of the operator who took the action.",
+    "access": "Access information — cookies, IP address, browser and device type, pages viewed and similar data. The IP address is checked briefly to limit many requests in a short time, and is not stored on the server.",
+    "inquiry": "Inquiry details — your name, email address, subject and message. They reach the operator by email and are not stored in the Site's database."
+  },
+  "purpose": {
+    "title": "How we use information",
+    "body": "We use the information we collect for the following purposes.",
+    "item1": "Providing the service (keeping you logged in, saving your results, showing leaderboards and ranks, and providing the benefits of paid plans)",
+    "item2": "Responding to inquiries",
+    "item3": "Preventing and investigating misuse, and dealing with actions that violate the Terms of Service",
+    "item4": "Improving the service by analyzing how it is used",
+    "item5": "Showing ads (described below)"
+  },
+  "cookies": {
+    "title": "Use of cookies",
+    "body": "The Site uses cookies to keep you logged in, to analyze traffic and to show ads. A cookie is a small text file that a website stores on your device. You can turn off cookies in your browser settings, but you will then be unable to use features that require logging in."
+  },
+  "analytics": {
+    "title": "Google Analytics",
+    "body": "The Site uses Google Analytics to understand how it is used and to improve the service. Google Analytics uses cookies to collect the following information.",
+    "item1": "Traffic statistics such as the number of visitors and page views",
+    "item2": "How visitors move around the Site and how long they stay",
+    "item3": "Information about the device and browser used",
+    "note": "This information is collected in a form that does not identify individuals, and is managed under Google's privacy policy. For details, see the <link>Google Privacy Policy</link>."
+  },
+  "ads": {
+    "title": "Advertising",
+    "body": "The Site may use a third-party ad service (Google AdSense). Ad providers use cookies to show ads based on your interests, and may use the following information.",
+    "item1": "Your past visits to the Site and to other websites",
+    "item2": "Your IP address (this does not include information that identifies you personally)",
+    "item3": "Your device and browser type",
+    "optOut": "If you do not want personalized ads, you can turn them off in <link>Google Ad Settings</link>.",
+    "learnMore": "For the information Google uses to show ads on partner sites, see <link>How Google uses information from sites or apps that use our services</link>.",
+    "amazonAssociate": "Some links on the Site (those marked \"PR\") are affiliate links to products on Amazon.co.jp. As an Amazon Associate, {siteName} earns from qualifying purchases."
+  },
+  "localStorage": {
+    "title": "Settings stored on your device",
+    "body": "The Site stores the following settings in your browser's local storage.",
+    "item1": "Rule settings (double wind fu, kiriage mangan, combined yakuman and so on) and display settings (how dora are shown)",
+    "item2": "Yaku order",
+    "item3": "Question settings for practice",
+    "note": "These settings are stored only on your device and are never sent to the server. They are removed when you clear the site data in your browser."
+  },
+  "publicInfo": {
+    "title": "Information that is made public",
+    "body": "Your username, display name, avatar image, bio and social media account names appear on your public profile, and your username, display name, avatar image and challenge results appear on the leaderboards. Anyone can see them, including people who are not logged in. Public profiles and leaderboards are features of the web app; the iOS app does not show other users' information. You can stop appearing on the leaderboards in <preferences>Settings</preferences>. Your email address is never made public."
+  },
+  "thirdParty": {
+    "title": "Sharing with third parties",
+    "body": "The Site does not share personal information with third parties, except in the following cases.",
+    "item1": "When required by law",
+    "item2": "When we outsource work to the extent needed to provide the service. The Site uses Vercel for hosting, Supabase for authentication and the database, Google for analytics and ads, Resend for sending the emails that notify the operator of inquiries and reports, and Stripe for paid plan payments. Each company handles information under its own privacy policy."
+  },
+  "externalLinks": {
+    "title": "Links to third-party sites",
+    "body": "The Site may contain links to external websites. The Site is not responsible for how those external sites handle personal information. When you visit an external site, please check its privacy policy."
+  },
+  "children": {
+    "title": "Privacy of minors",
+    "body": "The Site does not knowingly collect personal information from anyone under the age of 13. Guardians should supervise minors' use of the internet appropriately."
+  },
+  "rights": {
+    "title": "Your rights",
+    "body": "You can do the following with your own information.",
+    "item1": "View and correct your profile information — you can do this at any time in <profile>Edit profile</profile>.",
+    "item2": "Delete your account and personal information — you can do this in <deleteAccount>Delete account</deleteAccount>. For how your information is handled when you delete your account, see the Terms of Service.",
+    "item3": "Refuse personalized ads — you can do this in <link>Google Ad Settings</link>.",
+    "item4": "Other requests for disclosure, correction or deletion — contact us through the <contact>contact form</contact>. To confirm your identity, please send it from the email address registered to your account."
+  },
+  "retention": {
+    "title": "How long we keep information",
+    "body": "How long we keep information depends on its type.",
+    "item1": "Account information, profile information and usage records are kept until you delete your account. When you delete your account, your personal information and usage records are deleted; your username (to prevent its reuse), your activity history, records of the operator's actions and report records are kept.",
+    "item2": "Inquiry details are kept for as long as needed to respond to them.",
+    "item3": "Google Analytics data is kept for up to 14 months under the Google Analytics settings, and then deleted.",
+    "item4": "Settings stored on your device remain on your device until you clear the site data in your browser.",
+    "item5": "Paid plan purchase information is kept by the Site until you delete your account. Even after you delete your account, our payment processor (Stripe) keeps payment records to meet its accounting and legal obligations."
+  },
+  "revision": {
+    "title": "Changes to this Privacy Policy",
+    "body": "The Site may change this Privacy Policy when necessary. The revised Privacy Policy takes effect when it is posted on this page."
+  },
+  "contact": {
+    "title": "Contact",
+    "body": "For questions about this Privacy Policy or how personal information is handled, please use the <contact>contact form</contact>."
+  }
+}

@@ -17,7 +17,7 @@
  *
  * 1 ページに保ち、節見出しで分ける。タブ・分類ごとの画面・折りたたみは採らない。
  * 4 節の分類（「練習」は昇級試験・模試の画面にも効く）、1 ページに保つ理由、
- * 見直す目安は web の設定ページ（`apps/web/src/app/(user)/(public)/preferences/(index)/page.tsx`）
+ * 見直す目安は web の設定ページ（`apps/web/src/app/[locale]/(user)/(public)/preferences/(index)/page.tsx`）
  * の TSDoc が正本。分類を変えるときは web と一緒に変える。
  *
  * プライバシーを末尾に置くのは web と同じ順に揃えるため（以前は先頭にあったが、

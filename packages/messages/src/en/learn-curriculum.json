@@ -1,0 +1,168 @@
+{
+  "tocLink": "Contents",
+  "sections": {
+    "introduction": "Introduction",
+    "mangan": "Mangan and Above",
+    "fu": "Calculating Fu",
+    "yaku": "Counting Han",
+    "score": "Score Calculation Basics",
+    "memorization": "Memorizing Scores"
+  },
+  "chapters": {
+    "aboutThisApp": {
+      "title": "About This App",
+      "description": "What this app offers and how to study with it"
+    },
+    "whyScoringIsHardToLearn": {
+      "title": "Why Scoring Is Hard to Learn",
+      "description": "Three reasons the author struggled to learn score calculation"
+    },
+    "whyScoringIsComplex": {
+      "title": "Why Scoring Is Complex",
+      "description": "The formula itself is simple; the hard part is the number of cases"
+    },
+    "manganKoRon": {
+      "title": "Non-Dealer Ron",
+      "description": "From 8,000 points for mangan, multiply by 1.5, 2, 3 and 4"
+    },
+    "manganOyaRon": {
+      "title": "Dealer Ron",
+      "description": "From mangan up, 1.5 times the non-dealer ron score"
+    },
+    "manganKoTsumo": {
+      "title": "Non-Dealer Tsumo",
+      "description": "From mangan up, the dealer pays half of the non-dealer ron score and each non-dealer pays half of that"
+    },
+    "manganOyaTsumo": {
+      "title": "Dealer Tsumo",
+      "description": "From mangan up, divide the dealer ron score by 3 and each of the three non-dealers pays that amount"
+    },
+    "jantouFu": {
+      "title": "Fu for the Pair",
+      "description": "Only a pair of dragons, the round wind or the seat wind earns fu"
+    },
+    "mentsuFu": {
+      "title": "Fu for Sets",
+      "description": "Only triplets and quads earn fu, set by open or closed and by terminals and honors or simples"
+    },
+    "machiFu": {
+      "title": "Fu for the Wait",
+      "description": "Only closed, edge and single-tile waits earn 2 fu"
+    },
+    "tehaiFu": {
+      "title": "Fu for the Whole Hand",
+      "description": "Add up the six sources of fu and round up to the next 10"
+    },
+    "yaku": {
+      "title": "Counting Yaku and Han",
+      "description": "Han is the total of yaku and dora; calling makes some yaku vanish or lose han"
+    },
+    "chiitoitsuScore": {
+      "title": "Scoring Chiitoitsu (Seven Pairs)",
+      "description": "A special yaku fixed at 25 fu"
+    },
+    "pinfuScore": {
+      "title": "Scoring Pinfu",
+      "description": "20 fu by tsumo, 30 fu by ron"
+    },
+    "menzenMentsuScore": {
+      "title": "Scoring Closed Hands Other Than Pinfu",
+      "description": "Tsumo starts at 30 fu, ron at 40 fu"
+    },
+    "furoScore": {
+      "title": "Scoring Open Hands",
+      "description": "Only ron is 10 fu lower than for a closed hand"
+    },
+    "fuDoubling": {
+      "title": "Doubling the Fu Equals One More Han",
+      "description": "A pattern in the scoring table: 25 fu 2 han and 50 fu 1 han score the same"
+    },
+    "tsumoPayments": {
+      "title": "No Need to Memorize the Dealer Tsumo Column",
+      "description": "A pattern in the scoring table: each payment on a dealer tsumo equals the dealer's share of a non-dealer tsumo"
+    },
+    "ronToTsumo": {
+      "title": "Halve the Non-Dealer Ron to Get Tsumo",
+      "description": "A pattern in the scoring table: halving the non-dealer ron score twice gives the non-dealer tsumo payments"
+    },
+    "oyaRonScores": {
+      "title": "Memorizing Dealer Ron Scores Efficiently",
+      "description": "A pattern in the scoring table: dealer ron is 1.5 times non-dealer ron, so memorize only the 14 cells that differ"
+    }
+  },
+  "index": {
+    "pageTitle": "Riichi Mahjong Scoring Lessons",
+    "pageDescription": "Learn riichi mahjong scoring one step at a time with short lessons on fu, han, mangan and dealer and non-dealer payments. Take them in order.",
+    "progressLabel": "{done} / {total} lessons completed",
+    "nextChapterBadge": "Next up",
+    "allCompletedMessage": "You have completed every lesson. Great work!",
+    "unavailableBadge": "Coming soon to the app",
+    "columnBadge": "Column",
+    "rankFilterTitle": "{rank} lessons",
+    "allLessonsLink": "View all lessons"
+  },
+  "chapter": {
+    "completeCta": "Mark this lesson as complete",
+    "completing": "Recording your completion…",
+    "completedMark": "Completed",
+    "loginPromptCta": "Log in to record your completion",
+    "chapterNavLabel": "Lesson navigation",
+    "prevChapterLabel": "Previous lesson",
+    "nextChapterLabel": "Next lesson",
+    "updateFailedToast": "Could not record your completion. Please try again.",
+    "publishedOn": "Published {date}"
+  },
+  "scoreTable": {
+    "tableKo": "Non-dealer scores",
+    "tableOya": "Dealer scores",
+    "colWin": "Win",
+    "tsumo": "Tsumo",
+    "ron": "Ron",
+    "hanUnit": "{value} han",
+    "colExtraFu": "Fu added",
+    "fuUnit": "{value} fu",
+    "fuRange": "{from}–{to} fu",
+    "mangan": "Mangan",
+    "colFuHan": "Fu × Han",
+    "colHan": "Han",
+    "colBeforeCeil": "Before rounding",
+    "colKoRon": "Non-dealer ron",
+    "colDerived": "Halved",
+    "colScore": "Points",
+    "colActualPay": "Actual payment"
+  },
+  "tenpaneTable": {
+    "colExample": "Example",
+    "colSum": "Sum",
+    "colFu": "Fu",
+    "sum": "{start} + {extra} = {total}",
+    "fu": "{value} fu",
+    "fuExact": "{value} fu (exact)"
+  },
+  "tenpaneExamples": {
+    "two": "A closed, edge or single-tile wait, or a value-tile pair (2 fu)",
+    "yaochuAnkou": "One closed triplet of terminals or honors (8 fu)",
+    "yaochuAnkouPlusTwo": "A closed triplet of terminals or honors + a 2-fu wait or pair (10 fu)",
+    "yaochuAnkouChunchanAnkou": "A closed triplet of terminals or honors + a closed triplet of simples (12 fu)",
+    "chunchanAnkan": "A closed quad of simples (16 fu)",
+    "yaochuAnkan": "A closed quad of terminals or honors (32 fu)",
+    "yaochuMinkan": "An open quad of terminals or honors (16 fu)"
+  },
+  "halvingDiagram": {
+    "ronLabel": "Non-dealer ron",
+    "oyaLabel": "Dealer pays",
+    "koLabel": "Each non-dealer pays",
+    "arrowLabel": "Half",
+    "resultLabel": "Non-dealer tsumo in the scoring table"
+  },
+  "exampleTable": {
+    "colTiles": "Tiles",
+    "colKind": "Type",
+    "colFu": "Fu"
+  },
+  "formula": {
+    "fu": "fu",
+    "han": "han",
+    "ceil": "round up"
+  }
+}

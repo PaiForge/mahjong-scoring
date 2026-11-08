@@ -12,7 +12,7 @@ import { highestRank } from "@mahjong-scoring/features/ranks/registry";
 import {
   getJstTodayDate,
   getRecentDays,
-} from "@/app/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
+} from "@/app/[locale]/(user)/(protected)/(confirmed)/mypage/(home)/_lib/heatmap-utils";
 import { getExpHeatmapData } from "../db/get-exp-heatmap-data";
 import { getProfileCardByUserId } from "../db/queries";
 import { getUserRankSlugs } from "../db/rank-queries";

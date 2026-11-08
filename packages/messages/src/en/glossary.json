@@ -1,0 +1,573 @@
+{
+  "title": "Glossary",
+  "description": "The riichi mahjong terms that come up in score calculation, each explained with its meaning and example tiles.",
+  "categoryIndexTitle": "Browse by category",
+  "kanaIndexTitle": "Alphabetical",
+  "kanaRowHeading": "{row}",
+  "definitionTitle": "Meaning",
+  "examplesTitle": "See it in tiles",
+  "relatedTitle": "Related terms",
+  "learnTitle": "Lessons that use this term",
+  "readingLabel": "Reading",
+  "viewDetails": "View the term page",
+  "turnOffTermLinks": "Show without term links",
+  "closeLabel": "Close",
+  "backToIndex": "Back to the glossary",
+  "categories": {
+    "hai": "Tiles",
+    "tehai": "Hand structure",
+    "naki": "Calls and closed hands",
+    "agari": "Winning and waits",
+    "fu": "Fu",
+    "score": "Points and han"
+  },
+  "captions": {
+    "threeSuits": "The three suits: man, pin and sou",
+    "jihaiAll": "The seven honors: East, South, West, North, white, green and red",
+    "kazehaiOrder": "The four winds: East, South, West and North",
+    "sangenpaiOrder": "The three dragons: white, green and red",
+    "yaochuuMix": "1s and 9s of the suits, plus honors",
+    "rotouhaiAll": "The 1 and 9 of each suit",
+    "chunchanRange": "Number tiles 2 to 8",
+    "shuntsu": "Sequence (3 tiles)",
+    "koutsu": "Triplet (3 tiles)",
+    "kantsu": "Quad (4 tiles)",
+    "shuntsuManzu": "2, 3 and 4 man",
+    "koutsuPinzu": "Three 3 pin",
+    "minkanExample": "Open quad (made by calling)",
+    "ankanExample": "Closed quad (made from your own hand, both ends turned face down)",
+    "jantouZero": "A pair of number tiles is 0 fu",
+    "jantouTwo": "A pair of value tiles is 2 fu",
+    "mentsuteShape": "Four sets and a pair",
+    "chiitoitsuShape": "Seven pairs",
+    "ponExample": "A triplet made by pon",
+    "chiiExample": "A sequence made by chii",
+    "ankouYaochu": "A closed triplet of terminals or honors is 8 fu",
+    "minkouChunchan": "An open triplet of simples is 2 fu",
+    "ankanYaochu": "A closed quad of terminals or honors is 32 fu",
+    "minkanYaochu": "An open quad of terminals or honors is 16 fu",
+    "ryanmenWait": "Waits on two tiles: 2 man and 5 man",
+    "kanchanWait": "Waits on one tile: 5 pin",
+    "penchanWait": "Waits on one tile: 3 sou",
+    "shanponWait": "Waits on either 5 man or 7 pin",
+    "tankiWait": "Waits on one tile: 9 sou"
+  },
+  "metaTitle": "{term} ({reading}) – Riichi Mahjong Glossary",
+  "usageTitle": "In score calculation",
+  "caseStudyTitle": "Worked examples",
+  "pitfallTitle": "Common misconceptions",
+  "terms": {
+    "shuupai": {
+      "term": "Number tiles",
+      "reading": "shuupai",
+      "definition": "The tiles that carry a number from 1 to 9, in three suits: man (characters), pin (circles) and sou (bamboo). They are the counterpart of the honor tiles, and because their numbers run in order, only number tiles can form sequences.",
+      "usage": "A number tile can be part of a sequence, a triplet, a quad or the pair. What matters for fu is whether it is a simple or a terminal: a triplet of simples (2 to 8) is worth 4 fu closed and 2 fu open, while the terminals 1 and 9 count as terminals and honors, just like honor tiles, and earn double. A pair of number tiles is never a value tile, so it is always 0 fu.\nFor han, which number tiles you use and how decides the yaku: a hand built only from number tiles with no honors, 1s or 9s is tanyao (all simples), a hand of a single suit is chinitsu (full flush), and one suit mixed with honors is honitsu (half flush). The way you use number tiles changes both fu and han.",
+      "caseStudy": "A closed triplet of 5 man is 4 fu; a closed triplet of 1 man is 8 fu. Both are closed triplets of number tiles, but the 1 or 9 doubles the fu. A 3-4-5 man sequence is 0 fu and a pair of 2 pin is also 0 fu, so a hand of sequences and a number-tile pair adds nothing to the 20 base fu, and with a two-sided wait it has the shape of pinfu.\nIf you build four sets and a pair only from 2 man to 8 man, the hand has tanyao, and if every set is a sequence and the wait is two-sided, pinfu comes with it. Won by tsumo with a closed hand, that is pinfu, menzen tsumo and tanyao: 3 han 20 fu, worth 700/1,300 for a non-dealer and 1,300 all for the dealer.",
+      "pitfall": "People tend to assume every number tile earns the same fu, but 1s and 9s are treated like honors as terminals and honors. Also, man, pin and sou are separate suits, so you cannot make a sequence across suits such as 3 man, 4 pin and 5 sou."
+    },
+    "manzu": {
+      "term": "Characters",
+      "reading": "manzu",
+      "definition": "The number tiles marked with the Chinese character for ten thousand. There are nine of them, from 1 man to 9 man.",
+      "usage": "Man tiles are handled exactly like pin and sou: fu depends not on the suit but on whether the tile is a 1 or 9 or a 2 to 8. 1 man and 9 man earn terminal fu as terminals and honors, and 2 man to 8 man earn the fu of simples. A man tile in a sequence or in the pair earns no fu.",
+      "caseStudy": "A closed triplet of 1 man is 8 fu, a closed triplet of 5 man is 4 fu, and an open triplet of 9 man made by pon is 4 fu. A 2-3-4 man sequence is 0 fu, and a sequence that includes an end tile, like 1-2-3 man, is still 0 fu. A sequence is always 0 fu whatever its tiles.\nA hand made only of man tiles is chinitsu (full flush: 6 han closed, 5 han open). Combine closed triplets of 1 man or 9 man with man sequences and the fu rises too, so a full flush with high fu can reach haneman or baiman on its own.",
+      "pitfall": "Because man tiles are printed with Chinese numerals, they are sometimes mistaken for honor tiles, but they are number tiles. They form sequences, and a pair of them does not earn the 2 fu of a value-tile pair.\nAlso, the red 5 man (aka dora) is just a red-colored 5 man, not a separate tile. It works as a normal 5 man in sequences and triplets, adds 1 han as dora, and has nothing to do with fu."
+    },
+    "pinzu": {
+      "term": "Circles",
+      "reading": "pinzu",
+      "definition": "The number tiles that show their number as a count of round circles (also called dots). There are nine of them, from 1 pin to 9 pin.",
+      "usage": "Pin tiles are number tiles just like man tiles, and their fu depends on whether they are a 1 or 9. 1 pin and 9 pin are terminals and earn the same fu as honors; 2 pin to 8 pin earn the fu of simples. Pin tiles in a sequence or in the pair are 0 fu.",
+      "caseStudy": "A closed triplet of 1 pin is 8 fu and a closed triplet of 5 pin is 4 fu. A 7-8-9 pin sequence is 0 fu, and a pair of 9 pin is also 0 fu. The same 9 pin is worth 8 fu as a closed triplet, 0 fu as the pair and 0 fu as part of a sequence: the shape decides the fu.\nPut a closed triplet of 1 pin and a closed triplet of 9 pin into a pin full flush and two 8 fu sets push the fu up sharply. The suit does not change fu, so the same shape in man or sou earns the same fu.",
+      "pitfall": "1 pin shows a single large circle and looks like a special tile, but it is treated like any other 1. As a terminal its triplet earns high fu, and that is all; it is not a yaku by itself.\nThe pin in pinzu has nothing to do with pinfu. Pinfu is a yaku defined by the wait and the pair, and it does not care which suit you use."
+    },
+    "souzu": {
+      "term": "Bamboo",
+      "reading": "souzu",
+      "definition": "The number tiles that show their number as bamboo sticks. There are nine of them, from 1 sou to 9 sou. 1 sou alone is usually drawn as a bird.",
+      "usage": "Sou tiles are number tiles too, and they earn fu the same way as man and pin. 1 sou and 9 sou are terminals, and 2 sou to 8 sou are counted as simples. Sou tiles in a sequence or in the pair are 0 fu.",
+      "caseStudy": "A closed triplet of 1 sou is 8 fu and a closed triplet of 5 sou is 4 fu. A 1-2-3 sou sequence is 0 fu: even with the bird-shaped 1 sou in it, a sequence earns no fu. A pair of 1 sou is also 0 fu.\nA hand made only of 2 to 8 sou is tanyao, and a hand made only of a green dragon triplet and the green sou tiles (2, 3, 4, 6 and 8 sou) is the yakuman ryuuiisou (all green). Both are conditions on which tiles you use; fu is counted as for any other number tiles.",
+      "pitfall": "Because 1 sou is drawn as a bird, it is easy to take it for an honor tile, but it is a number tile. It forms sequences, and a pair of it earns no fu. Using sou tiles for ryuuiisou (yakuman) is a yaku condition and is a separate matter from fu.\n1 sou and 9 sou are terminals like the 1s and 9s of the other suits: 8 fu as a closed triplet, 0 fu in a sequence or as the pair, just as for man and pin."
+    },
+    "jihai": {
+      "term": "Honor tiles",
+      "reading": "jihai",
+      "definition": "The tiles that carry no number: the four winds East, South, West and North, and the three dragons white, green and red, seven kinds in all. Their values do not run in order, so they cannot form sequences, only triplets or the pair. All of them count as terminals and honors, so they earn high fu.",
+      "usage": "Honor tiles cannot form sequences; they become a triplet, a quad or the pair. Their fu is always that of terminals and honors: 8 fu for a closed triplet, 4 fu for an open triplet, 32 fu for a closed quad and 16 fu for an open quad. As the pair, a value tile earns 2 fu, and a wind that is not a value tile (a non-value wind) earns 0 fu.\nFor han, a triplet of dragons, or of your seat wind or the round wind, is yakuhai (1 han); a single suit with honors is honitsu (half flush); and a hand of honors only is tsuuiisou (all honors, a yakuman). How you use honor tiles decides both fu and han.",
+      "caseStudy": "A closed triplet of white dragons is 8 fu, and in the East round a pair of East is 2 fu because it is the round wind. If the South player has a pair of West, West is a non-value wind for them, so the pair is 0 fu. A hand with an honor triplet can never be pinfu and tends to have high fu, so at the same han it tends to score more.",
+      "pitfall": "Honor tiles do not earn fu just by being in your hand; they earn fu only once they form a set or the pair. Nor is every honor pair worth 2 fu: a pair of a wind that is not a value tile (a non-value wind) is 0 fu.\nA hand with two honor triplets earns 8 fu for each (if both are closed) and cannot be pinfu. On the other hand, if honors are used only as the pair (a non-value wind), every set is a sequence and the wait is two-sided, pinfu is possible."
+    },
+    "kazehai": {
+      "term": "Winds",
+      "reading": "kazehai",
+      "definition": "The four honor tiles East, South, West and North. A triplet of the wind that matches your seat (seat wind) or the current round (round wind) is a 1 han yaku.",
+      "usage": "A wind tile is a value tile if it is your seat wind or the round wind: as a triplet it is worth 1 han, and as the pair it earns 2 fu. A wind that is neither (a non-value wind) is no yaku as a triplet and earns 0 fu as the pair. As a triplet or quad, its fu is that of terminals and honors: 8 fu closed, 4 fu open.\nEven with two wind triplets, only the ones that match your seat wind or the round wind count as yakuhai. A triplet of a non-value wind earns fu (8 fu closed) but no han.",
+      "caseStudy": "For the South player in the East round, East is the round wind (a value tile), South is the seat wind (a value tile), and West and North are non-value winds. A closed triplet of East gives 1 han of yakuhai plus 8 fu, a closed triplet of West gives 8 fu but no yaku, a pair of South is 2 fu and a pair of North is 0 fu.\nFor the West player in the South round, South is the round wind, West is the seat wind, and East and North are non-value winds. The value tiles change from those of the East round, so the same hand can have a different number of han once the round changes.",
+      "pitfall": "Not every wind is a value tile. Only your own wind and the round wind are; the other two are non-value winds. Whether a pair of a tile that is both your seat wind and the round wind (a double wind) is worth 4 fu or 2 fu depends on the rules, so check before you play."
+    },
+    "otakaze": {
+      "term": "Non-value wind",
+      "reading": "otakaze",
+      "definition": "A wind tile that is neither the round wind nor your seat wind. A triplet of it is not yakuhai, and a pair of it earns no fu.",
+      "usage": "A triplet of a non-value wind is no yaku, but it still earns fu because it is a terminal-or-honor tile: 8 fu closed, 4 fu open. As the pair it earns 0 fu because it is not a value tile, and that is where it differs from a pair of dragons, your seat wind or the round wind (2 fu).\nOne pinfu condition is that the pair is not a value tile, and a non-value wind pair satisfies it without trouble, because it is not a value tile.",
+      "caseStudy": "For the South player in the East round, West and North are non-value winds. A hand with a closed triplet of North needs some other yaku, because North itself is no yaku, but it earns 8 fu. A hand with North as the pair has a 0 fu pair, so it meets the pinfu condition that the pair is not a value tile.\nA hand that calls pon on a non-value wind earns 4 fu for the open triplet but gets no yaku from it, and other yaku such as tanyao are ruled out too, so it easily ends up with no yaku. To build a yaku around a non-value wind triplet you need a yaku that uses triplets, such as honitsu or toitoi (all triplets).",
+      "pitfall": "A non-value wind is not a useless tile. It just gives no yaku; the fu of its triplet is the same as that of a value tile. Which winds are non-value winds also depends on your seat and the round: the same West is the seat wind, and so a value tile, for the West player."
+    },
+    "sangenpai": {
+      "term": "Dragons",
+      "reading": "sangenpai",
+      "definition": "The three honor tiles white, green and red. For every player, a triplet of a dragon is a 1 han yaku.",
+      "usage": "Dragons are value tiles for every player: a triplet or quad is worth 1 han, and a pair earns 2 fu. Their fu is that of terminals and honors: 8 fu for a closed triplet, 4 fu for an open triplet, 32 fu for a closed quad and 16 fu for an open quad.\nTwo dragon triplets plus a pair of the third dragon make shousangen (little three dragons: 2 han plus 2 han of yakuhai), and triplets of all three make daisangen (big three dragons, a yakuman). A dragon triplet is a value tile whatever the round or seat, so it is the backbone of hands that call to get a yaku quickly.",
+      "caseStudy": "A closed hand won by ron with a closed triplet of white dragons has 1 han of yakuhai, and its fu is 20 base fu plus 10 fu for the closed ron plus 8 fu for the closed triplet; if everything else is 0 fu, that is 38 fu, rounded up to 40 fu. A hand with a pair of green dragons is not pinfu even if everything else is sequences and the wait is two-sided: won by ron with a closed hand it is 20 + 10 + 2 = 32 fu, rounded up to 40 fu, and by tsumo 20 + 2 + 2 = 24 fu, rounded up to 30 fu.\nA hand with an open triplet of white dragons made by pon (4 fu) and a pair of red dragons (2 fu) has 1 han of yakuhai and 6 fu from those two. It is not closed, so the 10 fu for a closed ron does not apply, and if the rest is sequences it is 20 + 4 + 2 = 26 fu, rounded up to 30 fu.",
+      "pitfall": "A dragon pair is a value-tile pair, so it breaks the pinfu conditions. Even with all sequences and a two-sided wait, a pair of white, green or red dragons means no pinfu; the pair earns 2 fu instead."
+    },
+    "yakuhai": {
+      "term": "Value tiles",
+      "reading": "yakuhai",
+      "definition": "Honor tiles that give a 1 han yaku when made into a triplet: the dragons, and the winds that match your seat wind or the round wind. A pair of them is no yaku, but it earns 2 fu.",
+      "usage": "A triplet or quad of a value tile is a 1 han yaku, and a pair of one earns 2 fu. The fu itself follows the honor tile rules: 8 fu closed, 4 fu open. A pair of a tile that is both the round wind and your seat wind (a double wind) earns 2 fu or 4 fu depending on the rules.\nA value-tile triplet stays at 1 han even when made by calling; its han does not drop. It is the easiest way to give an open hand a yaku: a single value tile called with pon is enough to avoid having no yaku.",
+      "caseStudy": "For the East player in the East round, East is both the round wind and the seat wind, a double wind. A triplet of East is 2 han of yakuhai (round wind plus seat wind), and a pair of East is 2 fu or 4 fu depending on the rules. A triplet of red dragons is 1 han of yakuhai for anyone, and a pair of them is 2 fu.\nFor the South player in the South round, South is a double wind and a triplet of it is 2 han of yakuhai. The same South is only 1 han (seat wind) for the South player in the East round, and 0 han (a non-value wind) for the East player in the East round: the round and the seat change the han of the same tile.",
+      "pitfall": "A value-tile pair is not a yaku. It becomes a yaku only as a triplet or quad; as the pair it just earns 2 fu. Also, yakuhai keeps its han when you call (there is no kuisagari for it), so it pairs well with hands that call to win quickly."
+    },
+    "yaochuuhai": {
+      "term": "Terminals and honors",
+      "reading": "yaochuuhai",
+      "definition": "The collective name for the 1s and 9s of the number tiles (terminals) and the honor tiles. They are harder to use, so fu favors them: as a triplet, a quad or the pair they earn more fu than simples.",
+      "usage": "A set of terminals or honors earns twice the fu of the same set of simples: 8 fu for a closed triplet (4 fu for simples), 4 fu for an open triplet (2 fu), 32 fu for a closed quad (16 fu) and 16 fu for an open quad (8 fu). As the pair, a value tile earns 2 fu and any other terminal or honor (a terminal or a non-value wind) earns 0 fu.\nFor han, a hand with no terminals or honors at all is tanyao (all simples), a hand where every set and the pair contains a terminal or honor is chanta, and a hand made only of terminals and honors is honroutou. These tiles earn high fu, so a hand that collects their triplets scores more through fu as well.",
+      "caseStudy": "1 man, 9 pin, East and white dragon are all terminals and honors. A closed triplet of 1 man and a closed triplet of white dragons are both 8 fu; there is no difference between honors and the 1s and 9s of the suits. A closed triplet of 2 man, on the other hand, is 4 fu, so even neighboring tiles like 1 man and 2 man differ by double in triplet fu.\nA hand with closed triplets of 1 man, 9 sou and East (the round wind in the East round), plus a sequence and a pair, earns 24 fu from the closed triplets alone. Add 20 base fu and 10 fu for a closed ron and you get 54 fu, rounded up to 60 fu: with just the 1 han of the round wind, that is 2,000 points for a non-dealer.",
+      "pitfall": "Among terminals and honors, only some honor tiles (the dragons, your seat wind and the round wind) can be value tiles. 1 man and 9 pin are terminals but not value tiles, so a triplet of them is no yaku and a pair of them earns no fu. Earning high fu and being a yaku are two different things."
+    },
+    "rotouhai": {
+      "term": "Terminals",
+      "reading": "routouhai",
+      "definition": "The 1 and 9 of each suit of number tiles. Together with the honor tiles they are called terminals and honors.",
+      "usage": "Terminals are number tiles, but they count as terminals and honors, so their triplets and quads earn the same fu as honor tiles: 8 fu for a closed triplet, 4 fu for an open triplet, 32 fu for a closed quad and 16 fu for an open quad. As the pair they are not value tiles, so they earn 0 fu.\nA hand made only of terminals and honors is honroutou (2 han), and one made only of terminals is chinroutou (a yakuman). Junchan, where every set and the pair contains a 1 or 9 (3 han closed), is the classic yaku that uses terminals inside sequences.",
+      "caseStudy": "A closed triplet of 9 sou is 8 fu, and an open triplet of 1 pin made by pon is 4 fu. A terminal inside a sequence, as in 1-2-3 man, earns 0 fu: a terminal in a sequence earns no fu. A pair of 9 man is also 0 fu.\nA hand with closed triplets of 1 pin and 9 man, a pair of 9 sou and two sequences earns 16 fu from the two closed triplets. The 9 sou pair is not a value tile, so it stays at 0 fu: even a terminal earns no fu as the pair.",
+      "pitfall": "Terminals are not honor tiles; unlike honors, they can form sequences. 1s and 9s earn high fu only as triplets or quads. As long as you use them in sequences or as the pair, their fu is no different from that of simples."
+    },
+    "chunchanpai": {
+      "term": "Simples",
+      "reading": "chunchanpai",
+      "definition": "The number tiles from 2 to 8. Unlike terminals and honors they earn little fu, but they connect with tiles on both sides, so they make sequences easily.",
+      "usage": "A set of simples earns half the fu of terminals and honors: 4 fu for a closed triplet, 2 fu for an open triplet, 16 fu for a closed quad and 8 fu for an open quad; a sequence is 0 fu, and so is the pair. A hand made only of simples has low fu and also gets the yaku tanyao (all simples).\nFour sets and a pair made only of simples give tanyao (1 han). Whether tanyao counts in an open hand (kuitan) depends on the rules.",
+      "caseStudy": "A closed triplet of 5 man is 4 fu, and an open triplet of 5 man made by pon is 2 fu. A 2-3-4 pin sequence is 0 fu, and a pair of 8 sou is 0 fu. A hand of simple sequences and a simple pair with a two-sided wait earns only the 20 base fu: 30 fu by ron with a closed hand, and 20 fu by tsumo with a closed hand as pinfu.\nIn a hand of 4-5-6 man, 3-4-5 pin, 6-7-8 sou, a closed triplet of 5 sou and a pair of 8 pin, only the 4 fu of the closed triplet is added. By ron with a closed hand it is 20 + 10 + 4 fu plus the wait fu: 34 fu, rounded up to 40 fu, with a two-sided wait, and 36 fu, rounded up to 40 fu, with a closed wait.",
+      "pitfall": "Simples earn little fu because they are easy to use, not because they make a hand worth less. Stack up han and the score rises, and some yaku suit simples well, such as tanyao and sanshoku (mixed triple sequence). Low fu and the value of a hand are separate things."
+    },
+    "dora": {
+      "term": "Dora",
+      "reading": "dora",
+      "definition": "Bonus tiles that add han just by being in your hand. The tile after the dora indicator is the dora. Dora add han but are not a yaku, so dora alone do not let you win.",
+      "usage": "Each dora adds 1 han, but dora are not a yaku. They stack on top of a hand that already has at least one yaku, and they have no effect on fu at all. Each dora adds one han, and at 5 han or more the hand scores mangan or higher regardless of fu.\nYou count how many dora tiles are in your hand, so a triplet of the dora is 3 han and a quad is 4 han. Dora inside called sets count too.",
+      "caseStudy": "If the dora indicator is 3 man, 4 man is the dora. If the indicator is 9 man, the dora is 1 man; if it is North, the dora is East; and if it is the red dragon, the dora is the white dragon. A 1 han hand with only tanyao becomes 4 han with three dora: at 30 fu that is 7,700 points for a non-dealer, or 8,000 under kiriage mangan.\nA 1 han yakuhai hand with four dora is 5 han, a mangan, and with seven dora it is 8 han, a baiman. When dora alone stack up the han, fu no longer matters, so the calculation is just counting the han.",
+      "pitfall": "People often think dora alone let you win, but dora are not a yaku: however many dora you hold, you cannot win without a yaku. Dora only add han; they have nothing to do with fu."
+    },
+    "uradora": {
+      "term": "Ura-dora",
+      "reading": "uradora",
+      "definition": "Dora that count only when you win after declaring riichi. You turn over the tile lying face down beneath the dora indicator, and the tile after it is the ura-dora. They are not turned over without riichi, so they never apply to an open hand.",
+      "usage": "Ura-dora count only when you win with riichi, at 1 han each. Like dora they are not a yaku and do not affect fu. A hand without riichi never gets ura-dora, even if it is closed.\nThe ura-dora indicator is turned over only on a win; it is not turned over on an exhaustive draw or while you are simply discarding the tiles you draw. A hand won with riichi adds the ura-dora first and then announces its score.",
+      "caseStudy": "A 3 han hand with riichi, ippatsu and menzen tsumo becomes 5 han if the hand holds two of the tile after the ura-dora indicator, and scores mangan regardless of fu. In a menzen tsumo hand without riichi, the same tiles do not get to look at the ura-dora.\nA 30 fu hand with riichi only (1 han) becomes 2 han with one ura-dora, worth 2,000 for a non-dealer; without it, it stays at 1 han and 1,000 for a non-dealer. Ura-dora can double the score, so a riichi hand cannot state its score until the ura-dora have been checked.",
+      "pitfall": "Ura-dora are not counted as the number of tiles you turn over that happen to match. You count how many of the tile after the revealed indicator are in your hand. And while you always turn them over after a riichi win, they often add nothing, so the score is fixed only after checking them."
+    },
+    "kandora": {
+      "term": "Kan dora",
+      "reading": "kandora",
+      "definition": "Extra dora added by a kan. Each kan turns over one more dora indicator, and you count the dora it shows. If you declared riichi, you also turn over the same number of extra ura-dora indicators (called kan ura).",
+      "usage": "Kan dora are dora that increase by one with every kan, and they are treated like regular dora: 1 han each, not a yaku, and no effect on fu. If you win with riichi, the ura-dora (kan ura) increase by the same number as the kan dora.\nWhether the new kan dora indicator is turned over the moment the kan is made or at the end of the hand (a win or a draw) differs by rule set. Some rules turn it over later only for an open kan made on a discard (daiminkan).",
+      "caseStudy": "In a hand where someone has made one kan, there are two dora indicators and so two kinds of dora. Whichever of them your hand holds, each one is 1 han. If you declared riichi, you also turn over two ura-dora indicators and count them.\nIf you make a closed quad of 3 man and the new kan dora indicator turns out to be 2 man, 3 man becomes the dora. All four 3 man in that closed quad are dora, so the quad alone gives 4 han (plus the 16 fu of the closed quad).",
+      "pitfall": "Kan dora are not dora only for the player who made the kan. Whoever makes the kan, the kan dora apply to every player in that hand. And when the player who made the kan wins, the kan dora are worth 1 han each like any other dora, with no special bonus."
+    },
+    "tehai": {
+      "term": "Hand",
+      "reading": "tehai",
+      "definition": "All the tiles in front of you. Normally 13 tiles; adding the winning tile makes 14, the shape of a win. Sets you have called and exposed also count as part of your hand.",
+      "usage": "Score calculation splits the whole hand into four sets and a pair (a standard hand), then adds the fu of each set, the pair, the wait and the way you won. Called sets are part of the hand, so their fu counts too, and a closed quad earns fu as one of the hand's sets.\nHan is decided by the shape of the hand (its yaku) and by dora. The same 14 tiles can sometimes be split into sets in more than one way, giving different fu or yaku; in that case you score the split that gives the higher score.",
+      "caseStudy": "A hand of 3-4-5 man, 6-7-8 pin, three white dragons, 2-3-4 sou and a pair of East (in the East round) splits into three sequences (0 fu), a closed triplet of white dragons (8 fu) and a round-wind pair (2 fu). Its yaku is yakuhai (white dragon), 1 han.\nYou swap tiles in your starting 13 aiming for a shape that wins with one more tile, and once you are tenpai you wait for that last tile (the winning tile).",
+      "pitfall": "People tend to think the hand means only the tiles standing hidden in front of you, but for score calculation the called, exposed sets are part of the hand too. Called sets are counted as open triplets or open quads for fu; you do not calculate fu from the uncalled part alone.\nAlso, a winning hand has 14 tiles, but with a kan it has 15 or 16. A quad is four tiles that make one set."
+    },
+    "mentsu": {
+      "term": "Set",
+      "reading": "mentsu",
+      "definition": "A group of three tiles (a sequence or a triplet) or four tiles (a quad) that score calculation treats as one unit. A standard winning hand is four sets and a pair, and fu is decided by the kind of each set.",
+      "usage": "Sets are the core of fu calculation. A sequence is always 0 fu. A closed triplet is 4 fu for simples and 8 fu for terminals and honors, and an open triplet is half that, 2 fu and 4 fu. A closed quad is 16 fu and 32 fu, and an open quad 8 fu and 16 fu. Even with the same tiles, three axes decide the fu: sequence or triplet, closed or open, and simples or terminals and honors.\nFor han too, there are yaku built from sequences (pinfu, iipeikou, sanshoku) and yaku built from triplets (toitoi, sanankou).",
+      "caseStudy": "A 4-5-6 man sequence is 0 fu, a closed triplet of 5 man is 4 fu, an open triplet of 5 man made by pon is 2 fu, a closed quad of 5 man is 16 fu and an open quad of 5 man is 8 fu. With three or four of the same 5 man, the way you make the set spreads the fu from 0 fu to 16 fu.\nWith three 1 man, it is 8 fu as a closed triplet, 4 fu as an open triplet, 32 fu as a closed quad and 16 fu as an open quad: terminals and honors double every value.",
+      "pitfall": "Sequences earn no fu, so more sets does not mean more fu. If all four sets are sequences, the sets contribute 0 fu.\nAlso, a pair (two tiles) is not a set. You can use exactly one as the hand's pair, and it earns no set fu. Chiitoitsu is seven pairs, but it is not a standard hand, so no set fu is counted and it is fixed at 25 fu."
+    },
+    "shuntsu": {
+      "term": "Sequence",
+      "reading": "shuntsu",
+      "definition": "A set of three consecutive number tiles of the same suit. It is always 0 fu, whether called or kept in your hand. Honor tiles cannot form one.",
+      "usage": "A sequence is 0 fu. That holds whether it is closed (kept in your hand) or open (made by chii), and whether it is made of simples or includes a terminal. Make all four sets sequences, use a pair that is not a value tile, and win with a two-sided wait by closed ron or tsumo, and nothing earns fu: that is pinfu.\nFor han, sequences are the material for pinfu, iipeikou (two identical sequences), sanshoku (the same sequence in all three suits) and ittsu (1-2-3, 4-5-6 and 7-8-9 in one suit).",
+      "caseStudy": "2-3-4 man and 7-8-9 pin are both 0 fu. 7-8-9 pin contains the terminal 9 pin, but as long as it is a sequence it earns no fu.\nTwo 4-5-6 man sequences (two identical sequences) are iipeikou (1 han, closed only), and 3-4-5 man, 3-4-5 pin and 3-4-5 sou are sanshoku (2 han closed, 1 han open).",
+      "pitfall": "Sequences are runs of number tiles, but they do not wrap around from 9 to 1, as in 9-1-2. 8-9-1 is not a sequence.\nSequences also have to be within one suit. 3 man, 4 pin and 5 sou are not a sequence, just three unrelated tiles. Honor tiles have no numbers, so they never form sequences."
+    },
+    "koutsu": {
+      "term": "Triplet",
+      "reading": "koutsu",
+      "definition": "A set of three identical tiles. A closed triplet completed in your hand and an open triplet made by pon differ by double in fu.",
+      "usage": "A triplet's fu depends on whether it is closed or open and on whether it is simples or terminals and honors. A closed triplet is 4 fu for simples and 8 fu for terminals and honors; an open triplet is 2 fu for simples and 4 fu for terminals and honors. A triplet made by pon is open and one you gather in your own hand is closed, but a triplet completed by ron with its third tile counts as open.\nFor han, a value-tile triplet gives 1 han, all four sets as triplets give toitoi (2 han), three closed triplets give sanankou (2 han), and four give suuankou (a yakuman).",
+      "caseStudy": "Gather three 5 pin in your hand and you have a closed triplet worth 4 fu; call pon on 5 pin and it is an open triplet worth 2 fu. Three East gathered in your hand are a closed triplet worth 8 fu, and called with pon they are an open triplet worth 4 fu.\nIf you were waiting with a pair of 5 pin (a pair wait) and win by ron on 5 pin, the completed 5 pin triplet counts as open: 2 fu. Complete the same shape by tsumo and it is a closed triplet: 4 fu.",
+      "pitfall": "Not every triplet completed in your hand is closed. A triplet completed by ron uses another player's discard, so it counts as open. Only one completed by tsumo is closed.\nAlso, a triplet and a pair are different things. Two identical tiles are a pair: not a set, and usable only as the hand's pair."
+    },
+    "kantsu": {
+      "term": "Quad",
+      "reading": "kantsu",
+      "definition": "A set of four identical tiles. It counts as a quad only once you declare kan; holding four without declaring leaves you with a triplet and a spare tile. Its fu is the highest of any set.",
+      "usage": "A quad earns four times the fu of a triplet, the highest of any set. A closed quad is 16 fu for simples and 32 fu for terminals and honors; an open quad is 8 fu for simples and 16 fu for terminals and honors. Declaring kan also lets you draw a replacement tile from the dead wall and adds a kan dora.\nFor han, a quad is treated as a triplet: a quad of a value tile gives 1 han of yakuhai, and quads count toward toitoi and sanankou. Three quads give sankantsu (2 han), and four give suukantsu (a yakuman).",
+      "caseStudy": "A closed quad of 5 man is 16 fu and a closed quad of East is 32 fu. A hand with one closed quad of East reaches 52 fu with just the 20 base fu, and with a closed ron 62 fu, rounded up to 70 fu. The same East as a closed triplet is 8 fu, so declaring kan or not changes the fu fourfold.\nIf you have called pon on 5 man and then draw the fourth and add it (an added kan), it is an open quad worth 8 fu. If you never called pon and all four 5 man are in your hand, a closed kan makes a closed quad worth 16 fu.",
+      "pitfall": "Holding four identical tiles does not make a quad unless you declare kan. Without the declaration they are a triplet plus one spare tile, and that spare cannot be used in a set or the pair, so the hand cannot win.\nAlso, a kan seems to add a tile to your hand, but a quad is four tiles that make one set. It does not increase the number of sets."
+    },
+    "toitsu": {
+      "term": "Matching pair",
+      "reading": "toitsu",
+      "definition": "Any two identical tiles. In a winning hand exactly one of them is the hand's pair, and seven of them make chiitoitsu (seven pairs).",
+      "usage": "A matching pair is not a set, so it earns no set fu. In a winning hand you use exactly one as the hand's pair, and it earns only pair fu (2 fu for a value tile, 0 fu otherwise). Holding two pairs and waiting to complete either into a triplet is a pair wait.\nSeven pairs give chiitoitsu (2 han, fixed at 25 fu).",
+      "caseStudy": "A pair of 3 man as the hand's pair is 0 fu, and a pair of white dragons is 2 fu. Hold a pair of 3 man and a pair of white dragons for a pair wait, and whichever tile you win on, the wait itself earns 0 fu, but the completed triplet earns its fu (counted as open on a ron).\nChiitoitsu wins with seven pairs, such as East-East, white-white, 1 man-1 man and so on. It is not a standard hand, so it is fixed at 25 fu.",
+      "pitfall": "When you have two or more pairs, you are free to choose which one is the hand's pair, but the others do not become sets, so a hand with three or more pairs cannot win (except as chiitoitsu).\nAlso, under common rules four identical tiles cannot be counted as two pairs, not even for chiitoitsu."
+    },
+    "jantou": {
+      "term": "Pair",
+      "reading": "jantou",
+      "definition": "The one pair of identical tiles that every winning hand contains exactly once. Also called the head (atama). It is 0 fu if it is a pair of number tiles and 2 fu if it is a pair of value tiles.",
+      "usage": "The pair earns 2 fu for a dragon, 2 fu for your seat wind or the round wind, and 0 fu otherwise (number tiles and non-value winds). For a pair of a tile that is both your seat wind and the round wind (a double wind), some rules give 2 fu and others 4 fu.\nHolding one tile of the pair and waiting for its match is a single-tile wait, which earns 2 fu for the wait. Pinfu requires that the pair is not a value tile.",
+      "caseStudy": "For the South player in the East round, a pair of East is the round wind (2 fu), a pair of South is the seat wind (2 fu), a pair of West or North is a non-value wind (0 fu), and a pair of 5 man is 0 fu.\nA hand with a pair of white dragons is not pinfu even if every set is a sequence and the wait is two-sided. The pair adds 2 fu, so a closed ron is 20 + 10 + 2 = 32 fu, rounded up to 40 fu.",
+      "pitfall": "An honor pair is not always 2 fu. Only honors that are value tiles earn 2 fu, and a pair of a non-value wind is 0 fu. The same West pair is 2 fu for the West player and 0 fu for anyone else.\nAlso, a winning hand needs exactly one pair. Fourteen tiles of four sets with no pair are not a winning hand."
+    },
+    "mentsute": {
+      "term": "Standard hand",
+      "reading": "mentsute",
+      "definition": "The most basic winning shape in mahjong: four sets and a pair. Every hand except special shapes such as chiitoitsu and kokushi musou (thirteen orphans) is a standard hand, and fu calculation is built on this shape.",
+      "usage": "Fu calculation assumes a standard hand. To the 20 base fu you add the fu of the four sets, the fu of the pair, the fu of the wait and the fu for the way you won (10 fu for a closed ron, 2 fu for tsumo), then round up to the next 10.\nChiitoitsu (fixed at 25 fu) and kokushi musou (a yakuman), which are not standard hands, skip this build-up.",
+      "caseStudy": "A hand of 2-3-4 man, 6-7-8 pin, 4-5-6 sou, three white dragons and a pair of East (a non-value wind here) is a standard hand of three sequences (0 fu), a closed triplet of white dragons (8 fu) and a non-value wind pair (0 fu). Won by closed ron on a two-sided wait, it is 20 + 10 + 8 = 38 fu, rounded up to 40 fu.\nThe same 14 tiles can sometimes be split into a standard hand in more than one way; in that case you score the split with the higher score.",
+      "pitfall": "A standard hand is four sets and one pair. Four sets alone do not make a winning hand, and neither do three sets and two pairs: exactly one pair and exactly four sets.\nAlso, in a standard hand sequences earn no fu, so a hand full of sequences ends up close to the 20 base fu. That is the idea behind pinfu (fixed at 20 fu)."
+    },
+    "chiitoitsu": {
+      "term": "Seven pairs",
+      "reading": "chiitoitsu",
+      "definition": "A yaku with a special shape: you win with seven pairs. It is not a standard hand, so its fu is not built up and is fixed at 25 fu. It is valid only with a closed hand.",
+      "usage": "Chiitoitsu is not a standard hand, so the fu for sets, the pair and the wait is not added; it is fixed at 25 fu. Neither the 10 fu for a closed ron nor the 2 fu for tsumo is added, and the fu is not rounded up. It is worth 2 han, and other yaku (tanyao, honitsu and so on) and dora stack on top of it.\nAt 25 fu, 2 han is 1,600 points for a non-dealer and 2,400 for the dealer; 3 han is 3,200 for a non-dealer, and 4 han is 6,400 for a non-dealer.",
+      "caseStudy": "Win with the seven pairs 1 man-1 man, 4 pin-4 pin, 7 sou-7 sou, East-East, white-white, 5 man-5 man and 9 pin-9 pin and you have chiitoitsu. It is 25 fu whether by ron or by tsumo, and its yaku is chiitoitsu, 2 han.\nWith two dora, chiitoitsu becomes 4 han and 6,400 for a non-dealer; with honitsu (3 han closed) on top it is 5 han, a mangan.",
+      "pitfall": "Chiitoitsu is valid only with a closed hand. Once you call pon or chii, you can no longer make the shape of seven pairs.\nAlso, four identical tiles generally cannot be counted as two pairs: chiitoitsu needs seven different pairs. The 25 fu is fixed, so it never rounds up to 30 fu."
+    },
+    "menzen": {
+      "term": "Closed hand",
+      "reading": "menzen",
+      "definition": "A hand that has made no pon, no chii and no open kan. Winning by ron with a closed hand adds 10 fu, and yaku that require a closed hand, such as riichi and chiitoitsu, are available. A closed kan does not open the hand.",
+      "usage": "Winning by ron with a closed hand adds the 10 fu closed ron bonus. On a tsumo, even a closed hand gets only 2 fu (tsumo fu), not the 10 fu. A closed kan is not a call, so the hand stays closed.\nFor han, closed-only yaku such as riichi, menzen tsumo, iipeikou, pinfu and chiitoitsu are available, and yaku that lose han when open, such as sanshoku and honitsu, count at their full value.",
+      "caseStudy": "A hand of three sequences, one closed triplet of simples (4 fu) and a number-tile pair, won by ron on a two-sided wait, is 20 + 10 + 4 = 34 fu, rounded up to 40 fu, if it is closed. If you had made the same shape by calling pon, it would be 20 + 2 (open triplet) = 22 fu, rounded up to 30 fu.\nOnce a closed hand is tenpai you can declare riichi, which gives 1 han for riichi plus the chance of ippatsu and ura-dora on top.",
+      "pitfall": "A closed hand does not simply mean a hand that has never declared anything. A closed kan does not count as a call, so a hand with a closed kan is still closed.\nConversely, a closed hand won by ron does not get the yaku menzen tsumo. Menzen tsumo is a yaku only for winning on your own draw; a ron just earns the 10 fu closed ron bonus."
+    },
+    "furo": {
+      "term": "Call",
+      "reading": "furo",
+      "definition": "Making a set with another player's discard, also known as naki. There are three kinds: pon, chii and open kan (daiminkan). Once you call, the hand is no longer closed: closed-only yaku are lost, and yaku that lose han when open drop by one han.",
+      "usage": "Once you call, your hand is no longer closed, and you lose the 10 fu closed ron bonus and the closed-only yaku (riichi, pinfu, iipeikou, chiitoitsu and so on). A set made by calling counts its fu as an open triplet or open quad, and a sequence made by chii stays at 0 fu.\nYaku that lose han when open (sanshoku, ittsu, honitsu and so on) drop by one han. Yakuhai, toitoi and tanyao (under rules that allow kuitan) keep their han when you call.",
+      "caseStudy": "A hand that calls pon on white dragons and chii for 4-5-6 man and builds the rest in hand earns 4 fu for the open triplet of white dragons plus only the 20 base fu and the wait fu; the 10 fu closed ron bonus does not apply. Its yaku is yakuhai (white dragon), 1 han.\nA closed honitsu worth 3 han drops to 2 han of honitsu if you call pon even once along the way.",
+      "pitfall": "Calling does not take away all your fu. You still get the 20 base fu, and you still count the fu of open triplets, open quads, the wait and the pair. What you lose is the 10 fu closed ron bonus and the closed-only yaku.\nAlso, winning by ron is not a call. A ron wins on another player's discard, and the hand stays closed after a ron."
+    },
+    "pon": {
+      "term": "Pon",
+      "reading": "pon",
+      "definition": "A call that makes a triplet with a tile another player discarded. Together with a pair in your hand it becomes an open triplet. You can call it on a discard from any player.",
+      "usage": "A triplet made by pon is an open triplet: 2 fu for simples and 4 fu for terminals and honors. That is half of a closed triplet, but unlike a sequence it does earn fu. Calling pon opens your hand, so you lose the 10 fu closed ron bonus and the closed-only yaku.\nCalling pon on a value tile secures 1 han of yakuhai, so it is the easiest way to avoid a hand with no yaku.",
+      "caseStudy": "Calling pon on white dragons gives an open triplet worth 4 fu and 1 han of yakuhai; calling pon on 5 man gives an open triplet worth 2 fu and no yaku.\nIf you hold a pair of 5 man in your hand and draw the third yourself instead of calling, you have a closed triplet worth 4 fu; call pon and it is an open triplet worth 2 fu. Pon speeds up your hand at the cost of half the fu.",
+      "pitfall": "Pon is a declaration that completes three identical tiles, so you need to hold a pair of that tile. You cannot call pon on a tile you hold only one of.\nAlso, calling pon opens your hand, so you can no longer declare riichi. If you make a triplet that is not a value tile by pon, you cannot win without a yaku, so plan where your yaku will come from before you call."
+    },
+    "chii": {
+      "term": "Chii",
+      "reading": "chii",
+      "definition": "A call that makes a sequence with a tile another player discarded. You can call it only on a discard from the player on your left. A sequence is 0 fu, so calling chii adds no fu.",
+      "usage": "A sequence made by chii is 0 fu. Sequences are 0 fu whether closed or open, so chii never adds fu. Calling chii does open your hand, however, and you lose the 10 fu closed ron bonus and the closed-only yaku.\nSequence yaku such as sanshoku and ittsu drop by one han when completed by chii (kuisagari).",
+      "caseStudy": "If you hold 4 man and 6 man and the player on your left discards 5 man, you can call chii to make a 4-5-6 man sequence. Its fu is 0 fu.\nSanshoku is 2 han when made with a closed hand and 1 han when made with chii. Honitsu made with chii drops from 3 han to 2 han.",
+      "pitfall": "You can call chii only on a discard from the player on your left. On a tile discarded by the player across from you or on your right you cannot call chii, only pon or kan.\nAlso, chii is a call that makes a sequence, so you cannot call chii on honor tiles. It is tempting to think chii costs nothing because it adds no fu, but you still lose the 10 fu closed ron bonus and the closed-only yaku, just as with any call."
+    },
+    "kan": {
+      "term": "Kan",
+      "reading": "kan",
+      "definition": "A declaration that makes a quad from four identical tiles. There is the closed kan, made with four tiles from your own hand, and the open kan, made by calling (daiminkan, or an added kan). A kan adds a dora and lets you draw a replacement tile from the dead wall.",
+      "usage": "A quad made by kan earns four times the fu of a triplet: a closed quad is 16 fu for simples and 32 fu for terminals and honors, and an open quad 8 fu for simples and 16 fu for terminals and honors. A closed kan keeps your hand closed, but after a daiminkan or an added kan the hand is open (an added kan builds on a pon, so the hand was already open).\nA kan adds a kan dora and lets you draw a replacement tile from the dead wall. Winning on that replacement tile is rinshan kaihou (1 han).",
+      "caseStudy": "If you hold four East in your hand and declare a closed kan, you earn 32 fu and keep the hand closed, so you can still declare riichi. If you called pon on East and then draw the fourth and add it, it is an open quad worth 16 fu.\nA closed hand won by ron that includes one closed quad of 5 man is 20 + 10 + 16 = 46 fu, rounded up to 50 fu: 50 fu even with no other fu.",
+      "pitfall": "Holding four tiles does not make a kan. Only once you declare it does it count as a quad and earn its fu; without the declaration it stays a triplet plus a spare tile.\nAlso, a kan is not always a gain. The kan dora apply to everyone, so your opponents' hands can grow too, and an open kan opens your hand. After riichi, you cannot declare a closed kan if it would change your wait."
+    },
+    "ankou": {
+      "term": "Closed triplet",
+      "reading": "ankou",
+      "definition": "A triplet you complete yourself without calling. It earns twice the fu of an open triplet. A triplet whose third tile came from a ron, however, counts as an open triplet.",
+      "usage": "A closed triplet is 4 fu for simples and 8 fu for terminals and honors, double the open triplet. A triplet completed by ron counts as an open triplet, not a closed one, so the closed triplets are the ones you gather in your hand and the ones you complete by tsumo.\nFor han, three closed triplets give sanankou (2 han), and four give suuankou (a yakuman).",
+      "caseStudy": "Three East gathered in your hand are a closed triplet worth 8 fu, and three 5 man are a closed triplet worth 4 fu.\nWith a pair wait on 5 man and white dragons, winning by tsumo on 5 man gives a closed triplet of 5 man (4 fu), but winning by ron on 5 man gives an open triplet (2 fu). The same shape earns different fu depending on how you win.\nA hand with three closed triplets has sanankou (2 han), and those triplets alone earn 12 to 24 fu. With a closed ron they add to 20 + 10 fu, so sanankou hands often reach 50 or 60 fu, and even at 2 han they score 3,200 or 3,900 points for a non-dealer.",
+      "pitfall": "Not every uncalled triplet is a closed triplet. A triplet completed by ron counts as open. This is easy to get wrong when you win a pair wait by ron.\nAlso, a closed triplet is a triplet kept in your hand, and it is not the same as a closed quad. A closed quad is a set of four tiles that earns four times the fu of a closed triplet."
+    },
+    "minkou": {
+      "term": "Open triplet",
+      "reading": "minkou",
+      "definition": "A triplet made by pon. A triplet completed by ron is also treated as an open triplet. It earns half the fu of a closed triplet.",
+      "usage": "An open triplet is 2 fu for simples and 4 fu for terminals and honors, half of a closed triplet. Triplets made by pon, and triplets whose third tile came from a ron, are open triplets.\nFor han, an open triplet is still a triplet: a value-tile triplet gives 1 han, and open triplets count toward toitoi. They do not count toward sanankou or suuankou, though.",
+      "caseStudy": "Calling pon on white dragons gives an open triplet worth 4 fu, and calling pon on 5 man gives one worth 2 fu.\nWith a pair wait on 5 man and white dragons, winning by ron on a white dragon makes the white dragon triplet count as open: 4 fu. If the hand made no pon, it is still closed, so the 10 fu closed ron bonus applies.\nA hand of four open triplets is toitoi (2 han). Four open triplets of simples earn 8 fu and four of terminals and honors earn 16 fu, and because the hand is open there is no 10 fu closed ron bonus: 20 + 8 = 28 fu, rounded up to 30 fu, and 20 + 16 = 36 fu, rounded up to 40 fu.",
+      "pitfall": "A triplet completed by ron becomes open because it was completed with another player's discard. This is a separate matter from whether the 10 fu closed ron bonus applies: even a closed hand won by ron can contain a triplet counted as open.\nAlso, an open triplet and an open quad are different. An open quad is a set of four tiles that earns four times the fu of an open triplet."
+    },
+    "ankan": {
+      "term": "Closed quad",
+      "reading": "ankan",
+      "definition": "A quad made only from four tiles in your own hand. It is not treated as a call, so the hand stays closed, and its fu is four times that of a closed triplet, the highest in fu calculation.",
+      "usage": "A closed quad is 16 fu for simples and 32 fu for terminals and honors, the highest fu of any set. A closed kan is not a call, so the hand stays closed and you can still declare riichi (after riichi, a closed kan is allowed only if it does not change your wait).\nA closed kan adds a kan dora and lets you draw a replacement tile from the dead wall. A closed quad also counts as a closed triplet for sanankou and suuankou.",
+      "caseStudy": "A closed hand with a closed quad of East earns 32 fu from that quad alone. Add 20 base fu and 10 fu for a closed ron and it is 62 fu, rounded up to 70 fu: even with only 1 han of yakuhai (the round wind), that is 2,300 points for a non-dealer.\nA closed quad of 5 man is 16 fu: 20 + 10 + 16 = 46 fu, rounded up to 50 fu.",
+      "pitfall": "A closed kan does not open the hand, but that does not mean it has no effect because nothing was called. The kan dora applies to everyone, and the wall shrinks by the replacement tile you draw.\nAlso, the four tiles of a closed quad are laid out with both ends face down, so the other players can see that you have a quad. You cannot keep it hidden in your hand."
+    },
+    "minkan": {
+      "term": "Open quad",
+      "reading": "minkan",
+      "definition": "A quad made using another player's tile. There is the daiminkan, called on a discard, and the added kan, which adds the fourth tile to a triplet you already made by pon. Either way the hand is no longer closed.",
+      "usage": "An open quad is 8 fu for simples and 16 fu for terminals and honors: half a closed quad and four times an open triplet. A daiminkan (a kan on a discard) opens your hand. An added kan (adding the fourth tile to a triplet made by pon) builds on a pon, so the hand was already open.\nAn open kan also adds a kan dora and lets you draw a replacement tile from the dead wall.",
+      "caseStudy": "If you have called pon on 5 man and draw the fourth 5 man, you can make an added kan, an open quad worth 8 fu. Left as a pon it would be an open triplet worth 2 fu, so the added kan multiplies the fu by four.\nIf you hold three East and another player discards East, a daiminkan gives an open quad worth 16 fu. A daiminkan opens your hand, though, so you can no longer declare riichi.",
+      "pitfall": "An added kan is possible only when you draw the fourth tile of a tile you called pon on yourself. You cannot make an added kan with a fourth tile another player discards.\nAlso, a daiminkan requires that you hold three of the same tile in your hand. Adding another player's discard to a pair in your hand, without having called pon, is not a kan (that is a pon)."
+    },
+    "kuisagari": {
+      "term": "Open-hand han reduction",
+      "reading": "kuisagari",
+      "definition": "The rule that some yaku are worth fewer han if you call. It applies to yaku such as sanshoku and ittsu, where a yaku worth 2 han with a closed hand becomes 1 han after a call. Some yaku keep their han when you call, and others are not valid at all once you call.",
+      "usage": "Kuisagari is only about han; it has nothing to do with fu. A yaku worth 2 han closed simply becomes 1 han after a call, and open triplets and open quads earn their fu as usual.\nThe yaku that lose han are sanshoku (2 to 1 han), ittsu (2 to 1 han), chanta (2 to 1 han), junchan (3 to 2 han), honitsu (3 to 2 han) and chinitsu (6 to 5 han). Yakuhai, toitoi, sanankou and others keep their han when you call.",
+      "caseStudy": "A closed hand with honitsu and yakuhai is 3 + 1 = 4 han, but call pon or chii even once and honitsu drops to 2 han, for 3 han in total.\nA hand aiming for sanshoku (2 han closed) becomes 1 han if completed by chii. Tanyao stays at 1 han after a call under rules that allow kuitan, and disappears the moment you call under rules that do not.",
+      "pitfall": "Calling does not lower every yaku by one han. Only some yaku lose han; yakuhai, toitoi, sanankou, sankantsu and others keep their han when you call.\nOn the other hand, riichi, pinfu, iipeikou, chiitoitsu, menzen tsumo and others are not reduced but closed only: they disappear the moment you call."
+    },
+    "hora": {
+      "term": "Win",
+      "reading": "houra",
+      "definition": "Completing your hand to win. You can declare it when your hand is in a winning shape and has at least one yaku. There are two ways to win: ron and tsumo.",
+      "usage": "Score calculation starts when you win. You split the hand into four sets and a pair and count the fu, count the han from yaku and dora, and look up the score for that combination of fu and han in the scoring table. At 5 han or more the hand scores mangan or higher regardless of fu.\nOn a ron, the one player who dealt in pays the whole amount; on a tsumo, the three other players share the payment. A dealer's win is worth 1.5 times a non-dealer's.",
+      "caseStudy": "A hand of three sequences, a closed triplet of white dragons and a number-tile pair, won by closed ron on a two-sided wait, is 20 fu + 10 fu (closed ron) + 8 fu (closed triplet) = 38 fu, rounded up to 40 fu; with 1 han of yakuhai that is 1,300 points for a non-dealer. Win the same hand by closed tsumo and it has 2 han (yakuhai plus menzen tsumo) and 20 + 2 + 8 = 30 fu: 500/1,000 for a non-dealer and 1,000 all for the dealer.\nA hand with no yaku at all cannot win, even if its winning shape is complete.",
+      "pitfall": "A complete winning shape is not enough to win. You need at least one yaku, and dora are not a yaku.\nAlso, when one of your winning tiles is among your own discards (furiten), you cannot win by ron, only by tsumo. A tile you let pass after riichi also puts you in furiten."
+    },
+    "ron": {
+      "term": "Ron",
+      "reading": "ron",
+      "definition": "Winning on another player's discard. With a closed hand it adds 10 fu. Note that a triplet completed by ron counts as an open triplet, not a closed one.",
+      "usage": "Winning by ron with a closed hand adds the 10 fu closed ron bonus. An open hand winning by ron does not get it. A triplet completed by ron counts as open, so on a ron with a pair wait the completed triplet earns half the fu of a closed triplet.\nThe player who dealt in pays the whole score. If there are honba, the player who dealt in adds 300 points per honba.",
+      "caseStudy": "A pinfu hand won by closed ron is 20 + 10 = 30 fu; with 1 han of pinfu that is 1,000 points for a non-dealer and 1,500 for the dealer. Win the same hand by tsumo and it is pinfu plus menzen tsumo, 2 han 20 fu: 400/700 for a non-dealer and 700 all for the dealer.\nWith a pair wait on 5 man and East, winning by ron on East makes the East triplet count as open: 4 fu (8 fu as a closed triplet on a tsumo).",
+      "pitfall": "Ron means winning on another player's discard; it is not a call. The hand stays closed after a ron, and the closed ron bonus applies.\nAlso, you cannot win by ron while in furiten (when one of your winning tiles is among your own discards). Check your discards against your wait."
+    },
+    "tsumo": {
+      "term": "Tsumo",
+      "reading": "tsumo",
+      "definition": "Winning on a tile you drew yourself. In a standard hand it adds 2 fu (pinfu is the only exception). You collect the score from every other player rather than from a single player.",
+      "usage": "Winning by tsumo with a standard hand adds 2 fu (tsumo fu). Pinfu alone is the exception: it does not add tsumo fu and stays at 20 fu. A tsumo with a closed hand also gets menzen tsumo (1 han). An open hand winning by tsumo gets no yaku for it, but it still earns the 2 tsumo fu.\nThe payment is split among the three other players: for a non-dealer's win the dealer pays double and the non-dealers pay half, and for a dealer's win all three pay the same amount (all).",
+      "caseStudy": "When a non-dealer wins 30 fu 2 han by tsumo, the dealer pays 1,000 and the two non-dealers pay 500 each, 2,000 in total. When the dealer wins 30 fu 2 han by tsumo, it is 1,000 all, 3,000 in total.\nA hand that called pon on white dragons (1 han of yakuhai) and wins by tsumo on a two-sided wait is 20 + 2 + 4 (open triplet) = 26 fu, rounded up to 30 fu, and its only yaku is yakuhai, 1 han. Menzen tsumo does not apply to an open hand.",
+      "pitfall": "The idea that tsumo is only a yaku with a closed hand is about menzen tsumo; the 2 tsumo fu apply even to an open hand.\nConversely, a pinfu tsumo does not get the 2 fu. Pinfu requires that nothing in the hand earns fu, and adding tsumo fu would contradict that, so you calculate it at 20 fu (some rules add the tsumo fu to make 30 fu, but that is not standard)."
+    },
+    "tenpai": {
+      "term": "Tenpai",
+      "reading": "tenpai",
+      "definition": "A ready hand: one tile away from winning. The tiles it can accept in this state are its winning tiles.",
+      "usage": "Being tenpai earns no fu or han by itself, but the shape of the wait decides fu. The shape you are waiting with when you reach tenpai (two-sided, closed, edge, pair or single-tile) decides the wait fu (0 fu or 2 fu) when you win.\nOnce a closed hand is tenpai you can declare riichi. If you are tenpai at an exhaustive draw, you collect the noten penalty (3,000 points in total) from the players who are not.",
+      "caseStudy": "Holding 3 man and 4 man and waiting on 2 man or 5 man is tenpai with a two-sided wait, and the wait earns 0 fu. Holding 3 man and 5 man and waiting on 4 man is tenpai with a closed wait, and it earns 2 fu when you win.\nEven with the same shape, if you have already discarded one of your winning tiles yourself, you are in furiten and cannot win by ron.",
+      "pitfall": "Tenpai means one tile away from a winning shape; it is not a win. You can be tenpai without a yaku, but you cannot win without one (even a tenpai hand with no yaku collects the tenpai payment at an exhaustive draw).\nAlso, even if all four of your winning tiles are already visible on the table (junkara), the hand is still tenpai in shape."
+    },
+    "machi": {
+      "term": "Wait",
+      "reading": "machi",
+      "definition": "The shape in which a tenpai hand waits for its winning tile. There are five kinds (two-sided, closed, edge, pair and single-tile), and the fu depends on which shape you won with.",
+      "usage": "Wait fu is 0 fu for a two-sided wait and a pair wait, and 2 fu for a closed wait, an edge wait and a single-tile wait. A two-sided wait is also a condition of pinfu.\nWhen one tenpai shape can be read as more than one wait, you score the reading that gives the higher score.",
+      "caseStudy": "Waiting on 3 man or 6 man with 4-5 man is a two-sided wait (0 fu), waiting on 5 man with 4 and 6 man is a closed wait (2 fu), waiting on 7 man with 8-9 man is an edge wait (2 fu), waiting with pairs of 5 man and East is a pair wait (0 fu), and waiting on a white dragon with a single white dragon is a single-tile wait (2 fu).\nThe shape 2-3-4-4 man waits on 1 man or 4 man: read as a two-sided wait on 2-3 man with 4 man as the pair, it waits on 1 or 4 man, and read as a 2-3-4 man sequence and a single-tile wait on 4 man, it waits on 4 man. A win on 4 man fits either reading; read as a single-tile wait it earns 2 fu, and you score the reading with the higher score.",
+      "pitfall": "Even when you wait on the same tiles, the fu depends on the shape in your hand. A wait on 3 man and 6 man from 4-5 man is two-sided and earns 0 fu.\nAlso, wait fu is added only once when you win; more kinds of winning tiles do not mean more fu. A three-sided wait (for example 2-3-4-5-6 man waiting on 1, 4 or 7 man) counts as a two-sided wait: 0 fu."
+    },
+    "ryanmen": {
+      "term": "Two-sided wait",
+      "reading": "ryanmen",
+      "definition": "A wait where you hold two consecutive tiles of a sequence and can win on the tile at either end. It has two kinds of winning tile, so it accepts many tiles, and it earns 0 fu. It is also one of the conditions of pinfu.",
+      "usage": "A two-sided wait is 0 fu. It is also one of the conditions of pinfu: a closed hand where every set is a sequence, the pair is not a value tile and the wait is two-sided is pinfu.\nWith two kinds of winning tile, it is the easiest tenpai shape to win with, and because it earns no fu, hands built around it raise their score through han.",
+      "caseStudy": "Waiting on 3 man or 6 man with 4-5 man is a two-sided wait. 4-5-6 man plus 6-7 man waits on 5 man or 8 man. A win on 8 man can only be two-sided, but a win on 5 man can also be read as a 5-6-7 man sequence plus a closed wait on 4 and 6 man, so you score the reading with the higher score (as two-sided it is 0 fu and meets the pinfu condition).\nA closed hand of three sequences, a two-sided wait on 4-5 man and a number-tile pair is pinfu: 30 fu 1 han (1,000 for a non-dealer) by ron, and pinfu plus tsumo, 20 fu 2 han (400/700 for a non-dealer), by tsumo.",
+      "pitfall": "Waiting on 3 man with 1-2 man is not two-sided, because one side is blocked by the end of the suit: it is an edge wait (2 fu). Two-sided refers only to shapes that can win on either side.\nAlso, waiting on 5 man with 4 and 6 man is a closed wait, which can only take the one tile in the middle, so it is not two-sided. And even with two kinds of winning tile, a wait with pairs of 4 man and 7 man is not two-sided but a pair wait (0 fu)."
+    },
+    "kanchan": {
+      "term": "Closed wait",
+      "reading": "kanchan",
+      "definition": "A shape where you hold two tiles with a gap of one number and wait for the tile in between. It has one kind of winning tile and earns 2 fu.",
+      "usage": "A closed wait is 2 fu. It has only one kind of winning tile compared with a two-sided wait, and fu compensates for that. It cannot be pinfu (pinfu requires a two-sided wait).\nWhen a shape can be read in more than one way and reading it as a closed wait gives the higher score, you score it that way.",
+      "caseStudy": "Waiting on 5 man with 4 and 6 man is a closed wait. A closed hand of three sequences, a number-tile pair and a closed wait, won by ron, is 20 + 10 + 2 = 32 fu, rounded up to 40 fu; if its only yaku is riichi, 40 fu 1 han is 1,300 points for a non-dealer. That is more than the 30 fu 1 han (1,000 for a non-dealer) it would score with a two-sided wait, by the amount of the extra fu.\nThe shape 2-2-3-5 man waiting on 4 man is a closed wait on 3 and 5 man plus a pair of 2 man: drawing 4 man completes a 3-4-5 man sequence, and the closed wait earns 2 fu.",
+      "pitfall": "A closed wait waits for the middle tile, and some shapes are easy to confuse with it, such as 4-5-6-7 man waiting on 4 or 7 man. A closed wait is two tiles that are not next to each other in your hand, waiting for the tile between them.\nAlso, waiting on a single kind of tile does not always mean you earn fu. A pair wait waits on one tile for each of its two pairs, and it is 0 fu."
+    },
+    "penchan": {
+      "term": "Edge wait",
+      "reading": "penchan",
+      "definition": "Waiting on 3 with 1-2, or on 7 with 8-9. One end is blocked, so there is only one kind of winning tile, and it earns 2 fu.",
+      "usage": "An edge wait is 2 fu. There are only two such shapes, 1-2 man waiting on 3 man and 8-9 man waiting on 7 man (and the same in the other suits), and in both one end is blocked, so there is only one kind of winning tile. It cannot be pinfu.\nWhen a shape can be read as either an edge wait or a two-sided wait, you score the reading with the higher score.",
+      "caseStudy": "Waiting on 3 man with 1-2 man is an edge wait (2 fu), and waiting on 7 sou with 8-9 sou is also an edge wait (2 fu).\nThe shape 1-2-3-4-5 man waits on 3 man or 6 man. Read as a 1-2-3 man sequence plus 4-5 man, it is a two-sided wait on 3 or 6 man; read as 1-2 man plus a 3-4-5 man sequence, it is an edge wait on 3 man, so a win on 3 man can be read either way. Read as two-sided it is 0 fu and meets the pinfu condition; read as an edge wait it earns 2 fu. You score whichever reading is higher.",
+      "pitfall": "An edge wait is not waiting on an end tile; it is two tiles pushed against the end of the suit, waiting on the one tile inside. 2-3 man waiting on 1 or 4 man is two-sided, and winning on 1 man does not make it an edge wait.\nAlso, an edge wait occurs only with the 1-2 or 8-9 of a number suit; honor tiles have no edge waits."
+    },
+    "shanpon": {
+      "term": "Pair wait",
+      "reading": "shanpon",
+      "definition": "A shape where you hold two pairs and wait for either one to become a triplet. The wait itself is 0 fu, but the completed triplet earns its fu.",
+      "usage": "A pair wait is 0 fu by itself, but the triplet completed by the win earns fu: as a closed triplet on a tsumo (4 fu for simples, 8 fu for terminals and honors), and as an open triplet on a ron (2 fu and 4 fu).\nWhich of the two pairs becomes the triplet and which stays as the pair also changes the pair fu (2 fu for a value tile).",
+      "caseStudy": "With a pair wait on 5 man and white dragons, winning by tsumo on a white dragon gives a closed triplet of white dragons (8 fu) plus a 5 man pair (0 fu); winning by ron on a white dragon gives an open triplet of white dragons (4 fu) plus a 5 man pair (0 fu); and winning by tsumo on 5 man gives a closed triplet of 5 man (4 fu) plus a white dragon pair (2 fu).\nWith the same tenpai shape, the fu ranges from 4 fu to 8 fu depending on which tile you win on and how.",
+      "pitfall": "A pair wait is not a bad deal just because it earns no wait fu. The wait itself is 0 fu, but the completed triplet earns fu, so it nearly always earns more than the 2 fu of a closed or edge wait.\nAlso, a triplet completed by ron on a pair wait is an open triplet. Counting it as closed because it was completed in your hand is a mistake."
+    },
+    "tanki": {
+      "term": "Single-tile wait",
+      "reading": "tanki",
+      "definition": "Waiting with one tile for its match to complete the pair. There is one kind of winning tile, and it earns 2 fu.",
+      "usage": "A single-tile wait is 2 fu. You hold one tile of the pair and wait for the other, so there is one kind of winning tile. It cannot be pinfu.\nChiitoitsu is always a single-tile wait, but it is fixed at 25 fu, so the 2 fu are not added. Kokushi musou does not count fu either.",
+      "caseStudy": "Four complete sequences and a single white dragon waiting on another white dragon is a single-tile wait. By closed ron it is 20 + 10 + 2 (single-tile wait) + 2 (white dragon pair) = 34 fu, rounded up to 40 fu.\nThe shape 2-3-4-4 man waits on 1 man or 4 man. A win on 1 man can only be the two-sided wait on 2-3 man, but a win on 4 man can be read as a 2-3-4 man sequence plus a single-tile wait on 4 man, or as a two-sided wait on 2-3 man with 4 man as the pair, and you score the reading with the higher score (2 fu as a single-tile wait).\nThree sequences and a closed triplet of 5 man (4 fu) with a single-tile wait on a white dragon (2 fu for the pair plus 2 fu for the wait), won by closed ron, is 20 + 10 + 4 + 2 + 2 = 38 fu, rounded up to 40 fu. If you could turn the same hand into a two-sided wait the fu would drop, but a single-tile wait lets you choose your winning tile (you can change the pair).",
+      "pitfall": "A single-tile wait is waiting on the pair, and not every wait on a single kind of tile is a single-tile wait. Closed waits and edge waits also wait on one kind of tile, but they are different shapes.\nAlso, the last tile of chiitoitsu is a single-tile wait too, but chiitoitsu is fixed at 25 fu, so the 2 fu do not apply."
+    },
+    "yaku": {
+      "term": "Yaku",
+      "reading": "yaku",
+      "definition": "Named hand shapes or conditions, at least one of which you need in order to win. Each has its own han value and forms the base of the score. Dora add han but are not a yaku.",
+      "usage": "You cannot win without at least one yaku. The han of all your yaku plus the han from dora make the hand's han, and together with the fu that decides the score. At 5 han or more the hand scores mangan or higher regardless of fu.\nSome yaku require a closed hand (riichi, pinfu, iipeikou, chiitoitsu and so on), some lose han when you call (sanshoku, honitsu and so on), and some keep their han when you call (yakuhai, toitoi and so on).",
+      "caseStudy": "A hand with riichi (1 han), menzen tsumo (1 han) and pinfu (1 han) plus one dora is 4 han. At 20 fu 4 han that is 1,300/2,600 for a non-dealer and 2,600 all for the dealer.\nA 1 han hand with only yakuhai (white dragon) is 1,300 points for a non-dealer at 40 fu; with three dora it becomes 4 han 40 fu, 8,000 points for a non-dealer (mangan).",
+      "pitfall": "Dora are not a yaku. However many dora you hold, you cannot win without a yaku.\nAlso, a yaku's han is simply how many han that yaku is worth, and it is a separate axis from fu. At the same 1 han, different fu give different scores, and at the same 40 fu, each extra han doubles the score."
+    },
+    "riichi": {
+      "term": "Riichi",
+      "reading": "riichi",
+      "definition": "A 1 han yaku you can declare when your closed hand is tenpai. After declaring it you cannot change your hand, and you put a 1,000-point riichi stick on the table.",
+      "usage": "Riichi is a closed-only 1 han yaku, and you put down 1,000 points when you declare it. After riichi you may also get ippatsu (1 han for winning within one go-around after riichi) and ura-dora, so the han at the time of the win can grow a lot.\nRiichi has no effect on fu. After riichi you still count fu from the shape of the hand as usual.",
+      "caseStudy": "A riichi-only hand won by ron at 30 fu is 1 han, 1,000 points for a non-dealer; with ippatsu it is 2 han and 2,000 points, and with one ura-dora on top it is 3 han and 3,900 points.\nA hand with riichi, menzen tsumo and pinfu plus one dora and one ura-dora is 5 han, a mangan (8,000 points for a non-dealer). The 1,000 points put on the table go to the player who wins.",
+      "pitfall": "You can declare riichi only with a closed hand. After a pon, a chii or a daiminkan you cannot declare riichi (a closed kan is fine).\nAlso, after riichi you cannot change your hand, so if you let a winning tile pass (furiten) you can no longer win by ron for the rest of the hand. Declaring riichi on your very first turn is double riichi (2 han)."
+    },
+    "fu": {
+      "term": "Fu",
+      "reading": "fu",
+      "definition": "The unit (minipoints) that turns the fine details of a hand into points. Starting from the 20 base fu, you add the fu for sets, the pair, the wait and the way you won, then round up to the next 10. Together with han, it decides the score.",
+      "usage": "Fu is base fu (20) + set fu + pair fu + wait fu + fu for the way you won, rounded up to the next 10. Sequences are 0 fu, triplets and quads 2 to 32 fu depending on their kind, the pair 2 fu if it is a value tile, the wait 2 fu for a closed, edge or single-tile wait, and the way you won 10 fu for a closed ron and 2 fu for tsumo.\nThe exceptions are chiitoitsu, fixed at 25 fu, and a pinfu tsumo, fixed at 20 fu. From fu and han, the basic points are fu times 2 to the power of (han + 2), and the scoring table is that value multiplied out for the paying players and rounded up.",
+      "caseStudy": "Three sequences, a closed triplet of white dragons (8 fu), a number-tile pair (0 fu) and a two-sided wait (0 fu), won by closed ron (10 fu), make 20 + 8 + 10 = 38 fu, rounded up to 40 fu. Win the same hand by tsumo and it is 20 + 8 + 2 = 30 fu.\nAt 40 fu, 1 han is 1,300 points for a non-dealer, 2 han is 2,600, 3 han is 5,200 and 4 han is mangan (8,000). Each extra han roughly doubles the score.",
+      "pitfall": "Calling does not take away your fu. An open hand still counts the 20 base fu and the fu of open triplets, open quads, the pair and the wait. The only thing it loses is the 10 fu for a closed ron.\nAlso, a hand of 5 han or more has its score decided without counting fu (mangan or higher). Fu affects the score only for hands of 4 han or less."
+    },
+    "futei": {
+      "term": "Base fu",
+      "reading": "fuutei",
+      "definition": "The 20 fu that every hand gets unconditionally. It is the starting point of fu calculation, and if every set is a sequence and the wait is worth 0 fu, these 20 fu are all that remain.",
+      "usage": "Base fu are the 20 fu that every win gets, the starting point of fu calculation. You add the fu for sets, the pair, the wait and the way you won on top of them. A pinfu tsumo is calculated with the 20 base fu alone and is not rounded up, so it is fixed at 20 fu.\nWhen an open hand wins by ron and nothing is added to the 20 base fu (the open pinfu shape won by ron), it is generally scored as 30 fu.",
+      "caseStudy": "A closed hand of four sequences, a number-tile pair and a two-sided wait, won by tsumo, adds no tsumo fu to the 20 base fu (pinfu) and stays at 20 fu. Win the same hand by ron and it is 20 fu + 10 fu (closed ron) = 30 fu.\nAn open hand of four sequences, a number-tile pair and a two-sided wait, won by ron, is 20 fu on paper, but it is treated as 30 fu.",
+      "pitfall": "The 20 base fu do not mean that every hand is a 20 fu hand; they are the base included in every hand. When fu calculation speaks of 20 fu, it means a case where nothing is added to that base, such as a pinfu tsumo, or the open pinfu shape won by ron (treated as 30 fu).\nChiitoitsu does not build up from the base fu and is fixed at 25 fu, so the idea of base fu does not apply to it."
+    },
+    "menzen-ron-kafu": {
+      "term": "Closed ron bonus",
+      "reading": "menzen ron kafu",
+      "definition": "The 10 fu added when you win by ron with a closed hand. Also called menzen kafu. It does not apply to a tsumo win or to an open hand.",
+      "usage": "The closed ron bonus is 10 fu added only when you win by ron with a closed hand (one that has never called, closed kans aside). It does not apply to a tsumo, which gets the 2 fu tsumo fu instead. An open hand winning by ron gets neither.\nA pinfu ron is 30 fu because it is the 20 base fu plus these 10 fu.",
+      "caseStudy": "A closed hand of four sequences, a number-tile pair and a two-sided wait is 20 + 10 = 30 fu by ron (pinfu ron) and 20 fu by tsumo (pinfu tsumo).\nThree sequences, a closed triplet of white dragons and a number-tile pair, won by closed ron on a two-sided wait, make 20 + 10 + 8 = 38 fu, rounded up to 40 fu. Had you made the same hand by calling pon on the white dragons, it would be 20 + 4 = 24 fu, rounded up to 30 fu: the 10 fu and the difference between a closed and an open triplet change the fu.",
+      "pitfall": "The closed ron bonus is not 10 fu that every ron gets. An open hand winning by ron does not get it.\nNor does a closed tsumo get it. A closed hand won by tsumo gets only the yaku menzen tsumo (1 han) and the tsumo fu (2 fu); the 10 fu are not added."
+    },
+    "tsumo-fu": {
+      "term": "Tsumo fu",
+      "reading": "tsumo fu",
+      "definition": "The 2 fu added when you win by tsumo. Pinfu, however, does not take tsumo fu and is calculated at 20 fu. Whether rinshan kaihou (a tsumo win on the replacement tile drawn after a kan) adds tsumo fu as usual depends on the rules.",
+      "usage": "Tsumo fu are the 2 fu a standard hand earns when it wins by tsumo. They apply whether or not the hand is closed, and are added to an open hand's tsumo too. Pinfu alone is the exception: it does not take tsumo fu and is fixed at 20 fu.\nWhether rinshan kaihou (a tsumo on the replacement tile after a kan) adds tsumo fu depends on the rules.",
+      "caseStudy": "A hand that called pon on white dragons (1 han of yakuhai) and wins by tsumo on a two-sided wait is 20 fu + 2 fu (tsumo) + 4 fu (open triplet of white dragons) = 26 fu, rounded up to 30 fu; a non-dealer with 1 han of yakuhai at 30 fu collects 300/500.\nThree sequences, a closed triplet of 5 man and a number-tile pair, won by closed tsumo on a two-sided wait, make 20 + 2 + 4 = 26 fu, rounded up to 30 fu: menzen tsumo, 1 han 30 fu. It is not pinfu, so the tsumo fu applies.",
+      "pitfall": "Tsumo fu are not limited to closed hands. What is closed only is menzen tsumo (a 1 han yaku); the 2 tsumo fu apply even when you have called.\nAlso, the standard is not to add tsumo fu to a pinfu tsumo (fixed at 20 fu). Some rules do add it to make 30 fu, and under those rules a pinfu tsumo is 30 fu 2 han instead of 20 fu 2 han."
+    },
+    "fu-kiriage": {
+      "term": "Rounding up fu",
+      "reading": "fu no kiriage",
+      "definition": "Rounding the total fu up to the next 10 after adding everything. 22 fu becomes 30 fu. You look up the score in the scoring table with the rounded fu.",
+      "usage": "After adding all the fu, you round up the ones digit to a multiple of 10: 22 fu becomes 30 fu, 32 fu becomes 40 fu and 44 fu becomes 50 fu. You look up the score in the scoring table with the rounded fu.\nThe 25 fu of chiitoitsu and the 20 fu of a pinfu tsumo are not rounded up. A total that is already a multiple of 10, such as 30 fu or 40 fu, stays as it is.",
+      "caseStudy": "20 base fu + 8 fu for a closed triplet of white dragons + 2 fu for a closed wait + 10 fu for a closed ron = 40 fu needs no rounding. 20 base fu + 4 fu for a closed triplet of 5 man + 10 fu for a closed ron = 34 fu rounds up to 40 fu.\n34 fu and 38 fu both round up to 40 fu, so they score the same (2,600 points for a non-dealer at 40 fu 2 han), but a hand at exactly 30 fu is not rounded and stays at 30 fu 2 han (2,000 points for a non-dealer). A difference of 1 fu can become a difference of 10 fu after rounding.",
+      "pitfall": "You round up only once, at the end. You do not round each set separately, or round partway and then keep adding.\nAlso, this is a different thing from kiriage mangan. Rounding up fu brings the fu to a multiple of 10; kiriage mangan is a rule that rounds the score of 30 fu 4 han and 60 fu 3 han up to mangan."
+    },
+    "pinfu": {
+      "term": "Pinfu",
+      "reading": "pinfu",
+      "definition": "A closed-only 1 han yaku that requires every set to be a sequence, the pair not to be a value tile, and the wait to be two-sided. Nothing in the hand earns fu, so it is fixed at 20 fu.",
+      "usage": "Pinfu is a closed-only 1 han yaku with three conditions: every set is a sequence, the pair is not a value tile, and the wait is two-sided. Nothing in the hand earns fu, so by tsumo it stays at the 20 base fu (no tsumo fu is added), and by ron the closed ron bonus is added for 30 fu.\nA pinfu tsumo is 20 fu 2 han (pinfu plus menzen tsumo): 400/700 for a non-dealer and 700 all for the dealer. A pinfu ron is 30 fu 1 han: 1,000 points for a non-dealer and 1,500 for the dealer.",
+      "caseStudy": "A closed hand of 2-3-4 man, 5-6-7 pin, 7-8-9 sou, 4-5 man (waiting on 3 or 6 man) and a pair of North (a non-value wind for the South player in the East round) is pinfu. By ron it is 30 fu 1 han, and by tsumo 20 fu 2 han.\nIf the same hand had a pair of white dragons instead, it would not be pinfu: the pair earns 2 fu, giving 32 fu, rounded up to 40 fu, by closed ron, and 24 fu, rounded up to 30 fu, by tsumo.",
+      "pitfall": "A 20 fu hand is not automatically pinfu. Pinfu is a yaku, decided by its three conditions. Conversely, a hand that meets the pinfu conditions is still pinfu even though a ron makes it 30 fu.\nAlso, even if the wait looks two-sided, the hand is not pinfu if it can only win when read as an edge or closed wait, or if it is completed as a pair wait. When only part of a three-sided wait is two-sided, pinfu applies only if the winning tile is one that completes the two-sided wait."
+    },
+    "han": {
+      "term": "Han",
+      "reading": "han",
+      "definition": "The scoring unit counted from yaku and dora. Each extra han roughly doubles the score. The combination of fu and han decides the score.",
+      "usage": "Han are counted from yaku and dora. The basic points are fu times 2 to the power of (han + 2), so each extra han doubles the basic points. A non-dealer's ron is four times the basic points and a dealer's ron six times, each rounded up to the next 100.\nAt 5 han or more the score no longer depends on fu: mangan (5 han), haneman (6 to 7 han), baiman (8 to 10 han), sanbaiman (11 to 12 han) and counted yakuman (13 han or more). At 4 han or less you look up the score in the scoring table together with the fu.",
+      "caseStudy": "30 fu 1 han has 240 basic points: 1,000 for a non-dealer and 1,500 for the dealer. 30 fu 2 han has 480 basic points: 2,000 for a non-dealer and 2,900 for the dealer. 30 fu 3 han is 3,900 and 5,800, and 30 fu 4 han is 7,700 and 11,600.\nA 1 han yakuhai hand with four dora is 5 han, a mangan regardless of fu (8,000 for a non-dealer, 12,000 for the dealer).",
+      "pitfall": "Han and fu are separate axes. More han does not mean more fu: some hands, like pinfu, stack up han at the minimum of 20 fu, while others have 70 fu but only 1 han.\nAlso, han from dora are not a yaku, so dora alone do not let you win, even though they add han."
+    },
+    "oya": {
+      "term": "Dealer",
+      "reading": "oya",
+      "definition": "The player who takes their starting tiles first in a hand (East). A dealer's win scores 1.5 times a non-dealer's, and the dealer also pays more when another player wins by tsumo. If the dealer wins, or is tenpai at an exhaustive draw, the dealer keeps the deal (renchan) and a honba is added.",
+      "usage": "A dealer's win scores 1.5 times a non-dealer's. On a ron, the dealer receives six times the basic points (a non-dealer gets four times) from the player who dealt in; on a tsumo, the dealer receives twice the basic points from each of the three other players (all).\nIf the dealer wins, or is tenpai at an exhaustive draw, the dealer keeps the deal and one honba is added. When a non-dealer wins by tsumo, the dealer pays twice the basic points (double what a non-dealer pays).",
+      "caseStudy": "30 fu 2 han is 2,000 points on a non-dealer's ron and 2,900 on the dealer's ron. If the dealer wins 30 fu 2 han by tsumo, it is 1,000 all (3,000 in total); if a non-dealer wins 30 fu 2 han by tsumo, the dealer pays 1,000 and each non-dealer pays 500 (2,000 in total).\nA dealer's mangan is 12,000 points, or 4,000 all by tsumo.",
+      "pitfall": "The dealer's score is not the non-dealer's score multiplied by 1.5 and rounded up; it is calculated separately from the basic points. 30 fu 1 han is 1,000 for a non-dealer and 1,500 for the dealer, but 30 fu 2 han is 2,000 for a non-dealer against 2,900 for the dealer, not a simple 1.5 times.\nThe dealer also pays more when a non-dealer wins by tsumo: on a non-dealer's mangan tsumo, the dealer pays 4,000 points."
+    },
+    "ko": {
+      "term": "Non-dealer",
+      "reading": "ko",
+      "definition": "Any of the three players other than the dealer. A non-dealer's win scores less than the dealer's, but on a tsumo win the non-dealer collects more from the dealer.",
+      "usage": "A non-dealer's win is four times the basic points (on a ron), rounded up to the next 100. On a tsumo, the non-dealer receives twice the basic points from the dealer and the basic points from each other non-dealer.\nA non-dealer's mangan is 8,000 points (4,000 from the dealer and 2,000 from each non-dealer by tsumo), haneman 12,000, baiman 16,000, sanbaiman 24,000 and yakuman 32,000.",
+      "caseStudy": "A non-dealer's 30 fu 1 han is 1,000 points by ron; by tsumo, the dealer pays 500 and each non-dealer pays 300 (twice and once the 240 basic points, rounded up). 40 fu 2 han is 2,600 by ron; by tsumo, the dealer pays 1,300 and each non-dealer pays 700.\nWhen a non-dealer wins a mangan by tsumo, the dealer pays 4,000 points and the two non-dealers pay 2,000 each.",
+      "pitfall": "A non-dealer's tsumo is not split equally three ways. The dealer pays double and the non-dealers pay half as much each. A non-dealer's tsumo at 30 fu 2 han is 1,000 from the dealer and 500 from each non-dealer, 2,000 in total.\nAlso, when a non-dealer deals in to the dealer, that one player pays 1.5 times what a non-dealer's win would cost."
+    },
+    "mangan": {
+      "term": "Mangan",
+      "reading": "mangan",
+      "definition": "A limit hand worth 8,000 points for a non-dealer and 12,000 for the dealer. It applies at 5 han, or when the score calculated from fu and han would go above mangan.",
+      "usage": "Mangan is 8,000 points for a non-dealer and 12,000 for the dealer, and every 5 han hand is a mangan. Even at 4 han or less, if the basic points calculated from fu and han (fu times 2 to the power of (han + 2)) reach 2,000 or more, the score is capped at mangan. In practice that means 4 han at 40 fu or more and 3 han at 70 fu or more; only 30 fu 4 han (1,920 basic points) and 60 fu 3 han (also 1,920) fall short of mangan, at 7,700 points for a non-dealer.\nWhether 30 fu 4 han and 60 fu 3 han are rounded up to mangan (kiriage mangan) depends on the rules.",
+      "caseStudy": "Riichi, menzen tsumo, pinfu and two dora make 5 han, a mangan: 8,000 points for a non-dealer (4,000 from the dealer and 2,000 from each non-dealer by tsumo) and 12,000 for the dealer (4,000 all).\nEven a 4 han hand of yakuhai and three dora is 8,000 points if it has 40 fu, because its 2,560 basic points exceed the mangan line of 2,000. At 30 fu the same 4 han has 1,920 basic points and falls short of mangan: 7,700 for a non-dealer and 11,600 for the dealer.",
+      "pitfall": "4 han is not always a mangan. 30 fu 4 han is 7,700, short of mangan, and becomes 8,000 only at tables that play kiriage mangan. Conversely, even 3 han is a mangan at 70 fu or more.\nAlso, scores above mangan (haneman and up) are decided by han alone; fu does not matter."
+    },
+    "haneman": {
+      "term": "Haneman",
+      "reading": "haneman",
+      "definition": "The scoring tier for 6 and 7 han: 12,000 points for a non-dealer and 18,000 for the dealer, 1.5 times a mangan.",
+      "usage": "Haneman is the score of a 6 or 7 han hand: 12,000 points for a non-dealer and 18,000 for the dealer. It is 1.5 times a mangan, and fu does not matter. By tsumo, a non-dealer collects 6,000 from the dealer and 3,000 from each non-dealer, and the dealer collects 6,000 all.",
+      "caseStudy": "Riichi, menzen tsumo, pinfu, iipeikou and two dora make 6 han, a haneman. Honitsu (3 han closed), yakuhai and three dora make 7 han, also a haneman; both are 12,000 points for a non-dealer.\nA 7 han hand at 2 honba is 12,000 + 600 = 12,600 points.\nOn a non-dealer's haneman tsumo, the dealer pays 6,000 and each non-dealer 3,000; on the dealer's haneman tsumo it is 6,000 all. Remember haneman as 1.5 times a mangan, and the pairs 8,000 to 12,000 and 12,000 to 18,000 come to mind at once.",
+      "pitfall": "Haneman covers both 6 and 7 han; 7 han is not a baiman. Baiman starts at 8 han.\nAlso, from haneman up you do not need to count fu. High fu or low, 6 han is 12,000 points."
+    },
+    "baiman": {
+      "term": "Baiman",
+      "reading": "baiman",
+      "definition": "The scoring tier for 8 to 10 han: 16,000 points for a non-dealer and 24,000 for the dealer, twice a mangan.",
+      "usage": "Baiman is the score of an 8 to 10 han hand: 16,000 points for a non-dealer and 24,000 for the dealer. It is twice a mangan, and fu does not matter. By tsumo, a non-dealer collects 8,000 from the dealer and 4,000 from each non-dealer, and the dealer collects 8,000 all.",
+      "caseStudy": "Chinitsu (6 han closed), riichi and menzen tsumo make 8 han, a baiman. An open hand with honitsu, toitoi, two yakuhai and three dora (9 han) is also a baiman.\nEven 10 han is a baiman; sanbaiman starts at 11 han.\nOn a non-dealer's baiman tsumo, the dealer pays 8,000 and each non-dealer 4,000; on the dealer's baiman tsumo it is 8,000 all. Baiman is twice a mangan: 8,000 to 16,000 and 12,000 to 24,000.",
+      "pitfall": "8, 9 and 10 han are all the same baiman. 9 or 10 han does not raise the score.\nAlso, yakuman is not a yaku you reach by counting han. Apart from the counted yakuman that applies once you reach 13 han, yakuman yaku carry the yakuman score in their own right."
+    },
+    "sanbaiman": {
+      "term": "Sanbaiman",
+      "reading": "sanbaiman",
+      "definition": "The scoring tier for 11 and 12 han: 24,000 points for a non-dealer and 36,000 for the dealer, three times a mangan.",
+      "usage": "Sanbaiman is the score of an 11 or 12 han hand: 24,000 points for a non-dealer and 36,000 for the dealer. It is three times a mangan, and fu does not matter. By tsumo, a non-dealer collects 12,000 from the dealer and 6,000 from each non-dealer, and the dealer collects 12,000 all.\n13 han or more is a counted yakuman (32,000 for a non-dealer), but some rules do not use counted yakuman and score 13 han or more as sanbaiman too.",
+      "caseStudy": "Chinitsu, ittsu, riichi, menzen tsumo and two dora make 12 han, a sanbaiman. Chinitsu, riichi, ippatsu, menzen tsumo and three ura-dora also make 12 han, a sanbaiman worth 24,000 points for a non-dealer.\nOn a non-dealer's sanbaiman tsumo, the dealer pays 12,000 and each non-dealer 6,000; on the dealer's sanbaiman tsumo it is 12,000 all. Sanbaiman is three times a mangan: 8,000 to 24,000 and 12,000 to 36,000.",
+      "pitfall": "Sanbaiman is 11 and 12 han; 10 han is a baiman. It does not start as soon as you pass 10 han in some vague sense; it starts exactly at 11 han.\nAlso, whether reaching 13 han makes a counted yakuman depends on the rules; at tables that do not use it, 13 han or more is still a sanbaiman (24,000 points)."
+    },
+    "kazoe-yakuman": {
+      "term": "Counted yakuman",
+      "reading": "kazoe yakuman",
+      "definition": "A hand without a yakuman yaku that scores the same as a yakuman because its han reach 13 or more: 32,000 points for a non-dealer and 48,000 for the dealer.",
+      "usage": "A counted yakuman gives a hand the yakuman score (32,000 for a non-dealer, 48,000 for the dealer) when its han add up to 13 or more, even without a yakuman yaku. Fu does not matter.\nWhether it is used differs by rule set; where it is not, 13 han or more is a sanbaiman (24,000 for a non-dealer).",
+      "caseStudy": "Chinitsu (6 han), riichi (1 han), ippatsu (1 han), menzen tsumo (1 han), two dora and two ura-dora make 13 han, a counted yakuman. An open hand with chinitsu, toitoi, sanankou and four dora is also 13 han, a counted yakuman.\nA counted yakuman is the same 32,000 points as a yakuman: 16,000 from the dealer and 8,000 from each non-dealer by tsumo.",
+      "pitfall": "A counted yakuman is not a yakuman yaku. Yakuman such as kokushi musou or daisangen do not combine with a counted yakuman (a yakuman hand does not count han at all).\nAlso, rules that make a counted yakuman a double yakuman are generally not used. Even 26 han is one counted yakuman, worth 32,000."
+    },
+    "yakuman": {
+      "term": "Yakuman",
+      "reading": "yakuman",
+      "definition": "Yaku given a specially high fixed score, such as kokushi musou and daisangen. 32,000 points for a non-dealer and 48,000 for the dealer, with no build-up of fu or han.",
+      "usage": "Yakuman is 32,000 points for a non-dealer and 48,000 for the dealer, and neither fu nor han are counted. Kokushi musou, daisangen, suuankou, tsuuiisou, ryuuiisou, chinroutou, shousuushii, daisuushii, suukantsu, chuuren poutou, tenhou, chiihou and others are yakuman.\nWhether a table plays rules that make suuankou tanki, kokushi musou with a 13-sided wait, junsei chuuren poutou or daisuushii a double yakuman (64,000 points), or that add up several yakuman (combined yakuman), depends on the table.",
+      "caseStudy": "Daisangen is a yakuman even when made by calling: 32,000 points for a non-dealer. Suuankou is valid only by tsumo; winning a pair wait by ron leaves three closed triplets, making a hand of sanankou and toitoi (with a single-tile wait, suuankou is valid even by ron).\nA yakuman tsumo is 16,000 from the dealer and 8,000 from each non-dealer for a non-dealer, and 16,000 all for the dealer.",
+      "pitfall": "A yakuman hand does not count dora or other yaku. Yakuman plus three dora does not raise the score (except when, under combined-yakuman rules, it overlaps with another yakuman).\nAlso, a yakuman is not 13 han. Counting han is what a counted yakuman does; a yakuman is a yaku with its own fixed score."
+    },
+    "kiriage-mangan": {
+      "term": "Kiriage mangan",
+      "reading": "kiriage mangan",
+      "definition": "A rule that treats 30 fu 4 han (7,700 for a non-dealer) and 60 fu 3 han as mangan. Whether it is used depends on the table, and it is not standard.",
+      "usage": "Kiriage mangan is a rule that treats 30 fu 4 han (7,700 for a non-dealer, 11,600 for the dealer) and 60 fu 3 han (7,700 for a non-dealer, 11,600 for the dealer) as mangan (8,000 for a non-dealer, 12,000 for the dealer). The same goes for tsumo: a 30 fu 4 han tsumo (2,000/3,900 for a non-dealer, 3,900 all for the dealer) becomes a mangan tsumo (2,000/4,000 for a non-dealer, 4,000 all for the dealer).\nWhether it is used depends on the table's rules, and it is not standard.",
+      "caseStudy": "A 4 han hand of riichi, menzen tsumo and two dora won at 30 fu is 2,000/3,900 for a non-dealer without kiriage mangan and 2,000/4,000 with it.\n60 fu 3 han happens, for example, when a closed hand with three closed triplets of terminals or honors (24 fu from those triplets alone) wins by ron (20 + 10 + 24 = 54 fu, rounded up to 60 fu). With 3 han of sanankou and yakuhai, it is 7,700 for a non-dealer without kiriage mangan and 8,000 with it.",
+      "pitfall": "Kiriage mangan is a separate rule from rounding up fu (bringing the fu to a multiple of 10). Rounding up fu happens under every rule set, but many tables do not use kiriage mangan.\nIt covers only 30 fu 4 han and 60 fu 3 han; 40 fu 3 han (5,200 for a non-dealer) and 50 fu 3 han (6,400 for a non-dealer) do not become mangan."
+    },
+    "honba": {
+      "term": "Honba",
+      "reading": "honba",
+      "definition": "A counter that builds up when the dealer keeps the deal or a hand ends in a draw. Each honba adds 300 points to the winning score (100 points from each player on a tsumo).",
+      "usage": "Each honba adds 300 points to the winning score. On a ron, the player who dealt in adds 300 times the number of honba; on a tsumo, each of the three players adds 100 times the number of honba.\nThe honba count goes up by one every time the dealer keeps the deal or a hand ends in a draw, and it goes back to 0 when a non-dealer wins (a dealer's win keeps the deal, so the count keeps building).",
+      "caseStudy": "At 2 honba, a non-dealer who wins 30 fu 2 han (2,000 points) by ron receives 2,000 + 600 = 2,600 points from the player who dealt in. At 2 honba, a non-dealer who wins 30 fu 2 han by tsumo receives 1,000 + 200 from the dealer and 500 + 200 from each non-dealer, 2,600 in total.\nA mangan's 8,000 points become 8,900 at 3 honba.",
+      "pitfall": "Honba points are added on top of the score from the scoring table afterwards; they have nothing to do with han or fu. They are added even to mangan and above.\nAlso, the 300 honba points are paid by the player who dealt in (or by all three on a tsumo), and they are separate from the riichi sticks on the table (1,000 points each). The winner takes the riichi sticks that were placed on the table."
+    },
+    "bazoro": {
+      "term": "Bazoro",
+      "reading": "bazoro",
+      "definition": "The mechanism that always adds 2 han to the han count when calculating a score. Also called banban. It is why the basic points are fu times 2 to the power of (han + 2).",
+      "usage": "Bazoro is the + 2 in the formula for basic points, fu times 2 to the power of (han + 2). The calculation always adds 2 han to the actual han, so even a 1 han hand starts at 2 to the power of 3, a multiplier of 8.\nThe scoring table is the basic points from this formula, multiplied by 4 for a non-dealer's ron or by 6 for a dealer's ron and rounded up to the next 100.",
+      "caseStudy": "The basic points of 30 fu 1 han are 30 x 2 to the power of (1 + 2) = 30 x 8 = 240; a non-dealer's ron is 240 x 4 = 960, rounded up to 1,000 points, and a dealer's ron is 240 x 6 = 1,440, rounded up to 1,500 points.\nFor 40 fu 2 han it is 40 x 2 to the power of 4 = 640: a non-dealer's ron is 2,560, rounded up to 2,600 points, and a dealer's ron is 3,840, rounded up to 3,900 points.",
+      "pitfall": "The 2 han of bazoro are already built into the scoring table, so do not add 2 to your han yourself before looking up the table. For a 1 han hand, look at the 1 han column of the table.\nAlso, bazoro is neither a yaku nor dora, and it is not included when you announce your han."
+    }
+  }
+}

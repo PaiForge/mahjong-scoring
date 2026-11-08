@@ -1,0 +1,354 @@
+{
+  "completedMark": "Completed",
+  "startQuiz": "Take the quiz ({count} questions)",
+  "retakeQuiz": "Retake the quiz",
+  "resumeQuiz": "Back to the quiz (question {index} of {total})",
+  "reviewBody": "Reread the lesson",
+  "quizTitle": "Quiz",
+  "progress": "Question {index} of {total}",
+  "conditionLabel": "Conditions",
+  "showHint": "Show a hint",
+  "hintLabel": "Hint",
+  "correct": "Correct!",
+  "incorrect": "The answer is {answer}",
+  "answerLabels": {
+    "points": "{points} points"
+  },
+  "choiceLabels": {
+    "oyaTsumo": "{all} all",
+    "han": "{han} han",
+    "yakuman": "Yakuman",
+    "fu": "{fu} fu"
+  },
+  "next": "Next question",
+  "finish": "See what you can do now",
+  "doneTitle": "What you can do now",
+  "doneTitleReview": "Quiz results",
+  "doneReviewAdvice": "Go back over the questions you missed in the lesson.",
+  "doneScore": "{correct} of {total} correct",
+  "saving": "Saving your completion…",
+  "continueHome": "Your next step",
+  "nextStep": {
+    "lesson": "Next lesson: {title}",
+    "practice": "Try the practice: {title}",
+    "exam": "Take the {title}"
+  },
+  "nextLesson": {
+    "title": "Next lesson",
+    "readMore": "Keep reading"
+  },
+  "related": {
+    "practiceTitle": "Related practice"
+  },
+  "saveFailed": {
+    "title": "Could not save your completion",
+    "description": "Check your connection and try again. If you go back home, saving is retried automatically the next time you open the home page.",
+    "retry": "Save again",
+    "goHome": "Go home without waiting"
+  },
+  "signedOut": {
+    "description": "You have been logged out. Log in again and this lesson's completion will be saved when you open the home page.",
+    "signIn": "Log in"
+  },
+  "signUp": {
+    "title": "Create an account to track your lesson progress",
+    "description": "Sign up for free to save your lesson progress and get pointed to the exams that match what you have learned.",
+    "cta": "Sign up for free",
+    "secondary": "Continue without signing up"
+  },
+  "manganKoRon": {
+    "condition": "Non-dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
+    "questions": {
+      "mangan": {
+        "hint": "Recall the score everything else is based on.",
+        "explanation": "5 han is mangan, and a non-dealer ron of mangan is 8,000 points."
+      },
+      "haneman": {
+        "hint": "6 to 7 han is haneman: 1.5 times mangan.",
+        "explanation": "6 han is haneman: 1.5 times the 8,000 points of mangan, or 12,000 points."
+      },
+      "baiman": {
+        "hint": "8 to 10 han is baiman: twice mangan.",
+        "explanation": "8 han is baiman: twice the 8,000 points of mangan, or 16,000 points."
+      }
+    },
+    "achievement": "You can now give the score of a non-dealer ron of mangan or more from its han."
+  },
+  "manganKoTsumo": {
+    "condition": "Non-dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose the payments (non-dealer / dealer)",
+    "questions": {
+      "mangan": {
+        "hint": "A non-dealer mangan ron is 8,000 points. Half of it is what the dealer pays, and half of that again is what each non-dealer pays.",
+        "explanation": "Mangan is 8,000 points in total. The dealer pays 4,000 points, and each non-dealer pays 2,000 points."
+      },
+      "haneman": {
+        "hint": "A non-dealer haneman ron is 12,000 points. Halve it, then halve it again.",
+        "explanation": "Haneman is 12,000 points in total. The dealer pays 6,000 points, and each non-dealer pays 3,000 points."
+      },
+      "baiman": {
+        "hint": "A non-dealer baiman ron is 16,000 points.",
+        "explanation": "Baiman is 16,000 points in total. The dealer pays 8,000 points, and each non-dealer pays 4,000 points."
+      }
+    },
+    "achievement": "You can now work out the payments for a non-dealer tsumo of mangan or more from the non-dealer ron score."
+  },
+  "manganOyaRon": {
+    "condition": "Dealer, ron, {han} han ({tier})",
+    "questionPrompt": "Choose the score",
+    "questions": {
+      "mangan": {
+        "hint": "A non-dealer mangan is 8,000 points. The dealer gets 1.5 times that.",
+        "explanation": "5 han is mangan, and a dealer ron is 1.5 times the non-dealer's 8,000 points, or 12,000 points."
+      },
+      "haneman": {
+        "hint": "A non-dealer haneman is 12,000 points. The dealer gets 1.5 times that.",
+        "explanation": "6 han is haneman, and a dealer ron is 1.5 times the non-dealer's 12,000 points, or 18,000 points."
+      },
+      "baiman": {
+        "hint": "Baiman is twice mangan. A dealer mangan is 12,000 points.",
+        "explanation": "8 han is baiman, and a dealer ron is twice the dealer mangan of 12,000 points, or 24,000 points."
+      }
+    },
+    "achievement": "You can now give the score of a dealer ron of mangan or more as 1.5 times the non-dealer score."
+  },
+  "manganOyaTsumo": {
+    "condition": "Dealer, tsumo, {han} han ({tier})",
+    "questionPrompt": "Choose what each non-dealer pays",
+    "questions": {
+      "mangan": {
+        "hint": "A dealer mangan ron is 12,000 points. The three non-dealers split it equally.",
+        "explanation": "Mangan is 12,000 points in total. The three non-dealers pay 4,000 points each: \"4,000 all\"."
+      },
+      "haneman": {
+        "hint": "A dealer haneman ron is 18,000 points. Divide it by 3.",
+        "explanation": "Haneman is 18,000 points in total. The three non-dealers pay 6,000 points each: \"6,000 all\"."
+      },
+      "baiman": {
+        "hint": "A dealer baiman ron is 24,000 points.",
+        "explanation": "Baiman is 24,000 points in total. The three non-dealers pay 8,000 points each: \"8,000 all\"."
+      }
+    },
+    "achievement": "You can now work out the payments for a dealer tsumo of mangan or more by dividing the dealer ron score by 3."
+  },
+  "yaku": {
+    "condition": "{state, select, naki {Open} other {Closed}}, {yaku}",
+    "questionPrompt": "Choose the han",
+    "questions": {
+      "riichi": {
+        "hint": "The most basic yaku, and one that only a closed hand can have.",
+        "explanation": "Riichi is 1 han. Only a closed hand can have it: once you call, it no longer counts."
+      },
+      "toitoiNaki": {
+        "hint": "You build this yaku by collecting triplets with pon, so calling does not lower its han.",
+        "explanation": "Toitoi is 2 han. Its han stay the same when you call."
+      },
+      "honitsuMenzen": {
+        "hint": "Check the table for its han with a closed hand.",
+        "explanation": "Honitsu is 3 han with a closed hand."
+      },
+      "honitsuNaki": {
+        "hint": "Honitsu is a kuisagari yaku: calling makes it 1 han less than when closed.",
+        "explanation": "Once you call, honitsu drops 1 han from its closed 3 han to 2 han (kuisagari)."
+      }
+    },
+    "achievement": "You can now count the han of a yaku, including how calling changes them (kuisagari)."
+  },
+  "jantouFu": {
+    "condition": "{bakaze} round, {jikaze} seat: the pair",
+    "questionPrompt": "Choose the fu for the pair",
+    "questions": {
+      "sangen": {
+        "hint": "The white, green and red dragons are the dragons. This is a pair of value tiles.",
+        "explanation": "The white dragon is a dragon, so as the pair it is 2 fu. A pair of dragons is always 2 fu, whatever the round wind and seat wind are."
+      },
+      "jikaze": {
+        "hint": "For the South player, South is your own wind.",
+        "explanation": "For the South player, South is the seat wind, so it is 2 fu. Not only a round wind (East) pair but also a seat wind pair earns fu."
+      },
+      "otakaze": {
+        "hint": "For the South player in the East round, West is neither the round wind nor the seat wind.",
+        "explanation": "West is neither the round wind (East) nor the seat wind (South). It is a guest wind, so it is 0 fu. A wind tile does not always earn fu."
+      },
+      "suuhai": {
+        "hint": "Check the summary table to see whether a pair of number tiles earns fu.",
+        "explanation": "5 pin is a number tile, so it is 0 fu. A pair of number tiles never earns fu."
+      }
+    },
+    "achievement": "You can now tell the pairs that earn fu (dragons, the round wind, your seat wind) from those that do not (number tiles, guest winds)."
+  },
+  "mentsuFu": {
+    "condition": "{shape, select, shuntsu {Sequence} koutsu {Triplet} other {Quad}}",
+    "questionPrompt": "Choose the fu for the set",
+    "questions": {
+      "minkouSimple": {
+        "hint": "One tile turned sideways marks a call. An open triplet of simples is the starting value for triplet fu.",
+        "explanation": "This is an open triplet of simples, made by calling pon on 5 man, so it is 2 fu. From here, being closed, being terminals or honors and being a quad each double the fu."
+      },
+      "ankouYaochu": {
+        "hint": "No tile is turned sideways, so it is a closed triplet, and 9 is a terminal. Being closed doubles the fu, and being a terminal doubles them again.",
+        "explanation": "A closed triplet of 9 sou is a closed triplet of terminals, so the 2 fu of an open triplet doubles and doubles again to 8 fu."
+      },
+      "minkanSimple": {
+        "hint": "A quad is worth 4 times a triplet of the same kind of tile, open or closed in the same way. An open triplet of simples is 2 fu.",
+        "explanation": "An open quad of 5 sou is an open quad of simples, so it is 4 times the 2 fu of an open triplet of simples: 8 fu."
+      },
+      "ankanYaochu": {
+        "hint": "Both end tiles face down, so it is a closed quad. The red dragon is an honor tile, so it counts as terminals and honors. A closed triplet of terminals or honors is 8 fu.",
+        "explanation": "A closed quad of red dragons is a closed quad of honors, so it is 4 times the 8 fu of a closed triplet of terminals or honors: 32 fu. That is the most fu a set can earn."
+      }
+    },
+    "achievement": "You can now work out the fu for triplets and quads from whether they are open or closed and the kind of tile (simples, or terminals and honors)."
+  },
+  "machiFu": {
+    "condition": "Tenpai shape + winning tile",
+    "questionPrompt": "Choose the fu for the wait",
+    "questions": {
+      "ryanmen": {
+        "hint": "A shape that wins on a tile on either side of 3 and 4 (2 or 5).",
+        "explanation": "3 pin and 4 pin waiting on 2 pin or 5 pin is a two-sided wait, so it is 0 fu. A wait that accepts many tiles earns no fu."
+      },
+      "kanchan": {
+        "hint": "A shape that waits only on the one tile between 4 and 6.",
+        "explanation": "4 man and 6 man waiting only on 5 man is a closed wait, so it is 2 fu."
+      },
+      "penchan": {
+        "hint": "A shape at the end, 8 and 9, that waits only on the 7 on one side.",
+        "explanation": "8 sou and 9 sou waiting only on 7 sou is an edge wait, so it is 2 fu. Like 1 and 2 waiting on 3, it can only accept a tile on one side."
+      },
+      "shanpon": {
+        "hint": "A shape that wins when either of two pairs becomes a triplet.",
+        "explanation": "A pair of 2 man and a pair of West, waiting on either one, is a pair wait, so it is 0 fu."
+      },
+      "tanki": {
+        "hint": "A shape that holds a single tile and waits on the same tile.",
+        "explanation": "A single 7 pin waiting on 7 pin is a single-tile wait, so it is 2 fu."
+      }
+    },
+    "achievement": "You can now look at a tenpai shape and tell whether its wait earns fu (closed, edge and single-tile waits are 2 fu; two-sided and pair waits are 0 fu)."
+  },
+  "tehaiFu": {
+    "condition": "{bakaze} round, {jikaze} seat, win by {winType, select, tsumo {tsumo} other {ron}}",
+    "questionPrompt": "Choose the fu for the whole hand",
+    "questions": {
+      "furoRon": {
+        "hint": "A ron with called sets gets neither the closed ron bonus nor tsumo fu. Add the open triplet of white dragons and the wait, then round up at the end.",
+        "explanation": "20 base fu + 4 fu for the open triplet of white dragons + 2 fu for the closed wait = 26 fu, rounded up to 30 fu. It is a ron with called sets, so nothing is added for how you won."
+      },
+      "furoTsumo": {
+        "hint": "Even with called sets, a tsumo win gets tsumo fu.",
+        "explanation": "20 base fu + 2 tsumo fu + 4 fu for the open triplet of white dragons + 4 fu for the closed triplet of 8 pin + 2 fu for the closed wait = 32 fu, rounded up to 40 fu. Forget the tsumo fu and you get 30 fu."
+      },
+      "shanponRon": {
+        "hint": "When you win by ron on a pair wait, the triplet that contains the ron tile counts as an open triplet.",
+        "explanation": "20 base fu + 10 fu closed ron bonus + 8 fu each for the closed triplets of 9 man and 1 pin + 4 fu for the open triplet of white dragons completed by the ron = 50 fu. Count the white dragons as a closed triplet and you get 54 fu, which rounds up to 60 fu."
+      },
+      "nanBakaze": {
+        "hint": "In the South round, the round wind is South.",
+        "explanation": "20 base fu + 2 tsumo fu + 8 fu for the closed triplet of 9 man + 2 fu for the pair of South (round wind) = 32 fu, rounded up to 40 fu. Mistake East for the round wind and you get 30 fu."
+      }
+    },
+    "achievement": "You can now work out the fu for a whole hand by adding the base fu, the fu for how you won, the sets, the pair and the wait, then rounding up."
+  },
+  "chiitoitsuScore": {
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score",
+    "questions": {
+      "only": {
+        "hint": "Chiitoitsu is 25 fu by tsumo or by ron. Look up a non-dealer ron at 25 fu 2 han in the table.",
+        "explanation": "Chiitoitsu is 25 fu. A non-dealer ron at 25 fu 2 han is 1,600 points."
+      },
+      "tanyao": {
+        "hint": "When other yaku are added, the fu stay at 25. Only the han change.",
+        "explanation": "With tanyao added it is 3 han, and the fu stay at 25. A non-dealer ron at 25 fu 3 han is 3,200 points."
+      },
+      "riichiTanyao": {
+        "hint": "The fu stay at 25, and it is 4 han: the right end of the non-dealer table.",
+        "explanation": "With riichi and tanyao added it is 4 han, and the fu stay at 25. A non-dealer ron at 25 fu 4 han is 6,400 points."
+      },
+      "oyaRiichi": {
+        "hint": "The dealer table uses the same 25 fu. Look up a dealer ron at 3 han.",
+        "explanation": "With riichi added it is 3 han, at 25 fu. A dealer ron at 25 fu 3 han is 4,800 points."
+      }
+    },
+    "achievement": "You can now use the fixed 25 fu of chiitoitsu to look up the score in the table when other yaku are added."
+  },
+  "pinfuScore": {
+    "condition": "{role, select, oya {Dealer} other {Non-dealer}}, {winType, select, tsumo {tsumo} other {ron}}, {yaku} ({han} han)",
+    "questionPrompt": "Choose the score (for a tsumo, the non-dealer / dealer payments)",
+    "questions": {
+      "ron": {
+        "hint": "A pinfu ron is 30 fu. Look up a non-dealer ron at 30 fu 1 han in the table.",
+        "explanation": "A pinfu ron gets the closed ron bonus and is 30 fu. A non-dealer ron at 30 fu 1 han is 1,000 points."
+      },
+      "tsumo": {
+        "hint": "A pinfu tsumo is 20 fu. Look up the tsumo payments in the tsumo row of the table (non-dealer / dealer).",
+        "explanation": "A pinfu tsumo is 20 fu, and with menzen tsumo added it is 2 han. On a non-dealer tsumo at 20 fu 2 han, each non-dealer pays 400 points and the dealer pays 700 points."
+      },
+      "tanyaoRon": {
+        "hint": "Even with tanyao added, a ron stays at 30 fu.",
+        "explanation": "With tanyao added it is 2 han, and the fu stay at 30. A non-dealer ron at 30 fu 2 han is 2,000 points."
+      },
+      "tanyaoTsumo": {
+        "hint": "Even with tanyao added, a tsumo stays at 20 fu.",
+        "explanation": "With menzen tsumo and tanyao added it is 3 han, and the fu stay at 20. On a non-dealer tsumo at 20 fu 3 han, each non-dealer pays 700 points and the dealer pays 1,300 points."
+      }
+    },
+    "achievement": "You can now use the fixed fu of pinfu (20 fu by tsumo, 30 fu by ron) to look up the score in the table when other yaku are added."
+  },
+  "menzenMentsuScore": {
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
+    "questions": {
+      "ron2": {
+        "hint": "Add the 20 base fu, the 10 fu closed ron bonus and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 10 + 2 = 32 fu, which rounds up (tenpane) to 40 fu. A closed ron that is not pinfu always has some fu built up, so it is 40 fu or more."
+      },
+      "tsumo8": {
+        "hint": "Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up to the next 10 fu.",
+        "explanation": "20 + 2 + 8 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu (for example, a hand whose only fu come from one closed triplet of terminals or honors)."
+      },
+      "tsumo10": {
+        "hint": "Do not forget to add the 2 fu for tsumo.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. By ron it would be exactly 20 + 10 + 10 = 40 fu, so it comes to the same 40 fu."
+      },
+      "ron12": {
+        "hint": "Add the 10 fu closed ron bonus, then round up.",
+        "explanation": "20 + 10 + 12 = 42 fu, which rounds up to 50 fu. With the same 12 fu, a tsumo would be 20 + 2 + 12 = 34 fu and round up to 40 fu, so the ron comes out 10 fu higher."
+      }
+    },
+    "achievement": "You can now work out the fu for a closed hand that is not pinfu by adding the base fu, the fu for tsumo or ron and the built-up fu and rounding up, and you can tell where the total rounds up."
+  },
+  "furoScore": {
+    "condition": "{handShape, select, furo {Open} other {Closed}}, {winType, select, tsumo {tsumo} other {ron}}, built-up fu: {extraFu} fu",
+    "questionPrompt": "Choose the fu for the hand",
+    "questions": {
+      "ron4": {
+        "hint": "A ron with an open hand gets no closed ron bonus. Add the built-up fu to the 20 base fu, then round up to the next 10 fu.",
+        "explanation": "20 + 4 = 24 fu, which rounds up (tenpane) to 30 fu. Closed, it would be 20 + 10 + 4 = 34 fu and 40 fu, so calling makes a ron 10 fu lower."
+      },
+      "ron0": {
+        "hint": "A ron with 0 built-up fu is the exception (the open pinfu shape).",
+        "explanation": "A ron with 0 built-up fu totals 20 fu, but 20 fu is reserved for a pinfu tsumo, so it is treated as 30 fu (the open pinfu shape)."
+      },
+      "tsumo10": {
+        "hint": "Tsumo fu are the same as for a closed hand. Add the 20 base fu, the 2 fu for tsumo and the built-up fu, then round up.",
+        "explanation": "20 + 2 + 10 = 32 fu, which rounds up to 40 fu. The 2 fu for tsumo still apply with an open hand."
+      },
+      "ron10": {
+        "hint": "A ron starts from the 20 base fu alone.",
+        "explanation": "20 + 10 = 30 fu. It is an exact multiple of 10, so it does not round up and stays at 30 fu. With the same 10 fu, a tsumo would be 32 fu and round up to 40 fu, so with an open hand the tsumo comes out higher."
+      }
+    },
+    "achievement": "You can now work out the fu for an open hand by adding up from the 20 base fu for a ron, or from 22 fu for a tsumo as with a closed hand, then rounding up (the open pinfu shape is 30 fu)."
+  },
+  "rankGoal": {
+    "title": "On to the {rank} Promotion Exam",
+    "lead": "This is the last lesson for {rank}. Warm up in practice, then take on the promotion exam.",
+    "examDescription": "See what the exam covers and its pass criterion",
+    "training": "Try the mock exam first (nothing is recorded)",
+    "dojo": "See the whole path in the Dojo"
+  },
+  "yakuJoiner": " + "
+}

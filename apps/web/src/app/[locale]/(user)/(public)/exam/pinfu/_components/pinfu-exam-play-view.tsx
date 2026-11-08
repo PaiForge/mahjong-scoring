@@ -1,0 +1,26 @@
+"use client";
+
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import { createChallengePlayView } from "@/app/[locale]/(user)/(public)/practice/_lib/create-challenge-views";
+import { PinfuExamBoard } from "./pinfu-exam-board";
+import type { PinfuExamQuestionResult } from "@mahjong-scoring/features/exam/pinfu/types";
+
+/**
+ * 昇級試験（平和の点数計算）本体
+ * 昇級試験
+ */
+export const PinfuExamPlayView =
+  createChallengePlayView<PinfuExamQuestionResult>({
+    slug: PRACTICE_SLUG.pinfuExam,
+    maxWidth: "max-w-lg",
+    renderBoard: (args) => (
+      <PinfuExamBoard
+        showFeedback={args.showFeedback}
+        lastAnswerCorrect={args.lastAnswerCorrect}
+        isCountingDown={args.isCountingDown}
+        onAnswer={args.onAnswer}
+        onRecordResult={args.recordResult}
+        onPresentQuestion={args.presentQuestion}
+      />
+    ),
+  });

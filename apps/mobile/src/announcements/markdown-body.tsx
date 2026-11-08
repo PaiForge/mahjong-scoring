@@ -15,16 +15,28 @@ import { Divider } from "../components/divider";
 import { SectionTitle } from "../components/section-title";
 import { useGoToTab } from "../hooks/use-go-to-tab";
 import { SITE_URL } from "../lib/app-site-url";
+import { useAppLocale } from "../lib/use-app-locale";
 import { linkStyles } from "../lib/link-styles";
 import { isTabHref } from "../lib/tab-href";
 import { colors, radius } from "../lib/theme";
-import { resolveAnnouncementLink } from "./announcement-link";
+import {
+  resolveAnnouncementLink,
+  type AnnouncementLinkTarget,
+} from "./announcement-link";
 
 /** 等幅の書体（iOS の標準。Android には無いので既定の monospace に落ちる） */
 const MONOSPACE = "Menlo";
 
-/** リンクを開く（`resolveAnnouncementLink` の開き先で分ける） */
-type OpenLink = (href: string) => void;
+/**
+ * 本文のリンクの扱い。開き先の判定（`resolveAnnouncementLink`）とアプリの言語を
+ * 1 か所で束ね、描画の各所が同じ判定を使う
+ */
+interface Links {
+  /** 開き先（リンクにしない `text` を含む） */
+  readonly resolve: (href: string) => AnnouncementLinkTarget;
+  /** リンクを開く（開き先で分ける） */
+  readonly open: (href: string) => void;
+}
 
 /**
  * お知らせの本文（web の `MarkdownRenderer`）
@@ -38,34 +50,41 @@ type OpenLink = (href: string) => void;
  * web と違うもの: h2 は web と同じ `SectionTitle`、本文の文字は 16pt
  * （`apps/mobile/CLAUDE.md` の方針）。本文のリンクは、アプリに同じ画面が
  * あればアプリの中で、無ければブラウザで開き、価格・特商法のページへは
- * リンクにしない（`resolveAnnouncementLink`）。
+ * リンクにしない（`resolveAnnouncementLink`）。ブラウザで開く web のページは
+ * アプリの言語の URL（英語は `/en/...`）にする。
  */
 export function MarkdownBody({ content }: { readonly content: string }) {
   const router = useRouter();
   const goToTab = useGoToTab();
+  const locale = useAppLocale();
   const tree = useMemo(() => parseAnnouncementMarkdown(content), [content]);
-  const openLink: OpenLink = (href) => {
-    const target = resolveAnnouncementLink(href, SITE_URL);
-    if (target.kind === "app") {
-      // タブの入口（`/dojo` 等）は積まずにタブを切り替える
-      if (isTabHref(target.path)) goToTab(target.path);
-      else router.push(target.path);
-    } else if (target.kind === "browser") {
-      void Linking.openURL(target.url);
-    }
+  const resolve = (href: string) =>
+    resolveAnnouncementLink(href, SITE_URL, locale);
+  const links: Links = {
+    resolve,
+    open: (href) => {
+      const target = resolve(href);
+      if (target.kind === "app") {
+        // タブの入口（`/dojo` 等）は積まずにタブを切り替える
+        if (isTabHref(target.path)) goToTab(target.path);
+        else router.push(target.path);
+      } else if (target.kind === "browser") {
+        void Linking.openURL(target.url);
+      }
+    },
   };
-  return <Blocks nodes={tree.children} openLink={openLink} />;
+  return <Blocks nodes={tree.children} links={links} />;
 }
 
 /** ブロックの並び */
 function Blocks({
   nodes,
-  openLink,
+  links,
   muted = false,
   tight = false,
 }: {
   readonly nodes: readonly RootContent[];
-  readonly openLink: OpenLink;
+  readonly links: Links;
   /** 引用の中（文字を一段淡くする） */
   readonly muted?: boolean;
   /**
@@ -77,7 +96,7 @@ function Blocks({
   return (
     <View style={tight ? styles.list : styles.blocks}>
       {nodes.map((node, index) => (
-        <Fragment key={index}>{renderBlock(node, openLink, muted)}</Fragment>
+        <Fragment key={index}>{renderBlock(node, links, muted)}</Fragment>
       ))}
     </View>
   );
@@ -85,14 +104,14 @@ function Blocks({
 
 function renderBlock(
   node: RootContent,
-  openLink: OpenLink,
+  links: Links,
   muted: boolean,
 ): ReactNode {
   switch (node.type) {
     case "paragraph":
       return (
         <Text style={[styles.paragraph, muted && styles.muted]}>
-          {renderInlines(node.children, openLink)}
+          {renderInlines(node.children, links)}
         </Text>
       );
     case "heading":
@@ -104,7 +123,7 @@ function renderBlock(
           accessibilityRole="header"
           style={node.depth === 1 ? styles.heading1 : styles.heading3}
         >
-          {renderInlines(node.children, openLink)}
+          {renderInlines(node.children, links)}
         </Text>
       );
     case "list":
@@ -117,7 +136,7 @@ function renderBlock(
               marker={
                 node.ordered === true ? `${(node.start ?? 1) + index}.` : "•"
               }
-              openLink={openLink}
+              links={links}
               muted={muted}
             />
           ))}
@@ -126,7 +145,7 @@ function renderBlock(
     case "blockquote":
       return (
         <View style={styles.blockquote}>
-          <Blocks nodes={node.children} openLink={openLink} muted />
+          <Blocks nodes={node.children} links={links} muted />
         </View>
       );
     case "code":
@@ -140,7 +159,7 @@ function renderBlock(
     case "thematicBreak":
       return <Divider />;
     case "table":
-      return <MarkdownTable table={node} openLink={openLink} />;
+      return <MarkdownTable table={node} links={links} />;
     default:
       // 生の HTML・定義・脚注などは描かない（web の react-markdown も既定で描かない）
       return null;
@@ -151,12 +170,12 @@ function renderBlock(
 function ListRow({
   item,
   marker,
-  openLink,
+  links,
   muted,
 }: {
   readonly item: ListItem;
   readonly marker: string;
-  readonly openLink: OpenLink;
+  readonly links: Links;
   readonly muted: boolean;
 }) {
   return (
@@ -165,7 +184,7 @@ function ListRow({
         {marker}
       </Text>
       <View style={styles.listBody}>
-        <Blocks nodes={item.children} openLink={openLink} muted={muted} tight />
+        <Blocks nodes={item.children} links={links} muted={muted} tight />
       </View>
     </View>
   );
@@ -174,10 +193,10 @@ function ListRow({
 /** GFM の表。先頭の行を見出しにして `DataTable` で描く */
 function MarkdownTable({
   table,
-  openLink,
+  links,
 }: {
   readonly table: Table;
-  readonly openLink: OpenLink;
+  readonly links: Links;
 }) {
   const [header, ...body] = table.children;
   if (header === undefined) return null;
@@ -190,7 +209,7 @@ function MarkdownTable({
       rows={body.map((row) =>
         row.children.map((cell, index) => (
           <Text key={index} style={styles.cell}>
-            {renderInlines(cell.children, openLink)}
+            {renderInlines(cell.children, links)}
           </Text>
         )),
       )}
@@ -201,7 +220,7 @@ function MarkdownTable({
 /** 段落の中の文字列（太字・リンク等を入れ子の Text にする） */
 function renderInlines(
   nodes: readonly PhrasingContent[],
-  openLink: OpenLink,
+  links: Links,
 ): ReactNode {
   return nodes.map((node, index) => {
     switch (node.type) {
@@ -210,19 +229,19 @@ function renderInlines(
       case "strong":
         return (
           <Text key={index} style={styles.strong}>
-            {renderInlines(node.children, openLink)}
+            {renderInlines(node.children, links)}
           </Text>
         );
       case "emphasis":
         return (
           <Text key={index} style={styles.emphasis}>
-            {renderInlines(node.children, openLink)}
+            {renderInlines(node.children, links)}
           </Text>
         );
       case "delete":
         return (
           <Text key={index} style={styles.delete}>
-            {renderInlines(node.children, openLink)}
+            {renderInlines(node.children, links)}
           </Text>
         );
       case "inlineCode":
@@ -233,19 +252,17 @@ function renderInlines(
         );
       case "link":
         // 価格・特商法のページへのリンクは文字だけ出す（`resolveAnnouncementLink`）
-        if (resolveAnnouncementLink(node.url, SITE_URL).kind === "text") {
-          return (
-            <Text key={index}>{renderInlines(node.children, openLink)}</Text>
-          );
+        if (links.resolve(node.url).kind === "text") {
+          return <Text key={index}>{renderInlines(node.children, links)}</Text>;
         }
         return (
           <Text
             key={index}
             accessibilityRole="link"
-            onPress={() => openLink(node.url)}
+            onPress={() => links.open(node.url)}
             style={linkStyles.inline}
           >
-            {renderInlines(node.children, openLink)}
+            {renderInlines(node.children, links)}
           </Text>
         );
       case "break":

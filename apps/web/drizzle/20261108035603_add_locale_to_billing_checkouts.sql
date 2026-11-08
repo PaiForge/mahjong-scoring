@@ -1,0 +1,1 @@
+ALTER TABLE "billing_checkouts" ADD COLUMN "locale" varchar(5) DEFAULT 'ja' NOT NULL;

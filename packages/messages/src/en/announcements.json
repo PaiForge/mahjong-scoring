@@ -1,0 +1,13 @@
+{
+  "pageTitle": "Announcements",
+  "pageDescription": "Announcements from the operator of this site.",
+  "listTitle": "All announcements",
+  "viewAll": "View all",
+  "pinned": "Pinned",
+  "empty": "No announcements yet.",
+  "notFound": "Announcement not found",
+  "backToList": "Back to all announcements",
+  "loadFailed": "Could not load announcements.",
+  "retry": "Reload",
+  "loadMore": "Load more"
+}

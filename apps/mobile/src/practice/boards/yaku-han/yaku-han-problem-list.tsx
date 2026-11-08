@@ -1,4 +1,5 @@
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { numericAnswerComparison } from "@mahjong-scoring/features/practice/answer-difference";
 import { yakuHanStateLabel } from "@mahjong-scoring/features/practice/yaku-han/han-options";
 import { hanOptionLabel } from "@mahjong-scoring/features/practice/han-option-label";
@@ -20,6 +21,7 @@ export function YakuHanProblemList({
   readonly results: readonly YakuHanQuestionResult[];
 }) {
   const t = useTranslations("yakuHanChallenge");
+  const tYakuNames = useTranslations("yakuNames");
 
   const hanLabel = (han: number) => hanOptionLabel(han, t);
 
@@ -32,7 +34,10 @@ export function YakuHanProblemList({
       results={results}
       translationNamespace="yakuHanChallenge"
       outcome={(r) => r.outcome}
-      renderSummary={(r) => `${r.yakuName}${stateLabel(r)}`}
+      // 例: yakuNames.sanshoku_doujun
+      renderSummary={(r) =>
+        `${yakuLabel(r.yakuName, tYakuNames)}${stateLabel(r)}`
+      }
       renderDetail={({ correctHan, userHan, outcome }) => (
         <AnswerComparison
           translationNamespace="yakuHanChallenge"

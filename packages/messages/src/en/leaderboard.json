@@ -1,0 +1,45 @@
+{
+  "title": "Leaderboard",
+  "indexDescription": "Pick a practice and see everyone's records.",
+  "boardLabel": "Practice and question settings",
+  "yourRankLabel": "Your position",
+  "periodLabel": "Period",
+  "period": {
+    "all-time": "All time",
+    "monthly": "Monthly"
+  },
+  "rankLabel": "#{rank}",
+  "notRanked": "Not attempted",
+  "table": {
+    "rank": "Position",
+    "player": "Player",
+    "score": "Score",
+    "miss": "Mistakes"
+  },
+  "emptyState": "No scores have been recorded yet. Be the first to set one!",
+  "yourRank": "You",
+  "viewerHidden": "Your settings hide you from the leaderboard",
+  "viewerHiddenLink": "Change the setting",
+  "pagination": {
+    "label": "Leaderboard pages",
+    "previous": "Previous",
+    "next": "Next",
+    "total": "{count} players"
+  },
+  "tryChallenge": "Take the challenge for this practice",
+  "signUpBanner": {
+    "message": "Join the leaderboard!",
+    "description": "Create a free account to record your scores and compete with other players.",
+    "cta": "Sign up"
+  },
+  "allTimeRanking": "All-time leaderboard",
+  "viewMore": "See more of the leaderboard",
+  "otherBoards": "See the leaderboards for other practices",
+  "loadFailed": "Could not load the leaderboard.",
+  "retry": "Reload",
+  "app": {
+    "title": "Leaderboard positions",
+    "description": "Your position on the web leaderboard for each practice.",
+    "signedOut": "Log in to see your position for each practice."
+  }
+}

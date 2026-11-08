@@ -1,0 +1,53 @@
+{
+  "title": "Fu for Sets",
+  "generating": "Generating questions...",
+  "description": "Answer the fu for the set based on its type (sequence, triplet, quad) and whether it is open or closed",
+  "mentsuLabel": "Set",
+  "questionPrompt": "Answer the fu for this set",
+  "fuOption": "{value} fu",
+  "result": {
+    "problemDetails": "Question details",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer"
+  },
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "learn": {
+    "pageTitle": "Riichi Mahjong Fu for Sets: Sequences, Triplets, Quads",
+    "pageDescription": "How sets add fu in riichi mahjong: sequences, open and closed triplets, and quads, for simples and for terminals and honors, explained with tile images.",
+    "whatIsMentsuFu": "What are fu for sets?",
+    "whatIsMentsuFuBody": "Depending on the [[mentsu|sets]] in the hand, fu are added when you [[hora|win]]. A [[shuntsu|sequence]] is always 0 fu, but a [[koutsu|triplet]] or [[kantsu|quad]] changes its fu by the kind of tile ([[chunchanpai|simples]] or [[yaochuuhai|terminals and honors]]) and by whether it is open (called) or closed (made in your own hand).",
+    "shuntsuTitle": "Sequences: 0 fu",
+    "shuntsuBody": "A sequence is always 0 fu, whether it is open or closed.",
+    "shuntsuExamples": "Sequence examples",
+    "shuntsuLabel": "Sequence",
+    "koutsuTitle": "Triplets: 2–8 fu",
+    "koutsuBody": "A triplet changes its fu by whether it was called ([[minkou|open triplet]]) or made in your own hand ([[ankou|closed triplet]]), and by whether it is made of simples or of terminals and honors. Terminals and honors are the 1 and 9 [[shuupai|number tiles]] and the [[jihai|honor tiles]]; simples are the number tiles 2 to 8. In the examples below, the one tile turned sideways marks a call, and a triplet with that mark is an open triplet.",
+    "koutsuExamples": "Triplet examples",
+    "koutsuOpenSimpleLabel": "Open triplet of simples",
+    "koutsuClosedSimpleLabel": "Closed triplet of simples",
+    "koutsuOpenYaochuLabel": "Open triplet of terminals or honors",
+    "koutsuClosedYaochuLabel": "Closed triplet of terminals or honors",
+    "kantsuTitle": "Quads: 8–32 fu",
+    "kantsuBody": "A quad is worth 4 times a triplet of the same kind of tile, open or closed in the same way. For example, an open triplet of simples is 2 fu, so an [[minkan|open quad]] of simples is 4 times that: 8 fu.\nAs with triplets, a [[ankan|closed quad]] is worth double an open quad, and terminals and honors are worth double simples. A closed quad is made entirely in your own hand, so the examples below show it with the tiles at both ends face down.",
+    "kantsuExamples": "Quad examples",
+    "kantsuOpenSimpleLabel": "Open quad of simples",
+    "kantsuClosedSimpleLabel": "Closed quad of simples",
+    "kantsuOpenYaochuLabel": "Open quad of terminals or honors",
+    "kantsuClosedYaochuLabel": "Closed quad of terminals or honors",
+    "summaryTitle": "Summary",
+    "colType": "Set",
+    "colFu": "Fu",
+    "rowShuntsu": "Sequence (open or closed)",
+    "rowOpenSimpleKoutsu": "Open triplet of simples",
+    "rowClosedSimpleKoutsuOrOpenYaochuKoutsu": "Closed triplet of simples / open triplet of terminals or honors",
+    "rowClosedYaochuKoutsuOrOpenSimpleKantsu": "Closed triplet of terminals or honors / open quad of simples",
+    "rowClosedSimpleKantsuOrOpenYaochuKantsu": "Closed quad of simples / open quad of terminals or honors",
+    "rowClosedYaochuKantsu": "Closed quad of terminals or honors",
+    "fuUnit": "{value} fu"
+  }
+}

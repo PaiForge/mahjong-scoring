@@ -1,0 +1,42 @@
+/**
+ * 点数即答 説明
+ *
+ * @description
+ * 点数即答の説明ページ。問題方式のデモを表示し、
+ * チャレンジ／トレーニングの開始ボタンを提供する。
+ *
+ * @flow
+ * 1. ユーザーが練習一覧から点数即答を選択して遷移
+ * 2. 問題方式のデモと「開始」「トレーニング」ボタンが表示される
+ * 3. 「開始」を押すと play ページへ遷移
+ */
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticeMetadata } from "../_lib/metadata";
+import { PracticeIntroContent } from "../_components/practice-intro-content";
+import { ScoreCalculationHowToPlay } from "./_components/score-calculation-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/score-calculation",
+  );
+  return createPracticeMetadata(PRACTICE_SLUG.scoreCalculation, { locale });
+}
+
+export default async function ScoreCalculationPage({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation">) {
+  await prepareRouteLocale(params, "/practice/score-calculation");
+  return (
+    <PracticeIntroContent
+      namespace="scoreCalculationChallenge"
+      slug={PRACTICE_SLUG.scoreCalculation}
+      showTraining
+      howToPlay={<ScoreCalculationHowToPlay />}
+    />
+  );
+}

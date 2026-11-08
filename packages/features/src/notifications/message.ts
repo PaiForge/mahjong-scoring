@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
 import { formatJstDateLong } from "../jst";
 import { NotificationType, isNotificationType } from "./types";
 
@@ -37,21 +38,37 @@ export interface NotificationMessage {
   readonly values?: Readonly<Record<string, string>>;
 }
 
-/** 期限を「2026年10月31日」（JST）にする。日時として読めなければ undefined */
-function formatUntil(expiresAt: string | undefined): string | undefined {
+/**
+ * 期限を「2026年10月31日」（JST。英語は「October 31, 2026」）にする。
+ * 日時として読めなければ undefined
+ */
+function formatUntil(
+  expiresAt: string | undefined,
+  locale: SupportedLocale,
+): string | undefined {
   if (expiresAt === undefined) return undefined;
   const date = new Date(expiresAt);
-  return Number.isNaN(date.getTime()) ? undefined : formatJstDateLong(date);
+  return Number.isNaN(date.getTime())
+    ? undefined
+    : formatJstDateLong(date, locale);
 }
 
-/** 文面を決める */
+/**
+ * 文面を決める
+ *
+ * @param type - 通知の種別（DB の文字列のまま）
+ * @param metadata - 差し込みに使う metadata
+ * @param locale - 差し込む日付の言語（省略時は日本語。日本語固定のアプリは省略する）。
+ *   期限の日付は言語に依らず JST で切り、表記だけ変える
+ */
 export function buildNotificationMessage(
   type: string,
   metadata: NotificationMessageMetadata,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): NotificationMessage {
   if (!isNotificationType(type)) return { key: "unknown" };
 
-  const until = formatUntil(metadata.expiresAt);
+  const until = formatUntil(metadata.expiresAt, locale);
 
   switch (type) {
     case NotificationType.PurchaseCompleted:

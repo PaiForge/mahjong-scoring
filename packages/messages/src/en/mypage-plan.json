@@ -1,0 +1,55 @@
+{
+  "pageTitle": "Pro plan",
+  "success": "Your purchase is complete. Thank you!",
+  "pending": "We are confirming your payment. Please wait a moment for it to take effect.",
+  "status": {
+    "title": "Current status",
+    "free": "Free plan",
+    "freeHint": "Buy Pro to keep practicing score calculation with no daily limit.",
+    "lifetime": "Pro (Lifetime)",
+    "lifetimeHint": "You can use the Pro features available at the time of purchase for good.",
+    "pass": "Pro (until {until})",
+    "passHint": "When it expires, you go back to the free plan. You can buy it again after it expires.",
+    "granted": "Pro (granted)",
+    "grantedUntil": "Pro (granted, until {until})",
+    "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased.",
+    "buy": "Buy Pro"
+  },
+  "history": {
+    "title": "Purchase history",
+    "empty": "No purchases yet",
+    "date": "Purchase date",
+    "item": "Item",
+    "amount": "Amount",
+    "provider": {
+      "label": "Purchased via",
+      "stripe": "Web",
+      "apple": "App Store"
+    },
+    "state": "Status",
+    "kind": {
+      "pass": "30-day pass",
+      "lifetime": "Lifetime"
+    },
+    "state_active": "Active",
+    "state_scheduled": "Not started yet",
+    "state_expired": "Expired",
+    "state_refunded": "Refunded",
+    "receiptHint": "For a receipt, please check the email Stripe sent you when you made the purchase.",
+    "receiptHintApple": "For receipts of App Store purchases, please check the email from Apple, or Settings > Apple Account > Media & Purchases > Purchase History on your iPhone."
+  },
+  "grants": {
+    "title": "Granted benefits",
+    "date": "Granted on",
+    "item": "Item",
+    "period": "Period",
+    "state": "Status",
+    "pro": "Pro",
+    "permanent": "No expiry",
+    "until": "Until {until}",
+    "state_active": "Active",
+    "state_expired": "Expired",
+    "state_revoked": "Withdrawn"
+  },
+  "failed": "Could not confirm your purchase. If you have already paid, please contact us instead of buying again."
+}

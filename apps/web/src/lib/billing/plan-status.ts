@@ -7,6 +7,10 @@ import {
 } from "@mahjong-scoring/features/billing/provider";
 import type { PurchaseState } from "@mahjong-scoring/features/billing/purchase-state";
 import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
+import {
   formatJstDateLong,
   JST_TIME_ZONE,
 } from "@mahjong-scoring/features/jst";
@@ -171,9 +175,29 @@ function timedStatus(
   return expiresAt && expiresAt > now ? { kind, until: expiresAt } : undefined;
 }
 
-/** 日付を「2026/10/31」の形にする（JST）。表の列幅を取らない */
-export function formatPlanDateShort(date: Date): string {
-  return new Intl.DateTimeFormat("ja-JP", {
+/**
+ * 短い日付の書式に渡す BCP 47 の言語タグ
+ *
+ * 日本語は「2026/10/31」、英語は en-US の「10/31/2026」。
+ */
+const PLAN_DATE_SHORT_LOCALES: Readonly<Record<SupportedLocale, string>> = {
+  ja: "ja-JP",
+  en: "en-US",
+};
+
+/**
+ * 日付を「2026/10/31」の形にする（JST）。表の列幅を取らない
+ *
+ * 英語は「10/31/2026」。言語に依らず JST の日付で切る（変えるのは表記だけ）。
+ *
+ * @param date - 表示する日時
+ * @param locale - 表示する言語（省略時は日本語）
+ */
+export function formatPlanDateShort(
+  date: Date,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return new Intl.DateTimeFormat(PLAN_DATE_SHORT_LOCALES[locale], {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -181,7 +205,17 @@ export function formatPlanDateShort(date: Date): string {
   }).format(date);
 }
 
-/** 日付を「2026年10月31日」の形にする（JST） */
-export function formatPlanDate(date: Date): string {
-  return formatJstDateLong(date);
+/**
+ * 日付を「2026年10月31日」の形にする（JST）
+ *
+ * 英語は「October 31, 2026」（`formatJstDateLong` の英語の形）。
+ *
+ * @param date - 表示する日時
+ * @param locale - 表示する言語（省略時は日本語）
+ */
+export function formatPlanDate(
+  date: Date,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  return formatJstDateLong(date, locale);
 }

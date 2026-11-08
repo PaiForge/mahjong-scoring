@@ -1,0 +1,10 @@
+{
+  "learn": {
+    "pageTitle": "Mangan and Above: Non-Dealer Ron Scores",
+    "pageDescription": "Learn the riichi mahjong scores for a non-dealer ron of mangan or more, without counting fu.",
+    "bodyTitle": "Start with the simplest case: a non-dealer ron",
+    "body1": "The confusing part of riichi mahjong scoring is the calculation that involves fu.\nFrom [[mangan|mangan]] up, however, you do not need to count fu at all.",
+    "body2": "Scores of mangan and above are simply mangan's 8,000 points multiplied by 1.5, 2, 3 or 4.",
+    "body3": "The steps are simple, but watch out for one thing: the han range for [[baiman|baiman]] is a little wider than the others.\n(For example, 10 han is baiman, not [[sanbaiman|sanbaiman]].)"
+  }
+}

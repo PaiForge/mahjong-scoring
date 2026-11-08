@@ -1,0 +1,34 @@
+{
+  "learn": {
+    "pageTitle": "Riichi Mahjong Tsumo Scores: Halve the Non-Dealer Ron",
+    "pageDescription": "One of the patterns hidden in the riichi mahjong scoring table: halve a non-dealer ron and round up to get what the dealer pays, then halve again and round up to get what each non-dealer pays. In the dividing direction, rounding never throws it off.",
+    "divideTitle": "The two tsumo numbers are the non-dealer ron divided",
+    "divideBody1": "When a [[ko|non-dealer]] [[hora|wins]] by [[tsumo|tsumo]], the score is written as two numbers. The top is what each non-dealer pays, and the bottom is what the [[oya|dealer]] pays.\nYou do not have to memorize these two apart from the [[ron|ron]] score. They come from the non-dealer ron by division alone.",
+    "divideBody2": "A non-dealer ron is four shares of base points. If the same hand wins by tsumo, each non-dealer pays one share and the dealer pays two.\nAll three can be written as \"so many shares of base points\", so the ratio is always as follows.",
+    "divideBody3": "Halve the ron and you get what the dealer pays; halve that again and you get what each non-dealer pays — that is all the ratio says.",
+    "basePointsNote": "* Base points, and why the result is rounded up to the next 100 points, are covered in <link></link>",
+    "divideBody4": "There is one concern. The scoring table lists numbers after rounding, so if rounding came out differently after dividing, this shortcut would not work.\nTo give the conclusion first: in the dividing direction, it never does. We check why in the last section.",
+    "stepsTitle": "Halve and round up, then halve and round up again",
+    "stepsBody1": "The procedure is just the same step done twice.",
+    "stepsItem1": "Divide the non-dealer ron by 2 and round up to the next 100 points → what the dealer pays (bottom)",
+    "stepsItem2": "Divide that amount by 2 again and round up to the next 100 points → what each non-dealer pays (top)",
+    "diagramCaption": "{fu} fu {han} han",
+    "stepsBody2": "A non-dealer ron at 30 fu 4 han is 7700 points. Half of it, 3850, rounds up to 3900, and half of that, 1950, rounds up to 2000. The non-dealer tsumo in the scoring table is 2000 / 3900, exactly the same.",
+    "stepsBody3": "It holds all the way from 1 han to 4 han. Look only at the ron on the left and try working out the two columns on the right yourself.",
+    "tableCaption": "Derived from the non-dealer ron (30 fu)",
+    "stepsBody4": "70 fu 1 han is a hand where rounding comes into play twice. Half of 2300 is 1150, so 1200; half of that is exactly 600.\nEven with rounding applied twice, it agrees with the 600 / 1200 in the scoring table.",
+    "fuNote": "* 20 fu has no ron column (it only occurs with a [[pinfu|pinfu]] tsumo). With no starting point, it falls outside this rule.",
+    "whyTitle": "Why the dividing direction does not break",
+    "whyBody1": "Rounding up is an operation that pushes the score upward. The non-dealer ron in the scoring table is the true four shares with a remainder added on top, and that remainder is at most 99 points.\nDivide it by 4 and the remainder shrinks to a quarter as well.",
+    "whyBody2": "The shrunken remainder never overtakes the point the correct answer rounds up to. Base points are always a multiple of 20, so the part of one share below 100 points is one of 0, 20, 40, 60 or 80 points. The remainder carried along is exactly a quarter of the one added to the ron, at most 20 points.\nMeanwhile, there are always at least 20 points of room before the next 100. The remainder never goes past that room, so the divided value and the true value round up to the same 100.",
+    "whyBody3": "The multiplying direction is risky for the opposite reason. The remainder spreads instead of shrinking, so it can cross the 100-point boundary.\nThe 1.5× in the column below is an example. Trying to get the bottom number of a non-dealer tsumo by doubling the top fails for the same reason.",
+    "columnLabel": "Column",
+    "columnTitle": "A dealer ron is not 1.5× a non-dealer ron",
+    "columnBody": "A non-dealer ron is four shares of base points, and a dealer ron is six. Then it looks as if multiplying by 1.5 should work.<br></br>But this is the multiplying direction. Try it with the 70 fu 1 han hand from earlier: 1.5 times the non-dealer ron of 2300 is 3450, which rounds up to 3500. The actual dealer ron is 3400 points. The same hand that worked in the dividing direction misses in the multiplying direction.<br></br>Of the 39 cells that have a ron score, 9 are off by 100 points like this. Learn the dealer ron separately, not with the rule in this lesson.",
+    "formula": {
+      "koRon": "non-dealer ron",
+      "oyaPays": "dealer pays",
+      "koPays": "each non-dealer pays"
+    }
+  }
+}

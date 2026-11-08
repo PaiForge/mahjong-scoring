@@ -1,0 +1,43 @@
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticePlayMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
+import { createExamPlayPage } from "../../_lib/create-exam-play-page";
+import { PinfuExamPlayView } from "../_components/pinfu-exam-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+const SLUG = PRACTICE_SLUG.pinfuExam;
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/pinfu/play">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/play");
+  return createPracticePlayMetadata(SLUG, { locale });
+}
+
+/**
+ * 昇級試験（平和の点数計算） プレイ
+ *
+ * @description
+ * 平和で和了した満貫未満の手牌から点数を回答する試験のプレイページ。
+ * 役一覧は表示されないため、プレイヤーは手牌から翻数を自分で数え、
+ * ツモなら20符・ロンなら30符の点数表から点数を導出する。
+ * ミス1回で終了する（通常チャレンジは3回）。
+ *
+ * @flow
+ * 1. カウントダウンオーバーレイ（3, 2, 1）の後にタイマー開始
+ * 2. 手牌・条件が表示され、点数をセレクトで回答
+ * 3. 制限時間経過またはミス1回で終了
+ * 4. 問題別の回答結果を sessionStorage に保存
+ * 5. スコアを保存し、result ページへリダイレクト
+ */
+// 受験ガードが cookie を読むため動的レンダリングを明示する
+export const dynamic = "force-dynamic";
+
+const ExamPlayPage = createExamPlayPage(PinfuExamPlayView, { slug: SLUG });
+
+export default async function PinfuExamPlayPage({
+  params,
+}: PageProps<"/[locale]/exam/pinfu/play">) {
+  const locale = await prepareRouteLocale(params, "/exam/pinfu/play");
+  return <ExamPlayPage locale={locale} />;
+}

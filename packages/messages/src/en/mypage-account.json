@@ -1,0 +1,90 @@
+{
+  "pageTitle": "Account",
+  "login": {
+    "title": "Login details",
+    "email": "Email address",
+    "provider": "Login method",
+    "providers": {
+      "email": "Email address and password",
+      "google": "Google account",
+      "apple": "Apple account"
+    },
+    "unknown": "—"
+  },
+  "email": {
+    "title": "Email address",
+    "change": "Change",
+    "cancel": "Cancel",
+    "newEmailLabel": "New email address",
+    "newEmailPlaceholder": "mail@example.com",
+    "submit": "Send confirmation email",
+    "submitting": "Sending...",
+    "pending": "We are confirming the change to {email}. The change is complete once you open the links in the confirmation emails sent to both your current and your new address.",
+    "relayBlocked": "Confirmation emails cannot be sent to an Apple \"Hide My Email\" address, so you cannot change your email address or set a password.",
+    "sentToast": "Confirmation emails sent. They go to both your current and your new address.",
+    "errors": {
+      "invalidEmail": "The email address is not in a valid format.",
+      "sameEmail": "This is the same as your current email address.",
+      "emailUnavailable": "You cannot change to this email address.",
+      "relayAddress": "You cannot change from an Apple \"Hide My Email\" address.",
+      "rateLimited": "Too many requests. Please wait a while and try again.",
+      "sendFailed": "Could not send the confirmation email. Please try again.",
+      "unauthorized": "You are no longer logged in. Please log in again.",
+      "banned": "You cannot perform this action."
+    }
+  },
+  "methods": {
+    "title": "Login methods",
+    "password": {
+      "set": "Set",
+      "unset": "Not set",
+      "setup": "Set a password",
+      "change": "Change password",
+      "sending": "Sending...",
+      "relayBlocked": "The setup email cannot be sent to an Apple private email address.",
+      "sentToast": "We sent a password setup email to {email}. Use the link in the email to choose a new password."
+    },
+    "google": {
+      "add": "Add a Google account",
+      "adding": "Going to Google..."
+    },
+    "apple": {
+      "privateRelay": "Private email address"
+    },
+    "remove": "Remove",
+    "removing": "Removing...",
+    "cannotRemove": {
+      "lastWebMethod": "If you remove this, you will have no way left to log in on the web. Set a password or add another Google account first."
+    },
+    "confirmRemove": {
+      "title": "Unlink {provider}?",
+      "message": "You will no longer be able to log in with {email}.",
+      "ok": "Remove",
+      "cancel": "Cancel"
+    },
+    "removedToast": "Unlinked.",
+    "errors": {
+      "removal:notLinked": "This link could not be found. Please reload the page.",
+      "removal:notRemovable": "This link cannot be removed.",
+      "removal:lastWebMethod": "If you remove this, you will have no way left to log in on the web. Set a password or add another Google account first.",
+      "appleUnavailable": "Could not connect to Apple. Please wait a while and try again.",
+      "unlinkFailed": "Could not unlink. Please try again.",
+      "relayAddress": "The setup email cannot be sent to an Apple private email address.",
+      "noEmail": "The email cannot be sent because no email address is set.",
+      "sendFailed": "Could not send the email. Please try again.",
+      "rateLimited": "Too many requests. Please wait a while and try again.",
+      "unauthorized": "You are no longer logged in. Please log in again.",
+      "banned": "You cannot perform this action.",
+      "unknown": "Could not connect. Please try again."
+    }
+  },
+  "notices": {
+    "linkedGoogle": "Google account added.",
+    "linkDuplicate": "This Google account is already linked to this account or to another account.",
+    "linkFailed": "Could not add the Google account. Please try again.",
+    "emailChangePending": "Confirmation received. Open the link in the other confirmation email as well to finish changing your email address.",
+    "emailChangeDone": "Your email address has been changed.",
+    "emailChangeLinkInvalid": "The link to change your email address is invalid or has expired. Please start the change again."
+  },
+  "deleteAccountLink": "Delete account"
+}

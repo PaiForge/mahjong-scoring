@@ -22,5 +22,7 @@
   "sanbaiman": "三倍満",
   "yakuman": "役満",
   "kiriageManganStatus": "切り上げ満貫：{state, select, on {あり} other {なし}}",
-  "kiriageManganStatusLink": "設定を変更"
+  "kiriageManganStatusSeparator": "・",
+  "kiriageManganStatusLink": "設定を変更",
+  "doubleYakuman": "ダブル役満"
 }

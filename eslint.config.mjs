@@ -69,8 +69,9 @@ export default [
     // AdminPaginationNav と、部品を自前で持つ。app/_components はユーザー向け画面と
     // 管理画面の両方が使う共有部品で、ここから (user)/_components を読むと依存が
     // 双方向になる。どちらも (user)/_components（ブランド UI）を import しない
-    // （ルートの CLAUDE.md「共通UIコンポーネント」）。例外の app/not-found.tsx /
-    // app/error.tsx はどちらの配下でもないので、この files には掛からない。
+    // （ルートの CLAUDE.md「共通UIコンポーネント」）。app/not-found.tsx（日本語の
+    // ユーザー向けの 404。ブランド UI で描く）と app/global-error.tsx はどちらの
+    // 配下でもないので、この files には掛けていない。
     // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
     // 置き換えるため、features 向けの上の設定と files が重ならない独立した項目にする
     files: [
@@ -83,11 +84,88 @@ export default [
         {
           patterns: [
             {
-              // `@/app/(user)/_components/...` も相対パスの `../(user)/_components/...` も掛ける
+              // `@/app/[locale]/(user)/_components/...` も相対パスの `../(user)/_components/...` も掛ける
               regex: "(^|/)\\(user\\)/_components(/|$)",
               message:
                 "admin と app/_components から (user)/_components（ブランド UI）を import しない。管理画面は admin/_lib・admin/_components の部品を使い、両画面で共有する部品は app/_components に置く",
             },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // ユーザー向け画面（apps/web/src/app/[locale]）は牌画像を `LocaleHai`
+    // （[locale]/(user)/_components/locale-hai.tsx）で描く。`@pai-forge/mahjong-react-ui`
+    // の `Hai` は alt の既定が日本語の牌名（getHaiName）だけで言語を渡す口が無く、
+    // 直接使うと英語のページの alt が日本語のまま残る（スクリーンリーダー・画像検索が
+    // 読む）。`LocaleHai` は英語のページでだけ辞書の英語の牌名を渡し、日本語の出力は
+    // 変えない。`HaiBack`・`Furo` 等の他の export は対象外（`Furo` が内部で描く牌の alt
+    // は日本語のまま）。管理画面（/admin）は日本語だけなので `Hai` を直接使ってよい。
+    // `[locale]` はグロブの文字クラスにならないよう角括弧をエスケープする。
+    // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
+    // 置き換えるため、features・admin 向けの上の設定と files が重ならない独立した項目にする
+    files: ["apps/web/src/app/\\[locale\\]/**/*.{js,jsx,ts,tsx}"],
+    ignores: [
+      "apps/web/src/app/\\[locale\\]/(user)/_components/locale-hai.tsx",
+    ],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@pai-forge/mahjong-react-ui",
+              importNames: ["Hai"],
+              message:
+                "ユーザー向け画面では Hai ではなく [locale]/(user)/_components/locale-hai の LocaleHai を使う（英語のページで alt を英語の牌名にするため）",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // アプリ（apps/mobile/src）は端末の言語で表示を変える。言語に依る 2 つの入口を
+    // 1 か所に絞る:
+    // - 牌画像は `LocaleHai`（components/locale-hai.tsx）で描く。ネイティブの `Hai` は
+    //   accessibilityLabel の既定が日本語の牌名（getHaiName）だけで言語を渡す口が無く、
+    //   直接使うと英語の端末で VoiceOver が日本語の牌名を読む。`LocaleHai` は日本語以外で
+    //   だけ辞書の牌名を渡し、日本語の読み上げは変えない
+    // - 辞書（@mahjong-scoring/messages/ja・/en）を直接 import しない。辞書は端末の言語で
+    //   起動時に 1 回選ぶ（lib/app-locale.ts の APP_MESSAGES。選ぶのは features の
+    //   messages-for-locale.ts だけで、apps/mobile の外なのでここには掛からない）。
+    //   直接読むと、辞書の Provider の外で ja を固定で引く書き方（以前の購入の同期）が戻り、
+    //   英語の端末に日本語が出る
+    // テスト（*.test.ts）は辞書の中身を ja / en と突き合わせるために直接読むので除く
+    // （Node で走り、画面を描かない）。
+    // no-restricted-imports を同じファイルに掛かる別の設定と重ねると後の設定が前を
+    // 置き換えるため、features・admin・web の [locale] 向けの上の設定と files が重ならない
+    // 独立した項目にする
+    files: ["apps/mobile/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/mobile/src/components/locale-hai.tsx",
+      "apps/mobile/src/**/*.test.ts",
+    ],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@pai-forge/mahjong-react-ui",
+              importNames: ["Hai"],
+              message:
+                "アプリの画面では Hai ではなく components/locale-hai の LocaleHai を使う（英語の端末で牌の読み上げを英語の牌名にするため）",
+            },
+            ...[
+              "@mahjong-scoring/messages/ja",
+              "@mahjong-scoring/messages/en",
+            ].map((name) => ({
+              name,
+              message:
+                "辞書は lib/app-locale.ts の APP_MESSAGES か use-intl（useTranslations）から引く（端末の言語で選んだ辞書を使うため）",
+            })),
           ],
         },
       ],

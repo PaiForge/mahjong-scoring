@@ -1,0 +1,61 @@
+/**
+ * 昇級試験（満貫以上の点数計算） 説明
+ *
+ * @description
+ * 昇級試験の説明ページ。役の表示なしで手牌から翻数を数え、満貫以上の点数を
+ * 答える試験形式のチャレンジ。通常チャレンジと異なりミス1回で終了する
+ * （レジストリの mistakeLimit: 1）。模試（`training`。時間無制限・記録なしのトレーニング）を持つ。
+ *
+ * @flow
+ * 1. 道場・教本の役の章・ダッシュボードの試験カードから遷移
+ *    （練習一覧には並ばない。入口は段級位の側が持つ）
+ * 2. 問題方式のデモと合格条件、「スタート」（本番）と「模試を受ける」の
+ *    ボタンが表示される。本番は受験資格が無ければ登録・道場への導線になる
+ * 3. 「スタート」を押すと play ページへ、「模試を受ける」を押すと training
+ *    ページへ遷移
+ *
+ * @design 和了形の点数計算（`/practice/agari-score`）の上に作らなかった理由
+ *
+ * 出題内容だけ見れば `/practice/agari-score` を絞り込めば足りそうに見えるが、
+ * あちらは終了条件を持たず記録も取らない訓練で、出題設定がすべてクエリに
+ * 露出していて改竄できる（zustand のシングルトンにも載っている）。合否が
+ * 段級位という永続的な記録になる試験の器としては要件が噛み合わない。
+ *
+ * 代わりに他のチャレンジ型練習と同じ分離軸を踏襲する: 出題は core の
+ * `generateValidScoreQuestion`、盤面の状態は `useScoreQuestionBoard` を
+ * 共有し、器（ディレクトリと出題条件）だけを分ける
+ * （score-calculation / mangan-score-calculation と同じ構図）。
+ */
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticeMetadata } from "@/app/[locale]/(user)/(public)/practice/_lib/metadata";
+import { PracticeIntroContent } from "@/app/[locale]/(user)/(public)/practice/_components/practice-intro-content";
+import { ExamConditions } from "../_components/exam-conditions";
+import { ManganExamHowToPlay } from "./_components/mangan-exam-how-to-play";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+import { ExamGateLinksProvider } from "../_components/exam-gate-links";
+import { resolveExamGateLinks } from "../_lib/exam-gate-links";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/exam/mangan">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(params, "/exam/mangan");
+  return createPracticeMetadata(PRACTICE_SLUG.manganExam, { locale });
+}
+
+export default async function ManganExamPage({
+  params,
+}: PageProps<"/[locale]/exam/mangan">) {
+  const locale = await prepareRouteLocale(params, "/exam/mangan");
+  // 開始導線の受験ゲートが、登録・道場をこの言語で張れるようにする
+  return (
+    <ExamGateLinksProvider links={resolveExamGateLinks(locale)}>
+      <PracticeIntroContent
+        namespace="manganExamChallenge"
+        slug={PRACTICE_SLUG.manganExam}
+        howToPlay={<ManganExamHowToPlay />}
+        notice={<ExamConditions slug={PRACTICE_SLUG.manganExam} />}
+      />
+    </ExamGateLinksProvider>
+  );
+}

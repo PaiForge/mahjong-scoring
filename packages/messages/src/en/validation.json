@@ -1,0 +1,8 @@
+{
+  "password": {
+    "tooShort": "Use at least {minLength} characters for your password.",
+    "missingLetter": "Include at least one letter in your password.",
+    "missingDigit": "Include at least one number in your password.",
+    "weak": "This password is too weak. Please try a different one."
+  }
+}

@@ -1,0 +1,133 @@
+"use client";
+
+import { memo, useCallback } from "react";
+import { useTranslations } from "next-intl";
+import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
+import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
+import { SELECTED_TILE_CLASSES } from "@/app/[locale]/(user)/_components/_lib/selection-classes";
+import { FuItemTiles } from "./fu-item-tiles";
+
+interface FuItemRowProps {
+  readonly index: number;
+  readonly item: MentsuJantouFuItem;
+  /** 選んだ符（未選択は undefined） */
+  readonly answer: number | undefined;
+  readonly showFeedback: boolean;
+  /**
+   * 「わからない」で正解を開示中か
+   *
+   * 無回答のまま showFeedback が立つため、そのままだと全行が誤答の赤になる。
+   * 開示中は誤答の演出を出さず、正解の符だけを示す。
+   */
+  readonly isRevealed?: boolean;
+  readonly isCountingDown: boolean;
+  /**
+   * 和了牌として枠を付ける牌の位置（この要素で和了していなければ undefined）
+   *
+   * 手牌表示で和了牌に付けるのと同じ枠を、回答行の牌にも付ける。
+   */
+  readonly highlightedTileIndex?: number;
+  readonly onSelect: (index: number, fu: number) => void;
+  readonly tileScale?: number;
+}
+
+/**
+ * 符計算の個別要素行
+ * 符要素行
+ */
+export const FuItemRow = memo(function FuItemRowComponent({
+  index,
+  item,
+  answer,
+  showFeedback,
+  isRevealed = false,
+  isCountingDown,
+  highlightedTileIndex,
+  onSelect,
+  tileScale,
+}: FuItemRowProps) {
+  const t = useTranslations("mentsuJantouFu");
+  const isCorrect = showFeedback && !isRevealed && answer === item.fu;
+  const isWrong = showFeedback && !isRevealed && answer !== item.fu;
+
+  const handleButtonClick = useCallback(
+    (value: number) => {
+      onSelect(index, value);
+    },
+    [onSelect, index],
+  );
+
+  return (
+    <div
+      className={`space-y-2.5 rounded-panel border bg-white p-3 ${
+        !showFeedback || isRevealed
+          ? "border-surface-200"
+          : isCorrect
+            ? "border-success bg-success-subtle"
+            : "border-destructive bg-destructive-subtle"
+      }`}
+    >
+      {/* 面子の牌（左）と、誤答時の正解表示（右） */}
+      <div className="flex min-w-0 items-center gap-2">
+        <FuItemTiles
+          item={item}
+          highlightedTileIndex={highlightedTileIndex}
+          scale={tileScale}
+        />
+        {(isWrong || isRevealed) && (
+          <span
+            className={`ml-auto shrink-0 text-xs font-bold ${
+              isRevealed ? "text-surface-600" : "text-destructive"
+            }`}
+          >
+            {t("correctAnswer", { fu: item.fu })}
+          </span>
+        )}
+      </div>
+
+      {/* 符の選択肢。牌の下に全幅で並べ、タップしやすい大きさにする */}
+      <div className="grid grid-cols-6 gap-1.5">
+        {FU_OPTIONS.map((opt) => {
+          const isSelected = answer === opt;
+          const disabled = showFeedback || isCountingDown;
+
+          let buttonClass =
+            "rounded-lg border py-2.5 text-sm font-bold transition-colors";
+
+          // 正誤の配色は feedback-styles.ts と同じ success / destructive の subtle に揃える
+          // 開示中は選択が無いため、正解の符のボタンを正解色で示す
+          if (isRevealed) {
+            buttonClass +=
+              opt === item.fu
+                ? " border-success bg-success-subtle text-success-strong"
+                : " border-surface-200 bg-white text-surface-600";
+          } else if (showFeedback && isSelected) {
+            buttonClass += isCorrect
+              ? " border-success bg-success-subtle text-success-strong"
+              : " border-destructive bg-destructive-subtle text-destructive-strong";
+          } else if (isSelected) {
+            buttonClass += ` ${SELECTED_TILE_CLASSES} text-foreground`;
+          } else {
+            buttonClass += " border-surface-200 bg-white text-surface-600";
+          }
+
+          if (disabled) {
+            buttonClass += " cursor-not-allowed opacity-60";
+          }
+
+          return (
+            <button
+              key={opt}
+              type="button"
+              className={buttonClass}
+              disabled={disabled}
+              onClick={() => handleButtonClick(opt)}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+});

@@ -18,11 +18,11 @@ import { vi } from "vitest";
 vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock(
-  "@/app/(user)/(public)/practice/_actions/save-practice-result",
+  "@/app/[locale]/(user)/(public)/practice/_actions/save-practice-result",
   async () => await import("@/test/save-practice-result-mock"),
 );
 vi.mock(
-  "@/app/(user)/(public)/exam/_actions/submit-exam-result",
+  "@/app/[locale]/(user)/(public)/exam/_actions/submit-exam-result",
   async () => await import("@/test/submit-exam-result-mock"),
 );
 vi.mock(

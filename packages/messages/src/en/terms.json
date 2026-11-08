@@ -1,0 +1,117 @@
+{
+  "pageTitle": "Terms of Service",
+  "description": "The terms of service of this riichi mahjong scoring site. They cover accounts, how your data is handled, deleting your account, prohibited conduct, reporting and blocking, and disclaimers.",
+  "acceptance": {
+    "title": "Acceptance of the Terms",
+    "body": "These Terms of Service (the \"Terms\") set out the conditions for using {siteName} (the \"Service\"). By using the Service, you are deemed to have agreed to these Terms. If you do not agree to these Terms, please do not use the Service.\nIn these Terms, the \"Operator\" means the business that provides and runs the Service (see <company>Operator Information</company>)."
+  },
+  "service": {
+    "title": "About the Service",
+    "body": "The Service is a web application and an iOS app for learning riichi mahjong score calculation. It offers features such as lessons, practice, promotion exams and leaderboards. Leaderboards, public profiles and profile editing are features of the web application. The iOS app does not show other users' information and shows only your own place. The basic features are free, and there is a paid plan (Pro) that removes the limit on how much you can use some practices."
+  },
+  "account": {
+    "title": "Accounts",
+    "body": "You can use lessons and practice without creating an account. You need an account to keep challenge records, take part in the leaderboards and earn ranks. If you create an account, please note the following.",
+    "item1": "You are responsible for keeping your login credentials (such as your password) secure.",
+    "item2": "The Operator is not responsible for any damage caused by a third party's unauthorized use of your account."
+  },
+  "data": {
+    "title": "How your data is handled",
+    "warning": "Whether your records are kept depends on whether you have an account.",
+    "guest": "If you have not created an account, your challenge results are not saved. The only things kept on your device (browser) are settings, such as the rule settings, how dora are shown, the order of yaku and the question settings. They are lost when you clear your browser's site data, and the Operator cannot restore them.",
+    "member": "When you create an account, your challenge results, EXP, lesson completions and rank are saved on the server, and they carry over when you log in from another device. If you want to keep your records, we recommend creating an account."
+  },
+  "publicInfo": {
+    "title": "Information shown publicly",
+    "body": "The following information is shown on public profiles and leaderboards in the web application to every visitor, including people who are not logged in.",
+    "item1": "Username, display name and avatar image",
+    "item2": "Bio and social media account names (if you add them)",
+    "item3": "Challenge results (those listed on the leaderboards)",
+    "note": "You can stop being listed on the leaderboards at any time in <preferences>Settings</preferences> (also from the settings in the iOS app). Your results are still recorded. Your email address is never made public."
+  },
+  "deletion": {
+    "title": "Deleting your account",
+    "body": "You can delete your account at any time from My Page. After you delete it, you cannot log in with the same account, and this cannot be undone. When you delete your account, your data is handled as follows.",
+    "item1": "Your display name, avatar image, bio and social media account names are deleted.",
+    "item2": "Your challenge results (including challenges in progress), EXP, lesson completions, rank, announcement notifications and list of blocked users are deleted, and you are removed from the leaderboards.",
+    "item3": "Your username is kept so that no one else can sign up with the same name. For this reason, you cannot sign up again with the same username.",
+    "item4": "To investigate and deal with misuse, the history of your actions (the type and time of logins, profile updates, account deletion and so on), the Operator's records of the actions it took, and the records of reports are kept even after you delete your account.",
+    "item5": "Your paid plan purchase records are deleted, and no refund is given even if part of a period is unused."
+  },
+  "paidPlan": {
+    "title": "Paid plan",
+    "body": "The paid plan (Pro) can be bought as a pass for a fixed period or as a lifetime purchase, at the price shown on the pricing page. By buying it, you agree to the following.",
+    "item1": "Prices are shown on the pricing page with tax included. You pay on the checkout screen of our payment processor (Stripe), and the Operator does not keep your card details.",
+    "item2": "A pass ends after the period shown at the time of purchase and does not renew automatically. If you buy again while a pass is active, the new period starts after the current period ends.",
+    "item3": "Because of the nature of digital content, purchases cannot be refunded or canceled after you buy them. This does not apply if the Operator cannot provide the benefits for reasons the Operator is responsible for.",
+    "item4": "The features available with a lifetime purchase are those available at the time of purchase. The Operator may make features it adds in the future a benefit of the pass only.",
+    "item5": "The Operator may change prices and what the benefits include. Changes are made by announcing them on the Service, and they do not apply retroactively to passes or lifetime purchases already bought.",
+    "item6": "If you delete your account, your purchase records are deleted, and no refund is given even if part of a period is unused. The same applies if your account is suspended (for violating these Terms)."
+  },
+  "responsibilities": {
+    "title": "Your responsibilities",
+    "body": "Please understand the following when you use the Service.",
+    "item1": "You use the Service at your own responsibility.",
+    "item2": "You are responsible for preparing, at your own cost, the devices, software, data charges and anything else you need to connect to the internet.",
+    "item3": "Please manage your browser settings and your devices properly yourself."
+  },
+  "prohibited": {
+    "title": "Prohibited conduct",
+    "body": "The Operator does not tolerate inappropriate content or causing trouble for other users in any form. When you use the Service, the following conduct is prohibited.",
+    "item1": "Interfering with the operation of the Service",
+    "item2": "Putting an excessive load on the Service",
+    "item3": "Searching for or exploiting vulnerabilities in the Service",
+    "item4": "Manipulating the leaderboards or ranks by improper means, such as creating multiple accounts or using automation tools",
+    "item5": "Pretending to be another user or a third party",
+    "item6": "Defaming, discriminating against, threatening, stalking or harassing other users or third parties",
+    "item7": "Putting sexual, violent or discriminatory expressions, or any other content contrary to public order and morals, in your profile (username, display name, bio, avatar image or social media account names)",
+    "item8": "Putting content meant for advertising, solicitation or spam in your profile",
+    "item9": "Misusing the reporting system, such as by making false reports",
+    "item10": "Any other conduct that violates laws or regulations or is contrary to public order and morals",
+    "note": "If your profile contains inappropriate words, the Operator may refuse to save it."
+  },
+  "reporting": {
+    "title": "Reporting and blocking",
+    "body": "In the web application, if another user's profile contains inappropriate content or another user is causing you trouble, you can report that user to the Operator from their public profile. You can also block a user, and that user will no longer appear on the leaderboards and public profiles you see. You need to be logged in to report or block.",
+    "item1": "The Operator reviews a report within 24 hours of receiving it. If the Operator judges that the content violates these Terms, it takes action such as removing that content or suspending the account.",
+    "item2": "The reported user is never told that a report was made or who made it. The other user is not notified when you block them either.",
+    "item3": "You can unblock a user at any time in the settings of the web application.",
+    "item4": "If you are not logged in, or you want to tell the Operator about a problem other than a profile, please get in touch through the <contact>contact form</contact>."
+  },
+  "intellectualProperty": {
+    "title": "Intellectual property",
+    "body": "The intellectual property rights in the content, design, logos, software and other materials included in the Service belong to the Operator or its licensors. You may not copy, republish or modify them without permission."
+  },
+  "disclaimer": {
+    "title": "Disclaimer",
+    "accuracy": "We aim for accuracy in the score calculations and lesson content of the Service, but riichi mahjong rules differ depending on the rules a table agrees on, so the Operator does not guarantee that they are accurate or complete.",
+    "body": "The Operator is not responsible for the following.",
+    "item1": "Damage resulting from your use of the Service",
+    "item2": "Damage resulting from the interruption, suspension or ending of the Service, or from changes to its content",
+    "item3": "Damage resulting from the loss of user data"
+  },
+  "liability": {
+    "title": "Limitation of liability",
+    "body": "The Service is provided \"as is\". The Operator makes no guarantee of any kind about the completeness, accuracy, usefulness, safety or other qualities of the Service."
+  },
+  "serviceChanges": {
+    "title": "Changes to or ending of the Service",
+    "body": "The Operator may change the content of the Service, or stop providing the Service, without notifying users in advance."
+  },
+  "suspension": {
+    "title": "Suspension of use",
+    "body": "If a user violates these Terms, the Operator may, without prior notice, delete the content of that user's profile (display name, bio, avatar image and social media account names), or suspend the account and restrict that user's use of the Service."
+  },
+  "governingLaw": {
+    "title": "Governing law",
+    "body": "The interpretation and application of these Terms are governed by the laws of Japan."
+  },
+  "revision": {
+    "title": "Changes to these Terms",
+    "body": "The Operator may change these Terms when needed. The changed Terms take effect when they are posted on this page."
+  },
+  "contact": {
+    "title": "Contact",
+    "body": "For questions about these Terms, please use the <contact>contact form</contact>."
+  }
+}

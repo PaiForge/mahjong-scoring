@@ -1,3 +1,4 @@
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { normalizeSiteUrl } from "@mahjong-scoring/features/site-url";
 
 /**
@@ -35,5 +36,17 @@ export const IOS_APP_STORE_ID = "6820905974";
  *
  * App Store のバッジと QR コードの行き先。アプリ名の部分（URL の slug）は
  * App Store が名前の変更に合わせて変えるので持たず、ID だけで組む。
+ *
+ * 日本語のページは日本のストア（`/jp/`）を指す。英語のページは国を付けない —
+ * 国の無い URL は開いた人の国のストアへ App Store が振り分けるので、英語で読む
+ * 人がどの国にいてもその国のページ（英語の掲載情報）に着く。`/us/` に固定すると
+ * 米国以外の人が他国のストアに着き、入手できない。
+ *
+ * @param locale - ページの言語
+ * @returns App Store のアプリのページの URL
  */
-export const IOS_APP_STORE_URL = `https://apps.apple.com/jp/app/id${IOS_APP_STORE_ID}`;
+export function iosAppStoreUrl(locale: SupportedLocale): string {
+  return locale === "ja"
+    ? `https://apps.apple.com/jp/app/id${IOS_APP_STORE_ID}`
+    : `https://apps.apple.com/app/id${IOS_APP_STORE_ID}`;
+}

@@ -1,10 +1,10 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import { StyleSheet, View } from "react-native";
 import { MentsuType } from "@mahjong-scoring/core";
 import type { MentsuJantouFuItem } from "@mahjong-scoring/core";
 
 import { FuroTiles } from "../../../board/furo-tiles";
 import { HAI_SM_HEIGHT } from "@mahjong-scoring/features/board/hand-layout";
+import { LocaleHai } from "../../../components/locale-hai";
 
 /**
  * 牌の描き分けに必要な回答行の情報
@@ -50,7 +50,7 @@ export function FuItemTiles({
       ) : (
         <View style={styles.row}>
           {item.tiles.map((tile, i) => (
-            <Hai
+            <LocaleHai
               key={i}
               hai={tile}
               size="sm"

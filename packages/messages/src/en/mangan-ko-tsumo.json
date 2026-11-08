@@ -1,0 +1,15 @@
+{
+  "learn": {
+    "pageTitle": "Mangan and Above: Non-Dealer Tsumo Scores",
+    "pageDescription": "Learn the riichi mahjong scores for a non-dealer tsumo of mangan or more, and how the payment is split.",
+    "bodyTitle": "On a tsumo, everyone shares the payment",
+    "body1": "A [[tsumo|tsumo]] has no discarder, so all the other players at the table share the payment.\nThe total you receive is still the same as for a [[ron|ron]], and from [[mangan|mangan]] up you still do not need to count fu.",
+    "body2": "On a non-dealer tsumo, each of the other non-dealers pays the same amount, and the dealer pays twice that.\nLet us look at a non-dealer winning a mangan or more by tsumo.",
+    "body3": "Every total is the same as the non-dealer ron score; it is simply split among \"non-dealer, non-dealer, dealer\".\nAs long as you remember that only the dealer pays double, the totals to memorize are the same as for a non-dealer ron.",
+    "halvingTitle": "Halve the ron score to get the payments",
+    "halvingBody1": "You do not have to memorize the numbers in the table above separately: they come straight from the non-dealer ron score.\nHalve the non-dealer ron score to get what the dealer pays, and halve it again to get what each non-dealer pays.",
+    "halvingDiagramCaption": "For mangan",
+    "halvingBody2": "The same goes for the other limits. For [[haneman|haneman]], half of 12,000 is 6,000, and half of that is 3,000.\nRead the table above in the order total, dealer, non-dealer, and every row is halved step by step.",
+    "halvingNote": "* Scores of mangan and above divide evenly by 4, so this never leaves a remainder. The same steps work below mangan too, but each time you halve, you have to round up to the next 100 points (<link></link>)."
+  }
+}

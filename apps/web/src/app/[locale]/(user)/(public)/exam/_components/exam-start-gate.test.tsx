@@ -1,0 +1,261 @@
+/**
+ * ExamStartGate の出し分けテスト
+ *
+ * @description
+ * - 未ログイン: アカウント登録の導線を出す（開始ボタンは出さない）
+ * - 資格なし（未達成の上位級）: 道場への導線を出す（開始ボタンは出さない）
+ * - 次に取る級 / 達成済みの級: 通常の開始ボタンを出す
+ * - 段級位の取得失敗: 開始ボタンへ fail-open する（強制はサーバー側）
+ *
+ * どの受験できない状態でも、緑（primary）のボタンを開始ボタンの位置に
+ * 置かないことまで見る。緑は「押して始める面」の色で、この位置の緑は
+ * 試験開始と見分けが付かないため。
+ */
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
+import { render, screen } from "@testing-library/react";
+
+const { mockFetchViewerRankSlugs } = vi.hoisted(() => ({
+  mockFetchViewerRankSlugs: vi.fn(),
+}));
+
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
+
+vi.mock("@/app/_lib/viewer-ranks", () => ({
+  fetchViewerRankSlugs: mockFetchViewerRankSlugs,
+}));
+
+vi.mock("next-intl", async () => await import("@/test/intl-mock"));
+
+vi.mock("next/link", async () => await import("@/test/next-link-mock"));
+
+import { ExamGateLinksProvider, type ExamGateLinks } from "./exam-gate-links";
+import { ExamStartGate } from "./exam-start-gate";
+
+const PLAY_HREF = "/exam/pinfu/play#practice";
+
+/** 2級の試験（pinfu-exam）のゲートを描画する */
+function renderGate() {
+  return render(<ExamStartGate slug="pinfu-exam" playHref={PLAY_HREF} />);
+}
+
+/** 開始ボタン（play への遷移）が出ているか */
+function startButton(): HTMLElement | null {
+  return document.querySelector(`a[href="${PLAY_HREF}"]`);
+}
+
+/** 主操作（action）の緑の塗りを持つ要素 */
+function primaryFilledElements(): readonly Element[] {
+  return [...document.querySelectorAll(".bg-action")];
+}
+
+describe("ExamStartGate", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
+    mockFetchViewerRankSlugs.mockResolvedValue([]);
+  });
+
+  it("認証状態の解決中はスケルトンで場所を確保する", () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: true });
+
+    const { container } = renderGate();
+
+    expect(startButton()).toBeNull();
+    expect(container.querySelector(".animate-pulse")).not.toBeNull();
+  });
+
+  describe("未ログイン", () => {
+    beforeEach(() => {
+      mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+    });
+
+    it("アカウント登録の導線を出し、開始ボタンは出さない", async () => {
+      renderGate();
+
+      expect(await screen.findByText("examGate.signUpButton")).toBeTruthy();
+      expect(document.querySelector('a[href="/sign-up"]')).not.toBeNull();
+      expect(startButton()).toBeNull();
+    });
+
+    it("理由をボタンの下に添える", async () => {
+      const { container } = renderGate();
+
+      const reason = await screen.findByText("examGate.signUpNote");
+      const block = container.firstElementChild;
+      // ボタンが先、理由が後。逆にすると解決時にボタンが理由の高さぶん
+      // 飛び、スケルトン（ボタン1個ぶん）と一致しなくなる
+      expect(block?.firstElementChild?.tagName).toBe("A");
+      expect(block?.lastElementChild).toBe(reason);
+    });
+
+    it("ログインの導線は置かない（登録ページ側が持つ）", async () => {
+      renderGate();
+
+      await screen.findByText("examGate.signUpButton");
+      expect(document.querySelector('a[href="/sign-in"]')).toBeNull();
+    });
+
+    it("登録ボタンを緑（試験開始の色）で塗らない", async () => {
+      renderGate();
+
+      await screen.findByText("examGate.signUpButton");
+      expect(primaryFilledElements()).toHaveLength(0);
+    });
+
+    it("段級位を取りに行かない", () => {
+      renderGate();
+
+      expect(mockFetchViewerRankSlugs).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("受験資格なし（未達成の上位級の試験）", () => {
+    beforeEach(() => {
+      // 5級だけを持つユーザーが2級の試験ページを開いた場合
+      mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5"]);
+    });
+
+    it("道場への導線を出し、開始ボタンは出さない", async () => {
+      renderGate();
+
+      expect(await screen.findByText("examGate.dojoButton")).toBeTruthy();
+      expect(document.querySelector('a[href="/dojo"]')).not.toBeNull();
+      expect(startButton()).toBeNull();
+    });
+
+    it("道場ボタンを緑（試験開始の色）で塗らない", async () => {
+      renderGate();
+
+      await screen.findByText("examGate.dojoButton");
+      expect(primaryFilledElements()).toHaveLength(0);
+    });
+
+    it("この試験の級（2級）ではなく先に取る級（4級）の帯色をまとわせる", async () => {
+      renderGate();
+
+      const button = await screen.findByText("examGate.dojoButton");
+      const className = button.closest("a")?.className ?? "";
+      // beltButtonVarsClass("kyu-4") が立てる変数（4級 = 青帯）
+      expect(className).toContain("[--belt-fill:var(--color-blue-100)]");
+      // 2級（緑帯）の色にはならない
+      expect(className).not.toContain("green");
+    });
+  });
+
+  it("次に取る級の試験なら開始ボタンを出す", async () => {
+    // 3級まで持つユーザーにとって2級は次の級
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5", "kyu-4", "kyu-3"]);
+
+    renderGate();
+
+    expect(await screen.findByText("startButton")).toBeTruthy();
+    expect(startButton()).not.toBeNull();
+  });
+
+  it("達成済みの級の試験なら再挑戦として開始ボタンを出す", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue([
+      "kyu-5",
+      "kyu-4",
+      "kyu-3",
+      "kyu-2",
+    ]);
+
+    renderGate();
+
+    expect(await screen.findByText("startButton")).toBeTruthy();
+  });
+
+  it("受験できるときも本番のルールをボタンの下に添える", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5", "kyu-4", "kyu-3"]);
+
+    const { container } = renderGate();
+
+    const hint = await screen.findByText("realExamHint");
+    const block = container.firstElementChild;
+    // 受験できないときの理由と同じ位置（ボタンの下）に座る
+    expect(block?.firstElementChild).toBe(startButton());
+    expect(block?.lastElementChild).toBe(hint);
+  });
+
+  it("開始ボタンの文言を差し替えられる（模試の末尾から本番へ送るとき）", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5", "kyu-4", "kyu-3"]);
+
+    render(
+      <ExamStartGate
+        slug="pinfu-exam"
+        playHref={PLAY_HREF}
+        startLabel="本番の試験を始める"
+      />,
+    );
+
+    expect(await screen.findByText("本番の試験を始める")).toBeTruthy();
+    expect(screen.queryByText("startButton")).toBeNull();
+  });
+
+  it("段級位の取得に失敗したら開始ボタンへ fail-open する", async () => {
+    mockFetchViewerRankSlugs.mockResolvedValue(undefined);
+
+    renderGate();
+
+    expect(await screen.findByText("startButton")).toBeTruthy();
+  });
+});
+
+describe("ExamStartGate の行き先の言語", () => {
+  /** 英語のページで解決した行き先（登録は英語で未公開、道場は公開） */
+  const EN_LINKS: ExamGateLinks = {
+    signUp: { href: "/sign-up", crossLocale: true },
+    dojo: { href: "/en/dojo", crossLocale: false },
+  };
+
+  function renderEnglishGate() {
+    return render(
+      <ExamGateLinksProvider links={EN_LINKS}>
+        <ExamStartGate slug="pinfu-exam" playHref="/en/exam/pinfu/play" />
+      </ExamGateLinksProvider>,
+    );
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("英語で未公開の登録へは、日本語の文書として読み込むリンクと「日本語のみ」の印で送る", async () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+
+    renderEnglishGate();
+
+    await screen.findByText("examGate.signUpButton");
+    const link = document.querySelector('a[href="/sign-up"]');
+    expect(link?.getAttribute("hreflang")).toBe("ja");
+    expect(link?.textContent).toContain("language.japaneseOnly");
+  });
+
+  it("英語で公開している道場へは、英語の道場へ同じ言語のまま送る", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "user-1" }, isLoading: false });
+    mockFetchViewerRankSlugs.mockResolvedValue(["kyu-5"]);
+
+    renderEnglishGate();
+
+    await screen.findByText("examGate.dojoButton");
+    const link = document.querySelector('a[href="/en/dojo"]');
+    expect(link).not.toBeNull();
+    expect(link?.hasAttribute("hreflang")).toBe(false);
+    expect(link?.textContent).not.toContain("language.japaneseOnly");
+  });
+
+  it("Provider の外では日本語のページと同じ行き先で、印を付けない", async () => {
+    mockUseAuth.mockReturnValue({ user: undefined, isLoading: false });
+
+    renderGate();
+
+    await screen.findByText("examGate.signUpButton");
+    const link = document.querySelector('a[href="/sign-up"]');
+    expect(link?.hasAttribute("hreflang")).toBe(false);
+    expect(link?.textContent).not.toContain("language.japaneseOnly");
+  });
+});

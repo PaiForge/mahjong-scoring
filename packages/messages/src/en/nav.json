@@ -1,0 +1,28 @@
+{
+  "home": "Home",
+  "practice": "Practice",
+  "learn": "Lessons",
+  "dojo": "Dojo",
+  "scoreTable": "Scoring Table",
+  "reference": "Reference",
+  "leaderboard": "Leaderboard",
+  "brandMahjong": "麻雀",
+  "brandScoring": "点数計算教室",
+  "login": "Log in",
+  "signUp": "Sign up",
+  "mypage": "My Page",
+  "settings": "Settings",
+  "signOut": "Log out",
+  "signOutSuccess": "You have logged out",
+  "account": "Account",
+  "menu": "Menu",
+  "close": "Close",
+  "back": "Back",
+  "language": {
+    "label": "Language",
+    "ja": "日本語",
+    "en": "English",
+    "enUnavailable": "English version unavailable",
+    "japaneseOnly": "Japanese only"
+  }
+}

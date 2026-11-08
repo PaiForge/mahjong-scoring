@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { localizedHref } from "@/i18n/public-path";
 import { jsonPrivate } from "@/lib/api-response";
 import { getOptionalVerifiedUser } from "@/lib/auth";
 import { checkoutStatusOf } from "@/lib/billing/checkout-landing";
@@ -9,6 +10,11 @@ import { getStripe } from "@/lib/billing/stripe";
 import { logExternalError } from "@/lib/log-error";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import { buildSignInHref } from "@/lib/redirect";
+import {
+  DEFAULT_LOCALE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 
 /**
@@ -48,13 +54,25 @@ import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
  * `?session_id=` ごとサインインの `redirect` に載せる。所有者の検証は
  * サインイン後に改めて走るので、`session_id` を知っているだけでは
  * 何も得られない点は変わらない。
+ *
+ * @design 着地の言語は `success_url` が運ぶ
+ *
+ * Checkout を始めた画面の言語は購入手続きの予約に保存してあり、
+ * `success_url` に `&locale=<locale>` として載る。マイページ・サインインは
+ * その言語のページへ送る（英語なら `/en/mypage/plan`・`/en/sign-in`）。
+ * 予約や Session の `metadata` を読み直して言語を決めないのは、未ログインの
+ * 分岐が DB や Stripe を読む前にあるため。`locale` が無い・対応言語でない
+ * ときは日本語に倒す（`&locale=` を付ける前に作った Session の戻りも日本語の
+ * まま）。値は URL に載るので書き換えられるが、変わるのは着地の言語だけ。
+ * 未ログインの戻り先は `search` ごと渡すので、サインイン後の着地も同じ言語になる。
  */
 export async function GET(request: Request): Promise<NextResponse> {
   const { searchParams, origin, pathname, search } = new URL(request.url);
   const sessionId = searchParams.get("session_id");
+  const locale = landingLocale(searchParams.get("locale"));
   const toPlan = (status?: string) =>
     NextResponse.redirect(
-      `${origin}${MYPAGE_PLAN_PATH}${status ? `?status=${status}` : ""}`,
+      `${origin}${localizedHref(MYPAGE_PLAN_PATH, locale)}${status ? `?status=${status}` : ""}`,
     );
 
   if (!sessionId) return toPlan();
@@ -71,7 +89,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     // 同期記録と結果表示をやり直す。マイページに直接戻すと `session_id` が
     // 失われ、Webhook が遅れている間は支払い直後なのに「無料プラン」が見える
     return NextResponse.redirect(
-      `${origin}${buildSignInHref(`${pathname}${search}`)}`,
+      `${origin}${buildSignInHref(`${pathname}${search}`, locale)}`,
     );
   }
 
@@ -115,4 +133,12 @@ export async function GET(request: Request): Promise<NextResponse> {
     );
     return toPlan("pending");
   }
+}
+
+/**
+ * 着地の `locale` の query を対応言語に絞る（無い・不正な値は日本語）
+ * 着地の言語
+ */
+function landingLocale(value: string | null): SupportedLocale {
+  return value !== null && isSupportedLocale(value) ? value : DEFAULT_LOCALE;
 }

@@ -1,0 +1,20 @@
+{
+  "title": "Instant Han Count",
+  "description": "Practice answering the han of a riichi mahjong win from the hand, the winning tile, the winds, dora and more. Choose the correct answer from 1 to 12 han or yakuman.",
+  "selectHan": "Select the total han",
+  "hanOption": "{count} han",
+  "yakuman": "Yakuman",
+  "yakumanRoundedLabel": "13 han or more counts as",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this."
+  },
+  "generating": "Generating questions...",
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  }
+}

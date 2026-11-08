@@ -1,8 +1,21 @@
 import { CORPORATE_SITE_URL, SITE_URL } from "@/config";
 
-import { OG_IMAGE, SITE_DESCRIPTION, SITE_NAME } from "./metadata";
+import {
+  DEFAULT_LOCALE,
+  type SupportedLocale,
+} from "@mahjong-scoring/features/i18n/locales";
 
-/** Organization / WebSite の `@id`。他の構造化データから参照する */
+import { siteIdentity } from "./metadata";
+
+/**
+ * Organization / WebSite の `@id`。他の構造化データから参照する
+ *
+ * 言語で変えない。日本語のページも英語のページも同じ 1 つの運営組織・
+ * 1 つのサイトを指し、言語ごとに別のエンティティを作らない（`@id` が割れると
+ * 検索側は別の組織・別のサイトとして扱う）。既存の日本語の `@id` も変えない。
+ * 言語ごとに変わるのは説明などのテキストと `inLanguage` だけで、ページ単位の
+ * エンティティ（Article・DefinedTerm）の URL は言語ページごとに別になる。
+ */
 const ORGANIZATION_ID = `${SITE_URL}/#organization`;
 const WEBSITE_ID = `${SITE_URL}/#website`;
 
@@ -14,13 +27,21 @@ const WEBSITE_ID = `${SITE_URL}/#website`;
  * ここで 1 つに組み立てる。Google はページ単位で構造化データを解釈するので、
  * `@id` だけの参照では解決されない — 各ページにインラインで展開すること。
  *
+ * `@id`・名前・URL・ロゴは言語で変えず、説明だけをページの言語にする
+ * （見えている本文と同じ言語のテキストを載せる）。
+ *
  * @param operatorName 運営事業者名（辞書 `company.name.value`）
+ * @param locale ページの言語（省略時は日本語）
  */
-export function buildOrganizationSchema(operatorName: string) {
+export function buildOrganizationSchema(
+  operatorName: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+) {
+  const identity = siteIdentity(locale);
   return {
     "@type": "Organization",
     "@id": ORGANIZATION_ID,
-    name: SITE_NAME,
+    name: identity.name,
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
@@ -28,7 +49,7 @@ export function buildOrganizationSchema(operatorName: string) {
       width: 512,
       height: 512,
     },
-    description: SITE_DESCRIPTION,
+    description: identity.description,
     parentOrganization: {
       "@type": "Organization",
       name: operatorName,
@@ -46,33 +67,45 @@ export function buildOrganizationSchema(operatorName: string) {
  * のを防ぐ。`SearchAction`（サイトリンク検索ボックス）は 2024-11 に廃止済みで
  * 入れない。
  *
+ * WebSite は言語をまたいで同じサイト（`@id`・`url`・名前は同一）。説明・
+ * `inLanguage`・画像だけをページの言語にする。
+ *
  * @param operatorName 運営事業者名（辞書 `company.name.value`）
+ * @param locale ページの言語（省略時は日本語）
  */
-export function buildSiteSchema(operatorName: string) {
+export function buildSiteSchema(
+  operatorName: string,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+) {
+  const identity = siteIdentity(locale);
   return {
     "@context": "https://schema.org",
     "@graph": [
-      buildOrganizationSchema(operatorName),
+      buildOrganizationSchema(operatorName, locale),
       {
         "@type": "WebSite",
         "@id": WEBSITE_ID,
         url: SITE_URL,
-        name: SITE_NAME,
-        description: SITE_DESCRIPTION,
-        inLanguage: "ja",
-        image: `${SITE_URL}${OG_IMAGE.url}`,
+        name: identity.name,
+        description: identity.description,
+        inLanguage: locale,
+        image: `${SITE_URL}${identity.ogImage.url}`,
         publisher: { "@id": ORGANIZATION_ID },
       },
     ],
   };
 }
 
-/** 教本の Article 等から `isPartOf` で指す WebSite */
+/**
+ * 教本の Article 等から `isPartOf` で指す WebSite
+ *
+ * 言語に依らない（`@id`・URL・名前だけを持ち、言語ごとのテキストを持たない）。
+ */
 export function buildWebSiteRef() {
   return {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     url: SITE_URL,
-    name: SITE_NAME,
+    name: siteIdentity(DEFAULT_LOCALE).name,
   } as const;
 }

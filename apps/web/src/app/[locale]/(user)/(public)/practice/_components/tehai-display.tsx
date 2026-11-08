@@ -1,0 +1,268 @@
+"use client";
+
+import { memo, useCallback, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
+import { isOya } from "@mahjong-scoring/core";
+import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
+import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
+import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
+import {
+  HAI_SM_HEIGHT,
+  REFERENCE_HAND_WIDTH,
+} from "@mahjong-scoring/features/board/hand-layout";
+import { TehaiHand } from "../../_components/tehai-hand";
+import { useAutoScale } from "../../_hooks/use-auto-scale";
+import { RiichiStick } from "./riichi-stick";
+import { PracticeNavLink } from "./practice-nav-link";
+import { usePageLocale } from "../_hooks/use-page-locale";
+import { clientNavTarget } from "../_lib/client-nav-target";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { HelpIconButton } from "@/app/[locale]/(user)/_components/help-icon-button";
+import { InfoModal } from "@/app/[locale]/(user)/_components/info-modal";
+import {
+  PREFERENCE_ANCHORS,
+  preferencesHref,
+} from "@mahjong-scoring/features/settings/preference-anchors";
+import { useDoraDisplayMode } from "@/app/_hooks/use-display-settings-store";
+import { resolveBoardDora } from "@mahjong-scoring/features/settings/dora-display";
+import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
+import { useHandPresentation } from "@mahjong-scoring/features/board/use-hand-presentation";
+
+/** 牌を含まない状況行の高さ（px）。リーチ棒とその名札が収まる高さ */
+const TEXT_ROW_HEIGHT = 22;
+
+interface TehaiDisplayProps {
+  /** 表示する手牌（純手牌 + 副露）。Tehai14 もそのまま渡せる。 */
+  readonly tehai: Pick<Tehai, "closed" | "exposed">;
+  readonly context: TehaiContext;
+  readonly onScaleChange?: (scale: number) => void;
+  /**
+   * モバイル（<sm）で盤面をどこまで広げるか。sm 以上はどれを選んでも
+   * 同じ（角丸＋四辺の細枠＋余白）で、狭い画面での見え方だけが変わる。
+   *
+   * - `"inset"`（既定）— 白カードの内側に収める。説明や一覧の中に置く盤面は
+   *   地の文と幅が揃っている方が読みやすい
+   * - `"fullBleed"` — 左右だけ画面端まで。牌は枠に収まる倍率まで自動で縮むため、
+   *   狭い画面では盤面の幅がそのまま牌の大きさになる。上には余白を残す
+   *   （チャレンジはタイマーとライフが盤面の上に載る）
+   * - `"fullBleedFlushTop"` — 上も詰めてカード上端の枠線に密着させる。盤面が
+   *   カードの先頭に来る画面（トレーニング・点数計算）用。ここで余白を残すと、
+   *   タイトル帯と盤面の間に用の無い白帯が出る
+   *
+   * 打ち消す余白は白カード（ContentContainer）の `p-4`。カードは <sm で
+   * フルブリードなので、`-mx-4` で盤面が画面端に届き、`-mt-4` で上端に届く。
+   * カード直下でなくても、間に挟まるのが中央寄せ（`mx-auto max-w-md` 等）や
+   * `space-y-*` のラッパーだけなら同じように働く。
+   */
+  readonly mobileFrame?: MobileFrame;
+  /**
+   * ヘルプツアー（`SpotlightTour`）が照らすための `data-tour-id`
+   *
+   * 盤面の要素に直接付ける。呼び出し側で div に包んで印を付けると、
+   * <sm で盤面が持つ負のマージン（`-mx-4`）は包んだ div の幅に反映されず、
+   * スポットライトが盤面の左右 16px ずつ内側で切れる
+   */
+  readonly tourId?: string;
+}
+
+/** モバイルでの盤面の広げ方 */
+type MobileFrame = keyof typeof MOBILE_FRAME_CLASSES;
+
+/**
+ * 盤面の枠。広げるときは角丸と接する辺の枠線を落とし、左右のパディングも
+ * 詰めて牌に幅を回す（白カード自身の <sm 表示と同じ作法）。上端に密着させる
+ * ときは、カードの上枠と二重にならないよう自前の上枠も落とす。
+ */
+const MOBILE_FRAME_CLASSES = {
+  inset: "mt-4 rounded-xl border p-3",
+  fullBleed:
+    "-mx-4 mt-4 rounded-none border-x-0 border-y px-2 py-3 sm:mx-0 sm:rounded-xl sm:border-x sm:px-3",
+  fullBleedFlushTop:
+    "-mx-4 -mt-4 rounded-none border-x-0 border-t-0 border-b px-2 py-3 sm:mx-0 sm:mt-4 sm:rounded-xl sm:border-x sm:border-t sm:px-3",
+} as const;
+
+/**
+ * 出題盤面の手牌表示コンポーネント
+ * 手牌表示
+ *
+ * 符・翻・点数のどの練習でも同じ盤面を出す。上段に手牌の外から来る条件
+ * （場・自風・親子・リーチ・ドラ）を 1 行で並べ、下段に手牌を置く。
+ * 和了牌とツモ・ロンの別は手牌側（TehaiHand）が牌のそばに出すため、
+ * ここでは扱わない。
+ *
+ * 文言はすべて common から引く。盤面はどの練習でも同じものを見せる以上、
+ * 練習ごとの辞書に同じ語を持たせる理由がない。
+ *
+ * 練習の画面では手牌の見せ方（上下ランダム・理牌しない）を `HandPresentationContext` から
+ * 引き、純手牌と和了牌にだけ当てる（副露・ドラ表示牌は変えない）。見せ方は
+ * 表示だけのもので、問題の手牌（理牌済み）は書き換えない。Provider の外
+ * （説明・結果・レッスン）では従来の表示になる。
+ */
+export const TehaiDisplay = memo(function TehaiDisplayComponent({
+  tehai,
+  context,
+  onScaleChange,
+  mobileFrame = "inset",
+  tourId,
+}: TehaiDisplayProps) {
+  const t = useTranslations("common");
+  // 設定の画面がその言語で未公開なら「日本語のみ」の印付きで日本語の設定へ送る
+  const settingsTarget = clientNavTarget(
+    preferencesHref(PREFERENCE_ANCHORS.doraDisplay),
+    usePageLocale(),
+  );
+  const doraDisplay = useDoraDisplayMode();
+  const isIndicator = doraDisplay === "indicator";
+  const [showDoraInfo, setShowDoraInfo] = useState(false);
+  // 牌の並びは共有コンポーネント TehaiHand に委譲し、その自動スケール値を
+  // 上段のドラ牌にも同じ倍率で適用するため state で受け取る。
+  const [scale, setScale] = useState(1);
+
+  const { doraTiles, uraDoraTiles } = useMemo(
+    () => resolveBoardDora(context, doraDisplay),
+    [context, doraDisplay],
+  );
+
+  // TehaiHand と同じ元の手牌・同じ規則で切り離す（切り離した配列を
+  // 和了牌入りとして渡し直さない）
+  const split = useMemo(
+    () => splitAgariHai(tehai.closed, context.agariHai),
+    [tehai.closed, context.agariHai],
+  );
+  const presentation = useHandPresentation(split);
+
+  const handleScaleChange = useCallback(
+    (next: number) => {
+      setScale(next);
+      onScaleChange?.(next);
+    },
+    [onScaleChange],
+  );
+
+  const hasDoraTiles = doraTiles.length > 0 || uraDoraTiles.length > 0;
+  const infoRowHeight = hasDoraTiles ? HAI_SM_HEIGHT : TEXT_ROW_HEIGHT;
+
+  // 状況行は折り返さず、手牌と同じ倍率まで縮めて幅に収める。牌の大きさが
+  // 手牌と揃い、狭い画面でも「東場 西家 子」が 2 行に割れない。
+  // 手牌より状況行の方が長くなる手（槓が多くドラが増える）だけは、
+  // 収まる倍率まで自分でさらに縮む。
+  // 行の高さは手牌と同じ基準幅から決める（TehaiHand 参照）。手牌の倍率で
+  // 決めると手ごとに揺れる
+  const {
+    wrapperRef: infoWrapperRef,
+    contentRef: infoContentRef,
+    referenceScale,
+  } = useAutoScale([context, doraTiles, uraDoraTiles], {
+    maxScale: scale,
+    referenceWidth: REFERENCE_HAND_WIDTH,
+  });
+
+  const oya = isOya(context.jikaze);
+
+  return (
+    <div
+      className={`border-primary-900 bg-primary-800 ${MOBILE_FRAME_CLASSES[mobileFrame]}`}
+      data-tour-id={tourId}
+    >
+      <div
+        ref={infoWrapperRef}
+        className="relative mb-3 overflow-hidden"
+        style={{ height: `${infoRowHeight * referenceScale}px` }}
+      >
+        <div
+          ref={infoContentRef}
+          className="absolute left-0 top-0 flex items-center gap-x-4 whitespace-nowrap text-sm text-white"
+          style={{ height: `${infoRowHeight}px`, transformOrigin: "left top" }}
+        >
+          <div>
+            {kazeContextLabel(context.bakaze, context.jikaze, t)}
+            <span className={oya ? "ml-2 text-yellow-300" : "ml-2"}>
+              {oya ? t("dealer") : t("nonDealer")}
+            </span>
+          </div>
+
+          {context.isRiichi && <RiichiStick label={t("riichi")} />}
+
+          {doraTiles.length > 0 && (
+            <DoraGroup
+              label={t(isIndicator ? "doraIndicator" : "dora")}
+              tiles={doraTiles}
+            >
+              <HelpIconButton
+                onClick={() => setShowDoraInfo(true)}
+                label={t("showDetailInfo")}
+              />
+            </DoraGroup>
+          )}
+
+          {uraDoraTiles.length > 0 && (
+            <DoraGroup
+              label={t(isIndicator ? "uraDoraIndicator" : "uraDora")}
+              tiles={uraDoraTiles}
+            />
+          )}
+        </div>
+      </div>
+
+      <TehaiHand
+        tehai={tehai}
+        agariHai={context.agariHai}
+        agariLabel={
+          context.isTsumo === undefined
+            ? undefined
+            : context.isTsumo
+              ? t("tsumo")
+              : t("ron")
+        }
+        onScaleChange={handleScaleChange}
+        presentation={presentation}
+      />
+
+      <InfoModal
+        isOpen={showDoraInfo}
+        onClose={() => setShowDoraInfo(false)}
+        title={t("doraInfoTitle")}
+        closeLabel={t("close")}
+        footnote={
+          // 表示牌のまま出すかドラそのものに読み替えるかは設定で切り替える。
+          // 本文で「設定から変えられる」と言うだけでは辿り着けないので、
+          // その項目へ直接飛ぶリンクを閉じるボタンの下に置く
+          <PracticeNavLink
+            navTarget={settingsTarget}
+            className={TEXT_LINK_CLASSES}
+          >
+            {t("doraInfoSettingsLink")}
+          </PracticeNavLink>
+        }
+      >
+        <p className="whitespace-pre-line">
+          {t(isIndicator ? "doraInfoIndicator" : "doraInfoActual")}
+        </p>
+      </InfoModal>
+    </div>
+  );
+});
+
+interface DoraGroupProps {
+  readonly label: string;
+  readonly tiles: readonly HaiKindId[];
+  /** ラベルの直後に挟む要素（ドラの見方を開く「?」ボタン） */
+  readonly children?: ReactNode;
+}
+
+/** 状況行のドラ・裏ドラ（名札 + 牌列） */
+function DoraGroup({ label, tiles, children }: DoraGroupProps) {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-xs text-white/70">{label}</span>
+      {children}
+      <div className="flex gap-0.5">
+        {tiles.map((tile, i) => (
+          <LocaleHai key={i} hai={tile} size="sm" />
+        ))}
+      </div>
+    </div>
+  );
+}

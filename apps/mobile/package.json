@@ -33,6 +33,7 @@
     "expo-haptics": "~58.0.7",
     "expo-iap": "6.0.0",
     "expo-linking": "~58.0.15",
+    "expo-localization": "~58.0.5",
     "expo-router": "~58.0.29",
     "expo-secure-store": "~58.0.2",
     "expo-splash-screen": "~58.0.12",

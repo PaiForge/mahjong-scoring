@@ -1,0 +1,6 @@
+{
+  "title": "Your account has been suspended",
+  "message": "Your account has been suspended for violating the Terms of Service.",
+  "reason": "Reason: {reason}",
+  "contact": "If you disagree, please contact us."
+}

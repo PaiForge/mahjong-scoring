@@ -198,6 +198,11 @@ uv run scripts/asc.py audit
   Parqsee と同じものを使える
 - App Privacy（プライバシーラベル）・その種類で最初のアプリ内課金をバージョンに加える操作・
   デモアカウントのパスワードは API で扱えない。Web の画面で行う（詳しくはスクリプトの冒頭）
+- ロケールごとの行は日本語（`[ja]`）と英語（`[en-US]`）の両方を出す: `description` /
+  `keywords` / `supportUrl` / `screenshots` と、各アプリ内課金の `localization`。English (U.S.) の
+  ロケールが無いと `description` / `keywords` / `supportUrl` と `localization` の `[en-US]` が
+  `MISSING` になる。英語の素材は `store/en-US/` にあり、欄と貼る画面は
+  `store/README.md`。ASC へ貼るのは別の承認で行う（`audit` は読むだけ）
 
 ## Apple でログイン（iOS）
 
@@ -360,6 +365,12 @@ Monetization > In-App Purchases で 2 商品を作る。
 - 表示名・説明（日本語）: 30 日パスは「購入から 30 日間、和了形・聴牌形の点数計算の
   回数制限が外れ、回答時間を計測できる。自動更新しない」、買い切りは同じ特典が永久に
   続く旨。プラン画面の文言（`packages/messages/src/ja/mobile-plan.json`）と食い違えない
+- 英語（English (U.S.)）のローカライズも両商品に足す。表示名・説明は
+  `store/en-US/iap/<Product ID>.json` にあり、表示名はプラン画面の英語の商品名
+  （`packages/messages/src/en/mobile-plan.json` の `offers.pass.title` = "30-day Pass"・
+  `offers.lifetime.title` = "Lifetime"）と同じ、説明は `offers.*.description` と同じ意味（45 字以内）。
+  英語の端末の購入シートと領収書に出る。`store-listing.test.ts` が表示名の一致と上限を検査する。
+  ASC に貼るのは別の承認で行う
 - 審査用のスクリーンショットは、Sandbox で開いたプラン画面（マイページ > Pro プラン）を撮る
 - **Family Sharing は両商品とも OFF**。サーバーも家族共有の取引を記録しない
 - App Information > App Store Server Notifications で、**Production Server URL と

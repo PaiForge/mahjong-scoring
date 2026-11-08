@@ -6,7 +6,12 @@ import {
   type HaiKindId,
   type Kazehai,
 } from "@pai-forge/riichi-mahjong";
-import { convertScoreDetailToFuDetails, type FuDetail } from "./fu-calculator";
+import {
+  convertScoreDetailToFuDetails,
+  formatFuReasonJa,
+  type FuDetail,
+  type FuReasonSpec,
+} from "./fu-calculator";
 
 /**
  * テスト用の面子
@@ -182,7 +187,9 @@ describe("convertScoreDetailToFuDetails", () => {
         isTsumo: true,
       });
 
-      expect(result).toEqual([{ reason: "七対子", fu: 25 }]);
+      expect(result).toEqual([
+        { reason: "七対子", fu: 25, spec: { kind: "chiitoitsu" } },
+      ]);
     });
   });
 
@@ -202,7 +209,9 @@ describe("convertScoreDetailToFuDetails", () => {
         isTsumo: false,
       });
 
-      expect(result).toEqual([{ reason: "副底", fu: 20 }]);
+      expect(result).toEqual([
+        { reason: "副底", fu: 20, spec: { kind: "futei" } },
+      ]);
     });
   });
 
@@ -215,7 +224,9 @@ describe("convertScoreDetailToFuDetails", () => {
         isTsumo: true,
       });
 
-      expect(result).toEqual([{ reason: "平和ツモ", fu: 20 }]);
+      expect(result).toEqual([
+        { reason: "平和ツモ", fu: 20, spec: { kind: "pinfuTsumo" } },
+      ]);
     });
   });
 
@@ -228,7 +239,11 @@ describe("convertScoreDetailToFuDetails", () => {
         isTsumo: false,
       });
 
-      expect(result[0]).toEqual({ reason: "副底", fu: 20 });
+      expect(result[0]).toEqual({
+        reason: "副底",
+        fu: 20,
+        spec: { kind: "futei" },
+      });
     });
   });
 
@@ -650,5 +665,185 @@ describe("convertScoreDetailToFuDetails", () => {
       expect(tokureiEntry).toBeDefined();
       expect(tokureiEntry!.fu).toBe(10);
     });
+  });
+});
+
+/**
+ * 日本語の文言（`reason`）の固定
+ *
+ * `reason` はモバイルの表示と保存済みの内訳がそのまま読む契約。構造（`spec`）から
+ * 組むように変えた後も、変更前の文字列と 1 文字も変わらないことを固定する。
+ */
+describe("formatFuReasonJa", () => {
+  it.each<[FuReasonSpec, string]>([
+    [{ kind: "futei" }, "副底"],
+    [{ kind: "chiitoitsu" }, "七対子"],
+    [{ kind: "pinfuTsumo" }, "平和ツモ"],
+    [{ kind: "tsumo" }, "ツモ"],
+    [{ kind: "menzenRon" }, "門前加符"],
+    [{ kind: "kuiPinfu" }, "特例等の加符"],
+    [
+      { kind: "mentsu", yaochu: false, open: false, kantsu: false },
+      "中張牌暗刻子",
+    ],
+    [
+      { kind: "mentsu", yaochu: true, open: false, kantsu: false },
+      "么九牌暗刻子",
+    ],
+    [
+      { kind: "mentsu", yaochu: false, open: true, kantsu: false },
+      "中張牌明刻子",
+    ],
+    [
+      { kind: "mentsu", yaochu: true, open: true, kantsu: true },
+      "么九牌明槓子",
+    ],
+    [
+      { kind: "mentsu", yaochu: false, open: false, kantsu: true },
+      "中張牌暗槓子",
+    ],
+    [{ kind: "jantou", reasons: ["bakaze"] }, "雀頭(場風)"],
+    [{ kind: "jantou", reasons: ["jikaze"] }, "雀頭(自風)"],
+    [{ kind: "jantou", reasons: ["sangenpai"] }, "雀頭(三元牌)"],
+    [{ kind: "jantou", reasons: ["bakaze", "jikaze"] }, "雀頭(場風・自風)"],
+    [{ kind: "machi", machi: "tanki" }, "単騎待ち"],
+    [{ kind: "machi", machi: "kanchan" }, "嵌張待ち"],
+    [{ kind: "machi", machi: "penchan" }, "辺張待ち"],
+    [{ kind: "machi", machi: "other" }, "待ち"],
+  ])("%j は %s", (spec, expected) => {
+    expect(formatFuReasonJa(spec)).toBe(expected);
+  });
+});
+
+describe("convertScoreDetailToFuDetails の内訳は構造と日本語の文言を両方持つ", () => {
+  it("どの行も reason が formatFuReasonJa(spec) と一致する", () => {
+    const detail = makeTargetMentsuDetail(
+      {
+        type: MentsuType.Koutsu,
+        hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
+      },
+      YAOCHU_FILLER,
+      { mentsu: 8, total: 40 },
+    );
+    const result = convert(detail, { agariHai: HaiKind.PinZu4, isTsumo: true });
+    expect(result.length).toBeGreaterThan(0);
+    for (const row of result) {
+      expect(row.spec).toBeDefined();
+      if (row.spec !== undefined) {
+        expect(row.reason).toBe(formatFuReasonJa(row.spec));
+      }
+    }
+  });
+
+  it("門前ロンの么九牌暗刻・三元牌の雀頭・嵌張待ちを変更前と同じ文字列で並べる", () => {
+    const detail = makeMentsuDetail({
+      agari: 10,
+      mentsu: 8,
+      jantou: 2,
+      machi: 2,
+      total: 50,
+      fourMentsu: [
+        {
+          type: MentsuType.Koutsu,
+          hais: [HaiKind.ManZu1, HaiKind.ManZu1, HaiKind.ManZu1],
+        },
+        ...YAOCHU_FILLER,
+      ],
+      jantouHais: [HaiKind.Haku, HaiKind.Haku],
+      machiType: "Kanchan",
+    });
+    const result = convert(detail, {
+      agariHai: HaiKind.PinZu5,
+      isTsumo: false,
+    });
+    expect(result).toEqual([
+      { reason: "副底", fu: 20, spec: { kind: "futei" } },
+      { reason: "門前加符", fu: 10, spec: { kind: "menzenRon" } },
+      {
+        reason: "么九牌暗刻子",
+        fu: 8,
+        spec: { kind: "mentsu", yaochu: true, open: false, kantsu: false },
+      },
+      {
+        reason: "雀頭(三元牌)",
+        fu: 2,
+        spec: { kind: "jantou", reasons: ["sangenpai"] },
+      },
+      { reason: "嵌張待ち", fu: 2, spec: { kind: "machi", machi: "kanchan" } },
+    ]);
+  });
+
+  it("ツモの中張牌明槓・連風牌の雀頭・単騎待ちを変更前と同じ文字列で並べる", () => {
+    const detail = makeMentsuDetail({
+      agari: 2,
+      mentsu: 8,
+      jantou: 4,
+      machi: 2,
+      total: 40,
+      fourMentsu: [
+        {
+          type: MentsuType.Kantsu,
+          hais: [
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+            HaiKind.ManZu5,
+          ],
+          furo: { type: "Daiminkan", from: "Kamicha" },
+        },
+        ...CHUNCHAN_FILLER,
+      ],
+      jantouHais: [HaiKind.Ton, HaiKind.Ton],
+      machiType: "Tanki",
+    });
+    const result = convert(detail, {
+      agariHai: HaiKind.PinZu1,
+      isTsumo: true,
+      jikaze: HaiKind.Ton,
+    });
+    expect(result.map((row) => row.reason)).toEqual([
+      "副底",
+      "ツモ",
+      "中張牌明槓子",
+      "雀頭(場風・自風)",
+      "単騎待ち",
+    ]);
+    expect(result[3]?.spec).toEqual({
+      kind: "jantou",
+      reasons: ["bakaze", "jikaze"],
+    });
+  });
+
+  it("辺張待ちと、符の付く 3 種に当たらない待ちの文言", () => {
+    const penchan = convert(
+      makeMentsuDetail({ machi: 2, total: 30, machiType: "Penchan" }),
+      { agariHai: HaiKind.ManZu3, isTsumo: true },
+    );
+    expect(penchan.at(-1)).toEqual({
+      reason: "辺張待ち",
+      fu: 2,
+      spec: { kind: "machi", machi: "penchan" },
+    });
+
+    const other = convert(
+      makeMentsuDetail({ machi: 2, total: 30, machiType: "Shanpon" }),
+      { agariHai: HaiKind.ManZu3, isTsumo: true },
+    );
+    expect(other.at(-1)).toEqual({
+      reason: "待ち",
+      fu: 2,
+      spec: { kind: "machi", machi: "other" },
+    });
+  });
+
+  it("喰い平和の特例加符は kuiPinfu", () => {
+    const result = convert(makeMentsuDetail({ total: 30 }), {
+      agariHai: HaiKind.ManZu4,
+      isTsumo: false,
+    });
+    expect(result).toEqual([
+      { reason: "副底", fu: 20, spec: { kind: "futei" } },
+      { reason: "特例等の加符", fu: 10, spec: { kind: "kuiPinfu" } },
+    ]);
   });
 });

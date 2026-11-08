@@ -1,0 +1,36 @@
+import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
+import type { Metadata } from "next";
+import { createPracticePlayMetadata } from "../../_lib/metadata";
+import { ScoreCalculationPlayView } from "../_components/score-calculation-play-view";
+import { prepareRouteLocale } from "@/i18n/route-locale";
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/play">): Promise<Metadata> {
+  const locale = await prepareRouteLocale(
+    params,
+    "/practice/score-calculation/play",
+  );
+  return createPracticePlayMetadata(PRACTICE_SLUG.scoreCalculation, { locale });
+}
+
+/**
+ * 点数即答 プレイ
+ *
+ * @description
+ * 点数即答のプレイページ。手牌から翻・符を読み取り、点数をセレクトで回答する。
+ * セッション終了時にスコアをサーバーに保存し、リーダーボードに反映する。
+ *
+ * @flow
+ * 1. カウントダウンオーバーレイ（3, 2, 1）の後にタイマー開始
+ * 2. 手牌と条件が表示され、点数をセレクトで回答
+ * 3. 制限時間経過またはミス3回で終了
+ * 4. 問題別の回答結果を sessionStorage に保存
+ * 5. スコアを保存し、result ページへリダイレクト
+ */
+export default async function ScoreCalculationPlayPage({
+  params,
+}: PageProps<"/[locale]/practice/score-calculation/play">) {
+  await prepareRouteLocale(params, "/practice/score-calculation/play");
+  return <ScoreCalculationPlayView />;
+}

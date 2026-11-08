@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import { createTranslator } from "use-intl";
 import { create } from "zustand";
-import { messages } from "@mahjong-scoring/messages/ja";
 import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
 import { useAuth } from "../auth/use-auth";
 import { showToast } from "../components/toast";
+import { APP_LOCALE, APP_MESSAGES } from "../lib/app-locale";
 import {
   connectIap,
   finishIapPurchase,
@@ -28,11 +28,12 @@ type TransactionResult = PlanApiResult<MobileAppleTransactionResponse>;
 
 /**
  * トーストの文言。購入の同期はルートレイアウトで辞書の Provider の外から
- * 動くので、`useTranslations` ではなく辞書から直接引く
+ * 動くので、`useTranslations` / `useAppLocale` ではなく、Provider と同じ
+ * 起動時に決めた言語と辞書（`APP_LOCALE` / `APP_MESSAGES`）から直接引く
  */
 const t = createTranslator({
-  locale: "ja",
-  messages,
+  locale: APP_LOCALE,
+  messages: APP_MESSAGES,
   namespace: "mobilePlan",
 });
 

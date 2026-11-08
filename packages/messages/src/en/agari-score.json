@@ -1,0 +1,206 @@
+{
+  "title": "Winning Hand Scoring Practice",
+  "description": "Game-style riichi mahjong scoring practice: work out the final score of a winning hand from its han and fu.",
+  "exitToast": "You left Winning Hand Scoring Practice",
+  "help": {
+    "label": "How this practice works",
+    "title": "How this practice works",
+    "slides": {
+      "question": {
+        "title": "1. The question",
+        "caption": "You see the hand and the conditions of the win: the round wind, your seat wind, the dora and more."
+      },
+      "answer": {
+        "title": "2. Your answer",
+        "caption": "{fields, select, hanFu {Choose the han, the fu and the score, then press Answer.} other {Choose a score and it is checked right away.}}"
+      },
+      "result": {
+        "title": "3. The result",
+        "caption": "Compare your answer with the correct one and review how the score is calculated."
+      }
+    },
+    "prev": "Back",
+    "next": "Next"
+  },
+  "tour": {
+    "label": "How to use this screen",
+    "prev": "Back",
+    "next": "Next",
+    "done": "Close",
+    "progress": "{current} / {total}",
+    "board": {
+      "title": "The hand and the conditions of the win",
+      "description": "The winning hand and its conditions: round wind, seat wind, dora and tsumo or ron. The score depends on all of them."
+    },
+    "hint": {
+      "title": "Hint",
+      "description": "Shows the hand split into a pair and four sets. If you are unsure how to split the sets, open it before you answer."
+    },
+    "yaku": {
+      "title": "Yaku",
+      "description": "Choose every yaku this win has. Dora is not a yaku, so leave it out."
+    },
+    "han": {
+      "title": "Han",
+      "description": "Choose the han from the yaku and the dora together. From mangan up, choose the limit (mangan, haneman and so on) instead of a number of han.",
+      "descriptionExact": "Choose the han from the yaku and the dora together. For a yakuman, choose Yakuman instead of a number of han."
+    },
+    "fu": {
+      "title": "Fu",
+      "description": "Choose the fu. If the han you chose reach mangan or more, the fu do not change the score, so the field is turned off and you can skip it.",
+      "descriptionRequired": "Choose the fu. With this setting you answer the fu even from mangan up."
+    },
+    "score": {
+      "title": "Score",
+      "description": "{fields, select, hanFu {Choose the score from the han and the fu.} other {Choose the score from the hand and the conditions of the win. Your answer is checked as soon as you choose.}} For a non-dealer tsumo, choose the pair of payments from each non-dealer and from the dealer (300/500 means 300 from each non-dealer and 500 from the dealer). For a dealer tsumo, choose the \"all\" amount."
+    },
+    "scoreInput": {
+      "title": "Switch the input style",
+      "description": "The button to the right of the Score heading switches between tiles and a dropdown. The style you pick carries over to the next questions and to the settings."
+    },
+    "submit": {
+      "title": "Answer",
+      "description": "Becomes available once every field is filled. In the review you can compare your answer with the correct one and check the fu breakdown."
+    },
+    "reveal": {
+      "title": "I don't know",
+      "description": "Shows the correct answer and its breakdown without answering. It is not counted in your results."
+    }
+  },
+  "setup": {
+    "answerItems": "What to answer",
+    "practiceAids": "Practice aids",
+    "requireYaku": "Also answer the yaku",
+    "requireHanFu": "Also answer the han and fu",
+    "exactHan": "Answer 5 han or more as a number of han",
+    "exactHanInfo": "By default, you answer hands of 5 han or more by their limit: mangan, haneman, baiman, sanbaiman or yakuman. Turn this on to answer with the exact number of han instead, such as 7 han or 12 han (a yakuman is still answered as Yakuman).",
+    "requireFu": "Answer the fu even from mangan up",
+    "questionMode": "Winner",
+    "oya": "Dealer",
+    "ko": "Non-dealer",
+    "targetScore": "Scores to ask",
+    "nonMangan": "Below mangan",
+    "manganPlus": "Mangan+",
+    "start": "Start",
+    "targetYaku": "Yaku to ask",
+    "yakuFilterPlaceholder": "Any (questions from every yaku)",
+    "yakuFilterNote": "With several yaku selected, each question has at least one of them.",
+    "yakuFilterClear": "Clear all",
+    "measureTime": "Time your answers",
+    "measureTimePro": {
+      "badge": "Pro",
+      "note": "Available with the Pro plan",
+      "link": "See plans →"
+    }
+  },
+  "form": {
+    "labels": {
+      "han": "Han",
+      "fu": "Fu",
+      "yaku": "Yaku",
+      "score": "Score",
+      "koTsumoScore": "Score (each non-dealer / dealer)"
+    },
+    "placeholders": {
+      "select": "Select",
+      "fromKo": "Non-dealer",
+      "fromOya": "Dealer"
+    },
+    "messages": {
+      "fuNotRequired": "Not needed from mangan up"
+    },
+    "options": {
+      "hanSuffix": " han",
+      "fuSuffix": " fu",
+      "mangan": "Mangan",
+      "haneman": "Haneman",
+      "baiman": "Baiman",
+      "sanbaiman": "Sanbaiman",
+      "yakuman": "Yakuman",
+      "doubleYakuman": "Double yakuman",
+      "all": " all"
+    },
+    "buttons": {
+      "answer": "Answer"
+    }
+  },
+  "board": {
+    "correct": "Correct!",
+    "questionPrompt": "What is this win worth?",
+    "correctLabel": "Correct",
+    "incorrectLabel": "Incorrect",
+    "generationFailed": "We couldn't make a question that fits these conditions. Try changing the question settings.",
+    "backToSetup": "Back to settings"
+  },
+  "result": {
+    "headers": {
+      "answer": "Your answer",
+      "correct": "Correct answer"
+    },
+    "unanswered": "—",
+    "details": {
+      "none": "None",
+      "total": "Total",
+      "roundedUp": "Rounded up",
+      "toggle": "Show the breakdown"
+    },
+    "next": "Next question",
+    "pointSuffix": " points",
+    "openInScoreTable": "View in the scoring table",
+    "viewYakuList": "Check the yaku list",
+    "openYakuInList": "View in the yaku list",
+    "yakuJudgement": {
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "missed": "Missed"
+    }
+  },
+  "yaku": {
+    "riichi": "Riichi",
+    "ippatsu": "Ippatsu",
+    "menzen_tsumo": "Menzen Tsumo",
+    "tanyao": "Tanyao",
+    "pinfu": "Pinfu",
+    "iipeiko": "Iipeikou",
+    "haku": "Yakuhai (White Dragon)",
+    "hatsu": "Yakuhai (Green Dragon)",
+    "chun": "Yakuhai (Red Dragon)",
+    "ton": "Yakuhai (East)",
+    "nan": "Yakuhai (South)",
+    "sha": "Yakuhai (West)",
+    "pei": "Yakuhai (North)",
+    "jikaze": "Yakuhai (Seat Wind)",
+    "bakaze": "Yakuhai (Round Wind)",
+    "sanshoku_doujun": "Sanshoku Doujun",
+    "itsu": "Ittsu",
+    "chanta": "Chanta",
+    "chiitoitsu": "Chiitoitsu",
+    "toitoi": "Toitoi",
+    "sanankou": "Sanankou",
+    "honroto": "Honroutou",
+    "double_riichi": "Double Riichi",
+    "sanshoku_doukou": "Sanshoku Doukou",
+    "sankantsu": "Sankantsu",
+    "shosangen": "Shousangen",
+    "honitsu": "Honitsu",
+    "junchan": "Junchan",
+    "ryanpeiko": "Ryanpeikou",
+    "chinitsu": "Chinitsu",
+    "kokushi": "Kokushi Musou",
+    "suanko": "Suuankou",
+    "daisangen": "Daisangen",
+    "tsuiso": "Tsuuiisou",
+    "shousushi": "Shousuushii",
+    "daisushi": "Daisuushii",
+    "ryuiso": "Ryuuiisou",
+    "chinroto": "Chinroutou",
+    "sukantsu": "Suukantsu",
+    "chuuren": "Chuuren Poutou",
+    "tenhou": "Tenhou",
+    "chihou": "Chiihou",
+    "yakuhai": "Yakuhai",
+    "renfonpai": "Double wind",
+    "dora": "Dora",
+    "uraDora": "Ura dora"
+  }
+}

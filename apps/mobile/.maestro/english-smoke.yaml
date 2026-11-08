@@ -1,0 +1,156 @@
+# 英語の端末でアプリが英語で出ることを確かめる。MAESTRO_LOCALE=en で流す（日本語の端末では
+# 最初の待ちで落ちる）。
+#
+#   MAESTRO_LOCALE=en pnpm --filter @mahjong-scoring/mobile maestro english-smoke
+#
+# ゲストでホーム → 練習一覧 → 雀頭の符の説明 → トレーニングの盤面で 1 問 → レッスン 1 章、
+# 起動し直して bob@ でマイページ → Pro プラン → 設定、の順に開いて各画面を撮る
+# （名前は 01〜08 の順）。文言は英語の辞書（packages/messages/src/en/*.json）の実際の文字列で、
+# 辞書の英語を変えたらこのファイルをその文言で grep する。
+# プラン画面と設定は広告も他の利用者の入力も出ない画面なので、日本語の文字（かな・カナ・
+# 漢字・和文の句読点と括弧）が 1 つも見えないことまで確かめる。広告の行（配信される題名・説明）と牌の読み上げは辞書の外なので、
+# 他の画面では日本語の文字の有無を見ない（撮った PNG を目で見る）。
+# 手元の web（:3000）と dev seed が要る（bob@ のログイン・マイページ・プラン）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+# 01 ホーム（dashboard.nextStep.title）
+- extendedWaitUntil:
+    visible: "What to do next"
+    timeout: 20000
+- assertNotVisible: "次にやること"
+- takeScreenshot: 01-home
+# 02 練習一覧（practice.title・practice.modes.basic）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice"
+# ToggleGroup は選択肢ごとに <testID>-<値> を付け、容器には testID を付けない
+- extendedWaitUntil:
+    visible:
+      id: "practice-mode-basic"
+    timeout: 10000
+- assertVisible: "Scoring Practice"
+- assertVisible: ".*Basic practice.*"
+- takeScreenshot: 02-practice-list
+# 03 雀頭の符の説明（jantouFu.title・jantouFu.howToPlay.title・training.startButton）
+- scrollUntilVisible:
+    element:
+      id: "practice-card-jantou-fu"
+    direction: DOWN
+- tapOn:
+    id: "practice-card-jantou-fu"
+- extendedWaitUntil:
+    visible: "Fu for the Pair"
+    timeout: 10000
+- assertVisible: "Question format"
+- scrollUntilVisible:
+    element:
+      id: "start-training"
+    direction: DOWN
+- assertVisible: ".*Training.*"
+- takeScreenshot: 03-practice-intro
+# 04 トレーニングの盤面で 1 問（jantouFu.bakaze / selectCorrectHead・training.revealButton /
+# nextButton / exitToast）。正解でも止まる（自動で次へ進む設定の既定はオフ）
+- tapOn:
+    id: "start-training"
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- assertVisible: "Round wind"
+- assertVisible: "Select the pair worth 2 fu or more"
+- assertVisible: "I don't know"
+- tapOn:
+    id: "choice-0"
+- waitForAnimationToEnd
+- assertVisible: "Next question"
+- takeScreenshot: 04-training-board
+- tapOn:
+    id: "screen-back"
+- extendedWaitUntil:
+    visible: "Training finished"
+    timeout: 5000
+# 05 レッスン 1 章（jantouFu.learn.pageTitle / whatIsJantou・lessons.startQuiz）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons/jantou-fu"
+- extendedWaitUntil:
+    visible: "What is the pair \\(jantou\\)\\?"
+    timeout: 10000
+- assertVisible: "Riichi Mahjong Fu for the Pair \\(Jantou\\)"
+- takeScreenshot: 05-lesson
+- scrollUntilVisible:
+    element:
+      id: "lesson-start-quiz"
+    direction: DOWN
+- assertVisible: "Take the quiz \\([0-9]+ questions\\)"
+- takeScreenshot: 05-lesson-quiz-entry
+# 06 マイページ（bob@。nav.mypage・mypage.cards）。ログインはホームから入る
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "What to do next"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "What to do next"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-menu-challenges"
+    timeout: 15000
+- assertVisible: "My Page"
+# LinkRow は題名と説明で 1 要素なので正規表現で引く
+- assertVisible: ".*My Records.*"
+- takeScreenshot: 06-mypage
+# 07 Pro プラン（mypage.cards.plan.title・mobilePlan。Pro プラン = Pro plan、購入を復元 =
+# Restore Purchases は訳語表の語）。iOS だけの画面
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-plan"
+    direction: DOWN
+- assertVisible: ".*Pro plan.*"
+- tapOn:
+    id: "mypage-menu-plan"
+- extendedWaitUntil:
+    visible:
+      id: "plan-status"
+    timeout: 10000
+- assertVisible: "Pro plan"
+- assertNotVisible: ".*[、-ヿ一-鿿（）].*"
+- takeScreenshot: 07-plan
+- scrollUntilVisible:
+    element:
+      id: "plan-restore"
+    direction: DOWN
+- assertVisible: ".*Restore Purchases.*"
+- assertNotVisible: ".*[、-ヿ一-鿿（）].*"
+- takeScreenshot: 07-plan-restore
+# 08 設定（settings.pageTitle / rulesSectionTitle）。マイページの「Settings」の行から開く
+- tapOn:
+    id: "screen-back"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-settings"
+    direction: DOWN
+- tapOn:
+    id: "mypage-menu-settings"
+- extendedWaitUntil:
+    visible: "Mahjong rules"
+    timeout: 10000
+- assertVisible: "Settings"
+- assertNotVisible:
+    id: "preferences-members-gate"
+- assertNotVisible: ".*[、-ヿ一-鿿（）].*"
+- takeScreenshot: 08-settings

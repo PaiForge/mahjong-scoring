@@ -208,6 +208,50 @@ Checkout 開始時に Price ID・特典・期間を DB に保存するため、�
 - [ ] 特定商取引法に基づく表記・利用規約・プライバシーポリシーを公開した
 - [ ] 実カードで少額決済を 1 回通し、Dashboard の Webhook ログで配信成功を確認した
 
+## 英語での購入
+
+英語の料金ページ（`/en/plan`）からも同じ商品・同じ Price を購入できます。通貨・税・販売地域は日本語と同じ（JPY・税込）で、
+英語用の商品や Price は作りません。
+
+### アプリが言語ごとに変えるもの
+
+購入手続きの予約（`billing_checkouts.locale`）に、購入ボタンを押した画面の言語（`ja` / `en`）を保存し、Checkout Session の
+パラメータはこの値から組みます（再試行は予約から再生成する契約なので、言語も呼び出し時の値を使いません）。
+
+| パラメータ    | 日本語                                                          | 英語                                                                  |
+| ------------- | --------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `locale`      | `ja`                                                            | `en`                                                                  |
+| `cancel_url`  | `<origin>/plan`                                                 | `<origin>/en/plan`                                                    |
+| `success_url` | `<origin>/api/stripe/checkout/complete?session_id=…&locale=ja`  | `<origin>/api/stripe/checkout/complete?session_id=…&locale=en`        |
+| 完了後の着地  | `/mypage/plan?status=…`（未ログインなら `/sign-in?redirect=…`） | `/en/mypage/plan?status=…`（未ログインなら `/en/sign-in?redirect=…`） |
+
+- 着地の言語は `success_url` の `locale` が運びます。`locale` が無い・不正な値なら日本語に着地します
+- 未精算の手続きがある間（1 時間）に別の言語の画面から押し直すと、最初の手続きの言語の Checkout に戻ります
+  （冪等キーのパラメータを変えないため）。期限が切れたあとの新しい手続きは、押した画面の言語になります
+- Webhook・購入の記録・特典の判定は言語を見ません
+
+### Stripe 側の制約と事業者の作業
+
+- **Checkout の `locale` が変えるのは Stripe の画面の UI（ボタン・入力欄の案内）だけです。** 商品名・説明は Dashboard に
+  登録した値がそのまま出ます。Stripe には商品名を言語ごとに持つ仕組みがありません
+- 英語で売るなら、商品名を英語併記にします（例: Price の表示名・商品名を `30-day Pass / 30 日パス`、
+  `Lifetime / 買い切り`）。これはコードではなく事業者の Dashboard の作業で、**test mode で表示を確かめてから本番（live）に
+  同じ変更を入れます**。日本語の Checkout にも同じ表示名が出ることに注意してください
+- **領収書メールの言語**は Stripe の顧客（Customer）の `preferred_locales` に依ります。アプリは顧客にこの値を設定しないため、
+  英語の画面で買っても領収書は Stripe の既定の言語で届きます（必要になったら顧客の作成・更新で設定する）
+
+### test mode での確認手順
+
+前提は「6. 動作確認チェックリスト」のテスト環境の設定（テスト鍵・テストの Price・`stripe listen`）です。
+
+1. ローカルで `next dev` を起動し、Pro を持たないユーザーでログインする
+2. `/en/plan` を開いて購入ボタンを押す。Stripe の Checkout の UI が英語で出る
+3. Checkout の「戻る」で `/en/plan` に戻る（`cancel_url`）
+4. もう一度押し、テストカード（`4242 4242 4242 4242`）で支払う。`/en/mypage/plan?status=success` に着地する
+5. DB の `billing_checkouts` の該当行の `locale` が `en`、`purchases` に行ができていることを確かめる
+6. 日本語の `/plan` から買った場合は、Checkout が日本語で `/mypage/plan?status=success` に着地し、`locale` が `ja` になる
+7. 後片付けは Dashboard での全額返金（`revoked_at` が立つ）。予約行を手で消さない
+
 ## トラブルシューティング
 
 ### `Webhook signature verification failed`

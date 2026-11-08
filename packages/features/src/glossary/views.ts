@@ -1,6 +1,7 @@
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
-import { kanaRowOf, type KanaRow } from "./kana";
+import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import { indexRowOf, type GlossaryIndexRow } from "./index-rows";
 import {
   GLOSSARY_TERMS,
   getGlossaryTermBySlug,
@@ -34,7 +35,10 @@ export type GlossaryTranslator = (key: string) => string;
 export interface GlossaryTermView extends GlossaryTerm {
   /** 見出し語（例: "面子"） */
   readonly term: string;
-  /** 読み（例: "メンツ"）。五十音の並び順と行見出しの根拠 */
+  /**
+   * 読み（例: "メンツ"。英語はヘボン式のローマ字 "mentsu"）。日本語では
+   * 五十音の並び順と行見出しの根拠
+   */
   readonly reading: string;
   readonly definition: string;
   /**
@@ -46,8 +50,11 @@ export interface GlossaryTermView extends GlossaryTerm {
   readonly caseStudy: string;
   /** よくある誤解。初学者が取り違えやすい点を正す */
   readonly pitfall: string;
-  /** 五十音行。読みがどの行にも当たらないときは undefined */
-  readonly kanaRow: KanaRow | undefined;
+  /**
+   * 索引の行（日本語は読みの五十音行、英語は見出し語の頭文字。
+   * `index-rows.ts` の `indexRowOf`）。どの行にも当たらないときは undefined
+   */
+  readonly indexRow: GlossaryIndexRow | undefined;
   readonly href: string;
 }
 
@@ -83,43 +90,61 @@ export interface GlossaryTermPreview {
  * 用語の構造に辞書の文言を重ねて表示用語にする
  * 表示用語変換
  *
- * 一覧と用語ページの両方がこの形を作る。読みは五十音行の根拠でもあるので、
- * 辞書から 1 度引いた値を `reading` と `kanaRow` の両方に使う。
+ * 一覧と用語ページの両方がこの形を作る。見出し語と読みは索引の行の根拠でも
+ * あるので、辞書から 1 度引いた値を表示と `indexRow` の両方に使う。
  */
 function toGlossaryTermView(
   term: GlossaryTerm,
   t: GlossaryTranslator,
+  locale: SupportedLocale,
 ): GlossaryTermView {
+  const heading = t(`terms.${term.slug}.term`);
   const reading = t(`terms.${term.slug}.reading`);
   return {
     ...term,
-    term: t(`terms.${term.slug}.term`),
+    term: heading,
     reading,
     definition: t(`terms.${term.slug}.definition`),
     usage: t(`terms.${term.slug}.usage`),
     caseStudy: t(`terms.${term.slug}.caseStudy`),
     pitfall: t(`terms.${term.slug}.pitfall`),
-    kanaRow: kanaRowOf(reading),
+    indexRow: indexRowOf(heading, reading, locale),
     href: glossaryTermHref(term.slug),
   };
 }
 
-/** 読み順（五十音）で並べ替える */
-function byReading(a: GlossaryTermView, b: GlossaryTermView): number {
-  return a.reading.localeCompare(b.reading, "ja");
+/**
+ * その言語の索引の並び順で比べる関数を返す
+ *
+ * 日本語は読み（カタカナ）の五十音順。英語は見出し語の英字順 — 英語の索引は
+ * 見出し語の頭文字で行を分ける（`indexRowOf`）ので、行の中も見出し語で並べないと
+ * 行と並びが食い違う。
+ */
+function compareFor(
+  locale: SupportedLocale,
+): (a: GlossaryTermView, b: GlossaryTermView) => number {
+  if (locale === DEFAULT_LOCALE) {
+    return (a, b) => a.reading.localeCompare(b.reading, locale);
+  }
+  return (a, b) => a.term.localeCompare(b.term, locale);
 }
 
 /**
- * すべての用語を読み順で返す
+ * すべての用語をその言語の索引の順で返す
  * 用語一覧
  *
- * 一覧（五十音・分類の両方）と、関連語の解決がここを通る。
+ * 一覧（索引・分類の両方）と、関連語の解決がここを通る。`locale` を省くと
+ * 日本語（読みの五十音順・五十音行）で、モバイル（辞書は日本語固定）はこの形で呼ぶ。
+ *
+ * @param t - `glossary` 名前空間の翻訳関数（`locale` と同じ言語の辞書）
+ * @param locale - 用語集を出している言語（省略時は日本語）
  */
 export function glossaryTermViews(
   t: GlossaryTranslator,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): readonly GlossaryTermView[] {
-  return GLOSSARY_TERMS.map((term) => toGlossaryTermView(term, t)).sort(
-    byReading,
+  return GLOSSARY_TERMS.map((term) => toGlossaryTermView(term, t, locale)).sort(
+    compareFor(locale),
   );
 }
 
@@ -128,14 +153,17 @@ export function glossaryTermViews(
  * 表示用語
  *
  * @param slug 対象用語のスラッグ（URL 由来の未検証の文字列でよい）
+ * @param t - `glossary` 名前空間の翻訳関数
+ * @param locale - 用語集を出している言語（省略時は日本語）
  * @returns 該当する用語。未知の slug なら undefined
  */
 export function glossaryTermViewBySlug(
   slug: string,
   t: GlossaryTranslator,
+  locale: SupportedLocale = DEFAULT_LOCALE,
 ): GlossaryTermView | undefined {
   const term = getGlossaryTermBySlug(slug);
-  return term === undefined ? undefined : toGlossaryTermView(term, t);
+  return term === undefined ? undefined : toGlossaryTermView(term, t, locale);
 }
 
 /**
@@ -144,6 +172,8 @@ export function glossaryTermViewBySlug(
  *
  * 未知の slug は undefined（呼び出し側は素のテキストへ degrade する）。
  * 辞書に綴り違いを書いても、リンクが消えるだけで画面は壊れない。
+ * 言語に依らない（索引の行を持たず、`t` が引く辞書の言語で文言が決まる。
+ * `href` はロケール非依存のパスで、言語の接頭辞は描く側が付ける）。
  * 例示は 1 組だけ — 残りは用語ページで見せる。
  */
 export function glossaryTermPreview(

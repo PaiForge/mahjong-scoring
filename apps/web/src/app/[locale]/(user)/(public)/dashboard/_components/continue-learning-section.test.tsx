@@ -1,0 +1,122 @@
+import { describe, expect, it, vi } from "vitest";
+import { render } from "@testing-library/react";
+
+import {
+  CURRICULUM,
+  LESSON_CHAPTERS,
+  type CurriculumChapter,
+} from "@mahjong-scoring/features/curriculum/registry";
+
+vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
+
+/**
+ * 目次・進捗バーは async なサーバーコンポーネントで、入れ子のままでは
+ * client render できない。ここでは「どの章を・どの読了数で渡したか」という
+ * このコンポーネント自身の責務だけを検証したいので、受け取った props を
+ * data 属性に写すスタブに差し替える。描画そのものは各コンポーネントの
+ * テスト（curriculum-toc.test.tsx / curriculum-progress-bar.test.tsx）が見る。
+ */
+vi.mock(
+  "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-toc",
+  () => ({
+    CurriculumToc: ({
+      chapters,
+      nextSlug,
+    }: {
+      chapters: readonly CurriculumChapter[];
+      nextSlug: string | undefined;
+    }) => (
+      <div
+        data-testid="toc"
+        data-slugs={chapters.map((c) => c.slug).join(",")}
+        data-next-slug={nextSlug}
+      />
+    ),
+  }),
+);
+
+/**
+ * 目次リンクも async なサーバーコンポーネント。リンク先が `/lessons` である
+ * ことは curriculum-toc-link.test.tsx が見るので、ここでは「セクションの
+ * どこに置かれたか」だけが分かれば足りる。
+ */
+vi.mock(
+  "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-toc-link",
+  async () => {
+    // 本物と同じく next/link で描く（素の <a href="/lessons"> は `[locale]` の動的
+    // セグメントに一致して no-html-link-for-pages に掛かる）。vi.mock は import より
+    // 先に巻き上がるので、factory の中で読む
+    const { default: Link } = await import("next/link");
+    return {
+      CurriculumTocLink: () => <Link data-testid="toc-link" href="/lessons" />,
+    };
+  },
+);
+
+vi.mock(
+  "@/app/[locale]/(user)/(public)/lessons/_components/curriculum-progress-bar",
+  () => ({
+    CurriculumProgressBar: ({
+      completedCount,
+      totalCount,
+    }: {
+      completedCount: number;
+      totalCount: number;
+    }) => (
+      <div
+        data-testid="progress"
+        data-done={completedCount}
+        data-total={totalCount}
+      />
+    ),
+  }),
+);
+
+const { ContinueLearningSection } = await import("./continue-learning-section");
+
+const jantouFu = CURRICULUM.find((c) => c.slug === "jantou-fu");
+if (jantouFu === undefined) throw new Error("fixture chapter not found");
+
+describe("ContinueLearningSection", () => {
+  it("渡された章 1 件だけを目次に流す", async () => {
+    const { getByTestId } = render(
+      await ContinueLearningSection({
+        completedSlugs: new Set(["about-this-app"]),
+        nextChapter: jantouFu,
+      }),
+    );
+
+    const toc = getByTestId("toc");
+    expect(toc.getAttribute("data-slugs")).toBe("jantou-fu");
+    expect(toc.getAttribute("data-next-slug")).toBe("jantou-fu");
+  });
+
+  it("進捗バーに完了数と総数を渡す", async () => {
+    const { getByTestId } = render(
+      await ContinueLearningSection({
+        completedSlugs: new Set(["about-this-app", "why-scoring-is-complex"]),
+        nextChapter: jantouFu,
+      }),
+    );
+
+    const progress = getByTestId("progress");
+    expect(progress.getAttribute("data-done")).toBe("2");
+    expect(progress.getAttribute("data-total")).toBe(
+      String(LESSON_CHAPTERS.length),
+    );
+  });
+
+  it("目次ページへのリンクを持つ", async () => {
+    const { container } = render(
+      await ContinueLearningSection({
+        completedSlugs: new Set(),
+        nextChapter: jantouFu,
+      }),
+    );
+
+    const hrefs = Array.from(container.querySelectorAll("a")).map((a) =>
+      a.getAttribute("href"),
+    );
+    expect(hrefs).toContain("/lessons");
+  });
+});

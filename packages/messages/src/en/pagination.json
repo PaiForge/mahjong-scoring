@@ -1,0 +1,5 @@
+{
+  "previous": "Previous",
+  "next": "Next",
+  "pageIndicator": "Page {current} of {total}"
+}

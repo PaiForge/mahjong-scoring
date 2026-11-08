@@ -1,0 +1,191 @@
+import { getTranslations } from "next-intl/server";
+
+import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
+import type { NavTarget } from "@/app/[locale]/(user)/_components/_lib/locale-links";
+import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
+import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { LocaleNavLink } from "@/app/[locale]/(user)/_components/locale-nav-link";
+import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
+import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { SUB_LINK_GAP } from "@/app/_components/_lib/spacing";
+import {
+  beltBorderTopClass,
+  beltButtonVarsClass,
+} from "@/lib/ranks/belt-colors";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
+import { listedPracticeRanks } from "@mahjong-scoring/features/practice/rank-practices";
+import type {
+  Journey,
+  JourneyStep,
+} from "@mahjong-scoring/features/journey/journey";
+
+import { practiceListHref } from "../../practice/_lib/practice-web-routes";
+
+import {
+  journeyStepHref,
+  journeyStepTitle,
+} from "@mahjong-scoring/features/journey/journey-step";
+import { RankHeading } from "../../dojo/_components/rank-heading";
+import { RankStageProgress } from "../../dojo/_components/rank-stage-progress";
+import { linkLabel } from "./link-label";
+
+interface NextStepSectionProps {
+  readonly journey: Journey;
+  /**
+   * ページの言語。行き先（ボタン・級の詳細・進み具合の各段・「自分で練習を
+   * 選ぶ」）をこの言語で張る
+   */
+  readonly locale: SupportedLocale;
+}
+
+/** 翻訳関数の最小の形（名前空間ごとの `getTranslations` の戻り値をこれで受ける） */
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
+
+/** 一歩の行き先と文言 */
+interface StepPresentation {
+  /** ページの言語で張る先（`resolveNavTargetFor`） */
+  readonly navTarget: NavTarget;
+  /** ボタンの文言。対象の名前を含む（「「子のツモ」のレッスンを始める」） */
+  readonly cta: string;
+}
+
+/**
+ * 一歩の種類ごとに、行き先とボタンの文言を組む
+ *
+ * 対象の名前と行き先はレッスンの完了画面と共有する（features の `journey/journey-step`）。
+ */
+function presentStep(
+  step: JourneyStep,
+  isFresh: boolean,
+  locale: SupportedLocale,
+  t: Translator,
+  tAll: Translator,
+): StepPresentation {
+  const title = journeyStepTitle(step, tAll);
+  const navTarget = resolveNavTargetFor(journeyStepHref(step), locale);
+  // 例: dashboard.nextStep.steps.lesson.cta（完成形のキーで grep したときにここへ着地させるための例）
+  const key =
+    step.kind === "lesson" && isFresh ? "lesson.firstCta" : `${step.kind}.cta`;
+  return { navTarget, cta: t(`steps.${key}`, { title }) };
+}
+
+/**
+ * ダッシュボードの「次にやること」セクション
+ * 次にやること
+ *
+ * Server Component。黒帯への道（features の `buildJourney`）が決めた
+ * 今やること 1 つを、次に取る級の帯色で縁取ったカードに出す。
+ * 級の見出し（道場の級カードと共有の `RankHeading`。「5級 — 満貫以上の
+ * 点数計算ができること」に「次の目標」の pill、級の詳細へのリンク）→ その級の進み具合
+ * （学ぶ・練習する・認定される）→ ボタン、の順。何をするかはボタンが対象の
+ * 名前ごと言う。以前はボタンの上に「次は「子のツモ」をレッスンで学びましょう。」
+ * のような一文を置いていたが、ボタンの言い換えにしかならず、カードを読む
+ * 量を増やすだけだったため外した。
+ *
+ * 見出しは誰にでも「次にやること」。以前は何も始めていない人だけ
+ * 「黒帯への第一歩」にしていたが、言い回しが大げさで何をする欄かが
+ * 伝わらないため揃えた。まだ何も始めていない人はボタンを最初のレッスン
+ * 向けにする。初回限定のカードは別に持たない。見出しの文言
+ * （`dashboard.nextStep.title` = 「次にやること」）はモバイルの Maestro フロー
+ * （`apps/mobile/.maestro/` の約 39 本）がホームの表示待ちに使っている。文言を
+ * 変えるときはそれらのフローも一緒に直す。
+ *
+ * 進み具合の各段はその段の一覧（級で絞ったレッスンの目次・級で絞った練習一覧・
+ * 試験の説明ページ）へのリンク（`RankStageProgress` の `isCurrentRank`）。
+ * ボタンの下には誰にでも「自分で練習を選ぶ」を置く。行き先は目標の級で絞った
+ * 練習一覧 — 絞らずに全練習を見せると、まだ習っていない級の練習まで同じ重さで
+ * 並ぶ。一覧に並ぶ練習を持たない級（絞ると空になる）だけは絞らない。以前は
+ * 何も始めていない人だけにこのリンクを出し、一度でも練習すると「黒帯までの
+ * 道を見る」に替えていたが、練習を 1 つ済ませただけで自分で選ぶ導線が消えた。
+ *
+ * 帯色の枠とボタン（`variant="belt"`）は昇級試験カード（`ExamCtaCard`）と
+ * 同じ理由 — 級の名前を掲げたカードに既定の緑を回すと、緑がその級の色に
+ * 見えてしまう。
+ *
+ * 全級取得済み（`nextStep` が無い）なら何も描画しない。
+ *
+ * 行き先はすべてページの言語で張る（`resolveNavTargetFor`）。features の
+ * `journeyStepHref` 等が返すのは言語を持たないパス（`/lessons/<slug>`）なので、
+ * 英語のダッシュボード（`/en`）から素のまま張ると日本語のページへクライアント
+ * 遷移し、英語の文書に日本語の本文が載る。レッスン・練習・試験・道場は英語でも
+ * 公開しているので英語では `/en/...` になる。その言語で未公開の先だけは日本語の
+ * href のまま素の `<a hrefLang="ja">` にし、「日本語のみ」の印を添える。日本語の
+ * ページでは入力のパスのままで、出力は変わらない。
+ */
+export async function NextStepSection({
+  journey,
+  locale,
+}: NextStepSectionProps) {
+  const { current, nextStep, isFresh } = journey;
+  if (current === undefined || nextStep === undefined) return undefined;
+
+  const [t, tRanks, tDojo, tNav, tAll] = await Promise.all([
+    getTranslations("dashboard.nextStep"),
+    getTranslations("ranks"),
+    getTranslations("dojo"),
+    getTranslations("nav"),
+    getTranslations(),
+  ]);
+
+  const rankSlug = current.rank.slug;
+  const step = presentStep(nextStep, isFresh, locale, t, tAll);
+  const japaneseOnlyLabel = tNav("language.japaneseOnly");
+  // 級の見出し・進み具合の各段のリンクも同じ言語で張る（道場の部品）
+  const linkLocale = { locale, japaneseOnlyLabel };
+  const practiceList = resolveNavTargetFor(
+    practiceListHref(
+      listedPracticeRanks().includes(rankSlug)
+        ? { kind: "rank", value: rankSlug }
+        : undefined,
+    ),
+    locale,
+  );
+
+  return (
+    <section className="space-y-4" data-next-step={nextStep.kind}>
+      <SectionTitle>{t("title")}</SectionTitle>
+
+      <div
+        data-belt-slug={rankSlug}
+        className={`space-y-4 rounded-panel border border-t-2 border-panel bg-white p-5 ${beltBorderTopClass(rankSlug)}`}
+      >
+        <RankHeading
+          rankSlug={rankSlug}
+          status={current.status}
+          tRanks={tRanks}
+          tDojo={tDojo}
+          linkLocale={linkLocale}
+        />
+
+        <RankStageProgress
+          journey={current}
+          tRanks={tRanks}
+          isCurrentRank
+          linkLocale={linkLocale}
+        />
+
+        <div className={`flex flex-col ${SUB_LINK_GAP}`}>
+          <LinkButton
+            navTarget={step.navTarget}
+            variant="belt"
+            size="lg"
+            fullWidth
+            className={beltButtonVarsClass(rankSlug)}
+            trailingIcon={<ChevronRightIcon className="size-4" />}
+          >
+            {linkLabel(step.cta, step.navTarget, japaneseOnlyLabel)}
+          </LinkButton>
+          <div className="text-center">
+            <LocaleNavLink
+              navTarget={practiceList}
+              linkKind="plain"
+              className={`text-sm ${TEXT_LINK_CLASSES}`}
+            >
+              {linkLabel(t("choosePractice"), practiceList, japaneseOnlyLabel)}
+            </LocaleNavLink>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

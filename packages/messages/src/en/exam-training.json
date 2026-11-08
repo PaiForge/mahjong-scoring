@@ -1,0 +1,10 @@
+{
+  "pageTitle": "{title} (Mock Exam)",
+  "startButton": "Take the mock exam",
+  "hint": "No time limit, nothing recorded, answers checked after each question",
+  "realExamButton": "Start the real exam",
+  "realExamHint": "{timeLimit}-second time limit, ends after {mistakeLimit} mistakes, pass to earn the rank",
+  "modeActive": "Taking the mock exam",
+  "realExamPrompt": "Ready for the real exam?",
+  "exitToast": "Mock exam finished"
+}

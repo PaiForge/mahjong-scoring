@@ -41,7 +41,7 @@ const TONE_CLASSES: Record<Toast["type"], string> = {
  * ただの字形になり、アイコンに見えない（実機で "i" が裸で出ていた）。
  * 図形として持てば環境によらず同じ形になる。
  *
- * 線画アイコンの外殻は `(user)/_components/icons/OutlineIcon` にあるが、
+ * 線画アイコンの外殻は `[locale]/(user)/_components/icons/OutlineIcon` にあるが、
  * このファイルは管理画面とも共有する `app/_components/` 側にあり、
  * 依存の向きを一方向に保つため import できない。体裁（24 のビューボックス・
  * 線幅 2・線端の丸め）は OutlineIcon に合わせて手で持つ。

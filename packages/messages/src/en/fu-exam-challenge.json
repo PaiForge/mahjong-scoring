@@ -1,0 +1,21 @@
+{
+  "title": "Promotion Exam: Total Fu for the Hand",
+  "description": "A promotion exam where you add up the fu of a whole riichi mahjong hand and answer the total after rounding up. You can make at most one mistake",
+  "prompt": "Answer the total fu for this hand",
+  "generating": "Generating questions...",
+  "fuOption": "{value} fu",
+  "fuSuffix": "{value} fu",
+  "breakdownTotal": "Total",
+  "roundedUp": "Rounded up",
+  "howToPlay": {
+    "title": "Question format",
+    "lead": "You will get questions like this. Add up the base fu, the fu for how you won, the fu for the sets, the pair and the wait, then answer the total rounded up to the next 10 fu."
+  },
+  "result": {
+    "problemDetails": "Question details",
+    "correctAnswer": "Correct answer",
+    "yourAnswer": "Your answer",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  }
+}

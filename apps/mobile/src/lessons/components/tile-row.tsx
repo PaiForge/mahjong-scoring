@@ -1,4 +1,3 @@
-import { Hai } from "@pai-forge/mahjong-react-ui";
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import type { HaiSize } from "@pai-forge/mahjong-react-ui";
@@ -7,6 +6,7 @@ import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 import { FuroTiles } from "../../board/furo-tiles";
 import { AutoScale } from "../../components/auto-scale";
 import { colors } from "../../lib/theme";
+import { LocaleHai } from "../../components/locale-hai";
 
 /** 表のセルに並べる牌の大きさ（web の待ちの例と同じ `xs`） */
 export const CELL_TILE_SIZE: HaiSize = "xs";
@@ -28,7 +28,7 @@ export function TileSet({
   return (
     <View style={styles.row}>
       {tiles.map((hai, i) => (
-        <Hai key={i} hai={hai} size={size} />
+        <LocaleHai key={i} hai={hai} size={size} />
       ))}
     </View>
   );

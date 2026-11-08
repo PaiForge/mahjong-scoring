@@ -1,0 +1,26 @@
+{
+  "learn": {
+    "pageTitle": "No Need to Memorize Dealer Tsumo Scores in Mahjong",
+    "pageDescription": "One of the patterns hidden in the riichi mahjong scoring table: what each player pays on a dealer tsumo equals what the dealer pays on a non-dealer tsumo, for every fu and han. The bottom number of a non-dealer tsumo, derived from the non-dealer ron in the previous lesson, is the dealer tsumo as it is.",
+    "splitTitle": "What you need is the bottom number of a non-dealer tsumo",
+    "splitBody1": "In the previous lesson, \"<link></link>\", we derived the two numbers of a non-dealer tsumo from a non-dealer ron. The top number is one share of base points, the bottom number two shares.\nThis lesson uses the bottom one.",
+    "splitBody2": "Before going on, let us see what the bottom number looks like in the table. For a non-dealer [[tsumo|tsumo]] at 30 fu, we line up the value before rounding and the amount actually paid.",
+    "splitTableCaption": "Non-dealer tsumo (30 fu)",
+    "ceilNote": "* \"Before rounding\" is the score exactly as the formula gives it. The formula, and why the result is rounded up to the next 100 points, are covered in <link></link>",
+    "splitBody3": "Before rounding, the bottom number is exactly twice the top.\nBut rounding is applied to the top and the bottom separately, so in the numbers in the table the bottom is not always twice the top. The 1 han row is an example: twice 300 is 600, but the actual bottom number is 500.",
+    "splitBody4": "So if you remember it as \"double the top to get the bottom\", you will sometimes be off by 100 points. To be precise, it is the values before rounding that are two shares.",
+    "roleTitle": "A dealer tsumo uses the bottom number of a non-dealer tsumo as it is",
+    "roleBody1": "Now for the main point. For the [[oya|dealer]] tsumo column, there is nothing new to memorize and nothing to calculate.\nOnce you have the bottom number of a non-dealer tsumo, the dealer tsumo uses that same number.",
+    "diagramCaption": "{fu} fu {han} han",
+    "diagramKoLabel": "Non-dealer tsumo",
+    "diagramArrowLabel": "Same",
+    "diagramOyaLabel": "Dealer tsumo",
+    "diagramNote": "The bottom number (paid by the dealer) is the \"all\" amount of the dealer tsumo as it is",
+    "roleBody2": "Both are \"two shares of base points\". When a non-dealer [[hora|wins]], the dealer pays two shares; when the dealer wins, the dealer receives, so each of the three non-dealers pays two shares.\nThe direction is reversed, but any payment involving the dealer is always two shares.",
+    "roleBody3": "This match is not limited to 30 fu 3 han. It holds for every combination of fu and han, without exception.\nIt holds even for hands where rounding breaks the one-share/two-share relationship.",
+    "roleBody4": "A non-dealer tsumo at 40 fu 2 han is 700 / 1300. Twice the top is 1400, so the \"rounding throws it off\" from the previous section is happening right here.\nEven so, the bottom number, 1300, is exactly the same as the dealer tsumo's all amount. The same rounding is applied to the same value, so the dealer tsumo column of the scoring table simply traces the bottom numbers of the non-dealer tsumo.",
+    "columnLabel": "Column",
+    "columnTitle": "Do the three payments add up to the ron score?",
+    "columnBody": "A non-dealer tsumo totals \"top + top + bottom\", which before rounding is four times the base points — exactly the same formula as the non-dealer ron we started from.<br></br>But rounding is applied to the three payments separately, so in practice the tsumo comes out either the same or 100 or 200 points more.<br></br>For a non-dealer at 30 fu 4 han, the ron is 7700 points and the tsumo is 2000 + 2000 + 3900 = 7900 points."
+  }
+}

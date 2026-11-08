@@ -33,7 +33,13 @@ export type { TotalFuGeneratorOptions } from "./problem/total-fu/generator";
 export { totalFuChoices } from "./problem/total-fu/range";
 export type { TotalFuRange } from "./problem/total-fu/range";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
-export type { FuDetail } from "./score/fu-calculator";
+export { formatFuReasonJa } from "./score/fu-calculator";
+export type {
+  FuDetail,
+  FuMachiKey,
+  FuReasonSpec,
+  JantouFuReasonKey,
+} from "./score/fu-calculator";
 
 // === Problem: Yaku ===
 export { generateYakuQuestion } from "./problem/yaku/generator";
@@ -91,6 +97,7 @@ export {
   isMangan,
   isFuRelevant,
   getScoreLevelName,
+  scoreLevelNameKey,
   scoreTierForHan,
   hanRangeOf,
   DISPLAY_TIERS,
@@ -156,7 +163,8 @@ export type { KoTsumoPaymentOptions } from "./score/ko-tsumo-payments";
 
 // === Core ===
 export { YAKU_OPTIONS } from "./core/yaku-names";
-export { getKazeName, isOya } from "./core/kaze";
+export { getKazeName, isOya, kazeNameKey } from "./core/kaze";
+export type { KazeNameKey } from "./core/kaze";
 export {
   calculateBasePoints,
   ceilTo100,

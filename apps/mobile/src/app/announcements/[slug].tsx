@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useLocale, useTimeZone, useTranslations } from "use-intl";
+import { useTimeZone, useTranslations } from "use-intl";
 import {
   ANNOUNCEMENT_DETAIL_DATE_OPTIONS,
   formatPublishedDate,
@@ -15,6 +15,7 @@ import { useAnnouncementRead } from "../../announcements/use-announcement-read";
 import { Screen } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
+import { useAppLocale } from "../../lib/use-app-locale";
 
 /**
  * お知らせ詳細
@@ -26,6 +27,8 @@ import { colors } from "../../lib/theme";
  * web と違うもの: ヘッダーの見出しは「お知らせ」で、記事の題名は本文の
  * 先頭に大きく出す（長い題名がヘッダーで切れるため）。公開日は web では
  * 本文の後に右寄せだが、題名のすぐ下に置く（ネイティブの記事の定石）。
+ * 英語の端末では英訳の記事だけを読み、英訳の無い記事は「見つからない」に
+ * する（日本語の本文を英語の画面に出さない）。
  *
  * @flow ホームのお知らせ・一覧・本文のリンクから開く
  */
@@ -41,10 +44,10 @@ export default function AnnouncementScreen() {
 
 function Announcement({ slug }: { readonly slug: string }) {
   const t = useTranslations("announcements");
-  const locale = useLocale();
+  const locale = useAppLocale();
   const timeZone = useTimeZone();
   const { state, reload } = useAnnouncementRead(
-    useCallback(() => fetchAnnouncement(slug), [slug]),
+    useCallback(() => fetchAnnouncement(slug, locale), [slug, locale]),
   );
 
   if (state.kind === "loading") return <LoadingIndicator />;
