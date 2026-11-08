@@ -142,3 +142,42 @@ describe("resolveAnnouncementLink", () => {
     expect(resolveAnnouncementLink("/planet", SITE, "ja").kind).toBe("browser");
   });
 });
+
+describe("言語付きのお知らせリンク", () => {
+  it.each([
+    "/en/plan",
+    "/en/tokushoho",
+    "/en/mypage/plan?status=success",
+    "/ja/plan",
+  ])("%s でも購入ページへの導線を除外する", (path) => {
+    expect(resolveAnnouncementLink(path, SITE, "en")).toEqual({ kind: "text" });
+    expect(resolveAnnouncementLink(`${SITE}${path}`, SITE, "en")).toEqual({
+      kind: "text",
+    });
+  });
+  it("英語の教材 URL をアプリの同じ画面で開く", () => {
+    expect(
+      resolveAnnouncementLink(
+        `${SITE}/en/lessons/jantou-fu?x=1#quiz`,
+        SITE,
+        "en",
+      ),
+    ).toEqual({ kind: "app", path: "/lessons/jantou-fu?x=1#quiz" });
+    expect(
+      resolveAnnouncementLink("/en/reference/score-table", SITE, "en"),
+    ).toEqual({ kind: "app", path: "/score-table" });
+    expect(resolveAnnouncementLink("/en?x=1", SITE, "en")).toEqual({
+      kind: "app",
+      path: "/?x=1",
+    });
+  });
+  it("外部サイトの英語 URL は変えない", () => {
+    expect(
+      resolveAnnouncementLink("https://outside.test/en/plan", SITE, "en"),
+    ).toEqual({ kind: "browser", url: "https://outside.test/en/plan" });
+    expect(resolveAnnouncementLink("/english", SITE, "en")).toEqual({
+      kind: "browser",
+      url: `${SITE}/en/english`,
+    });
+  });
+});
