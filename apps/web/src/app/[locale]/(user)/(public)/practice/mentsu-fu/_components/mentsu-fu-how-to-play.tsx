@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { HaiKind } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { DemoFuChoiceGrid } from "../../_components/demo-fu-choice-grid";
 import { PromptLabel } from "../../_components/prompt-label";
 import { FU_OPTIONS } from "@mahjong-scoring/features/practice/fu-options";
@@ -33,7 +33,7 @@ export function MentsuFuHowToPlay() {
         <PromptLabel>{t("mentsuLabel")}</PromptLabel>
         <div className="flex gap-0.5 scale-125 origin-center">
           {DEMO_MENTSU.map((hai, i) => (
-            <Hai key={i} hai={hai} />
+            <LocaleHai key={i} hai={hai} />
           ))}
         </div>
       </div>

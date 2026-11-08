@@ -1,7 +1,8 @@
 "use client";
 
 import { memo, useEffect, useMemo } from "react";
-import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
+import { Furo } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { useAutoScale } from "../_hooks/use-auto-scale";
 import { splitAgariHai } from "@mahjong-scoring/features/board/agari-hai";
 import { presentTehai } from "@mahjong-scoring/features/board/hand-presentation";
@@ -77,7 +78,12 @@ export const TehaiHand = memo(function TehaiHandComponent({
       >
         <div className="flex shrink-0">
           {presented.closed.map((tile, i) => (
-            <Hai key={i} hai={tile.hai} size="sm" inverted={tile.inverted} />
+            <LocaleHai
+              key={i}
+              hai={tile.hai}
+              size="sm"
+              inverted={tile.inverted}
+            />
           ))}
         </div>
         {presented.agari !== undefined && (
@@ -93,7 +99,7 @@ export const TehaiHand = memo(function TehaiHandComponent({
                 {agariLabel}
               </span>
             )}
-            <Hai
+            <LocaleHai
               hai={presented.agari.hai}
               size="sm"
               highlighted

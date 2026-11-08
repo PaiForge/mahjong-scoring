@@ -5,7 +5,8 @@ import type {
   HaiKindId,
   MentsuBreakdownCandidate,
 } from "@mahjong-scoring/core";
-import { Hai, Furo } from "@pai-forge/mahjong-react-ui";
+import { Furo } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { ReferenceLinkButton } from "@/app/[locale]/(user)/_components/reference-link-button";
 import {
   DataTable,
@@ -60,7 +61,12 @@ function ClosedTiles({
   return (
     <>
       {hais.map((kindId, i) => (
-        <Hai key={i} hai={kindId} size="sm" highlighted={i === agariHaiIndex} />
+        <LocaleHai
+          key={i}
+          hai={kindId}
+          size="sm"
+          highlighted={i === agariHaiIndex}
+        />
       ))}
     </>
   );

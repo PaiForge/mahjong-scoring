@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { parseHais, parseKazehai } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { AnswerComparison } from "../../_components/answer-comparison";
 import { ProblemListAccordion } from "../../_components/problem-list-accordion";
 import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
@@ -28,7 +28,7 @@ export function JantouFuProblemList({ results }: JantouFuProblemListProps) {
   /** 牌とその符を横に並べる（正解・回答の両方で同じ体裁にする） */
   const haiWithFu = (hai: HaiKindId | undefined, fu: number) => (
     <span className="inline-flex items-center gap-1.5 align-middle">
-      {hai !== undefined && <Hai hai={hai} size="sm" />}
+      {hai !== undefined && <LocaleHai hai={hai} size="sm" />}
       {t("fu", { value: fu })}
     </span>
   );

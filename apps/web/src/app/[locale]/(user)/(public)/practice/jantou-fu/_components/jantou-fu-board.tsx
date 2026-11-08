@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import { ChoiceButton } from "../../_components/choice-button";
 import { JantouFuKazeContext } from "./jantou-fu-kaze-context";
@@ -73,7 +73,7 @@ export function JantouFuBoard({
             })}
           >
             <div className="scale-125">
-              <Hai hai={choice.hai} />
+              <LocaleHai hai={choice.hai} />
             </div>
           </ChoiceButton>
         ))}

@@ -5,7 +5,7 @@ import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import type { JudgementResult } from "@mahjong-scoring/core";
 import { haiIdToMpsz } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { JudgementMark } from "../../_components/judgement-mark";
 import {
   cellKeyOf,
@@ -209,7 +209,7 @@ export function WaitCellTabs({
           >
             <span className="flex items-center gap-0.5">
               <span>{t(cell.isTsumo ? "cells.tsumo" : "cells.ron")}</span>
-              <Hai hai={cell.agariHai} size="xs" />
+              <LocaleHai hai={cell.agariHai} size="xs" />
               {verdict && (
                 <JudgementMark verdict={verdict} className="text-base" />
               )}

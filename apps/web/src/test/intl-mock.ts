@@ -43,6 +43,17 @@ export function useTranslations(): StubTranslator {
   return createTranslator();
 }
 
+/**
+ * クライアントコンポーネント用の言語（常に日本語）
+ *
+ * 牌画像（`LocaleHai`）のように言語で出し分ける共有部品が `useLocale()` を呼ぶため、
+ * このスタブで描く盤面・結果のテストでも引けるようにする。日本語は既定の出力のままなので、
+ * 言語の出し分けを見たいテストは本物の `NextIntlClientProvider` で描くこと。
+ */
+export function useLocale(): string {
+  return "ja";
+}
+
 /** サーバーコンポーネント用（キーをそのまま返す） */
 export function getTranslations(): Promise<StubTranslator> {
   return Promise.resolve(createTranslator());

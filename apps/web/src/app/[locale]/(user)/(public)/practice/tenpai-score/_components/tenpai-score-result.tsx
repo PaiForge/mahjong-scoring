@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { HaiKindId } from "@mahjong-scoring/core";
 import { sortHaiCodes } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { Button } from "@/app/[locale]/(user)/_components/button";
 import { ResultDisplay } from "../../agari-score/_components/result-display";
 import { TehaiMentsuBreakdown } from "../../_components/tehai-mentsu-breakdown";
@@ -44,7 +44,7 @@ function MarkedHai({ hai, mark }: MarkedHaiProps) {
         mark ? MACHI_TILE_MARK_CLASSES[mark] : "border-transparent"
       }`}
     >
-      <Hai hai={hai} size="sm" />
+      <LocaleHai hai={hai} size="sm" />
     </span>
   );
 }

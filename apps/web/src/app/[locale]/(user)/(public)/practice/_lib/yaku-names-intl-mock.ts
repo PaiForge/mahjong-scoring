@@ -7,6 +7,16 @@ import {
 
 export { getTranslations };
 
+/**
+ * 牌画像（`LocaleHai`）が引く言語。共通のスタブと同じく常に日本語
+ *
+ * 共通のスタブの `useLocale` を re-export すると、`vi.mock` のファクトリ経由で
+ * 読んだときに値が undefined になったため、ここで関数として持つ。
+ */
+export function useLocale(): string {
+  return "ja";
+}
+
 /** 日本語の役名の辞書（キー → core の役名と同じ文字列） */
 const JA_YAKU_NAMES: Readonly<Record<string, string>> = messages.yakuNames;
 

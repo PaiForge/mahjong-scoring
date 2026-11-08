@@ -7,7 +7,7 @@ import { isOya } from "@mahjong-scoring/core";
 import type { Tehai, HaiKindId } from "@mahjong-scoring/core";
 import { kazeContextLabel } from "@mahjong-scoring/features/board/kaze-context-label";
 import type { TehaiContext } from "@mahjong-scoring/features/board/tehai-context";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import {
   HAI_SM_HEIGHT,
   REFERENCE_HAND_WIDTH,
@@ -260,7 +260,7 @@ function DoraGroup({ label, tiles, children }: DoraGroupProps) {
       {children}
       <div className="flex gap-0.5">
         {tiles.map((tile, i) => (
-          <Hai key={i} hai={tile} size="sm" />
+          <LocaleHai key={i} hai={tile} size="sm" />
         ))}
       </div>
     </div>

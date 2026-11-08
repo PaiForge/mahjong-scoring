@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { QuestionPrompt } from "../../_components/question-prompt";
 import { TehaiDisplay } from "../../_components/tehai-display";
 import {
@@ -51,7 +51,7 @@ export function MentsuJantouFuHowToPlay() {
             >
               <div className="flex gap-0.5">
                 {item.tiles.map((tile, j) => (
-                  <Hai
+                  <LocaleHai
                     key={j}
                     hai={tile}
                     size="sm"

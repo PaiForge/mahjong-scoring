@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { HaiKindId } from "@mahjong-scoring/core";
-import { Hai } from "@pai-forge/mahjong-react-ui";
+import { LocaleHai } from "@/app/[locale]/(user)/_components/locale-hai";
 import { PromptLabel } from "../../_components/prompt-label";
 
 interface MachiFuPromptProps {
@@ -28,7 +28,7 @@ export function MachiFuPrompt({ tiles, agariHai }: MachiFuPromptProps) {
         <PromptLabel>{t("machiLabel")}</PromptLabel>
         <div className="flex gap-0.5 scale-125 origin-center">
           {tiles.map((tile, i) => (
-            <Hai key={i} hai={tile} />
+            <LocaleHai key={i} hai={tile} />
           ))}
         </div>
       </div>
@@ -38,7 +38,7 @@ export function MachiFuPrompt({ tiles, agariHai }: MachiFuPromptProps) {
       <div className="flex flex-col items-center gap-2">
         <PromptLabel>{t("agariLabel")}</PromptLabel>
         <div className="scale-125 origin-center">
-          <Hai hai={agariHai} />
+          <LocaleHai hai={agariHai} />
         </div>
       </div>
     </div>
