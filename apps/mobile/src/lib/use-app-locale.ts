@@ -1,5 +1,7 @@
+import { useLocale } from "use-intl";
 import {
   DEFAULT_LOCALE,
+  isSupportedLocale,
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 
@@ -11,10 +13,13 @@ import {
  * 言語に依る表示はすべてこのフックで言語を取り、文字列や既定値を画面ごとに
  * 決めない。
  *
- * 暫定版: 常に `DEFAULT_LOCALE`（日本語）を返す。言語の解決のタスク（T1）が
- * use-intl の `useLocale()` を `isSupportedLocale` で絞る実装に置き換える
- * （辞書の Provider が端末の言語から決めた値を渡すので、実際には必ず対応言語）。
+ * 辞書の Provider（`AppIntlProvider`）の `locale` を use-intl の `useLocale()` で読み、
+ * 対応言語に絞る。Provider が渡すのは端末の言語から起動時に決めた `APP_LOCALE`
+ * なので実際には必ず対応言語で、`DEFAULT_LOCALE` に落ちるのは型を絞るためだけ。
+ * Provider の外（ルートレイアウトの先頭で動く購入の同期等）では使えないので、
+ * そこでは `lib/app-locale.ts` の `APP_LOCALE` を直接読む。
  */
 export function useAppLocale(): SupportedLocale {
-  return DEFAULT_LOCALE;
+  const locale = useLocale();
+  return isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
 }
