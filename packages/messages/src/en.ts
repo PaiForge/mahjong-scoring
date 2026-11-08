@@ -79,6 +79,12 @@ import deleteAccount from "./en/delete-account.json";
 import mypagePlan from "./en/mypage-plan.json";
 import profileEdit from "./en/profile-edit.json";
 import pagination from "./en/pagination.json";
+import terms from "./en/terms.json";
+import privacy from "./en/privacy.json";
+import legal from "./en/legal.json";
+import contact from "./en/contact.json";
+import plan from "./en/plan.json";
+import tokushoho from "./en/tokushoho.json";
 import type {
   EnTranslatedNamespace,
   MessagesShape,
@@ -184,6 +190,12 @@ export const messages = {
   mypagePlan,
   profileEdit,
   pagination,
+  terms,
+  privacy,
+  legal,
+  contact,
+  plan,
+  tokushoho,
 } satisfies Pick<MessagesShape, EnTranslatedNamespace>;
 
 /** 英語の辞書の型（完訳の名前空間 → 文言の木） */

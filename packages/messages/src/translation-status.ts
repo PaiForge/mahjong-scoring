@@ -87,6 +87,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  *
  * 会員の画面（認証・ダッシュボード・マイページ・設定と、レッスンの確認問題・完了）を
  * 英語で出すときに `auth` より後の 16 名前空間を同じ手順で足した。
+ *
+ * 法務・運営情報（利用規約・プライバシーポリシー・特商法の表記）・お問い合わせ・料金を
+ * 英語で出すときに `terms` より後の 6 名前空間を同じ手順で足した。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -170,6 +173,12 @@ export const EN_TRANSLATED_NAMESPACES = [
   "mypagePlan",
   "profileEdit",
   "pagination",
+  "terms",
+  "privacy",
+  "legal",
+  "contact",
+  "plan",
+  "tokushoho",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -198,15 +207,9 @@ export const EN_EXCLUDED_NAMESPACES = [
  */
 export const EN_PENDING_NAMESPACES = [
   "recordCta",
-  "terms",
-  "privacy",
-  "legal",
-  "contact",
   "publicProfile",
   "report",
   "leaderboard",
-  "plan",
-  "tokushoho",
   "mobilePlan",
   "mobileApp",
 ] as const satisfies readonly MessageNamespace[];
