@@ -508,7 +508,8 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * （未ログイン・回数切れ・答え合わせ等）で読む名前空間の和で、常に全部を描くとは限らない。
  * 英語で出さない部品だけが読む名前空間は含めない — ランキングのプレビュー
  * （`leaderboard`。英語ではランキングを提供せず、`/leaderboard` が未公開の間は
- * プレビューも出さない）、料金ページ（`plan`）、お知らせの一覧・詳細の本文。
+ * プレビューも出さない）。お知らせの本文は DB の行（英語で書いた行だけを出す）で、
+ * 辞書の名前空間ではない。
  *
  * - `/` — LP の各節（`landing`）、運営者の表記（`company`）、目次（`learnCurriculum`）
  * - `/lessons` — 目次と進捗（`learnCurriculum`）、段級位での絞り込み（`ranks`）、広告（`nativeAd`）
@@ -558,6 +559,14 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * - `/mypage/plan` — 購入状況と履歴（`mypagePlan`）
  * - `/mypage/profile/edit` — `profileEdit`・`mypage`
  * - `/preferences`・`/preferences/yaku-order` — 設定（`settings`）、役の並び（`agariScore` の `yaku`）
+ * - `/terms`・`/privacy`・`/tokushoho` — 条文（`terms`・`privacy`・`tokushoho`）、最終更新日と
+ *   参考訳の注記（`legal`）
+ * - `/company` — 運営者情報（`company`）
+ * - `/contact`・`/contact/confirm`・`/contact/success` — 入力・確認・完了とエラー文（`contact`。
+ *   入力の検証は `contact` の `errors.*` で描き、`validation` は読まない）
+ * - `/plan` — 料金と購入ボタン（`plan`）
+ * - `/announcements` — 一覧（`announcements`）、ページ送り（`pagination`）、広告（`nativeAd`）
+ * - `/announcements/[slug]` — 見出し・日付（`announcements`）。本文は DB の Markdown を描くだけ
  *
  * ルートを足すときはその page・`_components`・使う features の `use-*.ts` が引く
  * 名前空間をソースから列挙して足し、先にそれらを完訳にする。
@@ -761,4 +770,19 @@ export const EN_ROUTE_NAMESPACES = {
   "/mypage/setup-username": [...EN_SHELL_NAMESPACES, "setupUsername"],
   "/preferences": [...EN_SHELL_NAMESPACES, "settings", "agariScore"],
   "/preferences/yaku-order": [...EN_SHELL_NAMESPACES, "settings", "agariScore"],
+  "/terms": [...EN_SHELL_NAMESPACES, "terms", "legal"],
+  "/privacy": [...EN_SHELL_NAMESPACES, "privacy", "legal"],
+  "/tokushoho": [...EN_SHELL_NAMESPACES, "tokushoho", "legal"],
+  "/company": [...EN_SHELL_NAMESPACES, "company"],
+  "/contact": [...EN_SHELL_NAMESPACES, "contact"],
+  "/contact/confirm": [...EN_SHELL_NAMESPACES, "contact"],
+  "/contact/success": [...EN_SHELL_NAMESPACES, "contact"],
+  "/plan": [...EN_SHELL_NAMESPACES, "plan"],
+  "/announcements": [
+    ...EN_SHELL_NAMESPACES,
+    "announcements",
+    "pagination",
+    "nativeAd",
+  ],
+  "/announcements/[slug]": [...EN_SHELL_NAMESPACES, "announcements"],
 } as const satisfies Readonly<Record<string, readonly EnTranslatedNamespace[]>>;
