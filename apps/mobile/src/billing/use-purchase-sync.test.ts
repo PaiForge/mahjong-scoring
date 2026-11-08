@@ -1,6 +1,9 @@
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  /** 端末の言語（`expo-localization` の `getLocales()` の言語タグ） */
+  languageTags: ["ja-JP"],
   listIapPurchases: vi.fn(),
   postAppleTransaction: vi.fn(),
   invalidatePlan: vi.fn(),
@@ -34,6 +37,9 @@ vi.mock("./plan-api", () => ({
 vi.mock("./use-plan", () => ({ invalidatePlan: mocks.invalidatePlan }));
 vi.mock("../auth/use-auth", () => ({ useAuth: vi.fn() }));
 vi.mock("../components/toast", () => ({ showToast: mocks.showToast }));
+vi.mock("expo-localization", () => ({
+  getLocales: () => mocks.languageTags.map((languageTag) => ({ languageTag })),
+}));
 
 import {
   buyIapProduct,
@@ -244,5 +250,29 @@ describe("プラン画面の外で届いた取引", () => {
 
     expect(mocks.showToast).toHaveBeenCalledTimes(1);
     stop();
+  });
+});
+
+describe("トーストの言語", () => {
+  it("端末が英語なら、英語の辞書の文言で知らせる（Provider の外でも端末の言語に従う）", async () => {
+    mocks.languageTags = ["en-US"];
+    vi.resetModules();
+    try {
+      const { startPurchaseSync: startInEnglish } =
+        await import("./use-purchase-sync");
+      const stop = startInEnglish("user-a", () => false);
+      mocks.postAppleTransaction.mockResolvedValue(recordedAs("recorded"));
+
+      deliver("tx-english");
+      await flush();
+
+      expect(mocks.showToast).toHaveBeenCalledWith(
+        enMessages.mobilePlan.purchaseRecorded,
+        "success",
+      );
+      stop();
+    } finally {
+      mocks.languageTags = ["ja-JP"];
+    }
   });
 });
