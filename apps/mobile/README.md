@@ -204,6 +204,77 @@ uv run scripts/asc.py audit
   `MISSING` になる。英語の素材は `store/en-US/` にあり、欄と貼る画面は
   `store/README.md`。ASC へ貼るのは別の承認で行う（`audit` は読むだけ）
 
+## バージョンとタグ
+
+ストアに出した版は、Git の注記付きタグ `mobile@<version>` で記録する。`<version>` は `app.json` の
+`expo.version`（ストアに出る番号）。タグを付けるのはこのアプリだけ（方針の要点とエージェントが
+タグを確かめる場面はルートの `CLAUDE.md`「リリースとバージョン（タグ）」）。
+
+### 番号の決め方
+
+- iOS と Android は同じ番号の系列を共有する。`ios@` / `android@` には分けない
+- ビルド番号（iOS の buildNumber・Android の versionCode）は EAS が持って上げる
+  （`eas.json` の `appVersionSource: "remote"` と `autoIncrement`）。タグには載せない
+- **1 つの番号 = 1 つのコミット。番号を使い回さない。** 中身が変わったビルドを出し直すときは
+  patch を上げる（審査で落ちて直すときも同じ）
+- 片方のストアにだけ出す修正版があってよい。番号は系列の中で飛ぶ（例: iOS だけ 1.2.1 を出すと、
+  Android は 1.2.0 の次が 1.2.2）。どちらに出したかはタグの注記に書く
+- Android の初回は、その時点の最新の番号で出す（1.0.0 からやり直さない）
+- `package.json` の `version`（0.1.0）はストアの番号と関係なく、触らない
+
+### 番号を上げる
+
+`app.json` の `expo.version` を書き換えてコミットする。上げる前に、前の番号にタグが付いているかを見る:
+
+```bash
+git tag -l 'mobile@*' --sort=-v:refname
+```
+
+前の番号をストアに出したのにタグが無ければ、付け忘れ。先に下の手順で付ける。
+
+### タグを付ける
+
+付けるのは、その版をストアに出す（審査に提出する）ことが決まった時点。付ける先は、その版の
+ビルドを作ったコミット（今の HEAD ではない）で、EAS のビルドから引く:
+
+```bash
+cd apps/mobile && npx eas-cli build:view <ビルド ID> --json   # appVersion・appBuildVersion・gitCommitHash
+```
+
+`git log` から推測した SHA で付けない。`testflight` は main の push 済みのコミットから出すが、
+ビルドの後に main が進んでいることがあり、同じ番号のビルドが複数あることもある（1.0.0 がそうだった）。
+
+注記は 1 項目 1 行で、プラットフォーム・ビルド・主な変更を書く:
+
+```bash
+git tag -a mobile@1.1.0 <gitCommitHash> -F - <<'EOF'
+mobile@1.1.0
+
+Platform: iOS
+Build: iOS 21 (EAS 02c3177d-3efe-4320-9f2e-6adf45e1b4d3)
+Changes:
+- 主な変更を 1 行ずつ
+EOF
+git show --no-patch mobile@1.1.0   # 注記と対象のコミットを確かめる
+```
+
+- 同じ番号をもう一方のストアにも出すとき（同じコミットのビルド）は、注記に行を足すために付け直す
+  （`git tag -a -f`）。付け替えは削除と同じく許可を取ってから行う
+- push は `git push origin mobile@1.1.0`。ほかの push と同じく許可を取る。クラウドセッションで
+  タグの push が拒否されたら回避せず、手元で打つコマンドを示して止まる
+
+### 過去の版を引く
+
+```bash
+git tag -n20 -l 'mobile@*'                                    # 版の一覧と注記
+git log --oneline mobile@1.0.0..mobile@1.1.0 -- apps/mobile packages  # その版で入った変更
+git log --oneline mobile@1.1.0..main -- apps/mobile packages  # まだストアに出ていない変更
+git tag -l 'mobile@*' --contains <SHA>                        # そのコミットを含む版
+```
+
+不具合の報告に版が付いていれば（アプリはログインを要る API に `X-App-Version` を付ける）、
+その版のタグと前の版のタグの範囲で原因のコミットを絞る。
+
 ## Apple でログイン（iOS）
 
 iOS アプリのネイティブの Apple ログインだけを持つ（web の Apple ログインは無い）。
@@ -485,6 +556,10 @@ Billing のライブラリと `com.android.vending.BILLING` の権限が乗る�
 - 普段は入れない。未設定・空・形の違う値は「止めない」扱い（設定の誤りで全員を締め出さないため）
 - 上げるのは、新しい版がストアで公開されてから。審査中に上げると、ストアにまだ無い版を求めて
   全員が止まる
+- 値に入れるのは、タグ `mobile@<値>` があり、そのプラットフォームのストアに出た版（注記の
+  `Platform` で見る）。番号はプラットフォームの間で飛ぶので、iOS と Android の値を同じにせず、
+  それぞれのストアに出た版から選ぶ。どの版から噛み合わないかはタグの範囲で引く
+  （「バージョンとタグ」の「過去の版を引く」）
 - 通信できないときは止めない（オフラインで起動した人を締め出さない）
 - アプリはログインを要る API の要求に `X-App-Version` / `X-App-Platform` を付ける。今はサーバーが
   読まないが、応答の形を版で分けるときに、出ている版を見分けるのに使える
