@@ -251,7 +251,7 @@ git tag -a mobile@1.1.0 <gitCommitHash> -F - <<'EOF'
 mobile@1.1.0
 
 Platform: iOS
-Build: iOS 21 (EAS 02c3177d-3efe-4320-9f2e-6adf45e1b4d3)
+Build: iOS <appBuildVersion> (EAS <ビルド ID>)
 Changes:
 - 主な変更を 1 行ずつ
 EOF
