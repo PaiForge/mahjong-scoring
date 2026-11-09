@@ -59,6 +59,22 @@ cd apps/mobile && scripts/testflight-status.sh <ビルド ID>
 | `submission=ERRORED`                     | 提出のログ（`npx eas-cli submit:list --platform ios --json` の該当の `logFiles`）を読む。ビルドは成功しているので、直したら `npx eas-cli submit --platform ios --id <ビルド ID>` で提出だけやり直せる            |
 | `build=CANCELED` / `submission=CANCELED` | 誰かが取り消した。やり直すかをユーザーに聞く                                                                                                                                                                     |
 
+## 4. タグを確かめる
+
+`submission=FINISHED` を報告したら、続けてこの版のタグを確かめる（方針はルートの `CLAUDE.md`
+「リリースとバージョン（タグ）」、手順は `apps/mobile/README.md`「バージョンとタグ」）。
+
+```bash
+cd apps/mobile && npx eas-cli build:view <ビルド ID> --json   # appVersion・appBuildVersion・gitCommitHash
+git tag -l "mobile@<appVersion>"
+```
+
+- タグが無い: このビルドを審査に出す予定かをユーザーに聞き、出すなら `git tag -a` のコマンド
+  （対象は `gitCommitHash`、注記は README の書式）を見せて 1 回だけ確認してから付ける。
+  TestFlight で試すだけならタグは付けない
+- タグがあり、`git rev-parse "mobile@<appVersion>^{commit}"` が `gitCommitHash` と違う: 同じ番号で
+  中身の違うビルドを作った。審査に出すなら `app.json` の `version` を上げて出し直すことを伝える
+
 ## やらないこと
 
 - 出来たビルドで本番の登録・ログイン・記録を試すこと（`apps/mobile/CLAUDE.md` の「確かめ方」）
