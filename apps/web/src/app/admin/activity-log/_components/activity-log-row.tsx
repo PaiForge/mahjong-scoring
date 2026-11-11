@@ -2,6 +2,7 @@ import type { Profile, UserActivityLog } from "../../../../lib/db";
 import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 import { adminChipClasses } from "../../_lib/chip-classes";
+import { ExpandableText } from "../../_components/expandable-text";
 
 interface ActivityLogRowProps {
   readonly log: UserActivityLog;
@@ -30,9 +31,11 @@ export function ActivityLogRow({
       </td>
       <td className="px-4 py-3 text-surface-500">
         {log.metadata && Object.keys(log.metadata).length > 0 ? (
-          <code className="text-xs">
-            {JSON.stringify(log.metadata).slice(0, 80)}
-          </code>
+          <ExpandableText
+            text={JSON.stringify(log.metadata, null, 2)}
+            maxLength={80}
+            code
+          />
         ) : (
           "-"
         )}

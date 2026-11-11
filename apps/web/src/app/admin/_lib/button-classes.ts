@@ -27,7 +27,11 @@ const VARIANT_CLASSES: Readonly<Record<AdminButtonVariant, string>> = {
 const SIZE_CLASSES: Readonly<
   Record<AdminButtonSize, Record<"framed" | "filled", string>>
 > = {
-  sm: { framed: "px-3 py-1 text-xs", filled: "px-3 py-[5px] text-xs" },
+  // sm は高さ 26px で指には小さいので、タッチ端末では押せる範囲だけを広げる（admin.css）
+  sm: {
+    framed: "admin-touch-target px-3 py-1 text-xs",
+    filled: "admin-touch-target px-3 py-[5px] text-xs",
+  },
   md: { framed: "px-4 py-2 text-sm", filled: "px-4 py-[9px] text-sm" },
 };
 

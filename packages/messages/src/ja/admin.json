@@ -379,13 +379,19 @@
       "title": "操作"
     }
   },
+  "expandableText": {
+    "showAll": "全文",
+    "hide": "閉じる"
+  },
   "navigation": {
     "overview": "概要",
     "management": "運営・管理",
     "logs": "ログ・履歴",
     "workspace": "運営ワークスペース",
     "backToSite": "サイトを開く",
-    "skipToContent": "本文へ移動"
+    "skipToContent": "本文へ移動",
+    "openMenu": "メニューを開く",
+    "closeMenu": "メニューを閉じる"
   },
   "reports": {
     "navLabel": "通報",

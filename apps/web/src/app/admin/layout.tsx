@@ -10,6 +10,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "../globals.css";
 import { AdminNavigation } from "./_components/admin-navigation";
+import { AdminShell } from "./_components/admin-shell";
 import "./admin.css";
 
 import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
@@ -101,17 +102,23 @@ export default async function AdminLayout({
                 <a href="#admin-main" className="admin-skip-link">
                   {t("navigation.skipToContent")}
                 </a>
-                <aside className="admin-sidebar">
-                  <Link href="/admin" className="admin-brand">
-                    <BrandLogo size="lg" />
-                    <h1 className="text-sm font-bold tracking-tight text-primary-900">
-                      {t("title")}
-                    </h1>
-                  </Link>
-                  <AdminNavigation groups={groups} label={t("title")} />
-                </aside>
-                <div className="admin-content">
-                  <header className="admin-topbar">
+                <AdminShell
+                  labels={{
+                    openMenu: t("navigation.openMenu"),
+                    closeMenu: t("navigation.closeMenu"),
+                  }}
+                  sidebar={
+                    <>
+                      <Link href="/admin" className="admin-brand">
+                        <BrandLogo size="lg" />
+                        <h1 className="text-sm font-bold tracking-tight text-primary-900">
+                          {t("title")}
+                        </h1>
+                      </Link>
+                      <AdminNavigation groups={groups} label={t("title")} />
+                    </>
+                  }
+                  topbarStart={
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden="true"
@@ -119,6 +126,8 @@ export default async function AdminLayout({
                       />
                       {t("navigation.workspace")}
                     </span>
+                  }
+                  topbarEnd={
                     <Link
                       href="/"
                       className="font-medium text-primary-700 hover:underline"
@@ -126,11 +135,12 @@ export default async function AdminLayout({
                       {t("navigation.backToSite")}{" "}
                       <span aria-hidden="true">↗</span>
                     </Link>
-                  </header>
+                  }
+                >
                   <main id="admin-main" tabIndex={-1} className="admin-main">
                     <NuqsAdapter>{children}</NuqsAdapter>
                   </main>
-                </div>
+                </AdminShell>
               </div>
             </AuthProvider>
           </AppTileImageProvider>
