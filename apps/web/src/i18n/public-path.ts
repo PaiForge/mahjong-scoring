@@ -195,6 +195,34 @@ export function isNonLocalizedPath(pathname: string): boolean {
 }
 
 /**
+ * パスの前にロケールの接頭辞を付ける（既定の言語でも付ける）
+ * ロケール接頭辞の付与
+ *
+ * 公開 URL（{@link localizedHref}）と内部パス（{@link internalLocalePath}）が
+ * 共有する変換の本体で、「接頭辞を付けない条件」をここ 1 箇所で持つ。
+ * 次の値は接頭辞を付けずにそのまま返す。
+ *
+ * - `/` で始まらない値（外部 URL・`mailto:`・`#anchor`・相対パス）
+ * - `//` で始まる値（プロトコル相対の外部 URL）
+ * - ロケール化しないパス（{@link isNonLocalizedPath}）
+ * - 既にロケールの接頭辞が付いた値（二重に付けない）
+ *
+ * `/` は `/<locale>` にし（末尾に `/` を足さない）、それ以外は
+ * `/<locale><pathname>` にする。query と hash はそのまま後ろに残す。
+ *
+ * @param path - ロケール非依存のパス（query・hash を含んでよい）
+ * @param locale - 付ける接頭辞の言語
+ */
+function withLocalePrefix(path: string, locale: SupportedLocale): string {
+  if (!path.startsWith("/") || path.startsWith("//")) return path;
+  const { pathname, search, hash } = splitHref(path);
+  if (isNonLocalizedPath(pathname)) return path;
+  if (parseExternalPath(pathname).prefix !== undefined) return path;
+  const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
+  return `${prefixed}${search}${hash}`;
+}
+
+/**
  * ロケール非依存の href を、その言語の公開 URL の href にする
  * ロケール付きhref
  *
@@ -208,18 +236,14 @@ export function isNonLocalizedPath(pathname: string): boolean {
  *
  * 公開状態は見ない（純粋な変換）。未公開ページへのリンクを作らないための
  * 検査は `navigation.ts` の `resolvePublishedHref` が行う。
+ * 英語の変換は {@link withLocalePrefix} に任せる。
  *
  * @param path - ロケール非依存の href（query・hash を含んでよい）
  * @param locale - リンク先の言語
  */
 export function localizedHref(path: string, locale: SupportedLocale): string {
   if (locale === DEFAULT_LOCALE) return path;
-  if (!path.startsWith("/") || path.startsWith("//")) return path;
-  const { pathname, search, hash } = splitHref(path);
-  if (isNonLocalizedPath(pathname)) return path;
-  if (parseExternalPath(pathname).prefix !== undefined) return path;
-  const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
-  return `${prefixed}${search}${hash}`;
+  return withLocalePrefix(path, locale);
 }
 
 /**
@@ -232,6 +256,7 @@ export function localizedHref(path: string, locale: SupportedLocale): string {
  * rewrite して描くので、キャッシュの実体は内部のパスにある。
  * query・hash はそのまま残す。`/` で始まらない値・既に接頭辞の付いた値・
  * ロケール化しないパスは扱わない（呼び出し側の誤り）ので、そのまま返す。
+ * 変換は {@link withLocalePrefix} に任せる。
  *
  * @param path - ロケール非依存のパス（`/lessons/jantou-fu` 等）
  * @param locale - 内部ルートの言語
@@ -240,10 +265,5 @@ export function internalLocalePath(
   path: string,
   locale: SupportedLocale,
 ): string {
-  if (!path.startsWith("/") || path.startsWith("//")) return path;
-  const { pathname, search, hash } = splitHref(path);
-  if (isNonLocalizedPath(pathname)) return path;
-  if (parseExternalPath(pathname).prefix !== undefined) return path;
-  const prefixed = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;
-  return `${prefixed}${search}${hash}`;
+  return withLocalePrefix(path, locale);
 }

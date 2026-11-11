@@ -1,5 +1,6 @@
 import {
   calculateScore,
+  type Fu,
   type RuleConfig,
   type ScoreResult,
 } from "@pai-forge/riichi-mahjong";
@@ -40,8 +41,8 @@ export function recalculateScore(
 }
 
 /**
- * 切り上げ満貫で点数が変わる結果かどうかを判定する
- * 切り上げ満貫対象判定
+ * 翻数・符が切り上げ満貫の有無で点数区分の割れる組み合わせかを判定する
+ * 切り上げ満貫境界判定
  *
  * 30符4翻・60符3翻（基本符1920）が該当する。標準ルールでは満貫未満だが、
  * 切り上げ満貫ルールでは満貫の点数になる — つまり同じ手牌の正解が採用ルール
@@ -49,21 +50,38 @@ export function recalculateScore(
  *
  * 閾値を持たず、「切り上げ満貫の有無で点数区分が割れるか」をライブラリに
  * 両方計算させて比べる。出題からこの境界を外したい問題生成
- * （`excludeKiriageBoundary`）が閾値を再実装すると、ライブラリ側の定義と
- * 黙ってずれるため。翻数・符だけから判定するので、切り上げを適用した後の
- * 結果（区分が既に満貫）を渡しても正しく判定できる。
+ * （点数計算・点数表の `excludeKiriageBoundary`）が閾値を再実装すると、
+ * ライブラリ側の定義と黙ってずれるため。翻数・符だけから判定するので、
+ * 切り上げを適用した後の結果（区分が既に満貫）から引いても正しく判定できる。
+ *
+ * @param han - 翻数
+ * @param fu - 符
+ * @param yakumanMultiplier - 役満単位（省略時はライブラリの既定 = 役満役なし）
  */
-export function isKiriageManganTarget(result: Readonly<ScoreResult>): boolean {
+export function isKiriageBoundary(
+  han: number,
+  fu: Fu,
+  yakumanMultiplier?: number,
+): boolean {
   // 親子・ツモロンは点数区分に影響しないため固定でよい
-  const config = {
-    isOya: false,
-    isTsumo: false,
-    yakumanMultiplier: result.yakumanMultiplier,
-  };
-  const standard = calculateScore(result.han, result.fu, config);
-  const kiriage = calculateScore(result.han, result.fu, {
+  const config = { isOya: false, isTsumo: false, yakumanMultiplier };
+  const standard = calculateScore(han, fu, config);
+  const kiriage = calculateScore(han, fu, {
     ...config,
     ruleConfig: { kiriageMangan: true },
   });
   return standard.scoreLevel !== kiriage.scoreLevel;
+}
+
+/**
+ * 切り上げ満貫で点数が変わる結果かどうかを判定する
+ * 切り上げ満貫対象判定
+ *
+ * 計算結果から引く入口。翻数・符・役満単位を取り出して
+ * {@link isKiriageBoundary} に渡す。
+ *
+ * @param result - 点数計算の結果（切り上げの適用前でも後でもよい）
+ */
+export function isKiriageManganTarget(result: Readonly<ScoreResult>): boolean {
+  return isKiriageBoundary(result.han, result.fu, result.yakumanMultiplier);
 }

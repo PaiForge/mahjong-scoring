@@ -2,7 +2,9 @@ import { z } from "zod";
 import type { QuestionTilesSnapshot } from "./parse-question-tiles";
 
 import {
+  FU_MACHI_KEYS,
   FuroType,
+  JANTOU_FU_REASON_KEYS,
   MentsuType,
   Tacha,
   isHaiKindId,
@@ -117,11 +119,11 @@ export const fuReasonSpecSchema: z.ZodType<FuReasonSpec> = z.discriminatedUnion(
     }),
     z.object({
       kind: z.literal("jantou"),
-      reasons: z.array(z.enum(["bakaze", "jikaze", "sangenpai"])),
+      reasons: z.array(z.enum(JANTOU_FU_REASON_KEYS)),
     }),
     z.object({
       kind: z.literal("machi"),
-      machi: z.enum(["tanki", "kanchan", "penchan", "other"]),
+      machi: z.enum(FU_MACHI_KEYS),
     }),
     z.object({ kind: z.literal("kuiPinfu") }),
   ],
