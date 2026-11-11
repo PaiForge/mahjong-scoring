@@ -73,14 +73,14 @@ function reservationLocale(value: string): SupportedLocale {
  *
  * - `expired` — Stripe 側で失効。予約を精算して取り直す
  * - `completed` — 支払い済み。購入を記録する（Webhook の遅れを回復する）
- * - `inProgress` — 別の売り方の手続きが進行中。切り替えず最初の手続きへ戻す
+ * - `otherOffer` — 別の売り方の Session が開いている。失効させて今回の売り方に置き換える
  * - `redirect` — 支払い画面へ送る
  * - `missingUrl` — 開いている Session なのに URL が無い（Stripe の異常）
  */
 export type CheckoutSessionOutcome =
   | { readonly kind: "expired" }
   | { readonly kind: "completed" }
-  | { readonly kind: "inProgress" }
+  | { readonly kind: "otherOffer" }
   | { readonly kind: "redirect"; readonly url: string }
   | { readonly kind: "missingUrl" };
 
@@ -102,7 +102,7 @@ export function checkoutSessionOutcome(
 ): CheckoutSessionOutcome {
   if (session.status === "expired") return { kind: "expired" };
   if (session.status === "complete") return { kind: "completed" };
-  if (attempt.offer !== offerKey) return { kind: "inProgress" };
+  if (attempt.offer !== offerKey) return { kind: "otherOffer" };
   if (!session.url) return { kind: "missingUrl" };
   return { kind: "redirect", url: session.url };
 }

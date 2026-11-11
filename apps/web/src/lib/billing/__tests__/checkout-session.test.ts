@@ -78,9 +78,9 @@ describe("checkoutSessionOutcome", () => {
     ).toEqual({ kind: "completed" });
   });
 
-  it("開いている Session の売り方が違えば inProgress", () => {
+  it("開いている Session の売り方が違えば otherOffer", () => {
     expect(checkoutSessionOutcome(open, { offer: "lifetime" }, "pass")).toEqual(
-      { kind: "inProgress" },
+      { kind: "otherOffer" },
     );
   });
 

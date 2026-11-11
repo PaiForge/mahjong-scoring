@@ -12,6 +12,7 @@ import type Stripe from "stripe";
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   retrieve: vi.fn(),
+  expire: vi.fn(),
   payment: vi.fn(),
   refund: vi.fn(),
 }));
@@ -24,7 +25,13 @@ vi.mock("./customer", () => ({
 }));
 vi.mock("./stripe", () => ({
   getStripe: () => ({
-    checkout: { sessions: { create: mocks.create, retrieve: mocks.retrieve } },
+    checkout: {
+      sessions: {
+        create: mocks.create,
+        retrieve: mocks.retrieve,
+        expire: mocks.expire,
+      },
+    },
     paymentIntents: { retrieve: mocks.payment },
     refunds: { create: mocks.refund },
   }),
@@ -123,6 +130,13 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         },
       );
       mocks.retrieve.mockImplementation(async (id: string) => sessions.get(id));
+      mocks.expire.mockImplementation(async (id: string) => {
+        const session = sessions.get(id)!;
+        if (session.status !== "open") throw new Error("session is not open");
+        const expired = { ...session, status: "expired", url: null };
+        sessions.set(id, expired as Stripe.Checkout.Session);
+        return expired;
+      });
       mocks.payment.mockResolvedValue(charge());
       mocks.refund.mockResolvedValue({ id: "re1" });
     });
@@ -180,10 +194,86 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       const rows = await billingTestDb().select().from(billingCheckouts);
       expect(rows.map((row) => row.locale)).toEqual(["en"]);
     });
-    it("別の売り方でも新しい Session を作らない", async () => {
+    it("別の売り方を押すと開いている Session を失効させて置き換える", async () => {
       await start();
-      expect(await start("lifetime")).toEqual({ error: "checkoutInProgress" });
+      expect(await start("lifetime")).toEqual({
+        url: "https://checkout.stripe.com/cs_2",
+      });
+      expect(mocks.expire).toHaveBeenCalledWith("cs_1");
+      expect(sessions.get("cs_1")?.status).toBe("expired");
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((r) => [r.offer, r.settledAt !== null]).sort()).toEqual([
+        ["lifetime", false],
+        ["pass", true],
+      ]);
+    });
+    it("切り替えた予約は今回押した画面の言語になる", async () => {
+      await start();
+      await openCheckout(
+        owner,
+        undefined,
+        "lifetime",
+        "http://localhost:3000",
+        "en",
+      );
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((r) => [r.offer, r.locale]).sort()).toEqual([
+        ["lifetime", "en"],
+        ["pass", "ja"],
+      ]);
+      expect(mocks.create.mock.calls[1]?.[0]).toMatchObject({ locale: "en" });
+    });
+    it("Session ID 未発行の別の売り方の予約も、発行して失効させてから置き換える", async () => {
+      mocks.create.mockRejectedValueOnce(new Error("stripe down"));
+      await expect(start()).rejects.toThrow("stripe down");
+      expect(sessions.size).toBe(0);
+      expect(await start("lifetime")).toEqual({
+        url: "https://checkout.stripe.com/cs_2",
+      });
+      expect(mocks.expire).toHaveBeenCalledWith("cs_1");
+      expect(sessions.get("cs_1")?.status).toBe("expired");
+    });
+    it("別の売り方の Session を失効できず開いたままなら、切り替えず例外にする", async () => {
+      await start();
+      mocks.expire.mockRejectedValueOnce(new Error("stripe down"));
+      await expect(start("lifetime")).rejects.toThrow(
+        "Checkout session could not be expired",
+      );
       expect(mocks.create).toHaveBeenCalledTimes(1);
+      // 予約は未精算のまま。先の売り方からは同じ Session に戻れる
+      expect(await start()).toEqual({
+        url: "https://checkout.stripe.com/cs_1",
+      });
+    });
+    it("失効の応答だけが失われても、取り直して同じ呼び出しの中で置き換える", async () => {
+      await start();
+      const expire = mocks.expire.getMockImplementation();
+      mocks.expire.mockImplementationOnce(async (...args) => {
+        await expire?.(...args);
+        throw new Error("response lost");
+      });
+      expect(await start("lifetime")).toEqual({
+        url: "https://checkout.stripe.com/cs_2",
+      });
+    });
+    it("取得と失効の間に支払いが完了したら、切り替えず購入を記録する", async () => {
+      await start();
+      mocks.expire.mockImplementationOnce(async () => {
+        paid();
+        throw new Error("session is not open");
+      });
+      expect(await start("lifetime")).toEqual({ error: "checkoutPending" });
+      expect(mocks.create).toHaveBeenCalledTimes(1);
+      const rows = await billingTestDb().select().from(purchases);
+      expect(rows.map((row) => row.stripeCheckoutSessionId)).toEqual(["cs_1"]);
+      expect(await start("lifetime")).toEqual({ error: "alreadyActive" });
+    });
+    it("別の売り方の Session が支払い済みなら切り替えず記録する", async () => {
+      await start();
+      paid();
+      expect(await start("lifetime")).toEqual({ error: "checkoutPending" });
+      expect(mocks.expire).not.toHaveBeenCalled();
+      expect(await start("lifetime")).toEqual({ error: "alreadyActive" });
     });
     it.each(["pass", "lifetime"] as const)(
       "%s 有効中は追加購入不可",
