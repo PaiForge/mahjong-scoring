@@ -15,30 +15,7 @@ import {
 } from "./translation-audit";
 import { AUDIT_PROPER_NOUNS, AUDIT_WORDS } from "./translation-audit-words";
 import { EN_TRANSLATED_NAMESPACES } from "./translation-status";
-
-/** 辞書の木の葉 1 つ（`a.b.c` のパスと値） */
-interface Leaf {
-  readonly path: string;
-  readonly value: unknown;
-}
-
-/** 辞書の木を葉の一覧にする（`en.test.ts` と同じパスの組み方） */
-function flatten(value: unknown, path = ""): Leaf[] {
-  if (Array.isArray(value)) {
-    return value.flatMap((item, index) => flatten(item, `${path}[${index}]`));
-  }
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value).flatMap(([key, child]) =>
-      flatten(child, path === "" ? key : `${path}.${key}`),
-    );
-  }
-  return [{ path, value }];
-}
-
-/** 名前空間の値を引く */
-function namespaceOf(dictionary: object, namespace: string): unknown {
-  return Object.entries(dictionary).find(([key]) => key === namespace)?.[1];
-}
+import { flatten, namespaceOf } from "./test-utils/message-tree";
 
 /** 完訳の名前空間の葉を ja / en の組で並べる */
 function pairedLeaves(): {

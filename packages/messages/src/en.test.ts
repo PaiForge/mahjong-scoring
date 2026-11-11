@@ -15,39 +15,13 @@ import { describe, expect, it } from "vitest";
 import { messages as en } from "./en";
 import { messages as ja } from "./ja";
 import { EN_TRANSLATED_NAMESPACES } from "./translation-status";
+import { flatten, namespaceOf } from "./test-utils/message-tree";
 
 const EN_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "en");
 
 /** 名前空間（camelCase）から辞書ファイル名（kebab-case）を作る（`ja.test.ts` と同じ規則） */
 function toFileName(namespace: string): string {
   return `${namespace.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}.json`;
-}
-
-/** 辞書の木の葉 1 つ（`a.b.c` のパスと値） */
-interface Leaf {
-  readonly path: string;
-  readonly value: unknown;
-}
-
-/**
- * 辞書の木を葉の一覧にする。配列は添字をパスに入れ、オブジェクトと配列の違いも
- * パスに残す（`[0]` / `.key`）ので、形の違いはパスの集合の違いとして現れる
- */
-function flatten(value: unknown, path = ""): Leaf[] {
-  if (Array.isArray(value)) {
-    return value.flatMap((item, index) => flatten(item, `${path}[${index}]`));
-  }
-  if (typeof value === "object" && value !== null) {
-    return Object.entries(value).flatMap(([key, child]) =>
-      flatten(child, path === "" ? key : `${path}.${key}`),
-    );
-  }
-  return [{ path, value }];
-}
-
-/** 名前空間の値を引く（完訳の名前空間の一覧から ja / en の両方を引くため） */
-function namespaceOf(dictionary: object, namespace: string): unknown {
-  return Object.entries(dictionary).find(([key]) => key === namespace)?.[1];
 }
 
 /** 英語の完訳の名前空間ごとに、葉を ja / en の組で並べる */
