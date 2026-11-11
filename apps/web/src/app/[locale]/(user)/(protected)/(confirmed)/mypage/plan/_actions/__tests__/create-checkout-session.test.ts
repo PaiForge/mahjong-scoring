@@ -100,16 +100,14 @@ describe("createCheckoutSession", () => {
       );
     },
   );
-  it.each([
-    "alreadyActive",
-    "checkoutInProgress",
-    "checkoutExpired",
-    "checkoutPending",
-  ])("購入拒否 %s を表示へ返す", async (error) => {
-    mocks.open.mockResolvedValue({ error });
-    expect(await createCheckoutSession("pass")).toEqual({ error });
-    expect(mocks.redirect).not.toHaveBeenCalled();
-  });
+  it.each(["alreadyActive", "checkoutExpired", "checkoutPending"])(
+    "購入拒否 %s を表示へ返す",
+    async (error) => {
+      mocks.open.mockResolvedValue({ error });
+      expect(await createCheckoutSession("pass")).toEqual({ error });
+      expect(mocks.redirect).not.toHaveBeenCalled();
+    },
+  );
   it("DB・Stripe の失敗を checkoutFailed として返す", async () => {
     mocks.open.mockRejectedValue(new Error("offline"));
     expect(await createCheckoutSession("pass")).toEqual({
