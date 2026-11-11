@@ -207,6 +207,32 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         ["pass", true],
       ]);
     });
+    it("切り替えた予約は今回押した画面の言語になる", async () => {
+      await start();
+      await openCheckout(
+        owner,
+        undefined,
+        "lifetime",
+        "http://localhost:3000",
+        "en",
+      );
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((r) => [r.offer, r.locale]).sort()).toEqual([
+        ["lifetime", "en"],
+        ["pass", "ja"],
+      ]);
+      expect(mocks.create.mock.calls[1]?.[0]).toMatchObject({ locale: "en" });
+    });
+    it("Session ID 未発行の別の売り方の予約も、発行して失効させてから置き換える", async () => {
+      mocks.create.mockRejectedValueOnce(new Error("stripe down"));
+      await expect(start()).rejects.toThrow("stripe down");
+      expect(sessions.size).toBe(0);
+      expect(await start("lifetime")).toEqual({
+        url: "https://checkout.stripe.com/cs_2",
+      });
+      expect(mocks.expire).toHaveBeenCalledWith("cs_1");
+      expect(sessions.get("cs_1")?.status).toBe("expired");
+    });
     it("別の売り方の Session を失効できず開いたままなら、切り替えず例外にする", async () => {
       await start();
       mocks.expire.mockRejectedValueOnce(new Error("stripe down"));
