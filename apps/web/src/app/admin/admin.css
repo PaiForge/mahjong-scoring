@@ -261,6 +261,23 @@
     backdrop-filter: blur(8px);
   }
 }
+/*
+ * タッチ端末（pointer: coarse）では小さな操作の押せる範囲を見た目の外へ広げる。
+ * 表の行の操作（編集・削除・詳細・並べ替え・メールの表示）は文字だけで高さ 20px
+ * 前後しかなく、指では隣の行や隣の操作を押す。見た目（余白・行の高さ）は変えず、
+ * 透明な ::after を重ねて範囲だけを広げる。横は並んだ操作の間隔（gap-3 = 12px）を
+ * 越えないよう 4px に留める。表の外の小さな部品は `admin-touch-target` を付ける。
+ */
+@media (pointer: coarse) {
+  .admin-shell :is(td a, td button, td summary, .admin-touch-target) {
+    position: relative;
+  }
+  .admin-shell :is(td a, td button, td summary, .admin-touch-target)::after {
+    content: "";
+    position: absolute;
+    inset: -8px -4px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .admin-shell *,
   .admin-shell *::before,
