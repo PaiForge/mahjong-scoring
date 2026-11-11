@@ -12,6 +12,7 @@ import type Stripe from "stripe";
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
   retrieve: vi.fn(),
+  expire: vi.fn(),
   payment: vi.fn(),
   refund: vi.fn(),
 }));
@@ -24,7 +25,13 @@ vi.mock("./customer", () => ({
 }));
 vi.mock("./stripe", () => ({
   getStripe: () => ({
-    checkout: { sessions: { create: mocks.create, retrieve: mocks.retrieve } },
+    checkout: {
+      sessions: {
+        create: mocks.create,
+        retrieve: mocks.retrieve,
+        expire: mocks.expire,
+      },
+    },
     paymentIntents: { retrieve: mocks.payment },
     refunds: { create: mocks.refund },
   }),
@@ -123,6 +130,13 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
         },
       );
       mocks.retrieve.mockImplementation(async (id: string) => sessions.get(id));
+      mocks.expire.mockImplementation(async (id: string) => {
+        const session = sessions.get(id)!;
+        if (session.status !== "open") throw new Error("session is not open");
+        const expired = { ...session, status: "expired", url: null };
+        sessions.set(id, expired as Stripe.Checkout.Session);
+        return expired;
+      });
       mocks.payment.mockResolvedValue(charge());
       mocks.refund.mockResolvedValue({ id: "re1" });
     });
@@ -180,10 +194,34 @@ describe.skipIf(!process.env.BILLING_TEST_DATABASE_URL)(
       const rows = await billingTestDb().select().from(billingCheckouts);
       expect(rows.map((row) => row.locale)).toEqual(["en"]);
     });
-    it("別の売り方でも新しい Session を作らない", async () => {
+    it("別の売り方を押すと開いている Session を失効させて置き換える", async () => {
       await start();
+      expect(await start("lifetime")).toEqual({
+        url: "https://checkout.stripe.com/cs_2",
+      });
+      expect(mocks.expire).toHaveBeenCalledWith("cs_1");
+      expect(sessions.get("cs_1")?.status).toBe("expired");
+      const rows = await billingTestDb().select().from(billingCheckouts);
+      expect(rows.map((r) => [r.offer, r.settledAt !== null]).sort()).toEqual([
+        ["lifetime", false],
+        ["pass", true],
+      ]);
+    });
+    it("別の売り方の Session を失効できなければ切り替えない", async () => {
+      await start();
+      mocks.expire.mockRejectedValueOnce(new Error("stripe down"));
       expect(await start("lifetime")).toEqual({ error: "checkoutInProgress" });
       expect(mocks.create).toHaveBeenCalledTimes(1);
+      expect(await start()).toEqual({
+        url: "https://checkout.stripe.com/cs_1",
+      });
+    });
+    it("別の売り方の Session が支払い済みなら切り替えず記録する", async () => {
+      await start();
+      paid();
+      expect(await start("lifetime")).toEqual({ error: "checkoutPending" });
+      expect(mocks.expire).not.toHaveBeenCalled();
+      expect(await start("lifetime")).toEqual({ error: "alreadyActive" });
     });
     it.each(["pass", "lifetime"] as const)(
       "%s 有効中は追加購入不可",

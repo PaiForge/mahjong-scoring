@@ -20,6 +20,7 @@ import {
 } from "@mahjong-scoring/features/billing/plans";
 import { recordPurchaseFromCheckoutSession } from "./purchases";
 import { getStripe } from "./stripe";
+import { logExternalError } from "@/lib/log-error";
 import {
   DEFAULT_LOCALE,
   type SupportedLocale,
@@ -27,9 +28,10 @@ import {
 
 /**
  * 購入手続きの拒否理由。販売中のパスも買い切りも追加購入させない。
- * `checkoutExpired` は失効した手続きの置き換えが {@link MAX_RESERVATION_ATTEMPTS}
- * 回続けて失効した場合だけ返る（通常は同じ呼び出しの中で新しい手続きに
- * 置き換わる）。
+ * `checkoutExpired` は失効した（または売り方の切り替えで失効させた）手続きの
+ * 置き換えが {@link MAX_RESERVATION_ATTEMPTS} 回続いた場合だけ返る（通常は
+ * 同じ呼び出しの中で新しい手続きに置き換わる）。`checkoutInProgress` は別の
+ * 売り方の Session を失効させられなかった場合だけ返る。
  */
 export type CheckoutError =
   | "alreadyActive"
@@ -51,8 +53,21 @@ const MAX_RESERVATION_ATTEMPTS = 2;
  * 予約の COMMIT を Stripe API より先にする。ネットワーク失敗やプロセス停止でも
  * 同じ冪等キー・パラメータで再試行できる。発行も顧客ロックの中で行い、並行した
  * 作成・購入記録と競合させない。URL は Session ID の保存が COMMIT した後だけ返す。
- * 別の売り方の手続きがある場合は切り替えず、最初の手続きへ戻るよう案内する。
+ * 別の売り方の手続きがある場合は、その Session を Stripe で失効させてから
+ * 新しい売り方の予約に置き換える（下の「失効」と同じやり直しに乗る）。
  *
+ * @design 売り方の切り替えは Session を失効させて行う
+ * 以前は「先に選んだボタンから再開してください」と案内するだけで、別の売り方を
+ * 買うには予約の期限（1 時間）を待つしかなかった。パスの画面を開いて戻り、
+ * 買い切りを押し直すのは自然な操作で、1 時間待たせる理由は利用者側に無い。
+ * 失効（`checkout.sessions.expire`）は開いている Session にしか効かず、失効した
+ * Session は支払えない。そのため失効が成功した時点で古い Session の決済は
+ * 起こり得ず、二重決済にならない。失効が失敗したら（その間に支払いが完了した・
+ * 決済の処理中・通信の失敗）切り替えず `checkoutInProgress` を返す — 支払い済み
+ * なら Webhook か着地が記録し、次に押すと `alreadyActive` になる。通信の失敗で
+ * 実は失効していた場合も、次に押せば `expired` として置き換わる。
+ *
+
  * 予約が失効していた（Stripe 側で Session が期限切れ、または ID 未発行のまま
  * 期限が迫った）場合は精算して、同じ呼び出しの中で新しい予約からやり直す。
  * 「期限が切れました。もう一度押してください」を 1 回挟む理由が利用者側に
@@ -181,8 +196,11 @@ async function reserveAndActivate(
         return { error: "checkoutExpired" } as const;
       case "completed":
         return { completed: session } as const;
-      case "inProgress":
-        return { error: "checkoutInProgress" } as const;
+      case "otherOffer":
+        if (!(await expireOpenSession(stripe, session.id)))
+          return { error: "checkoutInProgress" } as const;
+        await settle(tx, attempt.id);
+        return { error: "checkoutExpired" } as const;
       case "missingUrl":
         throw new Error("Checkout has no URL");
       case "redirect":
@@ -228,6 +246,30 @@ async function lockCustomerWithoutActivePurchase(
   if (await hasUnexpiredPurchase(tx, userId, now))
     return { error: "alreadyActive" } as const;
   return { customer, now };
+}
+
+/**
+ * 開いている Checkout Session を Stripe で失効させる
+ * Session 失効
+ *
+ * 失効できたら true。支払い済み・決済の処理中・通信の失敗など、失効を確かめ
+ * られなければ false（例外にしない。呼び出し側は切り替えを諦めて案内を返す）。
+ */
+async function expireOpenSession(
+  stripe: ReturnType<typeof getStripe>,
+  sessionId: string,
+): Promise<boolean> {
+  try {
+    const expired = await stripe.checkout.sessions.expire(sessionId);
+    return expired.status === "expired";
+  } catch (error) {
+    logExternalError(
+      "openCheckout",
+      "failed to expire the other offer's Checkout session",
+      error,
+    );
+    return false;
+  }
 }
 
 async function settle(tx: TransactionClient, id: string): Promise<void> {
