@@ -10,6 +10,7 @@ import { formatAdminDate } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
 import { RevokeGrantButton } from "./revoke-grant-button";
+import { ExpandableText } from "../../_components/expandable-text";
 import { adminChipClasses, type AdminChipTone } from "../../_lib/chip-classes";
 
 interface BenefitGrantRowProps {
@@ -55,11 +56,7 @@ export async function BenefitGrantRow({
           : t("table.permanent")}
       </td>
       <td className="px-4 py-3">
-        <span title={grant.reason}>
-          {grant.reason.length > 50
-            ? `${grant.reason.slice(0, 50)}...`
-            : grant.reason}
-        </span>
+        <ExpandableText text={grant.reason} maxLength={50} />
         {grant.revokeReason && (
           <span className="mt-1 block text-xs text-surface-500">
             {t("table.revokedReason", { reason: grant.revokeReason })}

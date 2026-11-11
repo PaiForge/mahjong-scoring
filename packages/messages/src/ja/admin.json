@@ -379,6 +379,10 @@
       "title": "操作"
     }
   },
+  "expandableText": {
+    "showAll": "全文",
+    "hide": "閉じる"
+  },
   "navigation": {
     "overview": "概要",
     "management": "運営・管理",
