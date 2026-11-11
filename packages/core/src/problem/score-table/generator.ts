@@ -10,6 +10,7 @@ import {
   isInvalidCell,
   HIGH_SCORES,
 } from "../../core/score-table-math";
+import { isKiriageBoundary } from "../../score/calculator";
 import { FU_VALUES } from "../../score/constants";
 import {
   clampHanToYakuman,
@@ -55,22 +56,6 @@ function buildCorrectAnswer(
     ? calculateOyaScore(han, fu, { kiriageMangan })
     : calculateKoScore(han, fu, { kiriageMangan });
   return isTsumo ? result.tsumo : { type: "ron", score: result.ron };
-}
-
-/**
- * 切り上げ満貫で点数が割れるセルか（30符4翻・60符3翻）
- * 切り上げ境界セル判定
- *
- * 閾値を持たず、切り上げの有無で点数が変わるかをライブラリに両方計算させて
- * 比べる（点数計算側の `isKiriageManganTarget` と同じ方針。閾値を再実装すると
- * ライブラリの定義と黙ってずれる）。親子・ツモロンは区分に影響しないので
- * 子ロンで代表させる。
- */
-function isKiriageBoundaryCell(han: number, fu: Fu): boolean {
-  return (
-    calculateKoScore(han, fu, { kiriageMangan: false }).ron !==
-    calculateKoScore(han, fu, { kiriageMangan: true }).ron
-  );
 }
 
 /**
@@ -142,7 +127,7 @@ function buildNonManganCombinations(
     for (const han of hanRange) {
       for (const fu of fuCandidates) {
         if (isInvalidCell(han, fu, winType)) continue;
-        if (excludeKiriageBoundary && isKiriageBoundaryCell(han, fu)) continue;
+        if (excludeKiriageBoundary && isKiriageBoundary(han, fu)) continue;
         combinations.push({ isOya, isTsumo, han, fu, range: "nonMangan" });
       }
     }

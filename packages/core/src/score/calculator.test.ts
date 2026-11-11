@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import type { ScoreResult } from "@pai-forge/riichi-mahjong";
-import { isKiriageManganTarget, recalculateScore } from "./calculator";
+import {
+  isKiriageBoundary,
+  isKiriageManganTarget,
+  recalculateScore,
+} from "./calculator";
 import { ScoreLevel } from "../core/constants";
+import { isInvalidCell } from "../core/score-table-math";
+import { FU_VALUES } from "./constants";
 
 function makeResult(overrides: Partial<ScoreResult>): ScoreResult {
   return {
@@ -127,5 +133,21 @@ describe("isKiriageManganTarget", () => {
         }),
       ),
     ).toBe(false);
+  });
+});
+
+describe("isKiriageBoundary", () => {
+  it("点数表の有効なセル（子ロン）を総当たりすると、境界は 4翻30符 と 3翻60符 だけ", () => {
+    const boundaries: Array<readonly [number, number]> = [];
+    for (let han = 1; han <= 13; han++) {
+      for (const fu of FU_VALUES) {
+        if (isInvalidCell(han, fu, "ron")) continue;
+        if (isKiriageBoundary(han, fu)) boundaries.push([han, fu]);
+      }
+    }
+    expect(boundaries).toEqual([
+      [3, 60],
+      [4, 30],
+    ]);
   });
 });
