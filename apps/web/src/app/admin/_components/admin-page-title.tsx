@@ -1,8 +1,14 @@
 import { PageTitleSkeleton } from "@/app/_components/page-title-skeleton";
 
-/** 管理画面のページ見出しの見た目（本物とプレースホルダで共有） */
+/**
+ * 管理画面のページ見出しの見た目（本物とプレースホルダで共有）
+ *
+ * ユーザー詳細はユーザー名の無い利用者をメールアドレスや UUID で名乗るため、
+ * 区切りの無い長い語でも折り返す（`wrap-anywhere`）。`min-w-0` は状態チップと
+ * 並ぶ flex の中で見出しが語の長さより縮めるようにするため。
+ */
 const ADMIN_PAGE_TITLE_CLASSES =
-  "text-2xl leading-9 font-bold tracking-tight text-surface-900";
+  "min-w-0 text-2xl leading-9 font-bold tracking-tight wrap-anywhere text-surface-900";
 
 interface AdminPageTitleProps {
   children: React.ReactNode;
