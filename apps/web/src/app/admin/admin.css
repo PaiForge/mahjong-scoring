@@ -187,6 +187,80 @@
     padding-inline: 24px;
   }
 }
+/* ドロワーの部品。常設の幅（1024px 以上）では出さない */
+.admin-menu-button,
+.admin-drawer-close,
+.admin-drawer-backdrop {
+  display: none;
+}
+.admin-menu-button,
+.admin-drawer-close {
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: var(--color-surface-700);
+}
+.admin-menu-button {
+  border: 1px solid var(--color-surface-300);
+  background: white;
+}
+.admin-menu-button:hover,
+.admin-drawer-close:hover {
+  background: var(--color-surface-100);
+}
+
+/* 1024px 未満（iPad の縦向き）はサイドバーをドロワーにする（AdminShell の TSDoc） */
+@media (max-width: 1023px) {
+  .admin-sidebar {
+    position: fixed;
+    inset-block: 0;
+    left: 0;
+    z-index: 40;
+    width: 280px;
+    max-width: 85vw;
+    padding: 24px 20px;
+    box-shadow: 0 10px 30px #0f172a33;
+    transform: translateX(-100%);
+    /* 閉じている間は Tab で画面外のリンクへ入らない。閉じる動きが終わってから隠す */
+    visibility: hidden;
+    transition:
+      transform 0.2s ease,
+      visibility 0s linear 0.2s;
+  }
+  .admin-sidebar[data-open] {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.2s ease;
+  }
+  .admin-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: #0f172a66;
+  }
+  .admin-menu-button,
+  .admin-drawer-close {
+    display: inline-flex;
+  }
+  .admin-drawer-close {
+    position: absolute;
+    top: 16px;
+    right: 12px;
+  }
+  /* ナビがボタンの向こうにある間は、長いページの途中からも開けるよう帯を上に留める */
+  .admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    min-height: 60px;
+    padding: 10px 24px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .admin-shell *,
   .admin-shell *::before,

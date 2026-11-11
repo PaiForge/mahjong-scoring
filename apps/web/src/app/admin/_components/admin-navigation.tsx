@@ -8,7 +8,7 @@ export interface AdminNavGroup {
   readonly items: readonly { readonly href: string; readonly label: string }[];
 }
 
-/** デスクトップ・タブレット共通の常設サイドバーナビゲーション。 */
+/** サイドバーのナビゲーション（1024px 未満では AdminShell のドロワーに入る）。 */
 export function AdminNavigation({
   groups,
   label,
