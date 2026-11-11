@@ -13,23 +13,39 @@ import { FU_STEP, FUTEI_FU } from "./mentsu-tehai-fu";
 import { openLabel, yaochuLabel } from "../problem/shared/mentsu-labels";
 
 /**
- * 雀頭が役牌である理由の、言語に依らない名前
- * 雀頭役牌理由キー
+ * 雀頭が役牌である理由の、言語に依らない名前の一覧
+ * 雀頭役牌理由キー一覧
  *
  * {@link FuReasonSpec} の `jantou` が持つ。辞書の
  * `challenge.fuBreakdown.reasons.jantouReasons.<key>` のキーと同じ文字列。
+ * 型（{@link JantouFuReasonKey}）と、記録を読み直すスキーマの列挙の両方が
+ * ここから導くので、キーを足すときはここだけを直す。
  */
-export type JantouFuReasonKey = "bakaze" | "jikaze" | "sangenpai";
+export const JANTOU_FU_REASON_KEYS = ["bakaze", "jikaze", "sangenpai"] as const;
 
 /**
- * 符が付く待ちの、言語に依らない名前
- * 待ち符キー
+ * 雀頭が役牌である理由の、言語に依らない名前（{@link JANTOU_FU_REASON_KEYS} の要素）
+ * 雀頭役牌理由キー
+ */
+export type JantouFuReasonKey = (typeof JANTOU_FU_REASON_KEYS)[number];
+
+/**
+ * 符が付く待ちの、言語に依らない名前の一覧
+ * 待ち符キー一覧
  *
  * {@link FuReasonSpec} の `machi` が持つ。`other` はライブラリが待ちの種類を
  * 返さなかった（または符の付く 3 種に当たらない）ときで、日本語は「待ち」。
  * 辞書の `challenge.fuBreakdown.reasons.machi` の `select` の選択肢と同じ文字列。
+ * 型（{@link FuMachiKey}）と、記録を読み直すスキーマの列挙の両方が
+ * ここから導くので、キーを足すときはここだけを直す。
  */
-export type FuMachiKey = "tanki" | "kanchan" | "penchan" | "other";
+export const FU_MACHI_KEYS = ["tanki", "kanchan", "penchan", "other"] as const;
+
+/**
+ * 符が付く待ちの、言語に依らない名前（{@link FU_MACHI_KEYS} の要素）
+ * 待ち符キー
+ */
+export type FuMachiKey = (typeof FU_MACHI_KEYS)[number];
 
 /**
  * 符の理由の構造

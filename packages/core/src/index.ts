@@ -33,7 +33,11 @@ export type { TotalFuGeneratorOptions } from "./problem/total-fu/generator";
 export { totalFuChoices } from "./problem/total-fu/range";
 export type { TotalFuRange } from "./problem/total-fu/range";
 export type { TotalFuQuestion } from "./problem/total-fu/types";
-export { formatFuReasonJa } from "./score/fu-calculator";
+export {
+  FU_MACHI_KEYS,
+  formatFuReasonJa,
+  JANTOU_FU_REASON_KEYS,
+} from "./score/fu-calculator";
 export type {
   FuDetail,
   FuMachiKey,
