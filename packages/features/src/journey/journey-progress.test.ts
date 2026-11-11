@@ -1,41 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_VARIANT } from "../practice-menu-types";
-import { RANK_REGISTRY, type RankSlug } from "../ranks/registry";
+import { buildJourney } from "./journey";
 import {
-  buildJourney,
-  type BuildJourneyInput,
-  type PracticeAttempt,
-} from "./journey";
+  input,
+  KYU5_LESSONS_DONE,
+  KYU5_PRACTICES_ATTEMPTED,
+} from "./journey-input.fixture";
 import { countProgress, currentStage } from "./journey-progress";
-
-const NONE: ReadonlySet<string> = new Set();
-const NO_ATTEMPTS: readonly PracticeAttempt[] = [];
-const NO_RANKS: readonly RankSlug[] = [];
-
-function input(overrides: Partial<BuildJourneyInput> = {}): BuildJourneyInput {
-  return {
-    completedLessonSlugs: NONE,
-    attemptedPractices: NO_ATTEMPTS,
-    achievedRankSlugs: NO_RANKS,
-    ...overrides,
-  };
-}
-
-/** 5級の前提章（レッスン）をすべて終えた状態 */
-const KYU5_LESSONS_DONE: ReadonlySet<string> = new Set(
-  RANK_REGISTRY[0].learnChapterSlugs,
-);
-
-/** 5級の章から送っている練習に、章が指す土俵ですべて挑戦した状態 */
-const KYU5_PRACTICES_ATTEMPTED: readonly PracticeAttempt[] = [
-  { slug: "score-table", variant: "ko_mangan_plus" },
-  { slug: "score-table", variant: "oya_mangan_plus" },
-  { slug: "mangan-score-calculation", variant: DEFAULT_VARIANT },
-  { slug: "yaku-han", variant: "no_kuisagari" },
-  { slug: "yaku", variant: DEFAULT_VARIANT },
-  { slug: "han-count", variant: DEFAULT_VARIANT },
-];
 
 describe("countProgress", () => {
   it("済んだ数と全体を数える", () => {
