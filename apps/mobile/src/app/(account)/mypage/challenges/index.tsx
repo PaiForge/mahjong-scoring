@@ -41,6 +41,7 @@ import { ScoreChart } from "../../../../mypage/score-chart";
 import { StatsCard } from "../../../../mypage/stats-card";
 import { useMypageRead } from "../../../../mypage/use-mypage-read";
 import { useGoToTab } from "../../../../hooks/use-go-to-tab";
+import { useOpenFromModal } from "../../../../hooks/use-open-from-modal";
 
 /** 直近の履歴に並べる件数（web と同じ） */
 const TABLE_DISPLAY_LIMIT = 5;
@@ -149,6 +150,7 @@ function Records({
   const tRoot = useTranslations();
   const router = useRouter();
   const goToTab = useGoToTab();
+  const openFromModal = useOpenFromModal();
   const { boards, board, current, previous } = records;
 
   const stats = useMemo(
@@ -263,7 +265,9 @@ function Records({
 
       {/* 見ている土俵をそのまま解き直す導線。行き先は練習の説明（web と同じ —
           記録を眺めていた人が押した瞬間にカウントダウンが始まるのは重い）。
-          バリアントを運ぶので、説明はその設定を選んだ状態で開く */}
+          バリアントを運ぶので、説明はその設定を選んだ状態で開く。説明はマイページの
+          モーダルの外の画面なので、モーダルを閉じてから積む（閉じずに積むと
+          モーダルの下に入って見えない） */}
       {board !== undefined && (
         <View style={styles.actions}>
           <Button
@@ -271,7 +275,7 @@ function Records({
             fullWidth
             testID="my-record-try"
             onPress={() =>
-              router.push(
+              openFromModal(
                 practiceHref(menuTypeToSlug(board.menuType), board.variant),
               )
             }
