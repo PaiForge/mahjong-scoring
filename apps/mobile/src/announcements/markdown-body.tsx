@@ -47,7 +47,7 @@ interface Links {
  * 描く。HTML は描かない。先頭の h1 は画面の見出しと重なるので落とす
  * （web の `skipFirstH1`）。
  *
- * web と違うもの: h2 は web と同じ `SectionTitle`、本文の文字は 16pt
+ * web と違うもの: h2 は節の見出し（`SectionTitle`。飾りの無い太字）、本文の文字は 16pt
  * （`apps/mobile/CLAUDE.md` の方針）。本文のリンクは、アプリに同じ画面が
  * あればアプリの中で、無ければブラウザで開き、価格・特商法のページへは
  * リンクにしない（`resolveAnnouncementLink`）。ブラウザで開く web のページは

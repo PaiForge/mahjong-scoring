@@ -14,7 +14,7 @@ import { SectionTitle } from "../components/section-title";
 import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { colors } from "../lib/theme";
 import { BeltButton } from "./belt-button";
-import { beltCardFrame, beltStyle } from "./belt-style";
+import { beltCardFrame } from "./belt-style";
 
 /**
  * 昇級試験への案内（web の `ExamCtaCard`）
@@ -45,7 +45,7 @@ export function ExamCtaCard({
 
   return (
     <View style={styles.section}>
-      <SectionTitle accentColor={beltStyle(rankSlug).fill}>
+      <SectionTitle>
         {t(`examTitle.${rankTier(rankSlug)}`, {
           rank: t(`names.${rankSlug}`),
         })}
