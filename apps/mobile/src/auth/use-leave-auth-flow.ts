@@ -13,6 +13,10 @@ import { useGoToTab } from "../hooks/use-go-to-tab";
  * 届く。確認メールの画面から移るときも、下の流れの画面ごと置き換える —
  * `useSwitchAuthScreen`）。ディープリンクや再起動で直接開いたときは下に画面が無く、戻ると
  * 何も起きずに認証の画面に残るので、ホームのタブを出す。
+ *
+ * 認証の画面は `(account)` のモーダルの中のスタックにある。マイページから開いた
+ * ときは戻る 1 回でモーダルの中のマイページへ、解答中・結果・ホーム等から開いた
+ * （流れの画面がモーダルの先頭の）ときは、戻るがモーダルを閉じて開いた画面へ帰る。
  */
 export function useLeaveAuthFlow(): () => void {
   const router = useRouter();

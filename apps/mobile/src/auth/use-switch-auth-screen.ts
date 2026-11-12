@@ -13,6 +13,10 @@ import {
  *
  * 移り方の決まりは {@link planAuthScreenSwitch}。`params` は行き先を新しく
  * 開くときにだけ渡る（戻るときは、下の画面に入力した値が残っている）。
+ *
+ * 認証の画面は `(account)` のモーダルの中のスタックにあるので、ここで読む
+ * `navigation` の状態はそのスタックのもの。下の画面を見るのも、戻る・閉じる・
+ * 置き換えるのもモーダルの中で済み、モーダルの下（解答中の画面等）には触れない。
  */
 export function useSwitchAuthScreen(): (
   target: AuthScreen,

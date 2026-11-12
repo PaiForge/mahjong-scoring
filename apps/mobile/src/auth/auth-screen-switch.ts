@@ -1,8 +1,10 @@
 /**
  * 認証の流れの画面（ログイン・登録）
  *
- * `route` はルートのスタックでの画面の名前（expo-router がファイルの位置から
- * 付ける）、`pathname` は開くときのパス。
+ * `route` は `(account)` のグループのスタック（`app/(account)/_layout.tsx`）での
+ * 画面の名前、`pathname` は開くときのパス。expo-router は名前をレイアウトからの
+ * 相対の位置で付けるので、グループに入っても `sign-in`・`sign-up/index` のまま
+ * （グループ名は付かない）。
  */
 export const AUTH_SCREENS = {
   signIn: { route: "sign-in", pathname: "/sign-in" },
@@ -32,7 +34,8 @@ export type AuthScreenSwitch = "back" | "replaceBelow" | "replace";
  * 移るときも、補助の画面の上に積んだり補助の画面だけを置き換えたりせず、
  * 下の流れの画面ごと置き換えて、入口の上を 1 枚に保つ。
  *
- * @param belowRoute - 補助の画面のすぐ下にある画面の名前。下が無ければ undefined
+ * @param belowRoute - 補助の画面のすぐ下にある画面の名前（`(account)` のスタックの
+ *   中での名前）。補助の画面がグループの先頭（下がグループの外）なら undefined
  */
 export function planAuthScreenSwitch(
   belowRoute: string | undefined,
