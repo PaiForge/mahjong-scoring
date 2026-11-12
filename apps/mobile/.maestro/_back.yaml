@@ -1,0 +1,35 @@
+# 部品。OS の戻る（ヘッダー左の `<`）で同じスタックの 1 画面前へ戻る。
+#
+# OS 標準の戻るには testID が無い（ネイティブスタックのヘッダーが描くボタンで、
+# アプリから testID を付けられない）。読み上げの名前は端末の言語と OS の版で変わる
+# ので、まず画面の左端から右へ引く（iOS の戻るのスワイプ。言語に依らない）。
+# `BACK_TO`（戻った先にある要素の testID）を渡したときは、引いた後にそれが見えなければ
+# 戻るボタンを読み上げの名前「戻る|Back」で押す（スワイプが効かない画面の保険）。
+# 渡さなければ引くだけ（行き先はフローの次のステップで待つ）。
+#
+# 使い分け（ヘッダー左に何が出るかは `src/components/screen.tsx` の Screen の TSDoc の表）:
+# - 同じスタックに下の画面がある（OS の `<`）→ この部品
+# - 解答中・結果・モーダルの組（マイページ以下）の先頭の × → `tapOn: { id: "screen-close" }`
+# - 用語・お知らせ・級の詳細のシートの × → `tapOn: { id: "sheet-close" }`
+# - ディープリンクで直接開き、下に画面が無いときの `<` → `tapOn: { id: "screen-back" }`
+appId: help.mahjong.score
+---
+- swipe:
+    start: 0%, 50%
+    end: 80%, 50%
+    duration: 400
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      true: ${typeof BACK_TO !== 'undefined' && BACK_TO !== ''}
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: ${BACK_TO}
+          commands:
+            # 戻った先で BACK_TO がスクロールの外にあるだけのときは、ボタンが無いので押さない
+            - tapOn:
+                text: "戻る|Back"
+                optional: true
+            - waitForAnimationToEnd

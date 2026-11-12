@@ -48,7 +48,7 @@ appId: help.mahjong.score
 - takeScreenshot: 03-challenge-board
 # チャレンジを中止して離れる（ゲストなので記録は残らない）
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "Quit this challenge\\?|チャレンジを中止しますか？"
     timeout: 5000
@@ -74,7 +74,7 @@ appId: help.mahjong.score
 - takeScreenshot: 04-answer-check
 # トレーニングを閉じる（説明画面へ戻り、終了の知らせが出る）
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "Training finished|トレーニングを終了しました"
     timeout: 5000
@@ -83,9 +83,9 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://lessons/jantou-fu"
+# 本文の最初の見出し（jantouFu.learn.whatIsJantou）で待つ。ヘッダー左は OS の戻るで testID が無い
 - extendedWaitUntil:
-    visible:
-      id: "screen-back"
+    visible: "What is the pair \\(jantou\\)\\?|雀頭（ジャントウ）とは"
     timeout: 10000
 - waitForAnimationToEnd
 - takeScreenshot: 05-lesson
