@@ -1,5 +1,12 @@
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type ScrollViewInstance,
+} from "react-native";
 import { useTranslations } from "use-intl";
 import {
   getChapterBySlug,
@@ -14,16 +21,20 @@ import {
 import {
   glossaryTermViewBySlug,
   glossaryTermViews,
+  type GlossaryTermView,
 } from "@mahjong-scoring/features/glossary/views";
 import { chapterHref } from "@mahjong-scoring/features/routes";
 
 import { NativeAdCard } from "../../../ads/native-ad-card";
 import { useNativeAds } from "../../../ads/use-native-ads";
 import { LinkRow, LinkRowList } from "../../../components/link-row";
-import { Screen } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
+import {
+  SheetScreen,
+  useReturnToIndex,
+} from "../../../components/sheet-screen";
 import { TextLink } from "../../../components/text-link";
-import { findRouteIndexByHref } from "../../../lib/route-pathname";
+import { useOpenFromModal } from "../../../hooks/use-open-from-modal";
 import { colors } from "../../../lib/theme";
 import { ExampleCard } from "../../../lessons/components/example-card";
 import { MentsuSet, TileSet } from "../../../lessons/components/tile-row";
@@ -38,7 +49,14 @@ const MANY_TILES_THRESHOLD = 7;
  * @description
  * 用語 1 語の説明（web の `/reference/glossary/<slug>`）: 定義と読み → 具体例の
  * 牌 → 点数計算での扱い・具体例で見る・よくある誤解 → 関連する用語 → その語を
- * 扱うレッスン。
+ * 扱うレッスン。高さを選べるシート（`SheetScreen`）で出し、開いた場所の上で
+ * 読んで閉じる。
+ *
+ * 「関連する用語」はシートを積まず、params の slug を替えて同じシートの中身を
+ * 差し替え、先頭へ戻す（語をたどるたびにシートが重なり、閉じるのに同じ数だけ
+ * 引き下げることになるため）。「この語を扱うレッスン」はシートを閉じてから
+ * レッスンを積む（`useOpenFromModal`。シートの後に積んだ通常の画面は iOS では
+ * シートの下に入って見えない）。
  *
  * @flow
  * 用語集の一覧・関連する用語・レッスン本文の用語のシートから開く。
@@ -47,7 +65,9 @@ export default function GlossaryTermScreen() {
   const t = useTranslations("glossary");
   const tCurriculum = useTranslations("learnCurriculum");
   const router = useRouter();
-  const navigation = useNavigation();
+  const openFromModal = useOpenFromModal();
+  const returnToIndex = useReturnToIndex();
+  const scrollRef = useRef<ScrollViewInstance>(null);
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.glossaryTerm);
   const translate = (key: string) => t(key);
@@ -58,11 +78,11 @@ export default function GlossaryTermScreen() {
 
   if (term === undefined) {
     return (
-      <Screen title={t("title")} back>
-        <TextLink onPress={() => router.replace(GLOSSARY_PATH)}>
+      <SheetScreen title={t("title")}>
+        <TextLink onPress={() => returnToIndex(GLOSSARY_PATH)}>
           {t("backToIndex")}
         </TextLink>
-      </Screen>
+      </SheetScreen>
     );
   }
 
@@ -73,8 +93,17 @@ export default function GlossaryTermScreen() {
     .filter((other) => other !== undefined);
   const learnSlugs = term.learnSlugs ?? [];
 
+  const openRelated = (other: GlossaryTermView) => {
+    router.setParams({ slug: other.slug });
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  };
+
   return (
-    <Screen title={term.term} back contentStyle={styles.content}>
+    <SheetScreen
+      title={term.term}
+      ref={scrollRef}
+      contentStyle={styles.content}
+    >
       <View style={styles.section}>
         <SectionTitle>{t("definitionTitle")}</SectionTitle>
         <Text style={styles.reading}>
@@ -102,7 +131,7 @@ export default function GlossaryTermScreen() {
       {related.length > 0 && (
         <View style={styles.section}>
           <SectionTitle>{t("relatedTitle")}</SectionTitle>
-          <TermLinkList terms={related} />
+          <TermLinkList terms={related} onOpen={openRelated} />
         </View>
       )}
 
@@ -117,7 +146,7 @@ export default function GlossaryTermScreen() {
               return (
                 <LinkRow
                   key={chapterSlug}
-                  onPress={() => router.push(chapterHref(chapterSlug))}
+                  onPress={() => openFromModal(chapterHref(chapterSlug))}
                   title={tCurriculum(`${path}.title`)}
                   description={tCurriculum(`${path}.description`)}
                 />
@@ -127,23 +156,12 @@ export default function GlossaryTermScreen() {
         </View>
       )}
 
-      {/* 一覧から来たならそこまで閉じて戻り（navigate は一覧をもう 1 枚積む）、
-          レッスンのシート等から来たなら一覧を上に積む。dismissTo は一覧が履歴に
-          無いとこの画面を置き換え、一覧から戻るとこの画面を飛ばしてしまう */}
-      <TextLink
-        onPress={() => {
-          const state = navigation.getState();
-          const inHistory =
-            state !== undefined &&
-            findRouteIndexByHref(state.routes, state.index, GLOSSARY_PATH) !==
-              undefined;
-          if (inHistory) router.dismissTo(GLOSSARY_PATH);
-          else router.push(GLOSSARY_PATH);
-        }}
-      >
+      {/* 用語集の一覧から開いたならシートを閉じて一覧へ戻り、それ以外
+          （レッスン本文の用語のシート等）からは一覧を開く */}
+      <TextLink onPress={() => returnToIndex(GLOSSARY_PATH)}>
         {t("backToIndex")}
       </TextLink>
-    </Screen>
+    </SheetScreen>
   );
 }
 
