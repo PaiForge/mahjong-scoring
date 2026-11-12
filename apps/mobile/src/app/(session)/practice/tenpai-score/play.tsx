@@ -1,4 +1,4 @@
-import { TenpaiScoreBoard } from "../../../practice/endless/tenpai-score/tenpai-score-board";
+import { TenpaiScoreBoard } from "../../../../practice/endless/tenpai-score/tenpai-score-board";
 
 /**
  * 聴牌形の点数計算 プレイ

@@ -1,5 +1,5 @@
-import { PracticePlayScreen } from "../../../practice/screens/practice-play-screen";
-import { PracticeRoute } from "../../../practice/screens/practice-route";
+import { PracticePlayScreen } from "../../../../practice/screens/practice-play-screen";
+import { PracticeRoute } from "../../../../practice/screens/practice-route";
 
 /**
  * 練習のチャレンジ

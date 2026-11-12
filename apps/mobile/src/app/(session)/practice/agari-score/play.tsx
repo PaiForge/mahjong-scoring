@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { lessonScorePractice } from "@mahjong-scoring/features/practice/score/lesson-practices";
 
-import { AgariScoreBoard } from "../../../practice/endless/agari-score/agari-score-board";
+import { AgariScoreBoard } from "../../../../practice/endless/agari-score/agari-score-board";
 
 /**
  * 和了形の点数計算 プレイ

@@ -1,5 +1,5 @@
-import { PracticeResultScreen } from "../../../practice/screens/practice-result-screen";
-import { PracticeRoute } from "../../../practice/screens/practice-route";
+import { PracticeResultScreen } from "../../../../practice/screens/practice-result-screen";
+import { PracticeRoute } from "../../../../practice/screens/practice-route";
 
 /**
  * 練習の結果
