@@ -48,7 +48,6 @@ const SYMBOLS: Readonly<Record<SymbolName, SymbolViewProps["name"]>> = {
 
 /**
  * OS の記号で描くアイコン
- * 記号アイコン
  *
  * タブ・ヘッダー・行のアイコンは OS の記号（`expo-symbols`）で描く。iOS は
  * SF Symbols（文字の太さと揃い、Dynamic Type や Liquid Glass のヘッダーの中でも
