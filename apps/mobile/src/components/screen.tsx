@@ -385,7 +385,7 @@ export function Screen({
                   numberOfLines={1}
                   // OS のヘッダーの見出しは文字サイズの設定に追従しない
                   allowFontScaling={false}
-                  style={HEADER_TAB_TITLE_STYLE}
+                  style={styles.tabTitle}
                 >
                   {title}
                 </Text>
@@ -514,6 +514,12 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     gap: 24,
+  },
+  tabTitle: {
+    ...HEADER_TAB_TITLE_STYLE,
+    // OS はヘッダーの要素を画面の端から 20pt に置く。本文の左端（16pt。
+    // `content` の paddingHorizontal）に揃える
+    marginLeft: -4,
   },
   titleActionHost: {
     position: "absolute",
