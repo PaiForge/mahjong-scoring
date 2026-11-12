@@ -10,9 +10,9 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { Screen } from "../../components/screen";
-import { RelatedReferencesSection } from "../../reference/related-references-section";
-import { ScoreTable } from "../../score-table/score-table";
+import { Screen } from "../../../components/screen";
+import { RelatedReferencesSection } from "../../../reference/related-references-section";
+import { ScoreTable } from "../../../score-table/score-table";
 
 /** 切り替えの帯の位置（`Screen` の子の並びで数える）。表の上に追従させる */
 const CONTROLS_INDEX = 0;
@@ -25,7 +25,6 @@ export default function ScoreTableScreen() {
       renderLayout={({ controls, body }) => (
         <Screen
           title={t("pageTitle")}
-          inTabs
           contentStyle={styles.content}
           stickyHeaderIndices={[CONTROLS_INDEX]}
         >

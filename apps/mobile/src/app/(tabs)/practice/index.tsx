@@ -22,17 +22,17 @@ import {
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import type { PracticeMode } from "@mahjong-scoring/features/practice/practice-mode";
 
-import { NativeAdCard } from "../../ads/native-ad-card";
-import { useNativeAds } from "../../ads/use-native-ads";
-import { Screen } from "../../components/screen";
-import { FilterChips } from "../../components/filter-chips";
-import { ToggleGroup } from "../../components/toggle-group";
-import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
-import { PracticalPracticeCard } from "../../practice/components/practical-practice-card";
-import { PracticeCard } from "../../practice/components/practice-card";
-import { practiceScreensFor } from "../../practice/registry";
-import { PracticeListGuides } from "../../practice/components/practice-list-guides";
-import { useAccountProgress } from "../../records/use-account-progress";
+import { NativeAdCard } from "../../../ads/native-ad-card";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { Screen } from "../../../components/screen";
+import { FilterChips } from "../../../components/filter-chips";
+import { ToggleGroup } from "../../../components/toggle-group";
+import { usePracticeModeStore } from "../../../hooks/use-practice-mode-store";
+import { PracticalPracticeCard } from "../../../practice/components/practical-practice-card";
+import { PracticeCard } from "../../../practice/components/practice-card";
+import { practiceScreensFor } from "../../../practice/registry";
+import { PracticeListGuides } from "../../../practice/components/practice-list-guides";
+import { useAccountProgress } from "../../../records/use-account-progress";
 
 /** 絞り込みの値（`all` / 段級位スラッグ / カテゴリ）。web の `?rank=` / `?category=` に当たる */
 type FilterValue = string;
@@ -142,7 +142,7 @@ export default function PracticeListPage() {
   const listFilter = toListFilter(filter);
 
   return (
-    <Screen title={t("title")} inTabs>
+    <Screen title={t("title")}>
       <ToggleGroup<PracticeMode>
         accessibilityLabel={t("modes.label")}
         testID="practice-mode"

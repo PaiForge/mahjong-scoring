@@ -1,4 +1,10 @@
-import { AccessibilityInfo, StyleSheet, Text, View } from "react-native";
+import {
+  AccessibilityInfo,
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useSegments } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Toast, {
@@ -24,14 +30,21 @@ const VISIBLE_MS = 3000;
 const EDGE_GAP = 12;
 
 /**
- * タブバーの高さ（safe area を除く）
+ * タブの入口で、画面下端の safe area の上に空ける高さ（タブバーのぶん）
  *
- * expo-router の下部タブ（react-navigation の `BottomTabBar`）が縦向きで取る
- * 既定の高さ。アプリは縦向き固定（app.json）で、タブバーの高さを変えていない
- * （`(tabs)/_layout.tsx`）。タブの外の画面からは `useBottomTabBarHeight` が
- * 読めないため写して持つ。
+ * タブバーは OS のもの（`NativeTabs`）で、高さを JS から読めない（iOS 26 以降は
+ * 浮いて、スクロールで縮む）。そこで OS ごとの定数で持ち、トーストは縮む前の
+ * タブバーの上端より上に出す（縮んだときは間が少し開くだけで重ならない）。
+ *
+ * 値の測り方: Release ビルド（`sim:release`）でタブの入口を開き、
+ * `maestro hierarchy` で `tab-home` 等のタブの要素の枠（bounds）の上端を読む。
+ * 画面の高さ − 上端 − 下端の safe area がこの値（タブの要素の枠はタブバーの
+ * ガラスの面より数 pt 内側なので、面の縁まで少し足す）。iPhone 17 Pro
+ * （iOS 27）で測った。OS を上げてタブバーの形が変わったら測り直す。
+ * Android は Material 3 のタブバーの既定の高さ（80dp）。下端の safe area
+ * （ナビゲーションバー）は NativeTabs が包むので、ここでは別に足す。
  */
-const TAB_BAR_HEIGHT = 49;
+const TAB_BAR_CLEARANCE = Platform.OS === "ios" ? 62 : 80;
 
 /**
  * 画面下に短い知らせを出す
@@ -61,9 +74,12 @@ export function showToast(message: string, tone: ToastTone = "notice"): void {
  * 上端に帯を描く。上端は OS の通知バナーと重なるので使わない）。キーボードが
  * 出ていればその上へ逃げる（ライブラリが持つ）。
  *
- * タブバーがある画面では、帯をタブバーの上端の向こうから出入りさせ、上端で
- * 切る（タブバーに重なって出入りしない）。タブの外の画面では切らない — 切り口が
- * ホームインジケーターの上に来て、帯の影が水平線になって見える。
+ * タブバーは iOS 26 以降は本文の上に浮くので、帯をタブバーの上端で切らない
+ * （切る線が浮いたバーの縁と揃わず、帯の影が水平線になって見える）。
+ * タブバーぶんの高さは {@link TAB_BAR_CLEARANCE}。
+ *
+ * ルートレイアウトで `WindowOverlay` の中に置く（iOS のネイティブのモーダルより
+ * 上に出すため。解答中の全画面のモーダルでも見える）。
  */
 export function ToastHost() {
   const insets = useSafeAreaInsets();
@@ -74,8 +90,7 @@ export function ToastHost() {
       pointerEvents="box-none"
       style={[
         styles.area,
-        onTabs && styles.clipped,
-        { bottom: insets.bottom + (onTabs ? TAB_BAR_HEIGHT : 0) },
+        { bottom: insets.bottom + (onTabs ? TAB_BAR_CLEARANCE : 0) },
       ]}
     >
       <Toast
@@ -122,9 +137,6 @@ const TOAST_CONFIG: ToastConfig = {
 const styles = StyleSheet.create({
   area: {
     ...StyleSheet.absoluteFill,
-  },
-  clipped: {
-    overflow: "hidden",
   },
   row: {
     width: "100%",

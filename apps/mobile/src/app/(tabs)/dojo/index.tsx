@@ -8,20 +8,20 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 
-import { useAuth } from "../../auth/use-auth";
-import { Screen } from "../../components/screen";
-import { DojoHelp } from "../../dojo/dojo-help";
-import { SectionTitle } from "../../components/section-title";
-import { TextLink } from "../../components/text-link";
-import { RankJourneyCard } from "../../dojo/rank-journey-card";
-import { RankProgressBar } from "../../dojo/rank-progress-bar";
-import { useMobileJourney } from "../../dojo/use-mobile-journey";
-import { linkStyles } from "../../lib/link-styles";
-import { panelFrame } from "../../lib/panel-styles";
-import { colors } from "../../lib/theme";
-import { usePracticeModeStore } from "../../hooks/use-practice-mode-store";
-import { useAccountProgress } from "../../records/use-account-progress";
-import { useGoToTab } from "../../hooks/use-go-to-tab";
+import { useAuth } from "../../../auth/use-auth";
+import { Screen } from "../../../components/screen";
+import { DojoHelp } from "../../../dojo/dojo-help";
+import { SectionTitle } from "../../../components/section-title";
+import { TextLink } from "../../../components/text-link";
+import { RankJourneyCard } from "../../../dojo/rank-journey-card";
+import { RankProgressBar } from "../../../dojo/rank-progress-bar";
+import { useMobileJourney } from "../../../dojo/use-mobile-journey";
+import { linkStyles } from "../../../lib/link-styles";
+import { panelFrame } from "../../../lib/panel-styles";
+import { colors } from "../../../lib/theme";
+import { usePracticeModeStore } from "../../../hooks/use-practice-mode-store";
+import { useAccountProgress } from "../../../records/use-account-progress";
+import { useGoToTab } from "../../../hooks/use-go-to-tab";
 
 /**
  * 道場
@@ -61,7 +61,6 @@ export default function DojoPage() {
   return (
     <Screen
       title={t("title")}
-      inTabs
       titleAction={<DojoHelp />}
       contentStyle={styles.content}
     >

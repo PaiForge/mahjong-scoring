@@ -1,21 +1,23 @@
 import { useMemo } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { selectDashboardGuidance } from "@mahjong-scoring/features/dashboard/guidance";
 
-import { useAuth } from "../../auth/use-auth";
-import { UserIcon } from "../../components/icons/icons";
-import { Screen } from "../../components/screen";
-import { AgariScorePracticeSection } from "../../home/agari-score-practice-section";
-import { ContinueLearningSection } from "../../home/continue-learning-section";
-import { HomeAnnouncements } from "../../home/home-announcements";
-import { NextStepCard } from "../../home/next-step-card";
-import { RecordCtaCard } from "../../home/record-cta-card";
-import { UNPORTED_LESSON_SLUGS } from "../../lessons/ported-lessons";
-import { colors } from "../../lib/theme";
-import { UserAvatar } from "../../mypage/user-avatar";
-import { useAccountProgress } from "../../records/use-account-progress";
+import { useAuth } from "../../../auth/use-auth";
+import { HeaderIconButton } from "../../../components/header-action";
+import { UserIcon } from "../../../components/icons/icons";
+import { SymbolIcon } from "../../../components/icons/symbol-icon";
+import { Screen } from "../../../components/screen";
+import { AgariScorePracticeSection } from "../../../home/agari-score-practice-section";
+import { ContinueLearningSection } from "../../../home/continue-learning-section";
+import { HomeAnnouncements } from "../../../home/home-announcements";
+import { NextStepCard } from "../../../home/next-step-card";
+import { RecordCtaCard } from "../../../home/record-cta-card";
+import { UNPORTED_LESSON_SLUGS } from "../../../lessons/ported-lessons";
+import { colors } from "../../../lib/theme";
+import { UserAvatar } from "../../../mypage/user-avatar";
+import { useAccountProgress } from "../../../records/use-account-progress";
 
 /**
  * ヘッダー右のアバターの直径。人型のアイコン（24）より一回り大きくし、
@@ -39,7 +41,7 @@ const ENTRY_SIZE = 28;
  *   ゲストなら端末の記録から出す（`useAccountProgress`）。「レッスンの続き」は
  *   モバイルで開けるレッスンだけから選ぶ（レッスンの目次と同じ）
  * - お知らせは学習導線と記録の案内の後に置く（web は学習導線の後）
- * - マイページへの入口をヘッダー右に置く（web はヘッダーのアカウントの
+ * - マイページへの入口をヘッダー右に置く（`HeaderIconButton`。web はヘッダーのアカウントの
  *   メニュー。モバイルはメニューを持たず、タブも OS の上限の 5 つで
  *   埋まっている）。マイページはゲストにも出す — 開くと記録の案内が出る。
  *   設定は web のアカウントのメニューと同じくマイページの奥に置き、ヘッダーに
@@ -75,19 +77,14 @@ export default function HomeScreen() {
   return (
     <Screen
       title={t("home")}
-      inTabs
       contentStyle={styles.content}
       titleAction={
-        <Pressable
+        <HeaderIconButton
           testID="home-mypage"
           onPress={() => router.push("/mypage")}
-          accessibilityRole="button"
-          accessibilityLabel={t("mypage")}
-          hitSlop={8}
-          style={({ pressed }) => pressed && styles.pressed}
-        >
-          <MypageEntryIcon />
-        </Pressable>
+          label={t("mypage")}
+          element={<MypageEntryIcon />}
+        />
       }
     >
       <NextStepCard journey={journey} />
@@ -117,14 +114,18 @@ function MypageEntryIcon() {
       />
     );
   }
-  return <UserIcon size={24} color={colors.surface700} />;
+  return (
+    <SymbolIcon
+      name="person"
+      size={20}
+      color={colors.foreground}
+      fallback={<UserIcon size={24} color={colors.surface700} />}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
   content: {
     gap: 32,
-  },
-  pressed: {
-    opacity: 0.5,
   },
 });
