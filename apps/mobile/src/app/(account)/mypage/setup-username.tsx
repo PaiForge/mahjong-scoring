@@ -25,17 +25,17 @@ import {
   USERNAME_MAX_LENGTH,
 } from "@mahjong-scoring/features/account/username";
 
-import type { ApiFailure } from "../../auth/account-api";
-import { registerUsername } from "../../auth/account-api";
-import { FormMessage } from "../../auth/form-message";
-import { refreshAccount, signOut } from "../../auth/use-auth";
-import { useLeaveAuthFlow } from "../../auth/use-leave-auth-flow";
-import { Button } from "../../components/button";
-import { Screen } from "../../components/screen";
-import { TextField } from "../../components/text-field";
-import { TextLink } from "../../components/text-link";
-import { showToast } from "../../components/toast";
-import { colors } from "../../lib/theme";
+import type { ApiFailure } from "../../../auth/account-api";
+import { registerUsername } from "../../../auth/account-api";
+import { FormMessage } from "../../../auth/form-message";
+import { refreshAccount, signOut } from "../../../auth/use-auth";
+import { useLeaveAuthFlow } from "../../../auth/use-leave-auth-flow";
+import { Button } from "../../../components/button";
+import { Screen } from "../../../components/screen";
+import { TextField } from "../../../components/text-field";
+import { TextLink } from "../../../components/text-link";
+import { showToast } from "../../../components/toast";
+import { colors } from "../../../lib/theme";
 
 /**
  * 登録の失敗を辞書のキーに写す（`setupUsername.validation.*`）

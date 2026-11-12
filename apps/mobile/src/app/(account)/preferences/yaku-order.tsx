@@ -9,9 +9,9 @@
 import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
-import { YakuOrderSection } from "../../preferences/yaku-order-section";
+import { Screen } from "../../../components/screen";
+import { SectionTitle } from "../../../components/section-title";
+import { YakuOrderSection } from "../../../preferences/yaku-order-section";
 
 /** 鍵と保存の帯の位置（`Screen` の子の並びで数える）。36 行の上に追従させる */
 const TOOLBAR_INDEX = 2;

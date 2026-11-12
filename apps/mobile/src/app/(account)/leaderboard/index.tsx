@@ -17,23 +17,23 @@ import type { MobileLeaderboardRanksResponse } from "@mahjong-scoring/features/l
 import { leaderboardBoardLabel } from "@mahjong-scoring/features/leaderboard/board-label";
 import { practiceBoardKey } from "@mahjong-scoring/features/practice-menu-types";
 
-import { NativeAdRow } from "../../ads/native-ad-row";
-import { useNativeAds } from "../../ads/use-native-ads";
-import { useViewer } from "../../auth/use-viewer";
-import { Chip } from "../../components/chip";
-import { Divider } from "../../components/divider";
-import { LinkRowList } from "../../components/link-row";
-import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
-import { TextLink } from "../../components/text-link";
-import { ToggleGroup } from "../../components/toggle-group";
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { useViewer } from "../../../auth/use-viewer";
+import { Chip } from "../../../components/chip";
+import { Divider } from "../../../components/divider";
+import { LinkRowList } from "../../../components/link-row";
+import { Screen } from "../../../components/screen";
+import { SectionTitle } from "../../../components/section-title";
+import { TextLink } from "../../../components/text-link";
+import { ToggleGroup } from "../../../components/toggle-group";
 import {
   fetchLeaderboardRanks,
   type LeaderboardApiFailure,
-} from "../../leaderboard/leaderboard-api";
-import { panelFrame } from "../../lib/panel-styles";
-import { useFocusRead, type FocusReadState } from "../../lib/use-focus-read";
-import { colors } from "../../lib/theme";
+} from "../../../leaderboard/leaderboard-api";
+import { panelFrame } from "../../../lib/panel-styles";
+import { useFocusRead, type FocusReadState } from "../../../lib/use-focus-read";
+import { colors } from "../../../lib/theme";
 
 /**
  * ランキングでの自分の順位

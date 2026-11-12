@@ -3,15 +3,15 @@ import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { boardLabel } from "@mahjong-scoring/features/my-record/board-label";
 
-import { LoadMoreButton } from "../../../components/load-more-button";
-import { Screen } from "../../../components/screen";
-import { SectionTitle } from "../../../components/section-title";
-import { AttemptTable } from "../../../mypage/attempt-table";
-import { useLoadMore } from "../../../lib/use-load-more";
-import { fetchRecordResults } from "../../../mypage/mypage-api";
-import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
-import { LoadingIndicator } from "../../../components/load-state";
-import { useMypageRead } from "../../../mypage/use-mypage-read";
+import { LoadMoreButton } from "../../../../components/load-more-button";
+import { Screen } from "../../../../components/screen";
+import { SectionTitle } from "../../../../components/section-title";
+import { AttemptTable } from "../../../../mypage/attempt-table";
+import { useLoadMore } from "../../../../lib/use-load-more";
+import { fetchRecordResults } from "../../../../mypage/mypage-api";
+import { MypageGate, MypageLoadFailed } from "../../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../../components/load-state";
+import { useMypageRead } from "../../../../mypage/use-mypage-read";
 
 /**
  * チャレンジ全履歴

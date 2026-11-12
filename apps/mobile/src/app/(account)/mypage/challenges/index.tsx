@@ -27,20 +27,20 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import { PRACTICE_PATH, practiceHref } from "@mahjong-scoring/features/routes";
 
-import { Button } from "../../../components/button";
-import { Screen } from "../../../components/screen";
-import { SectionTitle } from "../../../components/section-title";
-import { SelectField } from "../../../components/select-field";
-import { TextLink } from "../../../components/text-link";
-import { colors } from "../../../lib/theme";
-import { AttemptTable } from "../../../mypage/attempt-table";
-import { fetchRecords } from "../../../mypage/mypage-api";
-import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
-import { LoadingIndicator } from "../../../components/load-state";
-import { ScoreChart } from "../../../mypage/score-chart";
-import { StatsCard } from "../../../mypage/stats-card";
-import { useMypageRead } from "../../../mypage/use-mypage-read";
-import { useGoToTab } from "../../../hooks/use-go-to-tab";
+import { Button } from "../../../../components/button";
+import { Screen } from "../../../../components/screen";
+import { SectionTitle } from "../../../../components/section-title";
+import { SelectField } from "../../../../components/select-field";
+import { TextLink } from "../../../../components/text-link";
+import { colors } from "../../../../lib/theme";
+import { AttemptTable } from "../../../../mypage/attempt-table";
+import { fetchRecords } from "../../../../mypage/mypage-api";
+import { MypageGate, MypageLoadFailed } from "../../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../../components/load-state";
+import { ScoreChart } from "../../../../mypage/score-chart";
+import { StatsCard } from "../../../../mypage/stats-card";
+import { useMypageRead } from "../../../../mypage/use-mypage-read";
+import { useGoToTab } from "../../../../hooks/use-go-to-tab";
 
 /** 直近の履歴に並べる件数（web と同じ） */
 const TABLE_DISPLAY_LIMIT = 5;

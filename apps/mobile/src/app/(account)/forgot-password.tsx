@@ -23,13 +23,13 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { FormMessage } from "../auth/form-message";
-import { supabase } from "../auth/supabase-client";
-import { Button } from "../components/button";
-import { Screen } from "../components/screen";
-import { TextField } from "../components/text-field";
-import { SITE_URL } from "../lib/app-site-url";
-import { colors } from "../lib/theme";
+import { FormMessage } from "../../auth/form-message";
+import { supabase } from "../../auth/supabase-client";
+import { Button } from "../../components/button";
+import { Screen } from "../../components/screen";
+import { TextField } from "../../components/text-field";
+import { SITE_URL } from "../../lib/app-site-url";
+import { colors } from "../../lib/theme";
 
 export default function ForgotPasswordScreen() {
   const t = useTranslations("forgotPassword");

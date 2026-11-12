@@ -20,11 +20,11 @@
 import { StyleSheet } from "react-native";
 import { useTranslations } from "use-intl";
 
-import { useAuth } from "../../../auth/use-auth";
-import { Screen } from "../../../components/screen";
-import { RecordCtaCard } from "../../../home/record-cta-card";
-import { SignedInAccount } from "../../../mypage/account-section";
-import { LoadingIndicator } from "../../../components/load-state";
+import { useAuth } from "../../../../auth/use-auth";
+import { Screen } from "../../../../components/screen";
+import { RecordCtaCard } from "../../../../home/record-cta-card";
+import { SignedInAccount } from "../../../../mypage/account-section";
+import { LoadingIndicator } from "../../../../components/load-state";
 
 export default function MypageAccountScreen() {
   const t = useTranslations("mypageAccount");
