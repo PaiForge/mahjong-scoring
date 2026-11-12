@@ -1,11 +1,8 @@
 import { useState } from "react";
 import { useTranslations } from "use-intl";
 
-import { HelpIconButton } from "./help-icon-button";
+import { HeaderIconButton } from "./header-action";
 import { HelpTourSheet, type HelpTourStep } from "./help-tour-sheet";
-
-/** 見出しの横の「?」の大きさ（見出しの文字に合わせる） */
-export const HEADER_HELP_FONT_SIZE = 17;
 
 /**
  * 辞書のキーの列を、`<key>.title` / `<key>.description` を引いた手順に変える
@@ -39,6 +36,9 @@ export function operationHelpSteps(
  * `label`（「?」の読み上げ）・`prev` / `next` / `done`・`progress` を持つこと。
  * 練習の進め方を見本付きで見せる設定画面の「?」は、文言の置き場が違うので
  * これを使わない。
+ *
+ * `Screen` の `titleAction` に渡す。「?」はヘッダー右のボタン
+ * （`HeaderIconButton`）になり、シートは本文の木に残る。
  */
 export function OperationHelp({
   namespace,
@@ -52,10 +52,11 @@ export function OperationHelp({
 
   return (
     <>
-      <HelpIconButton
+      <HeaderIconButton
+        icon="help"
         onPress={() => setIsOpen(true)}
         label={t("label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
+        testID="header-help"
       />
       <HelpTourSheet
         isOpen={isOpen}

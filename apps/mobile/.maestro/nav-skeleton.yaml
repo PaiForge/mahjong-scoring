@@ -1,0 +1,155 @@
+# 画面の骨格（OS のタブバー・OS のヘッダー）をゲストで撮る:
+# - 5 つのタブを順に開く（タブバーは OS のもので 5 つ並ぶ。入口は大きな見出し）
+# - ホームを下へスクロールする（大きな見出しが畳まれ、iOS 26 以降はタブバーが縮む）
+# - 道場のヘッダー右の「?」を開いて閉じる（ヘッダーのボタンが押せる）
+# - 練習一覧から練習の説明を開き、OS の戻る（<）で戻る
+# - トレーニングを始めて × で終える → 説明画面にトースト。タブの入口のトースト
+#   （タブバーの上に出る）は撮らない — ゲストがタブの入口で出す操作が無く、
+#   一覧へ戻る間に 3 秒の帯が消える
+# - 積んだ画面から「目次へ」でレッスンのタブへ（useGoToTab の dismissTo）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- assertVisible:
+    id: "home-mypage"
+- takeScreenshot: tab-home
+- tapOn:
+    id: "tab-dojo"
+- extendedWaitUntil:
+    visible:
+      id: "header-help"
+    timeout: 5000
+- takeScreenshot: tab-dojo
+- tapOn:
+    id: "tab-practice"
+- extendedWaitUntil:
+    visible:
+      id: "practice-mode-basic"
+    timeout: 5000
+- takeScreenshot: tab-practice
+- tapOn:
+    id: "tab-lessons"
+- waitForAnimationToEnd
+- takeScreenshot: tab-lessons
+- tapOn:
+    id: "tab-score-table"
+- waitForAnimationToEnd
+- takeScreenshot: tab-score-table
+# ホーム: 下へスクロールすると見出しが畳まれ、タブバーが縮む
+- tapOn:
+    id: "tab-home"
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 5000
+- swipe:
+    start: 50%, 70%
+    end: 50%, 30%
+    duration: 500
+- waitForAnimationToEnd
+- takeScreenshot: home-scrolled
+# マイページの入口（ヘッダー右のアバター）は押せる
+- tapOn:
+    id: "home-mypage"
+- waitForAnimationToEnd
+- takeScreenshot: home-mypage-opened
+- runFlow:
+    when:
+      visible:
+        id: "screen-back"
+    commands:
+      - tapOn:
+          id: "screen-back"
+- runFlow:
+    when:
+      visible:
+        id: "screen-close"
+    commands:
+      - tapOn:
+          id: "screen-close"
+- runFlow:
+    when:
+      notVisible:
+        id: "tab-home"
+    commands:
+      # OS 標準の戻る（testID が無いので読み上げの名前で押す）
+      - tapOn: "戻る|Back"
+- extendedWaitUntil:
+    visible:
+      id: "tab-dojo"
+    timeout: 5000
+# 道場: ヘッダー右の「?」を開いて閉じる
+- tapOn:
+    id: "tab-dojo"
+- tapOn:
+    id: "header-help"
+- extendedWaitUntil:
+    visible: "1 / 5"
+    timeout: 5000
+- takeScreenshot: dojo-help-open
+- swipe:
+    start: 50%, 70%
+    end: 50%, 95%
+    duration: 300
+- waitForAnimationToEnd
+- assertNotVisible: "1 / 5"
+# 練習一覧 → 練習の説明 → OS の戻るで一覧へ
+- tapOn:
+    id: "tab-practice"
+- scrollUntilVisible:
+    element:
+      id: "practice-card-jantou-fu"
+    direction: DOWN
+- tapOn:
+    id: "practice-card-jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "start-training"
+    timeout: 10000
+- takeScreenshot: practice-intro
+- tapOn: "戻る|Back"
+# 一覧はスクロールした位置のまま（見出しは畳まれ、タブバーは縮んでいる）
+- extendedWaitUntil:
+    visible:
+      id: "practice-card-jantou-fu"
+    timeout: 5000
+- takeScreenshot: practice-back
+# トースト: トレーニングを始めて × で終える
+- tapOn:
+    id: "practice-card-jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "start-training"
+    timeout: 10000
+- tapOn:
+    id: "start-training"
+- extendedWaitUntil:
+    visible:
+      id: "screen-close"
+    timeout: 15000
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "トレーニングを終了しました"
+    timeout: 5000
+- takeScreenshot: toast-intro
+- tapOn: "戻る|Back"
+# 積んだ画面からタブの入口へ（useGoToTab の dismissTo）: 見つからないレッスンの
+# 「目次へ」で、積んだ画面を閉じてレッスンのタブへ切り替わる
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://lessons/does-not-exist"
+- extendedWaitUntil:
+    visible: "目次へ"
+    timeout: 10000
+- tapOn: "目次へ"
+# タブバーは縮んだままなので、タブのボタンではなく目次の中身で待つ
+- extendedWaitUntil:
+    visible: ".*レッスン完了.*"
+    timeout: 5000
+- takeScreenshot: go-to-tab-lessons

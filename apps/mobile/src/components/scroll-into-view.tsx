@@ -33,6 +33,15 @@ type ScrollIntoView = (
   },
 ) => void;
 
+/** 枠の上下で OS の帯（ヘッダー・タブバー）に隠れる高さ */
+export interface ScrollInsets {
+  readonly top: number;
+  readonly bottom: number;
+}
+
+/** inset を渡さない枠（シートの中身等）の既定 */
+const NO_INSETS: RefObject<ScrollInsets> = { current: { top: 0, bottom: 0 } };
+
 const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
   undefined,
 );
@@ -46,20 +55,33 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
  * スクロールの関数を配り、子孫（点数早見表の注目セル・役一覧の役）がそれを
  * 呼ぶ。位置は枠の中身（`getInnerViewRef`）からの距離で測るので、枠の
  * 子の並びを包み直さない（`stickyHeaderIndices` が直接の子を数えるため）。
+ * 自分は view を描かない（`Screen` の `ScrollView` が画面の直下に来ないと、
+ * iOS がヘッダーとタブバーのぶんの inset を自動で付けない）。
+ *
+ * 枠の上下が OS のヘッダー・タブバーの下に潜る画面（`Screen` の透けるヘッダー。
+ * iOS の `contentInsetAdjustmentBehavior="automatic"`）では、見えている範囲は
+ * 枠の高さから上下の inset を除いた帯で、スクロール量は先頭で `-上の inset`
+ * （負の値）から始まる。`insets` を渡すと、その帯を「枠」とみなして合わせ、
+ * 求めた位置を inset のぶんずらしてからスクロールする（先頭に合わせると
+ * `-上の inset` になり、要素がヘッダーの裏に隠れない）。
  *
  * @param scrollRef 対象のスクロール枠
- * @param viewportHeight 枠の見えている高さ（`onLayout` で更新する入れ物）
- * @param scrollY 今のスクロール位置（`onScroll` で更新する入れ物）
+ * @param viewportHeight 枠の高さ（`onLayout` で更新する入れ物。inset を含む）
+ * @param scrollY 今のスクロール位置（`onScroll` で更新する入れ物）。まだ
+ *   一度もスクロールしていなければ `undefined`（先頭 = `-上の inset` とみなす）
+ * @param insets 枠の上下で OS の帯に隠れる高さ（省略時は 0）
  */
 export function ScrollIntoViewProvider({
   scrollRef,
   viewportHeight,
   scrollY,
+  insets = NO_INSETS,
   children,
 }: {
   readonly scrollRef: RefObject<ScrollViewInstance | null>;
   readonly viewportHeight: RefObject<number>;
-  readonly scrollY: RefObject<number>;
+  readonly scrollY: RefObject<number | undefined>;
+  readonly insets?: RefObject<ScrollInsets>;
   readonly children: ReactNode;
 }) {
   const scrollIntoView = useCallback<ScrollIntoView>(
@@ -74,13 +96,18 @@ export function ScrollIntoViewProvider({
       const content = scroll.getInnerViewRef();
       if (content == null) return;
       const scrollTo = (y: number, height: number) => {
+        const { top: insetTop, bottom: insetBottom } = insets.current;
+        // 見えている帯の上端（中身の座標）。スクロール前は先頭 = -insetTop
+        const visibleTop = (scrollY.current ?? -insetTop) + insetTop;
         const top = scrollTargetY(
           options?.block ?? "center",
           { y, height },
-          viewportHeight.current,
-          scrollY.current,
+          viewportHeight.current - insetTop - insetBottom,
+          visibleTop,
         );
-        if (top !== undefined) scroll.scrollTo({ y: top, animated: true });
+        if (top !== undefined) {
+          scroll.scrollTo({ y: top - insetTop, animated: true });
+        }
       };
       const until = options?.until;
       target.measureLayout(content, (_x, y, _width, height) => {
@@ -93,7 +120,7 @@ export function ScrollIntoViewProvider({
         });
       });
     },
-    [scrollRef, viewportHeight, scrollY],
+    [scrollRef, viewportHeight, scrollY, insets],
   );
 
   return (
@@ -118,7 +145,7 @@ export function ScrollIntoViewScrollView({
 }) {
   const scrollRef = useRef<ScrollViewInstance>(null);
   const viewportHeight = useRef(0);
-  const scrollY = useRef(0);
+  const scrollY = useRef<number | undefined>(undefined);
 
   return (
     <ScrollIntoViewProvider

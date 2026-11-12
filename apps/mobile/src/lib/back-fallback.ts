@@ -29,6 +29,12 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  * - ログイン・登録 → ホーム（入口がホームとマイページの記録の案内のため）
  * - それ以外（練習）→ 練習一覧
  *
+ * ルートのスタックに anchor（`unstable_settings` の `anchor` / `initialRouteName`）は
+ * 置かない。置くとディープリンクで開いた画面の下に必ずタブが入り、全部の戻り先が
+ * ホームになって、この「入口のタブへ戻す」決まりと食い違う。直接開いた画面は
+ * 下に画面を持たないので、`Screen` の戻る / ×（モーダルなら `useCloseModal`）は
+ * これまでどおりここで決めた行き先へ置き換える。
+ *
  * @param pathname 今の画面のパス（`usePathname()`）
  */
 export function backFallbackHref(pathname: string): string {

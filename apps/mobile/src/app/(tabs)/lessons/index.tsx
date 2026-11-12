@@ -16,35 +16,39 @@ import {
   type RankDefinition,
 } from "@mahjong-scoring/features/ranks/registry";
 
-import { NativeAdRow } from "../../ads/native-ad-row";
-import { useNativeAds } from "../../ads/use-native-ads";
-import { LinkRowList } from "../../components/link-row";
-import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
-import { TextLink } from "../../components/text-link";
-import { useCompletedLessons } from "../../records/use-account-progress";
-import { colors } from "../../lib/theme";
+import { NativeAdRow } from "../../../ads/native-ad-row";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { LinkRowList } from "../../../components/link-row";
+import { Screen } from "../../../components/screen";
+import { SectionTitle } from "../../../components/section-title";
+import { TextLink } from "../../../components/text-link";
+import { useCompletedLessons } from "../../../records/use-account-progress";
+import { colors } from "../../../lib/theme";
 import {
   CurriculumProgressBar,
   CurriculumToc,
-} from "../../lessons/components/curriculum-toc";
+} from "../../../lessons/components/curriculum-toc";
 import {
   countPortedCompleted,
   isLessonPorted,
   PORTED_LESSONS,
   UNPORTED_LESSON_SLUGS,
-} from "../../lessons/ported-lessons";
+} from "../../../lessons/ported-lessons";
 
 /** セクション別の章（並びは変わらないので 1 回だけ組む） */
 const GROUPED = chaptersBySection();
 
 /**
- * このタブの navigation のうち使う分（タブのボタンの押下と params の書き換え）。
- * expo-router の `useNavigation` の既定の型はタブのイベントを持たないので、ここで絞る
+ * この画面の navigation のうち使う分（params の書き換えと、親のタブの
+ * ボタンの押下）。画面はタブの中のスタックにいるので、タブの押下は親
+ * （タブの navigator）から受ける。expo-router の `useNavigation` の既定の型は
+ * タブのイベントを持たないので、ここで絞る
  */
 interface LessonsTabNavigation {
-  addListener(type: "tabPress", callback: () => void): () => void;
   setParams(params: { readonly rank: undefined }): void;
+  getParent():
+    | { addListener(type: "tabPress", callback: () => void): () => void }
+    | undefined;
 }
 
 /** `?rank=` から絞り込む級を引く。未知の級・前提レッスンを持たない級は絞らない */
@@ -83,9 +87,11 @@ export default function LessonsTab() {
 
   useEffect(
     () =>
-      navigation.addListener("tabPress", () =>
-        navigation.setParams({ rank: undefined }),
-      ),
+      navigation
+        .getParent()
+        ?.addListener("tabPress", () =>
+          navigation.setParams({ rank: undefined }),
+        ),
     [navigation],
   );
 
@@ -112,7 +118,7 @@ function AllLessonsIndex() {
   const ads = useNativeAds(MOBILE_AD_SLOTS.learnIndex);
 
   return (
-    <Screen title={t("pageTitle")} inTabs>
+    <Screen title={t("pageTitle")}>
       <View style={styles.page}>
         <CurriculumProgressBar
           completedCount={completedCount}
@@ -182,7 +188,7 @@ function RankLessonsIndex({
   const next = lessons.find((chapter) => !completedSlugs.has(chapter.slug));
 
   return (
-    <Screen title={t("pageTitle")} inTabs>
+    <Screen title={t("pageTitle")}>
       <View style={styles.rankPage}>
         <SectionTitle>
           {t("rankFilterTitle", { rank: tRanks(`names.${rank.slug}`) })}

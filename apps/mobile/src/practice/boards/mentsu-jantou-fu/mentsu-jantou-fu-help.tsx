@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MENTSU_JANTOU_FU_HELP_SECTIONS } from "@mahjong-scoring/features/practice/mentsu-jantou-fu/help-sections";
 
-import { HelpIconButton } from "../../../components/help-icon-button";
+import { HeaderIconButton } from "../../../components/header-action";
 import { InfoModal } from "../../../components/info-modal";
 import { colors } from "../../../lib/theme";
 
@@ -11,8 +11,9 @@ import { colors } from "../../../lib/theme";
  * 面子と雀頭の符計算のヘルプ
  * 面子・雀頭符ヘルプ
  *
- * web の `MentsuJantouFuHelp`（`PracticeHelpButton`）の移植。練習名の右隣の
- * 「?」から、盤面を見ても読み取れない「何を符に数え、何を数えないか」を
+ * web の `MentsuJantouFuHelp`（`PracticeHelpButton`）の移植。ヘッダー右の
+ * 「?」（`HeaderIconButton`。トレーニングの `Screen` の `titleAction` に
+ * 渡る）から、盤面を見ても読み取れない「何を符に数え、何を数えないか」を
  * モーダルで読ませる。とくに次の 3 つは、正しく数えたつもりで外しやすい:
  *
  * - 刻子の符は和了方法で変わる（ロンで完成した刻子は明刻）
@@ -28,7 +29,12 @@ export function MentsuJantouFuHelp() {
 
   return (
     <>
-      <HelpIconButton onPress={() => setIsOpen(true)} label={t("label")} />
+      <HeaderIconButton
+        icon="help"
+        onPress={() => setIsOpen(true)}
+        label={t("label")}
+        testID="header-help"
+      />
       <InfoModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
