@@ -58,6 +58,15 @@ const SYMBOLS: Readonly<Record<SymbolName, SymbolViewProps["name"]>> = {
  *
  * 記号を描けないとき（Android でフォントの記号名が無い等）は `fallback` を描く。
  * 呼び出し側は従来の SVG を渡しておけば、OS の記号が無い環境でも形が消えない。
+ *
+ * 記号は飾りとして読み上げの木から外す。読み上げは押す部品（ボタン・行）の名前で
+ * 行い、アイコンだけのボタンは自分で `accessibilityLabel` を持つ（`HeaderButton`・
+ * シートの閉じる）。iOS では `accessible={false}` だけでは足りない — SF Symbol を
+ * 載せた `UIImageView` は記号の名前（`tablecells` なら「表」）を自動の読み上げ名に
+ * 持ち、名前の無い `Pressable` は子の名前をつないで自分の名前にする（RN の
+ * `RCTRecursiveAccessibilityLabel`）。このため「点数表を確認」が「表, 点数表を確認」に
+ * なっていた。つなぐ処理が飛ばすのは `accessibilityElementsHidden` の子だけなので、
+ * それを立てる。Android は `importantForAccessibility="no-hide-descendants"` で外す。
  */
 export function SymbolIcon({
   name,
@@ -76,8 +85,9 @@ export function SymbolIcon({
       size={size}
       tintColor={color}
       fallback={fallback}
-      // 記号は飾り。読み上げは押す部品（ボタン・行）の名前で行う
+      // 記号は飾り。読み上げは押す部品（ボタン・行）の名前で行う（理由は上の TSDoc）
       accessible={false}
+      accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     />
   );

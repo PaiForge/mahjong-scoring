@@ -103,7 +103,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
     （`patches/react-native-screens@<版>.patch`、ルートの `package.json` の `pnpm.patchedDependencies`）で、
     `fullScreenModal` の提示が終わったあとに外している（下の画面が window から外れる全画面だけ。
     `transparentModal` は下が透けて残るので外さない）。SDK・react-native-screens を上げたら、
-    patch がまだ要るか見直す（版が変わると pnpm が patch を当てられずに止まる）
+    patch がまだ要るか見直す（版が変わると pnpm が patch を当てられずに止まる）。
+    SDK 58 は precompiled modules が既定で、配布元の URL があると RNScreens をビルド済みの
+    xcframework で入れて patch を当てたソースを使わないため、`package.json` の
+    `expo.autolinking.ios.buildFromSource` に `RNScreens` を載せて常にソースからビルドさせる
   - `(account)` — マイページ・設定・ログイン・登録・パスワードの再設定・ランキング。`modal` で出し、
     中にスタックを持つ。iOS ではモーダルの後に積んだ通常の画面はモーダルの下に入って見えない。
     解答中から開く画面（設定・ペイウォールのログイン / 登録 / プラン・マイレコード等）がすべてこの
