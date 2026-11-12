@@ -1,6 +1,6 @@
 # 画面の骨格（OS のタブバー・OS のヘッダー）をゲストで撮る:
-# - 5 つのタブを順に開く（タブバーは OS のもので 5 つ並ぶ。入口は大きな見出し）
-# - ホームを下へスクロールする（大きな見出しが畳まれ、iOS 26 以降はタブバーが縮む）
+# - 5 つのタブを順に開く（タブバーは OS のもので 5 つ並ぶ。入口の見出しはヘッダーの左端）
+# - ホームを下へスクロールする（見出しはヘッダーに残り、iOS 26 以降はタブバーが縮む）
 # - 道場のヘッダー右の「?」を開いて閉じる（ヘッダーのボタンが押せる）
 # - 練習一覧から練習の説明を開き、OS の戻る（<。_back）で戻る
 # - トレーニングを始めて × で終える → 説明画面にトースト。タブの入口のトースト
@@ -40,7 +40,7 @@ appId: help.mahjong.score
     id: "tab-score-table"
 - waitForAnimationToEnd
 - takeScreenshot: tab-score-table
-# ホーム: 下へスクロールすると見出しが畳まれ、タブバーが縮む
+# ホーム: 下へスクロールするとタブバーが縮む（見出しはヘッダーに残る）
 - tapOn:
     id: "tab-home"
 - extendedWaitUntil:
@@ -97,7 +97,7 @@ appId: help.mahjong.score
     file: _back.yaml
     env:
       BACK_TO: "practice-card-jantou-fu"
-# 一覧はスクロールした位置のまま（見出しは畳まれ、タブバーは縮んでいる）
+# 一覧はスクロールした位置のまま（タブバーは縮んでいる）
 - extendedWaitUntil:
     visible:
       id: "practice-card-jantou-fu"

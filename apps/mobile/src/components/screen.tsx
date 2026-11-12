@@ -12,6 +12,7 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   View,
   type ScrollViewInstance,
   type StyleProp,
@@ -32,7 +33,7 @@ import { useCloseModal } from "../hooks/use-open-from-modal";
 import { backFallbackHref } from "../lib/back-fallback";
 import { MODAL_ROUTE_NAMES } from "../lib/modal-routes";
 import {
-  HEADER_LARGE_TITLE_STYLE,
+  HEADER_TAB_TITLE_STYLE,
   HEADER_TITLE_STYLE,
 } from "../lib/stack-options";
 import { colors } from "../lib/theme";
@@ -59,9 +60,8 @@ interface ScreenProps {
   /**
    * 見出し（OS のヘッダーに出す）。省略するとヘッダーを出さない
    *
-   * タブの入口では大きな見出し（iOS の large title。スクロールで畳まれる）、
-   * それ以外は中央の小さな見出し。タブの入口でも `stickyHeaderIndices` を
-   * 渡した画面（点数表）は中央の小さな見出しにする（理由は同 prop）。
+   * タブの入口ではヘッダーの行の左端に一回り大きく出し、それ以外は中央の
+   * 小さな見出し（出し分けの理由は {@link Screen}「見出しの位置」）。
    */
   readonly title?: string;
   /**
@@ -98,20 +98,6 @@ interface ScreenProps {
    * 渡した画面はヘッダーを透けさせず、白地の帯にする。透けるヘッダーの下に
    * 本文を潜らせる自動の inset を、RN の追従する子は知らず、ヘッダーの裏に
    * 貼り付いて隠れるため。
-   *
-   * 渡した画面は、タブの入口でも大きな見出し（large title）を使わず、中央の
-   * 小さな見出しにする。iOS 26 では透けないヘッダー（ナビゲーションバーが
-   * translucent でない）に large title を載せると、スクロールで畳んだあと
-   * 小さな見出しが描かれず、ヘッダーが空白になる（大きな見出しの要素は
-   * バーの中に残るが見えない。iPhone 17 Pro / iOS 26.5 の Release ビルドで確認）。
-   *
-   * 採らなかった案:
-   * - 透けないヘッダーの地の色を塗らない（`backgroundColor: "transparent"`。
-   *   react-navigation が large title の既定にしている値）— 試したが空白は直らない。
-   *   地の色ではなく、透けないバーと large title の組み合わせで起きる
-   * - `transparent` を指定しない（react-navigation は large title のとき
-   *   バーを translucent にする）— 本文がバーの下に潜り、追従する子が
-   *   ヘッダーの裏に貼り付く。上の決まりに反する
    */
   readonly stickyHeaderIndices?: readonly number[];
   /** 本文を先頭へ戻す操作（{@link ScreenHandle}） */
@@ -226,6 +212,25 @@ type LeftButton =
  *
  * 下の画面が無いのはディープリンクや再起動で直接開いたとき。入口は
  * {@link backFallbackHref}（レッスンならレッスンの目次）。
+ *
+ * 見出しの位置:
+ *
+ * タブの入口（ヘッダー左に何も出さない画面）は、見出しをヘッダーの行の左端に
+ * 一回り大きく（{@link HEADER_TAB_TITLE_STYLE}）出す。奥の画面は中央の小さな
+ * 見出し。「左寄せ = タブの入口、中央 = 奥の画面」で階層を見分けさせる。
+ * 国内で見慣れた形（LINE のタブの見出し）に寄せたもので、見出しと右の操作が
+ * 同じ行に並ぶので、右にボタンを足しても段が増えない。
+ *
+ * iOS のナビゲーションバーは見出しを左に寄せられないので、OS の見出しを空にし、
+ * ヘッダー左の要素（`Stack.Toolbar placement="left"`）に文字を置く。iOS 26 以降は
+ * ヘッダーの要素に OS がガラスの面を付けるので、`hidesSharedBackground` で消す
+ * （見出しはボタンではない）。Android のヘッダーはもともと左寄せなので、OS の
+ * 見出しの文字の大きさだけを変える。
+ *
+ * 却下: iOS の large title（ヘッダーの下の段に 34pt。スクロールで畳まれる）—
+ * 以前はこれだった。見出しが本文より目立ち、右のボタンが見出しと別の段に浮く。
+ * 透けないヘッダー（`stickyHeaderIndices` を渡した画面）と組み合わせると iOS 26 で
+ * 畳んだあとヘッダーが空白になり、点数表だけ中央の小さな見出しにしていた。
  */
 export function Screen({
   title,
@@ -248,8 +253,6 @@ export function Screen({
   const hasHeader = title !== undefined;
   const opaqueHeader = stickyHeaderIndices !== undefined;
   const transparentHeader = hasHeader && !opaqueHeader && Platform.OS === "ios";
-  // 透けないヘッダーには大きな見出しを載せない（stickyHeaderIndices の TSDoc）
-  const largeTitle = isTabEntry && !opaqueHeader;
 
   // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
   const scrollRef = useRef<ScrollViewInstance>(null);
@@ -304,6 +307,10 @@ export function Screen({
     leftPress.current = leftOnPress;
   });
   const leftKind = left.kind;
+  // タブの入口の見出し（Screen の TSDoc「見出しの位置」）。iOS はヘッダー左の
+  // 要素として描き、OS の見出しは空のままにする
+  const tabTitle = isTabEntry && leftKind === "none";
+  const tabTitleInToolbar = tabTitle && Platform.OS === "ios";
   const leftLabel = leftKind === "close" ? t("close") : t("back");
   const leftElement = useMemo(
     () =>
@@ -356,11 +363,9 @@ export function Screen({
       {hasHeader ? (
         <>
           <Stack.Title
-            large={largeTitle}
-            style={HEADER_TITLE_STYLE}
-            largeStyle={HEADER_LARGE_TITLE_STYLE}
+            style={tabTitle ? HEADER_TAB_TITLE_STYLE : HEADER_TITLE_STYLE}
           >
-            {title}
+            {tabTitleInToolbar ? "" : title}
           </Stack.Title>
           {transparentHeader ? (
             <Stack.Header transparent />
@@ -372,6 +377,21 @@ export function Screen({
             displayMode="minimal"
             withMenu
           />
+          {tabTitleInToolbar && (
+            <Stack.Toolbar placement="left">
+              <Stack.Toolbar.View hidesSharedBackground>
+                <Text
+                  accessibilityRole="header"
+                  numberOfLines={1}
+                  // OS のヘッダーの見出しは文字サイズの設定に追従しない
+                  allowFontScaling={false}
+                  style={HEADER_TAB_TITLE_STYLE}
+                >
+                  {title}
+                </Text>
+              </Stack.Toolbar.View>
+            </Stack.Toolbar>
+          )}
           {leftElement !== undefined && (
             <Stack.Toolbar placement="left">
               <Stack.Toolbar.View>{leftElement}</Stack.Toolbar.View>
