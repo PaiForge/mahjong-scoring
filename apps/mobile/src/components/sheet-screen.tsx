@@ -97,20 +97,27 @@ export function SheetScreen({
       nestedScrollEnabled={Platform.OS === "android"}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.heading}>
-        <Text accessibilityRole="header" numberOfLines={2} style={styles.title}>
-          {title}
-        </Text>
-        <Pressable
-          testID="sheet-close"
-          onPress={close}
-          accessibilityRole="button"
-          accessibilityLabel={t("close")}
-          hitSlop={8}
-          style={({ pressed }) => [styles.close, pressed && styles.pressed]}
-        >
-          <SymbolIcon name="close" size={18} color={colors.foreground} />
-        </Pressable>
+      {/* 追従する子は外と内の 2 枚に分ける（理由は styles.headingBar） */}
+      <View style={styles.headingBar}>
+        <View style={styles.headingRow}>
+          <Text
+            accessibilityRole="header"
+            numberOfLines={2}
+            style={styles.title}
+          >
+            {title}
+          </Text>
+          <Pressable
+            testID="sheet-close"
+            onPress={close}
+            accessibilityRole="button"
+            accessibilityLabel={t("close")}
+            hitSlop={8}
+            style={({ pressed }) => [styles.close, pressed && styles.pressed]}
+          >
+            <SymbolIcon name="close" size={18} color={colors.foreground} />
+          </Pressable>
+        </View>
       </View>
       <View style={[styles.content, contentStyle]}>{children}</View>
     </ScrollView>
@@ -157,15 +164,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.card,
   },
-  heading: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
+  /**
+   * 見出しの行の外側（`ScrollView` が上端に追従させる子）。地の色と余白だけを持つ
+   *
+   * RN の `ScrollView` は追従させる子を `Animated.View` で包み、子に渡した
+   * `style` をその包みへ移して、子自身には `{ flex: 1 }` だけを当て直す
+   * （`ScrollViewStickyHeader`）。並びの指定（`flexDirection: "row"` 等）を
+   * 追従させる子に直接書くと、包みが行になり、子は既定の縦並びに戻って
+   * × が見出しの下へ落ちる。移されても見た目の変わらない地の色と余白だけを
+   * 外側に置き、並びは内側の {@link styles.headingRow} に持たせる。
+   */
+  headingBar: {
     // 上端は iOS の取っ手のぶん空ける
     paddingTop: 20,
     paddingBottom: 12,
     paddingHorizontal: 16,
     backgroundColor: colors.card,
+  },
+  /** 見出しの行の内側。左に見出し、右に × を 1 行に並べる */
+  headingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
   },
   title: {
     ...HEADER_TITLE_STYLE,
