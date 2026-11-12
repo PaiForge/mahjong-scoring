@@ -1,6 +1,5 @@
 import { Fragment, useMemo, type ReactNode } from "react";
 import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import type {
   ListItem,
   Nodes,
@@ -14,6 +13,7 @@ import { DataTable } from "../components/data-table";
 import { Divider } from "../components/divider";
 import { SectionTitle } from "../components/section-title";
 import { useGoToTab } from "../hooks/use-go-to-tab";
+import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { SITE_URL } from "../lib/app-site-url";
 import { useAppLocale } from "../lib/use-app-locale";
 import { linkStyles } from "../lib/link-styles";
@@ -52,9 +52,13 @@ interface Links {
  * あればアプリの中で、無ければブラウザで開き、価格・特商法のページへは
  * リンクにしない（`resolveAnnouncementLink`）。ブラウザで開く web のページは
  * アプリの言語の URL（英語は `/en/...`）にする。
+ *
+ * 本文はお知らせのシートの中で描くので、アプリの中の画面へは `useOpenFromModal`
+ * で開く（シートを閉じてから積む。iOS ではシートの後に積んだ通常の画面は
+ * シートの下に入って見えない）。タブの入口へは `useGoToTab` で移る。
  */
 export function MarkdownBody({ content }: { readonly content: string }) {
-  const router = useRouter();
+  const openFromModal = useOpenFromModal();
   const goToTab = useGoToTab();
   const locale = useAppLocale();
   const tree = useMemo(() => parseAnnouncementMarkdown(content), [content]);
@@ -67,7 +71,7 @@ export function MarkdownBody({ content }: { readonly content: string }) {
       if (target.kind === "app") {
         // タブの入口（`/dojo` 等）は積まずにタブを切り替える
         if (isTabHref(target.path)) goToTab(target.path);
-        else router.push(target.path);
+        else openFromModal(target.path);
       } else if (target.kind === "browser") {
         void Linking.openURL(target.url);
       }
