@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { menuTypeToSlug } from "@mahjong-scoring/features/practice-menu-types";
 import { resolveRankStatus } from "@mahjong-scoring/features/ranks/rank-status";
@@ -9,8 +10,9 @@ import { rankBySlug } from "@mahjong-scoring/features/ranks/registry";
 import { NativeAdRow } from "../../../ads/native-ad-row";
 import { useNativeAds } from "../../../ads/use-native-ads";
 import { LinkRowList } from "../../../components/link-row";
-import { Screen } from "../../../components/screen";
+import { SheetScreen } from "../../../components/sheet-screen";
 import { SectionTitle } from "../../../components/section-title";
+import { TextLink } from "../../../components/text-link";
 import { BeltBadge } from "../../../dojo/belt-badge";
 import { beltCardFrame } from "../../../dojo/belt-style";
 import {
@@ -19,9 +21,9 @@ import {
 } from "../../../dojo/chapter-toc-list";
 import { ExamCtaCard } from "../../../dojo/exam-cta-card";
 import { RankStatusBadge } from "../../../dojo/rank-status-badge";
+import { useGoToTab } from "../../../hooks/use-go-to-tab";
 import { useAccountProgress } from "../../../records/use-account-progress";
 import { colors } from "../../../lib/theme";
-import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-screen";
 
 /**
  * 段級位の詳細
@@ -30,7 +32,10 @@ import { PracticeNotFoundScreen } from "../../../practice/screens/not-found-scre
  * 1 つの級について、合格基準・取得状態・受験前に取り組むレッスン（完了の
  * 印付き）・試験への導線を 1 画面で示す（web の級の詳細と同じ並び）。
  * 取得状態はログイン中ならサーバーの段級位から、ゲストは無級から見たもの
- * （5級が「次の目標」、それより上は「未取得」）。
+ * （5級が「次の目標」、それより上は「未取得」）。高さを選べるシート
+ * （`SheetScreen`）で出し、道場の上で読んで閉じる。レッスン・試験の説明へ
+ * 進むときはシートを閉じてから積む（`ChapterTocList`・`ExamCtaCard` が
+ * `useOpenFromModal` で開く）。
  *
  * @flow
  * 1. 道場の級カードの級名から遷移する
@@ -46,14 +51,13 @@ export default function RankDetailPage() {
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.rankDetail);
   const rank = typeof param === "string" ? rankBySlug(param) : undefined;
 
-  if (rank === undefined) return <PracticeNotFoundScreen />;
+  if (rank === undefined) return <RankNotFound />;
 
   const hasChapters = rank.learnChapterSlugs.length > 0;
 
   return (
-    <Screen
+    <SheetScreen
       title={tRanks(`names.${rank.slug}`)}
-      back
       contentStyle={styles.content}
     >
       {/* 上端の帯は帯色。級名は見出しが持つので、ここは帯・取得状態・合格基準だけ */}
@@ -101,7 +105,28 @@ export default function RankDetailPage() {
           hasChapters ? t("examLead") : t("rankDetail.examLeadWithoutChapters")
         }
       />
-    </Screen>
+    </SheetScreen>
+  );
+}
+
+/**
+ * 級が見つからない（未知の slug）
+ *
+ * 練習が見つからないときの画面（`PracticeNotFoundScreen`）と同じ文言と行き先を、
+ * シートの枠で出す。あちらは OS のヘッダーに見出しと戻るを載せる `Screen` で、
+ * ヘッダーを持たないシートでは見出しも閉じるも出ないため。
+ */
+function RankNotFound() {
+  const t = useTranslations("challenge");
+  const tn = useTranslations("notFound");
+  const goToTab = useGoToTab();
+  return (
+    <SheetScreen title={tn("title")}>
+      <Text style={styles.notFoundText}>{tn("description")}</Text>
+      <TextLink onPress={() => goToTab(PRACTICE_PATH)}>
+        {t("backToList")}
+      </TextLink>
+    </SheetScreen>
   );
 }
 
@@ -132,5 +157,10 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 16,
+  },
+  notFoundText: {
+    fontSize: 14,
+    color: colors.surface500,
+    textAlign: "center",
   },
 });

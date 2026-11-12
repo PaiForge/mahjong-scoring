@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   practiceMenuBySlug,
@@ -12,6 +11,7 @@ import {
 import { practiceHref } from "@mahjong-scoring/features/routes";
 
 import { SectionTitle } from "../components/section-title";
+import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { colors } from "../lib/theme";
 import { BeltButton } from "./belt-button";
 import { beltCardFrame, beltStyle } from "./belt-style";
@@ -23,6 +23,10 @@ import { beltCardFrame, beltStyle } from "./belt-style";
  * 試験（練習）からランクを逆引きし、試験名・リード文・合格基準と、試験の
  * 説明画面への帯色のボタンを置く。合格条件（制限時間・ミス上限）は遷移先の
  * 説明画面だけが持つ。どのランクにも紐付かない練習なら何も描かない。
+ *
+ * 説明画面は `useOpenFromModal` で開く。級の詳細のシートの中から開くと、
+ * シートを閉じてから積む（iOS ではシートの後に積んだ通常の画面はシートの下に
+ * 入って見えない）。モーダルの外（レッスンの末尾）ではただの `push`。
  */
 export function ExamCtaCard({
   slug,
@@ -34,7 +38,7 @@ export function ExamCtaCard({
   readonly lead?: string;
 }) {
   const t = useTranslations("ranks");
-  const router = useRouter();
+  const openFromModal = useOpenFromModal();
   const exam = rankRequiringMenu(practiceMenuBySlug(slug).menuType);
   if (!exam) return undefined;
   const rankSlug = exam.rank.slug;
@@ -58,7 +62,7 @@ export function ExamCtaCard({
         </Text>
         <BeltButton
           slug={rankSlug}
-          onPress={() => router.push(practiceHref(slug))}
+          onPress={() => openFromModal(practiceHref(slug))}
         >
           {t("examCta.viewExam")}
         </BeltButton>
