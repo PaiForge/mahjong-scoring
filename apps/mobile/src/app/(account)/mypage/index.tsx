@@ -1,12 +1,6 @@
-import { use, useCallback, useEffect, useRef, useState } from "react";
-import {
-  Platform,
-  StyleSheet,
-  View,
-  type ScrollViewInstance,
-} from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
-import { HeaderHeightContext } from "expo-router/react-navigation";
 import { useTranslations } from "use-intl";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
@@ -28,7 +22,7 @@ import {
   UserIcon,
 } from "../../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../../components/link-row";
-import { Screen } from "../../../components/screen";
+import { Screen, type ScreenHandle } from "../../../components/screen";
 import { SectionTitle } from "../../../components/section-title";
 import { useAuth } from "../../../auth/use-auth";
 import { colors } from "../../../lib/theme";
@@ -92,20 +86,15 @@ import { SiteLinksSection } from "../../../mypage/site-links-section";
  */
 export default function MypageScreen() {
   const t = useTranslations("nav");
-  const scrollRef = useRef<ScrollViewInstance>(null);
+  const scrollRef = useRef<ScreenHandle>(null);
   const { status } = useAuth();
-  // 本文の先頭の位置。iOS では `Screen` がヘッダーを透けさせ、OS が本文の上に
-  // ヘッダーの高さぶんの inset を足す（本文がヘッダーの裏に潜る）ので、先頭は
-  // 0 ではなくその高さぶん負の位置になる。0 へ送ると 1 行目がヘッダーの裏で止まる
-  const headerHeight = use(HeaderHeightContext) ?? 0;
-  const topY = Platform.OS === "ios" ? -headerHeight : 0;
   // この画面はアカウントの画面の下に残っているので、戻る前に先頭へ送っておく
   const previousStatus = useRef(status);
   useEffect(() => {
     if (previousStatus.current === "signedIn" && status === "signedOut")
-      scrollRef.current?.scrollTo({ y: topY, animated: false });
+      scrollRef.current?.scrollToTop();
     previousStatus.current = status;
-  }, [status, topY]);
+  }, [status]);
   return (
     <Screen
       title={t("mypage")}

@@ -1,39 +1,14 @@
-import { use, useCallback, useEffect, useRef, useState } from "react";
-import { Platform, type ScrollViewInstance } from "react-native";
-import { HeaderHeightContext } from "expo-router/react-navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "use-intl";
 import type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
+import type { ScreenHandle } from "../../components/screen";
 import { showToast } from "../../components/toast";
 import { useCloseSession } from "../../hooks/use-close-session";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { useAutoAdvanceOnCorrect } from "../../hooks/use-training-settings-store";
 import { usePracticeQuota } from "../quota/use-practice-quota";
-
-/**
- * 盤面が表示を切り替えたときに本文を先頭へ戻す
- * 盤面の先頭へ戻す
- *
- * iOS では解答中の画面のヘッダーが透け、本文はその下へ潜る。OS がヘッダーの
- * 高さぶんの inset を付けるので、先頭の位置は `y: 0` ではなくその高さぶん負の
- * 値になる（`y: 0` へ戻すと、本文の頭がヘッダーの裏に潜った位置で止まる）。
- * 解答中の画面は見出しを持ち `stickyHeaderIndices` を使わない（ヘッダーが透ける）
- * ので、ヘッダーの高さをそのまま使う。Android はヘッダーを透けさせないので 0。
- *
- * 同じ処理を `create-practice-views.tsx`
- * にも持つ（重複）。先頭の位置は `Screen` が付ける inset で決まるので、後で
- * `Screen` 側に「先頭へ戻す」を持たせて寄せる候補。
- */
-function useScrollToTop() {
-  const scrollRef = useRef<ScrollViewInstance>(null);
-  const headerHeight = use(HeaderHeightContext) ?? 0;
-  const top = Platform.OS === "ios" ? -headerHeight : 0;
-  const scrollToTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: top, animated: false });
-  }, [top]);
-  return { scrollRef, scrollToTop };
-}
 
 interface EndlessBoardShellOptions {
   /** 回数制限の単位 */
@@ -60,8 +35,8 @@ interface EndlessBoardShellOptions {
 }
 
 interface EndlessBoardShell {
-  /** 盤面のスクロール（`Screen` の ref） */
-  readonly scrollRef: React.RefObject<ScrollViewInstance | null>;
+  /** 盤面の `Screen` の ref */
+  readonly scrollRef: React.RefObject<ScreenHandle | null>;
   /**
    * 盤面の先頭へ戻す。回答・開示・次へのたびに呼ぶ（それらのボタンは縦に長い
    * 盤面の下端にあるため）
@@ -105,7 +80,10 @@ export function useEndlessBoardShell({
 }: EndlessBoardShellOptions): EndlessBoardShell {
   const tq = useTranslations("practiceQuota");
   const closeSession = useCloseSession(exitHref);
-  const { scrollRef, scrollToTop } = useScrollToTop();
+  const scrollRef = useRef<ScreenHandle>(null);
+  const scrollToTop = useCallback(() => {
+    scrollRef.current?.scrollToTop();
+  }, []);
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const [flashSignal, setFlashSignal] = useState(0);
   // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う

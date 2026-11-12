@@ -1,5 +1,5 @@
 import { useCallback, useRef, type ReactNode } from "react";
-import { StyleSheet, Text, View, type ScrollViewInstance } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { chapterNamespace } from "@mahjong-scoring/features/curriculum/chapter-namespace";
@@ -13,7 +13,7 @@ import { quizLessonBySlug } from "@mahjong-scoring/features/lessons/registry";
 import { NativeAdRow } from "../ads/native-ad-row";
 import { useNativeAds } from "../ads/use-native-ads";
 import { LinkRowList } from "../components/link-row";
-import { Screen } from "../components/screen";
+import { Screen, type ScreenHandle } from "../components/screen";
 import { TextLink } from "../components/text-link";
 import { useLessonDone } from "../records/use-account-progress";
 import { colors } from "../lib/theme";
@@ -84,9 +84,9 @@ function LessonScreenContent({
   readonly guide: ReactNode;
 }) {
   const t = useTranslations(chapterNamespace(slug));
-  const scrollRef = useRef<ScrollViewInstance>(null);
+  const scrollRef = useRef<ScreenHandle>(null);
   const scrollTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
+    scrollRef.current?.scrollToTop();
   }, []);
   const quizLesson = quizLessonBySlug(slug);
   const completed = useLessonDone(slug);

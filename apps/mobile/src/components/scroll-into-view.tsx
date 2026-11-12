@@ -67,6 +67,10 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
  *
  * @param scrollRef 対象のスクロール枠
  * @param viewportHeight 枠の高さ（`onLayout` で更新する入れ物。inset を含む）
+ * @param contentHeight 中身の高さ（`onContentSizeChange` で更新する入れ物）。
+ *   渡すと、求めた位置を下端（中身の末尾が見えている帯の下端に付く位置）までに
+ *   抑える。枠が `scrollToOverflowEnabled` で iOS の丸めを切っているときに渡す
+ *   （渡さない枠は OS が丸める）
  * @param scrollY 今のスクロール位置（`onScroll` で更新する入れ物）。まだ
  *   一度もスクロールしていなければ `undefined`（先頭 = `-上の inset` とみなす）
  * @param insets 枠の上下で OS の帯に隠れる高さ（省略時は 0）
@@ -74,12 +78,14 @@ const ScrollIntoViewContext = createContext<ScrollIntoView | undefined>(
 export function ScrollIntoViewProvider({
   scrollRef,
   viewportHeight,
+  contentHeight,
   scrollY,
   insets = NO_INSETS,
   children,
 }: {
   readonly scrollRef: RefObject<ScrollViewInstance | null>;
   readonly viewportHeight: RefObject<number>;
+  readonly contentHeight?: RefObject<number>;
   readonly scrollY: RefObject<number | undefined>;
   readonly insets?: RefObject<ScrollInsets>;
   readonly children: ReactNode;
@@ -105,9 +111,20 @@ export function ScrollIntoViewProvider({
           viewportHeight.current - insetTop - insetBottom,
           visibleTop,
         );
-        if (top !== undefined) {
-          scroll.scrollTo({ y: top - insetTop, animated: true });
-        }
+        if (top === undefined) return;
+        // 中身が帯より短ければ先頭（0）から動かさない
+        const maxTop =
+          contentHeight === undefined
+            ? top
+            : Math.max(
+                0,
+                contentHeight.current -
+                  (viewportHeight.current - insetTop - insetBottom),
+              );
+        scroll.scrollTo({
+          y: Math.min(top, maxTop) - insetTop,
+          animated: true,
+        });
       };
       const until = options?.until;
       target.measureLayout(content, (_x, y, _width, height) => {
@@ -120,7 +137,7 @@ export function ScrollIntoViewProvider({
         });
       });
     },
-    [scrollRef, viewportHeight, scrollY, insets],
+    [scrollRef, viewportHeight, contentHeight, scrollY, insets],
   );
 
   return (

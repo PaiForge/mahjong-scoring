@@ -1,5 +1,5 @@
 import type { ReactNode, RefObject } from "react";
-import { StyleSheet, Text, View, type ScrollViewInstance } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -8,7 +8,7 @@ import { Button } from "../../components/button";
 import { Divider } from "../../components/divider";
 import { useCloseSession } from "../../hooks/use-close-session";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
-import { Screen } from "../../components/screen";
+import { Screen, type ScreenHandle } from "../../components/screen";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { TextLink } from "../../components/text-link";
 import { showToast } from "../../components/toast";
@@ -61,7 +61,7 @@ interface TrainingShellProps {
   readonly help?: ReactNode;
   /** 模試の末尾に置く本番の試験の開始導線（模試だけ） */
   readonly examStart?: ReactNode;
-  readonly scrollRef: RefObject<ScrollViewInstance | null>;
+  readonly scrollRef: RefObject<ScreenHandle | null>;
   readonly children: ReactNode;
 }
 
