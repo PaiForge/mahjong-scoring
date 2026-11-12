@@ -1,0 +1,222 @@
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { StyleSheet, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslations } from "use-intl";
+import {
+  isPracticeCategory,
+  listedPracticeMenus,
+  PRACTICE_CATEGORIES,
+} from "@mahjong-scoring/features/practice/catalog";
+import {
+  practicalPracticeChapters,
+  practicalPracticeRanks,
+  practiceListChapters,
+  practiceListRanks,
+  type PracticeListFilter,
+} from "@mahjong-scoring/features/practice/list-guides";
+import { isRankSlug } from "@mahjong-scoring/features/ranks/registry";
+import {
+  listedPracticeRanks,
+  practiceRanks,
+} from "@mahjong-scoring/features/practice/rank-practices";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
+import type { PracticeMode } from "@mahjong-scoring/features/practice/practice-mode";
+
+import { NativeAdCard } from "../../../ads/native-ad-card";
+import { useNativeAds } from "../../../ads/use-native-ads";
+import { Screen } from "../../../components/screen";
+import { FilterChips } from "../../../components/filter-chips";
+import { ToggleGroup } from "../../../components/toggle-group";
+import { usePracticeModeStore } from "../../../hooks/use-practice-mode-store";
+import { PracticalPracticeCard } from "../../../practice/components/practical-practice-card";
+import { PracticeCard } from "../../../practice/components/practice-card";
+import { practiceScreensFor } from "../../../practice/registry";
+import { PracticeListGuides } from "../../../practice/components/practice-list-guides";
+import { useAccountProgress } from "../../../records/use-account-progress";
+
+/** 絞り込みの値（`all` / 段級位スラッグ / カテゴリ）。web の `?rank=` / `?category=` に当たる */
+type FilterValue = string;
+
+const ALL = "all";
+
+/**
+ * 広告カードを置く位置（0 始まり）。web の練習一覧（`AD_GRID_POSITION`）と
+ * 同じく上から 3 枚目。先頭に置くと一覧が広告から始まり、ずっと下に置くと
+ * 絞り込んだ一覧ではほぼ出ない。表示中の練習がそれより少なければ末尾に置く
+ */
+const AD_LIST_POSITION = 2;
+
+/**
+ * 練習の表示（基礎 / 実戦）の保存値を端末から読み終えたか
+ *
+ * 読み終える前に表示を書き換えても、読み終えた時点で保存値に上書きされる
+ * （zustand の persist は読み込んだ値をストアへ合わせる）。
+ */
+function usePracticeModeHydrated(): boolean {
+  return useSyncExternalStore(
+    (onChange) => usePracticeModeStore.persist.onFinishHydration(onChange),
+    () => usePracticeModeStore.persist.hasHydrated(),
+  );
+}
+
+/** 絞り込みの値を、一覧の下のガイドが読む形（web の `?rank=` / `?category=`）にする */
+function toListFilter(value: FilterValue): PracticeListFilter | undefined {
+  if (isRankSlug(value)) return { kind: "rank", value };
+  if (isPracticeCategory(value)) return { kind: "category", value };
+  return undefined;
+}
+
+/**
+ * 練習一覧
+ *
+ * @description
+ * web の練習一覧と同じく「基礎練習 / 実戦練習」を切り替えて見せる。基礎練習は
+ * カタログ（`PRACTICE_CATALOG`）の並びで練習カードを並べ、段級位・分野で絞り込める。
+ * カードの下に、絞り込みに合わせた関連するレッスンと級（{@link PracticeListGuides}）を置く。
+ * 実戦練習のカードの下にも、点数の計算のレッスンと 3級〜初段を同じ形で置く。実戦練習は終わりのない訓練（和了形の点数計算・
+ * 聴牌形の点数計算）を問題のプレビュー付きのカードで出す。最後に選んだ方を端末に
+ * 覚える。チャレンジを終えた練習のカードには「挑戦済み」の印を付ける（道場の
+ * 「練習する」と同じ数え方）。昇級試験はカードにしない（入口は道場）。モバイルに盤面が無い練習は
+ * まだ出さない。基礎練習のカードの並びに広告カードを 1 枚混ぜる（絞り込みの
+ * 対象にはしない。web と同じ）。
+ */
+export default function PracticeListPage() {
+  const t = useTranslations("practice");
+  const tRanks = useTranslations("ranks");
+  const mode = usePracticeModeStore((state) => state.mode);
+  const setMode = usePracticeModeStore((state) => state.setMode);
+  const router = useRouter();
+  const { rank: rawRankParam } = useLocalSearchParams<{ rank?: string }>();
+  const rankParam =
+    typeof rawRankParam === "string" && rawRankParam !== ""
+      ? rawRankParam
+      : undefined;
+  const [filter, setFilter] = useState<FilterValue>(() => rankParam ?? ALL);
+  const modeHydrated = usePracticeModeHydrated();
+
+  // 級が指定されたら絞り込みを合わせる（描画中に前回の値と比べて差し替える）
+  const [appliedRankParam, setAppliedRankParam] = useState(rankParam);
+  if (rankParam !== appliedRankParam) {
+    setAppliedRankParam(rankParam);
+    if (rankParam !== undefined) setFilter(rankParam);
+  }
+
+  // 道場・ホーム・試験の「この級の練習」から `?rank=<級>` 付きで開かれる（web の
+  // `practiceListHref`）。絞り込みは上で合わせる。級の指定は基礎練習の絞り込みなので、保存済みの実戦練習より
+  // 優先して基礎練習に切り替える（web と同じ）。
+  //
+  // - 保存値を読み終えてから切り替える。先に切り替えると、読み終えた時点で保存値
+  //   （実戦練習）に戻される（アプリを起動して最初に練習タブを開いたとき）
+  // - 当てたら params から級を消す。タブは開いたまま残るので、消さないと次に同じ級で
+  //   開かれたときに値が変わらず、その間に選んだ実戦練習・別の絞り込みのまま出る
+  useEffect(() => {
+    if (!modeHydrated || rankParam === undefined) return;
+    setMode("basic");
+    router.setParams({ rank: undefined });
+  }, [modeHydrated, rankParam, setMode, router]);
+
+  const { input: progress } = useAccountProgress();
+  const attemptedSlugs = useMemo(
+    () =>
+      new Set<string>(
+        progress.attemptedPractices.map((attempt) => attempt.slug),
+      ),
+    [progress.attemptedPractices],
+  );
+
+  const menus = useMemo(
+    () =>
+      listedPracticeMenus().filter(
+        (menu) => practiceScreensFor(menu.slug) !== undefined,
+      ),
+    [],
+  );
+  const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceGrid);
+  const visible = menus.filter(
+    (menu) =>
+      filter === ALL ||
+      menu.category === filter ||
+      practiceRanks(menu.slug).some((rank) => rank === filter),
+  );
+  const adIndex = Math.min(AD_LIST_POSITION, visible.length);
+  const listFilter = toListFilter(filter);
+
+  return (
+    <Screen title={t("title")}>
+      <ToggleGroup<PracticeMode>
+        accessibilityLabel={t("modes.label")}
+        testID="practice-mode"
+        fill
+        selected={mode}
+        onSelect={setMode}
+        groups={[
+          [
+            { value: "basic", label: t("modes.basic") },
+            { value: "practical", label: t("modes.practical") },
+          ],
+        ]}
+      />
+      {mode === "basic" ? (
+        <View style={styles.section}>
+          <FilterChips
+            accessibilityLabel={t("filter.label")}
+            selected={filter}
+            onSelect={setFilter}
+            groups={[
+              [{ value: ALL, label: t("filter.all") }],
+              listedPracticeRanks().map((rank) => ({
+                value: rank,
+                label: tRanks(`names.${rank}`),
+              })),
+              PRACTICE_CATEGORIES.map((category) => ({
+                value: category,
+                label: t(`categories.${category}.short`),
+              })),
+            ]}
+          />
+          <View style={styles.list}>
+            {visible.slice(0, adIndex).map((menu) => (
+              <PracticeCard
+                key={menu.slug}
+                slug={menu.slug}
+                attempted={attemptedSlugs.has(menu.slug)}
+              />
+            ))}
+            {ad !== undefined && <NativeAdCard creative={ad} />}
+            {visible.slice(adIndex).map((menu) => (
+              <PracticeCard
+                key={menu.slug}
+                slug={menu.slug}
+                attempted={attemptedSlugs.has(menu.slug)}
+              />
+            ))}
+          </View>
+          <PracticeListGuides
+            chapters={practiceListChapters(listFilter)}
+            ranks={practiceListRanks(listFilter)}
+          />
+        </View>
+      ) : (
+        <View style={styles.section}>
+          <View style={styles.list}>
+            <PracticalPracticeCard menu="agari-score" />
+            <PracticalPracticeCard menu="tenpai-score" />
+          </View>
+          <PracticeListGuides
+            chapters={practicalPracticeChapters()}
+            ranks={practicalPracticeRanks()}
+          />
+        </View>
+      )}
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  section: {
+    gap: 24,
+  },
+  list: {
+    gap: 16,
+  },
+});

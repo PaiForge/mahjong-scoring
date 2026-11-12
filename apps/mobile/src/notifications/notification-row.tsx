@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { formatJstDateTime } from "@mahjong-scoring/features/jst";
 import { notificationHref } from "@mahjong-scoring/features/notifications/link";
@@ -13,6 +12,7 @@ import {
 
 import { CheckIcon, ClockIcon, CloseIcon } from "../components/icons/icons";
 import { LinkRow } from "../components/link-row";
+import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { colors } from "../lib/theme";
 import { useAppLocale } from "../lib/use-app-locale";
 
@@ -30,6 +30,11 @@ import { useAppLocale } from "../lib/use-app-locale";
  * パスしか返さない（`link.ts` の TSDoc）。遷移先を持たない種別（退役した
  * 種別）は押せない行として出す。
  *
+ * 行はマイページのモーダルの中に並ぶので、遷移は `useOpenFromModal` で開く。
+ * いまの行き先（プラン画面）は同じモーダルの中に積み、将来モーダルの外の画面を
+ * 返す種別が増えても、モーダルを閉じてから積む（閉じずに積むとモーダルの下に
+ * 入って見えない）。
+ *
  * @param read - 既読か（サーバーの値に、この画面で押した分を重ねたもの）
  * @param onRead - 未読の行を押したときに呼ぶ
  */
@@ -45,7 +50,7 @@ export function NotificationRow({
   const t = useTranslations("notifications");
   const tCommon = useTranslations("common");
   const locale = useAppLocale();
-  const router = useRouter();
+  const openFromModal = useOpenFromModal();
   const message = buildNotificationMessage(
     notification.type,
     notification.metadata,
@@ -86,7 +91,7 @@ export function NotificationRow({
       }
       onPress={() => {
         if (!read) onRead();
-        router.push(href);
+        openFromModal(href);
       }}
     />
   );

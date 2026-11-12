@@ -64,8 +64,11 @@ appId: help.mahjong.score
     visible:
       id: "generate-username"
     timeout: 15000
-- tapOn:
-    id: "screen-back"
+# ユーザー名の設定はログインを置き換えて、マイページの上に積まれている（OS の戻る）
+- runFlow:
+    file: _back.yaml
+    env:
+      BACK_TO: "mypage-username-cta"
 - extendedWaitUntil:
     visible:
       id: "mypage-username-cta"

@@ -52,7 +52,7 @@ appId: help.mahjong.score
 - takeScreenshot: recorded-answered-after-sheet
 # 中止の確認が出て、押せる
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "チャレンジを中止しますか？"
     timeout: 5000

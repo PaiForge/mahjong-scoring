@@ -1,5 +1,4 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import {
   CURRICULUM_SECTIONS,
@@ -16,6 +15,7 @@ import { SECTION_COLORS } from "../lessons/lesson-colors";
 import { colors } from "../lib/theme";
 import { DoneMark } from "./done-mark";
 import { useGoToTab } from "../hooks/use-go-to-tab";
+import { useOpenFromModal } from "../hooks/use-open-from-modal";
 
 /**
  * 章スラッグの並びをセクションごとの目次として描く（web の `ChapterTocList`）
@@ -27,6 +27,10 @@ import { useGoToTab } from "../hooks/use-go-to-tab";
  * 「次はここから」の印は出さない（進む順の案内はレッスンの目次の役割）。
  *
  * web の目次は丸を縦の破線でつなぐが、ここでは章の間を実線（`Divider`）で区切るだけにする。
+ *
+ * 章は `useOpenFromModal` で開く。級の詳細のシートの中から開くと、シートを
+ * 閉じてからレッスンを積む（iOS ではシートの後に積んだ通常の画面はシートの
+ * 下に入って見えない）。モーダルの外（練習一覧・試験の説明）ではただの `push`。
  */
 export function ChapterTocList({
   slugs,
@@ -38,7 +42,7 @@ export function ChapterTocList({
   readonly completedSlugs: ReadonlySet<string>;
 }) {
   const t = useTranslations("learnCurriculum");
-  const router = useRouter();
+  const openFromModal = useOpenFromModal();
   const chapters = slugs
     .map(getChapterBySlug)
     .filter((chapter) => chapter !== undefined);
@@ -71,7 +75,7 @@ export function ChapterTocList({
                     {index > 0 && <Divider tone="row" />}
                     <Pressable
                       accessibilityRole="link"
-                      onPress={() => router.push(chapterHref(chapter.slug))}
+                      onPress={() => openFromModal(chapterHref(chapter.slug))}
                       style={({ pressed }) => [
                         styles.chapterRow,
                         pressed && styles.pressed,

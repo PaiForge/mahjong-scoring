@@ -1,0 +1,112 @@
+# 解答中の画面（チャレンジ・トレーニング）は練習の説明の上に下から出る全画面のモーダル
+# （`(session)`）で、ヘッダー左の ×（`screen-close`）は「モーダルを閉じる」。ゲストで撮る:
+# - 説明 → チャレンジを始めると下から出る → × で中止の確認 → 中止すると説明へ戻り、
+#   終了のトーストが出る（戻った先は積んでいた説明画面。置き換えない）
+# - トレーニングの盤面でドラの説明（シート）から設定を開くと、設定（`(account)` のモーダル）が
+#   盤面の上に重なる（ゲストなので会員限定ゲート）。× で閉じると盤面へ戻り、解答を続けられる
+# 押した直後の画面（出てくる途中）を撮るのは動きを見るため。合否は要素で判定する
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+# 説明 → チャレンジ
+- tapOn:
+    id: "tab-practice"
+- scrollUntilVisible:
+    element:
+      id: "practice-card-jantou-fu"
+    direction: DOWN
+- tapOn:
+    id: "practice-card-jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "start-challenge"
+    timeout: 10000
+- takeScreenshot: session-intro
+- tapOn:
+    id: "start-challenge"
+- takeScreenshot: session-challenge-presenting
+- extendedWaitUntil:
+    visible:
+      id: "choice-0"
+    timeout: 15000
+- assertVisible:
+    id: "screen-close"
+# モーダルの下ではタブバーが隠れる
+- assertNotVisible:
+    id: "tab-practice"
+# カウントダウン（3, 2, 1）の覆いは × も覆うので、明けるまで待つ
+- extendedWaitUntil:
+    notVisible: "^[123]$"
+    timeout: 8000
+- takeScreenshot: session-challenge-board
+# × → 中止の確認 → 中止で説明へ
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しますか？"
+    timeout: 5000
+- takeScreenshot: session-quit-dialog
+- tapOn: "中止する"
+- extendedWaitUntil:
+    visible: "チャレンジを中止しました"
+    timeout: 5000
+- assertVisible:
+    id: "start-challenge"
+- takeScreenshot: session-quit-back-to-intro
+# 説明画面は練習一覧の上に積んだまま（OS の戻るで一覧へ帰れる）
+- runFlow:
+    file: _back.yaml
+    env:
+      BACK_TO: "practice-card-jantou-fu"
+- extendedWaitUntil:
+    visible:
+      id: "practice-card-jantou-fu"
+    timeout: 5000
+# トレーニングの盤面: ドラの説明から設定を開くと上に重なる。ドラの出る練習（翻数）の説明を開く
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/han-count"
+- extendedWaitUntil:
+    visible:
+      id: "start-training"
+    timeout: 10000
+- tapOn:
+    id: "start-training"
+- extendedWaitUntil:
+    visible: "詳細情報を表示"
+    timeout: 15000
+- tapOn: "詳細情報を表示"
+- extendedWaitUntil:
+    visible: "ドラの見方"
+    timeout: 5000
+- takeScreenshot: session-dora-info
+- tapOn: "ドラの表示方法を設定で切り替える"
+- extendedWaitUntil:
+    visible:
+      id: "preferences-members-gate"
+    timeout: 10000
+- takeScreenshot: session-preferences-over-board
+# 設定は × で閉じる（モーダルの組の先頭）。下の盤面へ戻り、トレーニングは終わらない
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "詳細情報を表示"
+    timeout: 5000
+- assertNotVisible:
+    id: "preferences-members-gate"
+- assertNotVisible: "トレーニングを終了しました"
+- takeScreenshot: session-preferences-closed
+# 盤面の × で説明へ戻る
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "トレーニングを終了しました"
+    timeout: 5000
+- assertVisible:
+    id: "start-training"

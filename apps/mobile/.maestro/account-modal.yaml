@@ -1,0 +1,55 @@
+# マイページ以下（マイページ・設定・ログイン・登録・ランキング）は下から出るモーダル
+# （`(account)`）。ゲストで撮る:
+# - ホームのヘッダー右のアバター（`home-mypage`）→ マイページが下から出る。組の先頭なので
+#   ヘッダー左は ×（`screen-close`）で、タブバーは隠れる
+# - 記録の案内から登録へ進むと、モーダルの中に積まれる（ヘッダー左は OS の戻る）
+# - OS の戻るでマイページへ、× でモーダルごと閉じてホームへ戻る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- takeScreenshot: account-mypage-presenting
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 10000
+- assertVisible:
+    id: "screen-close"
+- assertNotVisible:
+    id: "tab-home"
+- takeScreenshot: account-mypage-guest
+# ゲストの登録はモーダルの中に積む
+- tapOn:
+    id: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible:
+      id: "sign-up-submit"
+    timeout: 10000
+- assertNotVisible:
+    id: "screen-close"
+- takeScreenshot: account-sign-up
+- runFlow:
+    file: _back.yaml
+    env:
+      BACK_TO: "mypage-sign-up-cta"
+- extendedWaitUntil:
+    visible:
+      id: "mypage-sign-up-cta"
+    timeout: 5000
+# × でモーダルごと閉じ、下にあったホームへ戻る
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 5000
+- assertVisible:
+    id: "home-mypage"
+- assertNotVisible:
+    id: "mypage-sign-up-cta"
+- takeScreenshot: account-closed-home

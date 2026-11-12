@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useTimeZone, useTranslations } from "use-intl";
 import {
   ANNOUNCEMENT_DETAIL_DATE_OPTIONS,
@@ -12,7 +12,7 @@ import { fetchAnnouncement } from "../../announcements/announcements-api";
 import { LoadFailed, LoadingIndicator } from "../../components/load-state";
 import { MarkdownBody } from "../../announcements/markdown-body";
 import { useAnnouncementRead } from "../../announcements/use-announcement-read";
-import { Screen } from "../../components/screen";
+import { SheetScreen, useReturnToIndex } from "../../components/sheet-screen";
 import { TextLink } from "../../components/text-link";
 import { colors } from "../../lib/theme";
 import { useAppLocale } from "../../lib/use-app-locale";
@@ -28,7 +28,8 @@ import { useAppLocale } from "../../lib/use-app-locale";
  * 先頭に大きく出す（長い題名がヘッダーで切れるため）。公開日は web では
  * 本文の後に右寄せだが、題名のすぐ下に置く（ネイティブの記事の定石）。
  * 英語の端末では英訳の記事だけを読み、英訳の無い記事は「見つからない」に
- * する（日本語の本文を英語の画面に出さない）。
+ * する（日本語の本文を英語の画面に出さない）。高さを選べるシート
+ * （`SheetScreen`）で出し、開いた場所の上で読んで閉じる。
  *
  * @flow ホームのお知らせ・一覧・本文のリンクから開く
  */
@@ -36,9 +37,9 @@ export default function AnnouncementScreen() {
   const t = useTranslations("announcements");
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   return (
-    <Screen title={t("pageTitle")} back contentStyle={styles.content}>
+    <SheetScreen title={t("pageTitle")} contentStyle={styles.content}>
       {typeof slug === "string" ? <Announcement slug={slug} /> : <NotFound />}
-    </Screen>
+    </SheetScreen>
   );
 }
 
@@ -83,14 +84,19 @@ function Announcement({ slug }: { readonly slug: string }) {
   );
 }
 
-/** 公開中でない（取り下げ・下書きに戻された）お知らせ */
+/**
+ * 公開中でない（取り下げ・下書きに戻された）お知らせ
+ *
+ * 「一覧へ」は、一覧から開いたならシートを閉じて一覧へ戻り、それ以外
+ * （ホームのお知らせ等）からは一覧を開く（`useReturnToIndex`）。
+ */
 function NotFound() {
   const t = useTranslations("announcements");
-  const router = useRouter();
+  const returnToIndex = useReturnToIndex();
   return (
     <View style={styles.notFound}>
       <Text style={styles.notFoundText}>{t("notFound")}</Text>
-      <TextLink onPress={() => router.dismissTo(ANNOUNCEMENTS_PATH)}>
+      <TextLink onPress={() => returnToIndex(ANNOUNCEMENTS_PATH)}>
         {t("backToList")}
       </TextLink>
     </View>

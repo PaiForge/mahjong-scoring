@@ -10,11 +10,18 @@ import { linkStyles } from "../lib/link-styles";
  *
  * 定義は置かず、語だけを折り返しながら並べて一覧性を優先する。リンクは
  * 単独の文字の操作なのでアクセント色の太字（下線なし）。
+ *
+ * 押したときは既定で用語のページを開く（`push`。用語集の一覧等から）。用語の
+ * シートの中の「関連する用語」は、シートを積まずに中身を替えるので `onOpen` を
+ * 渡す。
  */
 export function TermLinkList({
   terms,
+  onOpen,
 }: {
   readonly terms: readonly GlossaryTermView[];
+  /** 語を押したとき。省略すると用語のページを `push` で開く */
+  readonly onOpen?: (term: GlossaryTermView) => void;
 }) {
   const router = useRouter();
   return (
@@ -22,7 +29,10 @@ export function TermLinkList({
       {terms.map((term) => (
         <Pressable
           key={term.slug}
-          onPress={() => router.push(term.href)}
+          onPress={() => {
+            if (onOpen === undefined) router.push(term.href);
+            else onOpen(term);
+          }}
           accessibilityRole="link"
           hitSlop={6}
         >

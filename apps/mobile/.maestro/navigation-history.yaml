@@ -76,8 +76,10 @@ appId: help.mahjong.score
 - extendedWaitUntil:
     visible: "現在の段級位"
     timeout: 15000
+# マイページのモーダルは閉じている（タブの入口なのでヘッダー左に戻るも × も無い）
 - assertNotVisible:
-    id: "screen-back"
+    id: "screen-close"
+- assertNotVisible: "戻る|Back"
 - takeScreenshot: navigation-dojo-tab
 # 左端から引いても下にマイページは無い
 - swipe:

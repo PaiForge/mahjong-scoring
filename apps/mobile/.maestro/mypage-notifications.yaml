@@ -44,8 +44,9 @@ appId: help.mahjong.score
 - assertNotVisible:
     id: "notifications-mark-all-read"
 - takeScreenshot: mypage-notifications-all-read
-- tapOn:
-    id: "screen-back"
+# 通知はマイページの上に積んだ画面なので OS の戻るで戻る
+- runFlow:
+    file: _back.yaml
 - scrollUntilVisible:
     element:
       id: "mypage-menu-notifications"

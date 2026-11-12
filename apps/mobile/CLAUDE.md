@@ -11,14 +11,39 @@ web と同じ画面をネイティブで出す Expo アプリ。技術スタッ�
 packages/features / core を共有し、アプリ側は画面と RN の部品だけを持つ。
 
 **仕様は web を踏襲するが、外観まで web を写さない。** スマホアプリとして見慣れない
-形（ヘッダーとタブバーの帯・グレー + 下線のリンク・中央のモーダル）はネイティブの
-定石に置き換える。web から写すのは色の値と、線と影の規則（フラット。ルートの
-`apps/web/src/app/CLAUDE.md`「線と影（フラット）」）と、緑の塗り = 押して始める面の記号。
+形（web のヘッダーとタブバーの帯・グレー + 下線のリンク・中央のモーダル）は、OS の
+部品（ネイティブスタックのヘッダー・`NativeTabs` のタブバー・ネイティブのモーダルと
+シート）かネイティブの定石に置き換える。web から写すのは色の値と、線と影の規則
+（フラット。ルートの `apps/web/src/app/CLAUDE.md`「線と影（フラット）」）と、緑の塗り =
+押して始める面の記号。
 
-- 画面の枠（`components/screen.tsx`）はネイティブ標準: 白地のヘッダー（左に戻る / ×、
-  中央に見出し、右に「?」等）とヘアラインの区切り。解答中の画面（チャレンジ・
-  トレーニング・訓練）は `backIcon="close"` で「閉じる」を出し、チャレンジだけ中止の
-  確認を挟む。履歴が無いときの戻るは練習一覧へ
+- 画面の枠は OS のヘッダー（ネイティブスタックのヘッダー）で、`Screen`
+  （`components/screen.tsx`）が載せる。画面は `Screen` の props（`title`・`back`・`onBack`・
+  `backIcon`・`titleAction`）だけを渡し、`Stack.*` を直接書かない — 呼び出しが多く、画面ごとに
+  書くと余白・戻り先・testID の決まりが散る。タブの入口は大きな見出し（iOS の large title。
+  スクロールで畳まれる）、それ以外は中央の小さな見出し
+  - iOS ではヘッダーが透け、本文がその下へ潜る（OS の自動の inset）。Android は透けさせない
+    （本文を潜らせる自動の inset が無い）。`stickyHeaderIndices` を渡した画面も透けさせない
+    （追従する子がヘッダーの裏に貼り付く）。透けるヘッダーの下で本文を先頭へ戻すときは
+    `y: 0` ではなく `y: -ヘッダーの高さ`（`HeaderHeightContext`）へ送る（0 では 1 行目が
+    ヘッダーの裏で止まる）
+  - ヘッダー右のボタン（「?」・ホームのアバター）は `HeaderIconButton`（`components/header-action.tsx`）で、
+    `titleAction` に渡す部品の中で使う。部品（「?」が開くシート等）は本文の木に描き、ボタン
+    だけを `Screen` がヘッダーへ並べる — ヘッダーの要素はナビゲーターが画面の外で描くので、
+    画面の中の Context と状態を持てない。ボタンは `Stack.Toolbar.View` に `Pressable`
+    （testID 付き）を置く形で、`Stack.Toolbar.Button` は使わない（Android で記号を受けず、
+    testID も持たない）
+  - ヘッダー左: 同じスタックに下の画面があれば OS 標準の戻る（スワイプ・長押しで履歴）。
+    モーダルの組の先頭は ×。解答中の画面と結果は `backIcon="close"` の × で、
+    `useCloseSession` がモーダルを閉じて下の画面へ戻る（チャレンジだけ中止の確認を挟む）。
+    `onBack` を渡した画面は端からのスワイプを切る（スワイプは `onBack` を通らない）
+  - 履歴が無いとき（ディープリンク・再起動で直接開いた）の戻る / × は、その画面の入口の
+    タブ（`lib/back-fallback.ts` の `backFallbackHref`）へ置き換える。解答中の × だけは
+    その練習・試験の説明画面へ置き換える。ルートのスタックに anchor を置かない — 置くと
+    全部のディープリンクの戻り先がホームになる
+- タブ・ヘッダー・行のアイコンは `SymbolIcon`（`components/icons/symbol-icon.tsx`。iOS は
+  SF Symbols、Android は Material Symbols）。盤面とボタンの中の記号は SVG
+  （`components/icons/icons.tsx`）のまま
 - リンクは下線を引かない（`lib/link-styles.ts`）。押せる行は濃い題名 + 右端の矢印 +
   押したときの地の色、単独の文字の操作はアクセント色の太字、本文中の語だけ下線。
   凡例や表の中で押せない語と同じ大きさで並ぶ語（「不正解: N」・内訳の役名）は
@@ -38,7 +63,13 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `ToggleGroup`（セグメントコントロール）
 - 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
 - 短い知らせは画面下の帯（`components/toast.tsx` の `showToast`。react-native-toast-message に
-  自前の見た目を渡す。Android の Snackbar と同じ位置で、タブバーがあればその上）。web が
+  自前の見た目を渡す）。位置は Android の Snackbar と同じ画面下（上端は OS の通知バナーと
+  重なる）で、タブの入口では浮いたタブバーの上に出す。タブバーの高さは JS から読めないので
+  `toast.tsx` の定数で持ち、OS を上げてタブバーの形が変わったら測り直す。ホストはルートで
+  `WindowOverlay`（`components/window-overlay.tsx`）に包み、更新必須の覆いも同じ層に置く —
+  ルート直下の view は iOS ではネイティブのモーダル（解答中・アカウント・シート）の下になる。
+  `WindowOverlay` は読み上げのモーダル（`accessibilityViewIsModal`）を切っている（既定のままだと
+  VoiceOver と Maestro からこの層しか見えない）。web が
   トーストを出す操作はこちらでも出す。出すのは「読み流してよい完了」だけで、次の行動が要る
   知らせ（確認メールの送信・退会の受付）は画面かパネルに残し、失敗の理由はフォームの下
   （`FormMessage`）に置き、取り返しのつかない操作の確認は `ConfirmationModal` にする。
@@ -55,11 +86,52 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   練習ごとに違うのは盤面と結果の一覧だけで、`src/practice/boards/<slug>/index.tsx` が
   `PracticeScreens`（Play / Training / Demo / ProblemList）を返し、`src/practice/registry.ts` に
   1 行足すと一覧・説明・チャレンジ・トレーニング・結果のすべてに載る
-- **タブの入口（`/`・`/dojo`・`/practice`・`/lessons`・`/score-table`）へは `useGoToTab` で移る。**
-  詳細の画面はルートのスタックに積んでいて、そこから `push` / `navigate` でタブへ送ると
-  タブ一式がもう 1 組積まれる。履歴にある画面へ戻るリンクは `dismissTo`（slug ごとに使い回す
-  `practice/[slug]` 等は `useDismissToHref`。`dismissTo` はルート名だけで照合する）。
-  Android の戻るボタンは `useHardwareBack`（フォーカス中だけ購読する）
+- **ルートのスタック（`app/_layout.tsx`）は 3 つの組と 3 つのシートを持つ。** URL はグループ名を
+  含まないので、組に入れても web と同じパスのまま
+  - `(tabs)` — 下部タブ（`app/(tabs)/_layout.tsx` の `NativeTabs`）。各タブは入口の 1 画面だけの
+    スタック（OS のヘッダーはネイティブスタックのもの）。`NativeTabs` は expo-router で unstable の
+    API なので、SDK を上げるたびにこのファイルの props を見直す
+  - 詳細の画面（練習の説明・レッスン・参照・試験の説明等）はタブの中ではなくルートのスタックに
+    積む（詳細ではタブバーが隠れる）。同じ詳細へ複数のタブから入るので、タブの中に積むと同じ
+    画面をタブの数だけ持つことになり、URL から居るタブが決まらない
+  - `(session)` — 解答中の画面と結果。`fullScreenModal` で出す。全画面のモーダルには戻るスワイプが
+    無く、× の行き先とスワイプの行き先が食い違わない。解答 → 結果・「もう一度」・トレーニング →
+    チャレンジはモーダルの中の `replace` — モーダルを別のモーダルで置き換えると、間に下の画面が見える。
+    全画面のモーダルでは UIKit が入れ物に `accessibilityViewIsModal` を付け、同じ window の直下に出る
+    `BottomSheet`（SwiftUI の sheet）とトースト（`WindowOverlay`）が VoiceOver と Maestro の木から
+    外れる（見えて押せるのに読めない）。react-native-screens の patch
+    （`patches/react-native-screens@<版>.patch`、ルートの `package.json` の `pnpm.patchedDependencies`）で、
+    `fullScreenModal` の提示が終わったあとに外している（下の画面が window から外れる全画面だけ。
+    `transparentModal` は下が透けて残るので外さない）。SDK・react-native-screens を上げたら、
+    patch がまだ要るか見直す（版が変わると pnpm が patch を当てられずに止まる）。
+    SDK 58 は precompiled modules が既定で、配布元の URL があると RNScreens をビルド済みの
+    xcframework で入れて patch を当てたソースを使わないため、`package.json` の
+    `expo.autolinking.ios.buildFromSource` に `RNScreens` を載せて常にソースからビルドさせる
+  - `(account)` — マイページ・設定・ログイン・登録・パスワードの再設定・ランキング。`modal` で出し、
+    中にスタックを持つ。iOS ではモーダルの後に積んだ通常の画面はモーダルの下に入って見えない。
+    解答中から開く画面（設定・ペイウォールのログイン / 登録 / プラン・マイレコード等）がすべてこの
+    集まりなので、モーダルにして解答中の上に重ねる
+  - シート — 用語（`reference/glossary/[slug]`）・お知らせ（`announcements/[slug]`）・級の詳細
+    （`dojo/ranks/[slug]`）の 3 画面。`formSheet`（半分と全画面の 2 段・取っ手あり・OS のヘッダー
+    なし）で、枠は `SheetScreen`（`components/sheet-screen.tsx`。見出しと × を自前で描く）。シートに
+    する基準は「読んで閉じる。開いた場所を失わせない。多くの場所から開く」。役一覧・用語集の一覧・
+    レッスン・練習の説明は行き来の起点なのでシートにしない。Android の formSheet はヘッダーも
+    中のスタックも持てない。画面の中で開くシート（説明・選択肢の一覧・選択欄）は別物で `BottomSheet`
+  - モーダルとして出すルートの集合は `lib/modal-routes.ts` の `MODAL_ROUTE_NAMES` も持つ
+    （`app/_layout.tsx` の `presentation` と同じ集合）。足すときは両方に足す
+- **画面の移り方は行き先で決める。**
+  - タブの入口（`/`・`/dojo`・`/practice`・`/lessons`・`/score-table`。`isTabHref`）へは
+    `useGoToTab` で移る。積んだ画面から `push` / `navigate` でタブへ送ると、タブ一式がもう 1 組積まれる
+  - モーダル（`(account)`・シート・解答中）の中から、モーダルでない画面へ進むときは
+    `useOpenFromModal` で、上に重なったモーダルをすべて閉じてから積む — 閉じずに積むとモーダルの
+    下に入り、押しても何も起きないように見える。行き先が `(account)` の画面ならそのまま `push`
+    （モーダルの中のスタックに積む）
+  - 解答中の画面・結果を閉じるのは `useCloseSession`。モーダルを閉じて下の画面へ戻り、下が同じ
+    練習の説明画面なら `?variant=` を今回の値に合わせる
+  - 履歴にある画面へ戻るリンクは、履歴にあることを `findRouteIndexByHref`（`lib/route-pathname.ts`。
+    パスまで照合する）で確かめてから `dismissTo`、無ければ積む。`dismissTo` はルート名だけで照合し、
+    見つからないと今の画面を置き換える
+  - Android の戻るボタンは `useHardwareBack`（フォーカス中だけ購読する）
 - **ログインは web と同じ Supabase Auth（`src/auth/`）。** ゲストの入口はホーム・
   マイページ・チャレンジの結果画面・レッスンの完了の記録の案内（`RecordCtaCard`）、ログアウト・退会はマイページの下のアカウントの
   画面（web の `/mypage/account`。web はログアウトをヘッダーのメニューに置くが、アプリには無い）で、
@@ -104,7 +176,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   販売していない（サーバーに Product ID が無い）間は制限しない。ストアの設定・環境変数・Sandbox の許可リストは `README.md`「アプリ内課金」
 - **アプリの中で他の利用者を見せない。受け付ける自由入力はユーザー名だけ。** ランキングの詳細・
   練習の画面の上位・公開プロフィール・通報・ブロック・プロフィールの編集（表示名・自己紹介・SNS・
-  アバター）は web だけに置き、アプリは自分の順位（`app/leaderboard/index.tsx`）とランキングへの
+  アバター）は web だけに置き、アプリは自分の順位（`app/(account)/leaderboard/index.tsx`）とランキングへの
   掲載の切り替え（設定のプライバシー）だけを持つ。他の利用者が入力したものをアプリに出すと、
   App Store の審査ガイドライン 1.2（利用者の投稿を載せるアプリは通報・ブロック・フィルタ・迅速な
   対応を備えること）の対象になりうる。ユーザー名だけの一覧が免除されるとは本文に無いので、名前付き・
@@ -213,7 +285,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `MAESTRO_LOCALE`（既定 `ja`）に合わせる。既存のフローは日本語の文言で要素を待つので既定のまま流し、
   英語の画面は `MAESTRO_LOCALE=en` で英語のフローを流す
 - フローで要素を押すときは `testID` で引く（文字は辞書で変わり、座標は端末で変わる）。
-  押す部品に印が無ければ `testID` を足す。見えることの確認（assert）は辞書の文言でよい。
+  押す部品に印が無ければ `testID` を足す。OS 標準の戻る（`<`）には testID が無いので、フローで
+  戻るときは `.maestro/_back.yaml` の部品を `runFlow` で使う（自前のヘッダーのボタンは
+  `screen-back`・`screen-close`・`header-help`・`sheet-close` 等の testID を持つ）。見えることの確認（assert）は辞書の文言でよい。
   その代わり文言を変えるとフローが落ちるので、辞書の文言を変えたら `.maestro/` をその文言で grep する
   （「次にやること」はほぼ全フローの起動待ちに使っている）。
   ただし `LinkRow` のように行全体が 1 つのアクセシビリティ要素にまとまる部品の中の文字

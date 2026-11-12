@@ -44,10 +44,10 @@ fi
 xcrun simctl bootstatus "$UDID" -b >/dev/null
 if [ "$(simulator_language "$UDID")" != "$WANT_LANGUAGE" ] ||
   [ "$(simulator_locale "$UDID")" != "$WANT_LOCALE" ]; then
-  echo "maestro: 端末の言語を $LOCALE（$WANT_LANGUAGE / $WANT_LOCALE）に替えて再起動する"
+  echo "maestro: 端末の言語を ${LOCALE}（${WANT_LANGUAGE} / ${WANT_LOCALE}）に替えて再起動する"
   set_simulator_language "$UDID" "$LOCALE"
 fi
-echo "maestro: $(simulator_name "$UDID")（$UDID）・言語 $LOCALE"
+echo "maestro: $(simulator_name "$UDID")（${UDID}）・言語 ${LOCALE}"
 
 BASE="${MAESTRO_OUTPUT_DIR:-${TMPDIR:-/tmp}/maestro-mahjong-scoring}"
 OUT="$(cd "$(dirname "$BASE")" && pwd)/$(basename "$BASE")/$FLOW"

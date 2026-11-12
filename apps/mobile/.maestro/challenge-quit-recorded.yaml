@@ -32,7 +32,7 @@ appId: help.mahjong.score
     timeout: 8000
 # 閉じる → 中止の確認 → 続ける
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "チャレンジを中止しますか？"
     timeout: 5000
@@ -48,7 +48,7 @@ appId: help.mahjong.score
 - takeScreenshot: answered-after-cancel
 # もう一度開いて中止する
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "チャレンジを中止しますか？"
     timeout: 5000
