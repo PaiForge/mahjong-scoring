@@ -32,6 +32,9 @@ const LABEL_STYLE = { fontSize: 11, fontWeight: "600" } as const;
  *
  * `NativeTabs` は expo-router で unstable の API。SDK を上げるたびにこのファイルの
  * props（`minimizeBehavior`・`labelStyle`・`Trigger.Icon` の `md` 等）を見直す。
+ * 実機の階層に「ブックマーク」（`book` の記号の OS 標準の説明）が見えるのは、ボタン
+ * （名前はラベルどおり「レッスン」）の中の記号の画像で、OS が付ける。props では消せず、
+ * ボタンの名前はラベルで正しいので放置する（`accessibilityLabel` を足しても二重になるだけ）。
  * タブバーの高さは OS 任せで JS から読めない（トーストの位置は `toast.tsx` の
  * 定数で持つ）。
  */
