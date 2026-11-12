@@ -428,6 +428,9 @@ export function Screen({
   return (
     <>
       {blocksSwipe && <Stack.Screen options={NO_SWIPE_OPTIONS} />}
+      {tabTitleInToolbar && transparentHeader && (
+        <Stack.Screen options={HARD_TOP_EDGE_OPTIONS} />
+      )}
       {hasHeader ? (
         <>
           <Stack.Title
@@ -594,6 +597,17 @@ function resolveLeftButton({
 function noop() {}
 
 const NO_SWIPE_OPTIONS = { gestureEnabled: false } as const;
+
+/**
+ * タブの入口の、透けるヘッダーの下端の切り方（iOS 26 以降）
+ *
+ * 既定（soft）は本文をぼかしながらヘッダーの裏まで見せる。中央の小さな見出しなら
+ * 気にならないが、左寄せの大きめの見出し（22pt）の裏に本文のボタンや見出しが
+ * 重なると読みにくい。`hard` はスクロールしたときだけヘッダーに不透明な地と
+ * 区切り線を出す OS の切り方で、先頭では今までどおり地が無い。
+ * ヘッダーを透けさせない形（点数表と同じ）にしないのは、先頭でも区切り線が出るため。
+ */
+const HARD_TOP_EDGE_OPTIONS = { scrollEdgeEffects: { top: "hard" } } as const;
 
 const OPAQUE_HEADER_STYLE = { backgroundColor: colors.card } as const;
 
