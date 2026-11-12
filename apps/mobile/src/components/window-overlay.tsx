@@ -14,10 +14,18 @@ import { FullWindowOverlay } from "react-native-screens";
  * （窓の最前面の view）に描く。その view の外側（子の無いところ）のタップは
  * 下の画面へ通る。
  *
+ * 読み上げの「モーダル」（`accessibilityViewIsModal`）は切る。既定の YES のままだと
+ * VoiceOver と XCTest（Maestro）から見えるのがこの層だけになり、下のアプリの
+ * 要素がすべて消える（トーストしか無い層がアプリ全体を隠す）。
+ *
  * Android はモーダルも同じ view の木の中に描くので、包まずそのまま描く
  * （`FullWindowOverlay` も iOS 以外では何もしない）。
  */
 export function WindowOverlay({ children }: { readonly children: ReactNode }) {
   if (Platform.OS !== "ios") return children;
-  return <FullWindowOverlay>{children}</FullWindowOverlay>;
+  return (
+    <FullWindowOverlay unstable_accessibilityContainerViewIsModal={false}>
+      {children}
+    </FullWindowOverlay>
+  );
 }
