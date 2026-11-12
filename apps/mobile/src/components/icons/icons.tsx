@@ -3,7 +3,16 @@ import type { ColorValue } from "react-native";
 import Svg, { Path, Rect } from "react-native-svg";
 
 import { colors } from "../../lib/theme";
+import { SymbolIcon } from "./symbol-icon";
 
+/**
+ * アプリのアイコン集。
+ *
+ * 行・ヘッダー・タブの記号は OS のもの（`SymbolIcon` = SF Symbols）、盤面とボタンの中は
+ * web と同じ線画（react-native-svg）。前者の関数（`ChevronRightIcon`・`HomeIcon` 等）は
+ * 呼び出し側の API を変えないまま中身だけ `SymbolIcon` にし、記号を描けないとき用に従来の
+ * SVG を `<名前>Svg` の内部関数として `fallback` に渡す。再生・チェック・鍵等は SVG のまま。
+ */
 interface IconProps {
   readonly size?: number;
   readonly color?: ColorValue;
@@ -74,7 +83,7 @@ export function InfinityIcon(props: IconProps) {
   );
 }
 
-export function ChevronRightIcon(props: IconProps) {
+function ChevronRightIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M9 5l7 7-7 7" />
@@ -82,7 +91,18 @@ export function ChevronRightIcon(props: IconProps) {
   );
 }
 
-export function HomeIcon(props: IconProps) {
+export function ChevronRightIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="chevronRight"
+      size={props.size}
+      color={props.color}
+      fallback={<ChevronRightIconSvg {...props} />}
+    />
+  );
+}
+
+function HomeIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" />
@@ -90,7 +110,18 @@ export function HomeIcon(props: IconProps) {
   );
 }
 
-export function DumbbellIcon(props: IconProps) {
+export function HomeIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="home"
+      size={props.size}
+      color={props.color}
+      fallback={<HomeIconSvg {...props} />}
+    />
+  );
+}
+
+function DumbbellIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M2 12h1M5 9v6M8 7v10M16 7v10M19 9v6M22 12h-1M8 12h8" />
@@ -98,7 +129,18 @@ export function DumbbellIcon(props: IconProps) {
   );
 }
 
-export function BookIcon(props: IconProps) {
+export function DumbbellIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="practice"
+      size={props.size}
+      color={props.color}
+      fallback={<DumbbellIconSvg {...props} />}
+    />
+  );
+}
+
+function BookIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -106,11 +148,33 @@ export function BookIcon(props: IconProps) {
   );
 }
 
-export function TableIcon(props: IconProps) {
+export function BookIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="lessons"
+      size={props.size}
+      color={props.color}
+      fallback={<BookIconSvg {...props} />}
+    />
+  );
+}
+
+function TableIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
     </Outline>
+  );
+}
+
+export function TableIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="scoreTable"
+      size={props.size}
+      color={props.color}
+      fallback={<TableIconSvg {...props} />}
+    />
   );
 }
 
@@ -123,7 +187,7 @@ export function MagnifyingGlassIcon(props: IconProps) {
   );
 }
 
-export function SettingsIcon(props: IconProps) {
+function SettingsIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -132,7 +196,18 @@ export function SettingsIcon(props: IconProps) {
   );
 }
 
-export function UserIcon(props: IconProps) {
+export function SettingsIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="settings"
+      size={props.size}
+      color={props.color}
+      fallback={<SettingsIconSvg {...props} />}
+    />
+  );
+}
+
+function UserIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -140,7 +215,18 @@ export function UserIcon(props: IconProps) {
   );
 }
 
-export function ChartIcon(props: IconProps) {
+export function UserIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="person"
+      size={props.size}
+      color={props.color}
+      fallback={<UserIconSvg {...props} />}
+    />
+  );
+}
+
+function ChartIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -148,12 +234,34 @@ export function ChartIcon(props: IconProps) {
   );
 }
 
+export function ChartIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="chart"
+      size={props.size}
+      color={props.color}
+      fallback={<ChartIconSvg {...props} />}
+    />
+  );
+}
+
 /** 星（Pro プラン。web のマイページの `PlanIcon` と同じ path） */
-export function StarIcon(props: IconProps) {
+function StarIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9L12 3Z" />
     </Outline>
+  );
+}
+
+export function StarIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="star"
+      size={props.size}
+      color={props.color}
+      fallback={<StarIconSvg {...props} />}
+    />
   );
 }
 
@@ -162,7 +270,7 @@ export function StarIcon(props: IconProps) {
  * ランキングに `ChartIcon` を使うが、マイページでマイレコードの行と並ぶため分ける）。
  * path は Heroicons の trophy
  */
-export function TrophyIcon(props: IconProps) {
+function TrophyIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
@@ -170,11 +278,33 @@ export function TrophyIcon(props: IconProps) {
   );
 }
 
-export function BeltIcon(props: IconProps) {
+export function TrophyIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="trophy"
+      size={props.size}
+      color={props.color}
+      fallback={<TrophyIconSvg {...props} />}
+    />
+  );
+}
+
+function BeltIconSvg(props: IconProps) {
   return (
     <Filled {...props} viewBox="0 0 512 512">
       <Path d="M255.233 61.009c-64.986-.549-141.156 21.77-232.77 86.17-2.124 1.136-2.856 1.77-3.663 2.576-.33 22.087.053 44.195.169 66.287 41.134 25.308 100.629 45.815 141.87 55.242-40.006 54.984-65.757 112.762-84.793 169.274l-1.916 5.685 49.586 43.473 5.185-10.524c29.919-60.708 55.189-122.456 94.832-179.1 7.43 6.226 16.197 11.95 27.217 11.128 5.455-.407 9.59-2.521 12.97-5.264l3.835.158c11.196.46 22.125-.34 32.049-3.79a49.45 49.45 0 0 0 8.133-3.678c42.982 51.203 65.056 121.754 80.294 177.52L392.286 491l57.81-57.041-2.197-5.54c-18.928-47.699-37.653-110.49-75.439-159.839 40.2-10.794 76.734-27.318 108.326-48.125 10.64-7.01 5.245-3.447 12.545-8.617l-1.523-61.74c-4.272-2.654-6.305-3.658-10.121-5.711-51.467-27.684-109.288-67.177-183.198-79.582a274.737 274.737 0 0 0-43.256-3.797zm-.246 17.928c14.062.15 27.542 1.442 40.524 3.62 67.167 11.274 121.501 46.976 172.842 75.005a503.254 503.254 0 0 1-29.192 14.488c-47.152-28.78-98.154-53.407-155.365-61.158-65.292-8.846-138.118 4.926-220.31 58.205a543.237 543.237 0 0 1-23.938-11.77c86.261-59.175 156.057-79.026 215.44-78.39zm-7.904 47.414c11.676.03 23.1.861 34.297 2.379 49.283 6.676 94.541 27.006 137.357 52.07-32.065 12.873-64.881 21.975-98.205 27.137-11.926-13.686-29.01-19.083-45.847-21.202l-6.223-.783-2.678 5.158c-4.595-1.936-9.467-3.954-13.637-5.341-4.337-1.431-8.07-2.662-12.86-2.489-20.419.738-33.221 9.61-39.604 18.715a39.044 39.044 0 0 0-3.79 6.768c-37.4-5.266-75.052-15.524-112.64-31.02 60.545-37.301 114.452-51.519 163.83-51.392zm227.695 47.941l.412 28.092c-32.966 22.502-72.037 40.144-115.548 50.844-8.333-9.135-17.5-17.615-27.637-25.235a61.999 61.999 0 0 0-1.51-3.892c49.566-8.454 97.963-25.23 144.283-49.809zM37.28 176.136c51.963 26.354 104.52 42.826 156.705 50.045.378.937.805 1.83 1.278 2.685a523.56 523.56 0 0 0-22.407 26.557c-43.916-9.01-89.474-24.845-135.705-48.79zm202.655 25.133c6.402.16 12.565 3.704 18.41 6.23-5.139 13.292-8.162 26.81-8.768 40.436l-.197-.114c-10.532-6.134-20.484-12.486-27.77-18.084-6.358-4.884-9.695-9.368-10.482-10.23 4.78-15.415 20.1-18.32 28.807-18.238zm38.837 4.468c13.956 2.53 24.72 7.36 31.807 18.955 5.731 9.378 7.181 16.926 6.49 24.577-.69 7.65-3.859 15.669-8.695 24.521-3.136 5.741-7.719 9.18-14.48 11.531-5.384 1.872-12.125 2.76-19.575 2.858-10.934-27.996-8.57-54.647 4.453-82.442zm-70.921 36.123c8.06 6.246 17.296 12.368 24.832 16.97-52.939 63.648-82.216 134.28-114.86 201.782l-22.718-19.92c23.312-67.678 56.371-135.958 112.746-198.832zm126.796 11.948c49.11 45.588 71.791 117.736 94.38 175.654l-27.58 27.215c-15.266-53.999-37.48-119.539-80.067-169.881a39.932 39.932 0 0 0 2.789-4.377c4.943-9.049 9.026-18.417 10.478-28.611zm-86.236 14.187c.743.416 1.478.812 2.219 1.223.946 6.517 2.485 13.044 4.633 19.568-3.104 2.783-6.077 4.514-5.65 4.483-1.92.143-8.738-3.091-15.14-7.893a436.419 436.419 0 0 1 13.938-17.38z" />
     </Filled>
+  );
+}
+
+export function BeltIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="dojo"
+      size={props.size}
+      color={props.color}
+      fallback={<BeltIconSvg {...props} />}
+    />
   );
 }
 
@@ -187,11 +317,22 @@ export function RotateCcwIcon(props: IconProps) {
   );
 }
 
-export function ChevronLeftIcon(props: IconProps) {
+function ChevronLeftIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M15 19l-7-7 7-7" />
     </Outline>
+  );
+}
+
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="chevronLeft"
+      size={props.size}
+      color={props.color}
+      fallback={<ChevronLeftIconSvg {...props} />}
+    />
   );
 }
 
@@ -301,11 +442,22 @@ export function ArrowDownIcon(props: IconProps) {
   );
 }
 
-export function CloseIcon(props: IconProps) {
+function CloseIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M18 6L6 18M6 6l12 12" />
     </Outline>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="close"
+      size={props.size}
+      color={props.color}
+      fallback={<CloseIconSvg {...props} />}
+    />
   );
 }
 
@@ -337,12 +489,23 @@ export function LightbulbIcon(props: IconProps) {
 }
 
 /** ベル（通知。web の `BellIcon` と同じ図形） */
-export function BellIcon(props: IconProps) {
+function BellIconSvg(props: IconProps) {
   return (
     <Outline {...props}>
       <Path d="M15 17H5l1.4-1.4a2 2 0 00.6-1.4V10a5 5 0 0110 0v4.2a2 2 0 00.6 1.4L19 17h-4" />
       <Path d="M10 20a2 2 0 004 0" />
     </Outline>
+  );
+}
+
+export function BellIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="bell"
+      size={props.size}
+      color={props.color}
+      fallback={<BellIconSvg {...props} />}
+    />
   );
 }
 
