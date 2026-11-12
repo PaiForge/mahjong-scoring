@@ -4,22 +4,22 @@ import { Redirect } from "expo-router";
 import { useTranslations } from "use-intl";
 import type { MobileNotification } from "@mahjong-scoring/features/notifications/mobile-api";
 
-import { FormMessage } from "../../auth/form-message";
-import { IAP_AVAILABLE } from "../../billing/iap-availability";
-import { Button } from "../../components/button";
-import { LoadMoreButton } from "../../components/load-more-button";
-import { LinkRowList } from "../../components/link-row";
-import { Screen } from "../../components/screen";
-import { colors } from "../../lib/theme";
-import { useLoadMore } from "../../lib/use-load-more";
-import { MypageGate, MypageLoadFailed } from "../../mypage/mypage-gate";
-import { LoadingIndicator } from "../../components/load-state";
-import { useMypageRead } from "../../mypage/use-mypage-read";
-import { NotificationRow } from "../../notifications/notification-row";
+import { FormMessage } from "../../../auth/form-message";
+import { IAP_AVAILABLE } from "../../../billing/iap-availability";
+import { Button } from "../../../components/button";
+import { LoadMoreButton } from "../../../components/load-more-button";
+import { LinkRowList } from "../../../components/link-row";
+import { Screen } from "../../../components/screen";
+import { colors } from "../../../lib/theme";
+import { useLoadMore } from "../../../lib/use-load-more";
+import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
+import { LoadingIndicator } from "../../../components/load-state";
+import { useMypageRead } from "../../../mypage/use-mypage-read";
+import { NotificationRow } from "../../../notifications/notification-row";
 import {
   fetchNotifications,
   markNotificationsRead,
-} from "../../notifications/notifications-api";
+} from "../../../notifications/notifications-api";
 
 /**
  * 通知

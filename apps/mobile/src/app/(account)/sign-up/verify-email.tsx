@@ -22,15 +22,15 @@ import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
-import { FormMessage } from "../../auth/form-message";
-import { supabase } from "../../auth/supabase-client";
-import { useSwitchAuthScreen } from "../../auth/use-switch-auth-screen";
-import { Button } from "../../components/button";
-import { Screen } from "../../components/screen";
-import { SectionTitle } from "../../components/section-title";
-import { InlineTextLink } from "../../lessons/components/chapter-link";
-import { panelFrame } from "../../lib/panel-styles";
-import { colors } from "../../lib/theme";
+import { FormMessage } from "../../../auth/form-message";
+import { supabase } from "../../../auth/supabase-client";
+import { useSwitchAuthScreen } from "../../../auth/use-switch-auth-screen";
+import { Button } from "../../../components/button";
+import { Screen } from "../../../components/screen";
+import { SectionTitle } from "../../../components/section-title";
+import { InlineTextLink } from "../../../lessons/components/chapter-link";
+import { panelFrame } from "../../../lib/panel-styles";
+import { colors } from "../../../lib/theme";
 
 export default function VerifyEmailScreen() {
   const t = useTranslations("verifyEmail");

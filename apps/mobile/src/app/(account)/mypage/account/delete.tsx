@@ -19,14 +19,14 @@ import { useTranslations } from "use-intl";
 import {
   deleteOwnAccount,
   type DeleteAccountFailure,
-} from "../../../auth/account-api";
-import { FormMessage } from "../../../auth/form-message";
-import { Button } from "../../../components/button";
-import { ConfirmationModal } from "../../../components/confirmation-modal";
-import { Screen } from "../../../components/screen";
-import { SectionTitle } from "../../../components/section-title";
-import { panelFrame } from "../../../lib/panel-styles";
-import { colors } from "../../../lib/theme";
+} from "../../../../auth/account-api";
+import { FormMessage } from "../../../../auth/form-message";
+import { Button } from "../../../../components/button";
+import { ConfirmationModal } from "../../../../components/confirmation-modal";
+import { Screen } from "../../../../components/screen";
+import { SectionTitle } from "../../../../components/section-title";
+import { panelFrame } from "../../../../lib/panel-styles";
+import { colors } from "../../../../lib/theme";
 
 /** 退会の失敗を辞書のキーに写す（`deleteAccount.*`） */
 function deletionErrorKey(

@@ -25,18 +25,18 @@ import {
 } from "@mahjong-scoring/features/account/password";
 import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 
-import { AppleSignInSection } from "../../auth/apple-sign-in-section";
-import { FormMessage } from "../../auth/form-message";
-import { supabase } from "../../auth/supabase-client";
-import { refreshAccount } from "../../auth/use-auth";
-import { Button } from "../../components/button";
-import { Screen } from "../../components/screen";
-import { TextField } from "../../components/text-field";
-import { TextLink } from "../../components/text-link";
-import { SITE_URL } from "../../lib/app-site-url";
-import { InlineTextLink } from "../../lessons/components/chapter-link";
-import { colors } from "../../lib/theme";
-import { useAppLocale } from "../../lib/use-app-locale";
+import { AppleSignInSection } from "../../../auth/apple-sign-in-section";
+import { FormMessage } from "../../../auth/form-message";
+import { supabase } from "../../../auth/supabase-client";
+import { refreshAccount } from "../../../auth/use-auth";
+import { Button } from "../../../components/button";
+import { Screen } from "../../../components/screen";
+import { TextField } from "../../../components/text-field";
+import { TextLink } from "../../../components/text-link";
+import { SITE_URL } from "../../../lib/app-site-url";
+import { InlineTextLink } from "../../../lessons/components/chapter-link";
+import { colors } from "../../../lib/theme";
+import { useAppLocale } from "../../../lib/use-app-locale";
 
 /** 登録の失敗を辞書の文言に写すための分類 */
 type SignUpFailure = "weak" | "rateLimited" | "networkError" | "failed";

@@ -18,17 +18,17 @@ import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { AppleSignInSection } from "../auth/apple-sign-in-section";
-import { FormMessage } from "../auth/form-message";
-import { supabase } from "../auth/supabase-client";
-import { refreshAccount } from "../auth/use-auth";
-import { useLeaveAuthFlow } from "../auth/use-leave-auth-flow";
-import { Button } from "../components/button";
-import { Screen } from "../components/screen";
-import { showToast } from "../components/toast";
-import { TextField } from "../components/text-field";
-import { TextLink } from "../components/text-link";
-import { colors } from "../lib/theme";
+import { AppleSignInSection } from "../../auth/apple-sign-in-section";
+import { FormMessage } from "../../auth/form-message";
+import { supabase } from "../../auth/supabase-client";
+import { refreshAccount } from "../../auth/use-auth";
+import { useLeaveAuthFlow } from "../../auth/use-leave-auth-flow";
+import { Button } from "../../components/button";
+import { Screen } from "../../components/screen";
+import { showToast } from "../../components/toast";
+import { TextField } from "../../components/text-field";
+import { TextLink } from "../../components/text-link";
+import { colors } from "../../lib/theme";
 
 /** ログインの失敗を辞書のキーに写す（`auth.*`） */
 function signInErrorKey(

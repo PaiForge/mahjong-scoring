@@ -2,10 +2,10 @@ import { StyleSheet } from "react-native";
 import { Redirect } from "expo-router";
 import { useTranslations } from "use-intl";
 
-import { IAP_AVAILABLE } from "../../billing/iap-availability";
-import { PlanScreenBody } from "../../billing/plan-screen";
-import { Screen } from "../../components/screen";
-import { MypageGate } from "../../mypage/mypage-gate";
+import { IAP_AVAILABLE } from "../../../billing/iap-availability";
+import { PlanScreenBody } from "../../../billing/plan-screen";
+import { Screen } from "../../../components/screen";
+import { MypageGate } from "../../../mypage/mypage-gate";
 
 /**
  * Pro プラン

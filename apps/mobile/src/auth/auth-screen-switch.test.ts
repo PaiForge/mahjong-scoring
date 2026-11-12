@@ -25,4 +25,13 @@ describe("planAuthScreenSwitch", () => {
     expect(planAuthScreenSwitch("(tabs)", "signIn")).toBe("replace");
     expect(planAuthScreenSwitch(undefined, "signUp")).toBe("replace");
   });
+
+  it("確認メールの画面がアカウントのモーダルの先頭なら、モーダルの下に触れず置き換える", () => {
+    // モーダルの中のスタックでは下が無い（undefined）。モーダルの下の画面の名前は見えない
+    expect(planAuthScreenSwitch(undefined, "signIn")).toBe("replace");
+  });
+
+  it("アカウントのモーダルの中のマイページの上では、流れの外として置き換える", () => {
+    expect(planAuthScreenSwitch("mypage/index", "signIn")).toBe("replace");
+  });
 });
