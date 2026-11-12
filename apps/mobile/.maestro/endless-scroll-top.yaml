@@ -1,0 +1,32 @@
+# ゲストで和了形の点数計算の盤面を開き、回答欄まで下へ送ってから「わからない」で
+# 答え合わせへ、続けて「次の問題へ」で次の問題へ進む。どちらの切り替えでも本文が
+# 先頭へ戻り、手牌の帯がヘッダー（× と見出し）の下に隠れずに見える
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://practice/agari-score/play"
+- extendedWaitUntil:
+    visible:
+      id: "score-tiles"
+    timeout: 15000
+- takeScreenshot: endless-scroll-top-question
+- scrollUntilVisible:
+    element: "わからない"
+    direction: DOWN
+- tapOn: "わからない"
+- waitForAnimationToEnd
+- takeScreenshot: endless-scroll-top-answered
+- scrollUntilVisible:
+    element: "次の問題へ"
+    direction: DOWN
+- tapOn: "次の問題へ"
+- waitForAnimationToEnd
+- takeScreenshot: endless-scroll-top-next
