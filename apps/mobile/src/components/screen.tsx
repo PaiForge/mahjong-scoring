@@ -60,7 +60,8 @@ interface ScreenProps {
    * 見出し（OS のヘッダーに出す）。省略するとヘッダーを出さない
    *
    * タブの入口では大きな見出し（iOS の large title。スクロールで畳まれる）、
-   * それ以外は中央の小さな見出し。
+   * それ以外は中央の小さな見出し。タブの入口でも `stickyHeaderIndices` を
+   * 渡した画面（点数表）は中央の小さな見出しにする（理由は同 prop）。
    */
   readonly title?: string;
   /**
@@ -97,6 +98,20 @@ interface ScreenProps {
    * 渡した画面はヘッダーを透けさせず、白地の帯にする。透けるヘッダーの下に
    * 本文を潜らせる自動の inset を、RN の追従する子は知らず、ヘッダーの裏に
    * 貼り付いて隠れるため。
+   *
+   * 渡した画面は、タブの入口でも大きな見出し（large title）を使わず、中央の
+   * 小さな見出しにする。iOS 26 では透けないヘッダー（ナビゲーションバーが
+   * translucent でない）に large title を載せると、スクロールで畳んだあと
+   * 小さな見出しが描かれず、ヘッダーが空白になる（大きな見出しの要素は
+   * バーの中に残るが見えない。iPhone 17 Pro / iOS 26.5 の Release ビルドで確認）。
+   *
+   * 採らなかった案:
+   * - 透けないヘッダーの地の色を塗らない（`backgroundColor: "transparent"`。
+   *   react-navigation が large title の既定にしている値）— 試したが空白は直らない。
+   *   地の色ではなく、透けないバーと large title の組み合わせで起きる
+   * - `transparent` を指定しない（react-navigation は large title のとき
+   *   バーを translucent にする）— 本文がバーの下に潜り、追従する子が
+   *   ヘッダーの裏に貼り付く。上の決まりに反する
    */
   readonly stickyHeaderIndices?: readonly number[];
   /** 本文の `ScrollView`。呼び出し側が先頭へ戻すとき等に使う */
@@ -217,6 +232,8 @@ export function Screen({
   const hasHeader = title !== undefined;
   const opaqueHeader = stickyHeaderIndices !== undefined;
   const transparentHeader = hasHeader && !opaqueHeader && Platform.OS === "ios";
+  // 透けないヘッダーには大きな見出しを載せない（stickyHeaderIndices の TSDoc）
+  const largeTitle = isTabEntry && !opaqueHeader;
 
   // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
   const scrollRef = useRef<ScrollViewInstance>(null);
@@ -318,7 +335,7 @@ export function Screen({
       {hasHeader ? (
         <>
           <Stack.Title
-            large={isTabEntry}
+            large={largeTitle}
             style={HEADER_TITLE_STYLE}
             largeStyle={HEADER_LARGE_TITLE_STYLE}
           >
