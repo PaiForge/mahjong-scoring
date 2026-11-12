@@ -1,0 +1,59 @@
+diff --git a/ios/RNSScreenStack.mm b/ios/RNSScreenStack.mm
+index 5da11964f5932cb44e1131c44a2480803c0a62b5..b6b0e6fc1ba1a56f93569dabb984a95069739032 100644
+--- a/ios/RNSScreenStack.mm
++++ b/ios/RNSScreenStack.mm
+@@ -27,6 +27,45 @@
+ 
+ namespace react = facebook::react;
+ 
++// [mahjong-scoring patch] 全画面のモーダル（UIModalPresentationFullScreen）の提示が終わったあと、
++// その入れ物（window の直下の UITransitionView）の accessibilityViewIsModal を NO に戻す。
++//
++// なぜ: UIKit は全画面のモーダルの入れ物にだけ accessibilityViewIsModal = YES を付ける
++// （このライブラリもアプリも設定していない）。window の直下にモーダル扱いの兄弟があると、
++// それ以外の兄弟はアクセシビリティの木（VoiceOver・XCUITest）から外れる。@expo/ui の
++// SwiftUI の .sheet の入れ物と、FullWindowOverlay（トースト）の入れ物は同じ window の
++// 直下の兄弟なので、全画面のモーダルの上に出すと、画面には見えて押せるのに読み上げられない。
++// 通常の modal（pageSheet）・formSheet の入れ物はこの値が NO で、問題が起きない。
++//
++// 前提: 全画面のモーダルでは、提示が終わると下の画面（presenting の view）が window から
++// 外れる。外したあとも下の画面が読み上げられないのはこの前提による。そのため実行時にも
++// presenting の view が window に無いことを確かめ、残っているときは何もしない。
++// overFullScreen（transparentModal）は下の画面が window に残るので対象にしない
++// （外すと透けた下の画面まで読み上げの木に入る）。アラート・シート等の他の提示も触らない。
++//
++// 採らなかった案: アプリのローカルの Expo モジュールで JS から外す案。提示の完了を JS から
++// 正確に知る手段が無く（transitionEnd を待つ等の回り道になる）、UIKit が値を付けたあとに
++// 確実に走る場所がこの completion だから。
++//
++// react-native-screens・Expo SDK を上げたら、この patch がまだ要るか（UIKit・上流の挙動）を
++// 見直す。pnpm は版の合わない patch を適用せずに止まるので、上げたときに気付ける。
++static void RNSReleaseFullScreenModalAccessibility(UIViewController *presented)
++{
++  if (presented.modalPresentationStyle != UIModalPresentationFullScreen) {
++    return;
++  }
++  UIView *presentingView = presented.presentingViewController.view;
++  if (presentingView != nil && presentingView.window != nil) {
++    return;
++  }
++  UIWindow *window = presented.view.window;
++  for (UIView *view = presented.view.superview; view != nil && view != window; view = view.superview) {
++    if (view.accessibilityViewIsModal) {
++      view.accessibilityViewIsModal = NO;
++    }
++  }
++}
++
+ @interface RNSScreenStackView () <UINavigationControllerDelegate,
+                                   UIAdaptivePresentationControllerDelegate,
+                                   UIGestureRecognizerDelegate,
+@@ -572,6 +611,8 @@ - (void)setModalViewControllers:(NSArray<UIViewController *> *)controllers
+       [previous presentViewController:next
+                              animated:shouldAnimate
+                            completion:^{
++                             // [mahjong-scoring patch] 理由は RNSReleaseFullScreenModalAccessibility
++                             RNSReleaseFullScreenModalAccessibility(next);
+                              [weakSelf.presentedModals addObject:next];
+                              if (lastModal) {
+                                afterTransitions();
