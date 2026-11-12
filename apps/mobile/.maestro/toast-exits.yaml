@@ -23,7 +23,7 @@ appId: help.mahjong.score
     notVisible: "^[123]$"
     timeout: 8000
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "チャレンジを中止しますか？"
     timeout: 5000
@@ -41,10 +41,10 @@ appId: help.mahjong.score
       LINK: "mahjong-scoring://practice/jantou-fu/training"
 - extendedWaitUntil:
     visible:
-      id: "screen-back"
+      id: "screen-close"
     timeout: 15000
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "トレーニングを終了しました"
     timeout: 5000
@@ -56,10 +56,10 @@ appId: help.mahjong.score
       LINK: "mahjong-scoring://practice/agari-score/play"
 - extendedWaitUntil:
     visible:
-      id: "screen-back"
+      id: "screen-close"
     timeout: 15000
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "和了形の点数計算を終了しました"
     timeout: 5000

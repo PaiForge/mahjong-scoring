@@ -1,0 +1,99 @@
+# シート（OS のシート。半分と全画面の 2 段、取っ手あり）は用語・お知らせの詳細・級の詳細の
+# 3 つ。ヘッダーの ×（`sheet-close`）で閉じる。ゲストで撮る:
+# - 用語集 → 用語（暗刻）のシートが半分の高さで出る
+# - 「関連する用語」の語（明刻）を押すと、シートを積まずに中身が替わる
+# - 「この用語が出てくる章」のレッスンの行を押すと、シートが閉じてレッスンが開く
+# - お知らせの詳細（dev seed の「書式の見本」）と級の詳細（5級）を開いて撮り、× で閉じる
+# お知らせは手元の web（:3000）から読むので、web が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+# 用語集 → 用語のシート（半分）
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://reference/glossary"
+# 用語集の行は「語, 読み, 進む」で 1 つの要素（LinkRow）。あ行の先頭近くの語を選ぶ
+- scrollUntilVisible:
+    element: "暗刻, アンコー, .*"
+    direction: DOWN
+- tapOn: "暗刻, アンコー, .*"
+- extendedWaitUntil:
+    visible: "読み: アンコー"
+    timeout: 5000
+- assertVisible:
+    id: "sheet-close"
+- takeScreenshot: sheet-term-half
+# 半分の高さのシートは画面の中央より下にあり、scrollUntilVisible の引き（画面の中央）が
+# シートの外に掛かる。先に本文を引き上げて全画面の段へ広げる
+- swipe:
+    start: 50%, 65%
+    end: 50%, 15%
+    duration: 400
+- waitForAnimationToEnd
+- takeScreenshot: sheet-term-full
+# 関連する用語で中身が替わる（シートは 1 枚のまま。× 1 回で用語集へ戻れる）
+- scrollUntilVisible:
+    element: "関連する用語"
+    direction: DOWN
+- tapOn: "明刻"
+- extendedWaitUntil:
+    visible: "読み: ミンコー"
+    timeout: 5000
+- assertNotVisible: "読み: アンコー"
+- takeScreenshot: sheet-term-related
+# レッスンの行でシートが閉じ、レッスンが開く
+- scrollUntilVisible:
+    element: "この用語が出てくる章"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "面子の符, .*"
+    direction: DOWN
+- tapOn: "面子の符, .*"
+- extendedWaitUntil:
+    notVisible:
+      id: "sheet-close"
+    timeout: 5000
+- assertNotVisible: "読み: ミンコー"
+# レッスンの見出し（面子の符の章の pageTitle）
+- extendedWaitUntil:
+    visible: "面子の符計算"
+    timeout: 10000
+- takeScreenshot: sheet-term-lesson-opened
+# お知らせの詳細
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://announcements/dev-formatting"
+- extendedWaitUntil:
+    visible: "リンク"
+    timeout: 10000
+- assertVisible:
+    id: "sheet-close"
+- takeScreenshot: sheet-announcement
+- tapOn:
+    id: "sheet-close"
+- extendedWaitUntil:
+    notVisible: "リンク"
+    timeout: 5000
+# 級の詳細
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://dojo/ranks/kyu-5"
+- extendedWaitUntil:
+    visible: "前提となるレッスン"
+    timeout: 10000
+- assertVisible:
+    id: "sheet-close"
+- takeScreenshot: sheet-rank
+- tapOn:
+    id: "sheet-close"
+- extendedWaitUntil:
+    notVisible: "前提となるレッスン"
+    timeout: 5000

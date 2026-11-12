@@ -47,7 +47,7 @@ appId: help.mahjong.score
     id: "practice-quota-remaining"
 - takeScreenshot: practice-quota-pro-board
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
     optional: true
 # 戻った設定は「開始する」まで送った位置のまま。上の計測のスイッチまで戻す
 - scrollUntilVisible:

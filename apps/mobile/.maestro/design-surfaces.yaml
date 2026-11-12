@@ -46,7 +46,7 @@ appId: help.mahjong.score
 - waitForAnimationToEnd
 - takeScreenshot: challenge-feedback
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible: "チャレンジを中止しますか？"
     timeout: 5000

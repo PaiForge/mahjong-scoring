@@ -28,7 +28,7 @@ appId: help.mahjong.score
       id: "generate-username"
     timeout: 15000
 - tapOn:
-    id: "screen-back"
+    id: "screen-close"
 - extendedWaitUntil:
     visible:
       id: "home-mypage"
