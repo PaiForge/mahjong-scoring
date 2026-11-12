@@ -36,6 +36,7 @@ import { Button } from "../components/button";
 import { Screen } from "../components/screen";
 import { PreparingScreen } from "./components/preparing-screen";
 import { TextLink } from "../components/text-link";
+import { useCloseSession } from "../hooks/use-close-session";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { colors } from "../lib/theme";
 import {
@@ -437,12 +438,22 @@ function RecordedSession({
   );
 }
 
-/** 記録付きでしか始めないチャレンジを始められなかった。説明画面へ置き換える */
+/**
+ * 記録付きでしか始めないチャレンジを始められなかった。モーダルを閉じて説明画面へ戻す
+ *
+ * 置き換え（`replace`）ではなく閉じる（`useCloseSession`）。説明画面から開いた
+ * モーダルを説明画面で置き換えると、同じ説明画面が 2 枚積まれる。下に何も無い
+ * （ディープリンクで直接開いた）ときだけ説明画面へ置き換える。
+ */
 function BackToIntro({ slug }: { readonly slug: PracticeMenuSlug }) {
-  const router = useRouter();
+  const closeSession = useCloseSession(practiceHref(slug));
+  // 閉じるのは 1 度だけ（閉じる関数が作り直されて 2 度走ると、下の画面まで閉じる）
+  const closed = useRef(false);
   useEffect(() => {
-    router.replace(practiceHref(slug));
-  }, [router, slug]);
+    if (closed.current) return;
+    closed.current = true;
+    closeSession();
+  }, [closeSession]);
   return <PreparingScreen slug={slug} />;
 }
 

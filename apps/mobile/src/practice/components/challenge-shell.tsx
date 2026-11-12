@@ -26,7 +26,7 @@ import { useQuitPause } from "@mahjong-scoring/features/session/use-quit-pause";
 
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { ConfirmationModal } from "../../components/confirmation-modal";
-import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useCloseSession } from "../../hooks/use-close-session";
 import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
@@ -44,7 +44,10 @@ interface ChallengeShellProps {
   readonly gameSession: GameSessionState;
   readonly timerControl: TimerControl;
   readonly variant: MenuKind;
-  /** 中止したときに戻る先（説明画面） */
+  /**
+   * 中止したときに見せる説明画面。モーダルを閉じて下の画面へ戻り、下が同じ説明画面なら
+   * `?variant=` をこれに合わせる。下に何も無いときだけここへ置き換える（`useCloseSession`）
+   */
   readonly exitHref: string;
   /** 終わったときに呼ぶ（経過時間を渡す）。結果画面への遷移は呼び出し側が持つ */
   readonly onFinish: (elapsedMs: number) => void;
@@ -110,7 +113,7 @@ export function ChallengeShell({
 }: ChallengeShellProps) {
   const tc = useTranslations("challenge");
   const tq = useTranslations("challenge.quit");
-  const dismissToHref = useDismissToHref();
+  const closeSession = useCloseSession(exitHref);
   const [isQuitOpen, setIsQuitOpen] = useState(false);
 
   const { remainingSeconds, elapsedMs } = useChallengeClock({
@@ -136,9 +139,9 @@ export function ChallengeShell({
 
   const confirmQuit = useCallback(() => {
     setIsQuitOpen(false);
-    dismissToHref(exitHref);
+    closeSession();
     showToast(tq(`${variant}.toast`));
-  }, [dismissToHref, exitHref, tq, variant]);
+  }, [closeSession, tq, variant]);
 
   useHardwareBack(openQuit);
 

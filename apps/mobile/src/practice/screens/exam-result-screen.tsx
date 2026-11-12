@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -34,7 +33,7 @@ import { PracticeRelatedChapters } from "../components/practice-chapter-section"
 import { ExamResultSummary } from "../exam/exam-result-summary";
 import { PromotionBanner } from "../exam/promotion-banner";
 import type { PracticeScreens } from "../practice-screens";
-import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useCloseSession } from "../../hooks/use-close-session";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
@@ -60,7 +59,8 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * @flow
  * 1. 試験の画面が終了時に結果をメモリのストアへ置いてここへ置き換える
  * 2. 合格なら「道場に戻る」、不合格なら「もう一度」
- * 3. ヘッダーの × と Android の戻るは試験の説明画面へ戻る
+ * 3. ヘッダーの × と Android の戻るは結果のモーダルを閉じて下の画面へ戻る
+ *    （下に何も無ければ試験の説明画面へ置き換える。`useCloseSession`）
  */
 export function ExamResultScreen({
   slug,
@@ -74,16 +74,12 @@ export function ExamResultScreen({
   const t = useTranslations(namespace);
   const tc = useTranslations("challenge");
   const router = useRouter();
-  const dismissToHref = useDismissToHref();
   const goToTab = useGoToTab();
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.examResult);
-  const close = useCallback(
-    () => dismissToHref(practiceHref(slug)),
-    [dismissToHref, slug],
-  );
+  const close = useCloseSession(practiceHref(slug));
 
   useHardwareBack(close);
 

@@ -6,7 +6,7 @@ import { useTranslations } from "use-intl";
 import { BoardBleedProvider } from "../../board/board-bleed";
 import { Button } from "../../components/button";
 import { Divider } from "../../components/divider";
-import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useCloseSession } from "../../hooks/use-close-session";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { Screen } from "../../components/screen";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
@@ -29,7 +29,10 @@ interface TrainingShellProps {
   };
   /** チャレンジ（本番）の画面のパス */
   readonly challengeHref: string;
-  /** 終了したときに戻る先（説明画面） */
+  /**
+   * 終了したときに見せる説明画面。モーダルを閉じて下の画面へ戻り、下が同じ説明画面なら
+   * `?variant=` をこれに合わせる。下に何も無いときだけここへ置き換える（`useCloseSession`）
+   */
   readonly exitHref: string;
   readonly onReveal: () => void;
   readonly revealDisabled: boolean;
@@ -97,13 +100,13 @@ export function TrainingShell({
   const tp = useTranslations("practice");
   const tExam = useTranslations("examTraining");
   const router = useRouter();
-  const dismissToHref = useDismissToHref();
+  const closeSession = useCloseSession(exitHref);
   const isExam = variant === "exam";
   useJudgementHaptics(correctCount, totalCount - correctCount);
 
   // 終えたことを知らせてから説明画面へ戻す（web と同じく、模試は模試の文言）
   const exit = () => {
-    dismissToHref(exitHref);
+    closeSession();
     showToast(isExam ? tExam("exitToast") : tt("exitToast"));
   };
 

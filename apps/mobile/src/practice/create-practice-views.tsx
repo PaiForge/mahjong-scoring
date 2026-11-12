@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
-import type { ScrollViewInstance } from "react-native";
+import { useCallback, useEffect, type ReactNode } from "react";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { type PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
@@ -40,7 +39,8 @@ import {
   type QuotaQuestionHost,
 } from "@mahjong-scoring/features/quota/use-quota-question-host";
 import { showToast } from "../components/toast";
-import { useDismissToHref } from "../hooks/use-dismiss-to-href";
+import { useCloseSession } from "../hooks/use-close-session";
+import { useScrollToTop } from "./use-scroll-to-top";
 import { PracticeQuotaPaywall } from "./quota/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "./quota/practice-quota-remaining";
 import { usePracticeQuota } from "./quota/use-practice-quota";
@@ -56,15 +56,6 @@ interface ChallengePlayViewConfig<TResult> {
     args: ChallengeBoardArgs<TResult>,
     props: PracticeViewProps,
   ) => ReactNode;
-}
-
-/** 盤面が表示を切り替えたときに画面の先頭へ戻す */
-function useScrollToTop() {
-  const scrollRef = useRef<ScrollViewInstance>(null);
-  const scrollToTop = useCallback(() => {
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
-  }, []);
-  return { scrollRef, scrollToTop };
 }
 
 /**
@@ -292,7 +283,8 @@ export function createTrainingView(
     const offersRealExam = useOffersRealExam();
     const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
     const { scrollRef, scrollToTop } = useScrollToTop();
-    const dismissToHref = useDismissToHref();
+    const exitHref = practiceHref(slug, props.variant);
+    const closeSession = useCloseSession(exitHref);
     const session = useTrainingSession({
       autoAdvanceOnCorrect,
       onDisplayChange: scrollToTop,
@@ -309,10 +301,9 @@ export function createTrainingView(
 
     const title =
       kind === "exam" ? tExam("pageTitle", { title: t("title") }) : t("title");
-    const exitHref = practiceHref(slug, props.variant);
 
     // 無料枠を使い切った。問題は作っていないので画面ごと置き換える。戻るは
-    // シェルの「終了する」と同じく、終えたことを知らせてから説明画面へ
+    // シェルの「終了する」と同じく、終えたことを知らせてからモーダルを閉じる
     if (quotaMenu !== undefined && gate?.kind === "blocked") {
       return (
         <PracticeQuotaPaywall
@@ -322,7 +313,7 @@ export function createTrainingView(
           signedIn={gate.signedIn}
           backLabel={tq("paywall.backToExam")}
           onBackToSetup={() => {
-            dismissToHref(exitHref);
+            closeSession();
             showToast(kind === "exam" ? tExam("exitToast") : tt("exitToast"));
           }}
         />
