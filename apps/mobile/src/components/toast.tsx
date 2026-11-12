@@ -1,3 +1,4 @@
+import { create } from "zustand";
 import {
   AccessibilityInfo,
   Platform,
@@ -47,6 +48,23 @@ const EDGE_GAP = 12;
 const TAB_BAR_CLEARANCE = Platform.OS === "ios" ? 56 : 80;
 
 /**
+ * 今の画面が下端に固定している帯（`Screen` の `footer`）の、下端の safe area より
+ * 上の高さ。帯のある画面では、トーストをその上に出す（帯のボタンを覆わない）
+ */
+const useFooterClearance = create<{ readonly clearance: number }>(() => ({
+  clearance: 0,
+}));
+
+/**
+ * 下端に固定した帯の高さを知らせる（`Screen` がフォーカス中に呼び、離れるとき 0 に戻す）
+ *
+ * @param clearance 下端の safe area より上の、帯の高さ
+ */
+export function setToastFooterClearance(clearance: number): void {
+  useFooterClearance.setState({ clearance });
+}
+
+/**
  * 画面下に短い知らせを出す
  * トースト
  *
@@ -76,7 +94,8 @@ export function showToast(message: string, tone: ToastTone = "notice"): void {
  *
  * タブバーは iOS 26 以降は本文の上に浮くので、帯をタブバーの上端で切らない
  * （切る線が浮いたバーの縁と揃わず、帯の影が水平線になって見える）。
- * タブバーぶんの高さは {@link TAB_BAR_CLEARANCE}。
+ * タブバーぶんの高さは {@link TAB_BAR_CLEARANCE}。下端に帯を固定した画面
+ * （`Screen` の `footer`。練習の説明の開始ボタン）では、その帯の上に出す。
  *
  * ルートレイアウトで `WindowOverlay` の中に置く（iOS のネイティブのモーダルより
  * 上に出すため。解答中の全画面のモーダルでも見える）。
@@ -85,12 +104,16 @@ export function ToastHost() {
   const insets = useSafeAreaInsets();
   const segments: readonly string[] = useSegments();
   const onTabs = segments[0] === "(tabs)";
+  const footerClearance = useFooterClearance((s) => s.clearance);
   return (
     <View
       pointerEvents="box-none"
       style={[
         styles.area,
-        { bottom: insets.bottom + (onTabs ? TAB_BAR_CLEARANCE : 0) },
+        {
+          bottom:
+            insets.bottom + (onTabs ? TAB_BAR_CLEARANCE : footerClearance),
+        },
       ]}
     >
       <Toast

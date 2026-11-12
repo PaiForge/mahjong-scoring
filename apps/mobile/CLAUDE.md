@@ -62,6 +62,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （要素を照らす仕組みはネイティブに無い。進め方の方だけ実物の見本を添える）
 - 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
   `ToggleGroup`（セグメントコントロール）。どちらも見た目は OS の部品に近い大きさ（30〜36pt）のまま、当たり判定を上下に広げて 44pt にしている
+- 画面の主操作は下端に固定する（`Screen` の `footer`。本文をスクロールしても常に押せる）。いまは
+  練習の説明画面の「トレーニング / スタート」（`PracticeStartCta`）。本文の途中に主ボタンを置いて
+  「または」の線で区切る web の形は写さない。トーストは帯の上に出る（`setToastFooterClearance`）
 - サーバーの値を出す画面は「引っ張って更新」を持つ。材料を読む部品が `usePullToRefresh(reload)`
   （`components/screen-refresh.ts`）で読み直しを登録すると、`Screen` が OS の更新の印を出す。
   サーバーから読む画面を足したら登録する（`useFocusRead` の `reload` をそのまま渡せる）

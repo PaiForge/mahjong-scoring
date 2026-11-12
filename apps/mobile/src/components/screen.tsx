@@ -1,5 +1,6 @@
 import {
   use,
+  useCallback,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -21,6 +22,7 @@ import {
 } from "react-native";
 import {
   Stack,
+  useFocusEffect,
   usePathname,
   useNavigation,
   useRoute,
@@ -37,7 +39,7 @@ import {
   HEADER_TAB_TITLE_STYLE,
   HEADER_TITLE_STYLE,
 } from "../lib/stack-options";
-import { colors } from "../lib/theme";
+import { borderWidth, colors } from "../lib/theme";
 import {
   HeaderActionContext,
   HeaderButton,
@@ -49,6 +51,7 @@ import {
   type ScreenRefreshRegistry,
 } from "./screen-refresh";
 import { ScrollIntoViewProvider, type ScrollInsets } from "./scroll-into-view";
+import { setToastFooterClearance } from "./toast";
 
 /**
  * 本文の上の余白
@@ -57,6 +60,9 @@ import { ScrollIntoViewProvider, type ScrollInsets } from "./scroll-into-view";
  * （`TehaiDisplay` の `flushTop`）
  */
 export const SCREEN_CONTENT_PADDING_TOP = 20;
+
+/** 下端に固定する帯の上の余白（下は safe area が無い端末でこの値） */
+const FOOTER_PADDING = 12;
 
 /** 本文の下の余白（下端の safe area・タブバーのぶんは OS が inset で足す） */
 const CONTENT_PADDING_BOTTOM = 32;
@@ -105,6 +111,20 @@ interface ScreenProps {
    * 貼り付いて隠れるため。
    */
   readonly stickyHeaderIndices?: readonly number[];
+  /**
+   * 画面の下端に固定する帯（その画面の主操作のボタン）
+   *
+   * 本文をスクロールしても常に押せる位置に主操作を置く（スマホアプリの定石）。
+   * 帯は本文の上に重ねて描き、本文の下にはその高さぶんの余白を足すので、最後の
+   * 行は帯の上までスクロールできる。本文の `ScrollView` の枠は画面いっぱいのまま
+   * 変えない — 枠を縮めて帯を下に並べると、OS が `ScrollView` に付ける上下の
+   * inset（透けるヘッダー・下端の safe area）の前提が崩れる。
+   *
+   * 帯は白地 + 上端の 1px の線（フラット）。下端の safe area は帯が自分で空ける。
+   * トーストは帯の上に出す（`setToastFooterClearance`）。タブの入口では使わない
+   * （タブバーと重なる）。
+   */
+  readonly footer?: ReactNode;
   /** 本文を先頭へ戻す操作（{@link ScreenHandle}） */
   readonly ref?: Ref<ScreenHandle>;
 }
@@ -246,6 +266,7 @@ export function Screen({
   children,
   contentStyle,
   stickyHeaderIndices,
+  footer,
   ref,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
@@ -276,7 +297,23 @@ export function Screen({
         : hasHeader
           ? 0
           : insets.top;
-  const insetBottom = Platform.OS === "ios" ? insets.bottom : 0;
+  // 下端に固定した帯。高さは描いてから測り、本文の下の余白とトーストの位置に使う
+  const hasFooter = footer !== undefined;
+  const [footerHeight, setFooterHeight] = useState(0);
+  const footerSafeBottom = Math.max(insets.bottom, FOOTER_PADDING);
+  // 帯のうち、下端の safe area より上に出ている高さ
+  const footerClearance = hasFooter
+    ? Math.max(footerHeight - insets.bottom, 0)
+    : 0;
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasFooter) return;
+      setToastFooterClearance(footerClearance);
+      return () => setToastFooterClearance(0);
+    }, [hasFooter, footerClearance]),
+  );
+  const insetBottom =
+    (Platform.OS === "ios" ? insets.bottom : 0) + footerClearance;
   useLayoutEffect(() => {
     scrollInsets.current = { top: insetTop, bottom: insetBottom };
   }, [insetTop, insetBottom]);
@@ -471,8 +508,11 @@ export function Screen({
                   paddingTop:
                     SCREEN_CONTENT_PADDING_TOP +
                     (Platform.OS !== "ios" && !hasHeader ? insets.top : 0),
+                  // iOS は下端の safe area を OS が inset で足す。帯のある画面は
+                  // 帯が safe area を含むので、その上に出ている高さだけ足す
                   paddingBottom:
                     CONTENT_PADDING_BOTTOM +
+                    footerClearance +
                     (Platform.OS !== "ios" && !isTabEntry ? insets.bottom : 0),
                 },
                 contentStyle,
@@ -507,6 +547,14 @@ export function Screen({
               )}
             </ScrollView>
           </ScrollIntoViewProvider>
+          {hasFooter && (
+            <View
+              style={[styles.footer, { paddingBottom: footerSafeBottom }]}
+              onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+            >
+              {footer}
+            </View>
+          )}
         </ScreenRefreshContext>
       </HeaderActionContext>
     </>
@@ -563,6 +611,17 @@ const styles = StyleSheet.create({
     // OS はヘッダーの要素を画面の端から 20pt に置く。本文の左端（16pt。
     // `content` の paddingHorizontal）に揃える
     marginLeft: -4,
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 16,
+    paddingTop: FOOTER_PADDING,
+    backgroundColor: colors.card,
+    borderTopWidth: borderWidth.panel,
+    borderTopColor: colors.panel,
   },
   titleActionHost: {
     position: "absolute",
