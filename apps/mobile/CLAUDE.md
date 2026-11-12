@@ -20,8 +20,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - 画面の枠は OS のヘッダー（ネイティブスタックのヘッダー）で、`Screen`
   （`components/screen.tsx`）が載せる。画面は `Screen` の props（`title`・`back`・`onBack`・
   `backIcon`・`titleAction`）だけを渡し、`Stack.*` を直接書かない — 呼び出しが多く、画面ごとに
-  書くと余白・戻り先・testID の決まりが散る。タブの入口は大きな見出し（iOS の large title。
-  スクロールで畳まれる）、それ以外は中央の小さな見出し
+  書くと余白・戻り先・testID の決まりが散る。タブの入口はヘッダーの行の左端に
+  一回り大きな見出し（22pt。LINE のタブの見出しの形）、それ以外は中央の小さな見出し。iOS の large title は
+  使わない（理由と置き方は `Screen` の TSDoc「見出しの位置」）
   - iOS ではヘッダーが透け、本文がその下へ潜る（OS の自動の inset）。Android は透けさせない
     （本文を潜らせる自動の inset が無い）。`stickyHeaderIndices` を渡した画面も透けさせない
     （追従する子がヘッダーの裏に貼り付く）。透けるヘッダーの下で本文を先頭へ戻すときは

@@ -23,12 +23,12 @@ const LABEL_STYLE = { fontSize: 11, fontWeight: "600" } as const;
  * （`expo-symbols` が描く）。
  *
  * 各タブはそれぞれ 1 画面だけのスタック（`(home)/_layout.tsx` 等）。OS の
- * ヘッダー（大きな見出し・透ける帯）はネイティブスタックのもので、タブの入口に
+ * ヘッダー（左寄せの見出し・透ける帯）はネイティブスタックのもので、タブの入口に
  * 出すにはタブごとにスタックを入れる必要がある。URL は変えない（ホームは
  * グループ `(home)` に入れて `/` のまま）。詳細の画面はタブの中ではなくルートの
  * スタックに積む（理由は `app/_layout.tsx`）。
  * 却下: JS のタブバーと自前のヘッダーを残し `Stack.Header asChild` で差し込む形
- * （大きな見出しも、ガラスのヘッダー・タブバーも得られない）。
+ * （ガラスのヘッダー・タブバーが得られない）。
  *
  * `NativeTabs` は expo-router で unstable の API。SDK を上げるたびにこのファイルの
  * props（`minimizeBehavior`・`labelStyle`・`Trigger.Icon` の `md` 等）を見直す。

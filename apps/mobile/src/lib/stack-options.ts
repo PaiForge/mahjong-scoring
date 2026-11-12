@@ -14,9 +14,15 @@ export const HEADER_TITLE_STYLE = {
   color: colors.foreground,
 } as const;
 
-/** 大きな見出し（タブの入口）の文字 */
-export const HEADER_LARGE_TITLE_STYLE = {
-  fontWeight: "800",
+/**
+ * タブの入口の見出し（ヘッダーの行の左端）の文字
+ *
+ * 奥の画面の中央の見出し（17pt）より一回り大きく、ヘッダーの 1 行（44pt）に
+ * 収まる大きさ。置き方は `Screen` の TSDoc「見出しの位置」。
+ */
+export const HEADER_TAB_TITLE_STYLE = {
+  fontSize: 22,
+  fontWeight: "700",
   color: colors.foreground,
 } as const;
 
@@ -43,7 +49,6 @@ export const stackScreenOptions: NativeStackNavigationOptions = {
   contentStyle: { backgroundColor: colors.card },
   headerTintColor: colors.foreground,
   headerTitleStyle: HEADER_TITLE_STYLE,
-  headerLargeTitleStyle: HEADER_LARGE_TITLE_STYLE,
   headerBackButtonDisplayMode: "minimal",
   headerBackButtonMenuEnabled: true,
 };
