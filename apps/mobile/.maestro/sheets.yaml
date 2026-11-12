@@ -18,11 +18,11 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://reference/glossary"
-# 用語集の行は「語, 読み, 進む」で 1 つの要素（LinkRow）。あ行の先頭近くの語を選ぶ
+# 用語集の行は「語, 読み」で 1 つの要素（LinkRow）。あ行の先頭近くの語を選ぶ
 - scrollUntilVisible:
-    element: "暗刻, アンコー, .*"
+    element: "暗刻, アンコー.*"
     direction: DOWN
-- tapOn: "暗刻, アンコー, .*"
+- tapOn: "暗刻, アンコー.*"
 - extendedWaitUntil:
     visible: "読み: アンコー"
     timeout: 5000

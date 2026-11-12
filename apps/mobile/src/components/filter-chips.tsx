@@ -44,6 +44,9 @@ export function FilterChips<T extends string>({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      // キーボードが出ている間（検索欄に打った直後）も 1 回のタップで選べるようにする。
+      // 既定では、スクロールの枠の中の最初のタップはキーボードを閉じるだけで終わる
+      keyboardShouldPersistTaps="handled"
       accessibilityLabel={accessibilityLabel}
       style={styles.scroll}
       contentContainerStyle={styles.content}
