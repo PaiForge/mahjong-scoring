@@ -1,5 +1,5 @@
-import { ExamRoute } from "../../../practice/screens/exam-route";
-import { PracticeTrainingScreen } from "../../../practice/screens/practice-play-screen";
+import { ExamRoute } from "../../../../practice/screens/exam-route";
+import { PracticeTrainingScreen } from "../../../../practice/screens/practice-play-screen";
 
 /**
  * 昇級試験の模試

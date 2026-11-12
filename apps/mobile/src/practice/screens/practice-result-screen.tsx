@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -36,7 +35,7 @@ import { RecordSection } from "../components/record-section";
 import { ResultScoreBar } from "../components/result-score-bar";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
-import { useDismissToHref } from "../../hooks/use-dismiss-to-href";
+import { useCloseSession } from "../../hooks/use-close-session";
 import { useGoToTab } from "../../hooks/use-go-to-tab";
 
 /**
@@ -68,18 +67,18 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  * @flow
  * 1. チャレンジの画面が終了時に結果をメモリのストアへ置いてここへ置き換える
  * 2. 「もう一度」で同じ設定のチャレンジへ、「設定を変更する」で説明画面へ
- * 3. ヘッダーの × と Android の戻るは結果を閉じて説明画面へ戻る
+ * 3. ヘッダーの × と Android の戻るは結果のモーダルを閉じて下の画面へ戻る
  *
  * 結果はメモリのストアにしか無く、アプリを閉じると消える。再起動や
  * ディープリンクで結果が無いまま開いたときは、正解・不正解の帯の代わりに
  * その旨を書き、すぐ下の「もう一度」で挑戦し直せるようにする。
  *
  * 閉じる操作をヘッダーに置くのは、問題別の結果までスクロールすると
- * 「練習一覧に戻る」が画面の外へ出て、退出の手段が無くなるため。閉じる先は
- * チャレンジの × と同じ説明画面（流れを始めた画面）にそろえる。終えた
- * チャレンジの画面は結果へ置き換わってスタックに無いので、そこへは戻らない。
- * iOS の戻るジェスチャーはルートレイアウトで切ってある（下の画面が説明画面
- * とは限らず、× と行き先が食い違うため）。
+ * 「練習一覧に戻る」が画面の外へ出て、退出の手段が無くなるため。結果は
+ * チャレンジと同じ全画面のモーダルの中にあり（チャレンジの画面は結果へ
+ * 置き換わっている）、× はそのモーダルを閉じて下の画面へ戻る。下が同じ練習の
+ * 説明画面なら `?variant=` を今回の値に合わせ、下に何も無いときだけ説明画面へ
+ * 置き換える（`useCloseSession`）。
  */
 export function PracticeResultScreen({
   slug,
@@ -93,17 +92,13 @@ export function PracticeResultScreen({
   const tc = useTranslations("challenge");
   const tp = useTranslations("practice");
   const router = useRouter();
-  const dismissToHref = useDismissToHref();
   const goToTab = useGoToTab();
   const variant = useRouteVariant(slug);
   const attempt = useChallengeResultStore((s) => s.attempt);
   const current = attempt?.slug === slug ? attempt : undefined;
   const { ProblemList } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceResult);
-  const close = useCallback(
-    () => dismissToHref(practiceHref(slug, variant)),
-    [dismissToHref, slug, variant],
-  );
+  const close = useCloseSession(practiceHref(slug, variant));
 
   useHardwareBack(close);
   // 上のボタン群と一覧の末尾の 2 か所に置く。行き先が食い違わないよう 1 つにする

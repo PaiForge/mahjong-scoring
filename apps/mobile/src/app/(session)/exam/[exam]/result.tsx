@@ -1,5 +1,5 @@
-import { ExamResultScreen } from "../../../practice/screens/exam-result-screen";
-import { ExamRoute } from "../../../practice/screens/exam-route";
+import { ExamResultScreen } from "../../../../practice/screens/exam-result-screen";
+import { ExamRoute } from "../../../../practice/screens/exam-route";
 
 /**
  * 昇級試験の結果

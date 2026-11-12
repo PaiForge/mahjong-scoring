@@ -1,20 +1,48 @@
-import { useEffect, useRef, useState } from "react";
-import { useRouter, type Href } from "expo-router";
-import type { ScrollViewInstance } from "react-native";
+import { use, useCallback, useEffect, useRef, useState } from "react";
+import { Platform, type ScrollViewInstance } from "react-native";
+import { HeaderHeightContext } from "expo-router/react-navigation";
 import { useTranslations } from "use-intl";
 import type { PracticeQuotaGate } from "@mahjong-scoring/features/quota/gate";
 import type { QuotaMenu } from "@mahjong-scoring/features/quota/limits";
 
 import { showToast } from "../../components/toast";
+import { useCloseSession } from "../../hooks/use-close-session";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { useAutoAdvanceOnCorrect } from "../../hooks/use-training-settings-store";
 import { usePracticeQuota } from "../quota/use-practice-quota";
 
+/**
+ * 盤面が表示を切り替えたときに本文を先頭へ戻す
+ * 盤面の先頭へ戻す
+ *
+ * iOS では解答中の画面のヘッダーが透け、本文はその下へ潜る。OS がヘッダーの
+ * 高さぶんの inset を付けるので、先頭の位置は `y: 0` ではなくその高さぶん負の
+ * 値になる（`y: 0` へ戻すと、本文の頭がヘッダーの裏に潜った位置で止まる）。
+ * 解答中の画面は見出しを持ち `stickyHeaderIndices` を使わない（ヘッダーが透ける）
+ * ので、ヘッダーの高さをそのまま使う。Android はヘッダーを透けさせないので 0。
+ *
+ * 同じ処理を `create-practice-views.tsx`
+ * にも持つ（重複）。先頭の位置は `Screen` が付ける inset で決まるので、後で
+ * `Screen` 側に「先頭へ戻す」を持たせて寄せる候補。
+ */
+function useScrollToTop() {
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const headerHeight = use(HeaderHeightContext) ?? 0;
+  const top = Platform.OS === "ios" ? -headerHeight : 0;
+  const scrollToTop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: top, animated: false });
+  }, [top]);
+  return { scrollRef, scrollToTop };
+}
+
 interface EndlessBoardShellOptions {
   /** 回数制限の単位 */
   readonly menu: QuotaMenu;
-  /** 「終了する」で戻る設定画面 */
-  readonly exitHref: Href;
+  /**
+   * 「終了する」で見せる設定画面。モーダルを閉じて下の画面へ戻り、下に何も
+   * 無いときだけここへ置き換える（`useCloseSession`）
+   */
+  readonly exitHref: string;
   /** 終えたことを知らせるトースト（この練習の文言） */
   readonly exitToast: string;
   /** 正誤の成績（触覚の合図に使う） */
@@ -34,7 +62,10 @@ interface EndlessBoardShellOptions {
 interface EndlessBoardShell {
   /** 盤面のスクロール（`Screen` の ref） */
   readonly scrollRef: React.RefObject<ScrollViewInstance | null>;
-  /** 盤面の先頭へ戻す。回答・開示・次へのたびに呼ぶ */
+  /**
+   * 盤面の先頭へ戻す。回答・開示・次へのたびに呼ぶ（それらのボタンは縦に長い
+   * 盤面の下端にあるため）
+   */
   readonly scrollToTop: () => void;
   /** 正解で自動で次へ進んだ合図（`CorrectFlash` の signal） */
   readonly flashSignal: number;
@@ -44,7 +75,7 @@ interface EndlessBoardShell {
   readonly isChecking: boolean;
   /** 直近の回数制限の結果 */
   readonly gate: PracticeQuotaGate | undefined;
-  /** 終えたことを知らせてから設定画面へ戻す */
+  /** 終えたことを知らせてから盤面のモーダルを閉じる（下の設定画面へ戻る） */
   readonly handleBackToSetup: () => void;
   /** 次の問題へ（返事を待っている間は無視） */
   readonly handleNext: () => void;
@@ -73,8 +104,8 @@ export function useEndlessBoardShell({
   revealAnswer,
 }: EndlessBoardShellOptions): EndlessBoardShell {
   const tq = useTranslations("practiceQuota");
-  const router = useRouter();
-  const scrollRef = useRef<ScrollViewInstance>(null);
+  const closeSession = useCloseSession(exitHref);
+  const { scrollRef, scrollToTop } = useScrollToTop();
   const autoAdvanceOnCorrect = useAutoAdvanceOnCorrect();
   const [flashSignal, setFlashSignal] = useState(0);
   // 問題の生成は回数制限の許可を挟む。生成そのものは今までどおり端末のストアが行う
@@ -93,14 +124,10 @@ export function useEndlessBoardShell({
     void requestFirstQuestion();
   }, [start, requestFirstQuestion]);
 
-  // 回答・開示・次へのボタンは縦に長い盤面の下端にあるので、押すたびに先頭へ戻す
-  const scrollToTop = () =>
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
-
-  // 終えたことを知らせてから設定画面へ戻す（web と同じ。文言はこの練習のもの —
+  // 終えたことを知らせてから盤面のモーダルを閉じる（web と同じ。文言はこの練習のもの —
   // チャレンジでもトレーニングでもないため）
   const handleBackToSetup = () => {
-    router.dismissTo(exitHref);
+    closeSession();
     showToast(exitToast);
   };
 
