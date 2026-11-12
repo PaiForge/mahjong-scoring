@@ -1,5 +1,7 @@
-import { useCallback, useEffect, type ReactNode } from "react";
+import { use, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { Platform, type ScrollViewInstance } from "react-native";
 import { useRouter } from "expo-router";
+import { HeaderHeightContext } from "expo-router/react-navigation";
 import { useTranslations } from "use-intl";
 import { type PracticeMenuSlug } from "@mahjong-scoring/features/practice-menu-types";
 import {
@@ -40,7 +42,6 @@ import {
 } from "@mahjong-scoring/features/quota/use-quota-question-host";
 import { showToast } from "../components/toast";
 import { useCloseSession } from "../hooks/use-close-session";
-import { useScrollToTop } from "./use-scroll-to-top";
 import { PracticeQuotaPaywall } from "./quota/practice-quota-paywall";
 import { PracticeQuotaRemaining } from "./quota/practice-quota-remaining";
 import { usePracticeQuota } from "./quota/use-practice-quota";
@@ -56,6 +57,30 @@ interface ChallengePlayViewConfig<TResult> {
     args: ChallengeBoardArgs<TResult>,
     props: PracticeViewProps,
   ) => ReactNode;
+}
+
+/**
+ * 盤面が表示を切り替えたときに本文を先頭へ戻す
+ * 盤面の先頭へ戻す
+ *
+ * iOS では解答中の画面のヘッダーが透け、本文はその下へ潜る。OS がヘッダーの
+ * 高さぶんの inset を付けるので、先頭の位置は `y: 0` ではなくその高さぶん負の
+ * 値になる（`y: 0` へ戻すと、本文の頭がヘッダーの裏に潜った位置で止まる）。
+ * 解答中の画面は見出しを持ち `stickyHeaderIndices` を使わない（ヘッダーが透ける）
+ * ので、ヘッダーの高さをそのまま使う。Android はヘッダーを透けさせないので 0。
+ *
+ * 同じ処理を `endless/use-endless-board-shell.ts`
+ * にも持つ（重複）。先頭の位置は `Screen` が付ける inset で決まるので、後で
+ * `Screen` 側に「先頭へ戻す」を持たせて寄せる候補。
+ */
+function useScrollToTop() {
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const headerHeight = use(HeaderHeightContext) ?? 0;
+  const top = Platform.OS === "ios" ? -headerHeight : 0;
+  const scrollToTop = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: top, animated: false });
+  }, [top]);
+  return { scrollRef, scrollToTop };
 }
 
 /**
