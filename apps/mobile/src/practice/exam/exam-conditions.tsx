@@ -7,7 +7,6 @@ import {
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 
 import { SectionTitle } from "../../components/section-title";
-import { beltStyle } from "../../dojo/belt-style";
 import { HighlightPanel } from "../../lessons/components/highlight-panel";
 import { TextLink } from "../../components/text-link";
 import { colors, radius } from "../../lib/theme";
@@ -23,7 +22,7 @@ import { useExamGoal } from "./use-exam-goal";
  * 開始後の終了と合否はサーバーの合格ラインで決まるので、手元の値を出すと、
  * サーバーが合格ラインを変えたときに案内した条件を満たしても不合格になる。
  * まだ 1 度も読めていない間は文の代わりに灰色の帯を置き、読めなければ
- * 条件を出さずに読み直しの操作を出す（本番の開始ボタンも押せないまま）。見出しに級名を入れて縦線に帯色を着せ、どの級の試験かを
+ * 条件を出さずに読み直しの操作を出す（本番の開始ボタンも押せないまま）。見出しに級名を入れ、どの級の試験かを
  * ここで確定させる。
  *
  * モバイルで受けられるのは模試だけだが、模試は本番と同じ出題なので、
@@ -39,7 +38,7 @@ export function ExamConditions({ slug }: { readonly slug: PracticeMenuSlug }) {
 
   return (
     <View style={styles.section}>
-      <SectionTitle accentColor={beltStyle(exam.rank.slug).fill}>
+      <SectionTitle>
         {t("rankPassConditionsTitle", { rank: t(`names.${exam.rank.slug}`) })}
       </SectionTitle>
       <HighlightPanel>

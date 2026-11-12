@@ -1,56 +1,34 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
-import { colors, radius } from "../lib/theme";
+import { colors } from "../lib/theme";
 
 /**
- * 節の見出し（web の `SectionTitle`）
+ * 節の見出し
  *
- * 左の短い縦線・文字・右へ伸びる淡い横線で内容を穏やかに区切る。段級位の
- * 節（試験の合格条件・昇級試験の案内）は縦線に帯色を渡す — 既定の緑のままだと、
- * 隣の帯色の枠と競合して緑がその級の色に見えるため。
+ * 太字の文字だけで出す（飾りを持たない）。ネイティブのアプリで見慣れた節の
+ * 見出しの形（LINE のホームの「サービス」等・iOS の一覧の節）で、節の区切りは
+ * 線ではなく、文字の大きさと上の余白で示す。大きさはタブの入口の見出し
+ * （22pt。`HEADER_TAB_TITLE_STYLE`）より一段下、カードの中の題名（16〜17pt）より
+ * 一段上。
+ *
+ * 却下: web の `SectionTitle` の形（左の短い緑の縦線・文字・右へ伸びる淡い横線）—
+ * 以前はこれを写していた。web の記事の見出しの飾りで、アプリの中では web の
+ * ページに見える。段級位の節には縦線に帯色を渡していたが、どの級かは見出しの
+ * 級名と、直下のカードの帯色（`beltCardFrame`）が示す。
  */
-export function SectionTitle({
-  children,
-  accentColor = colors.primary600,
-}: {
-  readonly children: string;
-  /** 左の縦線の色。省略時は緑 */
-  readonly accentColor?: string;
-}) {
+export function SectionTitle({ children }: { readonly children: string }) {
   return (
-    <View style={styles.row}>
-      <View style={[styles.accent, { backgroundColor: accentColor }]} />
-      <Text accessibilityRole="header" style={styles.text}>
-        {children}
-      </Text>
-      <View style={styles.rule} />
-    </View>
+    <Text accessibilityRole="header" style={styles.text}>
+      {children}
+    </Text>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 4,
-  },
-  accent: {
-    width: 4,
-    height: 16,
-    borderRadius: radius.full,
-  },
   text: {
-    flexShrink: 1,
-    fontSize: 17,
+    fontSize: 19,
+    lineHeight: 26,
     fontWeight: "700",
-    letterSpacing: 0.4,
     color: colors.foreground,
-  },
-  rule: {
-    flex: 1,
-    minWidth: 16,
-    height: 1,
-    backgroundColor: colors.panel,
   },
 });
