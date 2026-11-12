@@ -10,6 +10,7 @@ import {
 } from "react";
 import {
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -43,6 +44,10 @@ import {
   type HeaderAction,
   type HeaderActionRegistry,
 } from "./header-action";
+import {
+  ScreenRefreshContext,
+  type ScreenRefreshRegistry,
+} from "./screen-refresh";
 import { ScrollIntoViewProvider, type ScrollInsets } from "./scroll-into-view";
 
 /**
@@ -354,6 +359,32 @@ export function Screen({
     [actions],
   );
 
+  // 引っ張って更新（子孫が `usePullToRefresh` で読み直しを登録した画面だけ）
+  const [refreshers, setRefreshers] = useState<
+    ReadonlyMap<string, () => Promise<void>>
+  >(() => new Map());
+  const refreshRegistry = useMemo<ScreenRefreshRegistry>(
+    () => ({
+      set: (id, refresh) =>
+        setRefreshers((prev) => new Map(prev).set(id, refresh)),
+      remove: (id) =>
+        setRefreshers((prev) => {
+          if (!prev.has(id)) return prev;
+          const next = new Map(prev);
+          next.delete(id);
+          return next;
+        }),
+    }),
+    [],
+  );
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = () => {
+    setRefreshing(true);
+    void Promise.all([...refreshers.values()].map((refresh) => refresh()))
+      .catch(noop)
+      .then(() => setRefreshing(false));
+  };
+
   // スワイプで戻ると onBack（確認・行き先の固定）を通らないので切る
   const blocksSwipe = back && onBack !== undefined;
 
@@ -405,66 +436,78 @@ export function Screen({
         <Stack.Header hidden />
       )}
       <HeaderActionContext value={registry}>
-        <ScrollIntoViewProvider
-          scrollRef={scrollRef}
-          viewportHeight={viewportHeight}
-          contentHeight={contentHeight}
-          scrollY={scrollY}
-          insets={scrollInsets}
-        >
-          <ScrollView
-            ref={scrollRef}
-            onLayout={(e) => {
-              viewportHeight.current = e.nativeEvent.layout.height;
-            }}
-            onScroll={(e) => {
-              scrollY.current = e.nativeEvent.contentOffset.y;
-            }}
-            scrollEventThrottle={16}
-            onContentSizeChange={(_width, height) => {
-              contentHeight.current = height;
-            }}
-            style={styles.body}
-            contentInsetAdjustmentBehavior="automatic"
-            // iOS の `scrollTo` は、行き先を「手で渡した contentInset」の範囲に
-            // 丸める。OS が自動で足した inset（上の行）はその範囲に入らないので、
-            // 丸めたままだと先頭（`-上の inset`）へ送っても 0 で止まり、本文の頭が
-            // 透けるヘッダーの裏に潜る（RN 0.88 の `RCTScrollViewComponentView` の
-            // `scrollTo:y:animated:`）。丸めを切り、範囲は送る側で守る —
-            // 先頭は `scrollToTop`、下端は `ScrollIntoViewProvider` の `contentHeight`
-            scrollToOverflowEnabled
-            contentContainerStyle={[
-              styles.content,
-              {
-                paddingTop:
-                  SCREEN_CONTENT_PADDING_TOP +
-                  (Platform.OS !== "ios" && !hasHeader ? insets.top : 0),
-                paddingBottom:
-                  CONTENT_PADDING_BOTTOM +
-                  (Platform.OS !== "ios" && !isTabEntry ? insets.bottom : 0),
-              },
-              contentStyle,
-            ]}
-            keyboardShouldPersistTaps="handled"
-            // 入力欄（ログイン・登録等）がキーボードに隠れないよう、iOS で
-            // キーボードの高さぶん本文の下を空けてスクロールできるようにする
-            automaticallyAdjustKeyboardInsets
-            stickyHeaderIndices={
-              stickyHeaderIndices === undefined
-                ? undefined
-                : [...stickyHeaderIndices]
-            }
+        <ScreenRefreshContext value={refreshRegistry}>
+          <ScrollIntoViewProvider
+            scrollRef={scrollRef}
+            viewportHeight={viewportHeight}
+            contentHeight={contentHeight}
+            scrollY={scrollY}
+            insets={scrollInsets}
           >
-            {children}
-            {titleAction !== undefined && (
-              // 右の操作の中身（シート等）。大きさ 0 で本文の最後に置く
-              // （絶対配置なので gap にも `stickyHeaderIndices` の数え方にも入らない）
-              <View style={styles.titleActionHost} collapsable={false}>
-                {titleAction}
-              </View>
-            )}
-          </ScrollView>
-        </ScrollIntoViewProvider>
+            <ScrollView
+              ref={scrollRef}
+              onLayout={(e) => {
+                viewportHeight.current = e.nativeEvent.layout.height;
+              }}
+              onScroll={(e) => {
+                scrollY.current = e.nativeEvent.contentOffset.y;
+              }}
+              scrollEventThrottle={16}
+              onContentSizeChange={(_width, height) => {
+                contentHeight.current = height;
+              }}
+              style={styles.body}
+              contentInsetAdjustmentBehavior="automatic"
+              // iOS の `scrollTo` は、行き先を「手で渡した contentInset」の範囲に
+              // 丸める。OS が自動で足した inset（上の行）はその範囲に入らないので、
+              // 丸めたままだと先頭（`-上の inset`）へ送っても 0 で止まり、本文の頭が
+              // 透けるヘッダーの裏に潜る（RN 0.88 の `RCTScrollViewComponentView` の
+              // `scrollTo:y:animated:`）。丸めを切り、範囲は送る側で守る —
+              // 先頭は `scrollToTop`、下端は `ScrollIntoViewProvider` の `contentHeight`
+              scrollToOverflowEnabled
+              contentContainerStyle={[
+                styles.content,
+                {
+                  paddingTop:
+                    SCREEN_CONTENT_PADDING_TOP +
+                    (Platform.OS !== "ios" && !hasHeader ? insets.top : 0),
+                  paddingBottom:
+                    CONTENT_PADDING_BOTTOM +
+                    (Platform.OS !== "ios" && !isTabEntry ? insets.bottom : 0),
+                },
+                contentStyle,
+              ]}
+              keyboardShouldPersistTaps="handled"
+              refreshControl={
+                refreshers.size > 0 ? (
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={colors.surface400}
+                    colors={[colors.action]}
+                  />
+                ) : undefined
+              }
+              // 入力欄（ログイン・登録等）がキーボードに隠れないよう、iOS で
+              // キーボードの高さぶん本文の下を空けてスクロールできるようにする
+              automaticallyAdjustKeyboardInsets
+              stickyHeaderIndices={
+                stickyHeaderIndices === undefined
+                  ? undefined
+                  : [...stickyHeaderIndices]
+              }
+            >
+              {children}
+              {titleAction !== undefined && (
+                // 右の操作の中身（シート等）。大きさ 0 で本文の最後に置く
+                // （絶対配置なので gap にも `stickyHeaderIndices` の数え方にも入らない）
+                <View style={styles.titleActionHost} collapsable={false}>
+                  {titleAction}
+                </View>
+              )}
+            </ScrollView>
+          </ScrollIntoViewProvider>
+        </ScreenRefreshContext>
       </HeaderActionContext>
     </>
   );

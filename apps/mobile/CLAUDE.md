@@ -61,7 +61,10 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   `HelpTourModal` と画面の要素を照らす `SpotlightTour`）を、どちらもこの形で出す
   （要素を照らす仕組みはネイティブに無い。進め方の方だけ実物の見本を添える）
 - 一覧の絞り込みは `FilterChips`（端まで流す独立したチップ）、2〜3 択の表示切り替えは
-  `ToggleGroup`（セグメントコントロール）
+  `ToggleGroup`（セグメントコントロール）。どちらも見た目は OS の部品に近い大きさ（30〜36pt）のまま、当たり判定を上下に広げて 44pt にしている
+- サーバーの値を出す画面は「引っ張って更新」を持つ。材料を読む部品が `usePullToRefresh(reload)`
+  （`components/screen-refresh.ts`）で読み直しを登録すると、`Screen` が OS の更新の印を出す。
+  サーバーから読む画面を足したら登録する（`useFocusRead` の `reload` をそのまま渡せる）
 - 答え合わせは色に加えて触覚（`lib/haptics.ts`、expo-haptics）でも知らせる
 - 短い知らせは画面下の帯（`components/toast.tsx` の `showToast`。react-native-toast-message に
   自前の見た目を渡す）。位置は Android の Snackbar と同じ画面下（上端は OS の通知バナーと

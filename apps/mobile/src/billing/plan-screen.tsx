@@ -31,6 +31,7 @@ import {
   restoreIapPurchases,
   usePurchaseRecording,
 } from "./use-purchase-sync";
+import { usePullToRefresh } from "../components/screen-refresh";
 
 /**
  * プラン画面の中身（ログイン中でユーザー名を決めた人）
@@ -58,6 +59,7 @@ import {
 export function PlanScreenBody({ userId }: { readonly userId: string }) {
   const t = useTranslations("mobilePlan");
   const { state, reload } = usePlan(userId);
+  usePullToRefresh(reload);
   if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;

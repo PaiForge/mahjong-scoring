@@ -27,7 +27,7 @@ export function useMypageRead<T extends object>(
   read: () => Promise<MypageApiResult<T>>,
 ): {
   readonly state: MypageReadState<T>;
-  readonly reload: () => void;
+  readonly reload: () => Promise<void>;
 } {
   const { state, reload } = useFocusRead(read);
 

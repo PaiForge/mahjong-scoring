@@ -30,7 +30,8 @@ export function useAnnouncementRead<T extends object>(
   read: () => Promise<AnnouncementApiResult<T>>,
 ): {
   readonly state: AnnouncementReadState<T>;
-  readonly reload: () => void;
+  /** 読み終えたら解決する（`usePullToRefresh` が更新の印を消す合図に使う） */
+  readonly reload: () => Promise<void>;
 } {
   const [state, setState] = useState<AnnouncementReadState<T>>({
     kind: "loading",
@@ -38,9 +39,9 @@ export function useAnnouncementRead<T extends object>(
   // 古い要求の結果が新しい要求の結果を上書きしないよう、最後の要求だけを採る
   const latest = useRef(0);
 
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     const request = ++latest.current;
-    void read().then((result) => {
+    await read().then((result) => {
       if (request !== latest.current) return;
       setState(
         "error" in result
@@ -50,7 +51,11 @@ export function useAnnouncementRead<T extends object>(
     });
   }, [read]);
 
-  useFocusEffect(reload);
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   return { state, reload };
 }

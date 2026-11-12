@@ -35,6 +35,7 @@ import { LoadingIndicator } from "../../../components/load-state";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
 import { UnreadCountBadge } from "../../../notifications/unread-count-badge";
 import { SiteLinksSection } from "../../../mypage/site-links-section";
+import { usePullToRefresh } from "../../../components/screen-refresh";
 
 /**
  * マイページ
@@ -117,6 +118,7 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
   const { state, reload } = useMypageRead(
     useCallback(() => fetchMypage(userId), [userId]),
   );
+  usePullToRefresh(reload);
   if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;

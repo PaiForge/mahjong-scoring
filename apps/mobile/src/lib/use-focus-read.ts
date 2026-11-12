@@ -25,6 +25,9 @@ export type FocusReadState<T, E> =
  * 包み、条件が変わったときだけ作り直すこと。`read` が undefined のあいだ
  * （ログインの状態を読んでいる間）は送らずに `loading` のまま待つ。
  *
+ * `reload` は読み終えたら（成功でも失敗でも、新しい要求に追い越されても）解決する
+ * Promise を返す。引っ張って更新（`usePullToRefresh`）が更新の印を消す合図に使う。
+ *
  * `replace` は読み直さずに値を差し替える。書き込みの応答が新しい値を含むとき
  * （取引の記録の応答に記録後のプランが付く等）に、もう 1 往復せず画面へ出す。
  * 読んでいる最中の要求の結果は捨てる（差し替えた値より古い）。
@@ -33,7 +36,7 @@ export function useFocusRead<T extends object, E>(
   read: (() => Promise<T | { readonly error: E }>) | undefined,
 ): {
   readonly state: FocusReadState<T, E>;
-  readonly reload: () => void;
+  readonly reload: () => Promise<void>;
   readonly replace: (value: T) => void;
 } {
   const [state, setState] = useState<FocusReadState<T, E>>({
@@ -42,13 +45,13 @@ export function useFocusRead<T extends object, E>(
   // 古い要求の結果が新しい要求の結果を上書きしないよう、最後の要求だけを採る
   const latest = useRef(0);
 
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     if (read === undefined) return;
     const request = ++latest.current;
     setState((prev) =>
       prev.kind === "loaded" ? { ...prev, pending: true } : prev,
     );
-    void read().then((result) => {
+    await read().then((result) => {
       if (request !== latest.current) return;
       setState(
         "error" in result
@@ -63,7 +66,11 @@ export function useFocusRead<T extends object, E>(
     setState({ kind: "loaded", value, pending: false });
   }, []);
 
-  useFocusEffect(reload);
+  useFocusEffect(
+    useCallback(() => {
+      void reload();
+    }, [reload]),
+  );
 
   return { state, reload, replace };
 }

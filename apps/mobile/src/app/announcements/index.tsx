@@ -16,6 +16,7 @@ import { SectionTitle } from "../../components/section-title";
 import { colors } from "../../lib/theme";
 import { useAppLocale } from "../../lib/use-app-locale";
 import { useLoadMore } from "../../lib/use-load-more";
+import { usePullToRefresh } from "../../components/screen-refresh";
 
 /**
  * お知らせ一覧
@@ -48,6 +49,7 @@ function AnnouncementList() {
   const { state, reload } = useAnnouncementRead(
     useCallback(() => fetchAnnouncements(1, locale), [locale]),
   );
+  usePullToRefresh(reload);
   const firstPage = state.kind === "loaded" ? state.value : undefined;
   const fetchPage = useCallback(
     (page: number) => fetchAnnouncements(page, locale),

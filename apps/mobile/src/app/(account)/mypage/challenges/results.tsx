@@ -12,6 +12,7 @@ import { fetchRecordResults } from "../../../../mypage/mypage-api";
 import { MypageGate, MypageLoadFailed } from "../../../../mypage/mypage-gate";
 import { LoadingIndicator } from "../../../../components/load-state";
 import { useMypageRead } from "../../../../mypage/use-mypage-read";
+import { usePullToRefresh } from "../../../../components/screen-refresh";
 
 /**
  * チャレンジ全履歴
@@ -41,6 +42,7 @@ function Results({ userId }: { readonly userId: string }) {
   const { state, reload } = useMypageRead(
     useCallback(() => fetchRecordResults(userId, 1), [userId]),
   );
+  usePullToRefresh(reload);
   const firstPage = state.kind === "loaded" ? state.value : undefined;
   const { items, hasMore, loading, error, loadMore } = useLoadMore(
     firstPage,

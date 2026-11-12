@@ -42,6 +42,7 @@ import { StatsCard } from "../../../../mypage/stats-card";
 import { useMypageRead } from "../../../../mypage/use-mypage-read";
 import { useGoToTab } from "../../../../hooks/use-go-to-tab";
 import { useOpenFromModal } from "../../../../hooks/use-open-from-modal";
+import { usePullToRefresh } from "../../../../components/screen-refresh";
 
 /** 直近の履歴に並べる件数（web と同じ） */
 const TABLE_DISPLAY_LIMIT = 5;
@@ -98,6 +99,7 @@ function Dashboard({
       [userId, board, period],
     ),
   );
+  usePullToRefresh(reload);
 
   // 表示する土俵をアプリが知らなかった（サーバーの方が新しい版）ときは
   // `board` が無く、土俵の選択欄が空のまま開く。選べばその土俵を読む
