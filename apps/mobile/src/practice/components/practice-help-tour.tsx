@@ -1,11 +1,10 @@
 import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 
-import { HelpIconButton } from "../../components/help-icon-button";
+import { HeaderIconButton } from "../../components/header-action";
 import {
   HelpTourSheet,
   type HelpTourStep,
 } from "../../components/help-tour-sheet";
-import { HEADER_HELP_FONT_SIZE } from "../../components/operation-help";
 
 /** 練習の名前空間の `t`（`help.label` / `help.title` / `help.prev` 等を引く） */
 type Translate = (
@@ -31,6 +30,7 @@ interface PracticeHelpTourProps {
  * 和了形・聴牌形の点数計算が同じ辞書キー（`help.label` / `help.title` と
  * {@link practiceHelpTourLabels} の操作ラベル）で、見出しの「?」とシートを組む。
  * 各練習はサンプル問題の生成と枚の中身だけを持ち、器はここに閉じる。
+ * 「?」はヘッダー右のボタン（`HeaderIconButton`）で、`Screen` の `titleAction` に渡す。
  */
 export function PracticeHelpTour({
   t,
@@ -42,10 +42,11 @@ export function PracticeHelpTour({
 }: PracticeHelpTourProps) {
   return (
     <>
-      <HelpIconButton
+      <HeaderIconButton
+        icon="help"
         onPress={onOpen}
         label={t("help.label")}
-        fontSize={HEADER_HELP_FONT_SIZE}
+        testID="header-help"
       />
       <HelpTourSheet
         isOpen={isOpen}
