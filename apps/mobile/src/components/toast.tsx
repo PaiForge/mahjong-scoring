@@ -37,14 +37,14 @@ const EDGE_GAP = 12;
  * タブバーの上端より上に出す（縮んだときは間が少し開くだけで重ならない）。
  *
  * 値の測り方: Release ビルド（`sim:release`）でタブの入口を開き、
- * `maestro hierarchy` で `tab-home` 等のタブの要素の枠（bounds）の上端を読む。
- * 画面の高さ − 上端 − 下端の safe area がこの値（タブの要素の枠はタブバーの
- * ガラスの面より数 pt 内側なので、面の縁まで少し足す）。iPhone 17 Pro
- * （iOS 27）で測った。OS を上げてタブバーの形が変わったら測り直す。
- * Android は Material 3 のタブバーの既定の高さ（80dp）。下端の safe area
- * （ナビゲーションバー）は NativeTabs が包むので、ここでは別に足す。
+ * `maestro hierarchy` でタブの項目（「ホーム」等）の枠（bounds）の上端を読む。
+ * 画面の高さ − 上端 − 下端の safe area に、項目の枠からガラスの面の縁までの
+ * 数 pt を足した値がこの値。iPhone 17 Pro（iOS 26.5、高さ 874pt・下端の safe area
+ * 34pt）で項目の上端が 795pt、面の縁が約 789pt だった（874 − 34 − 789 = 51）。
+ * 縁にぴったり合わせず数 pt 上に置く。OS を上げてタブバーの形が変わったら
+ * 測り直す。Android は Material 3 のタブバーの既定の高さ（80dp）。
  */
-const TAB_BAR_CLEARANCE = Platform.OS === "ios" ? 62 : 80;
+const TAB_BAR_CLEARANCE = Platform.OS === "ios" ? 56 : 80;
 
 /**
  * 画面下に短い知らせを出す
