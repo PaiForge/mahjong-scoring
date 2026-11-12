@@ -1,6 +1,6 @@
 import {
   use,
-  useCallback,
+  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -114,8 +114,24 @@ interface ScreenProps {
    *   ヘッダーの裏に貼り付く。上の決まりに反する
    */
   readonly stickyHeaderIndices?: readonly number[];
-  /** 本文の `ScrollView`。呼び出し側が先頭へ戻すとき等に使う */
-  readonly ref?: Ref<ScrollViewInstance>;
+  /** 本文を先頭へ戻す操作（{@link ScreenHandle}） */
+  readonly ref?: Ref<ScreenHandle>;
+}
+
+/**
+ * 画面の外から本文を動かす操作
+ *
+ * 本文の `ScrollView` そのものは渡さない。先頭の位置は `Screen` が決めた
+ * ヘッダーの出し方で変わり（透けるヘッダーの下に潜る画面では 0 ではなく
+ * `-上の inset`）、呼び出し側が `scrollTo({ y: 0 })` と書くと 1 行目が
+ * ヘッダーの裏で止まるため。
+ */
+export interface ScreenHandle {
+  /**
+   * 本文を先頭へ戻す（動きは付けない）。盤面が表示を切り替えたとき
+   * （回答・答え合わせ・次の問題）や、同じ画面のまま中身を差し替えたときに呼ぶ
+   */
+  scrollToTop(): void;
 }
 
 /** ここで使う navigation の形（expo-router の `useNavigation` の戻り値の一部） */
@@ -238,6 +254,7 @@ export function Screen({
   // 子孫が「ここを見せて」と頼めるよう、本文の枠を手元でも持つ
   const scrollRef = useRef<ScrollViewInstance>(null);
   const viewportHeight = useRef(0);
+  const contentHeight = useRef(0);
   const scrollY = useRef<number | undefined>(undefined);
   // 透けるヘッダーの下に潜る高さ。iOS の自動の inset と同じ量（ヘッダーの
   // 高さ・下端の safe area）を、見せたい要素の位置合わせに使う
@@ -255,13 +272,17 @@ export function Screen({
   useLayoutEffect(() => {
     scrollInsets.current = { top: insetTop, bottom: insetBottom };
   }, [insetTop, insetBottom]);
-  const setScrollRef = useCallback(
-    (node: ScrollViewInstance | null) => {
-      scrollRef.current = node;
-      if (typeof ref === "function") ref(node);
-      else if (ref != null) ref.current = node;
-    },
-    [ref],
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToTop: () => {
+        scrollRef.current?.scrollTo({
+          y: -scrollInsets.current.top,
+          animated: false,
+        });
+      },
+    }),
+    [],
   );
 
   // ヘッダー左。押したときの関数は ref で持ち、ヘッダーの要素は形が
@@ -367,11 +388,12 @@ export function Screen({
         <ScrollIntoViewProvider
           scrollRef={scrollRef}
           viewportHeight={viewportHeight}
+          contentHeight={contentHeight}
           scrollY={scrollY}
           insets={scrollInsets}
         >
           <ScrollView
-            ref={setScrollRef}
+            ref={scrollRef}
             onLayout={(e) => {
               viewportHeight.current = e.nativeEvent.layout.height;
             }}
@@ -379,8 +401,18 @@ export function Screen({
               scrollY.current = e.nativeEvent.contentOffset.y;
             }}
             scrollEventThrottle={16}
+            onContentSizeChange={(_width, height) => {
+              contentHeight.current = height;
+            }}
             style={styles.body}
             contentInsetAdjustmentBehavior="automatic"
+            // iOS の `scrollTo` は、行き先を「手で渡した contentInset」の範囲に
+            // 丸める。OS が自動で足した inset（上の行）はその範囲に入らないので、
+            // 丸めたままだと先頭（`-上の inset`）へ送っても 0 で止まり、本文の頭が
+            // 透けるヘッダーの裏に潜る（RN 0.88 の `RCTScrollViewComponentView` の
+            // `scrollTo:y:animated:`）。丸めを切り、範囲は送る側で守る —
+            // 先頭は `scrollToTop`、下端は `ScrollIntoViewProvider` の `contentHeight`
+            scrollToOverflowEnabled
             contentContainerStyle={[
               styles.content,
               {

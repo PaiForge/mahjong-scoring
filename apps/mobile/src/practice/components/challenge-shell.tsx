@@ -12,7 +12,6 @@ import {
   Text,
   View,
   type AppStateStatus,
-  type ScrollViewInstance,
 } from "react-native";
 import { useIsFocused } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -30,7 +29,7 @@ import { useCloseSession } from "../../hooks/use-close-session";
 import { useHardwareBack } from "../../hooks/use-hardware-back";
 import { useJudgementHaptics } from "../../hooks/use-judgement-haptics";
 import { PauseIcon, PlayIcon } from "../../components/icons/icons";
-import { Screen } from "../../components/screen";
+import { Screen, type ScreenHandle } from "../../components/screen";
 import { TextLink } from "../../components/text-link";
 import { showToast } from "../../components/toast";
 import { borderWidth, colors } from "../../lib/theme";
@@ -52,7 +51,7 @@ interface ChallengeShellProps {
   /** 終わったときに呼ぶ（経過時間を渡す）。結果画面への遷移は呼び出し側が持つ */
   readonly onFinish: (elapsedMs: number) => void;
   /** 盤面が表示を切り替えたときに先頭へ戻すための ScrollView の参照 */
-  readonly scrollRef: React.RefObject<ScrollViewInstance | null>;
+  readonly scrollRef: React.RefObject<ScreenHandle | null>;
   readonly children: ReactNode;
 }
 
