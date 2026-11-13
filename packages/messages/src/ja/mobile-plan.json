@@ -12,7 +12,11 @@
     "passHint": "期限が来ると無料プランに戻ります。",
     "granted": "Pro（付与）",
     "grantedUntil": "Pro（付与・{until} まで）",
-    "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。"
+    "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
+    "badge": {
+      "pro": "Pro",
+      "vip": "VIP"
+    }
   },
   "offers": {
     "title": "プランを選ぶ",
