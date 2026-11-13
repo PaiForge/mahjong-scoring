@@ -1,0 +1,40 @@
+# 用語集の絞り込み（検索欄 + 分類のチップ）をゲストで撮る:
+# - 開いた直後は検索欄・チップ・五十音順の行の一覧
+# - ローマ字（slug）で打つと当てはまる語だけが残る。読み・見出し語でも引ける
+#   （ひらがな → カタカナの突き合わせは features のテストが持つ）
+# - 当てはまらない語では「当てはまる用語がありません」
+# - 分類のチップで絞る（検索と重ねられる）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _open-link.yaml
+    env:
+      LINK: "mahjong-scoring://reference/glossary"
+- extendedWaitUntil:
+    visible:
+      id: "glossary-search"
+    timeout: 10000
+- assertVisible: "暗槓, アンカン.*"
+- takeScreenshot: glossary-index
+- tapOn:
+    id: "glossary-search"
+- inputText: "ankou"
+- assertVisible: "暗刻, アンコー.*"
+- assertNotVisible: "暗槓, アンカン.*"
+- takeScreenshot: glossary-search-hit
+- inputText: "zzz"
+- assertVisible: "当てはまる用語がありません"
+- takeScreenshot: glossary-search-empty
+- eraseText: 8
+# 分類のチップ（牌の種類。横に流す列のうち、流さずに見えているもの）。牌の種類の語だけが
+# 残り、鳴きの語（暗槓）は消える
+- tapOn: "牌の種類"
+- assertVisible: "裏ドラ, .*"
+- assertNotVisible: "暗槓, アンカン.*"
+- takeScreenshot: glossary-category-hai

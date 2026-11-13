@@ -86,6 +86,7 @@ export function ToggleGroup<T extends string>({
             }
             accessibilityRole="radio"
             accessibilityState={{ selected: isActive, disabled }}
+            hitSlop={size === "lg" ? HIT_SLOP_LG : HIT_SLOP_SM}
             style={[
               styles.segment,
               size === "lg" && styles.segmentLg,
@@ -113,6 +114,14 @@ export function ToggleGroup<T extends string>({
   );
 }
 
+/**
+ * 当たり判定を上下に広げる量。見た目の高さ（`sm` は 30pt、`lg` は 40pt）は
+ * OS のセグメントコントロールに近い大きさのまま、押せる高さだけ 44pt にする。
+ * 左右は隣の選択肢と接しているので広げない
+ */
+const HIT_SLOP_SM = { top: 7, bottom: 7 } as const;
+const HIT_SLOP_LG = { top: 2, bottom: 2 } as const;
+
 const styles = StyleSheet.create({
   track: {
     flexDirection: "row",
@@ -129,7 +138,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     paddingHorizontal: 12,
   },
-  // 溝の padding 2 を足して 44pt
   segmentLg: {
     minHeight: 40,
   },

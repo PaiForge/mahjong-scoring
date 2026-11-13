@@ -44,6 +44,9 @@ export function FilterChips<T extends string>({
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      // キーボードが出ている間（検索欄に打った直後）も 1 回のタップで選べるようにする。
+      // 既定では、スクロールの枠の中の最初のタップはキーボードを閉じるだけで終わる
+      keyboardShouldPersistTaps="handled"
       accessibilityLabel={accessibilityLabel}
       style={styles.scroll}
       contentContainerStyle={styles.content}
@@ -59,6 +62,7 @@ export function FilterChips<T extends string>({
                   onPress={() => onSelect(option.value)}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: isActive }}
+                  hitSlop={CHIP_HIT_SLOP}
                   style={({ pressed }) => [
                     styles.chip,
                     isActive && styles.chipActive,
@@ -78,13 +82,23 @@ export function FilterChips<T extends string>({
   );
 }
 
+/**
+ * チップの当たり判定を上下に広げる量。見た目は 36pt のまま、押せる高さを 44pt にする。
+ * 横スクロールの枠は外側の指を受けないので、枠も同じ量だけ上下に広げ、
+ * 負の margin で前後の部品との間隔を元のまま保つ
+ */
+const CHIP_SLOP = 4;
+const CHIP_HIT_SLOP = { top: CHIP_SLOP, bottom: CHIP_SLOP } as const;
+
 const styles = StyleSheet.create({
   scroll: {
     flexGrow: 0,
     marginHorizontal: -SCREEN_GUTTER,
+    marginVertical: -CHIP_SLOP,
   },
   content: {
     paddingHorizontal: SCREEN_GUTTER,
+    paddingVertical: CHIP_SLOP,
   },
   row: {
     flexDirection: "row",

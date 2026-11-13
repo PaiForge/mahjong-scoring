@@ -16,6 +16,7 @@ export type SymbolName =
   | "star"
   | "bell"
   | "settings"
+  | "search"
   | "home"
   | "dojo"
   | "practice"
@@ -39,6 +40,7 @@ const SYMBOLS: Readonly<Record<SymbolName, SymbolViewProps["name"]>> = {
   star: { ios: "star", android: "star" },
   bell: { ios: "bell", android: "notifications" },
   settings: { ios: "gearshape", android: "settings" },
+  search: { ios: "magnifyingglass", android: "search" },
   home: { ios: "house", android: "home" },
   dojo: { ios: "figure.martial.arts", android: "sports_martial_arts" },
   practice: { ios: "dumbbell", android: "fitness_center" },

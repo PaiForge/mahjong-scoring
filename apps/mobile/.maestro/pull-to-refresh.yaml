@@ -1,0 +1,34 @@
+# 引っ張って更新（usePullToRefresh）: サーバーの値を出す画面は、本文を下へ引くと
+# OS の更新の印が出て読み直す。bob のマイページで引き、読み直したあとも中身が出ている
+# ことを確かめる。手元の web（:3000）とその DB が動いていること
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- tapOn:
+    id: "home-mypage"
+- extendedWaitUntil:
+    visible: "@seed_bob"
+    timeout: 15000
+# 引いた直後を撮る（手元の web は速く、印はすぐ消える）
+- swipe:
+    start: 50%, 35%
+    end: 50%, 75%
+    duration: 800
+- takeScreenshot: pull-to-refresh-pulled
+- waitForAnimationToEnd
+- assertVisible: "@seed_bob"
+- assertVisible: "アクティビティ"
+- takeScreenshot: pull-to-refresh-done

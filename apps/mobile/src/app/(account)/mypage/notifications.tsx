@@ -20,6 +20,7 @@ import {
   fetchNotifications,
   markNotificationsRead,
 } from "../../../notifications/notifications-api";
+import { usePullToRefresh } from "../../../components/screen-refresh";
 
 /**
  * 通知
@@ -77,6 +78,7 @@ function Notifications({ userId }: { readonly userId: string }) {
   const { state, reload } = useMypageRead(
     useCallback(() => fetchNotifications(userId, 1), [userId]),
   );
+  usePullToRefresh(reload);
   const firstPage = state.kind === "loaded" ? state.value : undefined;
   const { items, hasMore, loading, error, loadMore } = useLoadMore(
     firstPage,

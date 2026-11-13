@@ -13,7 +13,10 @@ import { Screen } from "../../components/screen";
 import { HowToPlaySection } from "../components/how-to-play-section";
 import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import { PracticeStartCta } from "../components/practice-start-cta";
-import { VariantStartPanel } from "../components/variant-start-panel";
+import {
+  useVariantSelection,
+  VariantOptions,
+} from "../components/variant-start-panel";
 import type { PracticeScreens } from "../practice-screens";
 import { useRouteVariant } from "./use-route-variant";
 
@@ -21,9 +24,10 @@ import { useRouteVariant } from "./use-route-variant";
  * 練習の説明画面
  *
  * @description
- * web の練習説明ページ（`PracticeIntroContent`）と同じ並び: 問題方式（見本の
- * 盤面）→ 出題設定（バリアントを持つ練習だけ）→ チャレンジ / トレーニングの
- * 開始導線 → 関連するレッスン → 広告の行（始める前に目に入れない）。web の末尾にある
+ * 本文は web の練習説明ページ（`PracticeIntroContent`）と同じ並び: 問題方式（見本の
+ * 盤面）→ 出題設定（バリアントを持つ練習だけ）→ 関連するレッスン → 広告の行。
+ * チャレンジ / トレーニングの開始導線だけは本文に置かず、画面の下端に固定する
+ * （`Screen` の `footer`。理由は `PracticeStartCta`）。web の末尾にある
  * 総合ランキングの上位は置かない（アプリでは他の利用者の名前・アバターを見せない。
  * `app/leaderboard/index.tsx`）。
  */
@@ -36,18 +40,38 @@ export function PracticeIntroScreen({
 }) {
   const { namespace, hasSetup } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
-  const variant = useRouteVariant(slug);
+  const routeVariant = useRouteVariant(slug);
+  // 出題設定を持つ練習は、本文の選択肢と下端のボタンが同じ選択を見る
+  const selection = useVariantSelection(slug);
+  const setup = hasSetup ? selection : undefined;
   const { Demo } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.practiceIntro);
 
   return (
-    <Screen title={t("title")} back contentStyle={styles.content}>
+    <Screen
+      title={t("title")}
+      back
+      contentStyle={styles.content}
+      footer={
+        setup === undefined ? (
+          <PracticeStartCta slug={slug} variant={routeVariant} />
+        ) : setup.ready ? (
+          <PracticeStartCta
+            slug={slug}
+            variant={setup.variant}
+            onStart={setup.remember}
+          />
+        ) : undefined
+      }
+    >
       <HowToPlaySection namespace={namespace} Demo={Demo} />
 
-      {hasSetup ? (
-        <VariantStartPanel slug={slug} />
-      ) : (
-        <PracticeStartCta slug={slug} variant={variant} />
+      {setup?.ready === true && (
+        <VariantOptions
+          slug={slug}
+          variant={setup.variant}
+          onSelect={setup.select}
+        />
       )}
 
       <PracticeRelatedChapters slug={slug} />

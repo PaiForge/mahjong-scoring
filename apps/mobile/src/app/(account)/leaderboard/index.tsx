@@ -34,6 +34,7 @@ import {
 import { panelFrame } from "../../../lib/panel-styles";
 import { useFocusRead, type FocusReadState } from "../../../lib/use-focus-read";
 import { colors } from "../../../lib/theme";
+import { usePullToRefresh } from "../../../components/screen-refresh";
 
 /**
  * ランキングでの自分の順位
@@ -126,6 +127,7 @@ function ViewerRanks({
     [viewerId, period],
   );
   const { state, reload } = useFocusRead(read);
+  usePullToRefresh(reload);
   const ranks = ranksOf(state, period);
 
   if (state.kind === "failed") {

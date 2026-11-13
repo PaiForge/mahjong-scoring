@@ -50,7 +50,7 @@ export function invalidatePlan(snapshot?: PlanSnapshot): void {
  */
 export function usePlan(userId: string): {
   readonly state: FocusReadState<MobilePlanResponse, PlanApiFailure>;
-  readonly reload: () => void;
+  readonly reload: () => Promise<void>;
 } {
   const read = useCallback(async () => {
     const result = await fetchPlan(userId);
@@ -62,7 +62,7 @@ export function usePlan(userId: string): {
     () =>
       usePlanVersionStore.subscribe(({ snapshot }) => {
         const plan = planToShowOf(snapshot, userId);
-        if (plan === undefined) reload();
+        if (plan === undefined) void reload();
         else replace(plan);
       }),
     [reload, replace, userId],

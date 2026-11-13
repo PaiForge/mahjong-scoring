@@ -1,46 +1,50 @@
-import { useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "expo-router";
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  type ViewInstance,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
-import {
-  MOBILE_AD_SLOTS,
-  type NativeAdView,
-} from "@mahjong-scoring/features/ads/native-ad";
+import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
+import { KANA_ROWS } from "@mahjong-scoring/features/glossary/kana";
+import { filterGlossaryTerms } from "@mahjong-scoring/features/glossary/search";
 import {
-  KANA_ROWS,
-  type KanaRow,
-} from "@mahjong-scoring/features/glossary/kana";
-import { GLOSSARY_CATEGORIES } from "@mahjong-scoring/features/glossary/types";
+  GLOSSARY_CATEGORIES,
+  type GlossaryCategory,
+} from "@mahjong-scoring/features/glossary/types";
 import { glossaryTermViews } from "@mahjong-scoring/features/glossary/views";
 
 import { NativeAdRow } from "../../../ads/native-ad-row";
 import { useNativeAds } from "../../../ads/use-native-ads";
+import { FilterChips } from "../../../components/filter-chips";
 import { LinkRow, LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
-import { useScrollIntoView } from "../../../components/scroll-into-view";
-import { SectionTitle } from "../../../components/section-title";
-import { linkStyles } from "../../../lib/link-styles";
+import { SearchField } from "../../../components/search-field";
 import { colors } from "../../../lib/theme";
 import { RelatedReferencesSection } from "../../../reference/related-references-section";
-import { TermLinkList } from "../../../reference/term-link-list";
+
+/** 分類のチップの「すべて」（分類のキーと重ならない値） */
+const ALL_CATEGORIES = "all";
 
 /**
  * 用語集
  *
  * @description
  * 点数計算に出てくる麻雀の専門用語の一覧（web の `/reference/glossary`）。
- * 分類（意味の近さ）と五十音の 2 つの入口を持ち、語の説明は用語の画面に置く。
+ * 上に検索欄と分類のチップ、下に五十音順の行の一覧を置き、語の説明は用語の
+ * 画面に置く。検索は見出し語・読みに掛かり、分類と重ねて絞り込める
+ * （`filterGlossaryTerms`）。
+ *
+ * web と違うもの: web は「分類から探す」「五十音から探す」に語と行のリンクを
+ * 並べる（ページ内リンクの目次）。以前はそれを写していたが、60 語ほどの文字
+ * リンクが画面を埋めて web のページに見え、目的の語は結局スクロールして探す
+ * ことになる。アプリでは一覧を絞り込む形（検索欄 + チップ）に置き換えた。
+ * 五十音の行へ飛ぶ索引は持たない — 絞り込めば一覧が短くなる。
+ *
+ * 広告は絞り込んでいない一覧にだけ混ぜる（位置は `adIndexAfterGroup`。数えるのは
+ * 語のある行だけ。web と同じ）。探している最中の短い結果には挟まない。
  *
  * @flow
  * 点数表・役一覧の「ほかの早見表」か、レッスン本文の用語のシートから来て、
- * 分類か五十音で目的の語を探し、用語の画面へ進む。一覧の下の
+ * 検索か分類で目的の語を探し、用語の画面へ進む。一覧の下の
  * 「ほかの早見表」から点数表・役一覧へ。
  */
 export default function GlossaryIndexScreen() {
@@ -48,162 +52,100 @@ export default function GlossaryIndexScreen() {
   const router = useRouter();
   const terms = glossaryTermViews((key) => t(key));
   const ads = useNativeAds(MOBILE_AD_SLOTS.glossaryIndex);
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState<
+    GlossaryCategory | typeof ALL_CATEGORIES
+  >(ALL_CATEGORIES);
+
+  const filtering = query.trim() !== "" || category !== ALL_CATEGORIES;
+  const shown = filterGlossaryTerms(terms, {
+    query,
+    category: category === ALL_CATEGORIES ? undefined : category,
+  });
+  const rows = KANA_ROWS.map((row) => ({
+    row,
+    terms: shown.filter((term) => term.indexRow === row),
+  })).filter(({ terms: inRow }) => inRow.length > 0);
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
-      <View style={styles.section}>
-        <SectionTitle>{t("categoryIndexTitle")}</SectionTitle>
-        {GLOSSARY_CATEGORIES.map((category) => {
-          const inCategory = terms.filter((term) => term.category === category);
-          if (inCategory.length === 0) return undefined;
-          return (
-            <View key={category} style={styles.category}>
-              <Text style={styles.heading}>{t(`categories.${category}`)}</Text>
-              <TermLinkList terms={inCategory} />
-            </View>
-          );
-        })}
+      <View style={styles.filters}>
+        <SearchField
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t("searchPlaceholder")}
+          testID="glossary-search"
+        />
+        <FilterChips
+          groups={[
+            [{ value: ALL_CATEGORIES, label: t("allCategories") }],
+            GLOSSARY_CATEGORIES.map((key) => ({
+              value: key,
+              // 例: glossary.categories.hai
+              label: t(`categories.${key}`),
+            })),
+          ]}
+          selected={category}
+          onSelect={setCategory}
+          accessibilityLabel={t("categoryIndexTitle")}
+        />
       </View>
 
-      <KanaIndex
-        title={t("kanaIndexTitle")}
-        rows={KANA_ROWS.map((row) => ({
-          row,
-          label: t("kanaRowHeading", { row }),
-          terms: terms.filter((term) => term.indexRow === row),
-        }))}
-        onOpen={(href) => router.push(href)}
-        ads={ads}
-      />
+      {rows.length === 0 ? (
+        <Text style={styles.empty}>{t("noSearchResults")}</Text>
+      ) : (
+        <View style={styles.rows}>
+          {rows.map(({ row, terms: inRow }, rowIndex) => {
+            const adIndex = filtering ? undefined : adIndexAfterGroup(rowIndex);
+            const ad = adIndex === undefined ? undefined : ads[adIndex];
+            return (
+              <View key={row} style={styles.kanaRow}>
+                <Text accessibilityRole="header" style={styles.heading}>
+                  {t("kanaRowHeading", { row })}
+                </Text>
+                <LinkRowList>
+                  {inRow.map((term) => (
+                    <LinkRow
+                      key={term.slug}
+                      onPress={() => router.push(term.href)}
+                      title={term.term}
+                      description={term.reading}
+                    />
+                  ))}
+                  {ad !== undefined && <NativeAdRow creative={ad} />}
+                </LinkRowList>
+              </View>
+            );
+          })}
+        </View>
+      )}
 
       <RelatedReferencesSection current="glossary" />
     </Screen>
   );
 }
 
-/**
- * 五十音の入口（行へのジャンプ + 行ごとの一覧）
- *
- * 収録語が無い行はジャンプを押せない薄い文字のまま置き、一覧には出さない。
- * 行が抜けると「わ行は無いのか、飛ばされたのか」が分からなくなるため、
- * ジャンプの並びは常にあ行から わ行まで固定で見せる（web と同じ）。
- *
- * 広告は行の一覧の末尾に 1 行ずつ、間隔を広げながら置く（位置は
- * `adIndexAfterGroup`。数えるのは語のある行だけ。web と同じ）。
- */
-function KanaIndex({
-  title,
-  rows,
-  onOpen,
-  ads,
-}: {
-  readonly title: string;
-  readonly rows: readonly {
-    readonly row: KanaRow;
-    readonly label: string;
-    readonly terms: ReturnType<typeof glossaryTermViews>;
-  }[];
-  readonly onOpen: (href: string) => void;
-  /** 一覧に混ぜる広告（並び順どおり、スロットの枠数まで） */
-  readonly ads: readonly NativeAdView[];
-}) {
-  const scrollIntoView = useScrollIntoView();
-  const headingRefs = useRef(new Map<KanaRow, ViewInstance | null>());
-
-  return (
-    <View style={styles.section}>
-      <SectionTitle>{title}</SectionTitle>
-      <View style={styles.kanaNav}>
-        {rows.map(({ row, label, terms }) =>
-          terms.length === 0 ? (
-            <Text key={row} style={[styles.kana, styles.kanaEmpty]}>
-              {label}
-            </Text>
-          ) : (
-            <Pressable
-              key={row}
-              onPress={() =>
-                scrollIntoView(headingRefs.current.get(row) ?? null)
-              }
-              accessibilityRole="link"
-              hitSlop={6}
-            >
-              {({ pressed }) => (
-                <Text
-                  style={[
-                    styles.kana,
-                    linkStyles.textButton,
-                    pressed && linkStyles.textButtonPressed,
-                  ]}
-                >
-                  {label}
-                </Text>
-              )}
-            </Pressable>
-          ),
-        )}
-      </View>
-      {rows
-        .filter(({ terms }) => terms.length > 0)
-        .map(({ row, label, terms }, rowIndex) => {
-          const adIndex = adIndexAfterGroup(rowIndex);
-          const ad = adIndex === undefined ? undefined : ads[adIndex];
-          return (
-            <View key={row} style={styles.kanaRow}>
-              <View
-                ref={(node) => {
-                  headingRefs.current.set(row, node);
-                }}
-                collapsable={false}
-              >
-                <Text style={styles.heading}>{label}</Text>
-              </View>
-              <LinkRowList>
-                {terms.map((term) => (
-                  <LinkRow
-                    key={term.slug}
-                    onPress={() => onOpen(term.href)}
-                    title={term.term}
-                    description={term.reading}
-                  />
-                ))}
-                {ad !== undefined && <NativeAdRow creative={ad} />}
-              </LinkRowList>
-            </View>
-          );
-        })}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   content: {
-    gap: 40,
+    gap: 32,
   },
-  section: {
-    gap: 16,
+  filters: {
+    gap: 12,
   },
-  category: {
-    gap: 8,
+  rows: {
+    gap: 24,
   },
   heading: {
     fontSize: 15,
     fontWeight: "700",
     color: colors.surface900,
   },
-  kanaNav: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    columnGap: 16,
-    rowGap: 8,
-  },
-  kana: {
-    fontSize: 15,
-  },
-  kanaEmpty: {
-    color: colors.surface300,
-  },
   kanaRow: {
     gap: 8,
+  },
+  empty: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: colors.surface500,
   },
 });

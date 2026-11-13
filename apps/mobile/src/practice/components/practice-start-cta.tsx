@@ -17,9 +17,18 @@ import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
 
 /**
- * チャレンジ / トレーニングの開始導線（web の `PracticeStartCta`）
+ * チャレンジ / トレーニングの開始導線
  *
- * チャレンジを主（緑の塗り）、トレーニングを従（白地）にして「または」で区切る。
+ * 説明画面の下端に固定する帯（`Screen` の `footer`）の中身。本文をどこまで
+ * スクロールしていても始められるよう、2 つのボタンを 1 行に並べる: 右にチャレンジ
+ * （主。緑の塗り・幅を広く）、左にトレーニング（従。白地）。主操作を利き手の親指に
+ * 近い右に置く。上の 1 行はチャレンジのルール（制限時間・ミス上限）。
+ *
+ * 却下: web の `PracticeStartCta` の形（本文の途中に、チャレンジ / 「または」の
+ * 区切り線 / トレーニングを縦に並べ、それぞれの下に説明を添える）— 以前はこれを
+ * 写していた。主操作が本文と一緒に流れて画面の外へ出るうえ、「または」の線は
+ * web のフォームの形に見える。トレーニングの説明（時間無制限・1 問ごとに答え合わせ）
+ * は帯に 2 行目を足すことになるので載せていない。
  */
 export function PracticeStartCta({
   slug,
@@ -42,29 +51,12 @@ export function PracticeStartCta({
 
   return (
     <View style={styles.frame}>
-      <View style={styles.block}>
-        <Button
-          size="lg"
-          fullWidth
-          icon={<PlayIcon size={16} color={buttonForeground("primary")} />}
-          onPress={() => {
-            onStart?.();
-            router.push(practicePlayHref(slug, variant));
-          }}
-          testID="start-challenge"
-        >
-          {labels.challenge}
-        </Button>
-        <Text style={styles.hint}>{labels.challengeHint}</Text>
-      </View>
-
-      <StartCtaDivider label={labels.orDivider} />
-
-      <View style={styles.block}>
+      <Text style={styles.hint}>{labels.challengeHint}</Text>
+      <View style={styles.buttons}>
         <Button
           variant="secondary"
           size="lg"
-          fullWidth
+          style={styles.training}
           icon={
             <InfinityIcon size={16} color={buttonForeground("secondary")} />
           }
@@ -76,7 +68,18 @@ export function PracticeStartCta({
         >
           {labels.training}
         </Button>
-        <Text style={styles.hint}>{labels.trainingHint}</Text>
+        <Button
+          size="lg"
+          style={styles.challenge}
+          icon={<PlayIcon size={16} color={buttonForeground("primary")} />}
+          onPress={() => {
+            onStart?.();
+            router.push(practicePlayHref(slug, variant));
+          }}
+          testID="start-challenge"
+        >
+          {labels.challenge}
+        </Button>
       </View>
     </View>
   );
@@ -84,6 +87,8 @@ export function PracticeStartCta({
 
 /**
  * 開始導線の 2 つのブロックを分ける「または」の区切り（web の `PracticeStartCtaDivider`）
+ *
+ * 試験の説明画面（本番 / 模試）が使う。練習の説明画面は下端の帯に並べるので使わない。
  */
 export function StartCtaDivider({ label }: { readonly label: string }) {
   return (
@@ -101,16 +106,23 @@ export function StartCtaDivider({ label }: { readonly label: string }) {
 
 const styles = StyleSheet.create({
   frame: {
-    gap: 20,
-  },
-  block: {
-    alignItems: "center",
-    gap: 6,
+    gap: 8,
   },
   hint: {
     fontSize: 12,
-    color: colors.surface400,
+    color: colors.surface500,
     textAlign: "center",
+  },
+  buttons: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  // 文字の幅で決まる（「トレーニング」が 1 行に収まる幅）。残りをチャレンジが取る
+  training: {
+    paddingHorizontal: 16,
+  },
+  challenge: {
+    flex: 1,
   },
   divider: {
     flexDirection: "row",

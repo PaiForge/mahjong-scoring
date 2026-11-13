@@ -1,5 +1,6 @@
 import {
   use,
+  useCallback,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -10,6 +11,7 @@ import {
 } from "react";
 import {
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,6 +22,7 @@ import {
 } from "react-native";
 import {
   Stack,
+  useFocusEffect,
   usePathname,
   useNavigation,
   useRoute,
@@ -36,14 +39,19 @@ import {
   HEADER_TAB_TITLE_STYLE,
   HEADER_TITLE_STYLE,
 } from "../lib/stack-options";
-import { colors } from "../lib/theme";
+import { borderWidth, colors } from "../lib/theme";
 import {
   HeaderActionContext,
   HeaderButton,
   type HeaderAction,
   type HeaderActionRegistry,
 } from "./header-action";
+import {
+  ScreenRefreshContext,
+  type ScreenRefreshRegistry,
+} from "./screen-refresh";
 import { ScrollIntoViewProvider, type ScrollInsets } from "./scroll-into-view";
+import { setToastFooterClearance } from "./toast";
 
 /**
  * 本文の上の余白
@@ -52,6 +60,9 @@ import { ScrollIntoViewProvider, type ScrollInsets } from "./scroll-into-view";
  * （`TehaiDisplay` の `flushTop`）
  */
 export const SCREEN_CONTENT_PADDING_TOP = 20;
+
+/** 下端に固定する帯の上の余白（下は safe area が無い端末でこの値） */
+const FOOTER_PADDING = 12;
 
 /** 本文の下の余白（下端の safe area・タブバーのぶんは OS が inset で足す） */
 const CONTENT_PADDING_BOTTOM = 32;
@@ -100,6 +111,20 @@ interface ScreenProps {
    * 貼り付いて隠れるため。
    */
   readonly stickyHeaderIndices?: readonly number[];
+  /**
+   * 画面の下端に固定する帯（その画面の主操作のボタン）
+   *
+   * 本文をスクロールしても常に押せる位置に主操作を置く（スマホアプリの定石）。
+   * 帯は本文の上に重ねて描き、本文の下にはその高さぶんの余白を足すので、最後の
+   * 行は帯の上までスクロールできる。本文の `ScrollView` の枠は画面いっぱいのまま
+   * 変えない — 枠を縮めて帯を下に並べると、OS が `ScrollView` に付ける上下の
+   * inset（透けるヘッダー・下端の safe area）の前提が崩れる。
+   *
+   * 帯は白地 + 上端の 1px の線（フラット）。下端の safe area は帯が自分で空ける。
+   * トーストは帯の上に出す（`setToastFooterClearance`）。タブの入口では使わない
+   * （タブバーと重なる）。
+   */
+  readonly footer?: ReactNode;
   /** 本文を先頭へ戻す操作（{@link ScreenHandle}） */
   readonly ref?: Ref<ScreenHandle>;
 }
@@ -241,6 +266,7 @@ export function Screen({
   children,
   contentStyle,
   stickyHeaderIndices,
+  footer,
   ref,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
@@ -271,7 +297,23 @@ export function Screen({
         : hasHeader
           ? 0
           : insets.top;
-  const insetBottom = Platform.OS === "ios" ? insets.bottom : 0;
+  // 下端に固定した帯。高さは描いてから測り、本文の下の余白とトーストの位置に使う
+  const hasFooter = footer !== undefined;
+  const [footerHeight, setFooterHeight] = useState(0);
+  const footerSafeBottom = Math.max(insets.bottom, FOOTER_PADDING);
+  // 帯のうち、下端の safe area より上に出ている高さ
+  const footerClearance = hasFooter
+    ? Math.max(footerHeight - insets.bottom, 0)
+    : 0;
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasFooter) return;
+      setToastFooterClearance(footerClearance);
+      return () => setToastFooterClearance(0);
+    }, [hasFooter, footerClearance]),
+  );
+  const insetBottom =
+    (Platform.OS === "ios" ? insets.bottom : 0) + footerClearance;
   useLayoutEffect(() => {
     scrollInsets.current = { top: insetTop, bottom: insetBottom };
   }, [insetTop, insetBottom]);
@@ -354,12 +396,41 @@ export function Screen({
     [actions],
   );
 
+  // 引っ張って更新（子孫が `usePullToRefresh` で読み直しを登録した画面だけ）
+  const [refreshers, setRefreshers] = useState<
+    ReadonlyMap<string, () => Promise<void>>
+  >(() => new Map());
+  const refreshRegistry = useMemo<ScreenRefreshRegistry>(
+    () => ({
+      set: (id, refresh) =>
+        setRefreshers((prev) => new Map(prev).set(id, refresh)),
+      remove: (id) =>
+        setRefreshers((prev) => {
+          if (!prev.has(id)) return prev;
+          const next = new Map(prev);
+          next.delete(id);
+          return next;
+        }),
+    }),
+    [],
+  );
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = () => {
+    setRefreshing(true);
+    void Promise.all([...refreshers.values()].map((refresh) => refresh()))
+      .catch(noop)
+      .then(() => setRefreshing(false));
+  };
+
   // スワイプで戻ると onBack（確認・行き先の固定）を通らないので切る
   const blocksSwipe = back && onBack !== undefined;
 
   return (
     <>
       {blocksSwipe && <Stack.Screen options={NO_SWIPE_OPTIONS} />}
+      {tabTitleInToolbar && transparentHeader && (
+        <Stack.Screen options={HARD_TOP_EDGE_OPTIONS} />
+      )}
       {hasHeader ? (
         <>
           <Stack.Title
@@ -405,66 +476,89 @@ export function Screen({
         <Stack.Header hidden />
       )}
       <HeaderActionContext value={registry}>
-        <ScrollIntoViewProvider
-          scrollRef={scrollRef}
-          viewportHeight={viewportHeight}
-          contentHeight={contentHeight}
-          scrollY={scrollY}
-          insets={scrollInsets}
-        >
-          <ScrollView
-            ref={scrollRef}
-            onLayout={(e) => {
-              viewportHeight.current = e.nativeEvent.layout.height;
-            }}
-            onScroll={(e) => {
-              scrollY.current = e.nativeEvent.contentOffset.y;
-            }}
-            scrollEventThrottle={16}
-            onContentSizeChange={(_width, height) => {
-              contentHeight.current = height;
-            }}
-            style={styles.body}
-            contentInsetAdjustmentBehavior="automatic"
-            // iOS の `scrollTo` は、行き先を「手で渡した contentInset」の範囲に
-            // 丸める。OS が自動で足した inset（上の行）はその範囲に入らないので、
-            // 丸めたままだと先頭（`-上の inset`）へ送っても 0 で止まり、本文の頭が
-            // 透けるヘッダーの裏に潜る（RN 0.88 の `RCTScrollViewComponentView` の
-            // `scrollTo:y:animated:`）。丸めを切り、範囲は送る側で守る —
-            // 先頭は `scrollToTop`、下端は `ScrollIntoViewProvider` の `contentHeight`
-            scrollToOverflowEnabled
-            contentContainerStyle={[
-              styles.content,
-              {
-                paddingTop:
-                  SCREEN_CONTENT_PADDING_TOP +
-                  (Platform.OS !== "ios" && !hasHeader ? insets.top : 0),
-                paddingBottom:
-                  CONTENT_PADDING_BOTTOM +
-                  (Platform.OS !== "ios" && !isTabEntry ? insets.bottom : 0),
-              },
-              contentStyle,
-            ]}
-            keyboardShouldPersistTaps="handled"
-            // 入力欄（ログイン・登録等）がキーボードに隠れないよう、iOS で
-            // キーボードの高さぶん本文の下を空けてスクロールできるようにする
-            automaticallyAdjustKeyboardInsets
-            stickyHeaderIndices={
-              stickyHeaderIndices === undefined
-                ? undefined
-                : [...stickyHeaderIndices]
-            }
+        <ScreenRefreshContext value={refreshRegistry}>
+          <ScrollIntoViewProvider
+            scrollRef={scrollRef}
+            viewportHeight={viewportHeight}
+            contentHeight={contentHeight}
+            scrollY={scrollY}
+            insets={scrollInsets}
           >
-            {children}
-            {titleAction !== undefined && (
-              // 右の操作の中身（シート等）。大きさ 0 で本文の最後に置く
-              // （絶対配置なので gap にも `stickyHeaderIndices` の数え方にも入らない）
-              <View style={styles.titleActionHost} collapsable={false}>
-                {titleAction}
-              </View>
-            )}
-          </ScrollView>
-        </ScrollIntoViewProvider>
+            <ScrollView
+              ref={scrollRef}
+              onLayout={(e) => {
+                viewportHeight.current = e.nativeEvent.layout.height;
+              }}
+              onScroll={(e) => {
+                scrollY.current = e.nativeEvent.contentOffset.y;
+              }}
+              scrollEventThrottle={16}
+              onContentSizeChange={(_width, height) => {
+                contentHeight.current = height;
+              }}
+              style={styles.body}
+              contentInsetAdjustmentBehavior="automatic"
+              // iOS の `scrollTo` は、行き先を「手で渡した contentInset」の範囲に
+              // 丸める。OS が自動で足した inset（上の行）はその範囲に入らないので、
+              // 丸めたままだと先頭（`-上の inset`）へ送っても 0 で止まり、本文の頭が
+              // 透けるヘッダーの裏に潜る（RN 0.88 の `RCTScrollViewComponentView` の
+              // `scrollTo:y:animated:`）。丸めを切り、範囲は送る側で守る —
+              // 先頭は `scrollToTop`、下端は `ScrollIntoViewProvider` の `contentHeight`
+              scrollToOverflowEnabled
+              contentContainerStyle={[
+                styles.content,
+                {
+                  paddingTop:
+                    SCREEN_CONTENT_PADDING_TOP +
+                    (Platform.OS !== "ios" && !hasHeader ? insets.top : 0),
+                  // iOS は下端の safe area を OS が inset で足す。帯のある画面は
+                  // 帯が safe area を含むので、その上に出ている高さだけ足す
+                  paddingBottom:
+                    CONTENT_PADDING_BOTTOM +
+                    footerClearance +
+                    (Platform.OS !== "ios" && !isTabEntry ? insets.bottom : 0),
+                },
+                contentStyle,
+              ]}
+              keyboardShouldPersistTaps="handled"
+              refreshControl={
+                refreshers.size > 0 ? (
+                  <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor={colors.surface400}
+                    colors={[colors.action]}
+                  />
+                ) : undefined
+              }
+              // 入力欄（ログイン・登録等）がキーボードに隠れないよう、iOS で
+              // キーボードの高さぶん本文の下を空けてスクロールできるようにする
+              automaticallyAdjustKeyboardInsets
+              stickyHeaderIndices={
+                stickyHeaderIndices === undefined
+                  ? undefined
+                  : [...stickyHeaderIndices]
+              }
+            >
+              {children}
+              {titleAction !== undefined && (
+                // 右の操作の中身（シート等）。大きさ 0 で本文の最後に置く
+                // （絶対配置なので gap にも `stickyHeaderIndices` の数え方にも入らない）
+                <View style={styles.titleActionHost} collapsable={false}>
+                  {titleAction}
+                </View>
+              )}
+            </ScrollView>
+          </ScrollIntoViewProvider>
+          {hasFooter && (
+            <View
+              style={[styles.footer, { paddingBottom: footerSafeBottom }]}
+              onLayout={(e) => setFooterHeight(e.nativeEvent.layout.height)}
+            >
+              {footer}
+            </View>
+          )}
+        </ScreenRefreshContext>
       </HeaderActionContext>
     </>
   );
@@ -504,6 +598,17 @@ function noop() {}
 
 const NO_SWIPE_OPTIONS = { gestureEnabled: false } as const;
 
+/**
+ * タブの入口の、透けるヘッダーの下端の切り方（iOS 26 以降）
+ *
+ * 既定（soft）は本文をぼかしながらヘッダーの裏まで見せる。中央の小さな見出しなら
+ * 気にならないが、左寄せの大きめの見出し（22pt）の裏に本文のボタンや見出しが
+ * 重なると読みにくい。`hard` はスクロールしたときだけヘッダーに不透明な地と
+ * 区切り線を出す OS の切り方で、先頭では今までどおり地が無い。
+ * ヘッダーを透けさせない形（点数表と同じ）にしないのは、先頭でも区切り線が出るため。
+ */
+const HARD_TOP_EDGE_OPTIONS = { scrollEdgeEffects: { top: "hard" } } as const;
+
 const OPAQUE_HEADER_STYLE = { backgroundColor: colors.card } as const;
 
 const styles = StyleSheet.create({
@@ -520,6 +625,17 @@ const styles = StyleSheet.create({
     // OS はヘッダーの要素を画面の端から 20pt に置く。本文の左端（16pt。
     // `content` の paddingHorizontal）に揃える
     marginLeft: -4,
+  },
+  footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 16,
+    paddingTop: FOOTER_PADDING,
+    backgroundColor: colors.card,
+    borderTopWidth: borderWidth.panel,
+    borderTopColor: colors.panel,
   },
   titleActionHost: {
     position: "absolute",
