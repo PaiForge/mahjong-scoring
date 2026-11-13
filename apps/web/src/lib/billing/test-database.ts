@@ -35,6 +35,7 @@ export async function setupBillingTestDb() {
     "20261011050421_add_apple_iap_to_purchases.sql",
     "20261011063801_add_signed_date_to_apple_notification_events.sql",
     "20261108035603_add_locale_to_billing_checkouts.sql",
+    "20261113222530_add_google_iap_to_purchases.sql",
   ]) {
     const ddl = await readFile(
       new URL(`../../../drizzle/${name}`, import.meta.url),
