@@ -27,6 +27,10 @@ import { webLocalePath } from "@mahjong-scoring/features/i18n/web-locale-path";
 
 import { AppleSignInSection } from "../../../auth/apple-sign-in-section";
 import { FormMessage } from "../../../auth/form-message";
+import {
+  isAuthNetworkError,
+  isAuthRateLimited,
+} from "../../../auth/auth-error-status";
 import { supabase } from "../../../auth/supabase-client";
 import { refreshAccount } from "../../../auth/use-auth";
 import { Button } from "../../../components/button";
@@ -46,8 +50,8 @@ function signUpFailure(
   status: number | undefined,
 ): SignUpFailure {
   if (code === "weak_password") return "weak";
-  if (status === 429) return "rateLimited";
-  if (status === undefined || status === 0) return "networkError";
+  if (isAuthRateLimited(status)) return "rateLimited";
+  if (isAuthNetworkError(status)) return "networkError";
   return "failed";
 }
 

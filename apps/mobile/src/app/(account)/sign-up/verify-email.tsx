@@ -22,6 +22,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useTranslations } from "use-intl";
 import { useResendCooldown } from "@mahjong-scoring/features/account/use-resend-cooldown";
 
+import { isAuthRateLimited } from "../../../auth/auth-error-status";
 import { FormMessage } from "../../../auth/form-message";
 import { supabase } from "../../../auth/supabase-client";
 import { useSwitchAuthScreen } from "../../../auth/use-switch-auth-screen";
@@ -52,7 +53,9 @@ export default function VerifyEmailScreen() {
       error
         ? {
             tone: "error",
-            text: error.status === 429 ? t("rateLimited") : t("resendError"),
+            text: isAuthRateLimited(error.status)
+              ? t("rateLimited")
+              : t("resendError"),
           }
         : { tone: "success", text: t("resendSuccess") },
     );

@@ -23,6 +23,10 @@ import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
+import {
+  isAuthNetworkError,
+  isAuthRateLimited,
+} from "../../auth/auth-error-status";
 import { FormMessage } from "../../auth/form-message";
 import { supabase } from "../../auth/supabase-client";
 import { Button } from "../../components/button";
@@ -53,9 +57,9 @@ export default function ForgotPasswordScreen() {
     setSubmitting(false);
     if (sendError) {
       setError(
-        sendError.status === 429
+        isAuthRateLimited(sendError.status)
           ? t("rateLimited")
-          : sendError.status === undefined || sendError.status === 0
+          : isAuthNetworkError(sendError.status)
             ? tAuth("networkError")
             : t("error"),
       );
