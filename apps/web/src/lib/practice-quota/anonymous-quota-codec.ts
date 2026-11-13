@@ -3,9 +3,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import {
   EMPTY_QUOTA_COUNTS,
-  QUOTA_MENUS,
+  parseQuotaCounts,
   type QuotaCounts,
-  type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
 
 /**
@@ -26,22 +25,6 @@ const FORMAT_VERSION = "v1";
 
 function sign(key: Buffer, payload: string): string {
   return createHmac("sha256", key).update(payload).digest("base64url");
-}
-
-/** JSON から回数を取り出す。形が違えば undefined */
-function parseCounts(value: unknown): QuotaCounts | undefined {
-  if (typeof value !== "object" || value === null) return undefined;
-  const record: Record<string, unknown> = { ...value };
-  const counts: Record<QuotaMenu, number> = { ...EMPTY_QUOTA_COUNTS };
-  for (const menu of QUOTA_MENUS) {
-    const count = record[menu];
-    if (count === undefined) continue;
-    if (typeof count !== "number" || !Number.isInteger(count) || count < 0) {
-      return undefined;
-    }
-    counts[menu] = count;
-  }
-  return counts;
 }
 
 /**
@@ -97,7 +80,7 @@ export function decodeAnonymousQuotaCookie(
       return EMPTY_QUOTA_COUNTS;
     const record: Record<string, unknown> = { ...decoded };
     if (record.day !== jstDayKey(now)) return EMPTY_QUOTA_COUNTS;
-    return parseCounts(record.counts) ?? EMPTY_QUOTA_COUNTS;
+    return parseQuotaCounts(record.counts) ?? EMPTY_QUOTA_COUNTS;
   } catch {
     return EMPTY_QUOTA_COUNTS;
   }

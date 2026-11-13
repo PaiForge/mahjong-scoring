@@ -110,6 +110,22 @@ describe("encodeAnonymousQuotaCookie / decodeAnonymousQuotaCookie", () => {
     ).toEqual(ZERO);
   });
 
+  it("数が壊れた練習だけ 0 にし、他の練習の回数は捨てない", () => {
+    expect(
+      decodeAnonymousQuotaCookie(
+        reencode(
+          {
+            day: "2026-10-01",
+            counts: { "agari-score": -1, "tenpai-score": 1 },
+          },
+          KEY,
+        ),
+        NOW,
+        KEY,
+      ),
+    ).toEqual({ ...ZERO, "tenpai-score": 1 });
+  });
+
   it("知らない練習の回数は捨て、無い練習は 0 で埋める", () => {
     expect(
       decodeAnonymousQuotaCookie(
