@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import { CHALLENGE_TIME_LIMIT, MISTAKE_LIMIT } from "@mahjong-scoring/core";
 
 /** 開始導線に表示する文言 */
@@ -15,10 +16,7 @@ export interface PracticeStartCtaLabels {
 }
 
 /** 翻訳関数（web の `useTranslations` / `getTranslations`、モバイルの `useTranslations` の戻り値） */
-type Translator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+type Translator = Translate;
 
 /**
  * 練習の開始導線に出す文言を組み立てる

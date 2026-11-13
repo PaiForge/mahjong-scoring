@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import {
   menuTypeToMessageKey,
   practiceMenuByType,
@@ -5,7 +6,7 @@ import {
 import type { PracticeBoard } from "../practice-menu-types";
 
 /** next-intl のルート翻訳関数（`useTranslations()` / `getTranslations()` の戻り値） */
-type RootTranslator = (key: string, values?: Record<string, string>) => string;
+type RootTranslator = Translate;
 
 /**
  * 土俵の表示名（練習の短い名 + バリアント名）

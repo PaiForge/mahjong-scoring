@@ -1,3 +1,4 @@
+import type { Translate } from "@mahjong-scoring/features/i18n/translate";
 import { practiceHelpTourLabels } from "@mahjong-scoring/features/practice/help-tour-labels";
 
 import { HeaderIconButton } from "../../components/header-action";
@@ -6,14 +7,8 @@ import {
   type HelpTourStep,
 } from "../../components/help-tour-sheet";
 
-/** 練習の名前空間の `t`（`help.label` / `help.title` / `help.prev` 等を引く） */
-type Translate = (
-  key: string,
-  values?: Readonly<Record<string, number>>,
-) => string;
-
 interface PracticeHelpTourProps {
-  /** 練習の名前空間（`agariScore` / `tenpaiScore`）の `t` */
+  /** 練習の名前空間（`agariScore` / `tenpaiScore`）の `t`（`help.label` / `help.title` / `help.prev` 等を引く） */
   readonly t: Translate;
   /** `common` の `t` */
   readonly tCommon: (key: string) => string;

@@ -4,7 +4,10 @@ import type { FuDetail } from "@mahjong-scoring/core";
 import { buildFuBreakdown } from "./fu-breakdown";
 
 /** 辞書の形（`{value}符` 等）を真似た翻訳関数。キーの取り違えも見えるよう素通しにしない */
-function t(key: string, values?: Record<string, number>): string {
+function t(
+  key: string,
+  values?: Readonly<Record<string, string | number>>,
+): string {
   if (key === "fuSuffix") return `${values?.value}符`;
   return `<${key}>`;
 }
