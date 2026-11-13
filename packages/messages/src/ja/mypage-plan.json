@@ -13,7 +13,11 @@
     "granted": "Pro（付与）",
     "grantedUntil": "Pro（付与・{until} まで）",
     "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
-    "buy": "Pro を購入する"
+    "buy": "Pro を購入する",
+    "badge": {
+      "pro": "Pro",
+      "vip": "VIP"
+    }
   },
   "history": {
     "title": "購入履歴",

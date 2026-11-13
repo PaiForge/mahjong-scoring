@@ -7,6 +7,8 @@ import {
   DataTableHeaderCell,
 } from "@/app/[locale]/(user)/_components/data-table";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
+import { ProBadge } from "@/app/[locale]/(user)/_components/pro-badge";
+import { VipBadge } from "@/app/[locale]/(user)/_components/vip-badge";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
@@ -24,6 +26,7 @@ import {
   PLAN_PAGE_HREF,
   PurchaseKind,
 } from "@mahjong-scoring/features/billing/plans";
+import { planBadgeOf } from "@mahjong-scoring/features/billing/plan-badge";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
@@ -116,6 +119,10 @@ interface MypagePlanPageProps {
  * 履歴にある決済元の分だけ案内を出す。Google Play の行は金額を「—」にする —
  * Play は購入の確認で価格を返さず、行には 0 が入っている（0 円と見せない）。
  *
+ * 現在の状態の見出しの横には、出どころのラベル（購入なら Pro、運営からの付与なら
+ * VIP、無料なら無し）を `planBadgeOf` で添える。見出しの文言と同じ 1 つの状態から
+ * 導くので、購入と付与が重なってもラベルは 1 つ。
+ *
  * 運営が手動で付けた特典（`benefit_grants`）は「付与された特典」として購入履歴と
  * 別の表に出す。金額が無く、Stripe の領収書も無いため同じ表に混ぜない。付与の
  * 理由は運営の内部メモになり得るので出さない。
@@ -159,6 +166,7 @@ export default async function MypagePlanPage({
   );
   const providers = new Set(purchases.map(purchaseProviderOf));
   const statusCopy = describePlanStatus(plan, t, locale);
+  const badge = planBadgeOf(plan);
 
   return (
     <MypageSubpageLayout title={t("pageTitle")}>
@@ -177,7 +185,15 @@ export default async function MypagePlanPage({
         <section className="space-y-4">
           <SectionTitle>{t("status.title")}</SectionTitle>
           <div className="space-y-3 rounded-panel border border-panel bg-white p-5">
-            <p className="text-lg font-bold">{statusCopy.heading}</p>
+            {/*
+              見出しの文言は期限を運ぶので変えず、出どころの印（購入 = Pro /
+              付与 = VIP）を横に添える。VIP は別のプランではなく Pro の出どころ。
+            */}
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-lg font-bold">{statusCopy.heading}</p>
+              {badge === "pro" && <ProBadge label={t("status.badge.pro")} />}
+              {badge === "vip" && <VipBadge label={t("status.badge.vip")} />}
+            </div>
             <p className="text-sm leading-relaxed text-surface-600">
               {statusCopy.hint}
             </p>
