@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   isMobilePlanErrorCode,
+  mobilePlanOffersApiUrl,
   mobilePracticeQuotaApiUrl,
   parseMobileAppleTransactionResponse,
   parseMobilePlanOffersResponse,
   parseMobilePlanResponse,
   parseMobilePracticeQuotaResponse,
+  parseMobilePurchaseRecordResponse,
 } from "./mobile-api";
 
 const PLAN = {
@@ -36,7 +38,7 @@ describe("parseMobilePlanResponse", () => {
         ...PLAN,
         purchases: [
           {
-            provider: "google",
+            provider: "amazon",
             kind: "subscription",
             createdAt: "2026-10-11T00:00:00.000Z",
             state: "paused",
@@ -51,6 +53,18 @@ describe("parseMobilePlanResponse", () => {
         state: "expired",
       },
     ]);
+  });
+
+  it("Google Play の購入は決済元 google のまま読む", () => {
+    const purchase = {
+      provider: "google",
+      kind: "lifetime",
+      createdAt: "2026-10-11T00:00:00.000Z",
+      state: "active",
+    };
+    expect(
+      parseMobilePlanResponse({ ...PLAN, purchases: [purchase] })?.purchases,
+    ).toEqual([purchase]);
   });
 
   it("知らない特典・売り方は除き、知らない状態の種類は free にする", () => {
@@ -74,6 +88,20 @@ describe("parseMobilePlanResponse", () => {
   it("形が違えば undefined", () => {
     expect(parseMobilePlanResponse({ status: { kind: "free" } })).toBe(
       undefined,
+    );
+  });
+});
+
+describe("parseMobilePurchaseRecordResponse", () => {
+  it("記録の結果とプランの状態を読む", () => {
+    expect(
+      parseMobilePurchaseRecordResponse({ ...PLAN, outcome: "recorded" }),
+    ).toEqual({ ...PLAN, outcome: "recorded" });
+  });
+
+  it("Apple のパスの旧名は同じ関数を指す", () => {
+    expect(parseMobileAppleTransactionResponse).toBe(
+      parseMobilePurchaseRecordResponse,
     );
   });
 });
@@ -122,6 +150,22 @@ describe("isMobilePlanErrorCode", () => {
   it("API 固有の理由だけを認める", () => {
     expect(isMobilePlanErrorCode("ownedByAnotherAccount")).toBe(true);
     expect(isMobilePlanErrorCode("unauthorized")).toBe(false);
+  });
+
+  it("ストアに届かない・支払いが保留中の理由を認める", () => {
+    expect(isMobilePlanErrorCode("storeUnavailable")).toBe(true);
+    expect(isMobilePlanErrorCode("purchasePending")).toBe(true);
+  });
+});
+
+describe("mobilePlanOffersApiUrl", () => {
+  it("OS をクエリに載せる", () => {
+    expect(mobilePlanOffersApiUrl("android")).toBe(
+      "/api/mobile/v1/plan/offers?platform=android",
+    );
+    expect(mobilePlanOffersApiUrl("ios")).toBe(
+      "/api/mobile/v1/plan/offers?platform=ios",
+    );
   });
 });
 
