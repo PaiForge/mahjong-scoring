@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { planBadgeOf } from "@mahjong-scoring/features/billing/plan-badge";
 import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -20,10 +21,11 @@ import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { TableHead } from "@/app/admin/_components/table-head";
 
+import { PlanChip } from "../_components/plan-chip";
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
 import { UserSearchForm } from "../_components/user-search-form";
-import { fetchUsersPageData } from "../_lib/queries";
+import { fetchPlanStatusMap, fetchUsersPageData } from "../_lib/queries";
 import { USER_TABLE_COLUMNS } from "../_lib/table-columns";
 import { UserStatus, resolveUserStatus } from "../_lib/user-status";
 
@@ -47,8 +49,12 @@ export default async function AdminUsersPage({
   const { users, totalCount, currentPage, totalPages } =
     await fetchUsersPageData(adminClient, page, query);
 
-  const profileMap = await buildProfileMap(users.map((u) => u.id));
   const now = new Date();
+  const userIds = users.map((u) => u.id);
+  const [profileMap, planStatusMap] = await Promise.all([
+    buildProfileMap(userIds),
+    fetchPlanStatusMap(userIds, now),
+  ]);
 
   const emailLabels = {
     revealEmail: t("usersTable.revealEmail"),
@@ -83,6 +89,7 @@ export default async function AdminUsersPage({
               users.map((user) => {
                 const profile = profileMap.get(user.id);
                 const status = resolveUserStatus(profile, user, now);
+                const plan = planStatusMap.get(user.id);
                 return (
                   <tr key={user.id} className="border-t border-surface-200">
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -98,6 +105,12 @@ export default async function AdminUsersPage({
                     <td className="px-4 py-3">{profile?.displayName ?? "-"}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={status} />
+                    </td>
+                    <td className="px-4 py-3">
+                      {/* 無料は大半の行が該当するため空欄にし、Pro / VIP だけを目に留める */}
+                      {plan && planBadgeOf(plan) ? (
+                        <PlanChip plan={plan} />
+                      ) : null}
                     </td>
                     <td className="px-4 py-3 text-surface-500">
                       {formatAdminDate(user.created_at)}

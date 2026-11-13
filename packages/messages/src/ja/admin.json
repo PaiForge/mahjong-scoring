@@ -74,6 +74,7 @@
     "username": "ユーザー名",
     "displayName": "表示名",
     "status": "ステータス",
+    "plan": "プラン",
     "createdAt": "登録日時",
     "noUsersFound": "ユーザーが見つかりません",
     "revealEmail": "メールアドレスを表示",
@@ -83,6 +84,9 @@
       "deleted": "退会済み",
       "banned": "BAN済み",
       "active": "有効"
+    },
+    "planBadges": {
+      "vip": "VIP"
     },
     "openPublicProfile": "公開プロフィールを新しいタブで開く",
     "search": "ユーザー検索",
