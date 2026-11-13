@@ -28,6 +28,10 @@ function purchase(overrides: Partial<Purchase>): Purchase {
     appleOriginalTransactionId: null,
     appleProductId: null,
     appleEnvironment: null,
+    googlePurchaseToken: null,
+    googleOrderId: null,
+    googleProductId: null,
+    googleEnvironment: null,
     currency: "jpy",
     amount: 480,
     startsAt: new Date("2026-09-20T00:00:00Z"),
@@ -51,6 +55,23 @@ function applePurchase(
     appleOriginalTransactionId: "2000000000000001",
     appleProductId: "help.mahjong.score.pro.pass30",
     appleEnvironment: environment,
+    ...overrides,
+  });
+}
+
+function googlePurchase(
+  environment: "Test" | "Production",
+  overrides: Partial<Purchase>,
+): Purchase {
+  return purchase({
+    provider: "google",
+    stripeCheckoutSessionId: null,
+    stripePaymentIntentId: null,
+    googlePurchaseToken: "mock:token-1",
+    googleOrderId: "MOCK.token-1",
+    googleProductId: "help.mahjong.score.pro.pass30",
+    googleEnvironment: environment,
+    amount: 0,
     ...overrides,
   });
 }
@@ -172,12 +193,35 @@ describe("blocksNewPurchase", () => {
       ),
     ).toBe(false);
   });
+
+  it("Google Play の Test の購入は Apple の Sandbox と同じく有効でも止めない", () => {
+    expect(blocksNewPurchase(googlePurchase("Test", {}), NOW)).toBe(false);
+    expect(
+      blocksNewPurchase(
+        googlePurchase("Test", { kind: "lifetime", expiresAt: null }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
+
+  it("Google Play の Production の購入は有効な間は止める", () => {
+    expect(blocksNewPurchase(googlePurchase("Production", {}), NOW)).toBe(true);
+    expect(
+      blocksNewPurchase(
+        googlePurchase("Production", {
+          expiresAt: new Date("2026-09-30T00:00:00Z"),
+        }),
+        NOW,
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("purchaseProviderOf", () => {
-  it("stripe / apple はそのまま、知らない値は stripe に倒す", () => {
+  it("stripe / apple / google はそのまま、知らない値は stripe に倒す", () => {
     expect(purchaseProviderOf({ provider: "stripe" })).toBe("stripe");
     expect(purchaseProviderOf({ provider: "apple" })).toBe("apple");
+    expect(purchaseProviderOf({ provider: "google" })).toBe("google");
     expect(purchaseProviderOf({ provider: "paypal" })).toBe("stripe");
   });
 });
