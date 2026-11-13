@@ -23,6 +23,7 @@ import {
   onIapPurchaseError,
   type IapProduct,
 } from "./iap";
+import { IAP_STORE } from "./iap-availability";
 import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
 import { buyButtonStateOf } from "./purchase-sync";
 import { usePlan } from "./use-plan";
@@ -308,7 +309,13 @@ function Offers({
  */
 function Notes({ lineup }: { readonly lineup: PlanLineup }) {
   const t = useTranslations("mobilePlan.notes");
-  const keys = planNoteKeysOf(lineup);
+  // 返金（`noRefund`）と請求元（`appleBilling`）は App Store の購入の案内で、
+  // App Store で売るビルドだけに出す。偽ストアの画面に Apple の案内を出さない。
+  // Google Play の返金・請求の文言は、実物の Play の挙動に合わせて後で書く
+  // （それまで Google 用の文言は足さない）。OS ではなく選んだストアで決める
+  const keys = planNoteKeysOf(lineup).filter(
+    (key) => IAP_STORE === "apple" || !APPLE_ONLY_NOTE_KEYS.has(key),
+  );
   return (
     <View style={styles.section}>
       <SectionTitle>{t("title")}</SectionTitle>
@@ -323,6 +330,12 @@ function Notes({ lineup }: { readonly lineup: PlanLineup }) {
     </View>
   );
 }
+
+/** App Store で売るときだけ出す「ご購入前に」の項目（辞書 `mobilePlan.notes` のキー） */
+const APPLE_ONLY_NOTE_KEYS: ReadonlySet<string> = new Set([
+  "noRefund",
+  "appleBilling",
+]);
 
 /** 購入を復元 */
 function Restore({
@@ -417,14 +430,18 @@ function History({
               day: "2-digit",
             }),
             t(`kind.${purchase.kind}`),
+            // providers.stripe / providers.apple / providers.google
             t(`providers.${purchase.provider}`),
             t(`states.${purchase.state}`),
           ])}
         />
       )}
-      {purchases.some(
-        (purchase) => purchase.provider === PurchaseProvider.Apple,
-      ) && <Text style={styles.hint}>{tWeb("receiptHintApple")}</Text>}
+      {/* 領収書の在処（App Store の購入履歴）の案内は App Store で売るビルドだけ。
+          Google Play の領収書の案内は実物の Play の挙動に合わせて後で書く */}
+      {IAP_STORE === "apple" &&
+        purchases.some(
+          (purchase) => purchase.provider === PurchaseProvider.Apple,
+        ) && <Text style={styles.hint}>{tWeb("receiptHintApple")}</Text>}
     </View>
   );
 }

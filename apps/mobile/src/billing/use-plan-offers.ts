@@ -23,7 +23,8 @@ let inflight: Promise<readonly MobilePlanOffer[]> | undefined;
  * キャッシュせず、次に聞かれたときに読み直す（起動直後の一時的な失敗で
  * その起動の間ずっと制限が外れたままにならないよう）。
  *
- * Android（`IAP_AVAILABLE` が false）は読まずに空を返す。
+ * ストアを使えないビルド（`IAP_AVAILABLE` が false。ストアに出す Android 等）は
+ * 読まずに空を返す。販売中の商品は自分の OS のストアの分を読む（`fetchPlanOffers`）。
  */
 export function loadPlanOffers(): Promise<readonly MobilePlanOffer[]> {
   if (!IAP_AVAILABLE) return Promise.resolve([]);

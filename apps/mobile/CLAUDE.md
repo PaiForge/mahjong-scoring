@@ -171,10 +171,12 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - **iOS は Pro を App Store のアプリ内課金で売る。** 30 日パスは消耗型（購入シートのボタンを
   「購入」にするため。理由は web の `record.ts` の `APPLE_PRODUCT_TYPES`）、買い切りは非消耗型。
   購入の権利は web と共通（同じ `purchases`、同じ `hasBenefit`）で、web で買った Pro はアプリで、
-  アプリで買った Pro は web で有効。iOS 限定の分岐は `src/billing/iap-availability.ts` の
-  `IAP_AVAILABLE` に集め、画面で `Platform.OS` を見ない。Android は Pro を扱わない（購入・表示・
-  回数制限のどれも出さない）。通知（`/mypage/notifications`）も種別がすべて Pro の出来事なので
-  iOS だけに出す。購入・復元・プラン画面は `src/billing/`。購入の同期
+  アプリで買った Pro は web で有効。使うストアは `src/billing/iap-availability.ts` の `IAP_STORE`
+  （iOS は App Store、Android は開発ビルドで `EXPO_PUBLIC_IAP_STORE=fake` のときだけ偽ストア、他は無し）で
+  決まり、`iap.ts` がそのアダプタ（`iap-apple.ts`・`iap-fake.ts`。ポートは `iap-store.ts`）へ委譲する。
+  画面は `IAP_AVAILABLE` だけを見て `Platform.OS` を見ない（例外は App Store 固有の案内を `IAP_STORE` で
+  出し分けるプラン画面）。ストアに出す Android は Pro を扱わない（購入・表示・回数制限のどれも出さない）。
+  通知（`/mypage/notifications`）も種別がすべて Pro の出来事なので、ストアを使えるビルドだけに出す。購入・復元・プラン画面は `src/billing/`。購入の同期
   （`usePurchaseSync`）がルートで動き、取引はサーバーが 2xx か 4xx を返したときだけ finish する
   （理由は `purchase-sync.ts`）。アプリの中で web の価格・`/plan`・特商法・Stripe に触れず、購入履歴に
   金額を出さない（審査ガイドライン 3.1.1）。回数制限は web と同じ表と規則で iOS だけに掛かり
