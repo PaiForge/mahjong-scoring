@@ -214,10 +214,11 @@ web と同じ画面をネイティブで出す Expo アプリ。web 側の作業
   `packages/features/src/challenge/rule-boundary.ts` の TSDoc）。トレーニングは設定どおりに出題する
 - 昇級試験は記録を残さない（`submitExamResult` が合否だけ判定して `user_ranks` に
   付与する）。`savePracticeResult` は試験の menuType を入口で弾く
-- Pro の購入は web の Stripe と iOS の App Store の 2 経路で、どちらも `purchases` の 1 行に
-  なる（`purchases.provider`）。特典の判定（`hasBenefit`）は経路を知らない。App Store の
-  Sandbox の取引（TestFlight・審査）は許可リスト（`APPLE_IAP_SANDBOX_USER_IDS`）の
-  ユーザーにだけ記録する（運用の手順は `apps/mobile/README.md`「アプリ内課金」）
+- Pro の購入は web の Stripe・iOS の App Store・Android の Google Play の経路で、どれも `purchases`
+  の 1 行になる（`purchases.provider`）。特典の判定（`hasBenefit`）は経路を知らない。App Store の
+  Sandbox（TestFlight・審査）と Google Play の Test の購入は許可リスト（`APPLE_IAP_SANDBOX_USER_IDS` /
+  `GOOGLE_IAP_TEST_USER_IDS`）のユーザーにだけ記録する（運用の手順は `apps/mobile/README.md`「アプリ内課金」）。
+  Google Play は記録の経路だけで、検証器は開発用のモックしか無く、本番では販売していない
 
 ## 点数計算・黒帯への道（段級位の行程）
 
