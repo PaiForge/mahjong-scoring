@@ -73,7 +73,7 @@ export type AppleRecordResult =
  *    復元は新しい行として入る）
  * 5. 取り消し済み（{@link revocationOf}）なら、取り消し済みで記録する
  * 6. パスは、本人に有効か開始待ちの購入があればその期限から始める
- *    （`applePassStartsAt`。重ね買いの救済）
+ *    （`storePassStartsAt`。重ね買いの救済）
  * 7. INSERT は取引 ID の UNIQUE に `ON CONFLICT DO NOTHING`。行が返らなければ
  *    所有者を読み直して 4 と同じ結果を返す
  *
