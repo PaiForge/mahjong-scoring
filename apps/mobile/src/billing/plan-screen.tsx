@@ -7,6 +7,7 @@ import type {
   MobilePlanResponse,
   MobilePlanStatus,
 } from "@mahjong-scoring/features/billing/mobile-api";
+import { planBadgeOf } from "@mahjong-scoring/features/billing/plan-badge";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 
 import { Button } from "../components/button";
@@ -24,6 +25,7 @@ import {
   type IapProduct,
 } from "./iap";
 import { IAP_STORE } from "./iap-availability";
+import { PlanBadge } from "./plan-badge";
 import { planLineupOf, planNoteKeysOf, type PlanLineup } from "./plan-lineup";
 import { buyButtonStateOf } from "./purchase-sync";
 import { usePlan } from "./use-plan";
@@ -143,7 +145,14 @@ function RecordingNotice() {
   );
 }
 
-/** 現在の状態の見出しと 1 行の説明 */
+/**
+ * 現在の状態の見出しと 1 行の説明
+ *
+ * 見出しの横に Pro / VIP のバッジを添える。種類は `planBadgeOf` が `kind` から導き
+ * （無料は出さない）、購入と付与が重なる人もサーバーの `kind` が指す 1 つの状態に従う。
+ * 見出しの文言（「Pro（付与・〜まで）」等）は期限を運ぶので変えず、バッジは足すだけ —
+ * VIP は別のプランではなく、運営から付与された Pro という出どころの印だから。
+ */
 function StatusCard({ status }: { readonly status: MobilePlanStatus }) {
   const t = useTranslations("mobilePlan.status");
   const format = useFormatter();
@@ -174,9 +183,16 @@ function StatusCard({ status }: { readonly status: MobilePlanStatus }) {
       }
     }
   })();
+  const badge = planBadgeOf(status);
   return (
     <View style={[panelFrame, styles.card]} testID="plan-status">
-      <Text style={styles.statusHeading}>{heading}</Text>
+      <View style={styles.statusHeadingRow}>
+        <Text style={styles.statusHeading}>{heading}</Text>
+        {badge === undefined ? null : (
+          // 完成形のキー: mobilePlan.status.badge.pro / mobilePlan.status.badge.vip
+          <PlanBadge badge={badge} label={t(`badge.${badge}`)} />
+        )}
+      </View>
       <Text style={styles.hint}>{hint}</Text>
     </View>
   );
@@ -468,7 +484,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: colors.brandSubtleForeground,
   },
+  statusHeadingRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: 8,
+  },
   statusHeading: {
+    flexShrink: 1,
     fontSize: 18,
     lineHeight: 26,
     fontWeight: "700",

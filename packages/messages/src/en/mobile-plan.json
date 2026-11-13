@@ -12,7 +12,11 @@
     "passHint": "When it expires, you go back to the free plan.",
     "granted": "Pro (granted)",
     "grantedUntil": "Pro (granted, until {until})",
-    "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased."
+    "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased.",
+    "badge": {
+      "pro": "Pro",
+      "vip": "VIP"
+    }
   },
   "offers": {
     "title": "Choose a plan",
