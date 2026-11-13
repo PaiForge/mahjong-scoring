@@ -61,7 +61,8 @@
     },
     "providers": {
       "stripe": "Web",
-      "apple": "App Store"
+      "apple": "App Store",
+      "google": "Google Play"
     },
     "states": {
       "active": "有効",
