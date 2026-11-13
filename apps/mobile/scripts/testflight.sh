@@ -42,6 +42,12 @@ ENV_NAMES=$("${EAS[@]}" env:list --environment production 2>/dev/null)
 for name in EXPO_PUBLIC_SUPABASE_URL EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY; do
   echo "$ENV_NAMES" | grep -q "^$name=" || fail "EAS の production 環境に $name が無い"
 done
+# 偽ストア（開発用のモック購入）を求める変数はストアに出すビルドに要らない。偽ストアは
+# 開発ビルド（__DEV__）でしか選ばれず本番のバンドルでは効かないが、設定の誤りとして提出前に止める
+# （src/billing/iap-store-kind.ts の resolveIapStoreKind）
+if echo "$ENV_NAMES" | grep -q "^EXPO_PUBLIC_IAP_STORE="; then
+  fail "EAS の production 環境に EXPO_PUBLIC_IAP_STORE がある（開発ビルドの偽ストア用。消してから出す）"
+fi
 
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT

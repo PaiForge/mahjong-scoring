@@ -99,7 +99,7 @@ export async function handleRecordAppleTransaction(
     const outcome = responseOutcomeOf(recorded);
     if (typeof outcome !== "string") return outcome;
     return mobileJson<MobileAppleTransactionResponse>({
-      ...(await buildMobilePlanResponse(userId, now)),
+      ...(await buildMobilePlanResponse(userId, now, "ios")),
       outcome,
     });
   } catch (error) {

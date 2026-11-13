@@ -2,6 +2,7 @@ import "server-only";
 
 import type { NextResponse } from "next/server";
 
+import type { MobileAppPlatform } from "@mahjong-scoring/features/app-version/mobile-api";
 import type {
   MobilePlanErrorCode,
   MobilePlanOffer,
@@ -13,9 +14,11 @@ import type {
 import {
   OFFER_KEYS,
   PurchaseKind,
+  type OfferKey,
 } from "@mahjong-scoring/features/billing/plans";
 
 import { readAppleProductIds } from "../billing/apple/env";
+import { readGoogleProductIds } from "../billing/google/env";
 import {
   blocksNewPurchase,
   planStatusOf,
@@ -29,6 +32,7 @@ import { listBenefitGrants } from "../entitlements/benefit-grants";
 import { getActiveBenefits } from "../entitlements/has-benefit";
 
 import { authorizeMobileRequest } from "./auth";
+import { mobilePlatformOf } from "./platform";
 import { limitPublicMobileRequest } from "./public-rate-limit";
 import {
   mobileJson,
@@ -44,6 +48,8 @@ const PLAN_ERROR_STATUS = {
   unknownProduct: 422,
   sandboxNotAccepted: 422,
   appleUnavailable: 503,
+  storeUnavailable: 503,
+  purchasePending: 409,
 } as const satisfies Record<MobilePlanErrorCode, number>;
 
 /**
@@ -60,14 +66,34 @@ export function mobilePlanError(code: MobilePlanErrorCode): NextResponse {
 }
 
 /**
- * 販売中の商品（App Store の Product ID）。販売していなければ空
+ * OS ごとの販売中の商品の Product ID の読み出し
+ * 経路別Product ID読み出し
+ *
+ * OS（ストアの経路）ごとに Product ID の出どころが違う。表にして、OS を足したら
+ * ここへの追記を型検査に要求させる。
+ */
+const PRODUCT_ID_READERS: Readonly<
+  Record<
+    MobileAppPlatform,
+    () => Readonly<Partial<Record<OfferKey, string>>> | undefined
+  >
+> = {
+  ios: readAppleProductIds,
+  android: readGoogleProductIds,
+};
+
+/**
+ * その経路の販売中の商品（ストアの Product ID）。販売していなければ空
  * 販売中商品
  *
- * Product ID が設定された売り方だけを並べる。買い切りが無ければ販売していない
- * 扱いで空（`readAppleProductIds` の TSDoc）。
+ * iOS は App Store、Android は Google Play の Product ID。Product ID が設定
+ * された売り方だけを並べる。買い切りが無ければその経路では販売していない
+ * 扱いで空（`readAppleProductIds` / `readGoogleProductIds` の TSDoc）。
+ *
+ * @param platform - 販売中の商品を引く OS（ストアの経路）
  */
-function appleOffers(): MobilePlanOffer[] {
-  const ids = readAppleProductIds();
+function offersFor(platform: MobileAppPlatform): MobilePlanOffer[] {
+  const ids = PRODUCT_ID_READERS[platform]();
   if (!ids) return [];
   return OFFER_KEYS.flatMap((key) => {
     const productId = ids[key];
@@ -117,8 +143,8 @@ function mobilePlanPurchaseOf(
  * プランの状態の API と、取引の記録の API の応答（記録した後の状態）が使う。
  * 状態の要約と追加購入の可否は web の購入状況のページと同じ関数
  * （`planStatusOf` / `blocksNewPurchase`）で決め、画面と規則を食い違わせない。
- * 販売中の商品はアプリの経路（App Store の Product ID）のもので、web の
- * Stripe の Price ID は見ない。
+ * 販売中の商品は要求したアプリの経路（iOS は App Store、Android は Google Play
+ * の Product ID）のもので、web の Stripe の Price ID は見ない。
  *
  * 購入履歴・付与の読み出しは失敗すると空に、特典の判定は特典なしに倒れる
  * （どれも web のマイページと同じ）。
@@ -126,6 +152,7 @@ function mobilePlanPurchaseOf(
 export async function buildMobilePlanResponse(
   userId: string,
   now: Date,
+  platform: MobileAppPlatform,
 ): Promise<MobilePlanResponse> {
   const [purchases, grants, benefits] = await Promise.all([
     listPurchases(userId),
@@ -138,7 +165,7 @@ export async function buildMobilePlanResponse(
     canPurchase: !purchases.some((purchase) =>
       blocksNewPurchase(purchase, now),
     ),
-    offers: appleOffers(),
+    offers: offersFor(platform),
     purchases: purchases.map((purchase) => mobilePlanPurchaseOf(purchase, now)),
   };
 }
@@ -149,6 +176,7 @@ export async function buildMobilePlanResponse(
  *
  * アプリのプラン画面が開くたびと購入の後に読む。ユーザー名を決める前は
  * 409 `usernameRequired`（購入はユーザー名を決めた人のもの。マイページと同じ）。
+ * 販売中の商品はヘッダ `X-App-Platform` の OS のもの（無ければ iOS。`mobilePlatformOf`）。
  */
 export async function handleReadPlan(request: Request): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobilePlan");
@@ -156,7 +184,11 @@ export async function handleReadPlan(request: Request): Promise<NextResponse> {
   if (!auth.profile) return mobileUsernameRequired();
   try {
     return mobileJson<MobilePlanResponse>(
-      await buildMobilePlanResponse(auth.user.id, new Date()),
+      await buildMobilePlanResponse(
+        auth.user.id,
+        new Date(),
+        mobilePlatformOf(request),
+      ),
     );
   } catch (error) {
     return mobileServerError(
@@ -175,12 +207,19 @@ export async function handleReadPlan(request: Request): Promise<NextResponse> {
  * 販売中の間だけ掛ける（払う手段の無いペイウォールを出さない）。認証が
  * 無いので IP の回数だけを絞る。
  *
- * 返すのは Product ID だけ。Product ID は App Store のアプリのページから
+ * 販売中の商品はクエリ `?platform=` の OS のもの（無ければ iOS。
+ * `mobilePlatformOf`）。
+ *
+ * 返すのは Product ID だけ。Product ID はストアのアプリのページから
  * 誰でも知れる公開情報で、これを知っても買えるものは増えない（購入は
- * StoreKit を通り、記録は署名付き取引の検証を通る）。
+ * ストアを通り、記録はサーバーがストアに確かめてから行う）。
  */
-export async function handleReadPlanOffers(): Promise<NextResponse> {
+export async function handleReadPlanOffers(
+  request: Request,
+): Promise<NextResponse> {
   const rateLimited = await limitPublicMobileRequest("readMobilePlanOffers");
   if (rateLimited) return rateLimited;
-  return mobileJson<MobilePlanOffersResponse>({ offers: appleOffers() });
+  return mobileJson<MobilePlanOffersResponse>({
+    offers: offersFor(mobilePlatformOf(request)),
+  });
 }

@@ -351,7 +351,9 @@
       "provider": "購入元",
       "providerStripe": "Web（Stripe）",
       "providerApple": "App Store",
+      "providerGoogle": "Google Play",
       "amount": "金額",
+      "amountUnavailable": "—",
       "period": "期間",
       "state": "状態",
       "empty": "購入はありません"

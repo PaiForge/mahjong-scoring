@@ -60,11 +60,13 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
  * この規則の対象外（付与だけの人は買える）。特典の有無の判定
  * （`lib/entitlements/has-benefit.ts`）とは別の問いなので混ぜない。
  *
- * App Store の Sandbox の購入（TestFlight・審査・開発中の課金。実際には
- * 課金されない）は追加購入を止めない。テスターや審査が同じアカウントで
- * 買い直して購入の流れを何度でも試せるようにするため。特典の判定
- * （`has-benefit.ts`）では Production と同じに扱う — Sandbox の取引は
- * 許可したユーザーにしか記録されない。
+ * テストの購入 — App Store の Sandbox（TestFlight・審査・開発中の課金）と
+ * Google Play の Test（ライセンステスターの購入・開発用のモック購入）。どちらも
+ * 実際には課金されない — は追加購入を止めない。テスターや審査が同じアカウントで
+ * 買い直して購入の流れを何度でも試せるようにするため。Google の Test も
+ * Apple の Sandbox と同じ規則に揃える。特典の判定（`has-benefit.ts`）では
+ * Production と同じに扱う — Sandbox / Test の購入は許可リストのユーザーに
+ * しか記録されない。
  *
  * 購入手続きの SQL 側（`checkout-state.ts` の `hasUnexpiredPurchase`）と
  * 同じ条件。マイページの「購入する」の表示とサーバーの拒否が食い違わないよう、
@@ -72,8 +74,10 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
  */
 export function blocksNewPurchase(purchase: Purchase, now: Date): boolean {
   if (
-    purchase.provider === PurchaseProvider.Apple &&
-    purchase.appleEnvironment === "Sandbox"
+    (purchase.provider === PurchaseProvider.Apple &&
+      purchase.appleEnvironment === "Sandbox") ||
+    (purchase.provider === PurchaseProvider.Google &&
+      purchase.googleEnvironment === "Test")
   )
     return false;
   const state = purchaseStateOf(purchase, now);
@@ -85,7 +89,7 @@ export function blocksNewPurchase(purchase: Purchase, now: Date): boolean {
  * 決済元
  *
  * `purchases.provider` は varchar なので `PurchaseProvider` に絞る。DB の
- * CHECK が `stripe` / `apple` 以外を弾くので知らない値は実際には来ないが、
+ * CHECK が `stripe` / `apple` / `google` 以外を弾くので知らない値は実際には来ないが、
  * 来たら列の DEFAULT と同じ `stripe` に倒す。
  */
 export function purchaseProviderOf(

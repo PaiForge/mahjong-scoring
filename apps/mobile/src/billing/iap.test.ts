@@ -40,10 +40,16 @@ vi.mock("expo-iap", () => ({
   },
   requestPurchase: mocks.requestPurchase,
 }));
-vi.mock("./iap-availability", () => ({ IAP_AVAILABLE: true }));
+vi.mock("./iap-availability", () => ({
+  IAP_AVAILABLE: true,
+  IAP_STORE: "apple",
+}));
+// 入口は偽ストアも読む（Alert のため react-native を読む）。ここでは使わない
+vi.mock("react-native", () => ({ Alert: { alert: vi.fn() } }));
 
 import {
   finishIapPurchase,
+  iapRecordRequestOf,
   listIapPurchases,
   onIapPurchase,
   onIapPurchaseError,
@@ -82,9 +88,9 @@ describe("取引の届け方", () => {
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener).toHaveBeenCalledWith({
-      transactionId: PURCHASE.transactionId,
+      key: PURCHASE.transactionId,
       productId: PURCHASE.productId,
-      jws: "jws",
+      token: "jws",
     });
     unsubscribe();
   });
@@ -163,10 +169,27 @@ describe("取引の完了", () => {
     const unsubscribe = onIapPurchase(listener);
     mocks.purchaseUpdated?.(PURCHASE);
 
-    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+    await finishIapPurchase(listener.mock.calls[0]?.[0], {
+      consumable: false,
+    });
 
     expect(mocks.finishTransaction).toHaveBeenCalledWith({
       purchase: PURCHASE,
+      isConsumable: false,
+    });
+    unsubscribe();
+  });
+
+  it("消費型（パス）の完了でも isConsumable は false のまま渡す", async () => {
+    const PASS = { ...PURCHASE, transactionId: "2000000000000005" };
+    const listener = vi.fn();
+    const unsubscribe = onIapPurchase(listener);
+    mocks.purchaseUpdated?.(PASS);
+
+    await finishIapPurchase(listener.mock.calls[0]?.[0], { consumable: true });
+
+    expect(mocks.finishTransaction).toHaveBeenCalledWith({
+      purchase: PASS,
       isConsumable: false,
     });
     unsubscribe();
@@ -179,7 +202,7 @@ describe("取引の完了", () => {
     const listed = await listIapPurchases();
     if (!listed.ok) throw new Error("一覧を読めなかった");
 
-    await finishIapPurchase(listed.purchases[0]);
+    await finishIapPurchase(listed.purchases[0], { consumable: false });
 
     expect(mocks.finishTransaction).not.toHaveBeenCalled();
   });
@@ -192,7 +215,9 @@ describe("取引の完了", () => {
     mocks.getAvailablePurchases.mockResolvedValue([PENDING]);
     await listIapPurchases();
 
-    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+    await finishIapPurchase(listener.mock.calls[0]?.[0], {
+      consumable: false,
+    });
 
     expect(mocks.finishTransaction).toHaveBeenCalledTimes(1);
     unsubscribe();
@@ -206,8 +231,12 @@ describe("取引の完了", () => {
     const unsubscribe = onIapPurchase(listener);
     mocks.purchaseUpdated?.(FAILING);
 
-    await finishIapPurchase(listener.mock.calls[0]?.[0]);
-    await finishIapPurchase(listener.mock.calls[0]?.[0]);
+    await finishIapPurchase(listener.mock.calls[0]?.[0], {
+      consumable: false,
+    });
+    await finishIapPurchase(listener.mock.calls[0]?.[0], {
+      consumable: false,
+    });
 
     expect(mocks.finishTransaction).toHaveBeenCalledTimes(1);
     unsubscribe();
@@ -222,9 +251,9 @@ describe("購入の一覧", () => {
       ok: true,
       purchases: [
         {
-          transactionId: PURCHASE.transactionId,
+          key: PURCHASE.transactionId,
           productId: PURCHASE.productId,
-          jws: "jws",
+          token: "jws",
         },
       ],
     });
@@ -235,5 +264,20 @@ describe("購入の一覧", () => {
     mocks.getAvailablePurchases.mockRejectedValueOnce(new Error("offline"));
 
     await expect(listIapPurchases()).resolves.toEqual({ ok: false });
+  });
+});
+
+describe("記録の要求", () => {
+  it("Apple のパスへ署名付き取引を jws として送る", () => {
+    expect(
+      iapRecordRequestOf({
+        key: PURCHASE.transactionId,
+        productId: PURCHASE.productId,
+        token: "jws",
+      }),
+    ).toEqual({
+      path: "/api/mobile/v1/iap/apple/transactions",
+      body: { jws: "jws" },
+    });
   });
 });

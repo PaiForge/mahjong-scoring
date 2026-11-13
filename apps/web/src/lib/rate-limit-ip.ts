@@ -193,6 +193,9 @@ export const IP_RATE_LIMITS = {
   // アプリの購入と復元の取引の記録。復元は持っている取引を数件まとめて
   // 送るので、その分だけ余裕を持たせる。Apple の証明書の確認を伴う
   recordAppleTransaction: { maxRequests: 30, windowMs: 600_000 },
+  // Android アプリの購入の記録。購入直後の送信と起動時の送り直しが届く。
+  // Apple の取引の記録と同じ値で揃える（Play への問い合わせを伴う）
+  recordGooglePurchase: { maxRequests: 30, windowMs: 600_000 },
   // アプリのエンドレス練習の 1 問ごとの消費と残数の取り直し。web の
   // beginPracticeQuestion / peekPracticeQuota と同じ理由で同じ値
   mobileBeginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },

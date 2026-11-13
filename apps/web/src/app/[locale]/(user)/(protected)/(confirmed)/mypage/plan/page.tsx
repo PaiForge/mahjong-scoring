@@ -111,8 +111,10 @@ interface MypagePlanPageProps {
  * 付けてここへ送る。購入ボタンは置かず、料金ページへ送る（価格と注意書きは
  * あちらにある）。
  *
- * 購入履歴は決済元（web の Stripe / iOS アプリの App Store）を「購入元」の列に
- * 出す。領収書の在処は決済元ごとに違うので、履歴にある決済元の分だけ案内を出す。
+ * 購入履歴は決済元（web の Stripe / iOS アプリの App Store / Android アプリの
+ * Google Play）を「購入元」の列に出す。領収書の在処は決済元ごとに違うので、
+ * 履歴にある決済元の分だけ案内を出す。Google Play の行は金額を「—」にする —
+ * Play は購入の確認で価格を返さず、行には 0 が入っている（0 円と見せない）。
  *
  * 運営が手動で付けた特典（`benefit_grants`）は「付与された特典」として購入履歴と
  * 別の表に出す。金額が無く、Stripe の領収書も無いため同じ表に混ぜない。付与の
@@ -230,13 +232,16 @@ export default async function MypagePlanPage({
                         : t("history.kind.pass")}
                     </td>
                     <td className={`${cell} text-right tabular-nums`}>
-                      {formatAmount(
-                        purchase.amount,
-                        purchase.currency,
-                        amountLocale,
-                      )}
+                      {purchaseProviderOf(purchase) === PurchaseProvider.Google
+                        ? t("history.amountUnavailable")
+                        : formatAmount(
+                            purchase.amount,
+                            purchase.currency,
+                            amountLocale,
+                          )}
                     </td>
                     <td className={`${cell} whitespace-nowrap text-left`}>
+                      {/* history.provider.stripe / history.provider.apple / history.provider.google */}
                       {t(`history.provider.${purchaseProviderOf(purchase)}`)}
                     </td>
                     <td className={`${cell} whitespace-nowrap text-center`}>

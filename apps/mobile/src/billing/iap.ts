@@ -1,416 +1,146 @@
-import {
-  ErrorCode,
-  fetchProducts,
-  finishTransaction,
-  getAvailablePurchases,
-  initConnection,
-  purchaseErrorListener,
-  purchaseUpdatedListener,
-  requestPurchase,
-  type Purchase,
-} from "expo-iap";
+import { IAP_AVAILABLE, IAP_STORE } from "./iap-availability";
+import { appleStore } from "./iap-apple";
+import { fakeStore } from "./iap-fake";
+import type {
+  IapProduct,
+  IapPurchase,
+  IapPurchaseList,
+  IapRecordRequest,
+  IapStore,
+} from "./iap-store";
 
-import { IAP_AVAILABLE } from "./iap-availability";
+export { IapErrorCode } from "./iap-store";
+export type {
+  IapProduct,
+  IapPurchase,
+  IapPurchaseList,
+  IapRecordRequest,
+} from "./iap-store";
 
 /**
- * App Store の商品 1 つ（価格の表示に使う分だけ）
- * ストア商品
+ * アプリ内課金の入口
  *
- * `displayPrice` は StoreKit が端末の地域の通貨で整えた価格。web の価格は出さない。
+ * ビルドが選んだストア（`IAP_STORE`）のアダプタへ委譲する。画面と購入の同期は
+ * ここの関数だけを呼び、どのストアかを知らない。ストアを使えない
+ * （`IAP_AVAILABLE` が false）ビルドでは、どの関数もストアに触れず、
+ * 接続できない・商品も購入も無い・何もしない、として振る舞う。
  */
-export interface IapProduct {
-  readonly productId: string;
-  readonly displayPrice: string;
-}
+
+/** 選んだストアのアダプタ。ストアを使えないビルドでは undefined */
+const store: IapStore | undefined = !IAP_AVAILABLE
+  ? undefined
+  : IAP_STORE === "apple"
+    ? appleStore
+    : IAP_STORE === "fake"
+      ? fakeStore
+      : undefined;
 
 /**
- * StoreKit から届いた取引 1 つ（サーバーへ送る分だけ）
- * 取引
- *
- * `jws` は署名付き取引（`jwsRepresentation`）。サーバーはこれを検証して取引を読む。
- * 完了（finish）に要る元の購入オブジェクトはこのモジュールの中だけで持つ。
- */
-export interface IapPurchase {
-  readonly transactionId: string;
-  readonly productId: string;
-  readonly jws: string;
-}
-
-/**
- * 購入の失敗の理由（expo-iap のエラーコード）
- *
- * 画面が出し分けるのは取り消し（`user-cancelled`）と承認待ち
- * （`deferred-payment`。Ask to Buy）だけで、他はまとめて「購入できなかった」にする。
- */
-export const IapErrorCode = {
-  UserCancelled: ErrorCode.UserCancelled,
-  DeferredPayment: ErrorCode.DeferredPayment,
-} as const;
-
-/**
- * 取引がどこから届いたか
- *
- * - `event` — StoreKit のイベント（購入の直後・Ask to Buy の承認・配り直し）。未完了
- * - `list` — 端末の現在の権利の一覧（復元・ログイン直後の取り直し）。通常は完了済み
- */
-type PurchaseOrigin = "event" | "list";
-
-/** 完了に使う元の購入オブジェクトと、その届き方 */
-interface SourcePurchase {
-  readonly purchase: Purchase;
-  readonly origin: PurchaseOrigin;
-}
-
-/**
- * 完了に使う元の購入オブジェクト（取引 ID → expo-iap の Purchase と届き方）
- *
- * `finishTransaction` は expo-iap の Purchase を受け取るので、写した
- * {@link IapPurchase} から引けるように持つ。完了したら（失敗しても）外す。
- */
-const sourcePurchases = new Map<string, SourcePurchase>();
-
-/**
- * expo-iap の Purchase を {@link IapPurchase} に写す。必須の項目（JWS・取引 ID・
- * Product ID）が欠けていれば undefined
- *
- * 欠けた取引はサーバーへ送れず、完了もしない（StoreKit が次の起動で配り直す）。
- */
-function toIapPurchase(
-  purchase: Purchase,
-  origin: PurchaseOrigin,
-): IapPurchase | undefined {
-  const jws = purchase.purchaseToken;
-  const { transactionId, productId } = purchase;
-  if (
-    typeof jws !== "string" ||
-    jws === "" ||
-    typeof transactionId !== "string" ||
-    transactionId === "" ||
-    typeof productId !== "string" ||
-    productId === ""
-  ) {
-    console.warn("[iap] 必須の項目が欠けた取引を捨てた", {
-      transactionId,
-      productId,
-      hasJws: typeof jws === "string" && jws !== "",
-    });
-    return undefined;
-  }
-  // イベントで届いた未完了の取引を、同じ取引を一覧で読み直したときに
-  // 「一覧から」へ書き換えない（書き換えると完了を呼ばなくなる）
-  const known = sourcePurchases.get(transactionId);
-  sourcePurchases.set(transactionId, {
-    purchase,
-    origin: known?.origin === "event" ? "event" : origin,
-  });
-  return { transactionId, productId, jws };
-}
-
-/** 例外から expo-iap のエラーコードとメッセージを読む */
-function errorOf(error: unknown): {
-  readonly code: string;
-  readonly message: string;
-} {
-  if (typeof error !== "object" || error === null)
-    return { code: ErrorCode.Unknown, message: String(error) };
-  const code = "code" in error ? error.code : undefined;
-  const message = "message" in error ? error.message : undefined;
-  return {
-    code: typeof code === "string" ? code : ErrorCode.Unknown,
-    message: typeof message === "string" ? message : "",
-  };
-}
-
-/**
- * StoreKit のイベントを購読する。ネイティブのモジュールが無ければ undefined
- *
- * 購読は同期で例外を投げうる（ネイティブのモジュールを含まないビルド）。
- * 購入の同期はルートレイアウトで購読するので、投げるとアプリ全体が落ちる。
- * 購入できないだけに留める。
- */
-function subscribeNative(
-  subscribe: () => { readonly remove: () => void },
-): { readonly remove: () => void } | undefined {
-  try {
-    return subscribe();
-  } catch (error) {
-    console.warn("[iap] イベントを購読できない", errorOf(error));
-    return undefined;
-  }
-}
-
-let connection: Promise<boolean> | undefined;
-
-/**
- * StoreKit に接続する。失敗は false
+ * ストアに接続する。失敗は false
  * ストア接続
  *
  * 何度呼んでも接続は 1 度だけ。失敗したら次の呼び出しでつなぎ直す。
- * 切断（`endConnection`）はしない — 購入の同期が起動中ずっと取引を待つため。
+ * 切断はしない — 購入の同期が起動中ずっと購入を待つため。
  */
 export function connectIap(): Promise<boolean> {
-  if (!IAP_AVAILABLE) return Promise.resolve(false);
-  connection ??= initConnection()
-    .then((connected) => {
-      if (!connected) connection = undefined;
-      return connected;
-    })
-    .catch((error: unknown) => {
-      console.warn("[iap] 接続に失敗", errorOf(error));
-      connection = undefined;
-      return false;
-    });
-  return connection;
+  return store?.connect() ?? Promise.resolve(false);
 }
 
 /**
  * 商品の価格を読む。読めなかった商品は含まない（失敗は空配列）
  * 商品取得
- *
- * パス（Consumable）も買い切り（Non-Consumable）も自動更新の
- * 購読ではないので、`all` で読んで ID で引く。
  */
 export async function fetchIapProducts(
   productIds: readonly string[],
 ): Promise<readonly IapProduct[]> {
-  if (!IAP_AVAILABLE || productIds.length === 0) return [];
-  if (!(await connectIap())) return [];
-  try {
-    const products = await fetchProducts({
-      skus: [...productIds],
-      type: "all",
-    });
-    return (products ?? []).flatMap((product) =>
-      typeof product.id === "string" && typeof product.displayPrice === "string"
-        ? [{ productId: product.id, displayPrice: product.displayPrice }]
-        : [],
-    );
-  } catch (error) {
-    console.warn("[iap] 商品の取得に失敗", errorOf(error));
-    return [];
-  }
+  return (await store?.fetchProducts(productIds)) ?? [];
 }
 
-type ErrorListener = (code: string, message: string) => void;
-const errorListeners = new Set<ErrorListener>();
-
-function deliverError(code: string, message: string): void {
-  for (const listener of errorListeners) listener(code, message);
-}
-
-let nativeErrorSubscription: { readonly remove: () => void } | undefined;
-
-/** 失敗の受け手を外す。誰もいなくなったら StoreKit の購読もやめる */
-function removeErrorListener(listener: ErrorListener): void {
-  errorListeners.delete(listener);
-  if (errorListeners.size === 0) {
-    nativeErrorSubscription?.remove();
-    nativeErrorSubscription = undefined;
-  }
+/**
+ * ストアから届く購入を受け取る。解除する関数を返す
+ * 購入購読
+ *
+ * 購入の直後・承認待ちの承認・前回の起動で完了しなかった購入の配り直しが
+ * ここへ届く。ストアが同じ購入を配り直すことがあるので、受け取る側が
+ * `key` で重複を除く。
+ */
+export function onIapPurchase(
+  listener: (purchase: IapPurchase) => void,
+): () => void {
+  return store?.onPurchase(listener) ?? (() => {});
 }
 
 /**
  * 購入の失敗を受け取る。解除する関数を返す
  * 購入失敗購読
  *
- * StoreKit のイベントでも、購入の要求の失敗（{@link requestIapPurchase} の
- * 拒否）でも、同じ失敗は 1 度だけ届く。取り消し（`user-cancelled`）も届くので、
- * 受け取る側で出し分ける（{@link IapErrorCode}）。
+ * 同じ失敗は 1 度だけ届く。取り消し（`user-cancelled`）も届くので、受け取る
+ * 側で出し分ける（`IapErrorCode`）。
  */
-export function onIapPurchaseError(listener: ErrorListener): () => void {
-  if (!IAP_AVAILABLE) return () => {};
-  errorListeners.add(listener);
-  nativeErrorSubscription ??= subscribeNative(() =>
-    purchaseErrorListener((error) => {
-      deliverError(error.code ?? ErrorCode.Unknown, error.message);
-    }),
-  );
-  return () => removeErrorListener(listener);
-}
-
-type PurchaseListener = (purchase: IapPurchase) => void;
-const purchaseListeners = new Set<PurchaseListener>();
-
-function deliverPurchase(purchase: Purchase): void {
-  const mapped = toIapPurchase(purchase, "event");
-  if (mapped === undefined) return;
-  for (const listener of purchaseListeners) listener(mapped);
-}
-
-let nativePurchaseSubscription: { readonly remove: () => void } | undefined;
-
-/**
- * StoreKit から届く取引を受け取る。解除する関数を返す
- * 取引購読
- *
- * 購入の直後・Ask to Buy の承認・前回の起動で完了しなかった取引の配り直しが
- * ここへ届く。StoreKit が同じ取引を配り直すことがあるので、受け取る側が
- * 取引 ID で重複を除く。
- */
-export function onIapPurchase(listener: PurchaseListener): () => void {
-  if (!IAP_AVAILABLE) return () => {};
-  purchaseListeners.add(listener);
-  nativePurchaseSubscription ??= subscribeNative(() =>
-    purchaseUpdatedListener(deliverPurchase),
-  );
-  return () => {
-    purchaseListeners.delete(listener);
-    if (purchaseListeners.size === 0) {
-      nativePurchaseSubscription?.remove();
-      nativePurchaseSubscription = undefined;
-    }
-  };
+export function onIapPurchaseError(
+  listener: (code: string, message: string) => void,
+): () => void {
+  return store?.onPurchaseError(listener) ?? (() => {});
 }
 
 /**
- * 購入の要求の戻り値から、要求した商品の取引 ID を読む。無ければ undefined
- *
- * 戻り値は 1 件・配列・null のどれもありうる（expo-iap の型）。取引 ID が
- * 無い取引はイベントでも配られない（{@link toIapPurchase}）ので、読めなければ
- * 待つ相手が無いとして undefined を返す。
- */
-function transactionIdOf(
-  result: Purchase | Purchase[] | null,
-  productId: string,
-): string | undefined {
-  if (result === null) return undefined;
-  const purchases = Array.isArray(result) ? result : [result];
-  const transactionId = purchases.find(
-    (purchase) => purchase.productId === productId,
-  )?.transactionId;
-  return typeof transactionId === "string" && transactionId !== ""
-    ? transactionId
-    : undefined;
-}
-
-/**
- * 購入を始める（App Store の購入画面を出す）
+ * 購入を始める（ストアの購入画面を出す）
  * 購入要求
  *
- * 取引そのものは配らない: 届いた取引は {@link onIapPurchase}、失敗は
+ * 購入そのものは配らない: 届いた購入は {@link onIapPurchase}、失敗は
  * {@link onIapPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決し、
- * 買えたならその取引 ID を返す（取り消し・失敗・承認待ちは undefined）。
- * `requestPurchase` の戻り値から取引を配らない（expo-iap の TSDoc どおり。取引は
- * イベントで届く）— 戻り値からも配ると同じ取引が 2 度届き、記録の知らせが
- * 2 回出る。戻り値から読むのは取引 ID だけで、呼び出し側がイベントで届いた
- * 取引の記録の終わりを待つのに使う（`buyIapProduct`）。
- * StoreKit のイベントと要求の拒否は同じ失敗を両方から知らせることがあるので、
- * 要求の間だけ失敗の受け手を足し、イベントで届いていれば拒否は重ねて知らせない。
- * 取引は自動で完了させない — サーバーに記録してから完了する（完了した取引は
- * StoreKit が配り直さず、記録に失敗すると取り戻せない）。
+ * 買えたならその購入の `key` を返す（取り消し・失敗・承認待ちは undefined）。
+ * 購入は自動で完了させない — サーバーに記録してから {@link finishIapPurchase}
+ * で完了する。
  *
- * @param appAccountToken - 購入するユーザーの ID（UUID）。サーバーが App Store の
- *   通知から購入者を引くのに使う
+ * @param userId - 購入するユーザーの ID（UUID）。サーバーがストアの通知から
+ *   購入者を引くのに使う（App Store の `appAccountToken`）
  */
 export async function requestIapPurchase(
   productId: string,
-  appAccountToken: string,
+  userId: string,
 ): Promise<string | undefined> {
-  if (!IAP_AVAILABLE) return undefined;
-  if (!(await connectIap())) {
-    deliverError(ErrorCode.NotPrepared, "not connected");
-    return undefined;
-  }
-  let errorDelivered = false;
-  const watchError: ErrorListener = () => {
-    errorDelivered = true;
-  };
-  errorListeners.add(watchError);
-  try {
-    const result = await requestPurchase({
-      request: {
-        apple: {
-          sku: productId,
-          appAccountToken,
-          andDangerouslyFinishTransactionAutomatically: false,
-        },
-      },
-      type: "in-app",
-    });
-    return transactionIdOf(result, productId);
-  } catch (error) {
-    // StoreKit のイベントで同じ失敗を受け取っていれば、重ねて知らせない
-    if (!errorDelivered) {
-      const { code, message } = errorOf(error);
-      deliverError(code, message);
-    }
-    return undefined;
-  } finally {
-    removeErrorListener(watchError);
-  }
+  return store?.requestPurchase(productId, userId);
 }
 
 /**
- * 端末の購入の一覧を読んだ結果
- * 購入一覧結果
- *
- * 「購入が無い」（`ok` で空）と「読めなかった」（`ok` でない）を分ける。
- * 空配列 1 つで表すと、通信や StoreKit の失敗が「復元できる購入は無かった」と
- * 本人に伝わる（{@link listIapPurchases}）。
- */
-export type IapPurchaseList =
-  | { readonly ok: true; readonly purchases: readonly IapPurchase[] }
-  | { readonly ok: false };
-
-/**
- * 端末の Apple ID が持つ購入を読む（復元）
+ * 端末の購入を読む（復元・ログイン直後の取り直し）
  * 購入一覧取得
  *
- * StoreKit の現在の権利（`Transaction.currentEntitlements`）で、買い切り
- * （Non-Consumable）の取引が返る。パス（Consumable）は現在の権利に載らないので
- * 返らない — パスはサーバーに記録済みで、ログインすれば戻る。
- *
- * アプリ内課金の無い端末（Android）は購入なし。StoreKit に接続できない・
- * 一覧を読めないときは失敗（{@link IapPurchaseList}）。読む側が「復元できなかった」
- * と「復元できる購入が無かった」を出し分けるため、空配列に潰さない。
+ * ストアを使えないビルドは購入なし。ストアに接続できない・一覧を読めないときは
+ * 失敗（{@link IapPurchaseList}）。読む側が「復元できなかった」と「復元できる
+ * 購入が無かった」を出し分けるため、空配列に潰さない。
  */
 export async function listIapPurchases(): Promise<IapPurchaseList> {
-  if (!IAP_AVAILABLE) return { ok: true, purchases: [] };
-  if (!(await connectIap())) return { ok: false };
-  try {
-    const purchases = await getAvailablePurchases();
-    return {
-      ok: true,
-      purchases: purchases.flatMap((purchase) => {
-        const mapped = toIapPurchase(purchase, "list");
-        return mapped === undefined ? [] : [mapped];
-      }),
-    };
-  } catch (error) {
-    console.warn("[iap] 購入の一覧の取得に失敗", errorOf(error));
-    return { ok: false };
-  }
+  return (await store?.listPurchases()) ?? { ok: true, purchases: [] };
 }
 
 /**
- * 取引を完了（finish）する。StoreKit は完了した取引を配り直さない
- * 取引完了
+ * 購入を完了（finish）する。ストアは完了した購入を配り直さない
+ * 購入完了
  *
- * サーバーが記録した・記録しないと答えた後に呼ぶ。完了済みの取引を
- * もう一度完了しても害は無いので、失敗はログだけにする。
+ * サーバーが記録した・記録しないと答えた後に呼ぶ。失敗はログだけにする。
  *
- * 現在の権利の一覧（{@link listIapPurchases}）から読んだ取引は
- * `finishTransaction` を呼ばず、控えを外すだけにする。一覧の取引は通常は
- * 完了済みで、呼ぶと復元のたびに失敗のログが残るだけになる。未完了のものが
- * 混じっていても、StoreKit が次の起動でイベントとして配り直し、そのとき
- * 完了する（サーバーは `duplicate` を返す）。
+ * @param options.consumable - 30 日パス（買い直せる売り方）か。Google Play は
+ *   これで consume と acknowledge を分ける（App Store は読まない）
  */
-export async function finishIapPurchase(purchase: IapPurchase): Promise<void> {
-  if (!IAP_AVAILABLE) return;
-  const source = sourcePurchases.get(purchase.transactionId);
-  if (source === undefined) return;
-  if (source.origin === "list") {
-    sourcePurchases.delete(purchase.transactionId);
-    return;
-  }
-  try {
-    await finishTransaction({ purchase: source.purchase, isConsumable: false });
-  } catch (error) {
-    console.warn("[iap] 取引の完了に失敗", {
-      transactionId: purchase.transactionId,
-      ...errorOf(error),
-    });
-  } finally {
-    sourcePurchases.delete(purchase.transactionId);
-  }
+export async function finishIapPurchase(
+  purchase: IapPurchase,
+  options: { readonly consumable: boolean },
+): Promise<void> {
+  await store?.finishPurchase(purchase, options);
+}
+
+/**
+ * 購入をサーバーに記録する要求（パスと本文）
+ * 購入記録要求
+ *
+ * 記録のパスと本文の形はストアごとに違うので、購入を配ったストアの
+ * アダプタが組む。ストアを使えないビルドには購入が届かないので、ここへは
+ * 来ない（来たら投げる）。
+ */
+export function iapRecordRequestOf(purchase: IapPurchase): IapRecordRequest {
+  if (store === undefined)
+    throw new Error("[iap] ストアを使えないビルドで購入を記録しようとした");
+  return store.recordRequestOf(purchase);
 }

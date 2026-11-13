@@ -30,6 +30,8 @@ import { handleReadPlan, handleReadPlanOffers } from "./plan";
 
 const NOW = new Date("2026-10-11T00:00:00Z");
 const request = () => new Request("https://example.test");
+const offersRequest = (query: string) =>
+  new Request(`https://example.test/api/mobile/v1/plan/offers${query}`);
 
 function purchase(overrides: Partial<Purchase>): Purchase {
   return {
@@ -45,6 +47,10 @@ function purchase(overrides: Partial<Purchase>): Purchase {
     appleOriginalTransactionId: null,
     appleProductId: null,
     appleEnvironment: null,
+    googlePurchaseToken: null,
+    googleOrderId: null,
+    googleProductId: null,
+    googleEnvironment: null,
     currency: "jpy",
     amount: 480,
     startsAt: new Date("2026-10-01T00:00:00Z"),
@@ -65,6 +71,8 @@ beforeEach(() => {
     "APPLE_IAP_PRODUCT_ID_PRO_LIFETIME",
     "help.mahjong.score.pro.lifetime",
   );
+  vi.stubEnv("GOOGLE_IAP_PRODUCT_ID_PRO_PASS", "pro_pass_30");
+  vi.stubEnv("GOOGLE_IAP_PRODUCT_ID_PRO_LIFETIME", "pro_lifetime");
   authorizeAs({ userId: "user-1", username: "bob" });
   mockListPurchases.mockResolvedValue([]);
   mockListGrants.mockResolvedValue([]);
@@ -151,6 +159,21 @@ describe("handleReadPlan", () => {
     expect(body.offers).toEqual([]);
   });
 
+  it("X-App-Platform が android なら Google Play の商品を返す", async () => {
+    const body = await (
+      await handleReadPlan(
+        new Request("https://example.test", {
+          headers: { "X-App-Platform": "android" },
+        }),
+      )
+    ).json();
+
+    expect(body.offers).toEqual([
+      { key: "pass", productId: "pro_pass_30" },
+      { key: "lifetime", productId: "pro_lifetime" },
+    ]);
+  });
+
   it("読み取りに失敗したら 500 serverError", async () => {
     mockActiveBenefits.mockRejectedValue(new Error("db down"));
 
@@ -163,7 +186,7 @@ describe("handleReadPlan", () => {
 
 describe("handleReadPlanOffers", () => {
   it("認証せずに販売中の商品を返す", async () => {
-    const response = await handleReadPlanOffers();
+    const response = await handleReadPlanOffers(request());
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
@@ -176,10 +199,51 @@ describe("handleReadPlanOffers", () => {
     expect(mockAuthorizeMobileRequest).not.toHaveBeenCalled();
   });
 
+  it("platform の指定が無い要求は App Store の商品を返す", async () => {
+    expect(
+      await (await handleReadPlanOffers(offersRequest(""))).json(),
+    ).toEqual({
+      offers: [
+        { key: "pass", productId: "help.mahjong.score.pro.pass30" },
+        { key: "lifetime", productId: "help.mahjong.score.pro.lifetime" },
+      ],
+    });
+  });
+
+  it("?platform=android は Google Play の商品を返す", async () => {
+    expect(
+      await (
+        await handleReadPlanOffers(offersRequest("?platform=android"))
+      ).json(),
+    ).toEqual({
+      offers: [
+        { key: "pass", productId: "pro_pass_30" },
+        { key: "lifetime", productId: "pro_lifetime" },
+      ],
+    });
+  });
+
+  it("Google Play の Product ID が無ければ android は空で、ios はそのまま", async () => {
+    vi.stubEnv("GOOGLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
+
+    expect(
+      await (
+        await handleReadPlanOffers(offersRequest("?platform=android"))
+      ).json(),
+    ).toEqual({ offers: [] });
+    expect(
+      (
+        await (
+          await handleReadPlanOffers(offersRequest("?platform=ios"))
+        ).json()
+      ).offers,
+    ).toHaveLength(2);
+  });
+
   it("パスの Product ID が無ければ買い切りだけを返す", async () => {
     vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_PASS", "");
 
-    expect(await (await handleReadPlanOffers()).json()).toEqual({
+    expect(await (await handleReadPlanOffers(request())).json()).toEqual({
       offers: [
         { key: "lifetime", productId: "help.mahjong.score.pro.lifetime" },
       ],
@@ -189,15 +253,15 @@ describe("handleReadPlanOffers", () => {
   it("販売していなければ空", async () => {
     vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
 
-    expect(await (await handleReadPlanOffers()).json()).toEqual({
+    expect(await (await handleReadPlanOffers(request())).json()).toEqual({
       offers: [],
     });
   });
 
   it("同じ IP からの回数の上限を超えたら 429", async () => {
-    for (let i = 0; i < 120; i += 1) await handleReadPlanOffers();
+    for (let i = 0; i < 120; i += 1) await handleReadPlanOffers(request());
 
-    const response = await handleReadPlanOffers();
+    const response = await handleReadPlanOffers(request());
 
     expect(response.status).toBe(429);
     expect(await response.json()).toEqual({ error: "rateLimited" });

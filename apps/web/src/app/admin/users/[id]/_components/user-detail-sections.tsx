@@ -186,7 +186,19 @@ export async function LearningSection({
   );
 }
 
-/** 購入（Stripe / App Store）の一覧 */
+/**
+ * 決済元ごとの「購入元」の辞書キー（`admin.userDetail` の下）
+ *
+ * `Record<PurchaseProvider, …>` にして、決済元を足したときにここへの追記を
+ * コンパイラに要求させる。
+ */
+const PURCHASE_PROVIDER_LABEL_KEYS = {
+  [PurchaseProvider.Stripe]: "purchases.providerStripe",
+  [PurchaseProvider.Apple]: "purchases.providerApple",
+  [PurchaseProvider.Google]: "purchases.providerGoogle",
+} as const satisfies Record<PurchaseProvider, string>;
+
+/** 購入（Stripe / App Store / Google Play）の一覧 */
 export async function PurchasesSection({
   detail,
   now,
@@ -220,12 +232,13 @@ export async function PurchasesSection({
                 : tPlan("history.kind.pass")}
             </td>
             <td className="px-3 py-2 whitespace-nowrap">
-              {purchaseProviderOf(purchase) === PurchaseProvider.Apple
-                ? t("purchases.providerApple")
-                : t("purchases.providerStripe")}
+              {t(PURCHASE_PROVIDER_LABEL_KEYS[purchaseProviderOf(purchase)])}
             </td>
             <td className="px-3 py-2 whitespace-nowrap tabular-nums">
-              {formatAmount(purchase.amount, purchase.currency)}
+              {/* Google Play は購入の確認で価格を返さず、行には 0 が入っている（0 円と見せない） */}
+              {purchaseProviderOf(purchase) === PurchaseProvider.Google
+                ? t("purchases.amountUnavailable")
+                : formatAmount(purchase.amount, purchase.currency)}
             </td>
             <td className="px-3 py-2 whitespace-nowrap text-surface-500">
               {formatAdminDate(purchase.startsAt)}

@@ -401,7 +401,8 @@ npx expo run:ios --device   # 繋いだ iPhone を選ぶ。初回は数分かか
 
 iOS アプリは有料プラン Pro を App Store のアプリ内課金で売る。購入は web の Stripe と同じ
 `purchases` の 1 行になり（`provider` が `apple`）、特典の判定は web と共通。web で買った Pro は
-アプリで、アプリで買った Pro は web で有効。Android は Pro を扱わない。
+アプリで、アプリで買った Pro は web で有効。ストアに出す Android のビルドは Pro を扱わない
+（開発ビルドだけ、下の「Android のモック購入（開発ビルド）」で偽ストアを選べる）。
 
 仕組み:
 
@@ -538,8 +539,51 @@ pnpm --filter web certs:generate
 
 `expo-iap` は Android でも Play Billing のライブラリをリンクするので、Android のビルドには
 Billing のライブラリと `com.android.vending.BILLING` の権限が乗る。アプリのコードは Android で
-課金の API を一切呼ばない（`src/billing/iap-availability.ts` の `IAP_AVAILABLE`）。Play Console が
-ビルドを課金対応と見なすだけで、挙動は変わらない。
+課金の API を一切呼ばない（`src/billing/iap-availability.ts` の `IAP_AVAILABLE`。開発ビルドの
+偽ストアも expo-iap を呼ばない）。Play Console がビルドを課金対応と見なすだけで、挙動は変わらない。
+
+### Android のモック購入（開発ビルド）
+
+Play Billing の本物の実装はまだ無い。Android の開発ビルドでは、本物の Google Play を通さない
+偽ストア（`src/billing/iap-fake.ts`）で、プラン画面の購入からサーバーの記録・プランの反映までを
+試せる。「購入」を押すと Buy / Fail / Cancel のダイアログが出て、Buy で `mock:` で始まる購入
+トークンを作り、web の `/api/mobile/v1/iap/google/purchases` に送る。購入はアプリのメモリだけに
+持つので、再起動すると端末の側の購入は消える（サーバーの記録は残る）。
+
+端末の側（Metro に与える）:
+
+```bash
+EXPO_PUBLIC_IAP_STORE=fake pnpm --filter @mahjong-scoring/mobile start --clear
+```
+
+- 効くのは開発ビルド（`__DEV__`）だけ。Release のビルドでは値があっても偽ストアを選ばない
+- Metro は `--clear` で起動する。`EXPO_PUBLIC_*` は変換キャッシュのキーに入らず、付け外しが
+  前回のバンドルのまま残る
+
+サーバーの側（`next dev` に与える。`apps/web` の手元の環境変数）:
+
+| 変数                                 | 値                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `GOOGLE_IAP_MOCK_VERIFIER`           | `1`（モックの検証器を選ぶ）                                            |
+| `GOOGLE_IAP_PRODUCT_ID_PRO_LIFETIME` | 買い切りの Product ID。任意の文字列でよい（Play Console に無くてよい） |
+| `GOOGLE_IAP_PRODUCT_ID_PRO_PASS`     | 30 日パスの Product ID。任意の文字列でよい                             |
+| `GOOGLE_IAP_TEST_USER_IDS`           | 購入を試すユーザーの user_id（カンマ区切り）                           |
+
+Product ID はアプリが `/api/mobile/v1/plan/offers?platform=android` で読み、偽ストアはその ID の
+まま購入を作る（価格は `MOCK` と出る）。user_id の引き方は上の「Sandbox の許可リスト」と同じ。
+
+モックが本番で効かない理由:
+
+- サーバーはモックの検証器を `NODE_ENV !== "production"` かつ `GOOGLE_IAP_MOCK_VERIFIER=1` の
+  ときだけ選ぶ。Vercel のビルドは Preview も本番も `NODE_ENV=production` なので、フラグを
+  誤って設定しても選ばれない。モックの購入は必ずテストの購入として扱い、テストの購入は
+  `GOOGLE_IAP_TEST_USER_IDS` の本人にしか記録しない。受けるトークンは `mock:` で始まるものだけ
+- 端末は `__DEV__` を条件に偽ストアを選ぶ。`EXPO_PUBLIC_*` はバンドルに焼き込まれるが、
+  `__DEV__` は本番のバンドルで false に固定されるので、ストアに出すビルドには偽ストアが入らない。
+  EAS の production 環境に `EXPO_PUBLIC_IAP_STORE` があれば `scripts/testflight.sh` が提出前に止める
+
+Android の開発ビルドから手元の Supabase・web に届くか（平文 HTTP・エミュレーターからの
+接続先）は未検証。届かなければ、購入の前のログインで止まる。
 
 ## 古い版を止める（最低バージョン）
 

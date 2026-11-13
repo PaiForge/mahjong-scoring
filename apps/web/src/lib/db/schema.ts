@@ -984,8 +984,8 @@ export type BillingCheckout = typeof billingCheckouts.$inferSelect;
  * 購入
  *
  * @description
- * Stripe Checkout（一括払い）または App Store のアプリ内課金が完了するごとに
- * 1 行。特典の判定
+ * Stripe Checkout（一括払い）・App Store のアプリ内課金・Google Play の
+ * アプリ内課金のいずれかが完了するごとに 1 行。特典の判定
  * （`lib/entitlements/has-benefit.ts`）は「取り消されておらず、期限内か
  * 永久の行の `benefits` の和集合」で決まる。契約状態（サブスクリプション）
  * は持たない — 期間パスは `expires_at` が来れば自然に失効し、買い切りは
@@ -999,32 +999,47 @@ export type BillingCheckout = typeof billingCheckouts.$inferSelect;
  * 期間パスも同じ規則で揃える（数十日の残期間に新特典が付かないだけで、
  * 例外を作るより単純）。
  *
- * @design 冪等キーは Stripe は `stripe_checkout_session_id`、Apple は `apple_transaction_id`
+ * @design 冪等キーは Stripe は `stripe_checkout_session_id`、Apple は `apple_transaction_id`、Google は `google_purchase_token`
  *
  * Stripe は Checkout 完了の着地（Route Handler）と Webhook の両方が同じ購入を
  * 記録しようとする。UNIQUE + ON CONFLICT DO NOTHING で、どちらが先でも
  * 1 行になる。`stripe_payment_intent_id` は返金（`charge.refunded`）から
  * 購入行を引くためのキー。Apple はアプリからの署名付き取引の送信・復元・
  * App Store Server Notification が同じ取引を何度でも届けるので、取引 ID
- * （`apple_transaction_id`）の UNIQUE で 1 行にする。
+ * （`apple_transaction_id`）の UNIQUE で 1 行にする。Google はアプリからの
+ * 送信・送り直しが同じ購入トークンを何度でも届けるので、購入トークン
+ * （`google_purchase_token`）の UNIQUE で 1 行にする。購入トークンは数百文字に
+ * なるので `text` で持つ。
  *
  * @design 決済元を 1 表に持つ
  *
- * Stripe と Apple の購入を別表にせず、`provider` 列で決済元を区別する。
+ * Stripe・Apple・Google の購入を別表にせず、`provider` 列で決済元を区別する。
  * 特典の判定（`has-benefit.ts`）・追加購入の禁止・マイページと管理画面の
- * 購入履歴・退会・期限切れ通知の cron がすべてこの表を読んでいて、2 表に
- * すると読み手のすべてを UNION に書き換えることになるため。特典の判定は
+ * 購入履歴・退会・期限切れ通知の cron がすべてこの表を読んでいて、表を
+ * 分けると読み手のすべてを UNION に書き換えることになるため。特典の判定は
  * 決済元を知らないまま動く。決済元ごとの列の組み合わせ（その決済元の列は
- * NOT NULL、他方の列は NULL）は CHECK `purchases_chk_provider_columns` で
- * 強制する。Stripe の 2 列は Apple の行で NULL になるので NULL 可にしたが、
- * UNIQUE は残す（Postgres の UNIQUE は NULL を複数許す）。
+ * NOT NULL、他の決済元の列は NULL）は CHECK `purchases_chk_provider_columns` で
+ * 強制する。決済元ごとの列は他の決済元の行で NULL になるので NULL 可にしたが、
+ * UNIQUE は残す（Postgres の UNIQUE は NULL を複数許す）。Google の注文 ID
+ * （`google_order_id`）だけは Google の行でも NULL を許す — プロモコードでの
+ * 引き換え等で Play が注文 ID を返さないことがある。
+ *
+ * @design Google の購入は専用の列に持ち、JSONB 1 列に畳まない
+ *
+ * 決済元ごとの値を JSONB 1 列に畳む案は採らなかった。冪等の UNIQUE が式
+ * インデックスになり、列の組の CHECK と drizzle の型を失い、環境の列を SQL で
+ * 読む既存の条件（`findUnexpiredPurchases` の `apple_environment`）と形が
+ * 割れるため。
  *
  * @design 金額と通貨は決済元の値をそのまま保存
  *
  * 価格表をコードに持たない（Stripe の Price・App Store Connect の価格が正）。
  * `amount` は最小通貨単位（JPY は円そのまま、USD はセント）。Apple の値は
  * Apple 自身が収益計算に使わないよう明記しているので表示専用。表示は `currency` に応じて
- * `Intl.NumberFormat` に任せる。
+ * `Intl.NumberFormat` に任せる。Google の行は `0` / `jpy` で入れる —
+ * Play Developer API の購入の取得（`purchases.products.get`）は価格を返さない
+ * （API の文書からの理解で、実物では未確認）。金額は表示専用の値なので、
+ * マイページと管理画面は Google の行の金額を出さない（「—」）。
  *
  * @design 取り消し（`revoked_at`）は論理削除
  *
@@ -1049,37 +1064,58 @@ export const purchases = pgTable(
     kind: varchar("kind", { length: 20 }).notNull(),
     /** 購入時点で付与した特典（`PlanBenefit` の値）。空にしない */
     benefits: text("benefits").array().notNull(),
-    /** 決済元（`PurchaseProvider`）。`stripe` = web、`apple` = App Store */
+    /**
+     * 決済元（`PurchaseProvider`）。`stripe` = web、`apple` = App Store、
+     * `google` = Google Play
+     */
     provider: varchar("provider", { length: 20 }).notNull().default("stripe"),
-    /** Checkout Session ID（`cs_...`）。Stripe の冪等キー。Apple の行は NULL */
+    /** Checkout Session ID（`cs_...`）。Stripe の冪等キー。Stripe 以外の行は NULL */
     stripeCheckoutSessionId: varchar("stripe_checkout_session_id", {
       length: 255,
     }).unique(),
-    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー。Apple の行は NULL */
+    /** PaymentIntent ID（`pi_...`）。返金イベントから引くキー。Stripe 以外の行は NULL */
     stripePaymentIntentId: varchar("stripe_payment_intent_id", {
       length: 255,
     }).unique(),
-    /** App Store の取引 ID（`transactionId`）。Apple の冪等キー。Stripe の行は NULL */
+    /** App Store の取引 ID（`transactionId`）。Apple の冪等キー。Apple 以外の行は NULL */
     appleTransactionId: varchar("apple_transaction_id", {
       length: 64,
     }).unique(),
-    /** App Store の元の取引 ID（`originalTransactionId`）。Stripe の行は NULL */
+    /** App Store の元の取引 ID（`originalTransactionId`）。Apple 以外の行は NULL */
     appleOriginalTransactionId: varchar("apple_original_transaction_id", {
       length: 64,
     }),
-    /** App Store Connect の Product ID。Stripe の行は NULL */
+    /** App Store Connect の Product ID。Apple 以外の行は NULL */
     appleProductId: varchar("apple_product_id", { length: 255 }),
     /**
-     * 取引の課金環境（`Sandbox` / `Production`）。Stripe の行は NULL。
+     * 取引の課金環境（`Sandbox` / `Production`）。Apple 以外の行は NULL。
      * Sandbox の行は追加購入の禁止から外す（テスターが買い直して試せるように）
      */
     appleEnvironment: varchar("apple_environment", { length: 20 }),
+    /**
+     * Google Play の購入トークン（`purchaseToken`）。Google の冪等キー。
+     * Google 以外の行は NULL。数百文字になるので長さを決めずに `text` で持つ
+     */
+    googlePurchaseToken: text("google_purchase_token").unique(),
+    /**
+     * Google Play の注文 ID（`orderId`）。Google 以外の行は NULL。Google の行でも
+     * プロモコードでの引き換え等で欠けうるので NULL を許す
+     */
+    googleOrderId: varchar("google_order_id", { length: 64 }),
+    /** Play Console の Product ID。Google 以外の行は NULL */
+    googleProductId: varchar("google_product_id", { length: 255 }),
+    /**
+     * 購入の課金環境（`Test` / `Production`）。Google 以外の行は NULL。
+     * `Test` はライセンステスターの購入と開発用のモック購入で、Apple の Sandbox と
+     * 同じく追加購入の禁止から外す
+     */
+    googleEnvironment: varchar("google_environment", { length: 20 }),
     /** 通貨（ISO 4217 小文字。Stripe の表記に合わせる） */
     currency: varchar("currency", { length: 3 }).notNull(),
     /** 支払額（最小通貨単位） */
     amount: integer("amount").notNull(),
     /**
-     * 特典の開始。Stripe は支払いの Charge 作成日時、Apple は取引の購入日時
+     * 特典の開始。Stripe は支払いの Charge 作成日時、Apple・Google は購入日時
      * （有効なパスがあるときに届いたパスは、その期限から始まる開始待ち）
      */
     startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
@@ -1118,11 +1154,15 @@ export const purchases = pgTable(
     ),
     check(
       "purchases_chk_provider_columns",
-      sql`(${table.provider} = 'stripe' AND ${table.stripeCheckoutSessionId} IS NOT NULL AND ${table.stripePaymentIntentId} IS NOT NULL AND ${table.appleTransactionId} IS NULL AND ${table.appleOriginalTransactionId} IS NULL AND ${table.appleProductId} IS NULL AND ${table.appleEnvironment} IS NULL) OR (${table.provider} = 'apple' AND ${table.appleTransactionId} IS NOT NULL AND ${table.appleOriginalTransactionId} IS NOT NULL AND ${table.appleProductId} IS NOT NULL AND ${table.appleEnvironment} IS NOT NULL AND ${table.stripeCheckoutSessionId} IS NULL AND ${table.stripePaymentIntentId} IS NULL)`,
+      sql`(${table.provider} = 'stripe' AND ${table.stripeCheckoutSessionId} IS NOT NULL AND ${table.stripePaymentIntentId} IS NOT NULL AND ${table.appleTransactionId} IS NULL AND ${table.appleOriginalTransactionId} IS NULL AND ${table.appleProductId} IS NULL AND ${table.appleEnvironment} IS NULL AND ${table.googlePurchaseToken} IS NULL AND ${table.googleOrderId} IS NULL AND ${table.googleProductId} IS NULL AND ${table.googleEnvironment} IS NULL) OR (${table.provider} = 'apple' AND ${table.appleTransactionId} IS NOT NULL AND ${table.appleOriginalTransactionId} IS NOT NULL AND ${table.appleProductId} IS NOT NULL AND ${table.appleEnvironment} IS NOT NULL AND ${table.stripeCheckoutSessionId} IS NULL AND ${table.stripePaymentIntentId} IS NULL AND ${table.googlePurchaseToken} IS NULL AND ${table.googleOrderId} IS NULL AND ${table.googleProductId} IS NULL AND ${table.googleEnvironment} IS NULL) OR (${table.provider} = 'google' AND ${table.googlePurchaseToken} IS NOT NULL AND ${table.googleProductId} IS NOT NULL AND ${table.googleEnvironment} IS NOT NULL AND ${table.stripeCheckoutSessionId} IS NULL AND ${table.stripePaymentIntentId} IS NULL AND ${table.appleTransactionId} IS NULL AND ${table.appleOriginalTransactionId} IS NULL AND ${table.appleProductId} IS NULL AND ${table.appleEnvironment} IS NULL)`,
     ),
     check(
       "purchases_chk_apple_environment",
       sql`${table.appleEnvironment} IS NULL OR ${table.appleEnvironment} IN ('Sandbox', 'Production')`,
+    ),
+    check(
+      "purchases_chk_google_environment",
+      sql`${table.googleEnvironment} IS NULL OR ${table.googleEnvironment} IN ('Test', 'Production')`,
     ),
   ],
 );

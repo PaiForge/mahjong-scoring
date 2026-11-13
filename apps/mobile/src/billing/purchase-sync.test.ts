@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/billing/mobile-api";
+import type { MobilePurchaseRecordResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
 import type { PlanApiFailure, PlanApiResult } from "./plan-api";
 import {
@@ -10,8 +10,8 @@ import {
 } from "./purchase-sync";
 
 function ok(
-  outcome: MobileAppleTransactionResponse["outcome"],
-): PlanApiResult<MobileAppleTransactionResponse> {
+  outcome: MobilePurchaseRecordResponse["outcome"],
+): PlanApiResult<MobilePurchaseRecordResponse> {
   return {
     value: {
       outcome,
@@ -26,7 +26,7 @@ function ok(
 
 function failed(
   error: PlanApiFailure,
-): PlanApiResult<MobileAppleTransactionResponse> {
+): PlanApiResult<MobilePurchaseRecordResponse> {
   return { error };
 }
 
@@ -51,9 +51,11 @@ describe("shouldFinishAfter", () => {
     expect(shouldFinishAfter(failed("rejected"))).toBe(true);
   });
 
-  it("サーバーが検証できない・ユーザー名が無い・通信や一時的な障害・ログインの問題は完了しない", () => {
+  it("サーバーが検証できない・ユーザー名が無い・支払いが保留中・通信や一時的な障害・ログインの問題は完了しない", () => {
     for (const error of [
       "appleUnavailable",
+      "storeUnavailable",
+      "purchasePending",
       "usernameRequired",
       "network",
       "serverError",
@@ -116,6 +118,7 @@ describe("isRetryable", () => {
       "network",
       "serverError",
       "appleUnavailable",
+      "storeUnavailable",
       "authUnavailable",
       "rateLimited",
     ] as const) {
@@ -126,6 +129,7 @@ describe("isRetryable", () => {
   it("送り直しても通らない失敗は送り直さない", () => {
     for (const error of [
       "usernameRequired",
+      "purchasePending",
       "ownedByAnotherAccount",
       "invalidTransaction",
       "unknownProduct",
