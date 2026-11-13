@@ -1,8 +1,4 @@
-/** 辞書を引く関数（web の next-intl・アプリの use-intl の `t` をそのまま渡せる形） */
-type Translate = (
-  key: string,
-  values?: Readonly<Record<string, number>>,
-) => string;
+import type { Translate } from "../i18n/translate";
 
 /**
  * 練習の設定画面の「?」が開くツアーの操作ラベル

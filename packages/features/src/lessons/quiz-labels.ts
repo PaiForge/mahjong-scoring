@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import { type Kazehai, MentsuType, getKazeName } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
@@ -7,10 +8,7 @@ import type { LessonChoice, LessonPrompt } from "./quiz";
  * 確認問題の辞書（`lessons`）を引く翻訳関数（`useTranslations` の戻り値のうち、
  * ここで使う形）
  */
-type LessonTranslator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+type LessonTranslator = Translate;
 
 /**
  * アプリの言語から、数の桁区切りに使う BCP 47 の言語タグへの対応

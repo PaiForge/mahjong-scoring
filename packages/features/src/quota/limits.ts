@@ -65,6 +65,33 @@ export const EMPTY_QUOTA_COUNTS: QuotaCounts = {
   "score-exam": 0,
 };
 
+/**
+ * 保存した値から練習ごとの回数を読む。入れ物の形が違えば undefined
+ * 練習回数読み戻し
+ *
+ * 未ログイン（web の cookie）とゲスト（アプリの端末）が、保存した JSON の
+ * `counts` を読み戻すのに使う。数が壊れている練習（負・小数・数でない）と
+ * 保存した版に無い練習は 0 にし、他の練習の数は捨てない — 対象の練習を
+ * 足した版へ上げた直後や、1 つの値だけが壊れたときに、残りの枠まで戻さないため。
+ * 対象外のキーは読まない。
+ *
+ * @param value - 保存した JSON の `counts`（形を検査していない値）
+ */
+export function parseQuotaCounts(value: unknown): QuotaCounts | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return undefined;
+  }
+  const stored: Record<string, unknown> = { ...value };
+  const counts: Record<QuotaMenu, number> = { ...EMPTY_QUOTA_COUNTS };
+  for (const menu of QUOTA_MENUS) {
+    const count = stored[menu];
+    if (typeof count === "number" && Number.isInteger(count) && count >= 0) {
+      counts[menu] = count;
+    }
+  }
+  return counts;
+}
+
 /** 1 日の上限（問） */
 export interface QuotaLimit {
   /** ログイン済みの無料ユーザー */

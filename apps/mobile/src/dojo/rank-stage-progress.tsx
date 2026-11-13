@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import {
-  countProgress,
+  buildStageCells,
   currentStage,
   type JourneyStage,
 } from "@mahjong-scoring/features/journey/journey-progress";
@@ -18,13 +18,6 @@ import { ChevronRightIcon } from "../components/icons/icons";
 import { colors, radius } from "../lib/theme";
 import { beltStyle } from "./belt-style";
 import { DoneMark } from "./done-mark";
-
-/** 1 段分の表示 */
-interface StageCell {
-  readonly stage: JourneyStage;
-  readonly value: string;
-  readonly done: boolean;
-}
 
 /**
  * 段の行き先 — 学ぶはその級で絞ったレッスンの目次、練習するはその級で
@@ -61,31 +54,10 @@ export function RankStageProgress({
 }) {
   const t = useTranslations("ranks");
   const router = useRouter();
-  const learn = countProgress(journey.chapters);
-  const practice = countProgress(journey.practices);
   const current = isCurrentRank ? currentStage(journey) : undefined;
   const belt = beltStyle(journey.rank.slug);
 
-  const cells: StageCell[] = [];
-  if (learn.total > 0) {
-    cells.push({
-      stage: "learn",
-      value: t("stageCount", { ...learn }),
-      done: learn.done === learn.total,
-    });
-  }
-  if (practice.total > 0) {
-    cells.push({
-      stage: "practice",
-      value: t("stageCount", { ...practice }),
-      done: practice.done === practice.total,
-    });
-  }
-  cells.push({
-    stage: "exam",
-    value: t(journey.exam.done ? "stageExamPassed" : "stageExamNotPassed"),
-    done: journey.exam.done,
-  });
+  const cells = buildStageCells(journey, t);
 
   return (
     <View style={styles.row}>

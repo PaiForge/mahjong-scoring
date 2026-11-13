@@ -5,7 +5,7 @@ import {
 } from "@mahjong-scoring/features/quota/answer";
 import {
   EMPTY_QUOTA_COUNTS,
-  QUOTA_MENUS,
+  parseQuotaCounts,
   type QuotaCounts,
   type QuotaMenu,
 } from "@mahjong-scoring/features/quota/limits";
@@ -72,8 +72,6 @@ export function consumeGuestQuota(
   };
 }
 
-const countSchema = z.number().int().nonnegative();
-
 const stateSchema = z.object({
   day: z.string(),
   counts: z.record(z.string(), z.unknown()),
@@ -83,21 +81,15 @@ const stateSchema = z.object({
  * 保存した値を読む。形が違えば undefined
  * ゲスト利用状況検証
  *
- * 数が壊れている練習・保存した版に無い練習は 0 にする（他の練習の数は捨てない）。
+ * 数が壊れている練習・保存した版に無い練習は 0 にする（他の練習の数は捨てない。
+ * 規則は web の cookie と同じ `parseQuotaCounts`）。
  */
 export function parseGuestQuotaState(
   value: unknown,
 ): GuestQuotaState | undefined {
   const parsed = stateSchema.safeParse(value);
   if (!parsed.success) return undefined;
-  const stored = parsed.data.counts;
-  const countOf = (menu: QuotaMenu): number => {
-    const count = countSchema.safeParse(stored[menu]);
-    return count.success ? count.data : 0;
-  };
-  const counts: Record<QuotaMenu, number> = { ...EMPTY_QUOTA_COUNTS };
-  for (const menu of QUOTA_MENUS) {
-    counts[menu] = countOf(menu);
-  }
+  const counts = parseQuotaCounts(parsed.data.counts);
+  if (!counts) return undefined;
   return { day: parsed.data.day, counts };
 }

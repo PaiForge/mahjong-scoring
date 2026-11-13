@@ -3,6 +3,7 @@ import { useNavigation, useRouter } from "expo-router";
 import { StackActions } from "expo-router/react-navigation";
 
 import { isAccountHref, trailingModalCount } from "../lib/modal-routes";
+import { findRootStack } from "../lib/root-stack";
 
 /** ここで使う navigation の形（expo-router の `useNavigation` の戻り値の一部） */
 interface NavigationLike {
@@ -18,26 +19,6 @@ interface NavigationLike {
   dispatch(
     action: ReturnType<typeof StackActions.pop> & { target?: string },
   ): void;
-}
-
-/**
- * ルートのスタック（`app/_layout.tsx` の Stack）の navigation
- *
- * 今の画面から `getParent()` を辿り、`(tabs)` を画面に持つ navigator を探す。
- * いちばん上まで辿らないのは、expo-router がルートのレイアウトのさらに外に
- * 自分用の navigator（`__root`）を置いているため。
- */
-function findRootStack(
-  navigation: NavigationLike | undefined,
-): NavigationLike | undefined {
-  let current = navigation;
-  while (current !== undefined) {
-    if (current.getState()?.routeNames.includes("(tabs)") === true) {
-      return current;
-    }
-    current = current.getParent();
-  }
-  return undefined;
 }
 
 /**

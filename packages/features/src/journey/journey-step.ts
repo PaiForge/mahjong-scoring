@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import { getChapterBySlug, getChapterI18nPath } from "../curriculum/registry";
 import type { JourneyStep } from "./journey";
 import { practiceMenuBySlug } from "../practice-menu-types";
@@ -10,10 +11,7 @@ import { practiceDisplayTitle } from "../practice/practice-variant-label";
  * `useTranslations()` でもよい（レッスンの完了画面は、記録のあとに返ってきた
  * 一歩をクライアントで名指しする）
  */
-type RootTranslator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+type RootTranslator = Translate;
 
 /**
  * 黒帯への道の一歩の行き先

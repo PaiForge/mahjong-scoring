@@ -11,6 +11,7 @@ import {
   type MobileAppleTokenRequest,
 } from "@mahjong-scoring/features/account/apple";
 
+import { isAuthNetworkError } from "./auth-error-status";
 import { callMobileApi } from "./api-client";
 import { supabase } from "./supabase-client";
 
@@ -84,9 +85,7 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
     nonce: rawNonce,
   });
   if (error || !data.user)
-    return error?.status === undefined || error.status === 0
-      ? "networkError"
-      : "failed";
+    return isAuthNetworkError(error?.status) ? "networkError" : "failed";
 
   if (credential.authorizationCode)
     void handOverAppleAuthorizationCode(

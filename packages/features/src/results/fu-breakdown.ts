@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import type { FuDetail } from "@mahjong-scoring/core";
 
 /**
@@ -5,10 +6,7 @@ import type { FuDetail } from "@mahjong-scoring/core";
  *
  * `breakdownTotal` / `roundedUp` / `fuSuffix`（`value` の補間）を持つ名前空間（例: "totalFu"）を引く。
  */
-type FuBreakdownTranslator = (
-  key: string,
-  values?: Record<string, number>,
-) => string;
+type FuBreakdownTranslator = Translate;
 
 /** 符の内訳の表の 1 行（理由と、単位まで付けた符） */
 export interface FuBreakdownRow {

@@ -1,11 +1,9 @@
+import type { Translate } from "../i18n/translate";
 import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
 /** `challenge.yakuBreakdown` の翻訳関数（`han` の件数補間と、`cap` / `capWithNote` の文型を含む） */
-export type YakuBreakdownTranslator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+export type YakuBreakdownTranslator = Translate;
 
 /**
  * 翻数の内訳の合計が支払いに反映されない分の注記を組み立てる

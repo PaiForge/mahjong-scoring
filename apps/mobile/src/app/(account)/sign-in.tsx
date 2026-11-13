@@ -22,6 +22,10 @@ import { AppleSignInSection } from "../../auth/apple-sign-in-section";
 import { FormMessage } from "../../auth/form-message";
 import { supabase } from "../../auth/supabase-client";
 import { refreshAccount } from "../../auth/use-auth";
+import {
+  isAuthNetworkError,
+  isAuthRateLimited,
+} from "../../auth/auth-error-status";
 import { useLeaveAuthFlow } from "../../auth/use-leave-auth-flow";
 import { Button } from "../../components/button";
 import { Screen } from "../../components/screen";
@@ -36,9 +40,9 @@ function signInErrorKey(
   status: number | undefined,
 ): "emailNotConfirmed" | "rateLimited" | "networkError" | "emailSignInError" {
   if (code === "email_not_confirmed") return "emailNotConfirmed";
-  if (status === 429 || code === "over_request_rate_limit")
+  if (isAuthRateLimited(status) || code === "over_request_rate_limit")
     return "rateLimited";
-  if (status === undefined || status === 0) return "networkError";
+  if (isAuthNetworkError(status)) return "networkError";
   return "emailSignInError";
 }
 

@@ -1,12 +1,10 @@
+import type { Translate } from "../i18n/translate";
 import type { FuDetail, FuReasonSpec } from "@mahjong-scoring/core";
 
 /**
  * `challenge.fuBreakdown` 名前空間の翻訳関数（`useTranslations` / `getTranslations` の戻り値のうち、ここで使う形）
  */
-export type FuReasonTranslator = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+export type FuReasonTranslator = Translate;
 
 /**
  * 符の理由の文言を辞書から組む入力

@@ -4,7 +4,6 @@ import type { NextResponse } from "next/server";
 
 import {
   MOBILE_MYPAGE_ACTIVITY_DAYS,
-  type MobileMypageErrorCode,
   type MobileMypageResponse,
 } from "@mahjong-scoring/features/mypage/mobile-api";
 import { highestRank } from "@mahjong-scoring/features/ranks/registry";
@@ -19,21 +18,11 @@ import { getUserRankSlugs } from "../db/rank-queries";
 import { countUnreadNotifications } from "../notifications/queries";
 
 import { authorizeMobileRequest } from "./auth";
-import { mobileJson, mobileServerError } from "./response";
-
-/**
- * ユーザー名を決める前の要求への応答（409 `usernameRequired`）
- * ユーザー名未設定応答
- *
- * マイページ・マイレコードはユーザー名を決めた人のもの（web はこの段階で
- * 開かせず、ユーザー名の設定へ送る）。
- */
-export function usernameRequired(): NextResponse {
-  return mobileJson<{ error: MobileMypageErrorCode }>(
-    { error: "usernameRequired" },
-    { status: 409 },
-  );
-}
+import {
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /**
  * マイページのトップの材料を返す（アプリ向け）
@@ -53,7 +42,7 @@ export async function handleReadMypage(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobileMypage");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const userId = auth.user.id;
   try {
     const now = new Date();
@@ -64,7 +53,7 @@ export async function handleReadMypage(
         getUserRankSlugs(userId),
         countUnreadNotifications(userId),
       ]);
-    if (!profile?.username) return usernameRequired();
+    if (!profile?.username) return mobileUsernameRequired();
     const days = getRecentDays(
       getJstTodayDate(now),
       MOBILE_MYPAGE_ACTIVITY_DAYS,

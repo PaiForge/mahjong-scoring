@@ -7,7 +7,7 @@ import {
 import { beltTintClasses } from "@/lib/ranks/belt-colors";
 import type { RankJourney } from "@mahjong-scoring/features/journey/journey";
 import {
-  countProgress,
+  buildStageCells,
   currentStage,
   type JourneyStage,
 } from "@mahjong-scoring/features/journey/journey-progress";
@@ -43,13 +43,6 @@ interface RankStageProgressProps {
    * リンク。日本語だけで出している画面から使うとき）
    */
   readonly linkLocale?: DojoLinkLocale;
-}
-
-/** 1 段分の表示 */
-interface StageCell {
-  readonly stage: JourneyStage;
-  readonly value: string;
-  readonly done: boolean;
 }
 
 /**
@@ -110,37 +103,9 @@ export function RankStageProgress({
   dataTourId,
   linkLocale,
 }: RankStageProgressProps) {
-  const learn = countProgress(journey.chapters);
-  const practice = countProgress(journey.practices);
   const current = isCurrentRank ? currentStage(journey) : undefined;
 
-  const cells: readonly StageCell[] = [
-    ...(learn.total > 0
-      ? [
-          {
-            stage: "learn" as const,
-            value: tRanks("stageCount", { ...learn }),
-            done: learn.done === learn.total,
-          },
-        ]
-      : []),
-    ...(practice.total > 0
-      ? [
-          {
-            stage: "practice" as const,
-            value: tRanks("stageCount", { ...practice }),
-            done: practice.done === practice.total,
-          },
-        ]
-      : []),
-    {
-      stage: "exam",
-      value: tRanks(
-        journey.exam.done ? "stageExamPassed" : "stageExamNotPassed",
-      ),
-      done: journey.exam.done,
-    },
-  ];
+  const cells = buildStageCells(journey, tRanks);
 
   return (
     <ol

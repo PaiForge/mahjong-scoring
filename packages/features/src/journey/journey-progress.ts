@@ -1,3 +1,5 @@
+import type { Translate } from "../i18n/translate";
+
 import { firstUndoneStep, type JourneyItem, type RankJourney } from "./journey";
 
 /**
@@ -55,4 +57,52 @@ export function currentStage(journey: RankJourney): JourneyStage | undefined {
   if (journey.exam.done) return undefined;
   const step = firstUndoneStep(journey);
   return step.kind === "lesson" ? "learn" : step.kind;
+}
+
+/**
+ * 級の行程の 1 段分の表示（段・値の文言・済んだか）
+ * 段のセル
+ */
+export interface JourneyStageCell {
+  readonly stage: JourneyStage;
+  /** 段の値。学ぶ・練習するは「2 / 5」、試験は「合格」/「未合格」 */
+  readonly value: string;
+  readonly done: boolean;
+}
+
+/**
+ * 級の行程を、並べる段のセルにする
+ * 段のセル組み立て
+ *
+ * 学ぶ・練習するは数えるものがある段だけ並べる（前提のレッスンを持たない級は
+ * 試験だけになる。初段）。試験は常に並べ、合格までは「未合格」— 受けていない
+ * 人と落ちた人を分けない（ゲストは段級位を持たないので常にこの値）。
+ *
+ * @param t - `ranks` 名前空間の翻訳関数（`stageCount`・`stageExamPassed`・
+ *   `stageExamNotPassed` を引く）
+ */
+export function buildStageCells(
+  journey: RankJourney,
+  t: Translate,
+): readonly JourneyStageCell[] {
+  const learn = countProgress(journey.chapters);
+  const practice = countProgress(journey.practices);
+  const counted = [
+    { stage: "learn", progress: learn },
+    { stage: "practice", progress: practice },
+  ] as const;
+  return [
+    ...counted
+      .filter(({ progress }) => progress.total > 0)
+      .map(({ stage, progress }) => ({
+        stage,
+        value: t("stageCount", { ...progress }),
+        done: progress.done === progress.total,
+      })),
+    {
+      stage: "exam",
+      value: t(journey.exam.done ? "stageExamPassed" : "stageExamNotPassed"),
+      done: journey.exam.done,
+    },
+  ];
 }

@@ -15,8 +15,10 @@ const translateJa = createTranslator({ locale: "ja", messages });
  * 文字列のキーで引く形に包んだもの（use-intl の翻訳関数はキーを辞書の型で絞るため、
  * 組み立てたキーを渡す features の関数の引数の型に直接は入らない）
  */
-const tJa = (key: string, values?: Record<string, string>): string =>
-  String(Reflect.apply(translateJa, undefined, [key, values]));
+const tJa = (
+  key: string,
+  values?: Readonly<Record<string, string | number>>,
+): string => String(Reflect.apply(translateJa, undefined, [key, values]));
 
 describe("boardLabel", () => {
   it("設定を持つ練習は短い名にバリアント名を全角の括弧で添える（日本語の出力は従来どおり）", () => {
@@ -32,8 +34,14 @@ describe("boardLabel", () => {
   });
 
   it("括弧の文型は practice.titleWithVariant に title と variant を渡して引く", () => {
-    const calls: [string, Record<string, string> | undefined][] = [];
-    const tSpy = (key: string, values?: Record<string, string>): string => {
+    const calls: [
+      string,
+      Readonly<Record<string, string | number>> | undefined,
+    ][] = [];
+    const tSpy = (
+      key: string,
+      values?: Readonly<Record<string, string | number>>,
+    ): string => {
       calls.push([key, values]);
       return `<${key}>`;
     };

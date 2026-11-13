@@ -30,7 +30,11 @@ import { getActiveBenefits } from "../entitlements/has-benefit";
 
 import { authorizeMobileRequest } from "./auth";
 import { limitPublicMobileRequest } from "./public-rate-limit";
-import { mobileJson, mobileServerError } from "./response";
+import {
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /** プラン・取引の記録の API 固有の失敗の理由ごとの HTTP ステータス */
 const PLAN_ERROR_STATUS = {
@@ -149,7 +153,7 @@ export async function buildMobilePlanResponse(
 export async function handleReadPlan(request: Request): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobilePlan");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return mobilePlanError("usernameRequired");
+  if (!auth.profile) return mobileUsernameRequired();
   try {
     return mobileJson<MobilePlanResponse>(
       await buildMobilePlanResponse(auth.user.id, new Date()),

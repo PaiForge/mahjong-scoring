@@ -11,7 +11,7 @@ import { z } from "zod";
 import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   fuAnswerResultSchema,
-  toAnswerOutcome,
+  toNumericAnswerOutcome,
   type FuAnswerResult,
 } from "@mahjong-scoring/features/results/result-schemas";
 
@@ -54,9 +54,7 @@ export function toQuestionResult(
     agariHai: haiIdToMpsz(question.agariHai),
     correctFu: question.answer,
     userFu,
-    outcome: toAnswerOutcome(
-      userFu === undefined ? undefined : userFu === question.answer,
-    ),
+    outcome: toNumericAnswerOutcome(userFu, question.answer),
   };
 }
 
