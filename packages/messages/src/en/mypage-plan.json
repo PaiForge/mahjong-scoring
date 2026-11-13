@@ -20,11 +20,13 @@
     "empty": "No purchases yet",
     "date": "Purchase date",
     "item": "Item",
+    "amountUnavailable": "—",
     "amount": "Amount",
     "provider": {
       "label": "Purchased via",
       "stripe": "Web",
-      "apple": "App Store"
+      "apple": "App Store",
+      "google": "Google Play"
     },
     "state": "Status",
     "kind": {

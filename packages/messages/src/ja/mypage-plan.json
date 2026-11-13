@@ -20,11 +20,13 @@
     "empty": "購入履歴はありません",
     "date": "購入日",
     "item": "内容",
+    "amountUnavailable": "—",
     "amount": "金額",
     "provider": {
       "label": "購入元",
       "stripe": "Web",
-      "apple": "App Store"
+      "apple": "App Store",
+      "google": "Google Play"
     },
     "state": "状態",
     "kind": {
