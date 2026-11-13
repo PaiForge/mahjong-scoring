@@ -9,6 +9,7 @@ export const USER_TABLE_COLUMNS = [
   "username",
   "displayName",
   "status",
+  "plan",
   "createdAt",
   "detail",
 ] as const;
