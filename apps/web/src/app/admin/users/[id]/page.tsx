@@ -5,12 +5,11 @@ import { notFound } from "next/navigation";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
-import { formatAdminDate } from "@/app/admin/_lib/format-date";
 import { getOptionalUser } from "@/lib/auth";
-import { planStatusOf, type PlanStatus } from "@/lib/billing/plan-status";
+import { planStatusOf } from "@/lib/billing/plan-status";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import { PlanChip } from "../_components/plan-chip";
 import { StatusBadge } from "../_components/status-badge";
 import { resolveUserStatus } from "../_lib/user-status";
 
@@ -41,9 +40,8 @@ export default async function AdminUserDetailPage({
   await requireAdminPage();
 
   const { id } = await params;
-  const [t, tPlan, detail, currentUser] = await Promise.all([
+  const [t, detail, currentUser] = await Promise.all([
     getTranslations("admin.userDetail"),
-    getTranslations("mypagePlan"),
     fetchUserDetail(createAdminClient(), id),
     getOptionalUser(),
   ]);
@@ -54,21 +52,6 @@ export default async function AdminUserDetailPage({
   const status = resolveUserStatus(profile, authUser, now);
   const plan = planStatusOf(detail.purchases, detail.grants, now);
   const isCurrentUser = currentUser?.id === authUser.id;
-
-  const planLabel = (p: PlanStatus): string => {
-    switch (p.kind) {
-      case "lifetime":
-        return tPlan("status.lifetime");
-      case "pass":
-        return tPlan("status.pass", { until: formatAdminDate(p.until) });
-      case "granted":
-        return p.until
-          ? tPlan("status.grantedUntil", { until: formatAdminDate(p.until) })
-          : tPlan("status.granted");
-      case "free":
-        return tPlan("status.free");
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -81,13 +64,7 @@ export default async function AdminUserDetailPage({
           {profile?.username ?? authUser.email ?? authUser.id}
         </AdminPageTitle>
         <StatusBadge status={status} />
-        <span
-          className={adminChipClasses(
-            plan.kind === "free" ? "neutral" : "success",
-          )}
-        >
-          {planLabel(plan)}
-        </span>
+        <PlanChip plan={plan} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

@@ -13,7 +13,11 @@
     "granted": "Pro (granted)",
     "grantedUntil": "Pro (granted, until {until})",
     "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased.",
-    "buy": "Buy Pro"
+    "buy": "Buy Pro",
+    "badge": {
+      "pro": "Pro",
+      "vip": "VIP"
+    }
   },
   "history": {
     "title": "Purchase history",

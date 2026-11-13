@@ -5,8 +5,11 @@
  * - `warning` — 仮登録・表示中・リンク混在など、目に留めてほしい状態
  * - `danger` — BAN・取り消しなど、止められた状態
  * - `neutral` — 期限切れ・下書き・停止中、および意味の色を持たないラベル
+ * - `special` — 運営が特別に与えた状態（付与の Pro = VIP）。購入の Pro（`success`）と
+ *   並んだときに見分けるため、緑・琥珀・赤・灰のどれとも違う紫にする
  */
-export type AdminChipTone = "success" | "warning" | "danger" | "neutral";
+export type AdminChipTone =
+  "success" | "warning" | "danger" | "neutral" | "special";
 
 const TONE_CLASSES: Readonly<Record<AdminChipTone, string>> = {
   success: "bg-primary-50 text-primary-800",
@@ -15,6 +18,7 @@ const TONE_CLASSES: Readonly<Record<AdminChipTone, string>> = {
   // surface-100 は管理画面の地（.admin-shell）と同じ色で、ページ見出しの横に
   // 置くと消えるため一段濃くする
   neutral: "bg-surface-200/70 text-surface-700",
+  special: "bg-violet-100 text-violet-800",
 };
 
 /**
