@@ -34,8 +34,13 @@ describe("planBadgeOf", () => {
   });
 
   it("web のプラン状況（期限が Date）もそのまま渡せる", () => {
-    expect(
-      planBadgeOf({ kind: "pass", until: new Date("2026-12-01T00:00:00Z") }),
-    ).toBe("pro");
+    // web の PlanStatus は apps/web にあり features からは import できないので、その pass の形を
+    // ここで写す。リテラルを引数に直接書くと余剰プロパティ検査に掛かり、「until を持つ値を
+    // そのまま渡せる」ことを示せない — 実際の呼び出し元と同じく、型の付いた値として渡す
+    const status: { readonly kind: "pass"; readonly until: Date } = {
+      kind: "pass",
+      until: new Date("2026-12-01T00:00:00Z"),
+    };
+    expect(planBadgeOf(status)).toBe("pro");
   });
 });
