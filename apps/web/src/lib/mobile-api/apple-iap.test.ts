@@ -81,7 +81,11 @@ describe("handleRecordAppleTransaction", () => {
       TRANSACTION,
       expect.any(Date),
     );
-    expect(mockBuildPlan).toHaveBeenCalledWith("user-1", expect.any(Date));
+    expect(mockBuildPlan).toHaveBeenCalledWith(
+      "user-1",
+      expect.any(Date),
+      "ios",
+    );
   });
 
   it("返金済みの取引を履歴として記録したときも recorded", async () => {

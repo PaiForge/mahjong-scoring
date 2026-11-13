@@ -46,6 +46,8 @@ beforeEach(() => {
     "APPLE_IAP_PRODUCT_ID_PRO_LIFETIME",
     "help.mahjong.score.pro.lifetime",
   );
+  vi.stubEnv("GOOGLE_IAP_PRODUCT_ID_PRO_PASS", "");
+  vi.stubEnv("GOOGLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
   authorizeAs({ userId: "user-1", username: "bob" });
   mockBenefits.mockResolvedValue(new Set());
   mockConsume.mockResolvedValue({ allowed: true, remaining: 4 });
@@ -75,7 +77,7 @@ describe("handleBeginPracticeQuota", () => {
     );
   });
 
-  it("App Store で販売していなければ消費せず無制限", async () => {
+  it("App Store でも Google Play でも販売していなければ消費せず無制限", async () => {
     vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
 
     const body = await (await handleBeginPracticeQuota(beginRequest())).json();
@@ -87,6 +89,32 @@ describe("handleBeginPracticeQuota", () => {
       benefits: [],
     });
     expect(mockConsume).not.toHaveBeenCalled();
+  });
+
+  it("Google Play だけで販売中でも 1 つ消費する", async () => {
+    vi.stubEnv("APPLE_IAP_PRODUCT_ID_PRO_LIFETIME", "");
+    vi.stubEnv(
+      "GOOGLE_IAP_PRODUCT_ID_PRO_LIFETIME",
+      "help.mahjong.score.pro.lifetime",
+    );
+
+    const body = await (await handleBeginPracticeQuota(beginRequest())).json();
+
+    expect(body.remaining).toBe(4);
+    expect(mockConsume).toHaveBeenCalled();
+  });
+
+  it("要求の OS を読まない（android と名乗っても App Store で販売中なら消費する）", async () => {
+    const request = postJsonRequest(
+      "https://example.test/api/mobile/v1/practice-quota/begin",
+      { menu: "agari-score" },
+      { "X-App-Platform": "android" },
+    );
+
+    const body = await (await handleBeginPracticeQuota(request)).json();
+
+    expect(body.remaining).toBe(4);
+    expect(mockConsume).toHaveBeenCalled();
   });
 
   it("Pro は消費せず無制限で、特典を返す", async () => {

@@ -1,5 +1,5 @@
 import { isMobilePlanErrorCode } from "@mahjong-scoring/features/billing/mobile-api";
-import type { MobileAppleTransactionResponse } from "@mahjong-scoring/features/billing/mobile-api";
+import type { MobilePurchaseRecordResponse } from "@mahjong-scoring/features/billing/mobile-api";
 
 import type { PlanApiFailure, PlanApiResult } from "./plan-api";
 
@@ -10,7 +10,7 @@ import type { PlanApiFailure, PlanApiResult } from "./plan-api";
  * - 記録した・記録済み（2xx）→ 完了する
  * - プランの API 固有の理由（4xx。別のアカウントの取引・署名が通らない・
  *   知らない商品・Sandbox を受け付けない）→ 完了する。送り直しても通らず、
- *   完了しないと StoreKit が起動のたびに同じ取引を配り直し、同じ要求を
+ *   完了しないとストアが起動のたびに同じ取引を配り直し、同じ要求を
  *   永久に送り続ける
  * - サーバーが要求を受け付けない 4xx（`rejected`）→ 完了する。送り直しても同じ
  *   400 が返り、完了しないと起動のたびに送り続ける
@@ -19,21 +19,26 @@ import type { PlanApiFailure, PlanApiResult } from "./plan-api";
  *   ない（Ask to Buy の承認がログアウト中に届き、ユーザー名の無い別のアカウントで
  *   ログインした等）。サーバーは検証の前に 409 を返すので、起動ごとに 1 回
  *   送り直す費用は小さい。起動中には送り直さない（`isRetryable` に入れない）
- * - サーバーが検証できない（503 `appleUnavailable`）・通信の失敗・一時的な障害・
- *   ログインの失効や切り替え・形の分からない応答 → 完了しない。次の起動で
- *   StoreKit が配り直し、そのとき送り直す
+ * - 支払いが保留中（409 `purchasePending`。Play の pending）→ 完了しない。完了すると
+ *   保留中の購入を acknowledge / consume してしまう。起動中には送り直さず、
+ *   支払いが済んでストアが配り直したときに送る
+ * - サーバーが検証できない（503 `appleUnavailable` / `storeUnavailable`）・通信の
+ *   失敗・一時的な障害・ログインの失効や切り替え・形の分からない応答 → 完了しない。
+ *   次の起動でストアが配り直し、そのとき送り直す
  *
- * 分からない失敗を「完了しない」に倒すのは、完了した取引は StoreKit が二度と
+ * 分からない失敗を「完了しない」に倒すのは、完了した取引はストアが二度と
  * 配らず、記録し損ねた購入を取り戻せないため（送り直しの方が安い）。
  */
 export function shouldFinishAfter(
-  result: PlanApiResult<MobileAppleTransactionResponse>,
+  result: PlanApiResult<MobilePurchaseRecordResponse>,
 ): boolean {
   if ("value" in result) return true;
   if (result.error === "rejected") return true;
   return (
     isMobilePlanErrorCode(result.error) &&
     result.error !== "appleUnavailable" &&
+    result.error !== "storeUnavailable" &&
+    result.error !== "purchasePending" &&
     result.error !== "usernameRequired"
   );
 }
@@ -50,10 +55,13 @@ const RETRYABLE: Readonly<Record<PlanApiFailure, boolean>> = {
   network: true,
   serverError: true,
   appleUnavailable: true,
+  storeUnavailable: true,
   authUnavailable: true,
   rateLimited: true,
   // ユーザー名を決めれば通るが、起動中には決まらない（{@link shouldFinishAfter}）
   usernameRequired: false,
+  // 支払いが済むまで同じ答えが返る。済めばストアが配り直す（{@link shouldFinishAfter}）
+  purchasePending: false,
   // 送り直しても同じ答えが返る
   ownedByAnotherAccount: false,
   invalidTransaction: false,
@@ -65,7 +73,7 @@ const RETRYABLE: Readonly<Record<PlanApiFailure, boolean>> = {
   deleted: false,
   banned: false,
   userChanged: false,
-  // 形の分からない応答。次の起動で StoreKit が配り直したときに送る
+  // 形の分からない応答。次の起動でストアが配り直したときに送る
   unknown: false,
 };
 
@@ -101,7 +109,7 @@ export type RestoreSummary =
  * 次に新しく記録できたこと、その次に送れなかったことを知らせる。
  */
 export function summarizeRestore(
-  results: readonly PlanApiResult<MobileAppleTransactionResponse>[],
+  results: readonly PlanApiResult<MobilePurchaseRecordResponse>[],
 ): RestoreSummary {
   if (
     results.some(

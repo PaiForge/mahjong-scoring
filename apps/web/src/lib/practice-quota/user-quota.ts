@@ -26,10 +26,15 @@ import { readUserQuotaUsage } from "./read-user-quota";
  * 残りから減る。
  *
  * 経路ごとに分かれるのは「販売中か」（`proOnSale`）だけ。web は Stripe の
- * Price ID（`isPlanOnSale("pro")`）、アプリは App Store の Product ID
- * （`isAppleIapOnSale()`）を渡す — 制限を掛ける根拠は「その経路で Pro を
- * 買えるか」だから（払う手段が無いペイウォールを出さない）。片方だけ設定した
- * 期間は、同じアカウントの扱いが経路で割れるが、それは受け入れる。
+ * Price ID（`isPlanOnSale("pro")`）、アプリは「App Store か Google Play の
+ * どちらかで販売中」（`isAppleIapOnSale() || isGoogleIapOnSale()`）を渡す —
+ * 制限を掛ける根拠は「その経路で Pro を買えるか」だから（払う手段が無い
+ * ペイウォールを出さない）。アプリは要求の OS を読まずに 2 つのストアをまとめて
+ * 判定する。申告した OS で答えが変わると「android と名乗れば数えない」経路が
+ * できるため。自分の OS のストアで売っていない端末に払えないペイウォールを
+ * 出さないのは、端末が自分の経路の販売中の商品が空ならアプリ向けの回数制限の
+ * API を呼ばないことで防ぐ。web とアプリの片方だけ設定した期間は、同じ
+ * アカウントの扱いが経路で割れるが、それは受け入れる。
  */
 
 /** 答えの宛先を読む。特典の判定は失敗すると特典なしに倒れる（fail-closed） */
