@@ -15,9 +15,13 @@ import { getUserRanks } from "../leaderboard/user-ranks";
 import { saveLeaderboardVisibility } from "../users/leaderboard-visibility";
 
 import { authorizeMobileRequest } from "./auth";
-import { usernameRequired } from "./mypage";
 import { parseMobileBody } from "./request";
-import { mobileDeleted, mobileJson, mobileServerError } from "./response";
+import {
+  mobileDeleted,
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /** 設定の本文の上限。`{"hidden":false}` が収まれば足りる */
 const VISIBILITY_BODY_MAX_BYTES = 256;
@@ -74,7 +78,7 @@ export async function handleReadLeaderboardVisibility(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readLeaderboard");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   try {
     const hidden = await isHiddenFromLeaderboard(auth.user.id);
     return mobileJson<MobileLeaderboardVisibility>({ hidden });
@@ -103,7 +107,7 @@ export async function handleUpdateLeaderboardVisibility(
     "updateLeaderboardVisibility",
   );
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const body = await parseMobileBody(
     request,
     visibilityBodySchema,

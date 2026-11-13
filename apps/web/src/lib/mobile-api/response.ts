@@ -54,6 +54,22 @@ export function mobileServerError(
 }
 
 /**
+ * ユーザー名を決める前の要求への応答（409 `usernameRequired`）
+ * ユーザー名未設定応答
+ *
+ * マイページ・マイレコード・通知・ランキングの設定・プラン・回数制限は
+ * ユーザー名を決めた人のもの（web はこの段階で開かせず、ユーザー名の設定へ送る）。
+ * 理由の文字列はどの API の契約（`MOBILE_MYPAGE_ERROR_CODES`・
+ * `MOBILE_PLAN_ERROR_CODES`）でも同じで、アプリは同じ扱いをする。
+ */
+export function mobileUsernameRequired(): NextResponse {
+  return mobileJson<{ error: "usernameRequired" }>(
+    { error: "usernameRequired" },
+    { status: 409 },
+  );
+}
+
+/**
  * 認証を通った後に退会が受け付けられたときの 403 `deleted`
  * アプリAPI退会済み応答
  *

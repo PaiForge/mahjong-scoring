@@ -18,12 +18,12 @@ import type { BeginPracticeQuestionResult } from "@mahjong-scoring/features/quot
 import { beginUserQuota, peekUserQuota } from "../practice-quota/user-quota";
 
 import { authorizeMobileRequest } from "./auth";
-import { mobilePlanError } from "./plan";
 import { parseMobileBody } from "./request";
 import {
   mobileInvalidRequest,
   mobileJson,
   mobileServerError,
+  mobileUsernameRequired,
 } from "./response";
 
 const BODY_MAX_BYTES = 1024;
@@ -69,7 +69,7 @@ export async function handleBeginPracticeQuota(
     "mobileBeginPracticeQuestion",
   );
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return mobilePlanError("usernameRequired");
+  if (!auth.profile) return mobileUsernameRequired();
   const body = await parseMobileBody(request, beginSchema, BODY_MAX_BYTES);
   if (!body.ok) return body.response;
   const { menu } = body.data;
@@ -102,7 +102,7 @@ export async function handlePeekPracticeQuota(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "mobilePeekPracticeQuota");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return mobilePlanError("usernameRequired");
+  if (!auth.profile) return mobileUsernameRequired();
   const menu = quotaMenuOf(new URL(request.url).searchParams.get("menu"));
   if (menu === undefined) return mobileInvalidRequest();
   try {

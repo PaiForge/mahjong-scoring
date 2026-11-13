@@ -19,9 +19,12 @@ import {
 import { parsePageParam } from "../pagination";
 
 import { authorizeMobileRequest } from "./auth";
-import { usernameRequired } from "./mypage";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import {
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /** 既読化の本文の上限。UUID 1 つの `{"id":"…"}` が収まれば足りる */
 const READ_BODY_MAX_BYTES = 256;
@@ -66,7 +69,7 @@ export async function handleReadNotifications(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobileNotifications");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const page = parsePageParam(
     new URL(request.url).searchParams.get("page") ?? undefined,
   );
@@ -106,7 +109,7 @@ export async function handleMarkNotificationsRead(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "markNotificationsRead");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const body = await parseMobileBody(
     request,
     readBodySchema,

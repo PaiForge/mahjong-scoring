@@ -18,7 +18,12 @@ import type { AppleSignedDataVerifier } from "../billing/apple/verifier";
 import { authorizeMobileRequest } from "./auth";
 import { buildMobilePlanResponse, mobilePlanError } from "./plan";
 import { parseMobileBody } from "./request";
-import { mobileDeleted, mobileJson, mobileServerError } from "./response";
+import {
+  mobileDeleted,
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /**
  * 本文の上限。取引そのものの上限（`JWS_MAX_LENGTH`）の 2 倍を取り、JSON の
@@ -72,7 +77,7 @@ export async function handleRecordAppleTransaction(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "recordAppleTransaction");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return mobilePlanError("usernameRequired");
+  if (!auth.profile) return mobileUsernameRequired();
   const body = await parseMobileBody(request, requestSchema, BODY_MAX_BYTES);
   if (!body.ok) return body.response;
 

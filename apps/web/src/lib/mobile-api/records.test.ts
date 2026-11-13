@@ -16,13 +16,6 @@ vi.mock(
     getChallengeResultsPaginated: mockResults,
   }),
 );
-vi.mock("./mypage", async () => {
-  const { mobileJson } = await import("./response");
-  return {
-    usernameRequired: () =>
-      mobileJson({ error: "usernameRequired" }, { status: 409 }),
-  };
-});
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { handleReadRecordResults, handleReadRecords } from "./records";

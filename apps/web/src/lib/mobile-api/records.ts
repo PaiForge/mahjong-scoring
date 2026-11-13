@@ -24,8 +24,11 @@ import {
 import { parsePageParam } from "../pagination";
 
 import { authorizeMobileRequest } from "./auth";
-import { usernameRequired } from "./mypage";
-import { mobileJson, mobileServerError } from "./response";
+import {
+  mobileJson,
+  mobileServerError,
+  mobileUsernameRequired,
+} from "./response";
 
 /** URL クエリを `resolveRequestedBoard` が読む形にする */
 function queryOf(request: Request): Record<string, string> {
@@ -47,7 +50,7 @@ export async function handleReadRecords(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobileRecords");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const userId = auth.user.id;
   const query = queryOf(request);
   const period = isDatePeriod(query.period) ? query.period : "thisWeek";
@@ -101,7 +104,7 @@ export async function handleReadRecordResults(
 ): Promise<NextResponse> {
   const auth = await authorizeMobileRequest(request, "readMobileRecords");
   if (!auth.ok) return auth.response;
-  if (!auth.profile) return usernameRequired();
+  if (!auth.profile) return mobileUsernameRequired();
   const query = queryOf(request);
   const requestedPage = parsePageParam(query.page);
   try {
