@@ -6,6 +6,7 @@ import {
   planCloseSession,
   type CloseSessionRoute,
 } from "../lib/close-session-plan";
+import { findRootStack } from "../lib/root-stack";
 
 /** ここで使う navigation の形（expo-router の `useNavigation` の戻り値の一部） */
 interface NavigationLike {
@@ -28,25 +29,6 @@ interface NavigationLike {
           readonly target: string;
         },
   ): void;
-}
-
-/**
- * ルートのスタック（`app/_layout.tsx` の Stack）の navigation
- *
- * `(tabs)` を画面に持つ navigator まで `getParent()` を辿る（いちばん上の
- * navigator は expo-router が外に置く `__root` なので使わない）。
- */
-function findRootStack(
-  navigation: NavigationLike | undefined,
-): NavigationLike | undefined {
-  let current = navigation;
-  while (current !== undefined) {
-    if (current.getState()?.routeNames.includes("(tabs)") === true) {
-      return current;
-    }
-    current = current.getParent();
-  }
-  return undefined;
 }
 
 /**
