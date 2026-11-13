@@ -11,7 +11,7 @@ import { z } from "zod";
 import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   hanAnswerResultSchema,
-  toAnswerOutcome,
+  toNumericAnswerOutcome,
   type HanAnswerResult,
 } from "@mahjong-scoring/features/results/result-schemas";
 import type { ScoreQuestionSnapshot } from "@mahjong-scoring/features/results/score-question-result";
@@ -66,9 +66,7 @@ export function toHanCountQuestionResult(
   return {
     correctHan,
     userHan,
-    outcome: toAnswerOutcome(
-      userHan === undefined ? undefined : userHan === correctHan,
-    ),
+    outcome: toNumericAnswerOutcome(userHan, correctHan),
     question: {
       ...toScoreQuestionSnapshot(question),
       isTsumo: question.isTsumo,

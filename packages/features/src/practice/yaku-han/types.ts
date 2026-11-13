@@ -10,7 +10,7 @@ import { z } from "zod";
 import { createSessionStorageParser } from "@mahjong-scoring/features/results/create-session-storage-parser";
 import {
   hanAnswerResultSchema,
-  toAnswerOutcome,
+  toNumericAnswerOutcome,
   type HanAnswerResult,
 } from "@mahjong-scoring/features/results/result-schemas";
 
@@ -43,9 +43,7 @@ export function toQuestionResult(
     isMenzen: question.isMenzen,
     correctHan: question.correctHan,
     userHan,
-    outcome: toAnswerOutcome(
-      userHan === undefined ? undefined : userHan === question.correctHan,
-    ),
+    outcome: toNumericAnswerOutcome(userHan, question.correctHan),
   };
 }
 

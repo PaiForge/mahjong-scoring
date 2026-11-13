@@ -15,7 +15,7 @@ import {
   fuAnswerResultSchema,
   fuDetailSchema,
   ruleConfigSchema,
-  toAnswerOutcome,
+  toNumericAnswerOutcome,
   type FuAnswerResult,
 } from "./result-schemas";
 
@@ -62,9 +62,7 @@ export function toFuQuestionResult(
     isTsumo: context.isTsumo,
     correctFu: question.answer,
     userFu,
-    outcome: toAnswerOutcome(
-      userFu === undefined ? undefined : userFu === question.answer,
-    ),
+    outcome: toNumericAnswerOutcome(userFu, question.answer),
     fuDetails: question.fuDetails,
     ruleConfig: context.ruleConfig,
   };

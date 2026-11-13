@@ -190,6 +190,24 @@ export function toAnswerOutcome(isCorrect: boolean | undefined): AnswerOutcome {
   return isCorrect ? AnswerOutcome.Correct : AnswerOutcome.Incorrect;
 }
 
+/**
+ * 数値の回答（符・翻数）を正解と比べて顛末を決める
+ * 数値回答顛末判定
+ *
+ * 回答が無い（時間切れ）ときは比べずに `TimeUp` になる。
+ *
+ * @param userAnswer - ユーザーが選んだ値。時間切れで答えられなかった問題は undefined
+ * @param correctAnswer - 正解の値
+ */
+export function toNumericAnswerOutcome(
+  userAnswer: number | undefined,
+  correctAnswer: number,
+): AnswerOutcome {
+  return toAnswerOutcome(
+    userAnswer === undefined ? undefined : userAnswer === correctAnswer,
+  );
+}
+
 /** 符を数値で回答する問題に共通する正解・回答・顛末 */
 export interface FuAnswerResult {
   readonly correctFu: number;
