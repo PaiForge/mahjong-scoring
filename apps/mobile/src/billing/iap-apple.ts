@@ -9,43 +9,22 @@ import {
   requestPurchase,
   type Purchase,
 } from "expo-iap";
+import { MOBILE_APPLE_TRANSACTIONS_API_PATH } from "@mahjong-scoring/features/billing/mobile-api";
 
-import { IAP_AVAILABLE } from "./iap-availability";
-
-/**
- * App Store の商品 1 つ（価格の表示に使う分だけ）
- * ストア商品
- *
- * `displayPrice` は StoreKit が端末の地域の通貨で整えた価格。web の価格は出さない。
- */
-export interface IapProduct {
-  readonly productId: string;
-  readonly displayPrice: string;
-}
+import type {
+  IapProduct,
+  IapPurchase,
+  IapPurchaseList,
+  IapStore,
+} from "./iap-store";
 
 /**
- * StoreKit から届いた取引 1 つ（サーバーへ送る分だけ）
- * 取引
+ * App Store（StoreKit）のアダプタ
  *
- * `jws` は署名付き取引（`jwsRepresentation`）。サーバーはこれを検証して取引を読む。
- * 完了（finish）に要る元の購入オブジェクトはこのモジュールの中だけで持つ。
+ * {@link IapPurchase} の `key` は取引 ID、`token` は署名付き取引
+ * （`jwsRepresentation`）。サーバーはこれを検証して取引を読む。ストアを
+ * 使えるか（`IAP_AVAILABLE`）の検査はここでせず、入口（`iap.ts`）が行う。
  */
-export interface IapPurchase {
-  readonly transactionId: string;
-  readonly productId: string;
-  readonly jws: string;
-}
-
-/**
- * 購入の失敗の理由（expo-iap のエラーコード）
- *
- * 画面が出し分けるのは取り消し（`user-cancelled`）と承認待ち
- * （`deferred-payment`。Ask to Buy）だけで、他はまとめて「購入できなかった」にする。
- */
-export const IapErrorCode = {
-  UserCancelled: ErrorCode.UserCancelled,
-  DeferredPayment: ErrorCode.DeferredPayment,
-} as const;
 
 /**
  * 取引がどこから届いたか
@@ -103,7 +82,7 @@ function toIapPurchase(
     purchase,
     origin: known?.origin === "event" ? "event" : origin,
   });
-  return { transactionId, productId, jws };
+  return { key: transactionId, productId, token: jws };
 }
 
 /** 例外から expo-iap のエラーコードとメッセージを読む */
@@ -148,8 +127,7 @@ let connection: Promise<boolean> | undefined;
  * 何度呼んでも接続は 1 度だけ。失敗したら次の呼び出しでつなぎ直す。
  * 切断（`endConnection`）はしない — 購入の同期が起動中ずっと取引を待つため。
  */
-export function connectIap(): Promise<boolean> {
-  if (!IAP_AVAILABLE) return Promise.resolve(false);
+function connect(): Promise<boolean> {
   connection ??= initConnection()
     .then((connected) => {
       if (!connected) connection = undefined;
@@ -167,14 +145,15 @@ export function connectIap(): Promise<boolean> {
  * 商品の価格を読む。読めなかった商品は含まない（失敗は空配列）
  * 商品取得
  *
+ * `displayPrice` は StoreKit が端末の地域の通貨で整えた価格。
  * パス（Consumable）も買い切り（Non-Consumable）も自動更新の
  * 購読ではないので、`all` で読んで ID で引く。
  */
-export async function fetchIapProducts(
+async function fetchAppleProducts(
   productIds: readonly string[],
 ): Promise<readonly IapProduct[]> {
-  if (!IAP_AVAILABLE || productIds.length === 0) return [];
-  if (!(await connectIap())) return [];
+  if (productIds.length === 0) return [];
+  if (!(await connect())) return [];
   try {
     const products = await fetchProducts({
       skus: [...productIds],
@@ -213,12 +192,11 @@ function removeErrorListener(listener: ErrorListener): void {
  * 購入の失敗を受け取る。解除する関数を返す
  * 購入失敗購読
  *
- * StoreKit のイベントでも、購入の要求の失敗（{@link requestIapPurchase} の
+ * StoreKit のイベントでも、購入の要求の失敗（{@link requestApplePurchase} の
  * 拒否）でも、同じ失敗は 1 度だけ届く。取り消し（`user-cancelled`）も届くので、
- * 受け取る側で出し分ける（{@link IapErrorCode}）。
+ * 受け取る側で出し分ける（`IapErrorCode`）。
  */
-export function onIapPurchaseError(listener: ErrorListener): () => void {
-  if (!IAP_AVAILABLE) return () => {};
+function onPurchaseError(listener: ErrorListener): () => void {
   errorListeners.add(listener);
   nativeErrorSubscription ??= subscribeNative(() =>
     purchaseErrorListener((error) => {
@@ -245,10 +223,9 @@ let nativePurchaseSubscription: { readonly remove: () => void } | undefined;
  *
  * 購入の直後・Ask to Buy の承認・前回の起動で完了しなかった取引の配り直しが
  * ここへ届く。StoreKit が同じ取引を配り直すことがあるので、受け取る側が
- * 取引 ID で重複を除く。
+ * 取引 ID（`key`）で重複を除く。
  */
-export function onIapPurchase(listener: PurchaseListener): () => void {
-  if (!IAP_AVAILABLE) return () => {};
+function onPurchase(listener: PurchaseListener): () => void {
   purchaseListeners.add(listener);
   nativePurchaseSubscription ??= subscribeNative(() =>
     purchaseUpdatedListener(deliverPurchase),
@@ -287,8 +264,8 @@ function transactionIdOf(
  * 購入を始める（App Store の購入画面を出す）
  * 購入要求
  *
- * 取引そのものは配らない: 届いた取引は {@link onIapPurchase}、失敗は
- * {@link onIapPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決し、
+ * 取引そのものは配らない: 届いた取引は {@link onPurchase}、失敗は
+ * {@link onPurchaseError} に届く。戻りの Promise は購入画面が閉じたら解決し、
  * 買えたならその取引 ID を返す（取り消し・失敗・承認待ちは undefined）。
  * `requestPurchase` の戻り値から取引を配らない（expo-iap の TSDoc どおり。取引は
  * イベントで届く）— 戻り値からも配ると同じ取引が 2 度届き、記録の知らせが
@@ -298,16 +275,16 @@ function transactionIdOf(
  * 要求の間だけ失敗の受け手を足し、イベントで届いていれば拒否は重ねて知らせない。
  * 取引は自動で完了させない — サーバーに記録してから完了する（完了した取引は
  * StoreKit が配り直さず、記録に失敗すると取り戻せない）。
+ * 渡すのは `request.apple` だけ（Google Play の指定は持たない）。
  *
  * @param appAccountToken - 購入するユーザーの ID（UUID）。サーバーが App Store の
  *   通知から購入者を引くのに使う
  */
-export async function requestIapPurchase(
+async function requestApplePurchase(
   productId: string,
   appAccountToken: string,
 ): Promise<string | undefined> {
-  if (!IAP_AVAILABLE) return undefined;
-  if (!(await connectIap())) {
+  if (!(await connect())) {
     deliverError(ErrorCode.NotPrepared, "not connected");
     return undefined;
   }
@@ -341,18 +318,6 @@ export async function requestIapPurchase(
 }
 
 /**
- * 端末の購入の一覧を読んだ結果
- * 購入一覧結果
- *
- * 「購入が無い」（`ok` で空）と「読めなかった」（`ok` でない）を分ける。
- * 空配列 1 つで表すと、通信や StoreKit の失敗が「復元できる購入は無かった」と
- * 本人に伝わる（{@link listIapPurchases}）。
- */
-export type IapPurchaseList =
-  | { readonly ok: true; readonly purchases: readonly IapPurchase[] }
-  | { readonly ok: false };
-
-/**
  * 端末の Apple ID が持つ購入を読む（復元）
  * 購入一覧取得
  *
@@ -360,13 +325,12 @@ export type IapPurchaseList =
  * （Non-Consumable）の取引が返る。パス（Consumable）は現在の権利に載らないので
  * 返らない — パスはサーバーに記録済みで、ログインすれば戻る。
  *
- * アプリ内課金の無い端末（Android）は購入なし。StoreKit に接続できない・
- * 一覧を読めないときは失敗（{@link IapPurchaseList}）。読む側が「復元できなかった」
- * と「復元できる購入が無かった」を出し分けるため、空配列に潰さない。
+ * StoreKit に接続できない・一覧を読めないときは失敗（{@link IapPurchaseList}）。
+ * 読む側が「復元できなかった」と「復元できる購入が無かった」を出し分けるため、
+ * 空配列に潰さない。
  */
-export async function listIapPurchases(): Promise<IapPurchaseList> {
-  if (!IAP_AVAILABLE) return { ok: true, purchases: [] };
-  if (!(await connectIap())) return { ok: false };
+async function listPurchases(): Promise<IapPurchaseList> {
+  if (!(await connect())) return { ok: false };
   try {
     const purchases = await getAvailablePurchases();
     return {
@@ -389,28 +353,52 @@ export async function listIapPurchases(): Promise<IapPurchaseList> {
  * サーバーが記録した・記録しないと答えた後に呼ぶ。完了済みの取引を
  * もう一度完了しても害は無いので、失敗はログだけにする。
  *
- * 現在の権利の一覧（{@link listIapPurchases}）から読んだ取引は
+ * 現在の権利の一覧（{@link listPurchases}）から読んだ取引は
  * `finishTransaction` を呼ばず、控えを外すだけにする。一覧の取引は通常は
  * 完了済みで、呼ぶと復元のたびに失敗のログが残るだけになる。未完了のものが
  * 混じっていても、StoreKit が次の起動でイベントとして配り直し、そのとき
  * 完了する（サーバーは `duplicate` を返す）。
+ *
+ * ポートの `consumable` は読まず、`isConsumable: false` を固定で渡す。
+ * consume と acknowledge の区別は Google Play のもので、StoreKit の取引の完了は
+ * 1 種類しかない。出荷済みの版と同じ値を渡し続け、App Store での挙動を変えない。
  */
-export async function finishIapPurchase(purchase: IapPurchase): Promise<void> {
-  if (!IAP_AVAILABLE) return;
-  const source = sourcePurchases.get(purchase.transactionId);
+async function finishPurchase(purchase: IapPurchase): Promise<void> {
+  const source = sourcePurchases.get(purchase.key);
   if (source === undefined) return;
   if (source.origin === "list") {
-    sourcePurchases.delete(purchase.transactionId);
+    sourcePurchases.delete(purchase.key);
     return;
   }
   try {
     await finishTransaction({ purchase: source.purchase, isConsumable: false });
   } catch (error) {
     console.warn("[iap] 取引の完了に失敗", {
-      transactionId: purchase.transactionId,
+      transactionId: purchase.key,
       ...errorOf(error),
     });
   } finally {
-    sourcePurchases.delete(purchase.transactionId);
+    sourcePurchases.delete(purchase.key);
   }
 }
+
+/**
+ * App Store のアダプタ
+ * App Storeストア
+ *
+ * 記録の要求は Apple のパスへ署名付き取引を送る形（`{ jws }`）。このパスと本文の
+ * 形はストアに出ている版も使うので変えない。
+ */
+export const appleStore: IapStore = {
+  connect,
+  fetchProducts: fetchAppleProducts,
+  onPurchase,
+  onPurchaseError,
+  requestPurchase: requestApplePurchase,
+  listPurchases,
+  finishPurchase,
+  recordRequestOf: (purchase) => ({
+    path: MOBILE_APPLE_TRANSACTIONS_API_PATH,
+    body: { jws: purchase.token },
+  }),
+};

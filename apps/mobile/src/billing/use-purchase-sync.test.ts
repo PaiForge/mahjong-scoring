@@ -4,23 +4,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   /** 端末の言語（`expo-localization` の `getLocales()` の言語タグ） */
   languageTags: ["ja-JP"],
+  finishIapPurchase: vi.fn(),
   listIapPurchases: vi.fn(),
-  postAppleTransaction: vi.fn(),
+  loadPlanOffers: vi.fn(),
+  postPurchase: vi.fn(),
   invalidatePlan: vi.fn(),
   requestIapPurchase: vi.fn(),
   showToast: vi.fn(),
   purchaseListener: undefined as
-    | ((purchase: {
-        transactionId: string;
-        productId: string;
-        jws: string;
-      }) => void)
+    | ((purchase: { key: string; productId: string; token: string }) => void)
     | undefined,
 }));
 
 vi.mock("./iap", () => ({
   connectIap: async () => false,
-  finishIapPurchase: vi.fn(),
+  finishIapPurchase: mocks.finishIapPurchase,
   listIapPurchases: mocks.listIapPurchases,
   onIapPurchase: (listener: typeof mocks.purchaseListener) => {
     mocks.purchaseListener = listener;
@@ -32,9 +30,10 @@ vi.mock("./iap", () => ({
 }));
 vi.mock("./iap-availability", () => ({ IAP_AVAILABLE: true }));
 vi.mock("./plan-api", () => ({
-  postAppleTransaction: mocks.postAppleTransaction,
+  postPurchase: mocks.postPurchase,
 }));
 vi.mock("./use-plan", () => ({ invalidatePlan: mocks.invalidatePlan }));
+vi.mock("./use-plan-offers", () => ({ loadPlanOffers: mocks.loadPlanOffers }));
 vi.mock("../auth/use-auth", () => ({ useAuth: vi.fn() }));
 vi.mock("../components/toast", () => ({ showToast: mocks.showToast }));
 vi.mock("expo-localization", () => ({
@@ -48,19 +47,16 @@ import {
 } from "./use-purchase-sync";
 
 const PRODUCT_ID = "help.mahjong.score.pro.pass30";
+const LIFETIME_PRODUCT_ID = "help.mahjong.score.pro.lifetime";
 
 /** 記録の応答（プランの中身は検査に使わないので最小限） */
 function recordedAs(outcome: "recorded" | "duplicate") {
   return { value: { outcome, status: { kind: "pass" } } };
 }
 
-/** 取引を StoreKit のイベントとして届ける */
-function deliver(transactionId: string): void {
-  mocks.purchaseListener?.({
-    transactionId,
-    productId: PRODUCT_ID,
-    jws: "jws",
-  });
+/** 購入をストアのイベントとして届ける */
+function deliver(key: string, productId: string = PRODUCT_ID): void {
+  mocks.purchaseListener?.({ key, productId, token: "token" });
 }
 
 /** 保留中の Promise の続きを流す */
@@ -70,6 +66,10 @@ async function flush(): Promise<void> {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.loadPlanOffers.mockResolvedValue([
+    { key: "pass", productId: PRODUCT_ID },
+    { key: "lifetime", productId: LIFETIME_PRODUCT_ID },
+  ]);
 });
 
 describe("restoreIapPurchases", () => {
@@ -78,7 +78,7 @@ describe("restoreIapPurchases", () => {
 
     await expect(restoreIapPurchases("user-a")).resolves.toBe("failed");
 
-    expect(mocks.postAppleTransaction).not.toHaveBeenCalled();
+    expect(mocks.postPurchase).not.toHaveBeenCalled();
   });
 
   it("端末に購入が無ければ nothingToRestore を返す", async () => {
@@ -94,7 +94,7 @@ describe("プラン画面からの購入", () => {
   it("取引の記録が終わるまで解決しない", async () => {
     const stop = startPurchaseSync("user-a", () => false);
     let respond: (value: unknown) => void = () => {};
-    mocks.postAppleTransaction.mockReturnValue(
+    mocks.postPurchase.mockReturnValue(
       new Promise((resolve) => {
         respond = resolve;
       }),
@@ -132,7 +132,7 @@ describe("プラン画面からの購入", () => {
 
       await vi.advanceTimersByTimeAsync(3_000);
       await buying;
-      expect(mocks.postAppleTransaction).not.toHaveBeenCalled();
+      expect(mocks.postPurchase).not.toHaveBeenCalled();
       stop();
     } finally {
       vi.useRealTimers();
@@ -144,7 +144,7 @@ describe("プラン画面からの購入", () => {
     try {
       const stop = startPurchaseSync("user-a", () => false);
       let respond: (value: unknown) => void = () => {};
-      mocks.postAppleTransaction
+      mocks.postPurchase
         .mockResolvedValueOnce({ error: "network" })
         .mockReturnValueOnce(
           new Promise((resolve) => {
@@ -162,7 +162,7 @@ describe("プラン画面からの購入", () => {
       });
       // 猶予（3 秒）と最初の送り直しの間（2 秒）を越える
       await vi.advanceTimersByTimeAsync(10_000);
-      expect(mocks.postAppleTransaction).toHaveBeenCalledTimes(2);
+      expect(mocks.postPurchase).toHaveBeenCalledTimes(2);
       expect(settled).toBe(false);
 
       respond(recordedAs("recorded"));
@@ -176,7 +176,7 @@ describe("プラン画面からの購入", () => {
 
   it("要求が返る前に記録が終わっていても待ち続けない", async () => {
     const stop = startPurchaseSync("user-a", () => false);
-    mocks.postAppleTransaction.mockResolvedValue(recordedAs("recorded"));
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
     mocks.requestIapPurchase.mockImplementation(async () => {
       deliver("tx-early");
       await flush();
@@ -192,12 +192,12 @@ describe("プラン画面からの購入", () => {
 
     await buyIapProduct(PRODUCT_ID, "user-a");
 
-    expect(mocks.postAppleTransaction).not.toHaveBeenCalled();
+    expect(mocks.postPurchase).not.toHaveBeenCalled();
   });
 
   it("App Store の通知が先に記録して duplicate でも、記録を知らせる", async () => {
     const stop = startPurchaseSync("user-a", () => false);
-    mocks.postAppleTransaction.mockResolvedValue(recordedAs("duplicate"));
+    mocks.postPurchase.mockResolvedValue(recordedAs("duplicate"));
     mocks.requestIapPurchase.mockImplementation(async () => {
       deliver("tx-dup");
       return "tx-dup";
@@ -212,7 +212,7 @@ describe("プラン画面からの購入", () => {
   it("記録の応答のプランを画面に渡す", async () => {
     const stop = startPurchaseSync("user-a", () => false);
     const response = recordedAs("recorded");
-    mocks.postAppleTransaction.mockResolvedValue(response);
+    mocks.postPurchase.mockResolvedValue(response);
     mocks.requestIapPurchase.mockImplementation(async () => {
       deliver("tx-plan");
       return "tx-plan";
@@ -231,24 +231,84 @@ describe("プラン画面からの購入", () => {
 describe("プラン画面の外で届いた取引", () => {
   it("duplicate（記録済みの配り直し）は知らせない", async () => {
     const stop = startPurchaseSync("user-a", () => false);
-    mocks.postAppleTransaction.mockResolvedValue(recordedAs("duplicate"));
+    mocks.postPurchase.mockResolvedValue(recordedAs("duplicate"));
 
     deliver("tx-replay");
     await flush();
 
-    expect(mocks.postAppleTransaction).toHaveBeenCalledTimes(1);
+    expect(mocks.postPurchase).toHaveBeenCalledTimes(1);
     expect(mocks.showToast).not.toHaveBeenCalled();
     stop();
   });
 
   it("recorded（Ask to Buy の承認等）は知らせる", async () => {
     const stop = startPurchaseSync("user-a", () => false);
-    mocks.postAppleTransaction.mockResolvedValue(recordedAs("recorded"));
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
 
     deliver("tx-approved");
     await flush();
 
     expect(mocks.showToast).toHaveBeenCalledTimes(1);
+    stop();
+  });
+});
+
+describe("購入の完了の種類", () => {
+  it("販売中の売り方がパスの商品は消費型として完了する", async () => {
+    const stop = startPurchaseSync("user-a", () => false);
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
+
+    deliver("tx-pass");
+    await flush();
+
+    expect(mocks.finishIapPurchase).toHaveBeenCalledWith(
+      expect.objectContaining({ key: "tx-pass" }),
+      { consumable: true },
+    );
+    stop();
+  });
+
+  it("買い切りは非消費で完了する", async () => {
+    const stop = startPurchaseSync("user-a", () => false);
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
+
+    deliver("tx-lifetime", LIFETIME_PRODUCT_ID);
+    await flush();
+
+    expect(mocks.finishIapPurchase).toHaveBeenCalledWith(
+      expect.objectContaining({ key: "tx-lifetime" }),
+      { consumable: false },
+    );
+    stop();
+  });
+
+  it("販売中の一覧に無い商品は失わない側（非消費）で完了する", async () => {
+    const stop = startPurchaseSync("user-a", () => false);
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
+    mocks.loadPlanOffers.mockResolvedValue([]);
+
+    deliver("tx-unknown");
+    await flush();
+
+    expect(mocks.finishIapPurchase).toHaveBeenCalledWith(
+      expect.objectContaining({ key: "tx-unknown" }),
+      { consumable: false },
+    );
+    stop();
+  });
+
+  it("購入はアダプタの形のまま送る", async () => {
+    const stop = startPurchaseSync("user-a", () => false);
+    mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
+
+    deliver("tx-shape");
+    await flush();
+
+    expect(mocks.postPurchase).toHaveBeenCalledWith("user-a", {
+      key: "tx-shape",
+      productId: PRODUCT_ID,
+      token: "token",
+    });
     stop();
   });
 });
@@ -261,7 +321,7 @@ describe("トーストの言語", () => {
       const { startPurchaseSync: startInEnglish } =
         await import("./use-purchase-sync");
       const stop = startInEnglish("user-a", () => false);
-      mocks.postAppleTransaction.mockResolvedValue(recordedAs("recorded"));
+      mocks.postPurchase.mockResolvedValue(recordedAs("recorded"));
 
       deliver("tx-english");
       await flush();
