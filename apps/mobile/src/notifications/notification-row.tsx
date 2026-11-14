@@ -1,9 +1,13 @@
-import type { ReactNode } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useState, type ReactNode } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { formatJstDateTime } from "@mahjong-scoring/features/jst";
 import { notificationHref } from "@mahjong-scoring/features/notifications/link";
-import { buildNotificationMessage } from "@mahjong-scoring/features/notifications/message";
+import {
+  buildNotificationDetail,
+  buildNotificationMessage,
+  type NotificationDetail,
+} from "@mahjong-scoring/features/notifications/message";
 import type { MobileNotification } from "@mahjong-scoring/features/notifications/mobile-api";
 import {
   NotificationType,
@@ -12,11 +16,13 @@ import {
 
 import {
   CheckIcon,
+  ChevronDownIcon,
   ClockIcon,
   CloseIcon,
   GiftIcon,
 } from "../components/icons/icons";
 import { LinkRow } from "../components/link-row";
+import { TextLink } from "../components/text-link";
 import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { colors } from "../lib/theme";
 import { useAppLocale } from "../lib/use-app-locale";
@@ -34,6 +40,10 @@ import { useAppLocale } from "../lib/use-app-locale";
  * 止めない）。遷移先は web と共有の `notificationHref` が決め、両方にある
  * パスしか返さない（`link.ts` の TSDoc）。遷移先を持たない種別（退役した
  * 種別）は押せない行として出す。
+ *
+ * 本文を持つ通知（運営が本文を書いた付与。`buildNotificationDetail`）は、押しても
+ * 遷移せずにその場で開き、本文・期間・遷移先へのリンクを出す（web と同じ）。
+ * 開いたときに既読にする。
  *
  * 行はマイページのモーダルの中に並ぶので、遷移は `useOpenFromModal` で開く。
  * いまの行き先（プラン画面）は同じモーダルの中に積み、将来モーダルの外の画面を
@@ -66,8 +76,36 @@ export function NotificationRow({
   // 読み上げの区切りは言語に依る（日本語「、」・英語「, 」）
   const separator = tCommon("listSeparator");
   const href = notificationHref(notification.type);
+  const detail = buildNotificationDetail(
+    notification.type,
+    notification.metadata,
+    locale,
+  );
   const leading = <NotificationTypeIcon type={notification.type} />;
   const trailing = read ? undefined : <UnreadDot />;
+
+  if (detail !== undefined) {
+    return (
+      <ExpandableRow
+        testID={`notification-${notification.id}`}
+        title={text}
+        description={date}
+        leading={leading}
+        trailing={trailing}
+        plainTitle={read}
+        detail={detail}
+        accessibilityLabel={
+          read
+            ? [text, date].join(separator)
+            : [t("unread"), text, date].join(separator)
+        }
+        onExpand={() => {
+          if (!read) onRead();
+        }}
+        onViewPlan={href === undefined ? undefined : () => openFromModal(href)}
+      />
+    );
+  }
 
   if (href === undefined) {
     return (
@@ -99,6 +137,78 @@ export function NotificationRow({
         openFromModal(href);
       }}
     />
+  );
+}
+
+/**
+ * 押すとその場で本文を開く行（本文を持つ通知）。並びは `LinkRow` と同じで、
+ * 右端は開閉を示す下向きの矢印（開くと上向き）
+ */
+function ExpandableRow({
+  title,
+  description,
+  leading,
+  trailing,
+  plainTitle,
+  detail,
+  accessibilityLabel,
+  onExpand,
+  onViewPlan,
+  testID,
+}: {
+  readonly title: string;
+  readonly description: string;
+  readonly leading: ReactNode;
+  readonly trailing: ReactNode;
+  readonly plainTitle: boolean;
+  readonly detail: NotificationDetail;
+  readonly accessibilityLabel: string;
+  readonly onExpand: () => void;
+  /** 遷移先へのリンク。遷移先を持たない種別は undefined（リンクを出さない） */
+  readonly onViewPlan: (() => void) | undefined;
+  readonly testID: string;
+}) {
+  const t = useTranslations("notifications");
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <View>
+      <Pressable
+        testID={testID}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityState={{ expanded }}
+        onPress={() => {
+          if (!expanded) onExpand();
+          setExpanded(!expanded);
+        }}
+        style={({ pressed }) => [styles.staticRow, pressed && styles.pressed]}
+      >
+        <View style={styles.side}>{leading}</View>
+        <View style={styles.body}>
+          <Text style={[styles.staticTitle, plainTitle && styles.plainTitle]}>
+            {title}
+          </Text>
+          <Text style={styles.description}>{description}</Text>
+        </View>
+        {trailing !== undefined && <View style={styles.side}>{trailing}</View>}
+        <View style={[styles.side, expanded && styles.chevronExpanded]}>
+          <ChevronDownIcon size={18} color={colors.surface400} />
+        </View>
+      </Pressable>
+      {expanded && (
+        <View style={styles.detail} testID={`${testID}-detail`}>
+          <Text style={styles.detailBody}>{detail.body}</Text>
+          <Text style={styles.detailPeriod}>
+            {t(`detail.${detail.period.key}`, detail.period.values)}
+          </Text>
+          {onViewPlan !== undefined && (
+            <View style={styles.detailLink}>
+              <TextLink onPress={onViewPlan}>{t("detail.viewPlan")}</TextLink>
+            </View>
+          )}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -259,5 +369,31 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.surface500,
+  },
+  pressed: {
+    backgroundColor: colors.surface50,
+  },
+  chevronExpanded: {
+    transform: [{ rotate: "180deg" }],
+  },
+  // 本文の左端を題名にそろえる（行の左余白 16 + アイコン 32 + 間 12）
+  detail: {
+    paddingLeft: 60,
+    paddingRight: 16,
+    paddingBottom: 14,
+    gap: 8,
+  },
+  detailBody: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.foreground,
+  },
+  detailPeriod: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.surface600,
+  },
+  detailLink: {
+    alignItems: "flex-start",
   },
 });
