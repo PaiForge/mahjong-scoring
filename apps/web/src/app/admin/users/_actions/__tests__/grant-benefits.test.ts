@@ -105,8 +105,35 @@ describe("grantBenefits", () => {
       userId: "u1",
       type: "benefit_granted",
       target: { type: "benefit_grant", id: "g1" },
-      metadata: { plan: "pro", expiresAt: "2026-10-31T00:00:00.000Z" },
+      metadata: {
+        plan: "pro",
+        expiresAt: "2026-10-31T00:00:00.000Z",
+        message: undefined,
+      },
     });
+  });
+
+  it("通知に出す文は前後の空白を除いて通知と監査ログに載せる", async () => {
+    await grantBenefits("u1", "days30", "モニター", "  いつもありがとう ");
+
+    expect(mockNotify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({ message: "いつもありがとう" }),
+      }),
+    );
+    expect(mockRecordModerationAction).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({
+        metadata: expect.objectContaining({ message: "いつもありがとう" }),
+      }),
+    );
+  });
+
+  it("通知に出す文が上限を超えたら invalidMessage で何も書かない", async () => {
+    expect(
+      await grantBenefits("u1", "days30", "モニター", "あ".repeat(101)),
+    ).toEqual({ error: "invalidMessage" });
+    expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("無期限は durationDays undefined で、監査ログの expiresAt は null", async () => {

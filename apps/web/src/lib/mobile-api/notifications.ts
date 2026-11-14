@@ -40,7 +40,7 @@ const readBodySchema: z.ZodType<MobileNotificationsReadRequest> = z.union([
  * metadata は文面に使う値だけを載せる（プランの名前は文面に出さない）。
  */
 function mobileNotificationOf(item: NotificationListItem): MobileNotification {
-  const { kind, expiresAt, revokeReason } = item.metadata;
+  const { kind, expiresAt, revokeReason, message } = item.metadata;
   return {
     id: item.id,
     type: item.type,
@@ -48,6 +48,7 @@ function mobileNotificationOf(item: NotificationListItem): MobileNotification {
       ...(kind === undefined ? {} : { kind }),
       ...(expiresAt === undefined ? {} : { expiresAt }),
       ...(revokeReason === undefined ? {} : { revokeReason }),
+      ...(message === undefined ? {} : { message }),
     },
     ...(item.readAt === undefined ? {} : { readAt: item.readAt.toISOString() }),
     createdAt: item.createdAt.toISOString(),

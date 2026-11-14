@@ -6,6 +6,7 @@ import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
 import { notifyQuietly } from "@/lib/notifications/create-notification";
 import { NotificationTargetType } from "@/lib/notifications/types";
+import { BENEFIT_GRANT_MESSAGE_MAX_LENGTH } from "@mahjong-scoring/features/notifications/message";
 import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import { requireAdminActor } from "../../_lib/auth";
@@ -22,7 +23,11 @@ import { revalidateBenefitGrantViews } from "../_lib/revalidate";
 
 /** 付与の失敗理由 */
 export type GrantBenefitsError =
-  "unauthorized" | "invalidDuration" | "invalidReason" | "grantFailed";
+  | "unauthorized"
+  | "invalidDuration"
+  | "invalidReason"
+  | "invalidMessage"
+  | "grantFailed";
 
 /**
  * ユーザーに Pro の特典を手動で付与する Server Action
@@ -35,14 +40,21 @@ export type GrantBenefitsError =
  * プランは `pro` 固定（特典を個別に選ばせない）。期間は列挙した選択肢から
  * （`grant-durations.ts`）。理由は必須。
  *
+ * 通知に出す文（`message`）は任意。書けば付与の通知の 1 文目（「運営から Pro が
+ * 付与されました」）に替わり、期限の文は辞書が足す（文面の組み立ては features の
+ * `buildNotificationMessage`）。理由は運営の内部メモで利用者に出さないので、
+ * 利用者に見せる文は別の欄で受ける。送った文は通知の metadata と監査ログに残る。
+ *
  * @param targetUserId - 付与先
  * @param duration - 期間のキー。クライアントの入力なので絞る
  * @param reason - 付与の理由
+ * @param message - 通知に出す文。空なら既定の文面
  */
 export async function grantBenefits(
   targetUserId: string,
   duration: string,
   reason: string,
+  message = "",
 ): Promise<ActionResult<GrantBenefitsError>> {
   const admin = await requireAdminActor("unauthorized");
   if ("error" in admin) {
@@ -58,6 +70,13 @@ export async function grantBenefits(
   if (trimmedReason === undefined) {
     return { error: "invalidReason" };
   }
+
+  const trimmedMessage = message.trim();
+  if (trimmedMessage.length > BENEFIT_GRANT_MESSAGE_MAX_LENGTH) {
+    return { error: "invalidMessage" };
+  }
+  const notificationMessage =
+    trimmedMessage === "" ? undefined : trimmedMessage;
 
   let granted: BenefitGrant | undefined;
   try {
@@ -81,6 +100,9 @@ export async function grantBenefits(
           plan: grant.plan,
           benefits: grant.benefits,
           expiresAt: grant.expiresAt?.toISOString() ?? null,
+          ...(notificationMessage === undefined
+            ? {}
+            : { message: notificationMessage }),
         },
       });
       granted = grant;
@@ -98,6 +120,7 @@ export async function grantBenefits(
       metadata: {
         plan: granted.plan,
         expiresAt: granted.expiresAt?.toISOString(),
+        message: notificationMessage,
       },
     });
   }

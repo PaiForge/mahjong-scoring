@@ -98,6 +98,7 @@ const notificationsSchema = z.object({
         kind: z.string().optional(),
         expiresAt: z.string().optional(),
         revokeReason: z.string().optional(),
+        message: z.string().optional(),
       }),
       readAt: isoDateTime.optional(),
       createdAt: isoDateTime,

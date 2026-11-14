@@ -82,6 +82,33 @@ describe("buildNotificationMessage", () => {
     });
   });
 
+  it("付与に運営の文があれば 1 文目を替え、期限の文は辞書が足す", () => {
+    expect(
+      buildNotificationMessage("benefit_granted", {
+        expiresAt: "2026-12-01T00:00:00+09:00",
+        message: "  いつも応援ありがとうございます！ ",
+      }),
+    ).toEqual({
+      key: "benefitGrantedCustomUntil",
+      values: {
+        message: "いつも応援ありがとうございます！",
+        until: "2026年12月1日",
+      },
+    });
+    expect(
+      buildNotificationMessage("benefit_granted", { message: "感謝を込めて" }),
+    ).toEqual({
+      key: "benefitGrantedCustom",
+      values: { message: "感謝を込めて" },
+    });
+  });
+
+  it("空白だけの運営の文は既定の文面に落とす", () => {
+    expect(
+      buildNotificationMessage("benefit_granted", { message: "  " }),
+    ).toEqual({ key: "benefitGranted" });
+  });
+
   it("購入の取り消しは返金だけ「返金により」と言う", () => {
     expect(
       buildNotificationMessage("purchase_revoked", {
@@ -94,13 +121,24 @@ describe("buildNotificationMessage", () => {
   });
 
   it("差し込み値のあるキーは辞書側にもプレースホルダがある", () => {
-    const withUntil = ["purchaseCompletedPass", "benefitGrantedUntil"];
+    const withUntil = [
+      "purchaseCompletedPass",
+      "benefitGrantedUntil",
+      "benefitGrantedCustomUntil",
+    ];
     for (const key of withUntil) {
       expect(
         messages.notifications.messages[
           key as keyof typeof messages.notifications.messages
         ],
       ).toContain("{until}");
+    }
+    for (const key of ["benefitGrantedCustom", "benefitGrantedCustomUntil"]) {
+      expect(
+        messages.notifications.messages[
+          key as keyof typeof messages.notifications.messages
+        ],
+      ).toContain("{message}");
     }
   });
 });

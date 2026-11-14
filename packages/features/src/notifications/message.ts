@@ -28,7 +28,18 @@ export interface NotificationMessageMetadata {
   readonly expiresAt?: string;
   /** 取り消しの理由（`PurchaseRevokeReason`）。購入の取り消しだけ */
   readonly revokeReason?: string;
+  /** 運営が付与のときに書いた文（{@link BENEFIT_GRANT_MESSAGE_MAX_LENGTH}）。付与の通知だけ */
+  readonly message?: string;
 }
+
+/**
+ * 付与の通知に運営が書ける文の最大文字数
+ * 付与の通知文の上限
+ *
+ * 管理画面の入力欄の `maxLength` とサーバーの検証が同じ値を使う。通知は一覧の
+ * 1 行の題名として出るので、長文は想定しない。
+ */
+export const BENEFIT_GRANT_MESSAGE_MAX_LENGTH = 100;
 
 /** 文面の辞書キーと差し込み値 */
 export interface NotificationMessage {
@@ -79,10 +90,20 @@ export function buildNotificationMessage(
         return { key: "purchaseCompletedPass", values: { until } };
       }
       return { key: "purchaseCompleted" };
-    case NotificationType.BenefitGranted:
+    case NotificationType.BenefitGranted: {
+      // 運営が書いた文は既定の 1 文目（「運営から Pro が付与されました」）に替わる。
+      // 期限の文は運営に書かせず辞書が足す（書き間違えた期限を出さない）。
+      // 書いた文は 1 言語だけで、英語の画面でも入力したまま出る
+      const message = metadata.message?.trim();
+      if (message) {
+        return until
+          ? { key: "benefitGrantedCustomUntil", values: { message, until } }
+          : { key: "benefitGrantedCustom", values: { message } };
+      }
       return until
         ? { key: "benefitGrantedUntil", values: { until } }
         : { key: "benefitGranted" };
+    }
     case NotificationType.PlanExpired:
       return { key: "planExpired" };
     case NotificationType.PurchaseRevoked:
