@@ -1,0 +1,26 @@
+# マイページの言語の行（iOS）: ゲストにも「その他」の手前に今の言語が出て、押すと
+# 設定アプリへ移る（言語の切り替えは OS に任せる）。iOS 26.5 のシミュレーターでは設定アプリの
+# トップが開くので、ここでは設定アプリへ移ったことまでを見る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- tapOn:
+    id: "home-mypage"
+- scrollUntilVisible:
+    element:
+      id: "mypage-menu-language"
+    direction: DOWN
+- assertVisible: ".*日本語・設定アプリで変更します.*"
+- takeScreenshot: mypage-language
+- tapOn:
+    id: "mypage-menu-language"
+- extendedWaitUntil:
+    notVisible:
+      id: "mypage-menu-language"
+    timeout: 10000
+- takeScreenshot: mypage-language-settings
