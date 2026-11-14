@@ -27,6 +27,7 @@ import { BanButton } from "../../_components/ban-button";
 import { UnbanButton } from "../../_components/unban-button";
 import { GrantBenefitsButton } from "../../_components/grant-benefits-button";
 import { PublicProfileLink } from "../../_components/public-profile-link";
+import { readLoginProviders } from "../../_lib/login-providers";
 import { UserStatus } from "../../_lib/user-status";
 import type { UserDetail } from "../_lib/queries";
 import { DetailSection, DetailTable, InfoRow } from "./detail-section";
@@ -44,26 +45,6 @@ interface SectionProps {
   readonly now: Date;
 }
 
-/**
- * ログイン方法のプロバイダを `app_metadata` から読む
- *
- * `providers` は連携しているプロバイダの一覧（Google を足した人は
- * `["email", "google"]`）。認証サーバーがログイン・検証のたびに書き直す値で、
- * 管理 API で連携だけ足した直後は古いことがある。無ければ最初に登録した
- * `provider` 1 つに落とす。
- */
-function readProviders(appMetadata: {
-  readonly provider?: string;
-  readonly providers?: unknown;
-}): readonly string[] {
-  const { providers } = appMetadata;
-  if (Array.isArray(providers)) {
-    const names = providers.filter((p): p is string => typeof p === "string");
-    if (names.length > 0) return names;
-  }
-  return appMetadata.provider === undefined ? [] : [appMetadata.provider];
-}
-
 /** アカウント（ID・メール・ユーザー名・ロール・ログイン方法・日時） */
 export async function AccountSection({
   detail,
@@ -71,7 +52,7 @@ export async function AccountSection({
 }: Pick<SectionProps, "detail" | "status">) {
   const t = await getTranslations("admin.userDetail");
   const { authUser, profile } = detail;
-  const providers = readProviders(authUser.app_metadata);
+  const providers = readLoginProviders(authUser.app_metadata);
   return (
     <DetailSection title={t("account.title")}>
       <dl>
