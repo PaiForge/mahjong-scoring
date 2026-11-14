@@ -8,7 +8,7 @@ import { useEffect } from "react";
  *
  * loading.tsx（Suspense 境界）を持つページ（教本の目次 `/lessons#chapter-<slug>`・
  * レッスンの目次 `/lessons#chapter-yaku`・広告管理のスロット
- * `/admin/ads?platform=mobile#<スロット>`）へハッシュ付きで遷移すると、その瞬間に描画されて
+ * `/admin/ads?platform=mobile#<スロット>`・ユーザー詳細の購入 / 付与 `/admin/users/<id>#grants`）へハッシュ付きで遷移すると、その瞬間に描画されて
  * いるのはスケルトンで、対象の id はまだ DOM に無い。Next.js はその時点で一度だけ対象を探して
  * スクロールを諦め、本体が届いた後に再試行しない（設定ページの
  * `AnchorScroll` と同じ事情）。このコンポーネントは本体と一緒にマウント

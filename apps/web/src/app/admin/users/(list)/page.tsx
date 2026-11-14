@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { planBadgeOf } from "@mahjong-scoring/features/billing/plan-badge";
 import Link from "next/link";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
@@ -22,7 +21,7 @@ import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { TableHead } from "@/app/admin/_components/table-head";
 
 import { LoginProviderIcons } from "../_components/login-provider-icons";
-import { PlanChip } from "../_components/plan-chip";
+import { PlanChipLink } from "../_components/plan-chip";
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
 import { UserSearchForm } from "../_components/user-search-form";
@@ -115,9 +114,8 @@ export default async function AdminUsersPage({
                       <StatusBadge status={status} />
                     </td>
                     <td className="px-4 py-3">
-                      {/* 無料は大半の行が該当するため空欄にし、Pro / VIP だけを目に留める */}
-                      {plan && planBadgeOf(plan) ? (
-                        <PlanChip plan={plan} />
+                      {plan ? (
+                        <PlanChipLink plan={plan} userId={user.id} />
                       ) : null}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">

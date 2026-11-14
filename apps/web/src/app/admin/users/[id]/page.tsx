@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { getOptionalUser } from "@/lib/auth";
@@ -80,6 +81,8 @@ export default async function AdminUserDetailPage({
         status={status}
         isCurrentUser={isCurrentUser}
       />
+      {/* 一覧のプランのチップ（`#purchases` / `#grants`）からの着地。loading.tsx を持つため要る */}
+      <HashAnchorScroll />
     </div>
   );
 }

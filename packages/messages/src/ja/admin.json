@@ -87,6 +87,7 @@
       "active": "有効"
     },
     "planBadges": {
+      "pro": "Pro",
       "vip": "VIP"
     },
     "openPublicProfile": "公開プロフィールを新しいタブで開く",
