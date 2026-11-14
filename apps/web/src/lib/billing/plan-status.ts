@@ -70,7 +70,8 @@ export function purchaseStateOf(purchase: Purchase, now: Date): PurchaseState {
  *
  * 購入手続きの SQL 側（`checkout-state.ts` の `hasUnexpiredPurchase`）と
  * 同じ条件。マイページの「購入する」の表示とサーバーの拒否が食い違わないよう、
- * 画面側はこちらを使い、条件を直接書き直さない。
+ * 画面側はこちらを使い、条件を直接書き直さない（画面は付与中も導線を隠す —
+ * {@link offersPurchase}）。
  */
 export function blocksNewPurchase(purchase: Purchase, now: Date): boolean {
   if (
@@ -138,10 +139,7 @@ export function planStatusOf(
     return { kind: "lifetime" };
   }
 
-  const activeGrants = grants.filter(
-    (grant) =>
-      grant.startsAt <= now && benefitGrantStateOf(grant, now) === "active",
-  );
+  const activeGrants = grants.filter((grant) => isGrantInEffect(grant, now));
   if (activeGrants.some((grant) => !grant.expiresAt)) {
     return { kind: "granted", until: undefined };
   }
@@ -162,6 +160,40 @@ export function planStatusOf(
     undefined,
   );
   return latest ?? { kind: "free" };
+}
+
+/**
+ * 有効（開始済み・未取消・期限内）な手動付与か
+ *
+ * `planStatusOf` が「いまの状態」に数える付与と同じ条件。
+ */
+function isGrantInEffect(grant: BenefitGrant, now: Date): boolean {
+  return grant.startsAt <= now && benefitGrantStateOf(grant, now) === "active";
+}
+
+/**
+ * プラン状況の画面に購入の導線（「Pro を購入する」）を出すか
+ * 購入導線の表示
+ *
+ * 追加購入を売らない購入（{@link blocksNewPurchase}）があるとき、または有効な
+ * 手動付与があるときは出さない。付与で Pro になっている人に購入を勧めると、
+ * 「運営から付与された」と並んで紛らわしく、期限付きの付与と重ねてパスを買うと
+ * 重なった日数が無駄になる。付与が切れれば状態は無料に戻り、導線もまた出る。
+ *
+ * 付与中の購入そのものは止めない — 購入手続き（Checkout・アプリ内課金の記録）は
+ * {@link blocksNewPurchase} の規則だけで判断し、料金ページから自分で買いに行く人
+ * （応援で買い切りを買う等）は買える。ここは導線を出すかの問いで、販売可否とは別。
+ * web のマイページとアプリ向け API の `canPurchase` が同じこの関数を読む。
+ */
+export function offersPurchase(
+  purchases: readonly Purchase[],
+  grants: readonly BenefitGrant[],
+  now: Date,
+): boolean {
+  return (
+    !purchases.some((purchase) => blocksNewPurchase(purchase, now)) &&
+    !grants.some((grant) => isGrantInEffect(grant, now))
+  );
 }
 
 /** 期限付きの状態（パスか期限付きの付与） */

@@ -163,8 +163,10 @@ export interface MobilePlanResponse {
   /** いま持つ特典 */
   readonly benefits: readonly PlanBenefit[];
   /**
-   * 追加購入できるか。有効か開始待ちの購入がある間は false（web の
-   * 購入ボタンと同じ規則）。false の間、アプリは購入ボタンを出さない
+   * 購入の導線を出すか。有効か開始待ちの購入、または有効な手動付与がある間は
+   * false（web の購入ボタンと同じ規則。サーバーの `offersPurchase`）。false の間、
+   * アプリは購入ボタンを出さない。付与中に届いた購入の記録は拒まない（導線を
+   * 隠すだけで、販売可否の規則ではない）
    */
   readonly canPurchase: boolean;
   /** 販売中の商品。空なら販売していない（購入ボタンを出さない） */

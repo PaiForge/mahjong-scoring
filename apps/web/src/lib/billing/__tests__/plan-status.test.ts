@@ -7,6 +7,7 @@ import {
   blocksNewPurchase,
   formatPlanDate,
   formatPlanDateShort,
+  offersPurchase,
   planStatusOf,
   purchaseProviderOf,
   purchaseStateOf,
@@ -214,6 +215,35 @@ describe("blocksNewPurchase", () => {
         NOW,
       ),
     ).toBe(false);
+  });
+});
+
+describe("offersPurchase", () => {
+  it("購入も付与も無ければ出す", () => {
+    expect(offersPurchase([], [], NOW)).toBe(true);
+  });
+
+  it("追加購入を止める購入があれば出さない", () => {
+    expect(offersPurchase([purchase({})], [], NOW)).toBe(false);
+  });
+
+  it("有効な付与があれば出さない（期限付き・無期限とも）", () => {
+    expect(offersPurchase([], [grant({})], NOW)).toBe(false);
+    expect(offersPurchase([], [grant({ expiresAt: null })], NOW)).toBe(false);
+  });
+
+  it("期限切れ・取り消し済み・開始前の付与なら出す", () => {
+    expect(
+      offersPurchase(
+        [],
+        [
+          grant({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
+          grant({ revokedAt: NOW, revokeReason: "x" }),
+          grant({ startsAt: new Date("2026-10-02T00:00:00Z") }),
+        ],
+        NOW,
+      ),
+    ).toBe(true);
   });
 });
 
