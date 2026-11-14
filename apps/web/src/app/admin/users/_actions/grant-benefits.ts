@@ -2,6 +2,7 @@
 
 import type { ActionResult } from "@/lib/action-types";
 import { db, type BenefitGrant } from "@/lib/db";
+import { isBenefitGrantCategory } from "@/lib/entitlements/benefit-grant-categories";
 import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
 import { notifyQuietly } from "@/lib/notifications/create-notification";
@@ -28,6 +29,7 @@ import { revalidateBenefitGrantViews } from "../_lib/revalidate";
 export type GrantBenefitsError =
   | "unauthorized"
   | "invalidDuration"
+  | "invalidCategory"
   | "invalidReason"
   | "invalidNotice"
   | "grantFailed";
@@ -41,7 +43,8 @@ export type GrantBenefitsError =
  * 通知する（トランザクションの外。通知の失敗で付与は失敗しない）。
  *
  * プランは `pro` 固定（特典を個別に選ばせない）。期間は列挙した選択肢から
- * （`grant-durations.ts`）。理由は必須。
+ * （`grant-durations.ts`）。種別（`benefit-grant-categories.ts`）と理由は必須。
+ * 種別は運営の内部の分類で、付与行と監査ログにだけ残す（通知には載せない）。
  *
  * 通知のタイトルと本文（`notice`）は任意。タイトルは一覧の 1 行をそのまま置き換え
  * （空なら既定の「運営から Pro が付与されました…」）、本文は行を開くと出る
@@ -51,12 +54,14 @@ export type GrantBenefitsError =
  *
  * @param targetUserId - 付与先
  * @param duration - 期間のキー。クライアントの入力なので絞る
+ * @param category - 付与の種別のキー。クライアントの入力なので絞る
  * @param reason - 付与の理由
  * @param notice - 通知のタイトルと本文。空なら既定の文面・本文なし
  */
 export async function grantBenefits(
   targetUserId: string,
   duration: string,
+  category: string,
   reason: string,
   notice: { readonly title?: string; readonly body?: string } = {},
 ): Promise<ActionResult<GrantBenefitsError>> {
@@ -68,6 +73,10 @@ export async function grantBenefits(
 
   if (!isGrantDurationKey(duration)) {
     return { error: "invalidDuration" };
+  }
+
+  if (!isBenefitGrantCategory(category)) {
+    return { error: "invalidCategory" };
   }
 
   const trimmedReason = normalizeModerationReason(reason);
@@ -88,6 +97,7 @@ export async function grantBenefits(
         userId: targetUserId,
         plan: "pro",
         reason: trimmedReason,
+        category,
         grantedBy: actorId,
         durationDays: GRANT_DURATION_DAYS[duration],
       });
@@ -101,6 +111,7 @@ export async function grantBenefits(
         metadata: {
           grantId: grant.id,
           plan: grant.plan,
+          category,
           benefits: grant.benefits,
           expiresAt: grant.expiresAt?.toISOString() ?? null,
           ...(title === undefined ? {} : { title }),

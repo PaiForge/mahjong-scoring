@@ -51,34 +51,47 @@ describe("grantBenefits", () => {
   it("管理者でなければ unauthorized で何も書かない", async () => {
     setupNotAdmin();
 
-    expect(await grantBenefits("u1", "days30", "理由")).toEqual({
+    expect(await grantBenefits("u1", "days30", "monitor", "理由")).toEqual({
       error: "unauthorized",
     });
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("列挙に無い期間は invalidDuration", async () => {
-    expect(await grantBenefits("u1", "days7", "理由")).toEqual({
+    expect(await grantBenefits("u1", "days7", "monitor", "理由")).toEqual({
       error: "invalidDuration",
     });
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
+  it("列挙に無い種別は invalidCategory", async () => {
+    expect(await grantBenefits("u1", "days30", "friend", "理由")).toEqual({
+      error: "invalidCategory",
+    });
+    expect(mockTransaction).not.toHaveBeenCalled();
+  });
+
   it("理由が空白だけなら invalidReason", async () => {
-    expect(await grantBenefits("u1", "days30", "   ")).toEqual({
+    expect(await grantBenefits("u1", "days30", "monitor", "   ")).toEqual({
       error: "invalidReason",
     });
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
   it("付与行と監査ログを同じトランザクションで書き、一覧を再検証する", async () => {
-    const result = await grantBenefits("u1", "days30", "  モニター ");
+    const result = await grantBenefits(
+      "u1",
+      "days30",
+      "monitor",
+      "  モニター ",
+    );
 
     expect(result).toEqual({ success: true });
     expect(mockInsertBenefitGrant).toHaveBeenCalledWith(TX, {
       userId: "u1",
       plan: "pro",
       reason: "モニター",
+      category: "monitor",
       grantedBy: "admin-1",
       durationDays: 30,
     });
@@ -91,6 +104,7 @@ describe("grantBenefits", () => {
       metadata: {
         grantId: "g1",
         plan: "pro",
+        category: "monitor",
         benefits: ["unlimited_practice", "practice_tools"],
         expiresAt: "2026-10-31T00:00:00.000Z",
       },
@@ -99,7 +113,7 @@ describe("grantBenefits", () => {
   });
 
   it("付与できたら付与先に通知する（期限は付与行と同じ）", async () => {
-    await grantBenefits("u1", "days30", "モニター");
+    await grantBenefits("u1", "days30", "monitor", "モニター");
 
     expect(mockNotify).toHaveBeenCalledWith({
       userId: "u1",
@@ -115,7 +129,7 @@ describe("grantBenefits", () => {
   });
 
   it("通知のタイトルと本文は前後の空白を除いて通知と監査ログに載せる", async () => {
-    await grantBenefits("u1", "days30", "モニター", {
+    await grantBenefits("u1", "days30", "monitor", "モニター", {
       title: "  永久無料パスが付与されました ",
       body: " いつもありがとう\nございます ",
     });
@@ -139,12 +153,12 @@ describe("grantBenefits", () => {
 
   it("タイトルか本文が上限を超えたら invalidNotice で何も書かない", async () => {
     expect(
-      await grantBenefits("u1", "days30", "モニター", {
+      await grantBenefits("u1", "days30", "monitor", "モニター", {
         title: "あ".repeat(61),
       }),
     ).toEqual({ error: "invalidNotice" });
     expect(
-      await grantBenefits("u1", "days30", "モニター", {
+      await grantBenefits("u1", "days30", "monitor", "モニター", {
         body: "あ".repeat(1001),
       }),
     ).toEqual({ error: "invalidNotice" });
@@ -159,7 +173,7 @@ describe("grantBenefits", () => {
       expiresAt: null,
     });
 
-    await grantBenefits("u1", "permanent", "補償");
+    await grantBenefits("u1", "permanent", "monitor", "補償");
 
     expect(mockInsertBenefitGrant).toHaveBeenCalledWith(
       TX,
@@ -176,7 +190,7 @@ describe("grantBenefits", () => {
   it("DB が失敗したら grantFailed でログを残す", async () => {
     mockTransaction.mockRejectedValue(new Error("fk violation"));
 
-    expect(await grantBenefits("u1", "days30", "理由")).toEqual({
+    expect(await grantBenefits("u1", "days30", "monitor", "理由")).toEqual({
       error: "grantFailed",
     });
     expect(console.error).toHaveBeenCalledWith(

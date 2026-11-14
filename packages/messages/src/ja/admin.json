@@ -152,12 +152,14 @@
     "table": {
       "target": "対象",
       "plan": "内容",
+      "category": "種別",
       "period": "期間",
       "reason": "理由",
       "grantedBy": "付与者",
       "state": "状態",
       "actions": "操作",
       "empty": "付与はありません",
+      "uncategorized": "-",
       "permanent": "無期限",
       "revokedReason": "取り消し理由: {reason}"
     },
@@ -169,6 +171,16 @@
       "expired": "期限切れ",
       "revoked": "取り消し済み"
     },
+    "categoryTabsLabel": "種別で絞り込む",
+    "categoryTabAll": "すべて",
+    "categories": {
+      "earlyAdopter": "アーリーアダプター",
+      "acquaintance": "知人",
+      "monitor": "モニター",
+      "campaign": "キャンペーン",
+      "compensation": "補償",
+      "other": "その他"
+    },
     "durations": {
       "days30": "30 日",
       "days90": "90 日",
@@ -179,6 +191,7 @@
       "button": "Pro 付与",
       "title": "Pro の特典を付与する",
       "description": "Stripe の決済を伴わずに Pro の特典（回数制限なし・拡張機能）を付けます。理由は監査ログに残ります。",
+      "categoryLabel": "種別（運営用の分類。本人には出しません）",
       "durationLabel": "期間",
       "noticeTitleLabel": "通知のタイトル（任意）",
       "noticeTitlePlaceholder": "例: 永久無料パスが付与されました",
@@ -372,6 +385,7 @@
     },
     "grants": {
       "title": "特典の手動付与",
+      "category": "種別",
       "period": "期間",
       "reason": "理由",
       "grantedBy": "付与者",
