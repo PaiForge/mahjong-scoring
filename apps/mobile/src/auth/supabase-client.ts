@@ -1,6 +1,7 @@
 import { AppState } from "react-native";
-import Constants from "expo-constants";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+import { DEV_HOST_URI } from "../lib/app-dev-host";
 
 import { sessionStorage } from "./session-storage";
 import { resolveSupabaseConfig } from "./supabase-config";
@@ -9,7 +10,7 @@ const config = resolveSupabaseConfig({
   envUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
   envKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   isDev: __DEV__,
-  hostUri: Constants.expoConfig?.hostUri,
+  hostUri: DEV_HOST_URI,
 });
 
 /**

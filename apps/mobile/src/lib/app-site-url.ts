@@ -1,5 +1,4 @@
-import Constants from "expo-constants";
-
+import { DEV_HOST_URI } from "./app-dev-host";
 import { resolveSiteUrl } from "./site-url";
 
 /**
@@ -12,5 +11,5 @@ import { resolveSiteUrl } from "./site-url";
 export const SITE_URL = resolveSiteUrl({
   envUrl: process.env.EXPO_PUBLIC_SITE_URL,
   isDev: __DEV__,
-  hostUri: Constants.expoConfig?.hostUri,
+  hostUri: DEV_HOST_URI,
 });
