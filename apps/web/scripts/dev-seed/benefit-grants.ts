@@ -45,6 +45,7 @@ const GRANTS_BY_USERNAME: Readonly<
         plan: PLANS.pro.key,
         benefits: [...PLANS.pro.benefits],
         reason: "モニター協力（シード）",
+        category: "monitor",
         grantedBy,
         startsAt,
         expiresAt: daysFrom(startsAt, 60),

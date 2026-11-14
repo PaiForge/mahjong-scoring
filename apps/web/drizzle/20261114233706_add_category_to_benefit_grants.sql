@@ -1,0 +1,1 @@
+ALTER TABLE "benefit_grants" ADD COLUMN "category" varchar(50);

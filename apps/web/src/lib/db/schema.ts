@@ -1192,6 +1192,13 @@ export type NewPurchase = typeof purchases.$inferInsert;
  * 運営の内部メモになり得るので、マイページには出さない。付与と取り消しは
  * `moderation_actions` にも残す（誰が・どこから）。
  *
+ * @design `category` は付与の種別（運営の内部の分類）
+ *
+ * 「なぜ付与したか」を集計・絞り込みできる形で持つ。値は
+ * `lib/entitlements/benefit-grant-categories.ts` のキー。列を足す前の行は NULL で、
+ * 新しい付与は Server Action が必須にする（過去の行を推測で埋めない）。利用者には
+ * 出さない — 利用者に見えるラベルは種別に依らず VIP の 1 つ。
+ *
  * @design 取り消し（`revoked_at`）は論理削除
  *
  * 購入と同じ。マイページの「付与された特典」に「取り消し済み」として残る。
@@ -1214,6 +1221,8 @@ export const benefitGrants = pgTable(
     benefits: text("benefits").array().notNull(),
     /** 付与の理由。必須 */
     reason: text("reason").notNull(),
+    /** 付与の種別（`BenefitGrantCategory`）。列を足す前の行は NULL */
+    category: varchar("category", { length: 50 }),
     /** 付与した管理者の auth.users(id)（FK は Supabase SQL で定義） */
     grantedBy: uuid("granted_by").notNull(),
     /** 特典の開始 */

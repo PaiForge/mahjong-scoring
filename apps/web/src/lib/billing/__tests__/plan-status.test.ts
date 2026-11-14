@@ -84,6 +84,7 @@ function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
     plan: "pro",
     benefits: ["unlimited_practice"],
     reason: "モニター",
+    category: null,
     grantedBy: "admin",
     startsAt: new Date("2026-09-25T00:00:00Z"),
     expiresAt: new Date("2026-10-25T00:00:00Z"),
