@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { messages } from "@mahjong-scoring/messages/ja";
-import { buildNotificationMessage } from "./message";
+import { buildNotificationDetail, buildNotificationMessage } from "./message";
 import { NOTIFICATION_TYPES } from "./types";
 
 const DICTIONARY_KEYS = Object.keys(messages.notifications.messages);
@@ -82,30 +82,21 @@ describe("buildNotificationMessage", () => {
     });
   });
 
-  it("付与に運営の文があれば 1 文目を替え、期限の文は辞書が足す", () => {
+  it("付与に運営のタイトルがあれば、期限の文を足さずにそのまま出す", () => {
     expect(
       buildNotificationMessage("benefit_granted", {
         expiresAt: "2026-12-01T00:00:00+09:00",
-        message: "  いつも応援ありがとうございます！ ",
+        title: "  永久無料パスが付与されました ",
       }),
     ).toEqual({
-      key: "benefitGrantedCustomUntil",
-      values: {
-        message: "いつも応援ありがとうございます！",
-        until: "2026年12月1日",
-      },
-    });
-    expect(
-      buildNotificationMessage("benefit_granted", { message: "感謝を込めて" }),
-    ).toEqual({
       key: "benefitGrantedCustom",
-      values: { message: "感謝を込めて" },
+      values: { title: "永久無料パスが付与されました" },
     });
   });
 
-  it("空白だけの運営の文は既定の文面に落とす", () => {
+  it("空白だけのタイトルは既定の文面に落とす", () => {
     expect(
-      buildNotificationMessage("benefit_granted", { message: "  " }),
+      buildNotificationMessage("benefit_granted", { title: "  " }),
     ).toEqual({ key: "benefitGranted" });
   });
 
@@ -121,11 +112,7 @@ describe("buildNotificationMessage", () => {
   });
 
   it("差し込み値のあるキーは辞書側にもプレースホルダがある", () => {
-    const withUntil = [
-      "purchaseCompletedPass",
-      "benefitGrantedUntil",
-      "benefitGrantedCustomUntil",
-    ];
+    const withUntil = ["purchaseCompletedPass", "benefitGrantedUntil"];
     for (const key of withUntil) {
       expect(
         messages.notifications.messages[
@@ -133,12 +120,39 @@ describe("buildNotificationMessage", () => {
         ],
       ).toContain("{until}");
     }
-    for (const key of ["benefitGrantedCustom", "benefitGrantedCustomUntil"]) {
-      expect(
-        messages.notifications.messages[
-          key as keyof typeof messages.notifications.messages
-        ],
-      ).toContain("{message}");
-    }
+    expect(messages.notifications.messages.benefitGrantedCustom).toContain(
+      "{title}",
+    );
+    expect(messages.notifications.detail.periodUntil).toContain("{until}");
+  });
+});
+
+describe("buildNotificationDetail", () => {
+  it("本文のある付与は本文と期限の文を返す", () => {
+    expect(
+      buildNotificationDetail("benefit_granted", {
+        expiresAt: "2026-12-01T00:00:00+09:00",
+        body: "  ありがとう\nございます ",
+      }),
+    ).toEqual({
+      body: "ありがとう\nございます",
+      period: { key: "periodUntil", values: { until: "2026年12月1日" } },
+    });
+  });
+
+  it("期限の無い付与は無期限の文", () => {
+    expect(
+      buildNotificationDetail("benefit_granted", { body: "感謝" }),
+    ).toEqual({ body: "感謝", period: { key: "periodPermanent" } });
+  });
+
+  it("本文が無い・空白だけ・付与以外の種別は詳細を持たない", () => {
+    expect(buildNotificationDetail("benefit_granted", {})).toBeUndefined();
+    expect(
+      buildNotificationDetail("benefit_granted", { body: " " }),
+    ).toBeUndefined();
+    expect(
+      buildNotificationDetail("purchase_completed", { body: "x" }),
+    ).toBeUndefined();
   });
 });

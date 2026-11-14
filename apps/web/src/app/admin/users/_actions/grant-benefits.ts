@@ -6,7 +6,10 @@ import { insertBenefitGrant } from "@/lib/entitlements/benefit-grants";
 import { logExternalError } from "@/lib/log-error";
 import { notifyQuietly } from "@/lib/notifications/create-notification";
 import { NotificationTargetType } from "@/lib/notifications/types";
-import { BENEFIT_GRANT_MESSAGE_MAX_LENGTH } from "@mahjong-scoring/features/notifications/message";
+import {
+  BENEFIT_GRANT_BODY_MAX_LENGTH,
+  BENEFIT_GRANT_TITLE_MAX_LENGTH,
+} from "@mahjong-scoring/features/notifications/message";
 import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import { requireAdminActor } from "../../_lib/auth";
@@ -26,7 +29,7 @@ export type GrantBenefitsError =
   | "unauthorized"
   | "invalidDuration"
   | "invalidReason"
-  | "invalidMessage"
+  | "invalidNotice"
   | "grantFailed";
 
 /**
@@ -40,21 +43,22 @@ export type GrantBenefitsError =
  * プランは `pro` 固定（特典を個別に選ばせない）。期間は列挙した選択肢から
  * （`grant-durations.ts`）。理由は必須。
  *
- * 通知に出す文（`message`）は任意。書けば付与の通知の 1 文目（「運営から Pro が
- * 付与されました」）に替わり、期限の文は辞書が足す（文面の組み立ては features の
- * `buildNotificationMessage`）。理由は運営の内部メモで利用者に出さないので、
+ * 通知のタイトルと本文（`notice`）は任意。タイトルは一覧の 1 行をそのまま置き換え
+ * （空なら既定の「運営から Pro が付与されました…」）、本文は行を開くと出る
+ * （文面と詳細の組み立ては features の `buildNotificationMessage` /
+ * `buildNotificationDetail`）。理由は運営の内部メモで利用者に出さないので、
  * 利用者に見せる文は別の欄で受ける。送った文は通知の metadata と監査ログに残る。
  *
  * @param targetUserId - 付与先
  * @param duration - 期間のキー。クライアントの入力なので絞る
  * @param reason - 付与の理由
- * @param message - 通知に出す文。空なら既定の文面
+ * @param notice - 通知のタイトルと本文。空なら既定の文面・本文なし
  */
 export async function grantBenefits(
   targetUserId: string,
   duration: string,
   reason: string,
-  message = "",
+  notice: { readonly title?: string; readonly body?: string } = {},
 ): Promise<ActionResult<GrantBenefitsError>> {
   const admin = await requireAdminActor("unauthorized");
   if ("error" in admin) {
@@ -71,12 +75,11 @@ export async function grantBenefits(
     return { error: "invalidReason" };
   }
 
-  const trimmedMessage = message.trim();
-  if (trimmedMessage.length > BENEFIT_GRANT_MESSAGE_MAX_LENGTH) {
-    return { error: "invalidMessage" };
+  const title = optionalText(notice.title, BENEFIT_GRANT_TITLE_MAX_LENGTH);
+  const body = optionalText(notice.body, BENEFIT_GRANT_BODY_MAX_LENGTH);
+  if (title === null || body === null) {
+    return { error: "invalidNotice" };
   }
-  const notificationMessage =
-    trimmedMessage === "" ? undefined : trimmedMessage;
 
   let granted: BenefitGrant | undefined;
   try {
@@ -100,9 +103,8 @@ export async function grantBenefits(
           plan: grant.plan,
           benefits: grant.benefits,
           expiresAt: grant.expiresAt?.toISOString() ?? null,
-          ...(notificationMessage === undefined
-            ? {}
-            : { message: notificationMessage }),
+          ...(title === undefined ? {} : { title }),
+          ...(body === undefined ? {} : { body }),
         },
       });
       granted = grant;
@@ -120,11 +122,24 @@ export async function grantBenefits(
       metadata: {
         plan: granted.plan,
         expiresAt: granted.expiresAt?.toISOString(),
-        message: notificationMessage,
+        title,
+        body,
       },
     });
   }
 
   revalidateBenefitGrantViews();
   return { success: true };
+}
+
+/**
+ * 任意の文を前後の空白を除いて返す。空なら undefined、上限を超えたら null
+ */
+function optionalText(
+  value: string | undefined,
+  maxLength: number,
+): string | undefined | null {
+  const trimmed = value?.trim() ?? "";
+  if (trimmed === "") return undefined;
+  return trimmed.length > maxLength ? null : trimmed;
 }

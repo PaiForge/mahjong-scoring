@@ -15,13 +15,17 @@
     "purchaseCompletedLifetime": "Your purchase of Pro (lifetime) is complete. You can use Pro features from now on.",
     "purchaseCompleted": "Your purchase of Pro is complete.",
     "benefitGrantedUntil": "The operator has granted you Pro. You can use Pro features until {until}.",
-    "benefitGrantedCustomUntil": "{message} You can use Pro features until {until}.",
-    "benefitGrantedCustom": "{message}",
+    "benefitGrantedCustom": "{title}",
     "benefitGranted": "The operator has granted you Pro (no expiry).",
     "planExpired": "Your Pro has expired and you are back on the free plan.",
     "purchaseRefunded": "Your purchase of Pro was cancelled because it was refunded.",
     "purchaseRevoked": "Your purchase of Pro was cancelled.",
     "benefitGrantRevoked": "The Pro granted to you by the operator was withdrawn.",
     "unknown": "You have a new notification."
+  },
+  "detail": {
+    "periodUntil": "You can use Pro features until {until}.",
+    "periodPermanent": "You can use Pro features with no expiry.",
+    "viewPlan": "View plan"
   }
 }

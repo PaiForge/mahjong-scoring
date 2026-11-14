@@ -6,7 +6,7 @@ import { NotificationType, isNotificationType } from "./types";
  * 通知の文面 — 種別と metadata から辞書キーと差し込み値を決める
  * 通知文面
  *
- * 辞書は `notifications.messages.<key>`。web の通知ページとアプリの通知の画面が
+ * 辞書は `notifications.messages.<key>`（行を開いたときの詳細は `notifications.detail.<key>`）。web の通知ページとアプリの通知の画面が
  * 同じこれを呼び、同じ文面を出す。`switch` は `NotificationType` を網羅し
  * `never` で閉じるので、種別を足すとここを書くまで型検査が通らない。
  * DB から来る `type` は文字列のままなので、登録に無い値（退役した種別）は
@@ -28,18 +28,26 @@ export interface NotificationMessageMetadata {
   readonly expiresAt?: string;
   /** 取り消しの理由（`PurchaseRevokeReason`）。購入の取り消しだけ */
   readonly revokeReason?: string;
-  /** 運営が付与のときに書いた文（{@link BENEFIT_GRANT_MESSAGE_MAX_LENGTH}）。付与の通知だけ */
-  readonly message?: string;
+  /** 運営が付与のときに書いたタイトル（一覧の 1 行）。付与の通知だけ */
+  readonly title?: string;
+  /** 運営が付与のときに書いた本文（行を開くと出る）。付与の通知だけ */
+  readonly body?: string;
 }
 
 /**
- * 付与の通知に運営が書ける文の最大文字数
- * 付与の通知文の上限
+ * 付与の通知に運営が書けるタイトルの最大文字数
+ * 付与の通知タイトルの上限
  *
- * 管理画面の入力欄の `maxLength` とサーバーの検証が同じ値を使う。通知は一覧の
- * 1 行の題名として出るので、長文は想定しない。
+ * 管理画面の入力欄の `maxLength` とサーバーの検証が同じ値を使う。一覧の 1 行の
+ * 題名なので短く抑える（長い文は本文に書く）。
  */
-export const BENEFIT_GRANT_MESSAGE_MAX_LENGTH = 100;
+export const BENEFIT_GRANT_TITLE_MAX_LENGTH = 60;
+
+/**
+ * 付与の通知に運営が書ける本文の最大文字数
+ * 付与の通知本文の上限
+ */
+export const BENEFIT_GRANT_BODY_MAX_LENGTH = 1000;
 
 /** 文面の辞書キーと差し込み値 */
 export interface NotificationMessage {
@@ -91,15 +99,11 @@ export function buildNotificationMessage(
       }
       return { key: "purchaseCompleted" };
     case NotificationType.BenefitGranted: {
-      // 運営が書いた文は既定の 1 文目（「運営から Pro が付与されました」）に替わる。
-      // 期限の文は運営に書かせず辞書が足す（書き間違えた期限を出さない）。
-      // 書いた文は 1 言語だけで、英語の画面でも入力したまま出る
-      const message = metadata.message?.trim();
-      if (message) {
-        return until
-          ? { key: "benefitGrantedCustomUntil", values: { message, until } }
-          : { key: "benefitGrantedCustom", values: { message } };
-      }
+      // 運営が書いたタイトルはそのまま出す（期限の文を足さない — 運営の文と
+      // 食い違うことがある）。期限は行を開いたときの詳細（buildNotificationDetail）
+      // が付与の中身から出す。書いた文は 1 言語だけで、英語の画面でも入力したまま出る
+      const title = metadata.title?.trim();
+      if (title) return { key: "benefitGrantedCustom", values: { title } };
       return until
         ? { key: "benefitGrantedUntil", values: { until } }
         : { key: "benefitGranted" };
@@ -118,4 +122,45 @@ export function buildNotificationMessage(
       return exhaustive;
     }
   }
+}
+
+/**
+ * 行を開いたときに出す詳細
+ * 通知詳細
+ */
+export interface NotificationDetail {
+  /** 運営が書いた本文（改行を含み得る） */
+  readonly body: string;
+  /** 期間の文（`notifications.detail` 配下のキーと差し込み値） */
+  readonly period: NotificationMessage;
+}
+
+/**
+ * 通知の詳細を決める。本文を持たない通知は undefined（行は遷移先へ進む）
+ * 通知詳細決定
+ *
+ * いま本文を持つのは運営が本文を書いた付与の通知だけ。web とアプリの通知の一覧は、
+ * 詳細がある行を押すと遷移せずにその場で開き、本文・期間・遷移先へのリンクを出す。
+ * 期間は運営の文ではなく metadata の期限（付与の中身）から出すので、運営の文と
+ * 食い違っていれば開いた時点で分かる。
+ *
+ * @param type - 通知の種別（DB の文字列のまま）
+ * @param metadata - 差し込みに使う metadata
+ * @param locale - 差し込む日付の言語（省略時は日本語）
+ */
+export function buildNotificationDetail(
+  type: string,
+  metadata: NotificationMessageMetadata,
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): NotificationDetail | undefined {
+  if (type !== NotificationType.BenefitGranted) return undefined;
+  const body = metadata.body?.trim();
+  if (!body) return undefined;
+  const until = formatUntil(metadata.expiresAt, locale);
+  return {
+    body,
+    period: until
+      ? { key: "periodUntil", values: { until } }
+      : { key: "periodPermanent" },
+  };
 }

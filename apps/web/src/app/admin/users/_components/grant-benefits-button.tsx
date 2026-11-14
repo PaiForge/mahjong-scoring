@@ -5,7 +5,10 @@ import { useTranslations } from "next-intl";
 
 import { AdminReasonModal } from "@/app/admin/_components/admin-reason-modal";
 import { ADMIN_INPUT_CLASSES } from "@/app/admin/_lib/input-classes";
-import { BENEFIT_GRANT_MESSAGE_MAX_LENGTH } from "@mahjong-scoring/features/notifications/message";
+import {
+  BENEFIT_GRANT_BODY_MAX_LENGTH,
+  BENEFIT_GRANT_TITLE_MAX_LENGTH,
+} from "@mahjong-scoring/features/notifications/message";
 
 import { grantBenefits } from "../_actions/grant-benefits";
 import {
@@ -21,7 +24,7 @@ interface GrantBenefitsButtonProps {
 const DEFAULT_DURATION: GrantDurationKey = GRANT_DURATION_KEYS[0];
 
 /**
- * Pro 付与ボタン — クリックでモーダル表示、期間・通知に出す文（任意）・理由を入れて付与
+ * Pro 付与ボタン — クリックでモーダル表示、期間・通知のタイトルと本文（任意）・理由を入れて付与
  * 特典付与ボタン
  */
 export function GrantBenefitsButton({
@@ -29,8 +32,10 @@ export function GrantBenefitsButton({
 }: GrantBenefitsButtonProps) {
   const t = useTranslations("admin.benefitGrants");
   const [duration, setDuration] = useState<GrantDurationKey>(DEFAULT_DURATION);
-  const [message, setMessage] = useState("");
-  const messageId = `grant-message-${targetUserId}`;
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const titleId = `grant-notice-title-${targetUserId}`;
+  const bodyId = `grant-notice-body-${targetUserId}`;
 
   return (
     <AdminReasonModal
@@ -50,17 +55,16 @@ export function GrantBenefitsButton({
         pending: t("grant.pending"),
       }}
       onSubmit={async (reason) => {
-        const result = await grantBenefits(
-          targetUserId,
-          duration,
-          reason,
-          message,
-        );
+        const result = await grantBenefits(targetUserId, duration, reason, {
+          title,
+          body,
+        });
         return !("error" in result);
       }}
       onReset={() => {
         setDuration(DEFAULT_DURATION);
-        setMessage("");
+        setTitle("");
+        setBody("");
       }}
     >
       <fieldset className="mb-4">
@@ -83,20 +87,36 @@ export function GrantBenefitsButton({
         </div>
       </fieldset>
 
-      <label htmlFor={messageId} className="mb-1 block text-sm font-medium">
-        {t("grant.messageLabel")}
+      <label htmlFor={titleId} className="mb-1 block text-sm font-medium">
+        {t("grant.noticeTitleLabel")}
       </label>
       <input
-        id={messageId}
+        id={titleId}
         type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder={t("grant.messagePlaceholder")}
-        maxLength={BENEFIT_GRANT_MESSAGE_MAX_LENGTH}
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder={t("grant.noticeTitlePlaceholder")}
+        maxLength={BENEFIT_GRANT_TITLE_MAX_LENGTH}
+        className={`w-full ${ADMIN_INPUT_CLASSES}`}
+      />
+      <p className="mt-1 mb-3 text-xs text-surface-500">
+        {t("grant.noticeTitleHint")}
+      </p>
+
+      <label htmlFor={bodyId} className="mb-1 block text-sm font-medium">
+        {t("grant.noticeBodyLabel")}
+      </label>
+      <textarea
+        id={bodyId}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder={t("grant.noticeBodyPlaceholder")}
+        maxLength={BENEFIT_GRANT_BODY_MAX_LENGTH}
+        rows={4}
         className={`w-full ${ADMIN_INPUT_CLASSES}`}
       />
       <p className="mt-1 mb-4 text-xs text-surface-500">
-        {t("grant.messageHint")}
+        {t("grant.noticeBodyHint")}
       </p>
     </AdminReasonModal>
   );
