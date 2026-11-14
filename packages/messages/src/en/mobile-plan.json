@@ -35,6 +35,7 @@
     "buy": "Buy"
   },
   "alreadyActive": "You already have an active purchase, so you cannot buy more. You can buy a pass again after it expires.",
+  "grantActive": "Your Pro was granted by the team, so there is nothing to buy while it is active.",
   "alreadyActiveLifetimeOnly": "You already have an active purchase, so you cannot buy more. If you have a 30-day pass, you can buy the lifetime purchase after it expires.",
   "notes": {
     "title": "Before you buy",

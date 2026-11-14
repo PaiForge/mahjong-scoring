@@ -108,9 +108,12 @@ function PlanBody({
             />
           ) : (
             <Text style={styles.body}>
-              {lineup === "lifetimeOnly"
-                ? t("alreadyActiveLifetimeOnly")
-                : t("alreadyActive")}
+              {/* 付与中は購入が無くても導線を隠す（サーバーの offersPurchase）。購入の文言を出さない */}
+              {plan.status.kind === "granted"
+                ? t("grantActive")
+                : lineup === "lifetimeOnly"
+                  ? t("alreadyActiveLifetimeOnly")
+                  : t("alreadyActive")}
             </Text>
           )}
         </View>
