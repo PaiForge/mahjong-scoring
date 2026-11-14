@@ -582,8 +582,22 @@ Product ID はアプリが `/api/mobile/v1/plan/offers?platform=android` で読�
   `__DEV__` は本番のバンドルで false に固定されるので、ストアに出すビルドには偽ストアが入らない。
   EAS の production 環境に `EXPO_PUBLIC_IAP_STORE` があれば `scripts/testflight.sh` が提出前に止める
 
-Android の開発ビルドから手元の Supabase・web に届くか（平文 HTTP・エミュレーターからの
-接続先）は未検証。届かなければ、購入の前のログインで止まる。
+開発ビルドの作り方（エミュレーター）:
+
+```bash
+cd apps/mobile
+npx expo run:android   # 初回は prebuild と Gradle のビルドで 10 分ほど。Android SDK と JDK 17 が要る
+```
+
+- `expo run:android` は `package.json` の `scripts` を書き換えるので、終わったら
+  `git checkout -- package.json` で戻す。`android/` は gitignore 済み
+- 上の `EXPO_PUBLIC_IAP_STORE=fake … start --clear` の Metro を先に起動しておくと、`expo run:android` は
+  同じポートの Metro をそのまま使う（ポートを変えるなら両方に同じ `--port` を付ける）
+- 開発ビルドは平文 HTTP を通し（Expo の debug のマニフェストが `usesCleartextTraffic` を持つ）、
+  手元の Supabase（`:54321`）と web（`:3000`）にシードユーザーでログインできる。接続先は
+  バンドルを読んだホスト（エミュレーターでは Mac を指す `10.0.2.2`）から決まる
+  （`src/lib/dev-host.ts`）。2026-11 にエミュレーター（API 36）で、ログイン・購入（Buy / Fail /
+  Cancel）・サーバーの記録・プランの反映・「購入を復元」まで確かめた
 
 ## 古い版を止める（最低バージョン）
 
