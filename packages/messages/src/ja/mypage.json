@@ -38,7 +38,7 @@
     "language": {
       "title": "言語",
       "current": "日本語",
-      "summary": "{language}・設定アプリで変更します"
+      "summary": "{language}・設定アプリで変更します。言語の項目が無いときは、「一般 > 言語と地域」で言語を追加してください"
     }
   },
   "heatmap": {
