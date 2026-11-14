@@ -39,7 +39,14 @@ interface AdminReasonModalProps {
   readonly onReset?: () => void;
   /** 理由欄の前に置く追加の入力欄 */
   readonly children?: ReactNode;
+  /**
+   * 幅。既定は理由だけを入れる小さなダイアログ。追加の入力欄（`children`）が
+   * 多いものは `wide` にする
+   */
+  readonly size?: "narrow" | "wide";
 }
+
+const WIDTH_CLASSES = { narrow: "max-w-md", wide: "max-w-2xl" } as const;
 
 /**
  * 理由を入力して実行する管理操作のボタンとモーダル
@@ -47,6 +54,9 @@ interface AdminReasonModalProps {
  *
  * BAN / 特典の付与 / 付与の取り消しで共通。理由は監査ログ
  * （`moderation_actions.reason`）に残るため必須。
+ *
+ * 見出し・本文・操作の 3 段に分け、本文だけをスクロールさせる。入力欄が増えて
+ * 画面の高さを超えても、確定とキャンセルが常に見えるように。
  *
  * @design フォームの `action` ではなく `onSubmit` で送る
  * `<form action={fn}>` は、fn が終わると React がフォームをリセットする。入力エラーで
@@ -61,6 +71,7 @@ export function AdminReasonModal({
   onSubmit,
   onReset,
   children,
+  size = "narrow",
 }: AdminReasonModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -102,46 +113,71 @@ export function AdminReasonModal({
         {labels.trigger}
       </button>
 
-      <AdminModalShell isOpen={isOpen} onClose={close} label={labels.title}>
-        <h3 className="text-lg font-semibold">{labels.title}</h3>
-        {labels.description && (
-          <p className="text-sm text-surface-600">{labels.description}</p>
-        )}
+      <AdminModalShell
+        isOpen={isOpen}
+        onClose={close}
+        label={labels.title}
+        layout="sectioned"
+        widthClassName={WIDTH_CLASSES[size]}
+      >
+        <header className="border-b border-surface-200 px-6 py-4">
+          <h3 className="text-lg font-semibold text-surface-900">
+            {labels.title}
+          </h3>
+          {labels.description && (
+            <p className="mt-1 text-sm text-surface-600">
+              {labels.description}
+            </p>
+          )}
+        </header>
 
-        <form onSubmit={handleSubmit}>
-          {children}
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-5">
+            {children}
 
-          <label htmlFor={reasonId} className="mb-1 block text-sm font-medium">
-            {labels.reasonLabel}
-          </label>
-          <textarea
-            id={reasonId}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder={labels.reasonPlaceholder}
-            className={`mb-4 w-full ${ADMIN_INPUT_CLASSES}`}
-            rows={3}
-            maxLength={MODERATION_REASON_MAX_LENGTH}
-          />
-
-          {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={close}
-              className={adminButtonClasses({ variant: "secondary" })}
-            >
-              {labels.cancel}
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className={adminButtonClasses({ variant: tone })}
-            >
-              {isPending ? labels.pending : labels.confirm}
-            </button>
+            <div>
+              <label
+                htmlFor={reasonId}
+                className="mb-1.5 block text-sm font-medium text-surface-900"
+              >
+                {labels.reasonLabel}
+              </label>
+              <textarea
+                id={reasonId}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder={labels.reasonPlaceholder}
+                aria-invalid={error === labels.reasonRequired}
+                className={`w-full ${ADMIN_INPUT_CLASSES}`}
+                rows={3}
+                maxLength={MODERATION_REASON_MAX_LENGTH}
+              />
+            </div>
           </div>
+
+          <footer className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-surface-200 bg-surface-50 px-6 py-3">
+            {error && (
+              <p role="alert" className="mr-auto text-sm text-red-700">
+                {error}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={close}
+                className={adminButtonClasses({ variant: "secondary" })}
+              >
+                {labels.cancel}
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className={adminButtonClasses({ variant: tone })}
+              >
+                {isPending ? labels.pending : labels.confirm}
+              </button>
+            </div>
+          </footer>
         </form>
       </AdminModalShell>
     </>

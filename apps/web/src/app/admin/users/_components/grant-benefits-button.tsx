@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 
+import { AdminChoiceTiles } from "@/app/admin/_components/admin-choice-tiles";
 import { AdminReasonModal } from "@/app/admin/_components/admin-reason-modal";
+import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
+import { formatAdminDate } from "@/app/admin/_lib/format-date";
 import { ADMIN_INPUT_CLASSES } from "@/app/admin/_lib/input-classes";
 import {
   BENEFIT_GRANT_CATEGORIES,
   type BenefitGrantCategory,
 } from "@/lib/entitlements/benefit-grant-categories";
+import { addPassDuration } from "@mahjong-scoring/features/billing/plans";
 import {
   BENEFIT_GRANT_BODY_MAX_LENGTH,
   BENEFIT_GRANT_TITLE_MAX_LENGTH,
@@ -16,6 +20,7 @@ import {
 
 import { grantBenefits } from "../_actions/grant-benefits";
 import {
+  GRANT_DURATION_DAYS,
   GRANT_DURATION_KEYS,
   type GrantDurationKey,
 } from "../_lib/grant-durations";
@@ -28,12 +33,73 @@ interface GrantBenefitsButtonProps {
 const DEFAULT_DURATION: GrantDurationKey = GRANT_DURATION_KEYS[0];
 
 /**
- * Pro 付与ボタン — クリックでモーダル表示、種別・期間・通知のタイトルと本文（任意）・理由を入れて付与
+ * モーダルの中の 1 区画（見出し + 必須 / 任意の印 + 補足 + 入力欄）
+ *
+ * 入力欄が「何を付与するか」「本人に何を伝えるか」の 2 つの話に分かれるので、
+ * 区切り線と見出しで組を示す。
+ */
+function FormSection({
+  title,
+  badge,
+  description,
+  children,
+}: {
+  readonly title: string;
+  readonly badge: { readonly label: string; readonly required: boolean };
+  readonly description?: string;
+  readonly children: ReactNode;
+}) {
+  return (
+    <section className="border-b border-surface-200 pb-6">
+      <div className="mb-3">
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-surface-900">
+          {title}
+          <span
+            className={adminChipClasses(badge.required ? "warning" : "neutral")}
+          >
+            {badge.label}
+          </span>
+        </h4>
+        {description && (
+          <p className="mt-1 text-xs text-surface-500">{description}</p>
+        )}
+      </div>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
+}
+
+/** 入力欄の下の補足と、右端の「今の文字数 / 上限」 */
+function FieldFooter({
+  hint,
+  length,
+  maxLength,
+}: {
+  readonly hint: string;
+  readonly length: number;
+  readonly maxLength: number;
+}) {
+  return (
+    <div className="mt-1 flex items-start justify-between gap-3 text-xs text-surface-500">
+      <p>{hint}</p>
+      <p className="shrink-0 tabular-nums">
+        {length} / {maxLength}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Pro 付与ボタン — クリックでモーダル表示、付与の内容（種別・期間）・本人への通知（任意）・理由を入れて付与
  * 特典付与ボタン
  *
  * 種別には既定を置かない。先頭を選んだ状態で開くと、選び直さずに送った付与が
  * すべて先頭の種別になり、後からの集計が信用できなくなる。未選択のまま送ると
  * ブラウザの必須の検証（ラジオの `required`）が止める。
+ *
+ * 期間のタイルには、いま付与したときの期限の日付を添える。「90 日」が何日までかを
+ * 暗算させないため（数え方はサーバーと同じ `addPassDuration`。日付の境目をまたぐ
+ * 数秒の差は出うるので、目安として出す）。
  */
 export function GrantBenefitsButton({
   targetUserId,
@@ -45,10 +111,13 @@ export function GrantBenefitsButton({
   const [body, setBody] = useState("");
   const titleId = `grant-notice-title-${targetUserId}`;
   const bodyId = `grant-notice-body-${targetUserId}`;
+  // モーダルを開いている間は動かさない（押すたびに日付が変わって見えないように）
+  const [now] = useState(() => new Date());
 
   return (
     <AdminReasonModal
       tone="primary"
+      size="wide"
       // 取り消しボタン（付与ごとに並ぶ）と同じく id を対象で分ける
       reasonId={`grant-reason-${targetUserId}`}
       labels={{
@@ -82,79 +151,103 @@ export function GrantBenefitsButton({
         setBody("");
       }}
     >
-      <fieldset className="mb-4">
-        <legend className="mb-1 block text-sm font-medium">
-          {t("grant.categoryLabel")}
-        </legend>
-        <div className="flex flex-wrap gap-x-4 gap-y-2">
-          {BENEFIT_GRANT_CATEGORIES.map((key) => (
-            <label key={key} className="flex items-center gap-1 text-sm">
-              <input
-                type="radio"
-                name="category"
-                value={key}
-                required
-                checked={category === key}
-                onChange={() => setCategory(key)}
-              />
-              {/* 例: admin.benefitGrants.categories.earlyAdopter */}
-              {t(`categories.${key}`)}
-            </label>
-          ))}
+      <FormSection
+        title={t("grant.sectionGrant")}
+        badge={{ label: t("grant.required"), required: true }}
+      >
+        <AdminChoiceTiles
+          name="category"
+          legend={t("grant.categoryLabel")}
+          columns={3}
+          required
+          value={category}
+          onChange={setCategory}
+          options={BENEFIT_GRANT_CATEGORIES.map((key) => ({
+            key,
+            // 例: admin.benefitGrants.categories.earlyAdopter
+            label: t(`categories.${key}`),
+            // 例: admin.benefitGrants.categoryHints.earlyAdopter
+            hint: t(`categoryHints.${key}`),
+          }))}
+        />
+        <AdminChoiceTiles
+          name="duration"
+          legend={t("grant.durationLabel")}
+          columns={4}
+          value={duration}
+          onChange={setDuration}
+          options={GRANT_DURATION_KEYS.map((key) => {
+            const days = GRANT_DURATION_DAYS[key];
+            return {
+              key,
+              // 例: admin.benefitGrants.durations.days30
+              label: t(`durations.${key}`),
+              hint: (
+                // 日付の途中で折り返さない
+                <span className="whitespace-nowrap">
+                  {days === undefined
+                    ? t("grant.noExpiry")
+                    : t("grant.expiresOn", {
+                        date: formatAdminDate(addPassDuration(now, days)),
+                      })}
+                </span>
+              ),
+            };
+          })}
+        />
+      </FormSection>
+
+      <FormSection
+        title={t("grant.sectionNotice")}
+        badge={{ label: t("grant.optional"), required: false }}
+        description={t("grant.sectionNoticeDescription")}
+      >
+        <div>
+          <label
+            htmlFor={titleId}
+            className="mb-1.5 block text-sm font-medium text-surface-900"
+          >
+            {t("grant.noticeTitleLabel")}
+          </label>
+          <input
+            id={titleId}
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={t("grant.noticeTitlePlaceholder")}
+            maxLength={BENEFIT_GRANT_TITLE_MAX_LENGTH}
+            className={`w-full ${ADMIN_INPUT_CLASSES}`}
+          />
+          <FieldFooter
+            hint={t("grant.noticeTitleHint")}
+            length={title.length}
+            maxLength={BENEFIT_GRANT_TITLE_MAX_LENGTH}
+          />
         </div>
-      </fieldset>
 
-      <fieldset className="mb-4">
-        <legend className="mb-1 block text-sm font-medium">
-          {t("grant.durationLabel")}
-        </legend>
-        <div className="flex flex-wrap gap-x-4 gap-y-2">
-          {GRANT_DURATION_KEYS.map((key) => (
-            <label key={key} className="flex items-center gap-1 text-sm">
-              <input
-                type="radio"
-                name="duration"
-                value={key}
-                checked={duration === key}
-                onChange={() => setDuration(key)}
-              />
-              {t(`durations.${key}`)}
-            </label>
-          ))}
+        <div>
+          <label
+            htmlFor={bodyId}
+            className="mb-1.5 block text-sm font-medium text-surface-900"
+          >
+            {t("grant.noticeBodyLabel")}
+          </label>
+          <textarea
+            id={bodyId}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder={t("grant.noticeBodyPlaceholder")}
+            maxLength={BENEFIT_GRANT_BODY_MAX_LENGTH}
+            rows={4}
+            className={`w-full ${ADMIN_INPUT_CLASSES}`}
+          />
+          <FieldFooter
+            hint={t("grant.noticeBodyHint")}
+            length={body.length}
+            maxLength={BENEFIT_GRANT_BODY_MAX_LENGTH}
+          />
         </div>
-      </fieldset>
-
-      <label htmlFor={titleId} className="mb-1 block text-sm font-medium">
-        {t("grant.noticeTitleLabel")}
-      </label>
-      <input
-        id={titleId}
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder={t("grant.noticeTitlePlaceholder")}
-        maxLength={BENEFIT_GRANT_TITLE_MAX_LENGTH}
-        className={`w-full ${ADMIN_INPUT_CLASSES}`}
-      />
-      <p className="mt-1 mb-3 text-xs text-surface-500">
-        {t("grant.noticeTitleHint")}
-      </p>
-
-      <label htmlFor={bodyId} className="mb-1 block text-sm font-medium">
-        {t("grant.noticeBodyLabel")}
-      </label>
-      <textarea
-        id={bodyId}
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder={t("grant.noticeBodyPlaceholder")}
-        maxLength={BENEFIT_GRANT_BODY_MAX_LENGTH}
-        rows={4}
-        className={`w-full ${ADMIN_INPUT_CLASSES}`}
-      />
-      <p className="mt-1 mb-4 text-xs text-surface-500">
-        {t("grant.noticeBodyHint")}
-      </p>
+      </FormSection>
     </AdminReasonModal>
   );
 }
