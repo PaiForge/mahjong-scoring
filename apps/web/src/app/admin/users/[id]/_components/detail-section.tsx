@@ -6,13 +6,16 @@ import type { ReactNode } from "react";
  */
 export function DetailSection({
   title,
+  id,
   children,
 }: {
   readonly title: string;
+  /** ページ内リンクの飛び先（`USER_DETAIL_SECTION_IDS`） */
+  readonly id?: string;
   readonly children: ReactNode;
 }) {
   return (
-    <section className="admin-panel space-y-3 p-5">
+    <section id={id} className="admin-panel scroll-mt-4 space-y-3 p-5">
       <h3 className="text-sm font-bold text-surface-900">{title}</h3>
       {children}
     </section>

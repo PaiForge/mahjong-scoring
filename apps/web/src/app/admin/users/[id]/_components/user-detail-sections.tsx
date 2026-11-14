@@ -27,6 +27,7 @@ import { BanButton } from "../../_components/ban-button";
 import { UnbanButton } from "../../_components/unban-button";
 import { GrantBenefitsButton } from "../../_components/grant-benefits-button";
 import { PublicProfileLink } from "../../_components/public-profile-link";
+import { USER_DETAIL_SECTION_IDS } from "../../_lib/detail-section-ids";
 import { readLoginProviders } from "../../_lib/login-providers";
 import { UserStatus } from "../../_lib/user-status";
 import type { UserDetail } from "../_lib/queries";
@@ -189,7 +190,10 @@ export async function PurchasesSection({
     getTranslations("mypagePlan"),
   ]);
   return (
-    <DetailSection title={t("purchases.title")}>
+    <DetailSection
+      title={t("purchases.title")}
+      id={USER_DETAIL_SECTION_IDS.purchases}
+    >
       <DetailTable
         headers={[
           t("purchases.date"),
@@ -248,7 +252,10 @@ export async function GrantsSection({
     getTranslations("admin.benefitGrants"),
   ]);
   return (
-    <DetailSection title={t("grants.title")}>
+    <DetailSection
+      title={t("grants.title")}
+      id={USER_DETAIL_SECTION_IDS.grants}
+    >
       <DetailTable
         headers={[
           t("grants.period"),
