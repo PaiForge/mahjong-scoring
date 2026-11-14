@@ -10,6 +10,7 @@ export const USER_TABLE_COLUMNS = [
   "displayName",
   "status",
   "plan",
+  "loginMethods",
   "createdAt",
   "detail",
 ] as const;
