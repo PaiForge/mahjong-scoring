@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/app/[locale]/(user)/_components/button";
-import { GoogleIcon } from "@/app/[locale]/(user)/_components/icons/google-icon";
+import { GoogleIcon } from "@/app/_components/google-icon";
 import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { createClient } from "@/lib/supabase/client";
 
