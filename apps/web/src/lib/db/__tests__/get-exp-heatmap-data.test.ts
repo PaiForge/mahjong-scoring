@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockGte, mockLte } = vi.hoisted(() => ({
+const { mockGte, mockLte, mockUnstableCache } = vi.hoisted(() => ({
   mockGte: vi.fn(),
   mockLte: vi.fn(),
+  mockUnstableCache: vi.fn(),
 }));
 
 vi.mock("drizzle-orm", async (importOriginal) => {
@@ -21,7 +22,13 @@ vi.mock("drizzle-orm", async (importOriginal) => {
 });
 
 vi.mock("next/cache", () => ({
-  unstable_cache: <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
+  unstable_cache: <T extends (...args: unknown[]) => unknown>(
+    fn: T,
+    ...rest: unknown[]
+  ): T => {
+    mockUnstableCache(fn, ...rest);
+    return fn;
+  },
   revalidateTag: vi.fn(),
 }));
 
@@ -143,6 +150,20 @@ describe("getExpHeatmapData", () => {
     expect(result.dailyByModule).toEqual({
       "2026-04-01": { jantou_fu: 100, machi_fu: 50 },
       "2026-04-02": { jantou_fu: 75 },
+    });
+  });
+
+  it("キャッシュのキーに JST の当日を含め、日付をまたいだら別のエントリにする", async () => {
+    // 2026-04-15T15:00Z は JST では 04-16 の 0:00
+    await getExpHeatmapData("user-123", NOW);
+    await getExpHeatmapData("user-123", new Date("2026-04-15T15:00:00.000Z"));
+
+    expect(mockUnstableCache.mock.calls.map((call) => call[1])).toEqual([
+      ["exp-heatmap-data", "user-123", "2026-04-15"],
+      ["exp-heatmap-data", "user-123", "2026-04-16"],
+    ]);
+    expect(mockUnstableCache.mock.calls[0]?.[2]).toMatchObject({
+      tags: ["exp-heatmap:user-123"],
     });
   });
 

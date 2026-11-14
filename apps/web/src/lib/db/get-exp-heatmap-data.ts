@@ -8,7 +8,7 @@
  *
  * @see apps/web/src/app/[locale]/(user)/(protected)/(confirmed)/mypage/(home)/_components/exp-activity-heatmap.tsx
  */
-import { jstStartOfDay } from "@mahjong-scoring/features/jst";
+import { jstDayKey, jstStartOfDay } from "@mahjong-scoring/features/jst";
 import { and, eq, gte, lte, sql, sum } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
@@ -150,6 +150,10 @@ async function fetchExpHeatmapData(
  * 新しい EXP 付与時は `save-challenge-result.ts` 側で `revalidateTag` を呼ぶ。
  * TTL は防御的に 60 秒とし、`revalidateTag` が失敗しても極端に古い値が残らないようにする。
  *
+ * キーに JST の当日を含める。表示範囲は当日から決まるので、日付をまたいだら
+ * 別のエントリにする — キーがユーザーだけだと、TTL 切れの後も
+ * stale-while-revalidate で前日を起点に集計した値が 1 回返り、当日分が欠ける。
+ *
  * @param now - 「今」として扱う時刻。呼び出し側で1回だけ生成して渡す
  */
 export async function getExpHeatmapData(
@@ -158,7 +162,7 @@ export async function getExpHeatmapData(
 ): Promise<ExpHeatmapData> {
   const cached = unstable_cache(
     (uid: string) => fetchExpHeatmapData(uid, now),
-    ["exp-heatmap-data", userId],
+    ["exp-heatmap-data", userId, jstDayKey(now)],
     {
       tags: [expHeatmapCacheTag(userId)],
       revalidate: HEATMAP_CACHE_TTL_SECONDS,
