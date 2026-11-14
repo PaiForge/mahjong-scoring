@@ -10,7 +10,12 @@ import {
   isNotificationType,
 } from "@mahjong-scoring/features/notifications/types";
 
-import { CheckIcon, ClockIcon, CloseIcon } from "../components/icons/icons";
+import {
+  CheckIcon,
+  ClockIcon,
+  CloseIcon,
+  GiftIcon,
+} from "../components/icons/icons";
 import { LinkRow } from "../components/link-row";
 import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { colors } from "../lib/theme";
@@ -148,21 +153,30 @@ const NEUTRAL: Appearance = {
   foreground: colors.surface600,
 };
 
+/** 良い知らせ（購入・付与）の色 */
+const GOOD_NEWS: Omit<Appearance, "icon"> = {
+  border: colors.success,
+  background: colors.successSubtle,
+  foreground: colors.successStrong,
+};
+
 /**
- * 種別の見た目（web の `NotificationTypeIcon` と同じ対応）。良い知らせ
- * （購入・付与）は緑のチェック、期限切れは時計、取り消しは赤のバツ。登録に
+ * 種別の見た目（web の `NotificationTypeIcon` と同じ対応）。良い知らせは緑
+ * （購入はチェック、運営からの付与はプレゼント）、期限切れは時計、取り消しは赤のバツ。登録に
  * 無い種別は期限切れと同じ中立の時計
  */
 function appearanceOf(type: string): Appearance {
   if (!isNotificationType(type)) return NEUTRAL;
   switch (type) {
     case NotificationType.PurchaseCompleted:
+      return {
+        ...GOOD_NEWS,
+        icon: (color) => <CheckIcon size={16} color={color} />,
+      };
     case NotificationType.BenefitGranted:
       return {
-        icon: (color) => <CheckIcon size={16} color={color} />,
-        border: colors.success,
-        background: colors.successSubtle,
-        foreground: colors.successStrong,
+        ...GOOD_NEWS,
+        icon: (color) => <GiftIcon size={16} color={color} />,
       };
     case NotificationType.PurchaseRevoked:
     case NotificationType.BenefitGrantRevoked:
