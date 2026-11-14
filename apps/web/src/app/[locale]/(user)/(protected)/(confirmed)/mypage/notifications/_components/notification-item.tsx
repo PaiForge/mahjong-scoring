@@ -58,7 +58,9 @@ interface NotificationItemProps {
 export function NotificationItem({ notification }: NotificationItemProps) {
   const locale = useLocale();
   const t = useTranslations("notifications");
-  const isUnread = notification.readAt === undefined;
+  // その場で開く行は遷移しないので、押した分の既読をこの行で覚えて点を消す
+  const [readHere, setReadHere] = useState(false);
+  const isUnread = notification.readAt === undefined && !readHere;
   const destination = notificationHref(notification.type);
   const href =
     destination === undefined ? undefined : localizedHref(destination, locale);
@@ -76,6 +78,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
 
   function handleClick() {
     if (!isUnread) return;
+    setReadHere(true);
     void markNotificationReadAction(notification.id).then((result) => {
       if ("success" in result) dispatchNotificationsRead();
     });
