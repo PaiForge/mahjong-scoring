@@ -34,6 +34,11 @@
     "account": {
       "title": "Account",
       "summary": "Check your email address and login methods"
+    },
+    "language": {
+      "title": "Language",
+      "current": "English",
+      "summary": "{language} · Change it in the Settings app. If Language isn't there, add a language in General > Language & Region"
     }
   },
   "heatmap": {

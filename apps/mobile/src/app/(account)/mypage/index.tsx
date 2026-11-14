@@ -35,6 +35,7 @@ import { LoadingIndicator } from "../../../components/load-state";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
 import { UnreadCountBadge } from "../../../notifications/unread-count-badge";
 import { SiteLinksSection } from "../../../mypage/site-links-section";
+import { LanguageSettingsRow } from "../../../mypage/language-settings-row";
 import { usePullToRefresh } from "../../../components/screen-refresh";
 
 /**
@@ -68,6 +69,9 @@ import { usePullToRefresh } from "../../../components/screen-refresh";
  * - 退会した後はゲストとしてここへ戻るので、受け付けた知らせを先頭に出す
  * - ログアウト・退会でゲストに戻ったら先頭へ戻す。アカウントの行まで送った位置の
  *   ままだと、先頭の記録の案内が画面の外にあり、淡い見本だけが途中から見える
+ * - 「その他」の手前に言語の行を、ゲストにもログイン中の人にも iOS だけで出す。
+ *   押すと設定アプリのこのアプリの画面を開く（切り替えは OS に任せる。理由は
+ *   `LanguageSettingsRow`）
  * - 末尾に「その他」（利用規約・プライバシーポリシー等の web のページ）を、
  *   ゲストにもログイン中の人にも出す。web のフッターに当たる場所がアプリには
  *   無く、マイページがその役を兼ねる（設定には置かない。理由は `SiteLinksSection`）
@@ -81,7 +85,7 @@ import { usePullToRefresh } from "../../../components/screen-refresh";
  * 1. ホームのヘッダー右の人型のアイコンから開く
  * 2. 段級位のピルで道場へ、アクティビティの棒でその日の内訳を見る
  * 3. 行からマイレコード・ランキングでの順位・Pro プラン（iOS）・通知（iOS）・
- *    アカウント・設定・web のページ（規約等）へ
+ *    アカウント・設定・言語（iOS の設定アプリ）・web のページ（規約等）へ
  * 4. ゲスト・ユーザー名を決めていない人は記録の案内から登録・ログイン・
  *    ユーザー名の設定へ
  */
@@ -108,6 +112,7 @@ export default function MypageScreen() {
         {(userId) => <SignedInMypage userId={userId} />}
       </MypageGate>
       <AccountEntries />
+      <LanguageSettingsRow />
       <SiteLinksSection />
     </Screen>
   );
