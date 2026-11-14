@@ -6,6 +6,8 @@ import {
   type BenefitGrantState,
 } from "@/lib/billing/plan-status";
 
+import { isBenefitGrantCategory } from "@/lib/entitlements/benefit-grant-categories";
+
 import { formatAdminDate } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 
@@ -47,6 +49,12 @@ export async function BenefitGrantRow({
       </td>
       <td className="px-4 py-3 whitespace-nowrap">
         {grant.plan === "pro" ? t("plan.pro") : grant.plan}
+      </td>
+      <td className="px-4 py-3 whitespace-nowrap">
+        {/* 例: admin.benefitGrants.categories.earlyAdopter。種別の列ができる前の行は NULL */}
+        {isBenefitGrantCategory(grant.category)
+          ? t(`categories.${grant.category}`)
+          : t("table.uncategorized")}
       </td>
       <td className="px-4 py-3 whitespace-nowrap text-surface-500">
         {formatAdminDate(grant.startsAt)}

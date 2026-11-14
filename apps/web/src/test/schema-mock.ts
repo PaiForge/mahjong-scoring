@@ -113,6 +113,7 @@ export const benefitGrants = {
   plan: "plan",
   benefits: "benefits",
   reason: "reason",
+  category: "category",
   grantedBy: "granted_by",
   startsAt: "starts_at",
   expiresAt: "expires_at",

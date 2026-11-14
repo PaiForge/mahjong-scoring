@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 
 import { MODERATION_REASON_MAX_LENGTH } from "../users/_lib/moderation-reason";
 import { AdminModalShell } from "./admin-modal-shell";
@@ -47,6 +47,12 @@ interface AdminReasonModalProps {
  *
  * BAN / 特典の付与 / 付与の取り消しで共通。理由は監査ログ
  * （`moderation_actions.reason`）に残るため必須。
+ *
+ * @design フォームの `action` ではなく `onSubmit` で送る
+ * `<form action={fn}>` は、fn が終わると React がフォームをリセットする。入力エラーで
+ * モーダルを開いたままにしても、`children` に置いた制御されたラジオ（付与の種別・期間）は
+ * DOM の選択だけが初期値へ戻り、state と食い違って「選んだのに外れている」表示になる。
+ * 入力欄は閉じるとき（`close`）にだけ自分で戻す。
  */
 export function AdminReasonModal({
   labels,
@@ -59,26 +65,32 @@ export function AdminReasonModal({
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("");
 
+  const [error, setError] = useState<string>();
+  const [isPending, startTransition] = useTransition();
+
   const close = () => {
     setIsOpen(false);
     setReason("");
+    setError(undefined);
     onReset?.();
   };
 
-  const [state, formAction, isPending] = useActionState(
-    async (_prev: { error?: string } | undefined) => {
-      const trimmed = reason.trim();
-      if (trimmed.length === 0) {
-        return { error: labels.reasonRequired };
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = reason.trim();
+    if (trimmed.length === 0) {
+      setError(labels.reasonRequired);
+      return;
+    }
+    setError(undefined);
+    startTransition(async () => {
+      if (await onSubmit(trimmed)) {
+        close();
+      } else {
+        setError(labels.failed);
       }
-      if (!(await onSubmit(trimmed))) {
-        return { error: labels.failed };
-      }
-      close();
-      return undefined;
-    },
-    undefined,
-  );
+    });
+  };
 
   return (
     <>
@@ -96,7 +108,7 @@ export function AdminReasonModal({
           <p className="text-sm text-surface-600">{labels.description}</p>
         )}
 
-        <form action={formAction}>
+        <form onSubmit={handleSubmit}>
           {children}
 
           <label htmlFor={reasonId} className="mb-1 block text-sm font-medium">
@@ -112,9 +124,7 @@ export function AdminReasonModal({
             maxLength={MODERATION_REASON_MAX_LENGTH}
           />
 
-          {state?.error && (
-            <p className="mb-3 text-sm text-red-600">{state.error}</p>
-          )}
+          {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
 
           <div className="flex justify-end gap-2">
             <button

@@ -8,6 +8,7 @@
 export const BENEFIT_GRANT_TABLE_COLUMNS = [
   "target",
   "plan",
+  "category",
   "period",
   "reason",
   "grantedBy",

@@ -17,6 +17,7 @@ import {
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { Profile } from "@/lib/db";
+import { isBenefitGrantCategory } from "@/lib/entitlements/benefit-grant-categories";
 import {
   highestRank,
   isRankSlug,
@@ -258,6 +259,7 @@ export async function GrantsSection({
     >
       <DetailTable
         headers={[
+          t("grants.category"),
           t("grants.period"),
           t("grants.reason"),
           t("grants.grantedBy"),
@@ -271,6 +273,12 @@ export async function GrantsSection({
           const state = benefitGrantStateOf(grant, now);
           return (
             <tr key={grant.id} className="border-t border-surface-200">
+              <td className="px-3 py-2 whitespace-nowrap">
+                {/* 例: admin.benefitGrants.categories.earlyAdopter */}
+                {isBenefitGrantCategory(grant.category)
+                  ? tGrants(`categories.${grant.category}`)
+                  : tGrants("table.uncategorized")}
+              </td>
               <td className="px-3 py-2 whitespace-nowrap text-surface-500">
                 {formatAdminDate(grant.startsAt)}
                 {" 〜 "}

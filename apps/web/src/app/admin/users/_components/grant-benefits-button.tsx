@@ -6,6 +6,10 @@ import { useTranslations } from "next-intl";
 import { AdminReasonModal } from "@/app/admin/_components/admin-reason-modal";
 import { ADMIN_INPUT_CLASSES } from "@/app/admin/_lib/input-classes";
 import {
+  BENEFIT_GRANT_CATEGORIES,
+  type BenefitGrantCategory,
+} from "@/lib/entitlements/benefit-grant-categories";
+import {
   BENEFIT_GRANT_BODY_MAX_LENGTH,
   BENEFIT_GRANT_TITLE_MAX_LENGTH,
 } from "@mahjong-scoring/features/notifications/message";
@@ -24,14 +28,19 @@ interface GrantBenefitsButtonProps {
 const DEFAULT_DURATION: GrantDurationKey = GRANT_DURATION_KEYS[0];
 
 /**
- * Pro 付与ボタン — クリックでモーダル表示、期間・通知のタイトルと本文（任意）・理由を入れて付与
+ * Pro 付与ボタン — クリックでモーダル表示、種別・期間・通知のタイトルと本文（任意）・理由を入れて付与
  * 特典付与ボタン
+ *
+ * 種別には既定を置かない。先頭を選んだ状態で開くと、選び直さずに送った付与が
+ * すべて先頭の種別になり、後からの集計が信用できなくなる。未選択のまま送ると
+ * ブラウザの必須の検証（ラジオの `required`）が止める。
  */
 export function GrantBenefitsButton({
   targetUserId,
 }: GrantBenefitsButtonProps) {
   const t = useTranslations("admin.benefitGrants");
   const [duration, setDuration] = useState<GrantDurationKey>(DEFAULT_DURATION);
+  const [category, setCategory] = useState<BenefitGrantCategory>();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const titleId = `grant-notice-title-${targetUserId}`;
@@ -55,18 +64,46 @@ export function GrantBenefitsButton({
         pending: t("grant.pending"),
       }}
       onSubmit={async (reason) => {
-        const result = await grantBenefits(targetUserId, duration, reason, {
-          title,
-          body,
-        });
+        // 未選択は `required` が止めるので、ここに来るのは検証を外した送信だけ
+        if (category === undefined) return false;
+        const result = await grantBenefits(
+          targetUserId,
+          duration,
+          category,
+          reason,
+          { title, body },
+        );
         return !("error" in result);
       }}
       onReset={() => {
         setDuration(DEFAULT_DURATION);
+        setCategory(undefined);
         setTitle("");
         setBody("");
       }}
     >
+      <fieldset className="mb-4">
+        <legend className="mb-1 block text-sm font-medium">
+          {t("grant.categoryLabel")}
+        </legend>
+        <div className="flex flex-wrap gap-x-4 gap-y-2">
+          {BENEFIT_GRANT_CATEGORIES.map((key) => (
+            <label key={key} className="flex items-center gap-1 text-sm">
+              <input
+                type="radio"
+                name="category"
+                value={key}
+                required
+                checked={category === key}
+                onChange={() => setCategory(key)}
+              />
+              {/* 例: admin.benefitGrants.categories.earlyAdopter */}
+              {t(`categories.${key}`)}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <fieldset className="mb-4">
         <legend className="mb-1 block text-sm font-medium">
           {t("grant.durationLabel")}

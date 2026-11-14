@@ -14,6 +14,8 @@ import {
 } from "@/lib/db";
 import { logExternalError } from "@/lib/log-error";
 
+import type { BenefitGrantCategory } from "./benefit-grant-categories";
+
 /**
  * 特典の手動付与の記録と参照
  * 特典付与記録
@@ -32,6 +34,8 @@ export interface BenefitGrantInput {
   readonly plan: PlanKey;
   /** 付与の理由。空にしない（DB の CHECK でも弾く） */
   readonly reason: string;
+  /** 付与の種別（運営の内部の分類。利用者には出さない） */
+  readonly category: BenefitGrantCategory;
   /** 付与した管理者 */
   readonly grantedBy: string;
   /** 有効日数。undefined なら無期限 */
@@ -66,6 +70,7 @@ export async function insertBenefitGrant(
       plan: plan.key,
       benefits: [...plan.benefits],
       reason: input.reason,
+      category: input.category,
       grantedBy: input.grantedBy,
       startsAt: now,
       expiresAt,
