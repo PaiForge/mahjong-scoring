@@ -46,7 +46,7 @@ interface NotificationItemProps {
  * 遷移先を持たない種別（退役した種別）は押せない行として出す。
  *
  * 本文を持つ通知（運営が本文を書いた付与。`buildNotificationDetail`）は、押しても
- * 遷移せずにその場で開き、本文・期間・遷移先へのリンクを出す。開いたときに既読に
+ * 遷移せずにその場で開き、本文と遷移先へのリンクを出す。開いたときに既読に
  * する。本文は運営の文なので改行をそのまま出す。
  *
  * 文面・日時・遷移先はページの言語で出す。遷移先（`notificationHref`）は
@@ -72,7 +72,6 @@ export function NotificationItem({ notification }: NotificationItemProps) {
   const detail = buildNotificationDetail(
     notification.type,
     notification.metadata,
-    locale,
   );
   const [expanded, setExpanded] = useState(false);
 
@@ -141,9 +140,6 @@ export function NotificationItem({ notification }: NotificationItemProps) {
             <div className="min-w-0 flex-1 space-y-2 text-sm">
               <p className="leading-relaxed whitespace-pre-wrap break-words">
                 {detail.body}
-              </p>
-              <p className="text-surface-600">
-                {t(`detail.${detail.period.key}`, detail.period.values)}
               </p>
               {href && (
                 <Link href={href} className={TEXT_LINK_CLASSES}>

@@ -24,8 +24,6 @@
     "unknown": "You have a new notification."
   },
   "detail": {
-    "periodUntil": "You can use Pro features until {until}.",
-    "periodPermanent": "You can use Pro features with no expiry.",
     "viewPlan": "View plan"
   }
 }

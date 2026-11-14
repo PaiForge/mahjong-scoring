@@ -6,7 +6,7 @@ import { NotificationType, isNotificationType } from "./types";
  * 通知の文面 — 種別と metadata から辞書キーと差し込み値を決める
  * 通知文面
  *
- * 辞書は `notifications.messages.<key>`（行を開いたときの詳細は `notifications.detail.<key>`）。web の通知ページとアプリの通知の画面が
+ * 辞書は `notifications.messages.<key>`。web の通知ページとアプリの通知の画面が
  * 同じこれを呼び、同じ文面を出す。`switch` は `NotificationType` を網羅し
  * `never` で閉じるので、種別を足すとここを書くまで型検査が通らない。
  * DB から来る `type` は文字列のままなので、登録に無い値（退役した種別）は
@@ -100,8 +100,8 @@ export function buildNotificationMessage(
       return { key: "purchaseCompleted" };
     case NotificationType.BenefitGranted: {
       // 運営が書いたタイトルはそのまま出す（期限の文を足さない — 運営の文と
-      // 食い違うことがある）。期限は行を開いたときの詳細（buildNotificationDetail）
-      // が付与の中身から出す。書いた文は 1 言語だけで、英語の画面でも入力したまま出る
+      // 食い違うことがある）。何を伝えるかは運営がタイトルと本文で決める。
+      // 書いた文は 1 言語だけで、英語の画面でも入力したまま出る
       const title = metadata.title?.trim();
       if (title) return { key: "benefitGrantedCustom", values: { title } };
       return until
@@ -131,8 +131,6 @@ export function buildNotificationMessage(
 export interface NotificationDetail {
   /** 運営が書いた本文（改行を含み得る） */
   readonly body: string;
-  /** 期間の文（`notifications.detail` 配下のキーと差し込み値） */
-  readonly period: NotificationMessage;
 }
 
 /**
@@ -140,27 +138,17 @@ export interface NotificationDetail {
  * 通知詳細決定
  *
  * いま本文を持つのは運営が本文を書いた付与の通知だけ。web とアプリの通知の一覧は、
- * 詳細がある行を押すと遷移せずにその場で開き、本文・期間・遷移先へのリンクを出す。
- * 期間は運営の文ではなく metadata の期限（付与の中身）から出すので、運営の文と
- * 食い違っていれば開いた時点で分かる。
+ * 詳細がある行を押すと遷移せずにその場で開き、本文と遷移先へのリンクを出す。
+ * 期間などの定型の文は足さない — 何を伝えるかはタイトルと本文で運営が決める。
  *
  * @param type - 通知の種別（DB の文字列のまま）
  * @param metadata - 差し込みに使う metadata
- * @param locale - 差し込む日付の言語（省略時は日本語）
  */
 export function buildNotificationDetail(
   type: string,
   metadata: NotificationMessageMetadata,
-  locale: SupportedLocale = DEFAULT_LOCALE,
 ): NotificationDetail | undefined {
   if (type !== NotificationType.BenefitGranted) return undefined;
   const body = metadata.body?.trim();
-  if (!body) return undefined;
-  const until = formatUntil(metadata.expiresAt, locale);
-  return {
-    body,
-    period: until
-      ? { key: "periodUntil", values: { until } }
-      : { key: "periodPermanent" },
-  };
+  return body ? { body } : undefined;
 }

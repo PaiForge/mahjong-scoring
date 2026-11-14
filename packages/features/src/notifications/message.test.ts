@@ -123,27 +123,17 @@ describe("buildNotificationMessage", () => {
     expect(messages.notifications.messages.benefitGrantedCustom).toContain(
       "{title}",
     );
-    expect(messages.notifications.detail.periodUntil).toContain("{until}");
   });
 });
 
 describe("buildNotificationDetail", () => {
-  it("本文のある付与は本文と期限の文を返す", () => {
+  it("本文のある付与は本文だけを返す（期間などの定型の文は足さない）", () => {
     expect(
       buildNotificationDetail("benefit_granted", {
         expiresAt: "2026-12-01T00:00:00+09:00",
         body: "  ありがとう\nございます ",
       }),
-    ).toEqual({
-      body: "ありがとう\nございます",
-      period: { key: "periodUntil", values: { until: "2026年12月1日" } },
-    });
-  });
-
-  it("期限の無い付与は無期限の文", () => {
-    expect(
-      buildNotificationDetail("benefit_granted", { body: "感謝" }),
-    ).toEqual({ body: "感謝", period: { key: "periodPermanent" } });
+    ).toEqual({ body: "ありがとう\nございます" });
   });
 
   it("本文が無い・空白だけ・付与以外の種別は詳細を持たない", () => {

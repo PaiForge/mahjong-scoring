@@ -42,7 +42,7 @@ import { useAppLocale } from "../lib/use-app-locale";
  * 種別）は押せない行として出す。
  *
  * 本文を持つ通知（運営が本文を書いた付与。`buildNotificationDetail`）は、押しても
- * 遷移せずにその場で開き、本文・期間・遷移先へのリンクを出す（web と同じ）。
+ * 遷移せずにその場で開き、本文と遷移先へのリンクを出す（web と同じ）。
  * 開いたときに既読にする。
  *
  * 行はマイページのモーダルの中に並ぶので、遷移は `useOpenFromModal` で開く。
@@ -79,7 +79,6 @@ export function NotificationRow({
   const detail = buildNotificationDetail(
     notification.type,
     notification.metadata,
-    locale,
   );
   const leading = <NotificationTypeIcon type={notification.type} />;
   const trailing = read ? undefined : <UnreadDot />;
@@ -198,9 +197,6 @@ function ExpandableRow({
       {expanded && (
         <View style={styles.detail} testID={`${testID}-detail`}>
           <Text style={styles.detailBody}>{detail.body}</Text>
-          <Text style={styles.detailPeriod}>
-            {t(`detail.${detail.period.key}`, detail.period.values)}
-          </Text>
           {onViewPlan !== undefined && (
             <View style={styles.detailLink}>
               <TextLink onPress={onViewPlan}>{t("detail.viewPlan")}</TextLink>
@@ -387,11 +383,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     color: colors.foreground,
-  },
-  detailPeriod: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: colors.surface600,
   },
   detailLink: {
     alignItems: "flex-start",

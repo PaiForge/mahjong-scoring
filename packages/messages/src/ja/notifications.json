@@ -24,8 +24,6 @@
     "unknown": "新しいお知らせがあります。"
   },
   "detail": {
-    "periodUntil": "{until} まで Pro の機能を使えます。",
-    "periodPermanent": "期限なく Pro の機能を使えます。",
     "viewPlan": "プランを見る"
   }
 }
