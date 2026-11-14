@@ -129,8 +129,13 @@ export async function saveChallengeResult(
 
   // EXP が付与された場合のみ、ヒートマップのキャッシュタグを無効化する。
   // 未登録 menuType（開発中練習）の場合は付与自体がスキップされるためキャッシュ無効化も不要。
+  //
+  // `{ expire: 0 }` で次の読み込みをキャッシュミスにする。推奨の `"max"` は
+  // stale-while-revalidate で、無効化の直後の 1 回は古い値を返す — チャレンジを
+  // 終えてすぐマイページ（web・アプリ）を開くと当日分が出ず、開き直して初めて出た。
+  // `updateTag` はアプリ向け API（Route Handler）からも通るこの経路では使えない。
   if (result.expGranted) {
-    revalidateTag(expHeatmapCacheTag(userId), "max");
+    revalidateTag(expHeatmapCacheTag(userId), { expire: 0 });
   }
 
   return { challengeResultId: result.challengeResultId };
