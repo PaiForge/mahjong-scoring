@@ -207,6 +207,28 @@ export function SettingsIcon(props: IconProps) {
   );
 }
 
+/** 地球儀（言語の行。web には無いアイコンで、Lucide の globe の形） */
+function GlobeIconSvg(props: IconProps) {
+  return (
+    <Outline {...props}>
+      <Path d="M12 2a10 10 0 100 20 10 10 0 000-20z" />
+      <Path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20" />
+      <Path d="M2 12h20" />
+    </Outline>
+  );
+}
+
+export function GlobeIcon(props: IconProps) {
+  return (
+    <SymbolIcon
+      name="language"
+      size={props.size}
+      color={props.color}
+      fallback={<GlobeIconSvg {...props} />}
+    />
+  );
+}
+
 function UserIconSvg(props: IconProps) {
   return (
     <Outline {...props}>

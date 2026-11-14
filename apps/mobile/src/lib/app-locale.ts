@@ -16,7 +16,8 @@ import type { Messages } from "use-intl";
  *   動的にする理由は無い（`useLocales()` で追従する案は採らない）
  * - アプリ内に言語切替の設定は作らない。`app.json` の `expo-localization` の
  *   `supportedLocales` で 2 言語を載せると、iOS が OS 側に「アプリごとの言語」を出す。
- *   アプリ内に設定を置くと、ゲストにも設定画面を開かせることになる
+ *   アプリ内に設定を置くと、ゲストにも設定画面を開かせることになる。iOS ではマイページの
+ *   言語の行（`LanguageSettingsRow`）が、設定アプリのこのアプリの画面を開く
  * - 言語コード（`languageCode`）ではなく言語タグ（`languageTag`）を渡す。判定は
  *   タグの言語の部分だけで行い、地域が日本なだけの別の言語を日本語と誤認しない
  *

@@ -260,7 +260,8 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
 - 切り替えは OS に任せる。`app.json` の `expo-localization` の `supportedLocales`（`ja`・`en`）が
   `CFBundleLocalizations` になり、iOS の「設定 > アプリ > 言語」が出る。Apple でログインの
   ボタン・購入シート・共有など OS 側の画面もその言語で出る。アプリ内に設定を置くと、ゲストにも
-  設定画面を開かせることになる（設定はログイン中だけの規約）
+  設定画面を開かせることになる（設定はログイン中だけの規約）。iOS ではマイページの「言語」の行
+  （`mypage/language-settings-row.tsx`）が設定アプリのこのアプリの画面を開き、場所を探させない
 - ホーム画面の名前は `app.json` の `locales`（`locales/ja.json`・`en.json` の `CFBundleDisplayName`）で
   言語ごとに持つ。英語は切れない長さ（"Mahjong Scoring"）。画面の文言はここに置かず辞書に置く
 - 画面で言語が要るときは `useAppLocale()`（`lib/use-app-locale.ts`）で読み、言語を画面ごとに

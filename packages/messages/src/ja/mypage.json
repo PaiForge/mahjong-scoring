@@ -34,6 +34,11 @@
     "account": {
       "title": "アカウント",
       "summary": "メールアドレスとログイン方法の確認"
+    },
+    "language": {
+      "title": "言語",
+      "current": "日本語",
+      "summary": "{language}・設定アプリで変更します"
     }
   },
   "heatmap": {
