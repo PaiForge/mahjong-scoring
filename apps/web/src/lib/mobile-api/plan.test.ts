@@ -4,7 +4,7 @@ import {
   mockAuthorizeMobileRequest,
 } from "@/test/mobile-auth-mock";
 
-import type { Purchase } from "../db";
+import type { BenefitGrant, Purchase } from "../db";
 
 const { mockListPurchases, mockListGrants, mockActiveBenefits, mockClientIp } =
   vi.hoisted(() => ({
@@ -55,6 +55,23 @@ function purchase(overrides: Partial<Purchase>): Purchase {
     amount: 480,
     startsAt: new Date("2026-10-01T00:00:00Z"),
     expiresAt: new Date("2026-10-31T00:00:00Z"),
+    revokedAt: null,
+    revokeReason: null,
+    createdAt: new Date("2026-10-01T00:00:00Z"),
+    ...overrides,
+  };
+}
+
+function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
+  return {
+    id: "g",
+    userId: "user-1",
+    plan: "pro",
+    benefits: ["unlimited_practice"],
+    reason: "モニター",
+    grantedBy: "admin",
+    startsAt: new Date("2026-10-01T00:00:00Z"),
+    expiresAt: new Date("2026-11-30T00:00:00Z"),
     revokedAt: null,
     revokeReason: null,
     createdAt: new Date("2026-10-01T00:00:00Z"),
@@ -122,6 +139,15 @@ describe("handleReadPlan", () => {
       until: "2026-10-31T00:00:00.000Z",
     });
     expect(body.benefits).toEqual(["unlimited_practice"]);
+    expect(body.canPurchase).toBe(false);
+  });
+
+  it("有効な手動付与があれば granted で、購入の導線を出さない", async () => {
+    mockListGrants.mockResolvedValue([grant({})]);
+
+    const body = await (await handleReadPlan(request())).json();
+
+    expect(body.status.kind).toBe("granted");
     expect(body.canPurchase).toBe(false);
   });
 

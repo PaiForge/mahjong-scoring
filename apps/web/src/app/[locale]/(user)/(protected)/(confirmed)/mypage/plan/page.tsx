@@ -14,9 +14,9 @@ import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
 import {
   benefitGrantStateOf,
-  blocksNewPurchase,
   formatPlanDate,
   formatPlanDateShort,
+  offersPurchase,
   planStatusOf,
   purchaseProviderOf,
   purchaseStateOf,
@@ -128,7 +128,7 @@ interface MypagePlanPageProps {
  * 理由は運営の内部メモになり得るので出さない。
  *
  * @flow
- * 1. 状態を見る → 購入が有効でなければ「Pro を購入する」で料金ページへ
+ * 1. 状態を見る → 有効な購入も付与も無ければ「Pro を購入する」で料金ページへ
  * 2. 購入履歴で日付・内容・金額・購入元・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
  * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
  *
@@ -161,9 +161,7 @@ export default async function MypagePlanPage({
   const amountLocale = AMOUNT_FORMAT_LOCALES[locale];
   const now = new Date();
   const plan = planStatusOf(purchases, grants, now);
-  const canPurchase = !purchases.some((purchase) =>
-    blocksNewPurchase(purchase, now),
-  );
+  const canPurchase = offersPurchase(purchases, grants, now);
   const providers = new Set(purchases.map(purchaseProviderOf));
   const statusCopy = describePlanStatus(plan, t, locale);
   const badge = planBadgeOf(plan);

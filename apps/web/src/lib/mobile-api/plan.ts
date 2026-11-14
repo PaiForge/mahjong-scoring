@@ -20,7 +20,7 @@ import {
 import { readAppleProductIds } from "../billing/apple/env";
 import { readGoogleProductIds } from "../billing/google/env";
 import {
-  blocksNewPurchase,
+  offersPurchase,
   planStatusOf,
   purchaseProviderOf,
   purchaseStateOf,
@@ -142,7 +142,7 @@ function mobilePlanPurchaseOf(
  *
  * プランの状態の API と、取引の記録の API の応答（記録した後の状態）が使う。
  * 状態の要約と追加購入の可否は web の購入状況のページと同じ関数
- * （`planStatusOf` / `blocksNewPurchase`）で決め、画面と規則を食い違わせない。
+ * （`planStatusOf` / `offersPurchase`）で決め、画面と規則を食い違わせない。
  * 販売中の商品は要求したアプリの経路（iOS は App Store、Android は Google Play
  * の Product ID）のもので、web の Stripe の Price ID は見ない。
  *
@@ -162,9 +162,7 @@ export async function buildMobilePlanResponse(
   return {
     status: mobilePlanStatusOf(planStatusOf(purchases, grants, now)),
     benefits: [...benefits],
-    canPurchase: !purchases.some((purchase) =>
-      blocksNewPurchase(purchase, now),
-    ),
+    canPurchase: offersPurchase(purchases, grants, now),
     offers: offersFor(platform),
     purchases: purchases.map((purchase) => mobilePlanPurchaseOf(purchase, now)),
   };
