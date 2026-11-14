@@ -75,6 +75,7 @@
     "displayName": "表示名",
     "status": "ステータス",
     "plan": "プラン",
+    "loginMethods": "ログイン方法",
     "createdAt": "登録日時",
     "noUsersFound": "ユーザーが見つかりません",
     "revealEmail": "メールアドレスを表示",

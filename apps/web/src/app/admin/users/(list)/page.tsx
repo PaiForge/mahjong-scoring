@@ -21,10 +21,12 @@ import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { TableHead } from "@/app/admin/_components/table-head";
 
+import { LoginProviderIcons } from "../_components/login-provider-icons";
 import { PlanChip } from "../_components/plan-chip";
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
 import { UserSearchForm } from "../_components/user-search-form";
+import { readLoginProviders } from "../_lib/login-providers";
 import { fetchPlanStatusMap, fetchUsersPageData } from "../_lib/queries";
 import { USER_TABLE_COLUMNS } from "../_lib/table-columns";
 import { UserStatus, resolveUserStatus } from "../_lib/user-status";
@@ -59,6 +61,12 @@ export default async function AdminUsersPage({
   const emailLabels = {
     revealEmail: t("usersTable.revealEmail"),
     hideEmail: t("usersTable.hideEmail"),
+  };
+
+  const providerLabels = {
+    email: t("userDetail.account.providers.email"),
+    google: t("userDetail.account.providers.google"),
+    apple: t("userDetail.account.providers.apple"),
   };
 
   const buildHref = (p: number) => {
@@ -111,6 +119,12 @@ export default async function AdminUsersPage({
                       {plan && planBadgeOf(plan) ? (
                         <PlanChip plan={plan} />
                       ) : null}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <LoginProviderIcons
+                        providers={readLoginProviders(user.app_metadata)}
+                        labels={providerLabels}
+                      />
                     </td>
                     <td className="px-4 py-3 text-surface-500">
                       {formatAdminDate(user.created_at)}

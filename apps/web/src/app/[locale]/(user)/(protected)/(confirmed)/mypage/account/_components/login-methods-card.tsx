@@ -18,7 +18,7 @@ import {
 
 import { Button } from "@/app/[locale]/(user)/_components/button";
 import { ConfirmationModal } from "@/app/[locale]/(user)/_components/confirmation-modal";
-import { GoogleIcon } from "@/app/[locale]/(user)/_components/icons/google-icon";
+import { GoogleIcon } from "@/app/_components/google-icon";
 import { SettingsCard } from "@/app/[locale]/(user)/_components/setting-toggle-row";
 import { createClient } from "@/lib/supabase/client";
 import {

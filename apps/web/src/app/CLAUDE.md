@@ -29,10 +29,10 @@ web の App Router 配下だけに関わる規約。用語・ルート構成・�
 
 置き場所は 2 つ。ディレクトリで「管理画面が使うか」を表現している。
 
-| ディレクトリ                                    | 中身                                                                                                                                                                                                     |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web/src/app/_components/`                 | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
-| `apps/web/src/app/[locale]/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                    |
+| ディレクトリ                                    | 中身                                                                                                                                                                                                                    |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web/src/app/_components/`                 | ユーザー向け画面と管理画面（`/admin`）で共有するもの。`BrandLogo` / `GoogleIcon` / `SkeletonBar` / `PageTitleSkeleton` / `ModalShell` / `GlobalToaster` / `ScrollReset` / `HashAnchorScroll` / `_lib/link-classes` のみ |
+| `apps/web/src/app/[locale]/(user)/_components/` | ブランド UI（細線・フラット・丸ゴシックの世界）。上記以外はすべてここ                                                                                                                                                   |
 
 新しい共通コンポーネントは原則 `[locale]/(user)/_components/` に置く。`app/_components/` へ足すのは
 管理画面からも使うときだけ。`app/_components/` と `admin/` から `[locale]/(user)/_components/` を
