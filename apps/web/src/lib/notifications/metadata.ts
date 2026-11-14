@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
+import {
+  BENEFIT_GRANT_BODY_MAX_LENGTH,
+  BENEFIT_GRANT_TITLE_MAX_LENGTH,
+} from "@mahjong-scoring/features/notifications/message";
 
 import { PurchaseRevokeReason } from "@/lib/billing/revoke-reason";
 
@@ -25,6 +29,10 @@ const notificationMetadataSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }).optional(),
   /** 取り消しの理由（`PurchaseRevokeReason`）。購入の取り消しだけ */
   revokeReason: z.enum(PurchaseRevokeReason).optional(),
+  /** 運営が付与のときに書いたタイトル。付与の通知だけ */
+  title: z.string().max(BENEFIT_GRANT_TITLE_MAX_LENGTH).optional(),
+  /** 運営が付与のときに書いた本文。付与の通知だけ */
+  body: z.string().max(BENEFIT_GRANT_BODY_MAX_LENGTH).optional(),
 });
 
 export type NotificationMetadata = z.infer<typeof notificationMetadataSchema>;

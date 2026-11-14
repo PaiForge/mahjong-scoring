@@ -15,11 +15,15 @@
     "purchaseCompletedLifetime": "Pro（買い切り）の購入が完了しました。Pro の機能をずっと使えます。",
     "purchaseCompleted": "Pro の購入が完了しました。",
     "benefitGrantedUntil": "運営から Pro が付与されました。{until} まで Pro の機能を使えます。",
+    "benefitGrantedCustom": "{title}",
     "benefitGranted": "運営から Pro が付与されました（無期限）。",
     "planExpired": "Pro の期限が切れ、無料プランに戻りました。",
     "purchaseRefunded": "返金により Pro の購入が取り消されました。",
     "purchaseRevoked": "Pro の購入が取り消されました。",
     "benefitGrantRevoked": "運営から付与されていた Pro が取り消されました。",
     "unknown": "新しいお知らせがあります。"
+  },
+  "detail": {
+    "viewPlan": "プランを見る"
   }
 }

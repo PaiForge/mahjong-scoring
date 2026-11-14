@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { messages } from "@mahjong-scoring/messages/ja";
-import { buildNotificationMessage } from "./message";
+import { buildNotificationDetail, buildNotificationMessage } from "./message";
 import { NOTIFICATION_TYPES } from "./types";
 
 const DICTIONARY_KEYS = Object.keys(messages.notifications.messages);
@@ -82,6 +82,24 @@ describe("buildNotificationMessage", () => {
     });
   });
 
+  it("付与に運営のタイトルがあれば、期限の文を足さずにそのまま出す", () => {
+    expect(
+      buildNotificationMessage("benefit_granted", {
+        expiresAt: "2026-12-01T00:00:00+09:00",
+        title: "  永久無料パスが付与されました ",
+      }),
+    ).toEqual({
+      key: "benefitGrantedCustom",
+      values: { title: "永久無料パスが付与されました" },
+    });
+  });
+
+  it("空白だけのタイトルは既定の文面に落とす", () => {
+    expect(
+      buildNotificationMessage("benefit_granted", { title: "  " }),
+    ).toEqual({ key: "benefitGranted" });
+  });
+
   it("購入の取り消しは返金だけ「返金により」と言う", () => {
     expect(
       buildNotificationMessage("purchase_revoked", {
@@ -102,5 +120,29 @@ describe("buildNotificationMessage", () => {
         ],
       ).toContain("{until}");
     }
+    expect(messages.notifications.messages.benefitGrantedCustom).toContain(
+      "{title}",
+    );
+  });
+});
+
+describe("buildNotificationDetail", () => {
+  it("本文のある付与は本文だけを返す（期間などの定型の文は足さない）", () => {
+    expect(
+      buildNotificationDetail("benefit_granted", {
+        expiresAt: "2026-12-01T00:00:00+09:00",
+        body: "  ありがとう\nございます ",
+      }),
+    ).toEqual({ body: "ありがとう\nございます" });
+  });
+
+  it("本文が無い・空白だけ・付与以外の種別は詳細を持たない", () => {
+    expect(buildNotificationDetail("benefit_granted", {})).toBeUndefined();
+    expect(
+      buildNotificationDetail("benefit_granted", { body: " " }),
+    ).toBeUndefined();
+    expect(
+      buildNotificationDetail("purchase_completed", { body: "x" }),
+    ).toBeUndefined();
   });
 });

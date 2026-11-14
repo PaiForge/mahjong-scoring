@@ -28,7 +28,26 @@ export interface NotificationMessageMetadata {
   readonly expiresAt?: string;
   /** 取り消しの理由（`PurchaseRevokeReason`）。購入の取り消しだけ */
   readonly revokeReason?: string;
+  /** 運営が付与のときに書いたタイトル（一覧の 1 行）。付与の通知だけ */
+  readonly title?: string;
+  /** 運営が付与のときに書いた本文（行を開くと出る）。付与の通知だけ */
+  readonly body?: string;
 }
+
+/**
+ * 付与の通知に運営が書けるタイトルの最大文字数
+ * 付与の通知タイトルの上限
+ *
+ * 管理画面の入力欄の `maxLength` とサーバーの検証が同じ値を使う。一覧の 1 行の
+ * 題名なので短く抑える（長い文は本文に書く）。
+ */
+export const BENEFIT_GRANT_TITLE_MAX_LENGTH = 60;
+
+/**
+ * 付与の通知に運営が書ける本文の最大文字数
+ * 付与の通知本文の上限
+ */
+export const BENEFIT_GRANT_BODY_MAX_LENGTH = 1000;
 
 /** 文面の辞書キーと差し込み値 */
 export interface NotificationMessage {
@@ -79,10 +98,16 @@ export function buildNotificationMessage(
         return { key: "purchaseCompletedPass", values: { until } };
       }
       return { key: "purchaseCompleted" };
-    case NotificationType.BenefitGranted:
+    case NotificationType.BenefitGranted: {
+      // 運営が書いたタイトルはそのまま出す（期限の文を足さない — 運営の文と
+      // 食い違うことがある）。何を伝えるかは運営がタイトルと本文で決める。
+      // 書いた文は 1 言語だけで、英語の画面でも入力したまま出る
+      const title = metadata.title?.trim();
+      if (title) return { key: "benefitGrantedCustom", values: { title } };
       return until
         ? { key: "benefitGrantedUntil", values: { until } }
         : { key: "benefitGranted" };
+    }
     case NotificationType.PlanExpired:
       return { key: "planExpired" };
     case NotificationType.PurchaseRevoked:
@@ -97,4 +122,33 @@ export function buildNotificationMessage(
       return exhaustive;
     }
   }
+}
+
+/**
+ * 行を開いたときに出す詳細
+ * 通知詳細
+ */
+export interface NotificationDetail {
+  /** 運営が書いた本文（改行を含み得る） */
+  readonly body: string;
+}
+
+/**
+ * 通知の詳細を決める。本文を持たない通知は undefined（行は遷移先へ進む）
+ * 通知詳細決定
+ *
+ * いま本文を持つのは運営が本文を書いた付与の通知だけ。web とアプリの通知の一覧は、
+ * 詳細がある行を押すと遷移せずにその場で開き、本文と遷移先へのリンクを出す。
+ * 期間などの定型の文は足さない — 何を伝えるかはタイトルと本文で運営が決める。
+ *
+ * @param type - 通知の種別（DB の文字列のまま）
+ * @param metadata - 差し込みに使う metadata
+ */
+export function buildNotificationDetail(
+  type: string,
+  metadata: NotificationMessageMetadata,
+): NotificationDetail | undefined {
+  if (type !== NotificationType.BenefitGranted) return undefined;
+  const body = metadata.body?.trim();
+  return body ? { body } : undefined;
 }
