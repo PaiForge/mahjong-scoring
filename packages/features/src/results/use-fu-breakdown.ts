@@ -4,6 +4,7 @@ import { useTranslations } from "use-intl";
 import type { FuDetail } from "@mahjong-scoring/core";
 
 import { buildFuBreakdown, type FuBreakdown } from "./fu-breakdown";
+import { fuReasonLabel } from "./fu-reason-label";
 
 /**
  * 符の内訳の表に並べる文字列を辞書から引くフック
@@ -23,5 +24,8 @@ export function useFuBreakdown(
   translationNamespace: string,
 ): FuBreakdown {
   const t = useTranslations(translationNamespace);
-  return buildFuBreakdown(details, answer, t);
+  const tReason = useTranslations("challenge.fuBreakdown");
+  return buildFuBreakdown(details, answer, t, (detail) =>
+    fuReasonLabel(detail, tReason),
+  );
 }
