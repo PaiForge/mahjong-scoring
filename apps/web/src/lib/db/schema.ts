@@ -2,6 +2,12 @@ import { AD_KINDS } from "@mahjong-scoring/features/ads/native-ad";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
+// index ではなく型と定数だけのモジュールを読む。drizzle-kit はこのファイルを
+// CommonJS で読み込み、core の index が引く ESM 専用のライブラリを解決できない
+import {
+  ARCHIVE_KINDS,
+  type PracticeProblemArchiveRequest,
+} from "@mahjong-scoring/core/problem/archive/types";
 import { sql, type SQL } from "drizzle-orm";
 import {
   boolean,
@@ -22,6 +28,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { AD_PLATFORMS } from "../ads/registry";
+import { PRACTICE_PROBLEM_SOURCES } from "../practice-problems/source";
 import { REPORT_STATUSES, ReportStatus } from "../report-status";
 
 /**
@@ -1565,3 +1572,84 @@ export const appleRefreshTokens = pgTable("apple_refresh_tokens", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });
+
+/**
+ * 出題した問題の保存（無限訓練型の練習の盤面）
+ * 保存問題
+ *
+ * @description
+ * 和了形・聴牌形の点数計算（`agari-score` / `tenpai-score`）で、ログイン済みの
+ * 利用者に出した問題を、同じ盤面は 1 行にまとめて貯める。web とアプリの入口
+ * （`lib/practice-problems/archive.ts`）が検証してから書く。クライアントからは
+ * 読み書きさせない（RLS を有効にしてポリシーを置かない。権限は
+ * `foreign_keys_and_grants.sql` 冒頭の一括 REVOKE が閉じる）。
+ *
+ * @design 盤面だけの構造化 JSON を持ち、正解・役・符・待ちは持たない
+ * `payload` は保存専用の形（`@mahjong-scoring/core` の `PracticeProblemArchiveRequest`
+ * の `payload`。版は `schema_version`）。正解と内訳は盤面から導ける派生値なので、
+ * 読み戻すときに現行の採点ロジックで組み立て直し、採点ロジックの改修に追随させる。
+ * MPSZ 文字列で持たないのは、現行のパーサーが旧表記を拒否し、表記の改訂で保存済みの
+ * 行が読めなくなるため（互換をパーサーに任せられない）。代わりに、過去に表示した
+ * 正解の監査はできない。
+ *
+ * @design ルール設定を保存せず、同一性にも含めない
+ * ルール（連風牌4符・切り上げ満貫・役満ルール）は端末ローカルの設定で、練習は
+ * 閲覧者の設定どおりに出題する。含めると同じ盤面がルールの組み合わせ（最大 128）の
+ * 数だけ別の行に分かれる。読み戻すときは閲覧者のルールで組み立て直す。
+ *
+ * @design 同一性（`identity_version` 1）は盤面の条件だけ。鳴き元は外す
+ * `content_hash` はサーバーが同一性の入力（`archiveIdentityInput`）に掛けた
+ * SHA-256。鳴き元（`from`）は生成器が乱数で決め、点数に効かないので同一性から
+ * 外す（含めると同じ問題が 3 行に分かれる）。盤面の見た目には要るので `payload` には
+ * 残す。一意制約 `(kind, identity_version, content_hash)` が再送・並行保存を 1 行に
+ * まとめる。同一性の規約を変えるときは版を上げ、旧行の移行を別に設計する。
+ *
+ * @design 由来は `source`（`web` / `ios` / `android`）だけ。保存者のユーザー ID は持たない
+ * 想定外の盤面が混ざったとき、経路と時期（`created_at`）で切り分けられる最小の情報。
+ * ユーザー ID を持つと退会の工程で消す・匿名化する連動が要る。アプリの値は要求の
+ * 申告（`X-App-Platform`）で偽れるので、権利や制限の判断には使わない。
+ */
+export const practiceProblems = pgTable(
+  "practice_problems",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 練習の種別（`ARCHIVE_KINDS`。練習の slug と同じ文字列） */
+    kind: text("kind").notNull(),
+    /** `payload` の形の版（`ARCHIVE_SCHEMA_VERSION`） */
+    schemaVersion: integer("schema_version").notNull(),
+    /** 同一性の規約の版（`ARCHIVE_IDENTITY_VERSION`） */
+    identityVersion: integer("identity_version").notNull(),
+    /** 同一性の入力の SHA-256（16 進 64 文字）。サーバーが計算する */
+    contentHash: text("content_hash").notNull(),
+    /** 検証済みの盤面（鳴き元を含む） */
+    payload: jsonb("payload")
+      .$type<PracticeProblemArchiveRequest["payload"]>()
+      .notNull(),
+    /** 届いた入口（`PRACTICE_PROBLEM_SOURCES`） */
+    source: text("source").notNull(),
+    /** 最初に保存した日時（同じ盤面の再保存では変わらない） */
+    createdAt: createdAtColumn(),
+  },
+  (table) => [
+    unique("uq_practice_problems_identity").on(
+      table.kind,
+      table.identityVersion,
+      table.contentHash,
+    ),
+    check(
+      "practice_problems_chk_kind",
+      sql`${table.kind} IN (${sqlInList(ARCHIVE_KINDS)})`,
+    ),
+    check(
+      "practice_problems_chk_source",
+      sql`${table.source} IN (${sqlInList(PRACTICE_PROBLEM_SOURCES)})`,
+    ),
+    check(
+      "practice_problems_chk_content_hash",
+      sql`${table.contentHash} ~ '^[0-9a-f]{64}$'`,
+    ),
+  ],
+);
+
+export type PracticeProblem = typeof practiceProblems.$inferSelect;
+export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
