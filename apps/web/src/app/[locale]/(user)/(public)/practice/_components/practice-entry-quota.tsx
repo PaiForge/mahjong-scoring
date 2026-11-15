@@ -16,7 +16,7 @@ import {
   ROW_LINK_TITLE_CLASSES,
   TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import { ProBadge } from "@/app/[locale]/(user)/_components/pro-badge";
+import { ProBadge } from "@/app/_components/plan-badges";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { InfinityIcon } from "@/app/[locale]/(user)/_components/icons/infinity-icon";
 import {
