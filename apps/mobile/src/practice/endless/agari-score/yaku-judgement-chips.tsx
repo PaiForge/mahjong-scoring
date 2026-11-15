@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import type {
   YakuSelectionJudgement,
   YakuSelectionState,
@@ -46,6 +47,7 @@ export function YakuJudgementChips({
 }) {
   const t = useTranslations("agariScore.result");
   const tChallenge = useTranslations("challenge");
+  const tYakuNames = useTranslations("yakuNames");
 
   if (judgements.length === 0) {
     return <Text style={styles.empty}>{emptyLabel}</Text>;
@@ -58,6 +60,8 @@ export function YakuJudgementChips({
         const mark = CHIP_MARKS[judgement.state];
         const stateLabel = t(`yakuJudgement.${judgement.state}`);
         const cheatsheetName = resolveYakuCheatsheetName(judgement.name);
+        // 例: yakuNames.tanyao
+        const name = yakuLabel(judgement.name, tYakuNames);
         const chip = (
           <View
             key={judgement.name}
@@ -69,11 +73,9 @@ export function YakuJudgementChips({
               },
             ]}
             accessible
-            accessibilityLabel={`${judgement.name} ${stateLabel}`}
+            accessibilityLabel={`${name} ${stateLabel}`}
           >
-            <Text style={[styles.name, { color: tone.color }]}>
-              {judgement.name}
-            </Text>
+            <Text style={[styles.name, { color: tone.color }]}>{name}</Text>
             <Text
               style={[
                 mark === undefined ? styles.stateWord : styles.mark,

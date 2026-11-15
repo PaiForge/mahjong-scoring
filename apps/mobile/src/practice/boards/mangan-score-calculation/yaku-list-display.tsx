@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import type { YakuDetail } from "@mahjong-scoring/core";
 import { sumYakuHan } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
@@ -32,6 +33,7 @@ export function YakuListDisplay({
 }) {
   const t = useTranslations("manganScoreCalculationChallenge");
   const tBreakdown = useTranslations("challenge.yakuBreakdown");
+  const tYakuNames = useTranslations("yakuNames");
   const yakuOrder = useYakuOrder();
 
   const ordered = orderYakuDetails(yakuDetails, yakuOrder);
@@ -42,7 +44,8 @@ export function YakuListDisplay({
       <DetailTable
         title={t("yakuListTitle")}
         rows={ordered.map((yaku) => ({
-          label: yaku.name,
+          // 例: yakuNames.chinitsu
+          label: yakuLabel(yaku.name, tYakuNames),
           value: tBreakdown("han", { count: yaku.han }),
         }))}
         total={{

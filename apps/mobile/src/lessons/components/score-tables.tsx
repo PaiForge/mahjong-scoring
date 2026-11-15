@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import type { Role, WinType, YakuHanEntry } from "@mahjong-scoring/core";
 import {
   buildFixedFuRows,
@@ -140,6 +141,7 @@ export function TenpaneTable({
  */
 export function YakuNakiComparisonTable() {
   const t = useTranslations("yaku.learn");
+  const tYakuNames = useTranslations("yakuNames");
   const router = useRouter();
   const groups = buildNakiComparisonGroups();
   const nakiCell = (entry: YakuHanEntry) =>
@@ -171,11 +173,12 @@ export function YakuNakiComparisonTable() {
               accessibilityRole="link"
               style={[styles.yaku, linkStyles.inline]}
             >
-              {entry.name}
+              {/* 例: yakuNames.riichi */}
+              {yakuLabel(entry.name, tYakuNames)}
             </Text>
           ) : (
             <Text key="yaku" style={styles.yaku}>
-              {entry.name}
+              {yakuLabel(entry.name, tYakuNames)}
             </Text>
           ),
           <PlainCell key="menzen">

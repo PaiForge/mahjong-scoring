@@ -10,6 +10,13 @@ import {
 /** 内訳の 1 行（役名と翻数 / 符の理由と符） */
 export interface DetailItem {
   readonly name: string;
+  /**
+   * 行に出す文言（今の言語の辞書で引いたもの）。省略時は `name` をそのまま出す
+   *
+   * 役名・符の理由は core が日本語で持つので、英語の端末に漢字を残さないよう
+   * 置く側が辞書で引いて渡す。役一覧の着地先は訳ではなく `name` で解決する。
+   */
+  readonly label?: string;
   readonly value: number;
 }
 
@@ -54,7 +61,7 @@ export function ResultBreakdownTable({
   const t = useTranslations("agariScore");
   const tChallenge = useTranslations("challenge");
   const withSuffix = (value: number) => `${value}${suffix}`;
-  const itemLabel = (name: string) =>
+  const itemLabel = (name: string, label: string) =>
     onOpenYakuList !== undefined &&
     resolveYakuCheatsheetName(name) !== undefined ? (
       <InlineLink
@@ -63,16 +70,16 @@ export function ResultBreakdownTable({
         fontSize={DETAIL_TABLE_FONT_SIZE}
         accessibilityHint={tChallenge("openInYakuList")}
       >
-        {name}
+        {label}
       </InlineLink>
     ) : (
-      name
+      label
     );
 
   return (
     <DetailTable
       rows={items.map((detail) => ({
-        label: itemLabel(detail.name),
+        label: itemLabel(detail.name, detail.label ?? detail.name),
         value: withSuffix(detail.value),
       }))}
       total={{

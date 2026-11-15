@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import {
   YAKU_HAN_ENTRIES,
   groupYakuHanEntriesByMenzenHan,
@@ -82,6 +83,7 @@ export function YakuCheatsheet({
   readonly withNakiFilter?: boolean;
 }) {
   const t = useTranslations("reference.yaku");
+  const tYakuNames = useTranslations("yakuNames");
   const [nakiFilter, setNakiFilter] = useState<NakiFilter>(ALL_NAKI_KINDS);
 
   // 開いた役が置かれたら一度だけ中央へ寄せる
@@ -133,7 +135,10 @@ export function YakuCheatsheet({
                     defaultOpen={isFocused}
                     title={
                       <View style={styles.title}>
-                        <Text style={styles.name}>{entry.name}</Text>
+                        <Text style={styles.name}>
+                          {/* 例: yakuNames.honitsu（core の「混一色」） */}
+                          {yakuLabel(entry.name, tYakuNames)}
+                        </Text>
                         {markedYakuNames?.includes(entry.name) === true && (
                           <Chip tone="primary">{t("inThisHand")}</Chip>
                         )}
@@ -207,6 +212,12 @@ function YakuExampleList({
   const t = useTranslations("reference.yaku");
   if (examples === undefined) return undefined;
 
+  /** 牌の見出し（役牌の 白・發・中）。例: reference.yaku.variants.haku */
+  const variantLabel = (example: YakuExampleSet) =>
+    example.variantKey === undefined
+      ? undefined
+      : t(`variants.${example.variantKey}`);
+
   /** 与えられた見出しを 1 行に畳む。1 つも無ければラベル自体を出さない */
   const label = (...segments: readonly (string | undefined)[]) => {
     const parts = segments.filter((segment) => segment !== undefined);
@@ -218,11 +229,14 @@ function YakuExampleList({
   return (
     <View style={styles.examples}>
       {examples.map((example) => (
-        <View key={example.variant ?? example.menzen.mpsz} style={styles.set}>
+        <View
+          key={example.variantKey ?? example.menzen.mpsz}
+          style={styles.set}
+        >
           <YakuExample
             hand={example.menzen}
             label={label(
-              example.variant,
+              variantLabel(example),
               // 副露形と並ぶときだけ「門前」と断る
               example.naki === undefined ? undefined : t("exampleMenzen"),
             )}
@@ -230,7 +244,7 @@ function YakuExampleList({
           {example.naki !== undefined && (
             <YakuExample
               hand={example.naki}
-              label={label(example.variant, t("exampleNaki"))}
+              label={label(variantLabel(example), t("exampleNaki"))}
             />
           )}
         </View>
