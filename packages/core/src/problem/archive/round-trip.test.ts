@@ -36,6 +36,13 @@ const RULE_SETS = [
   },
 ] as const;
 
+/**
+ * 性質テスト 1 件の上限（ミリ秒）。単独なら 1 件 5 秒弱だが、ルートの
+ * `pnpm test` が全パッケージを並列に流す高負荷下では vitest の既定の上限を超えるため、
+ * 件数を減らさずに上限だけを広げる。
+ */
+const PROPERTY_TEST_TIMEOUT_MS = 120_000;
+
 function collect<T>(generate: () => T | undefined, need: number): T[] {
   const collected: T[] = [];
   for (let i = 0; i < need * 50 && collected.length < need; i++) {
@@ -69,44 +76,53 @@ function acceptedTenpai(question: TenpaiScoreQuestion) {
 
 describe("生成した問題の保存と組み立て直し（性質）", () => {
   for (const [index, { name, options }] of RULE_SETS.entries()) {
-    it(`和了形: ${name}で生成した問題は標準ルールの検証を通り、生成時のルールで組み立て直すと元の問題に一致する`, () => {
-      const rng = seededRandom(1000 + index);
-      const questions = collect(
-        () => generateScoreQuestion({ ...options, includeChiitoi: true, rng }),
-        SAMPLES_PER_RULES,
-      );
-      for (const question of questions) {
-        const payload = acceptedAgari(question);
-        const rebuilt = rebuildAgariQuestion(payload, question.ruleConfig);
-        expect(rebuilt._unsafeUnwrap()).toStrictEqual(question);
-      }
-      // 副露・七対子・リーチの盤面を実際に通したこと
-      const names = (q: ScoreQuestion) => q.yakuDetails.map((y) => y.name);
-      expect(questions.some((q) => q.tehai.exposed.length > 0)).toBe(true);
-      expect(questions.some((q) => names(q).includes("七対子"))).toBe(true);
-      expect(questions.some((q) => q.isRiichi)).toBe(true);
-    });
+    it(
+      `和了形: ${name}で生成した問題は標準ルールの検証を通り、生成時のルールで組み立て直すと元の問題に一致する`,
+      () => {
+        const rng = seededRandom(1000 + index);
+        const questions = collect(
+          () =>
+            generateScoreQuestion({ ...options, includeChiitoi: true, rng }),
+          SAMPLES_PER_RULES,
+        );
+        for (const question of questions) {
+          const payload = acceptedAgari(question);
+          const rebuilt = rebuildAgariQuestion(payload, question.ruleConfig);
+          expect(rebuilt._unsafeUnwrap()).toStrictEqual(question);
+        }
+        // 副露・七対子・リーチの盤面を実際に通したこと
+        const names = (q: ScoreQuestion) => q.yakuDetails.map((y) => y.name);
+        expect(questions.some((q) => q.tehai.exposed.length > 0)).toBe(true);
+        expect(questions.some((q) => names(q).includes("七対子"))).toBe(true);
+        expect(questions.some((q) => q.isRiichi)).toBe(true);
+      },
+      PROPERTY_TEST_TIMEOUT_MS,
+    );
 
-    it(`聴牌形: ${name}で生成した問題は標準ルールの検証を通り、生成時のルールで組み立て直すと元の問題に一致する`, () => {
-      const rng = seededRandom(2000 + index);
-      const questions = collect(
-        () => generateTenpaiScoreQuestion({ ...options, rng }),
-        SAMPLES_PER_RULES,
-      );
-      for (const question of questions) {
-        const payload = acceptedTenpai(question);
-        const ruleConfig = question.waits[0].tsumo.ruleConfig;
-        const rebuilt = rebuildTenpaiQuestion(payload, ruleConfig);
-        expect(rebuilt._unsafeUnwrap()).toStrictEqual(question);
-      }
-      expect(questions.some((q) => !isMenzen(q.waits[0].tsumo.tehai))).toBe(
-        true,
-      );
-      expect(questions.some((q) => q.isRiichi)).toBe(true);
-      expect(
-        questions.some((q) => q.waits.some((wait) => wait.ron === undefined)),
-      ).toBe(true);
-    });
+    it(
+      `聴牌形: ${name}で生成した問題は標準ルールの検証を通り、生成時のルールで組み立て直すと元の問題に一致する`,
+      () => {
+        const rng = seededRandom(2000 + index);
+        const questions = collect(
+          () => generateTenpaiScoreQuestion({ ...options, rng }),
+          SAMPLES_PER_RULES,
+        );
+        for (const question of questions) {
+          const payload = acceptedTenpai(question);
+          const ruleConfig = question.waits[0].tsumo.ruleConfig;
+          const rebuilt = rebuildTenpaiQuestion(payload, ruleConfig);
+          expect(rebuilt._unsafeUnwrap()).toStrictEqual(question);
+        }
+        expect(questions.some((q) => !isMenzen(q.waits[0].tsumo.tehai))).toBe(
+          true,
+        );
+        expect(questions.some((q) => q.isRiichi)).toBe(true);
+        expect(
+          questions.some((q) => q.waits.some((wait) => wait.ron === undefined)),
+        ).toBe(true);
+      },
+      PROPERTY_TEST_TIMEOUT_MS,
+    );
   }
 });
 
