@@ -55,8 +55,13 @@ export interface PlanBadgeSource {
  * プランバッジ導出
  *
  * `lifetime` / `pass` → `"pro"`、`granted` → `"vip"`、`free` → `undefined`（ラベルを出さない）。
- * `kind` を足したら網羅性の検査で落ちる。
+ * `kind` を足したら網羅性の検査で落ちる。無料でないと分かっている状態を渡すと
+ * 戻り値は `undefined` を含まない（呼び出し側でラベルの有無を確かめ直さないため）。
  */
+export function planBadgeOf(status: {
+  readonly kind: Exclude<PlanBadgeSource["kind"], "free">;
+}): PlanBadge;
+export function planBadgeOf(status: PlanBadgeSource): PlanBadge | undefined;
 export function planBadgeOf(status: PlanBadgeSource): PlanBadge | undefined {
   const { kind } = status;
   switch (kind) {

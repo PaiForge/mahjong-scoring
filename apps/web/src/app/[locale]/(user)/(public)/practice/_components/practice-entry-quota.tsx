@@ -16,7 +16,7 @@ import {
   ROW_LINK_TITLE_CLASSES,
   TEXT_LINK_CLASSES,
 } from "@/app/_components/_lib/link-classes";
-import { ProBadge } from "@/app/[locale]/(user)/_components/pro-badge";
+import { PlanBadge } from "@/app/_components/plan-badges";
 import { ChevronRightIcon } from "@/app/[locale]/(user)/_components/icons/chevron-right-icon";
 import { InfinityIcon } from "@/app/[locale]/(user)/_components/icons/infinity-icon";
 import {
@@ -41,7 +41,7 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
   const pathname = usePathname();
   const signInTarget = signInNavTarget(locale, pathname);
   const planTarget = clientNavTarget(PLAN_PAGE_HREF, locale);
-  const badge = <ProBadge label={tQuota("proBadge")} />;
+  const badge = <PlanBadge badge="pro" label={tQuota("proBadge")} />;
   const [quota, setQuota] = useState<BeginPracticeQuestionResult | null>();
   useEffect(() => {
     let active = true;
@@ -86,7 +86,7 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
       ) : quota.remaining === "unlimited" ? (
         hasUnlimitedPractice(quota.benefits) ? (
           <div className="flex items-center gap-2 rounded-lg bg-podium-gold px-3 py-2">
-            <ProBadge label={tQuota("proBadge")} onGold />
+            <PlanBadge badge="pro" label={tQuota("proBadge")} onGold />
             <p className="flex items-center gap-1 text-sm font-bold text-surface-900">
               <InfinityIcon className="size-4" />
               {t("proUnlimited")}

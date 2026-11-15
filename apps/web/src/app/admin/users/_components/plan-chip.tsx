@@ -3,13 +3,12 @@ import Link from "next/link";
 
 import {
   planBadgeOf,
-  type PlanBadge,
+  type PlanBadge as PlanBadgeKind,
 } from "@mahjong-scoring/features/billing/plan-badge";
 
-import {
-  adminChipClasses,
-  type AdminChipTone,
-} from "@/app/admin/_lib/chip-classes";
+import { PlanBadge } from "@/app/_components/plan-badges";
+import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
+import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
 import { formatAdminDate } from "@/app/admin/_lib/format-date";
 import type { PlanStatus } from "@/lib/billing/plan-status";
 
@@ -20,19 +19,10 @@ interface PlanChipProps {
 }
 
 /**
- * ラベルの種類ごとのチップの色。購入の Pro は「生きている」状態の緑、
- * 運営が付与した Pro（VIP）は購入と並んでも見分けが付く別の色、無料は灰。
- */
-const BADGE_TONES: Readonly<Record<PlanBadge, AdminChipTone>> = {
-  pro: "success",
-  vip: "special",
-};
-
-/**
  * ラベルの種類ごとの、ユーザー詳細の飛び先の節。購入の Pro は購入履歴、
  * 付与の VIP は特典付与（期限と取り消しの操作がそこにある）
  */
-const BADGE_SECTIONS: Readonly<Record<PlanBadge, string>> = {
+const BADGE_SECTIONS: Readonly<Record<PlanBadgeKind, string>> = {
   pro: USER_DETAIL_SECTION_IDS.purchases,
   vip: USER_DETAIL_SECTION_IDS.grants,
 };
@@ -40,15 +30,13 @@ const BADGE_SECTIONS: Readonly<Record<PlanBadge, string>> = {
 /**
  * プラン状況の全文（期限・買い切り・付与の別を含む）
  *
- * 文言はマイページの状態の見出し（`mypagePlan.status.*`）と同じで、VIP のときだけ
- * 先頭に "VIP" を付ける。購入と付与が重なる人は `planStatusOf` が選んだ 1 つの状態だけを出す。
+ * 文言はマイページの状態の見出し（`mypagePlan.status.*`）と同じ。Pro / VIP の別は
+ * 横に置くラベル（`PlanBadge`）が示す。購入と付与が重なる人は
+ * `planStatusOf` が選んだ 1 つの状態だけを出す。
  */
 async function planLabel(plan: PlanStatus): Promise<string> {
-  const [t, tPlan] = await Promise.all([
-    getTranslations("admin"),
-    getTranslations("mypagePlan"),
-  ]);
-  const label = ((): string => {
+  const tPlan = await getTranslations("mypagePlan");
+  return ((): string => {
     switch (plan.kind) {
       case "lifetime":
         return tPlan("status.lifetime");
@@ -64,23 +52,36 @@ async function planLabel(plan: PlanStatus): Promise<string> {
         return tPlan("status.free");
     }
   })();
-  return planBadgeOf(plan) === "vip"
-    ? `${t("usersTable.planBadges.vip")} ${label}`
-    : label;
 }
 
 /**
- * 管理画面のプラン状況のチップ（ユーザー詳細の見出し）
+ * Pro / VIP のラベル 1 つ
+ *
+ * 利用者がマイページで見るものと同じ部品（`app/_components/plan-badges`）を使い、
+ * 運営が見るラベルと外観をそろえる。
+ */
+async function PlanBadgeMark({ badge }: { readonly badge: PlanBadgeKind }) {
+  const t = await getTranslations("admin");
+  const label = t(`usersTable.planBadges.${badge}`);
+  return <PlanBadge badge={badge} label={label} />;
+}
+
+/**
+ * 管理画面のプラン状況（ユーザー詳細の見出し）
  * プランチップ
  *
+ * Pro / VIP のラベルの横に、期限まで入れた状態の全文を灰のチップで添える。
  * 購入の Pro か付与の VIP かは `planBadgeOf` で `PlanStatus.kind` から導き、
  * ここで `kind === "granted"` を書き直さない（マイページ・アプリと対応をそろえる）。
  */
 export async function PlanChip({ plan }: PlanChipProps) {
   const badge = planBadgeOf(plan);
   return (
-    <span className={adminChipClasses(badge ? BADGE_TONES[badge] : "neutral")}>
-      {await planLabel(plan)}
+    <span className="inline-flex items-center gap-1.5">
+      {badge && <PlanBadgeMark badge={badge} />}
+      <span className={adminChipClasses("neutral")}>
+        {await planLabel(plan)}
+      </span>
     </span>
   );
 }
@@ -103,16 +104,15 @@ interface PlanChipLinkProps {
 export async function PlanChipLink({ plan, userId }: PlanChipLinkProps) {
   const badge = planBadgeOf(plan);
   if (!badge) return null;
-  const t = await getTranslations("admin");
   const label = await planLabel(plan);
   return (
     <Link
       href={`/admin/users/${userId}#${BADGE_SECTIONS[badge]}`}
       title={label}
       aria-label={label}
-      className={`${adminChipClasses(BADGE_TONES[badge])} hover:opacity-80`}
+      className={`inline-flex rounded-full hover:opacity-80 ${FOCUS_RING_CLASSES}`}
     >
-      {t(`usersTable.planBadges.${badge}`)}
+      <PlanBadgeMark badge={badge} />
     </Link>
   );
 }

@@ -7,16 +7,29 @@
     "free": "無料プラン",
     "freeHint": "Pro を購入すると、点数計算の練習を回数制限なしで続けられます。",
     "lifetime": "Pro（買い切り）",
-    "lifetimeHint": "購入時点の Pro の機能をずっと使えます。",
     "pass": "Pro（{until} まで）",
-    "passHint": "期限が来ると無料プランに戻ります。期限切れ後に再購入できます。",
     "granted": "Pro（付与）",
     "grantedUntil": "Pro（付与・{until} まで）",
-    "grantedHint": "運営から付与された Pro の特典です。購入した特典とは別に扱われます。",
     "buy": "Pro を購入する",
     "badge": {
       "pro": "Pro",
       "vip": "VIP"
+    },
+    "summary": {
+      "lifetime": "買い切り",
+      "pass": "{until} まで・期限後は無料プランに戻ります",
+      "until": "{until} まで",
+      "indefinite": "無期限"
+    }
+  },
+  "benefits": {
+    "links": {
+      "agariScore": "和了形の点数計算",
+      "tenpaiScore": "聴牌形の点数計算",
+      "fuScoreExamTraining": "1級の模試",
+      "scoreExamTraining": "初段の模試",
+      "measureTime": "回答時間を計る（和了形の点数計算）",
+      "handDisplay": "手牌の表示を変える（設定）"
     }
   },
   "history": {
