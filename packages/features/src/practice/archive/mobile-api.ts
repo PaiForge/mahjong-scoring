@@ -7,6 +7,8 @@
  * 400 は不正な本文、401 は未認証、403 は BAN・Origin 不正、429 は上限。
  * 応答に本文を持たないので、応答の形の契約（検証関数）は置かない。
  */
+import type { ArchiveSendOutcome } from "./problem-archive-queue";
+
 export type { PracticeProblemArchiveRequest } from "@mahjong-scoring/core";
 
 /**
@@ -28,3 +30,25 @@ export const PRACTICE_PROBLEMS_API_PATH = "/api/practice-problems";
  * アプリ問題保存APIパス
  */
 export const MOBILE_PRACTICE_PROBLEMS_API_PATH = `${MOBILE_API_PREFIX}/practice-problems`;
+
+/**
+ * 保存 API の応答のステータスを送信キューの結果へ読み替える
+ * 問題保存応答の読み替え
+ *
+ * web とアプリで同じ基準にする。
+ *
+ * | ステータス | 結果 | 理由 |
+ * | --- | --- | --- |
+ * | 2xx | `"done"` | 保存できた（成功は 204） |
+ * | 5xx | `"retry"` | サーバーの一時的な失敗。キューが 1 回だけ送り直す |
+ * | それ以外（400・401・403・429 等） | `"drop"` | 送り直しても結果が変わらない。429 も練習を止めないため捨てる |
+ *
+ * 通信の失敗（応答が得られない）は呼び出し側が `"retry"` にする。
+ *
+ * @param status HTTP ステータス
+ */
+export function archiveSendOutcomeOf(status: number): ArchiveSendOutcome {
+  if (status >= 200 && status < 300) return "done";
+  if (status >= 500) return "retry";
+  return "drop";
+}
