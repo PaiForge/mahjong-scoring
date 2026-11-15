@@ -33,6 +33,7 @@ import { SectionTitle } from "../../../../components/section-title";
 import { SelectField } from "../../../../components/select-field";
 import { TextLink } from "../../../../components/text-link";
 import { colors } from "../../../../lib/theme";
+import { useAppLocale } from "../../../../lib/use-app-locale";
 import { AttemptTable } from "../../../../mypage/attempt-table";
 import { fetchRecords } from "../../../../mypage/mypage-api";
 import { MypageGate, MypageLoadFailed } from "../../../../mypage/mypage-gate";
@@ -154,14 +155,15 @@ function Records({
   const goToTab = useGoToTab();
   const openFromModal = useOpenFromModal();
   const { boards, board, current, previous } = records;
+  const locale = useAppLocale();
 
   const stats = useMemo(
     () => computeStatsComparison(current, previous),
     [current, previous],
   );
   const chartData = useMemo(
-    () => buildChartData(current, previous),
-    [current, previous],
+    () => buildChartData(current, previous, locale),
+    [current, previous, locale],
   );
 
   const comparisonLabel = t(getComparisonLabelKey(period));

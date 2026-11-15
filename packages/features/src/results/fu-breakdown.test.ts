@@ -4,6 +4,8 @@ import type { FuDetail } from "@mahjong-scoring/core";
 import { buildFuBreakdown } from "./fu-breakdown";
 
 /** 辞書の形（`{value}符` 等）を真似た翻訳関数。キーの取り違えも見えるよう素通しにしない */
+const reasonOf = (detail: { readonly reason: string }): string => detail.reason;
+
 function t(
   key: string,
   values?: Readonly<Record<string, string | number>>,
@@ -20,7 +22,7 @@ const DETAILS = [
 
 describe("buildFuBreakdown", () => {
   it("理由ごとの行を出題の順のまま並べ、切り上げ前の合計を締めに置く", () => {
-    const breakdown = buildFuBreakdown(DETAILS, 30, t);
+    const breakdown = buildFuBreakdown(DETAILS, 30, t, reasonOf);
 
     expect(breakdown.rows).toEqual([
       { label: "副底", value: "20符" },
@@ -34,7 +36,7 @@ describe("buildFuBreakdown", () => {
   });
 
   it("合計と正解が違う（切り上げた）ときは切り上げ後の符の行を出す", () => {
-    expect(buildFuBreakdown(DETAILS, 30, t).rounded).toEqual({
+    expect(buildFuBreakdown(DETAILS, 30, t, reasonOf).rounded).toEqual({
       label: "<roundedUp>",
       value: "30符",
     });
@@ -45,10 +47,10 @@ describe("buildFuBreakdown", () => {
       { reason: "副底", fu: 20 },
       { reason: "門前加符", fu: 10 },
     ];
-    expect(buildFuBreakdown(exact, 30, t).rounded).toBeUndefined();
+    expect(buildFuBreakdown(exact, 30, t, reasonOf).rounded).toBeUndefined();
   });
 
-  it("理由の文言を渡せば各行のラベルはそれで組み、省略時は reason のまま", () => {
+  it("理由の文言を渡せば各行のラベルはそれで組む（reason をそのまま返せば reason のまま）", () => {
     const details: readonly FuDetail[] = [
       { reason: "副底", fu: 20, spec: { kind: "futei" } },
       { reason: "門前加符", fu: 10 },
@@ -62,7 +64,7 @@ describe("buildFuBreakdown", () => {
       ),
     ).toEqual(["[副底]", "[門前加符]"]);
     expect(
-      buildFuBreakdown(details, 30, t).rows.map((row) => row.label),
+      buildFuBreakdown(details, 30, t, reasonOf).rows.map((row) => row.label),
     ).toEqual(["副底", "門前加符"]);
   });
 });

@@ -2,9 +2,11 @@ import { formatLessonPoints } from "@mahjong-scoring/features/lessons/quiz-label
 import type { ReactNode } from "react";
 import { useTranslations } from "use-intl";
 import { HIGH_SCORES, getTsumoTotal, type Role } from "@mahjong-scoring/core";
-import { HAN_DISPLAY } from "@mahjong-scoring/features/curriculum/han-display";
+import { hanDisplayFor } from "@mahjong-scoring/features/curriculum/han-display";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import { DataTable, type DataTableColumn } from "../../components/data-table";
+import { useAppLocale } from "../../lib/use-app-locale";
 import { MutedCell, PlainCell, StrongCell } from "./table-cells";
 
 /** 満貫以上早見表の1行分のデータ */
@@ -36,10 +38,13 @@ function ManganTableShell({
   readonly renderCells: (
     row: ManganTableRow,
     t: (key: string) => string,
+    locale: SupportedLocale,
   ) => readonly string[];
 }) {
   const t = useTranslations("manganScoreTable");
   const tScore = useTranslations("scoreTable");
+  const locale = useAppLocale();
+  const hanDisplay = hanDisplayFor(locale);
 
   const header: DataTableColumn[] = [
     { label: t("colType"), flex: 1.1 },
@@ -65,11 +70,11 @@ function ManganTableShell({
         if (showHan) {
           cells.push(
             <MutedCell key="han" tone={500}>
-              {HAN_DISPLAY[row.nameKey]}
+              {hanDisplay[row.nameKey]}
             </MutedCell>,
           );
         }
-        renderCells(row, t).forEach((value, index) => {
+        renderCells(row, t, locale).forEach((value, index) => {
           const tone = columns[index]?.tone ?? "plain";
           cells.push(
             tone === "strong" ? (
@@ -109,8 +114,8 @@ export function ManganScoreTable({ role }: { readonly role: Role }) {
   return (
     <ManganTableShell
       columns={SCORE_COLUMNS}
-      renderCells={(row, t) => [
-        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya),
+      renderCells={(row, t, locale) => [
+        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya, locale),
         t(noteKeyOf(row.nameKey)),
       ]}
     />
@@ -132,12 +137,12 @@ export function ManganKoTsumoScoreTable() {
     <ManganTableShell
       columns={KO_TSUMO_COLUMNS}
       showHan={false}
-      renderCells={(row) => {
+      renderCells={(row, _t, locale) => {
         const { fromKo, fromOya } = row.tsumoKo;
         return [
-          formatLessonPoints(fromKo),
-          formatLessonPoints(fromOya),
-          formatLessonPoints(getTsumoTotal(row.tsumoKo)),
+          formatLessonPoints(fromKo, locale),
+          formatLessonPoints(fromOya, locale),
+          formatLessonPoints(getTsumoTotal(row.tsumoKo), locale),
         ];
       }}
     />
@@ -158,11 +163,11 @@ export function ManganOyaTsumoScoreTable() {
     <ManganTableShell
       columns={OYA_TSUMO_COLUMNS}
       showHan={false}
-      renderCells={(row) => {
+      renderCells={(row, _t, locale) => {
         const each = row.tsumoOya.all;
         return [
-          formatLessonPoints(each),
-          formatLessonPoints(getTsumoTotal(row.tsumoOya)),
+          formatLessonPoints(each, locale),
+          formatLessonPoints(getTsumoTotal(row.tsumoOya), locale),
         ];
       }}
     />

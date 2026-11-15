@@ -113,13 +113,13 @@ describe("jstStartOfMonth", () => {
 describe("formatJstDateTime", () => {
   it("JST の「年/月/日 時:分」にする", () => {
     // UTC 23:30 は JST の翌日 08:30
-    expect(formatJstDateTime(new Date("2026-10-01T23:30:00Z"))).toBe(
+    expect(formatJstDateTime(new Date("2026-10-01T23:30:00Z"), "ja")).toBe(
       "2026/10/02 08:30",
     );
   });
 
   it("深夜 0 時台を 24 時と書かない", () => {
-    expect(formatJstDateTime(new Date("2026-10-01T15:05:00Z"))).toBe(
+    expect(formatJstDateTime(new Date("2026-10-01T15:05:00Z"), "ja")).toBe(
       "2026/10/02 00:05",
     );
   });
@@ -128,7 +128,7 @@ describe("formatJstDateTime", () => {
 describe("formatJstDateLong", () => {
   it("JST の「年月日」にする", () => {
     // UTC 15:00 は JST の翌日 0:00
-    expect(formatJstDateLong(new Date("2026-10-20T15:00:00Z"))).toBe(
+    expect(formatJstDateLong(new Date("2026-10-20T15:00:00Z"), "ja")).toBe(
       "2026年10月21日",
     );
   });
@@ -136,7 +136,7 @@ describe("formatJstDateLong", () => {
 
 describe("formatJstDayKeyLong", () => {
   it("日付キーを「年月日」にする（月日は 0 埋めしない）", () => {
-    expect(formatJstDayKeyLong("2026-04-02")).toBe("2026年4月2日");
+    expect(formatJstDayKeyLong("2026-04-02", "ja")).toBe("2026年4月2日");
   });
 });
 
@@ -145,13 +145,11 @@ describe("表示の関数の言語（locale）", () => {
   // 空白の種類ではなく並びを確かめる
   const normalizeSpaces = (text: string): string => text.replace(/\s/gu, " ");
 
-  it("locale を省くと日本語の出力と同じ（既存の呼び出しが変わらない）", () => {
+  it("ja を渡すと日本語の出力", () => {
     const instant = new Date("2026-10-01T23:30:00Z");
-    expect(formatJstDateTime(instant)).toBe(formatJstDateTime(instant, "ja"));
-    expect(formatJstDateLong(instant)).toBe(formatJstDateLong(instant, "ja"));
-    expect(formatJstDayKeyLong("2026-04-02")).toBe(
-      formatJstDayKeyLong("2026-04-02", "ja"),
-    );
+    expect(formatJstDateTime(instant, "ja")).toBe("2026/10/02 08:30");
+    expect(formatJstDateLong(instant, "ja")).toBe("2026年10月2日");
+    expect(formatJstDayKeyLong("2026-04-02", "ja")).toBe("2026年4月2日");
   });
 
   it("英語の日時は en-US の書式で、時刻は JST のまま", () => {
@@ -201,13 +199,8 @@ describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
 
 describe("formatJstDayKeyMonthDay", () => {
   it("日付キーを「月/日」にする（0 埋めしない）", () => {
-    expect(formatJstDayKeyMonthDay("2026-04-02")).toBe("4/2");
-    expect(formatJstDayKeyMonthDay("2026-10-31")).toBe("10/31");
-  });
-
-  it("日本語を明示しても省略時と同じ従来の文字列", () => {
-    expect(formatJstDayKeyMonthDay("2026-10-02", "ja")).toBe("10/2");
-    expect(formatJstDayKeyMonthDay("2026-10-02")).toBe("10/2");
+    expect(formatJstDayKeyMonthDay("2026-04-02", "ja")).toBe("4/2");
+    expect(formatJstDayKeyMonthDay("2026-10-31", "ja")).toBe("10/31");
   });
 
   it("英語は en-US の略称の月で「Oct 2」", () => {

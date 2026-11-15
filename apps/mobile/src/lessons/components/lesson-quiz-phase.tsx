@@ -13,6 +13,8 @@ import {
   lessonChoiceLabel,
   lessonConditionValues,
 } from "@mahjong-scoring/features/lessons/quiz-labels";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
+import { kazeNameKey } from "@mahjong-scoring/core";
 
 import { TehaiDisplay } from "../../board/tehai-display";
 import { Button } from "../../components/button";
@@ -22,6 +24,7 @@ import { useScrollIntoView } from "../../components/scroll-into-view";
 import { SectionTitle } from "../../components/section-title";
 import { TextLink } from "../../components/text-link";
 import { borderWidth, colors, radius } from "../../lib/theme";
+import { useAppLocale } from "../../lib/use-app-locale";
 import { ChoiceButton } from "../../practice/components/choice-button";
 import { JudgementMark } from "../../practice/components/judgement-mark";
 import { PromptLabel } from "../../practice/components/prompt-label";
@@ -116,6 +119,9 @@ export function LessonQuizPhase({
   const t = useTranslations("lessons");
   const tLesson = useTranslations(`lessons.${messageKey}`);
   const tScoreTable = useTranslations("scoreTable");
+  const tCommon = useTranslations("common");
+  const tYakuNames = useTranslations("yakuNames");
+  const locale = useAppLocale();
   const scrollIntoView = useScrollIntoView();
   const judgementRef = useRef<ViewInstance>(null);
   const nextButtonRef = useRef<ViewInstance>(null);
@@ -156,7 +162,13 @@ export function LessonQuizPhase({
         <Text style={styles.condition} testID="lesson-condition">
           {tLesson(
             "condition",
-            lessonConditionValues(question.prompt, tScoreTable),
+            lessonConditionValues(question.prompt, tScoreTable, {
+              // 例: common.kazeNames.ton
+              kazeName: (kaze) => tCommon(`kazeNames.${kazeNameKey(kaze)}`),
+              // 例: yakuNames.chiitoitsu
+              yakuName: (name) => yakuLabel(name, tYakuNames),
+              yakuJoiner: t("yakuJoiner"),
+            }),
           )}
         </Text>
         <PromptTiles prompt={question.prompt} />
@@ -199,7 +211,7 @@ export function LessonQuizPhase({
               {isCorrect
                 ? t("correct")
                 : t("incorrect", {
-                    answer: lessonAnswerLabel(question.answer, t),
+                    answer: lessonAnswerLabel(question.answer, t, locale),
                   })}
             </Text>
           </View>
@@ -234,7 +246,7 @@ export function LessonQuizPhase({
                 choice.kind === "koTsumo" && styles.choiceSmall,
               ]}
             >
-              {lessonChoiceLabel(choice, t)}
+              {lessonChoiceLabel(choice, t, locale)}
             </Text>
           </ChoiceButton>
         ))}

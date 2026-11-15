@@ -35,8 +35,8 @@ export function ManganScoreTable({ role }: ManganScoreTableProps) {
       role={role}
       winType="ron"
       columns={COLUMNS}
-      renderCells={(row, t) => [
-        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya),
+      renderCells={(row, t, locale) => [
+        formatLessonPoints(role === "ko" ? row.ronKo : row.ronOya, locale),
         t(noteKeyOf(row.nameKey)),
       ]}
     />

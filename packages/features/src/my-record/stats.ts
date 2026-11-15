@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import type { SupportedLocale } from "../i18n/locales";
 import { practiceMenuByType } from "../practice-menu-types";
 import { formatJstDateTime, JST_TIME_ZONE, jstDayKey } from "../jst";
 
@@ -23,11 +23,11 @@ const SHORT_DATE_LOCALES: Readonly<Record<SupportedLocale, string>> = {
  * 英語は `formatJstDateTime` の英語の形（JST の時刻を en-US の書式で）。
  *
  * @param date - 表示する日時（無ければ「-」）
- * @param locale - 表示する言語（省略時は日本語。モバイルは省略する）
+ * @param locale - 表示する言語
  */
 export function formatDate(
   date: Date | undefined,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   if (!date) return "-";
   return formatJstDateTime(new Date(date), locale);
@@ -40,11 +40,11 @@ export function formatDate(
  * 英語は「Aug 17」。言語を変えても日付は JST で切る。
  *
  * @param date - 表示する日時（無ければ「-」）
- * @param locale - 表示する言語（省略時は日本語。モバイルは省略する）
+ * @param locale - 表示する言語
  */
 export function formatShortDate(
   date: Date | undefined,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   if (!date) return "-";
   return new Intl.DateTimeFormat(SHORT_DATE_LOCALES[locale], {
@@ -171,7 +171,7 @@ interface DailyAggregation {
  */
 export function aggregateByDay(
   attempts: readonly ChallengeAttempt[],
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): DailyAggregation[] {
   const dailyMap = new Map<
     string,
@@ -209,7 +209,7 @@ export function aggregateByDay(
 export function toAttemptRows(
   attempts: readonly ChallengeAttempt[],
   limit = 5,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): AttemptRow[] {
   return attempts.slice(0, limit).map((s) => ({
     date: formatDate(s.createdAt, locale),
@@ -225,7 +225,7 @@ export function toAttemptRows(
 export function buildChartData(
   currentAttempts: readonly ChallengeAttempt[],
   previousAttempts: readonly ChallengeAttempt[],
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): ChartDataPoint[] {
   const currentDaily = aggregateByDay(currentAttempts, locale);
   const previousDaily = aggregateByDay(previousAttempts, locale);

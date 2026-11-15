@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslations } from "use-intl";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import { sumYakuHan } from "@mahjong-scoring/core";
 import { orderYakuDetails } from "@mahjong-scoring/features/results/order-yaku-details";
 
@@ -62,6 +63,7 @@ export function YakuBreakdownTable({
 }: YakuBreakdownTableProps) {
   const t = useTranslations("challenge.yakuBreakdown");
   const tChallenge = useTranslations("challenge");
+  const tYakuNames = useTranslations("yakuNames");
   const yakuOrder = useYakuOrder();
   const yakuNames = useMemo(
     () => yakuDetails.map((detail) => detail.name),
@@ -87,10 +89,11 @@ export function YakuBreakdownTable({
               fontSize={DETAIL_TABLE_FONT_SIZE}
               accessibilityHint={tChallenge("openInYakuList")}
             >
-              {detail.name}
+              {/* 例: yakuNames.riichi */}
+              {yakuLabel(detail.name, tYakuNames)}
             </InlineLink>
           ) : (
-            detail.name
+            yakuLabel(detail.name, tYakuNames)
           ),
           value: t("han", { count: detail.han }),
         }))}

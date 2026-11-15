@@ -4,7 +4,7 @@ import {
   hanRangeOf,
 } from "@mahjong-scoring/core";
 
-import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import type { SupportedLocale } from "../i18n/locales";
 
 /**
  * 学習ページで満貫の下限として示す翻数
@@ -73,14 +73,3 @@ export function hanDisplayFor(
 ): Readonly<Record<string, string>> {
   return HAN_DISPLAY_BY_LOCALE[locale];
 }
-
-/**
- * 満貫以上の種類ごとの翻数レンジ表示（日本語）
- * 翻数レンジ表示
- *
- * `hanDisplayFor(DEFAULT_LOCALE)` と同じ値。日本語しか出さない読み手
- * （モバイルの満貫の表）のための互換の export。言語を持つページは
- * {@link hanDisplayFor} を使う。
- */
-export const HAN_DISPLAY: Readonly<Record<string, string>> =
-  hanDisplayFor(DEFAULT_LOCALE);

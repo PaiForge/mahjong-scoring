@@ -7,7 +7,7 @@ import { glossaryTermViews } from "@mahjong-scoring/features/glossary/views";
 import { buildDefinedTermSchema, buildDefinedTermSetSchema } from "../json-ld";
 
 /** キーをそのまま返す翻訳関数（JSON-LD の URL と言語だけを見るため） */
-const [term] = glossaryTermViews((key) => key);
+const [term] = glossaryTermViews((key) => key, "ja");
 
 describe("buildDefinedTermSetSchema", () => {
   it("locale を省略すると既存の日本語の URL と inLanguage のまま", () => {

@@ -1,5 +1,7 @@
 import { useTranslations } from "use-intl";
-import type { ScoreQuestion } from "@mahjong-scoring/core";
+import type { FuDetail, ScoreQuestion } from "@mahjong-scoring/core";
+import { fuReasonLabel } from "@mahjong-scoring/features/results/fu-reason-label";
+import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import {
   buildScoreResultBreakdownSections,
   type ScoreResultBreakdownTab,
@@ -21,21 +23,34 @@ export function useResultBreakdownSections({
   hanDisplay,
   onOpenScoreTable,
   onOpenYakuList,
+  fuDetails,
 }: {
   readonly tabs: readonly ScoreResultBreakdownTab[];
   readonly answer: Pick<ScoreQuestion["answer"], "han" | "fu">;
   readonly hanDisplay: (han: number) => string;
   readonly onOpenScoreTable: () => void;
   readonly onOpenYakuList: (yakuName?: string) => void;
+  /** 出題の符の内訳（符の行の文言を辞書で引き直すため） */
+  readonly fuDetails?: readonly FuDetail[];
 }): readonly BreakdownPanelSection[] {
   const t = useTranslations("agariScore");
+  const tYakuNames = useTranslations("yakuNames");
+  const tFuReason = useTranslations("challenge.fuBreakdown");
   return buildScoreResultBreakdownSections(tabs, answer, hanDisplay, t).map(
     ({ kind, tabLabel, table }): BreakdownPanelSection => ({
       kind,
       tabLabel,
       content: (
         <ResultBreakdownTable
-          items={table.items}
+          items={table.items.map((item, index) => {
+            // 例: yakuNames.riichi
+            if (kind === "han")
+              return { ...item, label: yakuLabel(item.name, tYakuNames) };
+            const detail = fuDetails?.[index];
+            return detail === undefined
+              ? item
+              : { ...item, label: fuReasonLabel(detail, tFuReason) };
+          })}
           total={table.total}
           suffix={table.suffix}
           roundedTotal={table.roundedTotal}

@@ -36,6 +36,7 @@ import {
 import { TextLink } from "../../../components/text-link";
 import { useOpenFromModal } from "../../../hooks/use-open-from-modal";
 import { colors } from "../../../lib/theme";
+import { useAppLocale } from "../../../lib/use-app-locale";
 import { ExampleCard } from "../../../lessons/components/example-card";
 import { MentsuSet, TileSet } from "../../../lessons/components/tile-row";
 import { TermLinkList } from "../../../reference/term-link-list";
@@ -70,10 +71,11 @@ export default function GlossaryTermScreen() {
   const scrollRef = useRef<ScrollViewInstance>(null);
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.glossaryTerm);
+  const locale = useAppLocale();
   const translate = (key: string) => t(key);
   const term =
     typeof slug === "string"
-      ? glossaryTermViewBySlug(slug, translate)
+      ? glossaryTermViewBySlug(slug, translate, locale)
       : undefined;
 
   if (term === undefined) {
@@ -87,7 +89,7 @@ export default function GlossaryTermScreen() {
   }
 
   // 関連語は辞書にあるものだけ出す
-  const allTerms = glossaryTermViews(translate);
+  const allTerms = glossaryTermViews(translate, locale);
   const related = (term.related ?? [])
     .map((relatedSlug) => allTerms.find((other) => other.slug === relatedSlug))
     .filter((other) => other !== undefined);

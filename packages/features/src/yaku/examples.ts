@@ -68,9 +68,8 @@ export interface YakuExampleSet {
    * 見出す相手がいないので持たない。役名（`YAKU_EXAMPLES` のキー）と同じく
    * 日本語のドメイン語彙をそのまま値にする。
    *
-   * 画面に出す見出しは {@link variantKey} から辞書で引く（web）。この日本語の
-   * 値は、まだ辞書を引かずにそのまま表示しているモバイルの役一覧のために残して
-   * いる（モバイルが `reference.yaku.variants.<key>` を引くようになれば外せる）。
+   * 画面に出す見出しは web もモバイルも {@link variantKey} から辞書で引き、この
+   * 日本語の値は表示に使わない（例の識別とテストの突き合わせにだけ使う）。
    * 2 つが食い違わないことは `examples.test.ts` が日本語の辞書と突き合わせて守る。
    */
   readonly variant?: string;

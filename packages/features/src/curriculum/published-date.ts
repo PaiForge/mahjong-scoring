@@ -30,12 +30,12 @@ const EN_PUBLISHED_DATE_FORMAT = new Intl.DateTimeFormat("en-US", {
  * `translatedAt.en`。日本語の章の公開日を英語の書式で出さない）。
  *
  * @param isoDate その言語のページの公開日（日本語は `CURRICULUM` の `publishedAt`）
- * @param locale ページの言語（省略時は日本語）
+ * @param locale ページの言語
  */
 export function formatPublishedDate(
   isoDate: string,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
-  if (locale === DEFAULT_LOCALE) return formatJstDayKeyLong(isoDate);
+  if (locale === DEFAULT_LOCALE) return formatJstDayKeyLong(isoDate, locale);
   return EN_PUBLISHED_DATE_FORMAT.format(new Date(jstDayStartIso(isoDate)));
 }

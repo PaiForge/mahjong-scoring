@@ -32,15 +32,14 @@ function fakeEnglish(key: string): string {
 }
 
 describe("glossaryTermViews", () => {
-  it("locale を省くと日本語（読みの五十音順・五十音行）で、ja を渡したときと同じ", () => {
-    const implicit = glossaryTermViews(jaGlossary);
-    expect(glossaryTermViews(jaGlossary, "ja")).toEqual(implicit);
+  it("日本語は読みの五十音順に並び、どの語も五十音の行に入る", () => {
+    const views = glossaryTermViews(jaGlossary, "ja");
 
-    const readings = implicit.map((view) => view.reading);
+    const readings = views.map((view) => view.reading);
     expect(readings).toEqual(
       [...readings].sort((a, b) => a.localeCompare(b, "ja")),
     );
-    for (const view of implicit) {
+    for (const view of views) {
       expect(view.indexRow, view.slug).toBeDefined();
     }
   });
@@ -59,7 +58,7 @@ describe("glossaryTermViews", () => {
   });
 
   it("href は言語に依らないパス（接頭辞は描く側が付ける）", () => {
-    const [ja] = glossaryTermViews(jaGlossary);
+    const [ja] = glossaryTermViews(jaGlossary, "ja");
     const en = glossaryTermViews(fakeEnglish, "en").find(
       (view) => view.slug === ja.slug,
     );
@@ -75,7 +74,9 @@ describe("glossaryTermViewBySlug", () => {
     expect(view?.indexRow).toBe("U");
   });
 
-  it("locale を省くと日本語の五十音行", () => {
-    expect(glossaryTermViewBySlug("jantou", jaGlossary)?.indexRow).toBe("さ");
+  it("日本語を渡すと五十音の行を持つ", () => {
+    expect(glossaryTermViewBySlug("jantou", jaGlossary, "ja")?.indexRow).toBe(
+      "さ",
+    );
   });
 });

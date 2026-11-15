@@ -121,6 +121,7 @@ export function ResultDisplay({
     hanDisplay,
     onOpenScoreTable: () => scoreTable.open(true),
     onOpenYakuList: openYakuCheatsheet,
+    fuDetails: question.fuDetails,
   });
 
   return (

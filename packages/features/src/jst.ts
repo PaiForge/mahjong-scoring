@@ -20,19 +20,18 @@
  * postgres.js は `date` 型を文字列で返すので、DB が JST で切った暦日を `Date` に
  * 組み直さない。
  *
- * 表示の関数（`formatJst*`）は省略可能な `locale` を受ける。英語（`en`）は
+ * 表示の関数（`formatJst*`）は `locale` を受ける（省略させない — 省略できた頃、英語に
+ * 対応したアプリが渡し忘れ、英語の画面に日本語の書式の日付が残った）。英語（`en`）は
  * `en-US` の書式で、**時刻は英語でも JST のまま**（サービスの暦は JST で、
  * 英語の画面でも「今日」「期限」は JST で切る。変えるのは表記だけ）。
- * `locale` を省くと日本語（`ja-JP`）で、`locale` を渡さない既存の呼び出しの
- * 出力は変わらない。モバイルは端末の言語から決めたアプリの言語
- * （`useAppLocale()`）を必ず渡す — 渡さないと英語の端末で日付だけ日本語の
- * 書式が残る。web は表示中のページの言語を渡す。日付の区切り
+ * モバイルは端末の言語から決めたアプリの言語（`useAppLocale()`）を、web は表示中の
+ * ページの言語を渡す。日付の区切り
  * （`jstStartOfDay` 等の業務境界）は言語に依らない。
  *
  * このモジュールは純粋。
  */
 
-import { DEFAULT_LOCALE, type SupportedLocale } from "./i18n/locales";
+import type { SupportedLocale } from "./i18n/locales";
 
 /** `Intl.DateTimeFormat` の `timeZone` に渡す JST の識別子 */
 export const JST_TIME_ZONE = "Asia/Tokyo";
@@ -185,11 +184,11 @@ const JST_DATE_TIME_FORMATS: Readonly<
  * 英語は「Oct 2, 2026, 10:30 AM」（JST の時刻を en-US の書式で）。
  *
  * @param instant - 表示する瞬間
- * @param locale - 表示する言語（省略時は日本語）
+ * @param locale - 表示する言語
  */
 export function formatJstDateTime(
   instant: Date,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   return JST_DATE_TIME_FORMATS[locale].format(instant);
 }
@@ -219,11 +218,11 @@ const JST_DATE_LONG_FORMATS: Readonly<
  * タイムゾーンに依らず JST の日付で整形する。英語は「October 2, 2026」。
  *
  * @param instant - 表示する瞬間
- * @param locale - 表示する言語（省略時は日本語）
+ * @param locale - 表示する言語
  */
 export function formatJstDateLong(
   instant: Date,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   return JST_DATE_LONG_FORMATS[locale].format(instant);
 }
@@ -236,11 +235,11 @@ export function formatJstDateLong(
  * {@link formatJstDateLong}。英語は「October 2, 2026」。
  *
  * @param dayKey - JST の日付（`YYYY-MM-DD`）
- * @param locale - 表示する言語（省略時は日本語）
+ * @param locale - 表示する言語
  */
 export function formatJstDayKeyLong(
   dayKey: string,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   return formatJstDateLong(new Date(jstDayStartIso(dayKey)), locale);
 }
@@ -267,11 +266,11 @@ const JST_MONTH_DAY_FORMATS: Readonly<
  * ので、日付はずれない）。
  *
  * @param dayKey - JST の日付（`YYYY-MM-DD`）
- * @param locale - 表示する言語（省略時は日本語。従来の「10/2」のまま）
+ * @param locale - 表示する言語（日本語は「10/2」）
  */
 export function formatJstDayKeyMonthDay(
   dayKey: string,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): string {
   const format = JST_MONTH_DAY_FORMATS[locale];
   if (format) return format.format(new Date(jstDayStartIso(dayKey)));
