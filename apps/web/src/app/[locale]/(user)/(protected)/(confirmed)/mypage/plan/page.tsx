@@ -31,6 +31,7 @@ import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import { formatAmount } from "@/lib/billing/prices";
 import { listPurchases } from "@/lib/billing/purchases";
 import { listBenefitGrants } from "@/lib/entitlements/benefit-grants";
+import { getActiveBenefits } from "@/lib/entitlements/has-benefit";
 import { MypageSubpageLayout } from "../_components/mypage-subpage-layout";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
@@ -39,6 +40,8 @@ import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 
 import { confirmedGuardOptions } from "../../_lib/guard-options";
+
+import { PlanBenefitsSection } from "./_components/plan-benefits-section";
 
 /**
  * 金額の書式の地域（`Intl.NumberFormat` のロケール）
@@ -123,14 +126,18 @@ interface MypagePlanPageProps {
  * VIP、無料なら無し）を `planBadgeOf` で添える。見出しの文言と同じ 1 つの状態から
  * 導くので、購入と付与が重なってもラベルは 1 つ。
  *
+ * その下の「使える機能」には、いま有効な特典（購入でも付与でも）をカードで出し、
+ * 特典が効く画面へのリンクを添える（`PlanBenefitsSection`）。
+ *
  * 運営が手動で付けた特典（`benefit_grants`）は「付与された特典」として購入履歴と
  * 別の表に出す。金額が無く、Stripe の領収書も無いため同じ表に混ぜない。付与の
  * 理由は運営の内部メモになり得るので出さない。
  *
  * @flow
  * 1. 状態を見る → 有効な購入も付与も無ければ「Pro を購入する」で料金ページへ
- * 2. 購入履歴で日付・内容・金額・購入元・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
- * 3. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
+ * 2. 特典があれば「使える機能」から、特典が効く練習・設定へ移る
+ * 3. 購入履歴で日付・内容・金額・購入元・状態（有効 / 開始待ち / 期限切れ / 返金済み）を見る
+ * 4. 付与があれば「付与された特典」で期間と状態（有効 / 期限切れ / 取り消し済み）を見る
  *
  * @design 英語でも購入は日本語の料金ページで
  * 購入状況・購入履歴・付与は英語のページでも英語で出す（日付・金額もページの
@@ -150,16 +157,17 @@ export default async function MypagePlanPage({
   const { user } = await requireConfirmedUser(
     confirmedGuardOptions(MYPAGE_PLAN_PATH, locale),
   );
-  const [t, tNav, purchases, grants, { status }] = await Promise.all([
+  const now = new Date();
+  const [t, tNav, purchases, grants, benefits, { status }] = await Promise.all([
     getTranslations("mypagePlan"),
     getTranslations("nav"),
     listPurchases(user.id),
     listBenefitGrants(user.id),
+    getActiveBenefits(user.id, now),
     searchParams,
   ]);
   const planPageTarget = resolveNavTargetFor(PLAN_PAGE_HREF, locale);
   const amountLocale = AMOUNT_FORMAT_LOCALES[locale];
-  const now = new Date();
   const plan = planStatusOf(purchases, grants, now);
   const canPurchase = offersPurchase(purchases, grants, now);
   const providers = new Set(purchases.map(purchaseProviderOf));
@@ -205,6 +213,8 @@ export default async function MypagePlanPage({
             )}
           </div>
         </section>
+
+        <PlanBenefitsSection benefits={benefits} locale={locale} />
 
         <section className="space-y-4">
           <SectionTitle>{t("history.title")}</SectionTitle>

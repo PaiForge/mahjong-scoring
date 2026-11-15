@@ -19,6 +19,17 @@
       "vip": "VIP"
     }
   },
+  "benefits": {
+    "title": "Features you can use",
+    "links": {
+      "agariScore": "Scoring winning hands",
+      "tenpaiScore": "Scoring tenpai hands",
+      "fuScoreExamTraining": "1 Kyu mock exam",
+      "scoreExamTraining": "Shodan mock exam",
+      "measureTime": "Time your answers (scoring winning hands)",
+      "handDisplay": "Change how hands are shown (settings)"
+    }
+  },
   "history": {
     "title": "Purchase history",
     "empty": "No purchases yet",

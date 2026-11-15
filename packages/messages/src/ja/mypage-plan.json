@@ -19,6 +19,17 @@
       "vip": "VIP"
     }
   },
+  "benefits": {
+    "title": "使える機能",
+    "links": {
+      "agariScore": "和了形の点数計算",
+      "tenpaiScore": "聴牌形の点数計算",
+      "fuScoreExamTraining": "1級の模試",
+      "scoreExamTraining": "初段の模試",
+      "measureTime": "回答時間を計る（和了形の点数計算）",
+      "handDisplay": "手牌の表示を変える（設定）"
+    }
+  },
   "history": {
     "title": "購入履歴",
     "empty": "購入履歴はありません",
