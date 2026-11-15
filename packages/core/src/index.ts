@@ -238,6 +238,35 @@ export type {
   TenpaiScoreGeneratorOptions,
 } from "./problem/tenpai-score/types";
 
+// === Problem: Archive（出題した問題の保存形式） ===
+export {
+  ARCHIVE_KINDS,
+  ARCHIVE_SCHEMA_VERSION,
+  ARCHIVE_IDENTITY_VERSION,
+} from "./problem/archive/types";
+export type {
+  ArchiveKind,
+  ArchivedFrom,
+  ArchivedMeld,
+  ArchivedHand,
+  ArchivedRiichi,
+  AgariProblemPayload,
+  TenpaiProblemPayload,
+  PracticeProblemArchiveRequest,
+  ArchiveValidationError,
+  ArchiveRebuildError,
+} from "./problem/archive/types";
+export {
+  toAgariProblemPayload,
+  toTenpaiProblemPayload,
+} from "./problem/archive/to-payload";
+export { parsePracticeProblemArchiveRequest } from "./problem/archive/validate";
+export {
+  rebuildAgariQuestion,
+  rebuildTenpaiQuestion,
+} from "./problem/archive/rebuild";
+export { archiveIdentityInput } from "./problem/archive/identity";
+
 export { compareNumbers } from "./core/compare";
 
 // === Re-exports from @pai-forge/riichi-mahjong ===
