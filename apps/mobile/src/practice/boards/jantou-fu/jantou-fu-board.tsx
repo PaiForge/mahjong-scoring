@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { Grid } from "../../../components/grid";
-import { getKazeName } from "@mahjong-scoring/core";
+import { kazeNameKey } from "@mahjong-scoring/core";
 import type { Kazehai } from "@mahjong-scoring/core";
 import type { JantouFuQuestionResult } from "@mahjong-scoring/features/practice/jantou-fu/types";
 import { useJantouFuBoard } from "@mahjong-scoring/features/practice/jantou-fu/use-jantou-fu-board";
@@ -24,15 +24,18 @@ function KazeContext({
   readonly jikaze: Kazehai;
 }) {
   const t = useTranslations("jantouFu");
+  const tCommon = useTranslations("common");
+  // 例: common.kazeNames.ton
+  const kazeName = (kaze: Kazehai) => tCommon(`kazeNames.${kazeNameKey(kaze)}`);
   return (
     <View style={styles.context}>
       <View style={styles.contextItem}>
         <Text style={styles.contextLabel}>{t("bakaze")}</Text>
-        <Text style={styles.contextValue}>{getKazeName(bakaze)}</Text>
+        <Text style={styles.contextValue}>{kazeName(bakaze)}</Text>
       </View>
       <View style={styles.contextItem}>
         <Text style={styles.contextLabel}>{t("jikaze")}</Text>
-        <Text style={styles.contextValue}>{getKazeName(jikaze)}</Text>
+        <Text style={styles.contextValue}>{kazeName(jikaze)}</Text>
       </View>
     </View>
   );
