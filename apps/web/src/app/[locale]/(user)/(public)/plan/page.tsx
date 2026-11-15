@@ -6,6 +6,7 @@ import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { ContentContainer } from "@/app/[locale]/(user)/_components/content-container";
 import { ClockIcon } from "@/app/[locale]/(user)/_components/icons/clock-icon";
 import { InfinityIcon } from "@/app/[locale]/(user)/_components/icons/infinity-icon";
+import { PlanPerkCard } from "@/app/[locale]/(user)/_components/plan-perk-card";
 import { PageTitle } from "@/app/[locale]/(user)/_components/page-title";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { createNamespaceMetadata } from "@/app/_lib/metadata";
@@ -110,36 +111,16 @@ export default async function PlanPage({
         <section className="space-y-4">
           <SectionTitle>{t("perks.title")}</SectionTitle>
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <li className="flex items-start gap-3 rounded-panel bg-brand-subtle p-5">
-              <span
-                aria-hidden="true"
-                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-card text-brand-subtle-foreground"
-              >
-                <InfinityIcon className="size-7" />
-              </span>
-              <div className="space-y-1">
-                <h3 className="font-bold text-foreground">
-                  {t("perks.unlimitedTitle")}
-                </h3>
-                <p className="text-sm leading-relaxed">
-                  {t("perks.unlimited")}
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3 rounded-panel bg-brand-subtle p-5">
-              <span
-                aria-hidden="true"
-                className="flex size-12 shrink-0 items-center justify-center rounded-full bg-card text-brand-subtle-foreground"
-              >
-                <ClockIcon className="size-7" />
-              </span>
-              <div className="space-y-1">
-                <h3 className="font-bold text-foreground">
-                  {t("perks.toolsTitle")}
-                </h3>
-                <p className="text-sm leading-relaxed">{t("perks.tools")}</p>
-              </div>
-            </li>
+            <PlanPerkCard
+              icon={<InfinityIcon className="size-7" />}
+              title={t("perks.unlimitedTitle")}
+              description={t("perks.unlimited")}
+            />
+            <PlanPerkCard
+              icon={<ClockIcon className="size-7" />}
+              title={t("perks.toolsTitle")}
+              description={t("perks.tools")}
+            />
           </ul>
           <p className="text-sm leading-relaxed text-surface-600">
             {t("perks.freeLimits", {
