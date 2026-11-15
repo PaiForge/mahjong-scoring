@@ -13,7 +13,7 @@ vi.mock("../db", async () => {
   const { practiceProblemsTestDb } = await import("./test-database");
   return {
     ...(await import("../db/schema")),
-    db: process.env.PRACTICE_PROBLEMS_TEST_DATABASE_URL
+    db: process.env.BILLING_TEST_DATABASE_URL
       ? practiceProblemsTestDb()
       : undefined,
   };
@@ -30,7 +30,7 @@ import {
 } from "./test-database";
 import { meldedAgariRequest, riichiTenpaiRequest } from "./test-requests";
 
-const url = process.env.PRACTICE_PROBLEMS_TEST_DATABASE_URL;
+const url = process.env.BILLING_TEST_DATABASE_URL;
 
 /** 保存された行 */
 async function rows() {

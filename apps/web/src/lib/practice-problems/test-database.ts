@@ -10,10 +10,15 @@ import * as schema from "../db/schema";
  * 問題の保存の統合テスト用の DB
  * 問題保存テストDB
  *
- * `PRACTICE_PROBLEMS_TEST_DATABASE_URL`（ローカルホストの DB だけ）に、この実行
+ * `BILLING_TEST_DATABASE_URL`（ローカルホストの DB だけ）に、この実行
  * だけの専用スキーマを作ってマイグレーションの DDL を流す。アプリの表と
  * マイグレーションの journal には触れない。並行保存を実際の複数接続で確かめる
  * ため、接続を複数持つ（一時テーブルは接続ごとに閉じるので使えない）。
+ *
+ * 環境変数は課金の統合テスト（`lib/billing/test-database.ts`）と同じものを使う。
+ * 専用スキーマを作る同じ作法のテストで、turbo の `test` タスクが通す変数も
+ * これと `CHALLENGE_TEST_DATABASE_URL` だけ。スキーマ名は実行ごとに別なので、
+ * 課金のテストと並んで走っても衝突しない。
  *
  * このモジュールはテスト専用。
  */
@@ -23,12 +28,12 @@ let client: ReturnType<typeof postgres> | undefined;
 
 /** テスト用スキーマへの接続（最大 4 接続） */
 export function practiceProblemsTestDb() {
-  const url = process.env.PRACTICE_PROBLEMS_TEST_DATABASE_URL;
+  const url = process.env.BILLING_TEST_DATABASE_URL;
   if (
     !url ||
     !["localhost", "127.0.0.1", "[::1]"].includes(new URL(url).hostname)
   )
-    throw new Error("Local PRACTICE_PROBLEMS_TEST_DATABASE_URL required");
+    throw new Error("Local BILLING_TEST_DATABASE_URL required");
   client ??= postgres(url, {
     max: 4,
     prepare: false,

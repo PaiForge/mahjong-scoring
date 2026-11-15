@@ -25,7 +25,7 @@ export function meldedAgariRequest({
 }: {
   readonly ponFrom?: From;
   readonly ninePinKan?: "daiminkan" | "kakan";
-} = {}): unknown {
+} = {}): Record<string, unknown> {
   return {
     kind: "agari-score",
     schemaVersion: 1,
@@ -50,7 +50,7 @@ export function meldedAgariRequest({
 }
 
 /** リーチした門前の両面待ち（2・5・8p の三面）の聴牌形: 234m 34567p 678s 55s */
-export function riichiTenpaiRequest(): unknown {
+export function riichiTenpaiRequest(): Record<string, unknown> {
   return {
     kind: "tenpai-score",
     schemaVersion: 1,
@@ -71,7 +71,7 @@ export function riichiTenpaiRequest(): unknown {
  * 和了形の最大構成その 1: 副露 4 つすべて槓（鳴き元はいちばん長い名前）・
  * リーチなし・表ドラ表示牌 5 枚
  */
-export function allKanAgariRequest(): unknown {
+export function allKanAgariRequest(): Record<string, unknown> {
   return {
     kind: "agari-score",
     schemaVersion: 1,
@@ -100,7 +100,7 @@ export function allKanAgariRequest(): unknown {
  *
  * 槓子は中張牌にする。么九牌の暗槓 4 つは符が回答の選択肢を超えて検証が拒む
  */
-export function allAnkanRiichiAgariRequest(): unknown {
+export function allAnkanRiichiAgariRequest(): Record<string, unknown> {
   return {
     kind: "agari-score",
     schemaVersion: 1,
