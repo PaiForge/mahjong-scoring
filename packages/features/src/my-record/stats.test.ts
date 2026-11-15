@@ -61,22 +61,25 @@ describe.each(["UTC", "Asia/Tokyo", "America/Los_Angeles"])(
     const EARLY_JST = new Date("2026-08-16T16:30:00Z");
 
     it("formatDate は JST の日時を出す", () => {
-      expect(formatDate(EARLY_JST)).toBe("2026/08/17 01:30");
+      expect(formatDate(EARLY_JST, "ja")).toBe("2026/08/17 01:30");
     });
 
     it("formatShortDate は JST の月日を出す", () => {
-      expect(formatShortDate(EARLY_JST)).toBe("8月17日");
+      expect(formatShortDate(EARLY_JST, "ja")).toBe("8月17日");
     });
 
     it("aggregateByDay は JST の日付でまとめる", () => {
-      const daily = aggregateByDay([
-        // 2026-08-16 23:00 JST
-        attempt("2026-08-16T14:00:00Z", 10),
-        // 2026-08-17 01:30 JST（UTC ではまだ 8/16）
-        attempt("2026-08-16T16:30:00Z", 20),
-        // 2026-08-17 09:00 JST
-        attempt("2026-08-17T00:00:00Z", 30),
-      ]);
+      const daily = aggregateByDay(
+        [
+          // 2026-08-16 23:00 JST
+          attempt("2026-08-16T14:00:00Z", 10),
+          // 2026-08-17 01:30 JST（UTC ではまだ 8/16）
+          attempt("2026-08-16T16:30:00Z", 20),
+          // 2026-08-17 09:00 JST
+          attempt("2026-08-17T00:00:00Z", 30),
+        ],
+        "ja",
+      );
 
       expect(daily).toEqual([
         { dateKey: "2026-08-16", date: "8月16日", avgScore: 10 },
@@ -111,20 +114,17 @@ describe.each(["UTC", "Asia/Tokyo", "America/Los_Angeles"])(
   },
 );
 
-describe("表示の言語を省いたとき（モバイル・既存の呼び出し）", () => {
+describe("表示の言語を明示したとき", () => {
   const attempts = [attempt("2026-08-16T16:30:00Z", 20)];
 
-  it("formatDate・formatShortDate は日本語の出力と同じ", () => {
-    const date = new Date("2026-08-16T16:30:00Z");
-    expect(formatDate(date)).toBe(formatDate(date, "ja"));
-    expect(formatShortDate(date)).toBe(formatShortDate(date, "ja"));
+  it("formatDate・formatShortDate は日付が無ければ「-」", () => {
     expect(formatDate(undefined, "en")).toBe("-");
     expect(formatShortDate(undefined, "en")).toBe("-");
   });
 
   it("toAttemptRows・buildChartData は日本語のラベルを出す", () => {
-    expect(toAttemptRows(attempts)[0]?.date).toBe("2026/08/17 01:30");
-    expect(buildChartData(attempts, [])[0]?.date).toBe("8月17日");
+    expect(toAttemptRows(attempts, 5, "ja")[0]?.date).toBe("2026/08/17 01:30");
+    expect(buildChartData(attempts, [], "ja")[0]?.date).toBe("8月17日");
   });
 
   it("toAttemptRows・buildChartData は英語を渡すと英語のラベルを出す", () => {

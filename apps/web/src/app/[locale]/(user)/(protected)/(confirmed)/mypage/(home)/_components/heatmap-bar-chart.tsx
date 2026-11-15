@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { formatJstDayKeyMonthDay } from "@mahjong-scoring/features/jst";
 
 import type { HeatmapLayout } from "../_lib/heatmap-utils";
@@ -27,6 +27,7 @@ export function HeatmapBarChart({
   onCellClick,
 }: HeatmapBarChartProps) {
   const t = useTranslations("mypage.heatmap");
+  const locale = useLocale();
 
   const maxAmount = Math.max(0, ...layout.recentDays.map((d) => daily[d] ?? 0));
 
@@ -48,7 +49,7 @@ export function HeatmapBarChart({
               )
             : BAR_CHART_MIN_HEIGHT_PX;
         const isSelected = dateStr === selectedDate;
-        const dateLabel = formatJstDayKeyMonthDay(dateStr);
+        const dateLabel = formatJstDayKeyMonthDay(dateStr, locale);
 
         return (
           <div
