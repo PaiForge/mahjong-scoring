@@ -10,6 +10,7 @@ import {
   validateTehai14,
 } from "@pai-forge/riichi-mahjong";
 import {
+  buildTenpaiScoreQuestion,
   fitsAnswerOptions,
   generateTenpaiScoreQuestion,
   generateValidTenpaiScoreQuestion,
@@ -389,5 +390,98 @@ describe("fitsAnswerOptions", () => {
     expect(fitsAnswerOptions(withNoYakuRon, ["nonMangan"])).toBe(
       tsumoLevels.every((level) => level === ScoreLevel.Normal),
     );
+  });
+});
+
+describe("buildTenpaiScoreQuestion", () => {
+  const STANDARD_RULES = {
+    doubleWindJantouFu: 2,
+    kiriageMangan: false,
+  } as const;
+
+  /** MPSZ の 13 枚を聴牌形にする（読めない・13 枚でない文字列はテストの誤り） */
+  function tenpaiTehai(mpsz: string) {
+    const parsed = parseTehai(mpsz);
+    if (parsed === undefined) throw new Error(mpsz);
+    const tehai = finalizeTehai13(parsed.closed, parsed.exposed);
+    if (!tehai) throw new Error(mpsz);
+    return tehai;
+  }
+
+  it("生成した問題の盤面とルールを渡すと、生成器と同じ問題を組み立てる", () => {
+    const rng = seededRandom(11);
+    const questions = expectSampled(
+      () => generateTenpaiScoreQuestion({ rng }),
+      { attempts: 2000, need: 50 },
+    );
+    for (const question of questions) {
+      const rebuilt = buildTenpaiScoreQuestion({
+        tehai: question.tehai,
+        jikaze: question.jikaze,
+        bakaze: question.bakaze,
+        doraMarkers: question.doraMarkers,
+        riichi: question.uraDoraMarkers
+          ? { uraDoraMarkers: question.uraDoraMarkers }
+          : undefined,
+        ruleConfig: question.waits[0].tsumo.ruleConfig,
+      });
+      expect(rebuilt._unsafeUnwrap()).toStrictEqual(question);
+    }
+  });
+
+  it("2 面以上の待ちは組み立て、1 面待ちの聴牌形は組み立てない", () => {
+    const situation = {
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    // 1z・2z の双碰
+    const shanpon = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("123m456p789s1122z"),
+    });
+    expect(shanpon._unsafeUnwrap().waits.map((wait) => wait.agariHai)).toEqual([
+      HaiKind.Ton,
+      HaiKind.Nan,
+    ]);
+    // 2z の単騎
+    const tanki = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("123m456p789s1112z"),
+    });
+    expect(tanki._unsafeUnwrapErr()).toBe("tooFewWaits");
+  });
+
+  it("役なしのロン待ちを持つ聴牌形にリーチを渡すと、取り下げずに拒む", () => {
+    // 222m 456p 789p 33s 99s: 3s・9s の双碰。ロンはどちらも役なし
+    const base = {
+      tehai: tenpaiTehai("222m456789p3399s"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Pei],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    const withoutRiichi = buildTenpaiScoreQuestion(base)._unsafeUnwrap();
+    expect(withoutRiichi.waits.some((wait) => wait.ron === undefined)).toBe(
+      true,
+    );
+    const withRiichi = buildTenpaiScoreQuestion({
+      ...base,
+      riichi: { uraDoraMarkers: [HaiKind.Sha] },
+    });
+    expect(withRiichi._unsafeUnwrapErr()).toBe("riichiWithNoYakuRon");
+  });
+
+  it("表示牌に取られて 4 枚目が無い待ちは純カラとして組み立てない", () => {
+    // 1z・2z の双碰で、残りの 2z 2 枚を表ドラ表示牌が持っていく
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("123m456p789s1122z"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Nan, HaiKind.Nan],
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("karaWait");
   });
 });
