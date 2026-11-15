@@ -1,4 +1,4 @@
-import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import type { SupportedLocale } from "../i18n/locales";
 import { formatJstDateLong } from "../jst";
 import { NotificationType, isNotificationType } from "./types";
 
@@ -77,13 +77,14 @@ function formatUntil(
  *
  * @param type - 通知の種別（DB の文字列のまま）
  * @param metadata - 差し込みに使う metadata
- * @param locale - 差し込む日付の言語（省略時は日本語。日本語固定のアプリは省略する）。
+ * @param locale - 差し込む日付の言語。web は URL の言語、アプリは端末で決めた言語を渡す
+ *   （省略させない — 省略できた頃、英語に対応したアプリが渡し忘れ、英文に日本語の日付が入った）。
  *   期限の日付は言語に依らず JST で切り、表記だけ変える
  */
 export function buildNotificationMessage(
   type: string,
   metadata: NotificationMessageMetadata,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): NotificationMessage {
   if (!isNotificationType(type)) return { key: "unknown" };
 

@@ -10,22 +10,28 @@ describe("buildNotificationMessage", () => {
   it.each(NOTIFICATION_TYPES)(
     "%s は metadata が空でも辞書にあるキーに落ちる",
     (type) => {
-      const { key } = buildNotificationMessage(type, {});
+      const { key } = buildNotificationMessage(type, {}, "ja");
       expect(DICTIONARY_KEYS).toContain(key);
       expect(key).not.toBe("unknown");
     },
   );
 
   it("登録に無い種別（退役した値）は汎用の文面", () => {
-    expect(buildNotificationMessage("follow", {})).toEqual({ key: "unknown" });
+    expect(buildNotificationMessage("follow", {}, "ja")).toEqual({
+      key: "unknown",
+    });
   });
 
   it("パスの購入完了は期限を日本語の日付で差し込む", () => {
     expect(
-      buildNotificationMessage("purchase_completed", {
-        kind: "pass",
-        expiresAt: "2026-10-31T03:00:00.000Z",
-      }),
+      buildNotificationMessage(
+        "purchase_completed",
+        {
+          kind: "pass",
+          expiresAt: "2026-10-31T03:00:00.000Z",
+        },
+        "ja",
+      ),
     ).toEqual({
       key: "purchaseCompletedPass",
       values: { until: "2026年10月31日" },
@@ -46,48 +52,57 @@ describe("buildNotificationMessage", () => {
     });
   });
 
-  it("言語を省くと日本語を渡したときと同じ（アプリの呼び出しが変わらない）", () => {
-    const metadata = { expiresAt: "2026-10-31T03:00:00.000Z" };
-    expect(buildNotificationMessage("benefit_granted", metadata)).toEqual(
-      buildNotificationMessage("benefit_granted", metadata, "ja"),
-    );
-  });
-
   it("期限が日時として読めなければ期限を差し込まない文面", () => {
     expect(
-      buildNotificationMessage("purchase_completed", {
-        kind: "pass",
-        expiresAt: "来月",
-      }),
+      buildNotificationMessage(
+        "purchase_completed",
+        {
+          kind: "pass",
+          expiresAt: "来月",
+        },
+        "ja",
+      ),
     ).toEqual({ key: "purchaseCompleted" });
   });
 
   it("買い切りの購入完了は期限を持たない文面", () => {
     expect(
-      buildNotificationMessage("purchase_completed", { kind: "lifetime" }),
+      buildNotificationMessage(
+        "purchase_completed",
+        { kind: "lifetime" },
+        "ja",
+      ),
     ).toEqual({ key: "purchaseCompletedLifetime" });
   });
 
   it("付与は期限の有無で文面を分ける", () => {
     expect(
-      buildNotificationMessage("benefit_granted", {
-        expiresAt: "2026-12-01T00:00:00.000Z",
-      }),
+      buildNotificationMessage(
+        "benefit_granted",
+        {
+          expiresAt: "2026-12-01T00:00:00.000Z",
+        },
+        "ja",
+      ),
     ).toEqual({
       key: "benefitGrantedUntil",
       values: { until: "2026年12月1日" },
     });
-    expect(buildNotificationMessage("benefit_granted", {})).toEqual({
+    expect(buildNotificationMessage("benefit_granted", {}, "ja")).toEqual({
       key: "benefitGranted",
     });
   });
 
   it("付与に運営のタイトルがあれば、期限の文を足さずにそのまま出す", () => {
     expect(
-      buildNotificationMessage("benefit_granted", {
-        expiresAt: "2026-12-01T00:00:00+09:00",
-        title: "  永久無料パスが付与されました ",
-      }),
+      buildNotificationMessage(
+        "benefit_granted",
+        {
+          expiresAt: "2026-12-01T00:00:00+09:00",
+          title: "  永久無料パスが付与されました ",
+        },
+        "ja",
+      ),
     ).toEqual({
       key: "benefitGrantedCustom",
       values: { title: "永久無料パスが付与されました" },
@@ -96,18 +111,26 @@ describe("buildNotificationMessage", () => {
 
   it("空白だけのタイトルは既定の文面に落とす", () => {
     expect(
-      buildNotificationMessage("benefit_granted", { title: "  " }),
+      buildNotificationMessage("benefit_granted", { title: "  " }, "ja"),
     ).toEqual({ key: "benefitGranted" });
   });
 
   it("購入の取り消しは返金だけ「返金により」と言う", () => {
     expect(
-      buildNotificationMessage("purchase_revoked", {
-        revokeReason: "refunded",
-      }),
+      buildNotificationMessage(
+        "purchase_revoked",
+        {
+          revokeReason: "refunded",
+        },
+        "ja",
+      ),
     ).toEqual({ key: "purchaseRefunded" });
     expect(
-      buildNotificationMessage("purchase_revoked", { revokeReason: "fraud" }),
+      buildNotificationMessage(
+        "purchase_revoked",
+        { revokeReason: "fraud" },
+        "ja",
+      ),
     ).toEqual({ key: "purchaseRevoked" });
   });
 
