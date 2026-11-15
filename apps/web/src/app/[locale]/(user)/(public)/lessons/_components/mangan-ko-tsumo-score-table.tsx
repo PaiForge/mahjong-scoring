@@ -26,12 +26,12 @@ export function ManganKoTsumoScoreTable() {
       winType="tsumo"
       columns={COLUMNS}
       showHan={false}
-      renderCells={(row) => {
+      renderCells={(row, _t, locale) => {
         const { fromKo, fromOya } = row.tsumoKo;
         return [
-          formatLessonPoints(fromKo),
-          formatLessonPoints(fromOya),
-          formatLessonPoints(getTsumoTotal(row.tsumoKo)),
+          formatLessonPoints(fromKo, locale),
+          formatLessonPoints(fromOya, locale),
+          formatLessonPoints(getTsumoTotal(row.tsumoKo), locale),
         ];
       }}
     />

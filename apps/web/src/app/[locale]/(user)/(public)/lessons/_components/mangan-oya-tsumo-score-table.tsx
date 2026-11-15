@@ -24,11 +24,11 @@ export function ManganOyaTsumoScoreTable() {
       winType="tsumo"
       columns={COLUMNS}
       showHan={false}
-      renderCells={(row) => {
+      renderCells={(row, _t, locale) => {
         const each = row.tsumoOya.all;
         return [
-          formatLessonPoints(each),
-          formatLessonPoints(getTsumoTotal(row.tsumoOya)),
+          formatLessonPoints(each, locale),
+          formatLessonPoints(getTsumoTotal(row.tsumoOya), locale),
         ];
       }}
     />

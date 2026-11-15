@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { HIGH_SCORES, type Role, type WinType } from "@mahjong-scoring/core";
+import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
 import {
   DATA_TABLE_ALIGN_CLASS,
@@ -38,10 +39,12 @@ interface ManganTableShellProps {
    *
    * @param row - 満貫以上の1帯
    * @param t - manganScoreTable 名前空間の翻訳関数（備考などで使う）
+   * @param locale - ページの言語（点数の桁区切り）
    */
   readonly renderCells: (
     row: ManganTableRow,
     t: (key: string) => string,
+    locale: SupportedLocale,
   ) => readonly ReactNode[];
 }
 
@@ -74,7 +77,8 @@ export async function ManganTableShell({
 }: ManganTableShellProps) {
   const t = await getTranslations("manganScoreTable");
   const tScore = await getTranslations("scoreTable");
-  const hanDisplay = hanDisplayFor(await getLocale());
+  const locale = await getLocale();
+  const hanDisplay = hanDisplayFor(locale);
 
   return (
     <div className="space-y-2">
@@ -115,7 +119,7 @@ export async function ManganTableShell({
                 {hanDisplay[row.nameKey]}
               </td>
             )}
-            {renderCells(row, t).map((cell, index) => {
+            {renderCells(row, t, locale).map((cell, index) => {
               const column = columns[index];
               return (
                 <td
