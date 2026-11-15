@@ -7,7 +7,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/[locale]/(user)/_components/data-table";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
-import { ProBadge, VipBadge } from "@/app/_components/plan-badges";
+import { PlanBadge } from "@/app/_components/plan-badges";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
@@ -96,6 +96,37 @@ function planSummaryOf(
   }
 }
 
+/**
+ * Pro のときの状態の 1 行（ラベル + 期限の補足）
+ * プラン状況の行
+ *
+ * 購入の Pro も付与の VIP も同じ形で、ラベルの種類（`planBadgeOf`）だけが変わる。
+ */
+function PaidPlanStatusLine({
+  plan,
+  t,
+  locale,
+}: {
+  readonly plan: Exclude<PlanStatus, { readonly kind: "free" }>;
+  readonly t: PlanTranslator;
+  readonly locale: SupportedLocale;
+}) {
+  const badge = planBadgeOf(plan);
+  return (
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <PlanBadge
+        badge={badge}
+        // 完成形のキー: status.badge.pro / status.badge.vip
+        label={t(`status.badge.${badge}`)}
+        size="md"
+      />
+      <span className="text-sm text-surface-600">
+        {planSummaryOf(plan, t, locale)}
+      </span>
+    </p>
+  );
+}
+
 interface MypagePlanPageProps {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
@@ -163,8 +194,15 @@ export default async function MypagePlanPage({
   const amountLocale = AMOUNT_FORMAT_LOCALES[locale];
   const plan = planStatusOf(purchases, grants, now);
   const canPurchase = offersPurchase(purchases, grants, now);
+  const buyLabel = (
+    <>
+      {t("status.buy")}
+      {planPageTarget.crossLocale && (
+        <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+      )}
+    </>
+  );
   const providers = new Set(purchases.map(purchaseProviderOf));
-  const badge = planBadgeOf(plan);
 
   return (
     <MypageSubpageLayout title={t("pageTitle")}>
@@ -190,10 +228,7 @@ export default async function MypagePlanPage({
               </p>
               {canPurchase && (
                 <LinkButton navTarget={planPageTarget} size="lg" fullWidth>
-                  {t("status.buy")}
-                  {planPageTarget.crossLocale && (
-                    <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
-                  )}
+                  {buyLabel}
                 </LinkButton>
               )}
             </div>
@@ -203,22 +238,10 @@ export default async function MypagePlanPage({
                 Pro のときは囲みを持たず、出どころのラベル（購入 = Pro / 付与 = VIP）を
                 主役に、期限を小さく添える 1 行にする。下の特典のカードが中身を語る。
               */}
-              <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                {badge === "vip" ? (
-                  <VipBadge label={t("status.badge.vip")} size="md" />
-                ) : (
-                  <ProBadge label={t("status.badge.pro")} size="md" />
-                )}
-                <span className="text-sm text-surface-600">
-                  {planSummaryOf(plan, t, locale)}
-                </span>
-              </p>
+              <PaidPlanStatusLine plan={plan} t={t} locale={locale} />
               {canPurchase && (
                 <LinkButton navTarget={planPageTarget} variant="secondary">
-                  {t("status.buy")}
-                  {planPageTarget.crossLocale && (
-                    <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
-                  )}
+                  {buyLabel}
                 </LinkButton>
               )}
             </div>

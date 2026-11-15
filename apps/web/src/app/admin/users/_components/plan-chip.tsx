@@ -3,10 +3,10 @@ import Link from "next/link";
 
 import {
   planBadgeOf,
-  type PlanBadge,
+  type PlanBadge as PlanBadgeKind,
 } from "@mahjong-scoring/features/billing/plan-badge";
 
-import { ProBadge, VipBadge } from "@/app/_components/plan-badges";
+import { PlanBadge } from "@/app/_components/plan-badges";
 import { FOCUS_RING_CLASSES } from "@/app/_components/_lib/link-classes";
 import { adminChipClasses } from "@/app/admin/_lib/chip-classes";
 import { formatAdminDate } from "@/app/admin/_lib/format-date";
@@ -22,7 +22,7 @@ interface PlanChipProps {
  * ラベルの種類ごとの、ユーザー詳細の飛び先の節。購入の Pro は購入履歴、
  * 付与の VIP は特典付与（期限と取り消しの操作がそこにある）
  */
-const BADGE_SECTIONS: Readonly<Record<PlanBadge, string>> = {
+const BADGE_SECTIONS: Readonly<Record<PlanBadgeKind, string>> = {
   pro: USER_DETAIL_SECTION_IDS.purchases,
   vip: USER_DETAIL_SECTION_IDS.grants,
 };
@@ -31,7 +31,7 @@ const BADGE_SECTIONS: Readonly<Record<PlanBadge, string>> = {
  * プラン状況の全文（期限・買い切り・付与の別を含む）
  *
  * 文言はマイページの状態の見出し（`mypagePlan.status.*`）と同じ。Pro / VIP の別は
- * 横に置くラベル（`ProBadge` / `VipBadge`）が示す。購入と付与が重なる人は
+ * 横に置くラベル（`PlanBadge`）が示す。購入と付与が重なる人は
  * `planStatusOf` が選んだ 1 つの状態だけを出す。
  */
 async function planLabel(plan: PlanStatus): Promise<string> {
@@ -60,14 +60,10 @@ async function planLabel(plan: PlanStatus): Promise<string> {
  * 利用者がマイページで見るものと同じ部品（`app/_components/plan-badges`）を使い、
  * 運営が見るラベルと外観をそろえる。
  */
-async function PlanBadgeMark({ badge }: { readonly badge: PlanBadge }) {
+async function PlanBadgeMark({ badge }: { readonly badge: PlanBadgeKind }) {
   const t = await getTranslations("admin");
   const label = t(`usersTable.planBadges.${badge}`);
-  return badge === "vip" ? (
-    <VipBadge label={label} />
-  ) : (
-    <ProBadge label={label} />
-  );
+  return <PlanBadge badge={badge} label={label} />;
 }
 
 /**
