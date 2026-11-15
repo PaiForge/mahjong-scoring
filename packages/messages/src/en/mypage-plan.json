@@ -7,16 +7,19 @@
     "free": "Free plan",
     "freeHint": "Buy Pro to keep practicing score calculation with no daily limit.",
     "lifetime": "Pro (Lifetime)",
-    "lifetimeHint": "You can use the Pro features available at the time of purchase for good.",
     "pass": "Pro (until {until})",
-    "passHint": "When it expires, you go back to the free plan. You can buy it again after it expires.",
     "granted": "Pro (granted)",
     "grantedUntil": "Pro (granted, until {until})",
-    "grantedHint": "A Pro benefit granted by the operator. It is kept separate from benefits you purchased.",
     "buy": "Buy Pro",
     "badge": {
       "pro": "Pro",
       "vip": "VIP"
+    },
+    "summary": {
+      "lifetime": "Lifetime",
+      "pass": "Until {until} · returns to the free plan after that",
+      "until": "Until {until}",
+      "indefinite": "No expiry"
     }
   },
   "benefits": {

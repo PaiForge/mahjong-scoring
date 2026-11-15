@@ -7,8 +7,7 @@ import {
   DataTableHeaderCell,
 } from "@/app/[locale]/(user)/_components/data-table";
 import { LinkButton } from "@/app/[locale]/(user)/_components/link-button";
-import { ProBadge } from "@/app/[locale]/(user)/_components/pro-badge";
-import { VipBadge } from "@/app/[locale]/(user)/_components/vip-badge";
+import { ProBadge, VipBadge } from "@/app/_components/plan-badges";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { createPrivateMetadata } from "@/app/_lib/metadata";
 import { requireConfirmedUser } from "@/lib/auth";
@@ -64,38 +63,32 @@ export async function generateMetadata({
 type PlanTranslator = Awaited<ReturnType<typeof getTranslations<"mypagePlan">>>;
 
 /**
- * プラン状況の見出しと補足の文言
- * プラン状況の文言
+ * Pro のときにラベルの横へ添える補足
+ * プラン状況の補足
  *
- * `PlanStatus` の種類を足したら、ここが網羅性の検査で落ちる（見出しが空の
- * まま描画されない）。
+ * 状態の主役はラベル（Pro / VIP）で、ここは「いつまでか」だけを 1 句で添える。
+ * 購入・付与の詳しい中身（購入日・購入元・状態）は下の購入履歴と付与の表にある。
+ * パスだけは期限後に無料へ戻ることを添える — 知らないと困る、表からは読めない規則のため。
+ * `PlanStatus` の種類を足したら、ここが網羅性の検査で落ちる。
  */
-function describePlanStatus(
-  plan: PlanStatus,
+function planSummaryOf(
+  plan: Exclude<PlanStatus, { readonly kind: "free" }>,
   t: PlanTranslator,
   locale: SupportedLocale,
-): { readonly heading: string; readonly hint: string } {
+): string {
   switch (plan.kind) {
     case "lifetime":
-      return { heading: t("status.lifetime"), hint: t("status.lifetimeHint") };
+      return t("status.summary.lifetime");
     case "pass":
-      return {
-        heading: t("status.pass", {
-          until: formatPlanDate(plan.until, locale),
-        }),
-        hint: t("status.passHint"),
-      };
+      return t("status.summary.pass", {
+        until: formatPlanDate(plan.until, locale),
+      });
     case "granted":
-      return {
-        heading: plan.until
-          ? t("status.grantedUntil", {
-              until: formatPlanDate(plan.until, locale),
-            })
-          : t("status.granted"),
-        hint: t("status.grantedHint"),
-      };
-    case "free":
-      return { heading: t("status.free"), hint: t("status.freeHint") };
+      return plan.until
+        ? t("status.summary.until", {
+            until: formatPlanDate(plan.until, locale),
+          })
+        : t("status.summary.indefinite");
     default: {
       const exhaustive: never = plan;
       return exhaustive;
@@ -122,12 +115,12 @@ interface MypagePlanPageProps {
  * 履歴にある決済元の分だけ案内を出す。Google Play の行は金額を「—」にする —
  * Play は購入の確認で価格を返さず、行には 0 が入っている（0 円と見せない）。
  *
- * 現在の状態の見出しの横には、出どころのラベル（購入なら Pro、運営からの付与なら
- * VIP、無料なら無し）を `planBadgeOf` で添える。見出しの文言と同じ 1 つの状態から
- * 導くので、購入と付与が重なってもラベルは 1 つ。
- *
- * 状態のカードのすぐ下には、いま有効な特典（購入でも付与でも）をカードで出し、
- * 特典が効く画面へのリンクを添える（`PlanBenefitCards`）。
+ * 現在の状態は、無料なら囲みの中に「無料プラン」と購入の導線を出す。Pro なら
+ * 囲みを持たず、出どころのラベル（購入なら Pro、運営からの付与なら VIP。
+ * `planBadgeOf`）を主役に、期限を小さく添えた 1 行にする。ラベルは 1 つの状態から
+ * 導くので、購入と付与が重なっても 1 つ。その下に、いま有効な特典（購入でも付与でも）を
+ * カードで出し、特典が効く画面へのリンクを添える（`PlanBenefitCards`）。期限より
+ * 「何が使えるか」を目立たせるため、期限の詳細は下の表に任せる。
  *
  * 運営が手動で付けた特典（`benefit_grants`）は「付与された特典」として購入履歴と
  * 別の表に出す。金額が無く、Stripe の領収書も無いため同じ表に混ぜない。付与の
@@ -171,7 +164,6 @@ export default async function MypagePlanPage({
   const plan = planStatusOf(purchases, grants, now);
   const canPurchase = offersPurchase(purchases, grants, now);
   const providers = new Set(purchases.map(purchaseProviderOf));
-  const statusCopy = describePlanStatus(plan, t, locale);
   const badge = planBadgeOf(plan);
 
   return (
@@ -190,28 +182,47 @@ export default async function MypagePlanPage({
 
         <section className="space-y-4">
           <SectionTitle>{t("status.title")}</SectionTitle>
-          <div className="space-y-3 rounded-panel border border-panel bg-white p-5">
-            {/*
-              見出しの文言は期限を運ぶので変えず、出どころの印（購入 = Pro /
-              付与 = VIP）を横に添える。VIP は別のプランではなく Pro の出どころ。
-            */}
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-lg font-bold">{statusCopy.heading}</p>
-              {badge === "pro" && <ProBadge label={t("status.badge.pro")} />}
-              {badge === "vip" && <VipBadge label={t("status.badge.vip")} />}
+          {plan.kind === "free" ? (
+            <div className="space-y-3 rounded-panel border border-panel bg-white p-5">
+              <p className="text-lg font-bold">{t("status.free")}</p>
+              <p className="text-sm leading-relaxed text-surface-600">
+                {t("status.freeHint")}
+              </p>
+              {canPurchase && (
+                <LinkButton navTarget={planPageTarget} size="lg" fullWidth>
+                  {t("status.buy")}
+                  {planPageTarget.crossLocale && (
+                    <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+                  )}
+                </LinkButton>
+              )}
             </div>
-            <p className="text-sm leading-relaxed text-surface-600">
-              {statusCopy.hint}
-            </p>
-            {canPurchase && (
-              <LinkButton navTarget={planPageTarget} size="lg" fullWidth>
-                {t("status.buy")}
-                {planPageTarget.crossLocale && (
-                  <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+          ) : (
+            <div className="space-y-3">
+              {/*
+                Pro のときは囲みを持たず、出どころのラベル（購入 = Pro / 付与 = VIP）を
+                主役に、期限を小さく添える 1 行にする。下の特典のカードが中身を語る。
+              */}
+              <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                {badge === "vip" ? (
+                  <VipBadge label={t("status.badge.vip")} size="md" />
+                ) : (
+                  <ProBadge label={t("status.badge.pro")} size="md" />
                 )}
-              </LinkButton>
-            )}
-          </div>
+                <span className="text-sm text-surface-600">
+                  {planSummaryOf(plan, t, locale)}
+                </span>
+              </p>
+              {canPurchase && (
+                <LinkButton navTarget={planPageTarget} variant="secondary">
+                  {t("status.buy")}
+                  {planPageTarget.crossLocale && (
+                    <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+                  )}
+                </LinkButton>
+              )}
+            </div>
+          )}
           <PlanBenefitCards benefits={benefits} locale={locale} />
         </section>
 
