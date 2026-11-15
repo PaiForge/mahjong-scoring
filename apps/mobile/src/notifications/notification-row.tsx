@@ -69,6 +69,7 @@ export function NotificationRow({
   const message = buildNotificationMessage(
     notification.type,
     notification.metadata,
+    locale,
   );
   const text = t(`messages.${message.key}`, message.values);
   // 日時は JST のまま、表記だけアプリの言語に合わせる
