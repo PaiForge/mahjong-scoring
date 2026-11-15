@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { adIndexAfterGroup } from "@mahjong-scoring/features/ads/spacing";
-import { KANA_ROWS } from "@mahjong-scoring/features/glossary/kana";
+import { indexRowsFor } from "@mahjong-scoring/features/glossary/index-rows";
 import { filterGlossaryTerms } from "@mahjong-scoring/features/glossary/search";
 import {
   GLOSSARY_CATEGORIES,
@@ -19,6 +19,7 @@ import { LinkRow, LinkRowList } from "../../../components/link-row";
 import { Screen } from "../../../components/screen";
 import { SearchField } from "../../../components/search-field";
 import { colors } from "../../../lib/theme";
+import { useAppLocale } from "../../../lib/use-app-locale";
 import { RelatedReferencesSection } from "../../../reference/related-references-section";
 
 /** 分類のチップの「すべて」（分類のキーと重ならない値） */
@@ -29,7 +30,8 @@ const ALL_CATEGORIES = "all";
  *
  * @description
  * 点数計算に出てくる麻雀の専門用語の一覧（web の `/reference/glossary`）。
- * 上に検索欄と分類のチップ、下に五十音順の行の一覧を置き、語の説明は用語の
+ * 上に検索欄と分類のチップ、下に索引の行（日本語は五十音、英語は見出し語の頭文字。
+ * `indexRowsFor`）ごとの一覧を置き、語の説明は用語の
  * 画面に置く。検索は見出し語・読みに掛かり、分類と重ねて絞り込める
  * （`filterGlossaryTerms`）。
  *
@@ -50,7 +52,8 @@ const ALL_CATEGORIES = "all";
 export default function GlossaryIndexScreen() {
   const t = useTranslations("glossary");
   const router = useRouter();
-  const terms = glossaryTermViews((key) => t(key));
+  const locale = useAppLocale();
+  const terms = glossaryTermViews((key) => t(key), locale);
   const ads = useNativeAds(MOBILE_AD_SLOTS.glossaryIndex);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<
@@ -62,10 +65,12 @@ export default function GlossaryIndexScreen() {
     query,
     category: category === ALL_CATEGORIES ? undefined : category,
   });
-  const rows = KANA_ROWS.map((row) => ({
-    row,
-    terms: shown.filter((term) => term.indexRow === row),
-  })).filter(({ terms: inRow }) => inRow.length > 0);
+  const rows = indexRowsFor(locale)
+    .map((row) => ({
+      row,
+      terms: shown.filter((term) => term.indexRow === row),
+    }))
+    .filter(({ terms: inRow }) => inRow.length > 0);
 
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>

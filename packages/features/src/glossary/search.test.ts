@@ -14,7 +14,7 @@ function jaGlossary(key: string): string {
   return String(node);
 }
 
-const terms = glossaryTermViews(jaGlossary);
+const terms = glossaryTermViews(jaGlossary, "ja");
 
 function slugs(query: string, category?: "hai" | "naki") {
   return filterGlossaryTerms(terms, { query, category }).map((t) => t.slug);

@@ -133,15 +133,16 @@ function compareFor(
  * すべての用語をその言語の索引の順で返す
  * 用語一覧
  *
- * 一覧（索引・分類の両方）と、関連語の解決がここを通る。`locale` を省くと
- * 日本語（読みの五十音順・五十音行）で、モバイル（辞書は日本語固定）はこの形で呼ぶ。
+ * 一覧（索引・分類の両方）と、関連語の解決がここを通る。並び順と索引の行は言語で
+ * 決まる（日本語は読みの五十音、英語は見出し語の頭文字）。`locale` は省略させない —
+ * 省略できた頃、英語に対応したアプリが渡し忘れ、英語の一覧がすべての行から漏れて空になった。
  *
  * @param t - `glossary` 名前空間の翻訳関数（`locale` と同じ言語の辞書）
- * @param locale - 用語集を出している言語（省略時は日本語）
+ * @param locale - 用語集を出している言語
  */
 export function glossaryTermViews(
   t: GlossaryTranslator,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): readonly GlossaryTermView[] {
   return GLOSSARY_TERMS.map((term) => toGlossaryTermView(term, t, locale)).sort(
     compareFor(locale),
@@ -154,13 +155,13 @@ export function glossaryTermViews(
  *
  * @param slug 対象用語のスラッグ（URL 由来の未検証の文字列でよい）
  * @param t - `glossary` 名前空間の翻訳関数
- * @param locale - 用語集を出している言語（省略時は日本語）
+ * @param locale - 用語集を出している言語
  * @returns 該当する用語。未知の slug なら undefined
  */
 export function glossaryTermViewBySlug(
   slug: string,
   t: GlossaryTranslator,
-  locale: SupportedLocale = DEFAULT_LOCALE,
+  locale: SupportedLocale,
 ): GlossaryTermView | undefined {
   const term = getGlossaryTermBySlug(slug);
   return term === undefined ? undefined : toGlossaryTermView(term, t, locale);
