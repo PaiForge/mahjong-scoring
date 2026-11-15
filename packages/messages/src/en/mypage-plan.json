@@ -20,7 +20,6 @@
     }
   },
   "benefits": {
-    "title": "Features you can use",
     "links": {
       "agariScore": "Scoring winning hands",
       "tenpaiScore": "Scoring tenpai hands",

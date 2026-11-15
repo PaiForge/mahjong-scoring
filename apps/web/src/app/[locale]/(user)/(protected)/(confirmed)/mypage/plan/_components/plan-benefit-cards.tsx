@@ -11,7 +11,6 @@ import {
   LocaleNavLink,
 } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { PlanPerkCard } from "@/app/[locale]/(user)/_components/plan-perk-card";
-import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { PlanBenefit } from "@mahjong-scoring/features/billing/plans";
 import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 import { PRACTICE_SLUG } from "@mahjong-scoring/features/practice-menu-types";
@@ -111,14 +110,14 @@ const BENEFIT_ORDER: readonly PlanBenefit[] = [
   PlanBenefit.PracticeTools,
 ];
 
-interface PlanBenefitsSectionProps {
+interface PlanBenefitCardsProps {
   /** いま持っている特典（`getActiveBenefits`） */
   readonly benefits: ReadonlySet<PlanBenefit>;
   readonly locale: SupportedLocale;
 }
 
 /**
- * 購入状況の「使える機能」
+ * 購入状況の「現在の状態」の下に並べる、使える特典のカード
  * 保有特典一覧
  *
  * Pro（購入）でも VIP（付与）でも、いま有効な特典をカードで見せ、その特典が効く
@@ -128,15 +127,21 @@ interface PlanBenefitsSectionProps {
  * 出すのはプランの特典の一覧（`PLANS.pro.benefits`）ではなく、その人が実際に
  * 持っている特典。買い切りは購入時点の特典に固定され（`purchases.benefits` の
  * スナップショット）、付与も行ごとに特典を持つため、プランの今の定義を出すと
- * 使えない機能を「使える」と見せ得る。特典が 1 つも無ければ節ごと出さない。
+ * 使えない機能を「使える」と見せ得る。特典が 1 つも無ければ何も描かない。
+ *
+ * @design 見出しを持たない
+ * 「使える機能」のような節の見出しは立てず、「現在の状態」の節の中で状態のカードの
+ * すぐ下に置く。どの特典が使えるかは状態の中身で、別の節に分けると見出しが増える
+ * だけで状態とのつながりが切れる。各カードの見出し（h3）が節の見出し（h2）の
+ * 下にそのまま入る。
  *
  * リンク先は公開状態の表から張る（`resolveNavTargetFor`）。英語のページから
  * 英語で出していない練習へは日本語のページへ張り、「日本語のみ」の印を添える。
  */
-export async function PlanBenefitsSection({
+export async function PlanBenefitCards({
   benefits,
   locale,
-}: PlanBenefitsSectionProps) {
+}: PlanBenefitCardsProps) {
   if (benefits.size === 0) return null;
   const [t, tPerks, tNav] = await Promise.all([
     getTranslations("mypagePlan"),
@@ -148,43 +153,38 @@ export async function PlanBenefitsSection({
   );
 
   return (
-    <section className="space-y-4">
-      <SectionTitle>{t("benefits.title")}</SectionTitle>
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        {cards.map(({ benefit, card }) => (
-          <PlanPerkCard
-            key={benefit}
-            icon={card.icon}
-            title={card.title}
-            description={card.description}
-          >
-            <ul className="space-y-1.5 pt-2 text-sm">
-              {card.links.map((link) => {
-                const target = resolveNavTargetFor(link.path, locale);
-                return (
-                  <li key={link.path + link.label} className="flex gap-1.5">
-                    <ArrowRightIcon className="mt-[0.2em] size-4 shrink-0 text-brand-subtle-foreground" />
-                    <span>
-                      <LocaleNavLink
-                        navTarget={target}
-                        linkKind="plain"
-                        className={TEXT_LINK_CLASSES}
-                      >
-                        {link.label}
-                      </LocaleNavLink>
-                      {target.crossLocale && (
-                        <JapaneseOnlyMark
-                          label={tNav("language.japaneseOnly")}
-                        />
-                      )}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </PlanPerkCard>
-        ))}
-      </ul>
-    </section>
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {cards.map(({ benefit, card }) => (
+        <PlanPerkCard
+          key={benefit}
+          icon={card.icon}
+          title={card.title}
+          description={card.description}
+        >
+          <ul className="space-y-1.5 pt-2 text-sm">
+            {card.links.map((link) => {
+              const target = resolveNavTargetFor(link.path, locale);
+              return (
+                <li key={link.path + link.label} className="flex gap-1.5">
+                  <ArrowRightIcon className="mt-[0.2em] size-4 shrink-0 text-brand-subtle-foreground" />
+                  <span>
+                    <LocaleNavLink
+                      navTarget={target}
+                      linkKind="plain"
+                      className={TEXT_LINK_CLASSES}
+                    >
+                      {link.label}
+                    </LocaleNavLink>
+                    {target.crossLocale && (
+                      <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </PlanPerkCard>
+      ))}
+    </ul>
   );
 }
