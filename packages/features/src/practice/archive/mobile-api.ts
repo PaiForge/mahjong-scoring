@@ -4,7 +4,9 @@
  *
  * web とアプリの実践練習（和了形・聴牌形の点数計算）が、採用した問題を送る先。
  * 本文は {@link PracticeProblemArchiveRequest} の JSON で、成功は 204（本文なし）。
- * 400 は不正な本文、401 は未認証、403 は BAN・Origin 不正、429 は上限。
+ * 400 は不正な本文、403 は BAN・Origin 不正、429 は上限。未認証はアプリの API が
+ * 401、web の API は何も保存せずに 204（web は未ログインでも出題のたびに送るので、
+ * 401 にするとブラウザのコンソールへ通信エラーが残る）。
  * 応答に本文を持たないので、応答の形の契約（検証関数）は置かない。
  */
 import type { ArchiveSendOutcome } from "./problem-archive-queue";

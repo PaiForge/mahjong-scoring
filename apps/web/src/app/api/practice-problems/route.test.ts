@@ -116,12 +116,13 @@ describe("POST /api/practice-problems", () => {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
-  it("未ログインは 401", async () => {
+  it("未ログインは 401 にせず、保存しないまま 204（匿名の出題のたびにブラウザへ通信エラーを残さない）", async () => {
     mockAuthenticate.mockResolvedValue({ error: "unauthorized" });
 
     const response = await POST(archiveRequest());
 
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe("");
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
