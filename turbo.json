@@ -6,6 +6,7 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "env": [
         "NODE_ENV",
+        "PRACTICE_PROBLEM_ARCHIVE_DISABLED",
         "DATABASE_URL",
         "POSTGRES_URL",
         "POSTGRES_URL_NON_POOLING",
@@ -39,6 +40,7 @@
       ]
     },
     "dev": {
+      "passThroughEnv": ["PRACTICE_PROBLEM_ARCHIVE_DISABLED"],
       "cache": false,
       "persistent": true
     },
