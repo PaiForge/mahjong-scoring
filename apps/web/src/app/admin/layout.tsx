@@ -66,10 +66,6 @@ export default async function AdminLayout({
       items: [{ href: "/admin", label: t("dashboard") }],
     },
     {
-      label: t("navigation.stats"),
-      items: [{ href: "/admin/lessons", label: t("lessonStats.navLabel") }],
-    },
-    {
       label: t("navigation.management"),
       items: [
         { href: "/admin/users", label: t("users") },
@@ -78,6 +74,10 @@ export default async function AdminLayout({
         { href: "/admin/announcements", label: t("announcements.navLabel") },
         { href: "/admin/ads", label: t("ads.navLabel") },
       ],
+    },
+    {
+      label: t("navigation.stats"),
+      items: [{ href: "/admin/lessons", label: t("lessonStats.navLabel") }],
     },
     {
       label: t("navigation.logs"),
