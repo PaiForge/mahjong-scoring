@@ -14,6 +14,30 @@
     "dailyTrends": "新規ユーザーの日次推移",
     "noData": "データがありません"
   },
+  "lessonStats": {
+    "navLabel": "レッスン完了状況",
+    "title": "レッスンの完了状況",
+    "description": "レッスンごとの完了数です。ログイン済みのユーザーが終えたレッスンだけを数えます（未ログインの閲覧は含みません。コラムは完了を持たないため出ません）。1 人が同じレッスンを完了できるのは 1 回なので、完了数は完了した人数です。",
+    "kpi": {
+      "periodCompletions": "期間内の完了数",
+      "periodLearners": "期間内にレッスンを完了したユーザー数",
+      "cumulative": "累計 {count}"
+    },
+    "sort": {
+      "label": "並び順",
+      "curriculum": "順路順",
+      "total": "累計の多い順",
+      "period": "期間内の多い順"
+    },
+    "table": {
+      "order": "順路",
+      "lesson": "レッスン",
+      "section": "セクション",
+      "period": "期間内",
+      "total": "累計"
+    },
+    "unknownLesson": "現在のレッスン一覧に無い記録"
+  },
   "userManagement": "ユーザー管理",
   "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
   "auditLog": "監査ログ",
