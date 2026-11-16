@@ -1,5 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { StyleSheet, Text } from "react-native";
 import { useTranslations } from "use-intl";
 import {
   practiceMenuBySlug,
@@ -8,22 +7,15 @@ import {
 import { MOBILE_AD_SLOTS } from "@mahjong-scoring/features/ads/native-ad";
 import { rankRequiringMenu } from "@mahjong-scoring/features/ranks/registry";
 import { isQuotaMenu } from "@mahjong-scoring/features/quota/limits";
-import {
-  practiceListHrefForRank,
-  practiceTrainingHref,
-} from "@mahjong-scoring/features/routes";
+import { practiceListHrefForRank } from "@mahjong-scoring/features/routes";
 
 import { NativeAdRow } from "../../ads/native-ad-row";
 import { useNativeAds } from "../../ads/use-native-ads";
-import { Button, buttonForeground } from "../../components/button";
-import { InfinityIcon } from "../../components/icons/icons";
 import { LinkRow, LinkRowList } from "../../components/link-row";
 import { Screen } from "../../components/screen";
-import { colors } from "../../lib/theme";
 import { ExamConditions } from "../exam/exam-conditions";
-import { ExamStartGate, useOffersRealExam } from "../exam/exam-start-gate";
+import { ExamStartFooter } from "../exam/exam-start-footer";
 import { PracticeEntryQuota } from "../quota/practice-entry-quota";
-import { StartCtaDivider } from "../components/practice-start-cta";
 import { HowToPlaySection } from "../components/how-to-play-section";
 import { PracticeRelatedChapters } from "../components/practice-chapter-section";
 import type { PracticeScreens } from "../practice-screens";
@@ -34,17 +26,15 @@ import { useGoToTab } from "../../hooks/use-go-to-tab";
  *
  * @description
  * web の試験の説明ページ（`PracticeIntroContent` の試験の分岐）と同じ並び:
- * 問題方式（見本の盤面）→ 合格条件 → 開始導線 → 前提となるレッスン →
+ * 問題方式（見本の盤面）→ 合格条件 → 前提となるレッスン →
  * その級の練習メニュー（末尾に広告の行）。
  *
- * 開始導線は web と同じく本番 / 「または」/ 模試の 3 段。本番のボタンは
- * 受験ゲート（{@link ExamStartGate}）がログイン・ユーザー名・級の順序で
- * 出し分ける。模試には掛けない — 記録も段級位の付与も無く、誰でも受けられる。
- * ただし回数制限の対象の模試（1級・初段。`isQuotaMenu`）は 1 日の無料枠が
- * あるので、ボタンの下に今日の残りを出す（練習一覧の実戦練習のカードと同じ
- * {@link PracticeEntryQuota}。iOS で販売中のときだけ出る）。
- * 本番を出せないとき（ログインを出せないビルド・BAN 中）は模試だけを
- * 主ボタンで出す。
+ * 開始導線（模試 / 本番）は web と違い、練習の説明画面と同じく下端に固定する帯
+ * （{@link ExamStartFooter}）に置く。受験ゲート（ログイン・ユーザー名・級の順序）は
+ * 本番のボタンにだけ掛かる。模試には掛けない — 記録も段級位の付与も無く、誰でも
+ * 受けられる。ただし回数制限の対象の模試（1級・初段。`isQuotaMenu`）は 1 日の
+ * 無料枠があるので、合格条件の下に今日の残りを出す（練習一覧の実戦練習の
+ * カードと同じ {@link PracticeEntryQuota}。iOS で販売中のときだけ出る）。
  */
 export function ExamIntroScreen({
   slug,
@@ -56,49 +46,23 @@ export function ExamIntroScreen({
   const { namespace, menuType } = practiceMenuBySlug(slug);
   const t = useTranslations(namespace);
   const tRanks = useTranslations("ranks");
-  const tExam = useTranslations("examTraining");
-  const tp = useTranslations("practice");
-  const router = useRouter();
   const goToTab = useGoToTab();
-  const offersRealExam = useOffersRealExam();
-  const trainingVariant = offersRealExam ? "secondary" : "primary";
   const rank = rankRequiringMenu(menuType)?.rank;
   const { Demo } = screens;
   const [ad] = useNativeAds(MOBILE_AD_SLOTS.examIntro);
 
   return (
-    <Screen title={t("title")} back contentStyle={styles.content}>
+    <Screen
+      title={t("title")}
+      back
+      contentStyle={styles.content}
+      footer={<ExamStartFooter slug={slug} />}
+    >
       <HowToPlaySection namespace={namespace} Demo={Demo} />
 
       <ExamConditions slug={slug} />
 
-      <View style={styles.startFrame}>
-        {offersRealExam && (
-          <>
-            <ExamStartGate slug={slug} goalFailureShownAbove />
-            <StartCtaDivider label={tp("orDivider")} />
-          </>
-        )}
-        <View style={styles.start}>
-          <Button
-            variant={trainingVariant}
-            size="lg"
-            fullWidth
-            icon={
-              <InfinityIcon
-                size={16}
-                color={buttonForeground(trainingVariant)}
-              />
-            }
-            onPress={() => router.push(practiceTrainingHref(slug))}
-            testID="start-training"
-          >
-            {tExam("startButton")}
-          </Button>
-          <Text style={styles.hint}>{tExam("hint")}</Text>
-        </View>
-        {isQuotaMenu(slug) && <PracticeEntryQuota menu={slug} />}
-      </View>
+      {isQuotaMenu(slug) && <PracticeEntryQuota menu={slug} />}
 
       <PracticeRelatedChapters slug={slug} />
 
@@ -125,18 +89,6 @@ export function ExamIntroScreen({
 const styles = StyleSheet.create({
   content: {
     gap: 32,
-  },
-  startFrame: {
-    gap: 20,
-  },
-  start: {
-    alignItems: "center",
-    gap: 6,
-  },
-  hint: {
-    fontSize: 12,
-    color: colors.surface400,
-    textAlign: "center",
   },
   emoji: {
     fontSize: 16,

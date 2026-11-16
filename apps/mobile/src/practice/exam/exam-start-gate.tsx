@@ -6,7 +6,10 @@ import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
 } from "@mahjong-scoring/features/practice-menu-types";
-import { evaluateExamEligibility } from "@mahjong-scoring/features/ranks/exam-eligibility";
+import {
+  evaluateExamEligibility,
+  type ExamLocked,
+} from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { rankTier } from "@mahjong-scoring/features/ranks/registry";
 import { DOJO_PATH, practicePlayHref } from "@mahjong-scoring/features/routes";
 
@@ -53,6 +56,75 @@ export function useOffersRealExam(): boolean {
 }
 
 /**
+ * 本番の試験を今始められるか（受験ゲートの判定）
+ *
+ * {@link ExamStartGate}（本文に置くボタン）と、説明画面の下端の帯
+ * （`ExamStartFooter`）が同じ判定を読む。
+ *
+ * - `hidden` — ログインを出せないビルド・BAN 中。本番の導線を出さない
+ * - `signedOut` — ゲスト。受験にはアカウント登録が要る
+ * - `usernameMissing` — ユーザー名を決めていない（記録付きのチャレンジは
+ *   ユーザー名を決めた人だけが始められる）
+ * - `locked` — 先に取る級がある
+ * - `start` — 次に取る級・取得済みの級の再挑戦。`ready` は認証・アカウント・
+ *   合格ラインを読み終えたか（読み終えるまで開始ボタンを押せなくする。案内した
+ *   合格条件と、開始後にサーバーが求める条件を食い違わせないため）
+ *
+ * ここは表示の出し分けだけで、強制はサーバーがする（開始の API が資格の無い
+ * 試験を `examLocked` で断る）。段級位をまだ読めていないときは `start` へ
+ * 倒す — 資格が無ければ、始めた先で説明画面へ戻る。
+ */
+export type RealExamGate =
+  | { readonly kind: "hidden" }
+  | { readonly kind: "signedOut" }
+  | { readonly kind: "usernameMissing" }
+  | { readonly kind: "locked"; readonly eligibility: ExamLocked }
+  | { readonly kind: "start"; readonly ready: boolean };
+
+export function useRealExamGate(slug: PracticeMenuSlug): RealExamGate {
+  const { status, user, account } = useAuth();
+  const offersRealExam = useOffersRealExam();
+  const { menuType } = practiceMenuBySlug(slug);
+  const { goal } = useExamGoal(menuType);
+  const userId = status === "signedIn" ? user?.id : undefined;
+  const rankSlugs = useServerProgressStore((state) =>
+    userId !== undefined && state.userId === userId
+      ? state.input?.achievedRankSlugs
+      : undefined,
+  );
+
+  if (!offersRealExam) return { kind: "hidden" };
+  if (status === "signedOut") return { kind: "signedOut" };
+  if (account?.profile === null) return { kind: "usernameMissing" };
+  const eligibility =
+    rankSlugs === undefined
+      ? undefined
+      : evaluateExamEligibility(menuType, rankSlugs);
+  if (eligibility?.kind === "locked") return { kind: "locked", eligibility };
+  return {
+    kind: "start",
+    ready:
+      status === "signedIn" &&
+      account !== undefined &&
+      goal.status === "loaded",
+  };
+}
+
+/**
+ * 先に取る級があることを伝える文（「この試験は◯級の試験です。受験には先に…」）
+ */
+export function useLockedExamMessage(): (eligibility: ExamLocked) => string {
+  const t = useTranslations("ranks");
+  return (eligibility) =>
+    t("examGate.locked", {
+      examTitle: t(`examTitle.${rankTier(eligibility.rank.slug)}`, {
+        rank: t(`names.${eligibility.rank.slug}`),
+      }),
+      requiredRank: t(`names.${eligibility.requiredRank.slug}`),
+    });
+}
+
+/**
  * 昇級試験の本番の開始ボタンの出し分け（web の `ExamStartGate`）
  * 受験ゲート
  *
@@ -72,14 +144,12 @@ export function useOffersRealExam(): boolean {
  *
  * 開始ボタンは、この画面を開いてからサーバーの合格ラインを読み終えるまで
  * 押せない（`useExamGoal`）。案内した合格条件と、開始後にサーバーが求める
- * 条件を食い違わせないため。読めなければ押せないまま読み直しの操作を出す
- * （合格条件を同じ画面に出しているときは、そちらが出す）。
+ * 条件を食い違わせないため。読めなければ押せないまま読み直しの操作を出す。
  */
 export function ExamStartGate({
   slug,
   startLabel,
   replace = false,
-  goalFailureShownAbove = false,
 }: {
   readonly slug: PracticeMenuSlug;
   /**
@@ -89,31 +159,20 @@ export function ExamStartGate({
   readonly startLabel?: string;
   /** 本番を今の画面と置き換えて開く（模試の画面から送るとき） */
   readonly replace?: boolean;
-  /**
-   * 合格ラインを読めなかったことを同じ画面の合格条件（`ExamConditions`）が
-   * 伝えているか。伝えていれば、ここでは読み直しの操作を重ねて出さない
-   */
-  readonly goalFailureShownAbove?: boolean;
 }) {
   const t = useTranslations("ranks");
   const tc = useTranslations("challenge");
   const tExam = useTranslations("examTraining");
   const router = useRouter();
   const goToTab = useGoToTab();
-  const { status, user, account } = useAuth();
-  const offersRealExam = useOffersRealExam();
-  const { menuType, timeLimit, mistakeLimit } = practiceMenuBySlug(slug);
+  const { timeLimit, mistakeLimit, menuType } = practiceMenuBySlug(slug);
   const { goal, retry } = useExamGoal(menuType);
-  const userId = status === "signedIn" ? user?.id : undefined;
-  const rankSlugs = useServerProgressStore((state) =>
-    userId !== undefined && state.userId === userId
-      ? state.input?.achievedRankSlugs
-      : undefined,
-  );
+  const gate = useRealExamGate(slug);
+  const lockedMessage = useLockedExamMessage();
 
-  if (!offersRealExam) return undefined;
+  if (gate.kind === "hidden") return undefined;
 
-  if (status === "signedOut") {
+  if (gate.kind === "signedOut") {
     return (
       <CtaBlock hint={t("examGate.signUpNote")}>
         <Button
@@ -129,7 +188,7 @@ export function ExamStartGate({
     );
   }
 
-  if (account?.profile === null) {
+  if (gate.kind === "usernameMissing") {
     return (
       <CtaBlock hint={t("examGate.usernameNote")}>
         <Button
@@ -145,23 +204,11 @@ export function ExamStartGate({
     );
   }
 
-  const eligibility =
-    rankSlugs === undefined
-      ? undefined
-      : evaluateExamEligibility(menuType, rankSlugs);
-
-  if (eligibility?.kind === "locked") {
+  if (gate.kind === "locked") {
     return (
-      <CtaBlock
-        hint={t("examGate.locked", {
-          examTitle: t(`examTitle.${rankTier(eligibility.rank.slug)}`, {
-            rank: t(`names.${eligibility.rank.slug}`),
-          }),
-          requiredRank: t(`names.${eligibility.requiredRank.slug}`),
-        })}
-      >
+      <CtaBlock hint={lockedMessage(gate.eligibility)}>
         <BeltButton
-          slug={eligibility.requiredRank.slug}
+          slug={gate.eligibility.requiredRank.slug}
           onPress={() => goToTab(DOJO_PATH)}
         >
           {t("examGate.dojoButton")}
@@ -170,12 +217,9 @@ export function ExamStartGate({
     );
   }
 
-  // 認証・アカウント・合格ラインを読んでいる間も同じ位置にボタンを置き、
-  // 押せなくしておく
-  const ready =
-    status === "signedIn" && account !== undefined && goal.status === "loaded";
+  const { ready } = gate;
   const hint =
-    goal.status === "failed" && !goalFailureShownAbove ? (
+    goal.status === "failed" ? (
       <View style={styles.failed}>
         <Text style={styles.hint}>{t("goalLoadFailed")}</Text>
         <TextLink onPress={retry} testID="exam-goal-retry">
