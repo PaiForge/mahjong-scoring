@@ -76,6 +76,10 @@ export default async function AdminLayout({
       ],
     },
     {
+      label: t("navigation.stats"),
+      items: [{ href: "/admin/lessons", label: t("lessonStats.navLabel") }],
+    },
+    {
       label: t("navigation.logs"),
       items: [
         { href: "/admin/audit-log", label: t("auditLog") },
