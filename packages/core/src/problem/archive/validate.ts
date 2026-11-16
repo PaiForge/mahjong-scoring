@@ -30,7 +30,6 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import { listTehaiHais } from "../../core/hai-count";
 import { isHaiKindId } from "../../core/type-guards";
-import { isFu } from "../../score/constants";
 import { countKantsu } from "../shared/count-kantsu";
 import { finalizeTehai13, finalizeTehai14 } from "../shared/hand-skeleton";
 import { fromArchivedMeld, toHaiKindIds } from "./melds";
@@ -293,10 +292,9 @@ function checkAgari(
   if (!payload.hand.closed.includes(payload.agariHai)) {
     return err("agariHaiNotInHand");
   }
+  // 符が回答の選択肢にあるかは再構築が見る（`fuOutOfOptions`）
   const rebuilt = rebuildAgariQuestion(payload, STANDARD_RULE_CONFIG);
-  if (rebuilt.isErr()) return err(rebuilt.error);
-  if (!isFu(rebuilt.value.answer.fu)) return err("fuOutOfOptions");
-  return ok(payload);
+  return rebuilt.isErr() ? err(rebuilt.error) : ok(payload);
 }
 
 /** 5. 聴牌形を標準ルールで組み立てられるか（条件は生成器と同じ） */

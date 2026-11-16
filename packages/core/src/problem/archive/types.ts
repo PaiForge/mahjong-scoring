@@ -139,6 +139,8 @@ export type PracticeProblemArchiveRequest =
  * - `agariHaiNotInHand`: 和了牌が純手牌に無い
  * - `riichiWithFuro`: 門前でない手がリーチしている
  * - `noYaku` / `unsupportedYakuman`: 和了形が採点できない（`buildScoreQuestion`）
+ * - `fuOutOfOptions`: 回答の符選択肢に無い符（110 符超）になる（和了形・聴牌形とも。
+ *   符はルールで変わるので、保存時に通った盤面でも閲覧者のルールでは起こりうる）
  * - それ以外: 聴牌形の点数計算として成り立たない（`buildTenpaiScoreQuestion`）
  */
 export type ArchiveRebuildError =

@@ -8,6 +8,7 @@ import {
   type RuleConfig,
 } from "@pai-forge/riichi-mahjong";
 import { isHaiKindId } from "../../core/type-guards";
+import { isFu } from "../../score/constants";
 import { buildScoreQuestion, type RiichiInput } from "../score/build-question";
 import type { ScoreQuestion } from "../score/types";
 import { finalizeTehai13, finalizeTehai14 } from "../shared/hand-skeleton";
@@ -101,6 +102,12 @@ function restoreScene(
  *
  * 生成器と同じ `buildScoreQuestion` を通るので、生成時と同じルールを渡せば
  * 生成した問題と同じ問題が返る。乱数は使わない。
+ *
+ * 回答の符選択肢に無い符（110 符超）になる盤面も Err（`fuOutOfOptions`）にする
+ * （聴牌形の {@link rebuildTenpaiQuestion} と同じ扱い）。符はルールで変わる —
+ * 連風牌の雀頭を 4 符とするルールでは、標準ルールで 110 符に収まっていた手が
+ * 選択肢の外へ出うる。ここで見ないと、保存時の検証（標準ルール）を通った盤面が、
+ * 閲覧者のルールでは答えを選べない問題として出る。
  */
 export function rebuildAgariQuestion(
   payload: AgariProblemPayload,
@@ -126,6 +133,7 @@ export function rebuildAgariQuestion(
     riichi: scene.value.riichi,
   });
   if (built.isErr()) return err(built.error);
+  if (!isFu(built.value.answer.fu)) return err("fuOutOfOptions");
   return ok(built.value);
 }
 

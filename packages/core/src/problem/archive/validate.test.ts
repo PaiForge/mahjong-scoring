@@ -12,6 +12,7 @@ import type {
   PracticeProblemArchiveRequest,
   TenpaiProblemPayload,
 } from "./types";
+import { rebuildAgariQuestion } from "./rebuild";
 import { parsePracticeProblemArchiveRequest } from "./validate";
 
 const parse = parsePracticeProblemArchiveRequest;
@@ -314,6 +315,38 @@ describe("parsePracticeProblemArchiveRequest: 和了形の採点", () => {
     expect(
       errorOf(agari({ closed: noYaku, agariHai: s(3), isTsumo: false })),
     ).toBe("noYaku");
+  });
+
+  it("回答の符選択肢に無い符（110 符超）になる和了形は、検証でも再構築でも拒む", () => {
+    // 東・南・西の暗槓 + 123m + 5p 単騎をロン（北家の東場）。
+    // 副底 20 + 門前ロン 10 + 么九牌の暗槓 32 × 3 + 単騎 2 = 128 → 130 符
+    const payload: AgariProblemPayload = {
+      hand: {
+        closed: [m(1), m(2), m(3), p(5), p(5)],
+        exposed: [
+          { type: "ankan", hais: [z(1), z(1), z(1), z(1)] },
+          { type: "ankan", hais: [z(2), z(2), z(2), z(2)] },
+          { type: "ankan", hais: [z(3), z(3), z(3), z(3)] },
+        ],
+      },
+      agariHai: p(5),
+      isTsumo: false,
+      jikaze: HaiKind.Pei,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [s(2), s(3), s(4), s(5)],
+      riichi: null,
+    };
+
+    expect(errorOf({ kind: "agari-score", schemaVersion: 1, payload })).toBe(
+      "fuOutOfOptions",
+    );
+    // 読み戻すときは閲覧者のルールで組み立て直すので、再構築の側でも見る
+    expect(
+      rebuildAgariQuestion(payload, {
+        doubleWindJantouFu: 4,
+        kiriageMangan: false,
+      })._unsafeUnwrapErr(),
+    ).toBe("fuOutOfOptions");
   });
 
   it("出題設定に依る条件（点数帯・親子など）は課さない", () => {
