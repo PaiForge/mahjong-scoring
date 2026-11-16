@@ -198,10 +198,9 @@ describe("saveChallengeResult", () => {
       await saveChallengeResult(validInput);
 
       expect(mockRevalidateTag).toHaveBeenCalledTimes(1);
-      expect(mockRevalidateTag).toHaveBeenCalledWith(
-        "exp-heatmap:user-123",
-        { expire: 0 },
-      );
+      expect(mockRevalidateTag).toHaveBeenCalledWith("exp-heatmap:user-123", {
+        expire: 0,
+      });
     });
 
     it("does not revalidate the tag when EXP is skipped (unregistered menuType)", async () => {

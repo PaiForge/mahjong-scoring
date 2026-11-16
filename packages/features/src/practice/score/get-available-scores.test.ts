@@ -449,7 +449,12 @@ describe("splitScoresByBand", () => {
 
   for (const { name, isOya, isTsumo } of cases) {
     it(`${name}: 範囲で絞った選択肢と同じ 2 つに分ける`, () => {
-      const params = { han: undefined, isOya, isTsumo, koTsumoInput: "combined" } as const;
+      const params = {
+        han: undefined,
+        isOya,
+        isTsumo,
+        koTsumoInput: "combined",
+      } as const;
       const all = getAvailableScores({ ...params, scoreRange: "all" });
       if (all.type === "koTsumoSplit") throw new Error("組の入力を渡した");
 
@@ -477,7 +482,8 @@ describe("splitScoresByBand", () => {
     const { nonMangan, manganPlus } = splitScoresByBand(all, false, true);
 
     if (nonMangan.type !== "koTsumoCombined") throw new Error("組の入力でない");
-    if (manganPlus.type !== "koTsumoCombined") throw new Error("組の入力でない");
+    if (manganPlus.type !== "koTsumoCombined")
+      throw new Error("組の入力でない");
     expect(nonMangan.payments.map(koTsumoPaymentKey)).toContain("2000/3900");
     expect(manganPlus.payments.map(koTsumoPaymentKey)).toEqual([
       "2000/4000",
