@@ -12,7 +12,6 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { Button, buttonForeground } from "../../components/button";
-import { Divider } from "../../components/divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
 
@@ -21,7 +20,8 @@ import { colors } from "../../lib/theme";
  *
  * 説明画面の下端に固定する帯（`Screen` の `footer`）の中身。本文をどこまで
  * スクロールしていても始められるよう、2 つのボタンを 1 行に並べる: 右にチャレンジ
- * （主。緑の塗り・幅を広く）、左にトレーニング（従。白地）。主操作を利き手の親指に
+ * （主。緑の塗り）、左にトレーニング（従。白地）。2 つは等幅で、主従は塗りだけで
+ * 示す（幅に差を付けると、狭い方が文字に詰まって見える）。主操作を利き手の親指に
  * 近い右に置く。上の 1 行はチャレンジのルール（制限時間・ミス上限）。
  *
  * 却下: web の `PracticeStartCta` の形（本文の途中に、チャレンジ / 「または」の
@@ -56,7 +56,7 @@ export function PracticeStartCta({
         <Button
           variant="secondary"
           size="lg"
-          style={styles.training}
+          style={styles.half}
           icon={
             <InfinityIcon size={16} color={buttonForeground("secondary")} />
           }
@@ -70,7 +70,7 @@ export function PracticeStartCta({
         </Button>
         <Button
           size="lg"
-          style={styles.challenge}
+          style={styles.half}
           icon={<PlayIcon size={16} color={buttonForeground("primary")} />}
           onPress={() => {
             onStart?.();
@@ -80,25 +80,6 @@ export function PracticeStartCta({
         >
           {labels.challenge}
         </Button>
-      </View>
-    </View>
-  );
-}
-
-/**
- * 開始導線の 2 つのブロックを分ける「または」の区切り（web の `PracticeStartCtaDivider`）
- *
- * 試験の説明画面（本番 / 模試）が使う。練習の説明画面は下端の帯に並べるので使わない。
- */
-export function StartCtaDivider({ label }: { readonly label: string }) {
-  return (
-    <View style={styles.divider}>
-      <View style={styles.line}>
-        <Divider />
-      </View>
-      <Text style={styles.or}>{label}</Text>
-      <View style={styles.line}>
-        <Divider />
       </View>
     </View>
   );
@@ -117,24 +98,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
   },
-  // 文字の幅で決まる（「トレーニング」が 1 行に収まる幅）。残りをチャレンジが取る
-  training: {
-    paddingHorizontal: 16,
-  },
-  challenge: {
+  // 2 つのボタンで行を等分する（文字の幅に依らない）
+  half: {
     flex: 1,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  line: {
-    flex: 1,
-  },
-  or: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.surface400,
+    flexBasis: 0,
   },
 });

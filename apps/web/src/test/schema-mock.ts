@@ -16,6 +16,7 @@ export const lessonCompletions = {
   _name: "lesson_completions",
   userId: "user_id",
   lessonSlug: "lesson_slug",
+  completedAt: "completed_at",
 } as const;
 
 /** profiles のカラム */

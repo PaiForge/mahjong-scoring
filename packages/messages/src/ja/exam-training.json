@@ -6,5 +6,7 @@
   "realExamHint": "制限時間{timeLimit}秒・ミス{mistakeLimit}回で終了・合格で段級位を取得",
   "modeActive": "模試を受験中",
   "realExamPrompt": "本番の試験に進みますか？",
-  "exitToast": "模試を終了しました"
+  "exitToast": "模試を終了しました",
+  "footerMockButton": "模試",
+  "footerRealButton": "本番の試験"
 }

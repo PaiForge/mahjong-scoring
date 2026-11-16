@@ -1,5 +1,7 @@
-# 昇級試験の本番の受験ゲート: ゲストには登録の案内、無級の alice が 4級（符）の
-# 試験を開くと先に取る級（5級）と道場への導線が出る。模試はどちらも受けられる
+# 昇級試験の本番の受験ゲート: 説明画面の下端の帯は常に「模試 / 本番の試験」の 2 つで、
+# 受けられないときの本番は鍵の付いたボタンになり、押すとシートで理由と次の一手を出す。
+# ゲストには登録 / ログイン、無級の alice が 4級（符）の試験を開くと先に取る級（5級）と
+# 道場への導線。模試はどちらも受けられる
 appId: help.mahjong.score
 ---
 - clearKeychain
@@ -12,15 +14,26 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://exam/fu"
-- scrollUntilVisible:
-    element:
-      id: "start-training"
-    direction: DOWN
+- extendedWaitUntil:
+    visible:
+      id: "start-exam-locked"
+    timeout: 15000
 - assertVisible:
-    id: "exam-sign-up"
+    id: "start-training"
 - assertNotVisible:
     id: "start-exam"
 - takeScreenshot: exam-gate-guest
+- tapOn:
+    id: "start-exam-locked"
+- extendedWaitUntil:
+    visible:
+      id: "exam-sign-up"
+    timeout: 5000
+- assertVisible:
+    id: "exam-sign-in"
+- takeScreenshot: exam-gate-guest-sheet
+- tapOn:
+    id: "exam-gate-close"
 - runFlow:
     file: _sign-in.yaml
     env:
@@ -30,11 +43,13 @@ appId: help.mahjong.score
     file: _open-link.yaml
     env:
       LINK: "mahjong-scoring://exam/fu"
-- scrollUntilVisible:
-    element:
-      id: "start-training"
-    direction: DOWN
-- assertVisible: "道場で次の目標を確認する"
-- assertNotVisible:
-    id: "start-exam"
+- extendedWaitUntil:
+    visible:
+      id: "start-exam-locked"
+    timeout: 15000
+- tapOn:
+    id: "start-exam-locked"
+- extendedWaitUntil:
+    visible: "道場で次の目標を確認する"
+    timeout: 5000
 - takeScreenshot: exam-gate-locked
