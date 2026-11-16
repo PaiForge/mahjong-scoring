@@ -38,6 +38,30 @@
     },
     "unknownLesson": "現在のレッスン一覧に無い記録"
   },
+  "challengeStats": {
+    "navLabel": "チャレンジ実施状況",
+    "title": "チャレンジの実施状況",
+    "description": "練習ごとのチャレンジの回数です。記録の残るチャレンジ（制限時間とミス上限があるもの）だけを数えます。トレーニング・模試・和了形と聴牌形の点数計算は記録を残さないため含みません。昇級試験も記録を残さないため出ません。出題範囲（バリアント）は分けずに練習ごとにまとめています。",
+    "kpi": {
+      "periodChallenges": "期間内のチャレンジ回数",
+      "periodChallengers": "期間内にチャレンジしたユーザー数",
+      "cumulative": "累計 {count}"
+    },
+    "sort": {
+      "label": "並び順",
+      "registry": "練習一覧の順",
+      "total": "累計の多い順",
+      "period": "期間内の多い順"
+    },
+    "table": {
+      "order": "順",
+      "practice": "練習",
+      "period": "期間内",
+      "challengers": "期間内の挑戦者",
+      "total": "累計"
+    },
+    "unknownPractice": "現在の練習一覧に無い記録"
+  },
   "userManagement": "ユーザー管理",
   "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
   "auditLog": "監査ログ",
