@@ -25,6 +25,7 @@ import { archivePracticeProblem } from "./archive";
 import {
   clearPracticeProblemsTestDb,
   closePracticeProblemsTestDb,
+  hasPracticeProblemsClientRole,
   practiceProblemsTestDb,
   queryPracticeProblemsAsClient,
   setupPracticeProblemsTestDb,
@@ -44,7 +45,10 @@ describe.skipIf(!url)("問題の保存（PostgreSQL）", () => {
   afterAll(closePracticeProblemsTestDb);
   beforeEach(clearPracticeProblemsTestDb);
 
-  it("作成直後から、GRANT が残っていてもクライアントの読み書きを RLS が拒否する", async () => {
+  it("作成直後から、GRANT が残っていてもクライアントの読み書きを RLS が拒否する", async ({
+    skip,
+  }) => {
+    if (!(await hasPracticeProblemsClientRole())) skip();
     await archivePracticeProblem(meldedAgariRequest(), "web");
     expect(await rows()).toHaveLength(1);
     expect(await queryPracticeProblemsAsClient("read")).toHaveLength(0);

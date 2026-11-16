@@ -58,6 +58,17 @@ export async function setupPracticeProblemsTestDb() {
 }
 
 /**
+ * Supabase のクライアントロールがあるか（通常の PostgreSQL では RLS のロール検証だけ省く）
+ */
+export async function hasPracticeProblemsClientRole(): Promise<boolean> {
+  practiceProblemsTestDb();
+  if (!client) throw new Error("Test DB not initialized");
+  const roles =
+    await client`SELECT 1 FROM pg_roles WHERE rolname = 'authenticated'`;
+  return roles.length > 0;
+}
+
+/**
  * 一括 REVOKE より前を再現し、権限のあるクライアントロールでアクセスする
  * 保存問題のRLS検証
  *

@@ -8,7 +8,10 @@ function post(body: string, headers: Record<string, string> = {}): Request {
 
 describe("readMobileJson", () => {
   it("長さの申告が無い・過少でも上限超過で受信をキャンセルし、終端を待たない", async () => {
-    for (const headers of [{}, { "content-length": "1" }]) {
+    for (const headers of [
+      new Headers(),
+      new Headers({ "content-length": "1" }),
+    ]) {
       const cancel = vi.fn(() => new Promise<void>(() => {}));
       const stream = new ReadableStream<Uint8Array>({
         start(controller) {
