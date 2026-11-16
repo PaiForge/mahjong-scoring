@@ -29,6 +29,10 @@ export type ApiFailure =
 
 /** API 呼び出しの指定 */
 export interface MobileApiInit {
+  /** 送信の中断。認証の待ちが終わった後も確認し、中断後の遅れた送信を防ぐ */
+  readonly signal?: AbortSignal;
+  /** 401 でトークンを回復して再送するか（既定 true）。取りこぼしを許す問題保存は false */
+  readonly retryUnauthorized?: boolean;
   readonly method?: "GET" | "POST";
   /** 要求の本文。JSON にして送る */
   readonly body?: unknown;
@@ -70,6 +74,8 @@ export function notifyAccountDeleted(userId: string): void {
  * その 401 が今のログインに当てはまるかを確かめてから扱う。認証は API の
  * 処理より前に行うので、401 の要求はサーバーで何も処理されておらず、
  * 送り直してよい。送り直すのは 1 度だけ。
+ * 取りこぼしを許す問題保存では `retryUnauthorized: false` を渡し、この回復を
+ * 行わない。`signal` が中断された場合も、認証取得・回復が後から終わっても送らない。
  *
  * 403 `deleted`（退会を受け付けたアカウント）が返ったら、別の端末で
  * 退会した・退会の成功の応答を失ったということ。退会の工程はサーバーが
@@ -80,10 +86,12 @@ export async function callMobileApi(
   path: string,
   init: MobileApiInit = {},
 ): Promise<Response | ApiFailure> {
+  if (init.signal?.aborted) return "network";
   if (!supabase) return "unauthorized";
   const {
     data: { session },
   } = await supabase.auth.getSession();
+  if (init.signal?.aborted) return "network";
   if (init.asUser !== undefined && session?.user.id !== init.asUser)
     return "userChanged";
   if (!session) return "unauthorized";
@@ -92,6 +100,7 @@ export async function callMobileApi(
     accessToken: session.access_token,
   });
   if (received === "network") return "network";
+  if (init.signal?.aborted) return "network";
   try {
     await settleRejectedLogin(received);
   } catch (error) {
@@ -113,7 +122,7 @@ interface Received {
 }
 
 /**
- * 応答を受け取る。401 なら 1 度だけ送り直す。応答が得られなければ `network`
+ * 応答を受け取る。既定では 401 を 1 度だけ送り直す。中断・通信失敗は `network`
  *
  * 通信の失敗だけをここで `network` に丸める。応答を受け取った後の処理
  * （{@link settleRejectedLogin}）をこの範囲に入れると、そこで投げたときに
@@ -125,9 +134,14 @@ async function receive(
   sent: Credentials,
 ): Promise<Received | "network"> {
   try {
+    if (init.signal?.aborted) return "network";
     const response = await send(path, init, sent.accessToken);
+    if (init.signal?.aborted) return "network";
+    if (init.retryUnauthorized === false)
+      return { response, sent, retried: false };
     if (response.status !== 401) return { response, sent, retried: false };
     const retryToken = await recoverFromUnauthorized(sent);
+    if (init.signal?.aborted) return "network";
     if (retryToken === undefined) return { response, sent, retried: false };
     return {
       response: await send(path, init, retryToken),
@@ -180,6 +194,7 @@ function send(
   accessToken: string,
 ): Promise<Response> {
   return fetch(`${SITE_URL}${path}`, {
+    signal: init.signal,
     method: init.method ?? "GET",
     headers: {
       Authorization: `Bearer ${accessToken}`,

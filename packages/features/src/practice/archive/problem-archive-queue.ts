@@ -8,6 +8,8 @@
  *   満杯のときは新しく来た方を捨てる
  * - 1 試行は既定で 5 秒。過ぎたら `AbortSignal` で中断を伝え、`send` が応じるのを
  *   待たずに次へ進む（その試行は通信失敗と同じに扱う）
+ *   ただし中断しても未完了の send が残る間は再送・次の項目を捨てる。
+ *   中断に応じない通信を積み重ねず、実際の send も同時 1 件に制限する
  * - 送り直すのは通信失敗・5xx（`"retry"`）と `send` の例外だけで、1 回限り。
  *   送り直す前に 200〜1000ms の乱数の待ちを入れ、同時に失敗した端末の再送が
  *   重ならないようにする。4xx・429・未ログイン（`"drop"`）は送り直さない
@@ -60,7 +62,7 @@ const RETRY_DELAY_MAX_MS = 1000;
  *
  * @param options.send 1 件送る。`"done"` は成功、`"retry"` は通信失敗・5xx、
  *   `"drop"` は 4xx・429・未ログイン。渡された `signal` が中断されたら
- *   送信をやめてよい（応じなくてもキューは次へ進む）
+ *   送信をやめること。応じなくてもキューは進むが、未完了の間は新しい送信を捨てる
  * @param options.maxPending 待ちの上限（既定 8。送信中の 1 件を含まない）
  * @param options.timeoutMs 1 試行の制限時間（既定 5000ms）
  */
@@ -76,16 +78,21 @@ export function createProblemArchiveQueue<T>(options: {
   // 項目を包んで持つ。T が undefined を含んでも「待ちが空」と区別できるようにする
   const pending: { readonly item: T }[] = [];
   let isSending = false;
+  let isAttemptPending = false;
 
   /** 1 試行。制限時間を過ぎたら中断を伝え、結果を待たずに "retry" とする */
   function attempt(item: T): Promise<ArchiveSendOutcome> {
+    // 時間切れの send がまだ残っていたら、それ以上の通信を始めない。
+    if (isAttemptPending) return Promise.resolve("drop");
     const controller = new AbortController();
+    isAttemptPending = true;
     return new Promise((resolve) => {
       const timer = setTimeout(() => {
         controller.abort();
         resolve("retry");
       }, timeoutMs);
       const settle = (outcome: ArchiveSendOutcome) => {
+        isAttemptPending = false;
         clearTimeout(timer);
         resolve(outcome);
       };

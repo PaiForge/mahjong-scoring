@@ -10,8 +10,8 @@
  *
  * 送る側はログイン状態を調べない。保存するのはログイン済みの利用者の出題だけで、
  * 未ログインなら `callMobileApi` が通信せずに `"unauthorized"` を返し、捨てる。
- * `callMobileApi` は中断の signal を受けないので渡さない（5 秒の打ち切りは
- * キューが持ち、打ち切った試行の応答は使わない）。
+ * 5 秒の打ち切りは signal を fetch まで伝える。取りこぼしを許す保存では
+ * 401 の認証回復・再送も無効にし、ログイン更新を保存のために始めない。
  *
  * `callMobileApi` の結果と送信キューの結果の対応:
  *
@@ -44,10 +44,13 @@ import { callMobileApi } from "../../auth/api-client";
 /** 1 件送り、結果を送信キューの結果へ読み替える */
 async function sendArchiveRequest(
   request: PracticeProblemArchiveRequest,
+  signal: AbortSignal,
 ): Promise<ArchiveSendOutcome> {
   const result = await callMobileApi(MOBILE_PRACTICE_PROBLEMS_API_PATH, {
     method: "POST",
     body: request,
+    signal,
+    retryUnauthorized: false,
   });
   if (result instanceof Response) return archiveSendOutcomeOf(result.status);
   return result === "network" ? "retry" : "drop";

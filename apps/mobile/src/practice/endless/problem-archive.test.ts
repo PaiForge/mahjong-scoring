@@ -63,7 +63,12 @@ describe("アプリの問題の保存", () => {
     expect(mocks.callMobileApi).toHaveBeenCalledTimes(1);
     expect(mocks.callMobileApi).toHaveBeenCalledWith(
       MOBILE_PRACTICE_PROBLEMS_API_PATH,
-      { method: "POST", body: agariArchiveRequestOf(question) },
+      {
+        method: "POST",
+        body: agariArchiveRequestOf(question),
+        signal: expect.any(AbortSignal),
+        retryUnauthorized: false,
+      },
     );
   });
 
@@ -78,7 +83,12 @@ describe("アプリの問題の保存", () => {
     expect(mocks.callMobileApi).toHaveBeenCalledTimes(1);
     expect(mocks.callMobileApi).toHaveBeenCalledWith(
       MOBILE_PRACTICE_PROBLEMS_API_PATH,
-      { method: "POST", body: tenpaiArchiveRequestOf(question) },
+      {
+        method: "POST",
+        body: tenpaiArchiveRequestOf(question),
+        signal: expect.any(AbortSignal),
+        retryUnauthorized: false,
+      },
     );
   });
 
@@ -105,6 +115,7 @@ describe("アプリの問題の保存", () => {
   it.each([
     ["unauthorized（未ログイン）", () => "unauthorized"],
     ["userChanged", () => "userChanged"],
+    ["401 の応答", () => new Response(null, { status: 401 })],
     ["429 の応答", () => new Response(null, { status: 429 })],
   ])("%s は送り直さない", async (_, result) => {
     mocks.callMobileApi.mockImplementation(async () => result());
@@ -127,5 +138,9 @@ describe("アプリの問題の保存", () => {
 
     expect(agari.getState().currentQuestion).toBeDefined();
     expect(agari.getState().currentQuestion).not.toBe(first);
+    await vi.advanceTimersByTimeAsync(LONGER_THAN_RETRY_MS);
+    const signal = mocks.callMobileApi.mock.calls[0][1].signal;
+    expect(signal.aborted).toBe(true);
+    expect(mocks.callMobileApi).toHaveBeenCalledTimes(1);
   });
 });

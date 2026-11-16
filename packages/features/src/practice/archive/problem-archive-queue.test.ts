@@ -115,26 +115,53 @@ describe("問題蓄積の送信キュー", () => {
     expect(control.maxInFlight()).toBe(1);
   });
 
-  it("制限時間を過ぎたら中断を伝え、send が応じなくても送り直しを経て次へ進む", async () => {
-    const { send, calls, sentItems } = createControlledSend();
-    const queue = createProblemArchiveQueue({ send, timeoutMs: 5000 });
-
+  it("中断に応じない send が残る間は再送・新規送信を捨て、完了後は再開する", async () => {
+    const control = createControlledSend();
+    const queue = createProblemArchiveQueue({
+      send: control.send,
+      timeoutMs: 5000,
+    });
     queue.enqueue("a");
     queue.enqueue("b");
-    await flush();
-    await vi.advanceTimersByTimeAsync(4999);
-    expect(calls[0].signal.aborted).toBe(false);
-
-    await vi.advanceTimersByTimeAsync(1);
-    expect(calls[0].signal.aborted).toBe(true);
-
-    // 送り直しも応じないまま制限時間を過ぎる
-    await vi.advanceTimersByTimeAsync(200);
-    expect(sentItems()).toEqual(["a", "a"]);
     await vi.advanceTimersByTimeAsync(5000);
+    expect(control.calls[0].signal.aborted).toBe(true);
+    await vi.advanceTimersByTimeAsync(200);
+    queue.enqueue("c");
+    await flush();
+    expect(control.sentItems()).toEqual(["a"]);
+    control.calls[0].resolve("done");
+    await flush();
+    queue.enqueue("d");
+    await flush();
+    expect(control.sentItems()).toEqual(["a", "d"]);
+    expect(control.maxInFlight()).toBe(1);
+    control.calls[1].resolve("done");
+  });
 
-    expect(calls[1].signal.aborted).toBe(true);
-    expect(sentItems()).toEqual(["a", "a", "b"]);
+  it("中断で send が終了したときだけ再送し、通信の同時実行を増やさない", async () => {
+    let active = 0;
+    let maxActive = 0;
+    const send = vi.fn(
+      (_item: string, signal: AbortSignal) =>
+        new Promise<ArchiveSendOutcome>((resolve) => {
+          active++;
+          maxActive = Math.max(maxActive, active);
+          signal.addEventListener(
+            "abort",
+            () => {
+              active--;
+              resolve("retry");
+            },
+            { once: true },
+          );
+        }),
+    );
+    const queue = createProblemArchiveQueue({ send, timeoutMs: 100 });
+    queue.enqueue("a");
+    await vi.runAllTimersAsync();
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(maxActive).toBe(1);
+    expect(active).toBe(0);
   });
 
   it("制限時間の後に届いた結果は無視する", async () => {
