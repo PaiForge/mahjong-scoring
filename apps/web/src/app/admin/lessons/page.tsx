@@ -10,9 +10,9 @@ import { AdminTabs } from "@/app/admin/_components/admin-tabs";
 import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
 import { daysAgo, today } from "@/app/admin/_lib/dashboard";
+import { resolveJstDateRange } from "@/app/admin/_lib/date-range";
 
 import { LessonStatsTable } from "./_components/lesson-stats-table";
-import { resolveJstDateRange } from "./_lib/date-range";
 import {
   buildLessonStats,
   LESSON_STATS_SORTS,
