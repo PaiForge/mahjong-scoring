@@ -50,7 +50,10 @@
     "locked": "This is the {examTitle}. You need to earn {requiredRank} before taking it.",
     "dojoButton": "Check your next goal in the Dojo",
     "usernameButton": "Set a username",
-    "usernameNote": "You need to set a username to take this exam."
+    "usernameNote": "You need to set a username to take this exam.",
+    "sheetTitle": "To take the real exam",
+    "signUpReason": "Your result and any rank you earn are saved to your account. The mock exam needs no account.",
+    "signInButton": "Log in"
   },
   "pillLinkLabel": "See the pass criterion for {rank}",
   "stages": {

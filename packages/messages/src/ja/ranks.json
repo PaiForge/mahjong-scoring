@@ -50,7 +50,10 @@
     "locked": "この試験は{examTitle}です。受験には先に{requiredRank}の取得が必要です。",
     "dojoButton": "道場で次の目標を確認する",
     "usernameButton": "ユーザー名を設定する",
-    "usernameNote": "この試験の受験にはユーザー名の設定が必要です。"
+    "usernameNote": "この試験の受験にはユーザー名の設定が必要です。",
+    "sheetTitle": "本番の試験を受けるには",
+    "signUpReason": "合否と取得した段級位はアカウントに記録します。模試はアカウントが無くても受けられます。",
+    "signInButton": "ログイン"
   },
   "pillLinkLabel": "{rank}の合格基準を見る",
   "stages": {

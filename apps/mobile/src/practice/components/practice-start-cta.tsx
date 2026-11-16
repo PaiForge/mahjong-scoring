@@ -12,7 +12,6 @@ import {
 } from "@mahjong-scoring/features/routes";
 
 import { Button, buttonForeground } from "../../components/button";
-import { Divider } from "../../components/divider";
 import { InfinityIcon, PlayIcon } from "../../components/icons/icons";
 import { colors } from "../../lib/theme";
 
@@ -86,25 +85,6 @@ export function PracticeStartCta({
   );
 }
 
-/**
- * 開始導線の 2 つのブロックを分ける「または」の区切り（web の `PracticeStartCtaDivider`）
- *
- * 試験の説明画面（本番 / 模試）が使う。練習の説明画面は下端の帯に並べるので使わない。
- */
-export function StartCtaDivider({ label }: { readonly label: string }) {
-  return (
-    <View style={styles.divider}>
-      <View style={styles.line}>
-        <Divider />
-      </View>
-      <Text style={styles.or}>{label}</Text>
-      <View style={styles.line}>
-        <Divider />
-      </View>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   frame: {
     gap: 8,
@@ -122,18 +102,5 @@ const styles = StyleSheet.create({
   half: {
     flex: 1,
     flexBasis: 0,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  line: {
-    flex: 1,
-  },
-  or: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: colors.surface400,
   },
 });
