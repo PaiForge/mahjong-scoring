@@ -63,10 +63,11 @@ export default async function AdminLayout({
   const groups = [
     {
       label: t("navigation.overview"),
-      items: [
-        { href: "/admin", label: t("dashboard") },
-        { href: "/admin/lessons", label: t("lessonStats.navLabel") },
-      ],
+      items: [{ href: "/admin", label: t("dashboard") }],
+    },
+    {
+      label: t("navigation.stats"),
+      items: [{ href: "/admin/lessons", label: t("lessonStats.navLabel") }],
     },
     {
       label: t("navigation.management"),

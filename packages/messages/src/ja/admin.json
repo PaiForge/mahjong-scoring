@@ -452,6 +452,7 @@
   },
   "navigation": {
     "overview": "概要",
+    "stats": "統計",
     "management": "運営・管理",
     "logs": "ログ・履歴",
     "workspace": "運営ワークスペース",
