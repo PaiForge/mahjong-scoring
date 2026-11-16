@@ -94,6 +94,7 @@ const DYNAMIC_ROUTES: ReadonlySet<string> = new Set([
   "/admin/announcements/new",
   "/admin/audit-log",
   "/admin/benefit-grants",
+  "/admin/challenges",
   "/admin/lessons",
   "/admin/reports",
   "/admin/reports/[id]",
