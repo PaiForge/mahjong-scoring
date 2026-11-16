@@ -200,6 +200,13 @@ export const IP_RATE_LIMITS = {
   // beginPracticeQuestion / peekPracticeQuota と同じ理由で同じ値
   mobileBeginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },
   mobilePeekPracticeQuota: { maxRequests: 120, windowMs: 600_000 },
+  // 出題した問題の保存（web の POST /api/practice-problems とアプリの
+  // POST /api/mobile/v1/practice-problems が同じ枠を使う）。1 問出すごとに
+  // 1 回飛ぶので、出題の消費（beginPracticeQuestion）と同じ値。web の入口も
+  // 認証の後にアカウント単位の枠を掛ける — IP の枠だけだと、回線を変えれば
+  // 1 アカウントで枠を増やせる。枠はインメモリでインスタンスごとなので、
+  // 全体の厳密な上限ではない（このモジュールの頭の制限事項）
+  archivePracticeProblem: { maxRequests: 120, windowMs: 600_000 },
 } as const;
 
 /**

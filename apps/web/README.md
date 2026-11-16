@@ -72,6 +72,17 @@ pnpm dev
 
 iOS アプリの Apple ログインは、ローカルの Supabase で設定済み（`supabase/config.toml` の `[auth.external.apple]`）。アプリが送る Apple の認可コードを交換・保存し、退会で取り消すには `.env.local` に `APPLE_TEAM_ID` / `APPLE_KEY_ID` / `APPLE_PRIVATE_KEY` / `APPLE_TOKEN_ENCRYPTION_KEY` が要る（未設定でもログインはでき、トークンの保存だけが飛ばされる）。値と作り方は [apps/mobile/README.md](../mobile/README.md) の「Apple でログイン」を参照してください。
 
+### 実践練習の問題保存を止める
+
+`PRACTICE_PROBLEM_ARCHIVE_DISABLED=1` で、Web・アプリ両方の問題保存 API を停止します。
+停止中は認証・本文の検証・DB 保存を行わず 204 を返し、クライアントの再送を防ぎます。
+未設定または `0` なら保存します。出題や解答は停止しません。
+
+ローカルでは `apps/web/.env.local` に設定して開発サーバーを再起動するか、
+`PRACTICE_PROBLEM_ARCHIVE_DISABLED=1 pnpm dev` で起動します。
+本番ではサーバーの環境変数を変更し、その値で再デプロイしてください。
+Turbo の `build.env` と `dev.passThroughEnv` にも登録しています。
+
 ### 管理画面のセットアップ
 
 管理画面（`/admin`）を利用するにはセットアップが必要です。詳細は [docs/admin-panel-setup.md](docs/admin-panel-setup.md) を参照してください。

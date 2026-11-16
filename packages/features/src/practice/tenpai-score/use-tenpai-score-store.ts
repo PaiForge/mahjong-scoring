@@ -158,8 +158,19 @@ const INITIAL_ANSWERING: Pick<
  * 1 回だけ呼び、戻り値を共有すること。
  *
  * @param getRuleSettings 出題時に読む端末のルール設定
+ * @param onQuestionAdopted 出題の採用通知。`generateNewQuestion` が問題を作れた
+ *   ときだけ、ストアへ入れた直後に 1 回呼ぶ（問題の蓄積へ送る入口）。通知を
+ *   描画の Effect で拾わずここ 1 箇所に置くのは、Effect だと再マウントや盤面の
+ *   復元で同じ問題を重ねて拾うため。生成はこの操作だけが行い、復元・設定画面へ
+ *   戻る前のクリア（`setQuestion(undefined)`）・`applyPracticeQuery`・生成失敗は
+ *   ここを通らないので通知しない。盤面を離れた後に届いた回数確認の返事で生成
+ *   された問題（利用者が見ないこともある）も通知されるが、盤面の蓄積が目的なので
+ *   許容する。コールバックが投げても握りつぶし（`console.warn` だけ）、出題は止めない
  */
-export function createTenpaiScoreStore(getRuleSettings: () => RuleSettings) {
+export function createTenpaiScoreStore(
+  getRuleSettings: () => RuleSettings,
+  onQuestionAdopted?: (question: TenpaiScoreQuestion) => void,
+) {
   return create<TenpaiScoreStore>((set, get) => ({
     currentQuestion: undefined,
     generationFailed: false,
@@ -188,6 +199,13 @@ export function createTenpaiScoreStore(getRuleSettings: () => RuleSettings) {
         questionSeq: state.questionSeq + 1,
         ...INITIAL_ANSWERING,
       }));
+      if (question === undefined || onQuestionAdopted === undefined) return;
+      try {
+        onQuestionAdopted(question);
+      } catch (error) {
+        // 通知の失敗で練習を止めない（問題はすでにストアに入っている）
+        console.warn("onQuestionAdopted failed", error);
+      }
     },
 
     applyPracticeQuery: (query, options) => {

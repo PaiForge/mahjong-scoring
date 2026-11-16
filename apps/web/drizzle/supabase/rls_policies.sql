@@ -300,3 +300,13 @@ ALTER TABLE "reports" ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "reports_deny_all" ON "reports";
 CREATE POLICY "reports_deny_all" ON "reports"
   USING (false);
+
+-- =============================================================================
+-- practice_problems
+-- =============================================================================
+-- 出題した問題の保存。書くのはサーバー（直 DB 接続）だけで、クライアントには
+-- 読み書きさせない。ポリシーを置かずに RLS だけ有効にする（ポリシーが無ければ
+-- クライアントロールの行は 0 件）。権限は foreign_keys_and_grants.sql 冒頭の
+-- 一括 REVOKE が閉じるので GRANT も足さない。
+-- 作成マイグレーションでも有効化する。既定権限を剥がす前に表が公開される隙間を作らない。
+ALTER TABLE "practice_problems" ENABLE ROW LEVEL SECURITY;
