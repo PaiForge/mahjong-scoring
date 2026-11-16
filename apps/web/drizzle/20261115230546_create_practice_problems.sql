@@ -12,3 +12,6 @@ CREATE TABLE "practice_problems" (
 	CONSTRAINT "practice_problems_chk_source" CHECK ("practice_problems"."source" IN ('web', 'ios', 'android')),
 	CONSTRAINT "practice_problems_chk_content_hash" CHECK ("practice_problems"."content_hash" ~ '^[0-9a-f]{64}$')
 );
+
+--> statement-breakpoint
+ALTER TABLE "practice_problems" ENABLE ROW LEVEL SECURITY;

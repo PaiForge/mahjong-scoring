@@ -57,6 +57,37 @@ export async function setupPracticeProblemsTestDb() {
   await client.unsafe(ddl.replaceAll('"public".', `"${namespace}".`));
 }
 
+/**
+ * 一括 REVOKE より前を再現し、権限のあるクライアントロールでアクセスする
+ * 保存問題のRLS検証
+ *
+ * 専用スキーマ内だけに権限を付ける。ロールはトランザクション内で切り替えるので、
+ * プールの次の利用者に持ち越さない。Supabase ローカルの authenticated を使う。
+ */
+export async function queryPracticeProblemsAsClient(
+  operation: "read" | "insert",
+) {
+  practiceProblemsTestDb();
+  if (!client) throw new Error("Test DB not initialized");
+  return client.begin(async (connection) => {
+    await connection.unsafe(
+      `GRANT USAGE ON SCHEMA "${namespace}" TO authenticated`,
+    );
+    await connection.unsafe(
+      `GRANT SELECT, INSERT ON "${namespace}"."practice_problems" TO authenticated`,
+    );
+    await connection`SET LOCAL ROLE authenticated`;
+    if (operation === "read") {
+      return connection.unsafe(
+        `SELECT * FROM "${namespace}"."practice_problems"`,
+      );
+    }
+    return connection.unsafe(`INSERT INTO "${namespace}"."practice_problems"
+      (kind, schema_version, identity_version, content_hash, payload, source)
+      VALUES ('agari-score', 1, 1, repeat('0', 64), '{}', 'web')`);
+  });
+}
+
 /** 行を空にする（テストの間で使う） */
 export async function clearPracticeProblemsTestDb() {
   await client?.unsafe(`DELETE FROM "${namespace}"."practice_problems"`);

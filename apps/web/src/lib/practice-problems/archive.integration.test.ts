@@ -26,6 +26,7 @@ import {
   clearPracticeProblemsTestDb,
   closePracticeProblemsTestDb,
   practiceProblemsTestDb,
+  queryPracticeProblemsAsClient,
   setupPracticeProblemsTestDb,
 } from "./test-database";
 import { meldedAgariRequest, riichiTenpaiRequest } from "./test-requests";
@@ -42,6 +43,16 @@ describe.skipIf(!url)("問題の保存（PostgreSQL）", () => {
   beforeAll(setupPracticeProblemsTestDb);
   afterAll(closePracticeProblemsTestDb);
   beforeEach(clearPracticeProblemsTestDb);
+
+  it("作成直後から、GRANT が残っていてもクライアントの読み書きを RLS が拒否する", async () => {
+    await archivePracticeProblem(meldedAgariRequest(), "web");
+    expect(await rows()).toHaveLength(1);
+    expect(await queryPracticeProblemsAsClient("read")).toHaveLength(0);
+    await expect(queryPracticeProblemsAsClient("insert")).rejects.toMatchObject(
+      { code: "42501" },
+    );
+    expect(await rows()).toHaveLength(1);
+  });
 
   it("同じ問題を複数の接続から並行に保存しても、送り直しても 1 行に収まる", async () => {
     const results = await Promise.all(

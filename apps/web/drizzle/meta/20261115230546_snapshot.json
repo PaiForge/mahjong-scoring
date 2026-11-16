@@ -1739,7 +1739,7 @@
           "value": "\"practice_problems\".\"content_hash\" ~ '^[0-9a-f]{64}$'"
         }
       },
-      "isRLSEnabled": false
+      "isRLSEnabled": true
     },
     "public.practice_quota_usage": {
       "name": "practice_quota_usage",

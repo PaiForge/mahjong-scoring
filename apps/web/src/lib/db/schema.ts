@@ -1581,7 +1581,7 @@ export const appleRefreshTokens = pgTable("apple_refresh_tokens", {
  * 和了形・聴牌形の点数計算（`agari-score` / `tenpai-score`）で、ログイン済みの
  * 利用者に出した問題を、同じ盤面は 1 行にまとめて貯める。web とアプリの入口
  * （`lib/practice-problems/archive.ts`）が検証してから書く。クライアントからは
- * 読み書きさせない（RLS を有効にしてポリシーを置かない。権限は
+ * 読み書きさせない（作成マイグレーション内で RLS を有効にしてポリシーを置かない。権限は
  * `foreign_keys_and_grants.sql` 冒頭の一括 REVOKE が閉じる）。
  *
  * @design 盤面だけの構造化 JSON を持ち、正解・役・符・待ちは持たない
@@ -1649,7 +1649,7 @@ export const practiceProblems = pgTable(
       sql`${table.contentHash} ~ '^[0-9a-f]{64}$'`,
     ),
   ],
-);
+).enableRLS();
 
 export type PracticeProblem = typeof practiceProblems.$inferSelect;
 export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
