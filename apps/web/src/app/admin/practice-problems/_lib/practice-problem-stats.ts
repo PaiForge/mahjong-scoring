@@ -1,23 +1,39 @@
-import { ARCHIVE_KINDS } from "@mahjong-scoring/core";
+import { ARCHIVE_KINDS, type ArchiveKind } from "@mahjong-scoring/core";
 
-import { PRACTICE_PROBLEM_SOURCES } from "@/lib/practice-problems/source";
+import {
+  PRACTICE_PROBLEM_SOURCES,
+  type PracticeProblemSource,
+} from "@/lib/practice-problems/source";
 
 import type { PracticeProblemCountRow } from "./queries";
 
-/** 由来の表の 1 行 */
-export interface PracticeProblemStatRow {
-  readonly kind: string;
-  readonly source: string;
-  /** 種別・由来の両方が定数（`ARCHIVE_KINDS` / `PRACTICE_PROBLEM_SOURCES`）にあるか */
-  readonly known: boolean;
+/** 由来の表の 1 行の数 */
+interface PracticeProblemStatCounts {
   readonly total: number;
   readonly inPeriod: number;
   readonly lastSavedAt: Date | null;
 }
 
+/**
+ * 由来の表の 1 行
+ *
+ * `known` は種別・由来の両方が定数（`ARCHIVE_KINDS` / `PRACTICE_PROBLEM_SOURCES`）に
+ * あるか。`known: true` の行だけが定数の型を持ち、表示名の辞書キーを引ける
+ * （定数に無い値でキーを引くと next-intl が欠落キーで落ちる）。
+ */
+export type PracticeProblemStatRow = PracticeProblemStatCounts &
+  (
+    | {
+        readonly known: true;
+        readonly kind: ArchiveKind;
+        readonly source: PracticeProblemSource;
+      }
+    | { readonly known: false; readonly kind: string; readonly source: string }
+  );
+
 /** 種別ごとの合計（KPI 用） */
 export interface PracticeProblemKindTotal {
-  readonly kind: string;
+  readonly kind: ArchiveKind;
   readonly total: number;
   readonly inPeriod: number;
 }
@@ -76,7 +92,7 @@ export function buildPracticeProblemStats(
       return {
         kind,
         source,
-        known: true,
+        known: true as const,
         total: count?.total ?? 0,
         inPeriod: count?.inPeriod ?? 0,
         lastSavedAt: count?.lastSavedAt ?? null,
@@ -91,7 +107,7 @@ export function buildPracticeProblemStats(
     .map((row) => ({
       kind: row.kind,
       source: row.source,
-      known: false,
+      known: false as const,
       total: row.total,
       inPeriod: row.inPeriod,
       lastSavedAt: row.lastSavedAt,

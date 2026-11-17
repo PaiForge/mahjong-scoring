@@ -22,7 +22,12 @@ vi.mock("@/lib/db", async () => {
   };
 });
 
-import { practiceProblems, type NewPracticeProblem } from "@/lib/db/schema";
+import type {
+  AgariProblemPayload,
+  TenpaiProblemPayload,
+} from "@mahjong-scoring/core";
+
+import { practiceProblems } from "@/lib/db/schema";
 import {
   clearPracticeProblemsTestDb,
   closePracticeProblemsTestDb,
@@ -48,8 +53,8 @@ const RANGE = {
 
 /** 和了形の盤面（既定は子・ロン・リーチなし・門前） */
 function agariPayload(
-  overrides: Record<string, unknown> = {},
-): Record<string, unknown> {
+  overrides: Partial<AgariProblemPayload> = {},
+): AgariProblemPayload {
   return {
     hand: { closed: [0, 1, 2], exposed: [] },
     agariHai: 2,
@@ -64,8 +69,8 @@ function agariPayload(
 
 /** 聴牌形の盤面（既定は子・リーチなし・門前。isTsumo のキーを持たない） */
 function tenpaiPayload(
-  overrides: Record<string, unknown> = {},
-): Record<string, unknown> {
+  overrides: Partial<TenpaiProblemPayload> = {},
+): TenpaiProblemPayload {
   return {
     hand: { closed: [0, 1, 2], exposed: [] },
     jikaze: 28,
@@ -82,7 +87,7 @@ let sequence = 0;
 async function insertRow(row: {
   readonly kind: "agari-score" | "tenpai-score";
   readonly source?: string;
-  readonly payload: Record<string, unknown>;
+  readonly payload: AgariProblemPayload | TenpaiProblemPayload;
   readonly createdAt: Date;
 }) {
   sequence += 1;
@@ -93,7 +98,7 @@ async function insertRow(row: {
       schemaVersion: 1,
       identityVersion: 1,
       contentHash: createHash("sha256").update(String(sequence)).digest("hex"),
-      payload: row.payload as NewPracticeProblem["payload"],
+      payload: row.payload,
       source: row.source ?? "web",
       createdAt: row.createdAt,
     });
