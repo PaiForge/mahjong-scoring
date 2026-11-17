@@ -1,0 +1,26 @@
+{
+  "title": "Daily problem",
+  "meta": {
+    "title": "Daily problem",
+    "description": "One riichi mahjong scoring question a day, the same for everyone. Read the winning hand and the situation, then answer the han, fu and points."
+  },
+  "card": {
+    "hint": "One question a day. It does not count toward your daily limit.",
+    "start": "Solve",
+    "answeredCorrect": "Answered · Correct",
+    "answeredIncorrect": "Answered · Incorrect",
+    "review": "See it again"
+  },
+  "board": {
+    "answeredNotice": "You have already answered today's problem. Solving it again does not change your record.",
+    "unavailable": "Today's problem is not ready yet.",
+    "unsupported": "This problem cannot be shown with your current rule settings.",
+    "toPractice": "Back to the practice menus"
+  },
+  "more": {
+    "title": "Keep solving",
+    "hint": "Keep practicing with Winning Hand Scoring Practice.",
+    "link": "Go to Winning Hand Scoring Practice",
+    "home": "Back to home"
+  }
+}

@@ -231,6 +231,7 @@ const EN_CONTACT_FLOW_PATHS = ["/contact/confirm", "/contact/success"] as const;
  *   メール確認待ち・パスワードの再設定・BAN 通知）・ダッシュボード・マイページ・設定
  * - お問い合わせの確認・完了（{@link EN_CONTACT_FLOW_PATHS}）
  * - お知らせの一覧 `/announcements` と詳細 `/announcements/[slug]`（テンプレート）
+ * - 本日の問題 `/daily-problem`（日付で中身が変わる動的ページ。日本語でも noindex）
  *
  * @design 索引させるのは「日本語で索引対象かつ静的」なページだけ
  * 英語の索引対象は、クローラーが見る初期 HTML を静的生成で返すのが規約。道場の
@@ -340,6 +341,7 @@ const TRANSLATED_PUBLICATIONS: Readonly<
         (path) => [path, "published-noindex"] as const,
       ),
       ["/announcements", "published-noindex"],
+      ["/daily-problem", "published-noindex"],
     ]),
     templates: [
       {

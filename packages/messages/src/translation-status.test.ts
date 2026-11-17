@@ -173,6 +173,7 @@ describe("英語で公開するルートの依存", () => {
       "/getting-started",
       "/try/agari-score",
       "/try/mentsu-fu",
+      "/daily-problem",
       "/dojo",
       "/dojo/ranks/[slug]",
       ...MEMBER_ROUTES,

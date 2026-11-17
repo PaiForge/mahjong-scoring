@@ -46,6 +46,7 @@ import whyScoringIsComplex from "./ja/why-scoring-is-complex.json";
 import learnCurriculum from "./ja/learn-curriculum.json";
 import footer from "./ja/footer.json";
 import appDownload from "./ja/app-download.json";
+import dailyProblem from "./ja/daily-problem.json";
 import terms from "./ja/terms.json";
 import privacy from "./ja/privacy.json";
 import legal from "./ja/legal.json";
@@ -204,6 +205,7 @@ export const messages = {
   mobileApp,
   yakuNames,
   appDownload,
+  dailyProblem,
 };
 
 /** 辞書の型（名前空間 → 文言の木） */

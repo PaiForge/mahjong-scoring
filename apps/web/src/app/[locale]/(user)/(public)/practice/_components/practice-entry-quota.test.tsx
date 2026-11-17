@@ -77,3 +77,25 @@ it("取得失敗を残量ゼロとして扱わない", async () => {
   );
   expect(screen.queryByText("本日の無料分は終了しました")).toBeNull();
 });
+
+it("planLink=whenExhausted では残りがあるあいだ料金のリンクを出さない", async () => {
+  vi.mocked(peekPracticeQuota).mockResolvedValue(result);
+  render(<PracticeEntryQuota menu="agari-score" planLink="whenExhausted" />);
+  await screen.findByText("今日の無料分：残り 3 / 5 問");
+  expect(screen.queryByRole("link", { name: "Proなら回数無制限" })).toBeNull();
+});
+
+it("planLink=whenExhausted でも使い切ったら料金のリンクを出す", async () => {
+  vi.mocked(peekPracticeQuota).mockResolvedValue({
+    ...result,
+    remaining: 0,
+    allowed: false,
+  });
+  render(<PracticeEntryQuota menu="agari-score" planLink="whenExhausted" />);
+  await screen.findByText("本日の無料分は終了しました");
+  expect(
+    screen
+      .getByRole("link", { name: "Proなら回数無制限" })
+      .getAttribute("href"),
+  ).toBe("/plan");
+});

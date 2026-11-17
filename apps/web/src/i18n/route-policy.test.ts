@@ -210,6 +210,7 @@ describe("英語は許可リストで公開する", () => {
       "/contact/confirm",
       "/contact/success",
       "/announcements",
+      "/daily-problem",
       ...RANK_SLUGS.map(rankHref),
     ];
     expect([...EN_PUBLISHED_PATHS].sort()).toEqual(

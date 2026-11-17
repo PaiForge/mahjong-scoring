@@ -137,6 +137,8 @@ const JA_NOINDEX_PATHS: ReadonlySet<string> = new Set([
   "/preferences/yaku-order",
   // BAN 通知
   "/banned",
+  // 本日の問題（日付で中身が変わる。検索の受け皿は練習の説明ページが担う）
+  "/daily-problem",
 ]);
 
 /**
