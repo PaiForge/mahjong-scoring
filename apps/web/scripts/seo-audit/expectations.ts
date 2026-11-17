@@ -239,6 +239,7 @@ export const EN_NOINDEX_PATHS: readonly string[] = [
   "/contact/confirm",
   "/contact/success",
   "/announcements",
+  "/daily-problem",
 ];
 
 /**
