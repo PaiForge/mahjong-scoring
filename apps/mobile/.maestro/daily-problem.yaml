@@ -1,0 +1,63 @@
+# 記録が残る人（bob）のホームの「本日の問題」のカードから出題画面を開き、
+# 「わからない」で答え合わせへ進んで「もっと解く」の節を見て、× でホームへ戻る。
+# 手元の web（:3000）とその DB に今日の問題があること（dev seed）。bob が今日もう
+# 解いていればカードは「もう一度見る」になり、出題画面に解答済みの案内が出る
+# （どちらでも同じ流れで進む）。最初にゲストのホームにカードが無いことも見る
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+# ゲストにはカードを出さない（「次にやること」の直下に置くので、出ていれば最初の画面に入る）
+- assertNotVisible:
+    id: "home-daily-problem"
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: bob@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "home-daily-problem"
+    direction: DOWN
+    timeout: 15000
+- assertVisible: "本日の問題"
+- takeScreenshot: daily-problem-home-card
+- tapOn:
+    id: "home-daily-problem-(start|review)"
+- extendedWaitUntil:
+    visible:
+      id: "screen-close"
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: "daily-problem-reveal"
+    direction: DOWN
+- takeScreenshot: daily-problem-board
+- tapOn:
+    id: "daily-problem-reveal"
+- scrollUntilVisible:
+    element:
+      id: "daily-problem-more"
+    direction: DOWN
+- assertVisible: "もっと解く"
+- assertVisible: "和了形の点数計算へ"
+- takeScreenshot: daily-problem-answered
+- tapOn:
+    id: "screen-close"
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 10000
+# 解答を送った後に戻ると、ホームのカードは解答済み（「もう一度見る」）になっている
+- scrollUntilVisible:
+    element:
+      id: "home-daily-problem-review"
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot: daily-problem-home-answered

@@ -35,6 +35,10 @@ describe("backFallbackHref", () => {
     expect(backFallbackHref("/sign-up")).toBe("/");
   });
 
+  it("本日の問題は入口のホームへ", () => {
+    expect(backFallbackHref("/daily-problem")).toBe("/");
+  });
+
   it("マイページの下はマイページへ、マイページは入口のホームへ", () => {
     expect(backFallbackHref("/mypage/challenges")).toBe("/mypage");
     expect(backFallbackHref("/mypage")).toBe("/");

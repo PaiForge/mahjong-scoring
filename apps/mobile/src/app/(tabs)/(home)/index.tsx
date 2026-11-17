@@ -11,6 +11,7 @@ import { SymbolIcon } from "../../../components/icons/symbol-icon";
 import { Screen } from "../../../components/screen";
 import { AgariScorePracticeSection } from "../../../home/agari-score-practice-section";
 import { ContinueLearningSection } from "../../../home/continue-learning-section";
+import { DailyProblemSection } from "../../../home/daily-problem-section";
 import { HomeAnnouncements } from "../../../home/home-announcements";
 import { NextStepCard } from "../../../home/next-step-card";
 import { RecordCtaCard } from "../../../home/record-cta-card";
@@ -35,6 +36,14 @@ const ENTRY_SIZE = 28;
  * 「次にやること」が無いので、代わりに「レッスンの続き」（未完了のレッスンが
  * 残っていれば）と「おすすめの練習」（和了形の点数計算）を出す。出し分けは
  * web と同じ features の `selectDashboardGuidance` が決める。
+ *
+ * 「次にやること」の直下に「本日の問題」（全員に同じ和了形の点数計算 1 問。
+ * `DailyProblemSection`）を置く。主役は「次にやること」のままで、日課は別の軸
+ * として直下に並べる（web のダッシュボードと同じ並び）。本日の問題を読めな
+ * かったとき・今日は問題が無いときはカードだけを出さず、ホームの他の節はその
+ * まま出す。カードはログイン中だけ — ホームはゲストにも開く画面だが、ゲストに
+ * 出すには端末側に「解答済み」を残す仕組みが要り、初版の範囲を超える（ゲストには
+ * API も呼ばない）。
  *
  * web と違うもの:
  * - 進み具合はログイン中ならサーバーの記録と端末の未送信・ゲストの記録、
@@ -61,6 +70,7 @@ const ENTRY_SIZE = 28;
  * 3. ゲストは記録の案内から登録・ログインへ、ユーザー名を決めていない人は
  *    ユーザー名の設定へ進む
  * 4. お知らせの行で詳細、「すべて見る」で一覧へ
+ * 5. ログイン中は「本日の問題」の「解く」/「もう一度見る」で出題画面へ
  */
 export default function HomeScreen() {
   const t = useTranslations("nav");
@@ -88,6 +98,7 @@ export default function HomeScreen() {
       }
     >
       <NextStepCard journey={journey} />
+      <DailyProblemSection />
       {nextChapter !== undefined && (
         <ContinueLearningSection
           completedSlugs={input.completedLessonSlugs}
