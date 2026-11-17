@@ -82,6 +82,8 @@ iOS アプリの Apple ログインは、ローカルの Supabase で設定済�
 `PRACTICE_PROBLEM_ARCHIVE_DISABLED=1 pnpm dev` で起動します。
 本番ではサーバーの環境変数を変更し、その値で再デプロイしてください。
 Turbo の `build.env` と `dev.passThroughEnv` にも登録しています。
+保存の状況（種別・由来ごとの数、日ごとの新規保存数）と停止中かどうかは、
+管理画面の「問題保存状況」（`/admin/practice-problems`）で確かめられます。
 
 ### 管理画面のセットアップ
 
