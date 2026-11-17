@@ -158,7 +158,11 @@ export function DailyProblemScreen() {
  *
  * 答え合わせのあとは「もっと解く」の節に、和了形の点数計算の設定画面への入口
  * （モーダルを閉じてから積む `useOpenFromModal`）と今日の残り回数
- * （`PracticeEntryQuota`）、ホームへ戻る操作を置く。
+ * （`PracticeEntryQuota`）、ホームへ戻る操作を置く。ホームから来た導線なので
+ * 料金への誘いは控えめにしたい（web は料金のリンクを使い切ったときだけ出す）が、
+ * アプリの `PracticeEntryQuota` はもともと料金への導線を持たない（審査ガイドライン
+ * 3.1.1。Pro の案内はペイウォールとプラン画面）ので、そのまま置けば足りる。
+ * Pro・付与の利用者には既存の「回数無制限」の帯がそのまま出る。
  */
 function DailyProblemBoard({
   userId,
