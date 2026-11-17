@@ -192,3 +192,16 @@ export const announcements = {
   _name: "announcements",
   id: "id",
 } as const;
+
+/** practice_problems のカラム */
+export const practiceProblems = {
+  _name: "practice_problems",
+  id: "id",
+  kind: "kind",
+  schemaVersion: "schema_version",
+  identityVersion: "identity_version",
+  contentHash: "content_hash",
+  payload: "payload",
+  source: "source",
+  createdAt: "created_at",
+} as const;
