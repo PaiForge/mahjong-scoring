@@ -80,6 +80,10 @@ export default async function AdminLayout({
       items: [
         { href: "/admin/lessons", label: t("lessonStats.navLabel") },
         { href: "/admin/challenges", label: t("challengeStats.navLabel") },
+        {
+          href: "/admin/practice-problems",
+          label: t("practiceProblemStats.navLabel"),
+        },
       ],
     },
     {

@@ -36,7 +36,7 @@ function formatDate(dateStr: string): string {
 }
 
 /**
- * 新規ユーザー数の日次推移を描く折れ線チャート。
+ * 日ごとの件数（新規ユーザー数・保存された問題の数など）の推移を 1 系列で描く折れ線チャート。複数の管理ページで使う。
  * 日次推移チャート
  */
 export function DailyTrendChart({
