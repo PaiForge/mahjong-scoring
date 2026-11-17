@@ -245,6 +245,14 @@ export const AGARI_SCORE_PRACTICE_HREF = "/practice/agari-score";
 export const TENPAI_SCORE_PRACTICE_HREF = "/practice/tenpai-score";
 
 /**
+ * 本日の問題（`/daily-problem`）のパス
+ *
+ * 全員に同じ和了形の点数計算 1 問を 1 日（JST）1 問出す画面。チャレンジでも
+ * トレーニングでもレッスンでもないので、練習（`/practice`）の下に置かない。
+ */
+export const DAILY_PROBLEM_HREF = "/daily-problem";
+
+/**
  * 購入状況（プランの状態と購入履歴）のパス
  *
  * web は購入状況のページ、アプリはプラン画面（状態・購入・復元・購入履歴）。
