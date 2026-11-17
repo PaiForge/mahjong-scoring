@@ -24,6 +24,8 @@ let client: ReturnType<typeof postgres> | undefined;
 
 /** 流す作成マイグレーション（依存の順） */
 const MIGRATIONS = [
+  "20261008085348_create_account_deletions.sql",
+  "20261008222040_add_apple_refresh_tokens.sql",
   "20261115230546_create_practice_problems.sql",
   "20261117104232_create_daily_problems.sql",
 ] as const;
@@ -60,6 +62,7 @@ export async function setupDailyProblemTestDb() {
 
 /** 行を空にする（テストの間で使う。参照の向きの順に消す） */
 export async function clearDailyProblemTestDb() {
+  await client?.unsafe(`DELETE FROM "${namespace}"."account_deletions"`);
   await client?.unsafe(`DELETE FROM "${namespace}"."daily_problem_answers"`);
   await client?.unsafe(`DELETE FROM "${namespace}"."daily_problems"`);
   await client?.unsafe(`DELETE FROM "${namespace}"."practice_problems"`);

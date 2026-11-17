@@ -132,6 +132,14 @@ describe("handleReadDailyProblem", () => {
 });
 
 describe("handleRecordDailyProblemAnswer", () => {
+  it("returns deleted after authorization", async () => {
+    mockRecordAnswer.mockResolvedValue({ kind: "deleted" });
+    const response = await handleRecordDailyProblemAnswer(
+      answerRequest({ day: TODAY, isCorrect: true }),
+    );
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({ error: "deleted" });
+  });
   it("トークンの本人の正誤を記録し、保存された解答を返す", async () => {
     const response = await handleRecordDailyProblemAnswer(
       answerRequest({ day: TODAY, isCorrect: true }),

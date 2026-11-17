@@ -25,7 +25,7 @@ import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
  * 答え合わせの表示は採点（クライアント）だけで完結するため。i18n のキーは持たない。
  */
 export type RecordDailyProblemAnswerErrorCode =
-  RecorderErrorCode | "invalidInput" | "recordFailed";
+  RecorderErrorCode | "invalidInput" | "recordFailed" | "staleDay";
 
 /**
  * 本日の問題の解答を記録する Server Action の戻り値
@@ -45,6 +45,7 @@ export type RecordDailyProblemAnswerResult = ActionResult<
 /** 入力（クライアント由来なので形を確かめる） */
 const inputSchema = z.object({
   /** 解いた問題の日付（JST の `YYYY-MM-DD`。ページがサーバーから渡した値） */
+  userId: z.string().optional(),
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   /** 閲覧者のルール設定で採点した正誤（「わからない」は false） */
   isCorrect: z.boolean(),
@@ -104,6 +105,12 @@ export async function recordDailyProblemAnswerAction(
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
   if ("error" in recorder) return { error: recorder.error };
 
+  if (
+    parsed.data.userId !== undefined &&
+    parsed.data.userId !== recorder.user.id
+  )
+    return { success: true, skipped: "anonymous" };
+
   try {
     const result = await recordDailyProblemAnswer(
       recorder.user.id,
@@ -111,6 +118,9 @@ export async function recordDailyProblemAnswerAction(
       isCorrect,
       new Date(),
     );
+    if (result.kind === "deleted")
+      return { success: true, skipped: "anonymous" };
+    if (result.kind === "staleDay") return { error: "staleDay" };
     if (result.kind === "recorded") revalidateAnswerReaders();
   } catch (error: unknown) {
     logExternalError(

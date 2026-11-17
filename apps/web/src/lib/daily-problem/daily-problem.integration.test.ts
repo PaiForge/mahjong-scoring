@@ -26,7 +26,11 @@ vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 
 import { logExternalError } from "@/lib/log-error";
 
-import { dailyProblemAnswers, dailyProblems } from "../db/schema";
+import {
+  accountDeletions,
+  dailyProblemAnswers,
+  dailyProblems,
+} from "../db/schema";
 
 import { readDailyProblemAnswer, recordDailyProblemAnswer } from "./answers";
 import {
@@ -43,6 +47,7 @@ import {
   setupDailyProblemTestDb,
 } from "./test-database";
 import { getDailyProblem } from "./today";
+import * as accountLocks from "../users/account-write-lock";
 
 const url = process.env.BILLING_TEST_DATABASE_URL;
 
@@ -201,6 +206,103 @@ describe.skipIf(!url)("本日の問題（PostgreSQL）", () => {
   });
 
   describe("recordDailyProblemAnswer", () => {
+    it("does not resurrect answers after account deletion", async () => {
+      await fixToday();
+      const userId = randomUUID();
+      await dailyProblemTestDb().insert(accountDeletions).values({ userId });
+      expect(await recordDailyProblemAnswer(userId, TODAY, true, NOW)).toEqual({
+        kind: "deleted",
+      });
+      expect(await readDailyProblemAnswer(userId, TODAY)).toBeUndefined();
+    });
+    it("serializes a pending answer behind deletion acceptance", async () => {
+      await fixToday();
+      const userId = randomUUID();
+      const entered = Promise.withResolvers<void>();
+      const original = accountLocks.lockAccountForWrite;
+      const spy = vi
+        .spyOn(accountLocks, "lockAccountForWrite")
+        .mockImplementation(async (tx, id) => {
+          entered.resolve();
+          return original(tx, id);
+        });
+      let answer: ReturnType<typeof recordDailyProblemAnswer> | undefined;
+      try {
+        await dailyProblemTestDb().transaction(async (tx) => {
+          await accountLocks.lockAccountForDeletion(tx, userId);
+          answer = recordDailyProblemAnswer(userId, TODAY, true, NOW);
+          await entered.promise;
+          await tx.insert(accountDeletions).values({ userId });
+        });
+        expect(await answer).toEqual({ kind: "deleted" });
+        expect(await readDailyProblemAnswer(userId, TODAY)).toBeUndefined();
+      } finally {
+        spy.mockRestore();
+      }
+    });
+    it("finishes an accepted answer before deletion removes it", async () => {
+      await fixToday();
+      const userId = randomUUID();
+      const locked = Promise.withResolvers<void>();
+      const release = Promise.withResolvers<void>();
+      const original = accountLocks.lockAccountForWrite;
+      const spy = vi
+        .spyOn(accountLocks, "lockAccountForWrite")
+        .mockImplementation(async (tx, id) => {
+          const allowed = await original(tx, id);
+          locked.resolve();
+          await release.promise;
+          return allowed;
+        });
+      const answer = recordDailyProblemAnswer(userId, TODAY, true, NOW);
+      try {
+        await locked.promise;
+        const deletion = dailyProblemTestDb()
+          .transaction(async (tx) => {
+            await accountLocks.lockAccountForDeletion(tx, userId);
+            await tx.insert(accountDeletions).values({ userId });
+          })
+          .then(async () => {
+            await dailyProblemTestDb()
+              .delete(dailyProblemAnswers)
+              .where(eq(dailyProblemAnswers.userId, userId));
+          });
+        release.resolve();
+        expect(await answer).toEqual({
+          kind: "recorded",
+          answer: { isCorrect: true },
+        });
+        await deletion;
+        expect(await readDailyProblemAnswer(userId, TODAY)).toBeUndefined();
+      } finally {
+        release.resolve();
+        spy.mockRestore();
+      }
+    });
+    it.each([
+      ["2026-11-17T14:59:59.999Z", "recorded"],
+      ["2026-11-17T15:00:00.000Z", "staleDay"],
+    ])("cuts off answers at JST midnight: %s", async (instant, kind) => {
+      await fixToday();
+      expect(
+        await recordDailyProblemAnswer(
+          randomUUID(),
+          TODAY,
+          true,
+          new Date(instant),
+        ),
+      ).toMatchObject({ kind });
+    });
+    it("does not write while disabled", async () => {
+      await fixToday();
+      vi.stubEnv("DAILY_PROBLEM_DISABLED", "1");
+      const userId = randomUUID();
+      expect(await recordDailyProblemAnswer(userId, TODAY, true, NOW)).toEqual({
+        kind: "staleDay",
+      });
+      expect(await readDailyProblemAnswer(userId, TODAY)).toBeUndefined();
+    });
+
     /** 今日の問題を固定しておく */
     async function fixToday() {
       const problemId = await insertPracticeProblem({

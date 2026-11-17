@@ -42,6 +42,13 @@ beforeEach(() => {
 });
 
 describe("recordDailyProblemAnswerAction", () => {
+  it("skips a deleted account after authorization", async () => {
+    mockRecordDailyProblemAnswer.mockResolvedValue({ kind: "deleted" });
+    expect(
+      await recordDailyProblemAnswerAction({ day: DAY, isCorrect: true }),
+    ).toEqual({ success: true, skipped: "anonymous" });
+    expect(mockRevalidatePath).not.toHaveBeenCalled();
+  });
   it("ログイン済みの解答を本人の分として記録し、ホームのキャッシュを捨てる", async () => {
     const result = await recordDailyProblemAnswerAction({
       day: DAY,
@@ -90,7 +97,7 @@ describe("recordDailyProblemAnswerAction", () => {
       isCorrect: true,
     });
 
-    expect(result).toEqual({ success: true });
+    expect(result).toEqual({ error: "staleDay" });
     expect(mockRevalidatePath).not.toHaveBeenCalled();
   });
 

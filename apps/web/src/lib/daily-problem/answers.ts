@@ -19,7 +19,14 @@ import type { DailyProblemAnswerState } from "@mahjong-scoring/features/daily-pr
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 import { and, eq } from "drizzle-orm";
 
-import { dailyProblemAnswers, dailyProblems, db } from "../db";
+import {
+  dailyProblemAnswers,
+  dailyProblems,
+  db,
+  type TransactionClient,
+} from "../db";
+import { lockAccountForWrite } from "../users/account-write-lock";
+import { isDailyProblemDisabled } from "./today";
 
 /**
  * {@link recordDailyProblemAnswer} の結果
@@ -28,7 +35,9 @@ import { dailyProblemAnswers, dailyProblems, db } from "../db";
  * - `staleDay`: 今日（JST）の問題への解答ではない（日付違い・その日の問題が無い）。記録しない
  */
 export type RecordDailyProblemAnswerResult =
-  { kind: "recorded"; answer: DailyProblemAnswerState } | { kind: "staleDay" };
+  | { kind: "recorded"; answer: DailyProblemAnswerState }
+  | { kind: "staleDay" }
+  | { kind: "deleted" };
 
 /**
  * 利用者のその日の解答を読む
@@ -42,8 +51,9 @@ export type RecordDailyProblemAnswerResult =
 export async function readDailyProblemAnswer(
   userId: string,
   day: string,
+  client: Pick<TransactionClient, "select"> = db,
 ): Promise<DailyProblemAnswerState | undefined> {
-  const [row] = await db
+  const [row] = await client
     .select({ isCorrect: dailyProblemAnswers.isCorrect })
     .from(dailyProblemAnswers)
     .where(
@@ -84,19 +94,23 @@ export async function recordDailyProblemAnswer(
   isCorrect: boolean,
   now: Date,
 ): Promise<RecordDailyProblemAnswerResult> {
-  if (day !== jstDayKey(now)) return { kind: "staleDay" };
-  const [problem] = await db
-    .select({ day: dailyProblems.day })
-    .from(dailyProblems)
-    .where(eq(dailyProblems.day, day))
-    .limit(1);
-  if (!problem) return { kind: "staleDay" };
-  await db
-    .insert(dailyProblemAnswers)
-    .values({ userId, day, isCorrect })
-    .onConflictDoNothing();
-  const answer = await readDailyProblemAnswer(userId, day);
-  // 直前に入れたか、先に入っていた行がある。消す経路は退会だけ
-  if (!answer) throw new Error("Daily problem answer vanished after insert");
-  return { kind: "recorded", answer };
+  if (isDailyProblemDisabled() || day !== jstDayKey(now))
+    return { kind: "staleDay" };
+  return db.transaction(async (tx): Promise<RecordDailyProblemAnswerResult> => {
+    if (!(await lockAccountForWrite(tx, userId))) return { kind: "deleted" };
+    const [problem] = await tx
+      .select({ day: dailyProblems.day })
+      .from(dailyProblems)
+      .where(eq(dailyProblems.day, day))
+      .limit(1);
+    if (!problem) return { kind: "staleDay" };
+    await tx
+      .insert(dailyProblemAnswers)
+      .values({ userId, day, isCorrect })
+      .onConflictDoNothing();
+    const answer = await readDailyProblemAnswer(userId, day, tx);
+    // 直前に入れたか、先に入っていた行がある。消す経路は退会だけ
+    if (!answer) throw new Error("Daily problem answer vanished after insert");
+    return { kind: "recorded", answer };
+  });
 }

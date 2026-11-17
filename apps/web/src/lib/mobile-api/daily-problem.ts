@@ -40,7 +40,7 @@ import {
 
 import { authorizeMobileRequest } from "./auth";
 import { parseMobileBody } from "./request";
-import { mobileJson, mobileServerError } from "./response";
+import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
 const BODY_MAX_BYTES = 1024;
 
@@ -135,6 +135,7 @@ export async function handleRecordDailyProblemAnswer(
       isCorrect,
       new Date(),
     );
+    if (result.kind === "deleted") return mobileDeleted();
     if (result.kind === "staleDay") return mobileStaleDay();
     return mobileJson<MobileDailyProblemAnswerResponse>({
       answer: result.answer,
