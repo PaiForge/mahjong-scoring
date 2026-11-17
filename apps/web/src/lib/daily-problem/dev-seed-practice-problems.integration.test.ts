@@ -1,11 +1,10 @@
 // @vitest-environment node
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-vi.mock("../../src/lib/db", async () => {
-  const { dailyProblemTestDb } =
-    await import("../../src/lib/daily-problem/test-database");
+vi.mock("../db", async () => {
+  const { dailyProblemTestDb } = await import("./test-database");
   return {
-    ...(await import("../../src/lib/db/schema")),
+    ...(await import("../db/schema")),
     db: process.env.BILLING_TEST_DATABASE_URL
       ? dailyProblemTestDb()
       : undefined,
@@ -16,11 +15,14 @@ import {
   closeDailyProblemTestDb,
   dailyProblemTestDb,
   setupDailyProblemTestDb,
-} from "../../src/lib/daily-problem/test-database";
-import { getDailyProblem } from "../../src/lib/daily-problem/today";
-import { practiceProblems } from "../../src/lib/db/schema";
+} from "./test-database";
+import { getDailyProblem } from "./today";
+import { practiceProblems } from "../db/schema";
 
-import { SEED_DAILY_PROBLEMS, seedPracticeProblems } from "./practice-problems";
+import {
+  SEED_DAILY_PROBLEMS,
+  seedPracticeProblems,
+} from "../../../scripts/dev-seed/practice-problems";
 
 const url = process.env.BILLING_TEST_DATABASE_URL;
 

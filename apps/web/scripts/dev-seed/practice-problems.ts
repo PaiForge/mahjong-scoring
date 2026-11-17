@@ -8,7 +8,7 @@
  * 手）を固定で入れ、ログインするだけで確かめられるようにする。
  *
  * - 盤面は乱数に依らない固定値。どれも保存の検証と本日の問題の適格判定を通る
- *   （`practice-problems.test.ts` が固定する）
+ *   （`src/lib/daily-problem/dev-seed-practice-problems.test.ts` が固定する）
  * - `created_at` は前日以前（当日に保存した行は候補にならないため）
  * - `source` は `web`。`content_hash` は本番の保存（`src/lib/practice-problems/archive.ts`）と
  *   同じ計算（`archiveIdentityInput` の SHA-256）の結果で、練習で同じ盤面を保存しても

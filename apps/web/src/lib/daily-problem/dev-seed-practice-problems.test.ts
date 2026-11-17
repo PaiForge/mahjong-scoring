@@ -7,9 +7,9 @@ import {
 } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { isDailyProblemEligible } from "../../src/lib/daily-problem/eligibility";
+import { isDailyProblemEligible } from "./eligibility";
 
-import { SEED_DAILY_PROBLEMS } from "./practice-problems";
+import { SEED_DAILY_PROBLEMS } from "../../../scripts/dev-seed/practice-problems";
 
 describe("開発用シードの保存問題", () => {
   it.each(SEED_DAILY_PROBLEMS.map((seed, index) => [index, seed] as const))(
