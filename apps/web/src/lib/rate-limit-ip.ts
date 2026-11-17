@@ -200,6 +200,12 @@ export const IP_RATE_LIMITS = {
   // beginPracticeQuestion / peekPracticeQuota と同じ理由で同じ値
   mobileBeginPracticeQuestion: { maxRequests: 120, windowMs: 600_000 },
   mobilePeekPracticeQuota: { maxRequests: 120, windowMs: 600_000 },
+  // アプリの本日の問題の読み取りと解答の記録。ホームを開くたび・盤面に
+  // 戻るたびに読み、解き直しのたびに解答が飛ぶ。残数の取り直し
+  // （mobilePeekPracticeQuota）と同じ値で連打や自動化だけを止める。読み取りと
+  // 記録は別に数え、解き直しを続けても今日の問題の読み直しが止まらないようにする
+  readMobileDailyProblem: { maxRequests: 120, windowMs: 600_000 },
+  recordMobileDailyProblemAnswer: { maxRequests: 120, windowMs: 600_000 },
   // 出題した問題の保存（web の POST /api/practice-problems とアプリの
   // POST /api/mobile/v1/practice-problems が同じ枠を使う）。1 問出すごとに
   // 1 回飛ぶので、出題の消費（beginPracticeQuestion）と同じ値。web の入口も
