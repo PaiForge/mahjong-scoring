@@ -62,6 +62,56 @@
     },
     "unknownPractice": "現在の練習一覧に無い記録"
   },
+  "practiceProblemStats": {
+    "navLabel": "問題保存状況",
+    "title": "問題の保存状況",
+    "description": "和了形・聴牌形の点数計算で出題し、保存した問題の数です。同じ盤面は 1 件にまとめ、ログイン済みのユーザーに出した問題だけを保存します。送信は失敗しても再送しないため、この数は出題した回数ではなく「保存された異なる盤面の数」です。期間内の数は、その盤面が初めて保存された日で数えます。保存する記録にはユーザーも解答も含まないため、ユーザーごとの数・正答率・翻や符や役の分布はここでは出せません。",
+    "collection": {
+      "label": "問題の保存",
+      "active": "収集中",
+      "stopped": "停止中（PRACTICE_PROBLEM_ARCHIVE_DISABLED=1）"
+    },
+    "kpi": {
+      "all": "期間内に保存された問題",
+      "byKind": "{kind}",
+      "cumulative": "累計 {count}"
+    },
+    "dailyTrends": "保存数の日次推移",
+    "chartSeries": "保存された問題",
+    "kinds": {
+      "agari-score": "和了形の点数計算",
+      "tenpai-score": "聴牌形の点数計算"
+    },
+    "sources": {
+      "web": "Web",
+      "ios": "iOS",
+      "android": "Android"
+    },
+    "sourceTable": {
+      "title": "由来ごとの保存数",
+      "columns": {
+        "kind": "種別",
+        "source": "由来",
+        "period": "期間内",
+        "total": "累計",
+        "lastSavedAt": "最終保存"
+      }
+    },
+    "unknownRow": "現在の定義に無い値",
+    "composition": {
+      "title": "盤面の内訳（累計）",
+      "note": "保存された盤面のうち、条件に当てはまる数と割合です。副露ありは暗槓だけの手を含みません。聴牌形は和了の仕方が決まっていないため、ツモを数えません。",
+      "columns": {
+        "kind": "種別",
+        "total": "保存数",
+        "riichi": "リーチ",
+        "furo": "副露あり",
+        "tsumo": "ツモ",
+        "oya": "親"
+      },
+      "cell": "{count}（{percent}%）"
+    }
+  },
   "userManagement": "ユーザー管理",
   "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
   "auditLog": "監査ログ",
