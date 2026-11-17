@@ -7,6 +7,7 @@
       "env": [
         "NODE_ENV",
         "PRACTICE_PROBLEM_ARCHIVE_DISABLED",
+        "DAILY_PROBLEM_DISABLED",
         "DATABASE_URL",
         "POSTGRES_URL",
         "POSTGRES_URL_NON_POOLING",
@@ -40,7 +41,10 @@
       ]
     },
     "dev": {
-      "passThroughEnv": ["PRACTICE_PROBLEM_ARCHIVE_DISABLED"],
+      "passThroughEnv": [
+        "PRACTICE_PROBLEM_ARCHIVE_DISABLED",
+        "DAILY_PROBLEM_DISABLED"
+      ],
       "cache": false,
       "persistent": true
     },

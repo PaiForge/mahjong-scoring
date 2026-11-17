@@ -11,6 +11,7 @@ import {
   challengeAttempts,
   challengeBestScores,
   challengeResults,
+  dailyProblemAnswers,
   db,
   expEvents,
   lessonCompletions,
@@ -67,7 +68,8 @@ const CRON_BATCH_SIZE = 20;
  *   （username は再利用防止のため保持）。
  * - 成績・経験値・学習履歴・段級位・ロール・途中のチャレンジ・通知・ブロック（した側・
  *   された側の両方）は物理削除する
- *   （ランキングからも消える）。購入・顧客対応・手動付与・無料枠も同じ
+ *   （ランキングからも消える）。購入・顧客対応・手動付与・無料枠・本日の問題の
+ *   解答の記録も同じ
  *   トランザクションで明示的に削除する。auth.users のソフトデリートでは
  *   CASCADE しない。購入手続きは顧客対応の削除に CASCADE する。Stripe の
  *   決済記録は残し、返金はしない。利用規約の「退会」の節がこの一覧を約束して
@@ -281,6 +283,9 @@ async function deleteAccountData(userId: string): Promise<void> {
     await tx
       .delete(practiceQuotaUsage)
       .where(eq(practiceQuotaUsage.userId, userId));
+    await tx
+      .delete(dailyProblemAnswers)
+      .where(eq(dailyProblemAnswers.userId, userId));
     await tx
       .delete(challengeBestScores)
       .where(eq(challengeBestScores.userId, userId));

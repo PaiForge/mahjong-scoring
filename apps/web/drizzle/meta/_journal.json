@@ -316,6 +316,13 @@
       "when": 1794783946147,
       "tag": "20261115230546_create_practice_problems",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794912152263,
+      "tag": "20261117104232_create_daily_problems",
+      "breakpoints": true
     }
   ]
 }

@@ -52,6 +52,10 @@
  *   1 件と、本文の書式（見出し・リンク・箇条書き・引用・コード・表）を一通り使った
  *   「書式の見本」があり、web とアプリの描き方を見比べられる。管理画面で書いた手元の
  *   お知らせ（`dev-` 以外）には触れない
+ * - 保存問題（`dev-seed/practice-problems.ts`）: 本日の問題の候補になる和了形の盤面
+ *   （`practice_problems`。前日以前に保存した扱い）。手元の DB でもダッシュボードの
+ *   本日の問題が出る。同じ盤面があれば入れず、消して入れ直さない（本日の問題に使った
+ *   行は消せない）ので、出し切った後は練習で保存した盤面が候補になる
  *
  * 必要な環境変数（`apps/web/.env.local`）:
  *   - NEXT_PUBLIC_SUPABASE_URL   未設定なら http://127.0.0.1:54321
@@ -73,6 +77,7 @@ import { reseedBenefitGrants } from "./dev-seed/benefit-grants";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
 import { reseedNotifications } from "./dev-seed/notifications";
+import { seedPracticeProblems } from "./dev-seed/practice-problems";
 import { reseedPurchases } from "./dev-seed/purchases";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
 
@@ -186,6 +191,12 @@ async function main() {
   const announced = await reseedAnnouncements(db);
   console.log(
     `  announcements ${announced} 件（slug が dev- のもの。ピン留め 1 件と書式の見本を含む）`,
+  );
+
+  console.log("dev-seed: 本日の問題の候補になる保存問題を投入します...");
+  const problems = await seedPracticeProblems(db);
+  console.log(
+    `  practice_problems ${problems} 盤面（和了形・前日以前の保存。既にある盤面はそのまま）`,
   );
 }
 

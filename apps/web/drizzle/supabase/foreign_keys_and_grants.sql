@@ -446,3 +446,26 @@ END;
 $$;
 
 REVOKE ALL ON TABLE public.reports FROM anon, authenticated;
+
+-- =============================================================================
+-- daily_problem_answers
+-- =============================================================================
+-- 本日の問題の解答の記録。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会はソフトデリートで CASCADE しないので、退会の工程（delete-account.ts）が
+-- 明示的に消す。auth.users を物理削除したときだけ CASCADE で消える。
+-- daily_problems はユーザーに紐づかないので FK も GRANT も持たない。
+
+-- FK constraint: daily_problem_answers.user_id → auth.users(id) ON DELETE CASCADE
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'daily_problem_answers_user_id_fkey'
+  ) THEN
+    ALTER TABLE public.daily_problem_answers
+      ADD CONSTRAINT daily_problem_answers_user_id_fkey
+      FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.daily_problem_answers FROM anon, authenticated;

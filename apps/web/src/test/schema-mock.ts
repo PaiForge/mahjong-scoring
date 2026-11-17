@@ -205,3 +205,20 @@ export const practiceProblems = {
   source: "source",
   createdAt: "created_at",
 } as const;
+
+/** daily_problems のカラム */
+export const dailyProblems = {
+  _name: "daily_problems",
+  day: "day",
+  problemId: "problem_id",
+  createdAt: "created_at",
+} as const;
+
+/** daily_problem_answers のカラム */
+export const dailyProblemAnswers = {
+  _name: "daily_problem_answers",
+  userId: "user_id",
+  day: "day",
+  isCorrect: "is_correct",
+  answeredAt: "answered_at",
+} as const;
