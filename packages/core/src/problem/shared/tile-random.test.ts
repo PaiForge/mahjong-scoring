@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
 import { ALL_HAI_KINDS } from "../../core/constants";
 import { HaiUsageTracker } from "../../core/hai-tracker";
-import { pickAvailableHai } from "./tile-random";
+import { pickAvailableHai, randomHaiKindIdExcluding } from "./tile-random";
 
 describe("pickAvailableHai", () => {
   it("count 枚使えない牌種は候補にしない", () => {
@@ -32,5 +32,16 @@ describe("pickAvailableHai", () => {
       expect(tracker.use(hai, 4).isOk()).toBe(true);
     }
     expect(pickAvailableHai(tracker, 1)).toBeUndefined();
+  });
+});
+
+describe("randomHaiKindIdExcluding", () => {
+  it("除く牌種を引いたら引き直し、除く牌種は返さない", () => {
+    // 1 回目は先頭の一萬、2 回目は列の中ほどの牌種を引く値の列
+    const values = [0, 0.5];
+    let index = 0;
+    const hai = randomHaiKindIdExcluding(HaiKind.ManZu1, () => values[index++]);
+
+    expect(hai).toBe(ALL_HAI_KINDS[Math.floor(0.5 * ALL_HAI_KINDS.length)]);
   });
 });

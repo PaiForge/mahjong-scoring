@@ -17,6 +17,15 @@ describe("calculateJantouFu", () => {
     expect(calculateJantouFu(HaiKind.Ton, HaiKind.Nan, HaiKind.Ton)).toBe(2);
   });
 
+  it("連風牌を4符にするルールでも、単独の役風（場風のみ・自風のみ）は2符のまま", () => {
+    expect(calculateJantouFu(HaiKind.Ton, HaiKind.Ton, HaiKind.Nan, true)).toBe(
+      2,
+    );
+    expect(calculateJantouFu(HaiKind.Ton, HaiKind.Nan, HaiKind.Ton, true)).toBe(
+      2,
+    );
+  });
+
   it("オタ風・数牌の雀頭は0符", () => {
     // オタ風（場風でも自風でもない）
     expect(calculateJantouFu(HaiKind.Sha, HaiKind.Ton, HaiKind.Nan)).toBe(0);
