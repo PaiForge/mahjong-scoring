@@ -192,6 +192,18 @@ describe("generateTotalFuQuestion（乱数を固定した出題）", () => {
     }
   });
 
+  it("鳴いた面子（チー・ポン・明槓）を含む手も出題する", () => {
+    // 暗槓も副露の側に並ぶので、exposed の有無ではなく鳴いた印（furo）で見る
+    sampleSeeded(
+      {},
+      {
+        attempts: 300,
+        need: 1,
+        where: (q) => q.tehai.exposed.some((mentsu) => !!mentsu.furo),
+      },
+    );
+  });
+
   it("fuBand の下限・上限ちょうどの符は出題する", () => {
     const questions = sampleSeeded(
       { fuBand: { min: 30, max: 30 } },
