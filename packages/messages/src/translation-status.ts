@@ -98,6 +98,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  *
  * web の iOS アプリの入手導線（LP の節・フッター。`app-download-panel.tsx`）を英語で
  * 出すときに `appDownload` を同じ手順で足した。
+ *
+ * 本日の問題（`/daily-problem` とダッシュボードのカード、アプリの同じ画面）は
+ * `dailyProblem` を最初から完訳で足した。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -192,6 +195,7 @@ export const EN_TRANSLATED_NAMESPACES = [
   "mobilePlan",
   "mobileApp",
   "appDownload",
+  "dailyProblem",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -554,6 +558,10 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * - `/try/agari-score`・`/try/mentsu-fu` — 体験の本文（`tryDemo`・`tryMentsuFu`）と、借りている
  *   練習の部品（`/try/agari-score` は答え合わせの役名 `yakuNames`、`/try/mentsu-fu` は
  *   確認問題の部品 `lessons`（条件文の役名を引く `yakuNames` も）と面子の符の `mentsuFu`）
+ * - `/daily-problem` — 本日の問題の本文（`dailyProblem`）と、借りている和了形の点数計算の
+ *   盤面・答え合わせの部品（`/try/agari-score` と同じ `agariScore`・`training`・`scoreTable`・
+ *   `challenge`・`reference`・`practice`・`ranks`・`scoreCalculationChallenge`・
+ *   `manganScoreCalculationChallenge`・役名の `yakuNames`）、解答後の残り回数（`practiceQuota`）
  * - `/getting-started` — はじめ方（`gettingStarted`）
  * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
  *   練習・チャレンジの見本（`practice`（章の共通に含む）・`challenge`・`tenpaiScore`・
@@ -563,7 +571,8 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  *   （`forgotPassword`）、`/reset-password`（`resetPassword`・`validation`）、`/banned`
  *   （`banned`）、`/mypage/setup-username`（`setupUsername`）
  * - `/dashboard` — 次にやること・続きから（`dashboard`・`dojo`・`ranks`・
- *   `learnCurriculum`）、練習のバナー（`practice`）、お知らせ（`announcements`）、
+ *   `learnCurriculum`）、本日の問題のカード（`dailyProblem`）、練習のバナー（`practice`）、
+ *   お知らせ（`announcements`）、
  *   練習の表示名の variant（`practiceDisplayTitle`。全練習の名前空間）
  * - `/mypage` — マイページの見出し・メニュー・活動のヒートマップ（`mypage`・`practice`）、
  *   段級位（`ranks`）
@@ -727,6 +736,21 @@ export const EN_ROUTE_NAMESPACES = {
     "mentsuFu",
     "yakuNames",
   ],
+  "/daily-problem": [
+    ...EN_SHELL_NAMESPACES,
+    "dailyProblem",
+    "agariScore",
+    "training",
+    "scoreTable",
+    "challenge",
+    "reference",
+    "practice",
+    "ranks",
+    "practiceQuota",
+    "scoreCalculationChallenge",
+    "manganScoreCalculationChallenge",
+    "yakuNames",
+  ],
   "/dojo": [
     ...EN_SHELL_NAMESPACES,
     "dojo",
@@ -751,6 +775,7 @@ export const EN_ROUTE_NAMESPACES = {
   "/dashboard": [
     ...EN_SHELL_NAMESPACES,
     "dashboard",
+    "dailyProblem",
     "ranks",
     "dojo",
     "learnCurriculum",

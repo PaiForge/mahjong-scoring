@@ -1653,3 +1653,93 @@ export const practiceProblems = pgTable(
 
 export type PracticeProblem = typeof practiceProblems.$inferSelect;
 export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
+
+/**
+ * 本日の問題 — 日付（JST）ごとに全員へ出す 1 問
+ * 本日の問題
+ *
+ * @description
+ * 和了形の点数計算の盤面を 1 日 1 問、全員に同じものを出す。盤面は
+ * `practice_problems` の行を指すだけで、ここには持たない。その日の最初の
+ * 読み取りがサーバー（直 DB 接続）で行を選んで入れる（`lib/daily-problem/today.ts`）。
+ * クライアントからは読み書きさせない（作成マイグレーション内で RLS を有効にして
+ * ポリシーを置かない。権限は `foreign_keys_and_grants.sql` 冒頭の一括 REVOKE が閉じる）。
+ *
+ * @design 日付と問題を結ぶ表に固定し、その日の最初の読み取りで遅延して選ぶ
+ * 選ぶのは `INSERT ... ON CONFLICT (day) DO NOTHING` の後に読み直す形で、並行した
+ * 要求が別の行を選んでも、先に入った行に全員が揃う。採らなかった案:
+ * - cron で前もって選ぶ: cron が落ちた日に問題が出ない
+ * - 日付から決まる乱数で毎回選ぶ: 保存行の増減で同じ日の問題が変わる
+ *
+ * 表に固定すれば全員が同じ盤面を見て、既出の除外（`problem_id` の一意制約と
+ * 候補の `NOT IN`）も引ける。
+ *
+ * @design `problem_id` は `practice_problems` を RESTRICT で参照する
+ * 出した問題の盤面を消すと、その日の問題と解答の記録が宙に浮く。保存問題の
+ * 掃除をするときは、本日の問題に使った行を残す。
+ *
+ * `day` は JST の日付（`@mahjong-scoring/features/jst` の `jstDayKey`）。
+ * `practice_quota_usage` と同じく、文字列 `YYYY-MM-DD` のまま読み書きする。
+ */
+export const dailyProblems = pgTable(
+  "daily_problems",
+  {
+    /** JST の日付 */
+    day: date("day").primaryKey(),
+    /** その日の問題（`practice_problems.id`。同じ問題は 2 度出さない） */
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => practiceProblems.id, { onDelete: "restrict" }),
+    /** 非公開の理由。NULL は公開。盤面と解答は消さず、差し替えもしない */
+    withheldReason: text("withheld_reason"),
+    /** その日の問題を選んだ日時 */
+    createdAt: createdAtColumn(),
+  },
+  (table) => [unique("uq_daily_problems_problem_id").on(table.problemId)],
+).enableRLS();
+
+export type DailyProblemRow = typeof dailyProblems.$inferSelect;
+
+/**
+ * 本日の問題の解答の記録 — ユーザー × 日（JST）
+ * 本日の問題解答
+ *
+ * @description
+ * ログイン済みの利用者が本日の問題に解答したかと、その正誤。ホームの
+ * 「解答済み」の表示に使う。記録は本人にしか見せない。書くのはサーバー
+ * （直 DB 接続）だけで、クライアントからは読み書きさせない（RLS を有効にして
+ * ポリシーを置かない）。
+ *
+ * @design 最初の解答だけを残す（`ON CONFLICT DO NOTHING`）
+ * 再挑戦で上書きすると、答えを見てから正解に書き換えられる。解答済みでも同じ
+ * 盤面をもう一度解けるが、記録は変わらない。「わからない」は不正解として記録する。
+ *
+ * @design 持つのは「解答したか」と正誤だけ
+ * 「解答済み」をホームに出すのに要る最小の形。正誤まで持てば、連続日数・
+ * 正解率を後から同じ表で足せる。解答の中身（翻・符・点数）は持たない —
+ * 採点はクライアントが閲覧者のルール設定で行い、正誤だけが届く。
+ *
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ * 退会の工程（`lib/users/delete-account.ts`）は auth.users をソフトデリートするので
+ * CASCADE は発火しない。行は退会の工程が明示的に消す。
+ */
+export const dailyProblemAnswers = pgTable(
+  "daily_problem_answers",
+  {
+    /** auth.users(id) への外部キー（Supabase SQL で定義） */
+    userId: uuid("user_id").notNull(),
+    /** 解答した本日の問題の日付（JST） */
+    day: date("day")
+      .notNull()
+      .references(() => dailyProblems.day),
+    /** 正解したか（クライアントが採点した結果） */
+    isCorrect: boolean("is_correct").notNull(),
+    /** 最初に解答した日時 */
+    answeredAt: timestamp("answered_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.day] })],
+).enableRLS();
+
+export type DailyProblemAnswer = typeof dailyProblemAnswers.$inferSelect;

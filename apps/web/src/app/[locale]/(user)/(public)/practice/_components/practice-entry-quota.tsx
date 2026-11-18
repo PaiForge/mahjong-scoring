@@ -34,7 +34,25 @@ import { PracticeNavLink } from "./practice-nav-link";
  * ページへ送る（`clientNavTarget`）。ログインは英語のページへ戻れるよう、今の
  * ページの公開 URL（`usePathname()` は `/en/...` の形）を戻り先に載せる。
  */
-export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
+export function PracticeEntryQuota({
+  menu,
+  planLink = "always",
+}: {
+  readonly menu: QuotaMenu;
+  /**
+   * 回数に制限のある利用者へ料金のリンクをいつ出すか
+   *
+   * - `"always"`（既定）: 残りがあっても出す。練習の入口・一覧のカードはこれ
+   * - `"whenExhausted"`: 今日の分を使い切った（残り 0）ときだけ出す
+   *
+   * `"whenExhausted"` は本日の問題の解答後の導線のための指定。本日の問題は
+   * 回数を使わない 1 問で、解き終えた人に「続けて練習できる」ことを残り回数ごと
+   * 見せたいが、常に料金のリンクが並ぶと販売の色が強すぎる。使い切ったときは
+   * 続ける手段が料金しか無いので出す。回数無制限（Pro・付与）の利用者には
+   * どちらの指定でも金色の帯（回数無制限）がそのまま出て、料金のリンクは出ない。
+   */
+  readonly planLink?: "always" | "whenExhausted";
+}) {
   const t = useTranslations("practiceQuota.entry");
   const tQuota = useTranslations("practiceQuota");
   const locale = usePageLocale();
@@ -116,21 +134,23 @@ export function PracticeEntryQuota({ menu }: { readonly menu: QuotaMenu }) {
               </PracticeNavLink>
             </p>
           )}
-          <p className="pt-1">
-            {/* 下線は文字にだけ引く。リンク全体に引くとバッジまで下線が掛かる */}
-            <PracticeNavLink
-              navTarget={planTarget}
-              className={`group inline-flex items-center gap-1.5 rounded-xs ${FOCUS_RING_CLASSES}`}
-            >
-              {t.rich("plan", {
-                badge: () => badge,
-                text: (chunks) => (
-                  <span className={ROW_LINK_TITLE_CLASSES}>{chunks}</span>
-                ),
-              })}
-              <ChevronRightIcon className="size-3.5 text-surface-400 group-hover:text-foreground" />
-            </PracticeNavLink>
-          </p>
+          {(planLink === "always" || quota.remaining === 0) && (
+            <p className="pt-1">
+              {/* 下線は文字にだけ引く。リンク全体に引くとバッジまで下線が掛かる */}
+              <PracticeNavLink
+                navTarget={planTarget}
+                className={`group inline-flex items-center gap-1.5 rounded-xs ${FOCUS_RING_CLASSES}`}
+              >
+                {t.rich("plan", {
+                  badge: () => badge,
+                  text: (chunks) => (
+                    <span className={ROW_LINK_TITLE_CLASSES}>{chunks}</span>
+                  ),
+                })}
+                <ChevronRightIcon className="size-3.5 text-surface-400 group-hover:text-foreground" />
+              </PracticeNavLink>
+            </p>
+          )}
         </>
       )}
     </div>

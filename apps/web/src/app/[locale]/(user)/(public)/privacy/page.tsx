@@ -28,7 +28,7 @@ import { PREFERENCES_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
 /** 改定日。文面を変えたら更新する */
-const LAST_UPDATED = "2026-10-10";
+const LAST_UPDATED = "2026-11-18";
 
 /** 文中から参照する Google の各ポリシー・設定ページ */
 const GOOGLE_LINKS = {

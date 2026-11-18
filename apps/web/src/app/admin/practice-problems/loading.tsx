@@ -28,6 +28,11 @@ export default function AdminPracticeProblemStatsLoading() {
       <SkeletonBar className="mb-6 h-5 w-40" tone={100} />
 
       <div className="space-y-6">
+        <section className="admin-panel space-y-4 p-6">
+          <SkeletonBar className="h-7 w-48" />
+          <SkeletonBar className="h-5 w-full" />
+          <SkeletonBar className="h-32 w-full" />
+        </section>
         <DateRangePickerSkeleton />
 
         {/* KPI 3 枚 */}

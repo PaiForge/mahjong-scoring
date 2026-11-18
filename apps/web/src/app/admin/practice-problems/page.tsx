@@ -10,6 +10,7 @@ import { daysAgo, today } from "@/app/admin/_lib/dashboard";
 import { resolveJstDateRange } from "@/app/admin/_lib/date-range";
 import { isPracticeProblemArchiveDisabled } from "@/lib/practice-problems/archive";
 
+import { DailyProblemStatus } from "./_components/daily-problem-status";
 import { CompositionTable } from "./_components/composition-table";
 import { SourceStatsTable } from "./_components/source-stats-table";
 import { buildPracticeProblemStats } from "./_lib/practice-problem-stats";
@@ -132,6 +133,7 @@ export default async function AdminPracticeProblemStatsPage({
       </p>
 
       <div className="space-y-6">
+        <DailyProblemStatus />
         <DateRangePicker
           startDate={range.startDate}
           endDate={range.endDate}

@@ -75,6 +75,7 @@ const EN_NOINDEX_EXACT_PATHS = [
   "/contact/confirm",
   "/contact/success",
   "/announcements",
+  "/daily-problem",
 ];
 
 /** 英語で出すが索引させない会員の画面（認証・ダッシュボード・マイページ・設定の 18 ページ） */
@@ -143,7 +144,7 @@ describe("getTranslatedPublication", () => {
     ).toBe("published-noindex");
   });
 
-  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材 + 法務・料金 6、noindex 54 + お問い合わせ・お知らせ 3 + 会員の画面 18）", () => {
+  it("完全一致の行は公開単位どおり（索引対象 25 + 公開教材 + 法務・料金 6、noindex 54 + お問い合わせ・お知らせ・本日の問題 4 + 会員の画面 18）", () => {
     expect([...translatedPublishedPaths("en")].sort()).toEqual(
       [
         ...EN_INDEXABLE_EXACT_PATHS,
@@ -151,7 +152,7 @@ describe("getTranslatedPublication", () => {
         ...EN_MEMBER_PATHS,
       ].sort(),
     );
-    expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54 + 3);
+    expect(EN_NOINDEX_EXACT_PATHS).toHaveLength(54 + 4);
     expect(
       translatedPublishedPaths("en").filter((path) =>
         path.startsWith("/lessons/"),

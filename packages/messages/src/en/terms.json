@@ -33,7 +33,7 @@
     "title": "Deleting your account",
     "body": "You can delete your account at any time from My Page. After you delete it, you cannot log in with the same account, and this cannot be undone. When you delete your account, your data is handled as follows.",
     "item1": "Your display name, avatar image, bio and social media account names are deleted.",
-    "item2": "Your challenge results (including challenges in progress), EXP, lesson completions, rank, announcement notifications and list of blocked users are deleted, and you are removed from the leaderboards.",
+    "item2": "Your challenge results (including challenges in progress), EXP, lesson completions, daily problem answers, rank, announcement notifications and list of blocked users are deleted, and you are removed from the leaderboards.",
     "item3": "Your username is kept so that no one else can sign up with the same name. For this reason, you cannot sign up again with the same username.",
     "item4": "To investigate and deal with misuse, the history of your actions (the type and time of logins, profile updates, account deletion and so on), the Operator's records of the actions it took, and the records of reports are kept even after you delete your account.",
     "item5": "Your paid plan purchase records are deleted, and no refund is given even if part of a period is unused."

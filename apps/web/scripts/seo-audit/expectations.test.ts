@@ -197,7 +197,7 @@ describe("監査の期待値とアプリの公開状態", () => {
       "/preferences/yaku-order",
     ];
     expect(EN_NOINDEX_PATHS).toEqual(expect.arrayContaining(member));
-    expect(EN_NOINDEX_PATHS).toHaveLength(54 + 6 + member.length + 3);
+    expect(EN_NOINDEX_PATHS).toHaveLength(54 + 6 + member.length + 4);
   });
 
   it("英語の noindex にお問い合わせの確認・完了とお知らせの一覧が入り、法務・料金は索引対象", () => {

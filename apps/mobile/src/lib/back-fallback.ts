@@ -27,6 +27,7 @@ const SCORE_TABLE_TAB_PATH = "/score-table";
  * - 退会 → アカウント、それ以外のマイページの下のページ → マイページ、
  *   マイページ → ホーム（入口がホームのヘッダーのため）
  * - ログイン・登録 → ホーム（入口がホームとマイページの記録の案内のため）
+ * - 本日の問題 → ホーム（入口がホームのカードのため）
  * - それ以外（練習）→ 練習一覧
  *
  * ルートのスタックに anchor（`unstable_settings` の `anchor` / `initialRouteName`）は
@@ -56,6 +57,7 @@ export function backFallbackHref(pathname: string): string {
         : MYPAGE_PATH;
     case "sign-in":
     case "sign-up":
+    case "daily-problem":
       return "/";
     default:
       return PRACTICE_PATH;

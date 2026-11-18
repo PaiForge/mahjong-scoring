@@ -9,7 +9,8 @@ import { stackScreenOptions } from "../../lib/stack-options";
  * @description
  * 練習のチャレンジ・トレーニング・結果（`practice/[slug]/{play,training,result}`）、
  * 無限訓練の盤面（`practice/{agari-score,tenpai-score}/play`）、昇級試験の本番・
- * 模試・結果（`exam/[exam]/{play,training,result}`）をまとめるグループ。URL は
+ * 模試・結果（`exam/[exam]/{play,training,result}`）、本日の問題（`daily-problem`。
+ * ホームのカードから開き、× でホームへ戻る）をまとめるグループ。URL は
  * グループ名を含まないので、移す前と変わらない。
  *
  * ルートのスタック（`app/_layout.tsx`）がこのグループを

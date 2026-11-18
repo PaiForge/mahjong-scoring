@@ -20,5 +20,7 @@ import dotenv from "dotenv";
  * 読まず、関数の中で読むこと。
  */
 export function loadScriptEnv(): void {
+  // CLI で渡された環境変数だけを使う検証では、環境ファイルを読まない。
+  if (process.argv.includes("--no-env")) return;
   dotenv.config({ path: [".env.local", ".env"] });
 }

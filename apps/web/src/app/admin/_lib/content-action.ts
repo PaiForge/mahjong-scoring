@@ -24,6 +24,7 @@ export const ContentActionKind = {
   CreateAnnouncement: "create_announcement",
   UpdateAnnouncement: "update_announcement",
   DeleteAnnouncement: "delete_announcement",
+  SetDailyProblemVisibility: "set_daily_problem_visibility",
 } as const;
 export type ContentActionKind =
   (typeof ContentActionKind)[keyof typeof ContentActionKind];
@@ -44,6 +45,7 @@ export const ContentActionTargetType = {
   AdTitle: "ad_title",
   AdNetworkSetting: "ad_network_setting",
   Announcement: "announcement",
+  DailyProblem: "daily_problem",
 } as const;
 export type ContentActionTargetType =
   (typeof ContentActionTargetType)[keyof typeof ContentActionTargetType];

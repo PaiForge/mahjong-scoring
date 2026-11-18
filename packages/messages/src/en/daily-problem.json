@@ -1,0 +1,41 @@
+{
+  "title": "Daily problem",
+  "meta": {
+    "title": "Daily problem",
+    "description": "One riichi mahjong scoring question a day, the same for everyone. Read the winning hand and the situation, then answer the han, fu and points."
+  },
+  "card": {
+    "hint": "One question a day. It does not count toward your daily limit.",
+    "start": "Solve",
+    "answeredCorrect": "Answered · Correct",
+    "answeredIncorrect": "Answered · Incorrect",
+    "review": "Solve again"
+  },
+  "board": {
+    "answeredNotice": "You have already answered today's problem. Solving it again does not change your record.",
+    "unavailable": "Today's problem is not ready yet.",
+    "unsupported": "This problem could not be displayed. Reload today's problem.",
+    "toPractice": "Back to the practice menus",
+    "schedule": "Updates daily at 00:00 JST",
+    "anonymous": "Answers are recorded only while you are signed in.",
+    "revealNotice": "Revealing the answer records this problem as answered incorrectly.",
+    "loadFailed": "Could not load the daily problem.",
+    "reload": "Load today's problem"
+  },
+  "more": {
+    "title": "Keep solving",
+    "hint": "Keep practicing with Winning Hand Scoring Practice.",
+    "link": "Go to Winning Hand Scoring Practice",
+    "home": "Back to home"
+  },
+  "save": {
+    "loading": "Checking your record…",
+    "saving": "Saving your answer…",
+    "saved": "Your answer has been recorded.",
+    "failed": "Your answer could not be saved. You can retry saving your first answer.",
+    "staleDay": "The day has changed or this problem is no longer available. This answer was not recorded.",
+    "anonymous": "Your answer was not recorded because you are not signed in.",
+    "blocked": "This account cannot record an answer.",
+    "retry": "Retry saving my first answer"
+  }
+}
