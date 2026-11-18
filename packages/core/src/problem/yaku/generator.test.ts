@@ -271,6 +271,36 @@ describe("generateYakuQuestion", () => {
   });
 });
 
+describe("generateYakuQuestion（乱数を固定した出題）", () => {
+  /** シードを固定して問題を集める（結果は実行ごとに変わらない） */
+  function sampleSeeded(
+    sampling: Parameters<typeof expectSampled<YakuQuestion>>[1],
+  ) {
+    const rng = seededRandom(20261119);
+    return expectSampled(
+      () => generateYakuQuestion(defaultIdGenerator, rng),
+      sampling,
+    );
+  }
+
+  it("役の無い手は出題しない", () => {
+    for (const question of sampleSeeded({ attempts: 300, need: 200 })) {
+      expect(question.correctYakuNames.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("副露した手はリーチしない", () => {
+    const questions = sampleSeeded({
+      attempts: 600,
+      need: 100,
+      where: (q) => q.tehai.exposed.some((mentsu) => !!mentsu.furo),
+    });
+    for (const question of questions) {
+      expect(question.context.isRiichi).toBe(false);
+    }
+  });
+});
+
 describe("toYakuAnswerNames", () => {
   const context = {
     bakaze: HaiKind.Ton,
