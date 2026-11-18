@@ -351,6 +351,28 @@ describe("judgeAnswer", () => {
         expect(judgeAnswer(question, answer).isHanCorrect).toBe(false);
       }
     });
+
+    it("満貫に届かない手（通常の 3 翻）に 5 翻と答えると不正解", () => {
+      const question = makeQuestion({
+        han: 3,
+        fu: 30,
+        scoreLevel: ScoreLevel.Normal,
+        payment: { type: "ron", amount: 3900 },
+      });
+      const answer: UserAnswer = { han: 5, fu: 30, score: 3900, yakus: [] };
+      expect(judgeAnswer(question, answer).isHanCorrect).toBe(false);
+    });
+
+    it("跳満（6翻）の正解に満貫の 5 翻と答えると不正解", () => {
+      const question = makeQuestion({
+        han: 6,
+        fu: 30,
+        scoreLevel: ScoreLevel.Haneman,
+        payment: { type: "ron", amount: 12000 },
+      });
+      const answer: UserAnswer = { han: 5, fu: 30, score: 12000, yakus: [] };
+      expect(judgeAnswer(question, answer).isHanCorrect).toBe(false);
+    });
   });
 
   describe("exactHan = true", () => {
