@@ -1,8 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { HaiKind } from "@pai-forge/riichi-mahjong";
+import { HaiKind, isYaochu } from "@pai-forge/riichi-mahjong";
 import { ALL_HAI_KINDS } from "../../core/constants";
 import { HaiUsageTracker } from "../../core/hai-tracker";
-import { pickAvailableHai, randomHaiKindIdExcluding } from "./tile-random";
+import {
+  pickAvailableHai,
+  randomHaiKindIdExcluding,
+  randomYaochu,
+} from "./tile-random";
 
 describe("pickAvailableHai", () => {
   it("count 枚使えない牌種は候補にしない", () => {
@@ -43,5 +47,16 @@ describe("randomHaiKindIdExcluding", () => {
     const hai = randomHaiKindIdExcluding(HaiKind.ManZu1, () => values[index++]);
 
     expect(hai).toBe(ALL_HAI_KINDS[Math.floor(0.5 * ALL_HAI_KINDS.length)]);
+  });
+});
+
+describe("randomYaochu", () => {
+  it("么九牌（老頭牌・字牌）のどれもが出て、それ以外は出ない", () => {
+    // 乱数の値を 0 から 1 の手前まで等間隔に振り、選ばれうる牌を全部集める
+    const picked = new Set<number>();
+    for (let step = 0; step < 100; step++) {
+      picked.add(randomYaochu(() => step / 100));
+    }
+    expect(picked).toEqual(new Set(ALL_HAI_KINDS.filter(isYaochu)));
   });
 });
