@@ -189,6 +189,20 @@ describe("resolveScoreResultBreakdown", () => {
     });
   });
 
+  it("役の内訳が無ければ、翻を先に並べる設定でも符の内訳を開く", () => {
+    expect(
+      resolveScoreResultBreakdown(
+        { han: 3, scoreLevel: "Normal" },
+        { yakuBreakdown: undefined, fuBreakdown },
+        options,
+      ),
+    ).toEqual({
+      showsFu: true,
+      tabs: [{ kind: "fu", breakdown: fuBreakdown }],
+      initial: "fu",
+    });
+  });
+
   it("片方だけ間違えたら、開いたときにその内訳を選ぶ", () => {
     expect(
       resolveScoreResultBreakdown({ han: 3, scoreLevel: "Normal" }, display, {
