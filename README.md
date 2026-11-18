@@ -67,6 +67,7 @@ pnpm --filter @mahjong-scoring/mobile web     # ブラウザで確認（画面�
 | `pnpm lint`         | リント実行                                |
 | `pnpm typecheck`    | 型チェック                                |
 | `pnpm test`         | テスト実行                                |
+| `pnpm mutation`     | ミューテーションテスト（core・features）  |
 | `pnpm format`       | Prettier でフォーマット                   |
 | `pnpm format:check` | Prettier の整形漏れを検査（書き換えない） |
 
