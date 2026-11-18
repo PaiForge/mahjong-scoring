@@ -1,3 +1,4 @@
+import { calculateScore } from "@pai-forge/riichi-mahjong";
 import { describe, expect, it } from "vitest";
 // core は辞書のパッケージに依存しないため、区分名の一致の検査だけ日本語の辞書の JSON を直接読む
 import jaScoreTable from "../../../messages/src/ja/score-table.json";
@@ -5,6 +6,7 @@ import { ScoreLevel } from "../core/constants";
 import {
   clampHanToYakuman,
   getScoreLevelName,
+  hanRangeOf,
   isFuRelevant,
   isYakumanHan,
   MANGAN_PLUS_TIERS,
@@ -25,6 +27,19 @@ describe("scoreLevelNameKey", () => {
   it("満貫未満・不明な値は undefined", () => {
     expect(scoreLevelNameKey(ScoreLevel.Normal)).toBeUndefined();
     expect(scoreLevelNameKey("Unknown")).toBeUndefined();
+  });
+
+  // アプリの ScoreLevel はライブラリの点数計算が返す scoreLevel の文字列と
+  // 同じ値でなければ、区分の判定が黙って「満貫未満」に落ちる
+  it("ライブラリが区分の最小翻数で返す点数レベルから同じ区分を引ける", () => {
+    for (const tier of MANGAN_PLUS_TIERS) {
+      const { scoreLevel } = calculateScore(tier.minHan, 30, {
+        isOya: false,
+        isTsumo: false,
+        yakumanMultiplier: Math.floor(tier.minHan / YAKUMAN_HAN),
+      });
+      expect(scoreLevelNameKey(scoreLevel), tier.key).toBe(tier.key);
+    }
   });
 
   it("日本語の辞書 scoreTable.<key> の値は getScoreLevelName（nameJa）と一致する", () => {
@@ -79,5 +94,21 @@ describe("isFuRelevant", () => {
   it("5翻以上は符によらず満貫以上なので符は効かない", () => {
     expect(isFuRelevant(5)).toBe(false);
     expect(isFuRelevant(YAKUMAN_HAN)).toBe(false);
+  });
+});
+
+describe("hanRangeOf", () => {
+  it("跳満は 6〜7 翻、満貫は 5 翻だけを占める", () => {
+    expect(hanRangeOf("haneman")).toEqual({ min: 6, max: 7 });
+    expect(hanRangeOf("mangan")).toEqual({ min: 5, max: 5 });
+  });
+
+  it("役満は上限の無い帯になる", () => {
+    expect(hanRangeOf("yakuman")).toEqual({ min: YAKUMAN_HAN, max: undefined });
+  });
+
+  it("表示しない区分（ダブル役満）や不明なキーは範囲を持たない", () => {
+    expect(hanRangeOf("doubleYakuman")).toBeUndefined();
+    expect(hanRangeOf("unknown")).toBeUndefined();
   });
 });
