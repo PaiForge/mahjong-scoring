@@ -1,0 +1,102 @@
+{
+  "1279nr3vc1i": {
+    "reason": "equivalent: reserveMentsuHais は牌種ごとの合計枚数を canUse で確かめてから 1 枚ずつ use するので failed を返さない。failed との比較を常に false にしても分岐が変わる入力が無い",
+    "where": "src/problem/shared/hand-skeleton.ts:150:9 outcome === \"failed\" -> false"
+  },
+  "1gscwllpcab": {
+    "reason": "equivalent: 和了牌で完成した面子の位置は isOpenMentsuForFu を通して暗刻（副露なしの刻子）の符にしか効かない。生成器は暗刻と暗順子に跨る牌をロン牌にせず、ポン・暗槓と暗刻で同じ牌種を 5 枚以上使わないので、条件を緩めても暗刻より前に同じ和了牌を含む面子が来ない。-1 と undefined はどちらも面子の添字と一致しない",
+    "where": "src/problem/mentsu-jantou-fu/generator.ts:156:7 mentsu.type === MentsuType.Koutsu -> true"
+  },
+  "1h7b62t9v0k": {
+    "reason": "equivalent: 和了牌で完成した面子の位置は isOpenMentsuForFu を通して暗刻（副露なしの刻子）の符にしか効かない。生成器は暗刻と暗順子に跨る牌をロン牌にせず、ポン・暗槓と暗刻で同じ牌種を 5 枚以上使わないので、条件を緩めても暗刻より前に同じ和了牌を含む面子が来ない。-1 と undefined はどちらも面子の添字と一致しない",
+    "where": "src/problem/mentsu-jantou-fu/generator.ts:160:10 index === -1 -> false"
+  },
+  "1hvgzs35l6t": {
+    "reason": "equivalent: machiCellKey の契約は待ち牌と和了方法の組ごとに異なる文字列であること。tsumo を空文字にしても 牌:（ツモ）と 牌:ron（ロン）は別の文字列で、牌種 ID の後ろに必ずコロンが付くので他の組とも衝突しない",
+    "where": "src/problem/tenpai-score/judgement.ts:109:35 \"tsumo\" -> \"\""
+  },
+  "1k1pvrbh7i8": {
+    "reason": "equivalent: riichi-mahjong 1.1.1 の calculateScoreForTehai は役の無い手を NoYakuError の Err で返すため、han === 0 の Ok は来ない（手前の !score?.detail で undefined になる）",
+    "where": "src/problem/total-fu/generator.ts:159:7 score.han === 0 -> false"
+  },
+  "1lsg1i4niq4": {
+    "reason": "equivalent: 和了牌が純手牌に無いとき index は -1 で、slice(0, -1) と slice(0) を繋いだ 26 枚は finalizeTehai13 が拒んで undefined になる。守りを外しても戻り値は同じ",
+    "where": "src/problem/tenpai-score/generator.ts:53:7 index < 0 -> false"
+  },
+  "1pr1815301x": {
+    "reason": "equivalent: switch の各 case が userAnswer.type を正解と同じ種別か確かめ直すため、入口の種別の不一致での早期 return を外しても判定結果は変わらない",
+    "where": "src/problem/score-table/judgement.ts:23:7 userAnswer.type !== correctAnswer.type -> false"
+  },
+  "1r59cscbt82": {
+    "reason": "equivalent: 山は 136 枚で、手牌（最大 18 枚）と表・裏ドラ表示牌（各最大 5 枚）を取っても尽きないため、裏ドラ表示牌の引きは失敗しない",
+    "where": "src/problem/shared/dora-utils.ts:68:7 !uraDoraMarkers -> false"
+  },
+  "24i0lfkaccm": {
+    "reason": "equivalent: 中（HaiKind.Chun）は最大の牌種 ID なので、HaiKindId に対して tile <= Chun は常に true",
+    "where": "src/problem/shared/jantou-fu.ts:30:31 tile <= HaiKind.Chun -> true"
+  },
+  "256r66q10so": {
+    "reason": "equivalent: 組み合わせの fu は満貫未満（nonMangan）にだけ入り、満貫以上には入らないので、fu !== undefined だけで分岐が決まる",
+    "where": "src/problem/score-table/generator.ts:244:5 range === \"nonMangan\" -> true"
+  },
+  "25k0sknyv4w": {
+    "reason": "equivalent: questionKey は門前/鳴きの別を区別できればよく、menzen か naki の片方を空文字にしても 2 つのキーは別の文字列のまま。キーは関数の中の集合でしか使わない",
+    "where": "src/problem/yaku-han/generator.ts:16:65 \"naki\" -> \"\""
+  },
+  "279k07tln1w": {
+    "reason": "equivalent: 双碰の 2 種は randomHaiKindIdExcluding で選ぶので t1 と t2 は等しくならず、< と <= の違いが出る入力が無い",
+    "where": "src/problem/machi-fu/generator.ts:135:27 t1 < t2 -> t1 <= t2"
+  },
+  "28vdw31sm4": {
+    "reason": "equivalent: 除外する状況役のキーは YAKU_NAME_MAP から除いてあり、場風・自風（Bakaze / Jikaze）でもないので、除外の判定を外しても YAKU_NAME_MAP 引きが undefined になり jaName && で落ちる",
+    "where": "src/problem/yaku/generator.ts:54:9 EXCLUDED_YAKU_FROM_ANSWER.has(yakuName) -> false"
+  },
+  "2a7fvpflm61": {
+    "reason": "equivalent: isScoreLevelAllowed は allowedRanges の要素が 1 つでなければ常に true を返すため、既定値を [] にしても両方の点数帯を許すのと同じ",
+    "where": "src/problem/tenpai-score/generator.ts:101:45 [\"nonMangan\", \"manganPlus\"] -> []"
+  },
+  "2giz71w6pu8": {
+    "reason": "equivalent: machiCellKey の契約は待ち牌と和了方法の組ごとに異なる文字列であること。ron を空文字にしても 牌:（ロン）と 牌:tsumo（ツモ）は別の文字列で、牌種 ID の後ろに必ずコロンが付くので他の組とも衝突しない",
+    "where": "src/problem/tenpai-score/judgement.ts:109:45 \"ron\" -> \"\""
+  },
+  "3agrmcr2jq": {
+    "reason": "equivalent: 直前の問題は巡の途中なら必ず askedInRound に入っていて除かれ、巡の切れ目で askedInRound が空になったときも otherYaku が直前と同じ役名を落とす。どの出題範囲も 2 役以上あるので otherYaku が空にならず、key !== lastKey を外しても選ばれる問題は変わらない",
+    "where": "src/problem/yaku-han/generator.ts:72:38 key !== lastKey -> true"
+  },
+  "7lmfsz12w3": {
+    "reason": "equivalent: YAOCHU の配列は HaiKind の定数だけを並べたもので、isHaiKindId での filter を外しても要素は変わらない",
+    "where": "src/problem/shared/tile-random.ts:16:38 [ HaiKind.ManZu1, HaiKind.ManZu9, HaiKind.PinZu1, HaiKind.P… -> [ HaiKind.ManZu1, HaiKind.ManZu9, HaiKind.PinZu1, HaiKind.P…"
+  },
+  "94wa8pelg6": {
+    "reason": "equivalent: 和了牌で完成した面子の位置は isOpenMentsuForFu を通して暗刻（副露なしの刻子）の符にしか効かない。生成器は暗刻と暗順子に跨る牌をロン牌にせず、ポン・暗槓と暗刻で同じ牌種を 5 枚以上使わないので、条件を緩めても暗刻より前に同じ和了牌を含む面子が来ない。-1 と undefined はどちらも面子の添字と一致しない",
+    "where": "src/problem/mentsu-jantou-fu/generator.ts:156:7 mentsu.type === MentsuType.Koutsu && !mentsu.furo -> (mentsu.type === MentsuType.Koutsu || !mentsu.furo)"
+  },
+  "auqfjz6zrw": {
+    "reason": "equivalent: randomChoice は空配列に対して arr[0] すなわち undefined を返すので、空の判定を外しても戻り値は undefined のまま",
+    "where": "src/problem/shared/hand-skeleton.ts:278:7 candidates.length === 0 -> false"
+  },
+  "gbsxib17gt": {
+    "reason": "equivalent: 候補が空なら randomChoice は undefined を返し、tracker.use(undefined) は usage[undefined] + count が NaN で canUse が false になり Err を返すので、空の判定を外しても undefined が返る",
+    "where": "src/problem/shared/tile-random.ts:89:7 candidates.length === 0 -> false"
+  },
+  "mzlqwfv5hf": {
+    "reason": "equivalent: 巡の途中は askedInRound が出題範囲より小さく、直前の問題は askedInRound に入っているので unasked は空にならない。巡の切れ目でも unasked は範囲から直前の 1 問を除いたもの。unasked が空の分岐に入る入力が無い",
+    "where": "src/problem/yaku-han/generator.ts:79:7 unasked.length > 0 -> unasked.length >= 0"
+  },
+  "ps61y6j41z": {
+    "reason": "equivalent: 巡の途中は askedInRound が出題範囲より小さく、直前の問題は askedInRound に入っているので unasked は空にならない。巡の切れ目でも unasked は範囲から直前の 1 問を除いたもの。unasked が空の分岐に入る入力が無い",
+    "where": "src/problem/yaku-han/generator.ts:79:7 unasked.length > 0 -> true"
+  },
+  "rbv7qnigua": {
+    "reason": "equivalent: questionKey は門前/鳴きの別を区別できればよく、menzen か naki の片方を空文字にしても 2 つのキーは別の文字列のまま。キーは関数の中の集合でしか使わない",
+    "where": "src/problem/yaku-han/generator.ts:16:54 \"menzen\" -> \"\""
+  },
+  "ruxlhymqqb": {
+    "reason": "equivalent: appliedRiichi が undefined のとき条件を true にすると scoreWaits を riichi 無しでもう一度呼ぶだけで、withoutRiichi と同じ値になる（scoreWaits は入力だけで決まる）",
+    "where": "src/problem/tenpai-score/generator.ts:333:7 appliedRiichi -> true"
+  },
+  "x3ykgpjibl": {
+    "reason": "equivalent: switch の各 case が userAnswer.type を正解と同じ種別か確かめ直すため、入口の種別の不一致での早期 return を外しても判定結果は変わらない",
+    "where": "src/problem/score-table/judgement.ts:23:47 { return false; } -> {}"
+  }
+}
