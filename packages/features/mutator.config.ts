@@ -27,6 +27,12 @@
 //   なりにくい。それ以外のファイルが純粋であることはルートの `eslint.config.mjs` が
 //   同じ glob（`packages/features/src/**/use-*.ts`）を境界にして保証しているので、
 //   対象の定義を新しく作らずその境界に合わせる。境界の glob を変えるときはここも揃える
+// - `src/glossary/terms/**`・`src/account/reserved-usernames.ts`: 中身がデータの定義
+//   （用語の定義・予約語の配列）で、文字列 1 つの書き換えを検出するにはテストにデータを
+//   写すしかない。固定データを外したのと同じ理由。`reserved-usernames.ts` の関数は
+//   `Set.has` の 1 行（`isReservedUsername`）で、ユーザー名の判定の入口
+//   （`account/username.ts` のテスト）から検証される。同じ用語集でも `src/glossary/kana.ts`
+//   は行の振り分けとアンカーの関数を持つので外さない
 import { defineConfig } from "@mizchi/mutator";
 
 export default defineConfig({
@@ -36,6 +42,8 @@ export default defineConfig({
     "src/**/*.fixture.ts",
     "src/**/test-fixtures.ts",
     "src/**/use-*.ts",
+    "src/glossary/terms/**",
+    "src/account/reserved-usernames.ts",
   ],
   reporters: ["text", "html", "json"],
   failOnSurvived: false,
