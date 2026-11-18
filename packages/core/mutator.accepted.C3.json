@@ -75,6 +75,10 @@
     "reason": "equivalent: randomChoice は空配列に対して arr[0] すなわち undefined を返すので、空の判定を外しても戻り値は undefined のまま",
     "where": "src/problem/shared/hand-skeleton.ts:278:7 candidates.length === 0 -> false"
   },
+  "fl3n8whri5": {
+    "reason": "equivalent: riichi-mahjong 1.1.1 の calculateScoreForTehai は役の無い手を NoYakuError の Err で返すため、han === 0 の Ok は来ない（calculateFuSource が undefined を返し、手前の !score?.detail で undefined になる）",
+    "where": "src/problem/total-fu/generator.ts:77:25 score.han === 0 -> false"
+  },
   "gbsxib17gt": {
     "reason": "equivalent: 候補が空なら randomChoice は undefined を返し、tracker.use(undefined) は usage[undefined] + count が NaN で canUse が false になり Err を返すので、空の判定を外しても undefined が返る",
     "where": "src/problem/shared/tile-random.ts:89:7 candidates.length === 0 -> false"
