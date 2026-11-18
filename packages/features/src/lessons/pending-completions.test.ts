@@ -95,6 +95,33 @@ describe("addPendingLessonCompletion", () => {
       { slug: "mangan-ko-ron", completedAt: NOW, userId: "u1" },
     ]);
   });
+
+  it("別のスラッグの預かりは残したまま末尾に足す", () => {
+    const entries = addPendingLessonCompletion(
+      [{ slug: "mangan-ko-ron", completedAt: NOW - 5000 }],
+      { slug: "jantou-fu", completedAt: NOW },
+    );
+
+    expect(entries).toEqual([
+      { slug: "mangan-ko-ron", completedAt: NOW - 5000 },
+      { slug: "jantou-fu", completedAt: NOW },
+    ]);
+  });
+});
+
+describe("PENDING_LESSON_COMPLETION_TTL_MS", () => {
+  const HOUR_MS = 60 * 60 * 1000;
+
+  it("未ログインで終えた完了は、翌日（23 時間後）に開いても読み出せ、25 時間後には捨てる", () => {
+    const raw = serializePendingLessonCompletions([
+      { slug: "mangan-ko-ron", completedAt: NOW - 23 * HOUR_MS },
+      { slug: "jantou-fu", completedAt: NOW - 25 * HOUR_MS },
+    ]);
+
+    expect(parsePendingLessonCompletions(raw, NOW)).toEqual([
+      { slug: "mangan-ko-ron", completedAt: NOW - 23 * HOUR_MS },
+    ]);
+  });
 });
 
 describe("removePendingLessonCompletions", () => {
