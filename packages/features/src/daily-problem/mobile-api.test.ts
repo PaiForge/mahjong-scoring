@@ -95,7 +95,15 @@ describe("parseMobileDailyProblemResponse", () => {
   });
 
   it("日付キーの形が違えば undefined", () => {
-    for (const day of ["2026/11/17", "2026-11-7", "", 20261117]) {
+    for (const day of [
+      "2026/11/17",
+      "2026-11-7",
+      "",
+      20261117,
+      // 日付の前後に余分な文字が付いたもの
+      "x2026-11-17",
+      "2026-11-17T00:00:00Z",
+    ]) {
       expect(
         parseMobileDailyProblemResponse({ day, problem: null, answer: null }),
       ).toBe(undefined);

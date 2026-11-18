@@ -113,6 +113,36 @@ describe("judgeDailyProblemAnswer", () => {
     expect(result.isFuCorrect).toBe(false);
   });
 
+  describe("ダブル役満の扱いは閲覧者の設定に従う", () => {
+    /** 正解が 26 翻（ダブル役満）の問題に、13 翻（役満）と答える */
+    function judgeYakumanAgainstDouble(settings: RuleSettings) {
+      const base = built(settings);
+      const question: ScoreQuestion = {
+        ...base,
+        answer: { ...base.answer, han: 26 },
+      };
+      return judgeDailyProblemAnswer(
+        question,
+        { ...correctAnswerOf(question), han: 13 },
+        settings,
+      );
+    }
+
+    it("ダブル役満を採用しない設定では、役満と同じ答えとして扱う", () => {
+      expect(
+        judgeYakumanAgainstDouble(DEFAULT_RULE_SETTINGS).isHanCorrect,
+      ).toBe(true);
+    });
+
+    it("ダブル役満を採用する設定では、役満とは別の答えとして扱う", () => {
+      const result = judgeYakumanAgainstDouble({
+        ...DEFAULT_RULE_SETTINGS,
+        daisuushiiDouble: true,
+      });
+      expect(result.isHanCorrect).toBe(false);
+    });
+  });
+
   it("役は問わない（標準の判定モード）", () => {
     const question = built(DEFAULT_RULE_SETTINGS);
     const result = judgeDailyProblemAnswer(
