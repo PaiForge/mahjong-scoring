@@ -1,0 +1,50 @@
+{
+  "10y1y62u1mq": {
+    "reason": "equivalent: isPracticeMenuType checks typeof value === string itself, so dropping the outer string check still rejects array params",
+    "where": "src/my-record/requested-board.ts:29:7 typeof menu !== \"string\" -> false"
+  },
+  "12cvtm60w8e": {
+    "reason": "equivalent: when run is undefined the schema still requires a numeric run, so parsed.data.run !== undefined returns undefined on the next line",
+    "where": "src/challenge/challenge-run.ts:76:28 run === undefined -> false"
+  },
+  "13kzlbsrmur": {
+    "reason": "equivalent: rounded === 0 returns early on the previous line (including -0), so > 0 and >= 0 agree on every value that reaches the comparison",
+    "where": "src/challenge/signed-delta.ts:44:10 rounded > 0 -> rounded >= 0"
+  },
+  "1p0q2laqqxr": {
+    "reason": "equivalent: zod safeParse returns data undefined on failure, so returning parsed.data unconditionally yields the same undefined as the explicit fallback",
+    "where": "src/challenge/mobile-api.ts:288:10 parsed.success -> true"
+  },
+  "1sojfmawt3n": {
+    "reason": "equivalent: zod safeParse returns data undefined on failure, so returning parsed.data unconditionally yields the same undefined as the explicit fallback",
+    "where": "src/leaderboard/mobile-api.ts:131:10 parsed.success -> true"
+  },
+  "1z41emq83i": {
+    "reason": "equivalent: zod safeParse returns data undefined on failure, so returning parsed.data unconditionally yields the same undefined as the explicit fallback",
+    "where": "src/challenge/mobile-api.ts:432:10 parsed.success -> true"
+  },
+  "22t57v2tkoi": {
+    "reason": "equivalent: a stored count of 0 and the skipped case both leave the count at EMPTY_QUOTA_COUNTS' 0",
+    "where": "src/quota/limits.ts:88:65 count >= 0 -> count > 0"
+  },
+  "25c55zf7fbb": {
+    "reason": "equivalent: zod safeParse returns data undefined on failure, so returning parsed.data unconditionally yields the same undefined as the explicit fallback",
+    "where": "src/challenge/mobile-api.ts:311:10 parsed.success -> true"
+  },
+  "2dxs7ej6czv": {
+    "reason": "equivalent: the fallback only adds slugs to the set of lessons to skip; no lesson slug equals the injected placeholder string, so the picked chapter cannot change",
+    "where": "src/dashboard/guidance.ts:78:51 [] -> [\"Stryker was here!\"]"
+  },
+  "9w01obf2ch": {
+    "reason": "equivalent: rounded === 0 returns early on the previous line (including -0), so > 0 and >= 0 agree on every value that reaches the comparison",
+    "where": "src/challenge/signed-delta.ts:25:10 rounded > 0 -> rounded >= 0"
+  },
+  "a576cvy99z": {
+    "reason": "equivalent: zod safeParse returns data undefined on failure, so returning parsed.data unconditionally yields the same undefined as the explicit fallback",
+    "where": "src/challenge/mobile-api.ts:327:10 parsed.success -> true"
+  },
+  "ph7yisywiz": {
+    "reason": "equivalent: an empty catch block falls through to the end of the function, which returns undefined just like the explicit return",
+    "where": "src/challenge/challenge-run.ts:81:11 { return undefined; } -> {}"
+  }
+}

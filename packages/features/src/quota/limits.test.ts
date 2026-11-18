@@ -1,6 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import { EMPTY_QUOTA_COUNTS, parseQuotaCounts } from "./limits";
+import {
+  EMPTY_QUOTA_COUNTS,
+  isQuotaMenu,
+  parseQuotaCounts,
+  QUOTA_MENUS,
+} from "./limits";
+
+describe("isQuotaMenu", () => {
+  it.each(QUOTA_MENUS)("回数制限の対象の %s は対象と認める", (menu) => {
+    expect(isQuotaMenu(menu)).toBe(true);
+  });
+
+  it.each([
+    ["回数制限の無い練習", "jantou-fu"],
+    ["空文字", ""],
+    ["表記違い", "agari_score"],
+  ])("%s は対象と認めない", (_label, value) => {
+    expect(isQuotaMenu(value)).toBe(false);
+  });
+});
 
 describe("parseQuotaCounts", () => {
   it("保存した回数を読む", () => {
