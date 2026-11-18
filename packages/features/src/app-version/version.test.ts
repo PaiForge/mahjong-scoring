@@ -9,6 +9,11 @@ describe("parseAppVersion", () => {
     expect(parseAppVersion("1.2.3")).toEqual([1, 2, 3]);
   });
 
+  it("各桁は 6 桁まで読む", () => {
+    expect(parseAppVersion("12.345.678901")).toEqual([12, 345, 678901]);
+    expect(parseAppVersion("1234567")).toBeUndefined();
+  });
+
   it("形の違う値は読まない", () => {
     for (const value of ["", "1.2.3.4", "v1.0.0", "1.0.0-beta", "1..0", " 1"]) {
       expect(parseAppVersion(value)).toBeUndefined();

@@ -65,6 +65,16 @@ describe("buildNotificationMessage", () => {
     ).toEqual({ key: "purchaseCompleted" });
   });
 
+  it("知らない購入の形は期限があっても既定の購入完了の文面", () => {
+    expect(
+      buildNotificationMessage(
+        "purchase_completed",
+        { kind: "subscription", expiresAt: "2026-10-31T03:00:00.000Z" },
+        "ja",
+      ),
+    ).toEqual({ key: "purchaseCompleted" });
+  });
+
   it("買い切りの購入完了は期限を持たない文面", () => {
     expect(
       buildNotificationMessage(
