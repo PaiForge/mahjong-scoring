@@ -2,9 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import { RANK_REGISTRY } from "../ranks/registry";
 import {
+  MOBILE_EXAM_GOALS_API_PATH,
   examGoalsFromRegistry,
   parseMobileExamGoalsResponse,
 } from "./mobile-api";
+
+describe("MOBILE_EXAM_GOALS_API_PATH", () => {
+  it("サーバーのルート（app/api/mobile/v1/exams/goals）と同じパス（配布済みのアプリがこのパスを叩く）", () => {
+    expect(MOBILE_EXAM_GOALS_API_PATH).toBe("/api/mobile/v1/exams/goals");
+  });
+});
 
 describe("examGoalsFromRegistry", () => {
   it("すべての試験の合格ラインをレジストリから組む", () => {

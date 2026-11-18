@@ -13,7 +13,14 @@
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS, EXAM_GENERATION_MAX_RETRIES } from "./types";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import { practiceMenuByType } from "../../practice-menu-types";
+import {
+  EXAM_BOARD_CONFIG,
+  EXAM_GENERATE_OPTIONS,
+  EXAM_GENERATION_MAX_RETRIES,
+} from "./types";
 
 /** 平和の符（ツモ = 副底のまま / ロン = 門前加符が乗る） */
 const PINFU_FU = [20, 30];
@@ -51,5 +58,13 @@ describe("EXAM_GENERATE_OPTIONS", () => {
     // 1回の試行あたりの成立率は約6.5%。既定の100では約0.12%/問で生成に失敗し、
     // 試験1回ぶんでは約1.2%が「答えられない問題」に当たる
     expect(EXAM_GENERATION_MAX_RETRIES).toBeGreaterThanOrEqual(500);
+  });
+});
+
+describe("EXAM_BOARD_CONFIG", () => {
+  it("盤面の翻訳名前空間は練習レジストリの試験の名前空間と同じで、辞書にある", () => {
+    const { namespace } = practiceMenuByType("pinfu_exam");
+    expect(EXAM_BOARD_CONFIG.translationNamespace).toBe(namespace);
+    expect(messages).toHaveProperty(namespace);
   });
 });
