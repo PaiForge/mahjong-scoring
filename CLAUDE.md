@@ -259,9 +259,24 @@ web と同じ画面をネイティブで出す Expo アプリ。web 側の作業
   振る舞いが変わらないもの）があるので 100% は原理的に目標にならず、リファクタリングの指標として
   手元で読む。`pnpm test` は issue solver とクラウドセッションの品質ゲートなので、分単位の処理と
   実行ごとに揺れる結果を入れない
-- **コマンド**: 全件は `pnpm mutation`（2 パッケージを順に実行）。パッケージ単位・差分だけなら
+- **コマンド**: 全件は `pnpm mutation`（2 パッケージを順に実行。全体を見渡す用で、RuntimeError の
+  件数は信頼できない — 下記）。パッケージ単位・差分だけなら
   `pnpm --filter @mahjong-scoring/core mutation --since main`（フラグは mutator にそのまま渡る）。
   レポートは `packages/<name>/.mutator/report/index.html` と `mutation.json`（`.mutator/` は Git 管理外）
+- **RuntimeError は偽の検出を含む。閉じたと数えるのは Killed だけ。** 読み込み時に例外を投げる
+  ミュータントが一度出ると、同じ実行の後続の回にもそのテストファイルの読み込み失敗が数えられ、テストが
+  全部通るミュータントが RuntimeError と報告される（手で書き換えてテストが全部通るものが RuntimeError
+  になっていたのを確かめた。仕組みと設定で避けられない理由は `packages/features/mutator.config.ts` の
+  コメント）。範囲が広いほど起きやすく、全件の実行で最も多い。Killed と Survived は影響を受けない。
+  テストを足して「潰せた」と数えるのも Killed になったものだけで、RuntimeError・Timeout に変わった
+  だけのものは数えない
+- **未検出の一覧と「潰せた」の判定は、キャッシュ無し・ディレクトリ単位の実行から取る。**
+  パッケージのディレクトリで `.mutator/` を消し（前の実行の結果を再利用するので、偽の RuntimeError も
+  引き継がれる）、`pnpm exec mutator --include 'src/<dir>/**/*.ts'` で回す。glob は `**/*.ts` まで
+  書く（`src/<dir>/**` はディレクトリに当たって EISDIR で落ちる）。`--include` は設定の `include` を
+  置き換え、`exclude` は設定のものが残る。`--reporter` も設定の `reporters` を置き換える。それでも
+  RuntimeError が出たら、`killedBy` のテストファイルが書き換えたファイルを読み込むかを見て、
+  `.mutator/` を消してから `--only <key>` で単独に回し直して確かめる
 - **core の全件は時間が掛かり、結果が実行ごとに揺れうる。** 出題ジェネレータの統計的テスト
   （シードなしの乱数で数万回回す）がミュータントごとに再実行され、生死が標本に依るものもあるため。
   日常は `--since` の差分実行を使う
