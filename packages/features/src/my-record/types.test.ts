@@ -6,7 +6,8 @@ import { getPeriodRange } from "./period";
 import { DATE_PERIOD_VALUES, isDatePeriod } from "./types";
 
 describe("DATE_PERIOD_VALUES", () => {
-  it("期間の選択肢は重複せず、どれも期間選択の辞書にラベルがある", () => {
+  it("期間の選択肢は 1 つ以上あって重複せず、どれも期間選択の辞書にラベルがある", () => {
+    expect(DATE_PERIOD_VALUES.length).toBeGreaterThan(0);
     expect(new Set(DATE_PERIOD_VALUES).size).toBe(DATE_PERIOD_VALUES.length);
     for (const period of DATE_PERIOD_VALUES) {
       expect(messages.mypage.challenges.periods[period]).toEqual(
