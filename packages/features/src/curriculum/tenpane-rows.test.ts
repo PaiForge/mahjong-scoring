@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { messages } from "@mahjong-scoring/messages/ja";
 
 import { buildTenpaneRows } from "./tenpane-rows";
+
+/** 表の 4 枚（門前 / 副露 × ツモ / ロン） */
+const TABLES = [
+  ["menzen", "ron"],
+  ["menzen", "tsumo"],
+  ["furo", "ron"],
+  ["furo", "tsumo"],
+] as const;
 
 describe("buildTenpaneRows", () => {
   it("門前のロンは30符から足して切り上げる", () => {
@@ -48,5 +57,25 @@ describe("buildTenpaneRows", () => {
       [32, 40],
       [38, 40],
     ]);
+  });
+});
+
+describe("buildTenpaneRows の例と辞書", () => {
+  it.each(TABLES)(
+    "%s の %s の表の例は辞書に説明があり、説明の符が積み上げた符と一致する",
+    (handShape, winType) => {
+      for (const { key, extraFu } of buildTenpaneRows(handShape, winType)) {
+        const label: unknown = Reflect.get(
+          messages.learnCurriculum.tenpaneExamples,
+          key,
+        );
+        expect(label, key).toEqual(expect.stringContaining(`（${extraFu}符）`));
+      }
+    },
+  );
+
+  it.each(TABLES)("%s の %s の表の例は重複しない", (handShape, winType) => {
+    const keys = buildTenpaneRows(handShape, winType).map(({ key }) => key);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 });

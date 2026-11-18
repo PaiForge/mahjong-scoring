@@ -12,7 +12,10 @@
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS } from "./types";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import { practiceMenuByType } from "../../practice-menu-types";
+import { EXAM_BOARD_CONFIG, EXAM_GENERATE_OPTIONS } from "./types";
 
 /** 七対子の符（常に固定。この試験の主題そのもの） */
 const CHIITOITSU_FU = 25;
@@ -39,5 +42,13 @@ describe("EXAM_GENERATE_OPTIONS", () => {
         "七対子",
       );
     }
+  });
+});
+
+describe("EXAM_BOARD_CONFIG", () => {
+  it("盤面の翻訳名前空間は練習レジストリの試験の名前空間と同じで、辞書にある", () => {
+    const { namespace } = practiceMenuByType("chiitoitsu_exam");
+    expect(EXAM_BOARD_CONFIG.translationNamespace).toBe(namespace);
+    expect(messages).toHaveProperty(namespace);
   });
 });

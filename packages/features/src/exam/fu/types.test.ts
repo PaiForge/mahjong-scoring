@@ -10,7 +10,15 @@
 import { generateTotalFuQuestion, retryGenerate } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS, EXAM_GENERATION_MAX_RETRIES } from "./types";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import { practiceMenuByType } from "../../practice-menu-types";
+import {
+  EXAM_GENERATE_OPTIONS,
+  EXAM_GENERATION_MAX_RETRIES,
+  EXAM_TRANSLATION_NAMESPACE,
+  generateExamQuestion,
+} from "./types";
 
 describe("EXAM_GENERATE_OPTIONS", () => {
   it("連風牌（場風＝自風）の局面を出題しない", () => {
@@ -36,5 +44,23 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 
   it("ルール設定（連風牌4符）を出題条件に含めない", () => {
     expect(EXAM_GENERATE_OPTIONS).not.toHaveProperty("renfonpaiAs4Fu");
+  });
+});
+
+describe("generateExamQuestion", () => {
+  it("試験の出題条件で 1 問作る（場風と自風が異なる手牌の合計符の問題）", () => {
+    for (let i = 0; i < 20; i++) {
+      const question = generateExamQuestion();
+      expect(question).toBeDefined();
+      expect(question?.context.jikaze).not.toBe(question?.context.bakaze);
+    }
+  });
+});
+
+describe("EXAM_TRANSLATION_NAMESPACE", () => {
+  it("練習レジストリの試験の名前空間と同じで、辞書にある", () => {
+    const { namespace } = practiceMenuByType("fu_exam");
+    expect(EXAM_TRANSLATION_NAMESPACE).toBe(namespace);
+    expect(messages).toHaveProperty(namespace);
   });
 });

@@ -14,7 +14,10 @@
 import { MANGAN_MIN_HAN } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS } from "./types";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import { practiceMenuByType } from "../../practice-menu-types";
+import { EXAM_BOARD_CONFIG, EXAM_GENERATE_OPTIONS } from "./types";
 
 describe("EXAM_GENERATE_OPTIONS", () => {
   it("翻数だけで点数が確定する手（5翻以上）に限定している", () => {
@@ -30,5 +33,13 @@ describe("EXAM_GENERATE_OPTIONS", () => {
 
   it("役満ルールの採否で正解が割れる手を出題しない", () => {
     expect(EXAM_GENERATE_OPTIONS.excludeYakumanRuleBoundary).toBe(true);
+  });
+});
+
+describe("EXAM_BOARD_CONFIG", () => {
+  it("盤面の翻訳名前空間は練習レジストリの試験の名前空間と同じで、辞書にある", () => {
+    const { namespace } = practiceMenuByType("mangan_exam");
+    expect(EXAM_BOARD_CONFIG.translationNamespace).toBe(namespace);
+    expect(messages).toHaveProperty(namespace);
   });
 });
