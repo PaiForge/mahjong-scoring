@@ -14,6 +14,12 @@ describe("normalizeSiteUrl", () => {
     );
   });
 
+  it("末尾に続くスラッシュはまとめて落とす", () => {
+    expect(normalizeSiteUrl("https://example.com//")).toBe(
+      "https://example.com",
+    );
+  });
+
   it("URL として読めない値は本番の URL", () => {
     expect(normalizeSiteUrl("score.mahjong.help")).toBe(
       "https://score.mahjong.help",

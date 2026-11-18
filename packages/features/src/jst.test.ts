@@ -290,6 +290,10 @@ describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
         "2026-10-19T10:00+09:00",
         "2026-02-30T10:00",
         "2026-10-19T24:00",
+        // 秒より細かい値は Date なら読めるが、入力欄の値の形ではない
+        "2026-10-19T10:00:00.500",
+        // 形は合うが Date が読めない（13 月）
+        "2026-13-01T10:00",
       ])("形が違う・存在しない日時（%j）は null", (value) => {
         vi.stubEnv("TZ", tz);
         expect(parseJstDateTimeLocal(value)).toBeNull();
