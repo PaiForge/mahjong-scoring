@@ -281,6 +281,22 @@ describe("parsePracticeProblemArchiveRequest: 表示牌とリーチ", () => {
     ).toBe("riichiWithFuro");
   });
 
+  it("副露のある手のリーチは、和了牌の検査より先に riichiWithFuro で拒む", () => {
+    // 盤面の検査（表示牌とリーチ）は和了形の採点より前に行う
+    const request = agariRequest(meldedAgariQuestion());
+    if (request.kind !== "agari-score") throw new Error(request.kind);
+    expect(
+      errorOf({
+        ...request,
+        payload: {
+          ...request.payload,
+          agariHai: m(1),
+          riichi: { uraDoraMarkers: [z(1), z(2), z(3)] },
+        },
+      }),
+    ).toBe("riichiWithFuro");
+  });
+
   it("暗槓だけを持つ門前の手のリーチは受け付ける", () => {
     const request = overTheWire(agariRequest(ankanRiichiAgariQuestion()));
     expect(parse(request).isOk()).toBe(true);
@@ -440,5 +456,215 @@ describe("parsePracticeProblemArchiveRequest: 聴牌形", () => {
     expect(
       errorOf(tenpai(closed, { riichi: { uraDoraMarkers: [z(3)] } })),
     ).toBe("riichiWithNoYakuRon");
+  });
+});
+
+describe("parsePracticeProblemArchiveRequest: 形の細部（採点の前に malformed で拒むもの）", () => {
+  /** PLAIN_AGARI の和了形の盤面。値を壊して送るために型を外して持つ */
+  const plainPayload: Readonly<Record<string, unknown>> = {
+    hand: { closed: PLAIN_AGARI, exposed: [] },
+    agariHai: m(1),
+    isTsumo: true,
+    jikaze: HaiKind.Nan,
+    bakaze: HaiKind.Ton,
+    doraMarkers: [HaiKind.Pei],
+    riichi: null,
+  };
+
+  function agariWith(patch: Readonly<Record<string, unknown>>): unknown {
+    return {
+      kind: "agari-score",
+      schemaVersion: 1,
+      payload: { ...plainPayload, ...patch },
+    };
+  }
+
+  /** 4 副露の和了形の 1 つ目の副露（チー）を差し替えた要求 */
+  function meldedWith(firstMeld: unknown): unknown {
+    const request = agariRequest(meldedAgariQuestion());
+    if (request.kind !== "agari-score") throw new Error(request.kind);
+    const [, ...others] = request.payload.hand.exposed;
+    return {
+      ...request,
+      payload: {
+        ...request.payload,
+        hand: { ...request.payload.hand, exposed: [firstMeld, ...others] },
+      },
+    };
+  }
+
+  it("オブジェクトでない要求は拒む", () => {
+    expect(errorOf(null)).toBe("malformed");
+    expect(errorOf("agari-score")).toBe("malformed");
+    expect(errorOf([])).toBe("malformed");
+  });
+
+  it("要求のキーの数と同じ長さの文字列も例外にせず拒む", () => {
+    // 文字列は添字をキーに持つので、キーの数だけ見ると要求と区別できない
+    expect(errorOf("abc")).toBe("malformed");
+    expect(errorOf(agariWith({ riichi: "x" }))).toBe("malformed");
+  });
+
+  it("配列は要求と同じ名前のプロパティを持っていても拒む", () => {
+    const request = agariRequest(meldedAgariQuestion());
+    expect(errorOf(Object.assign([], request))).toBe("malformed");
+  });
+
+  it("キーの数が合っていても名前の違うキーがあれば拒む", () => {
+    const request = agariRequest(meldedAgariQuestion());
+    expect(
+      errorOf({
+        kind: request.kind,
+        schemaVersion: request.schemaVersion,
+        payloads: request.payload,
+      }),
+    ).toBe("malformed");
+    const { riichi, ...withoutRiichi } = plainPayload;
+    expect(
+      errorOf({
+        kind: "agari-score",
+        schemaVersion: 1,
+        payload: { ...withoutRiichi, reach: riichi },
+      }),
+    ).toBe("malformed");
+  });
+
+  it("盤面がオブジェクトでなければ拒む", () => {
+    expect(
+      errorOf({ kind: "agari-score", schemaVersion: 1, payload: null }),
+    ).toBe("malformed");
+    expect(
+      errorOf({ kind: "tenpai-score", schemaVersion: 1, payload: [] }),
+    ).toBe("malformed");
+  });
+
+  it("和了牌・ツモの型が違えば拒む", () => {
+    expect(errorOf(agariWith({ agariHai: 34 }))).toBe("malformed");
+    expect(errorOf(agariWith({ isTsumo: "true" }))).toBe("malformed");
+  });
+
+  it("聴牌形の盤面に和了牌・ツモのキーがあれば拒む", () => {
+    expect(
+      errorOf({
+        kind: "tenpai-score",
+        schemaVersion: 1,
+        payload: plainPayload,
+      }),
+    ).toBe("malformed");
+  });
+
+  it("場風・自風・表ドラ表示牌の型が違えば拒む", () => {
+    expect(errorOf(agariWith({ bakaze: HaiKind.Haku }))).toBe("malformed");
+    expect(errorOf(agariWith({ jikaze: 34 }))).toBe("malformed");
+    expect(errorOf(agariWith({ doraMarkers: "4z" }))).toBe("malformed");
+  });
+
+  it("手牌の形が違えば拒む", () => {
+    expect(errorOf(agariWith({ hand: null }))).toBe("malformed");
+    expect(errorOf(agariWith({ hand: { closed: PLAIN_AGARI } }))).toBe(
+      "malformed",
+    );
+    expect(
+      errorOf(agariWith({ hand: { closed: PLAIN_AGARI, exposed: {} } })),
+    ).toBe("malformed");
+    expect(errorOf(agariWith({ hand: { closed: "123m", exposed: [] } }))).toBe(
+      "malformed",
+    );
+  });
+
+  it("副露は 4 つまで受け付け、5 つ目があれば採点の前に拒む", () => {
+    const request = agariRequest(meldedAgariQuestion());
+    if (request.kind !== "agari-score") throw new Error(request.kind);
+    const { exposed } = request.payload.hand;
+    expect(exposed).toHaveLength(4);
+    expect(parse(overTheWire(request)).isOk()).toBe(true);
+    expect(
+      errorOf({
+        ...request,
+        payload: {
+          ...request.payload,
+          hand: {
+            ...request.payload.hand,
+            exposed: [...exposed, { type: "ankan", hais: [8, 8, 8, 8] }],
+          },
+        },
+      }),
+    ).toBe("malformed");
+  });
+
+  it.each<[string, unknown]>([
+    ["オブジェクトでない副露", null],
+    ["牌が配列でない副露", { type: "ankan", hais: "1111m" }],
+    ["牌が 5 枚の副露", { type: "ankan", hais: [8, 8, 8, 8, 8] }],
+    ["牌に範囲外の値を含む副露", { type: "ankan", hais: [8, 8, 8, 34] }],
+    [
+      "未知の種別の副露",
+      { type: "minkan", hais: [8, 8, 8, 8], from: "toimen" },
+    ],
+    ["鳴いた牌が範囲外のチー", { type: "chi", hais: [1, 2, 3], nakiHai: 34 }],
+    ["鳴いた牌の無いチー", { type: "chi", hais: [1, 2, 3] }],
+    ["鳴き元の無いポン", { type: "pon", hais: [8, 8, 8] }],
+    ["鳴き元が他家でないポン", { type: "pon", hais: [8, 8, 8], from: "self" }],
+    [
+      "鳴いた牌のキーを持つポン",
+      { type: "pon", hais: [8, 8, 8], from: "toimen", nakiHai: 8 },
+    ],
+    [
+      "鳴き元が他家でない大明槓",
+      { type: "daiminkan", hais: [8, 8, 8, 8], from: "jicha" },
+    ],
+    ["鳴き元を持つ暗槓", { type: "ankan", hais: [8, 8, 8, 8], from: "toimen" }],
+  ])("%sは拒む", (_label, meld) => {
+    expect(errorOf(meldedWith(meld))).toBe("malformed");
+  });
+
+  it.each(["kamicha", "toimen", "shimocha"])(
+    "鳴き元 %s のポンは受け付ける",
+    (from) => {
+      // 4 副露の和了形のチー 234m を 999m のポンに差し替えても枚数と和了形は保たれる
+      const accepted = parse(
+        meldedWith({ type: "pon", hais: [8, 8, 8], from }),
+      );
+      expect(accepted._unsafeUnwrap().payload.hand.exposed[0]).toEqual({
+        type: "pon",
+        hais: [8, 8, 8],
+        from,
+      });
+    },
+  );
+
+  it("リーチの形が違えば拒む", () => {
+    expect(errorOf(agariWith({ riichi: true }))).toBe("malformed");
+    expect(
+      errorOf(agariWith({ riichi: { uraDoraMarkers: [z(3)], ippatsu: true } })),
+    ).toBe("malformed");
+    expect(errorOf(agariWith({ riichi: { uraDoraMarkers: [34] } }))).toBe(
+      "malformed",
+    );
+  });
+
+  it("表示牌は 5 枚までなら形として受け付け、枚数の検査で拒む", () => {
+    const five = [z(4), z(4), z(3), z(3), z(2)];
+    expect(errorOf(agariWith({ doraMarkers: five }))).toBe(
+      "invalidDoraMarkerCount",
+    );
+    expect(errorOf(agariWith({ riichi: { uraDoraMarkers: five } }))).toBe(
+      "invalidUraDoraMarkerCount",
+    );
+    expect(
+      errorOf(agariWith({ riichi: { uraDoraMarkers: [...five, z(1)] } })),
+    ).toBe("malformed");
+  });
+
+  it("手牌と表示牌を合わせて同種 4 枚ちょうどの盤面は受け付ける", () => {
+    // 手牌の白 2 枚 + 表ドラ表示牌の白 + 裏ドラ表示牌の白
+    expect(
+      parse(
+        agariWith({
+          doraMarkers: [z(5)],
+          riichi: { uraDoraMarkers: [z(5)] },
+        }),
+      ).isOk(),
+    ).toBe(true);
   });
 });

@@ -57,6 +57,17 @@ describe("archiveIdentityInput: 同じ問題とみなすもの", () => {
     expect(archiveIdentityInput(reversed)).toBe(archiveIdentityInput(request));
   });
 
+  it("範囲外の値を含む純手牌は数値の昇順に並べ、並びが違うだけなら同じ文字列", () => {
+    const { payload } = melded();
+    const ordered = withPayload({ hand: { ...payload.hand, closed: [5, 40] } });
+    const reversed = withPayload({
+      hand: { ...payload.hand, closed: [40, 5] },
+    });
+    expect(archiveIdentityInput(reversed)).toBe(archiveIdentityInput(ordered));
+    // 文字列として並べると 40 が 5 より前に来る
+    expect(archiveIdentityInput(reversed)).toContain("[5,40]");
+  });
+
   it("JSON のキーの順が違っても同じ文字列", () => {
     const { request, payload } = melded();
     const reordered: PracticeProblemArchiveRequest = {
