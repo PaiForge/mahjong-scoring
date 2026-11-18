@@ -281,6 +281,22 @@ describe("parsePracticeProblemArchiveRequest: 表示牌とリーチ", () => {
     ).toBe("riichiWithFuro");
   });
 
+  it("副露のある手のリーチは、和了牌の検査より先に riichiWithFuro で拒む", () => {
+    // 盤面の検査（表示牌とリーチ）は和了形の採点より前に行う
+    const request = agariRequest(meldedAgariQuestion());
+    if (request.kind !== "agari-score") throw new Error(request.kind);
+    expect(
+      errorOf({
+        ...request,
+        payload: {
+          ...request.payload,
+          agariHai: m(1),
+          riichi: { uraDoraMarkers: [z(1), z(2), z(3)] },
+        },
+      }),
+    ).toBe("riichiWithFuro");
+  });
+
   it("暗槓だけを持つ門前の手のリーチは受け付ける", () => {
     const request = overTheWire(agariRequest(ankanRiichiAgariQuestion()));
     expect(parse(request).isOk()).toBe(true);
@@ -481,6 +497,12 @@ describe("parsePracticeProblemArchiveRequest: 形の細部（採点の前に mal
     expect(errorOf(null)).toBe("malformed");
     expect(errorOf("agari-score")).toBe("malformed");
     expect(errorOf([])).toBe("malformed");
+  });
+
+  it("要求のキーの数と同じ長さの文字列も例外にせず拒む", () => {
+    // 文字列は添字をキーに持つので、キーの数だけ見ると要求と区別できない
+    expect(errorOf("abc")).toBe("malformed");
+    expect(errorOf(agariWith({ riichi: "x" }))).toBe("malformed");
   });
 
   it("配列は要求と同じ名前のプロパティを持っていても拒む", () => {
