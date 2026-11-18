@@ -47,6 +47,15 @@ appId: help.mahjong.score
       id: "daily-problem-more"
     direction: DOWN
 - assertVisible: "もっと解く"
+- scrollUntilVisible:
+    element:
+      text: "解答を記録しました。"
+    direction: UP
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: "daily-problem-more"
+    direction: DOWN
 - assertVisible: "和了形の点数計算へ"
 - takeScreenshot: daily-problem-answered
 - tapOn:

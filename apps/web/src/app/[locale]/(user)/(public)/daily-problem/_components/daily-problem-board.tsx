@@ -208,7 +208,7 @@ export function DailyProblemBoard({
           <div role="status" className="space-y-2 text-sm text-surface-500">
             <p>
               {
-                !ready
+                !ready || status === "idle"
                   ? t("save.loading")
                   : t(
                       `save.${status}`,

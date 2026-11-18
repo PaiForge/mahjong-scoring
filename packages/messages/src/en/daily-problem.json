@@ -29,7 +29,6 @@
     "home": "Back to home"
   },
   "save": {
-    "idle": "",
     "loading": "Checking your record…",
     "saving": "Saving your answer…",
     "saved": "Your answer has been recorded.",

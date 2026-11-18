@@ -294,7 +294,7 @@ function DailyProblemBoard({
         <View accessibilityLiveRegion="polite" style={styles.result}>
           <Text style={styles.notice}>
             {
-              !ready
+              !ready || status === "idle"
                 ? t("save.loading")
                 : t(
                     `save.${status}`,

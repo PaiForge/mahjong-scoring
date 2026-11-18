@@ -44,8 +44,9 @@ export type RecordDailyProblemAnswerResult = ActionResult<
 
 /** 入力（クライアント由来なので形を確かめる） */
 const inputSchema = z.object({
-  /** 解いた問題の日付（JST の `YYYY-MM-DD`。ページがサーバーから渡した値） */
+  /** 表示した利用者と現在のセッションが一致するかを確かめる（認証には使わない） */
   userId: z.string().optional(),
+  /** 解いた問題の日付（JST の `YYYY-MM-DD`。ページがサーバーから渡した値） */
   day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   /** 閲覧者のルール設定で採点した正誤（「わからない」は false） */
   isCorrect: z.boolean(),
@@ -76,7 +77,7 @@ function revalidateAnswerReaders(): void {
  * 本日の問題の解答（正誤）を記録する Server Action
  * 本日の問題解答記録
  *
- * 本日の問題の盤面が、回答または「わからない」の最初の 1 回だけ呼ぶ。
+ * 本日の問題の盤面が、最初の回答または「わからない」で呼ぶ。通信失敗時は同じ正誤を再送する。
  * 採点はクライアントで済んでおり、ここは正誤を受け取って残すだけ（記録は本人に
  * しか見せず、ランキングも特典も無いので正誤を偽る動機が無い）。
  *
@@ -92,7 +93,7 @@ function revalidateAnswerReaders(): void {
  * - 既に解答済みなら何も書き換えない（最初の解答が残る）
  * - DB の失敗はログに残して `recordFailed` を返す。盤面は答え合わせを続ける
  *
- * @param input - `{ day, isCorrect }`。`day` はページがサーバーから渡した問題の日付
+ * @param input - `{ day, isCorrect, userId? }`。`day` はページがサーバーから渡した問題の日付
  */
 export async function recordDailyProblemAnswerAction(
   input: unknown,

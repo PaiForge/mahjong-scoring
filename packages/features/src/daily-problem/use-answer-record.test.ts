@@ -11,6 +11,7 @@ const day = "2026-11-17";
 function fixture() {
   const values = new Map<string, string>();
   const storage = {
+    getAllKeys: () => [...values.keys()],
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
@@ -75,6 +76,8 @@ describe("daily answer recording", () => {
     const { result } = renderHook(() => useAnswerRecord(options));
     await waitFor(() => expect(result.current.ready).toBe(true));
     expect(send).not.toHaveBeenCalled();
+    expect(values.has(`daily-problem-answer:bob:${day}`)).toBe(true);
+    expect(values.has("daily-problem-answer:alice:2026-11-16")).toBe(false);
   });
   it.each(["staleDay", "anonymous", "blocked"] as const)(
     "discards terminal %s responses",
