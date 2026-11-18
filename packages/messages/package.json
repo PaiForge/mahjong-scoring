@@ -23,6 +23,6 @@
     "retext-sentence-spacing": "^6.0.0",
     "typescript": "^7.0.2",
     "unified": "^11.0.5",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   }
 }

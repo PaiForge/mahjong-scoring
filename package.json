@@ -12,6 +12,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "mutation": "pnpm --filter @mahjong-scoring/core --filter @mahjong-scoring/features run mutation",
     "format": "prettier --write \"**/*.{ts,tsx,mts,md,json}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,mts,md,json}\"",
     "supabase": "pnpm --filter web exec supabase",

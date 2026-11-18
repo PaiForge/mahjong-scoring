@@ -10,14 +10,16 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "mutation": "mutator"
   },
   "dependencies": {
     "@pai-forge/riichi-mahjong": "^1.1.1",
     "neverthrow": "^8.2.0"
   },
   "devDependencies": {
+    "@mizchi/mutator": "0.3.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.12"
+    "vitest": "^5.1.1"
   }
 }
