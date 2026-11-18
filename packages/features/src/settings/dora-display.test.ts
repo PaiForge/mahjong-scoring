@@ -37,6 +37,13 @@ describe("resolveBoardDora", () => {
     });
   });
 
+  it("表示牌を持たない局面は、リーチしていてもドラ・裏ドラとも空", () => {
+    expect(resolveBoardDora({ isRiichi: true }, "actual")).toEqual({
+      doraTiles: [],
+      uraDoraTiles: [],
+    });
+  });
+
   it("リーチしていなければ裏ドラは空", () => {
     expect(
       resolveBoardDora({ ...context, isRiichi: false }, "indicator"),
