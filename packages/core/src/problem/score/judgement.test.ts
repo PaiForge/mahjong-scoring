@@ -338,6 +338,19 @@ describe("judgeAnswer", () => {
 
       expect(result.isHanCorrect).toBe(true);
     });
+
+    it("4翻以下の満貫（60符3翻等）でも、正解の翻数・5翻以外の回答は不正解", () => {
+      const question = makeQuestion({
+        han: 3,
+        fu: 60,
+        scoreLevel: ScoreLevel.Mangan,
+        payment: { type: "ron", amount: 8000 },
+      });
+      for (const han of [4, 6]) {
+        const answer: UserAnswer = { han, fu: 60, score: 8000, yakus: [] };
+        expect(judgeAnswer(question, answer).isHanCorrect).toBe(false);
+      }
+    });
   });
 
   describe("exactHan = true", () => {
