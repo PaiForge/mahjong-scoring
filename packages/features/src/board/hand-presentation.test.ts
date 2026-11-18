@@ -277,6 +277,18 @@ describe("buildHandPresentation", () => {
     ).toBe(true);
     expect(validateHandPresentation(SPLIT, presentation)).toEqual({ ok: true });
   });
+
+  it("random の向きでは、和了牌も種によって逆さになることも正規の向きになることもある", () => {
+    const agariInverted = new Set(
+      Array.from(
+        { length: 64 },
+        (_, sessionSeed) =>
+          buildHandPresentation(SPLIT, { ...RANDOM, sessionSeed })
+            .agariInverted,
+      ),
+    );
+    expect(agariInverted).toEqual(new Set([true, false]));
+  });
 });
 
 describe("validateHandPresentation / presentTehai", () => {
