@@ -32,6 +32,18 @@
 // - シードの固定: 統計的に網羅するというテストの性質を変える判断で、基準値を見てから決める
 // - `timeBudget`・`mutantsPerLine`: 設定に書くと「全件」が黙って部分実行になる。日常は
 //   `--since <ref>` の差分実行で回し、上限が要るときはその場でフラグとして渡す
+//
+// RuntimeError は偽の検出を含む。閉じたと数えるのは Killed だけにする。0.3.0 の vitest
+// アダプタは 1 つの Vitest インスタンスでミュータントを順に走らせ、前の回で読み込みに
+// 失敗したテストファイルを後続の回にも数えるので、テストが 1 つも落ちていない回が
+// RuntimeError になる（仕組みと、設定のキーで避けられない理由は features の
+// `mutator.config.ts` のコメント）。core でも起きることを確かめた: `src/score/tiers.ts` の
+// `index === -1` を `false` にするミュータントは、`src/problem/tenpai-score/generator.ts`・
+// `src/problem/score/judgement.ts` と一緒に回すと RuntimeError（`killedBy` は
+// `hand-skeleton.test.ts`・`mentsu-structure.test.ts`）になり、`.mutator/` を消して
+// `--only` で単独に回すと Survived になった。core で前の回の読み込み失敗を引き起こした
+// ミュータントは特定していない。ファイルを絞っても残るので、真偽は `--only <key>` で
+// 1 件ずつ確かめる（手順はルートの CLAUDE.md「ミューテーションテスト」）
 import { defineConfig } from "@mizchi/mutator";
 
 export default defineConfig({
