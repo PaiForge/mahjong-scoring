@@ -28,6 +28,7 @@ const MIGRATIONS = [
   "20261008222040_add_apple_refresh_tokens.sql",
   "20261115230546_create_practice_problems.sql",
   "20261117104232_create_daily_problems.sql",
+  "20261117223813_add_daily_problem_visibility.sql",
 ] as const;
 
 /** テスト用スキーマへの接続（最大 4 接続） */

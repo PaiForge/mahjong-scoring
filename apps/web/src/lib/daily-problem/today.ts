@@ -20,8 +20,9 @@
  * @design 候補は無作為に最大 30 行引き、適格判定を通った最初の 1 行
  * 候補の条件は `kind = 'agari-score'`・`schema_version = 1`・今日（JST）の 0:00 より
  * 前に保存・既出でない行。そこから `ORDER BY random() LIMIT 30` で引き、
- * {@link isDailyProblemEligible} を通った最初の 1 行を選ぶ。通る行が無ければ、その日は
- * 「問題なし」（`undefined`。次の読み取りでまた選び直す）。
+ * {@link isDailyProblemEligible} を通った最初の 1 行を選ぶ。通る行が無ければ検査済みの行を除外して最大3回まで引く。
+ * それでも見つからなければ「問題なし」（次の読み取りでまた選ぶ）。
+ * 候補をすべて検査した場合と検査上限に達した場合は、日付と検査数をログで区別する。
  * - `practice_problems` は、ログイン済みの利用者が検証を通る手作りの盤面を直接
  *   送れる表なので、全行から素通しで選ばない
  * - 当日に保存された行を外すのは、出る直前に狙った盤面を差し込めなくするため
@@ -35,8 +36,8 @@
  *
  * @design 停止スイッチ（`DAILY_PROBLEM_DISABLED=1`）
  * {@link isDailyProblemDisabled} が真なら DB を読まずに「問題なし」として扱う。
- * 想定外の盤面が選ばれたとき・負荷が問題になったときに、デプロイなしでカードを
- * 消せる。管理画面での差し替えは持たない。turbo の `build` / `dev` がこの
+ * 想定外の盤面が選ばれたとき・負荷が問題になったときに、環境変数が実行プロセスへ反映された後にカードを
+ * 消せる（ホスティング側で再デプロイが必要な場合がある）。管理画面では理由付きで日単位に非公開にできる。差し替えは持たない。turbo の `build` / `dev` がこの
  * 変数を通す（`turbo.json`）。
  */
 import "server-only";
@@ -47,7 +48,7 @@ import {
   type AgariProblemPayload,
 } from "@mahjong-scoring/core";
 import { jstDayKey, jstDayStartIso } from "@mahjong-scoring/features/jst";
-import { and, eq, lt, sql } from "drizzle-orm";
+import { and, eq, lt, notInArray, sql } from "drizzle-orm";
 
 import { dailyProblems, db, practiceProblems } from "../db";
 import { logExternalError } from "../log-error";
@@ -70,6 +71,7 @@ const CANDIDATE_LIMIT = 30;
 
 /** 盤面の検証に要る保存行の項目 */
 interface StoredProblem {
+  readonly withheldReason?: string | null;
   readonly kind: string;
   readonly schemaVersion: number;
   readonly payload: unknown;
@@ -94,6 +96,7 @@ export function isDailyProblemDisabled(): boolean {
 function dailyProblemPayloadOf(
   row: StoredProblem,
 ): AgariProblemPayload | undefined {
+  if (row.withheldReason) return undefined;
   const parsed = parsePracticeProblemArchiveRequest({
     kind: row.kind,
     schemaVersion: row.schemaVersion,
@@ -110,6 +113,7 @@ async function readFixedProblem(
 ): Promise<StoredProblem | undefined> {
   const [row] = await db
     .select({
+      withheldReason: dailyProblems.withheldReason,
       kind: practiceProblems.kind,
       schemaVersion: practiceProblems.schemaVersion,
       payload: practiceProblems.payload,
@@ -129,36 +133,59 @@ async function readFixedProblem(
  *
  * 一意制約（日付・問題）のどちらに当たっても入れずに読み直す。日付で当たれば
  * 並行した要求が先に固定した行が返る。問題で当たる（日付の境目に別の日が同じ
- * 行を選んだ）ときは固定されず undefined で、次の読み取りが選び直す。
+ * 行を選んだ）ときは、検査済みの行を除いて限定回数だけ選び直す。
  */
 async function chooseProblem(day: string): Promise<StoredProblem | undefined> {
-  const candidates = await db
-    .select({
-      id: practiceProblems.id,
-      kind: practiceProblems.kind,
-      schemaVersion: practiceProblems.schemaVersion,
-      payload: practiceProblems.payload,
-    })
-    .from(practiceProblems)
-    .where(
-      and(
-        eq(practiceProblems.kind, "agari-score"),
-        eq(practiceProblems.schemaVersion, ARCHIVE_SCHEMA_VERSION),
-        lt(practiceProblems.createdAt, new Date(jstDayStartIso(day))),
-        sql`${practiceProblems.id} NOT IN (SELECT ${dailyProblems.problemId} FROM ${dailyProblems})`,
-      ),
-    )
-    .orderBy(sql`random()`)
-    .limit(CANDIDATE_LIMIT);
-  const chosen = candidates.find(
-    (row) => dailyProblemPayloadOf(row) !== undefined,
+  const examined: string[] = [];
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const candidates = await db
+      .select({
+        id: practiceProblems.id,
+        kind: practiceProblems.kind,
+        schemaVersion: practiceProblems.schemaVersion,
+        payload: practiceProblems.payload,
+      })
+      .from(practiceProblems)
+      .where(
+        and(
+          examined.length === 0
+            ? undefined
+            : notInArray(practiceProblems.id, examined),
+          eq(practiceProblems.kind, "agari-score"),
+          eq(practiceProblems.schemaVersion, ARCHIVE_SCHEMA_VERSION),
+          lt(practiceProblems.createdAt, new Date(jstDayStartIso(day))),
+          sql`${practiceProblems.id} NOT IN (SELECT ${dailyProblems.problemId} FROM ${dailyProblems})`,
+        ),
+      )
+      .orderBy(sql`random()`)
+      .limit(CANDIDATE_LIMIT);
+    examined.push(...candidates.map((row) => row.id));
+    for (const chosen of candidates) {
+      if (dailyProblemPayloadOf(chosen) === undefined) continue;
+      await db
+        .insert(dailyProblems)
+        .values({ day, problemId: chosen.id })
+        .onConflictDoNothing();
+      const fixed = await readFixedProblem(day);
+      if (fixed) return fixed;
+      // 別の日に同じ問題が固定された場合は、同じ候補群の残りも試す。
+    }
+    const fixed = await readFixedProblem(day);
+    if (fixed) return fixed;
+    if (candidates.length < CANDIDATE_LIMIT) {
+      logExternalError("getDailyProblem", "出題できる未出題の問題がない", {
+        day,
+        examined: examined.length,
+      });
+      return undefined;
+    }
+  }
+  logExternalError(
+    "getDailyProblem",
+    "候補の検査上限に達したため選出できなかった",
+    { day, examined: examined.length },
   );
-  if (!chosen) return undefined;
-  await db
-    .insert(dailyProblems)
-    .values({ day, problemId: chosen.id })
-    .onConflictDoNothing();
-  return readFixedProblem(day);
+  return undefined;
 }
 
 /**
@@ -177,7 +204,7 @@ export async function getDailyProblem(
   if (isDailyProblemDisabled()) return undefined;
   const day = jstDayKey(now);
   const stored = (await readFixedProblem(day)) ?? (await chooseProblem(day));
-  if (!stored) return undefined;
+  if (!stored || stored.withheldReason) return undefined;
   const payload = dailyProblemPayloadOf(stored);
   if (!payload) {
     // 盤面はログに出さない。日付から daily_problems の行を引ける

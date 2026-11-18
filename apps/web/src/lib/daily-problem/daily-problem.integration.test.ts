@@ -87,6 +87,75 @@ describe.skipIf(!url)("本日の問題（PostgreSQL）", () => {
   });
 
   describe("getDailyProblem", () => {
+    it("retries distinct batches until it finds an eligible problem", async () => {
+      for (let i = 0; i < 61; i++)
+        await insertPracticeProblem({
+          kind: "agari-score",
+          payload: kiriageBoundaryAgariPayload(),
+          createdAt: SAVED_YESTERDAY,
+        });
+      await insertPracticeProblem({
+        kind: "agari-score",
+        payload: eligibleAgariPayload(),
+        createdAt: SAVED_YESTERDAY,
+      });
+      expect(await getDailyProblem(NOW)).toBeDefined();
+    });
+    it("reports the bounded sample separately from exhausted inventory", async () => {
+      for (let i = 0; i < 95; i++)
+        await insertPracticeProblem({
+          kind: "agari-score",
+          payload: kiriageBoundaryAgariPayload(),
+          createdAt: SAVED_YESTERDAY,
+        });
+      expect(await getDailyProblem(NOW)).toBeUndefined();
+      expect(logExternalError).toHaveBeenCalledWith(
+        "getDailyProblem",
+        expect.any(String),
+        { day: TODAY, examined: 90 },
+      );
+    });
+    it("can fill both days across midnight without reusing a problem", async () => {
+      for (const payload of [
+        eligibleAgariPayload(),
+        otherEligibleAgariPayload(),
+      ])
+        await insertPracticeProblem({
+          kind: "agari-score",
+          payload,
+          createdAt: SAVED_YESTERDAY,
+        });
+      const results = await Promise.all([
+        getDailyProblem(NOW),
+        getDailyProblem(new Date("2026-11-17T15:00:00Z")),
+      ]);
+      expect(results.every(Boolean)).toBe(true);
+      const rows = await fixedRows();
+      expect(new Set(rows.map((row) => row.problemId)).size).toBe(2);
+    });
+    it("keeps withheld problems fixed and rejects their answers", async () => {
+      await insertPracticeProblem({
+        kind: "agari-score",
+        payload: eligibleAgariPayload(),
+        createdAt: SAVED_YESTERDAY,
+      });
+      await getDailyProblem(NOW);
+      const before = await fixedProblemId(TODAY);
+      await dailyProblemTestDb()
+        .update(dailyProblems)
+        .set({ withheldReason: "review" })
+        .where(eq(dailyProblems.day, TODAY));
+      expect(await getDailyProblem(NOW)).toBeUndefined();
+      expect(
+        await recordDailyProblemAnswer(randomUUID(), TODAY, true, NOW),
+      ).toEqual({ kind: "staleDay" });
+      expect(await fixedProblemId(TODAY)).toBe(before);
+      await dailyProblemTestDb()
+        .update(dailyProblems)
+        .set({ withheldReason: null })
+        .where(eq(dailyProblems.day, TODAY));
+      expect(await getDailyProblem(NOW)).toBeDefined();
+    });
     it("同じ日に並行して何度読んでも、最初に固定された 1 行に全員が揃う", async () => {
       for (let i = 0; i < 6; i++)
         await insertPracticeProblem({

@@ -1,0 +1,1 @@
+ALTER TABLE "daily_problems" ADD COLUMN "withheld_reason" text;

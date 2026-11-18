@@ -323,6 +323,13 @@
       "when": 1794912152263,
       "tag": "20261117104232_create_daily_problems",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1794955093760,
+      "tag": "20261117223813_add_daily_problem_visibility",
+      "breakpoints": true
     }
   ]
 }

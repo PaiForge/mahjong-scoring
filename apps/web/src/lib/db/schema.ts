@@ -1690,6 +1690,8 @@ export const dailyProblems = pgTable(
     problemId: uuid("problem_id")
       .notNull()
       .references(() => practiceProblems.id, { onDelete: "restrict" }),
+    /** 非公開の理由。NULL は公開。盤面と解答は消さず、差し替えもしない */
+    withheldReason: text("withheld_reason"),
     /** その日の問題を選んだ日時 */
     createdAt: createdAtColumn(),
   },
