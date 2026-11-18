@@ -96,6 +96,13 @@ describe("buildFuPairRows", () => {
     expect(rows.low.every((cell) => cell.score === undefined)).toBe(true);
   });
 
+  it("倍にした符が表に無ければ、その行は空欄で組にもならない（60符と120符）", () => {
+    const rows = buildFuPairRows({ low: 60, high: 120 }, "ko", "ron");
+    expect(rows.high.every((cell) => cell.score === undefined)).toBe(true);
+    expect(rows.high.some((cell) => cell.linked)).toBe(false);
+    expect(rows.low.some((cell) => cell.linked)).toBe(false);
+  });
+
   it("満貫で頭打ちになったセルも組になる（40符4翻と80符3翻）", () => {
     const rows = buildFuPairRows({ low: 40, high: 80 }, "ko", "ron");
 
@@ -116,6 +123,11 @@ describe("buildHanDoublingRows", () => {
   it("表に載る点数は切り上げのぶんだけ2倍からずれる", () => {
     const rows = buildHanDoublingRows(30, "ko");
     expect(rows.map((row) => row.ron)).toEqual([1000, 2000, 3900, 7700]);
+  });
+
+  it("存在しない符×翻のロン（25符の1翻）は行にしない", () => {
+    const rows = buildHanDoublingRows(25, "ko");
+    expect(rows.map((row) => row.han)).toEqual([2, 3, 4]);
   });
 
   it("親は子の1.5倍で、やはり倍々になる", () => {

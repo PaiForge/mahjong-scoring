@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { isPracticeVariantOf } from "../practice-menu-types";
+import {
+  PRACTICE_MENU_SLUGS,
+  isPracticeVariantOf,
+} from "../practice-menu-types";
 
 import {
   CURRICULUM,
   CURRICULUM_CHAPTER_SLUGS,
   CURRICULUM_SECTIONS,
+  chapterPublishedAtFor,
   getAdjacentChapters,
   getChapterBySlug,
   getChapterI18nPath,
@@ -13,6 +17,7 @@ import {
   isCurriculumChapterSlug,
   isLessonChapterSlug,
   pickNextChapter,
+  practiceLink,
 } from "./registry";
 import { compareNumbers } from "@mahjong-scoring/core";
 
@@ -298,6 +303,75 @@ describe("getChapterI18nPath", () => {
       expect(path.startsWith("chapters.")).toBe(true);
       // camelCase 以外（ハイフン等）が混入していないこと
       expect(path).toMatch(/^chapters\.[a-zA-Z0-9]+$/);
+    }
+  });
+});
+
+describe("公開日", () => {
+  /** 暦に実在する ISO 8601 の日付（`YYYY-MM-DD`）か */
+  function isIsoCalendarDate(value: string): boolean {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    return new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
+  }
+
+  it("どの章も暦に実在する ISO 8601 の日付を公開日に持つ", () => {
+    for (const chapter of CURRICULUM) {
+      expect(isIsoCalendarDate(chapter.publishedAt), chapter.slug).toBe(true);
+    }
+  });
+
+  it("翻訳の公開日も暦に実在する ISO 8601 の日付", () => {
+    for (const chapter of CURRICULUM) {
+      for (const date of Object.values(chapter.translatedAt ?? {})) {
+        expect(isIsoCalendarDate(date), chapter.slug).toBe(true);
+      }
+    }
+  });
+});
+
+describe("chapterPublishedAtFor", () => {
+  const [chapter] = CURRICULUM;
+
+  it("日本語のページは章の公開日", () => {
+    expect(chapterPublishedAtFor(chapter, "ja")).toBe(chapter.publishedAt);
+  });
+
+  it("翻訳を公開していない章の英語のページは公開日を持たない（日本語の公開日で代用しない）", () => {
+    const untranslated = { ...chapter, translatedAt: undefined };
+    expect(chapterPublishedAtFor(untranslated, "en")).toBeUndefined();
+  });
+
+  it("翻訳を公開した章の英語のページは翻訳の公開日", () => {
+    const translated = { ...chapter, translatedAt: { en: "2026-11-01" } };
+    expect(chapterPublishedAtFor(translated, "en")).toBe("2026-11-01");
+  });
+});
+
+describe("practiceLink", () => {
+  it("バリアントを渡さなければバリアントの項目を持たない（説明ページで選ばせる）", () => {
+    expect(practiceLink("jantou-fu")).toStrictEqual({ slug: "jantou-fu" });
+  });
+
+  it("バリアントを渡せばその土俵へ送る", () => {
+    expect(practiceLink("total-fu", "all")).toStrictEqual({
+      slug: "total-fu",
+      variant: "all",
+    });
+  });
+});
+
+describe("章の練習リンク", () => {
+  it("練習と同じ slug の章は、その練習へ送る", () => {
+    const practiceSlugs = new Set<string>(PRACTICE_MENU_SLUGS);
+    const namesake = CURRICULUM.filter((chapter) =>
+      practiceSlugs.has(chapter.slug),
+    );
+    expect(namesake.length).toBeGreaterThan(0);
+    for (const chapter of namesake) {
+      expect(
+        (chapter.practiceLinks ?? []).map((link) => link.slug),
+        chapter.slug,
+      ).toContain(chapter.slug);
     }
   });
 });
