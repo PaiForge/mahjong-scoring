@@ -8,7 +8,11 @@ vi.mock(
   async () => await import("../test/api-client-mock"),
 );
 
-import { fetchDailyProblem, sendDailyProblemAnswer } from "./daily-api";
+import {
+  fetchDailyProblem,
+  sendDailyProblemAnswer,
+  subscribeDailyProblemAnswers,
+} from "./daily-api";
 
 /** 222m 456p 789s 234s 東東 を 3s の嵌張でツモ（東場・東家） */
 const PAYLOAD = {
@@ -102,5 +106,30 @@ describe("sendDailyProblemAnswer", () => {
     expect(await sendDailyProblemAnswer("user-a", "2026-11-17", true)).toEqual({
       error: "serverError",
     });
+  });
+});
+
+describe("subscribeDailyProblemAnswers", () => {
+  it("成功した利用者だけを通知し、解除後は通知しない", async () => {
+    const listener = vi.fn();
+    const unsubscribe = subscribeDailyProblemAnswers(listener);
+    try {
+      callMobileApi.mockResolvedValue(jsonResponse(500, {}));
+      await sendDailyProblemAnswer("user-a", "2026-11-17", false);
+      expect(listener).not.toHaveBeenCalled();
+      callMobileApi.mockResolvedValue(
+        jsonResponse(200, { answer: { isCorrect: false } }),
+      );
+      await sendDailyProblemAnswer("user-a", "2026-11-17", false);
+      expect(listener).toHaveBeenCalledExactlyOnceWith("user-a");
+      unsubscribe();
+      callMobileApi.mockResolvedValue(
+        jsonResponse(200, { answer: { isCorrect: true } }),
+      );
+      await sendDailyProblemAnswer("user-b", "2026-11-17", true);
+      expect(listener).toHaveBeenCalledTimes(1);
+    } finally {
+      unsubscribe();
+    }
   });
 });

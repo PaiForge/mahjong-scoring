@@ -1,7 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import {
+  useAnswerRecord,
+  type DailyAnswerStorage,
+  type DailyAnswerSaveResult,
+} from "@mahjong-scoring/features/daily-problem/use-answer-record";
+import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
+import { usePageLocale } from "@/app/[locale]/(user)/(public)/practice/_hooks/use-page-locale";
 import { isOya } from "@mahjong-scoring/core";
 import type {
   AgariProblemPayload,
@@ -53,6 +61,7 @@ interface DailyProblemAttempt {
 }
 
 interface DailyProblemBoardProps {
+  readonly userId?: string;
   /** 今日（JST）の問題の盤面。閲覧者のルール設定で問題に組み立てる */
   readonly payload: AgariProblemPayload;
   /** 問題の日付（JST の `YYYY-MM-DD`）。記録の Action へそのまま送る */
@@ -82,10 +91,10 @@ interface DailyProblemBoardProps {
  * @design 解答済みでも同じ盤面をもう一度解ける。記録は変わらない
  * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出し、
  * 上に「解答済み・記録は変わらない」とだけ添える。記録の Action は、この盤面を
- * 開いてから最初の回答または「わからない」で 1 回だけ呼ぶ（「わからない」は不正解）。
+ * 開いてから最初の回答または「わからない」で記録する（「わからない」は不正解）。
  * サーバーは最初の解答だけを残し、日付をまたいで届いた解答（前日に開いたまま
  * 今日解いたもの）は記録せず捨てる — 前日の問題を今日の解答として残さない。
- * 記録に失敗しても答え合わせは止めない（記録は「解いた」印にすぎない）。
+ * 記録に失敗しても答え合わせは止めず、最初の正誤を端末に預けて再送を案内する。
  *
  * 問題は閲覧者のルール設定（`/preferences`。端末ローカル）で組み立て、採点も同じ
  * 設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`）。出題する
@@ -102,6 +111,7 @@ interface DailyProblemBoardProps {
  */
 export function DailyProblemBoard({
   payload,
+  userId,
   day,
   initialAnswer,
   practiceTarget,
@@ -112,6 +122,8 @@ export function DailyProblemBoard({
   const tTraining = useTranslations("training");
   const tNav = useTranslations("nav");
   const isClient = useIsClient();
+  const locale = usePageLocale();
+  const router = useRouter();
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
   const settings: RuleSettings = useRuleSettingsStore();
@@ -124,22 +136,35 @@ export function DailyProblemBoard({
   const [attempt, setAttempt] = useState<DailyProblemAttempt | undefined>(
     undefined,
   );
-  // 記録は開いてから最初の 1 回だけ送る。2 回目以降の解答は見直し
-  const recordedRef = useRef(false);
+
   const isAnswered = attempt !== undefined;
 
   // 練習の play 画面・体験ページと同じく、開いた直後に盤面を画面最上部へ出す
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
-  const record = useCallback(
-    (isCorrect: boolean) => {
-      if (recordedRef.current) return;
-      recordedRef.current = true;
-      // 結果は待たない。失敗はサーバーがログに残し、答え合わせは止めない
-      recordDailyProblemAnswerAction({ day, isCorrect }).catch(() => undefined);
+  const send = useCallback(
+    async (isCorrect: boolean): Promise<DailyAnswerSaveResult> => {
+      if (userId === undefined) return "anonymous";
+      const response = await recordDailyProblemAnswerAction({
+        day,
+        isCorrect,
+        userId,
+      });
+      if ("error" in response) {
+        if (response.error === "staleDay") return "staleDay";
+        return response.error === "banned" ? "blocked" : "failed";
+      }
+      return "skipped" in response ? "anonymous" : "saved";
     },
-    [day],
+    [day, userId],
   );
+  const { ready, status, record, retry } = useAnswerRecord({
+    day,
+    userId,
+    storage: answerStorage,
+    send,
+    answered: initialAnswer !== undefined,
+  });
 
   const question = built.isOk() ? built.value : undefined;
 
@@ -173,13 +198,50 @@ export function DailyProblemBoard({
   return (
     <>
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
+        <p className="text-sm text-surface-500">
+          {formatJstDayKeyLong(day, locale)} · {t("board.schedule")}
+        </p>
+        {userId === undefined && (
+          <p className="text-sm text-surface-500">{t("board.anonymous")}</p>
+        )}
+        {(status !== "idle" || !ready) && (
+          <div role="status" className="space-y-2 text-sm text-surface-500">
+            <p>
+              {
+                !ready
+                  ? t("save.loading")
+                  : t(
+                      `save.${status}`,
+                    ) /* save.saving / save.saved / save.failed / save.staleDay / save.anonymous / save.blocked */
+              }
+            </p>
+            {status === "failed" && (
+              <button
+                type="button"
+                className={TEXT_LINK_CLASSES}
+                onClick={() => void retry()}
+              >
+                {t("save.retry")}
+              </button>
+            )}
+            {status === "staleDay" && (
+              <button
+                type="button"
+                className={TEXT_LINK_CLASSES}
+                onClick={() => router.refresh()}
+              >
+                {t("board.reload")}
+              </button>
+            )}
+          </div>
+        )}
         {initialAnswer !== undefined && (
           <p className="text-sm leading-relaxed text-surface-500">
             {t("board.answeredNotice")}
           </p>
         )}
 
-        <QuestionDisplay question={question} mobileFrame="fullBleedFlushTop" />
+        <QuestionDisplay question={question} mobileFrame="fullBleed" />
 
         {isAnswered ? (
           <div className="space-y-4">
@@ -193,7 +255,7 @@ export function DailyProblemBoard({
         ) : (
           <div className="space-y-4">
             <QuestionPrompt>{tScore("board.questionPrompt")}</QuestionPrompt>
-            {isClient ? (
+            {isClient && ready ? (
               <ScorePracticeAnswerForm
                 onSubmit={handleSubmit}
                 isTsumo={question.isTsumo}
@@ -206,7 +268,10 @@ export function DailyProblemBoard({
           </div>
         )}
 
-        {!isAnswered && (
+        {!isAnswered && ready && userId && !initialAnswer && (
+          <p className="text-sm text-surface-500">{t("board.revealNotice")}</p>
+        )}
+        {!isAnswered && ready && (
           <PracticeFooterActions>
             <PracticeFooterAction onClick={handleReveal}>
               {tTraining("revealButton")}
@@ -253,3 +318,11 @@ export function DailyProblemBoard({
     </>
   );
 }
+
+/** 本日の問題の預かり。ブラウザの保存先は操作時だけ読む。 */
+const answerStorage: DailyAnswerStorage = {
+  getAllKeys: () => Object.keys(localStorage),
+  getItem: (key) => localStorage.getItem(key),
+  setItem: (key, value) => localStorage.setItem(key, value),
+  removeItem: (key) => localStorage.removeItem(key),
+};

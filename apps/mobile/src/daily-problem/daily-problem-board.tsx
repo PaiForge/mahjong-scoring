@@ -1,4 +1,11 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  useAnswerRecord,
+  type DailyAnswerSaveResult,
+} from "@mahjong-scoring/features/daily-problem/use-answer-record";
+import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
+import { useAppLocale } from "../lib/use-app-locale";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya } from "@mahjong-scoring/core";
@@ -21,7 +28,7 @@ import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 import { useAuth } from "../auth/use-auth";
 import { BoardBleedProvider } from "../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../board/tehai-mentsu-breakdown";
-import { LoadingIndicator } from "../components/load-state";
+import { LoadFailed, LoadingIndicator } from "../components/load-state";
 import { Screen, type ScreenHandle } from "../components/screen";
 import { usePullToRefresh } from "../components/screen-refresh";
 import { SectionTitle } from "../components/section-title";
@@ -63,14 +70,31 @@ interface DailyProblemAttempt {
  *
  * ゲストは API を呼ばず、問題を出さない（ホームのカードもログイン中だけ。
  * 端末側に解答済みを残す仕組みが無い）。読めなかった・今日は問題が無いときは
- * 「準備中」とだけ出す。
+ * 問題なしと読込失敗を区別し、失敗では再読込を案内する。
  */
 export function DailyProblemScreen() {
+  const { status, user } = useAuth();
+  const userId = status === "signedIn" ? user?.id : undefined;
+  return (
+    <AccountDailyProblemScreen
+      key={userId ?? status}
+      userId={userId}
+      loading={status === "loading"}
+    />
+  );
+}
+
+/** 読込済みの盤面と解答はアカウントごとに持つ。 */
+function AccountDailyProblemScreen({
+  userId,
+  loading,
+}: {
+  readonly userId?: string;
+  readonly loading: boolean;
+}) {
   const t = useTranslations("dailyProblem");
   const close = useCloseSession(EXIT_HREF);
   const scrollRef = useRef<ScreenHandle>(null);
-  const { status, user } = useAuth();
-  const userId = status === "signedIn" ? user?.id : undefined;
   // ゲスト（とログインの状態を読んでいる間）は read を渡さず、API を呼ばない
   const { state, reload } = useFocusRead(
     useMemo(
@@ -89,11 +113,17 @@ export function DailyProblemScreen() {
     setLastLoaded(state.value);
   const latest = state.kind === "loaded" ? state.value : lastLoaded;
   const loaded = userId === undefined ? undefined : latest;
-  const waiting =
-    status === "loading" || (userId !== undefined && state.kind === "loading");
+  const waiting = loading || (userId !== undefined && state.kind === "loading");
 
   const body = (() => {
     if (waiting) return <LoadingIndicator />;
+    if (state.kind === "failed" && loaded === undefined)
+      return (
+        <LoadFailed
+          message={t("board.loadFailed")}
+          retry={{ label: t("board.reload"), onPress: () => void reload() }}
+        />
+      );
     if (loaded === undefined || loaded.problem === null || userId === undefined)
       return <Text style={styles.notice}>{t("board.unavailable")}</Text>;
     return (
@@ -106,6 +136,7 @@ export function DailyProblemScreen() {
         initialAnswer={loaded.answer ?? undefined}
         scrollToTop={() => scrollRef.current?.scrollToTop()}
         onClose={close}
+        onReload={reload}
       />
     );
   })();
@@ -144,11 +175,11 @@ export function DailyProblemScreen() {
  * @design 解答済みでも同じ盤面をもう一度解ける。記録は変わらない
  * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出し、
  * 上に「解答済み・記録は変わらない」とだけ添える。記録の API は、この盤面を
- * 開いてから最初の回答または「わからない」で 1 回だけ呼ぶ（「わからない」は
+ * 開いてから最初の回答または「わからない」で記録する（「わからない」は
  * 不正解）。サーバーは最初の解答だけを残し、日付をまたいで届いた解答（前日に
  * 開いたまま今日解いたもの）は `staleDay` で弾いて記録しない — 前日の問題を今日の
  * 解答として残さない。送信の失敗（通信・`staleDay`・ユーザー名未設定）は答え合わせを
- * 止めず、黙って捨てる（記録は「解いた」印にすぎない）。
+ * 止めず、保存状態を示す。通信失敗は最初の正誤を端末に預け、同じ内容を再送する。
  *
  * 問題は端末のルール設定（設定画面の麻雀ルール。端末ローカル）で組み立て、採点も
  * 同じ設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`。判定は
@@ -171,6 +202,7 @@ function DailyProblemBoard({
   initialAnswer,
   scrollToTop,
   onClose,
+  onReload,
 }: {
   /** 解答を記録する名義（読んだときのログイン中のユーザー） */
   readonly userId: string;
@@ -184,11 +216,13 @@ function DailyProblemBoard({
   readonly scrollToTop: () => void;
   /** 画面を閉じる（「ホームへ戻る」） */
   readonly onClose: () => void;
+  readonly onReload: () => Promise<void>;
 }) {
   const t = useTranslations("dailyProblem");
   const tScore = useTranslations("agariScore");
   const tTraining = useTranslations("training");
   const openFromModal = useOpenFromModal();
+  const locale = useAppLocale();
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
   const settings: RuleSettings = useRuleSettingsStore();
@@ -201,21 +235,31 @@ function DailyProblemBoard({
   const [attempt, setAttempt] = useState<DailyProblemAttempt | undefined>(
     undefined,
   );
-  // 記録は開いてから最初の 1 回だけ送る。2 回目以降の解答は見直し
-  const recordedRef = useRef(false);
+
   const isAnswered = attempt !== undefined;
 
-  const record = useCallback(
-    (isCorrect: boolean) => {
-      if (recordedRef.current) return;
-      recordedRef.current = true;
-      // 結果は待たず、失敗も捨てる（答え合わせは止めない）
-      void sendDailyProblemAnswer(userId, day, isCorrect).catch(
-        () => undefined,
-      );
+  const send = useCallback(
+    async (isCorrect: boolean): Promise<DailyAnswerSaveResult> => {
+      const response = await sendDailyProblemAnswer(userId, day, isCorrect);
+      if ("value" in response) return "saved";
+      if (response.error === "staleDay") return "staleDay";
+      if (
+        response.error === "deleted" ||
+        response.error === "banned" ||
+        response.error === "unauthorized"
+      )
+        return "blocked";
+      return "failed";
     },
     [userId, day],
   );
+  const { ready, status, record, retry } = useAnswerRecord({
+    day,
+    userId,
+    storage: AsyncStorage,
+    send,
+    answered: initialAnswer !== undefined,
+  });
 
   const handleSubmit = useCallback(
     (answer: UserAnswer) => {
@@ -243,7 +287,36 @@ function DailyProblemBoard({
     <>
       {/* 盤面が本文の先頭にあるときだけ手牌の帯をヘッダーの直下へ詰める
           （解答済みの案内が上にあるときは詰めない。詰めると案内に食い込む） */}
-      <BoardBleedProvider flushTop={initialAnswer === undefined}>
+      <Text style={styles.notice}>
+        {formatJstDayKeyLong(day, locale)} · {t("board.schedule")}
+      </Text>
+      {(status !== "idle" || !ready) && (
+        <View accessibilityLiveRegion="polite" style={styles.result}>
+          <Text style={styles.notice}>
+            {
+              !ready
+                ? t("save.loading")
+                : t(
+                    `save.${status}`,
+                  ) /* save.saving / save.saved / save.failed / save.staleDay / save.anonymous / save.blocked */
+            }
+          </Text>
+          {status === "failed" && (
+            <TextLink onPress={() => void retry()} testID="daily-problem-retry">
+              {t("save.retry")}
+            </TextLink>
+          )}
+          {status === "staleDay" && (
+            <TextLink
+              onPress={() => void onReload()}
+              testID="daily-problem-reload"
+            >
+              {t("board.reload")}
+            </TextLink>
+          )}
+        </View>
+      )}
+      <BoardBleedProvider flushTop={false}>
         <View style={styles.board}>
           {initialAnswer !== undefined && (
             <Text style={styles.notice}>{t("board.answeredNotice")}</Text>
@@ -259,6 +332,8 @@ function DailyProblemBoard({
                 result={attempt.result}
               />
             </View>
+          ) : !ready ? (
+            <LoadingIndicator />
           ) : (
             <View style={styles.answering}>
               <QuestionPrompt>{tScore("board.questionPrompt")}</QuestionPrompt>
@@ -295,11 +370,16 @@ function DailyProblemBoard({
           </View>
         </>
       ) : (
-        <View style={styles.home}>
-          <TextLink onPress={handleReveal} testID="daily-problem-reveal">
-            {tTraining("revealButton")}
-          </TextLink>
-        </View>
+        ready && (
+          <View style={styles.home}>
+            {!initialAnswer && (
+              <Text style={styles.notice}>{t("board.revealNotice")}</Text>
+            )}
+            <TextLink onPress={handleReveal} testID="daily-problem-reveal">
+              {tTraining("revealButton")}
+            </TextLink>
+          </View>
+        )
       )}
     </>
   );

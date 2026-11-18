@@ -42,6 +42,16 @@ beforeEach(() => {
 });
 
 describe("recordDailyProblemAnswerAction", () => {
+  it("does not send a pending answer under a different account", async () => {
+    expect(
+      await recordDailyProblemAnswerAction({
+        day: DAY,
+        isCorrect: false,
+        userId: "another-user",
+      }),
+    ).toEqual({ success: true, skipped: "anonymous" });
+    expect(mockRecordDailyProblemAnswer).not.toHaveBeenCalled();
+  });
   it("skips a deleted account after authorization", async () => {
     mockRecordDailyProblemAnswer.mockResolvedValue({ kind: "deleted" });
     expect(

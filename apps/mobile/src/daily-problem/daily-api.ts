@@ -82,7 +82,7 @@ export function fetchDailyProblem(
  * @param day - 読んだ問題の日付（JST の `YYYY-MM-DD`）
  * @param isCorrect - 端末で採点した正誤
  */
-export function sendDailyProblemAnswer(
+export async function sendDailyProblemAnswer(
   userId: string,
   day: string,
   isCorrect: boolean,
@@ -90,10 +90,25 @@ export function sendDailyProblemAnswer(
   MobileApiResult<MobileDailyProblemAnswerResponse, DailyProblemApiFailure>
 > {
   const body: MobileDailyProblemAnswerRequest = { day, isCorrect };
-  return requestMobileApi(
+  const result = await requestMobileApi(
     MOBILE_DAILY_PROBLEM_ANSWER_API_PATH,
     { method: "POST", body, asUser: userId },
     parseMobileDailyProblemAnswerResponse,
     dailyProblemFailureOf,
   );
+  if ("value" in result)
+    for (const listener of answerListeners) listener(userId);
+  return result;
+}
+
+const answerListeners = new Set<(userId: string) => void>();
+
+/** 保存完了を購読し、送信待ちでホームへ戻った場合も解答済みに更新する。 */
+export function subscribeDailyProblemAnswers(
+  listener: (userId: string) => void,
+): () => void {
+  answerListeners.add(listener);
+  return () => {
+    answerListeners.delete(listener);
+  };
 }

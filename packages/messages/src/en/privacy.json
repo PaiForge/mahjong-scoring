@@ -54,7 +54,7 @@
     "item1": "Rule settings (double wind fu, kiriage mangan, combined yakuman and so on) and display settings (how dora are shown)",
     "item2": "Yaku order",
     "item3": "Question settings for practice",
-    "note": "These settings are stored only on your device and are never sent to the server. They are removed when you clear the site data in your browser."
+    "note": "These settings are stored only on your device and are never sent to the server. They are removed when you clear the site data in your browser. If a daily problem answer cannot be sent, its first result is temporarily stored on the device for that user and date and retried when the problem is reopened that day. It is removed after a successful save; expired pending answers are removed when a later daily problem is opened."
   },
   "publicInfo": {
     "title": "Information that is made public",

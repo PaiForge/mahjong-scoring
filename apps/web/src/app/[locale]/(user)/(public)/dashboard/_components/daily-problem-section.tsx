@@ -75,7 +75,7 @@ export async function DailyProblemSection({
           {formatJstDayKeyMonthDay(day, locale)}
         </p>
 
-        {question && (
+        {answer === undefined && question && (
           <div
             aria-hidden="true"
             className="overflow-hidden rounded-lg bg-primary-800 p-3"

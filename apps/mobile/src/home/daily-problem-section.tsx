@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -15,7 +15,10 @@ import { Button } from "../components/button";
 import { usePullToRefresh } from "../components/screen-refresh";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
-import { fetchDailyProblem } from "../daily-problem/daily-api";
+import {
+  fetchDailyProblem,
+  subscribeDailyProblemAnswers,
+} from "../daily-problem/daily-api";
 import { panelFrame } from "../lib/panel-styles";
 import { colors, radius } from "../lib/theme";
 import { useAppLocale } from "../lib/use-app-locale";
@@ -42,6 +45,12 @@ import { useFocusRead } from "../lib/use-focus-read";
 export function DailyProblemSection() {
   const { status, user } = useAuth();
   const userId = status === "signedIn" ? user?.id : undefined;
+  if (userId === undefined) return null;
+  return <AccountDailyProblemSection key={userId} userId={userId} />;
+}
+
+/** 本人の読み取り状態はアカウント変更時に破棄する。 */
+function AccountDailyProblemSection({ userId }: { readonly userId: string }) {
   // ゲスト（とログインの状態を読んでいる間）は read を渡さず、API を呼ばない
   const { state, reload } = useFocusRead(
     useMemo(
@@ -51,6 +60,13 @@ export function DailyProblemSection() {
     ),
   );
   usePullToRefresh(reload);
+  useEffect(
+    () =>
+      subscribeDailyProblemAnswers((owner) => {
+        if (owner === userId) void reload();
+      }),
+    [reload, userId],
+  );
   if (userId === undefined || state.kind !== "loaded") return null;
   const { day, problem, answer } = state.value;
   if (problem === null) return null;
@@ -86,7 +102,7 @@ function DailyProblemCard({
       <SectionTitle>{t("title")}</SectionTitle>
       <View style={styles.card}>
         <Text style={styles.day}>{formatJstDayKeyMonthDay(day, locale)}</Text>
-        {question !== undefined && (
+        {answer === null && question !== undefined && (
           <View
             style={styles.preview}
             accessibilityElementsHidden

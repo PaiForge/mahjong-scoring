@@ -19,10 +19,11 @@ import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
  *
  * - `banned` / `authUnavailable`: 記録を書ける本人を決められなかった（{@link RecorderErrorCode}）
  * - `invalidInput`: 入力の形が違う（UI のバグ。盤面からは起きない）
+ * - `staleDay`: 日付が変わった・停止中・問題がない。画面に再読込を案内する
  * - `recordFailed`: DB への書き込みに失敗した（ログに残す）
  *
  * どのエラーでも盤面の答え合わせは止めない。記録は「解いた」印にすぎず、
- * 答え合わせの表示は採点（クライアント）だけで完結するため。i18n のキーは持たない。
+ * 答え合わせの表示は採点（クライアント）だけで完結するため。画面は保存状態を別に表示する。
  */
 export type RecordDailyProblemAnswerErrorCode =
   RecorderErrorCode | "invalidInput" | "recordFailed" | "staleDay";
@@ -31,8 +32,7 @@ export type RecordDailyProblemAnswerErrorCode =
  * 本日の問題の解答を記録する Server Action の戻り値
  * 本日の問題解答記録結果
  *
- * - `{ success: true }`: 記録した。既に記録済み（最初の解答が残る）・日付をまたいで
- *   届いた解答（記録せず捨てる）もこれ
+ * - `{ success: true }`: 記録した。既に記録済みでも最初の解答を保つ
  * - `{ success: true, skipped: 'anonymous' }`: 未ログイン。記録しない（期待された no-op）
  * - `{ error }`: {@link RecordDailyProblemAnswerErrorCode}
  */
@@ -88,7 +88,7 @@ function revalidateAnswerReaders(): void {
  *
  * - 未ログインは記録せず `{ success: true, skipped: 'anonymous' }`
  * - 日付が今日（JST）でない解答は記録せず捨てる（`staleDay`。前日の問題を今日の
- *   解答として残さない）。盤面にとっては失敗ではないので成功を返す
+ *   解答として残さない）。画面は今日の問題への再読込を案内する
  * - 既に解答済みなら何も書き換えない（最初の解答が残る）
  * - DB の失敗はログに残して `recordFailed` を返す。盤面は答え合わせを続ける
  *

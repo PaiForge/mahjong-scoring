@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -31,19 +31,24 @@ const TARGETS = {
   homeTarget: { href: "/", crossLocale: false },
 } as const;
 
-function show(initialAnswer?: { readonly isCorrect: boolean }) {
-  return render(
+async function show(initialAnswer?: { readonly isCorrect: boolean }) {
+  const view = render(
     <DailyProblemBoard
+      userId="alice"
+      key={DAY}
       payload={eligibleAgariPayload()}
       day={DAY}
       initialAnswer={initialAnswer}
       {...TARGETS}
     />,
   );
+  await screen.findByRole("button", { name: "revealButton" });
+  return view;
 }
 
 beforeEach(() => {
   cleanup();
+  localStorage.clear();
   vi.clearAllMocks();
   mockRecord.mockResolvedValue({ success: true });
   mockPeek.mockResolvedValue({
@@ -58,8 +63,40 @@ beforeEach(() => {
 });
 
 describe("DailyProblemBoard", () => {
-  it("最初は出題文と回答フォームを出し、記録も「もっと解く」もまだ出さない", () => {
-    show();
+  it("starts a fresh attempt when the day changes", async () => {
+    const view = await show();
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    await screen.findByText("save.saved");
+    view.rerender(
+      <DailyProblemBoard
+        key="2026-11-18"
+        day="2026-11-18"
+        userId="alice"
+        payload={eligibleAgariPayload()}
+        {...TARGETS}
+      />,
+    );
+    await screen.findByRole("button", { name: "revealButton" });
+    expect(screen.queryByText("more.title")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    await waitFor(() =>
+      expect(mockRecord).toHaveBeenLastCalledWith({
+        day: "2026-11-18",
+        isCorrect: false,
+        userId: "alice",
+      }),
+    );
+  });
+  it("shows a reload action instead of retrying an expired answer", async () => {
+    mockRecord.mockResolvedValue({ error: "staleDay" });
+    await show();
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+    await screen.findByText("save.staleDay");
+    expect(screen.getByRole("button", { name: "board.reload" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "save.retry" })).toBeNull();
+  });
+  it("最初は出題文と回答フォームを出し、記録も「もっと解く」もまだ出さない", async () => {
+    await show();
 
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
     expect(screen.queryByText("more.title")).toBeNull();
@@ -67,13 +104,17 @@ describe("DailyProblemBoard", () => {
     expect(mockRecord).not.toHaveBeenCalled();
   });
 
-  it("「わからない」は不正解として 1 回だけ記録し、答え合わせと「もっと解く」を出す", () => {
-    show();
+  it("「わからない」は不正解として 1 回だけ記録し、答え合わせと「もっと解く」を出す", async () => {
+    await show();
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
-    expect(mockRecord).toHaveBeenCalledTimes(1);
-    expect(mockRecord).toHaveBeenCalledWith({ day: DAY, isCorrect: false });
+    await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(1));
+    expect(mockRecord).toHaveBeenCalledWith({
+      day: DAY,
+      isCorrect: false,
+      userId: "alice",
+    });
     expect(screen.getByText("result.headers.correct")).toBeTruthy();
     expect(screen.getByText("more.title")).toBeTruthy();
     expect(
@@ -85,19 +126,27 @@ describe("DailyProblemBoard", () => {
     expect(mockPeek).toHaveBeenCalledWith("agari-score");
   });
 
-  it("解答済みなら上に注記を出し、同じ盤面をもう一度解ける", () => {
-    show({ isCorrect: true });
+  it("解答済みなら上に注記を出し、同じ盤面をもう一度解ける", async () => {
+    await show({ isCorrect: true });
 
     expect(screen.getByText("board.answeredNotice")).toBeTruthy();
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
   });
 
-  it("記録の失敗は答え合わせを止めない", () => {
+  it("記録の失敗は答え合わせを止めない", async () => {
     mockRecord.mockRejectedValue(new Error("offline"));
-    show();
+    await show();
 
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
     expect(screen.getByText("result.headers.correct")).toBeTruthy();
+    await screen.findByText("save.failed");
+    mockRecord.mockResolvedValue({ success: true });
+    fireEvent.click(screen.getByRole("button", { name: "save.retry" }));
+    await screen.findByText("save.saved");
+    expect(mockRecord.mock.calls.map(([value]) => value.isCorrect)).toEqual([
+      false,
+      false,
+    ]);
   });
 });

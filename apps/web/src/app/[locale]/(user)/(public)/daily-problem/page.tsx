@@ -136,6 +136,8 @@ export default async function DailyProblemPage({
     >
       <PageTitle>{t("title")}</PageTitle>
       <DailyProblemBoard
+        key={`${user?.id ?? "anonymous"}:${problem.day}`}
+        userId={user?.id}
         payload={problem.payload}
         day={problem.day}
         initialAnswer={initialAnswer}
