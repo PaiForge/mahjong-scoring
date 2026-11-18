@@ -178,6 +178,19 @@ describe("問題蓄積の送信キュー", () => {
     expect(sentItems()).toEqual(["a", "a"]);
   });
 
+  it("制限時間内に終わった送信は、時間を過ぎても中断を伝えない", async () => {
+    const { send, calls } = createControlledSend();
+    const queue = createProblemArchiveQueue({ send, timeoutMs: 100 });
+
+    queue.enqueue("a");
+    await flush();
+    calls[0].resolve("done");
+    await flush();
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(calls[0].signal.aborted).toBe(false);
+  });
+
   it("retry は 200〜1000ms 待ってから 1 回だけ送り直し、2 回目も失敗なら捨てる", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0.5);
     const { send, calls, sentItems } = createControlledSend();
