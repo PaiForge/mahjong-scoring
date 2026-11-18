@@ -27,6 +27,31 @@
 //   なりにくい。それ以外のファイルが純粋であることはルートの `eslint.config.mjs` が
 //   同じ glob（`packages/features/src/**/use-*.ts`）を境界にして保証しているので、
 //   対象の定義を新しく作らずその境界に合わせる。境界の glob を変えるときはここも揃える
+// - `src/glossary/terms/**`・`src/account/reserved-usernames.ts`: 中身がデータの定義
+//   （用語の定義・予約語の配列）で、文字列 1 つの書き換えを検出するにはテストにデータを
+//   写すしかない。固定データを外したのと同じ理由。`reserved-usernames.ts` の関数は
+//   `Set.has` の 1 行（`isReservedUsername`）で、ユーザー名の判定の入口
+//   （`account/username.ts` のテスト）から検証される。同じ用語集でも `src/glossary/kana.ts`
+//   は行の振り分けとアンカーの関数を持つので外さない
+//
+// RuntimeError は偽の検出を含む。閉じたと数えるのは Killed だけにする。0.3.0 の vitest
+// アダプタは 1 つの Vitest インスタンスでミュータントを順に走らせ、各回の結果を
+// `runTestSpecifications()` の戻り値から読むが、Vitest（5.1）はそこにそれまでの回の
+// テストファイルも累積して返す。読み込み時に例外を投げる静的ミュータント（例:
+// `results/result-schemas.ts` の zod の判別キー `"type"` を `""` にすると、
+// discriminatedUnion の組み立てでモジュールの評価が落ちる）が一度出ると、そのテスト
+// ファイル群の読み込み失敗が、それらを走らせ直すかインスタンスを作り直す（Timeout の後）
+// まで後続の回にも数えられ、テストが 1 つも落ちていない回が RuntimeError になる
+// （`killedBy` には書き換えたファイルと無関係なテストファイルが並ぶ）。確かめた事実:
+// `account/reserved-usernames.ts` の予約語 1 つを `""` にしてもテストは全部通るのに、
+// `account` と `results` を一緒に回すと RuntimeError と報告され、`.mutator/` を消して
+// `--only <key>` で単独に回すと Survived になった。確認のための再実行も同じインスタンスで
+// 走るので直らない。Killed は選んだテストの失敗だけから決まり、Survived は読み込み失敗が
+// 1 つでもあれば付かないので、この 2 つは影響を受けない。設定のキー（`concurrency`・
+// `vitestConfig` 等）にはインスタンスを回ごとに作り直すものも、前の回の結果を除くものも
+// 無いので、設定では避けられない。読み込みを壊すミュータントは範囲を広げるほど後続に
+// 無関係な回が増えるので、全件の実行で最も多く出る。信頼できる測り方と RuntimeError の
+// 確かめ方はルートの CLAUDE.md「ミューテーションテスト」
 import { defineConfig } from "@mizchi/mutator";
 
 export default defineConfig({
@@ -36,6 +61,8 @@ export default defineConfig({
     "src/**/*.fixture.ts",
     "src/**/test-fixtures.ts",
     "src/**/use-*.ts",
+    "src/glossary/terms/**",
+    "src/account/reserved-usernames.ts",
   ],
   reporters: ["text", "html", "json"],
   failOnSurvived: false,
