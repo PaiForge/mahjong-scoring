@@ -4,6 +4,10 @@ import { messages } from "@mahjong-scoring/messages/ja";
 import { FU_CHECKLIST_ROWS } from "./fu-checklist-rows";
 
 describe("FU_CHECKLIST_ROWS", () => {
+  it("符が付く場所を 1 つ以上並べる", () => {
+    expect(FU_CHECKLIST_ROWS.length).toBeGreaterThan(0);
+  });
+
   it("行は重複しない", () => {
     expect(new Set(FU_CHECKLIST_ROWS).size).toBe(FU_CHECKLIST_ROWS.length);
   });

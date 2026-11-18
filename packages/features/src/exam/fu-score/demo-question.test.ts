@@ -62,4 +62,10 @@ describe("FU_SCORE_EXAM_DEMO_OPTIONS", () => {
     expect(demo.isRiichi).toBe(false);
     expect(demo.uraDoraMarkers).toBeUndefined();
   });
+
+  it("出題と同じくドラ表示牌を盤面に出す（手牌に乗らなくても表示牌は置く）", () => {
+    expect(
+      buildDemoScoreQuestion(FU_SCORE_EXAM_DEMO_OPTIONS).doraMarkers.length,
+    ).toBeGreaterThan(0);
+  });
 });

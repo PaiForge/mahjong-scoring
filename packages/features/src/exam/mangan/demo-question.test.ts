@@ -56,4 +56,10 @@ describe("MANGAN_EXAM_DEMO_OPTIONS", () => {
     expect(demo.isRiichi).toBe(true);
     expect(demo.uraDoraMarkers?.length).toBeGreaterThan(0);
   });
+
+  it("出題と同じくドラ表示牌を盤面に出す（手牌に乗らなくても表示牌は置く）", () => {
+    expect(
+      buildDemoScoreQuestion(MANGAN_EXAM_DEMO_OPTIONS).doraMarkers.length,
+    ).toBeGreaterThan(0);
+  });
 });
