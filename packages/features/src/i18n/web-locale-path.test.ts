@@ -56,6 +56,14 @@ describe("webLocalePath", () => {
 });
 
 describe("MOBILE_WEB_PAGES", () => {
+  it("アプリが開くページは重複の無い 1 件以上のサイト内のパス", () => {
+    expect(MOBILE_WEB_PAGES.length).toBeGreaterThan(0);
+    expect(new Set(MOBILE_WEB_PAGES).size).toBe(MOBILE_WEB_PAGES.length);
+    for (const page of MOBILE_WEB_PAGES) {
+      expect(page).toMatch(/^\/[a-z]+(-[a-z]+)*$/);
+    }
+  });
+
   it("アプリが開く web のページは言語に依るパスで、英語では /en の下を開く", () => {
     for (const page of MOBILE_WEB_PAGES) {
       expect(webLocalePath(page, "en")).toBe(`/en${page}`);
