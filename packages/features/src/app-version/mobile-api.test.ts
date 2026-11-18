@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  APP_PLATFORM_HEADER,
+  APP_VERSION_HEADER,
   isMobileAppPlatform,
   mobileAppVersionApiUrl,
   parseMobileAppVersionResponse,
@@ -18,6 +20,12 @@ describe("最低バージョンの API の契約", () => {
     expect(isMobileAppPlatform("android")).toBe(true);
     expect(isMobileAppPlatform("web")).toBe(false);
     expect(isMobileAppPlatform(undefined)).toBe(false);
+  });
+
+  // アプリが送り、サーバーが読む。綴りが食い違うと版の確認が素通りになる
+  it("版と OS を送るヘッダーの名前", () => {
+    expect(APP_VERSION_HEADER).toBe("X-App-Version");
+    expect(APP_PLATFORM_HEADER).toBe("X-App-Platform");
   });
 
   it("最低バージョンは省略できる", () => {
