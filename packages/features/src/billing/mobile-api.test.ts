@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  GOOGLE_MOCK_PURCHASE_TOKEN_PREFIX,
   isMobilePlanErrorCode,
+  MOBILE_APPLE_TRANSACTIONS_API_PATH,
+  MOBILE_GOOGLE_PURCHASES_API_PATH,
+  MOBILE_PLAN_API_PATH,
+  MOBILE_PLAN_ERROR_CODES,
+  MOBILE_PLAN_OFFERS_API_PATH,
+  MOBILE_PRACTICE_QUOTA_BEGIN_API_PATH,
   mobilePlanOffersApiUrl,
   mobilePracticeQuotaApiUrl,
   parseMobileAppleTransactionResponse,
@@ -82,7 +89,39 @@ describe("parseMobilePlanResponse", () => {
   it("期限の無い付与は until を持たない", () => {
     expect(
       parseMobilePlanResponse({ ...PLAN, status: { kind: "granted" } })?.status,
-    ).toEqual({ kind: "granted" });
+    ).toStrictEqual({ kind: "granted" });
+  });
+
+  it("期限のある付与は until を読む", () => {
+    const status = { kind: "granted", until: "2026-12-01T00:00:00.000Z" };
+    expect(parseMobilePlanResponse({ ...PLAN, status })?.status).toEqual(
+      status,
+    );
+  });
+
+  it("買い切りの状態を読む", () => {
+    expect(
+      parseMobilePlanResponse({ ...PLAN, status: { kind: "lifetime" } })
+        ?.status,
+    ).toEqual({ kind: "lifetime" });
+  });
+
+  it("期限の無いパスは free に倒す", () => {
+    expect(
+      parseMobilePlanResponse({ ...PLAN, status: { kind: "pass" } })?.status,
+    ).toEqual({ kind: "free" });
+  });
+
+  it("期限の無い購入の行は expiresAt を持たない", () => {
+    const purchase = {
+      provider: "stripe",
+      kind: "lifetime",
+      createdAt: "2026-10-11T00:00:00.000Z",
+      state: "active",
+    };
+    expect(
+      parseMobilePlanResponse({ ...PLAN, purchases: [purchase] })?.purchases,
+    ).toStrictEqual([purchase]);
   });
 
   it("形が違えば undefined", () => {
@@ -155,6 +194,57 @@ describe("isMobilePlanErrorCode", () => {
   it("ストアに届かない・支払いが保留中の理由を認める", () => {
     expect(isMobilePlanErrorCode("storeUnavailable")).toBe(true);
     expect(isMobilePlanErrorCode("purchasePending")).toBe(true);
+  });
+
+  it("一覧は空でなく、空文字も重複も含まない", () => {
+    expect(MOBILE_PLAN_ERROR_CODES.length).toBeGreaterThan(0);
+    for (const code of MOBILE_PLAN_ERROR_CODES) expect(code).not.toBe("");
+    expect(new Set(MOBILE_PLAN_ERROR_CODES).size).toBe(
+      MOBILE_PLAN_ERROR_CODES.length,
+    );
+  });
+
+  it("一覧の理由をすべて認め、文字列でない値は認めない", () => {
+    for (const code of MOBILE_PLAN_ERROR_CODES) {
+      expect(isMobilePlanErrorCode(code)).toBe(true);
+    }
+    expect(isMobilePlanErrorCode("")).toBe(false);
+    expect(isMobilePlanErrorCode(undefined)).toBe(false);
+    expect(isMobilePlanErrorCode(0)).toBe(false);
+  });
+});
+
+describe("プランのアプリ向け API のパス", () => {
+  const paths = [
+    MOBILE_PLAN_API_PATH,
+    MOBILE_PLAN_OFFERS_API_PATH,
+    MOBILE_APPLE_TRANSACTIONS_API_PATH,
+    MOBILE_GOOGLE_PURCHASES_API_PATH,
+    MOBILE_PRACTICE_QUOTA_BEGIN_API_PATH,
+  ];
+
+  // 配布済みのアプリは強制的に更新できないので、どのパスも版付きの接頭辞の下に置く
+  it.each(paths)("%s は版付きの接頭辞 /api/mobile/v1/ の下にある", (path) => {
+    expect(path.startsWith("/api/mobile/v1/")).toBe(true);
+    expect(path.length).toBeGreaterThan("/api/mobile/v1/".length);
+  });
+
+  it("API ごとにパスが重ならない", () => {
+    expect(new Set(paths).size).toBe(paths.length);
+  });
+
+  it("出題開始のパスは残数を読む API のパスの下にある", () => {
+    const quotaPath = mobilePracticeQuotaApiUrl("agari-score").split("?")[0];
+    expect(
+      MOBILE_PRACTICE_QUOTA_BEGIN_API_PATH.startsWith(`${quotaPath}/`),
+    ).toBe(true);
+  });
+});
+
+describe("GOOGLE_MOCK_PURCHASE_TOKEN_PREFIX", () => {
+  // 空の接頭辞はどのトークンにも一致し、本物の購入をモックとして扱ってしまう
+  it("空でない", () => {
+    expect(GOOGLE_MOCK_PURCHASE_TOKEN_PREFIX.length).toBeGreaterThan(0);
   });
 });
 
