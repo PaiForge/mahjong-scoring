@@ -702,6 +702,28 @@ describe("matchesScoreFilters", () => {
     ).toBe(false);
   });
 
+  it("回答の符選択肢に無い符（110 符超）の問題は条件を指定しなくても落とす", () => {
+    // 東・南・西の暗槓 + 123m + 5p 単騎をロン（北家の東場）。
+    // 副底 20 + 門前ロン 10 + 么九牌の暗槓 32 × 3 + 単騎 2 = 128 → 130 符
+    const overFu = buildScoreQuestion({
+      tehai: agariTehai("123m55p(1111z)(2222z)(3333z)"),
+      agariHai: HaiKind.PinZu5,
+      isTsumo: false,
+      jikaze: HaiKind.Pei,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [
+        HaiKind.SouZu2,
+        HaiKind.SouZu3,
+        HaiKind.SouZu4,
+        HaiKind.SouZu5,
+      ],
+      ruleConfig: {},
+      riichi: undefined,
+    })._unsafeUnwrap();
+    expect(overFu.answer.fu).toBe(130);
+    expect(matchesScoreFilters(overFu, permissive)).toBe(false);
+  });
+
   it("役の絞り込みは OR で、空の配列は絞り込まない", () => {
     expect(
       matchesScoreFilters(question, {
