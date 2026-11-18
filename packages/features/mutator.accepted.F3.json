@@ -1,6 +1,0 @@
-{
-  "2goplhqwhbk": {
-    "reason": "equivalent: formatDifference returns noDifferenceLabel when diff === 0 on the previous line, so diff is never 0 at the sign choice and diff > 0 and diff >= 0 always agree",
-    "where": "src/practice/answer-difference.ts:28:13 diff > 0 -> diff >= 0"
-  }
-}
