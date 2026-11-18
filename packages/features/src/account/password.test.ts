@@ -1,7 +1,11 @@
+import { messages } from "@mahjong-scoring/messages/ja";
 import { describe, it, expect } from "vitest";
 import {
   getPasswordValidationError,
   isPasswordValidationErrorKey,
+  parsePasswordActionError,
+  PASSWORD_VALIDATION_ERROR_KEYS,
+  validatePasswordPair,
 } from "./password";
 
 describe("getPasswordValidationError", () => {
@@ -84,5 +88,61 @@ describe("isPasswordValidationErrorKey", () => {
 
   it("returns false for a key with wrong casing", () => {
     expect(isPasswordValidationErrorKey("TooShort")).toBe(false);
+  });
+});
+
+describe("PASSWORD_VALIDATION_ERROR_KEYS", () => {
+  // 呼び出し側は invalid のキーを validation.password の名前空間で翻訳する
+  it.each(PASSWORD_VALIDATION_ERROR_KEYS)(
+    "%s は validation.password の辞書にある",
+    (key) => {
+      expect(messages.validation.password[key]).toEqual(expect.any(String));
+    },
+  );
+});
+
+describe("validatePasswordPair", () => {
+  it("確認用と一致し形式も満たせば問題なし", () => {
+    expect(validatePasswordPair("abcde1", "abcde1")).toBeUndefined();
+  });
+
+  it("確認用と食い違えば、形式を満たしていても mismatch", () => {
+    expect(validatePasswordPair("abcde1", "abcde2")).toEqual({
+      type: "mismatch",
+    });
+  });
+
+  it("確認用と食い違えば、形式の誤りより先に mismatch を返す", () => {
+    expect(validatePasswordPair("abc", "abd")).toEqual({ type: "mismatch" });
+  });
+
+  it("一致していても形式を満たさなければ invalid と翻訳キーを返す", () => {
+    expect(validatePasswordPair("abcdef", "abcdef")).toEqual({
+      type: "invalid",
+      key: "missingDigit",
+    });
+  });
+});
+
+describe("parsePasswordActionError", () => {
+  it("password: の後ろのキーを取り出す", () => {
+    expect(parsePasswordActionError("password:tooShort")).toBe("tooShort");
+    expect(parsePasswordActionError("password:weak")).toBe("weak");
+  });
+
+  it("password: で始まらないエラーは undefined", () => {
+    expect(parsePasswordActionError("tooShort")).toBeUndefined();
+    expect(parsePasswordActionError("email:tooShort")).toBeUndefined();
+    // 接頭辞が同じ長さの別の欄のエラーを、パスワードの誤りと取り違えない
+    expect(parsePasswordActionError("username:tooShort")).toBeUndefined();
+  });
+
+  it("password: が先頭でなく後ろにあるエラーは undefined", () => {
+    expect(parsePasswordActionError("tooShort:password:")).toBeUndefined();
+  });
+
+  it("password: の後ろが知らないキーなら undefined", () => {
+    expect(parsePasswordActionError("password:unknown")).toBeUndefined();
+    expect(parsePasswordActionError("password:")).toBeUndefined();
   });
 });

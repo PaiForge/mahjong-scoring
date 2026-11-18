@@ -138,4 +138,11 @@ describe("isApplePrivateRelayEmail", () => {
     expect(isApplePrivateRelayEmail("privaterelay.appleid.com")).toBe(false);
     expect(isApplePrivateRelayEmail(undefined)).toBe(false);
   });
+
+  it("ドメインは最後の @ の後ろだけで決め、ローカル部の中身を問わない", () => {
+    expect(isApplePrivateRelayEmail("@privaterelay.appleid.com")).toBe(true);
+    expect(
+      isApplePrivateRelayEmail("a@privaterelay.appleid.com@example.com"),
+    ).toBe(false);
+  });
 });
