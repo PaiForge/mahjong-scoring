@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { retryGenerate } from "./retry-generate";
 
+/** 上限を超えて呼び続けたとみなす回数。止まらないループをテストの失敗にする */
+const RUNAWAY_CALLS = 100;
+
 /** 決めた回数だけ undefined を返し、その後は試行回数を返す生成関数 */
 function failingTimes(failures: number): {
   generator: () => number | undefined;
@@ -11,6 +14,7 @@ function failingTimes(failures: number): {
   return {
     generator: () => {
       count += 1;
+      if (count > RUNAWAY_CALLS) throw new Error("生成関数が呼ばれ続けた");
       return count > failures ? count : undefined;
     },
     calls: () => count,
