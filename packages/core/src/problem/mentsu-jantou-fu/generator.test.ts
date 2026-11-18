@@ -3,7 +3,10 @@ import { MentsuType, isYaochu } from "@pai-forge/riichi-mahjong";
 import { generateMentsuJantouFuQuestion } from "./generator";
 import { expectGeneratesEventually, expectSampled } from "../../test/sampling";
 import { expectAgariHaiNotKantsuKind } from "../../test/tile-usage";
-import type { MentsuJantouFuItem } from "./types";
+import { seededRandom } from "../../test/seeded-random";
+import { defaultIdGenerator } from "../../core/id";
+import type { RandomSource } from "../../core/random";
+import type { MentsuJantouFuItem, MentsuJantouFuQuestion } from "./types";
 
 /** その回答行が手牌の中の暗刻（副露していない刻子）か */
 function isClosedKoutsu(item: MentsuJantouFuItem): boolean {
@@ -89,5 +92,84 @@ describe("generateMentsuJantouFuQuestion", () => {
     const ids = [question.id, ...question.items.map((item) => item.id)];
     expect(ids.every((id) => id.startsWith("id-"))).toBe(true);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("generateMentsuJantouFuQuestion（乱数を固定した出題）", () => {
+  /** シードを固定して問題を集める（結果は実行ごとに変わらない） */
+  function sampleSeeded(
+    options: { readonly renfonpaiAs4Fu?: boolean } = {},
+    where?: (question: MentsuJantouFuQuestion) => boolean,
+    attempts = 300,
+  ) {
+    const rng: RandomSource = seededRandom(20261119);
+    return expectSampled(
+      () =>
+        generateMentsuJantouFuQuestion({
+          ...options,
+          idGen: defaultIdGenerator,
+          rng,
+        }),
+      { attempts, need: attempts, where },
+    );
+  }
+
+  /** 手牌の右に晒す行（副露した面子と、暗槓を含む槓子） */
+  function isShownAsExposed(item: MentsuJantouFuItem): boolean {
+    return item.isOpen || item.type === MentsuType.Kantsu;
+  }
+
+  it("手牌の副露は、回答行の副露した面子と槓子を同じ順に並べたもの", () => {
+    for (const q of sampleSeeded()) {
+      expect(q.tehai.exposed).toEqual(
+        q.items.filter(isShownAsExposed).map((item) => item.originalMentsu),
+      );
+    }
+  });
+
+  it("回答行の副露の印は面子を鳴いたかどうかで、雀頭は副露にしない", () => {
+    for (const q of sampleSeeded()) {
+      for (const item of q.items) {
+        expect(item.isOpen).toBe(!!item.originalMentsu?.furo);
+      }
+      const pairs = q.items.filter((item) => item.type === "Pair");
+      expect(pairs).toHaveLength(1);
+    }
+  });
+
+  it("順子は 0 符、槓子は明槓 8 符・暗槓 16 符（么九牌なら倍）", () => {
+    let kantsuSeen = 0;
+    for (const q of sampleSeeded()) {
+      for (const item of q.items) {
+        if (item.type === MentsuType.Shuntsu) expect(item.fu).toBe(0);
+        if (item.type !== MentsuType.Kantsu) continue;
+        kantsuSeen++;
+        const base = item.isOpen ? 8 : 16;
+        expect(item.fu).toBe(isYaochu(item.tiles[0]) ? base * 2 : base);
+      }
+    }
+    // 検証対象の形が1件も出ていなければ、テストが素通りしているだけ
+    expect(kantsuSeen).toBeGreaterThan(0);
+  });
+
+  it("既定では連風牌の雀頭は 2 符、renfonpaiAs4Fu なら 4 符", () => {
+    const isRenfonpaiPair = (q: MentsuJantouFuQuestion) =>
+      q.context.bakaze === q.context.jikaze &&
+      q.items.some(
+        (item) => item.type === "Pair" && item.tiles[0] === q.context.bakaze,
+      );
+    const pairFu = (q: MentsuJantouFuQuestion) =>
+      q.items.find((item) => item.type === "Pair")?.fu;
+
+    for (const q of sampleSeeded({}, isRenfonpaiPair, 3000)) {
+      expect(pairFu(q)).toBe(2);
+    }
+    for (const q of sampleSeeded(
+      { renfonpaiAs4Fu: true },
+      isRenfonpaiPair,
+      3000,
+    )) {
+      expect(pairFu(q)).toBe(4);
+    }
   });
 });
