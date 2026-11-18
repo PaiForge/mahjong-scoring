@@ -508,3 +508,27 @@ describe("splitScoresByBand", () => {
     expect(bands.manganPlus).toEqual(high);
   });
 });
+
+describe("getAvailableScores（子ツモを 2 つの select で答えるとき）", () => {
+  /** 狭義の昇順（重複なし）か */
+  const isStrictlyAscending = (values: readonly number[]) =>
+    values.every((value, i) => i === 0 || values[i - 1] < value);
+
+  it.each([undefined, 1, 2, 3, 4, 5, 13])(
+    "%s 翻の子・親それぞれの選択肢は重複なく昇順に並ぶ",
+    (han) => {
+      for (const kiriageMangan of [false, true]) {
+        const available = getAvailableScores({
+          han,
+          isOya: false,
+          isTsumo: true,
+          kiriageMangan,
+          koTsumoInput: "split",
+        });
+        if (available.type !== "koTsumoSplit") throw new Error(available.type);
+        expect(isStrictlyAscending(available.koScores)).toBe(true);
+        expect(isStrictlyAscending(available.oyaScores)).toBe(true);
+      }
+    },
+  );
+});
