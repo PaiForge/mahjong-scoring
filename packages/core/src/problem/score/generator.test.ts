@@ -574,7 +574,8 @@ describe("七対子の抽選（乱数を固定）", () => {
   }
 
   it("七対子だけを指定すると抽選を通さず毎回七対子を作る", () => {
-    const names = generatedYakuNames({ requiredYaku: ["七対子"] });
+    // 抽選に外れる値（0.99）を先頭に置いても七対子を作る
+    const names = generatedYakuNames({ requiredYaku: ["七対子"] }, 0.99);
     expect(names.length).toBeGreaterThan(0);
     expect(names.every((yaku) => yaku.includes("七対子"))).toBe(true);
   });
