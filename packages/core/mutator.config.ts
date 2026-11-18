@@ -18,8 +18,10 @@
 // `*.test.*` と `__tests__/` はツールが既定で除外し、`exclude` はその既定に追加される
 // ので、ここではテストファイルを除く指定をしない。`exclude` に挙げた `src/test/**` と
 // `src/test-utils/**` はテストからだけ使う補助（シード付き乱数・手牌の組み立て等）で、
-// 本番コードではないから書き換えても検出力の測定にならない。テストランナーは同じ
-// ディレクトリの `vitest.config.ts` を自動で読む。
+// 本番コードではないから書き換えても検出力の測定にならない。テストの隣に置く固定データ
+// （`test-fixtures.ts`・`*.fixture.ts`）も同じ理由で外す — どちらの名前もツールの既定の
+// 除外に当たらず、外さないと固定データの書き換えが生存・タイムアウトとして数えられる。
+// テストランナーは同じディレクトリの `vitest.config.ts` を自動で読む。
 //
 // 出題ジェネレータの統計的テスト（シードなしの乱数で数万回試行して分布や網羅を見るもの）
 // は、それが覆う行のミュータントごとに再実行されるので、全件の実行には時間が掛かる。
@@ -34,7 +36,12 @@ import { defineConfig } from "@mizchi/mutator";
 
 export default defineConfig({
   include: ["src/**/*.ts"],
-  exclude: ["src/test/**", "src/test-utils/**"],
+  exclude: [
+    "src/test/**",
+    "src/test-utils/**",
+    "src/**/test-fixtures.ts",
+    "src/**/*.fixture.ts",
+  ],
   reporters: ["text", "html", "json"],
   failOnSurvived: false,
 });

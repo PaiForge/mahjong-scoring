@@ -19,6 +19,8 @@
 // `vitest.config.ts` を自動で読む。`exclude` に挙げたもの:
 // - `src/test/**`: テストからだけ使う補助（メモリのストレージ・タイマー・intl のラッパー等）。
 //   本番コードではないから書き換えても検出力の測定にならない
+// - `src/**/*.fixture.ts`・`src/**/test-fixtures.ts`: テストの隣に置く固定データ。
+//   上と同じ理由で外す。どちらの名前もツールの既定の除外に当たらない
 // - `src/**/use-*.ts`: フック・ストアのファイル。features で React・zustand・use-intl に
 //   触れてよいのはこの層だけで、テストは jsdom + testing-library で描画を介すので
 //   ミュータントごとの再実行が重く、描画やモックに対するテストは殺しても品質の証拠に
@@ -29,7 +31,12 @@ import { defineConfig } from "@mizchi/mutator";
 
 export default defineConfig({
   include: ["src/**/*.ts"],
-  exclude: ["src/test/**", "src/**/use-*.ts"],
+  exclude: [
+    "src/test/**",
+    "src/**/*.fixture.ts",
+    "src/**/test-fixtures.ts",
+    "src/**/use-*.ts",
+  ],
   reporters: ["text", "html", "json"],
   failOnSurvived: false,
 });
