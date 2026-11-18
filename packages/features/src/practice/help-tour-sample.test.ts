@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { judgeAnswer, judgeYakuSelection } from "@mahjong-scoring/core";
 
+import { scoreAnswerToUserAnswer } from "../results/payment-adapter";
 import {
   answerFieldsOf,
   buildTenpaiHelpCells,
+  generateAgariHelpSample,
   generateTenpaiHelpSample,
   helpSampleAnswer,
   HELP_TOUR_ALL_CORRECT,
@@ -12,6 +15,51 @@ import {
 import { TENPAI_SCORE_DEMO_QUESTION } from "./tenpai-score/demo-question";
 import { cellKeyOf, listCellRefs } from "./tenpai-score/cell-ref";
 import { correctCellAnswerOf } from "./tenpai-score/format-cell-answer";
+
+describe("HELP_TOUR_ALL_CORRECT", () => {
+  it("正解の回答を判定した結果と同じ（どの観点も正解）", () => {
+    const question = generateAgariHelpSample();
+    if (!question) throw new Error("サンプルを作れなかった");
+
+    const correctAnswer = {
+      ...scoreAnswerToUserAnswer(question.answer),
+      // 正解の役名（選択肢の名前に引き直したもの）をすべて選んだ回答
+      yakus: judgeYakuSelection(question, []).map((yaku) => yaku.name),
+    };
+    expect(judgeAnswer(question, correctAnswer, { requireYaku: true })).toEqual(
+      HELP_TOUR_ALL_CORRECT,
+    );
+  });
+});
+
+describe("generateAgariHelpSample", () => {
+  it("副露も七対子も含まない手だけを出す", () => {
+    // 七対子は 1 割の確率で混ざる作り方なので、200 問あれば混ざる設定を見分けられる
+    for (let i = 0; i < 200; i++) {
+      const question = generateAgariHelpSample();
+      if (!question) throw new Error("サンプルを作れなかった");
+      // 暗槓は副露ではないので exposed に入りうる。鳴いた面子（furo 付き）だけを見る
+      expect(
+        question.tehai.exposed.filter((m) => m.furo !== undefined),
+      ).toEqual([]);
+      expect(question.yakuDetails.map((yaku) => yaku.name)).not.toContain(
+        "七対子",
+      );
+    }
+  });
+});
+
+describe("generateTenpaiHelpSample", () => {
+  it("副露を含まない手だけを出す", () => {
+    for (let i = 0; i < 50; i++) {
+      const question = generateTenpaiHelpSample();
+      if (!question) throw new Error("サンプルを作れなかった");
+      expect(
+        question.tehai.exposed.filter((m) => m.furo !== undefined),
+      ).toEqual([]);
+    }
+  });
+});
 
 describe("buildTenpaiHelpCells", () => {
   it("待ちごとのツモ・ロンの全マスを正解の回答と全問正解の判定で埋める", () => {
@@ -100,6 +148,8 @@ describe("tenpaiHelpCellFormatters", () => {
       "form.options.hanSuffix": "翻",
       "form.options.fuSuffix": "符",
       "form.options.mangan": "満貫",
+      "form.options.yakuman": "役満",
+      "form.options.doubleYakuman": "ダブル役満",
       "result.pointSuffix": "点",
     })[key] ?? key;
 
@@ -119,5 +169,22 @@ describe("tenpaiHelpCellFormatters", () => {
       ),
     ).toBe("満貫 8000点");
     expect(formatAnswer({ kind: "noYaku" }, false)).toBe("役なし");
+  });
+
+  it("ダブル役満を採らないルールで描き、26翻以上も役満とする", () => {
+    const { formatAnswer } = tenpaiHelpCellFormatters(
+      TENPAI_SCORE_DEMO_QUESTION,
+      { t, noYakuLabel: "役なし" },
+    );
+
+    expect(
+      formatAnswer(
+        {
+          kind: "score",
+          answer: { han: 26, fu: undefined, score: 32000, yakus: [] },
+        },
+        false,
+      ),
+    ).toBe("役満 32000点");
   });
 });
