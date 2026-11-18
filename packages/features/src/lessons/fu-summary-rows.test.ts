@@ -146,6 +146,19 @@ describe("符の早見表", () => {
     },
   );
 
+  it.each(TABLES)(
+    "$name: 辞書にある表の行（row で始まるキー）をすべて並べる",
+    ({ rows, ja }) => {
+      const dictionaryRowKeys = Object.keys(
+        typeof ja === "object" && ja !== null ? ja : {},
+      ).filter((key) => key.startsWith("row"));
+      expect(dictionaryRowKeys.length).toBeGreaterThan(0);
+      expect(rows.map((row) => row.key).sort()).toEqual(
+        dictionaryRowKeys.sort(),
+      );
+    },
+  );
+
   it("雀頭: 各行の符は、その行の牌を東場・南家の雀頭にしたときの符と一致する", () => {
     for (const row of JANTOU_FU_SUMMARY_ROWS) {
       for (const tile of JANTOU_ROW_TILES[row.key]) {
