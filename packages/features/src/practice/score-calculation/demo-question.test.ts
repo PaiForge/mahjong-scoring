@@ -10,6 +10,10 @@ describe("SCORE_CALCULATION_DEMO_QUESTION", () => {
     expect(demo.yakuDetails).toEqual([]);
   });
 
+  it("出題と同じく表ドラ表示牌を 1 枚持つ", () => {
+    expect(demo.doraMarkers).toHaveLength(1);
+  });
+
   it("リーチしていない手なので裏ドラ表示牌を持たない", () => {
     expect(demo.isRiichi).toBe(false);
     expect(demo.uraDoraMarkers).toBeUndefined();

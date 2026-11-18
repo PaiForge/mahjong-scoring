@@ -61,6 +61,19 @@ describe("buildYakumanCapNote", () => {
     ).toBe("14翻 → 役満（13翻以上は役満）");
   });
 
+  it("ダブル役満の支払いでちょうど 26 翻なら注記を出さない", () => {
+    expect(
+      buildYakumanCapNote(
+        [
+          { name: "大三元", han: 13 },
+          { name: "字一色", han: 13 },
+        ],
+        2,
+        tJa,
+      ),
+    ).toBeUndefined();
+  });
+
   it("数え役満がちょうど 13 翻なら、打ち止めていないので注記を出さない", () => {
     expect(
       buildYakumanCapNote(
