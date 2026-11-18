@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  MOBILE_NOTIFICATIONS_READ_API_PATH,
   mobileNotificationsApiUrl,
   parseMobileNotificationsResponse,
 } from "./mobile-api";
@@ -28,7 +29,31 @@ describe("mobileNotificationsApiUrl", () => {
   });
 });
 
+describe("MOBILE_NOTIFICATIONS_READ_API_PATH", () => {
+  it("既読にする API は一覧の API の下の read", () => {
+    expect(MOBILE_NOTIFICATIONS_READ_API_PATH).toBe(
+      "/api/mobile/v1/notifications/read",
+    );
+  });
+});
+
 describe("parseMobileNotificationsResponse", () => {
+  it("日時はタイムゾーンのずれ付きの ISO 日時も読む", () => {
+    const body = {
+      items: [
+        {
+          ...READ_ITEM,
+          readAt: "2026-10-02T12:00:00+09:00",
+          createdAt: "2026-10-01T12:00:00+09:00",
+        },
+      ],
+      page: 1,
+      totalPages: 1,
+      unreadCount: 0,
+    };
+    expect(parseMobileNotificationsResponse(body)).toEqual(body);
+  });
+
   it("未読（readAt なし）と既読の行を読む", () => {
     const body = {
       items: [ITEM, READ_ITEM],
