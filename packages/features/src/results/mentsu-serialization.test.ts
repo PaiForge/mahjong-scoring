@@ -75,4 +75,16 @@ describe("toSerializedMentsu / restoreMentsu", () => {
     expect(serializedMentsuSchema.safeParse(serialized).success).toBe(true);
     expect(restoreMentsu(serialized)).toEqual(mentsu);
   });
+
+  it("鳴いていない面子の保存形は副露の項目を持たない", () => {
+    const serialized = toSerializedMentsu({
+      type: MentsuType.Koutsu,
+      hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
+    });
+    expect(serialized).toStrictEqual({
+      tiles: "555z",
+      type: MentsuType.Koutsu,
+    });
+    expect(serialized).not.toHaveProperty("furo");
+  });
 });
