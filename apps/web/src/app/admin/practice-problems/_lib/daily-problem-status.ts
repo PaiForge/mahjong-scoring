@@ -6,7 +6,7 @@ import {
 } from "@mahjong-scoring/core";
 import { jstDayKey, jstDayStartIso } from "@mahjong-scoring/features/jst";
 import { dailyProblems, db, practiceProblems } from "@/lib/db";
-import { isDailyProblemEligible } from "@/lib/daily-problem/eligibility";
+import { isDailyProblemEligible } from "@mahjong-scoring/features/daily-problem/eligibility";
 
 /**
  * 本日の問題の候補在庫と直近の公開状態を読む。選出・固定はしない。
