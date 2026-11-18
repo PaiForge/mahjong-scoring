@@ -1,6 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
-import { getPeriodRange, getPreviousPeriodRange } from "./period";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import {
+  getComparisonLabelKey,
+  getPeriodRange,
+  getPreviousPeriodLabel,
+  getPreviousPeriodRange,
+} from "./period";
+import { DATE_PERIOD_VALUES } from "./types";
 
 /** JST の年月日時分秒を表す瞬間 */
 function jst(
@@ -143,3 +151,43 @@ describe.each(["UTC", "Asia/Tokyo", "America/Los_Angeles"])(
     });
   },
 );
+
+describe("getComparisonLabelKey", () => {
+  it.each([
+    ["thisWeek", "vsLastWeek"],
+    ["lastWeek", "vs2WeeksAgo"],
+    ["thisMonth", "vsLastMonth"],
+    ["lastMonth", "vs2MonthsAgo"],
+  ] as const)("%s は 1 つ前の期間との比較ラベル %s を指す", (period, key) => {
+    expect(getComparisonLabelKey(period)).toBe(key);
+  });
+
+  it("どの期間の比較ラベルも mypage.challenges の辞書にあり、期間ごとに別の文言になる", () => {
+    const keys = DATE_PERIOD_VALUES.map(getComparisonLabelKey);
+    for (const key of keys) {
+      expect(messages.mypage.challenges[key]).toEqual(expect.any(String));
+    }
+    expect(new Set(keys).size).toBe(DATE_PERIOD_VALUES.length);
+  });
+});
+
+describe("getPreviousPeriodLabel", () => {
+  it.each([
+    ["thisWeek", "lastWeek"],
+    ["lastWeek", "twoWeeksAgo"],
+    ["thisMonth", "lastMonth"],
+    ["lastMonth", "twoMonthsAgo"],
+  ] as const)("%s の 1 つ前の期間は %s と呼ぶ", (period, label) => {
+    expect(getPreviousPeriodLabel(period)).toBe(label);
+  });
+
+  it("どの期間の前期間ラベルも mypage.challenges.periods の辞書にあり、期間ごとに別の文言になる", () => {
+    const labels = DATE_PERIOD_VALUES.map(getPreviousPeriodLabel);
+    for (const label of labels) {
+      expect(messages.mypage.challenges.periods[label]).toEqual(
+        expect.any(String),
+      );
+    }
+    expect(new Set(labels).size).toBe(DATE_PERIOD_VALUES.length);
+  });
+});
