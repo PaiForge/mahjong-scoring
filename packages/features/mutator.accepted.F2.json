@@ -1,0 +1,22 @@
+{
+  "1m9i35xdujx": {
+    "reason": "equivalent: the choices are a module constant with no input; the Set of jantou fu over HaiKind order (number tiles first) is already ascending ([0, 2]), so dropping the sort yields the identical array",
+    "where": "src/lessons/jantou-fu.ts:54:12 [ ...new Set( ALL_TILES.map((tile) => calculateJantouFu(til… -> [ ...new Set( ALL_TILES.map((tile) => calculateJantouFu(til…"
+  },
+  "1tbhh601p6b": {
+    "reason": "equivalent: with an empty catch, json stays undefined and storedSchema.safeParse(undefined) fails, so the function still returns [] for every unparsable string",
+    "where": "src/lessons/pending-completions.ts:94:11 { return []; } -> {}"
+  },
+  "aj5rkk78o3": {
+    "reason": "equivalent: the choices are a module constant with no input; every han of a menzen-only entry in YAKU_HAN_ENTRIES also appears in an entry that has nakiHan, so dropping menzen-only entries leaves the same han set (the exact choices [1, 2, 3, 5, 6, yakuman] are asserted in quizzes.test.ts and still pass)",
+    "where": "src/lessons/yaku.ts:71:13 [entry.menzenHan] -> []"
+  },
+  "strmuksk85": {
+    "reason": "equivalent: the choices are a module constant with no input; the Set of machi fu in ALL_MACHI_TYPES order is already ascending ([0, 2]), so dropping the sort yields the identical array",
+    "where": "src/lessons/machi-fu.ts:86:12 [...new Set(ALL_MACHI_TYPES.map(calculateMachiFu))] .sort(c… -> [...new Set(ALL_MACHI_TYPES.map(calculateMachiFu))]"
+  },
+  "xo9b2p57dq": {
+    "reason": "equivalent: buildExtraFuRows returns rows in ascending fu order for both FixedHandShape values (menzen, furo — the only inputs), so the deduplicated tsumo/ron fu are already sorted and the sort is a no-op",
+    "where": "src/lessons/extra-fu-quiz.ts:44:14 [ ...new Set( buildExtraFuRows(handShape).flatMap((row) => … -> [ ...new Set( buildExtraFuRows(handShape).flatMap((row) => …"
+  }
+}

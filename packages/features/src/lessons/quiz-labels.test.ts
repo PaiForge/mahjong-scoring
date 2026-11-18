@@ -5,9 +5,13 @@ import {
   HaiKind,
   type Kazehai,
   kazeNameKey,
+  MentsuType,
 } from "@mahjong-scoring/core";
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
+import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
 
-import type { LessonPrompt } from "./quiz";
+import type { LessonChoice, LessonPrompt } from "./quiz";
+import { lessonQuiz } from "./quizzes";
 import {
   formatLessonPoints,
   lessonAnswerLabel,
@@ -20,6 +24,16 @@ const t = (key: string, values?: Record<string, string | number>): string =>
   values ? `${key}(${JSON.stringify(values)})` : key;
 
 const tScoreTable = (key: string): string => `tier:${key}`;
+
+/** ドット区切りのキーで辞書の値を引く（無ければ undefined） */
+function resolveMessage(dictionary: unknown, key: string): unknown {
+  let node: unknown = dictionary;
+  for (const segment of key.split(".")) {
+    if (typeof node !== "object" || node === null) return undefined;
+    node = (node as Readonly<Record<string, unknown>>)[segment];
+  }
+  return node;
+}
 
 /** 日本語の出力に使う引数（以前の既定値） */
 const JA_CONDITION_OPTIONS = {
@@ -67,6 +81,64 @@ describe("lessonChoiceLabel・lessonAnswerLabel", () => {
     expect(lessonAnswerLabel({ kind: "points", points: 12000 }, t, "en")).toBe(
       'answerLabels.points({"points":"12,000"})',
     );
+  });
+
+  it("単位や語が付く選択肢（翻・役満・符）は辞書から引いて値を差し込む", () => {
+    expect(lessonChoiceLabel({ kind: "han", han: 3 }, t, "ja")).toBe(
+      'choiceLabels.han({"han":3})',
+    );
+    expect(lessonChoiceLabel({ kind: "yakuman" }, t, "ja")).toBe(
+      "choiceLabels.yakuman",
+    );
+    expect(lessonChoiceLabel({ kind: "fu", fu: 40 }, t, "ja")).toBe(
+      'choiceLabels.fu({"fu":40})',
+    );
+  });
+
+  it("正解ラベルは点数・子のツモにだけ「点」を付け、ほかはボタンと同じ文字列", () => {
+    expect(
+      lessonAnswerLabel(
+        { kind: "koTsumo", fromKo: 2000, fromOya: 4000 },
+        t,
+        "ja",
+      ),
+    ).toBe('answerLabels.points({"points":"2,000 / 4,000"})');
+    const unitChoices: readonly LessonChoice[] = [
+      { kind: "oyaTsumo", all: 4000 },
+      { kind: "han", han: 2 },
+      { kind: "yakuman" },
+      { kind: "fu", fu: 30 },
+    ];
+    for (const choice of unitChoices) {
+      expect(lessonAnswerLabel(choice, t, "ja")).toBe(
+        lessonChoiceLabel(choice, t, "ja"),
+      );
+    }
+  });
+
+  it("選択肢・正解ラベルが引くキーは日本語・英語の辞書（lessons）にある", () => {
+    const usedKeys = new Set<string>();
+    const recording = (key: string): string => {
+      usedKeys.add(key);
+      return key;
+    };
+    const choices: readonly LessonChoice[] = [
+      { kind: "points", points: 1000 },
+      { kind: "koTsumo", fromKo: 300, fromOya: 500 },
+      { kind: "oyaTsumo", all: 500 },
+      { kind: "han", han: 1 },
+      { kind: "yakuman" },
+      { kind: "fu", fu: 20 },
+    ];
+    for (const choice of choices) {
+      lessonChoiceLabel(choice, recording, "ja");
+      lessonAnswerLabel(choice, recording, "ja");
+    }
+    expect(usedKeys.size).toBeGreaterThan(0);
+    for (const key of usedKeys) {
+      expect(resolveMessage(jaMessages.lessons, key), key).toBeTypeOf("string");
+      expect(resolveMessage(enMessages.lessons, key), key).toBeTypeOf("string");
+    }
   });
 });
 
@@ -166,5 +238,79 @@ describe("lessonConditionValues", () => {
         yakuJoiner: " + ",
       }),
     ).toEqual({ bakaze: "東", jikaze: "南" });
+  });
+
+  it("帯の問題は翻数と、scoreTable の辞書から引いた帯の名前を差し込む", () => {
+    expect(
+      lessonConditionValues(
+        { kind: "tier", tierKey: "haneman", han: 6 },
+        tScoreTable,
+        JA_CONDITION_OPTIONS,
+      ),
+    ).toEqual({ han: 6, tier: "tier:haneman" });
+  });
+
+  it("面子の問題は形の名前を差し込み、形ごとに相異なる名前になる", () => {
+    const shapeOf = (prompt: LessonPrompt): unknown =>
+      lessonConditionValues(prompt, tScoreTable, JA_CONDITION_OPTIONS).shape;
+    const shuntsu = shapeOf({
+      kind: "mentsu",
+      mentsu: {
+        type: MentsuType.Shuntsu,
+        hais: [HaiKind.ManZu2, HaiKind.ManZu3, HaiKind.ManZu4],
+      },
+    });
+    const [koutsu, , kantsu] = lessonQuiz("mentsu-fu").questions.map(
+      ({ prompt }) => shapeOf(prompt),
+    );
+    expect([shuntsu, koutsu, kantsu]).toEqual(["shuntsu", "koutsu", "kantsu"]);
+  });
+
+  it("面子の形の名前は、日本語・英語の条件文の select の分岐の名前と一致する", () => {
+    // 槓子は other の分岐で受けるので、名前を持つのは順子と刻子
+    for (const condition of [
+      jaMessages.lessons.mentsuFu.condition,
+      enMessages.lessons.mentsuFu.condition,
+    ]) {
+      expect(condition).toContain("shuntsu {");
+      expect(condition).toContain("koutsu {");
+    }
+  });
+
+  it("待ちの問題は条件文に差し込む値を持たない（牌から読ませる）", () => {
+    expect(
+      lessonConditionValues(
+        {
+          kind: "machi",
+          tiles: [HaiKind.PinZu3, HaiKind.PinZu4],
+          agariHai: HaiKind.PinZu5,
+        },
+        tScoreTable,
+        JA_CONDITION_OPTIONS,
+      ),
+    ).toEqual({});
+  });
+
+  it("手牌の問題は場風・自風の名前と、ツモ / ロンを差し込む", () => {
+    const [furoRon, furoTsumo] = lessonQuiz("tehai-fu").questions;
+    expect(
+      lessonConditionValues(furoRon.prompt, tScoreTable, JA_CONDITION_OPTIONS),
+    ).toEqual({ bakaze: "東", jikaze: "南", winType: "ron" });
+    expect(
+      lessonConditionValues(furoTsumo.prompt, tScoreTable, {
+        ...JA_CONDITION_OPTIONS,
+        kazeName: (kaze) => ENGLISH_KAZE_NAMES[kazeNameKey(kaze)] ?? "",
+      }),
+    ).toEqual({ bakaze: "East", jikaze: "South", winType: "tsumo" });
+  });
+
+  it("積み上げた符の問題は手の形・ツモ / ロン・積み上げた符を差し込む", () => {
+    expect(
+      lessonConditionValues(
+        { kind: "extraFu", handShape: "furo", winType: "tsumo", extraFu: 10 },
+        tScoreTable,
+        JA_CONDITION_OPTIONS,
+      ),
+    ).toEqual({ handShape: "furo", winType: "tsumo", extraFu: 10 });
   });
 });
