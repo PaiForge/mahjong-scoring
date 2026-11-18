@@ -659,6 +659,14 @@ describe("resolveScoreGeneratorOptions", () => {
     expect(resolved.requiredYaku).toBeUndefined();
     expect(resolved.allowedFu).toBeUndefined();
   });
+
+  it("何も指定しなければ親子どちらも出し、ルールの差分（連風牌 4 符・切り上げ満貫）はどちらも採らない", () => {
+    const resolved = resolveScoreGeneratorOptions({});
+    expect(resolved.includeParent).toBe(true);
+    expect(resolved.includeChild).toBe(true);
+    expect(resolved.renfonpaiAs4Fu).toBe(false);
+    expect(resolved.kiriageMangan).toBe(false);
+  });
 });
 
 describe("matchesScoreFilters", () => {
