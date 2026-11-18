@@ -27,3 +27,6 @@ SPEC*.md
 *.sw?
 .vercel
 .env*
+
+# @mizchi/mutator のキャッシュとレポート（`pnpm mutation` が再生成する）
+**/.mutator/
