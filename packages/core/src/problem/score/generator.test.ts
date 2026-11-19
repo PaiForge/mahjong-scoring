@@ -131,9 +131,11 @@ describe("generateScoreQuestion", () => {
 
     it("親（自風＝東）の出題を残す（場風を落として自風は落とさない）", () => {
       // 自風の側を落とす向きだと親が出るのは南場だけになり、親の点数表を
-      // 引く問題が細る。生成器はその逆向きで連風牌を避ける
+      // 引く問題が細る。生成器はその逆向きで連風牌を避ける。親は 4 回に 1 回しか
+      // 出ないので、乱数を固定する（シードなしだと 20 問に 1 度も出ない回がある）
+      const rng = seededRandom(20261120);
       const questions = expectSampled(
-        () => generateScoreQuestion({ excludeRenfonpai: true }),
+        () => generateScoreQuestion({ excludeRenfonpai: true, rng }),
         { attempts: 600, need: 20 },
       );
 
