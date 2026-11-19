@@ -6,6 +6,7 @@ import {
   createRandomKantsu,
 } from "./mentsu-factory";
 import { expectSampled } from "../../test/sampling";
+import { seededRandom } from "../../test/seeded-random";
 
 /** 生成できた順子を集める（1件も生成できなければ失敗） */
 function shuntsuSamples() {
@@ -104,6 +105,16 @@ describe("createRandomKoutsu", () => {
       "closed-yaochu": 8,
     });
   });
+
+  it("乱数を固定しても、明暗 × 中張/么九の 4 通りが出て符が表どおりになる", () => {
+    const rng = seededRandom(1);
+    expectFuByOpenAndYaochu(() => createRandomKoutsu(rng), {
+      "open-chunchan": 2,
+      "closed-chunchan": 4,
+      "open-yaochu": 4,
+      "closed-yaochu": 8,
+    });
+  });
 });
 
 describe("createRandomKantsu", () => {
@@ -128,6 +139,16 @@ describe("createRandomKantsu", () => {
 
   it("明槓は暗槓の半分の符", () => {
     expectFuByOpenAndYaochu(createRandomKantsu, {
+      "open-chunchan": 8,
+      "closed-chunchan": 16,
+      "open-yaochu": 16,
+      "closed-yaochu": 32,
+    });
+  });
+
+  it("乱数を固定しても、明暗 × 中張/么九の 4 通りが出て符が表どおりになる", () => {
+    const rng = seededRandom(1);
+    expectFuByOpenAndYaochu(() => createRandomKantsu(rng), {
       "open-chunchan": 8,
       "closed-chunchan": 16,
       "open-yaochu": 16,

@@ -71,6 +71,22 @@ describe("buildScoreQuestion", () => {
     expect(question.isRiichi).toBe(true);
   });
 
+  it("リーチの入力が無ければ、リーチしていない問題として裏ドラ表示牌も立直も持たない", () => {
+    const built = buildScoreQuestion({
+      ...base,
+      riichi: undefined,
+      agariHai: HaiKind.Chun,
+      isTsumo: false,
+    });
+    const question = built._unsafeUnwrap();
+
+    expect(question.isRiichi).toBe(false);
+    expect(question.uraDoraMarkers).toBeUndefined();
+    expect((question.yakuDetails ?? []).map((yaku) => yaku.name)).not.toContain(
+      "立直",
+    );
+  });
+
   it("役満 3 個分以上になる手は unsupportedYakuman の Err を返す", () => {
     // 白・發・中・東の暗刻 + 南の雀頭を中でツモ。複合役満を採ると
     // 大三元 + 字一色 + 四暗刻 で役満 3 個分

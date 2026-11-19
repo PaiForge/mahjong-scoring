@@ -156,6 +156,21 @@ describe("generateTotalFuQuestion（乱数を固定した出題）", () => {
     );
   }
 
+  it("七対子の手も出題し、その正解は25符になる", () => {
+    const questions = sampleSeeded(
+      {},
+      {
+        attempts: 500,
+        need: 5,
+        where: (q) => q.fuDetails.some((d) => d.reason === "七対子"),
+      },
+    );
+
+    for (const q of questions) {
+      expect(q.answer).toBe(25);
+    }
+  });
+
   it("役の無い手は出題しない", () => {
     const questions = sampleSeeded({}, { attempts: 300, need: 200 });
 

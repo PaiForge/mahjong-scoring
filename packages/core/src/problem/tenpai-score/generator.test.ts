@@ -350,6 +350,77 @@ describe("generateTenpaiScoreQuestion", () => {
   });
 });
 
+describe("generateTenpaiScoreQuestion（乱数を固定した出題）", () => {
+  /** シードを固定して条件に合う問題を集める（結果は実行ごとに変わらない） */
+  function sampleSeeded(
+    options: Parameters<typeof generateTenpaiScoreQuestion>[0],
+    sampling: Parameters<typeof expectSampled<TenpaiScoreQuestion>>[1],
+  ) {
+    const rng = seededRandom(20261120);
+    return expectSampled(
+      () => generateTenpaiScoreQuestion({ ...options, rng }),
+      sampling,
+    );
+  }
+
+  it("既定では親の出題も子の出題もある", () => {
+    const questions = sampleSeeded({}, { attempts: 500, need: 60 });
+    const isParent = new Set(
+      questions.map((question) => question.jikaze === HaiKind.Ton),
+    );
+    expect(isParent).toEqual(new Set([true, false]));
+  });
+
+  it("includeChild=false なら親だけ、includeParent=false なら子だけを出題する", () => {
+    const parentOnly = sampleSeeded(
+      { includeChild: false },
+      { attempts: 500, need: 30 },
+    );
+    for (const question of parentOnly) {
+      expect(question.jikaze).toBe(HaiKind.Ton);
+    }
+    const childOnly = sampleSeeded(
+      { includeParent: false },
+      { attempts: 500, need: 30 },
+    );
+    for (const question of childOnly) {
+      expect(question.jikaze).not.toBe(HaiKind.Ton);
+    }
+  });
+
+  it("allowedRanges はすべての待ち・和了方法に掛かる", () => {
+    const nonMangan = sampleSeeded(
+      { allowedRanges: ["nonMangan"] },
+      { attempts: 500, need: 50 },
+    );
+    for (const cell of nonMangan.flatMap(listCells)) {
+      expect(cell.answer.scoreLevel).toBe(ScoreLevel.Normal);
+    }
+    const manganPlus = sampleSeeded(
+      { allowedRanges: ["manganPlus"] },
+      { attempts: 5000, need: 3 },
+    );
+    for (const cell of manganPlus.flatMap(listCells)) {
+      expect(cell.answer.scoreLevel).not.toBe(ScoreLevel.Normal);
+    }
+  });
+
+  it("リーチの有無は裏ドラ表示牌の有無と一致し、各待ちの出題にも同じ値が入る", () => {
+    const questions = sampleSeeded({}, { attempts: 1000, need: 150 });
+    const isRiichi = new Set<boolean>();
+    for (const question of questions) {
+      isRiichi.add(question.isRiichi);
+      expect(question.uraDoraMarkers !== undefined).toBe(question.isRiichi);
+      for (const cell of listCells(question)) {
+        expect(cell.isRiichi).toBe(question.isRiichi);
+        expect(cell.uraDoraMarkers).toEqual(question.uraDoraMarkers);
+      }
+    }
+    // リーチしている出題・していない出題の両方が出ていなければ、片方は素通り
+    expect(isRiichi).toEqual(new Set([true, false]));
+  });
+});
+
 describe("generateValidTenpaiScoreQuestion", () => {
   it("リトライして問題を返す", () => {
     expect(generateValidTenpaiScoreQuestion()).toBeDefined();
@@ -486,6 +557,28 @@ describe("buildTenpaiScoreQuestion", () => {
     expect(withoutRiichi.waits.some((wait) => wait.ron === undefined)).toBe(
       true,
     );
+    const withRiichi = buildTenpaiScoreQuestion({
+      ...base,
+      riichi: { uraDoraMarkers: [HaiKind.Sha] },
+    });
+    expect(withRiichi._unsafeUnwrapErr()).toBe("riichiWithNoYakuRon");
+  });
+
+  it("役なしのロン待ちが一部の待ちだけでも、リーチを渡すと拒む", () => {
+    // 23m 222p 456p 345s 88s: 1m・4m の両面。4m は断么九が付くが、1m のロンは
+    // 役なし（2p の暗刻があるので平和にもならない）
+    const base = {
+      tehai: tenpaiTehai("23m222456p34588s"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Pei],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    const withoutRiichi = buildTenpaiScoreQuestion(base)._unsafeUnwrap();
+    expect(withoutRiichi.waits.map((wait) => wait.ron !== undefined)).toEqual([
+      false,
+      true,
+    ]);
     const withRiichi = buildTenpaiScoreQuestion({
       ...base,
       riichi: { uraDoraMarkers: [HaiKind.Sha] },

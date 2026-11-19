@@ -13,6 +13,37 @@ function isClosedKoutsu(item: MentsuJantouFuItem): boolean {
   return item.type === MentsuType.Koutsu && !item.isOpen;
 }
 
+/**
+ * 手牌の中の刻子の符が和了状況を織り込んでいることを確かめる
+ *
+ * ロンした牌を含む刻子は、手牌に 2 枚持っていても最後の 1 枚を他家から
+ * 受けているので明刻の符（暗刻の半分）になる。それ以外は暗刻の符。
+ * 検証対象の形（ロンで完成した刻子）が 1 件も無ければ失敗させる。
+ */
+function expectKoutsuFuReflectsAgari(
+  questions: readonly MentsuJantouFuQuestion[],
+): void {
+  let shanponRonSeen = 0;
+
+  for (const q of questions) {
+    for (const item of q.items) {
+      if (!isClosedKoutsu(item)) continue;
+
+      const yaochu = isYaochu(item.tiles[0]);
+      const isRonKoutsu =
+        !q.context.isTsumo && item.tiles[0] === q.context.agariHai;
+      if (isRonKoutsu) shanponRonSeen++;
+
+      // 明刻は暗刻の半分（中張 2/4符、么九 4/8符）
+      const expected = isRonKoutsu ? (yaochu ? 4 : 2) : yaochu ? 8 : 4;
+      expect(item.fu).toBe(expected);
+    }
+  }
+
+  // 検証対象の形が1件も出ていなければ、テストが素通りしているだけ
+  expect(shanponRonSeen).toBeGreaterThan(0);
+}
+
 describe("generateMentsuJantouFuQuestion", () => {
   it("試行すれば問題が生成される", () => {
     expectGeneratesEventually(generateMentsuJantouFuQuestion);
@@ -36,25 +67,7 @@ describe("generateMentsuJantouFuQuestion", () => {
       need: 3000,
     });
 
-    let shanponRonSeen = 0;
-
-    for (const q of questions) {
-      for (const item of q.items) {
-        if (!isClosedKoutsu(item)) continue;
-
-        const yaochu = isYaochu(item.tiles[0]);
-        const isRonKoutsu =
-          !q.context.isTsumo && item.tiles[0] === q.context.agariHai;
-        if (isRonKoutsu) shanponRonSeen++;
-
-        // 明刻は暗刻の半分（中張 2/4符、么九 4/8符）
-        const expected = isRonKoutsu ? (yaochu ? 4 : 2) : yaochu ? 8 : 4;
-        expect(item.fu).toBe(expected);
-      }
-    }
-
-    // 検証対象の形が1件も出ていなければ、テストが素通りしているだけ
-    expect(shanponRonSeen).toBeGreaterThan(0);
+    expectKoutsuFuReflectsAgari(questions);
   });
 
   it("ロン和了の和了牌は暗刻と暗順子に跨らない", () => {
@@ -127,6 +140,20 @@ describe("generateMentsuJantouFuQuestion（乱数を固定した出題）", () =
     }
   });
 
+  it("暗槓のある手も出題され、暗槓は手牌の右に晒す", () => {
+    const withAnkan = sampleSeeded({}, (q) =>
+      q.items.some((item) => item.type === MentsuType.Kantsu && !item.isOpen),
+    );
+    for (const q of withAnkan) {
+      const ankan = q.items.filter(
+        (item) => item.type === MentsuType.Kantsu && !item.isOpen,
+      );
+      for (const item of ankan) {
+        expect(q.tehai.exposed).toContainEqual(item.originalMentsu);
+      }
+    }
+  });
+
   it("回答行の副露の印は面子を鳴いたかどうかで、雀頭は副露にしない", () => {
     for (const q of sampleSeeded()) {
       for (const item of q.items) {
@@ -135,6 +162,23 @@ describe("generateMentsuJantouFuQuestion（乱数を固定した出題）", () =
       const pairs = q.items.filter((item) => item.type === "Pair");
       expect(pairs).toHaveLength(1);
     }
+  });
+
+  it("ロン和了で和了牌を含む刻子は明刻の符、それ以外の手牌の中の刻子は暗刻の符になる", () => {
+    expectKoutsuFuReflectsAgari(sampleSeeded({}, undefined, 1000));
+  });
+
+  it("ポンした刻子は和了状況に依らず明刻の符（中張 2 符・么九 4 符）になる", () => {
+    let ponSeen = 0;
+    for (const q of sampleSeeded()) {
+      for (const item of q.items) {
+        if (item.type !== MentsuType.Koutsu || !item.isOpen) continue;
+        ponSeen++;
+        expect(item.fu).toBe(isYaochu(item.tiles[0]) ? 4 : 2);
+      }
+    }
+    // 検証対象の形が1件も出ていなければ、テストが素通りしているだけ
+    expect(ponSeen).toBeGreaterThan(0);
   });
 
   it("順子は 0 符、槓子は明槓 8 符・暗槓 16 符（么九牌なら倍）", () => {

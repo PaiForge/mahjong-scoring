@@ -85,6 +85,39 @@ describe("選択肢の候補", () => {
     generateJantouFuQuestion({ rng: seededRandom(seed), idGen: () => "id" }),
   );
 
+  it("どの選択肢の符も calculateJantouFu（既定は連風牌 2 符）と一致する", () => {
+    for (const { context, choices } of questions) {
+      for (const choice of choices) {
+        expect(choice.fu).toBe(
+          calculateJantouFu(choice.hai, context.bakaze, context.jikaze),
+        );
+      }
+    }
+  });
+
+  it("正解は符が付き、不正解は 0 符である", () => {
+    for (const { choices } of questions) {
+      for (const choice of choices) {
+        if (choice.isCorrect) {
+          expect(choice.fu).toBeGreaterThan(0);
+        } else {
+          expect(choice.fu).toBe(0);
+        }
+      }
+    }
+  });
+
+  it("場風と自風が同じ局面では、その風（連風牌）が正解になりうる", () => {
+    const renfonpai = questions.filter(
+      ({ context, choices }) =>
+        context.bakaze === context.jikaze &&
+        choices.some(
+          (choice) => choice.isCorrect && choice.hai === context.bakaze,
+        ),
+    );
+    expect(renfonpai.length).toBeGreaterThan(0);
+  });
+
   it("場風と自風が違う局面では、場風・自風のどちらも正解になりうる", () => {
     const correctWinds = new Set<string>();
     for (const { context, choices } of questions) {

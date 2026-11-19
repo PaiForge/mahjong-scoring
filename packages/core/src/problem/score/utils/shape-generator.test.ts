@@ -68,3 +68,52 @@ describe("鳴きを省略したときの刻子・槓子", () => {
     }
   });
 });
+
+describe("generateWeightedMentsu", () => {
+  /** 重みで種別を 1 つに決め打ちして、牌が十分に残る状態から面子を作る */
+  function typesOf(weights: { shuntsu: number; koutsu: number }) {
+    return new Set(
+      Array.from(
+        { length: 20 },
+        (_, seed) =>
+          generateWeightedMentsu(
+            new HaiUsageTracker(),
+            weights,
+            false,
+            seededRandom(seed),
+          )?.type,
+      ),
+    );
+  }
+
+  it("牌が足りていれば、抽選で決まった種別の面子をそのまま作る", () => {
+    expect(typesOf({ shuntsu: 1, koutsu: 0 })).toEqual(
+      new Set([MentsuType.Shuntsu]),
+    );
+    expect(typesOf({ shuntsu: 0, koutsu: 1 })).toEqual(
+      new Set([MentsuType.Koutsu]),
+    );
+    expect(typesOf({ shuntsu: 0, koutsu: 0 })).toEqual(
+      new Set([MentsuType.Kantsu]),
+    );
+  });
+
+  it("槓子を作れる牌が残っていなければ、刻子に切り替える", () => {
+    // 1m だけ 3 枚残す。槓子（4 枚）も順子も作れず、刻子だけが作れる
+    const tracker = trackerLeaving([HaiKind.ManZu1]);
+    tracker.use(HaiKind.ManZu1, 1)._unsafeUnwrap();
+
+    const mentsu = generateWeightedMentsu(
+      tracker,
+      { shuntsu: 0, koutsu: 0 },
+      false,
+      seededRandom(1),
+    );
+    expect(mentsu?.type).toBe(MentsuType.Koutsu);
+    expect(mentsu?.hais).toEqual([
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+      HaiKind.ManZu1,
+    ]);
+  });
+});

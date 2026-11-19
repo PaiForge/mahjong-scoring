@@ -5,6 +5,7 @@ import { HaiUsageTracker } from "../../core/hai-tracker";
 import {
   pickAvailableHai,
   randomHaiKindIdExcluding,
+  randomSimple,
   randomYaochu,
 } from "./tile-random";
 
@@ -58,5 +59,21 @@ describe("randomYaochu", () => {
       picked.add(randomYaochu(() => step / 100));
     }
     expect(picked).toEqual(new Set(ALL_HAI_KINDS.filter(isYaochu)));
+  });
+});
+
+describe("randomSimple", () => {
+  it("中張牌（数牌の 2〜8）のどれもが出て、それ以外は出ない", () => {
+    // 1 回目（花色）と 2 回目（数字）の乱数を等間隔に振り、選ばれうる牌を全部集める
+    const picked = new Set<number>();
+    for (let suit = 0; suit < 3; suit++) {
+      for (let step = 0; step < 100; step++) {
+        const draws = [suit / 3, step / 100];
+        picked.add(randomSimple(() => draws.shift() ?? 0));
+      }
+    }
+    expect(picked).toEqual(
+      new Set(ALL_HAI_KINDS.filter((hai) => !isYaochu(hai))),
+    );
   });
 });
