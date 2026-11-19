@@ -2,7 +2,11 @@ import type { KoTsumoPayment } from "@mahjong-scoring/core";
 import { describe, expect, it, vi } from "vitest";
 
 import type { SingleInputScores } from "./get-available-scores";
-import { applyScoreTileChoice, scoreTileValue } from "./score-select-options";
+import {
+  applyScoreTileChoice,
+  scoreSelectOptions,
+  scoreTileValue,
+} from "./score-select-options";
 
 const PAYMENT_300_500: KoTsumoPayment = {
   type: "koTsumo",
@@ -58,5 +62,20 @@ describe("applyScoreTileChoice", () => {
     applyScoreTileChoice(combined, "400/700", { onScore, onKoTsumoPayment });
     expect(onScore).not.toHaveBeenCalled();
     expect(onKoTsumoPayment).not.toHaveBeenCalled();
+  });
+});
+
+describe("scoreSelectOptions", () => {
+  it("後置文字列を省くと、値も文言も点数の数字だけになる", () => {
+    expect(scoreSelectOptions([1000, 2000])).toEqual([
+      { value: "1000", label: "1000" },
+      { value: "2000", label: "2000" },
+    ]);
+  });
+
+  it("後置文字列は文言にだけ添える", () => {
+    expect(scoreSelectOptions([500], "オール")).toEqual([
+      { value: "500", label: "500オール" },
+    ]);
   });
 });

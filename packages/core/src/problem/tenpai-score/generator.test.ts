@@ -320,6 +320,26 @@ describe("generateTenpaiScoreQuestion", () => {
     }
   });
 
+  it("ルールを省略すると、連風牌の雀頭は 2 符・切り上げ満貫なしで計算する", () => {
+    const rng = seededRandom(20261119);
+    const question = generateOne(() => generateTenpaiScoreQuestion({ rng }));
+    for (const cell of listCells(question)) {
+      expect(cell.ruleConfig).toMatchObject({
+        doubleWindJantouFu: 2,
+        kiriageMangan: false,
+      });
+    }
+  });
+
+  it("場風と自風が同じ（連風牌の）局面も出題する", () => {
+    const rng = seededRandom(20261119);
+    expectSampled(() => generateTenpaiScoreQuestion({ rng }), {
+      attempts: 500,
+      need: 1,
+      where: (question) => question.jikaze === question.bakaze,
+    });
+  });
+
   it("同じシードなら同じ問題を返す", () => {
     // 乱数列は試行をまたいで進むため、同じシードで同じ回数試行すれば同じ問題に着く
     const generateWithSeed = (seed: number) => {
@@ -483,5 +503,64 @@ describe("buildTenpaiScoreQuestion", () => {
       ruleConfig: STANDARD_RULES,
     });
     expect(result._unsafeUnwrapErr()).toBe("karaWait");
+  });
+
+  it("七対子・国士無双の聴牌形は面子手の聴牌ではないので組み立てない", () => {
+    const situation = {
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    // 6 対子と西の浮き牌（七対子の単騎待ち）
+    const chiitoi = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("1133m5577p99s113z"),
+    });
+    expect(chiitoi._unsafeUnwrapErr()).toBe("notTenpai");
+    // 么九牌 13 種（国士無双の 13 面待ち）
+    const kokushi = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("19m19p19s1234567z"),
+    });
+    expect(kokushi._unsafeUnwrapErr()).toBe("notTenpai");
+  });
+
+  it("一向聴の形は組み立てない", () => {
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("123m456p789s1123z"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("notTenpai");
+  });
+
+  it("副露のある聴牌形にリーチを渡すと拒む", () => {
+    // 一二三筒をチーした 234m 456p 78s 55s（六索・九索待ち）
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("234m456p78s55s[1-23p]"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      riichi: { uraDoraMarkers: [HaiKind.Pei] },
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("riichiWithFuro");
+  });
+
+  it("どれか 1 つの待ちの 1 つの和了方法でも符が選択肢（110 符まで）を超えれば組み立てない", () => {
+    // 一萬・九筒の暗槓（各 32 符）と六萬の暗槓（16 符）、三四五五索。二索・五索待ち。
+    // 二索は両面で、ツモ・ロンとも 110 符以内。五索は単騎（+2 符）に取れて、
+    // ツモは 110 符に収まるが、ロンは 20 + 80 + 2 + 門前加符 10 = 112 → 120 符になる
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("3455s(1111m)(9999p)(6666m)"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Pei],
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("fuOutOfOptions");
   });
 });

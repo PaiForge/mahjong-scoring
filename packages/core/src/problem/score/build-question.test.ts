@@ -4,6 +4,7 @@ import { buildScoreQuestion } from "./build-question";
 import { agariTehai } from "../../test/tehai";
 import { ScoreLevel } from "../../core/constants";
 import { YAKUMAN_HAN } from "../../score/tiers";
+import { ALL_YAKUMAN_RULES_ENABLED } from "../../rules/settings";
 
 describe("buildScoreQuestion", () => {
   // 四暗刻の形（白の単騎）。白をツモれば四暗刻、中をロンすると中の刻子が
@@ -68,5 +69,21 @@ describe("buildScoreQuestion", () => {
       question.yakuDetails!.reduce((sum, yaku) => sum + yaku.han, 0),
     );
     expect(question.isRiichi).toBe(true);
+  });
+
+  it("役満 3 個分以上になる手は unsupportedYakuman の Err を返す", () => {
+    // 白・發・中・東の暗刻 + 南の雀頭を中でツモ。複合役満を採ると
+    // 大三元 + 字一色 + 四暗刻 で役満 3 個分
+    const built = buildScoreQuestion({
+      tehai: agariTehai("111z22z555z666z777z"),
+      agariHai: HaiKind.Chun,
+      isTsumo: true,
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu1],
+      ruleConfig: ALL_YAKUMAN_RULES_ENABLED,
+      riichi: undefined,
+    });
+    expect(built._unsafeUnwrapErr()).toBe("unsupportedYakuman");
   });
 });

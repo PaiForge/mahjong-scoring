@@ -3,8 +3,25 @@ import {
   ALL_YAKUMAN_RULES_ENABLED,
   DEFAULT_RULE_SETTINGS,
   allowsDoubleYakuman,
+  doubleWindJantouFu,
   toYakumanRuleConfig,
 } from "./settings";
+import { calculateKoScore } from "../core/score-table-math";
+
+describe("DEFAULT_RULE_SETTINGS", () => {
+  // 既定は標準ルール。端末に設定が無い利用者の符・点数がこれで決まる
+  it("既定では連風牌の雀頭は 2 符", () => {
+    expect(doubleWindJantouFu(DEFAULT_RULE_SETTINGS.renfonpaiAs4Fu)).toBe(2);
+  });
+
+  it("既定では 30 符 4 翻を満貫に切り上げない", () => {
+    expect(
+      calculateKoScore(4, 30, {
+        kiriageMangan: DEFAULT_RULE_SETTINGS.kiriageMangan,
+      }).ron,
+    ).toBe(7700);
+  });
+});
 
 describe("toYakumanRuleConfig", () => {
   it("既定のルール設定はすべて無効に変換される", () => {

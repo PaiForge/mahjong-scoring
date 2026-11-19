@@ -4,6 +4,7 @@ import {
   detectYaku,
   getYakumanMultiplier,
   isMenzen,
+  type HaiKindId,
 } from "@pai-forge/riichi-mahjong";
 import {
   crossesRuleBoundary,
@@ -16,8 +17,10 @@ import { countKantsu } from "../shared/count-kantsu";
 import { listTehaiHais } from "../../core/hai-count";
 import { expectHaiUsageWithinLimit } from "../../test/tile-usage";
 import { SCORE_FILTERABLE_YAKU } from "./filterable-yaku";
-import { isScoreLevelAllowed } from "./build-question";
-import type { ScoreRange } from "./types";
+import { buildScoreQuestion, isScoreLevelAllowed } from "./build-question";
+import { agariTehai } from "../../test/tehai";
+import type { QuestionGeneratorOptions, ScoreRange } from "./types";
+import type { RandomSource } from "../../core/random";
 import { ScoreLevel } from "../../core/constants";
 import { isMangan, MANGAN_MIN_HAN, MANGAN_PLUS_TIERS } from "../../score/tiers";
 import { isKiriageManganTarget } from "../../score/calculator";
@@ -543,6 +546,68 @@ describe("オプション: requiredYaku", () => {
   });
 });
 
+describe("七対子の抽選（乱数を固定）", () => {
+  /** 最初の 1 回（七対子の抽選）だけ決めた値を返し、以降はシード付きの列を返す */
+  function withFirstDraw(first: number, seed: number): RandomSource {
+    const rest = seededRandom(seed);
+    let drawn = false;
+    return () => {
+      if (drawn) return rest();
+      drawn = true;
+      return first;
+    };
+  }
+
+  /** シード 0〜49 で 1 回ずつ生成し、生成できた問題の役名の一覧を返す */
+  function generatedYakuNames(
+    options: Omit<QuestionGeneratorOptions, "rng">,
+    first?: number,
+  ): string[][] {
+    const names: string[][] = [];
+    for (let seed = 0; seed < 50; seed++) {
+      const rng =
+        first === undefined ? seededRandom(seed) : withFirstDraw(first, seed);
+      const question = generateScoreQuestion({ ...options, rng });
+      if (question) names.push(question.yakuDetails.map((yaku) => yaku.name));
+    }
+    return names;
+  }
+
+  it("七対子だけを指定すると抽選を通さず毎回七対子を作る", () => {
+    // 抽選に外れる値（0.99）を先頭に置いても七対子を作る
+    const names = generatedYakuNames({ requiredYaku: ["七対子"] }, 0.99);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.every((yaku) => yaku.includes("七対子"))).toBe(true);
+  });
+
+  it("七対子と他の役を指定したときは、抽選に外れれば面子手を作る", () => {
+    const names = generatedYakuNames(
+      { requiredYaku: ["七対子", "断么九"] },
+      0.99,
+    );
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.some((yaku) => yaku.includes("七対子"))).toBe(false);
+  });
+
+  it("七対子と他の役を指定したときは、抽選に当たれば七対子を作る", () => {
+    const names = generatedYakuNames({ requiredYaku: ["七対子", "断么九"] }, 0);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.every((yaku) => yaku.includes("七対子"))).toBe(true);
+  });
+
+  it("七対子を指定しなければ、抽選に当たる値でも既定では面子手を作る", () => {
+    const names = generatedYakuNames({}, 0);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.some((yaku) => yaku.includes("七対子"))).toBe(false);
+  });
+
+  it("includeChiitoi なら抽選に当たったときに七対子を作る", () => {
+    const names = generatedYakuNames({ includeChiitoi: true }, 0);
+    expect(names.length).toBeGreaterThan(0);
+    expect(names.every((yaku) => yaku.includes("七対子"))).toBe(true);
+  });
+});
+
 describe("RandomSource の注入", () => {
   /** 生成に成功する最小のシードを探す（生成器は条件次第で undefined を返す） */
   function firstSuccessfulSeed(): number {
@@ -595,6 +660,14 @@ describe("resolveScoreGeneratorOptions", () => {
     expect(resolved.requiredYaku).toBeUndefined();
     expect(resolved.allowedFu).toBeUndefined();
   });
+
+  it("何も指定しなければ親子どちらも出し、ルールの差分（連風牌 4 符・切り上げ満貫）はどちらも採らない", () => {
+    const resolved = resolveScoreGeneratorOptions({});
+    expect(resolved.includeParent).toBe(true);
+    expect(resolved.includeChild).toBe(true);
+    expect(resolved.renfonpaiAs4Fu).toBe(false);
+    expect(resolved.kiriageMangan).toBe(false);
+  });
 });
 
 describe("matchesScoreFilters", () => {
@@ -636,6 +709,28 @@ describe("matchesScoreFilters", () => {
         requiredYaku: ["存在しない役"],
       }),
     ).toBe(false);
+  });
+
+  it("回答の符選択肢に無い符（110 符超）の問題は条件を指定しなくても落とす", () => {
+    // 東・南・西の暗槓 + 123m + 5p 単騎をロン（北家の東場）。
+    // 副底 20 + 門前ロン 10 + 么九牌の暗槓 32 × 3 + 単騎 2 = 128 → 130 符
+    const overFu = buildScoreQuestion({
+      tehai: agariTehai("123m55p(1111z)(2222z)(3333z)"),
+      agariHai: HaiKind.PinZu5,
+      isTsumo: false,
+      jikaze: HaiKind.Pei,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [
+        HaiKind.SouZu2,
+        HaiKind.SouZu3,
+        HaiKind.SouZu4,
+        HaiKind.SouZu5,
+      ],
+      ruleConfig: {},
+      riichi: undefined,
+    })._unsafeUnwrap();
+    expect(overFu.answer.fu).toBe(130);
+    expect(matchesScoreFilters(overFu, permissive)).toBe(false);
   });
 
   it("役の絞り込みは OR で、空の配列は絞り込まない", () => {
@@ -681,5 +776,44 @@ describe("crossesRuleBoundary", () => {
         excludeKiriageBoundary: false,
       }),
     ).toBe(false);
+  });
+
+  describe("役満ルールの境界", () => {
+    // 111m 222p 333s 777z 55z。白の単騎でツモれば四暗刻単騎（全ルール有効でダブル役満）、
+    // 中のシャンポンでツモれば四暗刻（どのルールでも役満 1 個分）
+    function suuankouQuestion(agariHai: HaiKindId) {
+      return buildScoreQuestion({
+        tehai: agariTehai("111m222p333s55z777z"),
+        agariHai,
+        isTsumo: true,
+        jikaze: HaiKind.Nan,
+        bakaze: HaiKind.Ton,
+        doraMarkers: [HaiKind.Pei],
+        ruleConfig: {},
+        riichi: undefined,
+      })._unsafeUnwrap();
+    }
+    const yakumanOnly = {
+      excludeYakumanRuleBoundary: true,
+      excludeKiriageBoundary: false,
+    };
+
+    it("全ルール有効でダブル役満になる役満の手を除外で落とす", () => {
+      const tanki = suuankouQuestion(HaiKind.Haku);
+      expect(tanki.answer.yakumanMultiplier).toBe(1);
+      expect(crossesRuleBoundary(tanki, yakumanOnly)).toBe(true);
+      expect(
+        crossesRuleBoundary(tanki, {
+          ...yakumanOnly,
+          excludeYakumanRuleBoundary: false,
+        }),
+      ).toBe(false);
+    });
+
+    it("どのルールでも役満 1 個分の手は除外を立てても落とさない", () => {
+      const shanpon = suuankouQuestion(HaiKind.Chun);
+      expect(shanpon.answer.yakumanMultiplier).toBe(1);
+      expect(crossesRuleBoundary(shanpon, yakumanOnly)).toBe(false);
+    });
   });
 });

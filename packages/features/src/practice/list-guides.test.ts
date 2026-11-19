@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { rankBySlug } from "../ranks/registry";
-import { PRACTICE_CATEGORIES } from "./catalog";
+import { RANK_SLUGS, rankBySlug } from "../ranks/registry";
+import {
+  listedPracticeMenus,
+  PRACTICE_CATEGORIES,
+  relatedChaptersForPractice,
+  type PracticeCategory,
+} from "./catalog";
+import { practiceRanks } from "./rank-practices";
 import {
   PRACTICE_LIST_GUIDE_LIMIT,
   practicalPracticeChapters,
@@ -9,6 +15,11 @@ import {
   practiceListChapters,
   practiceListRanks,
 } from "./list-guides";
+
+/** 一覧に並ぶ、その分野の練習 */
+function listedMenusIn(category: PracticeCategory) {
+  return listedPracticeMenus().filter((menu) => menu.category === category);
+}
 
 describe("practiceListChapters", () => {
   it("級で絞ると、その級の前提章をすべて返す", () => {
@@ -26,6 +37,20 @@ describe("practiceListChapters", () => {
     expect(
       practiceListChapters({ kind: "category", value: "fuCalculation" }),
     ).toContain("jantou-fu");
+  });
+
+  it("分野で絞ると、その分野の練習の関連章だけを過不足なく返す", () => {
+    for (const category of PRACTICE_CATEGORIES) {
+      const expected = new Set(
+        listedMenusIn(category).flatMap((menu) =>
+          relatedChaptersForPractice(menu.slug),
+        ),
+      );
+      expect(
+        new Set(practiceListChapters({ kind: "category", value: category })),
+        category,
+      ).toEqual(expected);
+    }
   });
 
   it("絞り込みが無いと、先頭だけを返す", () => {
@@ -46,6 +71,22 @@ describe("practiceListRanks", () => {
     expect(
       practiceListRanks({ kind: "category", value: "fuCalculation" }),
     ).toContain("kyu-4");
+  });
+
+  it("分野で絞ると、その分野の練習が属する級だけを学習順で返す", () => {
+    for (const category of PRACTICE_CATEGORIES) {
+      const ranks = new Set(
+        listedMenusIn(category).flatMap((menu) => practiceRanks(menu.slug)),
+      );
+      expect(
+        practiceListRanks({ kind: "category", value: category }),
+        category,
+      ).toEqual(RANK_SLUGS.filter((slug) => ranks.has(slug)));
+    }
+    // 符の練習はすべて 4級なので、ほかの級は出ない
+    expect(
+      practiceListRanks({ kind: "category", value: "fuCalculation" }),
+    ).toEqual(["kyu-4"]);
   });
 
   it("絞り込みが無いと、5級から先頭だけを返す", () => {

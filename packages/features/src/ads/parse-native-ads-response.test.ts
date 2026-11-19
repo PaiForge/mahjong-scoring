@@ -41,6 +41,55 @@ describe("parseNativeAdsResponse", () => {
     expect(parseNativeAdsResponse({ ads: [ad, invalid] })).toBeUndefined();
   });
 
+  it("http のリンクと画像も読む", () => {
+    const parsed = parseNativeAdsResponse({
+      ads: [
+        {
+          ...ad,
+          href: "http://example.com/item",
+          imageUrl: "http://example.com/a.png",
+        },
+      ],
+    });
+    expect(parsed?.ads[0]?.href).toBe("http://example.com/item");
+    expect(parsed?.ads[0]?.imageUrl).toBe("http://example.com/a.png");
+  });
+
+  it("書いた項目はそのまま読む", () => {
+    const full = {
+      ...ad,
+      icon: "📘",
+      imageUrl: "https://example.com/a.png",
+      imageAlt: "表紙",
+      hand: [0, 1, 2],
+      description: "説明",
+    };
+    expect(parseNativeAdsResponse({ ads: [full] })).toEqual({ ads: [full] });
+  });
+
+  // スキームの名前の前後に文字を足して http(s) に似せたものも通さない
+  it.each([
+    [
+      "リンクのスキームが http の前に文字を持つ",
+      { ...ad, href: "xhttp://example.com" },
+    ],
+    [
+      "リンクのスキームが https の後に文字を持つ",
+      { ...ad, href: "httpsx://example.com" },
+    ],
+    ["画像が http(s) 以外", { ...ad, imageUrl: "ftp://example.com/a.png" }],
+    [
+      "画像のスキームが http の前に文字を持つ",
+      { ...ad, imageUrl: "xhttp://example.com/a.png" },
+    ],
+    [
+      "画像のスキームが https の後に文字を持つ",
+      { ...ad, imageUrl: "httpsx://example.com/a.png" },
+    ],
+  ])("%s 応答は全体を捨てる", (_, invalid) => {
+    expect(parseNativeAdsResponse({ ads: [ad, invalid] })).toBeUndefined();
+  });
+
   it("形の違う応答は undefined", () => {
     expect(parseNativeAdsResponse(undefined)).toBeUndefined();
     expect(parseNativeAdsResponse({ error: "x" })).toBeUndefined();

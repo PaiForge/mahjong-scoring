@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
+import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
+
 import {
   CURRICULUM_CHAPTER_SLUGS,
   getChapterBySlug,
+  type PracticeLink,
 } from "../curriculum/registry";
 import { practiceMenuFromCatalog } from "../practice/catalog";
 import { isPracticeVariantOf } from "../practice-menu-types";
@@ -59,6 +63,35 @@ describe("QUIZ_LESSON_REGISTRY", () => {
         if (variant !== undefined) {
           expect(isPracticeVariantOf(slug, variant), lesson.slug).toBe(true);
         }
+      }
+    }
+  });
+
+  it("完了画面から送る練習を 1 つ以上持ち、同じ練習を 2 度並べない", () => {
+    for (const lesson of QUIZ_LESSON_REGISTRY) {
+      expect(lesson.practiceLinks.length, lesson.slug).toBeGreaterThan(0);
+      const keys = lesson.practiceLinks.map(
+        (link: PracticeLink) => `${link.slug}:${link.variant ?? ""}`,
+      );
+      expect(new Set(keys).size, lesson.slug).toBe(keys.length);
+    }
+  });
+
+  it("辞書の名前空間は重複せず、日本語・英語の lessons に確認問題の文言がある", () => {
+    const messageKeys = QUIZ_LESSON_REGISTRY.map((lesson) => lesson.messageKey);
+    expect(new Set(messageKeys).size).toBe(messageKeys.length);
+    for (const lessons of [jaMessages.lessons, enMessages.lessons]) {
+      const namespaces: Readonly<Record<string, unknown>> = lessons;
+      for (const messageKey of messageKeys) {
+        const namespace = namespaces[messageKey];
+        expect(namespace, messageKey).toEqual(
+          expect.objectContaining({
+            condition: expect.any(String),
+            questionPrompt: expect.any(String),
+            questions: expect.any(Object),
+            achievement: expect.anything(),
+          }),
+        );
       }
     }
   });

@@ -7,6 +7,7 @@ import {
   isInvalidCell,
 } from "../../core/score-table-math";
 import { expectSampled } from "../../test/sampling";
+import { compareNumbers } from "../../core/compare";
 
 /**
  * 点数帯を満貫未満に固定して生成する（点数帯は必須。満貫以上を確かめる
@@ -356,6 +357,44 @@ describe("generateScoreTableQuestion", () => {
         fromKo: 4000,
         fromOya: 8000,
       });
+    });
+
+    it("満貫から役満までの翻数（5〜13）をどれも出題しうる", () => {
+      // 乱数を 0 から 1 の手前まで等間隔に振り、組み合わせを端から端まで引く
+      const hans = new Set<number>();
+      for (let step = 0; step < 100; step++) {
+        const question = generate({
+          roles: ["ko"],
+          wins: ["ron"],
+          ranges: ["manganPlus"],
+          rng: () => step / 100,
+        });
+        hans.add(question.han);
+      }
+      expect([...hans].sort(compareNumbers)).toEqual([
+        5, 6, 7, 8, 9, 10, 11, 12, 13,
+      ]);
+    });
+
+    it("親ロン満貫(5翻)は 12000、役満(13翻)は 48000 であること", () => {
+      const ronOf = (rngValue: number) =>
+        generate({
+          roles: ["oya"],
+          wins: ["ron"],
+          ranges: ["manganPlus"],
+          rng: () => rngValue,
+        });
+      // 組み合わせは翻数の昇順（5〜13 の 9 通り）。先頭と末尾を引く
+      const mangan = ronOf(0);
+      const yakuman = ronOf(0.999);
+      expect([mangan.han, mangan.correctAnswer]).toEqual([
+        5,
+        { type: "ron", score: 12000 },
+      ]);
+      expect([yakuman.han, yakuman.correctAnswer]).toEqual([
+        13,
+        { type: "ron", score: 48000 },
+      ]);
     });
   });
 

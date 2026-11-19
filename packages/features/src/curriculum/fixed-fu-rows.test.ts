@@ -42,6 +42,18 @@ describe("buildFixedFuRows: 七対子（25符）", () => {
     expect(tsumo[1]?.score).toBeDefined();
   });
 
+  it("存在しない符×翻のロンは空欄になる（25符の1翻）", () => {
+    const { ron } = buildFixedFuRows("ko", {
+      tsumoFu: 25,
+      ronFu: 25,
+      hanCols: [1, 2],
+    });
+    expect(ron).toEqual([
+      { han: 1, score: undefined },
+      { han: 2, score: 1600 },
+    ]);
+  });
+
   it("親のロンは子の1.5倍", () => {
     const { ron } = buildFixedFuRows("oya", CHIITOITSU_SCORE_TABLE);
     expect(ron.map((cell) => cell.score)).toEqual([2400, 4800, 9600]);

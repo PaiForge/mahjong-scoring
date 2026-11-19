@@ -39,6 +39,13 @@ describe.each(["Asia/Tokyo", "UTC", "America/Los_Angeles"])(
       ).toBe("2026/08/20");
     });
 
+    it("書式を省略すると年・短い月・日で出す", () => {
+      vi.stubEnv("TZ", tz);
+      expect(formatPublishedDate("2026-08-19T15:30:00.000Z", "en")).toBe(
+        "Aug 20, 2026",
+      );
+    });
+
     it("未公開（null）は undefined", () => {
       vi.stubEnv("TZ", tz);
       expect(formatPublishedDate(null, "ja")).toBeUndefined();

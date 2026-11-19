@@ -58,6 +58,55 @@ describe("resolveScoreTileBands", () => {
     });
   });
 
+  it("選んだ値が開いている側にあれば、隠れた選択として返さない", () => {
+    const bands = resolveScoreTileBands({
+      available: koRonAll(),
+      isOya: false,
+      isTsumo: false,
+      value: "8000",
+      chosenBand: undefined,
+    });
+    expect(bands.band).toBe("manganPlus");
+    expect(bands.hiddenSelection).toBeUndefined();
+  });
+
+  it("選択肢の少ない側を開いても、多いほうの帯の行数を確保する", () => {
+    const bands = resolveScoreTileBands({
+      available: koRonAll(),
+      isOya: false,
+      isTsumo: false,
+      value: undefined,
+      chosenBand: "manganPlus",
+    });
+    expect(bands.band).toBe("manganPlus");
+    expect(bands.options.manganPlus.length).toBeLessThan(
+      bands.options.nonMangan.length,
+    );
+    expect(bands.rows).toBe(Math.ceil(bands.options.nonMangan.length / 4));
+  });
+
+  it("満貫未満にしか選択肢が無ければ切り替えを出さず、満貫未満を開く", () => {
+    const available = getAvailableScores({
+      han: 1,
+      isOya: false,
+      isTsumo: false,
+    });
+    if (available.type !== "single") throw new Error("single を期待");
+
+    const bands = resolveScoreTileBands({
+      available,
+      isOya: false,
+      isTsumo: false,
+      value: undefined,
+      chosenBand: undefined,
+    });
+
+    expect(bands.hasBoth).toBe(false);
+    expect(bands.band).toBe("nonMangan");
+    expect(bands.options.manganPlus).toHaveLength(0);
+    expect(bands.rows).toBe(Math.ceil(bands.options.nonMangan.length / 4));
+  });
+
   it("選択肢が片側にしか無ければ切り替えを出さず、その側の行数だけ確保する", () => {
     const available = getAvailableScores({
       han: 5,

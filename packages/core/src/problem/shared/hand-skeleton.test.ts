@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { MentsuType, type HaiKindId } from "@pai-forge/riichi-mahjong";
+import {
+  FuroType,
+  HaiKind,
+  MentsuType,
+  Tacha,
+  type HaiKindId,
+  type Koutsu,
+  type Shuntsu,
+} from "@pai-forge/riichi-mahjong";
 
 import { HaiUsageTracker } from "../../core/hai-tracker";
 import { validateHaiKindId } from "../../core/type-guards";
@@ -21,6 +29,32 @@ function makeExhaustedTracker(): HaiUsageTracker {
 }
 
 const WEIGHTS = { shuntsu: 0.5, koutsu: 0.3 } as const;
+
+/** 渡した値を順に返し、尽きたら先頭に戻る乱数源（引きの分岐を値で選ぶ） */
+function sequenceRandom(values: readonly number[]): () => number {
+  let index = 0;
+  return () => values[index++ % values.length];
+}
+
+/** 牌種 ID を足して面子の牌を作る（数牌の連番。範囲外はテストの誤り） */
+function haiAt(base: HaiKindId, offset: number): HaiKindId {
+  const result = validateHaiKindId(base + offset);
+  if (result.isErr()) throw new Error(`牌種 ${base + offset} が不正`);
+  return result.value;
+}
+
+/** 暗刻 */
+function koutsu(tile: HaiKindId): Koutsu {
+  return { type: MentsuType.Koutsu, hais: [tile, tile, tile] };
+}
+
+/** start から始まる暗順子 */
+function shuntsu(start: HaiKindId): Shuntsu {
+  return {
+    type: MentsuType.Shuntsu,
+    hais: [start, haiAt(start, 1), haiAt(start, 2)],
+  };
+}
 
 describe("generatePairTile", () => {
   it("使用可能な牌があれば2枚を使用登録して返す", () => {
@@ -98,6 +132,29 @@ describe("generateMentsuSet", () => {
     expect(generateMentsuSet(makeExhaustedTracker(), WEIGHTS)).toBeUndefined();
   });
 
+  it("牌が足りない面子を引いたら、諦めずに引き直す", () => {
+    // 一萬を 2 枚使い切り、一萬の暗刻は確保できない状態にする
+    const tracker = new HaiUsageTracker();
+    expect(tracker.use(HaiKind.ManZu1, 2).isOk()).toBe(true);
+    // 1 回の引きは「種別・么九か・鳴いたか・么九牌のどれか」の 4 値を読む。
+    // 刻子だけを引く重みで、1 回目は一萬・2 回目は九萬の暗刻を引く値の列
+    const rng = sequenceRandom([0.5, 0.1, 0.9, 0.0, 0.5, 0.1, 0.9, 0.1]);
+
+    const results = generateMentsuSet(
+      tracker,
+      { shuntsu: 0, koutsu: 1 },
+      1,
+      rng,
+    );
+
+    expect(results?.map((result) => result.mentsu)).toEqual([
+      {
+        type: MentsuType.Koutsu,
+        hais: [HaiKind.ManZu9, HaiKind.ManZu9, HaiKind.ManZu9],
+      },
+    ]);
+  });
+
   it("生成した面子は順子・刻子・槓子のいずれか", () => {
     const results = generateMentsuSet(new HaiUsageTracker(), WEIGHTS, 4);
     expect(results).toBeDefined();
@@ -143,6 +200,46 @@ describe("pickRonAgariHai", () => {
     for (let i = 0; i < 100; i++) picked.add(pickRonAgariHai(list, 0));
 
     expect(picked.has(19)).toBe(true);
+  });
+  it("暗刻の牌種が他の暗面子に無ければ、暗面子がいくつあっても和了牌に選ばれうる", () => {
+    // 二索の暗刻・四五六萬・二三四筒 2 つ（一盃口）・一二三索のチー、雀頭は東。
+    // 二索はチーの面子にもあるが、副露は和了牌で完成させられないので跨りに数えない。
+    // 二筒は 2 つの暗順子にあるが、どちらを完成させても順子の符は変わらない
+    const list: MentsuResult[] = [
+      { mentsu: koutsu(HaiKind.SouZu2), fu: 4 },
+      { mentsu: shuntsu(HaiKind.ManZu4), fu: 0 },
+      { mentsu: shuntsu(HaiKind.PinZu2), fu: 0 },
+      { mentsu: shuntsu(HaiKind.PinZu2), fu: 0 },
+      {
+        mentsu: {
+          ...shuntsu(HaiKind.SouZu1),
+          furo: {
+            type: FuroType.Chi,
+            from: Tacha.Kamicha,
+            nakiHai: HaiKind.SouZu1,
+          },
+        },
+        fu: 0,
+      },
+    ];
+    // 乱数の値を 0 から 1 の手前まで等間隔に振り、選ばれうる和了牌を全部集める
+    const picked = new Set<HaiKindId | undefined>();
+    for (let step = 0; step < 100; step++) {
+      picked.add(pickRonAgariHai(list, HaiKind.Ton, () => step / 100));
+    }
+
+    expect(picked).toEqual(
+      new Set([
+        HaiKind.Ton,
+        HaiKind.SouZu2,
+        HaiKind.ManZu4,
+        HaiKind.ManZu5,
+        HaiKind.ManZu6,
+        HaiKind.PinZu2,
+        HaiKind.PinZu3,
+        HaiKind.PinZu4,
+      ]),
+    );
   });
 });
 

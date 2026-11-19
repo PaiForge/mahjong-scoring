@@ -29,6 +29,10 @@ describe("buildScoreGeneratorOptions", () => {
       buildScoreGeneratorOptions({ ...ALL, includeNonMangan: false })
         .allowedRanges,
     ).toEqual(["manganPlus"]);
+    expect(
+      buildScoreGeneratorOptions({ ...ALL, includeManganPlus: false })
+        .allowedRanges,
+    ).toEqual(["nonMangan"]);
   });
 
   it("門前だけなら副露を出さない", () => {

@@ -25,10 +25,13 @@ describe("buildScoreBreakdownTabs", () => {
   });
 
   it("符が無ければ翻数だけ、役の内訳が空なら符だけを並べる", () => {
+    // 符を先に並べる設定でも、符が無ければ開くのは翻数
     expect(
-      buildScoreBreakdownTabs("fu-first", undefined, yakuDetails, undefined)
-        .tabs,
-    ).toEqual([{ kind: "han", yakuDetails, hanTotal: 3 }]);
+      buildScoreBreakdownTabs("fu-first", undefined, yakuDetails, undefined),
+    ).toEqual({
+      tabs: [{ kind: "han", yakuDetails, hanTotal: 3 }],
+      initial: "han",
+    });
     expect(buildScoreBreakdownTabs("han-first", fu, [], undefined)).toEqual({
       tabs: [{ kind: "fu", fu }],
       initial: "fu",

@@ -8,7 +8,9 @@ import {
 } from "@pai-forge/riichi-mahjong";
 import {
   HIGH_SCORES,
+  calculateBasePoints,
   calculateKoScore,
+  ceilTo100,
   calculateOyaScore,
   getTsumoTotal,
   isInvalidCell,
@@ -198,6 +200,34 @@ describe("getTsumoTotal", () => {
   });
 });
 
+describe("calculateBasePoints", () => {
+  it("基本点は 符 × 2^(2 + 翻)", () => {
+    // 30符1翻 = 240、30符4翻 = 1920（満貫の基本点 2000 の直前）
+    expect(calculateBasePoints(1, 30)).toBe(240);
+    expect(calculateBasePoints(4, 30)).toBe(1920);
+  });
+
+  it("基本点の 4 倍を 100 点に切り上げると子のロンの点数になる", () => {
+    expect(ceilTo100(calculateBasePoints(1, 30) * 4)).toBe(
+      calculateKoScore(1, 30).ron,
+    );
+    expect(ceilTo100(calculateBasePoints(3, 40) * 4)).toBe(
+      calculateKoScore(3, 40).ron,
+    );
+  });
+});
+
+describe("ceilTo100", () => {
+  it("100 点未満の端数を切り上げる", () => {
+    expect(ceilTo100(960)).toBe(1000);
+    expect(ceilTo100(1001)).toBe(1100);
+  });
+
+  it("100 の倍数はそのまま", () => {
+    expect(ceilTo100(1000)).toBe(1000);
+  });
+});
+
 describe("isInvalidCell", () => {
   it("1翻20符は常に無効", () => {
     expect(isInvalidCell(1, 20, "ron")).toBe(true);
@@ -225,6 +255,11 @@ describe("isInvalidCell", () => {
 
   it("ロン2翻25符は有効", () => {
     expect(isInvalidCell(2, 25, "ron")).toBe(false);
+  });
+
+  it("ツモでも3翻以上の25符は有効（七対子ツモで符を数える）", () => {
+    expect(isInvalidCell(3, 25, "tsumo")).toBe(false);
+    expect(isInvalidCell(4, 25, "tsumo")).toBe(false);
   });
 
   it("通常の組み合わせは有効", () => {

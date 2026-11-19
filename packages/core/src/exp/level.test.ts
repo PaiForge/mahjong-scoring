@@ -10,6 +10,10 @@ describe("getExpForLevel", () => {
     expect(getExpForLevel(0)).toBe(0);
   });
 
+  it("負のレベルも 0（累乗が NaN にならない）", () => {
+    expect(getExpForLevel(-1)).toBe(0);
+  });
+
   it("level 1 = floor(100 * 1^1.5) = 100", () => {
     expect(getExpForLevel(1)).toBe(100);
   });

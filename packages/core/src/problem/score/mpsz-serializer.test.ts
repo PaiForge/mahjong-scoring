@@ -1,7 +1,23 @@
 import { describe, expect, it } from "vitest";
 import { HaiKind } from "@pai-forge/riichi-mahjong";
 
-import { haisToMpsz, parseHais, parseTehai } from "./mpsz-serializer";
+import {
+  haiIdToMpsz,
+  haisToMpsz,
+  parseHais,
+  parseKazehai,
+  parseTehai,
+} from "./mpsz-serializer";
+
+describe("haiIdToMpsz", () => {
+  it("数牌 1 枚を数字と花色の 2 文字にする", () => {
+    expect(haiIdToMpsz(HaiKind.PinZu7)).toBe("7p");
+  });
+
+  it("字牌 1 枚を z の表記にする", () => {
+    expect(haiIdToMpsz(HaiKind.Chun)).toBe("7z");
+  });
+});
 
 describe("haisToMpsz", () => {
   it("同じ牌の並びを 1 つの花色にまとめる", () => {
@@ -56,7 +72,31 @@ describe("parseTehai", () => {
   });
 });
 
+describe("parseTehai の読めない入力", () => {
+  it("undefined と空文字列は undefined を返す", () => {
+    expect(parseTehai(undefined)).toBeUndefined();
+    expect(parseTehai("")).toBeUndefined();
+  });
+
+  it("MPSZ として読めない文字列は undefined を返す", () => {
+    expect(parseTehai("xyz")).toBeUndefined();
+  });
+
+  it("赤 5 は通常の 5 として読む", () => {
+    expect(parseTehai("0m")?.closed).toEqual([HaiKind.ManZu5]);
+  });
+});
+
 describe("parseHais", () => {
+  it("読めない文字列と undefined は空配列を返す", () => {
+    expect(parseHais(undefined)).toEqual([]);
+    expect(parseHais("xyz")).toEqual([]);
+  });
+
+  it("晒した面子は含めず純手牌だけを返す", () => {
+    expect(parseHais("22m[5=55z]")).toEqual([HaiKind.ManZu2, HaiKind.ManZu2]);
+  });
+
   it("理牌して返す", () => {
     expect(parseHais("7z123m")).toEqual([
       HaiKind.ManZu1,
@@ -64,5 +104,30 @@ describe("parseHais", () => {
       HaiKind.ManZu3,
       HaiKind.Chun,
     ]);
+  });
+});
+
+describe("parseKazehai", () => {
+  it.each([
+    ["1z", HaiKind.Ton],
+    ["2z", HaiKind.Nan],
+    ["3z", HaiKind.Sha],
+    ["4z", HaiKind.Pei],
+  ])("風牌 %s をその風の牌種にする", (str, expected) => {
+    expect(parseKazehai(str)).toBe(expected);
+  });
+
+  it("三元牌は風牌ではないので undefined を返す", () => {
+    expect(parseKazehai("5z")).toBeUndefined();
+  });
+
+  it("数牌は風牌ではないので undefined を返す", () => {
+    expect(parseKazehai("1m")).toBeUndefined();
+  });
+
+  it("undefined・空文字列・読めない文字列は undefined を返す", () => {
+    expect(parseKazehai(undefined)).toBeUndefined();
+    expect(parseKazehai("")).toBeUndefined();
+    expect(parseKazehai("xyz")).toBeUndefined();
   });
 });

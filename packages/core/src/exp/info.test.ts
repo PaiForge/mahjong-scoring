@@ -25,6 +25,14 @@ describe("buildExpInfo", () => {
     expect(info.levelUp).toBe(false);
   });
 
+  it("次のレベルまでの道のりの半分まで貯めたら進捗は 50%", () => {
+    const current = getExpForLevel(2);
+    const next = getExpForLevel(3);
+    const half = current + Math.floor((next - current) / 2);
+    const info = buildExpInfo({ earned: 1, totalExpAfter: half });
+    expect(info.progressPercent).toBe(50);
+  });
+
   it("一度に複数のレベルを越えてもレベルアップにする", () => {
     const total = getExpForLevel(5);
     const info = buildExpInfo({ earned: total, totalExpAfter: total });

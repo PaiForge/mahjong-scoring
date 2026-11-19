@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isHaiKindId } from "./type-guards";
+import { isHaiKindId, validateHaiKindId } from "./type-guards";
 
 describe("isHaiKindId", () => {
   it("0は有効な牌種ID", () => {
@@ -33,5 +33,17 @@ describe("isHaiKindId", () => {
 
   it("Infinityは無効", () => {
     expect(isHaiKindId(Infinity)).toBe(false);
+  });
+});
+
+describe("validateHaiKindId", () => {
+  it("範囲内の整数は牌種IDとしてそのまま通る", () => {
+    expect(validateHaiKindId(33)._unsafeUnwrap()).toBe(33);
+  });
+
+  it("範囲外の値は RangeError で失敗する", () => {
+    const result = validateHaiKindId(34);
+    expect(result.isErr()).toBe(true);
+    expect(result._unsafeUnwrapErr()).toBeInstanceOf(RangeError);
   });
 });
