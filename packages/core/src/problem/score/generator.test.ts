@@ -477,6 +477,32 @@ describe("オプション: requireFuro", () => {
   });
 });
 
+describe("オプション: requireFuro（乱数を固定）", () => {
+  it("副露している手だけが生成される", () => {
+    for (let seed = 0; seed < 30; seed++) {
+      const question = generateValidScoreQuestion(
+        { requireFuro: true, rng: seededRandom(seed) },
+        500,
+      );
+      expect(question).toBeDefined();
+      expect(isMenzen(question!.tehai)).toBe(false);
+    }
+  });
+
+  it("既定では門前手も副露手も生成される", () => {
+    const menzen = new Set<boolean>();
+    for (let seed = 0; seed < 30; seed++) {
+      const question = generateValidScoreQuestion(
+        { rng: seededRandom(seed) },
+        500,
+      );
+      expect(question).toBeDefined();
+      menzen.add(isMenzen(question!.tehai));
+    }
+    expect(menzen).toEqual(new Set([true, false]));
+  });
+});
+
 describe("オプション: requiredYaku", () => {
   it("指定した役が成立する問題のみ生成される", () => {
     for (let i = 0; i < 20; i++) {
@@ -544,6 +570,21 @@ describe("オプション: requiredYaku", () => {
       expect(question, `役「${yaku}」の問題を生成できない`).toBeDefined();
     }
   });
+});
+
+describe("オプション: requiredYaku（乱数を固定）", () => {
+  it.each(SCORE_FILTERABLE_YAKU)(
+    "絞り込みに選べる役「%s」を指定すると、その役が成立する問題を生成できる",
+    (yaku) => {
+      const question = generateValidScoreQuestion(
+        { requiredYaku: [yaku], rng: seededRandom(20261120) },
+        500,
+      );
+      expect(question?.yakuDetails?.map((detail) => detail.name)).toContain(
+        yaku,
+      );
+    },
+  );
 });
 
 describe("七対子の抽選（乱数を固定）", () => {
@@ -667,6 +708,12 @@ describe("resolveScoreGeneratorOptions", () => {
     expect(resolved.includeChild).toBe(true);
     expect(resolved.renfonpaiAs4Fu).toBe(false);
     expect(resolved.kiriageMangan).toBe(false);
+  });
+
+  it("何も指定しなければ副露手も連風牌の局面も出題に含める", () => {
+    const resolved = resolveScoreGeneratorOptions({});
+    expect(resolved.includeFuro).toBe(true);
+    expect(resolved.excludeRenfonpai).toBe(false);
   });
 });
 
