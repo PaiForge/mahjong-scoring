@@ -85,6 +85,11 @@ const nextConfig: NextConfig = {
   // next dev による AGENTS.md / CLAUDE.md の自動生成を無効化する。
   // AI 向けの規約は手で書いた CLAUDE.md（ルートと各ディレクトリ）を正とするため。
   agentRules: false,
+  experimental: {
+    // セキュリティ勧告の対象になった版を使っているときだけ、コーディング
+    // エージェントに更新を促す（安定版への追従や Future Defaults は促さない）
+    agentUpgrade: "security",
+  },
   images: {
     remotePatterns: [
       {
