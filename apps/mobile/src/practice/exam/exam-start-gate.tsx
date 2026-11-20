@@ -11,7 +11,11 @@ import {
   type ExamLocked,
 } from "@mahjong-scoring/features/ranks/exam-eligibility";
 import { rankTier } from "@mahjong-scoring/features/ranks/registry";
-import { DOJO_PATH, practicePlayHref } from "@mahjong-scoring/features/routes";
+import {
+  DOJO_PATH,
+  SETUP_USERNAME_PATH,
+  practicePlayHref,
+} from "@mahjong-scoring/features/routes";
 
 import { useAuth } from "../../auth/use-auth";
 import { Button, buttonForeground } from "../../components/button";
@@ -195,7 +199,7 @@ export function ExamStartGate({
           variant="secondary"
           size="lg"
           fullWidth
-          onPress={() => router.push("/mypage/setup-username")}
+          onPress={() => router.push(SETUP_USERNAME_PATH)}
           testID="exam-setup-username"
         >
           {t("examGate.usernameButton")}

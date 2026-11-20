@@ -1,3 +1,4 @@
+import { MYPAGE_PATH } from "@mahjong-scoring/features/routes";
 import { StyleSheet } from "react-native";
 import { Redirect } from "expo-router";
 import { useTranslations } from "use-intl";
@@ -27,7 +28,7 @@ import { MypageGate } from "../../../mypage/mypage-gate";
  */
 export default function MypagePlanScreen() {
   const t = useTranslations("mobilePlan");
-  if (!IAP_AVAILABLE) return <Redirect href="/mypage" />;
+  if (!IAP_AVAILABLE) return <Redirect href={MYPAGE_PATH} />;
   return (
     <Screen title={t("title")} back contentStyle={styles.content}>
       <MypageGate>{(userId) => <PlanScreenBody userId={userId} />}</MypageGate>

@@ -1,3 +1,4 @@
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
@@ -52,7 +53,7 @@ export function AppleSignInSection({
     const account = await refreshAccount();
     setSubmitting(false);
     if (account && account.profile === null) {
-      router.replace("/mypage/setup-username");
+      router.replace(SETUP_USERNAME_PATH);
       return;
     }
     leaveAuthFlow();

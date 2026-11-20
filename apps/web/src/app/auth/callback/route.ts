@@ -1,3 +1,4 @@
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { NextResponse } from "next/server";
 
 import { resolvePublishedHref } from "@/i18n/navigation";
@@ -110,7 +111,7 @@ async function handleSuccessfulAuth(
   const profile = await getProfileByUserId(userId);
 
   if (!profile) {
-    return redirectTo(ctx, "/mypage/setup-username");
+    return redirectTo(ctx, SETUP_USERNAME_PATH);
   }
 
   // `next` は呼び出し側が公開 URL（言語付き）で渡したもの。そのまま使う

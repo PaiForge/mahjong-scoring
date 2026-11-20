@@ -1,3 +1,8 @@
+import {
+  SETUP_USERNAME_PATH,
+  MYPAGE_ACCOUNT_DELETE_PATH,
+  MYPAGE_PATH,
+} from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -91,7 +96,7 @@ export function SignedInAccount() {
           <LinkRow
             title={t("usernameMissing")}
             description={t("usernameMissingDescription")}
-            onPress={() => router.push("/mypage/setup-username")}
+            onPress={() => router.push(SETUP_USERNAME_PATH)}
           />
         </LinkRowList>
       )}
@@ -121,7 +126,7 @@ export function SignedInAccount() {
         <LinkRow
           testID="account-delete"
           title={t("deleteAccount")}
-          onPress={() => router.push("/mypage/account/delete")}
+          onPress={() => router.push(MYPAGE_ACCOUNT_DELETE_PATH)}
         />
       </LinkRowList>
       <ConfirmationModal
@@ -135,7 +140,7 @@ export function SignedInAccount() {
           setConfirmingSignOut(false);
           void signOut().then(() => {
             showToast(tNav("signOutSuccess"), "success");
-            router.dismissTo("/mypage");
+            router.dismissTo(MYPAGE_PATH);
           });
         }}
         onClose={() => setConfirmingSignOut(false)}

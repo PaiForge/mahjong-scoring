@@ -6,9 +6,10 @@ import { jstDayKey } from "@mahjong-scoring/features/jst";
 import type { MobileMypageResponse } from "@mahjong-scoring/features/mypage/mobile-api";
 import {
   LEADERBOARD_PATH,
-  MY_RECORD_PATH,
+  MYPAGE_ACCOUNT_PATH,
   MYPAGE_NOTIFICATIONS_PATH,
   MYPAGE_PLAN_PATH,
+  MY_RECORD_PATH,
   PREFERENCES_PATH,
 } from "@mahjong-scoring/features/routes";
 
@@ -267,7 +268,7 @@ function AccountEntries() {
           testID="mypage-menu-account"
           title={tMypage("cards.account.title")}
           leading={<UserIcon size={22} color={colors.surface600} />}
-          onPress={() => router.push("/mypage/account")}
+          onPress={() => router.push(MYPAGE_ACCOUNT_PATH)}
         />
       )}
       <LinkRow

@@ -1,12 +1,12 @@
 import {
   DOJO_PATH,
   LESSONS_PATH,
+  MYPAGE_ACCOUNT_DELETE_PATH,
+  MYPAGE_ACCOUNT_PATH,
+  MYPAGE_PATH,
   PRACTICE_PATH,
   PREFERENCES_PATH,
 } from "@mahjong-scoring/features/routes";
-
-/** マイページ（設定・アカウントの入口） */
-const MYPAGE_PATH = "/mypage";
 
 /** 点数表のタブ（役一覧・用語集の入口） */
 const SCORE_TABLE_TAB_PATH = "/score-table";
@@ -52,8 +52,8 @@ export function backFallbackHref(pathname: string): string {
       return child === undefined ? MYPAGE_PATH : PREFERENCES_PATH;
     case "mypage":
       if (child === undefined) return "/";
-      return pathname === "/mypage/account/delete"
-        ? "/mypage/account"
+      return pathname === MYPAGE_ACCOUNT_DELETE_PATH
+        ? MYPAGE_ACCOUNT_PATH
         : MYPAGE_PATH;
     case "sign-in":
     case "sign-up":

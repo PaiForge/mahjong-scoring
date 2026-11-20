@@ -1,3 +1,4 @@
+import { MYPAGE_PATH } from "@mahjong-scoring/features/routes";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
@@ -91,7 +92,7 @@ export default function HomeScreen() {
       titleAction={
         <HeaderIconButton
           testID="home-mypage"
-          onPress={() => router.push("/mypage")}
+          onPress={() => router.push(MYPAGE_PATH)}
           label={t("mypage")}
           element={<MypageEntryIcon />}
         />
