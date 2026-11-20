@@ -1,12 +1,5 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { MENTSU_FU_EXAMPLES } from "@mahjong-scoring/features/lessons/fu-guide-examples";
 import { MENTSU_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
-import {
-  exampleAnkan,
-  exampleAnkou,
-  exampleMinkan,
-  exampleMinkou,
-  exampleShuntsu,
-} from "@mahjong-scoring/features/board/example-mentsu";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
 import { FuSummaryTable } from "../../_components/fu-summary-table";
@@ -33,17 +26,9 @@ export async function MentsuFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: (
-                <MentsuSet
-                  mentsu={exampleShuntsu([
-                    HaiKind.ManZu2,
-                    HaiKind.ManZu3,
-                    HaiKind.ManZu4,
-                  ])}
-                />
-              ),
+              tiles: <MentsuSet mentsu={MENTSU_FU_EXAMPLES.shuntsu.mentsu} />,
               label: t("shuntsuLabel"),
-              fu: 0,
+              fu: MENTSU_FU_EXAMPLES.shuntsu.fu,
             },
           ]}
         />
@@ -58,24 +43,40 @@ export async function MentsuFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: <MentsuSet mentsu={exampleMinkou(HaiKind.ManZu5)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuOpenSimple.mentsu}
+                />
+              ),
               label: t("koutsuOpenSimpleLabel"),
-              fu: 2,
+              fu: MENTSU_FU_EXAMPLES.koutsuOpenSimple.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleAnkou(HaiKind.PinZu3)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuClosedSimple.mentsu}
+                />
+              ),
               label: t("koutsuClosedSimpleLabel"),
-              fu: 4,
+              fu: MENTSU_FU_EXAMPLES.koutsuClosedSimple.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleMinkou(HaiKind.Haku)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuOpenYaochu.mentsu}
+                />
+              ),
               label: t("koutsuOpenYaochuLabel"),
-              fu: 4,
+              fu: MENTSU_FU_EXAMPLES.koutsuOpenYaochu.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleAnkou(HaiKind.ManZu1)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuClosedYaochu.mentsu}
+                />
+              ),
               label: t("koutsuClosedYaochuLabel"),
-              fu: 8,
+              fu: MENTSU_FU_EXAMPLES.koutsuClosedYaochu.fu,
             },
           ]}
         />
@@ -90,24 +91,40 @@ export async function MentsuFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: <MentsuSet mentsu={exampleMinkan(HaiKind.SouZu5)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuOpenSimple.mentsu}
+                />
+              ),
               label: t("kantsuOpenSimpleLabel"),
-              fu: 8,
+              fu: MENTSU_FU_EXAMPLES.kantsuOpenSimple.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleAnkan(HaiKind.PinZu7)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuClosedSimple.mentsu}
+                />
+              ),
               label: t("kantsuClosedSimpleLabel"),
-              fu: 16,
+              fu: MENTSU_FU_EXAMPLES.kantsuClosedSimple.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleMinkan(HaiKind.Chun)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuOpenYaochu.mentsu}
+                />
+              ),
               label: t("kantsuOpenYaochuLabel"),
-              fu: 16,
+              fu: MENTSU_FU_EXAMPLES.kantsuOpenYaochu.fu,
             },
             {
-              tiles: <MentsuSet mentsu={exampleAnkan(HaiKind.PinZu9)} />,
+              tiles: (
+                <MentsuSet
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuClosedYaochu.mentsu}
+                />
+              ),
               label: t("kantsuClosedYaochuLabel"),
-              fu: 32,
+              fu: MENTSU_FU_EXAMPLES.kantsuClosedYaochu.fu,
             },
           ]}
         />

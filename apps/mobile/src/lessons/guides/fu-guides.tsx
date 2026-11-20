@@ -5,14 +5,12 @@ import {
   MACHI_FU_SUMMARY_ROWS,
   MENTSU_FU_SUMMARY_ROWS,
 } from "@mahjong-scoring/features/lessons/fu-summary-rows";
-import { HaiKind, type HaiKindId } from "@mahjong-scoring/core";
 import {
-  exampleAnkan,
-  exampleAnkou,
-  exampleMinkan,
-  exampleMinkou,
-  exampleShuntsu,
-} from "@mahjong-scoring/features/board/example-mentsu";
+  JANTOU_FU_EXAMPLES,
+  MACHI_FU_EXAMPLES,
+  MENTSU_FU_EXAMPLES,
+  type JantouFuExample,
+} from "@mahjong-scoring/features/lessons/fu-guide-examples";
 
 import {
   ChapterColumn,
@@ -37,8 +35,8 @@ export function JantouFuGuide() {
   const namespace = "jantouFu.learn";
   const t = useTranslations(namespace);
   const columns = useExampleTableColumns(namespace);
-  const pair = (hai: HaiKindId) => (
-    <TileSet tiles={[hai, hai]} size={CELL_TILE_SIZE} />
+  const pair = ({ tiles }: JantouFuExample) => (
+    <TileSet tiles={tiles} size={CELL_TILE_SIZE} />
   );
 
   return (
@@ -53,17 +51,37 @@ export function JantouFuGuide() {
           title={t("sangenExamples")}
           columns={columns}
           rows={[
-            { tiles: pair(HaiKind.Haku), label: t("labelHaku"), fu: 2 },
-            { tiles: pair(HaiKind.Hatsu), label: t("labelHatsu"), fu: 2 },
-            { tiles: pair(HaiKind.Chun), label: t("labelChun"), fu: 2 },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.haku),
+              label: t("labelHaku"),
+              fu: JANTOU_FU_EXAMPLES.haku.fu,
+            },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.hatsu),
+              label: t("labelHatsu"),
+              fu: JANTOU_FU_EXAMPLES.hatsu.fu,
+            },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.chun),
+              label: t("labelChun"),
+              fu: JANTOU_FU_EXAMPLES.chun.fu,
+            },
           ]}
         />
         <ExampleTable
           title={t("kazeExamples")}
           columns={columns}
           rows={[
-            { tiles: pair(HaiKind.Ton), label: t("labelBakaze"), fu: 2 },
-            { tiles: pair(HaiKind.Nan), label: t("labelJikaze"), fu: 2 },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.bakaze),
+              label: t("labelBakaze"),
+              fu: JANTOU_FU_EXAMPLES.bakaze.fu,
+            },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.jikaze),
+              label: t("labelJikaze"),
+              fu: JANTOU_FU_EXAMPLES.jikaze.fu,
+            },
           ]}
         />
       </GuideSection>
@@ -75,16 +93,20 @@ export function JantouFuGuide() {
           columns={columns}
           rows={[
             {
-              tiles: pair(HaiKind.ManZu1),
+              tiles: pair(JANTOU_FU_EXAMPLES.suuhaiManzu),
               label: t("labelSuuhaiManzu"),
-              fu: 0,
+              fu: JANTOU_FU_EXAMPLES.suuhaiManzu.fu,
             },
             {
-              tiles: pair(HaiKind.PinZu5),
+              tiles: pair(JANTOU_FU_EXAMPLES.suuhaiPinzu),
               label: t("labelSuuhaiPinzu"),
-              fu: 0,
+              fu: JANTOU_FU_EXAMPLES.suuhaiPinzu.fu,
             },
-            { tiles: pair(HaiKind.Sha), label: t("labelOtakaze"), fu: 0 },
+            {
+              tiles: pair(JANTOU_FU_EXAMPLES.otakaze),
+              label: t("labelOtakaze"),
+              fu: JANTOU_FU_EXAMPLES.otakaze.fu,
+            },
           ]}
         />
       </GuideSection>
@@ -132,16 +154,12 @@ export function MentsuFuGuide() {
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleShuntsu([
-                    HaiKind.ManZu2,
-                    HaiKind.ManZu3,
-                    HaiKind.ManZu4,
-                  ])}
+                  mentsu={MENTSU_FU_EXAMPLES.shuntsu.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("shuntsuLabel"),
-              fu: 0,
+              fu: MENTSU_FU_EXAMPLES.shuntsu.fu,
             },
           ]}
         />
@@ -156,42 +174,42 @@ export function MentsuFuGuide() {
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleMinkou(HaiKind.ManZu5)}
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuOpenSimple.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("koutsuOpenSimpleLabel"),
-              fu: 2,
+              fu: MENTSU_FU_EXAMPLES.koutsuOpenSimple.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleAnkou(HaiKind.PinZu3)}
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuClosedSimple.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("koutsuClosedSimpleLabel"),
-              fu: 4,
+              fu: MENTSU_FU_EXAMPLES.koutsuClosedSimple.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleMinkou(HaiKind.Haku)}
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuOpenYaochu.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("koutsuOpenYaochuLabel"),
-              fu: 4,
+              fu: MENTSU_FU_EXAMPLES.koutsuOpenYaochu.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleAnkou(HaiKind.ManZu1)}
+                  mentsu={MENTSU_FU_EXAMPLES.koutsuClosedYaochu.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("koutsuClosedYaochuLabel"),
-              fu: 8,
+              fu: MENTSU_FU_EXAMPLES.koutsuClosedYaochu.fu,
             },
           ]}
         />
@@ -206,42 +224,42 @@ export function MentsuFuGuide() {
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleMinkan(HaiKind.SouZu5)}
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuOpenSimple.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("kantsuOpenSimpleLabel"),
-              fu: 8,
+              fu: MENTSU_FU_EXAMPLES.kantsuOpenSimple.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleAnkan(HaiKind.PinZu7)}
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuClosedSimple.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("kantsuClosedSimpleLabel"),
-              fu: 16,
+              fu: MENTSU_FU_EXAMPLES.kantsuClosedSimple.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleMinkan(HaiKind.Chun)}
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuOpenYaochu.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("kantsuOpenYaochuLabel"),
-              fu: 16,
+              fu: MENTSU_FU_EXAMPLES.kantsuOpenYaochu.fu,
             },
             {
               tiles: (
                 <MentsuSet
-                  mentsu={exampleAnkan(HaiKind.PinZu9)}
+                  mentsu={MENTSU_FU_EXAMPLES.kantsuClosedYaochu.mentsu}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("kantsuClosedYaochuLabel"),
-              fu: 32,
+              fu: MENTSU_FU_EXAMPLES.kantsuClosedYaochu.fu,
             },
           ]}
         />
@@ -283,35 +301,35 @@ export function MachiFuGuide() {
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.ManZu2, HaiKind.ManZu4]}
-                  agariHai={HaiKind.ManZu3}
+                  tiles={MACHI_FU_EXAMPLES.kanchan.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.kanchan.agariHai}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("kanchanLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.kanchan.fu,
             },
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.PinZu1, HaiKind.PinZu2]}
-                  agariHai={HaiKind.PinZu3}
+                  tiles={MACHI_FU_EXAMPLES.penchan.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.penchan.agariHai}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("penchanLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.penchan.fu,
             },
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.Haku]}
-                  agariHai={HaiKind.Haku}
+                  tiles={MACHI_FU_EXAMPLES.tanki.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.tanki.agariHai}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("tankiLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.tanki.fu,
             },
           ]}
         />
@@ -326,24 +344,24 @@ export function MachiFuGuide() {
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.SouZu6, HaiKind.SouZu7]}
-                  agariHai={HaiKind.SouZu5}
+                  tiles={MACHI_FU_EXAMPLES.ryanmen.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.ryanmen.agariHai}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("ryanmenLabel"),
-              fu: 0,
+              fu: MACHI_FU_EXAMPLES.ryanmen.fu,
             },
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Haku, HaiKind.Haku]}
-                  agariHai={HaiKind.Ton}
+                  tiles={MACHI_FU_EXAMPLES.shanpon.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.shanpon.agariHai}
                   size={CELL_TILE_SIZE}
                 />
               ),
               label: t("shanponLabel"),
-              fu: 0,
+              fu: MACHI_FU_EXAMPLES.shanpon.fu,
             },
           ]}
         />

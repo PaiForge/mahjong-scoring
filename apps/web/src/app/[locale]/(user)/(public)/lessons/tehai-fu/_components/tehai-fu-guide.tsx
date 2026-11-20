@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { HaiKind } from "@mahjong-scoring/core";
+import { TEHAI_FU_EXAMPLES } from "@mahjong-scoring/features/lessons/fu-guide-examples";
 import { Divider } from "@/app/[locale]/(user)/_components/divider";
 import { ExampleCard } from "@/app/[locale]/(user)/_components/example-card";
 import { ChapterLink } from "../../_components/chapter-link";
@@ -68,9 +68,9 @@ export async function TehaiFuGuide() {
             <GuideParagraph preLine>{t("tsumoFuBody2")}</GuideParagraph>
             <ExampleCard>
               <TehaiFuExample
-                tiles={[HaiKind.PinZu2, HaiKind.PinZu3, HaiKind.PinZu4]}
-                rotatedIndex={0}
-                agariHai={HaiKind.SouZu6}
+                tiles={TEHAI_FU_EXAMPLES.tsumo.tiles}
+                rotatedIndex={TEHAI_FU_EXAMPLES.tsumo.rotatedIndex}
+                agariHai={TEHAI_FU_EXAMPLES.tsumo.agariHai}
                 label={t("tsumoExample")}
                 annotation={t("tsumoExampleAnnotation")}
               />
@@ -86,26 +86,16 @@ export async function TehaiFuGuide() {
             <GuideParagraph preLine>{t("ronKoutsuBody2")}</GuideParagraph>
             <ExampleCard spacing="space-y-4">
               <TehaiFuExample
-                tiles={[
-                  HaiKind.SouZu3,
-                  HaiKind.SouZu3,
-                  HaiKind.Haku,
-                  HaiKind.Haku,
-                ]}
-                agariHai={HaiKind.SouZu3}
+                tiles={TEHAI_FU_EXAMPLES.ronKoutsu.tiles}
+                agariHai={TEHAI_FU_EXAMPLES.ronKoutsu.agariHai}
                 label={t("ronKoutsuExampleRon")}
                 annotation={t("ronKoutsuExampleRonAnnotation")}
                 annotationTone="caution"
               />
               <Divider />
               <TehaiFuExample
-                tiles={[
-                  HaiKind.SouZu3,
-                  HaiKind.SouZu3,
-                  HaiKind.Haku,
-                  HaiKind.Haku,
-                ]}
-                agariHai={HaiKind.SouZu3}
+                tiles={TEHAI_FU_EXAMPLES.ronKoutsu.tiles}
+                agariHai={TEHAI_FU_EXAMPLES.ronKoutsu.agariHai}
                 label={t("ronKoutsuExampleTsumo")}
                 annotation={t("ronKoutsuExampleTsumoAnnotation")}
               />
@@ -120,17 +110,17 @@ export async function TehaiFuGuide() {
             <GuideParagraph preLine>{t("kazeBody1")}</GuideParagraph>
             <ExampleCard>
               <TehaiFuExample
-                tiles={[HaiKind.Ton, HaiKind.Ton]}
+                tiles={TEHAI_FU_EXAMPLES.kazeBakaze.tiles}
                 label={t("kazeExampleBakaze")}
                 annotation={t("kazeExampleBakazeAnnotation")}
               />
               <TehaiFuExample
-                tiles={[HaiKind.Nan, HaiKind.Nan]}
+                tiles={TEHAI_FU_EXAMPLES.kazeJikaze.tiles}
                 label={t("kazeExampleJikaze")}
                 annotation={t("kazeExampleJikazeAnnotation")}
               />
               <TehaiFuExample
-                tiles={[HaiKind.Sha, HaiKind.Sha]}
+                tiles={TEHAI_FU_EXAMPLES.kazeOtakaze.tiles}
                 label={t("kazeExampleOtakaze")}
                 annotation={t("kazeExampleOtakazeAnnotation")}
                 annotationTone="caution"
