@@ -1,12 +1,11 @@
 "use server";
 
-import { SITE_URL } from "@/config";
 import { currentLocale } from "@/i18n/current-locale";
 import type { ActionResult } from "@/lib/action-types";
+import { recoveryRedirectTo } from "@/lib/recovery-redirect";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * パスワードリセットメール送信の失敗理由
@@ -42,10 +41,9 @@ export async function forgotPassword(
   }
 
   const locale = await currentLocale();
-  const localeQuery = locale === DEFAULT_LOCALE ? "" : `&locale=${locale}`;
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${SITE_URL}/auth/callback?type=recovery${localeQuery}`,
+    redirectTo: recoveryRedirectTo(locale),
   });
 
   // アカウント列挙を防ぐため、エラーの有無に関わらず常に成功を返す
