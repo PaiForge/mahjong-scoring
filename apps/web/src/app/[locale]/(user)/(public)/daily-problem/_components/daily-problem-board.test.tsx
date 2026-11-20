@@ -4,6 +4,7 @@ import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import { eligibleAgariPayload } from "@/lib/daily-problem/test-payloads";
+import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 
 const { mockRecord, mockPeek } = vi.hoisted(() => ({
   mockRecord: vi.fn(),
@@ -128,6 +129,23 @@ describe("DailyProblemBoard", () => {
       screen.getByRole("link", { name: "more.home" }).getAttribute("href"),
     ).toBe("/");
     expect(mockPeek).toHaveBeenCalledWith("agari-score");
+  });
+
+  it("問題の報告のボタンは回答中は出さず、答え合わせを出してから出す", async () => {
+    mockUseAuth.mockReturnValue({ user: { id: "alice" }, isLoading: false });
+    try {
+      await show();
+      // 辞書のモックはキーをそのまま返す（problemReport.button → "button"）
+      expect(screen.queryByRole("button", { name: "button" })).toBeNull();
+
+      fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+      expect(
+        await screen.findByRole("button", { name: "button" }),
+      ).toBeTruthy();
+    } finally {
+      mockUseAuth.mockReset();
+    }
   });
 
   it("解答済みなら上に注記を出し、同じ盤面をもう一度解ける", async () => {

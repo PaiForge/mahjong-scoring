@@ -30,7 +30,6 @@ function show() {
         payload: eligibleAgariPayload(),
       })}
       context="agari-score"
-      stage="answering"
     />,
   );
 }

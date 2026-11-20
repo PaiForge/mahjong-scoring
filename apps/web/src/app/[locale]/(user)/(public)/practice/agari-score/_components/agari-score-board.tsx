@@ -380,11 +380,12 @@ function AgariScoreBoardInner() {
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>
-      <ProblemReportButton
-        problem={() => agariArchiveRequestOf(currentQuestion)}
-        context="agari-score"
-        stage={isAnswered ? "revealed" : "answering"}
-      />
+      {isAnswered && (
+        <ProblemReportButton
+          problem={() => agariArchiveRequestOf(currentQuestion)}
+          context="agari-score"
+        />
+      )}
     </ContentContainer>
   );
 }

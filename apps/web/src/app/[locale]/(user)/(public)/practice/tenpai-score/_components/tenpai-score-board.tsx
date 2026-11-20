@@ -239,19 +239,12 @@ function TenpaiScoreBoardInner() {
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>
-      {/* 段階: 待ちを答え合わせしたら（machiJudgement が入ったら）待ちだけ、
-          答え合わせの結果を出したら全部を見せている */}
-      <ProblemReportButton
-        problem={() => tenpaiArchiveRequestOf(currentQuestion)}
-        context="tenpai-score"
-        stage={
-          phase === "result"
-            ? "revealed"
-            : machiJudgement
-              ? "machiRevealed"
-              : "answering"
-        }
-      />
+      {phase === "result" && (
+        <ProblemReportButton
+          problem={() => tenpaiArchiveRequestOf(currentQuestion)}
+          context="tenpai-score"
+        />
+      )}
     </ContentContainer>
   );
 }

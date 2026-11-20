@@ -319,15 +319,16 @@ export function DailyProblemBoard({
       {/* モバイル幅だけ、右下に浮く「問題を報告」のボタン（44px）の高さぶんを下に
           空け、盤面の最下部の操作・リンクがボタンの下に隠れないようにする */}
       <div aria-hidden className="h-11 md:hidden" />
-      <ProblemReportButton
-        problem={() => ({
-          kind: "agari-score",
-          schemaVersion: ARCHIVE_SCHEMA_VERSION,
-          payload,
-        })}
-        context="daily-problem"
-        stage={isAnswered ? "revealed" : "answering"}
-      />
+      {isAnswered && (
+        <ProblemReportButton
+          problem={() => ({
+            kind: "agari-score",
+            schemaVersion: ARCHIVE_SCHEMA_VERSION,
+            payload,
+          })}
+          context="daily-problem"
+        />
+      )}
     </>
   );
 }
