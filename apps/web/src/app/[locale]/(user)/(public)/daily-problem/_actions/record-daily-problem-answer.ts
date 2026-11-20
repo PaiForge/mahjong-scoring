@@ -1,9 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { internalLocalePath } from "@/i18n/public-path";
+import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
 import type { ActionResult } from "@/lib/action-types";
 import { recordDailyProblemAnswer } from "@/lib/daily-problem/answers";
 import { logExternalError } from "@/lib/log-error";
@@ -11,7 +10,6 @@ import {
   resolveRecorder,
   type RecorderErrorCode,
 } from "@/lib/resolve-recorder";
-import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 
 /**
  * 本日の問題の解答の記録が返しうるエラーコード
@@ -60,17 +58,11 @@ const ANSWER_READER_PATHS = ["/dashboard"] as const;
 /**
  * 解答済みを読む画面のキャッシュを、両言語の分とも捨てる
  *
- * レッスン完了の Action と同じく、接頭辞なしのパスと言語ごとの内部パス
- * （`/ja/dashboard`・`/en/dashboard`）の両方で捨てる。ページの実体は
- * `app/[locale]/...` にあり、日本語の公開 URL も内部の `/ja/...` へ rewrite して描くため。
+ * 接頭辞なしのパスと言語ごとの内部パス（`/ja/dashboard`・`/en/dashboard`）の
+ * 両方で捨てる（理由は {@link revalidateLocalizedPaths}）。
  */
 function revalidateAnswerReaders(): void {
-  for (const path of ANSWER_READER_PATHS) {
-    revalidatePath(path);
-    for (const locale of SUPPORTED_LOCALES) {
-      revalidatePath(internalLocalePath(path, locale));
-    }
-  }
+  revalidateLocalizedPaths(ANSWER_READER_PATHS);
 }
 
 /**

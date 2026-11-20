@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
 import { dailyProblems, db } from "@/lib/db";
 import type { ActionResult } from "@/lib/action-types";
 import { logExternalError } from "@/lib/log-error";
@@ -61,10 +62,7 @@ export async function setDailyProblemVisibility(
       return true;
     });
     if (!changed) return { error: "notFound" };
-    for (const prefix of ["", "/ja", "/en"]) {
-      revalidatePath(`${prefix}/daily-problem`);
-      revalidatePath(`${prefix}/dashboard`);
-    }
+    revalidateLocalizedPaths(["/daily-problem", "/dashboard"]);
     revalidatePath("/admin/practice-problems");
     return { success: true };
   } catch (error) {
