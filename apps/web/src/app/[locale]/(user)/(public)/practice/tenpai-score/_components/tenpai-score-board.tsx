@@ -30,6 +30,8 @@ import {
 import { parseModeFlagsFromParams } from "../../agari-score/_lib/parse-practice-params";
 import { GenerationFailedNotice } from "../../agari-score/_components/generation-failed-notice";
 import { TENPAI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { tenpaiArchiveRequestOf } from "@mahjong-scoring/features/practice/archive/archive-request";
+import { ProblemReportButton } from "../../_components/problem-report-button";
 import { useTenpaiScoreStore } from "../_hooks/use-tenpai-score-store";
 import { useTenpaiScoreQuery } from "../_hooks/use-tenpai-score-query";
 import { cellAnswerFormatters } from "@mahjong-scoring/features/practice/tenpai-score/format-cell-answer";
@@ -155,7 +157,9 @@ function TenpaiScoreBoardInner() {
       <PageTitle>{t("title")}</PageTitle>
       <HandPresentationNotice />
 
-      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+      {/* モバイル幅だけ、右下に浮く「問題を報告」のボタン（44px）の高さぶんを下に足し、
+          「終了する」がボタンの下に隠れないようにする */}
+      <div className="space-y-4 pb-11 sm:space-y-6 md:space-y-8 md:pb-0">
         {/* 裏ドラは待ちを答えるまで伏せる。
             聴牌形の説明は待ちを読む最初の段階だけに出す。あとの段階で
             同じ説明を繰り返すと冗長なので、対象の印を外してツアーに飛ばさせる */}
@@ -235,6 +239,19 @@ function TenpaiScoreBoardInner() {
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>
+      {/* 段階: 待ちを答え合わせしたら（machiJudgement が入ったら）待ちだけ、
+          答え合わせの結果を出したら全部を見せている */}
+      <ProblemReportButton
+        problem={() => tenpaiArchiveRequestOf(currentQuestion)}
+        context="tenpai-score"
+        stage={
+          phase === "result"
+            ? "revealed"
+            : machiJudgement
+              ? "machiRevealed"
+              : "answering"
+        }
+      />
     </ContentContainer>
   );
 }
