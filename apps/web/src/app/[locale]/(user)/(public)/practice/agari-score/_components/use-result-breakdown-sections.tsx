@@ -2,10 +2,9 @@
 
 import { useTranslations } from "next-intl";
 import type { FuDetail, ScoreQuestion } from "@mahjong-scoring/core";
-import { fuReasonLabel } from "@mahjong-scoring/features/results/fu-reason-label";
-import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import {
   buildScoreResultBreakdownSections,
+  labelScoreResultBreakdownItems,
   type ScoreResultBreakdownTab,
 } from "@mahjong-scoring/features/results/score-result-display";
 import type { BreakdownPanelSection } from "../../_components/breakdown-panel";
@@ -19,12 +18,9 @@ import { ResultBreakdownTable } from "./result-breakdown-table";
  * 見出しは「翻数 3翻」「符 40符」のように正解の値を添える。内訳の答えの値を
  * 押すと点数表を正解のセルで開き、役の名前を押すと役一覧をその役で開く。
  *
- * 行の文言は今の言語の辞書で引く。共有の組み立て（`buildScoreResultBreakdownSections`）は
- * core の日本語（役名・符の理由）を `name` に載せるので、役名は `yakuNames`
- * （{@link yakuLabel}）、符の理由は `fuDetails` の構造から `challenge.fuBreakdown`
- * （{@link fuReasonLabel}）で引き直す。符の行は出題の `fuDetails` と同じ順・同じ数で
- * 組まれるため添字で対応させる。日本語の辞書の値は core の文言と同じなので日本語の
- * 表示は変わらない。`fuDetails` を渡さないときは符の理由を core の文言のまま出す。
+ * 行の文言は今の言語の辞書で引く（役名は `yakuNames`、符の理由は
+ * `challenge.fuBreakdown`）。引き方はアプリと共有の
+ * {@link labelScoreResultBreakdownItems} にある。
  */
 export function useResultBreakdownSections({
   tabs,
@@ -51,13 +47,9 @@ export function useResultBreakdownSections({
       tabLabel,
       content: (
         <ResultBreakdownTable
-          items={table.items.map((item, index) => {
-            if (kind === "han")
-              return { ...item, label: yakuLabel(item.name, tYakuNames) };
-            const detail = fuDetails?.[index];
-            return detail === undefined
-              ? item
-              : { ...item, label: fuReasonLabel(detail, tFuReason) };
+          items={labelScoreResultBreakdownItems(kind, table.items, fuDetails, {
+            tYakuNames,
+            tFuReason,
           })}
           total={table.total}
           suffix={table.suffix}

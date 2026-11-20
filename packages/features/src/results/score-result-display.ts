@@ -1,15 +1,18 @@
 import { judgeYakuSelection } from "@mahjong-scoring/core";
 import type {
+  FuDetail,
   ScoreQuestion,
   YakuSelectionJudgement,
 } from "@mahjong-scoring/core";
 
 import type { FuHanOrder } from "../settings/fu-han-order";
+import { yakuLabel } from "../yaku/yaku-labels";
 import {
   resolveBreakdownTabs,
   type BreakdownJudgement,
   type BreakdownKind,
 } from "./breakdown-tabs";
+import { fuReasonLabel, type FuReasonTranslator } from "./fu-reason-label";
 import { resolveFuVisibility } from "./fu-visibility";
 import { orderYakuDetails } from "./order-yaku-details";
 
@@ -213,6 +216,64 @@ export function buildScoreResultBreakdownSections(
           },
         },
   );
+}
+
+/**
+ * 内訳の行に、今の言語で出す文言を添えたもの
+ *
+ * `label` を持たない行は `name`（core の文言）をそのまま出す。役一覧の着地先は
+ * 訳ではなく `name` で解決するので、`name` は書き換えない。
+ */
+export interface LabeledScoreResultDetailItem extends ScoreResultDetailItem {
+  /** 行に出す文言（今の言語の辞書で引いたもの） */
+  readonly label?: string;
+}
+
+/**
+ * 内訳の行の文言を今の言語の辞書で引くのに使う翻訳関数
+ * 内訳行の翻訳関数
+ */
+export interface ScoreResultBreakdownItemTranslators {
+  /** `yakuNames` 名前空間の翻訳関数（{@link yakuLabel}） */
+  readonly tYakuNames: (key: string) => string;
+  /** `challenge.fuBreakdown` 名前空間の翻訳関数（{@link fuReasonLabel}） */
+  readonly tFuReason: FuReasonTranslator;
+}
+
+/**
+ * 内訳の行に、今の言語の文言を添える
+ * 内訳行の文言付け
+ *
+ * {@link buildScoreResultBreakdownSections} は core の日本語（役名・符の理由）を
+ * `name` に載せる。英語の画面に漢字を残さないため、web・モバイルの
+ * `useResultBreakdownSections` はこれを通して `label` を足してから表に渡す。
+ *
+ * - 翻数の行: 役名を `yakuNames` で引く
+ * - 符の行: 出題の `fuDetails` の構造から `challenge.fuBreakdown` で引く。符の行は
+ *   `fuDetails` と同じ順・同じ数で組まれるため添字で対応させる。`fuDetails` を
+ *   渡さないとき・対応する行が無いときは `label` を足さない（core の文言のまま出る）
+ *
+ * 日本語の辞書の値は core の文言と同じなので、日本語の表示は変わらない。
+ *
+ * @param kind - 内訳の種類（翻数 / 符）
+ * @param items - 内訳の行
+ * @param fuDetails - 出題の符の内訳
+ * @param translators - 役名と符の理由の翻訳関数
+ */
+export function labelScoreResultBreakdownItems(
+  kind: BreakdownKind,
+  items: readonly ScoreResultDetailItem[],
+  fuDetails: readonly FuDetail[] | undefined,
+  { tYakuNames, tFuReason }: ScoreResultBreakdownItemTranslators,
+): readonly LabeledScoreResultDetailItem[] {
+  return items.map((item, index) => {
+    if (kind === "han")
+      return { ...item, label: yakuLabel(item.name, tYakuNames) };
+    const detail = fuDetails?.[index];
+    return detail === undefined
+      ? item
+      : { ...item, label: fuReasonLabel(detail, tFuReason) };
+  });
 }
 
 function buildFuItems(
