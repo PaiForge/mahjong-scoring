@@ -1,49 +1,34 @@
 import { getTranslations } from "next-intl/server";
-import {
-  createSearchParamsCache,
-  parseAsString,
-  parseAsStringLiteral,
-} from "nuqs/server";
+import { createSearchParamsCache, parseAsStringLiteral } from "nuqs/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { AdminTabs } from "@/app/admin/_components/admin-tabs";
-import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
+import { AdminDateRangePicker } from "@/app/admin/_components/admin-date-range-picker";
+import { AdminKpiGrid } from "@/app/admin/_components/admin-kpi-grid";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { daysAgo, today } from "@/app/admin/_lib/dashboard";
 import { resolveJstDateRange } from "@/app/admin/_lib/date-range";
+import {
+  dateRangeParsers,
+  defaultStatsDateRange,
+  statsSortHref,
+} from "@/app/admin/_lib/stats-search-params";
 
 import { ChallengeStatsTable } from "./_components/challenge-stats-table";
 import {
   buildChallengeStats,
   CHALLENGE_STATS_SORTS,
-  type ChallengeStatsSort,
 } from "./_lib/challenge-stats";
 import { fetchChallengeCounts } from "./_lib/queries";
 
 // nuqs のキャッシュはモジュールスコープで組み立てる必要があるため、
 // 既定の期間もモジュール評価時の日付で決まる（プロセスが生きている間は固定）。
-const defaultsResolvedAt = new Date();
-const DEFAULT_RANGE = {
-  startDate: daysAgo(28, defaultsResolvedAt),
-  endDate: today(defaultsResolvedAt),
-} as const;
+const DEFAULT_RANGE = defaultStatsDateRange(new Date());
 
 const searchParamsCache = createSearchParamsCache({
-  from: parseAsString.withDefault(DEFAULT_RANGE.startDate),
-  to: parseAsString.withDefault(DEFAULT_RANGE.endDate),
+  ...dateRangeParsers(DEFAULT_RANGE),
   // 未指定・不正値はレジストリ順
   sort: parseAsStringLiteral(CHALLENGE_STATS_SORTS).withDefault("registry"),
 });
-
-/** 期間を保ったまま並び順だけを変える URL */
-function sortHref(
-  startDate: string,
-  endDate: string,
-  sort: ChallengeStatsSort,
-): string {
-  const params = new URLSearchParams({ from: startDate, to: endDate, sort });
-  return `/admin/challenges?${params.toString()}`;
-}
 
 /**
  * チャレンジの実施状況
@@ -79,9 +64,8 @@ export default async function AdminChallengeStatsPage({
 
   const { from, to, sort } = await searchParamsCache.parse(searchParams);
   const range = resolveJstDateRange(from, to, DEFAULT_RANGE);
-  const [t, tAdmin, counts] = await Promise.all([
+  const [t, counts] = await Promise.all([
     getTranslations("admin.challengeStats"),
-    getTranslations("admin"),
     fetchChallengeCounts(range),
   ]);
   const stats = buildChallengeStats(counts.rows, sort);
@@ -106,42 +90,27 @@ export default async function AdminChallengeStatsPage({
       <p className="mb-6 text-sm text-surface-600">{t("description")}</p>
 
       <div className="space-y-6">
-        <DateRangePicker
+        <AdminDateRangePicker
           startDate={range.startDate}
           endDate={range.endDate}
-          labels={{
-            from: tAdmin("dashboardKpi.from"),
-            to: tAdmin("dashboardKpi.to"),
-            presets: tAdmin("dashboardKpi.presets"),
-            past7days: tAdmin("dashboardKpi.past7days"),
-            past28days: tAdmin("dashboardKpi.past28days"),
-            past90days: tAdmin("dashboardKpi.past90days"),
-          }}
         />
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          {kpis.map((kpi) => (
-            <section key={kpi.label} className="admin-kpi space-y-2">
-              <p className="text-sm font-medium text-surface-600">
-                {kpi.label}
-              </p>
-              <p className="text-5xl leading-[56px] font-semibold tracking-tight text-primary-900 tabular-nums">
-                {kpi.value.toLocaleString("ja-JP")}
-              </p>
-              <p className="text-xs text-surface-500">
-                {t("kpi.cumulative", {
-                  count: kpi.cumulative.toLocaleString("ja-JP"),
-                })}
-              </p>
-              <p className="text-xs text-surface-500">{period}</p>
-            </section>
-          ))}
-        </div>
+        <AdminKpiGrid
+          items={kpis}
+          period={period}
+          columns={2}
+          formatCumulative={(count) => t("kpi.cumulative", { count })}
+        />
 
         <AdminTabs
           label={t("sort.label")}
           tabs={CHALLENGE_STATS_SORTS.map((key) => ({
-            href: sortHref(range.startDate, range.endDate, key),
+            href: statsSortHref(
+              "/admin/challenges",
+              range.startDate,
+              range.endDate,
+              key,
+            ),
             // 例: admin.challengeStats.sort.registry
             label: t(`sort.${key}`),
             current: sort === key,
