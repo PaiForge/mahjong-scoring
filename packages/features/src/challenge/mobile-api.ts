@@ -7,6 +7,7 @@ import { isRankSlug, type RankSlug } from "../ranks/registry";
 import { RECORD_STATUSES, type RecordView } from "./record-view";
 import { challengeSettingsSchema } from "./settings-schema";
 import type { ChallengeQuestion, ChallengeSettings } from "./types";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリ向けのチャレンジ・進み具合の API の契約（パス・要求・応答）
@@ -284,8 +285,7 @@ const answerSchema = z.union([
 export function parseMobileAnswerResponse(
   body: unknown,
 ): MobileAnswerChallengeResponse | undefined {
-  const parsed = answerSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(answerSchema, body);
 }
 
 const statusSchema = entrySchema.extend({
@@ -307,8 +307,7 @@ const statusSchema = entrySchema.extend({
 export function parseMobileChallengeStatus(
   body: unknown,
 ): MobileChallengeStatus | undefined {
-  const parsed = statusSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(statusSchema, body);
 }
 
 const unansweredSchema = z.union([
@@ -323,8 +322,7 @@ const unansweredSchema = z.union([
 export function parseMobileUnansweredResponse(
   body: unknown,
 ): MobileUnansweredResponse | undefined {
-  const parsed = unansweredSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(unansweredSchema, body);
 }
 
 const expInfoSchema = z.object({
@@ -428,6 +426,5 @@ const completeLessonsSchema = z.object({
 export function parseMobileCompleteLessonsResponse(
   body: unknown,
 ): MobileCompleteLessonsResponse | undefined {
-  const parsed = completeLessonsSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(completeLessonsSchema, body);
 }
