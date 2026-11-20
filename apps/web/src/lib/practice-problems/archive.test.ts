@@ -3,20 +3,28 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
-const { mockInsert } = vi.hoisted(() => ({ mockInsert: vi.fn() }));
+const { mockInsert, mockSelect } = vi.hoisted(() => ({
+  mockInsert: vi.fn(),
+  mockSelect: vi.fn(),
+}));
 
 vi.mock("../db", async () => ({
   ...(await import("../db/schema")),
-  db: { insert: mockInsert },
+  db: { insert: mockInsert, select: mockSelect },
 }));
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
 
 import { logExternalError } from "@/test/log-error-mock";
+import {
+  parsePracticeProblemArchiveRequest,
+  type PracticeProblemArchiveRequest,
+} from "@mahjong-scoring/core";
 
 import { practiceProblems } from "../db/schema";
 
 import {
   archivePracticeProblem,
+  ensurePracticeProblem,
   isPracticeProblemArchiveDisabled,
   PRACTICE_PROBLEM_ARCHIVE_BODY_MAX_BYTES,
 } from "./archive";
@@ -164,6 +172,73 @@ describe("archivePracticeProblem", () => {
       expect.any(String),
       "23514",
     );
+  });
+});
+
+/** 検証を通した盤面（{@link ensurePracticeProblem} は検証済みのものを受け取る） */
+function parsedRequest(body: unknown): PracticeProblemArchiveRequest {
+  const parsed = parsePracticeProblemArchiveRequest(body);
+  if (parsed.isErr()) throw new Error(parsed.error);
+  return parsed.value;
+}
+
+describe("ensurePracticeProblem", () => {
+  it("出題時の保存と同じ行を 1 回の INSERT ... ON CONFLICT DO NOTHING RETURNING で入れ、入った行の ID を返す", async () => {
+    await archivePracticeProblem(meldedAgariRequest(), "web");
+    const archived = insertedRow();
+    chain = createQueryChain([{ id: "problem-1" }]);
+    mockInsert.mockReturnValue(chain);
+
+    const id = await ensurePracticeProblem(
+      parsedRequest(meldedAgariRequest()),
+      "web",
+    );
+
+    expect(id).toBe("problem-1");
+    expect(insertedRow()).toEqual(archived);
+    expect(chain.onConflictDoNothing).toHaveBeenCalledWith({
+      target: [
+        practiceProblems.kind,
+        practiceProblems.identityVersion,
+        practiceProblems.contentHash,
+      ],
+    });
+    expect(chain.returning).toHaveBeenCalledWith({ id: practiceProblems.id });
+    expect(mockSelect).not.toHaveBeenCalled();
+  });
+
+  it("同じ盤面が既にあれば、一意制約の列で読み直して既存の行の ID を返す", async () => {
+    mockInsert.mockReturnValue(createQueryChain([]));
+    const selected = createQueryChain([{ id: "existing" }]);
+    mockSelect.mockReturnValue(selected);
+
+    const id = await ensurePracticeProblem(
+      parsedRequest(riichiTenpaiRequest()),
+      "ios",
+    );
+
+    expect(id).toBe("existing");
+    expect(selected.from).toHaveBeenCalledWith(practiceProblems);
+    expect(selected.where).toHaveBeenCalledTimes(1);
+  });
+
+  it("停止スイッチが立っていても保存する（報告は盤面が無いと調べられない）", async () => {
+    vi.stubEnv("PRACTICE_PROBLEM_ARCHIVE_DISABLED", "1");
+    chain = createQueryChain([{ id: "problem-1" }]);
+    mockInsert.mockReturnValue(chain);
+
+    expect(
+      await ensurePracticeProblem(parsedRequest(meldedAgariRequest()), "web"),
+    ).toBe("problem-1");
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("DB の失敗は例外のまま呼び出し側へ投げる", async () => {
+    chain.returning.mockRejectedValue(new Error("connection lost"));
+
+    await expect(
+      ensurePracticeProblem(parsedRequest(meldedAgariRequest()), "web"),
+    ).rejects.toThrow("connection lost");
   });
 });
 

@@ -21,7 +21,8 @@
  * 収集を止めたいときは環境変数を `1` にする（{@link isPracticeProblemArchiveDisabled}）。
  * 入口は最初にこれを見て、認証も保存もせず 204 を返す。クライアントは応答の中身を
  * 使わないので専用の応答は要らず、5xx を返すと再送を誘発する。停止中は認証サーバーへの
- * 問い合わせも省く。
+ * 問い合わせも省く。止めるのは出題ごとの収集だけで、問題の報告が盤面を保存する経路
+ * （{@link ensurePracticeProblem}）は止めない（理由はその関数の説明）。
  *
  * @design 保存は要求の中で終える。専用のキュー・worker・応答後の処理は持たない
  * 入口は DB への書き込みを待ってから 204 を返す。応答を先に返して保存を
@@ -38,11 +39,12 @@
  * 同じ理由で初版では採らない。所要時間や DB の負荷が問題になったら、測ってから
  * 比べ直す。
  *
- * @design 保存した行の ID を返さない
- * いまの用途は盤面を貯めることだけで、送信側は応答を使わない。お気に入りや
- * 問題ごとの正解率のように、利用者の操作を問題に結び付ける機能を作るときは、
- * その操作の時点で同じ要求を送り、保存した（または既にある）行の ID を受け取る
- * 経路を足す。そうすれば、ここで取りこぼした問題もその時点で保存される。
+ * @design 出題時の保存は行の ID を返さない。操作に結び付けるときは操作の時点で ID を得る
+ * 出題時の保存の用途は盤面を貯めることだけで、送信側は応答を使わない。利用者の
+ * 操作を問題に結び付ける機能は、その操作の時点で同じ盤面を送り、保存した（または
+ * 既にある）行の ID を受け取る経路（{@link ensurePracticeProblem}）を使う。問題の
+ * 報告（`problem_reports`）がこの経路で、出題時に取りこぼした問題も報告の時点で
+ * 保存される。お気に入りや問題ごとの正解率を作るときも同じ経路を使う。
  * 送信は取りこぼしを許す（通信断・画面を閉じる・待ちの上限）ので、この表の
  * 行数は出題の回数も出題の分布も表さない。
  *
@@ -64,9 +66,11 @@ import {
   parsePracticeProblemArchiveRequest,
   ARCHIVE_IDENTITY_VERSION,
   type ArchiveValidationError,
+  type PracticeProblemArchiveRequest,
 } from "@mahjong-scoring/core";
+import { and, eq } from "drizzle-orm";
 
-import { db, practiceProblems } from "../db";
+import { db, practiceProblems, type NewPracticeProblem } from "../db";
 import { extractPgErrorCode } from "../db/extract-pg-error-code";
 import { logExternalError } from "../log-error";
 
@@ -114,6 +118,33 @@ function contentHashOf(identityInput: string): string {
   return createHash("sha256").update(identityInput, "utf8").digest("hex");
 }
 
+/** 同じ盤面を 1 行にまとめる一意制約の列（`uq_practice_problems_identity`） */
+const PRACTICE_PROBLEM_IDENTITY = [
+  practiceProblems.kind,
+  practiceProblems.identityVersion,
+  practiceProblems.contentHash,
+];
+
+/**
+ * 検証済みの盤面から保存する行を組み立てる（ハッシュはサーバーが計算する）
+ *
+ * 出題時の保存（{@link archivePracticeProblem}）と報告の保存
+ * （{@link ensurePracticeProblem}）が同じ行を作るために共有する。
+ */
+function practiceProblemRowOf(
+  request: PracticeProblemArchiveRequest,
+  source: PracticeProblemSource,
+): NewPracticeProblem {
+  return {
+    kind: request.kind,
+    schemaVersion: request.schemaVersion,
+    identityVersion: ARCHIVE_IDENTITY_VERSION,
+    contentHash: contentHashOf(archiveIdentityInput(request)),
+    payload: request.payload,
+    source,
+  };
+}
+
 /**
  * 未知の本文を検証し、同じ盤面が無ければ 1 行保存する
  * 問題保存
@@ -149,21 +180,8 @@ export async function archivePracticeProblem(
   try {
     await db
       .insert(practiceProblems)
-      .values({
-        kind: request.kind,
-        schemaVersion: request.schemaVersion,
-        identityVersion: ARCHIVE_IDENTITY_VERSION,
-        contentHash: contentHashOf(archiveIdentityInput(request)),
-        payload: request.payload,
-        source,
-      })
-      .onConflictDoNothing({
-        target: [
-          practiceProblems.kind,
-          practiceProblems.identityVersion,
-          practiceProblems.contentHash,
-        ],
-      });
+      .values(practiceProblemRowOf(request, source))
+      .onConflictDoNothing({ target: PRACTICE_PROBLEM_IDENTITY });
   } catch (error) {
     // 例外をそのまま記録しない。Drizzle の失敗のメッセージは SQL のパラメータ
     // （盤面の JSON）を含むので、PostgreSQL のエラーコードだけを残す
@@ -175,4 +193,63 @@ export async function archivePracticeProblem(
     return { ok: false, error: { type: "saveFailed" } };
   }
   return { ok: true };
+}
+
+/**
+ * 検証済みの盤面の行を確かめ、無ければ保存して、その行の ID を返す
+ * 問題保存（ID 取得）
+ *
+ * 問題の報告（`lib/problem-reports/create-problem-report.ts`）が、報告を結ぶ
+ * 行を得るために呼ぶ。`INSERT ... ON CONFLICT DO NOTHING RETURNING id` で入れ、
+ * 返らなければ（同じ盤面が既にある）一意制約の列 `(kind, identity_version,
+ * content_hash)` で読み直す。行の組み立て（ハッシュの計算を含む）は
+ * {@link archivePracticeProblem} と共有するので、出題時に保存された行と同じ行に着地する。
+ *
+ * @design 報告の要求は盤面を本文に持ち、ここで行を確かめてから報告を結ぶ
+ * 出題時の保存は取りこぼしを許す（通信断・停止スイッチ・待ちの上限）ので、
+ * クライアントは行の ID を知らない。報告の時点で同じ盤面を送り、無ければここで
+ * 保存する。採らなかった案:
+ * - 出題時の保存の応答で ID を返す: 保存を待つことになり、練習を止める
+ * - 盤面を `problem_reports` に複製する: 同じ盤面への報告を 1 つの問題にまとめられない
+ *
+ * @design 停止スイッチ（`PRACTICE_PROBLEM_ARCHIVE_DISABLED`）を見ない
+ * スイッチは出題ごとの収集を止めるためのもの。報告は人の操作 1 回で、回数の枠も
+ * 別に掛かる（`reportProblem`）。盤面が無いと報告を調べられないので、止めている間も保存する。
+ *
+ * 失敗は例外のまま投げる。呼び出し側はログに例外の中身を出さない（Drizzle の
+ * 失敗のメッセージは SQL のパラメータ（盤面の JSON）を含む）。
+ *
+ * @param request - 検証済みの盤面（`parsePracticeProblemArchiveRequest` を通ったもの）
+ * @param source - 届いた入口（`web` / `ios` / `android`）。新しく入れるときの由来にだけ使う
+ * @returns `practice_problems.id`
+ * @throws DB への書き込み・読み取りが失敗したとき
+ */
+export async function ensurePracticeProblem(
+  request: PracticeProblemArchiveRequest,
+  source: PracticeProblemSource,
+): Promise<string> {
+  const row = practiceProblemRowOf(request, source);
+  const [inserted] = await db
+    .insert(practiceProblems)
+    .values(row)
+    .onConflictDoNothing({ target: PRACTICE_PROBLEM_IDENTITY })
+    .returning({ id: practiceProblems.id });
+  if (inserted) return inserted.id;
+  const [existing] = await db
+    .select({ id: practiceProblems.id })
+    .from(practiceProblems)
+    .where(
+      and(
+        eq(practiceProblems.kind, row.kind),
+        eq(practiceProblems.identityVersion, row.identityVersion),
+        eq(practiceProblems.contentHash, row.contentHash),
+      ),
+    )
+    .limit(1);
+  if (!existing) {
+    // 一意制約に当たったのに行が無い = 間に消された。保存問題は報告・本日の問題が
+    // RESTRICT で参照するので、通常は起こらない
+    throw new Error("practice problem vanished after a conflicting insert");
+  }
+  return existing.id;
 }

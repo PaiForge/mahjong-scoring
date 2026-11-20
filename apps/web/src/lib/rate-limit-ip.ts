@@ -111,6 +111,12 @@ export const IP_RATE_LIMITS = {
   updateBlocks: { maxRequests: 30, windowMs: 600_000 },
   // 1 件ごとに運営者へメールが飛ぶので、ブロックより絞る
   reportUser: { maxRequests: 10, windowMs: 600_000 },
+  // 出題した問題の誤りの報告。1 問を解いて気付いたときに押す操作で、人の手では
+  // 10 分に数回も届かない。IP とアカウントの両方で数える（Server Action が両方を
+  // 掛ける）。インメモリの枠はインスタンスごとで厳密でないので、DB で数える
+  // アカウントごとの上限（20 件 / 24 時間）と、同じ問題への未対応 1 件の制約を
+  // 重ねる（lib/problem-reports/create-problem-report.ts のモジュール TSDoc）
+  reportProblem: { maxRequests: 5, windowMs: 600_000 },
   // 未ログインで叩けるメール送信。Resend の送信枠（アカウント単位）を
   // 1 つの IP に食い潰されないよう短い窓で絞る
   contact: { maxRequests: 3, windowMs: 60_000 },

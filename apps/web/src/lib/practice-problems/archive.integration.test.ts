@@ -19,9 +19,14 @@ vi.mock("../db", async () => {
   };
 });
 
+import {
+  parsePracticeProblemArchiveRequest,
+  type PracticeProblemArchiveRequest,
+} from "@mahjong-scoring/core";
+
 import { practiceProblems } from "../db/schema";
 
-import { archivePracticeProblem } from "./archive";
+import { archivePracticeProblem, ensurePracticeProblem } from "./archive";
 import {
   clearPracticeProblemsTestDb,
   closePracticeProblemsTestDb,
@@ -37,6 +42,13 @@ const url = process.env.BILLING_TEST_DATABASE_URL;
 /** 保存された行 */
 async function rows() {
   return practiceProblemsTestDb().select().from(practiceProblems);
+}
+
+/** 検証を通した盤面 */
+function parsedRequest(body: unknown): PracticeProblemArchiveRequest {
+  const parsed = parsePracticeProblemArchiveRequest(body);
+  if (parsed.isErr()) throw new Error(parsed.error);
+  return parsed.value;
 }
 
 // 明示されたローカル DB の専用スキーマだけを使う。アプリの表・journal には触れない。
@@ -108,5 +120,32 @@ describe.skipIf(!url)("問題の保存（PostgreSQL）", () => {
     expect(saved.every((row) => /^[0-9a-f]{64}$/.test(row.contentHash))).toBe(
       true,
     );
+  });
+
+  it("報告の経路は、出題時に保存した行があればその ID を返し、行を増やさない", async () => {
+    await archivePracticeProblem(meldedAgariRequest(), "web");
+    const [archived] = await rows();
+
+    const id = await ensurePracticeProblem(
+      parsedRequest(meldedAgariRequest({ ponFrom: "toimen" })),
+      "ios",
+    );
+
+    expect(id).toBe(archived.id);
+    const saved = await rows();
+    expect(saved).toHaveLength(1);
+    expect(saved[0].source).toBe("web");
+  });
+
+  it("報告の経路は、取りこぼした盤面をその場で保存し、並行しても同じ 1 行の ID に揃う", async () => {
+    const ids = await Promise.all(
+      Array.from({ length: 6 }, () =>
+        ensurePracticeProblem(parsedRequest(riichiTenpaiRequest()), "web"),
+      ),
+    );
+
+    const saved = await rows();
+    expect(saved).toHaveLength(1);
+    expect(new Set(ids)).toEqual(new Set([saved[0].id]));
   });
 });
