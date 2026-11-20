@@ -13,6 +13,7 @@ const testDb = createIsolatedSchemaTestDb({
     "20261011063801_add_signed_date_to_apple_notification_events.sql",
     "20261108035603_add_locale_to_billing_checkouts.sql",
     "20261113222530_add_google_iap_to_purchases.sql",
+    "20261114233706_add_category_to_benefit_grants.sql",
   ],
 });
 
