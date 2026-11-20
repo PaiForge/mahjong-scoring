@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  MOBILE_ANNOUNCEMENT_ERROR_CODES,
   mobileAnnouncementApiPath,
   mobileAnnouncementsApiUrl,
   parseMobileAnnouncementResponse,
@@ -85,5 +86,42 @@ describe("parseMobileAnnouncementResponse", () => {
     expect(
       parseMobileAnnouncementResponse({ slug: "a", title: "A" }),
     ).toBeUndefined();
+  });
+});
+
+describe("MOBILE_ANNOUNCEMENT_ERROR_CODES", () => {
+  // アプリは応答の error のコードで「お知らせが無い」画面に分岐する
+  it("お知らせが無いことを notFound で伝える", () => {
+    expect(MOBILE_ANNOUNCEMENT_ERROR_CODES).toEqual(["notFound"]);
+  });
+});
+
+describe("parseMobileAnnouncementsResponse（日時の形）", () => {
+  it("公開日はタイムゾーンのずれ付きの ISO 日時も読む", () => {
+    const body = {
+      items: [
+        {
+          slug: "a",
+          title: "A",
+          publishedAt: "2026-10-01T09:00:00+09:00",
+          pinned: false,
+        },
+      ],
+      page: 1,
+      totalPages: 1,
+    };
+    expect(parseMobileAnnouncementsResponse(body)).toEqual(body);
+  });
+});
+
+describe("parseMobileAnnouncementResponse（読める形）", () => {
+  it("本文と公開日を持つ応答をそのまま読む", () => {
+    const body = {
+      slug: "a",
+      title: "A",
+      content: "本文",
+      publishedAt: "2026-10-01T09:00:00+09:00",
+    };
+    expect(parseMobileAnnouncementResponse(body)).toEqual(body);
   });
 });

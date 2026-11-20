@@ -75,4 +75,43 @@ describe("toSerializedMentsu / restoreMentsu", () => {
     expect(serializedMentsuSchema.safeParse(serialized).success).toBe(true);
     expect(restoreMentsu(serialized)).toEqual(mentsu);
   });
+
+  it("槓子は 4 枚のまま往復する", () => {
+    const mentsu = {
+      type: MentsuType.Kantsu,
+      hais: [HaiKind.Chun, HaiKind.Chun, HaiKind.Chun, HaiKind.Chun],
+      furo: {
+        type: FuroType.Daiminkan,
+        from: Tacha.Toimen,
+        nakiHai: HaiKind.Chun,
+      },
+    } as const;
+    const serialized = toSerializedMentsu(mentsu);
+    expect(serialized.tiles).toBe("7777z");
+    expect(restoreMentsu(serialized)).toEqual(mentsu);
+  });
+
+  it("枚数が種別と合わない保存形は面子に戻さない", () => {
+    expect(
+      restoreMentsu({ tiles: "777z", type: MentsuType.Kantsu }),
+    ).toBeUndefined();
+    expect(
+      restoreMentsu({ tiles: "77z", type: MentsuType.Koutsu }),
+    ).toBeUndefined();
+    expect(
+      restoreMentsu({ tiles: "12m", type: MentsuType.Shuntsu }),
+    ).toBeUndefined();
+  });
+
+  it("鳴いていない面子の保存形は副露の項目を持たない", () => {
+    const serialized = toSerializedMentsu({
+      type: MentsuType.Koutsu,
+      hais: [HaiKind.Haku, HaiKind.Haku, HaiKind.Haku],
+    });
+    expect(serialized).toStrictEqual({
+      tiles: "555z",
+      type: MentsuType.Koutsu,
+    });
+    expect(serialized).not.toHaveProperty("furo");
+  });
 });

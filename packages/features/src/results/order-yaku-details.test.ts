@@ -69,6 +69,29 @@ describe("orderYakuDetails", () => {
     ]);
   });
 
+  it.each(["場風牌", "自風牌", "連風牌"])(
+    "%s は役牌のかたまりの位置に置く",
+    (name) => {
+      const order = ["立直", "役牌 白", "混一色"];
+      const details = detailsOf(["混一色", name, "立直"]);
+      expect(namesOf(orderYakuDetails(details, order))).toEqual([
+        "立直",
+        name,
+        "混一色",
+      ]);
+    },
+  );
+
+  it("並びに無い役は、並びに役牌があっても役牌の位置には寄せず役の最後に置く", () => {
+    const order = ["立直", "役牌 白", "混一色"];
+    const details = detailsOf(["未知の役", "混一色", "立直"]);
+    expect(namesOf(orderYakuDetails(details, order))).toEqual([
+      "立直",
+      "混一色",
+      "未知の役",
+    ]);
+  });
+
   it("役牌が並びに無ければ風牌の役牌は役の最後に置く", () => {
     const order = ["立直", "断么九"];
     const details = detailsOf(["自風牌", "断么九"]);

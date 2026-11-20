@@ -9,6 +9,8 @@ import {
 } from "../ranks/registry";
 import {
   isExamMenu,
+  isPracticeCategory,
+  PRACTICE_CATEGORIES,
   PRACTICE_CATALOG,
   practiceMenuFromCatalog,
   listedPracticeMenus,
@@ -201,5 +203,27 @@ describe("practiceMenuFromCatalog", () => {
       category: "fuCalculation",
       rank: "kyu-4",
     });
+  });
+});
+
+describe("isPracticeCategory", () => {
+  it("一覧のカテゴリはすべて有効と判定する", () => {
+    for (const category of PRACTICE_CATEGORIES) {
+      expect(isPracticeCategory(category), category).toBe(true);
+    }
+  });
+
+  it("カテゴリに無い値（URL クエリの書き損じ・空文字）は弾く", () => {
+    expect(isPracticeCategory("fu")).toBe(false);
+    expect(isPracticeCategory("")).toBe(false);
+  });
+
+  it("どのカテゴリも 1 件以上の練習を持つ", () => {
+    for (const category of PRACTICE_CATEGORIES) {
+      expect(
+        PRACTICE_CATALOG.some((menu) => menu.category === category),
+        category,
+      ).toBe(true);
+    }
   });
 });

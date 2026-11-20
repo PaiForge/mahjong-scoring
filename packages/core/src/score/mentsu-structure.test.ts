@@ -730,6 +730,81 @@ describe("resolveMentsuBreakdowns", () => {
     ]);
   });
 
+  it("リーチで裏ドラ表示牌が無ければ立直の 1 翻だけを乗せる", () => {
+    // 345m 345m 55m 123s 456s の 5m ロン、リーチ、裏ドラ表示牌なし
+    //   順子に入れる: 平和 + 一盃口 + 立直 = 3翻30符 3900
+    //   雀頭に入れる: 一盃口 + 立直 = 2翻40符 2600
+    const candidates = resolveMentsuBreakdowns(makeTehai(TWO_WAYS), {
+      ...RON_CONTEXT,
+      agariHai: HaiKind.ManZu5,
+      isRiichi: true,
+    });
+
+    expect(candidates.map((c) => [c.han, c.fu, c.payment])).toEqual([
+      [3, 30, { type: "ron", amount: 3900 }],
+      [2, 40, { type: "ron", amount: 2600 }],
+    ]);
+  });
+
+  it("和了牌の置き場所が同じでも面子の割り方が違えば別のキーになる", () => {
+    // 111m 222m 333m 456p 77s の 7s ロン（単騎）。和了牌はどちらも雀頭に入り、
+    // 暗刻 3 つ（三暗刻）と 123m ×3 の割り方だけが違う
+    const candidates = resolveMentsuBreakdowns(
+      makeTehai([
+        HaiKind.ManZu1,
+        HaiKind.ManZu1,
+        HaiKind.ManZu1,
+        HaiKind.ManZu2,
+        HaiKind.ManZu2,
+        HaiKind.ManZu2,
+        HaiKind.ManZu3,
+        HaiKind.ManZu3,
+        HaiKind.ManZu3,
+        HaiKind.PinZu4,
+        HaiKind.PinZu5,
+        HaiKind.PinZu6,
+        HaiKind.SouZu7,
+        HaiKind.SouZu7,
+      ]),
+      { ...RON_CONTEXT, agariHai: HaiKind.SouZu7 },
+    );
+    const keys = candidates.map((c) => c.key);
+
+    expect(candidates.length).toBeGreaterThanOrEqual(2);
+    expect(
+      candidates.every((c) => c.breakdown.jantou.agariHaiIndex === 1),
+    ).toBe(true);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it("面子の割り方が同じでも和了牌を入れた面子が違えば別のキーになる", () => {
+    // 234m 456m 678p 345s 77p の 4m ロン。4m は 234m（23m の両面）にも
+    // 456m（56m の両面）にも入り、面子の割り方は変わらない
+    const candidates = resolveMentsuBreakdowns(
+      makeTehai([
+        HaiKind.ManZu2,
+        HaiKind.ManZu3,
+        HaiKind.ManZu4,
+        HaiKind.ManZu4,
+        HaiKind.ManZu5,
+        HaiKind.ManZu6,
+        HaiKind.PinZu6,
+        HaiKind.PinZu7,
+        HaiKind.PinZu8,
+        HaiKind.SouZu3,
+        HaiKind.SouZu4,
+        HaiKind.SouZu5,
+        HaiKind.PinZu7,
+        HaiKind.PinZu7,
+      ]),
+      { ...RON_CONTEXT, agariHai: HaiKind.ManZu4 },
+    );
+    const keys = candidates.map((c) => c.key);
+
+    expect(candidates).toHaveLength(2);
+    expect(new Set(keys).size).toBe(2);
+  });
+
   it("役満の手にはリーチもドラも乗せず、翻数を役満の翻に揃える", () => {
     // 111m 222p 333s 444z + 55m の 5m ツモ（四暗刻の単騎）、リーチ、ドラ表示牌 4m（ドラ 5m ×2）
     const candidates = resolveMentsuBreakdowns(

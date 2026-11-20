@@ -53,7 +53,7 @@ import { and, eq, lt, notInArray, sql } from "drizzle-orm";
 import { dailyProblems, db, practiceProblems } from "../db";
 import { logExternalError } from "../log-error";
 
-import { isDailyProblemEligible } from "./eligibility";
+import { isDailyProblemEligible } from "@mahjong-scoring/features/daily-problem/eligibility";
 
 /**
  * 今日の問題

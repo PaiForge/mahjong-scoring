@@ -60,6 +60,18 @@ describe("parseTermMarkup", () => {
     ]);
   });
 
+  it("slug が空白だけなら表示語があってもマークアップとして扱わない", () => {
+    expect(parseTermMarkup("[[  |符]]")).toEqual([
+      { type: "text", value: "[[  |符]]" },
+    ]);
+  });
+
+  it("表示語が空白だけならマークアップとして扱わない", () => {
+    expect(parseTermMarkup("[[fu|  ]]")).toEqual([
+      { type: "text", value: "[[fu|  ]]" },
+    ]);
+  });
+
   it("呼び出しをまたいで正規表現の状態が残らない", () => {
     const input = "[[fu|符]]と[[han|翻]]";
     expect(parseTermMarkup(input)).toEqual(parseTermMarkup(input));

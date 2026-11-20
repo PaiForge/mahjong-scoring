@@ -78,6 +78,19 @@ describe("YAKU_NAME_MAP — 網羅性", () => {
     expect(values).not.toContain("役牌 西");
     expect(values).not.toContain("役牌 北");
   });
+
+  it("引ける表示名はどれも役の選択肢にある（選べない名前を正解にしない）", () => {
+    // 「役牌」「場風牌」「自風牌」のような集約名が混ざると、正解に選択肢で
+    // 選べない名前が並び、利用者はその問題に正解できない
+    const selectable = new Set(SELECTABLE_YAKU);
+    for (const name of Object.values(YAKU_NAME_MAP)) {
+      expect(selectable.has(name), name).toBe(true);
+    }
+  });
+
+  it("立直を持たない（立直は局面のリーチの有無からだけ付ける）", () => {
+    expect(Object.values(YAKU_NAME_MAP)).not.toContain("立直");
+  });
 });
 
 describe("SELECTABLE_YAKU — 重複チェック", () => {

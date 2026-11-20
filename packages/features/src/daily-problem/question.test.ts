@@ -113,6 +113,64 @@ describe("judgeDailyProblemAnswer", () => {
     expect(result.isFuCorrect).toBe(false);
   });
 
+  describe("ダブル役満の扱いは閲覧者の設定に従う（四暗刻単騎）", () => {
+    /** 111m 999p 111s 東東東 に 2m の単騎でツモ（南家）。四暗刻単騎 */
+    const SUUANKOU_TANKI_PAYLOAD: AgariProblemPayload = {
+      hand: {
+        closed: [0, 0, 0, 17, 17, 17, 18, 18, 18, 27, 27, 27, 1, 1],
+        exposed: [],
+      },
+      agariHai: 1,
+      isTsumo: true,
+      jikaze: 28,
+      bakaze: 27,
+      doraMarkers: [30],
+      riichi: null,
+    };
+    const DOUBLE_SETTINGS: RuleSettings = {
+      ...DEFAULT_RULE_SETTINGS,
+      suuankouTankiDouble: true,
+    };
+    const question = buildDailyProblemQuestion(
+      SUUANKOU_TANKI_PAYLOAD,
+      DOUBLE_SETTINGS,
+    )._unsafeUnwrap();
+
+    it("ダブル役満を採用する設定では、ダブル役満の翻数で答えれば正解", () => {
+      const result = judgeDailyProblemAnswer(
+        question,
+        correctAnswerOf(question),
+        DOUBLE_SETTINGS,
+      );
+      expect(question.answer.han).toBe(26);
+      expect(result.isCorrect).toBe(true);
+    });
+
+    it("ダブル役満を採用する設定では、役満の翻数に丸めて答えると、点数が合っていても翻数の誤りで不正解", () => {
+      const result = judgeDailyProblemAnswer(
+        question,
+        { ...correctAnswerOf(question), han: 13 },
+        DOUBLE_SETTINGS,
+      );
+      expect(result.isHanCorrect).toBe(false);
+      expect(result.isCorrect).toBe(false);
+    });
+
+    it("ダブル役満を採用しない設定では、ダブル役満の翻数で答えても役満と同じ答えとして扱う", () => {
+      const single = buildDailyProblemQuestion(
+        SUUANKOU_TANKI_PAYLOAD,
+        DEFAULT_RULE_SETTINGS,
+      )._unsafeUnwrap();
+      const result = judgeDailyProblemAnswer(
+        single,
+        { ...correctAnswerOf(single), han: 26 },
+        DEFAULT_RULE_SETTINGS,
+      );
+      expect(single.answer.han).toBe(13);
+      expect(result.isHanCorrect).toBe(true);
+    });
+  });
+
   it("役は問わない（標準の判定モード）", () => {
     const question = built(DEFAULT_RULE_SETTINGS);
     const result = judgeDailyProblemAnswer(

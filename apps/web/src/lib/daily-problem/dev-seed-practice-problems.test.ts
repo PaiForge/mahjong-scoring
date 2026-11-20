@@ -7,7 +7,7 @@ import {
 } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { isDailyProblemEligible } from "./eligibility";
+import { isDailyProblemEligible } from "@mahjong-scoring/features/daily-problem/eligibility";
 
 import { SEED_DAILY_PROBLEMS } from "../../../scripts/dev-seed/practice-problems";
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { withRetries } from "./with-retries";
+import { RETRY_DELAYS_MS, withRetries } from "./with-retries";
 
 type Outcome = { readonly ok: true } | { readonly error: string };
 
@@ -51,6 +51,19 @@ describe("withRetries", () => {
     await vi.runAllTimersAsync();
     await expect(promise).resolves.toEqual({ error: "network" });
     expect(send).toHaveBeenCalledTimes(3);
+  });
+
+  it("待ち時間を渡さなければ既定の間隔で送り直し、その回数を使い切ったら最後の結果を返す", async () => {
+    const send = vi
+      .fn<() => Promise<Outcome>>()
+      .mockResolvedValue({ error: "network" });
+
+    const promise = withRetries(send, retryOnError);
+    await vi.runAllTimersAsync();
+    await expect(promise).resolves.toEqual({ error: "network" });
+    // 既定でも少なくとも 1 回は送り直す（瞬間的な途切れを救うための再送）
+    expect(RETRY_DELAYS_MS.length).toBeGreaterThan(0);
+    expect(send).toHaveBeenCalledTimes(RETRY_DELAYS_MS.length + 1);
   });
 
   it("送り直してはいけない結果は待たずに返す", async () => {

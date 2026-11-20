@@ -1,6 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { formatSignedDelta, signedDeltaTone } from "./signed-delta";
+import {
+  DELTA_TONE_CLASSES,
+  formatSignedDelta,
+  signedDeltaTone,
+} from "./signed-delta";
+
+describe("DELTA_TONE_CLASSES", () => {
+  it("増減の向きごとに別の文字色を割り当て、どの向きも色を持つ", () => {
+    const classes = (["up", "down", "flat"] as const).map(
+      (tone) => DELTA_TONE_CLASSES[tone],
+    );
+    for (const className of classes) {
+      expect(className).toMatch(/^text-\S+$/u);
+    }
+    expect(new Set(classes).size).toBe(classes.length);
+  });
+});
 
 describe("formatSignedDelta", () => {
   it("増加はプラス符号を付ける", () => {

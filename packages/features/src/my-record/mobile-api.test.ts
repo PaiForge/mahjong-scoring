@@ -86,6 +86,43 @@ describe("parseMobileRecordsResponse", () => {
     });
   });
 
+  it("表示する土俵を知らなければ、知っている練習のチャレンジが届いても読まない", () => {
+    expect(
+      parseMobileRecordsResponse({
+        boards: [{ menuType: "jantou_fu", variant: "default" }],
+        board: { menuType: "future_practice", variant: "default" },
+        current: [attempt()],
+        previous: [attempt({ id: "a2" })],
+      }),
+    ).toStrictEqual({
+      boards: [{ menuType: "jantou_fu", variant: "default" }],
+      current: [],
+      previous: [],
+    });
+  });
+
+  it("表示する土俵が無い応答（記録が 1 件も無い）は土俵無し・チャレンジ空", () => {
+    expect(
+      parseMobileRecordsResponse({
+        boards: [],
+        current: [],
+        previous: [],
+      }),
+    ).toStrictEqual({ boards: [], current: [], previous: [] });
+  });
+
+  it("日時は UTC 以外の時差付きの表記も同じ瞬間として読む", () => {
+    const parsed = parseMobileRecordsResponse({
+      boards: [{ menuType: "jantou_fu", variant: "default" }],
+      board: { menuType: "jantou_fu", variant: "default" },
+      current: [attempt({ createdAt: "2026-10-10T09:00:00+09:00" })],
+      previous: [],
+    });
+    expect(parsed?.current[0]?.createdAt).toEqual(
+      new Date("2026-10-10T00:00:00.000Z"),
+    );
+  });
+
   it("形が違えば undefined", () => {
     expect(parseMobileRecordsResponse({ boards: "x" })).toBe(undefined);
   });

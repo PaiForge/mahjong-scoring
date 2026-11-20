@@ -12,7 +12,10 @@
 import { generateValidScoreQuestion } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 
-import { EXAM_GENERATE_OPTIONS } from "./types";
+import { messages } from "@mahjong-scoring/messages/ja";
+
+import { practiceMenuByType } from "../../practice-menu-types";
+import { EXAM_BOARD_CONFIG, EXAM_GENERATE_OPTIONS } from "./types";
 
 /** 出題する符（面子手で最も多く現れる帯） */
 const EXAM_FU = [30, 40, 50];
@@ -52,5 +55,13 @@ describe("EXAM_GENERATE_OPTIONS", () => {
       expect(EXAM_FU).toContain(question!.answer.fu);
       expect(question!.jikaze).not.toBe(question!.bakaze);
     }
+  });
+});
+
+describe("EXAM_BOARD_CONFIG", () => {
+  it("盤面の翻訳名前空間は練習レジストリの試験の名前空間と同じで、辞書にある", () => {
+    const { namespace } = practiceMenuByType("fu_score_exam");
+    expect(EXAM_BOARD_CONFIG.translationNamespace).toBe(namespace);
+    expect(messages).toHaveProperty(namespace);
   });
 });

@@ -38,6 +38,17 @@ describe("parseScoreTableFocusFromParams", () => {
     expect(result?.winType).toBe("ron");
   });
 
+  it("han が 1 未満の整数なら undefined を返し、1 なら受け付ける", () => {
+    const base = { role: "ko", winType: "ron", fu: "30" };
+    expect(
+      parseScoreTableFocusFromParams({ ...base, han: "0" }),
+    ).toBeUndefined();
+    expect(
+      parseScoreTableFocusFromParams({ ...base, han: "-1" }),
+    ).toBeUndefined();
+    expect(parseScoreTableFocusFromParams({ ...base, han: "1" })?.han).toBe(1);
+  });
+
   it("han が null なら undefined を返す", () => {
     const result = parseScoreTableFocusFromParams({
       role: "ko",

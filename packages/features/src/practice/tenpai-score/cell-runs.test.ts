@@ -7,6 +7,7 @@ import { generateValidTenpaiScoreQuestion } from "@mahjong-scoring/core";
 
 import { cellKeyOf } from "./cell-ref";
 import {
+  answerKey,
   groupAdjacentCells,
   indexRuns,
   sharedAnswerOfCells,
@@ -129,5 +130,29 @@ describe("sharedAnswerOfCells", () => {
       isTsumo: true,
     }));
     expect(sharedAnswerOfCells(cells, {})).toBeUndefined();
+  });
+});
+
+describe("answerKey", () => {
+  const score = (yakus: readonly string[]): MachiCellAnswer => ({
+    kind: "score",
+    answer: { han: 2, fu: 30, score: 2000, yakus },
+  });
+
+  it("役の組が同じなら、答えた順に依らず同じ回答とみなす", () => {
+    expect(answerKey(score(["立直", "断么九"]))).toBe(
+      answerKey(score(["断么九", "立直"])),
+    );
+  });
+
+  it("翻・符・点数が同じでも、役の組が違えば別の回答とみなす", () => {
+    expect(answerKey(score(["立直", "断么九"]))).not.toBe(
+      answerKey(score(["立直", "平和"])),
+    );
+  });
+
+  it("役なし同士は同じ回答で、点数の回答とは別になる", () => {
+    expect(answerKey({ kind: "noYaku" })).toBe(answerKey({ kind: "noYaku" }));
+    expect(answerKey({ kind: "noYaku" })).not.toBe(answerKey(score([])));
   });
 });

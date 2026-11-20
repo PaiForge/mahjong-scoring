@@ -320,6 +320,26 @@ describe("generateTenpaiScoreQuestion", () => {
     }
   });
 
+  it("ルールを省略すると、連風牌の雀頭は 2 符・切り上げ満貫なしで計算する", () => {
+    const rng = seededRandom(20261119);
+    const question = generateOne(() => generateTenpaiScoreQuestion({ rng }));
+    for (const cell of listCells(question)) {
+      expect(cell.ruleConfig).toMatchObject({
+        doubleWindJantouFu: 2,
+        kiriageMangan: false,
+      });
+    }
+  });
+
+  it("場風と自風が同じ（連風牌の）局面も出題する", () => {
+    const rng = seededRandom(20261119);
+    expectSampled(() => generateTenpaiScoreQuestion({ rng }), {
+      attempts: 500,
+      need: 1,
+      where: (question) => question.jikaze === question.bakaze,
+    });
+  });
+
   it("同じシードなら同じ問題を返す", () => {
     // 乱数列は試行をまたいで進むため、同じシードで同じ回数試行すれば同じ問題に着く
     const generateWithSeed = (seed: number) => {
@@ -327,6 +347,77 @@ describe("generateTenpaiScoreQuestion", () => {
       return generateOne(() => generateTenpaiScoreQuestion({ rng }));
     };
     expect(generateWithSeed(20260911)).toEqual(generateWithSeed(20260911));
+  });
+});
+
+describe("generateTenpaiScoreQuestion（乱数を固定した出題）", () => {
+  /** シードを固定して条件に合う問題を集める（結果は実行ごとに変わらない） */
+  function sampleSeeded(
+    options: Parameters<typeof generateTenpaiScoreQuestion>[0],
+    sampling: Parameters<typeof expectSampled<TenpaiScoreQuestion>>[1],
+  ) {
+    const rng = seededRandom(20261120);
+    return expectSampled(
+      () => generateTenpaiScoreQuestion({ ...options, rng }),
+      sampling,
+    );
+  }
+
+  it("既定では親の出題も子の出題もある", () => {
+    const questions = sampleSeeded({}, { attempts: 500, need: 60 });
+    const isParent = new Set(
+      questions.map((question) => question.jikaze === HaiKind.Ton),
+    );
+    expect(isParent).toEqual(new Set([true, false]));
+  });
+
+  it("includeChild=false なら親だけ、includeParent=false なら子だけを出題する", () => {
+    const parentOnly = sampleSeeded(
+      { includeChild: false },
+      { attempts: 500, need: 30 },
+    );
+    for (const question of parentOnly) {
+      expect(question.jikaze).toBe(HaiKind.Ton);
+    }
+    const childOnly = sampleSeeded(
+      { includeParent: false },
+      { attempts: 500, need: 30 },
+    );
+    for (const question of childOnly) {
+      expect(question.jikaze).not.toBe(HaiKind.Ton);
+    }
+  });
+
+  it("allowedRanges はすべての待ち・和了方法に掛かる", () => {
+    const nonMangan = sampleSeeded(
+      { allowedRanges: ["nonMangan"] },
+      { attempts: 500, need: 50 },
+    );
+    for (const cell of nonMangan.flatMap(listCells)) {
+      expect(cell.answer.scoreLevel).toBe(ScoreLevel.Normal);
+    }
+    const manganPlus = sampleSeeded(
+      { allowedRanges: ["manganPlus"] },
+      { attempts: 5000, need: 3 },
+    );
+    for (const cell of manganPlus.flatMap(listCells)) {
+      expect(cell.answer.scoreLevel).not.toBe(ScoreLevel.Normal);
+    }
+  });
+
+  it("リーチの有無は裏ドラ表示牌の有無と一致し、各待ちの出題にも同じ値が入る", () => {
+    const questions = sampleSeeded({}, { attempts: 1000, need: 150 });
+    const isRiichi = new Set<boolean>();
+    for (const question of questions) {
+      isRiichi.add(question.isRiichi);
+      expect(question.uraDoraMarkers !== undefined).toBe(question.isRiichi);
+      for (const cell of listCells(question)) {
+        expect(cell.isRiichi).toBe(question.isRiichi);
+        expect(cell.uraDoraMarkers).toEqual(question.uraDoraMarkers);
+      }
+    }
+    // リーチしている出題・していない出題の両方が出ていなければ、片方は素通り
+    expect(isRiichi).toEqual(new Set([true, false]));
   });
 });
 
@@ -473,6 +564,28 @@ describe("buildTenpaiScoreQuestion", () => {
     expect(withRiichi._unsafeUnwrapErr()).toBe("riichiWithNoYakuRon");
   });
 
+  it("役なしのロン待ちが一部の待ちだけでも、リーチを渡すと拒む", () => {
+    // 23m 222p 456p 345s 88s: 1m・4m の両面。4m は断么九が付くが、1m のロンは
+    // 役なし（2p の暗刻があるので平和にもならない）
+    const base = {
+      tehai: tenpaiTehai("23m222456p34588s"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Pei],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    const withoutRiichi = buildTenpaiScoreQuestion(base)._unsafeUnwrap();
+    expect(withoutRiichi.waits.map((wait) => wait.ron !== undefined)).toEqual([
+      false,
+      true,
+    ]);
+    const withRiichi = buildTenpaiScoreQuestion({
+      ...base,
+      riichi: { uraDoraMarkers: [HaiKind.Sha] },
+    });
+    expect(withRiichi._unsafeUnwrapErr()).toBe("riichiWithNoYakuRon");
+  });
+
   it("表示牌に取られて 4 枚目が無い待ちは純カラとして組み立てない", () => {
     // 1z・2z の双碰で、残りの 2z 2 枚を表ドラ表示牌が持っていく
     const result = buildTenpaiScoreQuestion({
@@ -483,5 +596,64 @@ describe("buildTenpaiScoreQuestion", () => {
       ruleConfig: STANDARD_RULES,
     });
     expect(result._unsafeUnwrapErr()).toBe("karaWait");
+  });
+
+  it("七対子・国士無双の聴牌形は面子手の聴牌ではないので組み立てない", () => {
+    const situation = {
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      ruleConfig: STANDARD_RULES,
+    } as const;
+    // 6 対子と西の浮き牌（七対子の単騎待ち）
+    const chiitoi = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("1133m5577p99s113z"),
+    });
+    expect(chiitoi._unsafeUnwrapErr()).toBe("notTenpai");
+    // 么九牌 13 種（国士無双の 13 面待ち）
+    const kokushi = buildTenpaiScoreQuestion({
+      ...situation,
+      tehai: tenpaiTehai("19m19p19s1234567z"),
+    });
+    expect(kokushi._unsafeUnwrapErr()).toBe("notTenpai");
+  });
+
+  it("一向聴の形は組み立てない", () => {
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("123m456p789s1123z"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("notTenpai");
+  });
+
+  it("副露のある聴牌形にリーチを渡すと拒む", () => {
+    // 一二三筒をチーした 234m 456p 78s 55s（六索・九索待ち）
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("234m456p78s55s[1-23p]"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.ManZu9],
+      riichi: { uraDoraMarkers: [HaiKind.Pei] },
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("riichiWithFuro");
+  });
+
+  it("どれか 1 つの待ちの 1 つの和了方法でも符が選択肢（110 符まで）を超えれば組み立てない", () => {
+    // 一萬・九筒の暗槓（各 32 符）と六萬の暗槓（16 符）、三四五五索。二索・五索待ち。
+    // 二索は両面で、ツモ・ロンとも 110 符以内。五索は単騎（+2 符）に取れて、
+    // ツモは 110 符に収まるが、ロンは 20 + 80 + 2 + 門前加符 10 = 112 → 120 符になる
+    const result = buildTenpaiScoreQuestion({
+      tehai: tenpaiTehai("3455s(1111m)(9999p)(6666m)"),
+      jikaze: HaiKind.Nan,
+      bakaze: HaiKind.Ton,
+      doraMarkers: [HaiKind.Pei],
+      ruleConfig: STANDARD_RULES,
+    });
+    expect(result._unsafeUnwrapErr()).toBe("fuOutOfOptions");
   });
 });

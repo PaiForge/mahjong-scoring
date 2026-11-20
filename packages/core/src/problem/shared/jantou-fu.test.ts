@@ -10,11 +10,26 @@ describe("calculateJantouFu", () => {
     ).toBe(2);
   });
 
+  it("白・發・中のどの三元牌の雀頭も2符", () => {
+    for (const sangenhai of [HaiKind.Haku, HaiKind.Hatsu, HaiKind.Chun]) {
+      expect(calculateJantouFu(sangenhai, HaiKind.Ton, HaiKind.Nan)).toBe(2);
+    }
+  });
+
   it("単独の役風（場風のみ・自風のみ）の雀頭は2符", () => {
     // 場風のみ（bakaze=Ton, jikaze=Nan, tile=Ton）
     expect(calculateJantouFu(HaiKind.Ton, HaiKind.Ton, HaiKind.Nan)).toBe(2);
     // 自風のみ（bakaze=Nan, jikaze=Ton, tile=Ton）
     expect(calculateJantouFu(HaiKind.Ton, HaiKind.Nan, HaiKind.Ton)).toBe(2);
+  });
+
+  it("連風牌を4符にするルールでも、単独の役風（場風のみ・自風のみ）は2符のまま", () => {
+    expect(calculateJantouFu(HaiKind.Ton, HaiKind.Ton, HaiKind.Nan, true)).toBe(
+      2,
+    );
+    expect(calculateJantouFu(HaiKind.Ton, HaiKind.Nan, HaiKind.Ton, true)).toBe(
+      2,
+    );
   });
 
   it("オタ風・数牌の雀頭は0符", () => {
