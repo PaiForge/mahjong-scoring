@@ -24,7 +24,6 @@ import type { NextResponse } from "next/server";
 
 const {
   mockAuthorizeApiRequest,
-  mockLogActivityEvent,
   mockRevalidateTag,
   mockUpdate,
   mockSharp,
@@ -35,7 +34,6 @@ const {
   mockCreateAdminClient: vi.fn(),
   mockWriteAsAccount: vi.fn(),
   mockAuthorizeApiRequest: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
   mockRevalidateTag: vi.fn(),
   mockUpdate: vi.fn(),
   mockSharp: vi.fn(),
@@ -48,9 +46,10 @@ vi.mock("@/lib/api-auth", () => ({
   authorizeApiRequest: mockAuthorizeApiRequest,
 }));
 
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 
 vi.mock("@/lib/db", async () => {
   const schema = await import("@/test/schema-mock");
@@ -78,6 +77,7 @@ vi.mock("drizzle-orm", async () => await import("@/test/drizzle-orm-mock"));
 // そのまま渡ることなので、チェーンの形だけ模す。
 vi.mock("sharp", () => ({ default: mockSharp }));
 
+import { logActivityEvent } from "@/lib/activity-log";
 import { passThroughAccountWrite } from "@/test/account-write-lock-mock";
 import { createQueryChain } from "@/test/drizzle-mock";
 import { accountDeletions } from "@/test/schema-mock";
@@ -323,7 +323,7 @@ describe("POST", () => {
         LEADERBOARD_CACHE_TAG,
         "max",
       );
-      expect(mockLogActivityEvent).toHaveBeenCalledWith({
+      expect(logActivityEvent).toHaveBeenCalledWith({
         userId: USER_ID,
         action: "update_avatar",
         targetType: "user",
@@ -346,7 +346,7 @@ describe("POST", () => {
       expect(mockRemove).toHaveBeenCalledWith([`${USER_ID}/avatar.webp`]);
       expect(mockUpdate).not.toHaveBeenCalled();
       expect(mockRevalidateTag).not.toHaveBeenCalled();
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
 
     it.each([
@@ -449,7 +449,7 @@ describe("DELETE", () => {
       LEADERBOARD_CACHE_TAG,
       "max",
     );
-    expect(mockLogActivityEvent).toHaveBeenCalledWith({
+    expect(logActivityEvent).toHaveBeenCalledWith({
       userId: USER_ID,
       action: "delete_avatar",
       targetType: "user",
@@ -471,7 +471,7 @@ describe("DELETE", () => {
     expectPrivateCache(response);
     expect(mockUpdate).not.toHaveBeenCalled();
     expect(mockRevalidateTag).not.toHaveBeenCalled();
-    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    expect(logActivityEvent).not.toHaveBeenCalled();
   });
 
   it("Storage の呼び出しが例外を投げても 500 を返し、参照を残す", async () => {

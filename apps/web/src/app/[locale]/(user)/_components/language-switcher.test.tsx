@@ -13,13 +13,7 @@ import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
 import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
 
-// 公開 href の表（locale-link-table）が読む next-intl のナビゲーションは、
-// モジュールの評価時に redirect / permanentRedirect を束ねる
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  redirect: vi.fn(),
-  permanentRedirect: vi.fn(),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 
 import { setPathname, setSearchParams } from "@/test/navigation-mock";
 

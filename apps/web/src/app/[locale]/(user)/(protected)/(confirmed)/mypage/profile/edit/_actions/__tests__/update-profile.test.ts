@@ -9,13 +9,10 @@
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockLogActivityEvent, mockRevalidateTag, mockUpdate } = vi.hoisted(
-  () => ({
-    mockLogActivityEvent: vi.fn(),
-    mockRevalidateTag: vi.fn(),
-    mockUpdate: vi.fn(),
-  }),
-);
+const { mockRevalidateTag, mockUpdate } = vi.hoisted(() => ({
+  mockRevalidateTag: vi.fn(),
+  mockUpdate: vi.fn(),
+}));
 
 vi.mock("next/cache", () => ({ revalidateTag: mockRevalidateTag }));
 
@@ -23,9 +20,10 @@ vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
 
 vi.mock("@/lib/auth", async () => await import("@/test/auth-mocks"));
 
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 
 vi.mock("@/lib/db", async () => ({
   db: { update: mockUpdate },

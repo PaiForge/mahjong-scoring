@@ -24,9 +24,19 @@
  * }));
  * ```
  *
+ * 公開 href の表（`locale-link-table`）が読む next-intl のナビゲーションは、モジュールの
+ * 評価時に `redirect` / `permanentRedirect` を束ねるので、どちらも空のスパイで持つ
+ * （呼び出しの検証には使わない。呼び出しを確かめるテストは自前のモックで差し替える）。
+ *
  * このモジュールはテスト専用。
  */
 import { vi } from "vitest";
+
+/** next-intl のナビゲーションが評価時に束ねる `redirect` の空のスパイ */
+export const redirect = vi.fn();
+
+/** next-intl のナビゲーションが評価時に束ねる `permanentRedirect` の空のスパイ */
+export const permanentRedirect = vi.fn();
 
 let currentSearchParams = new URLSearchParams();
 

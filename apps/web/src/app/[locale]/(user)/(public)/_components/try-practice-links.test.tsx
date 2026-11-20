@@ -14,11 +14,7 @@ vi.mock("next-intl/server", async () => ({
   ...(await import("@/test/intl-mock")),
   getLocale: () => Promise.resolve(localeRef.current),
 }));
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  redirect: vi.fn(),
-  permanentRedirect: vi.fn(),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock(
   "@/app/[locale]/(user)/(public)/practice/_components/catalog-practice-card",

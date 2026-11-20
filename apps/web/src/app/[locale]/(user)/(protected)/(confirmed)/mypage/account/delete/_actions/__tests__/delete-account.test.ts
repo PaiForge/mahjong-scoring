@@ -4,9 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const { mockDeleteAccount, mockLogActivityEvent } = vi.hoisted(() => ({
+const { mockDeleteAccount } = vi.hoisted(() => ({
   mockDeleteAccount: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
 }));
 
 vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
@@ -17,10 +16,12 @@ vi.mock("@/lib/users/delete-account", () => ({
   requestAccountDeletion: mockDeleteAccount,
 }));
 
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 
+import { logActivityEvent } from "@/lib/activity-log";
 import {
   AUTHENTICATED_USER as USER,
   mockAuthenticateAndCheckBan,
@@ -63,7 +64,7 @@ describe("deleteOwnAccount", () => {
 
       expect(mockAuthenticateAndCheckBan).not.toHaveBeenCalled();
       expect(mockDeleteAccount).not.toHaveBeenCalled();
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
 
     it("uses the deleteAccount rate limit key", async () => {
@@ -123,7 +124,7 @@ describe("deleteOwnAccount", () => {
       await deleteOwnAccount();
 
       expect(mockDeleteAccount).not.toHaveBeenCalled();
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -143,7 +144,7 @@ describe("deleteOwnAccount", () => {
 
       await deleteOwnAccount();
 
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
   });
 
@@ -182,7 +183,7 @@ describe("deleteOwnAccount", () => {
 
       await deleteOwnAccount();
 
-      expect(mockLogActivityEvent).toHaveBeenCalledWith({
+      expect(logActivityEvent).toHaveBeenCalledWith({
         userId: USER.id,
         action: "delete_account",
         targetType: "user",
