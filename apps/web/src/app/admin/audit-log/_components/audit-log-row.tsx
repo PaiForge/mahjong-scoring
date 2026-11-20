@@ -3,6 +3,7 @@ import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 import { adminChipClasses } from "../../_lib/chip-classes";
 import { ExpandableText } from "../../_components/expandable-text";
+import { MetadataCell } from "../../_components/metadata-cell";
 
 interface AuditLogRowProps {
   readonly log: ModerationAction;
@@ -48,17 +49,7 @@ export function AuditLogRow({ log, profileMap, emailMap }: AuditLogRowProps) {
           <span className="text-surface-400">-</span>
         )}
       </td>
-      <td className="px-4 py-3 text-surface-500">
-        {log.metadata && Object.keys(log.metadata).length > 0 ? (
-          <ExpandableText
-            text={JSON.stringify(log.metadata, null, 2)}
-            maxLength={80}
-            code
-          />
-        ) : (
-          "-"
-        )}
-      </td>
+      <MetadataCell metadata={log.metadata} />
       <td className="px-4 py-3 text-surface-500">{log.ipAddress ?? "-"}</td>
       <td className="px-4 py-3 text-surface-500">
         {formatAdminDateTime(log.createdAt)}
