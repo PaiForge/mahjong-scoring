@@ -5,12 +5,15 @@ import { EnvironmentRibbon } from "env-ribbon";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import "../globals.css";
 import { AdminNavigation } from "./_components/admin-navigation";
 import { AdminShell } from "./_components/admin-shell";
+import { NavOpenCountBadge } from "./_components/nav-open-count-badge";
+import { countOpenProblemReports } from "./problem-reports/_lib/queries";
 import "./admin.css";
 
 import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
@@ -73,6 +76,11 @@ export default async function AdminLayout({
         {
           href: "/admin/problem-reports",
           label: t("problemReports.navLabel"),
+          badge: (
+            <Suspense fallback={null}>
+              <NavOpenCountBadge count={countOpenProblemReports} />
+            </Suspense>
+          ),
         },
         { href: "/admin/benefit-grants", label: t("benefitGrants.navLabel") },
         { href: "/admin/announcements", label: t("announcements.navLabel") },

@@ -533,7 +533,8 @@
     "backToSite": "サイトを開く",
     "skipToContent": "本文へ移動",
     "openMenu": "メニューを開く",
-    "closeMenu": "メニューを閉じる"
+    "closeMenu": "メニューを閉じる",
+    "openCount": "未対応 {count} 件"
   },
   "reports": {
     "navLabel": "通報",

@@ -33,6 +33,30 @@ describe("管理ナビゲーションの現在地", () => {
     );
   });
 
+  it("項目に渡したバッジをリンクの中に描く", () => {
+    route.pathname = "/admin";
+    render(
+      <AdminNavigation
+        groups={[
+          {
+            label: "管理",
+            items: [
+              {
+                href: "/admin/problem-reports",
+                label: "問題の報告",
+                badge: <span>未対応 3 件</span>,
+              },
+            ],
+          },
+        ]}
+        label="管理画面"
+      />,
+    );
+    expect(
+      screen.getByRole("link", { name: /^問題の報告\s*未対応 3 件$/ }),
+    ).toBeTruthy();
+  });
+
   it("セグメント名が前方一致するだけの URL を選択しない", () => {
     route.pathname = "/admin/users-export";
     render(<AdminNavigation groups={groups} label="管理画面" />);
