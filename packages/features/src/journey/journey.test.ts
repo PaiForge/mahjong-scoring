@@ -577,14 +577,45 @@ describe("stepAfterLessonWithProgress", () => {
     ).toEqual({ kind: "exam", slug: "mangan-exam" });
   });
 
-  it("級を取得済み（学び直し）なら、ホームと同じ次に取る級の一歩", () => {
+  it("級を取得済みの読み直しは、後ろのレッスンが済んでいても道筋の順の次のレッスン", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "mangan-oya-ron",
+        input({
+          achievedRankSlugs: ["kyu-5"],
+          completedLessonSlugs: KYU5_LESSONS_DONE,
+          attemptedPractices: KYU5_PRACTICES_ATTEMPTED,
+        }),
+      ),
+    ).toEqual({ kind: "lesson", chapterSlug: "mangan-oya-tsumo" });
+  });
+
+  it("級を取得済みの読み直しは、後ろのレッスンが未了でも道筋の順の次のレッスン", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "mangan-oya-ron",
+        input({ achievedRankSlugs: ["kyu-5"] }),
+      ),
+    ).toEqual({ kind: "lesson", chapterSlug: "mangan-oya-tsumo" });
+  });
+
+  it("全級取得済みでも、読み直しは道筋の順の次のレッスン", () => {
+    expect(
+      stepAfterLessonWithProgress(
+        "mangan-oya-ron",
+        input({ achievedRankSlugs: RANK_SLUGS }),
+      ),
+    ).toEqual({ kind: "lesson", chapterSlug: "mangan-oya-tsumo" });
+  });
+
+  it("取得済みの級の最後のレッスンなら、ホームと同じ次に取る級の一歩", () => {
     const progress = input({ achievedRankSlugs: ["kyu-5"] });
     const step = stepAfterLessonWithProgress("yaku", progress);
     expect(step).toEqual(buildJourney(progress).nextStep);
     expect(step).toBeDefined();
   });
 
-  it("全級取得済みでホームにも一歩が無ければ undefined", () => {
+  it("全級取得済みの級の最後のレッスンで、ホームにも一歩が無ければ undefined", () => {
     expect(
       stepAfterLessonWithProgress(
         "yaku",

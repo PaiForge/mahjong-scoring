@@ -384,10 +384,15 @@ function preferLesson(
  * {@link firstUndoneStep} に寄せない — 寄せると、終えた直後の人を飛ばしてきた
  * 項目へ戻してしまう。
  *
- * 終えたレッスンの級をすでに取得している（学び直し）なら、その級の試験へは
+ * 終えたレッスンの級をすでに取得している（読み直し）なら、進み具合を見ずに
+ * 道筋の順の次のレッスン（{@link stepAfterLesson}）を返す。読み直している人の
+ * 済みの印は「次」を決める材料にならない — 級を取った人は後ろのレッスンも
+ * たいてい済ませていて、済みを飛ばすと 5級の「親のロン」を読み直した人が
+ * 「親のツモ」ではなく 4級の「雀頭の符」へ送られる（以前はこの場合に常に
+ * ホームの一歩を返していて、実際にそうなっていた）。後ろに確認問題を持つ
+ * レッスンが無い（級の最後のレッスン）ときだけは、取得済みの級の練習・試験へは
  * 送らずホームと同じ一歩（次に取る級の最初の未了）を返す。全級取得済みで
- * ホームにも一歩が無ければ undefined — 呼び出し側は道筋の順の一歩
- * （{@link stepAfterLesson}）を使う。
+ * ホームにも一歩が無ければ undefined — 呼び出し側は道筋の順の一歩を使う。
  *
  * このレッスン自身は、記録の直後に呼ばれる前提で済みとして扱う
  * （入力の読み取りが記録より前でも、自分を「次」にしない）。
@@ -408,7 +413,10 @@ export function stepAfterLessonWithProgress(
     completedLessonSlugs: new Set([...input.completedLessonSlugs, slug]),
   };
   if (progress.achievedRankSlugs.includes(rank.slug)) {
-    return buildJourney(progress).nextStep;
+    const planned = stepAfterLesson(slug);
+    return planned?.kind === "lesson"
+      ? planned
+      : buildJourney(progress).nextStep;
   }
 
   const examSlug = menuTypeToSlug(rank.exam.menuType);
