@@ -1,14 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { UserAnswer } from "@mahjong-scoring/core";
 import { useAllowDoubleYakuman } from "@/app/_hooks/use-rule-settings-store";
 import { JudgementMark } from "../../_components/judgement-mark";
-import {
-  formatHan,
-  formatPayment,
-} from "@mahjong-scoring/features/practice/score/format-answer";
-import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
+import { buildNoYakuResultRows } from "@mahjong-scoring/features/practice/tenpai-score/no-yaku-result-rows";
 import {
   ResultTableFrame,
   ResultUnansweredCell,
@@ -49,129 +44,48 @@ function JudgedCell({ value, isCorrect }: JudgedCellProps) {
  * 点数を当てはめた誤答が「あなたの回答」として行ごとに ✗ 付きで残らない
  * （どこまで間違えたかを読ませたい）。
  *
- * 「役なし」は翻数の行に置く。役なしは翻数が無いという主張なので、
- * `ResultDisplay` が回答の「役なし」を置く行に揃える。符と点数の行は
- * 正解も回答も値を持たないので「—」。役なしと答えた回答は翻数の行に
- * ✓ を付け、他の行は未回答の印にする（`ResultDisplay` の `answerSummary`
- * と同じ扱い）。表の下に、なぜ和了れないかの一文を添える。
+ * どの行に何を置くか（「役なし」は翻数の行、符と点数の正解は「—」、役なしと
+ * 答えた回答は翻数の行にだけ ✓ を付けて他の行は未回答の印）はアプリと共有の
+ * {@link buildNoYakuResultRows} が決める。ここは表のセルに描くだけ。
+ * 表の下に、なぜ和了れないかの一文を添える。
  */
-export function NoYakuResultDisplay({
-  userAnswer,
-  result,
-  requireYaku,
-  requireHanFu,
-  exactHan,
-}: NoYakuResultDisplayProps) {
+export function NoYakuResultDisplay(props: NoYakuResultDisplayProps) {
   const t = useTranslations("tenpaiScore");
   const tScore = useTranslations("agariScore");
-  // 選んだ役（core の役名）は `yakuNames` で引き、言語の区切りで結ぶ
-  // （日本語の値は core の名前と「、」なので日本語の表示は変わらない）
   const tYakuNames = useTranslations("yakuNames");
   const tCommon = useTranslations("common");
   const allowDoubleYakuman = useAllowDoubleYakuman();
-
-  // 点数で答えた（= 役なしのマスに対する誤答）ときだけ翻・符・点数の行に値が入る
-  const scoreAnswer =
-    userAnswer?.kind === "score" && result !== undefined
-      ? { answer: userAnswer.answer, result }
-      : undefined;
-  const scoreAnswerHanFu = requireHanFu ? scoreAnswer : undefined;
-  const noYakuResult =
-    userAnswer?.kind === "noYaku" && result !== undefined ? result : undefined;
-
-  const hanDisplay = (han: number) =>
-    formatHan(han, { t: tScore, exactHan, allowDoubleYakuman });
-  const paymentDisplay = (answer: UserAnswer) =>
-    formatPayment(answer, false, { t: tScore });
-
-  const labelCell = (label: string) => (
-    <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
-      {label}
-    </td>
-  );
-  const correctCell = (value: string) => (
-    <td className="py-2 text-right align-top font-bold text-surface-800">
-      {value}
-    </td>
-  );
-  const notApplicable = t("result.notApplicable");
+  const rows = buildNoYakuResultRows(props, {
+    t,
+    tScore,
+    tYakuNames,
+    tCommon,
+    allowDoubleYakuman,
+  });
 
   return (
     <div className="space-y-3">
       <ResultTableFrame embedded>
-        {requireYaku && (
-          <tbody>
+        {rows.map((row) => (
+          <tbody key={row.key}>
             <tr>
-              {labelCell(tScore("form.labels.yaku"))}
-              {scoreAnswer ? (
+              <td className="whitespace-nowrap py-2 pr-4 align-top text-surface-600">
+                {row.label}
+              </td>
+              {row.answer.kind === "judged" ? (
                 <JudgedCell
-                  value={
-                    scoreAnswer.answer.yakus.length > 0
-                      ? scoreAnswer.answer.yakus
-                          .map((name) => yakuLabel(name, tYakuNames))
-                          .join(tCommon("listSeparator"))
-                      : tScore("result.details.none")
-                  }
-                  isCorrect={scoreAnswer.result.isYakuCorrect}
+                  value={row.answer.value}
+                  isCorrect={row.answer.isCorrect}
                 />
               ) : (
                 <ResultUnansweredCell />
               )}
-              {correctCell(tScore("result.details.none"))}
+              <td className="py-2 text-right align-top font-bold text-surface-800">
+                {row.correct}
+              </td>
             </tr>
           </tbody>
-        )}
-        <tbody>
-          <tr>
-            {labelCell(tScore("form.labels.han"))}
-            {scoreAnswerHanFu ? (
-              <JudgedCell
-                value={
-                  scoreAnswerHanFu.answer.han === undefined
-                    ? "-"
-                    : hanDisplay(scoreAnswerHanFu.answer.han)
-                }
-                isCorrect={scoreAnswerHanFu.result.isHanCorrect}
-              />
-            ) : noYakuResult ? (
-              <JudgedCell
-                value={t("cells.noYakuShort")}
-                isCorrect={noYakuResult.isCorrect}
-              />
-            ) : (
-              <ResultUnansweredCell />
-            )}
-            {correctCell(t("cells.noYakuShort"))}
-          </tr>
-        </tbody>
-        <tbody>
-          <tr>
-            {labelCell(tScore("form.labels.fu"))}
-            {scoreAnswerHanFu ? (
-              <JudgedCell
-                value={`${scoreAnswerHanFu.answer.fu ?? "-"}${tScore("form.options.fuSuffix")}`}
-                isCorrect={scoreAnswerHanFu.result.isFuCorrect}
-              />
-            ) : (
-              <ResultUnansweredCell />
-            )}
-            {correctCell(notApplicable)}
-          </tr>
-        </tbody>
-        <tbody>
-          <tr>
-            {labelCell(tScore("form.labels.score"))}
-            {scoreAnswer ? (
-              <JudgedCell
-                value={paymentDisplay(scoreAnswer.answer)}
-                isCorrect={scoreAnswer.result.isScoreCorrect}
-              />
-            ) : (
-              <ResultUnansweredCell />
-            )}
-            {correctCell(notApplicable)}
-          </tr>
-        </tbody>
+        ))}
       </ResultTableFrame>
       <p className="text-sm leading-relaxed text-surface-600">
         {t("result.noYakuDetail")}
