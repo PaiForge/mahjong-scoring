@@ -4,6 +4,7 @@ import {
   mockAuthorizeMobileRequest,
 } from "@/test/mobile-auth-mock";
 
+import { makeGrant, makePurchase } from "../billing/purchase-rows.fixture";
 import type { BenefitGrant, Purchase } from "../db";
 
 const { mockListPurchases, mockListGrants, mockActiveBenefits, mockClientIp } =
@@ -34,50 +35,23 @@ const offersRequest = (query: string) =>
   new Request(`https://example.test/api/mobile/v1/plan/offers${query}`);
 
 function purchase(overrides: Partial<Purchase>): Purchase {
-  return {
-    id: "p",
+  return makePurchase({
     userId: "user-1",
-    plan: "pro",
-    kind: "pass",
-    benefits: ["unlimited_practice"],
-    provider: "stripe",
-    stripeCheckoutSessionId: "cs",
-    stripePaymentIntentId: "pi",
-    appleTransactionId: null,
-    appleOriginalTransactionId: null,
-    appleProductId: null,
-    appleEnvironment: null,
-    googlePurchaseToken: null,
-    googleOrderId: null,
-    googleProductId: null,
-    googleEnvironment: null,
-    currency: "jpy",
-    amount: 480,
     startsAt: new Date("2026-10-01T00:00:00Z"),
     expiresAt: new Date("2026-10-31T00:00:00Z"),
-    revokedAt: null,
-    revokeReason: null,
     createdAt: new Date("2026-10-01T00:00:00Z"),
     ...overrides,
-  };
+  });
 }
 
 function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
-  return {
-    id: "g",
+  return makeGrant({
     userId: "user-1",
-    plan: "pro",
-    benefits: ["unlimited_practice"],
-    reason: "モニター",
-    category: null,
-    grantedBy: "admin",
     startsAt: new Date("2026-10-01T00:00:00Z"),
     expiresAt: new Date("2026-11-30T00:00:00Z"),
-    revokedAt: null,
-    revokeReason: null,
     createdAt: new Date("2026-10-01T00:00:00Z"),
     ...overrides,
-  };
+  });
 }
 
 beforeEach(() => {
