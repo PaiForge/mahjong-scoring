@@ -624,6 +624,144 @@
       }
     }
   },
+  "problemReports": {
+    "navLabel": "問題の報告",
+    "listTitle": "問題の報告",
+    "listDescription": "出題した問題（和了形・聴牌形の点数計算、本日の問題）の正解や盤面の誤りについて、利用者から届いた報告です。詳細で報告時の正解と現在の正解を見比べてから閉じてください。",
+    "tabsLabel": "問題の報告の状態",
+    "tabs": {
+      "openWithCount": "未対応（{count}）",
+      "closed": "閉じたもの"
+    },
+    "table": {
+      "createdAt": "報告日時",
+      "kind": "種別",
+      "context": "出した画面",
+      "reason": "理由",
+      "reporter": "報告者",
+      "openCount": "同じ問題の未対応",
+      "status": "状態",
+      "actions": "操作",
+      "empty": "報告はありません",
+      "detail": "詳細"
+    },
+    "openCount": "{count} 件",
+    "status": {
+      "open": "未対応",
+      "resolved": "修正済み",
+      "dismissed": "問題なし"
+    },
+    "kinds": {
+      "agari-score": "和了形の点数計算",
+      "tenpai-score": "聴牌形の点数計算"
+    },
+    "contexts": {
+      "agari-score": "和了形の点数計算",
+      "tenpai-score": "聴牌形の点数計算",
+      "daily-problem": "本日の問題"
+    },
+    "stages": {
+      "answering": "解答前",
+      "machiRevealed": "待ちだけを表示した後",
+      "revealed": "正解を表示した後"
+    },
+    "backToList": "← 問題の報告一覧へ",
+    "detailTitle": "問題の報告",
+    "report": {
+      "title": "報告の内容",
+      "reason": "理由",
+      "detail": "詳細",
+      "reporter": "報告者",
+      "context": "出した画面",
+      "stage": "段階",
+      "source": "届いた入口",
+      "createdAt": "報告日時",
+      "resolvedBy": "閉じた管理者",
+      "resolvedAt": "閉じた日時",
+      "resolutionNote": "メモ",
+      "none": "（なし）",
+      "deletedUser": "（退会済み）"
+    },
+    "rules": {
+      "title": "報告者のルール設定",
+      "revision": "受付時のデプロイ",
+      "revisionUnknown": "（不明）",
+      "on": "有効",
+      "off": "無効"
+    },
+    "board": {
+      "title": "盤面",
+      "closed": "純手牌",
+      "exposed": "副露",
+      "noExposed": "なし",
+      "agariHai": "和了牌",
+      "winType": "和了の仕方",
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "dora": "ドラ表示牌",
+      "riichi": "リーチ",
+      "riichiYes": "あり",
+      "riichiNo": "なし",
+      "uraDora": "裏ドラ表示牌",
+      "bakaze": "場風",
+      "jikaze": "自風",
+      "json": "盤面の JSON"
+    },
+    "answers": {
+      "reportedTitle": "報告時の正解",
+      "reportedNote": "報告を受け付けた時点の採点で、報告者のルール設定のまま組み立てた正解です。",
+      "currentTitle": "現在の正解",
+      "currentNote": "同じ盤面・同じルール設定を、今の採点で組み立て直した正解です。",
+      "differs": "報告時と現在の正解が食い違っています（受付の後に採点が変わっています）。",
+      "same": "報告時と現在の正解は同じです。",
+      "rebuildError": "組み立てられませんでした（{error}）",
+      "mismatch": "相違",
+      "waitOnlyReported": "報告時にだけある待ち",
+      "waitOnlyCurrent": "現在にだけある待ち",
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "noYaku": "役なし",
+      "fields": {
+        "han": "翻",
+        "fu": "符",
+        "scoreLevel": "点数区分",
+        "payment": "支払い",
+        "yakumanMultiplier": "役満の倍数",
+        "yaku": "役"
+      },
+      "yakuItem": "{name}（{han} 翻）",
+      "payment": {
+        "ron": "{amount}",
+        "koTsumo": "子 {ko} / 親 {oya}",
+        "oyaTsumo": "{amount} オール"
+      }
+    },
+    "others": {
+      "title": "同じ問題への他の報告",
+      "empty": "ありません"
+    },
+    "dailyProblem": {
+      "title": "本日の問題",
+      "days": "本日の問題として出した日: {days}",
+      "none": "本日の問題としては出していません。",
+      "open": "本日の問題の運用を開く"
+    },
+    "close": {
+      "title": "閉じる",
+      "description": "この問題への未対応の報告をまとめて、同じ状態・同じメモで閉じます。",
+      "noteLabel": "メモ（任意）",
+      "notePlaceholder": "直した内容や、問題なしと判断した理由",
+      "resolve": "修正済みで閉じる",
+      "dismiss": "問題なしで閉じる",
+      "pending": "処理中...",
+      "errors": {
+        "unauthorized": "権限がありません。",
+        "invalidInput": "入力を確かめてください。",
+        "notFound": "この報告はすでに閉じられています。",
+        "failed": "閉じられませんでした。"
+      }
+    }
+  },
   "dailyProblem": {
     "title": "本日の問題の運用",
     "enabled": "全体の停止スイッチ: 提供中",
