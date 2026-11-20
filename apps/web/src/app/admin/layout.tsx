@@ -14,6 +14,7 @@ import { AdminNavigation } from "./_components/admin-navigation";
 import { AdminShell } from "./_components/admin-shell";
 import { NavOpenCountBadge } from "./_components/nav-open-count-badge";
 import { countOpenProblemReports } from "./problem-reports/_lib/queries";
+import { countOpenReports } from "./reports/_lib/queries";
 import "./admin.css";
 
 import { AppVersionWatcher } from "@/app/_components/app-version-watcher";
@@ -72,7 +73,15 @@ export default async function AdminLayout({
       label: t("navigation.management"),
       items: [
         { href: "/admin/users", label: t("users") },
-        { href: "/admin/reports", label: t("reports.navLabel") },
+        {
+          href: "/admin/reports",
+          label: t("reports.navLabel"),
+          badge: (
+            <Suspense fallback={null}>
+              <NavOpenCountBadge count={countOpenReports} />
+            </Suspense>
+          ),
+        },
         {
           href: "/admin/problem-reports",
           label: t("problemReports.navLabel"),
