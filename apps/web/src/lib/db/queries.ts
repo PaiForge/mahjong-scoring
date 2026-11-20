@@ -72,6 +72,8 @@ export const getProfileCardByUserId = cache(async (userId: string) => {
 /**
  * 公開プロフィール（/u/[username]）用に、ユーザー名から公開情報を取得する。
  * 退会済み（deletedAt）・BAN（bannedAt）のユーザーは取得しない（= 404 扱い）。
+ * 通報の受付（`createReport`）も相手をこれで引き、返した列を通報時点の写しに残す
+ * （通報できる相手と公開プロフィールが見える相手を食い違わせないため）。
  *
  * 公開プロフィール取得
  */

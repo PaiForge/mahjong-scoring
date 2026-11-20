@@ -1,9 +1,7 @@
 import "server-only";
 
-import { and, eq, isNull } from "drizzle-orm";
-
-import { db } from "../db";
-import { profiles, reports } from "../db/schema";
+import { getPublicProfileByUsername } from "../db/queries";
+import { reports } from "../db/schema";
 import { writeAsAccount } from "../users/account-write-lock";
 import type { ReportInput } from "@mahjong-scoring/features/reports/report";
 
@@ -35,26 +33,9 @@ export async function createReport(
   targetUsername: string,
   input: ReportInput,
 ): Promise<CreateReportResult> {
-  const [target] = await db
-    .select({
-      id: profiles.id,
-      username: profiles.username,
-      displayName: profiles.displayName,
-      bio: profiles.bio,
-      avatarUrl: profiles.avatarUrl,
-      xUsername: profiles.xUsername,
-      instagramUsername: profiles.instagramUsername,
-      youtubeHandle: profiles.youtubeHandle,
-    })
-    .from(profiles)
-    .where(
-      and(
-        eq(profiles.username, targetUsername),
-        isNull(profiles.deletedAt),
-        isNull(profiles.bannedAt),
-      ),
-    )
-    .limit(1);
+  // 通報できる相手 = 公開プロフィールが見える相手。条件と写す列を
+  // 公開プロフィールの取得と分けて持たない（片方だけ変わると食い違う）
+  const target = await getPublicProfileByUsername(targetUsername);
   if (!target) return "notFound";
   if (target.id === reporterId) return "self";
 
