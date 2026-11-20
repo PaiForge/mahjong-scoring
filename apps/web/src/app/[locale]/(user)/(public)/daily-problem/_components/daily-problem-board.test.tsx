@@ -14,6 +14,10 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 // 面子分解（features の共有フック）は use-intl から辞書を読む
 vi.mock("use-intl", async () => await import("@/test/intl-mock"));
 vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
+vi.mock(
+  "@/app/_contexts/auth-context",
+  async () => await import("@/test/auth-context-mock"),
+);
 vi.mock("../_actions/record-daily-problem-answer", () => ({
   recordDailyProblemAnswerAction: mockRecord,
 }));
