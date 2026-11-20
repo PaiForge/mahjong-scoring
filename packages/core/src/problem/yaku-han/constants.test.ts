@@ -121,6 +121,15 @@ describe("groupYakuHanEntriesByMenzenHan", () => {
     expect(excluded).toEqual(["三暗刻"]);
   });
 
+  it("鳴くと成立しない門前限定役（鳴きの翻数を持たない役）は鳴きで出題しない", () => {
+    const menzenOnly = YAKU_HAN_ENTRIES.filter((e) => e.nakiHan === undefined);
+    // 門前限定役が 1 つも無いと無言で通るため、母集団を確かめる
+    expect(menzenOnly.length).toBeGreaterThan(0);
+    for (const entry of menzenOnly) {
+      expect(canPromptNaki(entry)).toBe(false);
+    }
+  });
+
   it("グループは翻数の低い順（役満が最後）に並ぶ", () => {
     const hans = groupYakuHanEntriesByMenzenHan(YAKU_HAN_ENTRIES).map(
       (g) => g.han,

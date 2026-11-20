@@ -259,11 +259,29 @@ web と同じ画面をネイティブで出す Expo アプリ。web 側の作業
   振る舞いが変わらないもの）があるので 100% は原理的に目標にならず、リファクタリングの指標として
   手元で読む。`pnpm test` は issue solver とクラウドセッションの品質ゲートなので、分単位の処理と
   実行ごとに揺れる結果を入れない
-- **コマンド**: 全件は `pnpm mutation`（2 パッケージを順に実行）。パッケージ単位・差分だけなら
+- **コマンド**: 全件は `pnpm mutation`（2 パッケージを順に実行。全体を見渡す用で、RuntimeError の
+  件数は信頼できない — 下記）。パッケージ単位・差分だけなら
   `pnpm --filter @mahjong-scoring/core mutation --since main`（フラグは mutator にそのまま渡る）。
   レポートは `packages/<name>/.mutator/report/index.html` と `mutation.json`（`.mutator/` は Git 管理外）
-- **core の全件は時間が掛かり、結果が実行ごとに揺れうる。** 出題ジェネレータの統計的テスト
-  （シードなしの乱数で数万回回す）がミュータントごとに再実行され、生死が標本に依るものもあるため。
+- **RuntimeError は偽の検出を含む。閉じたと数えるのは Killed だけ。** mutator は 1 つの Vitest の
+  インスタンスでミュータントを順に走らせ、前の回で読み込みに失敗したテストファイルを後続の回にも
+  数えるので、テストが全部通るミュータントが RuntimeError と報告されることがある（features では
+  手で書き換えてテストが全部通るものが、core では単独で回すと Survived になるものが RuntimeError に
+  なっていたのを確かめた。仕組みと設定で避けられない理由は `packages/features/mutator.config.ts` の
+  コメント）。範囲が広いほど起きやすく、全件の実行で最も多い。Killed・Survived と報告されたものは
+  この影響を受けない（偽になるのは Survived が RuntimeError に化ける向きだけ）。テストを足して
+  「潰せた」と数えるのも Killed になったものだけで、RuntimeError・Timeout に変わっただけのものは数えない
+- **未検出の一覧と「潰せた」の判定は、キャッシュ無し・ディレクトリ単位の実行から取る。**
+  パッケージのディレクトリで `.mutator/` を消し（前の実行の結果を再利用するので、偽の RuntimeError も
+  引き継がれる）、`pnpm exec mutator --include 'src/<dir>/**/*.ts'` で回す。glob は `**/*.ts` まで
+  書く（`src/<dir>/**` はディレクトリに当たって EISDIR で落ちる）。`--include` は設定の `include` を
+  置き換え、`exclude` は設定のものが残る。`--reporter` も設定の `reporters` を置き換える。絞っても
+  RuntimeError は残りうる（core では 3 ファイルに絞っても出た）。真偽を確かめるときは `.mutator/` を
+  消してから `--only <key>` で 1 件ずつ回し直す（複数の `--only` を同じ実行に並べると、同じことが起きうる）
+- **core の全件は 10 分ほど掛かり、結果が実行ごとに揺れうる。** 出題ジェネレータの統計的テスト
+  （シードなしの乱数で数百〜数万回回す）だけが殺すミュータントは、生死が標本に依るため。
+  見つけたら、乱数を注入したシード付きの決定的なテストを足して閉じる。統計的テストを対象から
+  外しても速くならない（生存が増えてかえって遅くなる。実測は `packages/core/mutator.config.ts`）。
   日常は `--since` の差分実行を使う
 - **生存ミュータントの読み方**: テスト不足 / 不要なコード / 等価ミュータントのどれか。等価と判断した
   ものだけ、そのパッケージのディレクトリで `pnpm exec mutator accept <key> --reason <text>` を実行して

@@ -22,6 +22,29 @@ function questionOf(
 const t = (key: string) => key;
 
 describe("buildScoreAnswerBreakdown", () => {
+  it("役満を超えた翻の注記は、役を答える練習では出し、役一覧が与件の練習では出さない", () => {
+    const capped = {
+      ...questionOf({ han: 13, scoreLevel: "Yakuman" }),
+      yakuDetails: [
+        { name: "国士無双", han: 13 },
+        { name: "立直", han: 1 },
+      ],
+      answer: {
+        fu: 30,
+        han: 13,
+        scoreLevel: "Yakuman",
+        yakumanMultiplier: 1,
+        payment: { type: "ron", amount: 32000 },
+      },
+    } as unknown as ScoreQuestion;
+    expect(
+      buildScoreAnswerBreakdown(capped, t, { yakuGiven: false }).yakuNote,
+    ).toBe("capWithNote");
+    expect(
+      buildScoreAnswerBreakdown(capped, t, { yakuGiven: true }).yakuNote,
+    ).toBeUndefined();
+  });
+
   it("符で満貫に届いた 4 翻以下の手は符の内訳を出す", () => {
     expect(
       buildScoreAnswerBreakdown(

@@ -5,6 +5,7 @@ import { practiceMenuByType } from "../practice-menu-types";
 import {
   RANK_REGISTRY,
   RANK_SLUGS,
+  highestRank,
   isRankSlug,
   nextRank,
   rankTier,
@@ -73,6 +74,20 @@ describe("nextRank", () => {
 
   it("全ランク達成済みなら undefined", () => {
     expect(nextRank(RANK_SLUGS)).toBeUndefined();
+  });
+});
+
+describe("highestRank", () => {
+  it("取得済みの中で最も上の段級位を返す（渡す順に依らない）", () => {
+    expect(highestRank(["kyu-3", "kyu-5", "kyu-4"])?.slug).toBe("kyu-3");
+  });
+
+  it("1 つだけ取得していればその段級位", () => {
+    expect(highestRank(["kyu-5"])?.slug).toBe("kyu-5");
+  });
+
+  it("何も取得していなければ undefined（無級）", () => {
+    expect(highestRank([])).toBeUndefined();
   });
 });
 

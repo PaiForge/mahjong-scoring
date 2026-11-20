@@ -1,13 +1,17 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
+import { practiceMenuByType } from "../practice-menu-types";
+
 import { getNavigablePreviousPeriod } from "./period";
 import {
   aggregateByDay,
   buildChartData,
+  computeStats,
   computeStatsComparison,
   formatAvgScore,
   formatDate,
   formatShortDate,
+  isCompletedAttempt,
   toAttemptRows,
 } from "./stats";
 import type { ChallengeAttempt } from "./types";
@@ -166,5 +170,132 @@ describe("formatAvgScore", () => {
     expect(formatAvgScore(12.34)).toBe("12.3");
     expect(formatAvgScore(10)).toBe("10.0");
     expect(formatAvgScore(undefined)).toBe("-");
+  });
+});
+
+describe("完走の判定と平均完走スコア", () => {
+  const { mistakeLimit } = practiceMenuByType("jantou_fu");
+
+  function withMistakes(
+    score: number,
+    incorrectAnswers: number,
+  ): ChallengeAttempt {
+    return {
+      ...attempt("2026-08-17T00:00:00Z", score),
+      incorrectAnswers,
+    };
+  }
+
+  it("ミスがミス上限に届かずに終えたチャレンジは完走", () => {
+    expect(isCompletedAttempt(withMistakes(10, mistakeLimit - 1))).toBe(true);
+  });
+
+  it("ミス上限ちょうどで終えたチャレンジは完走ではない", () => {
+    expect(isCompletedAttempt(withMistakes(10, mistakeLimit))).toBe(false);
+  });
+
+  it("平均完走スコアは完走したチャレンジだけで出し、ベストスコアと回数は全チャレンジで数える", () => {
+    expect(
+      computeStats([
+        withMistakes(10, 0),
+        withMistakes(20, mistakeLimit - 1),
+        withMistakes(90, mistakeLimit),
+      ]),
+    ).toEqual({ bestScore: 90, avgCompletionScore: 15, totalAttempts: 3 });
+  });
+
+  it("完走したチャレンジが無ければ平均完走スコアは undefined", () => {
+    expect(computeStats([withMistakes(90, mistakeLimit)])).toEqual({
+      bestScore: 90,
+      avgCompletionScore: undefined,
+      totalAttempts: 1,
+    });
+  });
+});
+
+describe("aggregateByDay の並び", () => {
+  it("新しい順に届いたチャレンジも日付の古い順に並べる", () => {
+    const daily = aggregateByDay(
+      [
+        attempt("2026-08-18T00:00:00Z", 30),
+        attempt("2026-08-16T00:00:00Z", 10),
+        attempt("2026-08-17T00:00:00Z", 20),
+      ],
+      "ja",
+    );
+    expect(daily.map((d) => d.dateKey)).toEqual([
+      "2026-08-16",
+      "2026-08-17",
+      "2026-08-18",
+    ]);
+  });
+});
+
+describe("toAttemptRows", () => {
+  const attempts = [
+    { ...attempt("2026-08-18T00:00:00Z", 30), incorrectAnswers: 1 },
+    attempt("2026-08-17T00:00:00Z", 20),
+    attempt("2026-08-16T00:00:00Z", 10),
+  ];
+
+  it("先頭から上限の件数だけを、正解数を文字列にした行にする", () => {
+    expect(toAttemptRows(attempts, 2, "ja")).toEqual([
+      { date: "2026/08/18 09:00", correctAnswers: "30", incorrectAnswers: 1 },
+      { date: "2026/08/17 09:00", correctAnswers: "20", incorrectAnswers: 0 },
+    ]);
+  });
+
+  it("上限より少なければ全件を行にする", () => {
+    expect(toAttemptRows(attempts, 5, "ja")).toHaveLength(3);
+  });
+});
+
+describe("buildChartData の前期間", () => {
+  /**
+   * 今の期間と前の期間を同じ横軸に重ねる。前の期間は日付キーが重ならない
+   * （前の週・前の月の日付）ので、両方の日付を古い順に並べ、片方にしか無い日は
+   * もう片方を undefined にする
+   */
+  it("両期間の日付を古い順に並べ、それぞれの日の平均を今と前に振り分ける", () => {
+    const chart = buildChartData(
+      [
+        attempt("2026-08-17T00:00:00Z", 20),
+        attempt("2026-08-17T01:00:00Z", 30),
+      ],
+      [attempt("2026-08-10T00:00:00Z", 12)],
+      "ja",
+    );
+
+    expect(chart).toEqual([
+      {
+        date: "8月10日",
+        dateKey: "2026-08-10",
+        score: undefined,
+        previousScore: 12,
+      },
+      {
+        date: "8月17日",
+        dateKey: "2026-08-17",
+        score: 25,
+        previousScore: undefined,
+      },
+    ]);
+  });
+
+  it("同じ日付キーが両期間にあれば 1 点にまとめ、今の期間のラベルを使う", () => {
+    const chart = buildChartData(
+      [attempt("2026-08-17T00:00:00Z", 20)],
+      [attempt("2026-08-17T02:00:00Z", 8)],
+      "en",
+    );
+
+    expect(chart).toEqual([
+      {
+        date: "Aug 17",
+        dateKey: "2026-08-17",
+        score: 20,
+        previousScore: 8,
+      },
+    ]);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { machiCellKey, type MachiCellAnswer } from "@mahjong-scoring/core";
-import { resolveCellsPhaseView } from "./cells-phase";
+import { listCellRefs } from "./cell-ref";
+import { CELL_COLUMNS, resolveCellsPhaseView } from "./cells-phase";
 import { TENPAI_SCORE_DEMO_QUESTION } from "./demo-question";
 
 const question = TENPAI_SCORE_DEMO_QUESTION;
@@ -56,5 +57,18 @@ describe("resolveCellsPhaseView", () => {
         [machiCellKey(first.agariHai, true)]: { kind: "noYaku" },
       }).prefill,
     ).toBeUndefined();
+  });
+});
+
+describe("CELL_COLUMNS", () => {
+  it("回答欄の列は、マスの並びと同じくツモ列・ロン列の順に 1 つずつ", () => {
+    const columnsOfCells = [
+      ...new Set(listCellRefs(question).map((cell) => cell.isTsumo)),
+    ];
+    expect(CELL_COLUMNS.map((column) => column === "tsumo")).toEqual(
+      columnsOfCells,
+    );
+    expect(new Set(CELL_COLUMNS).size).toBe(CELL_COLUMNS.length);
+    expect(CELL_COLUMNS.every((column) => column.length > 0)).toBe(true);
   });
 });

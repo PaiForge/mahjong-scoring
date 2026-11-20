@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { HaiKind } from "@pai-forge/riichi-mahjong";
 
 import { generateJantouFuQuestion } from "./generator";
 import { calculateJantouFu } from "../shared/jantou-fu";
 import { seededRandom } from "../../test/seeded-random";
+import { KAZEHAI } from "../../core/constants";
 
 const ATTEMPTS = 200;
 
@@ -74,6 +76,82 @@ describe("generateJantouFuQuestion", () => {
     const question = generateJantouFuQuestion({ idGen: () => "fixed-id" });
 
     expect(question.id).toBe("fixed-id");
+  });
+});
+
+describe("選択肢の候補", () => {
+  /** シードを変えて問題を並べる（乱数を注入するので結果は毎回同じ） */
+  const questions = Array.from({ length: 400 }, (_, seed) =>
+    generateJantouFuQuestion({ rng: seededRandom(seed), idGen: () => "id" }),
+  );
+
+  it("どの選択肢の符も calculateJantouFu（既定は連風牌 2 符）と一致する", () => {
+    for (const { context, choices } of questions) {
+      for (const choice of choices) {
+        expect(choice.fu).toBe(
+          calculateJantouFu(choice.hai, context.bakaze, context.jikaze),
+        );
+      }
+    }
+  });
+
+  it("正解は符が付き、不正解は 0 符である", () => {
+    for (const { choices } of questions) {
+      for (const choice of choices) {
+        if (choice.isCorrect) {
+          expect(choice.fu).toBeGreaterThan(0);
+        } else {
+          expect(choice.fu).toBe(0);
+        }
+      }
+    }
+  });
+
+  it("場風と自風が同じ局面では、その風（連風牌）が正解になりうる", () => {
+    const renfonpai = questions.filter(
+      ({ context, choices }) =>
+        context.bakaze === context.jikaze &&
+        choices.some(
+          (choice) => choice.isCorrect && choice.hai === context.bakaze,
+        ),
+    );
+    expect(renfonpai.length).toBeGreaterThan(0);
+  });
+
+  it("場風と自風が違う局面では、場風・自風のどちらも正解になりうる", () => {
+    const correctWinds = new Set<string>();
+    for (const { context, choices } of questions) {
+      if (context.bakaze === context.jikaze) continue;
+      const correct = choices.find((choice) => choice.isCorrect);
+      if (correct?.hai === context.bakaze) correctWinds.add("bakaze");
+      if (correct?.hai === context.jikaze) correctWinds.add("jikaze");
+    }
+    expect(correctWinds).toEqual(new Set(["bakaze", "jikaze"]));
+  });
+
+  it("不正解にはオタ風（場風でも自風でもない風）が出うる", () => {
+    const otakaze = questions.some(({ context, choices }) =>
+      choices.some(
+        (choice) =>
+          !choice.isCorrect &&
+          KAZEHAI.some((kaze) => kaze === choice.hai) &&
+          choice.hai !== context.bakaze &&
+          choice.hai !== context.jikaze,
+      ),
+    );
+    expect(otakaze).toBe(true);
+  });
+
+  it("不正解の数牌は萬子・筒子・索子の 1〜9 のどれもが出うる", () => {
+    const numberTiles = new Set<number>();
+    for (const { choices } of questions) {
+      for (const choice of choices) {
+        if (!choice.isCorrect && choice.hai <= HaiKind.SouZu9) {
+          numberTiles.add(choice.hai);
+        }
+      }
+    }
+    expect(numberTiles.size).toBe(HaiKind.SouZu9 + 1);
   });
 });
 

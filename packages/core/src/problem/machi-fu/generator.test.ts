@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { HaiKindId } from "@pai-forge/riichi-mahjong";
 
 import { expectSampled } from "../../test/sampling";
+import { seededRandom } from "../../test/seeded-random";
 import { generateMachiFuQuestion } from "./generator";
 import type { MachiFuQuestion } from "./types";
 
@@ -52,6 +53,40 @@ const FU_BY_SHAPE: Readonly<Record<Shape, number>> = {
   shanpon: 0,
 };
 
+/** 和了牌が、牌の並びから決まる待ち形の待てる牌であることを確かめる */
+function expectAgariHaiFitsShape(question: Readonly<MachiFuQuestion>): void {
+  const { tiles, agariHai } = question;
+
+  switch (classify(question)) {
+    case "tanki":
+      expect(agariHai).toBe(tiles[0]);
+      break;
+    case "shanpon":
+      expect(tiles).toContain(agariHai);
+      break;
+    case "kanchan":
+      // 嵌張はあいだの1枚だけを待つ
+      expect(numberOf(agariHai)).toBe(numberOf(tiles[0]) + 1);
+      expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
+      break;
+    case "penchan":
+      // 辺張は塞がっていない側の1枚だけを待つ
+      expect(numberOf(agariHai)).toBe(
+        numberOf(tiles[0]) === 1
+          ? numberOf(tiles[1]) + 1
+          : numberOf(tiles[0]) - 1,
+      );
+      expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
+      break;
+    case "ryanmen":
+      expect([numberOf(tiles[0]) - 1, numberOf(tiles[1]) + 1]).toContain(
+        numberOf(agariHai),
+      );
+      expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
+      break;
+  }
+}
+
 /** 十分な件数を集める（1件も生成できなければ失敗） */
 function samples(need = 500): readonly MachiFuQuestion[] {
   return expectSampled(() => generateMachiFuQuestion(), {
@@ -81,36 +116,7 @@ describe("generateMachiFuQuestion", () => {
 
   it("和了牌は待ち形が待てる牌である", () => {
     for (const question of samples()) {
-      const { tiles, agariHai } = question;
-
-      switch (classify(question)) {
-        case "tanki":
-          expect(agariHai).toBe(tiles[0]);
-          break;
-        case "shanpon":
-          expect(tiles).toContain(agariHai);
-          break;
-        case "kanchan":
-          // 嵌張はあいだの1枚だけを待つ
-          expect(numberOf(agariHai)).toBe(numberOf(tiles[0]) + 1);
-          expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
-          break;
-        case "penchan":
-          // 辺張は塞がっていない側の1枚だけを待つ
-          expect(numberOf(agariHai)).toBe(
-            numberOf(tiles[0]) === 1
-              ? numberOf(tiles[1]) + 1
-              : numberOf(tiles[0]) - 1,
-          );
-          expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
-          break;
-        case "ryanmen":
-          expect([numberOf(tiles[0]) - 1, numberOf(tiles[1]) + 1]).toContain(
-            numberOf(agariHai),
-          );
-          expect(suitOf(agariHai)).toBe(suitOf(tiles[0]));
-          break;
-      }
+      expectAgariHaiFitsShape(question);
     }
   });
 
@@ -164,6 +170,54 @@ describe("generateMachiFuQuestion", () => {
     for (const { tiles } of samples()) {
       for (let i = 1; i < tiles.length; i++) {
         expect(tiles[i]).toBeGreaterThanOrEqual(tiles[i - 1]);
+      }
+    }
+  });
+});
+
+describe("generateMachiFuQuestion（乱数を固定した出題）", () => {
+  /** シードを変えて問題を並べる（乱数を注入するので結果は毎回同じ） */
+  const questions = Array.from({ length: 500 }, (_, seed) =>
+    generateMachiFuQuestion(() => "id", seededRandom(seed)),
+  );
+
+  it("5つの待ち形がすべて出題される", () => {
+    expect([...new Set(questions.map(classify))].sort()).toEqual(
+      (Object.keys(FU_BY_SHAPE) as Shape[]).sort(),
+    );
+  });
+
+  it("辺張は 12 と 89 のどちらの側も出題される", () => {
+    const penchanStarts = new Set(
+      questions
+        .filter((question) => classify(question) === "penchan")
+        .map(({ tiles }) => numberOf(tiles[0])),
+    );
+    expect([...penchanStarts].sort()).toEqual([1, 8]);
+  });
+
+  it("符は形に対応した値になる", () => {
+    for (const question of questions) {
+      expect(question.answer).toBe(FU_BY_SHAPE[classify(question)]);
+    }
+  });
+
+  it("和了牌は待ち形が待てる牌である", () => {
+    for (const question of questions) {
+      expectAgariHaiFitsShape(question);
+    }
+  });
+
+  it("順子系の待ちは同じ花色の昇順の 2 枚で、和了牌も同じ花色である", () => {
+    for (const question of questions) {
+      const shape = classify(question);
+      if (shape === "tanki" || shape === "shanpon") continue;
+      const [first, second] = question.tiles;
+      expect(question.tiles).toHaveLength(2);
+      expect(second).toBeGreaterThan(first);
+      for (const tile of [first, second, question.agariHai]) {
+        expect(isSuited(tile)).toBe(true);
+        expect(suitOf(tile)).toBe(suitOf(first));
       }
     }
   });

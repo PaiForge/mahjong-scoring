@@ -146,6 +146,53 @@ describe("generateYakuHanQuestion の出題履歴", () => {
     ).toBe(key(yakuhaiNaki));
   });
 
+  /** 乱数の値を 0 から 1 の手前まで等間隔に振り、出題されうる問題のキーを全部集める */
+  function candidateKeys(asked: readonly YakuHanQuestion[]) {
+    const keys = new Set<string>();
+    for (let step = 0; step < 100; step++) {
+      keys.add(key(generateYakuHanQuestion("all", asked, () => step / 100)));
+    }
+    return keys;
+  }
+
+  /** 役牌の門前・鳴きの問題と、全範囲の 1 巡分の問題 */
+  function yakuhaiRound() {
+    const all = play(poolSize(), 5);
+    const yakuhaiNaki = all.find((q) => q.yakuName === "役牌" && !q.isMenzen);
+    const yakuhaiMenzen = all.find((q) => q.yakuName === "役牌" && q.isMenzen);
+    if (!yakuhaiNaki || !yakuhaiMenzen) throw new Error("母集団");
+    return { all, yakuhaiNaki, yakuhaiMenzen };
+  }
+
+  it("直前と同じ役（門前 / 鳴き違い）は、どの乱数でも残りの違う役より先に出さない", () => {
+    const { all, yakuhaiNaki, yakuhaiMenzen } = yakuhaiRound();
+    const other = all.find((q) => q.yakuName !== "役牌");
+    if (!other) throw new Error("母集団");
+    // 役牌（門前）を最後に出した。残りは役牌（鳴き）と別の役 1 つ
+    const asked = [
+      ...all.filter(
+        (q) =>
+          key(q) !== key(yakuhaiNaki) &&
+          key(q) !== key(other) &&
+          key(q) !== key(yakuhaiMenzen),
+      ),
+      yakuhaiMenzen,
+    ];
+    expect(candidateKeys(asked)).toEqual(new Set([key(other)]));
+  });
+
+  it("残りが直前と同じ役だけなら、どの乱数でもその役を続けて出す", () => {
+    const { all, yakuhaiNaki, yakuhaiMenzen } = yakuhaiRound();
+    // 役牌（門前）を最後に出し、残りは役牌（鳴き）だけ
+    const asked = [
+      ...all.filter(
+        (q) => key(q) !== key(yakuhaiNaki) && key(q) !== key(yakuhaiMenzen),
+      ),
+      yakuhaiMenzen,
+    ];
+    expect(candidateKeys(asked)).toEqual(new Set([key(yakuhaiNaki)]));
+  });
+
   it("出題範囲の外の問題は履歴にあっても数えない", () => {
     const outside = play(poolSize("no-kuisagari"), 3, "no-kuisagari");
     const size = poolSize("kuisagari");

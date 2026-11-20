@@ -3,11 +3,28 @@ import { describe, expect, it } from "vitest";
 import {
   packStoredResults,
   parseRunId,
+  RUN_PARAM,
   unpackStoredResults,
 } from "./challenge-run";
+import { FINISH_REASON_PARAM, FinishReason } from "./finish-reason";
 
 const RUN = 1_700_000_000_000;
 const rows = [{ id: "a" }, { id: "b" }];
+
+describe("結果 URL のクエリ名", () => {
+  it("回 ID と終了理由は空でない別々の名前で載り、同じ URL から両方を読み戻せる", () => {
+    expect(RUN_PARAM).not.toBe("");
+    expect(FINISH_REASON_PARAM).not.toBe("");
+    expect(RUN_PARAM).not.toBe(FINISH_REASON_PARAM);
+
+    const params = new URLSearchParams([
+      [RUN_PARAM, String(RUN)],
+      [FINISH_REASON_PARAM, FinishReason.TimeUp],
+    ]);
+    expect(parseRunId(params.get(RUN_PARAM) ?? undefined)).toBe(RUN);
+    expect(params.get(FINISH_REASON_PARAM)).toBe(FinishReason.TimeUp);
+  });
+});
 
 describe("parseRunId", () => {
   it("整数の文字列を回 ID として読む", () => {

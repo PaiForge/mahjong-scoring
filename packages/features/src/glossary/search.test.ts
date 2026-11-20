@@ -50,6 +50,11 @@ describe("filterGlossaryTerms", () => {
     expect(both.length).toBeLessThan(naki.length);
   });
 
+  it("大文字で打っても slug に当たる", () => {
+    const [first] = terms;
+    expect(slugs(first.slug.toUpperCase())).toContain(first.slug);
+  });
+
   it("当たらなければ空", () => {
     expect(slugs("zzzzzz")).toEqual([]);
   });

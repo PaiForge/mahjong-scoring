@@ -5,10 +5,12 @@ import {
   calculateTotalFu,
   type AgariContext,
 } from "@mahjong-scoring/core";
+import { messages as enMessages } from "@mahjong-scoring/messages/en";
+import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
 
 import { choiceKey, isSameChoice } from "./quiz";
 import { lessonQuiz } from "./quizzes";
-import { QUIZ_LESSON_SLUGS } from "./registry";
+import { QUIZ_LESSON_SLUGS, quizLessonBySlug } from "./registry";
 
 describe("lessonQuiz", () => {
   it.each(QUIZ_LESSON_SLUGS)(
@@ -32,6 +34,31 @@ describe("lessonQuiz", () => {
       expect(new Set(choiceKeys).size).toBe(choiceKeys.length);
       const questionKeys = quiz.questions.map((question) => question.key);
       expect(new Set(questionKeys).size).toBe(questionKeys.length);
+    },
+  );
+
+  it.each(QUIZ_LESSON_SLUGS)(
+    "%s: 問題ごとのヒントと解説が日本語・英語の辞書にある",
+    (slug) => {
+      const messageKey = quizLessonBySlug(slug)?.messageKey ?? "";
+      for (const lessons of [jaMessages.lessons, enMessages.lessons]) {
+        const namespaces: Readonly<Record<string, unknown>> = lessons;
+        const namespace = namespaces[messageKey];
+        const questions: unknown =
+          typeof namespace === "object" && namespace !== null
+            ? (namespace as Readonly<Record<string, unknown>>).questions
+            : undefined;
+        for (const { key } of lessonQuiz(slug).questions) {
+          const entry =
+            typeof questions === "object" && questions !== null
+              ? (questions as Readonly<Record<string, unknown>>)[key]
+              : undefined;
+          expect(entry, `${messageKey}.questions.${key}`).toEqual({
+            hint: expect.any(String),
+            explanation: expect.any(String),
+          });
+        }
+      }
     },
   );
 
@@ -174,6 +201,12 @@ describe("lessonQuiz", () => {
       ["shanpon", { kind: "fu", fu: 0 }],
       ["tanki", { kind: "fu", fu: 2 }],
     ]);
+    // 待ちの形の名前は言わないので、聴牌の形は手の内の牌で見せる
+    for (const { key, prompt } of quiz.questions) {
+      expect(prompt.kind === "machi" && prompt.tiles.length > 0, key).toBe(
+        true,
+      );
+    }
     expect(quiz.choices).toEqual([
       { kind: "fu", fu: 0 },
       { kind: "fu", fu: 2 },
@@ -187,6 +220,18 @@ describe("lessonQuiz", () => {
       ["furoTsumo", { kind: "fu", fu: 40 }],
       ["shanponRon", { kind: "fu", fu: 50 }],
       ["nanBakaze", { kind: "fu", fu: 40 }],
+    ]);
+    // 副露のロン・双碰のロンはロン、ほかはツモで和了する
+    expect(
+      quiz.questions.map(({ key, prompt }) => [
+        key,
+        prompt.kind === "tehai" ? prompt.context.isTsumo : undefined,
+      ]),
+    ).toEqual([
+      ["furoRon", false],
+      ["furoTsumo", true],
+      ["shanponRon", false],
+      ["nanBakaze", true],
     ]);
     // 場風と自風は別（連風牌は設定で符が割れる）
     for (const { prompt } of quiz.questions) {

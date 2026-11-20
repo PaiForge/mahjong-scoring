@@ -135,6 +135,21 @@ describe("toQuestionResult", () => {
     });
   });
 
+  it("副露していない行は副露の項目そのものを持たない", () => {
+    // 雀頭はどの手にもあり、副露を持たない
+    const question = generate();
+    const result = toQuestionResult(question, perfectAnswers(question));
+
+    question.items.forEach((item, index) => {
+      expect(Object.hasOwn(result.items[index], "furo")).toBe(
+        item.originalMentsu?.furo !== undefined,
+      );
+    });
+    expect(result.items.some((item) => !Object.hasOwn(item, "furo"))).toBe(
+      true,
+    );
+  });
+
   it("回答なし（時間切れ）は全行が回答なしで outcome=timeUp になる", () => {
     const question = generate();
     const result = toQuestionResult(question, undefined);

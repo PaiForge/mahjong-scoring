@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { HaiKind } from "@mahjong-scoring/core";
+import {
+  DEFAULT_RULE_SETTINGS,
+  doubleWindJantouFu,
+  HaiKind,
+} from "@mahjong-scoring/core";
 
 import { TENPAI_SCORE_DEMO_QUESTION } from "./demo-question";
 
@@ -42,5 +46,30 @@ describe("TENPAI_SCORE_DEMO_QUESTION", () => {
     expect(wait.ron!.answer.payment).toEqual({ type: "ron", amount: 2600 });
     expect(wait.tsumo.answer.han).toBe(3);
     expect(wait.tsumo.answer.fu).toBe(30);
+  });
+
+  it("出題と同じく表ドラ表示牌を 1 枚持ち、それは手牌に乗らない", () => {
+    expect(TENPAI_SCORE_DEMO_QUESTION.doraMarkers).toHaveLength(1);
+    for (const wait of TENPAI_SCORE_DEMO_QUESTION.waits) {
+      for (const scored of [wait.tsumo, wait.ron!]) {
+        expect(yakuNames(scored)).not.toContain("ドラ");
+        expect(scored.doraMarkers).toEqual(
+          TENPAI_SCORE_DEMO_QUESTION.doraMarkers,
+        );
+      }
+    }
+  });
+
+  it("どのマスも既定のルール設定で採点し、その設定を出題に持つ", () => {
+    const expected = {
+      doubleWindJantouFu: doubleWindJantouFu(
+        DEFAULT_RULE_SETTINGS.renfonpaiAs4Fu,
+      ),
+      kiriageMangan: DEFAULT_RULE_SETTINGS.kiriageMangan,
+    };
+    for (const wait of TENPAI_SCORE_DEMO_QUESTION.waits) {
+      expect(wait.tsumo.ruleConfig).toEqual(expected);
+      expect(wait.ron!.ruleConfig).toEqual(expected);
+    }
   });
 });

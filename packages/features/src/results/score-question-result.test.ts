@@ -2,6 +2,7 @@ import {
   HaiKind,
   MANGAN_MIN_HAN,
   generateValidScoreQuestion,
+  mulberry32,
 } from "@mahjong-scoring/core";
 import { describe, expect, it } from "vitest";
 import { createTranslator } from "use-intl";
@@ -450,14 +451,18 @@ describe("toScoreQuestionSnapshot", () => {
   });
 
   it("符で満貫に届いた出題（4翻以下）は満貫になった理由として符の内訳を保存する", () => {
+    // 4翻以下の満貫はまれなので、乱数を固定して試行回数も足す（既定の回数で
+    // シードなしだと、引けずに落ちる回がある）
+    const rng = mulberry32(20261120);
     const question = generateOrThrow(() => {
       const candidate = generateValidScoreQuestion({
         allowedRanges: ["manganPlus"],
+        rng,
       });
       return candidate !== undefined && candidate.answer.han < MANGAN_MIN_HAN
         ? candidate
         : undefined;
-    });
+    }, 1000);
     expect(question.fuDetails).toBeDefined();
     expect(toScoreQuestionSnapshot(question).fuDetails).toEqual(
       question.fuDetails,

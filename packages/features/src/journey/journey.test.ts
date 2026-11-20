@@ -53,6 +53,12 @@ describe("buildJourney", () => {
     expect(journey.isFresh).toBe(false);
   });
 
+  it("レッスンも挑戦も無くても、級を 1 つでも持っていれば isFresh ではない", () => {
+    const journey = buildJourney(input({ achievedRankSlugs: ["kyu-5"] }));
+
+    expect(journey.isFresh).toBe(false);
+  });
+
   it("レッスンを終えると、その章は学んだことになり、次は次の章のレッスン", () => {
     const journey = buildJourney(
       input({ completedLessonSlugs: new Set(["mangan-ko-ron"]) }),

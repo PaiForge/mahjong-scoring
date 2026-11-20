@@ -18,4 +18,9 @@ describe("practiceChapterSection", () => {
       slugs: rankBySlug("kyu-4")?.learnChapterSlugs,
     });
   });
+
+  it("前提章を持たない段の試験（初段）は節ごと出さない", () => {
+    expect(rankBySlug("dan-1")?.learnChapterSlugs).toEqual([]);
+    expect(practiceChapterSection("score-exam")).toBeUndefined();
+  });
 });

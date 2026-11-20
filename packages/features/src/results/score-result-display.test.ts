@@ -176,6 +176,33 @@ describe("resolveScoreResultBreakdown", () => {
     ).toEqual(["han"]);
   });
 
+  it("符を先に並べる設定でも、符の内訳を出さない手は翻数の内訳を開く", () => {
+    expect(
+      resolveScoreResultBreakdown({ han: 5, scoreLevel: "Mangan" }, display, {
+        ...options,
+        order: "fu-first",
+      }),
+    ).toEqual({
+      showsFu: false,
+      tabs: [{ kind: "han", breakdown: yakuBreakdown }],
+      initial: "han",
+    });
+  });
+
+  it("役の内訳が無ければ、翻を先に並べる設定でも符の内訳を開く", () => {
+    expect(
+      resolveScoreResultBreakdown(
+        { han: 3, scoreLevel: "Normal" },
+        { yakuBreakdown: undefined, fuBreakdown },
+        options,
+      ),
+    ).toEqual({
+      showsFu: true,
+      tabs: [{ kind: "fu", breakdown: fuBreakdown }],
+      initial: "fu",
+    });
+  });
+
   it("片方だけ間違えたら、開いたときにその内訳を選ぶ", () => {
     expect(
       resolveScoreResultBreakdown({ han: 3, scoreLevel: "Normal" }, display, {

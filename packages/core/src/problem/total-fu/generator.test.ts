@@ -8,6 +8,12 @@ import {
 import { agariTehai } from "../../test/tehai";
 import { totalFuChoices } from "./range";
 import { mulberry32 } from "../../core/random";
+import { KAZEHAI } from "../../core/constants";
+import { seededRandom } from "../../test/seeded-random";
+import type { TotalFuQuestion } from "./types";
+
+/** 連風牌（場風かつ自風）の雀頭の内訳の表示 */
+const RENFONPAI_JANTOU = "雀頭(場風・自風)";
 import {
   CHIITOITSU_FU,
   FU_VALUES,
@@ -137,6 +143,94 @@ describe("generateTotalFuQuestion", () => {
   });
 });
 
+describe("generateTotalFuQuestion（乱数を固定した出題）", () => {
+  /** シードを固定して条件に合う問題を集める（結果は実行ごとに変わらない） */
+  function sampleSeeded(
+    options: Parameters<typeof generateTotalFuQuestion>[0],
+    sampling: Parameters<typeof expectSampled<TotalFuQuestion>>[1],
+  ) {
+    const rng = seededRandom(20261119);
+    return expectSampled(
+      () => generateTotalFuQuestion({ ...options, rng }),
+      sampling,
+    );
+  }
+
+  it("七対子の手も出題し、その正解は25符になる", () => {
+    const questions = sampleSeeded(
+      {},
+      {
+        attempts: 500,
+        need: 5,
+        where: (q) => q.fuDetails.some((d) => d.reason === "七対子"),
+      },
+    );
+
+    for (const q of questions) {
+      expect(q.answer).toBe(25);
+    }
+  });
+
+  it("役の無い手は出題しない", () => {
+    const questions = sampleSeeded({}, { attempts: 300, need: 200 });
+
+    for (const q of questions) {
+      expect(calculateTotalFu(q.tehai, q.context)).toBe(q.answer);
+    }
+  });
+
+  it("excludeRenfonpai でも自風は東南西北のどれかで、場風とは違う風になる", () => {
+    const questions = sampleSeeded(
+      { excludeRenfonpai: true },
+      { attempts: 300, need: 200 },
+    );
+
+    for (const q of questions) {
+      expect(KAZEHAI).toContain(q.context.jikaze);
+      expect(q.context.jikaze).not.toBe(q.context.bakaze);
+    }
+  });
+
+  it("既定では連風牌の雀頭は2符", () => {
+    const questions = sampleSeeded(
+      {},
+      {
+        attempts: 5000,
+        need: 1,
+        where: (q) => q.fuDetails.some((d) => d.reason === RENFONPAI_JANTOU),
+      },
+    );
+
+    for (const q of questions) {
+      const jantou = q.fuDetails.find((d) => d.reason === RENFONPAI_JANTOU);
+      expect(jantou?.fu).toBe(2);
+    }
+  });
+
+  it("鳴いた面子（チー・ポン・明槓）を含む手も出題する", () => {
+    // 暗槓も副露の側に並ぶので、exposed の有無ではなく鳴いた印（furo）で見る
+    sampleSeeded(
+      {},
+      {
+        attempts: 300,
+        need: 1,
+        where: (q) => q.tehai.exposed.some((mentsu) => !!mentsu.furo),
+      },
+    );
+  });
+
+  it("fuBand の下限・上限ちょうどの符は出題する", () => {
+    const questions = sampleSeeded(
+      { fuBand: { min: 30, max: 30 } },
+      { attempts: 300, need: 5 },
+    );
+
+    for (const q of questions) {
+      expect(q.answer).toBe(30);
+    }
+  });
+});
+
 describe("generateTotalFuQuestionInRange", () => {
   it("fuBand の外の符は出題しない", () => {
     const questions = expectSampled(
@@ -207,6 +301,20 @@ describe("calculateTotalFu", () => {
     expect(calculateTotalFu(tehai, { ...context, isTsumo: false })).toBe(
       PINFU_RON_FU,
     );
+  });
+
+  it("連風牌の雀頭は既定で2符、renfonpaiAs4Fu で4符", () => {
+    // 白の暗刻（役牌）で役を付けた門前ロン。副底20 + 門前加符10 + 白の暗刻8 +
+    // 東の雀頭（東場の東家）で、雀頭が2符なら40符、4符なら42符を切り上げて50符
+    const tehai = agariTehai("234m567p678s555z11z");
+    const context = {
+      bakaze: HaiKind.Ton,
+      jikaze: HaiKind.Ton,
+      agariHai: HaiKind.ManZu2,
+      isTsumo: false,
+    };
+    expect(calculateTotalFu(tehai, context)).toBe(40);
+    expect(calculateTotalFu(tehai, context, true)).toBe(50);
   });
 
   it("役が無い手は undefined", () => {
