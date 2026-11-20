@@ -2,15 +2,14 @@
 
 import { isApplePrivateRelayEmail } from "@mahjong-scoring/features/account/login-methods";
 
-import { DEFAULT_LOCALE } from "@mahjong-scoring/features/i18n/locales";
-
-import { SITE_URL } from "@/config";
 import { currentLocale } from "@/i18n/current-locale";
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
+import { isAuthEmailRateLimited } from "@/lib/auth-service-failure";
 import { logExternalError } from "@/lib/log-error";
+import { recoveryRedirectTo } from "@/lib/recovery-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -50,14 +49,12 @@ export async function requestPasswordSetup(): Promise<
   if (isApplePrivateRelayEmail(user.email)) return { error: "relayAddress" };
 
   const locale = await currentLocale();
-  const localeParam = locale === DEFAULT_LOCALE ? "" : `&locale=${locale}`;
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${SITE_URL}/auth/callback?type=recovery${localeParam}`,
+    redirectTo: recoveryRedirectTo(locale),
   });
   if (error) {
-    if (error.status === 429 || error.code === "over_email_send_rate_limit")
-      return { error: "rateLimited" };
+    if (isAuthEmailRateLimited(error)) return { error: "rateLimited" };
     logExternalError(
       "requestPasswordSetup",
       "resetPasswordForEmail failed",

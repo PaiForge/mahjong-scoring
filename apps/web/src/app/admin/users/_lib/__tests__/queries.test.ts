@@ -1,7 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { BenefitGrant, Purchase } from "@/lib/db";
+import { makeGrant, makePurchase } from "@/lib/billing/purchase-rows.fixture";
 import { DEFAULT_PAGE_SIZE } from "@/lib/pagination";
 import { createSelectSequenceMock } from "@/test/drizzle-mock";
 
@@ -78,53 +78,6 @@ describe("fetchUsersPageData（検索なし）", () => {
 
 const NOW = new Date("2026-10-01T03:00:00Z");
 
-function purchase(overrides: Partial<Purchase>): Purchase {
-  return {
-    id: "p",
-    userId: "u",
-    plan: "pro",
-    kind: "pass",
-    benefits: ["unlimited_practice"],
-    provider: "stripe",
-    stripeCheckoutSessionId: "cs",
-    stripePaymentIntentId: "pi",
-    appleTransactionId: null,
-    appleOriginalTransactionId: null,
-    appleProductId: null,
-    appleEnvironment: null,
-    googlePurchaseToken: null,
-    googleOrderId: null,
-    googleProductId: null,
-    googleEnvironment: null,
-    currency: "jpy",
-    amount: 480,
-    startsAt: new Date("2026-09-20T00:00:00Z"),
-    expiresAt: new Date("2026-10-20T00:00:00Z"),
-    revokedAt: null,
-    revokeReason: null,
-    createdAt: new Date("2026-09-20T00:00:00Z"),
-    ...overrides,
-  };
-}
-
-function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
-  return {
-    id: "g",
-    userId: "u",
-    plan: "pro",
-    benefits: ["unlimited_practice"],
-    reason: "モニター",
-    category: null,
-    grantedBy: "admin",
-    startsAt: new Date("2026-09-25T00:00:00Z"),
-    expiresAt: null,
-    revokedAt: null,
-    revokeReason: null,
-    createdAt: new Date("2026-09-25T00:00:00Z"),
-    ...overrides,
-  };
-}
-
 describe("fetchPlanStatusMap", () => {
   const sequence = createSelectSequenceMock();
 
@@ -163,11 +116,11 @@ describe("fetchPlanStatusMap", () => {
     const until = new Date("2026-10-20T00:00:00Z");
     sequence.setResults(
       [
-        purchase({ userId: "buyer", expiresAt: until }),
+        makePurchase({ userId: "buyer", expiresAt: until }),
         // 取り消し済みの購入は SQL で落とさず planStatusOf が無効と判定する
-        purchase({ userId: "revoked", revokedAt: new Date("2026-09-21") }),
+        makePurchase({ userId: "revoked", revokedAt: new Date("2026-09-21") }),
       ],
-      [grant({ userId: "granted" })],
+      [makeGrant({ userId: "granted" })],
     );
 
     const result = await fetchPlanStatusMap(

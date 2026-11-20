@@ -12,17 +12,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mocks
 // ---------------------------------------------------------------------------
 
-const {
-  mockEnforceIpRateLimit,
-  mockUpdateUser,
-  mockEnsureEmailIdentity,
-  mockLogActivityEvent,
-} = vi.hoisted(() => ({
-  mockEnforceIpRateLimit: vi.fn(),
-  mockUpdateUser: vi.fn(),
-  mockEnsureEmailIdentity: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
-}));
+const { mockEnforceIpRateLimit, mockUpdateUser, mockEnsureEmailIdentity } =
+  vi.hoisted(() => ({
+    mockEnforceIpRateLimit: vi.fn(),
+    mockUpdateUser: vi.fn(),
+    mockEnsureEmailIdentity: vi.fn(),
+  }));
 
 vi.mock("@/lib/rate-limit-ip", () => ({
   enforceIpRateLimit: mockEnforceIpRateLimit,
@@ -33,10 +28,12 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/users/login-methods", () => ({
   ensureEmailIdentity: mockEnsureEmailIdentity,
 }));
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 
+import { logActivityEvent } from "@/lib/activity-log";
 import { resetPassword } from "../reset-password";
 
 // ---------------------------------------------------------------------------
@@ -82,7 +79,7 @@ describe("resetPassword", () => {
     expect(mockEnsureEmailIdentity).toHaveBeenCalledWith(USER_ID, EMAIL, [
       { provider: "google" },
     ]);
-    expect(mockLogActivityEvent).toHaveBeenCalledWith({
+    expect(logActivityEvent).toHaveBeenCalledWith({
       userId: USER_ID,
       action: "change_password",
     });
@@ -106,7 +103,7 @@ describe("resetPassword", () => {
 
     expect(result).toEqual({ error: "updateFailed" });
     expect(mockEnsureEmailIdentity).not.toHaveBeenCalled();
-    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    expect(logActivityEvent).not.toHaveBeenCalled();
   });
 
   it("メールアドレスの無い user なら連携を補わない", async () => {

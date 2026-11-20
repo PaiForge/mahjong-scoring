@@ -18,13 +18,7 @@ vi.mock("next-intl/server", async () => ({
   ...(await import("@/test/intl-mock")),
   getLocale: () => Promise.resolve(localeRef.current),
 }));
-// 公開 href の表（locale-link-table）が読む next-intl のナビゲーションは、
-// モジュールの評価時に redirect / permanentRedirect を束ねる
-vi.mock("next/navigation", async () => ({
-  ...(await import("@/test/navigation-mock")),
-  redirect: vi.fn(),
-  permanentRedirect: vi.fn(),
-}));
+vi.mock("next/navigation", async () => await import("@/test/navigation-mock"));
 vi.mock("next/link", async () => await import("@/test/next-link-mock"));
 vi.mock("next/image", () => ({
   default: ({ alt }: { readonly alt: string }) => (

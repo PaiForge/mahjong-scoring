@@ -167,6 +167,46 @@ export function challengeScoreRangeOf(
 }
 
 /**
+ * 点数計算チャレンジの回答フォームが `ScoreAnswerForm` に渡す、描画に依らない props
+ * チャレンジ回答フォームの導出props
+ *
+ * 回答対象（{@link scoreAnswerTargetOf}）・点数範囲（{@link challengeScoreRangeOf}）・
+ * 選択即送信・ルール固定の可否を 1 か所で決める。トレーニングだけが端末の
+ * ルール設定でダブル役満を選択肢に足し、チャレンジ（記録あり）は選択肢を設定に
+ * 依らない集合に固定する（`fixedRules`。理由は `challenge/rule-boundary.ts`）。
+ *
+ * 端末のルール設定はフック（各アプリの `useAllowDoubleYakuman`）でしか読めないので、
+ * 読んだ値を `allowsDoubleYakuman` で受ける。フックは条件付きで呼ばず、
+ * トレーニングかどうかの判定はここで行う。
+ *
+ * @param props - フォームの props のうち導出に使うもの
+ * @param allowsDoubleYakuman - 端末のルール設定がダブル役満を採用しているか
+ */
+export function scoreChallengeAnswerFormPropsOf(
+  props: Pick<
+    ScoreChallengeAnswerFormProps,
+    "question" | "scoreRange" | "isTraining"
+  >,
+  allowsDoubleYakuman: boolean,
+): ScoreAnswerTarget &
+  Required<
+    Pick<
+      ScoreAnswerFormProps,
+      "scoreRange" | "allowDoubleYakuman" | "autoSubmit" | "fixedRules"
+    >
+  > {
+  const isTraining = props.isTraining ?? false;
+  return {
+    ...scoreAnswerTargetOf(props.question),
+    scoreRange: challengeScoreRangeOf(props.scoreRange),
+    // トレーニングでダブル役満採用時のみ、その点数（子64000点等）を選択肢に足す
+    allowDoubleYakuman: isTraining && allowsDoubleYakuman,
+    autoSubmit: true,
+    fixedRules: !isTraining,
+  };
+}
+
+/**
  * 昇級試験（点数計算）共通の回答フォームの props（web とアプリで共有）
  * 昇級試験回答フォームprops
  *

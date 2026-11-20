@@ -1,6 +1,7 @@
 import type { CompletedMentsu, HaiKindId } from "@mahjong-scoring/core";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import type { Translate } from "../i18n/translate";
 import { indexRowOf, type GlossaryIndexRow } from "./index-rows";
 import {
   GLOSSARY_TERMS,
@@ -18,7 +19,7 @@ import { isMentsuExample } from "./types";
  * 辞書の引き方はプラットフォームが渡す（web はサーバーの `getTranslations`、
  * モバイルは use-intl の `useTranslations`）。
  */
-export type GlossaryTranslator = (key: string) => string;
+export type GlossaryTranslator = Translate;
 
 /**
  * 文言を解決済みの用語

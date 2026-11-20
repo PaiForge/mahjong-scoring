@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildScoreResultBreakdownSections,
   buildScoreResultDisplay,
+  labelScoreResultBreakdownItems,
   resolveScoreResultBreakdown,
 } from "./score-result-display";
 
@@ -256,6 +257,60 @@ describe("buildScoreResultBreakdownSections", () => {
           opensYakuList: false,
         },
       },
+    ]);
+  });
+});
+
+describe("labelScoreResultBreakdownItems", () => {
+  /** 英語の辞書の代わり。載っていないキーはキーのまま返す */
+  const translators = {
+    tYakuNames: (key: string) => ({ riichi: "Riichi" })[key] ?? key,
+    tFuReason: (key: string) => ({ "reasons.futei": "Base fu" })[key] ?? key,
+  };
+
+  it("翻数の行は役名を辞書で引いて添え、着地先に使う name は core の名前のまま残す", () => {
+    expect(
+      labelScoreResultBreakdownItems(
+        "han",
+        [{ name: "立直", value: 1 }],
+        undefined,
+        translators,
+      ),
+    ).toEqual([{ name: "立直", label: "Riichi", value: 1 }]);
+  });
+
+  it("符の行は、同じ添字の fuDetails の構造から理由の文言を引いて添える", () => {
+    expect(
+      labelScoreResultBreakdownItems(
+        "fu",
+        [{ name: "副底", value: 20 }],
+        [{ reason: "副底", fu: 20, spec: { kind: "futei" } }],
+        translators,
+      ),
+    ).toEqual([{ name: "副底", label: "Base fu", value: 20 }]);
+  });
+
+  it("fuDetails を渡さない符の行は文言を足さない（core の文言のまま出る）", () => {
+    const items = [{ name: "副底", value: 20 }];
+    expect(
+      labelScoreResultBreakdownItems("fu", items, undefined, translators),
+    ).toEqual(items);
+  });
+
+  it("対応する fuDetails が無い符の行だけ、文言を足さずに残す", () => {
+    expect(
+      labelScoreResultBreakdownItems(
+        "fu",
+        [
+          { name: "副底", value: 20 },
+          { name: "ツモ", value: 2 },
+        ],
+        [{ reason: "副底", fu: 20, spec: { kind: "futei" } }],
+        translators,
+      ),
+    ).toEqual([
+      { name: "副底", label: "Base fu", value: 20 },
+      { name: "ツモ", value: 2 },
     ]);
   });
 });

@@ -1,3 +1,4 @@
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -97,7 +98,7 @@ function UsernameCta({ placement }: CtaProps) {
         size="lg"
         fullWidth
         testID={`${placement}-username-cta`}
-        onPress={() => router.push("/mypage/setup-username")}
+        onPress={() => router.push(SETUP_USERNAME_PATH)}
       >
         {t("setUsername")}
       </Button>

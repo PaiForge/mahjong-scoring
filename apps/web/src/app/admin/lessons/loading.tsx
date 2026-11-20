@@ -1,4 +1,5 @@
 import { AdminPageTitlePlaceholder } from "@/app/admin/_components/admin-page-title";
+import { AdminKpiGridSkeleton } from "@/app/admin/_components/admin-kpi-grid";
 import { DateRangePickerSkeleton } from "@/app/admin/_components/date-range-picker-skeleton";
 import { TableSkeleton } from "@/app/admin/_components/table-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
@@ -25,16 +26,7 @@ export default function AdminLessonStatsLoading() {
         <DateRangePickerSkeleton />
 
         {/* KPI 2 枚 */}
-        <div className="grid gap-6 sm:grid-cols-2">
-          {Array.from({ length: 2 }, (_, i) => (
-            <section key={i} className="admin-kpi space-y-2">
-              <SkeletonBar className="h-5 w-40" tone={100} />
-              <SkeletonBar className="h-14 w-20" />
-              <SkeletonBar className="h-4 w-24" tone={100} />
-              <SkeletonBar className="h-4 w-48" tone={100} />
-            </section>
-          ))}
-        </div>
+        <AdminKpiGridSkeleton count={2} columns={2} />
 
         {/* 並び順のタブ */}
         <div className="admin-tabs" aria-hidden="true">

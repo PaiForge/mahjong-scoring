@@ -1,8 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { internalLocalePath } from "@/i18n/public-path";
+import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
 import type { ActionResult } from "@/lib/action-types";
 import {
   partitionLessonSlugs,
@@ -18,7 +16,6 @@ import {
   isLessonChapterSlug,
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
-import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
 import {
   isQuizLessonSlug,
   type QuizLessonSlug,
@@ -111,24 +108,10 @@ const COMPLETION_READER_PATHS = [
 
 /**
  * 完了を読む画面のキャッシュを、両言語の分とも捨てる
- *
- * @design 言語ごとの内部パスと、接頭辞なしのパスの両方で呼ぶ
- * ページの実体は `app/[locale]/...` にあり、日本語の公開 URL（`/lessons`）も
- * proxy が内部の `/ja/lessons` へ rewrite して描く。キャッシュの実体は内部の
- * パスにあるので、`SUPPORTED_LOCALES` を回して `internalLocalePath`
- * （`/ja/lessons`・`/en/lessons`）で捨てる。英語の画面は日本語のパスを捨てても
- * 捨てられないため、言語ごとに呼ぶ必要がある。
- * 接頭辞なしのパス（`/lessons`）で捨てたときに内部の `/ja/lessons` に効くかは
- * 確かめていないので、従来の 1 行も残す。存在しないパスの `revalidatePath` は
- * 何もしないだけで、両方呼んで損は無い。
+ * （呼び方の理由は {@link revalidateLocalizedPaths}）
  */
 function revalidateCompletionReaders(): void {
-  for (const path of COMPLETION_READER_PATHS) {
-    revalidatePath(path);
-    for (const locale of SUPPORTED_LOCALES) {
-      revalidatePath(internalLocalePath(path, locale));
-    }
-  }
+  revalidateLocalizedPaths(COMPLETION_READER_PATHS);
 }
 
 /**

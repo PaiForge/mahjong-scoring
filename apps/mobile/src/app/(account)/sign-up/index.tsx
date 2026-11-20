@@ -15,6 +15,7 @@
  * （web の登録画面と同じ）。規約とプライバシーポリシーはマイページの「その他」と
  * 同じく web のページをブラウザで開く（英語の端末では `/en/terms`・`/en/privacy`）。
  */
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -115,7 +116,7 @@ export default function SignUpScreen() {
     // メールの確認を求めない設定ならその場でログインしている
     if (data.session) {
       await refreshAccount();
-      router.replace("/mypage/setup-username");
+      router.replace(SETUP_USERNAME_PATH);
       return;
     }
     // 確認待ちの画面は登録のフォームの上に積む。打ち間違いを直すときは

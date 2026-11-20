@@ -1,3 +1,4 @@
+import { MYPAGE_PATH } from "@mahjong-scoring/features/routes";
 import { useCallback, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Redirect } from "expo-router";
@@ -53,7 +54,7 @@ import { usePullToRefresh } from "../../../components/screen-refresh";
  */
 export default function NotificationsScreen() {
   const t = useTranslations("notifications");
-  if (!IAP_AVAILABLE) return <Redirect href="/mypage" />;
+  if (!IAP_AVAILABLE) return <Redirect href={MYPAGE_PATH} />;
   return (
     <Screen title={t("pageTitle")} back contentStyle={styles.content}>
       <MypageGate>{(userId) => <Notifications userId={userId} />}</MypageGate>

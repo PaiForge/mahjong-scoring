@@ -1,17 +1,11 @@
 /**
- * お知らせの一覧・詳細の言語ごとの引き方
- * お知らせの言語別取得
+ * お知らせの一覧・詳細の、言語ごとの URL と robots
+ * お知らせの言語別メタデータ
  *
- * @design 英語のお知らせは fallback 無し・noindex・動的のまま
- * 日本語（`DEFAULT_LOCALE`）は従来どおり fallback 付きのクエリ（slug ごとに
- * 要求言語 → 日本語 → その他で 1 件を選び、件数は `COUNT(DISTINCT slug)`）。
- * このクエリはアプリ向け API とダッシュボードも使うので、意味を変えずに呼ぶ。
+ * 言語ごとの引き方（日本語は fallback 付き、それ以外はその言語の行だけ）は
+ * `@/lib/announcements/locale-queries` にある。
  *
- * 日本語以外は、その言語で書いて公開した行だけ（`*Exact`）。件数も同じ行だけを
- * 数える（一覧に出ない行を数えるとページ送りに空のページが生まれる）。英語の行が
- * 無い slug の詳細は 404 にし、日本語の本文へ fallback しない — 英語の画面に
- * 日本語の本文を混ぜないため。
- *
+ * @design 英語のお知らせは noindex・動的のまま
  * 英語のページは索引させない（公開状態の表で `published-noindex`）。索引対象の
  * ページは静的生成が規約で、お知らせを静的にするには一覧のページ送り
  * （`?page=`）をパスに移し、`generateStaticParams` で全言語の公開 slug を
@@ -23,75 +17,12 @@
 import type { Metadata } from "next";
 
 import { robotsForPublication } from "@/app/_lib/metadata";
-import {
-  getPublishedAnnouncement,
-  getPublishedAnnouncementCount,
-  getPublishedAnnouncementCountExact,
-  getPublishedAnnouncementExact,
-  getPublishedAnnouncementsExact,
-  getPublishedAnnouncementsPaginated,
-} from "@/lib/announcements/queries";
 import { localizedHref } from "@/i18n/public-path";
-import type { Announcement } from "@/lib/db";
 import {
   DEFAULT_LOCALE,
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
-
-/**
- * 一覧のページ送りに使う件数
- *
- * 日本語は slug の数（fallback 付き）、それ以外はその言語の公開行の数。
- *
- * @param locale - ページの言語
- */
-export function countAnnouncementsFor(
-  locale: SupportedLocale,
-): Promise<number> {
-  return locale === DEFAULT_LOCALE
-    ? getPublishedAnnouncementCount()
-    : getPublishedAnnouncementCountExact(locale);
-}
-
-/**
- * 一覧の 1 ページ分のお知らせ
- *
- * 日本語は fallback 付き、それ以外はその言語の公開行だけ
- * （{@link countAnnouncementsFor} と同じ母集団）。
- *
- * @param locale - ページの言語
- * @param limit - 取得件数
- * @param offset - 読み飛ばす件数
- */
-export function listAnnouncementsFor(
-  locale: SupportedLocale,
-  limit: number,
-  offset: number,
-): Promise<Announcement[]> {
-  return locale === DEFAULT_LOCALE
-    ? getPublishedAnnouncementsPaginated(locale, limit, offset)
-    : getPublishedAnnouncementsExact(locale, limit, offset);
-}
-
-/**
- * 詳細ページのお知らせ（無ければ null。呼び出し側が 404 にする）
- *
- * 日本語は fallback 付き（従来どおり）。それ以外はその言語の行だけで、
- * 日本語の行しか無い slug は null になる。どちらのクエリも `cache()` 付きで、
- * `generateMetadata` と page 本体から呼んでもリクエスト内で 1 回に畳まれる。
- *
- * @param slug - お知らせの slug
- * @param locale - ページの言語
- */
-export function findAnnouncementFor(
-  slug: string,
-  locale: SupportedLocale,
-): Promise<Announcement | null> {
-  return locale === DEFAULT_LOCALE
-    ? getPublishedAnnouncement(slug, locale)
-    : getPublishedAnnouncementExact(slug, locale);
-}
 
 /**
  * 一覧の n ページ目の href（ページの言語のまま）

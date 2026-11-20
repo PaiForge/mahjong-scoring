@@ -1,4 +1,4 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { JANTOU_FU_EXAMPLES } from "@mahjong-scoring/features/lessons/fu-guide-examples";
 import { JANTOU_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import { PREFERENCE_ANCHORS } from "@mahjong-scoring/features/settings/preference-anchors";
 import { ChapterColumn } from "../../_components/chapter-column";
@@ -29,19 +29,19 @@ export async function JantouFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: <TileSet tiles={[HaiKind.Haku, HaiKind.Haku]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.haku.tiles} />,
               label: t("labelHaku"),
-              fu: 2,
+              fu: JANTOU_FU_EXAMPLES.haku.fu,
             },
             {
-              tiles: <TileSet tiles={[HaiKind.Hatsu, HaiKind.Hatsu]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.hatsu.tiles} />,
               label: t("labelHatsu"),
-              fu: 2,
+              fu: JANTOU_FU_EXAMPLES.hatsu.fu,
             },
             {
-              tiles: <TileSet tiles={[HaiKind.Chun, HaiKind.Chun]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.chun.tiles} />,
               label: t("labelChun"),
-              fu: 2,
+              fu: JANTOU_FU_EXAMPLES.chun.fu,
             },
           ]}
         />
@@ -51,14 +51,14 @@ export async function JantouFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: <TileSet tiles={[HaiKind.Ton, HaiKind.Ton]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.bakaze.tiles} />,
               label: t("labelBakaze"),
-              fu: 2,
+              fu: JANTOU_FU_EXAMPLES.bakaze.fu,
             },
             {
-              tiles: <TileSet tiles={[HaiKind.Nan, HaiKind.Nan]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.jikaze.tiles} />,
               label: t("labelJikaze"),
-              fu: 2,
+              fu: JANTOU_FU_EXAMPLES.jikaze.fu,
             },
           ]}
         />
@@ -73,19 +73,19 @@ export async function JantouFuGuide() {
           {...tableColumns}
           rows={[
             {
-              tiles: <TileSet tiles={[HaiKind.ManZu1, HaiKind.ManZu1]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.suuhaiManzu.tiles} />,
               label: t("labelSuuhaiManzu"),
-              fu: 0,
+              fu: JANTOU_FU_EXAMPLES.suuhaiManzu.fu,
             },
             {
-              tiles: <TileSet tiles={[HaiKind.PinZu5, HaiKind.PinZu5]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.suuhaiPinzu.tiles} />,
               label: t("labelSuuhaiPinzu"),
-              fu: 0,
+              fu: JANTOU_FU_EXAMPLES.suuhaiPinzu.fu,
             },
             {
-              tiles: <TileSet tiles={[HaiKind.Sha, HaiKind.Sha]} />,
+              tiles: <TileSet tiles={JANTOU_FU_EXAMPLES.otakaze.tiles} />,
               label: t("labelOtakaze"),
-              fu: 0,
+              fu: JANTOU_FU_EXAMPLES.otakaze.fu,
             },
           ]}
         />

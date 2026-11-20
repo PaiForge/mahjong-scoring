@@ -1,7 +1,6 @@
 import { revalidatePath } from "next/cache";
 
-import { internalLocalePath } from "@/i18n/public-path";
-import { SUPPORTED_LOCALES } from "@mahjong-scoring/features/i18n/locales";
+import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
 import { parseJstDateTimeLocal } from "@mahjong-scoring/features/jst";
 
 import type { AnnouncementInput } from "./validation";
@@ -91,12 +90,9 @@ export function toAnnouncementRow(
  * @design 公開ページは言語ごとの内部パスと、接頭辞なしのパスの両方で呼ぶ
  * 公開のお知らせの実体は `app/[locale]/...` にあり、日本語の公開 URL
  * （`/announcements`）も proxy が内部の `/ja/announcements` へ rewrite して描く。
- * キャッシュの実体は内部のパスにあるので、`SUPPORTED_LOCALES` を回して
- * `internalLocalePath`（`/ja/announcements`・`/en/announcements` と各詳細）で
- * 捨てる。英語の画面は日本語のパスを捨てても捨てられないため、言語ごとに呼ぶ。
- * 接頭辞なしのパスで捨てたときに内部の `/ja/...` に効くかは確かめていないので、
- * 従来の 3 行も残す。存在しないパスや動的なページへの `revalidatePath` は
- * 何もしないだけで害が無い。英語のお知らせは今は fallback 無し・noindex の
+ * キャッシュの実体は内部のパスにあるので、言語ごとの内部パス
+ * （`/ja/announcements`・`/en/announcements` と各詳細）でも捨てる
+ * （{@link revalidateLocalizedPaths}）。英語のお知らせは今は fallback 無し・noindex の
  * 動的ページだが、将来 ISR にして索引させるときも管理画面側を変えずに済む。
  * 管理画面（`/admin/...`）は `app/[locale]` の外なので言語ごとには呼ばない。
  *
@@ -105,10 +101,5 @@ export function toAnnouncementRow(
 export function revalidateAnnouncementPaths(slug: string): void {
   const detailPath = `/announcements/${slug}`;
   revalidatePath("/admin/announcements");
-  revalidatePath(ANNOUNCEMENTS_PATH);
-  revalidatePath(detailPath);
-  for (const locale of SUPPORTED_LOCALES) {
-    revalidatePath(internalLocalePath(ANNOUNCEMENTS_PATH, locale));
-    revalidatePath(internalLocalePath(detailPath, locale));
-  }
+  revalidateLocalizedPaths([ANNOUNCEMENTS_PATH, detailPath]);
 }

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 
+import { NUMBER_CELL_CLASSES } from "@/app/admin/_components/stats-table-cells";
 import { TableHead } from "@/app/admin/_components/table-head";
 import { ARCHIVE_KINDS, type ArchiveKind } from "@mahjong-scoring/core";
 
@@ -11,10 +12,6 @@ const COLUMNS = ["kind", "total", "riichi", "furo", "tsumo", "oya"] as const;
 
 /** 割合を添える条件の列（`COLUMNS` の 3 列目以降と同じ並び） */
 const CONDITIONS = ["riichi", "furo", "tsumo", "oya"] as const;
-
-/** 数値のセル（右寄せ・桁揃え） */
-const NUMBER_CELL_CLASSES =
-  "px-4 py-3 text-right whitespace-nowrap tabular-nums";
 
 /** 和了の仕方（ツモ / ロン）を持たない種別。ツモの列は数えず「—」にする */
 const KINDS_WITHOUT_TSUMO: ReadonlySet<ArchiveKind> = new Set(["tenpai-score"]);

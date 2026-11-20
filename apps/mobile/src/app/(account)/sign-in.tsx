@@ -13,6 +13,7 @@
  * 確認メールの案内（登録の後）→ ログイン →
  * （ユーザー名の設定）→ 元の画面へ戻る
  */
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -91,7 +92,7 @@ export default function SignInScreen() {
     const account = await refreshAccount();
     setSubmitting(false);
     if (account && account.profile === null) {
-      router.replace("/mypage/setup-username");
+      router.replace(SETUP_USERNAME_PATH);
       return;
     }
     leaveAuthFlow();

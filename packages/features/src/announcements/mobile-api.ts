@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { DEFAULT_LOCALE, type SupportedLocale } from "../i18n/locales";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリ向けのお知らせの API の契約（パス・応答）
@@ -161,8 +162,7 @@ const announcementSchema = z.object({
 export function parseMobileAnnouncementsResponse(
   body: unknown,
 ): MobileAnnouncementsResponse | undefined {
-  const parsed = announcementsSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(announcementsSchema, body);
 }
 
 /**
@@ -172,6 +172,5 @@ export function parseMobileAnnouncementsResponse(
 export function parseMobileAnnouncementResponse(
   body: unknown,
 ): MobileAnnouncementResponse | undefined {
-  const parsed = announcementSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(announcementSchema, body);
 }

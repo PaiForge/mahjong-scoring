@@ -25,14 +25,12 @@ const {
   mockVerifyOtp,
   mockGetUser,
   mockGetOptionalUser,
-  mockLogActivityEvent,
   mockGetProfileByUserId,
 } = vi.hoisted(() => ({
   mockExchangeCodeForSession: vi.fn(),
   mockVerifyOtp: vi.fn(),
   mockGetUser: vi.fn(),
   mockGetOptionalUser: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
   mockGetProfileByUserId: vi.fn(),
 }));
 
@@ -46,13 +44,15 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 vi.mock("@/lib/auth", () => ({ getOptionalUser: mockGetOptionalUser }));
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 vi.mock("@/lib/db/queries", () => ({
   getProfileByUserId: mockGetProfileByUserId,
 }));
 
+import { logActivityEvent } from "@/lib/activity-log";
 import { GET } from "./route";
 
 // ---------------------------------------------------------------------------
@@ -107,8 +107,8 @@ describe("GET /auth/callback — Google の追加の戻り", () => {
 
     await callback("link=google&code=abc");
 
-    expect(mockLogActivityEvent).toHaveBeenCalledTimes(1);
-    expect(mockLogActivityEvent).toHaveBeenCalledWith({
+    expect(logActivityEvent).toHaveBeenCalledTimes(1);
+    expect(logActivityEvent).toHaveBeenCalledWith({
       userId: USER_ID,
       action: "link_identity",
       metadata: { provider: "google" },
@@ -146,7 +146,7 @@ describe("GET /auth/callback — Google の追加の戻り", () => {
     await callback("link=google&code=abc");
 
     expect(redirectedTo()).toBe(`${ORIGIN}/mypage/account?notice=linkFailed`);
-    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    expect(logActivityEvent).not.toHaveBeenCalled();
   });
 });
 
@@ -182,7 +182,7 @@ describe("GET /auth/callback — メールアドレス変更の確認", () => {
       expect(redirectedTo()).toBe(
         `${ORIGIN}/mypage/account?notice=emailChangePending`,
       );
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
 
     it("未ログインならログインの後にアカウントのページへ戻すようサインインへ", async () => {
@@ -209,7 +209,7 @@ describe("GET /auth/callback — メールアドレス変更の確認", () => {
     expect(redirectedTo()).toBe(
       `${ORIGIN}/mypage/account?notice=emailChangeDone`,
     );
-    expect(mockLogActivityEvent).toHaveBeenCalledWith({
+    expect(logActivityEvent).toHaveBeenCalledWith({
       userId: USER_ID,
       action: "change_email",
     });
@@ -237,7 +237,7 @@ describe("GET /auth/callback — メールアドレス変更の確認", () => {
       await callback(QUERY);
 
       expect(redirectedTo()).toBe(`${ORIGIN}/sign-in?error=email_link_invalid`);
-      expect(mockLogActivityEvent).not.toHaveBeenCalled();
+      expect(logActivityEvent).not.toHaveBeenCalled();
     });
   });
 });

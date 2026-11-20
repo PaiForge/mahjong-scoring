@@ -267,3 +267,29 @@ export const MYPAGE_PLAN_PATH = "/mypage/plan";
  * 「通知」の行から開く。
  */
 export const MYPAGE_NOTIFICATIONS_PATH = "/mypage/notifications";
+
+/**
+ * マイページ（設定・アカウントの入口）のパス
+ * マイページパス
+ */
+export const MYPAGE_PATH = "/mypage";
+
+/**
+ * アカウント（メール・パスワード・退会の入口）のパス
+ * アカウント画面パス
+ */
+export const MYPAGE_ACCOUNT_PATH = "/mypage/account";
+
+/**
+ * アカウント削除（退会）のパス
+ * アカウント削除パス
+ */
+export const MYPAGE_ACCOUNT_DELETE_PATH = "/mypage/account/delete";
+
+/**
+ * ユーザー名の設定のパス
+ * ユーザー名設定パス
+ *
+ * 登録直後でユーザー名が未設定の利用者（仮登録）を送り込む先。
+ */
+export const SETUP_USERNAME_PATH = "/mypage/setup-username";

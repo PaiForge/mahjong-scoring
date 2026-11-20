@@ -28,3 +28,18 @@ export function isAuthServiceFailure(error: unknown): boolean {
     status >= 500
   );
 }
+
+/**
+ * 認証メールの送信頻度制限（GoTrue の max_frequency / 1 時間あたりの送信上限）に当たった失敗か
+ * メール送信回数制限判定
+ *
+ * 確認メールの再送・メールアドレスの変更・パスワード設定のメールは、この制限に
+ * 当たると「失敗」ではなく「しばらく待って」と案内する。HTTP の 429 か、
+ * エラーコード `over_email_send_rate_limit` のどちらかで返る。
+ */
+export function isAuthEmailRateLimited(error: {
+  readonly status?: number;
+  readonly code?: string;
+}): boolean {
+  return error.status === 429 || error.code === "over_email_send_rate_limit";
+}

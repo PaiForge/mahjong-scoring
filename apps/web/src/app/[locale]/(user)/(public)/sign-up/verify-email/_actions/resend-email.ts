@@ -1,6 +1,7 @@
 "use server";
 
 import type { ActionResult } from "@/lib/action-types";
+import { isAuthEmailRateLimited } from "@/lib/auth-service-failure";
 import { enforceIpRateLimit } from "@/lib/rate-limit-ip";
 import type { RateLimitErrorCode } from "@/lib/rate-limit-ip";
 import { createClient } from "@/lib/supabase/server";
@@ -34,7 +35,7 @@ export async function resendEmail(email: string): Promise<ResendEmailResult> {
   if (error) {
     // GoTrue の送信頻度制限（max_frequency / 1時間あたり送信上限）に当たった場合は
     // 「失敗」ではなく「しばらく待って」と案内する。
-    if (error.status === 429 || error.code === "over_email_send_rate_limit") {
+    if (isAuthEmailRateLimited(error)) {
       return { error: "rateLimited" };
     }
     return { error: "resendFailed" };

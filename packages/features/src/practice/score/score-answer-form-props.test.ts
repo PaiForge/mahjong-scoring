@@ -7,6 +7,7 @@ import { getAvailableScores } from "./get-available-scores";
 import {
   challengeScoreRangeOf,
   scoreAnswerTargetOf,
+  scoreChallengeAnswerFormPropsOf,
 } from "./score-answer-form-props";
 
 describe("challengeScoreRangeOf", () => {
@@ -49,5 +50,42 @@ describe("scoreAnswerTargetOf", () => {
     );
     expect(question.jikaze).not.toBe(HaiKind.Ton);
     expect(scoreAnswerTargetOf(question).isOya).toBe(false);
+  });
+});
+
+describe("scoreChallengeAnswerFormPropsOf", () => {
+  const question = generateOrThrow(() => generateValidScoreQuestion());
+
+  it("チャレンジはルール設定がダブル役満採用でも選択肢を固定し、ダブル役満を足さない", () => {
+    const props = scoreChallengeAnswerFormPropsOf({ question }, true);
+    expect(props.fixedRules).toBe(true);
+    expect(props.allowDoubleYakuman).toBe(false);
+    expect(props.autoSubmit).toBe(true);
+  });
+
+  it("トレーニングはルール設定に従ってダブル役満を足し、選択肢を固定しない", () => {
+    const adopted = scoreChallengeAnswerFormPropsOf(
+      { question, isTraining: true },
+      true,
+    );
+    expect(adopted.fixedRules).toBe(false);
+    expect(adopted.allowDoubleYakuman).toBe(true);
+    const notAdopted = scoreChallengeAnswerFormPropsOf(
+      { question, isTraining: true },
+      false,
+    );
+    expect(notAdopted.allowDoubleYakuman).toBe(false);
+  });
+
+  it("回答対象は出題から、点数範囲は未指定なら全範囲になる", () => {
+    const props = scoreChallengeAnswerFormPropsOf({ question }, false);
+    expect(props).toMatchObject(scoreAnswerTargetOf(question));
+    expect(props.scoreRange).toBe("all");
+    expect(
+      scoreChallengeAnswerFormPropsOf(
+        { question, scoreRange: "manganPlus" },
+        false,
+      ).scoreRange,
+    ).toBe("manganPlus");
   });
 });

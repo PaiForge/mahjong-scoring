@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { isLeaderboardMenuType, type LeaderboardPeriod } from "./boards";
 import type { PracticeBoard } from "../practice-menu-types";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリ向けのランキングの API の契約（パス・応答）
@@ -127,6 +128,5 @@ const visibilitySchema = z.object({ hidden: z.boolean() });
 export function parseMobileLeaderboardVisibility(
   body: unknown,
 ): MobileLeaderboardVisibility | undefined {
-  const parsed = visibilitySchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(visibilitySchema, body);
 }

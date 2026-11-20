@@ -1,11 +1,13 @@
 /// <reference types="node" />
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { messages } from "@mahjong-scoring/messages/ja";
 import { messages as enMessages } from "@mahjong-scoring/messages/en";
 import { describe, expect, it } from "vitest";
+
+import { listSourceFiles } from "@/test/list-source-files";
 
 import {
   ADMIN_MESSAGE_NAMESPACES,
@@ -21,20 +23,6 @@ const FEATURES_SRC = resolve(HERE, "../../../../packages/features/src");
 const ADMIN_DIR = resolve(WEB_SRC, "app/admin");
 /** 管理画面が import してよい共有部品の置き場（`apps/web/src/app/CLAUDE.md` の「共通 UI コンポーネント」） */
 const SHARED_COMPONENTS_DIR = resolve(WEB_SRC, "app/_components");
-
-/** 走査対象のソース（テストは除く。テストは本物の辞書を丸ごと渡してよい） */
-function listSourceFiles(dir: string): string[] {
-  const files: string[] = [];
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) {
-      files.push(...listSourceFiles(path));
-    } else if (/\.(ts|tsx)$/.test(name) && !/\.test\.(ts|tsx)$/.test(name)) {
-      files.push(path);
-    }
-  }
-  return files;
-}
 
 /**
  * ソース 1 ファイルがクライアントの辞書から引く名前空間（先頭のセグメント）

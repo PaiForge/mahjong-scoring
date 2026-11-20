@@ -1,14 +1,14 @@
 import "server-only";
 
 import type { ActionResult } from "@/lib/action-types";
-import { db, profiles } from "@/lib/db";
+import { profiles } from "@/lib/db";
 import { isUniqueViolation } from "@/lib/db/extract-pg-error-code";
 import { profileExistsByUserId } from "@/lib/db/queries";
 import { validateUsername } from "@mahjong-scoring/features/account/username";
 import type { UsernameValidationError } from "@mahjong-scoring/features/account/username";
 import { validateDisplayName } from "@mahjong-scoring/features/profile/validation";
 
-import { lockAccountForWrite } from "./account-write-lock";
+import { writeAsAccount } from "./account-write-lock";
 
 /**
  * ユーザー名登録そのものの失敗理由（認証・回数制限は呼び出し側）
@@ -71,16 +71,14 @@ export async function registerUsernameForUser(
   // username の UNIQUE 制約が競合を最終的に弾く。退会を受け付けた後には
   // 作らない（プロフィールの無いユーザーの退会も、ロックで直列になる）
   try {
-    const created = await db.transaction(async (tx) => {
-      if (!(await lockAccountForWrite(tx, userId))) return false;
-      await tx.insert(profiles).values({
+    const { written } = await writeAsAccount(userId, (tx) =>
+      tx.insert(profiles).values({
         id: userId,
         username: trimmedUsername,
         displayName: trimmedDisplayName,
-      });
-      return true;
-    });
-    if (!created) return { error: "unauthorized" };
+      }),
+    );
+    if (!written) return { error: "unauthorized" };
   } catch (e) {
     if (isUniqueViolation(e)) {
       return { error: "username_taken" };

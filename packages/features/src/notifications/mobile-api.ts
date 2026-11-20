@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { NotificationMessageMetadata } from "./message";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリ向けの通知の API の契約（パス・要求・応答）
@@ -117,6 +118,5 @@ const notificationsSchema = z.object({
 export function parseMobileNotificationsResponse(
   body: unknown,
 ): MobileNotificationsResponse | undefined {
-  const parsed = notificationsSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(notificationsSchema, body);
 }

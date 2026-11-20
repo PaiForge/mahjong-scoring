@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { buildFuBreakdown } from "@mahjong-scoring/features/results/fu-breakdown";
-import { fuReasonLabel } from "@mahjong-scoring/features/results/fu-reason-label";
+import { useFuBreakdown } from "@mahjong-scoring/features/results/use-fu-breakdown";
 import { BreakdownPanel } from "./breakdown-panel";
 import { DetailTable } from "./detail-table";
 import { ScoreTableValueButton } from "./score-table-value-button";
@@ -57,8 +56,7 @@ export function FuBreakdown({ surface, ...tableProps }: FuBreakdownProps) {
  * `challenge.fuBreakdown.reasons.*` で組む（{@link fuReasonLabel}）。英語のページに
  * 漢字を残さないため。日本語の辞書の値は core の文言と同じなので日本語の表示は
  * 変わらず、`spec` を持たない古い内訳（保存済みの結果）は `reason` のまま出る。
- * 組み立てはモバイルと共有の {@link buildFuBreakdown} を直接呼ぶ — 共有のフック
- * （`useFuBreakdown`）は理由の整形を受け取らないため。
+ * 組み立てはモバイルと共有のフック（{@link useFuBreakdown}）に任せる。
  */
 export function FuBreakdownTable({
   details,
@@ -66,14 +64,11 @@ export function FuBreakdownTable({
   translationNamespace,
   onOpenScoreTable,
 }: FuBreakdownTableProps) {
-  const t = useTranslations(translationNamespace);
-  const tReason = useTranslations("challenge.fuBreakdown");
   // 行・合計・切り上げ後の文字列の組み立てはモバイルと共有する
-  const { rows, total, rounded } = buildFuBreakdown(
+  const { rows, total, rounded } = useFuBreakdown(
     details,
     answer,
-    t,
-    (detail) => fuReasonLabel(detail, tReason),
+    translationNamespace,
   );
 
   const linked = (row: typeof total) =>

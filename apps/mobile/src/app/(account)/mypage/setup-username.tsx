@@ -12,6 +12,7 @@
  * 手間な人には、web と同じくランダムなユーザー名の自動生成を添える。
  * @flow ログイン → ユーザー名の設定 → 元の画面へ戻り、登録の完了をトーストで知らせる
  */
+import { MYPAGE_ACCOUNT_DELETE_PATH } from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -145,7 +146,7 @@ export default function SetupUsernameScreen() {
         >
           {tNav("signOut")}
         </TextLink>
-        <TextLink onPress={() => router.push("/mypage/account/delete")}>
+        <TextLink onPress={() => router.push(MYPAGE_ACCOUNT_DELETE_PATH)}>
           {tAccount("deleteAccountLink")}
         </TextLink>
       </View>

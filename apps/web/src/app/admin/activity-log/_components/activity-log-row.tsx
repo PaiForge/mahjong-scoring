@@ -2,7 +2,7 @@ import type { Profile, UserActivityLog } from "../../../../lib/db";
 import { formatAdminDateTime } from "../../_lib/format-date";
 import { resolveUserDisplay } from "../../_lib/log-query-helpers";
 import { adminChipClasses } from "../../_lib/chip-classes";
-import { ExpandableText } from "../../_components/expandable-text";
+import { MetadataCell } from "../../_components/metadata-cell";
 
 interface ActivityLogRowProps {
   readonly log: UserActivityLog;
@@ -29,17 +29,7 @@ export function ActivityLogRow({
       <td className="px-4 py-3 text-surface-500">
         {log.targetType ? `${log.targetType}: ${targetDisplay}` : targetDisplay}
       </td>
-      <td className="px-4 py-3 text-surface-500">
-        {log.metadata && Object.keys(log.metadata).length > 0 ? (
-          <ExpandableText
-            text={JSON.stringify(log.metadata, null, 2)}
-            maxLength={80}
-            code
-          />
-        ) : (
-          "-"
-        )}
-      </td>
+      <MetadataCell metadata={log.metadata} />
       <td className="px-4 py-3 text-surface-500">
         {formatAdminDateTime(log.createdAt)}
       </td>

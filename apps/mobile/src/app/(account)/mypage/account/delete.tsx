@@ -11,6 +11,7 @@
  * トークンを持っていなければ、退会の前に Apple のシートで確認し直す。
  * @flow マイページ → アカウント（またはユーザー名の設定）→ 退会 → 確認 → マイページへ戻る
  */
+import { MYPAGE_PATH } from "@mahjong-scoring/features/routes";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
@@ -85,7 +86,7 @@ export default function DeleteAccountScreen() {
     }
     // 受け付けた知らせ（完了か、残りをサーバーが続けているか）はマイページの
     // 先頭が出す（deleteOwnAccount が知らせを立てる）
-    router.dismissTo("/mypage");
+    router.dismissTo(MYPAGE_PATH);
   };
 
   return (

@@ -10,14 +10,12 @@ const {
   mockRevokeAppleToken,
   mockGetUserIdentities,
   mockUnlinkIdentity,
-  mockLogActivityEvent,
 } = vi.hoisted(() => ({
   mockGetAccountLoginState: vi.fn(),
   mockEnsureEmailIdentity: vi.fn(),
   mockRevokeAppleToken: vi.fn(),
   mockGetUserIdentities: vi.fn(),
   mockUnlinkIdentity: vi.fn(),
-  mockLogActivityEvent: vi.fn(),
 }));
 
 vi.mock("@/lib/rate-limit-ip", async () => await import("@/test/auth-mocks"));
@@ -37,11 +35,13 @@ vi.mock("@/lib/supabase/server", () => ({
     },
   }),
 }));
-vi.mock("@/lib/activity-log", () => ({
-  logActivityEvent: mockLogActivityEvent,
-}));
+vi.mock(
+  "@/lib/activity-log",
+  async () => await import("@/test/activity-log-mock"),
+);
 vi.mock("@/lib/log-error", () => ({ logExternalError: vi.fn() }));
 
+import { logActivityEvent } from "@/lib/activity-log";
 import {
   AUTHENTICATED_USER as USER,
   mockAuthenticateAndCheckBan,
@@ -122,7 +122,7 @@ describe("unlinkLoginIdentity", () => {
       error: "removal:lastWebMethod",
     });
     expect(mockUnlinkIdentity).not.toHaveBeenCalled();
-    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    expect(logActivityEvent).not.toHaveBeenCalled();
   });
 
   it("無い連携は notLinked", async () => {
@@ -141,7 +141,7 @@ describe("unlinkLoginIdentity", () => {
     expect(mockUnlinkIdentity).toHaveBeenCalledWith({
       identity_id: google.id,
     });
-    expect(mockLogActivityEvent).toHaveBeenCalledWith({
+    expect(logActivityEvent).toHaveBeenCalledWith({
       userId: USER.id,
       action: "unlink_identity",
       metadata: { provider: "google" },
@@ -205,6 +205,6 @@ describe("unlinkLoginIdentity", () => {
     expect(await unlinkLoginIdentity(google.id)).toEqual({
       error: "unlinkFailed",
     });
-    expect(mockLogActivityEvent).not.toHaveBeenCalled();
+    expect(logActivityEvent).not.toHaveBeenCalled();
   });
 });

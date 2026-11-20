@@ -8,6 +8,7 @@ import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
 import { logActivityEvent } from "@/lib/activity-log";
+import { isAuthEmailRateLimited } from "@/lib/auth-service-failure";
 import { logExternalError } from "@/lib/log-error";
 import { createClient } from "@/lib/supabase/server";
 
@@ -60,8 +61,7 @@ export async function requestEmailChange(
   if (error) {
     if (error.code === "email_exists" || error.code === "email_address_invalid")
       return { error: "emailUnavailable" };
-    if (error.status === 429 || error.code === "over_email_send_rate_limit")
-      return { error: "rateLimited" };
+    if (isAuthEmailRateLimited(error)) return { error: "rateLimited" };
     logExternalError(
       "requestEmailChange",
       "updateUser({ email }) failed",

@@ -1,20 +1,21 @@
 import { getTranslations } from "next-intl/server";
-import { createSearchParamsCache, parseAsString } from "nuqs/server";
+import { createSearchParamsCache } from "nuqs/server";
 
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { DailyTrendChart } from "@/app/admin/_components/daily-trend-chart";
-import { DateRangePicker } from "@/app/admin/_components/date-range-picker";
+import { AdminDateRangePicker } from "@/app/admin/_components/admin-date-range-picker";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
-import { daysAgo, getNewUsersPerDay, today } from "@/app/admin/_lib/dashboard";
+import { getNewUsersPerDay } from "@/app/admin/_lib/dashboard";
+import {
+  dateRangeParsers,
+  defaultStatsDateRange,
+} from "@/app/admin/_lib/stats-search-params";
 
 // nuqs のキャッシュはモジュールスコープで組み立てる必要があるため、
 // 既定の期間もモジュール評価時の日付で決まる（プロセスが生きている間は固定）。
-const defaultsResolvedAt = new Date();
-
-const searchParamsCache = createSearchParamsCache({
-  from: parseAsString.withDefault(daysAgo(28, defaultsResolvedAt)),
-  to: parseAsString.withDefault(today(defaultsResolvedAt)),
-});
+const searchParamsCache = createSearchParamsCache(
+  dateRangeParsers(defaultStatsDateRange(new Date())),
+);
 
 export default async function AdminDashboardPage({
   searchParams,
@@ -37,18 +38,7 @@ export default async function AdminDashboardPage({
       </p>
 
       <div className="space-y-6">
-        <DateRangePicker
-          startDate={startDate}
-          endDate={endDate}
-          labels={{
-            from: t("dashboardKpi.from"),
-            to: t("dashboardKpi.to"),
-            presets: t("dashboardKpi.presets"),
-            past7days: t("dashboardKpi.past7days"),
-            past28days: t("dashboardKpi.past28days"),
-            past90days: t("dashboardKpi.past90days"),
-          }}
-        />
+        <AdminDateRangePicker startDate={startDate} endDate={endDate} />
 
         <section className="admin-kpi space-y-2">
           <p className="text-sm font-medium text-surface-600">

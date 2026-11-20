@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { BenefitGrant, Purchase } from "@/lib/db";
 
+import { makeGrant, makePurchase } from "../purchase-rows.fixture";
+
 import {
   benefitGrantStateOf,
   blocksNewPurchase,
@@ -15,40 +17,11 @@ import {
 
 const NOW = new Date("2026-10-01T03:00:00Z");
 
-function purchase(overrides: Partial<Purchase>): Purchase {
-  return {
-    id: "p",
-    userId: "u",
-    plan: "pro",
-    kind: "pass",
-    benefits: ["unlimited_practice"],
-    provider: "stripe",
-    stripeCheckoutSessionId: "cs",
-    stripePaymentIntentId: "pi",
-    appleTransactionId: null,
-    appleOriginalTransactionId: null,
-    appleProductId: null,
-    appleEnvironment: null,
-    googlePurchaseToken: null,
-    googleOrderId: null,
-    googleProductId: null,
-    googleEnvironment: null,
-    currency: "jpy",
-    amount: 480,
-    startsAt: new Date("2026-09-20T00:00:00Z"),
-    expiresAt: new Date("2026-10-20T00:00:00Z"),
-    revokedAt: null,
-    revokeReason: null,
-    createdAt: new Date("2026-09-20T00:00:00Z"),
-    ...overrides,
-  };
-}
-
 function applePurchase(
   environment: "Sandbox" | "Production",
   overrides: Partial<Purchase>,
 ): Purchase {
-  return purchase({
+  return makePurchase({
     provider: "apple",
     stripeCheckoutSessionId: null,
     stripePaymentIntentId: null,
@@ -64,7 +37,7 @@ function googlePurchase(
   environment: "Test" | "Production",
   overrides: Partial<Purchase>,
 ): Purchase {
-  return purchase({
+  return makePurchase({
     provider: "google",
     stripeCheckoutSessionId: null,
     stripePaymentIntentId: null,
@@ -78,28 +51,17 @@ function googlePurchase(
 }
 
 function grant(overrides: Partial<BenefitGrant>): BenefitGrant {
-  return {
-    id: "g",
-    userId: "u",
-    plan: "pro",
-    benefits: ["unlimited_practice"],
-    reason: "モニター",
-    category: null,
-    grantedBy: "admin",
-    startsAt: new Date("2026-09-25T00:00:00Z"),
+  return makeGrant({
     expiresAt: new Date("2026-10-25T00:00:00Z"),
-    revokedAt: null,
-    revokeReason: null,
-    createdAt: new Date("2026-09-25T00:00:00Z"),
     ...overrides,
-  };
+  });
 }
 
 describe("purchaseStateOf", () => {
   it("取り消し済みは refunded（期限や種類より優先）", () => {
     expect(
       purchaseStateOf(
-        purchase({
+        makePurchase({
           revokedAt: NOW,
           revokeReason: "refunded",
           kind: "lifetime",
@@ -111,58 +73,68 @@ describe("purchaseStateOf", () => {
 
   it("買い切りは常に active", () => {
     expect(
-      purchaseStateOf(purchase({ kind: "lifetime", expiresAt: null }), NOW),
+      purchaseStateOf(makePurchase({ kind: "lifetime", expiresAt: null }), NOW),
     ).toBe("active");
   });
 
   it("パスは期限で expired、開始前なら scheduled、それ以外は active", () => {
     expect(
       purchaseStateOf(
-        purchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
+        makePurchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
         NOW,
       ),
     ).toBe("expired");
     expect(
       purchaseStateOf(
-        purchase({
+        makePurchase({
           startsAt: new Date("2026-10-20T00:00:00Z"),
           expiresAt: new Date("2026-11-19T00:00:00Z"),
         }),
         NOW,
       ),
     ).toBe("scheduled");
-    expect(purchaseStateOf(purchase({}), NOW)).toBe("active");
+    expect(purchaseStateOf(makePurchase({}), NOW)).toBe("active");
   });
 
   it("期限ちょうどは expired", () => {
-    expect(purchaseStateOf(purchase({ expiresAt: NOW }), NOW)).toBe("expired");
+    expect(purchaseStateOf(makePurchase({ expiresAt: NOW }), NOW)).toBe(
+      "expired",
+    );
   });
 });
 
 describe("blocksNewPurchase", () => {
   it("有効な購入と開始待ちの購入は追加購入を止める", () => {
-    expect(blocksNewPurchase(purchase({}), NOW)).toBe(true);
+    expect(blocksNewPurchase(makePurchase({}), NOW)).toBe(true);
     expect(
       blocksNewPurchase(
-        purchase({ startsAt: new Date("2026-10-02T00:00:00Z") }),
+        makePurchase({ startsAt: new Date("2026-10-02T00:00:00Z") }),
         NOW,
       ),
     ).toBe(true);
     expect(
-      blocksNewPurchase(purchase({ kind: "lifetime", expiresAt: null }), NOW),
+      blocksNewPurchase(
+        makePurchase({ kind: "lifetime", expiresAt: null }),
+        NOW,
+      ),
     ).toBe(true);
   });
 
   it("期限切れと取り消し済みは止めない", () => {
     expect(
       blocksNewPurchase(
-        purchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
+        makePurchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
         NOW,
       ),
     ).toBe(false);
-    expect(blocksNewPurchase(purchase({ expiresAt: NOW }), NOW)).toBe(false);
+    expect(blocksNewPurchase(makePurchase({ expiresAt: NOW }), NOW)).toBe(
+      false,
+    );
     expect(
-      blocksNewPurchase(purchase({ revokedAt: NOW, revokeReason: "x" }), NOW),
+      blocksNewPurchase(
+        makePurchase({ revokedAt: NOW, revokeReason: "x" }),
+        NOW,
+      ),
     ).toBe(false);
   });
 
@@ -225,7 +197,7 @@ describe("offersPurchase", () => {
   });
 
   it("追加購入を止める購入があれば出さない", () => {
-    expect(offersPurchase([purchase({})], [], NOW)).toBe(false);
+    expect(offersPurchase([makePurchase({})], [], NOW)).toBe(false);
   });
 
   it("有効な付与があれば出さない（期限付き・無期限とも）", () => {
@@ -265,7 +237,7 @@ describe("planStatusOf", () => {
   it("有効な買い切りがあれば lifetime（パスより優先）", () => {
     expect(
       planStatusOf(
-        [purchase({}), purchase({ kind: "lifetime", expiresAt: null })],
+        [makePurchase({}), makePurchase({ kind: "lifetime", expiresAt: null })],
         [],
         NOW,
       ),
@@ -276,7 +248,7 @@ describe("planStatusOf", () => {
     expect(
       planStatusOf(
         [
-          purchase({
+          makePurchase({
             kind: "lifetime",
             expiresAt: null,
             revokedAt: NOW,
@@ -294,8 +266,8 @@ describe("planStatusOf", () => {
     expect(
       planStatusOf(
         [
-          purchase({}),
-          purchase({
+          makePurchase({}),
+          makePurchase({
             startsAt: new Date("2026-10-20T00:00:00Z"),
             expiresAt: later,
           }),
@@ -309,7 +281,7 @@ describe("planStatusOf", () => {
   it("期限切れのパスしか無ければ free", () => {
     expect(
       planStatusOf(
-        [purchase({ expiresAt: new Date("2026-09-30T00:00:00Z") })],
+        [makePurchase({ expiresAt: new Date("2026-09-30T00:00:00Z") })],
         [],
         NOW,
       ),
@@ -348,14 +320,14 @@ describe("planStatusOf（手動付与）", () => {
 
   it("無期限の付与は until 無しの granted（期限付きのパスより優先）", () => {
     expect(
-      planStatusOf([purchase({})], [grant({ expiresAt: null })], NOW),
+      planStatusOf([makePurchase({})], [grant({ expiresAt: null })], NOW),
     ).toEqual({ kind: "granted", until: undefined });
   });
 
   it("買い切りは無期限の付与より優先", () => {
     expect(
       planStatusOf(
-        [purchase({ kind: "lifetime", expiresAt: null })],
+        [makePurchase({ kind: "lifetime", expiresAt: null })],
         [grant({ expiresAt: null })],
         NOW,
       ),
@@ -365,10 +337,10 @@ describe("planStatusOf（手動付与）", () => {
   it("パスと付与が重なるときは後に切れる方の種類で出す", () => {
     const later = new Date("2026-12-01T00:00:00Z");
     expect(
-      planStatusOf([purchase({})], [grant({ expiresAt: later })], NOW),
+      planStatusOf([makePurchase({})], [grant({ expiresAt: later })], NOW),
     ).toEqual({ kind: "granted", until: later });
     expect(
-      planStatusOf([purchase({ expiresAt: later })], [grant({})], NOW),
+      planStatusOf([makePurchase({ expiresAt: later })], [grant({})], NOW),
     ).toEqual({ kind: "pass", until: later });
   });
 
@@ -376,7 +348,7 @@ describe("planStatusOf（手動付与）", () => {
     const same = new Date("2026-12-01T00:00:00Z");
     expect(
       planStatusOf(
-        [purchase({ expiresAt: same })],
+        [makePurchase({ expiresAt: same })],
         [grant({ expiresAt: same })],
         NOW,
       ),
@@ -434,8 +406,8 @@ it("先行パス返金後、開始待ちのパスだけでは現在 Pro にし�
   expect(
     planStatusOf(
       [
-        purchase({ revokedAt: NOW, revokeReason: "refunded" }),
-        purchase({
+        makePurchase({ revokedAt: NOW, revokeReason: "refunded" }),
+        makePurchase({
           startsAt: new Date("2026-10-20T00:00:00Z"),
           expiresAt: new Date("2026-11-19T00:00:00Z"),
         }),
@@ -446,10 +418,10 @@ it("先行パス返金後、開始待ちのパスだけでは現在 Pro にし�
   ).toEqual({ kind: "free" });
 });
 it("開始ちょうどは有効、期限ちょうどは無料", () => {
-  expect(planStatusOf([purchase({ startsAt: NOW })], [], NOW).kind).toBe(
+  expect(planStatusOf([makePurchase({ startsAt: NOW })], [], NOW).kind).toBe(
     "pass",
   );
-  expect(planStatusOf([purchase({ expiresAt: NOW })], [], NOW)).toEqual({
+  expect(planStatusOf([makePurchase({ expiresAt: NOW })], [], NOW)).toEqual({
     kind: "free",
   });
 });
@@ -457,13 +429,13 @@ it("開始待ちの買い切りや付与も現在 Pro にしない", () => {
   const future = new Date("2026-10-20T00:00:00Z");
   expect(
     purchaseStateOf(
-      purchase({ kind: "lifetime", startsAt: future, expiresAt: null }),
+      makePurchase({ kind: "lifetime", startsAt: future, expiresAt: null }),
       NOW,
     ),
   ).toBe("scheduled");
   expect(
     planStatusOf(
-      [purchase({ kind: "lifetime", startsAt: future, expiresAt: null })],
+      [makePurchase({ kind: "lifetime", startsAt: future, expiresAt: null })],
       [grant({ startsAt: future, expiresAt: null })],
       NOW,
     ),

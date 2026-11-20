@@ -1,4 +1,4 @@
-import { HaiKind } from "@mahjong-scoring/core";
+import { MACHI_FU_EXAMPLES } from "@mahjong-scoring/features/lessons/fu-guide-examples";
 import { MACHI_FU_SUMMARY_ROWS } from "@mahjong-scoring/features/lessons/fu-summary-rows";
 import { ExampleTable } from "../../_components/example-table";
 import { loadExampleTableColumns } from "../../_lib/example-table-columns";
@@ -32,29 +32,32 @@ export async function MachiFuGuide() {
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.ManZu2, HaiKind.ManZu4]}
-                  agariHai={HaiKind.ManZu3}
+                  tiles={MACHI_FU_EXAMPLES.kanchan.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.kanchan.agariHai}
                 />
               ),
               label: t("kanchanLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.kanchan.fu,
             },
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.PinZu1, HaiKind.PinZu2]}
-                  agariHai={HaiKind.PinZu3}
+                  tiles={MACHI_FU_EXAMPLES.penchan.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.penchan.agariHai}
                 />
               ),
               label: t("penchanLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.penchan.fu,
             },
             {
               tiles: (
-                <MachiTiles tiles={[HaiKind.Haku]} agariHai={HaiKind.Haku} />
+                <MachiTiles
+                  tiles={MACHI_FU_EXAMPLES.tanki.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.tanki.agariHai}
+                />
               ),
               label: t("tankiLabel"),
-              fu: 2,
+              fu: MACHI_FU_EXAMPLES.tanki.fu,
             },
           ]}
         />
@@ -71,22 +74,22 @@ export async function MachiFuGuide() {
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.SouZu6, HaiKind.SouZu7]}
-                  agariHai={HaiKind.SouZu5}
+                  tiles={MACHI_FU_EXAMPLES.ryanmen.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.ryanmen.agariHai}
                 />
               ),
               label: t("ryanmenLabel"),
-              fu: 0,
+              fu: MACHI_FU_EXAMPLES.ryanmen.fu,
             },
             {
               tiles: (
                 <MachiTiles
-                  tiles={[HaiKind.Ton, HaiKind.Ton, HaiKind.Haku, HaiKind.Haku]}
-                  agariHai={HaiKind.Ton}
+                  tiles={MACHI_FU_EXAMPLES.shanpon.tiles}
+                  agariHai={MACHI_FU_EXAMPLES.shanpon.agariHai}
                 />
               ),
               label: t("shanponLabel"),
-              fu: 0,
+              fu: MACHI_FU_EXAMPLES.shanpon.fu,
             },
           ]}
         />

@@ -38,10 +38,9 @@ import {
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 
-import {
-  findAnnouncementFor,
-  withAnnouncementRobots,
-} from "../_lib/announcement-locale";
+import { findAnnouncementFor } from "@/lib/announcements/locale-queries";
+
+import { withAnnouncementRobots } from "../_lib/announcement-locale";
 
 export const revalidate = 86400;
 

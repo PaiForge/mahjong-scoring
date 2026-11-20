@@ -1,3 +1,4 @@
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 
@@ -121,7 +122,7 @@ const requireConfirmedUserFor = cache(async (returnTo: string | undefined) => {
     return redirectLocalized("/banned");
   }
   if (!profile) {
-    return redirectLocalized("/mypage/setup-username");
+    return redirectLocalized(SETUP_USERNAME_PATH);
   }
 
   return { user, profile };

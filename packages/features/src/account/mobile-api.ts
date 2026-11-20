@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { AccountDeletionStatus } from "./deletion-status";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリ向け API のパスの接頭辞（サイトの origin からの相対）
@@ -52,8 +53,7 @@ const mobileMeResponseSchema = z.object({
 export function parseMobileMeResponse(
   body: unknown,
 ): MobileMeResponse | undefined {
-  const parsed = mobileMeResponseSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(mobileMeResponseSchema, body);
 }
 
 /**
@@ -86,8 +86,7 @@ const mobileBanResponseSchema = z.union([
 export function parseMobileBanResponse(
   body: unknown,
 ): MobileBanResponse | undefined {
-  const parsed = mobileBanResponseSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(mobileBanResponseSchema, body);
 }
 
 /**

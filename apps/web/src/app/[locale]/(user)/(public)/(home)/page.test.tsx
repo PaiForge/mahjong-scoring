@@ -21,8 +21,6 @@ vi.mock("next/navigation", async () => ({
   notFound: () => {
     throw new Error("notFound");
   },
-  redirect: vi.fn(),
-  permanentRedirect: vi.fn(),
 }));
 vi.mock("@/i18n/translated-publications", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/i18n/translated-publications")>()),

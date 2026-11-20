@@ -1,9 +1,11 @@
 /// <reference types="node" />
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+
+import { listSourceFiles } from "@/test/list-source-files";
 
 /**
  * クライアントのツリーから重いサーバー用モジュールへ届かないことの検査
@@ -27,19 +29,6 @@ const SERVER_ONLY_MODULES = [
   resolve(WEB_SRC, "i18n/route-policy.ts"),
   resolve(WEB_SRC, "app/_lib/sitemap-routes.ts"),
 ] as const;
-
-function listSourceFiles(dir: string): string[] {
-  const files: string[] = [];
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) {
-      files.push(...listSourceFiles(path));
-    } else if (/\.(ts|tsx)$/.test(name) && !/\.test\.(ts|tsx)$/.test(name)) {
-      files.push(path);
-    }
-  }
-  return files;
-}
 
 function hasDirective(source: string, directive: string): boolean {
   return new RegExp(`^\\s*(?:\\/\\/[^\\n]*\\n\\s*)*["']${directive}["']`).test(

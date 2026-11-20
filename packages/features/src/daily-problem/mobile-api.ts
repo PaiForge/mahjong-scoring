@@ -112,13 +112,19 @@ export function isMobileDailyProblemErrorCode(
   return typeof value === "string" && dailyProblemErrorCodeSet.has(value);
 }
 
-/** 日付キーの形（`YYYY-MM-DD`）。暦として正しいかは見ない — 値はサーバーが決める */
-const daySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+/**
+ * 日付キーの形（JST の `YYYY-MM-DD`）のスキーマ
+ * 日付キースキーマ
+ *
+ * 暦として正しいかは見ない — 値はサーバーが決める。アプリ向け API の本文と
+ * web の Server Action の入力が、同じ形だけを受けるよう共有する。
+ */
+export const dailyProblemDaySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 const answerStateSchema = z.object({ isCorrect: z.boolean() });
 
 const dailyProblemSchema = z.object({
-  day: daySchema,
+  day: dailyProblemDaySchema,
   problem: z.object({ payload: z.unknown() }).nullable(),
   answer: answerStateSchema.nullable(),
 });

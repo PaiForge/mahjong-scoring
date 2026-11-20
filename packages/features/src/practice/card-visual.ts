@@ -1,6 +1,7 @@
 import { HaiKind, parseHais } from "@mahjong-scoring/core";
 import type { HaiKindId } from "@mahjong-scoring/core";
 
+import type { Translate } from "../i18n/translate";
 import type { PracticeMenuSlug } from "../practice-menu-types";
 
 /**
@@ -9,7 +10,7 @@ import type { PracticeMenuSlug } from "../practice-menu-types";
  * web（next-intl）とモバイル（use-intl）の `useTranslations("practice")` /
  * `getTranslations("practice")` のどちらも渡せるよう、キーから文言を返す関数としてだけ受ける。
  */
-type PracticeTranslator = (key: string) => string;
+type PracticeTranslator = Translate;
 
 /** 答えの単位。帯の右端に「符は？」の形で出す */
 type AnswerUnit = "fu" | "han" | "score" | "yaku";

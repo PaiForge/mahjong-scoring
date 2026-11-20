@@ -50,10 +50,12 @@ import {
 } from "./_components/announcement-text-list";
 import {
   announcementsPageHref,
-  countAnnouncementsFor,
-  listAnnouncementsFor,
   withAnnouncementRobots,
 } from "./_lib/announcement-locale";
+import {
+  countAnnouncementsFor,
+  listAnnouncementsFor,
+} from "@/lib/announcements/locale-queries";
 import { ANNOUNCEMENTS_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 

@@ -1,9 +1,8 @@
 import { useTranslations } from "use-intl";
 import type { FuDetail, ScoreQuestion } from "@mahjong-scoring/core";
-import { fuReasonLabel } from "@mahjong-scoring/features/results/fu-reason-label";
-import { yakuLabel } from "@mahjong-scoring/features/yaku/yaku-labels";
 import {
   buildScoreResultBreakdownSections,
+  labelScoreResultBreakdownItems,
   type ScoreResultBreakdownTab,
 } from "@mahjong-scoring/features/results/score-result-display";
 import type { BreakdownPanelSection } from "../../components/breakdown-panel";
@@ -42,14 +41,9 @@ export function useResultBreakdownSections({
       tabLabel,
       content: (
         <ResultBreakdownTable
-          items={table.items.map((item, index) => {
-            // 例: yakuNames.riichi
-            if (kind === "han")
-              return { ...item, label: yakuLabel(item.name, tYakuNames) };
-            const detail = fuDetails?.[index];
-            return detail === undefined
-              ? item
-              : { ...item, label: fuReasonLabel(detail, tFuReason) };
+          items={labelScoreResultBreakdownItems(kind, table.items, fuDetails, {
+            tYakuNames,
+            tFuReason,
           })}
           total={table.total}
           suffix={table.suffix}

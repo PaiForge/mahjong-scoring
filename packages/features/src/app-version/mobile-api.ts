@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseWithSchema } from "../mobile-api-parse";
 
 /**
  * アプリの最低バージョンの API の契約（パス・応答・ヘッダ）
@@ -76,6 +77,5 @@ const appVersionSchema = z.object({
 export function parseMobileAppVersionResponse(
   body: unknown,
 ): MobileAppVersionResponse | undefined {
-  const parsed = appVersionSchema.safeParse(body);
-  return parsed.success ? parsed.data : undefined;
+  return parseWithSchema(appVersionSchema, body);
 }

@@ -8,6 +8,7 @@ import {
 } from "@mahjong-scoring/features/practice-menu-types";
 import {
   DOJO_PATH,
+  SETUP_USERNAME_PATH,
   practicePlayHref,
   practiceTrainingHref,
 } from "@mahjong-scoring/features/routes";
@@ -196,7 +197,7 @@ function BlockedExamSheet({
             <View style={styles.actions}>
               <Button
                 fullWidth
-                onPress={() => go(() => router.push("/mypage/setup-username"))}
+                onPress={() => go(() => router.push(SETUP_USERNAME_PATH))}
                 testID="exam-setup-username"
               >
                 {t("examGate.usernameButton")}

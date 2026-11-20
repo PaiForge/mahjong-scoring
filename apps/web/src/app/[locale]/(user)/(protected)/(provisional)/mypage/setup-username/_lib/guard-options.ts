@@ -1,12 +1,10 @@
+import { SETUP_USERNAME_PATH } from "@mahjong-scoring/features/routes";
 import { localizedHref } from "@/i18n/public-path";
 import type { AuthGuardOptions } from "@/lib/auth";
 import {
   DEFAULT_LOCALE,
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
-
-/** ユーザー名の設定のページ（ロケール非依存のパス） */
-export const SETUP_USERNAME_PATH = "/mypage/setup-username";
 
 /**
  * ユーザー名の設定のページのガードに渡す指定
