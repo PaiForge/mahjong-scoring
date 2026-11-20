@@ -15,13 +15,10 @@ import {
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 import {
-  getPublishedAnnouncement,
-  getPublishedAnnouncementCount,
-  getPublishedAnnouncementCountExact,
-  getPublishedAnnouncementExact,
-  getPublishedAnnouncementsExact,
-  getPublishedAnnouncementsPaginated,
-} from "../announcements/queries";
+  countAnnouncementsFor,
+  findAnnouncementFor,
+  listAnnouncementsFor,
+} from "../announcements/locale-queries";
 import { parsePageParam, resolvePagination } from "../pagination";
 
 import { limitPublicMobileRequest } from "./public-rate-limit";
@@ -73,20 +70,15 @@ export async function handleReadAnnouncements(
   const { searchParams } = new URL(request.url);
   const requestedPage = parsePageParam(searchParams.get("page") ?? undefined);
   const locale = localeOf(searchParams);
-  const exact = locale !== DEFAULT_LOCALE;
   try {
-    const totalCount = exact
-      ? await getPublishedAnnouncementCountExact(locale)
-      : await getPublishedAnnouncementCount();
+    const totalCount = await countAnnouncementsFor(locale);
     const { currentPage, totalPages, limit, offset } = resolvePagination(
       requestedPage,
       totalCount,
       ANNOUNCEMENTS_PER_PAGE,
     );
 
-    const rows = exact
-      ? await getPublishedAnnouncementsExact(locale, limit, offset)
-      : await getPublishedAnnouncementsPaginated(DEFAULT_LOCALE, limit, offset);
+    const rows = await listAnnouncementsFor(locale, limit, offset);
     return mobileJson<MobileAnnouncementsResponse>({
       items: rows.map((row) => ({
         slug: row.slug,
@@ -129,10 +121,7 @@ export async function handleReadAnnouncement(
       ? DEFAULT_LOCALE
       : localeOf(new URL(request.url).searchParams);
   try {
-    const announcement =
-      locale === DEFAULT_LOCALE
-        ? await getPublishedAnnouncement(slug, DEFAULT_LOCALE)
-        : await getPublishedAnnouncementExact(slug, locale);
+    const announcement = await findAnnouncementFor(slug, locale);
     if (!announcement) {
       return mobileJson<{ error: MobileAnnouncementErrorCode }>(
         { error: "notFound" },

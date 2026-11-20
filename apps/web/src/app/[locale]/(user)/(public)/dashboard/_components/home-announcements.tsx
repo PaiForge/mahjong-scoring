@@ -6,10 +6,7 @@ import {
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 import { AnnouncementTextList } from "@/app/[locale]/(user)/(public)/announcements/_components/announcement-text-list";
-import {
-  getPublishedAnnouncementsExact,
-  getPublishedAnnouncementsPaginated,
-} from "@/lib/announcements/queries";
+import { listAnnouncementsFor } from "@/lib/announcements/locale-queries";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
 import { LocaleNavLink } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
@@ -28,19 +25,14 @@ interface HomeAnnouncementsProps {
  * ページの言語でダッシュボードに載せるお知らせを引く
  * ダッシュボードのお知らせ取得
  *
- * 日本語は従来どおり fallback 付きのクエリ（`getPublishedAnnouncementsPaginated`。
- * slug ごとに要求言語 → 日本語 → その他）。このクエリはアプリ向け API と
- * 日本語の一覧も使うので、意味を変えずにそのまま呼ぶ。
- *
- * 日本語以外は、その言語で書いて公開した行だけ（`getPublishedAnnouncementsExact`）。
- * fallback 付きのクエリを使うと英訳の無いお知らせが日本語のタイトルのまま英語の
+ * 一覧のページと同じ引き方（`listAnnouncementsFor`）で先頭の数件を引く。
+ * 日本語は fallback 付き（slug ごとに要求言語 → 日本語 → その他）、日本語以外は
+ * その言語で書いて公開した行だけ。fallback 付きのクエリを使うと英訳の無いお知らせが日本語のタイトルのまま英語の
  * ダッシュボードに並ぶ。英語の画面に出すお知らせは英訳して公開した行だけ、という
  * 方針のため。
  */
 function fetchHomeAnnouncements(locale: SupportedLocale) {
-  return locale === DEFAULT_LOCALE
-    ? getPublishedAnnouncementsPaginated(locale, HOME_ANNOUNCEMENTS_LIMIT, 0)
-    : getPublishedAnnouncementsExact(locale, HOME_ANNOUNCEMENTS_LIMIT, 0);
+  return listAnnouncementsFor(locale, HOME_ANNOUNCEMENTS_LIMIT, 0);
 }
 
 /**
