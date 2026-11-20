@@ -1,4 +1,5 @@
 import { FU_VALUES, YAKUMAN_HAN } from "@mahjong-scoring/core";
+import type { Translate } from "../../i18n/translate";
 import { MANGAN_MIN_HAN, practiceHanTiers } from "./han-tiers";
 
 /**
@@ -11,7 +12,7 @@ export interface AnswerOption {
 }
 
 /** `score` 名前空間の翻訳関数（`form.options.*` を引く） */
-type Translator = (key: string) => string;
+type Translator = Translate;
 
 /**
  * 点数計算の無限訓練の翻数の選択肢

@@ -1,3 +1,4 @@
+import type { Translate } from "../i18n/translate";
 import { boardLabel } from "../my-record/board-label";
 import {
   menuTypeToMessageKey,
@@ -6,7 +7,7 @@ import {
 } from "../practice-menu-types";
 
 /** next-intl のルート翻訳関数（`useTranslations()` / `getTranslations()` の戻り値） */
-type RootTranslator = (key: string) => string;
+type RootTranslator = Translate;
 
 /**
  * ランキングでの土俵の表示名

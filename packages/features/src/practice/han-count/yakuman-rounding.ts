@@ -1,8 +1,10 @@
 import { YAKUMAN_HAN, sumYakuHan } from "@mahjong-scoring/core";
 import type { YakuDetail } from "@mahjong-scoring/core";
 
+import type { Translate } from "../../i18n/translate";
+
 /** `hanCountChallenge` の翻訳関数（`yakuman` / `yakumanRoundedLabel`） */
-type HanCountTranslator = (key: string) => string;
+type HanCountTranslator = Translate;
 
 /** 翻数の内訳の合計の下に据える、役満に丸めた後の行。例: 「13翻以上は」「役満」 */
 export interface YakumanRounding {
