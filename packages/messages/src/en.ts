@@ -91,6 +91,7 @@ import mobilePlan from "./en/mobile-plan.json";
 import mobileApp from "./en/mobile-app.json";
 import appDownload from "./en/app-download.json";
 import dailyProblem from "./en/daily-problem.json";
+import problemReport from "./en/problem-report.json";
 import type {
   EnTranslatedNamespace,
   MessagesShape,
@@ -208,6 +209,7 @@ export const messages = {
   mobileApp,
   appDownload,
   dailyProblem,
+  problemReport,
 } satisfies Pick<MessagesShape, EnTranslatedNamespace>;
 
 /** 英語の辞書の型（完訳の名前空間 → 文言の木） */

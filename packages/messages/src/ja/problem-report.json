@@ -1,0 +1,30 @@
+{
+  "button": "問題の誤りを報告",
+  "title": "問題の誤りを報告",
+  "lead": "正解の点数・役・符・待ち牌や盤面に誤りを見つけたら知らせてください。報告は運営者だけが確認します。",
+  "reasonLabel": "どこが誤っていますか",
+  "reasons": {
+    "wrong_score": "点数が間違っている",
+    "wrong_yaku": "役・翻数が間違っている",
+    "wrong_fu": "符が間違っている",
+    "wrong_machi": "待ち牌が間違っている",
+    "invalid_board": "手牌・ドラなど盤面がおかしい",
+    "other": "その他"
+  },
+  "detailLabel": "詳細（任意）",
+  "detailLabelRequired": "詳細（必須）",
+  "detailPlaceholder": "正しいと思う答えや、気付いた点を書いてください",
+  "submit": "報告する",
+  "submitting": "送信中...",
+  "cancel": "キャンセル",
+  "doneToast": "報告を受け付けました。ご協力ありがとうございます。",
+  "errors": {
+    "invalidReason": "誤っている箇所を選んでください。",
+    "detailRequired": "「その他」を選んだときは詳細を書いてください。",
+    "detailTooLong": "詳細は{max}文字以内で入力してください。",
+    "rateLimited": "短い時間に続けて報告されています。しばらくしてからお試しください。",
+    "dailyLimit": "1 日に報告できる件数の上限に達しました。",
+    "unauthorized": "報告するにはログインが必要です。",
+    "failed": "報告できませんでした。しばらくしてからもう一度お試しください。"
+  }
+}
