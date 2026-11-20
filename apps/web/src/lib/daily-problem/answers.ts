@@ -25,7 +25,7 @@ import {
   db,
   type TransactionClient,
 } from "../db";
-import { lockAccountForWrite } from "../users/account-write-lock";
+import { writeAsAccount } from "../users/account-write-lock";
 import { isDailyProblemDisabled } from "./today";
 
 /**
@@ -101,25 +101,29 @@ export async function recordDailyProblemAnswer(
 ): Promise<RecordDailyProblemAnswerResult> {
   if (isDailyProblemDisabled() || day !== jstDayKey(now))
     return { kind: "staleDay" };
-  return db.transaction(async (tx): Promise<RecordDailyProblemAnswerResult> => {
-    if (!(await lockAccountForWrite(tx, userId))) return { kind: "deleted" };
-    const [problem] = await tx
-      .select({
-        day: dailyProblems.day,
-        withheldReason: dailyProblems.withheldReason,
-      })
-      .from(dailyProblems)
-      .where(eq(dailyProblems.day, day))
-      .limit(1)
-      .for("share");
-    if (!problem || problem.withheldReason) return { kind: "staleDay" };
-    await tx
-      .insert(dailyProblemAnswers)
-      .values({ userId, day, isCorrect })
-      .onConflictDoNothing();
-    const answer = await readDailyProblemAnswer(userId, day, tx);
-    // 直前に入れたか、先に入っていた行がある。消す経路は退会だけ
-    if (!answer) throw new Error("Daily problem answer vanished after insert");
-    return { kind: "recorded", answer };
-  });
+  const outcome = await writeAsAccount(
+    userId,
+    async (tx): Promise<RecordDailyProblemAnswerResult> => {
+      const [problem] = await tx
+        .select({
+          day: dailyProblems.day,
+          withheldReason: dailyProblems.withheldReason,
+        })
+        .from(dailyProblems)
+        .where(eq(dailyProblems.day, day))
+        .limit(1)
+        .for("share");
+      if (!problem || problem.withheldReason) return { kind: "staleDay" };
+      await tx
+        .insert(dailyProblemAnswers)
+        .values({ userId, day, isCorrect })
+        .onConflictDoNothing();
+      const answer = await readDailyProblemAnswer(userId, day, tx);
+      // 直前に入れたか、先に入っていた行がある。消す経路は退会だけ
+      if (!answer)
+        throw new Error("Daily problem answer vanished after insert");
+      return { kind: "recorded", answer };
+    },
+  );
+  return outcome.written ? outcome.value : { kind: "deleted" };
 }

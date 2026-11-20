@@ -32,9 +32,12 @@ vi.mock("@/lib/db", async () => ({
   ...(await import("@/test/schema-mock")),
 }));
 
-vi.mock("@/lib/users/account-write-lock", () => ({
-  lockAccountForWrite: mockLockAccountForWrite,
-}));
+vi.mock("@/lib/users/account-write-lock", async () =>
+  (await import("@/test/account-write-lock-mock")).gatedAccountWrite(
+    mockLockAccountForWrite,
+    { insert: mockInsert },
+  ),
+);
 
 // validateUsername / extractPgErrorCode は純粋関数なので実物を使い、
 // 配線（どのエラーコードがそのまま返るか）まで含めて検証する。

@@ -4,7 +4,7 @@ import { and, eq, isNull } from "drizzle-orm";
 
 import { db } from "../db";
 import { profiles, reports } from "../db/schema";
-import { lockAccountForWrite } from "../users/account-write-lock";
+import { writeAsAccount } from "../users/account-write-lock";
 import type { ReportInput } from "@mahjong-scoring/features/reports/report";
 
 import { notifyOperatorOfReport } from "./notify";
@@ -59,8 +59,7 @@ export async function createReport(
   if (target.id === reporterId) return "self";
 
   const { id: targetUserId, ...snapshot } = target;
-  const outcome = await db.transaction(async (tx) => {
-    if (!(await lockAccountForWrite(tx, reporterId))) return "closing" as const;
+  const outcome = await writeAsAccount(reporterId, async (tx) => {
     const [inserted] = await tx
       .insert(reports)
       .values({
@@ -74,11 +73,11 @@ export async function createReport(
       .returning({ id: reports.id });
     return inserted;
   });
-  if (outcome === "closing") return "accountClosing";
+  if (!outcome.written) return "accountClosing";
   // 重ねての通報（未対応のものがすでにある）は知らせ直さない
-  if (outcome !== undefined) {
+  if (outcome.value !== undefined) {
     await notifyOperatorOfReport({
-      reportId: outcome.id,
+      reportId: outcome.value.id,
       targetUsername: target.username,
       reason: input.reason,
       detail: input.detail,

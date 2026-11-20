@@ -28,9 +28,12 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-vi.mock("@/lib/users/account-write-lock", () => ({
-  lockAccountForWrite: mockLockAccountForWrite,
-}));
+vi.mock("@/lib/users/account-write-lock", async () =>
+  (await import("@/test/account-write-lock-mock")).gatedAccountWrite(
+    mockLockAccountForWrite,
+    { insert: mockInsert },
+  ),
+);
 
 vi.mock("@/lib/db/schema", async () => await import("@/test/schema-mock"));
 

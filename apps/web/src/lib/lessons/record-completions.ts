@@ -5,9 +5,8 @@ import {
   type CurriculumChapterSlug,
 } from "@mahjong-scoring/features/curriculum/registry";
 
-import { db } from "../db";
 import { lessonCompletions } from "../db/schema";
-import { lockAccountForWrite } from "../users/account-write-lock";
+import { writeAsAccount } from "../users/account-write-lock";
 
 /**
  * クライアントが送ってきたスラッグを、完了を記録できるレッスンとそれ以外に分ける
@@ -33,7 +32,7 @@ export function partitionLessonSlugs(slugs: readonly string[]): {
  * レッスン完了書き込み
  *
  * 退会を受け付けた後には書かない（入口の確認を通った後に退会が受け付け
- * られても、`lockAccountForWrite` が直列にする）。そのとき false を返す。
+ * られても、`writeAsAccount` が直列にする）。そのとき false を返す。
  * 画面のキャッシュを捨てるのは呼び出し側（web の Server Action）の役目。
  */
 export async function recordLessonCompletions(
@@ -41,12 +40,11 @@ export async function recordLessonCompletions(
   slugs: readonly CurriculumChapterSlug[],
 ): Promise<boolean> {
   if (slugs.length === 0) return true;
-  return db.transaction(async (tx) => {
-    if (!(await lockAccountForWrite(tx, userId))) return false;
-    await tx
+  const { written } = await writeAsAccount(userId, (tx) =>
+    tx
       .insert(lessonCompletions)
       .values(slugs.map((lessonSlug) => ({ userId, lessonSlug })))
-      .onConflictDoNothing();
-    return true;
-  });
+      .onConflictDoNothing(),
+  );
+  return written;
 }

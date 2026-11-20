@@ -29,3 +29,40 @@ export function passThroughAccountWrite(tx: unknown) {
     ) => ({ written: true as const, value: await write(tx as never) }),
   };
 }
+
+/**
+ * `@/lib/users/account-write-lock` のテスト用スタブ（退会の受付をテストが決める）
+ * 退会確認つきの書き込みモック
+ *
+ * 「退会を受け付けた後なら書かない」分岐まで見たいテスト用。実物の
+ * `writeAsAccount` と同じく、`accepts` が true のときだけ `write` を通し、
+ * false なら何も書かずに `{ written: false }` を返す:
+ *
+ * ```ts
+ * vi.mock(
+ *   "@/lib/users/account-write-lock",
+ *   async () =>
+ *     (await import("@/test/account-write-lock-mock")).gatedAccountWrite(
+ *       mockAcceptsWrite,
+ *       { insert: mockInsert },
+ *     ),
+ * );
+ * ```
+ *
+ * @param accepts - 書き込みを通すか（退会を受け付けていなければ true）を返すモック
+ * @param tx - `write` に渡すトランザクションの代わり
+ */
+export function gatedAccountWrite(
+  accepts: (userId: string) => unknown,
+  tx: unknown,
+) {
+  return {
+    writeAsAccount: async <T>(
+      userId: string,
+      write: (tx: never) => Promise<T>,
+    ) =>
+      (await accepts(userId))
+        ? { written: true as const, value: await write(tx as never) }
+        : { written: false as const },
+  };
+}
