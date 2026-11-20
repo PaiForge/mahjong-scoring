@@ -2,6 +2,10 @@ import { AD_KINDS } from "@mahjong-scoring/features/ads/native-ad";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
+import {
+  PROBLEM_REPORT_CONTEXTS,
+  PROBLEM_REPORT_REASONS,
+} from "@mahjong-scoring/features/problem-reports/problem-report";
 // index ではなく型と定数だけのモジュールを読む。drizzle-kit はこのファイルを
 // CommonJS で読み込み、core の index が引く ESM 専用のライブラリを解決できない
 import {
@@ -29,6 +33,11 @@ import {
 
 import { AD_PLATFORMS } from "../ads/registry";
 import { PRACTICE_PROBLEM_SOURCES } from "../practice-problems/source";
+import type { ProblemReportSnapshot } from "../problem-reports/snapshot";
+import {
+  PROBLEM_REPORT_STATUSES,
+  ProblemReportStatus,
+} from "../problem-reports/status";
 import { REPORT_STATUSES, ReportStatus } from "../report-status";
 
 /**
@@ -1743,3 +1752,110 @@ export const dailyProblemAnswers = pgTable(
 ).enableRLS();
 
 export type DailyProblemAnswer = typeof dailyProblemAnswers.$inferSelect;
+
+/**
+ * 出題した問題の誤りの報告 — 利用者 × 保存した問題
+ * 問題報告
+ *
+ * @description
+ * ログイン済みの利用者が、出題された問題（和了形・聴牌形の点数計算、本日の問題）の
+ * 正解や盤面の誤りを運営へ知らせたもの。利用者の通報（`reports`）とは別物で、
+ * 他の利用者ではなく `practice_problems` の行に結び付く。受付は
+ * `lib/problem-reports/create-problem-report.ts`、届くと運営者へメールで知らせ
+ * （`lib/problem-reports/notify.ts`）、管理画面で対応済み・対応不要のどちらかで閉じる。
+ * 書くのも読むのもサーバー（直 DB 接続）だけで、クライアントからは読み書きさせない
+ * （作成マイグレーションで RLS を有効にし、`rls_policies.sql` で deny all）。
+ *
+ * - `status` — `open`（未対応）/ `resolved`（対応した）/ `dismissed`（対応不要）
+ * - 同じ人 × 同じ問題の未対応は 1 件（部分ユニーク `uq_problem_reports_open_per_reporter`）
+ * - 退会はソフトデリートで auth.users を残すので、報告した人が退会しても行は残る
+ *
+ * @design `problem_id` は `practice_problems` を RESTRICT で参照する
+ * 報告された問題の盤面を消すと、報告が何を指していたか分からなくなる。保存問題の
+ * 掃除をするときは、報告に使った行を残す（`daily_problems` と同じ理由）。
+ */
+export const problemReports = pgTable(
+  "problem_reports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 報告された問題（`practice_problems.id`） */
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => practiceProblems.id, { onDelete: "restrict" }),
+    /** 報告した人の auth.users(id)（Supabase SQL で FK を定義。物理削除で NULL） */
+    reporterId: uuid("reporter_id"),
+    /** 理由（features の `problem-reports/problem-report.ts` の `PROBLEM_REPORT_REASONS`） */
+    reason: varchar("reason", { length: 30 }).notNull(),
+    /** 詳細（任意。「その他」では必須） */
+    detail: text("detail"),
+    /** 報告した画面（`PROBLEM_REPORT_CONTEXTS`） */
+    context: text("context").notNull(),
+    /** 正解をどこまで見せた時点の報告か（`ProblemReportStage`） */
+    stage: text("stage").notNull(),
+    /**
+     * 受付の時点で利用者に出していた正解とルール設定
+     *
+     * @design 正解はサーバーが受付時に組み立て直して残し、クライアントからは受け取らない
+     * `practice_problems` は盤面だけを持ち、正解は読み戻すたびに現行の採点で
+     * 組み立て直す（採点の修正に追随させるため）。そのままでは、採点を直した後に
+     * 「何が誤って出ていたか」が残らないので、報告の受付時に報告者のルール設定で
+     * 組み立てた正解をここに写す。サーバーの採点は同じデプロイのクライアントと同じ
+     * コードなので、受付時に組み立てれば画面に出ていたものと同じになる（どのデプロイかは
+     * `revision`）。クライアントが正解を送る形は、検証しきれない自由な JSON を
+     * 受け取ることになるので採らない。組み立てに失敗しても報告は受け付け、理由を残す
+     * （`lib/problem-reports/snapshot.ts`）。
+     */
+    snapshot: jsonb("snapshot").notNull().$type<ProblemReportSnapshot>(),
+    /** 届いた入口（`PRACTICE_PROBLEM_SOURCES`。web の Server Action は `web`） */
+    source: text("source").notNull(),
+    /** 対応の状態 */
+    status: varchar("status", { length: 20 })
+      .notNull()
+      .default(ProblemReportStatus.Open),
+    /** 閉じたときの管理者のメモ */
+    resolutionNote: text("resolution_note"),
+    /** 閉じた管理者の auth.users(id)（Supabase SQL で FK を定義。物理削除で NULL） */
+    resolvedBy: uuid("resolved_by"),
+    /** 閉じた日時 */
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    /** 報告した日時 */
+    createdAt: createdAtColumn(),
+  },
+  (table) => [
+    index("idx_problem_reports_status_created").on(
+      table.status,
+      table.createdAt,
+    ),
+    index("idx_problem_reports_problem").on(table.problemId),
+    // アカウントごとの 1 日の上限（直近 24 時間の件数）を数える
+    index("idx_problem_reports_reporter_created").on(
+      table.reporterId,
+      table.createdAt,
+    ),
+    // 同じ人 × 同じ問題の未対応は 1 件。重ねて送っても ON CONFLICT DO NOTHING で
+    // 行を増やさず、メールも増えない（スパム対策の最後の段。他の段は
+    // create-problem-report.ts のモジュール TSDoc）
+    uniqueIndex("uq_problem_reports_open_per_reporter")
+      .on(table.reporterId, table.problemId)
+      .where(sql`${table.status} = ${sqlInList([ProblemReportStatus.Open])}`),
+    check(
+      "problem_reports_chk_reason",
+      sql`${table.reason} IN (${sqlInList(PROBLEM_REPORT_REASONS)})`,
+    ),
+    check(
+      "problem_reports_chk_context",
+      sql`${table.context} IN (${sqlInList(PROBLEM_REPORT_CONTEXTS)})`,
+    ),
+    check(
+      "problem_reports_chk_source",
+      sql`${table.source} IN (${sqlInList(PRACTICE_PROBLEM_SOURCES)})`,
+    ),
+    check(
+      "problem_reports_chk_status",
+      sql`${table.status} IN (${sqlInList(PROBLEM_REPORT_STATUSES)})`,
+    ),
+  ],
+).enableRLS();
+
+export type ProblemReport = typeof problemReports.$inferSelect;
+export type NewProblemReport = typeof problemReports.$inferInsert;
