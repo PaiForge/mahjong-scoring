@@ -448,6 +448,36 @@ $$;
 REVOKE ALL ON TABLE public.reports FROM anon, authenticated;
 
 -- =============================================================================
+-- problem_reports
+-- =============================================================================
+-- 出題した問題の誤りの報告。サーバーだけが読み書きする（rls_policies.sql 参照）。
+-- 退会はソフトデリートで auth.users を残すので、通常はどの FK も発火しない。
+-- auth.users を物理削除したときだけ、報告者・対応者は NULL になる（報告は問題に
+-- 結び付くもので、報告者が消えても調べる価値は残る）。問題（practice_problems）への
+-- FK は Drizzle のマイグレーションが RESTRICT で定義する。
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'problem_reports_reporter_id_fkey'
+  ) THEN
+    ALTER TABLE public.problem_reports
+      ADD CONSTRAINT problem_reports_reporter_id_fkey
+      FOREIGN KEY (reporter_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'problem_reports_resolved_by_fkey'
+  ) THEN
+    ALTER TABLE public.problem_reports
+      ADD CONSTRAINT problem_reports_resolved_by_fkey
+      FOREIGN KEY (resolved_by) REFERENCES auth.users(id) ON DELETE SET NULL;
+  END IF;
+END;
+$$;
+
+REVOKE ALL ON TABLE public.problem_reports FROM anon, authenticated;
+
+-- =============================================================================
 -- daily_problem_answers
 -- =============================================================================
 -- 本日の問題の解答の記録。サーバーだけが読み書きする（rls_policies.sql 参照）。

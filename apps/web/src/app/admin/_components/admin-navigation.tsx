@@ -5,7 +5,12 @@ import { usePathname } from "next/navigation";
 
 export interface AdminNavGroup {
   readonly label: string;
-  readonly items: readonly { readonly href: string; readonly label: string }[];
+  readonly items: readonly {
+    readonly href: string;
+    readonly label: string;
+    /** 項目の右端に添えるもの（未対応の件数。`NavOpenCountBadge`） */
+    readonly badge?: React.ReactNode;
+  }[];
 }
 
 /** サイドバーのナビゲーション（1024px 未満では AdminShell のドロワーに入る）。 */
@@ -39,6 +44,7 @@ export function AdminNavigation({
                 >
                   <span className="admin-nav-dot" aria-hidden="true" />
                   {item.label}
+                  {item.badge}
                 </Link>
               );
             })}

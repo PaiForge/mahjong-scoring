@@ -10,7 +10,7 @@ import {
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
 import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
 import { usePageLocale } from "@/app/[locale]/(user)/(public)/practice/_hooks/use-page-locale";
-import { isOya } from "@mahjong-scoring/core";
+import { ARCHIVE_SCHEMA_VERSION, isOya } from "@mahjong-scoring/core";
 import type {
   AgariProblemPayload,
   JudgementResult,
@@ -48,6 +48,7 @@ import { QuestionDisplay } from "@/app/[locale]/(user)/(public)/practice/agari-s
 import { ResultDisplay } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/result-display";
 import { ScorePracticeAnswerForm } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/score-practice-answer-form";
 import { ScoreAnswerFormSkeleton } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/agari-score-board-skeleton";
+import { ProblemReportButton } from "@/app/[locale]/(user)/(public)/practice/_components/problem-report-button";
 
 import { recordDailyProblemAnswerAction } from "../_actions/record-daily-problem-answer";
 
@@ -314,6 +315,19 @@ export function DailyProblemBoard({
             </LocaleNavLink>
           </div>
         </>
+      )}
+      {/* モバイル幅だけ、右下に浮く「問題を報告」のボタン（44px）の高さぶんを下に
+          空け、盤面の最下部の操作・リンクがボタンの下に隠れないようにする */}
+      <div aria-hidden className="h-11 md:hidden" />
+      {isAnswered && (
+        <ProblemReportButton
+          problem={() => ({
+            kind: "agari-score",
+            schemaVersion: ARCHIVE_SCHEMA_VERSION,
+            payload,
+          })}
+          context="daily-problem"
+        />
       )}
     </>
   );

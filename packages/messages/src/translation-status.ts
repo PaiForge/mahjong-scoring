@@ -101,6 +101,9 @@ export type MessagesShape = DictionaryShape<typeof jaMessages>;
  *
  * 本日の問題（`/daily-problem` とダッシュボードのカード、アプリの同じ画面）は
  * `dailyProblem` を最初から完訳で足した。
+ *
+ * 出題した問題の誤りの報告（和了形・聴牌形の点数計算の play と本日の問題のボタンと
+ * フォーム）は `problemReport` を最初から完訳で足した。
  */
 export const EN_TRANSLATED_NAMESPACES = [
   "metadata",
@@ -196,6 +199,7 @@ export const EN_TRANSLATED_NAMESPACES = [
   "mobileApp",
   "appDownload",
   "dailyProblem",
+  "problemReport",
 ] as const satisfies readonly MessageNamespace[];
 
 /** 英語で完訳した名前空間の型（完訳の名前空間だけを受け付ける依存の宣言に使う） */
@@ -551,7 +555,7 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  *   関連レッスン（`learnCurriculum`）、残り回数（`practiceQuota`）、広告
  * - 練習・昇級試験の説明・play・training・result — {@link practiceMenuRoutes}
  * - `/practice/agari-score`・`/practice/tenpai-score` と `/play` —
- *   {@link EN_ENDLESS_PRACTICE_NAMESPACES}
+ *   {@link EN_ENDLESS_PRACTICE_NAMESPACES}。`/play` は問題の誤りの報告（`problemReport`）も読む
  * - `/dojo` — 段級位と行程（`dojo`・`ranks`・`learnCurriculum`・`practice`・全練習の名前空間）
  * - `/dojo/ranks/[slug]` — 級の詳細（`dojo`・`ranks`）、前提のレッスン（`learnCurriculum`）、
  *   試験の案内（`ranks`）、広告
@@ -561,7 +565,8 @@ const EN_ENDLESS_PRACTICE_NAMESPACES = [
  * - `/daily-problem` — 本日の問題の本文（`dailyProblem`）と、借りている和了形の点数計算の
  *   盤面・答え合わせの部品（`/try/agari-score` と同じ `agariScore`・`training`・`scoreTable`・
  *   `challenge`・`reference`・`practice`・`ranks`・`scoreCalculationChallenge`・
- *   `manganScoreCalculationChallenge`・役名の `yakuNames`）、解答後の残り回数（`practiceQuota`）
+ *   `manganScoreCalculationChallenge`・役名の `yakuNames`）、解答後の残り回数（`practiceQuota`）、
+ *   問題の誤りの報告（`problemReport`）
  * - `/getting-started` — はじめ方（`gettingStarted`）
  * - `/lessons/about-this-app` — 章の共通と本文（`aboutThisApp`）、本文に借りている
  *   練習・チャレンジの見本（`practice`（章の共通に含む）・`challenge`・`tenpaiScore`・
@@ -700,7 +705,10 @@ export const EN_ROUTE_NAMESPACES = {
   ],
   ...practiceMenuRoutes(),
   "/practice/agari-score": [...EN_ENDLESS_PRACTICE_NAMESPACES, "nativeAd"],
-  "/practice/agari-score/play": EN_ENDLESS_PRACTICE_NAMESPACES,
+  "/practice/agari-score/play": [
+    ...EN_ENDLESS_PRACTICE_NAMESPACES,
+    "problemReport",
+  ],
   "/practice/tenpai-score": [
     ...EN_ENDLESS_PRACTICE_NAMESPACES,
     "tenpaiScore",
@@ -709,6 +717,7 @@ export const EN_ROUTE_NAMESPACES = {
   "/practice/tenpai-score/play": [
     ...EN_ENDLESS_PRACTICE_NAMESPACES,
     "tenpaiScore",
+    "problemReport",
   ],
   "/getting-started": [...EN_SHELL_NAMESPACES, "gettingStarted"],
   "/try/agari-score": [
@@ -739,6 +748,7 @@ export const EN_ROUTE_NAMESPACES = {
   "/daily-problem": [
     ...EN_SHELL_NAMESPACES,
     "dailyProblem",
+    "problemReport",
     "agariScore",
     "training",
     "scoreTable",

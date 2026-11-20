@@ -1,0 +1,30 @@
+{
+  "button": "Report a mistake in this problem",
+  "title": "Report a mistake in this problem",
+  "lead": "If you find a mistake in the answer's points, yaku, fu or wait, or in the board, let us know. Only the operator reads reports.",
+  "reasonLabel": "What is wrong?",
+  "reasons": {
+    "wrong_score": "The points are wrong",
+    "wrong_yaku": "The yaku or han are wrong",
+    "wrong_fu": "The fu are wrong",
+    "wrong_machi": "The wait is wrong",
+    "invalid_board": "The board (hand, dora, etc.) is wrong",
+    "other": "Other"
+  },
+  "detailLabel": "Details (optional)",
+  "detailLabelRequired": "Details (required)",
+  "detailPlaceholder": "Write the answer you think is correct, or what you noticed",
+  "submit": "Report",
+  "submitting": "Sending...",
+  "cancel": "Cancel",
+  "doneToast": "Thank you. We have received your report.",
+  "errors": {
+    "invalidReason": "Choose what is wrong.",
+    "detailRequired": "Write the details when you choose Other.",
+    "detailTooLong": "Keep the details within {max} characters.",
+    "rateLimited": "You have sent several reports in a short time. Please try again later.",
+    "dailyLimit": "You have reached the limit on reports you can send in 1 day.",
+    "unauthorized": "Log in to send a report.",
+    "failed": "We could not send your report. Please try again later."
+  }
+}

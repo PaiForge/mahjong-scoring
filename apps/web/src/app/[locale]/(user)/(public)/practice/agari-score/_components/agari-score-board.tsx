@@ -50,6 +50,8 @@ import {
 import { showsAnswerTime } from "@mahjong-scoring/features/quota/gate";
 import { hasMentsuBreakdown } from "@mahjong-scoring/features/board/mentsu-breakdown";
 import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
+import { agariArchiveRequestOf } from "@mahjong-scoring/features/practice/archive/archive-request";
+import { ProblemReportButton } from "../../_components/problem-report-button";
 
 function AgariScoreBoardInner() {
   const t = useTranslations("agariScore");
@@ -254,8 +256,10 @@ function AgariScoreBoardInner() {
       <HandPresentationNotice />
 
       {/* 要素間の余白を ContentContainer カードのパディング（p-4 sm:p-6 md:p-8）と同じ
-          レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。 */}
-      <div className="space-y-4 sm:space-y-6 md:space-y-8">
+          レスポンシブ値に揃え、最終要素である「終了する」の上下余白を均等にする。
+          モバイル幅だけ、右下に浮く「問題を報告」のボタン（44px）の高さぶんを下に足し、
+          「終了する」がボタンの下に隠れないようにする */}
+      <div className="space-y-4 pb-11 sm:space-y-6 md:space-y-8 md:pb-0">
         {/* Question */}
         {/* 盤面はカードの先頭。タイトル帯との間に白帯が出ないよう上も詰める */}
         <QuestionDisplay
@@ -376,6 +380,12 @@ function AgariScoreBoardInner() {
           </PracticeFooterAction>
         </PracticeFooterActions>
       </div>
+      {isAnswered && (
+        <ProblemReportButton
+          problem={() => agariArchiveRequestOf(currentQuestion)}
+          context="agari-score"
+        />
+      )}
     </ContentContainer>
   );
 }

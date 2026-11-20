@@ -302,6 +302,18 @@ CREATE POLICY "reports_deny_all" ON "reports"
   USING (false);
 
 -- =============================================================================
+-- problem_reports
+-- =============================================================================
+-- 出題した問題の誤りの報告。誰がどの問題を報告したかは運営だけが見るもので、
+-- クライアントからは読ませない。受付も管理画面もサーバーが直 DB 接続で行う。
+-- 作成マイグレーションでも有効化する。既定権限を剥がす前に表が公開される隙間を作らない。
+ALTER TABLE "problem_reports" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "problem_reports_deny_all" ON "problem_reports";
+CREATE POLICY "problem_reports_deny_all" ON "problem_reports"
+  USING (false);
+
+-- =============================================================================
 -- practice_problems
 -- =============================================================================
 -- 出題した問題の保存。書くのはサーバー（直 DB 接続）だけで、クライアントには
