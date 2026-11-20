@@ -1,6 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
+import {
+  NUMBER_CELL_CLASSES,
+  TotalBarCell,
+  UnknownValueCell,
+} from "@/app/admin/_components/stats-table-cells";
 import { TableHead } from "@/app/admin/_components/table-head";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 
@@ -17,10 +22,6 @@ const COLUMNS = [
   "challengers",
   "total",
 ] as const;
-
-/** 数値のセル（右寄せ・桁揃え） */
-const NUMBER_CELL_CLASSES =
-  "px-4 py-3 text-right whitespace-nowrap tabular-nums";
 
 /**
  * 練習ごとのチャレンジの回数の表
@@ -57,21 +58,18 @@ export async function ChallengeStatsTable({
         <tbody>
           {rows.map((row) => {
             const position = registryPositionOf(row.practice);
-            const ratio = maxTotal === 0 ? 0 : row.total / maxTotal;
             return (
               <tr key={row.menuType} className="border-t border-surface-200">
                 <td className="px-4 py-3 whitespace-nowrap text-surface-500 tabular-nums">
                   {position === undefined ? "—" : position}
                 </td>
-                <td className="px-4 py-3">
-                  {row.practice === undefined ? (
-                    <span className="space-y-1">
-                      <code className="block">{row.menuType}</code>
-                      <span className="block text-xs text-surface-500">
-                        {t("unknownPractice")}
-                      </span>
-                    </span>
-                  ) : (
+                {row.practice === undefined ? (
+                  <UnknownValueCell
+                    value={row.menuType}
+                    note={t("unknownPractice")}
+                  />
+                ) : (
+                  <td className="px-4 py-3">
                     <Link
                       href={row.practice.basePath}
                       className={TEXT_LINK_CLASSES}
@@ -79,28 +77,15 @@ export async function ChallengeStatsTable({
                       {/* 例: practice.practices.jantouFu.title */}
                       {tPractices(`${row.practice.messageKey}.title`)}
                     </Link>
-                  )}
-                </td>
+                  </td>
+                )}
                 <td className={NUMBER_CELL_CLASSES}>
                   {row.inPeriod.toLocaleString("ja-JP")}
                 </td>
                 <td className={NUMBER_CELL_CLASSES}>
                   {row.challengersInPeriod.toLocaleString("ja-JP")}
                 </td>
-                <td className={NUMBER_CELL_CLASSES}>
-                  <span className="block">
-                    {row.total.toLocaleString("ja-JP")}
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="mt-1 ml-auto block h-1.5 w-24 overflow-hidden rounded-full bg-surface-100"
-                  >
-                    <span
-                      className="block h-full rounded-full bg-primary-600"
-                      style={{ width: `${String(ratio * 100)}%` }}
-                    />
-                  </span>
-                </td>
+                <TotalBarCell total={row.total} maxTotal={maxTotal} />
               </tr>
             );
           })}

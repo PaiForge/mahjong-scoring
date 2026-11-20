@@ -1,6 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 
+import {
+  NUMBER_CELL_CLASSES,
+  TotalBarCell,
+  UnknownValueCell,
+} from "@/app/admin/_components/stats-table-cells";
 import { TableHead } from "@/app/admin/_components/table-head";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { getChapterI18nPath } from "@mahjong-scoring/features/curriculum/registry";
@@ -9,10 +14,6 @@ import { curriculumPositionOf, type LessonStatRow } from "../_lib/lesson-stats";
 
 /** 列の並び（左から）。見出しの辞書キー `admin.lessonStats.table.<key>` と同じ */
 const COLUMNS = ["order", "lesson", "section", "period", "total"] as const;
-
-/** 数値のセル（右寄せ・桁揃え） */
-const NUMBER_CELL_CLASSES =
-  "px-4 py-3 text-right whitespace-nowrap tabular-nums";
 
 /**
  * レッスンごとの完了数の表
@@ -51,21 +52,18 @@ export async function LessonStatsTable({
         <tbody>
           {rows.map((row) => {
             const position = curriculumPositionOf(row.chapter);
-            const ratio = maxTotal === 0 ? 0 : row.total / maxTotal;
             return (
               <tr key={row.slug} className="border-t border-surface-200">
                 <td className="px-4 py-3 whitespace-nowrap text-surface-500 tabular-nums">
                   {position === undefined ? "—" : position}
                 </td>
-                <td className="px-4 py-3">
-                  {row.chapter === undefined ? (
-                    <span className="space-y-1">
-                      <code className="block">{row.slug}</code>
-                      <span className="block text-xs text-surface-500">
-                        {t("unknownLesson")}
-                      </span>
-                    </span>
-                  ) : (
+                {row.chapter === undefined ? (
+                  <UnknownValueCell
+                    value={row.slug}
+                    note={t("unknownLesson")}
+                  />
+                ) : (
+                  <td className="px-4 py-3">
                     <Link
                       href={`/lessons/${row.slug}`}
                       className={TEXT_LINK_CLASSES}
@@ -73,8 +71,8 @@ export async function LessonStatsTable({
                       {/* 例: learnCurriculum.chapters.aboutThisApp.title */}
                       {tCurriculum(`${getChapterI18nPath(row.chapter)}.title`)}
                     </Link>
-                  )}
-                </td>
+                  </td>
+                )}
                 <td className="px-4 py-3 whitespace-nowrap text-surface-600">
                   {/* 例: learnCurriculum.sections.fu */}
                   {row.chapter === undefined
@@ -84,20 +82,7 @@ export async function LessonStatsTable({
                 <td className={NUMBER_CELL_CLASSES}>
                   {row.inPeriod.toLocaleString("ja-JP")}
                 </td>
-                <td className={NUMBER_CELL_CLASSES}>
-                  <span className="block">
-                    {row.total.toLocaleString("ja-JP")}
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="mt-1 ml-auto block h-1.5 w-24 overflow-hidden rounded-full bg-surface-100"
-                  >
-                    <span
-                      className="block h-full rounded-full bg-primary-600"
-                      style={{ width: `${String(ratio * 100)}%` }}
-                    />
-                  </span>
-                </td>
+                <TotalBarCell total={row.total} maxTotal={maxTotal} />
               </tr>
             );
           })}
