@@ -2,6 +2,8 @@
 
 import { z } from "zod";
 
+import { dailyProblemDaySchema } from "@mahjong-scoring/features/daily-problem/mobile-api";
+
 import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
 import type { ActionResult } from "@/lib/action-types";
 import { recordDailyProblemAnswer } from "@/lib/daily-problem/answers";
@@ -45,7 +47,7 @@ const inputSchema = z.object({
   /** 表示した利用者と現在のセッションが一致するかを確かめる（認証には使わない） */
   userId: z.string().optional(),
   /** 解いた問題の日付（JST の `YYYY-MM-DD`。ページがサーバーから渡した値） */
-  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  day: dailyProblemDaySchema,
   /** 閲覧者のルール設定で採点した正誤（「わからない」は false） */
   isCorrect: z.boolean(),
 });

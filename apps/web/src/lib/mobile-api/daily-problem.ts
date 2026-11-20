@@ -22,10 +22,11 @@ import "server-only";
 import type { NextResponse } from "next/server";
 import { z } from "zod";
 
-import type {
-  MobileDailyProblemAnswerRequest,
-  MobileDailyProblemAnswerResponse,
-  MobileDailyProblemResponse,
+import {
+  dailyProblemDaySchema,
+  type MobileDailyProblemAnswerRequest,
+  type MobileDailyProblemAnswerResponse,
+  type MobileDailyProblemResponse,
 } from "@mahjong-scoring/features/daily-problem/mobile-api";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
 
@@ -47,7 +48,7 @@ const BODY_MAX_BYTES = 1024;
 // 日付は JST の日付キー（`YYYY-MM-DD`）の形だけを受ける。形が違えば 400、
 // 形が合っていて今日でなければ 409 `staleDay`（記録の側で判定する）
 const answerSchema: z.ZodType<MobileDailyProblemAnswerRequest> = z.object({
-  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  day: dailyProblemDaySchema,
   isCorrect: z.boolean(),
 });
 
