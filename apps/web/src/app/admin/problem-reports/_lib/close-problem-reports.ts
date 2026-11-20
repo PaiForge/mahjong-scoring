@@ -5,18 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { problemReports, type TransactionClient } from "@/lib/db";
 import { ProblemReportStatus } from "@/lib/problem-reports/status";
 
-/** 閉じるときに選べる状態（未対応へは戻さない） */
-export const CLOSED_PROBLEM_REPORT_STATUSES = [
-  ProblemReportStatus.Resolved,
-  ProblemReportStatus.Dismissed,
-] as const;
-
-/** 閉じるときに選べる状態（{@link CLOSED_PROBLEM_REPORT_STATUSES}） */
-export type ClosedProblemReportStatus =
-  (typeof CLOSED_PROBLEM_REPORT_STATUSES)[number];
-
-/** 閉じたときの管理者のメモの最大長（入力欄の `maxLength` もここから引く） */
-export const PROBLEM_REPORT_RESOLUTION_NOTE_MAX_LENGTH = 1000;
+import type { ClosedProblemReportStatus } from "./close-options";
 
 /** 未対応の報告を閉じる内容 */
 interface CloseOpenProblemReports {

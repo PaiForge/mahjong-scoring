@@ -13,9 +13,9 @@ import { requireAdminActor } from "../../_lib/auth";
 import {
   CLOSED_PROBLEM_REPORT_STATUSES,
   PROBLEM_REPORT_RESOLUTION_NOTE_MAX_LENGTH,
-  closeOpenProblemReports,
   type ClosedProblemReportStatus,
-} from "../_lib/close-problem-reports";
+} from "../_lib/close-options";
+import { closeOpenProblemReports } from "../_lib/close-problem-reports";
 
 /** 問題の報告を閉じる操作の失敗理由 */
 export type CloseProblemReportError =
