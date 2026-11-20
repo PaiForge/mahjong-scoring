@@ -168,11 +168,11 @@ export function TenpaiScoreResult({
                       <MarkedHai
                         key={wait.agariHai}
                         hai={wait.agariHai}
-                        mark={
-                          machiJudgement?.missed.includes(wait.agariHai)
-                            ? "missed"
-                            : undefined
-                        }
+                        mark={machiTileMark(
+                          wait.agariHai,
+                          false,
+                          machiJudgement,
+                        )}
                       />
                     ))}
                   </span>
