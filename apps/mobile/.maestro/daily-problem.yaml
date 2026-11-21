@@ -49,7 +49,8 @@ appId: help.mahjong.score
     direction: DOWN
 - assertVisible: "もっと解く"
 - assertNotVisible: "解答を記録しました。"
-- assertVisible: "和了形の点数計算へ"
+- assertVisible:
+    id: "practical-practice-card-agari-score"
 - takeScreenshot: daily-problem-answered
 - tapOn:
     id: "screen-close"

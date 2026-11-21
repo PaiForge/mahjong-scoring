@@ -22,7 +22,14 @@ const TENPAI_TILES = splitAgariHai(
   DEMO_MENTSU_HAND.agariHai,
 ).closedTiles;
 
-async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
+async function PracticalPracticeCard({
+  menu,
+  planLink,
+}: {
+  readonly menu: QuotaMenu;
+  /** 利用枠の料金のリンクをいつ出すか（{@link PracticeEntryQuota} の `planLink`） */
+  readonly planLink?: "always" | "whenExhausted";
+}) {
   const [t, locale] = await Promise.all([
     getTranslations("practice"),
     currentLocale(),
@@ -91,15 +98,24 @@ async function PracticalPracticeCard({ menu }: { readonly menu: QuotaMenu }) {
         </div>
       </div>
       <div className="border-t border-panel px-5 py-4">
-        <PracticeEntryQuota menu={menu} />
+        <PracticeEntryQuota menu={menu} planLink={planLink} />
       </div>
     </article>
   );
 }
 
-/** 実戦練習とダッシュボードで共有する、問題プレビュー付きの入口。 */
-export function AgariScorePracticeBanner() {
-  return <PracticalPracticeCard menu="agari-score" />;
+/**
+ * 実戦練習・ダッシュボード・本日の問題の「もっと解く」で共有する、問題プレビュー付きの入口。
+ *
+ * @param planLink - 利用枠の料金のリンクをいつ出すか。本日の問題のように練習の外から
+ *   誘う場所では、使い切ったときだけにする（`"whenExhausted"`）
+ */
+export function AgariScorePracticeBanner({
+  planLink,
+}: {
+  readonly planLink?: "always" | "whenExhausted";
+} = {}) {
+  return <PracticalPracticeCard menu="agari-score" planLink={planLink} />;
 }
 
 export function TenpaiScorePracticeBanner() {

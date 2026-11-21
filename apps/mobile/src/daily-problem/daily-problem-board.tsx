@@ -22,7 +22,6 @@ import {
   buildDailyProblemQuestion,
   judgeDailyProblemAnswer,
 } from "@mahjong-scoring/features/daily-problem/question";
-import { AGARI_SCORE_PRACTICE_HREF } from "@mahjong-scoring/features/routes";
 
 import { useAuth } from "../auth/use-auth";
 import { BoardBleedProvider } from "../board/board-bleed";
@@ -44,7 +43,7 @@ import { useAgariScoreSettingsStore } from "../hooks/use-score-settings-store";
 import { readModeFlags } from "../practice/endless/agari-score/practice-conditions";
 import { ResultDisplay } from "../practice/endless/agari-score/result-display";
 import { ScorePracticeAnswerForm } from "../practice/endless/agari-score/score-practice-answer-form";
-import { PracticeEntryQuota } from "../practice/quota/practice-entry-quota";
+import { PracticalPracticeCard } from "../practice/components/practical-practice-card";
 import { fetchDailyProblem, sendDailyProblemAnswer } from "./daily-api";
 
 /** 閉じた後に見せる画面。履歴が無い（ディープリンクで開いた）ときはホームへ */
@@ -190,9 +189,9 @@ function AccountDailyProblemScreen({
  * 正解が変わらないものに絞ってある。組み立てに失敗したら（保存形式と現行の
  * ルールの食い違い等）「出題できない」とだけ出す。
  *
- * 答え合わせのあとは「もっと解く」の節に、和了形の点数計算の設定画面への入口
- * （モーダルを閉じてから積む `useOpenFromModal`）と今日の残り回数
- * （`PracticeEntryQuota`）、ホームへ戻る操作を置く。ホームから来た導線なので
+ * 答え合わせのあとは「もっと解く」の節に、練習一覧と同じ和了形の点数計算のカード
+ * （`PracticalPracticeCard`。手牌のプレビュー・説明・今日の残り回数。押すとモーダルを
+ * 閉じてから説明画面を積む `useOpenFromModal`）と、ホームへ戻る操作を置く。ホームから来た導線なので
  * 料金への誘いは控えめにしたい（web は料金のリンクを使い切ったときだけ出す）が、
  * アプリの `PracticeEntryQuota` はもともと料金への導線を持たない（審査ガイドライン
  * 3.1.1。Pro の案内はペイウォールとプラン画面）ので、そのまま置けば足りる。
@@ -354,16 +353,7 @@ function DailyProblemBoard({
         <>
           <View style={styles.more} testID="daily-problem-more">
             <SectionTitle>{t("more.title")}</SectionTitle>
-            <Text style={styles.notice}>{t("more.hint")}</Text>
-            <View style={styles.moreLink}>
-              <TextLink
-                onPress={() => openFromModal(AGARI_SCORE_PRACTICE_HREF)}
-                testID="daily-problem-to-practice"
-              >
-                {t("more.link")}
-              </TextLink>
-            </View>
-            <PracticeEntryQuota menu="agari-score" />
+            <PracticalPracticeCard menu="agari-score" onOpen={openFromModal} />
           </View>
           <View style={styles.home}>
             <TextLink onPress={onClose} testID="daily-problem-home">
@@ -399,9 +389,6 @@ const styles = StyleSheet.create({
   },
   more: {
     gap: 16,
-  },
-  moreLink: {
-    alignItems: "flex-start",
   },
   home: {
     alignItems: "center",

@@ -45,10 +45,9 @@ import { readDailyProblemAnswer } from "@/lib/daily-problem/answers";
 import { getDailyProblem } from "@/lib/daily-problem/today";
 import { logExternalError } from "@/lib/log-error";
 import type { DailyProblemAnswerState } from "@mahjong-scoring/features/daily-problem/mobile-api";
-import {
-  AGARI_SCORE_PRACTICE_HREF,
-  PRACTICE_PATH,
-} from "@mahjong-scoring/features/routes";
+import { PRACTICE_PATH } from "@mahjong-scoring/features/routes";
+
+import { AgariScorePracticeBanner } from "@/app/[locale]/(user)/(public)/practice/_components/practical-practice-banners";
 
 import { DailyProblemBoard } from "./_components/daily-problem-board";
 
@@ -141,7 +140,7 @@ export default async function DailyProblemPage({
         payload={problem.payload}
         day={problem.day}
         initialAnswer={initialAnswer}
-        practiceTarget={resolveNavTargetFor(AGARI_SCORE_PRACTICE_HREF, locale)}
+        practiceCard={<AgariScorePracticeBanner planLink="whenExhausted" />}
         homeTarget={resolveNavTargetFor("/", locale)}
       />
     </ContentContainer>
