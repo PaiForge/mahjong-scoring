@@ -19,6 +19,8 @@ const supabase = vi.hoisted(() => ({
   env: { url: "http://127.0.0.1:54321", publishableKey: "test-key" } as
     { url: string; publishableKey: string } | undefined,
   authenticated: false,
+  /** `getClaims()` が返す error（既定は無し） */
+  claimsError: undefined as unknown,
   cookiesToSet: [] as CookieToSet[],
   cacheHeaders: {} as Record<string, string>,
   getClaims: vi.fn(),
@@ -49,6 +51,7 @@ vi.mock("@supabase/ssr", () => ({
         }
         return {
           data: supabase.authenticated ? { claims: { sub: "user-1" } } : null,
+          error: supabase.claimsError ?? null,
         };
       },
     },
@@ -84,6 +87,7 @@ function rewriteTarget(response: Response): string | null {
 beforeEach(() => {
   supabase.env = { url: "http://127.0.0.1:54321", publishableKey: "test-key" };
   supabase.authenticated = false;
+  supabase.claimsError = undefined;
   supabase.cookiesToSet = [];
   supabase.cacheHeaders = {};
   supabase.getClaims.mockClear();
@@ -403,6 +407,50 @@ describe("認証によるトップの出し分け", () => {
     supabase.authenticated = true;
     const response = await proxy(makeRequest("/dashboard"));
     expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja/dashboard`);
+  });
+});
+
+/**
+ * 期限切れのトークンのリフレッシュが認証サーバーに届かないと、`getClaims()` は
+ * claims 無し + 届かなかった error を返す。未ログインと決めつけない。
+ */
+describe("ログイン済みか確かめられなかったときは、未ログインと決めつけない", () => {
+  /** 認証サーバーに届かなかったときの error（`AuthRetryableFetchError` と同じ形） */
+  const UNREACHABLE = { name: "AuthRetryableFetchError", status: 0 };
+
+  it("/dashboard を LP へ redirect せず、ページへ通す", async () => {
+    supabase.claimsError = UNREACHABLE;
+    const response = await proxy(makeRequest("/dashboard"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja/dashboard`);
+  });
+
+  it("/en/dashboard も redirect しない", async () => {
+    supabase.claimsError = UNREACHABLE;
+    const response = await proxy(makeRequest("/en/dashboard"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("/ は dashboard へ rewrite せず、静的な LP を出す", async () => {
+    supabase.claimsError = UNREACHABLE;
+    const response = await proxy(makeRequest("/"));
+    expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja`);
+  });
+
+  it("認証サーバーが無効と答えたセッションは未ログイン（/dashboard は LP へ）", async () => {
+    supabase.claimsError = { name: "AuthApiError", status: 400 };
+    const response = await proxy(makeRequest("/dashboard"));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(`${ORIGIN}/`);
+  });
+
+  it("検証に失敗した claims は、中身があっても信用しない", async () => {
+    supabase.authenticated = true;
+    supabase.claimsError = { name: "AuthInvalidJwtError", status: 400 };
+    const response = await proxy(makeRequest("/"));
+    expect(rewriteTarget(response)).toBe(`${ORIGIN}/ja`);
   });
 });
 
