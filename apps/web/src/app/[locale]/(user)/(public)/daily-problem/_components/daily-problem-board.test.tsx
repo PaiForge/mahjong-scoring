@@ -3,6 +3,7 @@ import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
+import { useAgariScoreSettingsStore } from "@/app/[locale]/(user)/(public)/practice/agari-score/_hooks/use-agari-score-settings-store";
 import { eligibleAgariPayload } from "@/lib/daily-problem/test-payloads";
 import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
 
@@ -65,6 +66,12 @@ beforeEach(() => {
     benefits: [],
   });
   useDisplaySettingsStore.setState({ scoreInput: "select" });
+  useAgariScoreSettingsStore.setState({
+    requireYaku: false,
+    requireHanFu: false,
+    exactHan: false,
+    requireFuForMangan: false,
+  });
 });
 
 describe("DailyProblemBoard", () => {
@@ -106,6 +113,22 @@ describe("DailyProblemBoard", () => {
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
     expect(screen.queryByText("more.title")).toBeNull();
     expect(mockRecord).not.toHaveBeenCalled();
+  });
+
+  it("回答欄は和了形の点数計算の設定に揃え、既定では点数だけを問う", async () => {
+    await show();
+
+    expect(screen.getByText("form.labels.koTsumoScore")).toBeTruthy();
+    expect(screen.queryByText("form.labels.han")).toBeNull();
+    expect(screen.queryByText("form.labels.fu")).toBeNull();
+  });
+
+  it("和了形の点数計算で翻数と符も答える設定なら、翻数と符の欄も出す", async () => {
+    useAgariScoreSettingsStore.setState({ requireHanFu: true });
+    await show();
+
+    expect(screen.getByText("form.labels.han")).toBeTruthy();
+    expect(screen.getByText("form.labels.fu")).toBeTruthy();
   });
 
   it("「わからない」は不正解として 1 回だけ記録し、答え合わせと「もっと解く」を出す", async () => {

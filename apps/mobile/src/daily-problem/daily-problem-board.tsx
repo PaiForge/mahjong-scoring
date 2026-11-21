@@ -40,6 +40,8 @@ import { colors } from "../lib/theme";
 import { useFocusRead } from "../lib/use-focus-read";
 import { QuestionDisplay } from "../practice/components/question-display";
 import { QuestionPrompt } from "../practice/components/question-prompt";
+import { useAgariScoreSettingsStore } from "../hooks/use-score-settings-store";
+import { readModeFlags } from "../practice/endless/agari-score/practice-conditions";
 import { ResultDisplay } from "../practice/endless/agari-score/result-display";
 import { ScorePracticeAnswerForm } from "../practice/endless/agari-score/score-practice-answer-form";
 import { PracticeEntryQuota } from "../practice/quota/practice-entry-quota";
@@ -182,8 +184,9 @@ function AccountDailyProblemScreen({
  * 止めず、その旨を示す。通信失敗は最初の正誤を端末に預け、同じ内容を再送する。
  *
  * 問題は端末のルール設定（設定画面の麻雀ルール。端末ローカル）で組み立て、採点も
- * 同じ設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`。判定は
- * 標準の判定モードで、回答欄も既定の「翻・符・点数」）。出題する盤面はどの設定でも
+ * 同じ設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`。回答する
+ * 項目（役・翻数と符・5翻以上の翻数・満貫以上の符）は和了形の点数計算の設定に
+ * 揃え、回答欄・採点・結果表に同じ値を渡す）。出題する盤面はどの設定でも
  * 正解が変わらないものに絞ってある。組み立てに失敗したら（保存形式と現行の
  * ルールの食い違い等）「出題できない」とだけ出す。
  *
@@ -225,6 +228,11 @@ function DailyProblemBoard({
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
   const settings: RuleSettings = useRuleSettingsStore();
+  // 回答する項目は和了形の点数計算の設定に揃える。練習の盤面と同じく開いたときの
+  // 設定で固定する（解いている途中で欄が変わらない）
+  const [mode] = useState(() =>
+    readModeFlags(useAgariScoreSettingsStore.getState()),
+  );
   const built = useMemo(
     () => buildDailyProblemQuestion(payload, settings),
     [payload, settings],
@@ -264,12 +272,12 @@ function DailyProblemBoard({
     (answer: UserAnswer) => {
       if (question === undefined) return;
       scrollToTop();
-      const result = judgeDailyProblemAnswer(question, answer, settings);
+      const result = judgeDailyProblemAnswer(question, answer, settings, mode);
       hapticJudgement(result.isCorrect ? "correct" : "incorrect");
       setAttempt({ userAnswer: answer, result });
       record(result.isCorrect);
     },
-    [question, settings, record, scrollToTop],
+    [question, settings, mode, record, scrollToTop],
   );
 
   const handleReveal = useCallback(() => {
@@ -322,6 +330,7 @@ function DailyProblemBoard({
                 question={question}
                 userAnswer={attempt.userAnswer}
                 result={attempt.result}
+                {...mode}
               />
             </View>
           ) : !ready ? (
@@ -333,6 +342,7 @@ function DailyProblemBoard({
                 onSubmit={handleSubmit}
                 isTsumo={question.isTsumo}
                 isOya={isOya(question.jikaze)}
+                {...mode}
                 autoSubmit
               />
             </View>
