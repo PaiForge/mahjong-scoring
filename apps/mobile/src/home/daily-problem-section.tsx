@@ -1,17 +1,18 @@
 import { useEffect, useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { DEFAULT_RULE_SETTINGS } from "@mahjong-scoring/core";
 import type { AgariProblemPayload } from "@mahjong-scoring/core";
 import type { DailyProblemAnswerState } from "@mahjong-scoring/features/daily-problem/mobile-api";
 import { buildDailyProblemQuestion } from "@mahjong-scoring/features/daily-problem/question";
-import { formatJstDayKeyMonthDay } from "@mahjong-scoring/features/jst";
 import { DAILY_PROBLEM_HREF } from "@mahjong-scoring/features/routes";
 
 import { useAuth } from "../auth/use-auth";
 import { TehaiHand } from "../board/tehai-hand";
 import { Button } from "../components/button";
+import { Chip, chipForeground } from "../components/chip";
+import { CheckIcon } from "../components/icons/icons";
 import { usePullToRefresh } from "../components/screen-refresh";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
@@ -21,7 +22,6 @@ import {
 } from "../daily-problem/daily-api";
 import { panelFrame } from "../lib/panel-styles";
 import { colors, radius } from "../lib/theme";
-import { useAppLocale } from "../lib/use-app-locale";
 import { useFocusRead } from "../lib/use-focus-read";
 
 /**
@@ -38,8 +38,9 @@ import { useFocusRead } from "../lib/use-focus-read";
  * 画面が前面に戻るたびに読み直す（`useFocusRead`）ので、出題画面で解いて
  * 戻ると解答済みの表示に替わる。引っ張って更新にも読み直しを登録する。
  *
- * カードは web と同じく日付・手牌のプレビュー・説明・状態の順。未解答なら緑の
- * 主ボタン「解く」（押して始める面）、解答済みなら正誤と文字の操作「もう一度
+ * カードは web と同じく手牌のプレビュー・状態の順。未解答なら緑の
+ * 主ボタン「解く」（押して始める面）、解答済みなら正誤のチップ（正解は緑 +
+ * チェック、不正解は灰。web の段級位状態バッジと同じ記号）と文字の操作「もう一度
  * 解く」（解き直しても記録は変わらないので、始める面にはしない）。手牌の
  * プレビューは解答の有無に依らず出す。
  */
@@ -69,27 +70,22 @@ function AccountDailyProblemSection({ userId }: { readonly userId: string }) {
     [reload, userId],
   );
   if (userId === undefined || state.kind !== "loaded") return null;
-  const { day, problem, answer } = state.value;
+  const { problem, answer } = state.value;
   if (problem === null) return null;
-  return (
-    <DailyProblemCard day={day} payload={problem.payload} answer={answer} />
-  );
+  return <DailyProblemCard payload={problem.payload} answer={answer} />;
 }
 
 /** 今日の問題があるときのカード */
 function DailyProblemCard({
-  day,
   payload,
   answer,
 }: {
-  readonly day: string;
   readonly payload: AgariProblemPayload;
   readonly answer: DailyProblemAnswerState | null;
 }) {
   const t = useTranslations("dailyProblem");
   const tCommon = useTranslations("common");
   const router = useRouter();
-  const locale = useAppLocale();
   // 手牌はルール設定に依らないので、プレビューは標準ルールで組み立てる。
   // 組み立てられなければプレビューだけ省き、カードは出す（web と同じ）
   const question = useMemo(() => {
@@ -102,7 +98,6 @@ function DailyProblemCard({
     <View style={styles.section} testID="home-daily-problem">
       <SectionTitle>{t("title")}</SectionTitle>
       <View style={styles.card}>
-        <Text style={styles.day}>{formatJstDayKeyMonthDay(day, locale)}</Text>
         {question !== undefined && (
           <View
             style={styles.preview}
@@ -116,7 +111,6 @@ function DailyProblemCard({
             />
           </View>
         )}
-        <Text style={styles.hint}>{t("card.hint")}</Text>
         {answer === null ? (
           <Button
             size="lg"
@@ -128,16 +122,18 @@ function DailyProblemCard({
           </Button>
         ) : (
           <View style={styles.answered}>
-            <Text
-              style={[
-                styles.answeredText,
-                answer.isCorrect && styles.answeredCorrect,
-              ]}
+            <Chip
+              tone={answer.isCorrect ? "success" : "neutral"}
+              icon={
+                answer.isCorrect ? (
+                  <CheckIcon size={14} color={chipForeground("success")} />
+                ) : undefined
+              }
             >
               {answer.isCorrect
                 ? t("card.answeredCorrect")
                 : t("card.answeredIncorrect")}
-            </Text>
+            </Chip>
             <TextLink onPress={open} testID="home-daily-problem-review">
               {t("card.review")}
             </TextLink>
@@ -157,21 +153,11 @@ const styles = StyleSheet.create({
     padding: 20,
     gap: 16,
   },
-  day: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.surface900,
-  },
   preview: {
     overflow: "hidden",
     borderRadius: radius.lg,
     backgroundColor: colors.primary800,
     padding: 12,
-  },
-  hint: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: colors.surface500,
   },
   answered: {
     flexDirection: "row",
@@ -179,13 +165,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
-  },
-  answeredText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.surface700,
-  },
-  answeredCorrect: {
-    color: colors.successStrong,
   },
 });

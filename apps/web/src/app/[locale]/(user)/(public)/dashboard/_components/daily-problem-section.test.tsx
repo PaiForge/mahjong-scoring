@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import { render } from "@/test/tile-image-render";
 
 import { eligibleAgariPayload } from "@/lib/daily-problem/test-payloads";
-import { formatJstDayKeyMonthDay } from "@mahjong-scoring/features/jst";
 
 vi.mock("next-intl/server", async () => await import("@/test/intl-mock"));
 // 主ボタン（LinkButton）が遷移待ちの表示でクライアント側の辞書を引く
@@ -11,12 +10,9 @@ vi.mock("next-intl", async () => await import("@/test/intl-mock"));
 
 const { DailyProblemSection } = await import("./daily-problem-section");
 
-const DAY = "2026-11-17";
-
 async function show(answer?: { readonly isCorrect: boolean }) {
   return render(
     await DailyProblemSection({
-      day: DAY,
       payload: eligibleAgariPayload(),
       answer,
       locale: "ja",
@@ -25,12 +21,10 @@ async function show(answer?: { readonly isCorrect: boolean }) {
 }
 
 describe("DailyProblemSection", () => {
-  it("未解答なら日付・手牌・説明と、本日の問題へ送る「解く」ボタンを出す", async () => {
+  it("未解答なら手牌と、本日の問題へ送る「解く」ボタンを出す", async () => {
     const { container, getByText, getByRole, queryByText } = await show();
 
     expect(getByText("title")).toBeTruthy();
-    expect(getByText(formatJstDayKeyMonthDay(DAY, "ja"))).toBeTruthy();
-    expect(getByText("card.hint")).toBeTruthy();
     expect(container.querySelector("img")).toBeTruthy();
     expect(getByRole("link", { name: "card.start" }).getAttribute("href")).toBe(
       "/daily-problem",
@@ -67,7 +61,6 @@ describe("DailyProblemSection", () => {
   it("英語のページでは英語の本日の問題へ送る", async () => {
     const { getByRole } = render(
       await DailyProblemSection({
-        day: DAY,
         payload: eligibleAgariPayload(),
         answer: undefined,
         locale: "en",

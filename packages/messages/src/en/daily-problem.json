@@ -5,7 +5,6 @@
     "description": "One riichi mahjong scoring question a day, the same for everyone. Read the winning hand and the situation, then answer the han, fu and points."
   },
   "card": {
-    "hint": "One question a day. It does not count toward your daily limit.",
     "start": "Solve",
     "answeredCorrect": "Answered · Correct",
     "answeredIncorrect": "Answered · Incorrect",
