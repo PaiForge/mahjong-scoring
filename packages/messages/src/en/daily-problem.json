@@ -15,7 +15,6 @@
     "unsupported": "This problem could not be displayed. Reload today's problem.",
     "toPractice": "Back to the practice menus",
     "anonymous": "Answers are recorded only while you are signed in.",
-    "revealNotice": "Revealing the answer records this problem as answered incorrectly.",
     "loadFailed": "Could not load the daily problem.",
     "reload": "Load today's problem"
   },

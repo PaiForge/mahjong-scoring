@@ -374,9 +374,6 @@ function DailyProblemBoard({
       ) : (
         ready && (
           <View style={styles.home}>
-            {!initialAnswer && (
-              <Text style={styles.notice}>{t("board.revealNotice")}</Text>
-            )}
             <TextLink onPress={handleReveal} testID="daily-problem-reveal">
               {tTraining("revealButton")}
             </TextLink>
