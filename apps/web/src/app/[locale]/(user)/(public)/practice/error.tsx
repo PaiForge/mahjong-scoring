@@ -41,10 +41,10 @@ function practiceListHref(locale: SupportedLocale): string {
  */
 export default function PracticeError({
   error,
-  reset,
+  retry,
 }: {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  readonly retry: () => void;
 }) {
   const t = useTranslations("practice.errorBoundary");
   const rawLocale = useLocale();
@@ -53,7 +53,7 @@ export default function PracticeError({
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       logTag="Practice"
       title={t("title")}
       description={t("description")}

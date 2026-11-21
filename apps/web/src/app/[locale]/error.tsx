@@ -18,13 +18,16 @@ import { publishedHomeHref } from "@/i18n/translated-publications";
  * 持ったまま残るので、文言は `errorPage` 名前空間から引く（英語は完訳）。
  * (user) 配下のページのエラーは `(user)/error.tsx` が先に受ける。言語レイアウト
  * そのものが落ちたときは `app/global-error.tsx` が受ける。
+ *
+ * 再試行は `retry`（サーバーから取り直す）。`reset` を使わない理由は
+ * `ErrorFallback` の TSDoc。
  */
 export default function LocaleError({
   error,
-  reset,
+  retry,
 }: {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  readonly retry: () => void;
 }) {
   const t = useTranslations("errorPage");
   const locale = useLocale();
@@ -43,7 +46,7 @@ export default function LocaleError({
         </h1>
         <p className="text-sm text-surface-600 mb-8">{t("description")}</p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button onClick={reset}>{t("retry")}</Button>
+          <Button onClick={retry}>{t("retry")}</Button>
           {/* その言語のトップが未公開なら日本語のトップへ（404 へ案内しない）。
               公開状態はクライアントから読める軽い表から引く（route-policy は
               sitemap のレジストリごとクライアントの JS に載るため） */}

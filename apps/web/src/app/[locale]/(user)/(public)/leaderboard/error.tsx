@@ -9,15 +9,15 @@ import { ErrorFallback } from "@/app/[locale]/(user)/_components/error-fallback"
  */
 export default function LeaderboardError({
   error,
-  reset,
+  retry,
 }: {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  readonly retry: () => void;
 }) {
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       logTag="Leaderboard"
       title="ランキングを読み込めませんでした"
       description="一時的な問題が発生した可能性があります。もう一度お試しください。"
