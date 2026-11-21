@@ -103,6 +103,20 @@ describe("handleReadPlan", () => {
     });
   });
 
+  // 空の履歴として応答すると、払った人に canPurchase: true を返してしまう
+  it.each([
+    ["購入履歴", () => mockListPurchases.mockRejectedValue(new Error("down"))],
+    ["付与", () => mockListGrants.mockRejectedValue(new Error("down"))],
+  ])("%sを読めなければ、無料プランとして応答せず 500", async (_, fail) => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    fail();
+
+    const response = await handleReadPlan(request());
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: "serverError" });
+  });
+
   it("有効なパスがあれば pass（期限は ISO 文字列）で、追加購入できない", async () => {
     mockListPurchases.mockResolvedValue([purchase({})]);
     mockActiveBenefits.mockResolvedValue(new Set(["unlimited_practice"]));

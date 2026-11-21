@@ -138,15 +138,12 @@ describe("listBenefitGrants", () => {
     });
   });
 
-  it("DB が失敗したら空配列でログを残す", async () => {
+  // 空を返すと「付与が無い」と読まれ、付与で Pro の人に無料プランと出る
+  it("DB が失敗したら空にせず投げる", async () => {
     mockSelect.mockImplementation(() => {
       throw new Error("down");
     });
 
-    expect(await listBenefitGrants("u1")).toEqual([]);
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("[listBenefitGrants]"),
-      "down",
-    );
+    await expect(listBenefitGrants("u1")).rejects.toThrow("down");
   });
 });

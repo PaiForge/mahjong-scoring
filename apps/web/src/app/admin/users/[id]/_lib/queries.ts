@@ -52,8 +52,9 @@ export interface UserDetail {
  * ユーザー詳細取得
  *
  * 認証ユーザーが無ければ null（ページは `notFound()` にする）。
- * マイページ用の `listPurchases` / `listBenefitGrants` は失敗を空配列に潰すため
- * 使わない — 管理画面で「購入なし」と「取得失敗」を取り違えると対応を誤る。
+ * 購入と付与は、マイページ用の `listPurchases` / `listBenefitGrants` を通さず
+ * ここで引く（以前はあちらが失敗を空配列に潰していた。いまは投げるが、管理画面は
+ * 取り消した人の名前など別の列も要るので、問い合わせは分けたまま）。
  */
 export async function fetchUserDetail(
   adminClient: SupabaseClient,

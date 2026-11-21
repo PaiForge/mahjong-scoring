@@ -12,7 +12,6 @@ import {
   type BenefitGrant,
   type TransactionClient,
 } from "@/lib/db";
-import { logExternalError } from "@/lib/log-error";
 
 import type { BenefitGrantCategory } from "./benefit-grant-categories";
 
@@ -107,20 +106,15 @@ export async function revokeBenefitGrant(
  * ユーザーへの付与（新しい順）。取り消した行も含む
  * 付与一覧取得
  *
- * マイページの「付与された特典」用。失敗したら空配列（`listPurchases` と
- * 同じく、マイページが落ちるより良い）。ログは残す。
+ * マイページの「付与された特典」用。DB に届かなければ投げる（`listPurchases` と
+ * 同じ理由。空を返すと、付与で Pro の人に「無料プラン」と出る）。
  */
 export async function listBenefitGrants(
   userId: string,
 ): Promise<readonly BenefitGrant[]> {
-  try {
-    return await db
-      .select()
-      .from(benefitGrants)
-      .where(eq(benefitGrants.userId, userId))
-      .orderBy(desc(benefitGrants.createdAt));
-  } catch (error) {
-    logExternalError("listBenefitGrants", "failed to list grants", error);
-    return [];
-  }
+  return db
+    .select()
+    .from(benefitGrants)
+    .where(eq(benefitGrants.userId, userId))
+    .orderBy(desc(benefitGrants.createdAt));
 }

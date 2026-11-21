@@ -146,8 +146,9 @@ function mobilePlanPurchaseOf(
  * 販売中の商品は要求したアプリの経路（iOS は App Store、Android は Google Play
  * の Product ID）のもので、web の Stripe の Price ID は見ない。
  *
- * 購入履歴・付与の読み出しは失敗すると空に、特典の判定は特典なしに倒れる
- * （どれも web のマイページと同じ）。
+ * 購入履歴・付与の読み出しは失敗すると投げる（空を返すと、払った人に
+ * `canPurchase: true` を返してアプリが購入の導線を出す）。呼び出し側が 500 の
+ * 応答にする。特典の判定だけは特典なしに倒れる（`getActiveBenefits`）。
  */
 export async function buildMobilePlanResponse(
   userId: string,

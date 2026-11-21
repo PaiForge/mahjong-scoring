@@ -10,7 +10,6 @@ import {
   type Purchase,
   type TransactionClient,
 } from "@/lib/db";
-import { logExternalError } from "@/lib/log-error";
 import {
   notifyQuietly,
   type NotificationInput,
@@ -224,22 +223,21 @@ export function purchaseNotificationOf(
  * ユーザーの購入履歴（新しい順）。取り消した行も含む
  * 購入履歴取得
  *
- * 失敗したら空配列（履歴の欠落は「無い」と区別できないが、マイページが
- * 落ちるより良い）。ログは残す。
+ * DB に届かなければ投げる。以前は空配列を返していたが、空は「購入が無い」と
+ * 読まれる — 購入状況のページが払った人に「無料プラン」と購入の導線を出し、
+ * アプリ向けの API が `canPurchase: true` を返していた。呼び出し側はどちらも
+ * 失敗の受け皿を持つ（マイページはエラー境界、アプリ向けの API は 500 の応答）。
+ * 特典の判定（`getActiveBenefits`）が失敗を「特典なし」に倒すのとは別の話で、
+ * あちらは機能を出すかどうか、こちらは本人に見せる購入の事実。
  */
 export async function listPurchases(
   userId: string,
 ): Promise<readonly Purchase[]> {
-  try {
-    return await db
-      .select()
-      .from(purchases)
-      .where(eq(purchases.userId, userId))
-      .orderBy(desc(purchases.createdAt));
-  } catch (error) {
-    logExternalError("listPurchases", "failed to list purchases", error);
-    return [];
-  }
+  return db
+    .select()
+    .from(purchases)
+    .where(eq(purchases.userId, userId))
+    .orderBy(desc(purchases.createdAt));
 }
 
 /**
