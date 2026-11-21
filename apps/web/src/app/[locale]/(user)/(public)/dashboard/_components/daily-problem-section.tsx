@@ -38,7 +38,8 @@ interface DailyProblemSectionProps {
  * 文字リンク「もう一度解く」（解き直しても記録は変わらないので、始める面には
  * しない）。
  *
- * 手牌のプレビューは標準ルール（`DEFAULT_RULE_SETTINGS`）で組み立てた問題の手牌を、
+ * 手牌のプレビューは解答の有無に依らず出す（解答済みでも今日の手を見返せる）。
+ * プレビューは標準ルール（`DEFAULT_RULE_SETTINGS`）で組み立てた問題の手牌を、
  * 練習一覧の和了形のバナーと同じ渡し方（和了牌を右に分け、ツモ / ロンの札を添える）で
  * 出す。手牌はルール設定に依らないので標準ルールで足りる（サーバーは端末ローカルの
  * 設定を知らない）。組み立てに失敗したらプレビューだけ省き、カードは出す。
@@ -75,7 +76,7 @@ export async function DailyProblemSection({
           {formatJstDayKeyMonthDay(day, locale)}
         </p>
 
-        {answer === undefined && question && (
+        {question && (
           <div
             aria-hidden="true"
             className="overflow-hidden rounded-lg bg-primary-800 p-3"

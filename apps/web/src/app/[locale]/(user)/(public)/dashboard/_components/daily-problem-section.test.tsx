@@ -41,11 +41,12 @@ describe("DailyProblemSection", () => {
     ).toBe("open");
   });
 
-  it("正解で解答済みなら「解答済み · 正解」と「もう一度見る」の文字リンクを出し、ボタンは出さない", async () => {
+  it("正解で解答済みなら手牌と「解答済み · 正解」・「もう一度見る」の文字リンクを出し、ボタンは出さない", async () => {
     const { container, getByText, getByRole, queryByRole } = await show({
       isCorrect: true,
     });
 
+    expect(container.querySelector("img")).toBeTruthy();
     expect(getByText("card.answeredCorrect")).toBeTruthy();
     expect(
       getByRole("link", { name: "card.review" }).getAttribute("href"),

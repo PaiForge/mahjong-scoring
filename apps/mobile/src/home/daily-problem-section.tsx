@@ -40,7 +40,8 @@ import { useFocusRead } from "../lib/use-focus-read";
  *
  * カードは web と同じく日付・手牌のプレビュー・説明・状態の順。未解答なら緑の
  * 主ボタン「解く」（押して始める面）、解答済みなら正誤と文字の操作「もう一度
- * 解く」（解き直しても記録は変わらないので、始める面にはしない）。
+ * 解く」（解き直しても記録は変わらないので、始める面にはしない）。手牌の
+ * プレビューは解答の有無に依らず出す。
  */
 export function DailyProblemSection() {
   const { status, user } = useAuth();
@@ -102,7 +103,7 @@ function DailyProblemCard({
       <SectionTitle>{t("title")}</SectionTitle>
       <View style={styles.card}>
         <Text style={styles.day}>{formatJstDayKeyMonthDay(day, locale)}</Text>
-        {answer === null && question !== undefined && (
+        {question !== undefined && (
           <View
             style={styles.preview}
             accessibilityElementsHidden
