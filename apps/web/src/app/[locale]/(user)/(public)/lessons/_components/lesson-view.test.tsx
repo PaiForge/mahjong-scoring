@@ -370,7 +370,7 @@ describe("LessonView", () => {
     });
 
     it("認証サーバーが答えられなかったときも通信の失敗と同じく預けて再試行できる", async () => {
-      mockCompleteLesson.mockResolvedValueOnce({ error: "authUnavailable" });
+      mockCompleteLesson.mockResolvedValueOnce({ error: "serviceUnavailable" });
       const errorSpy = vi
         .spyOn(console, "error")
         .mockImplementation(() => undefined);

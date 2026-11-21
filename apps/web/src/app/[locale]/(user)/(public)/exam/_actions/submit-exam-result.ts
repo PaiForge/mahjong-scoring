@@ -33,7 +33,7 @@ export type SubmitExamErrorCode =
  *   エラーではなく「期待された no-op」を表す（未ログインでは挑戦が始まらない
  *   ため、通常は起きない）。
  * - `{ error: 'banned' }`: BAN されたユーザー。採点しない。
- * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられず、ログイン済みか
+ * - `{ error: 'serviceUnavailable' }`: 認証サーバーか DB が答えられず、ログイン済みか
  *   どうかが分からなかった。挑戦には触れていないので、同じ挑戦 ID で再送できる。
  * - `{ error: 'rateLimited' }`: 同じアカウントの確定の回数が枠
  *   （`IP_RATE_LIMITS.finishChallenge`）を超えた。挑戦には触れずに返すので

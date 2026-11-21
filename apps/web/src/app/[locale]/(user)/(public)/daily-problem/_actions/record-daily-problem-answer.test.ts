@@ -2,19 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   mockAuthenticateAndCheckBan,
-  mockIsVerifiedUserUnavailable,
   mockRecordDailyProblemAnswer,
   mockRevalidatePath,
 } = vi.hoisted(() => ({
   mockAuthenticateAndCheckBan: vi.fn(),
-  mockIsVerifiedUserUnavailable: vi.fn(),
   mockRecordDailyProblemAnswer: vi.fn(),
   mockRevalidatePath: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
   authenticateAndCheckBan: mockAuthenticateAndCheckBan,
-  isVerifiedUserUnavailable: mockIsVerifiedUserUnavailable,
 }));
 
 vi.mock("@/lib/daily-problem/answers", () => ({
@@ -33,7 +30,6 @@ const DAY = "2026-11-17";
 beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => undefined);
-  mockIsVerifiedUserUnavailable.mockResolvedValue(false);
   mockAuthenticateAndCheckBan.mockResolvedValue({ user: USER });
   mockRecordDailyProblemAnswer.mockResolvedValue({
     kind: "recorded",

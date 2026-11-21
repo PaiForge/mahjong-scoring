@@ -7,9 +7,10 @@ import { localizedHref } from "@/i18n/public-path";
 
 import { isAuthServiceFailure } from "./auth-service-failure";
 import { type AuthUser, claimsToAuthUser, userToAuthUser } from "./auth-user";
-import { getAccountStanding, isUserBanned } from "./ban";
+import { type AccountStanding, getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
 import { getProfileByUserId } from "./db/queries";
+import { logExternalError } from "./log-error";
 import { buildSignInHref } from "./redirect";
 
 /**
@@ -197,7 +198,7 @@ export const getOptionalUser = cache(
  * 検証済みユーザー問い合わせ結果
  *
  * cache() によりリクエスト内では 1 回だけ問い合わせる。`getOptionalVerifiedUser`
- * と `isVerifiedUserUnavailable` はこれを読むだけなので、両方を呼んでも
+ * と `authenticateAndCheckBan` はこれを読むだけなので、両方を呼んでも
  * 往復は増えない。
  */
 const getVerifiedUserResult = cache(
@@ -229,24 +230,11 @@ const getVerifiedUserResult = cache(
  * 表示専用の読み取りには `getOptionalUser`（ローカル検証・低レイテンシ）を使うこと。
  *
  * 認証サーバーが答えられなかったときも undefined になる。それを「未ログイン」と
- * 区別したい書き込み（記録を黙って捨てたくない `resolveRecorder`）は
- * {@link isVerifiedUserUnavailable} で確かめる。
+ * 区別するのは {@link authenticateAndCheckBan}（`serviceUnavailable`）で、
+ * Server Action はそちらを通す。
  */
 export async function getOptionalVerifiedUser(): Promise<AuthUser | undefined> {
   return (await getVerifiedUserResult()).user;
-}
-
-/**
- * `getOptionalVerifiedUser` が undefined を返したのは、認証サーバーが答えられ
- * なかった（届かない・回数制限・障害）からか
- * 認証サーバー不通判定
- *
- * cookie が無い・失効している・無効なトークンは「未ログイン」であり false。
- * 分け方は {@link isAuthServiceFailure}。user が取れていれば常に false。
- */
-export async function isVerifiedUserUnavailable(): Promise<boolean> {
-  const result = await getVerifiedUserResult();
-  return result.user === undefined && result.unavailable;
 }
 
 /**
@@ -271,11 +259,28 @@ export async function redirectIfAuthenticated(to?: string): Promise<void> {
 /**
  * 認証ゲートが返すエラーコード
  *
- * 未認証が `"unauthorized"`、BAN が `"banned"`。
+ * - `unauthorized` — 未認証（退会を受け付けたユーザーも含む）
+ * - `banned` — BAN
+ * - `serviceUnavailable` — 答えられなかった。認証サーバーが答えられずログイン済みか
+ *   分からなかったか、DB に届かずアカウントの状態（BAN・退会）を確かめられなかった。
+ *   どちらも本人には何も問題が無く、時間を置いて送り直せば通る失敗なので、
+ *   画面は「ログインが切れた」と言わず「時間を置いてもう一度」と案内する
+ *
  * {@link authenticateAndCheckBan} の結果をそのまま返すアクションは、
  * `ActionResult` の union にこの型を含める。
+ *
+ * @design 「答えられなかった」を 1 つのコードにする
+ * 以前は認証サーバーの不通が `unauthorized` に化け（ゲートを通る全アクションが
+ * 障害中に「ログインの状態が切れました」と出した）、DB の失敗は例外のまま
+ * Server Action ごと reject していた（`startTransition` の中から呼ぶ画面は
+ * エラー境界に落ち、素の `await` で呼ぶ画面は表示が止まった）。原因が認証か DB かを
+ * 利用者に分けて見せる意味は無く、どちらも取る行動は「待って送り直す」なので
+ * コードは 1 つ。原因はログに残す。
+ * アプリ向け API は同じ状況を `authUnavailable`（503）で返す
+ * （`lib/mobile-api/auth.ts`）。ストアに出ている版が読む契約なので名前を揃えない。
  */
-export type AuthGateErrorCode = "unauthorized" | "banned";
+export type AuthGateErrorCode =
+  "unauthorized" | "banned" | "serviceUnavailable";
 
 /**
  * 認証 + BAN チェックガード（Server Actions 用）。
@@ -286,11 +291,14 @@ export type AuthGateErrorCode = "unauthorized" | "banned";
  * （{@link requireConfirmedUser} 等）は画面遷移しか守らないため、Action を
  * 直接叩かれると BAN が効かない。
  *
- * エラーコードは未認証が `"unauthorized"`、BAN が `"banned"`。退会を
- * 受け付けたユーザー（退会の工程が終わるまではログインが生きている）も
- * `"unauthorized"` にする — 消したデータを書き込みで蘇らせないため。
- * 入口のこの確認は早く断るためのもので、受付との競合は書き込みの
- * トランザクションの中（`lockAccountForWrite`）が閉じる。
+ * エラーコードは {@link AuthGateErrorCode}。退会を受け付けたユーザー（退会の
+ * 工程が終わるまではログインが生きている）も `"unauthorized"` にする — 消した
+ * データを書き込みで蘇らせないため。入口のこの確認は早く断るためのもので、
+ * 受付との競合は書き込みのトランザクションの中（`lockAccountForWrite`）が閉じる。
+ *
+ * この関数は投げない。認証サーバーへの問い合わせも、アカウントの状態を読む DB も、
+ * 失敗は `"serviceUnavailable"` で返す（確かめられなかったものは通さない）。
+ * 呼び出し側は結果を try の外で受けてよい。
  *
  * @param options.forAccountDeletion - 退会の受付として使う。BAN 中・退会処理中も
  *   通す（本人による退会は、通常の利用を止める BAN の対象にしない。受付は
@@ -299,16 +307,40 @@ export type AuthGateErrorCode = "unauthorized" | "banned";
 export async function authenticateAndCheckBan(
   options: { readonly forAccountDeletion?: boolean } = {},
 ): Promise<{ user: AuthUser } | { error: AuthGateErrorCode }> {
-  const user = await getOptionalVerifiedUser();
+  let verified: Awaited<ReturnType<typeof getVerifiedUserResult>>;
+  try {
+    verified = await getVerifiedUserResult();
+  } catch (error) {
+    // `getUser()` は認証のエラーを値で返すが、それ以外（想定外の例外）は投げる
+    logExternalError(
+      "authenticateAndCheckBan",
+      "failed to verify the user",
+      error,
+    );
+    return { error: "serviceUnavailable" };
+  }
+  const { user } = verified;
 
   if (!user) {
-    return { error: "unauthorized" };
+    return {
+      error: verified.unavailable ? "serviceUnavailable" : "unauthorized",
+    };
   }
   if (options.forAccountDeletion) {
     return { user };
   }
 
-  const standing = await getAccountStanding(user.id);
+  let standing: AccountStanding;
+  try {
+    standing = await getAccountStanding(user.id);
+  } catch (error) {
+    logExternalError(
+      "authenticateAndCheckBan",
+      "failed to read the account standing",
+      error,
+    );
+    return { error: "serviceUnavailable" };
+  }
   if (standing === "deleting") {
     return { error: "unauthorized" };
   }

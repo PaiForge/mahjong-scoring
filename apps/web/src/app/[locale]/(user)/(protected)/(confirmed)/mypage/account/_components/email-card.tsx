@@ -42,6 +42,7 @@ export function EmailCard({
 }: EmailCardProps) {
   const locale = useLocale();
   const t = useTranslations("mypageAccount.email");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const inputId = useId();
   const [editing, setEditing] = useState(false);
@@ -60,6 +61,9 @@ export function EmailCard({
       case "unauthorized":
       case "banned":
         return t(`errors.${code}`);
+      // 認証サーバーか DB が答えられなかった。文言は全アクション共通（common.serviceUnavailable）
+      case "serviceUnavailable":
+        return tCommon("serviceUnavailable");
       case "unknown":
         return t("errors.sendFailed");
       default: {

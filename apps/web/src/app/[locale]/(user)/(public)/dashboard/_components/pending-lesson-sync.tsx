@@ -84,8 +84,8 @@ export function PendingLessonSync({ userId }: PendingLessonSyncProps) {
         const result = await completeLessons(pendingSlugs);
         if (handled.current) return;
         handled.current = true;
-        if ("error" in result && result.error === "authUnavailable") {
-          // 認証サーバーが答えられなかった。通信の失敗と同じく預かりを
+        if ("error" in result && result.error === "serviceUnavailable") {
+          // 認証サーバーか DB が答えられなかった。通信の失敗と同じく預かりを
           // 残し、再試行できる
           setOutcome("failed");
           return;

@@ -8,7 +8,7 @@ describe("isRetryableChallengeFailure", () => {
   it.each<[ChallengeFailureCode, boolean]>([
     ["rateLimited", true],
     ["unexpectedError", true],
-    ["authUnavailable", true],
+    ["serviceUnavailable", true],
     ["banned", false],
     ["unauthorized", false],
     ["invalidResult", false],

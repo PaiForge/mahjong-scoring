@@ -42,7 +42,7 @@ type FailureKind = "retryable" | "settled";
  *   別のインスタンスに当たれば通る。超えている間の送り直しは数えられない
  *   （`checkIpRateLimit` は上限で止まる）ので枠を延ばさない
  * - `unexpectedError`（DB の失敗。トランザクションはロールバック済み）・
- *   `authUnavailable`（認証サーバーの不通）は挑戦に触れていないので送り直せる
+ *   `serviceUnavailable`（認証サーバー・DB の不通で本人確認ができなかった）は挑戦に触れていないので送り直せる
  * - `banned`・`unauthorized`・`invalidResult`・`rejected` はサーバーの答え。
  *   送り直しても変わらない（`rejected` は回答なら古い番号・確定済み・停止中
  *   等で挑戦が受け付けなかったもの。盤面は開始からやり直す）
@@ -50,7 +50,7 @@ type FailureKind = "retryable" | "settled";
 const FAILURE_KINDS: Readonly<Record<ChallengeFailureCode, FailureKind>> = {
   rateLimited: "retryable",
   unexpectedError: "retryable",
-  authUnavailable: "retryable",
+  serviceUnavailable: "retryable",
   banned: "settled",
   unauthorized: "settled",
   invalidResult: "settled",

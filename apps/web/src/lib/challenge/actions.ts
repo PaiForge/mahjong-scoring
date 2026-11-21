@@ -49,11 +49,7 @@
  * 動いているので自動で送り直すと止めたい時間が延びる。届かなければ利用者が
  * もう一度押す（同じ状態への再送は冪等）。
  */
-import {
-  authenticateAndCheckBan,
-  isVerifiedUserUnavailable,
-  type AuthGateErrorCode,
-} from "../auth";
+import { authenticateAndCheckBan, type AuthGateErrorCode } from "../auth";
 import { logExternalError } from "../log-error";
 import {
   enforceIpRateLimit,
@@ -69,22 +65,12 @@ import {
 } from "./attempts";
 
 /**
- * チャレンジの Action の本人確認で弾く理由
- * チャレンジ認証エラーコード
- *
- * `authUnavailable` は認証サーバーが答えられず、ログイン済みかどうかが
- * 分からなかった。未ログイン（`unauthorized`）と区別し、盤面は同じ要求を
- * 送り直す（`resolveRecorder` の `authUnavailable` と同じ扱い）。
- */
-type ChallengeAuthErrorCode = AuthGateErrorCode | "authUnavailable";
-
-/**
  * `answerChallenge` が受け付けなかった理由
  * 回答エラーコード
  *
  * - `unauthorized` / `banned` — 本人確認で弾いた。送り直しても変わらない
- * - `authUnavailable` — 認証サーバーが答えられなかった。挑戦には触れて
- *   いないので送り直せる
+ * - `serviceUnavailable` — 本人確認ができなかった（認証サーバーか DB が
+ *   答えられなかった。`AuthGateErrorCode`）。挑戦には触れていないので送り直せる
  * - `rateLimited` — 同じアカウントの回答が枠（`IP_RATE_LIMITS.answerChallenge`）
  *   を超えた。挑戦には触れずに返すので送り直せる（超えている間の送り直しは
  *   数えない）
@@ -95,7 +81,7 @@ type ChallengeAuthErrorCode = AuthGateErrorCode | "authUnavailable";
  *   回答は数えられていないので送り直せる
  */
 export type AnswerChallengeErrorCode =
-  ChallengeAuthErrorCode | RateLimitErrorCode | "rejected" | "unexpectedError";
+  AuthGateErrorCode | RateLimitErrorCode | "rejected" | "unexpectedError";
 
 /**
  * `answerChallenge` の応答
@@ -133,40 +119,23 @@ export type RevealExpiredResponse =
   | { readonly error: RevealExpiredErrorCode };
 
 /**
- * チャレンジの Action の本人確認。認証サーバーの不通を未ログインと分ける
- *
- * `isVerifiedUserUnavailable` は同じリクエスト内の問い合わせの結果を読む
- * だけで、往復は増えない。
- */
-async function authenticateForChallenge(): Promise<
-  | { readonly user: { readonly id: string } }
-  | { readonly error: ChallengeAuthErrorCode }
-> {
-  const auth = await authenticateAndCheckBan();
-  if (!("error" in auth)) return auth;
-  if (auth.error === "unauthorized" && (await isVerifiedUserUnavailable()))
-    return { error: "authUnavailable" };
-  return auth;
-}
-
-/**
  * 挑戦開始。未認証はローカルの非記録モードで遊ぶ。
  *
  * レートリミットは認証の後に数える。行を作るのはログイン済みの呼び出し
  * だけで、未認証の人が非記録モードへ落ちる経路を枠で塞がないため
  * （認証の前に IP で数えない理由はモジュールの TSDoc）。
  *
- * 認証サーバーが答えられなかったときは `unauthorized` ではなく
- * `authUnavailable` を返す。`unauthorized` は盤面が非記録モードに読み替える
- * ので、ログイン済みの人が不通の間だけ記録無しで遊ばされないようにする
- * （盤面は「通信に失敗」で止めてやり直させる）。
+ * 本人確認ができなかったとき（認証サーバー・DB の不通）は、ゲートが
+ * `unauthorized` ではなく `serviceUnavailable` を返す。`unauthorized` は盤面が
+ * 非記録モードに読み替えるので、ログイン済みの人が不通の間だけ記録無しで
+ * 遊ばされないようにする（盤面は「通信に失敗」で止めてやり直させる）。
  */
 export async function beginChallenge(
   menu: unknown,
   variant: unknown,
   settings: unknown,
 ) {
-  const auth = await authenticateForChallenge();
+  const auth = await authenticateAndCheckBan();
   if ("error" in auth) return { error: auth.error };
   const rateLimited = await enforceIpRateLimit("beginChallenge");
   if (rateLimited) return rateLimited;
@@ -197,7 +166,7 @@ export async function answerChallenge(
   answer: unknown,
 ): Promise<AnswerChallengeResponse> {
   const receivedAt = Date.now();
-  const auth = await authenticateForChallenge();
+  const auth = await authenticateAndCheckBan();
   if ("error" in auth) return { error: auth.error };
   const rateLimited = enforceUserRateLimit(auth.user.id, "answerChallenge");
   if (rateLimited) return rateLimited;
@@ -233,7 +202,7 @@ export async function pauseChallenge(id: unknown, paused: unknown) {
 export async function revealExpiredChallenge(
   id: unknown,
 ): Promise<RevealExpiredResponse> {
-  const auth = await authenticateForChallenge();
+  const auth = await authenticateAndCheckBan();
   if ("error" in auth) return { error: auth.error };
   try {
     const result = await revealExpiredAttempt(auth.user.id, id);
