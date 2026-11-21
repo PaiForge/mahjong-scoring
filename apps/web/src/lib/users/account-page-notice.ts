@@ -29,6 +29,8 @@ export const ACCOUNT_PAGE_NOTICES = [
   "emailChangeDone",
   /** メールアドレス変更のリンクが無効か期限切れ */
   "emailChangeLinkInvalid",
+  /** 認証サーバーが答えられず、メールアドレス変更のリンクを確かめられなかった */
+  "emailChangeUnavailable",
 ] as const;
 
 export type AccountPageNotice = (typeof ACCOUNT_PAGE_NOTICES)[number];
