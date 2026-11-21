@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
@@ -31,7 +31,6 @@ import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
-import { PracticeEntryQuota } from "@/app/[locale]/(user)/(public)/practice/_components/practice-entry-quota";
 import {
   PracticeFooterAction,
   PracticeFooterActions,
@@ -69,8 +68,11 @@ interface DailyProblemBoardProps {
   readonly day: string;
   /** ログイン済みで、今日すでに解答していればその記録（最初の解答） */
   readonly initialAnswer?: DailyProblemAnswerState;
-  /** 「和了形の点数計算へ」の張る先（`resolveNavTargetFor(AGARI_SCORE_PRACTICE_HREF, locale)`） */
-  readonly practiceTarget: NavTarget;
+  /**
+   * 答え合わせのあとの「もっと解く」に置く和了形の点数計算のカード
+   * （`AgariScorePracticeBanner`）。サーバーコンポーネントなのでページが組んで渡す
+   */
+  readonly practiceCard: ReactNode;
   /** 「ホームへ戻る」の張る先（`resolveNavTargetFor("/", locale)`） */
   readonly homeTarget: NavTarget;
 }
@@ -109,16 +111,17 @@ interface DailyProblemBoardProps {
  * ページと同じく、フォームの選択肢が端末ローカルのルール設定で変わり、サーバーの
  * HTML と初回のクライアント描画がずれうるため。
  *
- * 答え合わせのあとは「もっと解く」の節に、和了形の点数計算への入口と今日の残り
- * 回数（`PracticeEntryQuota`。料金のリンクは使い切ったときだけ）、ホームへ戻る
- * リンクを置く。
+ * 答え合わせのあとは「もっと解く」の節に、練習一覧と同じ和了形の点数計算のカード
+ * （手牌のプレビュー・説明・今日の残り回数。料金のリンクは使い切ったときだけ）と、
+ * ホームへ戻るリンクを置く。文字のリンクだけでは続けて練習できることが伝わりにくい
+ * ので、練習の中身が見えるカードにする。
  */
 export function DailyProblemBoard({
   payload,
   userId,
   day,
   initialAnswer,
-  practiceTarget,
+  practiceCard,
   homeTarget,
 }: DailyProblemBoardProps) {
   const t = useTranslations("dailyProblem");
@@ -315,22 +318,7 @@ export function DailyProblemBoard({
         <>
           <section className="mt-10 space-y-4">
             <SectionTitle>{t("more.title")}</SectionTitle>
-            <p className="text-sm leading-relaxed text-surface-500">
-              {t("more.hint")}
-            </p>
-            <p>
-              <LocaleNavLink
-                navTarget={practiceTarget}
-                linkKind="plain"
-                className={`text-sm font-bold ${TEXT_LINK_CLASSES}`}
-              >
-                {t("more.link")}
-                {practiceTarget.crossLocale && (
-                  <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
-                )}
-              </LocaleNavLink>
-            </p>
-            <PracticeEntryQuota menu="agari-score" planLink="whenExhausted" />
+            {practiceCard}
           </section>
           <div className="mt-10 text-center">
             <LocaleNavLink

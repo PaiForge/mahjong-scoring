@@ -33,7 +33,7 @@ const { DailyProblemBoard } = await import("./daily-problem-board");
 const DAY = "2026-11-17";
 
 const TARGETS = {
-  practiceTarget: { href: "/practice/agari-score", crossLocale: false },
+  practiceCard: <div data-testid="practice-card" />,
   homeTarget: { href: "/", crossLocale: false },
 } as const;
 
@@ -144,13 +144,10 @@ describe("DailyProblemBoard", () => {
     });
     expect(screen.getByText("result.headers.correct")).toBeTruthy();
     expect(screen.getByText("more.title")).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: "more.link" }).getAttribute("href"),
-    ).toBe("/practice/agari-score");
+    expect(screen.getByTestId("practice-card")).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "more.home" }).getAttribute("href"),
     ).toBe("/");
-    expect(mockPeek).toHaveBeenCalledWith("agari-score");
   });
 
   it("問題の報告のボタンは回答中は出さず、答え合わせを出してから出す", async () => {

@@ -41,11 +41,18 @@ const WAIT_TILES = [HaiKind.PinZu3, HaiKind.PinZu6] as const;
  */
 export function PracticalPracticeCard({
   menu,
+  onOpen,
 }: {
   readonly menu: "agari-score" | "tenpai-score";
+  /**
+   * 説明画面へ移る方法。既定は `router.push`。モーダルの中（本日の問題）から
+   * 開くときは、上のモーダルを閉じてから積む `useOpenFromModal` を渡す
+   */
+  readonly onOpen?: (href: string) => void;
 }) {
   const t = useTranslations("practice");
   const router = useRouter();
+  const open = onOpen ?? ((target: string) => router.push(target));
   const isScore = menu === "agari-score";
   const key = isScore ? "agariScoreBanner" : "tenpaiScoreBanner";
   const href = isScore ? AGARI_SCORE_PRACTICE_HREF : TENPAI_SCORE_PRACTICE_HREF;
@@ -54,7 +61,7 @@ export function PracticalPracticeCard({
   return (
     <View style={styles.entry}>
       <Pressable
-        onPress={() => router.push(href)}
+        onPress={() => open(href)}
         accessibilityRole="link"
         accessibilityLabel={title}
         testID={`practical-practice-card-${menu}`}
