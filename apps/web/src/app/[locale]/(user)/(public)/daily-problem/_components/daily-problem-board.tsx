@@ -8,8 +8,7 @@ import {
   type DailyAnswerStorage,
   type DailyAnswerSaveResult,
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
-import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
-import { usePageLocale } from "@/app/[locale]/(user)/(public)/practice/_hooks/use-page-locale";
+import { isDailyAnswerSaveProblem } from "@mahjong-scoring/features/daily-problem/save-status";
 import { ARCHIVE_SCHEMA_VERSION, isOya } from "@mahjong-scoring/core";
 import type {
   AgariProblemPayload,
@@ -90,8 +89,9 @@ interface DailyProblemBoardProps {
  * 混ざるため。解答の状態はこの部品の `useState` だけに置く。
  *
  * @design 解答済みでも同じ盤面をもう一度解ける。記録は変わらない
- * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出し、
- * 上に「解答済み・記録は変わらない」とだけ添える。記録の Action は、この盤面を
+ * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出す。
+ * 日付・解答済み・記録済みの案内は盤面に足さない — 和了形の点数計算（実践練習）と
+ * 同じ並びに保つため。知らせるのは記録できなかったときだけ（`isDailyAnswerSaveProblem`）。記録の Action は、この盤面を
  * 開いてから最初の回答または「わからない」で記録する（「わからない」は不正解）。
  * サーバーは最初の解答だけを残し、日付をまたいで届いた解答（前日に開いたまま
  * 今日解いたもの）は記録せず捨てる — 前日の問題を今日の解答として残さない。
@@ -123,7 +123,6 @@ export function DailyProblemBoard({
   const tTraining = useTranslations("training");
   const tNav = useTranslations("nav");
   const isClient = useIsClient();
-  const locale = usePageLocale();
   const router = useRouter();
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
@@ -199,21 +198,16 @@ export function DailyProblemBoard({
   return (
     <>
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        <p className="text-sm text-surface-500">
-          {formatJstDayKeyLong(day, locale)} · {t("board.schedule")}
-        </p>
         {userId === undefined && (
           <p className="text-sm text-surface-500">{t("board.anonymous")}</p>
         )}
-        {(status !== "idle" || !ready) && (
+        {isDailyAnswerSaveProblem(status) && (
           <div role="status" className="space-y-2 text-sm text-surface-500">
             <p>
               {
-                !ready || status === "idle"
-                  ? t("save.loading")
-                  : t(
-                      `save.${status}`,
-                    ) /* save.saving / save.saved / save.failed / save.staleDay / save.anonymous / save.blocked */
+                t(
+                  `save.${status}`,
+                ) /* save.failed / save.staleDay / save.anonymous / save.blocked */
               }
             </p>
             {status === "failed" && (
@@ -236,12 +230,6 @@ export function DailyProblemBoard({
             )}
           </div>
         )}
-        {initialAnswer !== undefined && (
-          <p className="text-sm leading-relaxed text-surface-500">
-            {t("board.answeredNotice")}
-          </p>
-        )}
-
         <QuestionDisplay question={question} mobileFrame="fullBleed" />
 
         {isAnswered ? (

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { DailyAnswerRecordStatus } from "./save-status";
+
 /** 本日の問題の保存結果。期限切れ・認証拒否は再送しない。 */
 export type DailyAnswerSaveResult =
   "saved" | "failed" | "staleDay" | "anonymous" | "blocked";
@@ -39,9 +41,9 @@ export function useAnswerRecord({
   const busy = useRef(false);
   const mounted = useRef(true);
   const [ready, setReady] = useState(false);
-  const [status, setStatus] = useState<
-    DailyAnswerSaveResult | "idle" | "saving"
-  >(answered ? "saved" : "idle");
+  const [status, setStatus] = useState<DailyAnswerRecordStatus>(
+    answered ? "saved" : "idle",
+  );
 
   const retry = useCallback(async () => {
     if (busy.current || first.current === undefined) return;

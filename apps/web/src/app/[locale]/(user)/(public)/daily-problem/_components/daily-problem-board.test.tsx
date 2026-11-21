@@ -71,7 +71,7 @@ describe("DailyProblemBoard", () => {
   it("starts a fresh attempt when the day changes", async () => {
     const view = await show();
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
-    await screen.findByText("save.saved");
+    await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(1));
     view.rerender(
       <DailyProblemBoard
         key="2026-11-18"
@@ -105,7 +105,6 @@ describe("DailyProblemBoard", () => {
 
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
     expect(screen.queryByText("more.title")).toBeNull();
-    expect(screen.queryByText("board.answeredNotice")).toBeNull();
     expect(mockRecord).not.toHaveBeenCalled();
   });
 
@@ -148,11 +147,21 @@ describe("DailyProblemBoard", () => {
     }
   });
 
-  it("解答済みなら上に注記を出し、同じ盤面をもう一度解ける", async () => {
+  it("解答済みでも注記を足さず、同じ盤面をもう一度解ける", async () => {
     await show({ isCorrect: true });
 
-    expect(screen.getByText("board.answeredNotice")).toBeTruthy();
     expect(screen.getByText("board.questionPrompt")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("記録できたときは記録の状態を出さない", async () => {
+    await show();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("result.headers.correct")).toBeTruthy();
+    expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("記録の失敗は答え合わせを止めない", async () => {
@@ -165,7 +174,7 @@ describe("DailyProblemBoard", () => {
     await screen.findByText("save.failed");
     mockRecord.mockResolvedValue({ success: true });
     fireEvent.click(screen.getByRole("button", { name: "save.retry" }));
-    await screen.findByText("save.saved");
+    await waitFor(() => expect(screen.queryByText("save.failed")).toBeNull());
     expect(mockRecord.mock.calls.map(([value]) => value.isCorrect)).toEqual([
       false,
       false,
