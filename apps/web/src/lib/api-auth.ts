@@ -2,7 +2,7 @@ import type { NextResponse } from "next/server";
 
 import { jsonPrivate } from "./api-response";
 
-import { authenticateAndCheckBan } from "./auth";
+import { authenticateAndCheckBan, type AuthGateErrorCode } from "./auth";
 import type { AuthUser } from "./auth-user";
 import { isValidOrigin } from "./csrf";
 import { getClientIp } from "./client-ip";
@@ -11,6 +11,18 @@ import {
   checkIpRateLimitGuard,
   type IpRateLimitConfig,
 } from "./rate-limit-ip";
+
+/**
+ * 認証ゲートのエラーごとの HTTP ステータス
+ *
+ * `serviceUnavailable`（認証サーバーか DB が答えられなかった）は 503。401 に
+ * すると、クライアントが「ログインが切れた」と読んでしまう。
+ */
+const GATE_ERROR_STATUS = {
+  unauthorized: 401,
+  banned: 403,
+  serviceUnavailable: 503,
+} as const satisfies Record<AuthGateErrorCode, number>;
 
 type AuthorizeResult =
   | { readonly ok: true; readonly user: AuthUser }
@@ -73,7 +85,7 @@ export async function authorizeApiRequest(
       ok: false,
       response: jsonPrivate(
         { error: gate.error },
-        { status: gate.error === "unauthorized" ? 401 : 403 },
+        { status: GATE_ERROR_STATUS[gate.error] },
       ),
     };
   }

@@ -76,7 +76,11 @@ describe("authorizeApiRequest", () => {
 
   it("未認証は 401 で、BAN を見に行かない", async () => {
     mockCheckIpRateLimitGuard.mockReturnValue(undefined);
-    mockGetUser.mockResolvedValue({ data: { user: null } });
+    // cookie が無いとき、認証サーバーへ行かずに返る答え
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthSessionMissingError", status: 400 },
+    });
 
     const result = await authorizeApiRequest(
       sameOriginRequest(),
@@ -90,7 +94,11 @@ describe("authorizeApiRequest", () => {
 
   it("拒否の応答も共有キャッシュに乗せない（private, no-store）", async () => {
     mockCheckIpRateLimitGuard.mockReturnValue(undefined);
-    mockGetUser.mockResolvedValue({ data: { user: null } });
+    // cookie が無いとき、認証サーバーへ行かずに返る答え
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthSessionMissingError", status: 400 },
+    });
 
     const result = await authorizeApiRequest(
       sameOriginRequest(),
@@ -120,6 +128,42 @@ describe("authorizeApiRequest", () => {
     await expect(
       result.ok === false ? result.response.json() : undefined,
     ).resolves.toEqual({ error: "banned" });
+  });
+
+  /**
+   * 401 にするとクライアントが「ログインが切れた」と読む。答えられなかっただけ
+   * なので、送り直せる失敗として 503 で返す。
+   */
+  it("アカウントの状態を DB から読めなければ 503 で serviceUnavailable を返す", async () => {
+    authorized();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mockGetAccountStanding.mockRejectedValue(new Error("connection refused"));
+
+    const result = await authorizeApiRequest(
+      sameOriginRequest(),
+      "uploadAvatar",
+    );
+
+    expect(result.ok === false && result.response.status).toBe(503);
+    await expect(
+      result.ok === false ? result.response.json() : undefined,
+    ).resolves.toEqual({ error: "serviceUnavailable" });
+  });
+
+  it("認証サーバーに届かなければ 503 で、BAN を見に行かない", async () => {
+    authorized();
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { name: "AuthRetryableFetchError", status: 0 },
+    });
+
+    const result = await authorizeApiRequest(
+      sameOriginRequest(),
+      "uploadAvatar",
+    );
+
+    expect(result.ok === false && result.response.status).toBe(503);
+    expect(mockGetAccountStanding).not.toHaveBeenCalled();
   });
 
   /**
