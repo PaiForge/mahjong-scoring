@@ -50,6 +50,7 @@ export function OfferPurchaseButton({
   locale,
 }: OfferPurchaseButtonProps) {
   const t = useTranslations("plan");
+  const tCommon = useTranslations("common");
   const { user, isLoading } = useAuth();
   const [isPending, startTransition] = useTransition();
 
@@ -69,7 +70,14 @@ export function OfferPurchaseButton({
     startTransition(async () => {
       const result = await createCheckoutSession(offer, locale);
       // 成功時は Server Action がリダイレクトするので、ここに戻るのは失敗だけ
-      if ("error" in result) toast.error(t(`errors.${result.error}`));
+      if (!("error" in result)) return;
+      // 認証サーバーか DB が答えられなかったときは全アクション共通の文言。
+      // それ以外の完成形のキー: plan.errors.unauthorized / plan.errors.checkoutFailed 等
+      toast.error(
+        result.error === "serviceUnavailable"
+          ? tCommon("serviceUnavailable")
+          : t(`errors.${result.error}`),
+      );
     });
   };
 
