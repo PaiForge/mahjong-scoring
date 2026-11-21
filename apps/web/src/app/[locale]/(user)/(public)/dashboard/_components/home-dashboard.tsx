@@ -32,7 +32,6 @@ interface HomeDashboardProps {
 
 /** ホームのカードに出す本日の問題と、本人の今日の解答 */
 interface HomeDailyProblem {
-  readonly day: string;
   readonly payload: AgariProblemPayload;
   readonly answer: DailyProblemAnswerState | undefined;
 }
@@ -50,7 +49,7 @@ async function fetchHomeDailyProblem(
     const problem = await getDailyProblem(new Date());
     if (problem === undefined) return undefined;
     const answer = await readDailyProblemAnswer(userId, problem.day);
-    return { day: problem.day, payload: problem.payload, answer };
+    return { payload: problem.payload, answer };
   } catch (error: unknown) {
     logExternalError("HomeDashboard", "本日の問題を読めなかった", error);
     return undefined;
@@ -117,7 +116,6 @@ export async function HomeDashboard({ userId, locale }: HomeDashboardProps) {
 
         {dailyProblem && (
           <DailyProblemSection
-            day={dailyProblem.day}
             payload={dailyProblem.payload}
             answer={dailyProblem.answer}
             locale={locale}

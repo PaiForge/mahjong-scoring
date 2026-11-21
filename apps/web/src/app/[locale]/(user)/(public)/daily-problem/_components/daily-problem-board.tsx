@@ -8,8 +8,7 @@ import {
   type DailyAnswerStorage,
   type DailyAnswerSaveResult,
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
-import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
-import { usePageLocale } from "@/app/[locale]/(user)/(public)/practice/_hooks/use-page-locale";
+import { isDailyAnswerSaveProblem } from "@mahjong-scoring/features/daily-problem/save-status";
 import { ARCHIVE_SCHEMA_VERSION, isOya } from "@mahjong-scoring/core";
 import type {
   AgariProblemPayload,
@@ -48,6 +47,7 @@ import { QuestionDisplay } from "@/app/[locale]/(user)/(public)/practice/agari-s
 import { ResultDisplay } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/result-display";
 import { ScorePracticeAnswerForm } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/score-practice-answer-form";
 import { ScoreAnswerFormSkeleton } from "@/app/[locale]/(user)/(public)/practice/agari-score/_components/agari-score-board-skeleton";
+import { useAgariScoreSettingsStore } from "@/app/[locale]/(user)/(public)/practice/agari-score/_hooks/use-agari-score-settings-store";
 import { ProblemReportButton } from "@/app/[locale]/(user)/(public)/practice/_components/problem-report-button";
 
 import { recordDailyProblemAnswerAction } from "../_actions/record-daily-problem-answer";
@@ -90,15 +90,18 @@ interface DailyProblemBoardProps {
  * 混ざるため。解答の状態はこの部品の `useState` だけに置く。
  *
  * @design 解答済みでも同じ盤面をもう一度解ける。記録は変わらない
- * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出し、
- * 上に「解答済み・記録は変わらない」とだけ添える。記録の Action は、この盤面を
+ * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出す。
+ * 日付・解答済み・記録済みの案内は盤面に足さない — 和了形の点数計算（実践練習）と
+ * 同じ並びに保つため。知らせるのは記録できなかったときだけ（`isDailyAnswerSaveProblem`）。記録の Action は、この盤面を
  * 開いてから最初の回答または「わからない」で記録する（「わからない」は不正解）。
  * サーバーは最初の解答だけを残し、日付をまたいで届いた解答（前日に開いたまま
  * 今日解いたもの）は記録せず捨てる — 前日の問題を今日の解答として残さない。
  * 記録に失敗しても答え合わせは止めず、最初の正誤を端末に預けて再送を案内する。
  *
  * 問題は閲覧者のルール設定（`/preferences`。端末ローカル）で組み立て、採点も同じ
- * 設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`）。出題する
+ * 設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`）。回答する
+ * 項目（役・翻数と符・5翻以上の翻数・満貫以上の符）は和了形の点数計算の設定
+ * （`useAgariScoreSettingsStore`）に揃え、回答欄・採点・結果表に同じ値を渡す。出題する
  * 盤面はどの設定でも正解が変わらないものに絞ってある。組み立てに失敗したら
  * （保存形式と現行のルールの食い違い等）「出題できない」とだけ出す。
  *
@@ -123,11 +126,18 @@ export function DailyProblemBoard({
   const tTraining = useTranslations("training");
   const tNav = useTranslations("nav");
   const isClient = useIsClient();
-  const locale = usePageLocale();
   const router = useRouter();
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
   const settings: RuleSettings = useRuleSettingsStore();
+  // 回答する項目は和了形の点数計算（実践練習）の設定に揃える。回答欄はハイドレーション
+  // 後に出すので、保存された設定を読んでから組まれる
+  const requireYaku = useAgariScoreSettingsStore((s) => s.requireYaku);
+  const requireHanFu = useAgariScoreSettingsStore((s) => s.requireHanFu);
+  const exactHan = useAgariScoreSettingsStore((s) => s.exactHan);
+  const requireFuForMangan = useAgariScoreSettingsStore(
+    (s) => s.requireFuForMangan,
+  );
 
   const built = useMemo(
     () => buildDailyProblemQuestion(payload, settings),
@@ -175,11 +185,24 @@ export function DailyProblemBoard({
     (answer: UserAnswer) => {
       if (question === undefined) return;
       scrollToPracticeAnchor();
-      const result = judgeDailyProblemAnswer(question, answer, settings);
+      const result = judgeDailyProblemAnswer(question, answer, settings, {
+        requireYaku,
+        requireHanFu,
+        exactHan,
+        requireFuForMangan,
+      });
       setAttempt({ userAnswer: answer, result });
       record(result.isCorrect);
     },
-    [question, settings, record],
+    [
+      question,
+      settings,
+      record,
+      requireYaku,
+      requireHanFu,
+      exactHan,
+      requireFuForMangan,
+    ],
   );
 
   const handleReveal = useCallback(() => {
@@ -199,21 +222,16 @@ export function DailyProblemBoard({
   return (
     <>
       <div className="space-y-4 sm:space-y-6 md:space-y-8">
-        <p className="text-sm text-surface-500">
-          {formatJstDayKeyLong(day, locale)} · {t("board.schedule")}
-        </p>
         {userId === undefined && (
           <p className="text-sm text-surface-500">{t("board.anonymous")}</p>
         )}
-        {(status !== "idle" || !ready) && (
+        {isDailyAnswerSaveProblem(status) && (
           <div role="status" className="space-y-2 text-sm text-surface-500">
             <p>
               {
-                !ready || status === "idle"
-                  ? t("save.loading")
-                  : t(
-                      `save.${status}`,
-                    ) /* save.saving / save.saved / save.failed / save.staleDay / save.anonymous / save.blocked */
+                t(
+                  `save.${status}`,
+                ) /* save.failed / save.staleDay / save.anonymous / save.blocked */
               }
             </p>
             {status === "failed" && (
@@ -236,12 +254,6 @@ export function DailyProblemBoard({
             )}
           </div>
         )}
-        {initialAnswer !== undefined && (
-          <p className="text-sm leading-relaxed text-surface-500">
-            {t("board.answeredNotice")}
-          </p>
-        )}
-
         <QuestionDisplay question={question} mobileFrame="fullBleed" />
 
         {isAnswered ? (
@@ -251,6 +263,10 @@ export function DailyProblemBoard({
               question={question}
               userAnswer={attempt.userAnswer}
               result={attempt.result}
+              requireYaku={requireYaku}
+              requireHanFu={requireHanFu}
+              exactHan={exactHan}
+              requireFuForMangan={requireFuForMangan}
             />
           </div>
         ) : (
@@ -261,10 +277,14 @@ export function DailyProblemBoard({
                 onSubmit={handleSubmit}
                 isTsumo={question.isTsumo}
                 isOya={isOya(question.jikaze)}
+                requireYaku={requireYaku}
+                requireHanFu={requireHanFu}
+                exactHan={exactHan}
+                requireFuForMangan={requireFuForMangan}
                 autoSubmit
               />
             ) : (
-              <ScoreAnswerFormSkeleton />
+              <ScoreAnswerFormSkeleton requireHanFu={requireHanFu} />
             )}
           </div>
         )}

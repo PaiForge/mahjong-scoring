@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_RULE_SETTINGS } from "@mahjong-scoring/core";
+import type { ScorePracticeModeFlags } from "../practice/score/generator-options";
 import type {
   AgariProblemPayload,
   RuleSettings,
@@ -91,6 +92,14 @@ describe("buildDailyProblemQuestion", () => {
   });
 });
 
+/** 翻数・符・点数を答える設定（役は問わない） */
+const HAN_FU_MODE: ScorePracticeModeFlags = {
+  requireYaku: false,
+  requireHanFu: true,
+  exactHan: false,
+  requireFuForMangan: false,
+};
+
 describe("judgeDailyProblemAnswer", () => {
   it("組み立てた問題の正解どおりなら正解", () => {
     const question = built(RENFONPAI_4FU);
@@ -98,6 +107,7 @@ describe("judgeDailyProblemAnswer", () => {
       question,
       correctAnswerOf(question),
       RENFONPAI_4FU,
+      HAN_FU_MODE,
     );
     expect(result.isCorrect).toBe(true);
   });
@@ -108,6 +118,7 @@ describe("judgeDailyProblemAnswer", () => {
       built(RENFONPAI_4FU),
       standardAnswer,
       RENFONPAI_4FU,
+      HAN_FU_MODE,
     );
     expect(result.isCorrect).toBe(false);
     expect(result.isFuCorrect).toBe(false);
@@ -141,6 +152,7 @@ describe("judgeDailyProblemAnswer", () => {
         question,
         correctAnswerOf(question),
         DOUBLE_SETTINGS,
+        HAN_FU_MODE,
       );
       expect(question.answer.han).toBe(26);
       expect(result.isCorrect).toBe(true);
@@ -151,6 +163,7 @@ describe("judgeDailyProblemAnswer", () => {
         question,
         { ...correctAnswerOf(question), han: 13 },
         DOUBLE_SETTINGS,
+        HAN_FU_MODE,
       );
       expect(result.isHanCorrect).toBe(false);
       expect(result.isCorrect).toBe(false);
@@ -165,18 +178,55 @@ describe("judgeDailyProblemAnswer", () => {
         single,
         { ...correctAnswerOf(single), han: 26 },
         DEFAULT_RULE_SETTINGS,
+        HAN_FU_MODE,
       );
       expect(single.answer.han).toBe(13);
       expect(result.isHanCorrect).toBe(true);
     });
   });
 
-  it("役は問わない（標準の判定モード）", () => {
+  it("翻数と符を答えない設定では、点数が合っていれば翻数・符が違っても正解", () => {
+    const question = built(DEFAULT_RULE_SETTINGS);
+    const answer = correctAnswerOf(question);
+    const result = judgeDailyProblemAnswer(
+      question,
+      { ...answer, han: (answer.han ?? 0) + 1, fu: (answer.fu ?? 0) + 10 },
+      DEFAULT_RULE_SETTINGS,
+      { ...HAN_FU_MODE, requireHanFu: false },
+    );
+    expect(result.isCorrect).toBe(true);
+  });
+
+  it("翻数と符も答える設定では、点数が合っていても翻数の誤りで不正解", () => {
+    const question = built(DEFAULT_RULE_SETTINGS);
+    const answer = correctAnswerOf(question);
+    const result = judgeDailyProblemAnswer(
+      question,
+      { ...answer, han: (answer.han ?? 0) + 1 },
+      DEFAULT_RULE_SETTINGS,
+      HAN_FU_MODE,
+    );
+    expect(result.isCorrect).toBe(false);
+  });
+
+  it("役も答える設定では、役の誤りで不正解", () => {
+    const question = built(DEFAULT_RULE_SETTINGS);
+    const result = judgeDailyProblemAnswer(
+      question,
+      { ...correctAnswerOf(question), yakus: [] },
+      DEFAULT_RULE_SETTINGS,
+      { ...HAN_FU_MODE, requireYaku: true },
+    );
+    expect(result.isCorrect).toBe(false);
+  });
+
+  it("役を答えない設定では役を問わない", () => {
     const question = built(DEFAULT_RULE_SETTINGS);
     const result = judgeDailyProblemAnswer(
       question,
       { ...correctAnswerOf(question), yakus: ["平和"] },
       DEFAULT_RULE_SETTINGS,
+      HAN_FU_MODE,
     );
     expect(result.isCorrect).toBe(true);
   });

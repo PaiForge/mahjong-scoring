@@ -1,6 +1,5 @@
 import {
   allowsDoubleYakuman,
-  DEFAULT_SCORE_JUDGEMENT_MODE,
   doubleWindJantouFu,
   judgeAnswer,
   rebuildAgariQuestion,
@@ -14,6 +13,8 @@ import type {
   ScoreQuestion,
   UserAnswer,
 } from "@mahjong-scoring/core";
+
+import type { ScorePracticeModeFlags } from "../practice/score/generator-options";
 
 /**
  * 本日の問題の盤面の組み立てと採点 — web とアプリで共有する規則
@@ -81,9 +82,17 @@ export function buildDailyProblemQuestion(
  * 本日の問題の解答を採点する
  * 本日の問題採点
  *
- * 判定モードは標準（`DEFAULT_SCORE_JUDGEMENT_MODE`。翻・符・点数を問い、
- * 役は問わない）に、閲覧者の設定からダブル役満を別の答えとして扱うかだけを
- * 重ねる（練習の和了形の点数計算と同じ扱い）。
+ * 判定モードは、閲覧者の和了形の点数計算（実践練習）の「回答する項目」の設定
+ * （`mode`。役・翻数と符・5翻以上の翻数・満貫以上の符を答えるか）に、ルール設定から
+ * ダブル役満を別の答えとして扱うかを重ねる（練習の和了形の点数計算と同じ扱い）。
+ * 回答欄も同じ設定で組むので、問う項目と判定する項目は一致する。
+ *
+ * @design 答える項目は人によって変わってよい
+ *
+ * 本日の問題は全員に同じ 1 問を出すが、記録は本人にしか見せない「解いた」と正誤
+ * だけで、ランキングも他人との比較も無い。このため「正解」の基準を全員で揃える
+ * 必要が無く、盤面を実践練習と同じ形に保つことを優先する（点数だけを答える
+ * 既定の人には、本日の問題でも点数だけを問う）。
  *
  * @design 採点はクライアントで行い、サーバーには正誤だけを送る
  *
@@ -96,14 +105,16 @@ export function buildDailyProblemQuestion(
  * @param question - {@link buildDailyProblemQuestion} で組み立てた問題
  * @param answer - 利用者の解答
  * @param settings - 閲覧者のルール設定（問題を組み立てたときと同じもの）
+ * @param mode - 閲覧者の和了形の点数計算の「回答する項目」の設定
  */
 export function judgeDailyProblemAnswer(
   question: ScoreQuestion,
   answer: UserAnswer,
   settings: RuleSettings,
+  mode: ScorePracticeModeFlags,
 ): JudgementResult {
   return judgeAnswer(question, answer, {
-    ...DEFAULT_SCORE_JUDGEMENT_MODE,
+    ...mode,
     // ダブル役満採用時は 26 翻を役満へ丸めずに別の答えとして判定する
     allowDoubleYakuman: allowsDoubleYakuman(toYakumanRuleConfig(settings)),
   });

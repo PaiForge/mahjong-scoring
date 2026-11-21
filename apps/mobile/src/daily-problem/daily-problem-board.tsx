@@ -4,8 +4,7 @@ import {
   useAnswerRecord,
   type DailyAnswerSaveResult,
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
-import { formatJstDayKeyLong } from "@mahjong-scoring/features/jst";
-import { useAppLocale } from "../lib/use-app-locale";
+import { isDailyAnswerSaveProblem } from "@mahjong-scoring/features/daily-problem/save-status";
 import { StyleSheet, Text, View } from "react-native";
 import { useTranslations } from "use-intl";
 import { isOya } from "@mahjong-scoring/core";
@@ -41,6 +40,8 @@ import { colors } from "../lib/theme";
 import { useFocusRead } from "../lib/use-focus-read";
 import { QuestionDisplay } from "../practice/components/question-display";
 import { QuestionPrompt } from "../practice/components/question-prompt";
+import { useAgariScoreSettingsStore } from "../hooks/use-score-settings-store";
+import { readModeFlags } from "../practice/endless/agari-score/practice-conditions";
 import { ResultDisplay } from "../practice/endless/agari-score/result-display";
 import { ScorePracticeAnswerForm } from "../practice/endless/agari-score/score-practice-answer-form";
 import { PracticeEntryQuota } from "../practice/quota/practice-entry-quota";
@@ -173,17 +174,19 @@ function AccountDailyProblemScreen({
  * 通さない（全員に同じ盤面を同じ形で見せる）。
  *
  * @design 解答済みでも同じ盤面をもう一度解ける。記録は変わらない
- * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出し、
- * 上に「解答済み・記録は変わらない」とだけ添える。記録の API は、この盤面を
+ * 見直しを禁じる理由が無いので、解答済み（`initialAnswer`）でも盤面はそのまま出す。
+ * 日付・解答済み・記録済みの案内は盤面に足さない — 和了形の点数計算と同じ並びに
+ * 保つため。知らせるのは記録できなかったときだけ（`isDailyAnswerSaveProblem`）。記録の API は、この盤面を
  * 開いてから最初の回答または「わからない」で記録する（「わからない」は
  * 不正解）。サーバーは最初の解答だけを残し、日付をまたいで届いた解答（前日に
  * 開いたまま今日解いたもの）は `staleDay` で弾いて記録しない — 前日の問題を今日の
  * 解答として残さない。送信の失敗（通信・`staleDay`・ユーザー名未設定）は答え合わせを
- * 止めず、保存状態を示す。通信失敗は最初の正誤を端末に預け、同じ内容を再送する。
+ * 止めず、その旨を示す。通信失敗は最初の正誤を端末に預け、同じ内容を再送する。
  *
  * 問題は端末のルール設定（設定画面の麻雀ルール。端末ローカル）で組み立て、採点も
- * 同じ設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`。判定は
- * 標準の判定モードで、回答欄も既定の「翻・符・点数」）。出題する盤面はどの設定でも
+ * 同じ設定で行う（`buildDailyProblemQuestion` / `judgeDailyProblemAnswer`。回答する
+ * 項目（役・翻数と符・5翻以上の翻数・満貫以上の符）は和了形の点数計算の設定に
+ * 揃え、回答欄・採点・結果表に同じ値を渡す）。出題する盤面はどの設定でも
  * 正解が変わらないものに絞ってある。組み立てに失敗したら（保存形式と現行の
  * ルールの食い違い等）「出題できない」とだけ出す。
  *
@@ -222,10 +225,14 @@ function DailyProblemBoard({
   const tScore = useTranslations("agariScore");
   const tTraining = useTranslations("training");
   const openFromModal = useOpenFromModal();
-  const locale = useAppLocale();
   // ストアの状態は RuleSettings の全項目を持つ（setter を足した形）。参照は値が
   // 変わったときだけ変わるので、そのまま組み立ての依存にする
   const settings: RuleSettings = useRuleSettingsStore();
+  // 回答する項目は和了形の点数計算の設定に揃える。練習の盤面と同じく開いたときの
+  // 設定で固定する（解いている途中で欄が変わらない）
+  const [mode] = useState(() =>
+    readModeFlags(useAgariScoreSettingsStore.getState()),
+  );
   const built = useMemo(
     () => buildDailyProblemQuestion(payload, settings),
     [payload, settings],
@@ -265,12 +272,12 @@ function DailyProblemBoard({
     (answer: UserAnswer) => {
       if (question === undefined) return;
       scrollToTop();
-      const result = judgeDailyProblemAnswer(question, answer, settings);
+      const result = judgeDailyProblemAnswer(question, answer, settings, mode);
       hapticJudgement(result.isCorrect ? "correct" : "incorrect");
       setAttempt({ userAnswer: answer, result });
       record(result.isCorrect);
     },
-    [question, settings, record, scrollToTop],
+    [question, settings, mode, record, scrollToTop],
   );
 
   const handleReveal = useCallback(() => {
@@ -285,20 +292,13 @@ function DailyProblemBoard({
 
   return (
     <>
-      {/* 盤面が本文の先頭にあるときだけ手牌の帯をヘッダーの直下へ詰める
-          （解答済みの案内が上にあるときは詰めない。詰めると案内に食い込む） */}
-      <Text style={styles.notice}>
-        {formatJstDayKeyLong(day, locale)} · {t("board.schedule")}
-      </Text>
-      {(status !== "idle" || !ready) && (
+      {isDailyAnswerSaveProblem(status) && (
         <View accessibilityLiveRegion="polite" style={styles.result}>
           <Text style={styles.notice}>
             {
-              !ready || status === "idle"
-                ? t("save.loading")
-                : t(
-                    `save.${status}`,
-                  ) /* save.saving / save.saved / save.failed / save.staleDay / save.anonymous / save.blocked */
+              t(
+                `save.${status}`,
+              ) /* save.failed / save.staleDay / save.anonymous / save.blocked */
             }
           </Text>
           {status === "failed" && (
@@ -316,11 +316,11 @@ function DailyProblemBoard({
           )}
         </View>
       )}
-      <BoardBleedProvider flushTop={false}>
+      {/* 盤面が本文の先頭にあるときだけ手牌の帯をヘッダーの直下へ詰める（和了形の
+          点数計算と同じ）。記録できなかった案内が上にあるときは詰めない — 詰めると
+          案内に食い込む */}
+      <BoardBleedProvider flushTop={!isDailyAnswerSaveProblem(status)}>
         <View style={styles.board}>
-          {initialAnswer !== undefined && (
-            <Text style={styles.notice}>{t("board.answeredNotice")}</Text>
-          )}
           <QuestionDisplay question={question} />
 
           {isAnswered ? (
@@ -330,6 +330,7 @@ function DailyProblemBoard({
                 question={question}
                 userAnswer={attempt.userAnswer}
                 result={attempt.result}
+                {...mode}
               />
             </View>
           ) : !ready ? (
@@ -341,6 +342,7 @@ function DailyProblemBoard({
                 onSubmit={handleSubmit}
                 isTsumo={question.isTsumo}
                 isOya={isOya(question.jikaze)}
+                {...mode}
                 autoSubmit
               />
             </View>
