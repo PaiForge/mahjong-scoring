@@ -254,7 +254,17 @@ export function DailyProblemBoard({
             )}
           </div>
         )}
-        <QuestionDisplay question={question} mobileFrame="fullBleed" />
+        {/* 盤面が本文の先頭にあるときは、実践練習と同じくモバイルでカードの上端に
+            密着させる。上に案内（未ログイン・記録できなかった）があるときは上の
+            余白を残す — 詰めると案内に食い込む */}
+        <QuestionDisplay
+          question={question}
+          mobileFrame={
+            userId === undefined || isDailyAnswerSaveProblem(status)
+              ? "fullBleed"
+              : "fullBleedFlushTop"
+          }
+        />
 
         {isAnswered ? (
           <div className="space-y-4">
@@ -284,14 +294,14 @@ export function DailyProblemBoard({
                 autoSubmit
               />
             ) : (
-              <ScoreAnswerFormSkeleton requireHanFu={requireHanFu} />
+              // ハイドレーション前はサーバーの HTML（設定の既定）と揃える
+              <ScoreAnswerFormSkeleton
+                requireHanFu={isClient && requireHanFu}
+              />
             )}
           </div>
         )}
 
-        {!isAnswered && ready && userId && !initialAnswer && (
-          <p className="text-sm text-surface-500">{t("board.revealNotice")}</p>
-        )}
         {!isAnswered && ready && (
           <PracticeFooterActions>
             <PracticeFooterAction onClick={handleReveal}>
