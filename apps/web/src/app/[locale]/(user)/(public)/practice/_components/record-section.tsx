@@ -14,7 +14,7 @@ import type { PracticeMenuType } from "@mahjong-scoring/features/practice-menu-t
 import { myRecordHref } from "@mahjong-scoring/features/routes";
 import type { ScoreComparison } from "@/lib/db/score-comparison-queries";
 import { deriveRecordView } from "../_lib/derive-record-view";
-import type { Fetched } from "../_lib/try-fetch";
+import type { Fetched } from "@/lib/try-fetch";
 import { ExpGainDisplay } from "./exp-gain-display";
 import { PracticeNavLink } from "./practice-nav-link";
 import { ResultBlockSection } from "./result-block-section";

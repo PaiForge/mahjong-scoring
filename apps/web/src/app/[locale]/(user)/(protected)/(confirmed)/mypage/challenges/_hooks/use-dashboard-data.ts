@@ -74,6 +74,9 @@ export function useDashboardData({
   const [previousAttempts, setPreviousAttempts] = useState<ChallengeAttempt[]>([
     ...initialAttempts.previous,
   ]);
+  // 土俵・期間を切り替えた取得に失敗した。前の土俵の数字を出したままにせず、
+  // 画面が「読み込めませんでした」を出す（空の記録と取り違えさせない）
+  const [loadFailed, setLoadFailed] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   // 初期データがプリフェッチ済みなので初回 fetch をスキップするためのフラグ
@@ -94,15 +97,22 @@ export function useDashboardData({
     const previousRange = getPreviousPeriodRange(selectedPeriod, now);
 
     startTransition(async () => {
+      // Server Action が投げる（通信の失敗）のも、読めなかったのと同じ扱いにする。
+      // transition の中で投げるとエラー境界に落ち、ページごと差し替わる
       const result = await getChallengeAttempts(
         selectedBoard,
         currentRange.start,
         currentRange.end,
         previousRange.start,
         previousRange.end,
-      );
-      setCurrentAttempts(result.current);
-      setPreviousAttempts(result.previous);
+      ).catch((): { readonly ok: false } => ({ ok: false }));
+      if (!result.ok) {
+        setLoadFailed(true);
+        return;
+      }
+      setLoadFailed(false);
+      setCurrentAttempts(result.value.current);
+      setPreviousAttempts(result.value.previous);
     });
   }, [selectedBoard, selectedPeriod]);
 
@@ -137,6 +147,7 @@ export function useDashboardData({
     selectedPeriod,
     setSelectedPeriod,
     isLoading: isPending,
+    loadFailed,
     availableBoards,
     currentStats,
     bestScoreComparison: bestChange,

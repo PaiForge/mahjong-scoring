@@ -33,7 +33,7 @@ import { LeaderboardSignUpCta, SignUpCta } from "../_components/sign-up-cta";
 import { listedProblemCount } from "@mahjong-scoring/features/challenge/finish-reason";
 import { parseResultSearchParams } from "./parse-result-search-params";
 import { debugResultDelay } from "./debug-delay";
-import { tryFetch } from "./try-fetch";
+import { tryFetch } from "@/lib/try-fetch";
 import {
   LEADERBOARD_PATH,
   practiceHref,

@@ -90,6 +90,7 @@ export function ChallengeDashboard({
     selectedPeriod,
     setSelectedPeriod,
     isLoading,
+    loadFailed,
     availableBoards,
     currentStats,
     bestScoreComparison,
@@ -201,6 +202,12 @@ export function ChallengeDashboard({
 
       {isLoading ? (
         <DashboardContentSkeleton />
+      ) : loadFailed ? (
+        // 取得に失敗した。空の記録（「データがありません」）と取り違えさせない。
+        // 土俵か期間を選び直すと取り直す
+        <p role="alert" className="py-12 text-center text-surface-500">
+          {t("loadFailed")}
+        </p>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4">
