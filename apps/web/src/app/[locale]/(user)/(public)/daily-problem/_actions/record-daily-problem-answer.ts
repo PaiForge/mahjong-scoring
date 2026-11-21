@@ -17,7 +17,7 @@ import {
  * 本日の問題の解答の記録が返しうるエラーコード
  * 本日の問題解答記録エラーコード
  *
- * - `banned` / `authUnavailable`: 記録を書ける本人を決められなかった（{@link RecorderErrorCode}）
+ * - `banned` / `serviceUnavailable`: 記録を書ける本人を決められなかった（{@link RecorderErrorCode}）
  * - `invalidInput`: 入力の形が違う（UI のバグ。盤面からは起きない）
  * - `staleDay`: 日付が変わった・停止中・問題がない。画面に再読込を案内する
  * - `recordFailed`: DB への書き込みに失敗した（ログに残す）

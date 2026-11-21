@@ -29,7 +29,7 @@ export type SaveResultErrorCode =
  * - `{ success: true, skipped: 'anonymous' }`: 未ログインユーザーによる呼び出し。
  *   エラーではなく「期待された no-op」を表す。呼び出し側は静かに無視すること。
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
- * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられず、ログイン済みか
+ * - `{ error: 'serviceUnavailable' }`: 認証サーバーか DB が答えられず、ログイン済みか
  *   どうかが分からなかった。挑戦には触れていないので、同じ挑戦 ID で再送できる。
  * - `{ error: 'rateLimited' }`: 同じアカウントの確定の回数が枠
  *   （`IP_RATE_LIMITS.finishChallenge`）を超えた。挑戦には触れずに返すので

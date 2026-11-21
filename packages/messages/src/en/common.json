@@ -2,6 +2,7 @@
   "close": "Close",
   "showDetailInfo": "Show details",
   "loading": "Loading",
+  "serviceUnavailable": "We couldn't complete that right now. Please try again in a little while.",
   "answerCheck": "Check answer",
   "correct": "Correct",
   "incorrect": "Incorrect",

@@ -159,7 +159,7 @@ describe("PendingLessonSync", () => {
 
   it("認証サーバーが答えられなかったら預かりを残し、失敗として扱う", async () => {
     rememberPendingLessonCompletion("mangan-ko-ron");
-    mockCompleteLessons.mockResolvedValue({ error: "authUnavailable" });
+    mockCompleteLessons.mockResolvedValue({ error: "serviceUnavailable" });
 
     render(<PendingLessonSync userId="u1" />);
     await flush();

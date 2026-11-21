@@ -212,7 +212,7 @@ describe("server-graded challenge UI", () => {
     it("枠・不通・例外で弾かれた回答は同じ番号・同じ回答で送り直し、採点は 1 回", async () => {
       mocks.answer
         .mockResolvedValueOnce({ error: "rateLimited" })
-        .mockResolvedValueOnce({ error: "authUnavailable" })
+        .mockResolvedValueOnce({ error: "serviceUnavailable" })
         .mockRejectedValueOnce(new Error("network"))
         .mockResolvedValue(graded);
       await mountAndFakeTimers();
@@ -269,7 +269,7 @@ describe("server-graded challenge UI", () => {
     });
 
     it("再接続を押してもまだ通らなければ、数回送り直してからまた案内を出す", async () => {
-      mocks.answer.mockResolvedValue({ error: "authUnavailable" });
+      mocks.answer.mockResolvedValue({ error: "serviceUnavailable" });
       await mountAndFakeTimers();
       fireEvent.click(screen.getByText("answer"));
       await act(() => vi.advanceTimersByTimeAsync(3_500));

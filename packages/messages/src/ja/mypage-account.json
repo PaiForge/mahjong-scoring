@@ -84,7 +84,8 @@
     "linkFailed": "Google アカウントを追加できませんでした。もう一度お試しください。",
     "emailChangePending": "確認を受け付けました。もう 1 通の確認メールのリンクも開くと、メールアドレスの変更が完了します。",
     "emailChangeDone": "メールアドレスを変更しました。",
-    "emailChangeLinkInvalid": "メールアドレス変更のリンクが無効か、有効期限が切れています。もう一度変更を始めてください。"
+    "emailChangeLinkInvalid": "メールアドレス変更のリンクが無効か、有効期限が切れています。もう一度変更を始めてください。",
+    "emailChangeUnavailable": "ただいまメールアドレスの変更を確認できませんでした。時間をおいて、メールのリンクをもう一度開いてください。"
   },
   "deleteAccountLink": "アカウントを削除"
 }

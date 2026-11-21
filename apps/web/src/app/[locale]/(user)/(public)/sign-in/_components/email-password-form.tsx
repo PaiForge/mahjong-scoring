@@ -32,6 +32,7 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
  */
 export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const locale = useSupportedLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -41,8 +42,12 @@ export function EmailPasswordForm({ redirectTo }: { redirectTo?: string }) {
     e.preventDefault();
     void submit({
       action: () => signIn(email, password),
-      mapError: (code) =>
-        code === "rateLimited" ? t("rateLimited") : t("emailSignInError"),
+      mapError: (code) => {
+        if (code === "rateLimited") return t("rateLimited");
+        // 認証サーバーが答えられなかった。資格情報の誤りとは言わない
+        if (code === "serviceUnavailable") return tCommon("serviceUnavailable");
+        return t("emailSignInError");
+      },
       onSuccess: () => {
         const next = redirectTo ?? localizedHref("/mypage", locale);
         // 読み込み直した先で出す（預かりは sessionStorage を経由して残る）

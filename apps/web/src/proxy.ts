@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import createMiddleware from "next-intl/middleware";
 
+import { isAuthServiceFailure } from "@/lib/auth-service-failure";
 import { readSupabasePublicEnv } from "@/lib/supabase/env";
 import {
   isNonLocalizedPath,
@@ -45,7 +46,8 @@ import {
  *    トップのまま）。日本語の `/` は内部の `/ja/dashboard`、英語の `/en` は
  *    `/en/dashboard`（{@link canRewriteToDashboard}・{@link rewriteToDashboard}）。
  *    未ログインの `/dashboard`・`/en/dashboard` 直アクセスは同じ言語の LP へ HTTP の
- *    リダイレクト
+ *    リダイレクト。ログイン済みか確かめられなかったとき（認証サーバーの障害）は
+ *    どちらもしない
  * 6. next-intl の middleware を最後に 1 回だけ呼び、その応答（内部 rewrite と
  *    ロケールのリクエストヘッダ）をそのまま返す。セッション更新の cookie と
  *    ヘッダはその応答に足す。cookie 更新用に別の `NextResponse.next()` を作って
@@ -69,9 +71,18 @@ interface CookieToSet {
   readonly options: CookieOptions;
 }
 
+/**
+ * セッション更新で分かった認証の状態
+ *
+ * `unknown` は確かめられなかった（期限切れのトークンのリフレッシュが認証サーバーに
+ * 届かない・署名の検証に使う公開鍵を取れない。分け方は `isAuthServiceFailure`）。
+ * cookie を持つ人にしか起きない。`lib/auth.ts` の `AuthState` と同じ 3 つ。
+ */
+type SessionAuth = "signedIn" | "signedOut" | "unknown";
+
 /** セッション更新の結果 */
 interface SessionRefresh {
-  readonly isAuthenticated: boolean;
+  readonly auth: SessionAuth;
   /** 応答の Set-Cookie に載せる cookie（属性ごと） */
   readonly cookies: readonly CookieToSet[];
   /** 応答に載せるヘッダ（cookie を書いた応答をキャッシュさせない指定） */
@@ -100,8 +111,13 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     // 「/」を cookie を読まない静的な LP に保ち、ログイン済みだけを dashboard の
     // 実体へ rewrite する。認証状態の切り替わりは auth-context が
     // router.refresh() を呼ぶため、古い方のキャッシュは残らない。
+    //
+    // ログイン済みか確かめられなかったとき（`unknown`）は rewrite も下の redirect も
+    // しない。「/」は静的な LP のまま出し、`/dashboard` はページへ通す（ページが
+    // エラー境界に任せる）。未ログインと決めつけて LP へ redirect すると、
+    // ログイン済みの人が認証サーバーの障害の間だけログアウトしたように見える。
     if (
-      session.isAuthenticated &&
+      session.auth === "signedIn" &&
       external.path === "/" &&
       canRewriteToDashboard(external.locale)
     ) {
@@ -111,7 +127,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     }
     // 未ログインの dashboard 直アクセスは LP へ。ページ側の redirect() に任せると
     // 祖先の loading.tsx がヘッダを確定させてしまうため、HTTP レベルで返す
-    if (!session.isAuthenticated && external.path === DASHBOARD_PATH) {
+    if (session.auth === "signedOut" && external.path === DASHBOARD_PATH) {
       return withSession(
         NextResponse.redirect(
           new URL(localizedHref("/", external.locale), request.url),
@@ -250,7 +266,7 @@ function requestWithPathname(
 async function refreshSession(request: NextRequest): Promise<SessionRefresh> {
   const env = readSupabasePublicEnv();
   if (!env) {
-    return { isAuthenticated: false, cookies: [], headers: {} };
+    return { auth: "signedOut", cookies: [], headers: {} };
   }
 
   let cookies: readonly CookieToSet[] = [];
@@ -275,8 +291,24 @@ async function refreshSession(request: NextRequest): Promise<SessionRefresh> {
   // getUser() のような認証サーバーへのネットワーク往復が不要になり、
   // 全ナビゲーションに乗っていた固定遅延を削減できる。
   // 期限切れ時はセッションリフレッシュにフォールバックし、Cookie 更新も維持される。
-  const { data } = await supabase.auth.getClaims();
-  return { isAuthenticated: Boolean(data?.claims), cookies, headers };
+  const { data, error } = await supabase.auth.getClaims();
+  return {
+    auth: sessionAuthOf(Boolean(data?.claims), error),
+    cookies,
+    headers,
+  };
+}
+
+/**
+ * `getClaims()` の結果を {@link SessionAuth} に分ける
+ *
+ * error があるときは claims があっても信用しない（検証に失敗している）。
+ */
+function sessionAuthOf(hasClaims: boolean, error: unknown): SessionAuth {
+  if (error === null || error === undefined) {
+    return hasClaims ? "signedIn" : "signedOut";
+  }
+  return isAuthServiceFailure(error) ? "unknown" : "signedOut";
 }
 
 /**

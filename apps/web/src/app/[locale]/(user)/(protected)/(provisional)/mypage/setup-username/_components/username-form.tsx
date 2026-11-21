@@ -33,6 +33,7 @@ import { Button } from "@/app/[locale]/(user)/_components/button";
  */
 export function UsernameForm() {
   const t = useTranslations("setupUsername");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const rawLocale = useLocale();
   const locale = isSupportedLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
@@ -78,7 +79,13 @@ export function UsernameForm() {
       );
 
       if ("error" in result) {
-        setError(getValidationMessage(result.error));
+        // 認証サーバーか DB が答えられなかったときは、ユーザー名の誤りではないので
+        // 全アクション共通の文言（common.serviceUnavailable）を出す
+        setError(
+          result.error === "serviceUnavailable"
+            ? tCommon("serviceUnavailable")
+            : getValidationMessage(result.error),
+        );
         setIsSubmitting(false);
         return;
       }

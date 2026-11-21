@@ -10,7 +10,8 @@ import { PageTitle } from "./page-title";
 
 interface ErrorFallbackProps {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  /** error.tsx が受け取る `retry`（サーバーから取り直して描き直す） */
+  readonly retry: () => void;
   /** 見出し（例: 「練習を読み込めませんでした」） */
   readonly title: string;
   /** 補足説明 */
@@ -36,13 +37,22 @@ interface ErrorFallbackProps {
  * `practice/error.tsx`）は、`errorPage` 名前空間から引いた文言を見出しから
  * 再試行ボタンまで全部渡す（1 つでも省くと、英語のページに日本語の既定値が混ざる）。
  *
+ * @design 再試行は `reset` ではなく `retry`
+ * この境界に落ちる失敗の多くは、サーバーでの描画の失敗（DB・認証サーバーに
+ * 届かない）。error.tsx の `reset` は境界のエラー状態を消して子を描き直すだけで、
+ * サーバーから取り直さない — 失敗した応答をもう一度描くので、障害が直っていても
+ * 同じエラーに戻る。`retry`（Next 16.3 で安定）は `router.refresh()` と `reset` を
+ * 1 つの transition で行い、サーバーの描画からやり直す（実装は
+ * `next/dist/client/components/error-boundary.js` の `retry`）。クライアントで
+ * 投げられたエラーも、エラー状態を消す所は同じなので `retry` で足りる。
+ *
  * 戻りリンク・再試行の既定値（日本語）は、日本語だけのページの境界
  * （マイページ・ランキング）が省略して使っているので残している。それらが英語で
  * 公開されるときに文言を渡す形へ直し、既定値を外してラベルを必須にする。
  */
 export function ErrorFallback({
   error,
-  reset,
+  retry,
   title,
   description,
   logTag,
@@ -66,7 +76,7 @@ export function ErrorFallback({
         <PageTitle>{title}</PageTitle>
         <p className="text-sm text-surface-600">{description}</p>
         <div className="flex flex-wrap gap-3 justify-center">
-          <Button onClick={reset}>{retryLabel}</Button>
+          <Button onClick={retry}>{retryLabel}</Button>
           <Link
             href={backHref}
             className={buttonClasses({ variant: "neutral" })}

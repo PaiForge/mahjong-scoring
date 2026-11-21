@@ -64,7 +64,7 @@ export type CompleteLessonsErrorCode = RecorderErrorCode;
  * - `{ error: 'invalidSlug' }`: カリキュラムに存在しない slug
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   端末にも預けない（同期しても同じく弾かれるだけ）
- * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられず、ログイン済みか
+ * - `{ error: 'serviceUnavailable' }`: 認証サーバーか DB が答えられず、ログイン済みか
  *   どうかが分からなかった。クライアントは通信の失敗と同じく端末に預ける
  */
 export type CompleteLessonResult = ActionResult<
@@ -82,7 +82,7 @@ export type CompleteLessonResult = ActionResult<
  * - `{ success: true, skipped: 'anonymous' }`: 未ログイン。預かりはそのまま残す
  * - `{ error: 'banned' }`: BAN されたユーザー。記録しない。
  *   預かりは残す（BAN が解かれたら次のホームで記録できる）
- * - `{ error: 'authUnavailable' }`: 認証サーバーが答えられなかった。預かりは
+ * - `{ error: 'serviceUnavailable' }`: 認証サーバーか DB が答えられなかった。預かりは
  *   残し、通信の失敗と同じく再試行できる
  */
 export type CompleteLessonsResult = ActionResult<

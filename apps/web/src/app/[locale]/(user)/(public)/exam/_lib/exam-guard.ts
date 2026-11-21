@@ -2,7 +2,8 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 
-import { getOptionalUser } from "@/lib/auth";
+import { getAuthState } from "@/lib/auth";
+import { AuthServiceUnavailableError } from "@/lib/auth-service-failure";
 import {
   practiceMenuBySlug,
   type PracticeMenuSlug,
@@ -48,14 +49,16 @@ export async function redirectUnlessExamEligible(
   locale: SupportedLocale,
 ): Promise<void> {
   const introHref = localizedHref(practiceHref(slug), locale);
-  const user = await getOptionalUser();
-  if (!user) {
+  const state = await getAuthState();
+  // 確かめられなかったときは「資格が無い」と同じ扱いで戻さず、エラー境界に任せる
+  if (state.kind === "unknown") throw new AuthServiceUnavailableError();
+  if (state.kind === "signedOut") {
     redirect(introHref);
   }
 
   const eligibility = evaluateExamEligibility(
     practiceMenuBySlug(slug).menuType,
-    await getUserRankSlugs(user.id),
+    await getUserRankSlugs(state.user.id),
   );
   if (eligibility?.kind === "locked") {
     redirect(introHref);

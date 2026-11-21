@@ -140,7 +140,7 @@ describe("GET /auth/callback — Google の追加の戻り", () => {
   it("code の交換に失敗したら linkFailed。活動記録は付けない", async () => {
     mockExchangeCodeForSession.mockResolvedValue({
       data: { session: null },
-      error: { message: "invalid" },
+      error: { message: "invalid", status: 403 },
     });
 
     await callback("link=google&code=abc");
@@ -219,7 +219,7 @@ describe("GET /auth/callback — メールアドレス変更の確認", () => {
     beforeEach(() => {
       mockVerifyOtp.mockResolvedValue({
         data: { session: null },
-        error: { message: "expired" },
+        error: { message: "expired", status: 403 },
       });
     });
 
@@ -285,7 +285,7 @@ describe("GET /auth/callback — 着地の言語（locale）", () => {
   it("locale=en で認証に失敗したら英語のサインインへ auth_callback_error を付けて送る", async () => {
     mockVerifyOtp.mockResolvedValue({
       data: { session: null },
-      error: { message: "invalid" },
+      error: { message: "invalid", status: 403 },
     });
 
     await callback("token_hash=th&type=signup&locale=en");
@@ -365,5 +365,85 @@ describe("GET /auth/callback — 着地の言語（locale）", () => {
     await callback("code=abc&locale=ja&next=%2Fmypage");
 
     expect(redirectedTo()).toBe(`${ORIGIN}/mypage`);
+  });
+});
+
+/**
+ * 認証サーバーに届かない・障害のとき。リンクやコードが無効だという答えではない
+ * ので、「リンクが無効」「認証に失敗」の着地にしない。
+ */
+describe("GET /auth/callback — 認証サーバーが答えられなかったとき", () => {
+  /** 届かなかったときの error（`AuthRetryableFetchError` と同じ形） */
+  const UNREACHABLE = { name: "AuthRetryableFetchError", status: 0 };
+
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mockVerifyOtp.mockResolvedValue({
+      data: { session: null },
+      error: UNREACHABLE,
+    });
+    mockExchangeCodeForSession.mockResolvedValue({
+      data: { session: null },
+      error: UNREACHABLE,
+    });
+  });
+
+  it.each([
+    ["メール確認", "token_hash=th&type=signup"],
+    ["パスワードの再設定", "token_hash=th&type=recovery"],
+    ["OAuth のコード交換", "code=abc"],
+  ])("%s はサインインへ auth_unavailable を付けて送る", async (_, query) => {
+    await callback(query);
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/sign-in?error=auth_unavailable`);
+    expect(logActivityEvent).not.toHaveBeenCalled();
+  });
+
+  it("英語の入口からは英語のサインインへ", async () => {
+    await callback("token_hash=th&type=signup&locale=en");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/en/sign-in?error=auth_unavailable`);
+  });
+
+  it("メールアドレス変更は、ログイン中ならリンクが無効とは言わずアカウントのページへ", async () => {
+    await callback("token_hash=th&type=email_change");
+
+    expect(redirectedTo()).toBe(
+      `${ORIGIN}/mypage/account?notice=emailChangeUnavailable`,
+    );
+  });
+
+  it("メールアドレス変更は、未ログインならサインインへ auth_unavailable", async () => {
+    mockGetOptionalUser.mockResolvedValue(undefined);
+
+    await callback("token_hash=th&type=email_change");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/sign-in?error=auth_unavailable`);
+  });
+
+  it("回数制限（429）も無効とは言わない", async () => {
+    mockVerifyOtp.mockResolvedValue({
+      data: { session: null },
+      error: { name: "AuthApiError", status: 429 },
+    });
+
+    await callback("token_hash=th&type=signup");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/sign-in?error=auth_unavailable`);
+  });
+});
+
+describe("GET /auth/callback — ログイン直後にプロフィールを読めなかったとき", () => {
+  it("500 にせず戻り先へ送る（戻り先のガードが確認をやり直す）", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    mockExchangeCodeForSession.mockResolvedValue({
+      data: { session: SESSION },
+      error: null,
+    });
+    mockGetProfileByUserId.mockRejectedValue(new Error("connection refused"));
+
+    await callback("code=abc&next=/dojo");
+
+    expect(redirectedTo()).toBe(`${ORIGIN}/dojo`);
   });
 });

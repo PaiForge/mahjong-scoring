@@ -8,6 +8,8 @@ import {
   type SupportedLocale,
 } from "@mahjong-scoring/features/i18n/locales";
 import { getOptionalUser } from "@/lib/auth";
+import { isAuthServiceFailure } from "@/lib/auth-service-failure";
+import { logExternalError } from "@/lib/log-error";
 import { logActivityEvent } from "@/lib/activity-log";
 import { getProfileByUserId } from "@/lib/db/queries";
 import { buildSignInHref, sanitizeInternalRedirect } from "@/lib/redirect";
@@ -108,7 +110,17 @@ async function handleSuccessfulAuth(
 ): Promise<NextResponse> {
   logActivityEvent({ userId, action: "login" });
 
-  const profile = await getProfileByUserId(userId);
+  // セッションはもう確立している。ここで DB に届かなくても 500 にせず、戻り先へ
+  // 送る — 戻り先のページのガードが同じプロフィールの確認をやり直し、届かなければ
+  // エラー境界が「もう一度試す」を出す。プロフィール未作成の人が保護ページへ
+  // 着いたときも、そのガードがユーザー名の設定へ送る。
+  let profile: Awaited<ReturnType<typeof getProfileByUserId>>;
+  try {
+    profile = await getProfileByUserId(userId);
+  } catch (error) {
+    logExternalError("auth/callback", "failed to read the profile", error);
+    return NextResponse.redirect(`${ctx.origin}${safeNext}`);
+  }
 
   if (!profile) {
     return redirectTo(ctx, SETUP_USERNAME_PATH);
@@ -121,6 +133,29 @@ async function handleSuccessfulAuth(
 /** 認証に失敗したときの着地（汎用の失敗の文言） */
 function redirectToAuthError(ctx: CallbackContext): NextResponse {
   return redirectTo(ctx, "/sign-in?error=auth_callback_error");
+}
+
+/**
+ * 認証サーバーが答えられなかったときの着地（「時間をおいてもう一度」の文言）
+ *
+ * `verifyOtp` / `exchangeCodeForSession` が届かない・障害（5xx）・回数制限で
+ * 失敗したとき（`isAuthServiceFailure`）。リンクやコードが無効だという答えでは
+ * ないので、「リンクが無効」「認証に失敗」と言わない — そう出すと、まだ使える
+ * リンクを捨てて取り直させる。
+ */
+function redirectToAuthUnavailable(ctx: CallbackContext): NextResponse {
+  return redirectTo(ctx, "/sign-in?error=auth_unavailable");
+}
+
+/**
+ * 認証サーバーが答えられなかった失敗なら記録して true
+ *
+ * @param step - どの問い合わせか（ログ用）
+ */
+function isUnavailable(step: string, error: unknown): boolean {
+  if (!isAuthServiceFailure(error)) return false;
+  logExternalError("auth/callback", `${step}: auth server unavailable`, error);
+  return true;
 }
 
 /**
@@ -155,7 +190,13 @@ async function handleEmailChangeOtp(
     type: "email_change",
   });
   if (error) {
+    const unavailable = isUnavailable("verifyOtp(email_change)", error);
     const user = await getOptionalUser();
+    if (unavailable) {
+      return user
+        ? redirectTo(ctx, accountPageHref("emailChangeUnavailable"))
+        : redirectToAuthUnavailable(ctx);
+    }
     if (user) return redirectTo(ctx, accountPageHref("emailChangeLinkInvalid"));
     return redirectTo(ctx, "/sign-in?error=email_link_invalid");
   }
@@ -217,6 +258,9 @@ async function handleSignupOtp(
   if (!error && data.session) {
     return handleSuccessfulAuth(data.session.user.id, ctx, safeNext);
   }
+  if (error && isUnavailable("verifyOtp(signup)", error)) {
+    return redirectToAuthUnavailable(ctx);
+  }
   return redirectToAuthError(ctx);
 }
 
@@ -231,6 +275,9 @@ async function handleRecoveryOtp(
     type: "recovery",
   });
   if (!error) return redirectTo(ctx, "/reset-password");
+  if (isUnavailable("verifyOtp(recovery)", error)) {
+    return redirectToAuthUnavailable(ctx);
+  }
   return redirectToAuthError(ctx);
 }
 
@@ -246,7 +293,11 @@ async function handleCodeExchange(
   safeNext: string,
 ): Promise<NextResponse> {
   const { error, data } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) return redirectToAuthError(ctx);
+  if (error) {
+    return isUnavailable("exchangeCodeForSession", error)
+      ? redirectToAuthUnavailable(ctx)
+      : redirectToAuthError(ctx);
+  }
   if (type === "recovery") {
     return redirectTo(ctx, "/reset-password");
   }

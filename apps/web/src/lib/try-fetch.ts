@@ -12,6 +12,9 @@ import { logExternalError } from "@/lib/log-error";
  *
  * 失敗を値の不在から分けて持つのがこの型の役目で、どちらの扱いにするかは
  * 受け取る側が決める。
+ *
+ * 空が事実として読まれる読み取り（記録・履歴・一覧）は、失敗を空で返さず
+ * この型で返す。Server Action の戻り値にも使える（直列化できる素の値）。
  */
 export type Fetched<T> =
   { readonly ok: true; readonly value: T } | { readonly ok: false };

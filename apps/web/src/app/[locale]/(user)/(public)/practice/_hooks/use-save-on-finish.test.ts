@@ -100,7 +100,7 @@ describe("useSaveOnFinish", () => {
     mockedSave
       .mockResolvedValueOnce({ error: "rateLimited" })
       .mockResolvedValueOnce({ error: "unexpectedError" })
-      .mockResolvedValueOnce({ error: "authUnavailable" })
+      .mockResolvedValueOnce({ error: "serviceUnavailable" })
       .mockResolvedValueOnce({ success: true, challengeResultId: "cr-retry" });
     const { result } = renderHook(() => useSaveOnFinish("jantou_fu"));
 

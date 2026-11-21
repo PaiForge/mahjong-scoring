@@ -198,8 +198,8 @@ export function LessonView({
       setSaveState("saving");
       try {
         const result = await completeLesson(slug);
-        if ("error" in result && result.error === "authUnavailable") {
-          // 認証サーバーが答えられなかった。通信の失敗と同じく預けて、
+        if ("error" in result && result.error === "serviceUnavailable") {
+          // 認証サーバーか DB が答えられなかった。通信の失敗と同じく預けて、
           // ログイン済みのホームで送り直す
           logExternalError("completeLesson", slug, result.error);
           rememberPendingLessonCompletion(slug, userId);

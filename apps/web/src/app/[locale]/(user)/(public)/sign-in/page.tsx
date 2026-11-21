@@ -69,9 +69,10 @@ export default async function SignInPage({
   // GET で副作用のある内部パスへのフィッシング誘導に悪用される恐れがあるため。
   await redirectIfAuthenticated(mypage);
 
-  const [t, tNav] = await Promise.all([
+  const [t, tNav, tCommon] = await Promise.all([
     getTranslations("auth"),
     getTranslations("nav"),
+    getTranslations("common"),
   ]);
   const signUp = resolveNavTargetFor("/sign-up", locale);
   const contact = resolveNavTargetFor("/contact", locale);
@@ -84,7 +85,9 @@ export default async function SignInPage({
           <p className="text-center text-sm text-destructive">
             {error === "email_link_invalid"
               ? t("emailLinkInvalid")
-              : t("authError")}
+              : error === "auth_unavailable"
+                ? tCommon("serviceUnavailable")
+                : t("authError")}
           </p>
         )}
         <GoogleOAuthButton redirectTo={redirectTo} />

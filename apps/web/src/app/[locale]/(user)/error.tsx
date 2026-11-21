@@ -20,10 +20,10 @@ import { publishedHomeHref } from "@/i18n/translated-publications";
  */
 export default function UserError({
   error,
-  reset,
+  retry,
 }: {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  readonly retry: () => void;
 }) {
   const t = useTranslations("errorPage");
   const locale = useLocale();
@@ -31,7 +31,7 @@ export default function UserError({
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       title={t("title")}
       description={t("description")}
       backHref={publishedHomeHref(locale)}

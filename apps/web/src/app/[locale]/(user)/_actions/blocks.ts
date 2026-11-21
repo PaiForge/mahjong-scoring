@@ -3,7 +3,7 @@
 import type { ActionResult } from "@/lib/action-types";
 import { guardUserAction } from "@/lib/action-guard";
 import type { UserActionGuardErrorCode } from "@/lib/action-guard";
-import { getOptionalUser } from "@/lib/auth";
+import { getAuthState } from "@/lib/auth";
 import {
   blockUser,
   listBlockedUsers,
@@ -75,10 +75,12 @@ export type BlockedUserView = Omit<BlockedUser, "blockedAt">;
 export async function getBlockedUsersAction(): Promise<
   readonly BlockedUserView[] | undefined
 > {
-  const user = await getOptionalUser();
-  if (!user) return [];
+  const state = await getAuthState();
+  // ログイン済みか確かめられなかったときは「ブロックが無い」ではなく失敗
+  if (state.kind === "unknown") return undefined;
+  if (state.kind === "signedOut") return [];
   try {
-    const rows = await listBlockedUsers(user.id);
+    const rows = await listBlockedUsers(state.user.id);
     return rows.map(({ username, displayName, avatarUrl }) => ({
       username,
       displayName,

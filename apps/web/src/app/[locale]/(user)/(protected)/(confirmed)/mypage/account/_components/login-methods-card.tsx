@@ -66,6 +66,7 @@ export function LoginMethodsCard({
 }: LoginMethodsCardProps) {
   const locale = useLocale();
   const t = useTranslations("mypageAccount.methods");
+  const tCommon = useTranslations("common");
   const tProviders = useTranslations("mypageAccount.login.providers");
   const router = useRouter();
   const [removing, setRemoving] = useState<LinkedIdentity | undefined>();
@@ -99,6 +100,9 @@ export function LoginMethodsCard({
       case "unauthorized":
       case "banned":
         return t(`errors.${code}`);
+      // 認証サーバーか DB が答えられなかった。文言は全アクション共通（common.serviceUnavailable）
+      case "serviceUnavailable":
+        return tCommon("serviceUnavailable");
       default: {
         const exhaustive: never = code;
         return exhaustive;
@@ -117,6 +121,9 @@ export function LoginMethodsCard({
       case "unauthorized":
       case "banned":
         return t(`errors.${code}`);
+      // 認証サーバーか DB が答えられなかった。文言は全アクション共通（common.serviceUnavailable）
+      case "serviceUnavailable":
+        return tCommon("serviceUnavailable");
       default: {
         const exhaustive: never = code;
         return exhaustive;

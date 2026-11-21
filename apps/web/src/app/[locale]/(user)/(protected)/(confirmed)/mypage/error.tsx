@@ -22,10 +22,10 @@ import { publishedHomeHref } from "@/i18n/translated-publications";
  */
 export default function MypageError({
   error,
-  reset,
+  retry,
 }: {
   readonly error: Error & { digest?: string };
-  readonly reset: () => void;
+  readonly retry: () => void;
 }) {
   const t = useTranslations("mypage");
   const tErrorPage = useTranslations("errorPage");
@@ -34,7 +34,7 @@ export default function MypageError({
   return (
     <ErrorFallback
       error={error}
-      reset={reset}
+      retry={retry}
       logTag="Mypage"
       title={t("error.title")}
       description={t("error.description")}

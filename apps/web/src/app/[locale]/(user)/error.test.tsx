@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 
 import type { SupportedLocale } from "@mahjong-scoring/features/i18n/locales";
@@ -8,11 +8,11 @@ import { messages as jaMessages } from "@mahjong-scoring/messages/ja";
 
 import UserError from "./error";
 
-function renderIn(locale: SupportedLocale) {
+function renderIn(locale: SupportedLocale, retry: () => void = () => {}) {
   const messages = locale === "en" ? enMessages : jaMessages;
   render(
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <UserError error={new Error("boom")} reset={() => {}} />
+      <UserError error={new Error("boom")} retry={retry} />
     </NextIntlClientProvider>,
   );
   return messages.errorPage;
@@ -41,6 +41,15 @@ describe("(user) のエラー境界", () => {
       ).toBe(homeHref);
     },
   );
+
+  // サーバーでの描画の失敗は、取り直さないと同じエラーに戻る。再試行のボタンは
+  // error.tsx の `retry`（サーバーから取り直す）を呼ぶ。
+  it("再試行のボタンは retry を呼ぶ", () => {
+    const retry = vi.fn();
+    const errorPage = renderIn("ja", retry);
+    fireEvent.click(screen.getByRole("button", { name: errorPage.retry }));
+    expect(retry).toHaveBeenCalledTimes(1);
+  });
 
   it("英語のページに日本語の既定値が混ざらない", () => {
     renderIn("en");

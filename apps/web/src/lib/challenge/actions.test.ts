@@ -5,7 +5,6 @@ import {
   mockAuthenticateAndCheckBan,
   mockEnforceIpRateLimit,
   mockEnforceUserRateLimit,
-  mockIsVerifiedUserUnavailable,
   setupAuthorized,
 } from "@/test/auth-mocks";
 
@@ -72,11 +71,12 @@ describe("beginChallenge", () => {
   });
 
   it("認証サーバーの不通は未ログインと区別し、非記録モードへ落とさない", async () => {
-    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
-    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+    mockAuthenticateAndCheckBan.mockResolvedValue({
+      error: "serviceUnavailable",
+    });
 
     expect(await beginChallenge("jantou_fu", "default", {})).toEqual({
-      error: "authUnavailable",
+      error: "serviceUnavailable",
     });
     expect(mockBeginAttempt).not.toHaveBeenCalled();
   });
@@ -142,12 +142,13 @@ describe("answerChallenge", () => {
     expect(mockEnforceUserRateLimit).not.toHaveBeenCalled();
   });
 
-  it("認証サーバーの不通は authUnavailable（送り直せる）", async () => {
-    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
-    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+  it("認証サーバーの不通は serviceUnavailable（送り直せる）", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({
+      error: "serviceUnavailable",
+    });
 
     expect(await answerChallenge("attempt-1", 0, 2)).toEqual({
-      error: "authUnavailable",
+      error: "serviceUnavailable",
     });
     expect(mockAnswerAttempt).not.toHaveBeenCalled();
   });
@@ -202,12 +203,13 @@ describe("revealExpiredChallenge", () => {
     });
   });
 
-  it("認証サーバーの不通は authUnavailable", async () => {
-    mockAuthenticateAndCheckBan.mockResolvedValue({ error: "unauthorized" });
-    mockIsVerifiedUserUnavailable.mockResolvedValue(true);
+  it("認証サーバーの不通は serviceUnavailable", async () => {
+    mockAuthenticateAndCheckBan.mockResolvedValue({
+      error: "serviceUnavailable",
+    });
 
     expect(await revealExpiredChallenge("attempt-1")).toEqual({
-      error: "authUnavailable",
+      error: "serviceUnavailable",
     });
     expect(mockRevealExpiredAttempt).not.toHaveBeenCalled();
   });

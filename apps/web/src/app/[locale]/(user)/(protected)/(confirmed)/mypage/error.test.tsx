@@ -14,7 +14,7 @@ function renderIn(locale: SupportedLocale) {
       locale={locale}
       messages={locale === "en" ? enMessages : jaMessages}
     >
-      <MypageError error={new Error("boom")} reset={() => {}} />
+      <MypageError error={new Error("boom")} retry={() => {}} />
     </NextIntlClientProvider>,
   );
 }

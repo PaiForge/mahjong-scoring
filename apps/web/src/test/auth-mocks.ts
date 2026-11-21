@@ -25,7 +25,8 @@ import { vi } from "vitest";
  * 差し替えた module に余分な export が混じるが、対象の Server Action が
  * 読むのはそれぞれ1つだけなので影響しない。
  *
- * 拒否される側（レートリミット超過・BAN・未ログイン）を見たいテストは、
+ * 拒否される側（レートリミット超過・BAN・未ログイン・不通の `serviceUnavailable`）を
+ * 見たいテストは、
  * `setupAuthorized()` のあとに該当のモックだけ上書きすること。
  *
  * このモジュールはテスト専用。
@@ -43,13 +44,6 @@ export const mockEnforceUserRateLimit = vi.fn();
 /** `@/lib/auth` の `authenticateAndCheckBan` の差し替え先 */
 export const mockAuthenticateAndCheckBan = vi.fn();
 
-/**
- * `@/lib/auth` の `isVerifiedUserUnavailable` の差し替え先。
- * `resolveRecorder` が `unauthorized` を「未ログイン」と「認証サーバーが
- * 答えられなかった」に分けるのに読む
- */
-export const mockIsVerifiedUserUnavailable = vi.fn();
-
 /** `vi.mock("@/lib/rate-limit-ip", ...)` 用のエイリアス */
 export const enforceIpRateLimit = mockEnforceIpRateLimit;
 
@@ -58,9 +52,6 @@ export const enforceUserRateLimit = mockEnforceUserRateLimit;
 
 /** `vi.mock("@/lib/auth", ...)` 用のエイリアス */
 export const authenticateAndCheckBan = mockAuthenticateAndCheckBan;
-
-/** `vi.mock("@/lib/auth", ...)` 用のエイリアス */
-export const isVerifiedUserUnavailable = mockIsVerifiedUserUnavailable;
 
 /** 認証を通過したときに返るユーザー */
 export const AUTHENTICATED_USER = {
@@ -78,5 +69,4 @@ export function setupAuthorized(user = AUTHENTICATED_USER): void {
   mockEnforceIpRateLimit.mockResolvedValue(undefined);
   mockEnforceUserRateLimit.mockReturnValue(undefined);
   mockAuthenticateAndCheckBan.mockResolvedValue({ user });
-  mockIsVerifiedUserUnavailable.mockResolvedValue(false);
 }

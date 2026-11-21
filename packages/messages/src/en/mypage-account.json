@@ -84,7 +84,8 @@
     "linkFailed": "Could not add the Google account. Please try again.",
     "emailChangePending": "Confirmation received. Open the link in the other confirmation email as well to finish changing your email address.",
     "emailChangeDone": "Your email address has been changed.",
-    "emailChangeLinkInvalid": "The link to change your email address is invalid or has expired. Please start the change again."
+    "emailChangeLinkInvalid": "The link to change your email address is invalid or has expired. Please start the change again.",
+    "emailChangeUnavailable": "We couldn't confirm your email address change right now. Please open the link in the email again in a little while."
   },
   "deleteAccountLink": "Delete account"
 }
