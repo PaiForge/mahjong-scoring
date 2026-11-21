@@ -12,6 +12,7 @@ import { toastOnArrival } from "@/app/_components/_lib/toast-on-arrival";
 import { Button } from "@/app/[locale]/(user)/_components/button";
 import { ConfirmationModal } from "@/app/[locale]/(user)/_components/confirmation-modal";
 import { useAuth } from "@/app/_contexts/auth-context";
+import { logExternalError } from "@/lib/log-error";
 import { deleteOwnAccount } from "../_actions/delete-account";
 
 /**
@@ -34,7 +35,10 @@ export function DeleteAccountButton() {
     setIsModalOpen(false);
     setIsDeleting(true);
 
-    const result = await deleteOwnAccount();
+    // 通信の失敗などでアクションが投げても「削除中」のまま止めない
+    const result = await deleteOwnAccount().catch(
+      (): { readonly error: "unknown" } => ({ error: "unknown" }),
+    );
     if ("error" in result) {
       toast.error(
         result.error === "rateLimited"
@@ -47,7 +51,13 @@ export function DeleteAccountButton() {
       return;
     }
 
-    await signOut();
+    // 退会は受け付け済み。ログアウトが失敗しても（認証サーバーに届かない等）
+    // ここで止めず、トップへ送る。サーバー側の退会の工程がログインを無効にする
+    try {
+      await signOut();
+    } catch (error) {
+      logExternalError("DeleteAccountButton", "sign-out failed", error);
+    }
     // トップに着いてから出す（ここで出すと表示時間が遷移の裏で減る）。
     // 工程が残っている（pending）ときは完了と言わず、受け付けたことを伝える。
     // 着地の判定はロケール接頭辞を外したパスで比べるので、預ける側は "/" のまま
