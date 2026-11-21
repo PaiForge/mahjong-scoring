@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import { currentLocale } from "@/i18n/current-locale";
 import { localizedHref } from "@/i18n/public-path";
 
-import { isAuthServiceFailure } from "./auth-service-failure";
+import {
+  AuthServiceUnavailableError,
+  isAuthServiceFailure,
+} from "./auth-service-failure";
 import { type AuthUser, claimsToAuthUser, userToAuthUser } from "./auth-user";
 import { type AccountStanding, getAccountStanding, isUserBanned } from "./ban";
 import { createClient } from "./supabase/server";
@@ -38,21 +41,66 @@ export interface AuthGuardOptions {
 }
 
 /**
- * JWT の claims から認証済みユーザーを読む。取れなければ undefined
- * claimsユーザー読み取り
+ * cookie のセッションを読んだ結果
+ * 認証状態の読み取り結果
+ *
+ * - `signedIn` — 検証できたユーザー
+ * - `signedOut` — セッションが無い、または無効（認証サーバーが無効と答えた・
+ *   署名が合わない）
+ * - `unknown` — 確かめられなかった。期限切れのトークンのリフレッシュが認証
+ *   サーバーに届かなかったか、署名の検証に使う公開鍵（JWKS）を取れなかった
+ *   （分け方は {@link isAuthServiceFailure}）。cookie を持つ人にしか起きない
+ *
+ * `unknown` を `signedOut` に畳むと、認証サーバーの障害の間、ログイン済みの人が
+ * サインインへ送られ、自分の記録が「無い」と表示される。畳んでよいかは
+ * 読む側が決める（{@link getOptionalUser} の TSDoc）。
+ */
+export type AuthState =
+  | { readonly kind: "signedIn"; readonly user: AuthUser }
+  | { readonly kind: "signedOut" }
+  | { readonly kind: "unknown" };
+
+/**
+ * `getClaims()` の結果を {@link AuthState} に分ける
+ * claims結果の分類
+ *
+ * proxy（`proxy.ts`）も同じ分け方をするが、あちらは claims の中身を使わない
+ * ので自分で `isAuthServiceFailure` を呼ぶ。基準はその関数 1 つ。
+ */
+function authStateOf(
+  claims: Parameters<typeof claimsToAuthUser>[0] | undefined,
+  error: unknown,
+): AuthState {
+  // error があるときは claims があっても信用しない（検証に失敗している）
+  if (error === null || error === undefined) {
+    return claims
+      ? { kind: "signedIn", user: claimsToAuthUser(claims) }
+      : { kind: "signedOut" };
+  }
+  return isAuthServiceFailure(error)
+    ? { kind: "unknown" }
+    : { kind: "signedOut" };
+}
+
+/**
+ * cookie のセッションから認証状態を読む（JWT のローカル検証）
+ * 認証状態読み取り
  *
  * getClaims() は非対称署名キー構成では JWT をローカル検証するため、
  * getUser() のような認証サーバーへのネットワーク往復が不要になり、
  * 保護ページ遷移ごとの認証待ちを短縮できる（対称鍵時は getUser に
  * フォールバックし従来同等）。cache() によりリクエスト内では1回だけ評価される。
  * 引数を持たないので、ガードに渡す `returnTo` が違っても問い合わせは 1 回。
+ * ガード・{@link getOptionalUser}・{@link getAuthState} が同じ結果を共有する。
  */
-const readClaimsUser = cache(async (): Promise<AuthUser | undefined> => {
+export const getAuthState = cache(async (): Promise<AuthState> => {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (error || !claims) return undefined;
-  return claimsToAuthUser(claims);
+  const state = authStateOf(data?.claims, error);
+  if (state.kind === "unknown") {
+    logExternalError("getAuthState", "could not verify the session", error);
+  }
+  return state;
 });
 
 /**
@@ -83,16 +131,21 @@ async function redirectLocalized(path: string): Promise<never> {
  * `options.returnTo` があればサインイン後にそこへ戻す（{@link AuthGuardOptions}）。
  * 問い合わせは cache() 済みの claims の読み取りを共有する。
  *
+ * ログイン済みかどうかを確かめられなかったとき（{@link AuthState} の `unknown`）は
+ * サインインへ送らず {@link AuthServiceUnavailableError} を投げ、エラー境界に
+ * 任せる。`requireConfirmedUser` / `requireProvisionalUser` もここを通る。
+ *
  * @param options - サインイン後の戻り先
  */
 export const getAuthenticatedUser = async (
   options?: AuthGuardOptions,
 ): Promise<AuthUser> => {
-  const user = await readClaimsUser();
-  if (!user) {
+  const state = await getAuthState();
+  if (state.kind === "unknown") throw new AuthServiceUnavailableError();
+  if (state.kind === "signedOut") {
     redirect(await signInRedirectHref(options?.returnTo));
   }
-  return user;
+  return state.user;
 };
 
 /**
@@ -182,13 +235,17 @@ export const requireProvisionalUser = (options?: AuthGuardOptions) =>
  * 認証済みユーザーまたは undefined を返す。リダイレクトなし。
  * getClaims() でローカル検証する（getAuthenticatedUser と同様）。
  * オプショナルユーザー取得
+ *
+ * ログイン済みかどうかを確かめられなかったとき（{@link AuthState} の `unknown`）も
+ * undefined になる。**undefined を「未ログイン」と読んでよいのは、未ログインの
+ * 見た目に落ちても誤解を生まない表示だけ**（自分の順位の強調・バナーの出し分け
+ * 等）。undefined で別のページへ送る・「記録が無い」と見せる読み取りは
+ * {@link getAuthState} で `unknown` を分ける。
  */
 export const getOptionalUser = cache(
   async (): Promise<AuthUser | undefined> => {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getClaims();
-    const claims = data?.claims;
-    return claims ? claimsToAuthUser(claims) : undefined;
+    const state = await getAuthState();
+    return state.kind === "signedIn" ? state.user : undefined;
   },
 );
 

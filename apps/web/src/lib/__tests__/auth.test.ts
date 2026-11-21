@@ -39,8 +39,11 @@ vi.mock("../ban", () => ({
   getAccountStanding: vi.fn(),
 }));
 
+import { AuthServiceUnavailableError } from "../auth-service-failure";
 import {
+  getAuthState,
   getAuthenticatedUser,
+  getOptionalUser,
   redirectIfAuthenticated,
   requireConfirmedUser,
   requireProvisionalUser,
@@ -63,6 +66,14 @@ function signedOut() {
   mocks.getClaims.mockResolvedValue({ data: null, error: null });
 }
 
+/** 認証サーバーに届かなかった（`AuthRetryableFetchError` と同じ形の error） */
+function unreachable() {
+  mocks.getClaims.mockResolvedValue({
+    data: null,
+    error: { name: "AuthRetryableFetchError", status: 0 },
+  });
+}
+
 function signedIn() {
   mocks.getClaims.mockResolvedValue({
     data: { claims: CLAIMS },
@@ -72,6 +83,7 @@ function signedIn() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.spyOn(console, "error").mockImplementation(() => undefined);
   mocks.currentLocale.mockResolvedValue("ja");
   mocks.getProfileByUserId.mockResolvedValue({ username: "taro" });
   mocks.isUserBanned.mockResolvedValue(false);
@@ -108,12 +120,31 @@ describe("getAuthenticatedUser", () => {
     ).toBe("/sign-in?redirect=%2Fmypage");
   });
 
-  it("claims の取得が失敗したら未認証として扱う", async () => {
+  it("検証に失敗した claims（無効な JWT）は、中身があっても未認証として扱う", async () => {
     mocks.getClaims.mockResolvedValue({
       data: { claims: CLAIMS },
-      error: new Error("invalid"),
+      error: { name: "AuthInvalidJwtError", status: 400 },
     });
     expect(await redirectedTo(() => getAuthenticatedUser())).toBe("/sign-in");
+  });
+
+  it("認証サーバーが無効と答えたリフレッシュは未認証", async () => {
+    mocks.getClaims.mockResolvedValue({
+      data: null,
+      error: { name: "AuthApiError", status: 400 },
+    });
+    expect(await redirectedTo(() => getAuthenticatedUser())).toBe("/sign-in");
+  });
+
+  /**
+   * 期限切れのトークンのリフレッシュが届かない・公開鍵を取れないとき。
+   * サインインへ送ると、ログイン済みの人が障害の間だけログアウトしたように見える。
+   */
+  it("認証サーバーに届かなかったときはサインインへ送らず、投げてエラー境界に任せる", async () => {
+    unreachable();
+    await expect(getAuthenticatedUser()).rejects.toBeInstanceOf(
+      AuthServiceUnavailableError,
+    );
   });
 
   it("認証済みならユーザーを返し、言語を読まない", async () => {
@@ -202,6 +233,49 @@ describe("requireProvisionalUser", () => {
     mocks.getProfileByUserId.mockResolvedValue(undefined);
     const { user } = await requireProvisionalUser();
     expect(user.id).toBe("user-1");
+  });
+});
+
+describe("ガードは、確かめられなかったときに飛ばさない", () => {
+  it("requireConfirmedUser はサインインへ送らずに投げる", async () => {
+    unreachable();
+    await expect(
+      requireConfirmedUser({ returnTo: "/mypage" }),
+    ).rejects.toBeInstanceOf(AuthServiceUnavailableError);
+    expect(mocks.getProfileByUserId).not.toHaveBeenCalled();
+  });
+
+  it("requireProvisionalUser もサインインへ送らずに投げる", async () => {
+    unreachable();
+    await expect(requireProvisionalUser()).rejects.toBeInstanceOf(
+      AuthServiceUnavailableError,
+    );
+  });
+});
+
+describe("getAuthState / getOptionalUser", () => {
+  it("ログイン済み・未ログイン・不明を分ける", async () => {
+    signedIn();
+    expect(await getAuthState()).toMatchObject({
+      kind: "signedIn",
+      user: { id: "user-1" },
+    });
+    signedOut();
+    expect(await getAuthState()).toEqual({ kind: "signedOut" });
+    unreachable();
+    expect(await getAuthState()).toEqual({ kind: "unknown" });
+  });
+
+  it("getOptionalUser は不明も undefined にする（読む側が畳んでよい表示だけで使う）", async () => {
+    unreachable();
+    expect(await getOptionalUser()).toBeUndefined();
+    signedIn();
+    expect((await getOptionalUser())?.id).toBe("user-1");
+  });
+
+  it("ゲスト専用ページは、不明のとき退避させない", async () => {
+    unreachable();
+    expect(await redirectedTo(() => redirectIfAuthenticated())).toBeUndefined();
   });
 });
 

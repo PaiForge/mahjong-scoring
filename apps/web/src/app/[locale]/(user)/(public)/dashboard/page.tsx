@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { createPrivateMetadata } from "@/app/_lib/metadata";
-import { getOptionalUser } from "@/lib/auth";
+import { getAuthState } from "@/lib/auth";
+import { AuthServiceUnavailableError } from "@/lib/auth-service-failure";
 import { localizedHref } from "@/i18n/public-path";
 
 import { HomeDashboard } from "./_components/home-dashboard";
@@ -24,12 +25,17 @@ import { prepareRouteLocale } from "@/i18n/route-locale";
  * 機能画面なので索引させない（`createPrivateMetadata` の noindex を言語付きで。
  * 公開状態は `published-noindex`）。cookie を読むので動的のまま。
  *
- * ガードは `getOptionalUser()` のみ（分割前の「/」と同じ条件）。
+ * ガードは cookie のセッションの有無だけ（`getAuthState()`。分割前の「/」と同じ条件）。
  * プロフィール未作成・BAN のユーザーにも表示するため、(protected) 系の
  * requireConfirmedUser は使わない。未ログインの直アクセスは proxy が
  * その言語のトップ（「/」・「/en」）へ redirect するが、proxy を経由しない
  * 経路に備えてページ側でも弾く。行き先は今の言語のトップ
  * （`localizedHref("/", locale)`。英語のページから日本語の LP へ落とさない）。
+ *
+ * ログイン済みかどうかを確かめられなかったとき（認証サーバーの障害）は LP へ
+ * 送らず `AuthServiceUnavailableError` を投げる。LP へ送ると、ログイン済みの人が
+ * 障害の間だけログアウトしたように見える。proxy も同じ理由で、分からないときは
+ * `/dashboard` を LP へ redirect しない。
  */
 export async function generateMetadata({
   params,
@@ -42,10 +48,12 @@ export default async function DashboardPage({
   params,
 }: PageProps<"/[locale]/dashboard">) {
   const locale = await prepareRouteLocale(params, "/dashboard");
-  const user = await getOptionalUser();
-  if (!user) {
+  const state = await getAuthState();
+  // 確かめられなかったときは LP へ送らず、エラー境界に任せる
+  if (state.kind === "unknown") throw new AuthServiceUnavailableError();
+  if (state.kind === "signedOut") {
     redirect(localizedHref("/", locale));
   }
 
-  return <HomeDashboard userId={user.id} locale={locale} />;
+  return <HomeDashboard userId={state.user.id} locale={locale} />;
 }
