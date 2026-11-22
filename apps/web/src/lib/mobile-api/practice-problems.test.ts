@@ -40,6 +40,7 @@ vi.mock("../supabase/env", () => ({
   }),
 }));
 vi.mock("../client-ip", () => ({ getClientIp: mockGetClientIp }));
+vi.mock("./app-usage", () => ({ recordAppUsage: vi.fn() }));
 vi.mock("../db/queries", () => ({
   getProfileCoreByUserId: mockGetProfileCore,
   hasAccountDeletionRequest: mockHasDeletionRequest,

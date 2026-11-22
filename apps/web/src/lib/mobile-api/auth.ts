@@ -18,6 +18,7 @@ import {
   type IpRateLimitConfig,
 } from "../rate-limit-ip";
 
+import { recordAppUsage } from "./app-usage";
 import { mobileJson, mobileRateLimited } from "./response";
 
 /**
@@ -203,6 +204,8 @@ type AuthorizeMobileResult =
  * @param options.forAccountDeletion - 退会の受付として使う（退会の API だけ）。
  *   BAN 中・退会処理中も通す（本人による退会は BAN の対象にしない。受付は冪等）
  * @param options.forBanNotice - BAN の知らせ（理由）を読む API だけ。BAN 中も通す
+ *
+ * 通った要求は、アプリの利用として記録する（`recordAppUsage`。退会の受付を除く）。
  */
 export async function authorizeMobileRequest(
   request: Request,
@@ -233,6 +236,10 @@ export async function authorizeMobileRequest(
   if (enforceUserRateLimit(auth.user.id, rateLimitKey, config)) {
     return rateLimited();
   }
+
+  // 退会の受付は退会処理中の人も通すので、利用を記録しない（記録すると
+  // 退会の工程が消した行を作り直す。`app-usage.ts`）
+  if (!options.forAccountDeletion) recordAppUsage(request, auth.user.id);
 
   return { ok: true, ...auth };
 }
