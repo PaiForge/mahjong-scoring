@@ -350,3 +350,12 @@ ALTER TABLE "daily_problem_answers" ENABLE ROW LEVEL SECURITY;
 -- RLS だけ有効にし、GRANT も足さない。作成マイグレーションでも有効化する。
 ALTER TABLE "practice_problem_facet_sets" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "practice_problem_facets" ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- app_usage
+-- =============================================================================
+-- アプリの利用の記録（最後に使った日時・OS・版）。書くのはアプリ向け API の認証、
+-- 読むのは管理画面で、どちらもサーバー（直 DB 接続）だけ。クライアントには
+-- 読み書きさせない。practice_problems と同じく、ポリシーを置かずに RLS だけ
+-- 有効にし、GRANT も足さない。作成マイグレーションでも有効化する。
+ALTER TABLE "app_usage" ENABLE ROW LEVEL SECURITY;

@@ -1,4 +1,5 @@
 import { AD_KINDS } from "@mahjong-scoring/features/ads/native-ad";
+import { MOBILE_APP_PLATFORMS } from "@mahjong-scoring/features/app-version/mobile-api";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
@@ -2099,3 +2100,56 @@ export const problemReports = pgTable(
 
 export type ProblemReport = typeof problemReports.$inferSelect;
 export type NewProblemReport = typeof problemReports.$inferInsert;
+
+/**
+ * アプリの利用の記録（管理画面でアプリを使っている人を見分ける）
+ * アプリ利用記録
+ *
+ * @description
+ * アプリ向け API（`/api/mobile/v1/*`）の認証を通った要求から、ユーザーごとに
+ * 「初めてアプリで使った日時」「最後にアプリで使った日時」と、最後に使った OS・版を
+ * 1 人 1 行で持つ。書くのは `lib/mobile-api/app-usage.ts` だけで、読むのは管理画面だけ。
+ * 「使った」はサーバーと通信したことで、認証の付いた API を呼ばない使い方は数えない。
+ * 記録を始める前の利用は無く、推定でも埋めない（行が無い = 未記録）。
+ *
+ * @design OS と版は要求の申告（偽れる）
+ * ヘッダ `X-App-Platform` / `X-App-Version` の値をそのまま持つ。管理画面に出す
+ * だけで、回数制限・特典・記録の可否には使わない（`lib/mobile-api/platform.ts`
+ * の TSDoc と同じ方針）。ヘッダの無い要求（画面確認用の web 版）は記録しない。
+ *
+ * @design `profiles` に列を足さず別の表にする
+ * `profiles` は更新のたびに `updated_at` を書き換えるトリガを持ち、退会の工程が
+ * 行をロックする。利用のたびに書くとプロフィールの更新日時が動き、ロックも
+ * 取り合う。ユーザー名を決める前の人（`profiles` の行が無い）も記録したい。
+ *
+ * @design auth.users への FK を張らない
+ * 他の表と同じく退会の工程（`lib/users/delete-account.ts`）が明示的に消す。
+ * 退会を受け付けた人の行は、書き込みの SQL が作り直さない。
+ */
+export const appUsage = pgTable(
+  "app_usage",
+  {
+    /** auth.users(id) */
+    userId: uuid("user_id").primaryKey(),
+    /** 最後に使った OS（`ios` / `android`） */
+    platform: varchar("platform", { length: 20 }).notNull(),
+    /** 最後に使った版（`1.1.0` の形。読めない値なら NULL） */
+    appVersion: varchar("app_version", { length: 32 }),
+    /** 初めてアプリで使った日時（記録を始めてから） */
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    /** 最後にアプリで使った日時（1 日に 1 回程度に間引いて書く） */
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    check(
+      "app_usage_chk_platform",
+      sql`${table.platform} IN (${sqlInList(MOBILE_APP_PLATFORMS)})`,
+    ),
+  ],
+).enableRLS();
+
+export type AppUsage = typeof appUsage.$inferSelect;

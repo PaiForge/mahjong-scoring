@@ -358,6 +358,13 @@
       "when": 1795330059750,
       "tag": "20261122064739_allow_unmapped_yaku_facet_error",
       "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1795340970596,
+      "tag": "20261122094930_create_app_usage_table",
+      "breakpoints": true
     }
   ]
 }
