@@ -24,6 +24,10 @@ vi.mock("../db", async () => {
 });
 vi.mock("@/lib/log-error", async () => await import("@/test/log-error-mock"));
 
+import { DEFAULT_RULE_SETTINGS, SCORING_VERSION } from "@mahjong-scoring/core";
+import { buildDailyAnswerSnapshot } from "@mahjong-scoring/features/daily-problem/answer-receipt";
+import type { DailyAnswerSnapshot } from "@mahjong-scoring/features/daily-problem/answer-snapshot";
+
 import { logExternalError } from "@/lib/log-error";
 
 import {
@@ -32,7 +36,11 @@ import {
   dailyProblems,
 } from "../db/schema";
 
-import { readDailyProblemAnswer, recordDailyProblemAnswer } from "./answers";
+import {
+  readDailyProblemAnswer,
+  recordDailyProblemAnswer,
+  type DailyAnswerSubmission,
+} from "./answers";
 import {
   eligibleAgariPayload,
   kiriageBoundaryAgariPayload,
@@ -174,6 +182,49 @@ describe.skipIf(!url)("本日の問題（PostgreSQL）", () => {
       expect(first.every((problem) => problem?.day === TODAY)).toBe(true);
       for (const problem of [...first, again])
         expect(problem?.payload).toEqual(first[0]?.payload);
+    });
+
+    it("並行して選んでも、固定された行のスナップショットは固定された問題のものになる", async () => {
+      vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "selection-sha");
+      for (let i = 0; i < 6; i++)
+        await insertPracticeProblem({
+          kind: "agari-score",
+          payload:
+            i % 2 === 0 ? eligibleAgariPayload() : otherEligibleAgariPayload(),
+          createdAt: SAVED_YESTERDAY,
+        });
+
+      const [first] = await Promise.all(
+        Array.from({ length: 8 }, () => getDailyProblem(NOW)),
+      );
+      if (!first) throw new Error("problem expected");
+
+      const rows = await fixedRows();
+      expect(rows).toHaveLength(1);
+      expect(rows[0].answerSnapshot).toEqual(
+        buildDailyAnswerSnapshot(first.payload, "selection-sha"),
+      );
+      // 読み直しても選出時の値を書き換えない
+      vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "later-sha");
+      await getDailyProblem(NOW);
+      expect((await fixedRows())[0].answerSnapshot?.revision).toBe(
+        "selection-sha",
+      );
+    });
+
+    it("ローカルで選んだ日のスナップショットはデプロイを持たない", async () => {
+      vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "");
+      await insertPracticeProblem({
+        kind: "agari-score",
+        payload: eligibleAgariPayload(),
+        createdAt: SAVED_YESTERDAY,
+      });
+      await getDailyProblem(NOW);
+      expect((await fixedRows())[0].answerSnapshot).toMatchObject({
+        v: 1,
+        scoringVersion: SCORING_VERSION,
+        revision: null,
+      });
     });
 
     it("前の日までに出した問題は選ばない", async () => {
@@ -437,6 +488,268 @@ describe.skipIf(!url)("本日の問題（PostgreSQL）", () => {
       expect(
         await dailyProblemTestDb().select().from(dailyProblemAnswers),
       ).toHaveLength(0);
+    });
+
+    describe("詳細付きの解答", () => {
+      const client = {
+        scoringVersion: 1,
+        build: "answer-time-build",
+        ruleSettings: DEFAULT_RULE_SETTINGS,
+        scoreInput: "select",
+        koTsumoInput: "split",
+      } as const;
+      const mode = {
+        requireYaku: false,
+        requireHanFu: false,
+        exactHan: false,
+        requireFuForMangan: false,
+      };
+      /** 適格な盤面（子ツモ 500 / 1000）への点数だけの正答 */
+      const answer = { scoreFromKo: 500, scoreFromOya: 1000, yaku: [] };
+      const answered: DailyAnswerSubmission = {
+        source: "ios",
+        detail: { v: 1, outcome: "answered", mode, answer, client },
+      };
+      const gaveUp: DailyAnswerSubmission = {
+        source: "web",
+        detail: { v: 1, outcome: "gaveUp", mode, client },
+      };
+
+      /** 盤面を今日に固定する（スナップショットは選出を通さず直接入れる） */
+      async function fixBoard(
+        payload: unknown,
+        answerSnapshot?: DailyAnswerSnapshot,
+      ) {
+        const problemId = await insertPracticeProblem({
+          kind: "agari-score",
+          payload,
+          createdAt: SAVED_YESTERDAY,
+        });
+        await dailyProblemTestDb()
+          .insert(dailyProblems)
+          .values({ day: TODAY, problemId, answerSnapshot });
+      }
+
+      async function onlyRow() {
+        const rows = await dailyProblemTestDb()
+          .select()
+          .from(dailyProblemAnswers);
+        expect(rows).toHaveLength(1);
+        return rows[0];
+      }
+
+      it("選出を通した日の解答を受付時の採点で判定し、端末の正誤とは別に残す", async () => {
+        vi.stubEnv("VERCEL_GIT_COMMIT_SHA", "receipt-sha");
+        await insertPracticeProblem({
+          kind: "agari-score",
+          payload: eligibleAgariPayload(),
+          createdAt: SAVED_YESTERDAY,
+        });
+        await getDailyProblem(NOW);
+
+        // 端末は不正解と表示したが、受付時の採点では正解
+        expect(
+          await recordDailyProblemAnswer(
+            randomUUID(),
+            TODAY,
+            false,
+            NOW,
+            answered,
+          ),
+        ).toEqual({ kind: "recorded", answer: { isCorrect: false } });
+        expect(await onlyRow()).toMatchObject({
+          isCorrect: false,
+          detailVersion: 1,
+          outcome: "answered",
+          ...mode,
+          submitted: answer,
+          scoreResult: "correct",
+          hanResult: "notJudged",
+          fuResult: "notJudged",
+          yakuResult: "notJudged",
+          judgedCorrect: true,
+          judgeError: null,
+          snapshotConsistent: true,
+          scoringVersion: SCORING_VERSION,
+          source: "ios",
+          client,
+          revision: "receipt-sha",
+        });
+      });
+
+      it("誤答は欄ごとの判定を残す", async () => {
+        await fixBoard(eligibleAgariPayload());
+        await recordDailyProblemAnswer(randomUUID(), TODAY, true, NOW, {
+          source: "android",
+          detail: {
+            v: 1,
+            outcome: "answered",
+            mode: { ...mode, requireHanFu: true, requireYaku: true },
+            answer: {
+              han: 5,
+              scoreFromKo: 2000,
+              scoreFromOya: 4000,
+              yaku: ["Riichi", "MenzenTsumo"],
+            },
+            client,
+          },
+        });
+        expect(await onlyRow()).toMatchObject({
+          isCorrect: true,
+          scoreResult: "incorrect",
+          hanResult: "incorrect",
+          fuResult: "incorrect",
+          yakuResult: "correct",
+          judgedCorrect: false,
+          source: "android",
+          revision: null,
+        });
+      });
+
+      it("選出時の情報が無い日は一致を持たず、正解が違う日は不一致を残す", async () => {
+        await fixBoard(eligibleAgariPayload());
+        await recordDailyProblemAnswer(
+          randomUUID(),
+          TODAY,
+          true,
+          NOW,
+          answered,
+        );
+        expect((await onlyRow()).snapshotConsistent).toBeNull();
+
+        await clearDailyProblemTestDb();
+        await fixBoard(
+          eligibleAgariPayload(),
+          buildDailyAnswerSnapshot(otherEligibleAgariPayload(), null),
+        );
+        await recordDailyProblemAnswer(randomUUID(), TODAY, true, NOW, gaveUp);
+        expect(await onlyRow()).toMatchObject({
+          outcome: "gaveUp",
+          judgedCorrect: false,
+          snapshotConsistent: false,
+        });
+      });
+
+      it("適格な日の「わからない」は欄を判定せず、選出時の正解との一致は残す", async () => {
+        await fixBoard(
+          eligibleAgariPayload(),
+          buildDailyAnswerSnapshot(eligibleAgariPayload(), null),
+        );
+        await recordDailyProblemAnswer(randomUUID(), TODAY, false, NOW, gaveUp);
+        expect(await onlyRow()).toMatchObject({
+          outcome: "gaveUp",
+          submitted: null,
+          scoreResult: null,
+          hanResult: null,
+          fuResult: null,
+          yakuResult: null,
+          judgedCorrect: false,
+          judgeError: null,
+          snapshotConsistent: true,
+        });
+      });
+
+      it.each([
+        ["解答", answered],
+        ["わからない", gaveUp],
+      ])(
+        "受付時に不適格な盤面の%sは採点不能として残し、解いた印は付ける",
+        async (_name, submission) => {
+          await fixBoard(
+            kiriageBoundaryAgariPayload(),
+            buildDailyAnswerSnapshot(eligibleAgariPayload(), null),
+          );
+          const user = randomUUID();
+          expect(
+            await recordDailyProblemAnswer(user, TODAY, true, NOW, submission),
+          ).toEqual({ kind: "recorded", answer: { isCorrect: true } });
+          expect(await onlyRow()).toMatchObject({
+            outcome: submission.detail.outcome,
+            judgeError: "ineligible",
+            scoreResult: null,
+            judgedCorrect: null,
+            snapshotConsistent: null,
+            scoringVersion: SCORING_VERSION,
+          });
+        },
+      );
+
+      it("保存形式として読めない盤面・組み立てられない盤面は理由を残す", async () => {
+        await fixBoard({ broken: true });
+        await recordDailyProblemAnswer(
+          randomUUID(),
+          TODAY,
+          true,
+          NOW,
+          answered,
+        );
+        expect((await onlyRow()).judgeError).toBe("invalidPayload");
+      });
+
+      it("詳細の無い要求は旧記録として残し、詳細の列を埋めない", async () => {
+        await fixBoard(
+          eligibleAgariPayload(),
+          buildDailyAnswerSnapshot(eligibleAgariPayload(), null),
+        );
+        await recordDailyProblemAnswer(randomUUID(), TODAY, true, NOW);
+        expect(await onlyRow()).toMatchObject({
+          isCorrect: true,
+          detailVersion: null,
+          outcome: null,
+          scoringVersion: null,
+          source: null,
+          client: null,
+          revision: null,
+          snapshotConsistent: null,
+        });
+      });
+
+      it("旧記録が先に入った日は、後から詳細を送っても書き換えない", async () => {
+        await fixBoard(eligibleAgariPayload());
+        const user = randomUUID();
+        await recordDailyProblemAnswer(user, TODAY, false, NOW);
+        expect(
+          await recordDailyProblemAnswer(user, TODAY, true, NOW, answered),
+        ).toEqual({ kind: "recorded", answer: { isCorrect: false } });
+        expect((await onlyRow()).detailVersion).toBeNull();
+      });
+
+      it("並行して同じ詳細を再送しても 1 行に収まり、最初の内容を保つ", async () => {
+        await fixBoard(eligibleAgariPayload());
+        const user = randomUUID();
+        await Promise.all(
+          Array.from({ length: 6 }, () =>
+            recordDailyProblemAnswer(user, TODAY, true, NOW, answered),
+          ),
+        );
+        expect(await onlyRow()).toMatchObject({
+          judgedCorrect: true,
+          client: { build: "answer-time-build" },
+        });
+      });
+
+      it("日をまたいだ詳細付きの解答・退会受付済みの解答は書かない", async () => {
+        await fixBoard(eligibleAgariPayload());
+        expect(
+          await recordDailyProblemAnswer(
+            randomUUID(),
+            YESTERDAY,
+            true,
+            NOW,
+            answered,
+          ),
+        ).toEqual({ kind: "staleDay" });
+        const deleted = randomUUID();
+        await dailyProblemTestDb()
+          .insert(accountDeletions)
+          .values({ userId: deleted });
+        expect(
+          await recordDailyProblemAnswer(deleted, TODAY, true, NOW, answered),
+        ).toEqual({ kind: "deleted" });
+        expect(
+          await dailyProblemTestDb().select().from(dailyProblemAnswers),
+        ).toHaveLength(0);
+      });
     });
 
     it("他の利用者の解答とは混ざらない", async () => {
