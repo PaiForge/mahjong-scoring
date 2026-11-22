@@ -20,13 +20,18 @@ import { MaskedEmail } from "@/app/admin/_components/masked-email";
 import { TableEmptyRow } from "@/app/admin/_components/table-empty-row";
 import { TableHead } from "@/app/admin/_components/table-head";
 
+import { AppUsageSummary } from "../_components/app-usage-summary";
 import { LoginProviderIcons } from "../_components/login-provider-icons";
 import { PlanChipLink } from "../_components/plan-chip";
 import { PublicProfileLink } from "../_components/public-profile-link";
 import { StatusBadge } from "../_components/status-badge";
 import { UserSearchForm } from "../_components/user-search-form";
 import { readLoginProviders } from "../_lib/login-providers";
-import { fetchPlanStatusMap, fetchUsersPageData } from "../_lib/queries";
+import {
+  fetchAppUsageMap,
+  fetchPlanStatusMap,
+  fetchUsersPageData,
+} from "../_lib/queries";
 import { USER_TABLE_COLUMNS } from "../_lib/table-columns";
 import { UserStatus, resolveUserStatus } from "../_lib/user-status";
 
@@ -52,9 +57,10 @@ export default async function AdminUsersPage({
 
   const now = new Date();
   const userIds = users.map((u) => u.id);
-  const [profileMap, planStatusMap] = await Promise.all([
+  const [profileMap, planStatusMap, appUsageMap] = await Promise.all([
     buildProfileMap(userIds),
     fetchPlanStatusMap(userIds, now),
+    fetchAppUsageMap(userIds),
   ]);
 
   const emailLabels = {
@@ -123,6 +129,9 @@ export default async function AdminUsersPage({
                         providers={readLoginProviders(user.app_metadata)}
                         labels={providerLabels}
                       />
+                    </td>
+                    <td className="px-4 py-3">
+                      <AppUsageSummary usage={appUsageMap.get(user.id)} />
                     </td>
                     <td className="px-4 py-3 text-surface-500">
                       {formatAdminDate(user.created_at)}

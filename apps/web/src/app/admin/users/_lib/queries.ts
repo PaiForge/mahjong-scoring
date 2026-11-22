@@ -5,7 +5,13 @@ import { inArray } from "drizzle-orm";
 
 import { findUserIdsMatching } from "@/app/admin/_lib/log-query-helpers";
 import { planStatusOf, type PlanStatus } from "@/lib/billing/plan-status";
-import { benefitGrants, db, purchases } from "@/lib/db";
+import {
+  appUsage,
+  benefitGrants,
+  db,
+  purchases,
+  type AppUsage,
+} from "@/lib/db";
 import { DEFAULT_PAGE_SIZE, resolvePagination } from "@/lib/pagination";
 import { listAllAuthUsers } from "@/lib/supabase/list-all-auth-users";
 
@@ -140,4 +146,24 @@ function groupByUserId<Row extends { readonly userId: string }>(
     }
   }
   return grouped;
+}
+
+/**
+ * 一覧の 1 ページ分の利用者について、アプリの利用の記録を引く
+ * アプリ利用記録一括取得
+ *
+ * ユーザー一覧の「アプリ」列のため。そのページの利用者分だけを 1 クエリで引く。
+ *
+ * @param userIds - そのページの利用者の ID。空なら DB を引かずに空の Map を返す
+ * @returns 記録のある利用者だけ（無い利用者はアプリの利用が未記録）
+ */
+export async function fetchAppUsageMap(
+  userIds: readonly string[],
+): Promise<ReadonlyMap<string, AppUsage>> {
+  if (userIds.length === 0) return new Map();
+  const rows = await db
+    .select()
+    .from(appUsage)
+    .where(inArray(appUsage.userId, [...userIds]));
+  return new Map(rows.map((row) => [row.userId, row]));
 }

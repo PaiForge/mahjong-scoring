@@ -24,6 +24,7 @@ import {
 } from "@mahjong-scoring/features/ranks/registry";
 
 import { RevokeGrantButton } from "../../../benefit-grants/_components/revoke-grant-button";
+import { AppClientLabel } from "../../_components/app-usage-summary";
 import { BanButton } from "../../_components/ban-button";
 import { UnbanButton } from "../../_components/unban-button";
 import { GrantBenefitsButton } from "../../_components/grant-benefits-button";
@@ -107,6 +108,21 @@ export async function AccountSection({
         <InfoRow label={t("account.lastSignInAt")}>
           {formatAdminDateTime(authUser.last_sign_in_at)}
         </InfoRow>
+        <InfoRow label={t("account.appLastSeenAt")}>
+          {detail.appUsage
+            ? formatAdminDateTime(detail.appUsage.lastSeenAt)
+            : t("account.appNotRecorded")}
+        </InfoRow>
+        {detail.appUsage && (
+          <>
+            <InfoRow label={t("account.appFirstSeenAt")}>
+              {formatAdminDateTime(detail.appUsage.firstSeenAt)}
+            </InfoRow>
+            <InfoRow label={t("account.appClient")}>
+              <AppClientLabel usage={detail.appUsage} />
+            </InfoRow>
+          </>
+        )}
         {profile?.bannedAt && (
           <InfoRow label={t("account.bannedAt")}>
             {formatAdminDateTime(profile.bannedAt)}

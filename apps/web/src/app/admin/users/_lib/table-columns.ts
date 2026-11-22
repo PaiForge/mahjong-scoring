@@ -11,6 +11,7 @@ export const USER_TABLE_COLUMNS = [
   "status",
   "plan",
   "loginMethods",
+  "appUsage",
   "createdAt",
   "detail",
 ] as const;
