@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { judgeAnswer, judgeYakuSelection } from "./judgement";
+import {
+  judgeAnswer,
+  judgeAnswerFields,
+  judgeYakuSelection,
+} from "./judgement";
 import { isMangan, getScoreLevelName } from "../../score/tiers";
 import type { ScoreQuestion, UserAnswer } from "./types";
 import { ScoreLevel } from "../../core/constants";
@@ -724,5 +728,103 @@ describe("getScoreLevelName", () => {
 
   it("不明な文字列は空文字を返す", () => {
     expect(getScoreLevelName("Unknown")).toBe("");
+  });
+});
+
+describe("judgeAnswerFields", () => {
+  const answerOf = (overrides: Partial<UserAnswer>): UserAnswer => ({
+    han: undefined,
+    fu: undefined,
+    yakus: [],
+    ...overrides,
+  });
+
+  it("点数だけを問う出題では、翻・符・役を採点の対象にしない", () => {
+    const question = makeQuestion({});
+    expect(
+      judgeAnswerFields(question, answerOf({ score: 2000 }), {
+        requireHanFu: false,
+      }),
+    ).toEqual({
+      score: "correct",
+      han: "notJudged",
+      fu: "notJudged",
+      yaku: "notJudged",
+    });
+  });
+
+  it("正解が満貫未満なら、5 翻を選んで符を入れていない回答の符は不正解", () => {
+    const question = makeQuestion({ han: 2, fu: 30 });
+    expect(
+      judgeAnswerFields(question, answerOf({ han: 5, score: 8000 })),
+    ).toMatchObject({ score: "incorrect", han: "incorrect", fu: "incorrect" });
+  });
+
+  it("正解が満貫以上なら符を対象にせず、満貫以上でも符を問う設定では対象にする", () => {
+    const question = makeQuestion({
+      han: 5,
+      fu: 30,
+      scoreLevel: ScoreLevel.Mangan,
+      payment: { type: "ron", amount: 8000 },
+    });
+    const answer = answerOf({ han: 5, score: 8000 });
+    expect(judgeAnswerFields(question, answer).fu).toBe("notJudged");
+    expect(
+      judgeAnswerFields(question, answer, { requireFuForMangan: true }).fu,
+    ).toBe("incorrect");
+    expect(
+      judgeAnswerFields(
+        question,
+        { ...answer, fu: 30 },
+        {
+          requireFuForMangan: true,
+        },
+      ).fu,
+    ).toBe("correct");
+  });
+
+  it("役を問う設定では役の一致を判定する", () => {
+    const question = makeQuestion({
+      yakuDetails: [
+        { name: "立直", han: 1 },
+        { name: "ドラ", han: 1 },
+      ],
+    });
+    const mode = { requireYaku: true };
+    expect(
+      judgeAnswerFields(question, answerOf({ yakus: ["立直"] }), mode).yaku,
+    ).toBe("correct");
+    expect(
+      judgeAnswerFields(question, answerOf({ yakus: [] }), mode).yaku,
+    ).toBe("incorrect");
+  });
+
+  it("真偽値の判定は、対象外の欄を正解に写した結果と一致する", () => {
+    const question = makeQuestion({ han: 2, fu: 30 });
+    const modes = [
+      {},
+      { requireHanFu: false },
+      { requireYaku: true },
+      { requireFuForMangan: true, exactHan: true },
+    ];
+    const answers = [
+      answerOf({ han: 2, fu: 30, score: 2000 }),
+      answerOf({ han: 2, fu: 40, score: 2000 }),
+      answerOf({ han: 5, score: 8000 }),
+      answerOf({ score: 2000, yakus: ["平和"] }),
+    ];
+    for (const mode of modes) {
+      for (const answer of answers) {
+        const fields = judgeAnswerFields(question, answer, mode);
+        const result = judgeAnswer(question, answer, mode);
+        expect(result).toEqual({
+          isScoreCorrect: fields.score === "correct",
+          isHanCorrect: fields.han !== "incorrect",
+          isFuCorrect: fields.fu !== "incorrect",
+          isYakuCorrect: fields.yaku !== "incorrect",
+          isCorrect: Object.values(fields).every((v) => v !== "incorrect"),
+        });
+      }
+    }
   });
 });

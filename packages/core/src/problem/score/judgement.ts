@@ -242,10 +242,86 @@ function judgeHan(
 }
 
 /**
+ * 欄ひとつの判定
+ * 欄別判定
+ *
+ * `notJudged` は「採点の対象にしなかった」で、「画面で問わなかった」ではない。
+ * 回答フォームは利用者が選んだ翻数で符の欄を出し分けるが、採点の対象かどうかは
+ * 正解の区分で決まる。正解が満貫未満なのに 5 翻を選んだ回答は符の欄が無く、
+ * 符は `incorrect` になる（正当な誤答）。
+ */
+export type FieldJudgement = "correct" | "incorrect" | "notJudged";
+
+/**
+ * 欄ごとの判定結果
+ * 欄別判定結果
+ *
+ * 点数はどの判定モードでも問うので `notJudged` にならない。
+ */
+export interface AnswerFieldJudgements {
+  readonly score: Exclude<FieldJudgement, "notJudged">;
+  readonly han: FieldJudgement;
+  readonly fu: FieldJudgement;
+  readonly yaku: FieldJudgement;
+}
+
+function fieldJudgementOf(isCorrect: boolean): "correct" | "incorrect" {
+  return isCorrect ? "correct" : "incorrect";
+}
+
+/**
+ * ユーザーの回答を欄ごとに 3 値で判定する
+ * 欄別回答判定
+ *
+ * {@link judgeAnswer} と同じ規則で、採点の対象にしなかった欄を正解と区別して返す。
+ * 対象にしないのは、翻数と符が `requireHanFu` でないとき、符が正解が満貫以上で
+ * `requireFuForMangan` でないとき、役が `requireYaku` でないとき。
+ * 統計が「問われて正解した」と「問われなかった」を分けるために使う。
+ *
+ * @param question - 問題
+ * @param userAnswer - ユーザーの回答
+ * @param mode - 判定モード。省いた項目は {@link DEFAULT_SCORE_JUDGEMENT_MODE}
+ */
+export function judgeAnswerFields(
+  question: Readonly<ScoreQuestion>,
+  userAnswer: Readonly<UserAnswer>,
+  mode: Partial<ScoreJudgementMode> = {},
+): AnswerFieldJudgements {
+  const resolved = { ...DEFAULT_SCORE_JUDGEMENT_MODE, ...mode };
+  const { answer } = question;
+
+  const han: FieldJudgement = !resolved.requireHanFu
+    ? "notJudged"
+    : fieldJudgementOf(
+        userAnswer.han !== undefined &&
+          judgeHan(answer, userAnswer.han, resolved),
+      );
+
+  // 満貫以上で符の入力が不要な出題では、符を採点の対象にしない
+  const fu: FieldJudgement =
+    !resolved.requireHanFu ||
+    (isMangan(answer.scoreLevel) && !resolved.requireFuForMangan)
+      ? "notJudged"
+      : fieldJudgementOf(userAnswer.fu === answer.fu);
+
+  const yaku: FieldJudgement = !resolved.requireYaku
+    ? "notJudged"
+    : fieldJudgementOf(judgeYaku(question, userAnswer.yakus));
+
+  return {
+    score: fieldJudgementOf(judgeScore(answer.payment, userAnswer)),
+    han,
+    fu,
+    yaku,
+  };
+}
+
+/**
  * ユーザーの回答を判定する
  * ユーザー回答判定
  *
- * 問わない欄（役・翻数・符）は常に正解扱いにする。
+ * 問わない欄（役・翻数・符）は常に正解扱いにする。欄ごとの 3 値の判定
+ * （{@link judgeAnswerFields}）から導き、`notJudged` を正解に写す。
  *
  * @param question - 問題
  * @param userAnswer - ユーザーの回答
@@ -256,30 +332,14 @@ export function judgeAnswer(
   userAnswer: Readonly<UserAnswer>,
   mode: Partial<ScoreJudgementMode> = {},
 ): JudgementResult {
-  const resolved = { ...DEFAULT_SCORE_JUDGEMENT_MODE, ...mode };
-  const { answer } = question;
-
-  const isHanCorrect =
-    !resolved.requireHanFu ||
-    (userAnswer.han !== undefined &&
-      judgeHan(answer, userAnswer.han, resolved));
-
-  // 符の判定（満貫以上で符入力不要の場合は常に正解扱い）
-  const isFuCorrect =
-    !resolved.requireHanFu ||
-    (isMangan(answer.scoreLevel) && !resolved.requireFuForMangan) ||
-    userAnswer.fu === answer.fu;
-
-  const isScoreCorrect = judgeScore(answer.payment, userAnswer);
-
-  const isYakuCorrect =
-    !resolved.requireYaku || judgeYaku(question, userAnswer.yakus);
-
-  const isCorrect =
-    isHanCorrect && isFuCorrect && isScoreCorrect && isYakuCorrect;
+  const fields = judgeAnswerFields(question, userAnswer, mode);
+  const isHanCorrect = fields.han !== "incorrect";
+  const isFuCorrect = fields.fu !== "incorrect";
+  const isScoreCorrect = fields.score === "correct";
+  const isYakuCorrect = fields.yaku !== "incorrect";
 
   return {
-    isCorrect,
+    isCorrect: isHanCorrect && isFuCorrect && isScoreCorrect && isYakuCorrect,
     isHanCorrect,
     isFuCorrect,
     isScoreCorrect,
