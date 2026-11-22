@@ -27,6 +27,7 @@
     "staleDay": "The day has changed or this problem is no longer available. This answer was not recorded.",
     "anonymous": "Your answer was not recorded because you are not signed in.",
     "blocked": "This account cannot record an answer.",
+    "invalidDetail": "Your answer could not be saved. This answer was not recorded.",
     "retry": "Retry saving my first answer"
   }
 }

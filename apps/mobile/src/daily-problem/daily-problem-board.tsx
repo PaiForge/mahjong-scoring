@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   useAnswerRecord,
+  type DailyAnswerPending,
   type DailyAnswerSaveResult,
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
 import { isDailyAnswerSaveProblem } from "@mahjong-scoring/features/daily-problem/save-status";
@@ -14,6 +15,7 @@ import type {
   RuleSettings,
   UserAnswer,
 } from "@mahjong-scoring/core";
+import { buildDailyAnswerDetail } from "@mahjong-scoring/features/daily-problem/build-answer-detail";
 import type {
   DailyProblemAnswerState,
   MobileDailyProblemResponse,
@@ -23,6 +25,7 @@ import {
   judgeDailyProblemAnswer,
 } from "@mahjong-scoring/features/daily-problem/question";
 
+import { APP_VERSION } from "../app-version/app-version";
 import { useAuth } from "../auth/use-auth";
 import { BoardBleedProvider } from "../board/board-bleed";
 import { TehaiMentsuBreakdown } from "../board/tehai-mentsu-breakdown";
@@ -32,6 +35,10 @@ import { usePullToRefresh } from "../components/screen-refresh";
 import { SectionTitle } from "../components/section-title";
 import { TextLink } from "../components/text-link";
 import { useCloseSession } from "../hooks/use-close-session";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "../hooks/use-display-settings-store";
 import { useOpenFromModal } from "../hooks/use-open-from-modal";
 import { useRuleSettingsStore } from "../hooks/use-rule-settings-store";
 import { hapticJudgement } from "../lib/haptics";
@@ -245,19 +252,38 @@ function DailyProblemBoard({
   const isAnswered = attempt !== undefined;
 
   const send = useCallback(
-    async (isCorrect: boolean): Promise<DailyAnswerSaveResult> => {
-      const response = await sendDailyProblemAnswer(userId, day, isCorrect);
+    async (answer: DailyAnswerPending): Promise<DailyAnswerSaveResult> => {
+      const response = await sendDailyProblemAnswer(userId, day, answer);
       if ("value" in response) return "saved";
       if (response.error === "staleDay") return "staleDay";
+      if (response.error === "invalidDetail") return "invalidDetail";
       if (
         response.error === "deleted" ||
         response.error === "banned" ||
         response.error === "unauthorized"
       )
         return "blocked";
+      // unsupportedDetail（切り替え中の古いサーバー）は、同じ内容を後で送り直せる
       return "failed";
     },
     [userId, day],
+  );
+  // 点数の入力方式。回答フォームが読むのと同じ表示設定で、詳細に解答時の値を残す
+  const scoreInput = useScoreInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+  // サーバーへ送る詳細は、解答した瞬間の解答と端末の条件から 1 回だけ組み立てる
+  // （再送でも作り直さない。理由は useAnswerRecord の TSDoc）
+  const detailOf = useCallback(
+    (answer: UserAnswer | undefined) =>
+      buildDailyAnswerDetail({
+        answer,
+        mode,
+        ruleSettings: settings,
+        build: APP_VERSION,
+        scoreInput,
+        storedKoTsumoInput,
+      }),
+    [mode, settings, scoreInput, storedKoTsumoInput],
   );
   const { ready, status, record, retry } = useAnswerRecord({
     day,
@@ -274,16 +300,16 @@ function DailyProblemBoard({
       const result = judgeDailyProblemAnswer(question, answer, settings, mode);
       hapticJudgement(result.isCorrect ? "correct" : "incorrect");
       setAttempt({ userAnswer: answer, result });
-      record(result.isCorrect);
+      record(result.isCorrect, detailOf(answer));
     },
-    [question, settings, mode, record, scrollToTop],
+    [question, settings, mode, record, detailOf, scrollToTop],
   );
 
   const handleReveal = useCallback(() => {
     scrollToTop();
     setAttempt({});
-    record(false);
-  }, [record, scrollToTop]);
+    record(false, detailOf(undefined));
+  }, [record, detailOf, scrollToTop]);
 
   if (question === undefined) {
     return <Text style={styles.notice}>{t("board.unsupported")}</Text>;
@@ -297,7 +323,7 @@ function DailyProblemBoard({
             {
               t(
                 `save.${status}`,
-              ) /* save.failed / save.staleDay / save.anonymous / save.blocked */
+              ) /* save.failed / save.staleDay / save.anonymous / save.blocked / save.invalidDetail */
             }
           </Text>
           {status === "failed" && (

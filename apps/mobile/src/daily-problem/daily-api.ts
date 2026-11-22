@@ -10,6 +10,8 @@ import {
   type MobileDailyProblemResponse,
 } from "@mahjong-scoring/features/daily-problem/mobile-api";
 
+import type { DailyAnswerPending } from "@mahjong-scoring/features/daily-problem/use-answer-record";
+
 import type { ApiFailure } from "../auth/api-client";
 import {
   domainFailureOf,
@@ -39,8 +41,9 @@ import {
 /**
  * 本日の問題の API の失敗
  *
- * `staleDay` は日をまたいだ・今日の問題が無い・停止中（409）。`serverError` は
- * サーバー側の一時的な失敗（500）。
+ * `staleDay` は日をまたいだ・今日の問題が無い・停止中（409）。`unsupportedDetail` /
+ * `invalidDetail` は詳細を保存できなかった（422。前者は同じ内容を送り直せる）。
+ * `serverError` はサーバー側の一時的な失敗（500）。
  */
 export type DailyProblemApiFailure =
   ApiFailure | MobileDailyProblemErrorCode | "serverError";
@@ -71,7 +74,7 @@ export function fetchDailyProblem(
 }
 
 /**
- * 今日の問題の解答（正誤）を記録する
+ * 今日の問題の解答を記録する
  * 本日の問題解答送信
  *
  * サーバーは最初の解答だけを残し、2 回目以降は記録を変えずに最初の解答を
@@ -80,16 +83,21 @@ export function fetchDailyProblem(
  *
  * @param userId - 送る名義。ログインが別のユーザーに替わっていれば送らない
  * @param day - 読んだ問題の日付（JST の `YYYY-MM-DD`）
- * @param isCorrect - 端末で採点した正誤
+ * @param answer - 端末で採点した正誤と、解答した瞬間に組み立てた詳細。詳細を
+ *   持たないのは、詳細を送らない版が端末に預けた旧形式の解答だけ
  */
 export async function sendDailyProblemAnswer(
   userId: string,
   day: string,
-  isCorrect: boolean,
+  answer: DailyAnswerPending,
 ): Promise<
   MobileApiResult<MobileDailyProblemAnswerResponse, DailyProblemApiFailure>
 > {
-  const body: MobileDailyProblemAnswerRequest = { day, isCorrect };
+  const body: MobileDailyProblemAnswerRequest = {
+    day,
+    isCorrect: answer.isCorrect,
+    ...(answer.detail === undefined ? {} : { detail: answer.detail }),
+  };
   const result = await requestMobileApi(
     MOBILE_DAILY_PROBLEM_ANSWER_API_PATH,
     { method: "POST", body, asUser: userId },
