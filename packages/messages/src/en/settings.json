@@ -44,6 +44,7 @@
   "leaderboardVisibilityDescription": "When on, your name and results no longer appear on the leaderboard.\nYour results are still recorded, so turning it off brings your position back.",
   "leaderboardVisibilityAppDescription": "When on, your username and results no longer appear on the web leaderboard, and the app's \"Leaderboard positions\" shows no position either.\nYour results are still recorded, so turning it off brings your position back.",
   "leaderboardVisibilityFailedToast": "We couldn't save the setting. Please try again in a moment.",
+  "leaderboardVisibilityLoadFailedToast": "We couldn't load the setting. Please reopen the page in a moment.",
   "blockedUsersTitle": "Blocked users",
   "blockedUsersDescription": "People you block do not appear on the leaderboards and public profiles you see.",
   "unblock": "Unblock",

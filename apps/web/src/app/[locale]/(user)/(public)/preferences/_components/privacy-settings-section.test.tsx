@@ -6,6 +6,7 @@
  * - ログイン済み: 保存済みの値をトグルの初期状態に反映する
  * - 未ログイン: 設定を取りに行かず既定値（オフ）を映す
  * - 保存失敗時: トグルを元に戻し toast.error を出す
+ * - 読み込み失敗時: スイッチを出さず toast.error を出す（既定値を映さない）
  */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useAuth as mockUseAuth } from "@/test/auth-context-mock";
@@ -129,4 +130,24 @@ describe("PrivacySettingsSection", () => {
     expect(checkbox.checked).toBe(false);
     expect(mockToastError).toHaveBeenCalledTimes(1);
   });
+
+  it.each([
+    ["reports it could not read", () => Promise.resolve(undefined)],
+    ["rejects", () => Promise.reject(new Error("network"))],
+  ])(
+    "keeps the switch unavailable and notifies when the stored value %s",
+    async (_label, load) => {
+      signedIn();
+      mockGetLeaderboardVisibility.mockImplementation(load);
+
+      const { container } = render(<PrivacySettingsSection />);
+
+      await waitFor(() => {
+        expect(mockToastError).toHaveBeenCalledWith(
+          "leaderboardVisibilityLoadFailedToast",
+        );
+      });
+      expect(container.querySelector('input[type="checkbox"]')).toBeNull();
+    },
+  );
 });

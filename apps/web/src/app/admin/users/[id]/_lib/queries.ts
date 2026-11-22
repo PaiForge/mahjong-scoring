@@ -2,6 +2,7 @@ import "server-only";
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { and, count, desc, eq } from "drizzle-orm";
+import { z } from "zod";
 
 import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
 import {
@@ -51,7 +52,11 @@ export interface UserDetail {
  * 管理画面のユーザー詳細に必要なものを 1 ユーザー分まとめて取得する
  * ユーザー詳細取得
  *
- * 認証ユーザーが無ければ null（ページは `notFound()` にする）。
+ * 認証ユーザーが無ければ null（ページは `notFound()` にする）。「無い」と
+ * 言えるのは、ID が UUID の形でない（auth-js が問い合わせる前に例外を投げる）
+ * ときと、認証サーバーが 404 と答えたときだけ。それ以外の失敗（届かない・
+ * 権限・障害）は投げる — null にすると、障害中に実在するユーザーが
+ * 「見つかりません」に見える。
  * 購入と付与は、マイページ用の `listPurchases` / `listBenefitGrants` を通さず
  * ここで引く（以前はあちらが失敗を空配列に潰していた。いまは投げるが、管理画面は
  * 取り消した人の名前など別の列も要るので、問い合わせは分けたまま）。
@@ -60,8 +65,15 @@ export async function fetchUserDetail(
   adminClient: SupabaseClient,
   id: string,
 ): Promise<UserDetail | null> {
+  if (!z.uuid().safeParse(id).success) return null;
   const { data, error } = await adminClient.auth.admin.getUserById(id);
-  if (error || !data.user) return null;
+  if (error) {
+    if (error.status === 404) return null;
+    throw new Error(`Failed to fetch user ${id}: ${error.message}`, {
+      cause: error,
+    });
+  }
+  if (!data.user) return null;
 
   const [
     [profile],
