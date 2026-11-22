@@ -264,6 +264,10 @@
     "errorDeleteFailed": "削除に失敗しました",
     "errorNotFound": "お知らせが見つかりません"
   },
+  "appPlatforms": {
+    "ios": "iOS",
+    "android": "Android"
+  },
   "usersTable": {
     "email": "メールアドレス",
     "username": "ユーザー名",
@@ -573,10 +577,6 @@
       "appFirstSeenAt": "アプリの初回利用",
       "appClient": "アプリの OS・版",
       "appNotRecorded": "未記録",
-      "appPlatforms": {
-        "ios": "iOS",
-        "android": "Android"
-      },
       "bannedAt": "BAN 日時",
       "deletedAt": "退会日時"
     },

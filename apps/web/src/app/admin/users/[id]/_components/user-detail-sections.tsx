@@ -109,8 +109,9 @@ export async function AccountSection({
           {formatAdminDateTime(authUser.last_sign_in_at)}
         </InfoRow>
         <InfoRow label={t("account.appLastSeenAt")}>
+          {/* 1 日に 1 回に間引いて書くので、時刻は出さず日付だけ（`app-usage.ts`） */}
           {detail.appUsage
-            ? formatAdminDateTime(detail.appUsage.lastSeenAt)
+            ? formatAdminDate(detail.appUsage.lastSeenAt)
             : t("account.appNotRecorded")}
         </InfoRow>
         {detail.appUsage && (

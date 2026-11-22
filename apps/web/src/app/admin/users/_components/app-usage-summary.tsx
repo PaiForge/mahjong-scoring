@@ -8,8 +8,7 @@ import type { AppUsage } from "@/lib/db";
  * アプリOS・版表示
  */
 export async function AppClientLabel({ usage }: { readonly usage: AppUsage }) {
-  const t = await getTranslations("admin.userDetail.account.appPlatforms");
-  // 辞書キーの例: admin.userDetail.account.appPlatforms.ios
+  const t = await getTranslations("admin.appPlatforms");
   const platform = usage.platform === "android" ? t("android") : t("ios");
   return <>{usage.appVersion ? `${platform} ${usage.appVersion}` : platform}</>;
 }
