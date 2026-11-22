@@ -86,6 +86,28 @@ describe("NotificationItem", () => {
     window.removeEventListener(NOTIFICATIONS_READ_EVENT, listener);
   });
 
+  it.each([
+    ["失敗を返した", () => Promise.resolve({ error: "markFailed" })],
+    ["例外で落ちた", () => Promise.reject(new Error("network"))],
+  ])("既読化が%sときは点を戻し、ベルに知らせない", async (_label, mark) => {
+    mockMarkRead.mockImplementation(mark);
+    const listener = vi.fn();
+    window.addEventListener(NOTIFICATIONS_READ_EVENT, listener);
+    render(
+      <ul>
+        <NotificationItem notification={item()} />
+      </ul>,
+    );
+
+    fireEvent.click(screen.getByRole("link"));
+
+    await waitFor(() =>
+      expect(screen.getByRole("img", { name: "unread" })).toBeDefined(),
+    );
+    expect(listener).not.toHaveBeenCalled();
+    window.removeEventListener(NOTIFICATIONS_READ_EVENT, listener);
+  });
+
   it("既読は点を出さず、押しても既読化を呼ばない", () => {
     render(
       <ul>

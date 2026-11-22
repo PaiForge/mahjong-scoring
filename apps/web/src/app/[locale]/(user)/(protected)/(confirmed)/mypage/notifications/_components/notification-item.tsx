@@ -41,7 +41,8 @@ interface NotificationItemProps {
  *
  * 押すと遷移先へ行き、同時に既読にする（Server Action は待たない — 遷移を
  * 止めないため。失敗しても一覧を開き直せば未読のまま残っているだけ）。既読に
- * したらベルに知らせる（`dispatchNotificationsRead`）。
+ * したらベルに知らせる（`dispatchNotificationsRead`）。失敗したらこの行の
+ * 点を戻す（その場で開く行で、画面とサーバーの既読を食い違わせない）。
  *
  * 遷移先を持たない種別（退役した種別）は押せない行として出す。
  *
@@ -78,9 +79,16 @@ export function NotificationItem({ notification }: NotificationItemProps) {
   function handleClick() {
     if (!isUnread) return;
     setReadHere(true);
-    void markNotificationReadAction(notification.id).then((result) => {
-      if ("success" in result) dispatchNotificationsRead();
-    });
+    // 既読にできなかったら点を戻す。その場で開く行は遷移しないので、戻さないと
+    // 画面は既読・サーバーは未読のまま食い違う
+    const revert = () => setReadHere(false);
+    markNotificationReadAction(notification.id).then((result) => {
+      if ("success" in result) {
+        dispatchNotificationsRead();
+        return;
+      }
+      revert();
+    }, revert);
   }
 
   const body = (
