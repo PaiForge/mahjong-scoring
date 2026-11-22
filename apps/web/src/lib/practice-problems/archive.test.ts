@@ -3,9 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createQueryChain, type QueryChainMock } from "@/test/drizzle-mock";
 
-const { mockInsert, mockSelect } = vi.hoisted(() => ({
+const { mockInsert, mockSelect, mockFillFacets } = vi.hoisted(() => ({
   mockInsert: vi.fn(),
   mockSelect: vi.fn(),
+  mockFillFacets: vi.fn(),
 }));
 
 vi.mock("../db", async () => ({
@@ -13,6 +14,8 @@ vi.mock("../db", async () => ({
   db: { insert: mockInsert, select: mockSelect },
 }));
 vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
+// 属性の書き込みは DB を使う統合テスト（`facets.integration.test.ts`）で確かめる
+vi.mock("./facets", () => ({ fillMissingProblemFacets: mockFillFacets }));
 
 import { logExternalError } from "@/test/log-error-mock";
 import {
@@ -158,7 +161,7 @@ describe("archivePracticeProblem", () => {
     const cause = Object.assign(new Error("check violation"), {
       code: "23514",
     });
-    chain.onConflictDoNothing.mockRejectedValue(
+    chain.returning.mockRejectedValue(
       Object.assign(new Error('Failed query: insert ... params: {"hand":1}'), {
         cause,
       }),
@@ -171,6 +174,35 @@ describe("archivePracticeProblem", () => {
       "archivePracticeProblem",
       expect.any(String),
       "23514",
+    );
+  });
+});
+
+describe("新しく保存した問題の属性", () => {
+  it("新しく入った行だけ、その問題の属性の補充を呼ぶ", async () => {
+    await archivePracticeProblem(meldedAgariRequest(), "web");
+    expect(mockFillFacets).not.toHaveBeenCalled();
+
+    mockInsert.mockReturnValue(createQueryChain([{ id: "problem-1" }]));
+    await archivePracticeProblem(meldedAgariRequest(), "web");
+    expect(mockFillFacets).toHaveBeenCalledWith({ problemIds: ["problem-1"] });
+  });
+
+  it("属性の補充が失敗しても保存は成功のままにし、エラーコードだけを記録する", async () => {
+    mockInsert.mockReturnValue(createQueryChain([{ id: "problem-1" }]));
+    mockFillFacets.mockRejectedValue(
+      Object.assign(new Error('Failed query: select ... params: {"hand":1}'), {
+        cause: Object.assign(new Error("timeout"), { code: "57014" }),
+      }),
+    );
+
+    expect(await archivePracticeProblem(meldedAgariRequest(), "web")).toEqual({
+      ok: true,
+    });
+    expect(logExternalError).toHaveBeenCalledWith(
+      "archivePracticeProblem",
+      expect.any(String),
+      "57014",
     );
   });
 });
@@ -205,6 +237,7 @@ describe("ensurePracticeProblem", () => {
     });
     expect(chain.returning).toHaveBeenCalledWith({ id: practiceProblems.id });
     expect(mockSelect).not.toHaveBeenCalled();
+    expect(mockFillFacets).toHaveBeenCalledWith({ problemIds: ["problem-1"] });
   });
 
   it("同じ盤面が既にあれば、一意制約の列で読み直して既存の行の ID を返す", async () => {

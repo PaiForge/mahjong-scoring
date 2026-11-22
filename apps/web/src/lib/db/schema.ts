@@ -7,6 +7,7 @@ import type {
   SubmittedDailyAnswer,
 } from "@mahjong-scoring/features/daily-problem/answer-detail";
 import type { DailyAnswerSnapshot } from "@mahjong-scoring/features/daily-problem/answer-snapshot";
+import { PROBLEM_FACET_ERRORS } from "@mahjong-scoring/features/problem-facets/errors";
 import {
   PROBLEM_REPORT_CONTEXTS,
   PROBLEM_REPORT_REASONS,
@@ -1684,7 +1685,8 @@ export const practiceProblemFacetSets = pgTable(
       .references(() => practiceProblems.id, { onDelete: "cascade" }),
     scoringVersion: smallint("scoring_version").notNull(),
     status: text("status").$type<"ok" | "failed">().notNull(),
-    error: text("error").$type<(typeof ARCHIVE_REBUILD_ERRORS)[number]>(),
+    /** 失敗の理由（`PROBLEM_FACET_ERRORS`）。`ok` は NULL */
+    error: text("error").$type<(typeof PROBLEM_FACET_ERRORS)[number]>(),
     isOya: boolean("is_oya"),
     isMenzen: boolean("is_menzen"),
     isRiichi: boolean("is_riichi"),
@@ -1709,7 +1711,7 @@ export const practiceProblemFacetSets = pgTable(
           AND ${table.jikaze} IN (27, 28, 29, 30) AND ${table.bakaze} IN (27, 28, 29, 30)
           AND ${table.isOya} = (${table.jikaze} = 27)
           AND (${table.waitCount} IS NULL OR ${table.waitCount} BETWEEN 2 AND 34))
-        OR (${table.status} = 'failed' AND ${table.error} IN (${sqlInList(ARCHIVE_REBUILD_ERRORS)})
+        OR (${table.status} = 'failed' AND ${table.error} IN (${sqlInList(PROBLEM_FACET_ERRORS)})
           AND ${table.isOya} IS NULL AND ${table.isMenzen} IS NULL AND ${table.isRiichi} IS NULL
           AND ${table.kanCount} IS NULL AND ${table.jikaze} IS NULL AND ${table.bakaze} IS NULL
           AND ${table.waitCount} IS NULL)

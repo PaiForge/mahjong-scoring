@@ -351,6 +351,13 @@
       "when": 1795307046799,
       "tag": "20261122002406_create_practice_problem_facets",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1795330059750,
+      "tag": "20261122064739_allow_unmapped_yaku_facet_error",
+      "breakpoints": true
     }
   ]
 }

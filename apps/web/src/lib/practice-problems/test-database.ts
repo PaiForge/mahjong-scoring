@@ -5,14 +5,19 @@ import { createIsolatedSchemaTestDb } from "../db/isolated-schema-test-db";
  * 問題保存テストDB
  *
  * この実行だけの専用スキーマ（{@link createIsolatedSchemaTestDb}。接続先・
- * 環境変数・複数接続の理由はそちら）に `practice_problems` の DDL を流す。
+ * 環境変数・複数接続の理由はそちら）に `practice_problems` と属性の 2 表の DDL を流す。
  *
  * このモジュールはテスト専用。
  */
 
 const testDb = createIsolatedSchemaTestDb({
   prefix: "practice_problems",
-  migrations: ["20261115230546_create_practice_problems.sql"],
+  migrations: [
+    "20261115230546_create_practice_problems.sql",
+    // 保存の入口が属性の行も書く（`facets.ts`）
+    "20261122002406_create_practice_problem_facets.sql",
+    "20261122064739_allow_unmapped_yaku_facet_error.sql",
+  ],
 });
 const { namespace } = testDb;
 
@@ -21,7 +26,7 @@ export function practiceProblemsTestDb() {
   return testDb.db();
 }
 
-/** 専用スキーマを作り、`practice_problems` の DDL だけを流す */
+/** 専用スキーマを作り、保存問題と属性の表の DDL だけを流す */
 export async function setupPracticeProblemsTestDb() {
   await testDb.setup();
 }

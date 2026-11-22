@@ -74,6 +74,7 @@ import { db, practiceProblems, type NewPracticeProblem } from "../db";
 import { extractPgErrorCode } from "../db/extract-pg-error-code";
 import { logExternalError } from "../log-error";
 
+import { fillMissingProblemFacets } from "./facets";
 import type { PracticeProblemSource } from "./source";
 
 /**
@@ -146,6 +147,26 @@ function practiceProblemRowOf(
 }
 
 /**
+ * 新しく保存した問題の属性（分類に使う派生値）をその場で計算して書く
+ *
+ * 保存の入口は検証で標準ルールの組み立てを済ませたばかりで、同じ要求の中で属性まで
+ * 書けば、新しい問題は保存された時点で分類の対象になる。失敗しても保存は成功のまま
+ * にする — 属性は盤面からいつでも作り直せる派生値で、日次の cron が不足分を埋める
+ * （`facets.ts`）。同じ盤面が既にあった（新しく入らなかった）ときは呼ばない。
+ */
+async function fillFacetsOfNewProblem(problemId: string): Promise<void> {
+  try {
+    await fillMissingProblemFacets({ problemIds: [problemId] });
+  } catch (error) {
+    logExternalError(
+      "archivePracticeProblem",
+      "保存した問題の属性を書けなかった（cron が埋める）",
+      extractPgErrorCode(error) ?? "unknown",
+    );
+  }
+}
+
+/**
  * 未知の本文を検証し、同じ盤面が無ければ 1 行保存する
  * 問題保存
  *
@@ -156,7 +177,8 @@ function practiceProblemRowOf(
  * @design 正規化とハッシュはサーバーが行い、保存は ON CONFLICT DO NOTHING の 1 回
  * クライアントのハッシュは信頼しない（本文に持たせない）。事前の SELECT をせず
  * 一意制約に任せるので、再送・並行保存・応答が消えた後の再送が 1 行に収まる。
- * 新規か既存かを呼び出し側に返さない（入口はどちらも 204）。ハッシュの計算
+ * 新規か既存かを呼び出し側に返さない（入口はどちらも 204）。新しく入った行は、
+ * 続けて属性（分類に使う派生値）を書く（{@link fillFacetsOfNewProblem}）。ハッシュの計算
  * （Node の crypto）をここに置くのは、core / features に入れるとアプリ（Hermes）へ
  * 持ち込むことになるため。
  *
@@ -177,11 +199,14 @@ export async function archivePracticeProblem(
     return { ok: false, error: { type: "invalid", reason: parsed.error } };
   }
   const request = parsed.value;
+  let insertedId: string | undefined;
   try {
-    await db
+    const [inserted] = await db
       .insert(practiceProblems)
       .values(practiceProblemRowOf(request, source))
-      .onConflictDoNothing({ target: PRACTICE_PROBLEM_IDENTITY });
+      .onConflictDoNothing({ target: PRACTICE_PROBLEM_IDENTITY })
+      .returning({ id: practiceProblems.id });
+    insertedId = inserted?.id;
   } catch (error) {
     // 例外をそのまま記録しない。Drizzle の失敗のメッセージは SQL のパラメータ
     // （盤面の JSON）を含むので、PostgreSQL のエラーコードだけを残す
@@ -192,6 +217,7 @@ export async function archivePracticeProblem(
     );
     return { ok: false, error: { type: "saveFailed" } };
   }
+  if (insertedId !== undefined) await fillFacetsOfNewProblem(insertedId);
   return { ok: true };
 }
 
@@ -234,7 +260,10 @@ export async function ensurePracticeProblem(
     .values(row)
     .onConflictDoNothing({ target: PRACTICE_PROBLEM_IDENTITY })
     .returning({ id: practiceProblems.id });
-  if (inserted) return inserted.id;
+  if (inserted) {
+    await fillFacetsOfNewProblem(inserted.id);
+    return inserted.id;
+  }
   const [existing] = await db
     .select({ id: practiceProblems.id })
     .from(practiceProblems)
