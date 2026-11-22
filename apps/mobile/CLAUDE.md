@@ -243,7 +243,9 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   用途（英語）を書き込むが、`requireAuthentication` を使わないので `faceIDPermission: false` で消している
 - **収集するデータは `app.json` の `ios.privacyManifests` に書き、App Store Connect のプライバシー
   ラベルと揃える。** いまはメールアドレス・ユーザー ID（ユーザー名を含む）・購入履歴・練習の記録
-  （GameplayContent）で、どれもアカウントに紐づき、トラッキングしない。サーバーに送るものを足したら
+  （GameplayContent）・アプリの利用（ProductInteraction。初めて・最後に使った日時と OS・版を
+  サーバーが記録する。web の `lib/mobile-api/app-usage.ts`。用途は Analytics）で、どれもアカウントに
+  紐づき、トラッキングしない。サーバーに送るものを足したら
   両方を直す。API の利用理由（UserDefaults 等）は書かない — `pod install` が依存のマニフェストから
   集めて足す（prebuild 直後のファイルでは空に見える）
 - **web 版（`pnpm --filter @mahjong-scoring/mobile web`）は画面確認用**
