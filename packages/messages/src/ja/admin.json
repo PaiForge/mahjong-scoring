@@ -264,6 +264,10 @@
     "errorDeleteFailed": "削除に失敗しました",
     "errorNotFound": "お知らせが見つかりません"
   },
+  "appPlatforms": {
+    "ios": "iOS",
+    "android": "Android"
+  },
   "usersTable": {
     "email": "メールアドレス",
     "username": "ユーザー名",
@@ -271,6 +275,7 @@
     "status": "ステータス",
     "plan": "プラン",
     "loginMethods": "ログイン方法",
+    "appUsage": "アプリ",
     "createdAt": "登録日時",
     "noUsersFound": "ユーザーが見つかりません",
     "revealEmail": "メールアドレスを表示",
@@ -568,6 +573,10 @@
       "emailUnconfirmed": "未確認",
       "createdAt": "登録日時",
       "lastSignInAt": "最終ログイン",
+      "appLastSeenAt": "アプリの最終利用",
+      "appFirstSeenAt": "アプリの初回利用",
+      "appClient": "アプリの OS・版",
+      "appNotRecorded": "未記録",
       "bannedAt": "BAN 日時",
       "deletedAt": "退会日時"
     },

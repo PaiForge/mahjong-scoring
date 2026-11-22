@@ -46,8 +46,9 @@ export function mobileAppVersionApiUrl(platform: MobileAppPlatform): string {
  * アプリが自分の版を知らせるヘッダ
  * アプリバージョンヘッダ
  *
- * ログインを要るアプリ向け API の要求すべてに付ける。今はサーバーが読まないが、
- * 応答の形を版で分ける必要が出たときに、すでに出ている版を見分けられるように
+ * ログインを要るアプリ向け API の要求すべてに付ける。サーバーは管理画面で見る
+ * アプリの利用の記録（web の `lib/mobile-api/app-usage.ts`）にだけ使う。応答の
+ * 形を版で分ける必要が出たときにも、すでに出ている版を見分けられるように
  * 最初の版から送っておく。
  */
 export const APP_VERSION_HEADER = "X-App-Version";

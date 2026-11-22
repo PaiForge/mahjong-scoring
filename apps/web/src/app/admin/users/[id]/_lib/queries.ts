@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { buildProfileMap } from "@/app/admin/_lib/log-query-helpers";
 import {
+  appUsage,
   benefitGrants,
   challengeResults,
   db,
@@ -18,6 +19,7 @@ import {
   userRoles,
 } from "@/lib/db";
 import type {
+  AppUsage,
   BenefitGrant,
   ModerationAction,
   Profile,
@@ -46,6 +48,8 @@ export interface UserDetail {
   readonly moderationEntries: readonly ModerationAction[];
   /** 付与者・操作者の表示名を引くためのプロフィール */
   readonly actorProfileMap: Map<string, Profile>;
+  /** アプリの利用の記録。無ければ未記録（アプリを使っていないか、記録を始める前だけ） */
+  readonly appUsage: AppUsage | undefined;
 }
 
 /**
@@ -85,6 +89,7 @@ export async function fetchUserDetail(
     purchaseRows,
     grantRows,
     moderationEntries,
+    [appUsageRow],
   ] = await Promise.all([
     db.select().from(profiles).where(eq(profiles.id, id)).limit(1),
     db
@@ -129,6 +134,7 @@ export async function fetchUserDetail(
       )
       .orderBy(desc(moderationActions.createdAt))
       .limit(MODERATION_HISTORY_LIMIT),
+    db.select().from(appUsage).where(eq(appUsage.userId, id)).limit(1),
   ]);
 
   const actorProfileMap = await buildProfileMap([
@@ -150,5 +156,6 @@ export async function fetchUserDetail(
     grants: grantRows,
     moderationEntries,
     actorProfileMap,
+    appUsage: appUsageRow,
   };
 }

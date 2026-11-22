@@ -43,6 +43,9 @@
  * - 特典の手動付与（`benefit_grants`）: dave に 60 日の付与 1 件（付与者は admin、
  *   購入なし）。マイページの「Pro（付与）」と管理画面の付与一覧（`/admin/benefit-grants`）の
  *   取り消しがこれで試せる
+ * - アプリの利用の記録（`dev-seed/app-usage.ts`）: bob に iOS 1.1.0、erin に Android
+ *   （版なし）。管理画面のユーザー一覧の「アプリ」列と詳細の表示の出し分けを確かめる。
+ *   ほかのシードユーザーは未記録
  * - ネイティブ広告（`dev-seed/ad-creatives.ts`）: 本番のシード（`seed/ad-creatives.ts`）と
  *   同じ広告と、ローカル用の架空の Amazon トラッキング ID（web は `localdev-web-22`、
  *   アプリは `localdev-app-22`。リンクの `tag=` でどちらの ID で組んだかが分かる）。
@@ -73,6 +76,7 @@ import {
 import { loadScriptEnv } from "./_lib/load-script-env";
 import { DEV_TRACKING_IDS, reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedAnnouncements } from "./dev-seed/announcements";
+import { reseedAppUsage } from "./dev-seed/app-usage";
 import { reseedBenefitGrants } from "./dev-seed/benefit-grants";
 import { reseedChallengeResults } from "./dev-seed/challenge-results";
 import type { ScoredSeedUser } from "./dev-seed/challenge-results";
@@ -179,6 +183,12 @@ async function main() {
   const notified = await reseedNotifications(db, scored);
   console.log(
     `  notifications ${notified} 件（購入・付与から導出。bob: 期限切れを含む / ヘッダーのベルに未読数が出る）`,
+  );
+
+  console.log("dev-seed: アプリの利用の記録を投入します...");
+  const appUsed = await reseedAppUsage(db, scored);
+  console.log(
+    `  app_usage ${appUsed} 件（bob: iOS 1.1.0 / erin: Android・版なし / ほかは未記録）`,
   );
 
   console.log("dev-seed: ネイティブ広告を投入します...");

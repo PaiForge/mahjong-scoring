@@ -6,6 +6,7 @@ const {
   mockGetProfileCore,
   mockHasDeletionRequest,
   mockGetClientIp,
+  mockRecordAppUsage,
 } = vi.hoisted(() => {
   const getUser = vi.fn();
   return {
@@ -14,6 +15,7 @@ const {
     mockGetProfileCore: vi.fn(),
     mockHasDeletionRequest: vi.fn(),
     mockGetClientIp: vi.fn(),
+    mockRecordAppUsage: vi.fn(),
   };
 });
 
@@ -40,6 +42,10 @@ vi.mock("../client-ip", () => ({
 vi.mock("../db/queries", () => ({
   getProfileCoreByUserId: mockGetProfileCore,
   hasAccountDeletionRequest: mockHasDeletionRequest,
+}));
+
+vi.mock("./app-usage", () => ({
+  recordAppUsage: mockRecordAppUsage,
 }));
 
 import { _resetStore } from "../rate-limit-ip";
@@ -379,5 +385,52 @@ describe("authorizeMobileRequest", () => {
     );
 
     expect(result.ok === false && result.response.status).toBe(429);
+  });
+
+  describe("アプリの利用の記録", () => {
+    it("通った要求を、そのユーザーの利用として記録する", async () => {
+      activeUser();
+      const request = withToken();
+
+      await authorizeMobileRequest(request, "readMobileAccount");
+
+      expect(mockRecordAppUsage).toHaveBeenCalledWith(request, "user-1");
+    });
+
+    it("退会の受付は記録しない（退会の工程が消した行を作り直さない）", async () => {
+      activeUser();
+      mockHasDeletionRequest.mockResolvedValue(true);
+
+      await authorizeMobileRequest(withToken(), "deleteAccount", {
+        forAccountDeletion: true,
+      });
+
+      expect(mockRecordAppUsage).not.toHaveBeenCalled();
+    });
+
+    it("BAN の知らせを読む要求も記録する（BAN 中でもアプリを開いている）", async () => {
+      activeUser();
+      mockGetProfileCore.mockResolvedValue({
+        username: "alice",
+        bannedAt: new Date(),
+        deletedAt: null,
+      });
+
+      await authorizeMobileRequest(withToken(), "readMobileAccount", {
+        forBanNotice: true,
+      });
+
+      expect(mockRecordAppUsage).toHaveBeenCalledTimes(1);
+    });
+
+    it("弾いた要求は記録しない", async () => {
+      activeUser();
+      mockHasDeletionRequest.mockResolvedValue(true);
+
+      await authorizeMobileRequest(withToken(), "readMobileAccount");
+      await authorizeMobileRequest(requestWith(), "readMobileAccount");
+
+      expect(mockRecordAppUsage).not.toHaveBeenCalled();
+    });
   });
 });
