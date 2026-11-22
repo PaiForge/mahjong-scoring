@@ -4,7 +4,7 @@ import { YAKUMAN_HAN } from "../score/tiers";
  * ライブラリの役名（英語キー）から日本語名へのマッピング
  * 役名変換マップ（点数練習用）
  */
-export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
+const persistedYakuNames = {
   // 1翻
   Tanyao: "断么九",
   Pinfu: "平和",
@@ -63,6 +63,32 @@ export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> = {
   Chiihou: "地和",
 };
 
+/** ライブラリの役名から日本語名への対応。永続化済みのキーは追加だけを許す。 */
+export const SCORE_YAKU_NAME_MAP: Readonly<Record<string, string>> =
+  persistedYakuNames;
+
+/** 永続化する役ID。キーは追加のみ。ライブラリの改名はこの対応表で吸収する。 */
+export type ScoreYakuId = keyof typeof persistedYakuNames;
+
+/** 内訳に出せる役IDか。ドラ・裏ドラは役ではないため含まない。 */
+export function isScoreYakuId(value: unknown): value is ScoreYakuId {
+  return typeof value === "string" && Object.hasOwn(SCORE_YAKU_NAME_MAP, value);
+}
+
+/** 内訳の日本語名から永続化用の役IDへ変換する。未知の名前は補完しない。 */
+export function scoreYakuIdOfName(name: string): ScoreYakuId | undefined {
+  return Object.keys(SCORE_YAKU_NAME_MAP)
+    .filter(isScoreYakuId)
+    .find((id) => SCORE_YAKU_NAME_MAP[id] === name);
+}
+
+/** 回答の選択肢にある役IDか。場風・自風など内訳専用のIDは受けない。 */
+export function isAnswerYakuId(value: unknown): value is ScoreYakuId {
+  return (
+    isScoreYakuId(value) && YAKU_OPTIONS.includes(SCORE_YAKU_NAME_MAP[value])
+  );
+}
+
 /**
  * 役の判定結果に役満が含まれるか
  * 役満判定
@@ -85,7 +111,7 @@ export function hasYakumanYaku(
  * 役名日本語変換
  */
 export function getYakuNameJa(name: string): string {
-  return SCORE_YAKU_NAME_MAP[name] ?? name;
+  return isScoreYakuId(name) ? SCORE_YAKU_NAME_MAP[name] : name;
 }
 
 /**

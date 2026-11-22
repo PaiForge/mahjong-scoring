@@ -26,6 +26,12 @@
 
 ## 名前
 
+- `problem/score/scoring-version.ts` の `SCORING_VERSION` は正解・回答判定・日次適格性・
+  分類属性の意味の版。これらの振る舞い（立直・ドラの補正、採点対象も含む）を変える
+  コミットでは版も上げる。固定盤面・回答の期待値だけを更新して済ませない。
+- 永続化された役ID（`SCORE_YAKU_NAME_MAP` のキー）は削除・改名しない。
+  ライブラリの改名は変換側で吸収する。
+
 - `core/score-table-math.ts` は点数表の算術（符・翻 → 区分と支払い）。練習の「点数計算」
   （`problem/score/`、features の `practice/score-calculation/`）とは別物
 - アプリ（Static Hermes）でも動くため、`toSorted` / `Object.groupBy` 等の Hermes に無い組み込みは
