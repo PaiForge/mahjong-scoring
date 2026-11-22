@@ -155,6 +155,7 @@ import {
   requestAccountDeletion,
 } from "./delete-account";
 import {
+  appUsage,
   challengeAttempts,
   dailyProblemAnswers,
   notifications,
@@ -225,7 +226,7 @@ describe("requestAccountDeletion", () => {
     expect(state.row).toMatchObject({ appleRevokedAt: expect.any(Date) });
   });
 
-  it("途中のチャレンジ・通知・購入・ブロック・本日の問題の解答も消す（Auth のソフト削除では CASCADE しない）", async () => {
+  it("途中のチャレンジ・通知・購入・ブロック・本日の問題の解答・アプリの利用の記録も消す（Auth のソフト削除では CASCADE しない）", async () => {
     await requestAccountDeletion(USER);
 
     for (const table of [
@@ -234,6 +235,7 @@ describe("requestAccountDeletion", () => {
       purchases,
       userBlocks,
       dailyProblemAnswers,
+      appUsage,
     ])
       expect(mocks.dataDeletes).toHaveBeenCalledWith(table);
   });
