@@ -69,8 +69,11 @@ export type BlockedUserView = Omit<BlockedUser, "blockedAt">;
  * ブロック一覧取得
  *
  * 設定ページは静的に描くので、一覧は描画後にここから取る
- * （ランキング非表示の設定と同じ割り切り）。未ログインなら空。失敗は
- * undefined で返し、画面が「読み込めなかった」と出す。
+ * （ランキング非表示の設定と同じ割り切り）。未ログインなら空。失敗
+ * （ログイン済みか確かめられない・DB が読めない）は undefined で返し、
+ * 「ブロックが無い」と区別する。設定の一覧（`BlockedUsersSection`）は
+ * 失敗のときも何も描かない（ブロックを使ったことの無い人に失敗の表示を
+ * 見せないため。理由の全文はその TSDoc）。
  */
 export async function getBlockedUsersAction(): Promise<
   readonly BlockedUserView[] | undefined
