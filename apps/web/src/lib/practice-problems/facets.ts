@@ -59,19 +59,35 @@ import { extractPgErrorCode } from "../db/extract-pg-error-code";
 import { logExternalError } from "../log-error";
 
 /**
- * 1 回の実行で計算する問題数の上限（cron・手動の実行の既定）
+ * 1 回の実行で読む問題数の上限（cron・手動の実行の既定）
  *
- * 1 問は標準ルールを含む 6 通りの組み立てと 1 トランザクション（親 1 行 + 子の行）。
- * 上限を超えた分は未計算のまま残り、次の実行が続きから埋める（読む側が件数を併記する
- * ので、残っていても誤読しない）。関数の実行時間の上限に収めるための値で、厳密な
- * 根拠は無い — 所要時間は実行ごとの結果（`elapsedMs`）で見て調整する。
+ * 不足している問題を 1 回のクエリで読む数。実際にどこまで計算するかは
+ * {@link PROBLEM_FACET_FILL_BUDGET_MS} が先に効く想定で、こちらは 1 回に読む盤面の量
+ * （1 問 1KB 未満）を抑えるための値。
  */
-export const PROBLEM_FACET_FILL_LIMIT = 500;
+export const PROBLEM_FACET_FILL_LIMIT = 2000;
+
+/**
+ * 1 回の実行で計算に使う時間の上限（ミリ秒。cron・手動の実行の既定）
+ *
+ * この時間を過ぎたら、読んだ問題が残っていても次の問題へ進まずに終える。残りは未計算の
+ * まま残り、次の実行が続きから埋める（読む側が件数を併記するので、残っていても誤読しない）。
+ *
+ * @design 件数ではなく時間で区切る
+ * 1 問の計算は手元の実測で和了形 0.3ms・聴牌形 3ms ほど（生成した 300 問ずつの平均）で、
+ * 所要時間のほとんどは 1 問 1 トランザクションの DB の往復になる。往復の時間は環境で
+ * 変わるので、件数で区切ると関数の実行時間の上限に収まるかを保証できない。値は、実行時間の
+ * 上限を設定していない関数でも収まるよう短めに置いた。本番での 1 回あたりの件数は、
+ * cron のログ（`computed` と `elapsedMs`）で見て調整する。
+ */
+export const PROBLEM_FACET_FILL_BUDGET_MS = 8000;
 
 /** {@link fillMissingProblemFacets} の指定 */
 export interface FillProblemFacetsOptions {
-  /** 計算する問題数の上限（既定 {@link PROBLEM_FACET_FILL_LIMIT}） */
+  /** 読む問題数の上限（既定 {@link PROBLEM_FACET_FILL_LIMIT}） */
   readonly limit?: number;
+  /** 計算に使う時間の上限（既定 {@link PROBLEM_FACET_FILL_BUDGET_MS}） */
+  readonly budgetMs?: number;
   /** 対象をこの問題に限る（保存の入口が、入れた 1 問だけを計算するのに使う） */
   readonly problemIds?: readonly string[];
 }
@@ -151,7 +167,8 @@ async function writeProblemFacets(
  * @description
  * この版（`SCORING_VERSION`）の親の行を持たない問題を、保存の古い順に上限まで読み、
  * 1 問ずつ計算して書く。何度呼んでも、並行して呼んでも、同じ問題の行は 1 組だけになる
- * （親の主キーと `ON CONFLICT DO NOTHING`）。上限を超えた分は残す。
+ * （親の主キーと `ON CONFLICT DO NOTHING`）。件数の上限を超えた分と、時間の上限までに
+ * 計算できなかった分は残す。
  *
  * 1 問の計算か書き込みが例外で落ちても、その問題を未計算のまま残して次へ進む
  * （1 問の不具合で残り全部が止まらないようにする）。ログには問題の ID と PostgreSQL の
@@ -163,6 +180,7 @@ async function writeProblemFacets(
  */
 export async function fillMissingProblemFacets({
   limit = PROBLEM_FACET_FILL_LIMIT,
+  budgetMs = PROBLEM_FACET_FILL_BUDGET_MS,
   problemIds,
 }: FillProblemFacetsOptions = {}): Promise<FillProblemFacetsResult> {
   const startedAt = Date.now();
@@ -187,6 +205,7 @@ export async function fillMissingProblemFacets({
     .limit(limit);
 
   for (const problem of problems) {
+    if (Date.now() - startedAt >= budgetMs) break;
     try {
       const facets = computeProblemFacets(problem);
       const written = await writeProblemFacets(problem.id, facets);

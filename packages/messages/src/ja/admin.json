@@ -112,6 +112,103 @@
       "cell": "{count}（{percent}%）"
     }
   },
+  "problemCategories": {
+    "navLabel": "問題の分類",
+    "title": "問題の分類",
+    "description": "保存した問題を、役・符・待ち・和了の仕方・点数の区分で分けた結果です。盤面を標準ルールで組み立て直して取り出した属性（翻・符・役・待ち）で分類します。数えているのは問題の数で、和了の数ではありません。聴牌形は、待ちとツモ・ロンのどれかの和了が条件を満たせばその分類に入ります。",
+    "coverage": {
+      "title": "属性の計算状況",
+      "note": "分類に使う属性は、採点の版（現在は {version}）ごとに計算します。分類の数に入るのは「成功」の問題だけです。「失敗」は標準ルールでは問題に組み立てられない盤面、「未計算」はまだ計算していない問題です。",
+      "columns": {
+        "kind": "種別",
+        "total": "保存数",
+        "ok": "成功",
+        "failed": "失敗",
+        "missing": "未計算"
+      },
+      "totalRow": "合計"
+    },
+    "fill": {
+      "button": "未計算を計算する",
+      "running": "計算中…",
+      "done": "{computed} 件を計算しました（失敗 {failed} 件・エラー {errored} 件）。未計算は残り {missing} 件です。",
+      "failed": "計算できませんでした。時間をおいてもう一度お試しください。"
+    },
+    "counts": {
+      "title": "分類ごとの問題数",
+      "note": "属性を計算できた問題のうち、条件に当てはまる数です。1 つの問題は複数の分類に入ります。分類の名前を押すと、当てはまる問題を一覧で見られます。",
+      "group": "区分",
+      "name": "分類",
+      "total": "合計"
+    },
+    "ruleFlags": {
+      "title": "ルール設定で変わる問題",
+      "note": "分類は標準ルール（連風牌の雀頭 2 符・切り上げ満貫なし・役満のルールすべて無効）の値で行います。そのルールを切り替えると正解か属性が変わる和了を持つ問題の数です。",
+      "name": "切り替えるルール"
+    },
+    "groups": {
+      "yaku": "役",
+      "fu": "符",
+      "machi": "待ち",
+      "agari": "和了の仕方",
+      "level": "点数の区分"
+    },
+    "categories": {
+      "riichi": "立直",
+      "tanyao": "断么九",
+      "pinfu": "平和",
+      "yakuhai": "役牌",
+      "iipeikou": "一盃口",
+      "sanshoku-doujun": "三色同順",
+      "ikkitsuukan": "一気通貫",
+      "toitoi": "対々和",
+      "chiitoitsu": "七対子",
+      "somete": "混一色・清一色",
+      "fu-30": "30 符",
+      "fu-40": "40 符",
+      "fu-50-plus": "50 符以上",
+      "machi-ryanmen": "両面待ち",
+      "machi-kanchan-penchan": "嵌張・辺張待ち",
+      "machi-shanpon": "双碰待ち",
+      "machi-tanki": "単騎待ち",
+      "menzen-ron": "門前ロン",
+      "furo": "副露あり",
+      "mangan-plus": "満貫以上"
+    },
+    "flags": {
+      "renfonpai": "連風牌の雀頭 4 符",
+      "kiriage": "切り上げ満貫",
+      "yakumanRules": "役満のルール"
+    },
+    "machi": {
+      "Ryanmen": "両面",
+      "Kanchan": "嵌張",
+      "Penchan": "辺張",
+      "Shanpon": "双碰",
+      "Tanki": "単騎"
+    },
+    "problems": {
+      "title": "「{name}」の問題（{count} 件）",
+      "clear": "一覧を閉じる",
+      "empty": "当てはまる問題はまだありません。"
+    },
+    "problem": {
+      "savedAt": "保存 {date}",
+      "columns": {
+        "agariHai": "和了牌",
+        "winType": "和了",
+        "score": "翻・符・点数",
+        "yaku": "役",
+        "machi": "待ち",
+        "rules": "ルールで変わる"
+      },
+      "tsumo": "ツモ",
+      "ron": "ロン",
+      "score": "{han} 翻 {fu} 符 {points} 点",
+      "dora": "（ドラ {dora}・裏ドラ {uraDora}）",
+      "noYaku": "役なし（ロンできない）"
+    }
+  },
   "userManagement": "ユーザー管理",
   "userManagementDescription": "登録ユーザーの一覧表示・管理を行います。",
   "auditLog": "監査ログ",

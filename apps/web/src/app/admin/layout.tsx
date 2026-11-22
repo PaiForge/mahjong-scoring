@@ -105,6 +105,10 @@ export default async function AdminLayout({
           href: "/admin/practice-problems",
           label: t("practiceProblemStats.navLabel"),
         },
+        {
+          href: "/admin/problem-categories",
+          label: t("problemCategories.navLabel"),
+        },
       ],
     },
     {

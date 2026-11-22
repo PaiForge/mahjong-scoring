@@ -254,6 +254,17 @@ describe.skipIf(!url)("問題の属性の補充（PostgreSQL）", () => {
     ]);
   });
 
+  it("時間の上限を過ぎたら、読んだ問題が残っていても計算せずに終える", async () => {
+    await insertProblem("agari-score", eligibleAgariPayload());
+
+    expect(await fillMissingProblemFacets({ budgetMs: 0 })).toMatchObject({
+      computed: 0,
+      errored: 0,
+    });
+    expect(await facetSets()).toEqual([]);
+    expect(await fillMissingProblemFacets()).toMatchObject({ computed: 1 });
+  });
+
   it("問題を指定すると、その問題だけを計算する（空の指定は何もしない）", async () => {
     const target = await insertProblem("agari-score", eligibleAgariPayload());
     await insertProblem("agari-score", otherEligibleAgariPayload());

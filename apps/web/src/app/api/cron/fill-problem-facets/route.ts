@@ -20,7 +20,7 @@ import {
  * curl -H "Authorization: Bearer $CRON_SECRET" https://<host>/api/cron/fill-problem-facets
  * ```
  *
- * 1 回に計算するのは上限（`PROBLEM_FACET_FILL_LIMIT`）までで、残りは翌日の実行か
+ * 1 回に計算するのは時間の上限（`PROBLEM_FACET_FILL_BUDGET_MS`）までで、残りは翌日の実行か
  * 管理画面の手動の実行が続きから埋める。何度呼んでも同じ問題の行は増えない。
  * 応答とログには、書いた行の内訳と、実行後にまだ未計算の問題の数（`missing`）を出す。
  * 採点の版を上げた直後は `missing` が保存問題の全数から減っていく。

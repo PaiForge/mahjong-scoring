@@ -1,4 +1,5 @@
 import { compareNumbers } from "@mahjong-scoring/core";
+import { messages } from "@mahjong-scoring/messages/ja";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -222,6 +223,16 @@ describe("PROBLEM_CATEGORIES", () => {
     );
     expect(order.every((index) => index >= 0)).toBe(true);
     expect(order).toEqual([...order].sort(compareNumbers));
+  });
+
+  it("どの分類・まとまりにも、管理画面の表示名が辞書にある（余りも無い）", () => {
+    const dictionary = messages.admin.problemCategories;
+    expect(Object.keys(dictionary.categories)).toEqual(
+      PROBLEM_CATEGORIES.map((category) => category.id),
+    );
+    expect(Object.keys(dictionary.groups)).toEqual([
+      ...PROBLEM_CATEGORY_GROUPS,
+    ]);
   });
 
   it("ID から分類を引け、無い ID は undefined", () => {
