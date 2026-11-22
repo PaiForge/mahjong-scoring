@@ -29,11 +29,12 @@ import {
  *
  * - GET `/api/mobile/v1/daily-problem` — 今日（JST）の問題の盤面と自分の解答。
  *   今日は問題が無い日も成功（`problem: null`）
- * - POST `/api/mobile/v1/daily-problem/answer` — 自分の解答の正誤を記録する
+ * - POST `/api/mobile/v1/daily-problem/answer` — 自分の解答を記録する
  *
  * どちらも返すのは自分の解答だけで、他の利用者の情報（正解率・解答者数等）は
  * 返さない — アプリには他の利用者を見せる画面を持ち込まない。正解も返らない
- * （盤面を端末のルール設定で組み立て、その場で採点して正誤だけを送る）。
+ * （盤面を端末のルール設定で組み立て、その場で採点して答え合わせを出し、正誤と
+ * 解答の詳細を送る。統計用の判定はサーバーが付けるが、応答には載らない）。
  * 応答は契約（features の `daily-problem/mobile-api.ts`）の parse を通し、
  * 形が違えば `unknown` にする。
  */
