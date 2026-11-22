@@ -10,9 +10,10 @@ import {
   type MobileAppPlatform,
 } from "@mahjong-scoring/features/app-version/mobile-api";
 import { parseAppVersion } from "@mahjong-scoring/features/app-version/version";
+import { JST_TIME_ZONE, jstDayKey } from "@mahjong-scoring/features/jst";
 
-import { db } from "../db";
 import { logExternalError } from "../log-error";
+import { writeAsAccount } from "../users/account-write-lock";
 
 /** 要求が申告したアプリの OS と版 */
 export interface AppUsageReport {
@@ -45,54 +46,43 @@ export function readAppUsageReport(
   };
 }
 
-/**
- * 同じ記録を書き直すまでの間隔
- *
- * 管理画面は日付までしか出さないので、1 日に 1 回で足りる。OS か版が
- * 変わったときは間隔を待たずに書く（アップデートした版をすぐ見られるように）。
- */
-const REWRITE_INTERVAL_MS = 24 * 60 * 60 * 1000;
-
 /** インスタンスの中で覚えておく人数の上限（超えたら忘れて数え直す） */
 const MAX_REMEMBERED_USERS = 10_000;
 
 /**
- * このインスタンスが最後に書いた記録（ユーザー ID → 申告と時刻）
+ * このインスタンスが最後に書いた記録（ユーザー ID → 申告と JST の日付の組）
  *
  * アプリ向け API の要求のたびに DB へ問い合わせないための 1 段目の間引き。
  * インスタンスごとに別々で、再起動で消える。どのインスタンスから書いても
  * 1 日に 1 回へ揃えるのは 2 段目の SQL の条件（{@link writeAppUsage}）。
+ *
+ * 間引きの単位は「24 時間」ではなく JST の日付。管理画面が JST の日付を出すので、
+ * その日の最初の要求で書けば日付が常に正しい。24 時間の間隔で比べると、前日の
+ * 遅い時刻に書いた人の翌日の利用が書かれず、日付が 1〜2 日古く見える。
  */
-const lastWritten = new Map<
-  string,
-  { readonly key: string; readonly at: number }
->();
+const lastWritten = new Map<string, string>();
 
-/** 申告の見分けに使う文字列（OS と版の組） */
-function reportKey(report: AppUsageReport): string {
-  return `${report.platform}@${report.appVersion ?? ""}`;
+/** 申告の見分けに使う文字列（OS・版・JST の日付の組） */
+function writeKey(report: AppUsageReport, now: Date): string {
+  return `${report.platform}@${report.appVersion ?? ""}@${jstDayKey(now)}`;
 }
 
 /**
  * このインスタンスで書く番か（書くなら覚える）。テストが時刻を差し替える
  * アプリ利用記録の間引き
+ *
+ * 同じ人の同じ申告は JST の 1 日に 1 回だけ通す。OS か版が変わったら
+ * その日のうちでも通す（アップデートした版をすぐ見られるように）。
  */
 export function claimAppUsageWrite(
   userId: string,
   report: AppUsageReport,
-  now: number = Date.now(),
+  now: Date = new Date(),
 ): boolean {
-  const key = reportKey(report);
-  const previous = lastWritten.get(userId);
-  if (
-    previous &&
-    previous.key === key &&
-    now - previous.at < REWRITE_INTERVAL_MS
-  ) {
-    return false;
-  }
+  const key = writeKey(report, now);
+  if (lastWritten.get(userId) === key) return false;
   if (lastWritten.size >= MAX_REMEMBERED_USERS) lastWritten.clear();
-  lastWritten.set(userId, { key, at: now });
+  lastWritten.set(userId, key);
   return true;
 }
 
@@ -110,31 +100,37 @@ export function resetAppUsageWritesForTest(): void {
  * アプリの利用を 1 行に書く（無ければ作り、あれば最後に使った日時と OS・版を更新する）
  * アプリ利用記録書き込み
  *
- * 退会を受け付けた人（`account_deletions` に行がある）の行は作らない。退会の
- * 工程が消した行を、退会の後に届いた要求が作り直さないため。
- * 更新は前回から 1 日経った（{@link REWRITE_INTERVAL_MS}）か、OS か版が変わった
- * ときだけ行う — インスタンスの中の間引きを通り抜けた要求（別のインスタンス・
- * 再起動の後）も、DB の側で 1 日に 1 回へ揃える。
+ * 更新は最後に書いたのが JST の前の日以前か、OS か版が変わったときだけ行う —
+ * インスタンスの中の間引きを通り抜けた要求（別のインスタンス・再起動の後）も、
+ * DB の側で 1 日に 1 回へ揃える。初めて使った日時は更新しない。
+ *
+ * 退会とは `writeAsAccount`（`users/account-write-lock.ts`）で直列にする。
+ * 退会を受け付けた人の行は作らず、受付の前に書き始めた分は受付が待ってから
+ * 退会の工程（`deleteAccountData`）が消す。入口（`auth.ts`）で退会処理中の人を
+ * 弾くだけでは、通った後に受付と削除が済んでから書く経路が残る。
+ *
+ * @returns 書いたか（退会を受け付けた後なら false）
  */
 export async function writeAppUsage(
   userId: string,
   report: AppUsageReport,
-): Promise<void> {
+): Promise<boolean> {
   const appVersion = report.appVersion ?? null;
-  await db.execute(sql`
-    INSERT INTO app_usage (user_id, platform, app_version)
-    SELECT ${userId}::uuid, ${report.platform}, ${appVersion}
-    WHERE NOT EXISTS (
-      SELECT 1 FROM account_deletions WHERE user_id = ${userId}::uuid
-    )
-    ON CONFLICT (user_id) DO UPDATE SET
-      platform = EXCLUDED.platform,
-      app_version = EXCLUDED.app_version,
-      last_seen_at = now()
-    WHERE app_usage.last_seen_at < now() - interval '1 day'
-      OR app_usage.platform IS DISTINCT FROM EXCLUDED.platform
-      OR app_usage.app_version IS DISTINCT FROM EXCLUDED.app_version
-  `);
+  const result = await writeAsAccount(userId, (tx) =>
+    tx.execute(sql`
+      INSERT INTO app_usage (user_id, platform, app_version)
+      VALUES (${userId}::uuid, ${report.platform}, ${appVersion})
+      ON CONFLICT (user_id) DO UPDATE SET
+        platform = EXCLUDED.platform,
+        app_version = EXCLUDED.app_version,
+        last_seen_at = now()
+      WHERE (app_usage.last_seen_at AT TIME ZONE ${JST_TIME_ZONE})::date
+          < (now() AT TIME ZONE ${JST_TIME_ZONE})::date
+        OR app_usage.platform IS DISTINCT FROM EXCLUDED.platform
+        OR app_usage.app_version IS DISTINCT FROM EXCLUDED.app_version
+    `),
+  );
+  return result.written;
 }
 
 /**
@@ -145,8 +141,8 @@ export async function writeAppUsage(
  * 投げっぱなしにすると、サーバーレスでは応答の後に処理ごと止められることがある。
  * 失敗はログにだけ残し、要求には伝えない。
  *
- * 退会の受付（`forAccountDeletion`）からは呼ばない（`auth.ts`）。退会を受け付けた
- * 人の行を作らない条件は {@link writeAppUsage} の SQL にもある。
+ * 退会の受付（`forAccountDeletion`）からは呼ばない（`auth.ts`）。退会との直列化は
+ * {@link writeAppUsage}。
  *
  * @param request - 認証を通ったアプリ向け API の要求
  * @param userId - 認証を通ったユーザーの ID

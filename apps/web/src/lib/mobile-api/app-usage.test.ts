@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockExecute, mockAfter } = vi.hoisted(() => ({
-  mockExecute: vi.fn(),
+const { mockWriteAsAccount, mockAfter } = vi.hoisted(() => ({
+  mockWriteAsAccount: vi.fn(),
   mockAfter: vi.fn(),
 }));
 
-vi.mock("../db", () => ({ db: { execute: mockExecute } }));
+vi.mock("../users/account-write-lock", () => ({
+  writeAsAccount: mockWriteAsAccount,
+}));
 vi.mock("next/server", () => ({ after: mockAfter }));
-vi.mock("../log-error", () => ({ logExternalError: vi.fn() }));
+vi.mock("../log-error", async () => await import("@/test/log-error-mock"));
+
+import { logExternalError } from "../log-error";
 
 import {
   claimAppUsageWrite,
@@ -21,7 +25,11 @@ function requestWith(headers: Record<string, string>): Request {
 }
 
 const IOS = { "X-App-Platform": "ios", "X-App-Version": "1.1.0" };
-const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** JST の日時（`2026-11-20T23:59` のように書く） */
+function jst(local: string): Date {
+  return new Date(`${local}:00+09:00`);
+}
 
 /** `after()` に渡された処理を走らせる */
 async function runScheduled(): Promise<void> {
@@ -33,7 +41,7 @@ async function runScheduled(): Promise<void> {
 beforeEach(() => {
   vi.clearAllMocks();
   resetAppUsageWritesForTest();
-  mockExecute.mockResolvedValue(undefined);
+  mockWriteAsAccount.mockResolvedValue({ written: true, value: undefined });
 });
 
 describe("readAppUsageReport", () => {
@@ -68,39 +76,70 @@ describe("readAppUsageReport", () => {
 describe("claimAppUsageWrite", () => {
   const report = { platform: "ios", appVersion: "1.1.0" } as const;
 
-  it("同じ人の同じ申告は 1 日に 1 回だけ書く", () => {
-    expect(claimAppUsageWrite("user-1", report, 0)).toBe(true);
-    expect(claimAppUsageWrite("user-1", report, DAY_MS - 1)).toBe(false);
-    expect(claimAppUsageWrite("user-1", report, DAY_MS)).toBe(true);
+  it("同じ人の同じ申告は JST の 1 日に 1 回だけ書く", () => {
+    expect(claimAppUsageWrite("user-1", report, jst("2026-11-20T00:00"))).toBe(
+      true,
+    );
+    expect(claimAppUsageWrite("user-1", report, jst("2026-11-20T23:59"))).toBe(
+      false,
+    );
+    expect(claimAppUsageWrite("user-1", report, jst("2026-11-21T00:00"))).toBe(
+      true,
+    );
   });
 
-  it("版か OS が変わったら 1 日を待たずに書く", () => {
-    expect(claimAppUsageWrite("user-1", report, 0)).toBe(true);
+  it("前日の遅い時刻に書いた人も、翌日の最初の要求で書く（24 時間を待たない）", () => {
+    expect(claimAppUsageWrite("user-1", report, jst("2026-11-20T23:00"))).toBe(
+      true,
+    );
+    expect(claimAppUsageWrite("user-1", report, jst("2026-11-21T08:00"))).toBe(
+      true,
+    );
+  });
+
+  it("版か OS が変わったらその日のうちでも書く", () => {
+    const day = jst("2026-11-20T10:00");
+    expect(claimAppUsageWrite("user-1", report, day)).toBe(true);
     expect(
-      claimAppUsageWrite("user-1", { ...report, appVersion: "1.2.0" }, 1),
+      claimAppUsageWrite("user-1", { ...report, appVersion: "1.2.0" }, day),
     ).toBe(true);
     expect(
       claimAppUsageWrite(
         "user-1",
         { platform: "android", appVersion: "1.2.0" },
-        2,
+        day,
       ),
     ).toBe(true);
   });
 
   it("人ごとに数える", () => {
-    expect(claimAppUsageWrite("user-1", report, 0)).toBe(true);
-    expect(claimAppUsageWrite("user-2", report, 0)).toBe(true);
+    const day = jst("2026-11-20T10:00");
+    expect(claimAppUsageWrite("user-1", report, day)).toBe(true);
+    expect(claimAppUsageWrite("user-2", report, day)).toBe(true);
+  });
+
+  it("覚える人数の上限を超えたら忘れて数え直す", () => {
+    const day = jst("2026-11-20T10:00");
+    expect(claimAppUsageWrite("user-0", report, day)).toBe(true);
+    for (let i = 1; i < 10_000; i += 1) {
+      claimAppUsageWrite(`user-${i}`, report, day);
+    }
+    // 上限に達した後の 1 人で全員を忘れるので、最初の人がもう一度書ける
+    expect(claimAppUsageWrite("user-overflow", report, day)).toBe(true);
+    expect(claimAppUsageWrite("user-0", report, day)).toBe(true);
   });
 });
 
 describe("recordAppUsage", () => {
-  it("応答の後（after）に書き込む", async () => {
+  it("応答の後（after）に、退会と直列の書き込みで書く", async () => {
     recordAppUsage(requestWith(IOS), "user-1");
 
-    expect(mockExecute).not.toHaveBeenCalled();
+    expect(mockWriteAsAccount).not.toHaveBeenCalled();
     await runScheduled();
-    expect(mockExecute).toHaveBeenCalledTimes(1);
+    expect(mockWriteAsAccount).toHaveBeenCalledWith(
+      "user-1",
+      expect.any(Function),
+    );
   });
 
   it("OS のヘッダが無ければ何もしない", () => {
@@ -116,23 +155,26 @@ describe("recordAppUsage", () => {
     expect(mockAfter).toHaveBeenCalledTimes(1);
   });
 
-  it("書き込みに失敗したら、次の要求で書き直す", async () => {
-    mockExecute.mockRejectedValueOnce(new Error("db down"));
+  it("書き込みに失敗したら、ログに残して次の要求で書き直す", async () => {
+    mockWriteAsAccount.mockRejectedValueOnce(new Error("db down"));
     recordAppUsage(requestWith(IOS), "user-1");
     await runScheduled();
 
     recordAppUsage(requestWith(IOS), "user-1");
 
+    expect(logExternalError).toHaveBeenCalledTimes(1);
     expect(mockAfter).toHaveBeenCalledTimes(2);
   });
-});
 
-describe("recordAppUsage（要求の外）", () => {
-  it("after() が投げても要求を落とさない", () => {
+  it("after() が投げても要求を落とさず、次の要求で予約し直す", () => {
     mockAfter.mockImplementationOnce(() => {
       throw new Error("outside a request scope");
     });
 
     expect(() => recordAppUsage(requestWith(IOS), "user-1")).not.toThrow();
+    recordAppUsage(requestWith(IOS), "user-1");
+
+    expect(logExternalError).toHaveBeenCalledTimes(1);
+    expect(mockAfter).toHaveBeenCalledTimes(2);
   });
 });

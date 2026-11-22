@@ -205,7 +205,8 @@ type AuthorizeMobileResult =
  *   BAN 中・退会処理中も通す（本人による退会は BAN の対象にしない。受付は冪等）
  * @param options.forBanNotice - BAN の知らせ（理由）を読む API だけ。BAN 中も通す
  *
- * 通った要求は、アプリの利用として記録する（`recordAppUsage`。退会の受付を除く）。
+ * 通った要求は、アプリの利用として記録する（`recordAppUsage`。退会の受付を除く。
+ * BAN の知らせを読む要求は BAN 中でもアプリを開いているので記録する）。
  */
 export async function authorizeMobileRequest(
   request: Request,

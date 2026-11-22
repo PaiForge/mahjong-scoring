@@ -2122,9 +2122,10 @@ export type NewProblemReport = typeof problemReports.$inferInsert;
  * 行をロックする。利用のたびに書くとプロフィールの更新日時が動き、ロックも
  * 取り合う。ユーザー名を決める前の人（`profiles` の行が無い）も記録したい。
  *
- * @design auth.users への FK を張らない
- * 他の表と同じく退会の工程（`lib/users/delete-account.ts`）が明示的に消す。
- * 退会を受け付けた人の行は、書き込みの SQL が作り直さない。
+ * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
+ * 退会の工程（`lib/users/delete-account.ts`）は auth.users をソフトデリートするので
+ * CASCADE は発火しない。行は退会の工程が明示的に消し、退会を受け付けた後の書き込みは
+ * `writeAsAccount` が止める（`lib/mobile-api/app-usage.ts`）。
  */
 export const appUsage = pgTable(
   "app_usage",

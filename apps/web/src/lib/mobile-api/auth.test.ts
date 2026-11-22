@@ -408,6 +408,21 @@ describe("authorizeMobileRequest", () => {
       expect(mockRecordAppUsage).not.toHaveBeenCalled();
     });
 
+    it("BAN の知らせを読む要求も記録する（BAN 中でもアプリを開いている）", async () => {
+      activeUser();
+      mockGetProfileCore.mockResolvedValue({
+        username: "alice",
+        bannedAt: new Date(),
+        deletedAt: null,
+      });
+
+      await authorizeMobileRequest(withToken(), "readMobileAccount", {
+        forBanNotice: true,
+      });
+
+      expect(mockRecordAppUsage).toHaveBeenCalledTimes(1);
+    });
+
     it("弾いた要求は記録しない", async () => {
       activeUser();
       mockHasDeletionRequest.mockResolvedValue(true);
