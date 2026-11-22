@@ -2,6 +2,11 @@ import { AD_KINDS } from "@mahjong-scoring/features/ads/native-ad";
 import { PurchaseKind } from "@mahjong-scoring/features/billing/plans";
 import { PurchaseProvider } from "@mahjong-scoring/features/billing/provider";
 import type { ChallengeState } from "@mahjong-scoring/features/challenge/types";
+import type {
+  DailyAnswerClient,
+  SubmittedDailyAnswer,
+} from "@mahjong-scoring/features/daily-problem/answer-detail";
+import type { DailyAnswerSnapshot } from "@mahjong-scoring/features/daily-problem/answer-snapshot";
 import {
   PROBLEM_REPORT_CONTEXTS,
   PROBLEM_REPORT_REASONS,
@@ -10,6 +15,7 @@ import {
 // CommonJS で読み込み、core の index が引く ESM 専用のライブラリを解決できない
 import {
   ARCHIVE_KINDS,
+  ARCHIVE_REBUILD_ERRORS,
   type PracticeProblemArchiveRequest,
 } from "@mahjong-scoring/core/problem/archive/types";
 import { sql, type SQL } from "drizzle-orm";
@@ -17,12 +23,14 @@ import {
   boolean,
   check,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
   unique,
@@ -1664,6 +1672,121 @@ export type PracticeProblem = typeof practiceProblems.$inferSelect;
 export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
 
 /**
+ * 問題×採点版の派生属性。行なしは未計算、failedは再構築不能。
+ * okの親と全和了の子は同じトランザクションで書く。利用者の情報は持たない。
+ * 過去の版は稼働・ロールバック先を確認して手動で削除する。
+ */
+export const practiceProblemFacetSets = pgTable(
+  "practice_problem_facet_sets",
+  {
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => practiceProblems.id, { onDelete: "cascade" }),
+    scoringVersion: smallint("scoring_version").notNull(),
+    status: text("status").$type<"ok" | "failed">().notNull(),
+    error: text("error").$type<(typeof ARCHIVE_REBUILD_ERRORS)[number]>(),
+    isOya: boolean("is_oya"),
+    isMenzen: boolean("is_menzen"),
+    isRiichi: boolean("is_riichi"),
+    kanCount: smallint("kan_count"),
+    jikaze: smallint("jikaze"),
+    bakaze: smallint("bakaze"),
+    waitCount: smallint("wait_count"),
+    revision: text("revision"),
+    computedAt: timestamp("computed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.problemId, table.scoringVersion] }),
+    check(
+      "practice_problem_facet_sets_chk_state",
+      sql`(
+      ${table.scoringVersion} > 0 AND (
+        (${table.status} = 'ok' AND ${table.error} IS NULL
+          AND ${table.isOya} IS NOT NULL AND ${table.isMenzen} IS NOT NULL AND ${table.isRiichi} IS NOT NULL
+          AND ${table.kanCount} BETWEEN 0 AND 4
+          AND ${table.jikaze} IN (27, 28, 29, 30) AND ${table.bakaze} IN (27, 28, 29, 30)
+          AND ${table.isOya} = (${table.jikaze} = 27)
+          AND (${table.waitCount} IS NULL OR ${table.waitCount} BETWEEN 2 AND 34))
+        OR (${table.status} = 'failed' AND ${table.error} IN (${sqlInList(ARCHIVE_REBUILD_ERRORS)})
+          AND ${table.isOya} IS NULL AND ${table.isMenzen} IS NULL AND ${table.isRiichi} IS NULL
+          AND ${table.kanCount} IS NULL AND ${table.jikaze} IS NULL AND ${table.bakaze} IS NULL
+          AND ${table.waitCount} IS NULL)
+      )) IS TRUE`,
+    ),
+  ],
+).enableRLS();
+
+/**
+ * 標準ルールで採用された和了1つの属性。聴牌形は待ち×ツモ/ロンごとに残す。
+ * noYakuは役なしのロンで、未計算・失敗とは別。印はscoredの行だけが持つ。
+ * 問題を数える側はEXISTSを使い、和了の数で解答数を水増ししない。
+ */
+export const practiceProblemFacets = pgTable(
+  "practice_problem_facets",
+  {
+    problemId: uuid("problem_id").notNull(),
+    scoringVersion: smallint("scoring_version").notNull(),
+    agariHai: smallint("agari_hai").notNull(),
+    isTsumo: boolean("is_tsumo").notNull(),
+    result: text("result").$type<"scored" | "noYaku">().notNull(),
+    han: smallint("han"),
+    fu: smallint("fu"),
+    scoreLevel: text("score_level"),
+    yakumanMultiplier: smallint("yakuman_multiplier"),
+    points: integer("points"),
+    yaku: text("yaku")
+      .array()
+      .$type<DailyAnswerSnapshot["answer"]["yaku"][number]["id"][]>(),
+    doraHan: smallint("dora_han"),
+    uraDoraHan: smallint("ura_dora_han"),
+    machi: text("machi").$type<DailyAnswerSnapshot["facets"]["machi"]>(),
+    variesByRenfonpai: boolean("varies_by_renfonpai"),
+    variesByKiriage: boolean("varies_by_kiriage"),
+    variesByYakumanRules: boolean("varies_by_yakuman_rules"),
+  },
+  (table) => [
+    primaryKey({
+      columns: [
+        table.problemId,
+        table.scoringVersion,
+        table.agariHai,
+        table.isTsumo,
+      ],
+    }),
+    foreignKey({
+      columns: [table.problemId, table.scoringVersion],
+      foreignColumns: [
+        practiceProblemFacetSets.problemId,
+        practiceProblemFacetSets.scoringVersion,
+      ],
+    }).onDelete("cascade"),
+    check(
+      "practice_problem_facets_chk_state",
+      sql`(
+      ${table.scoringVersion} > 0 AND ${table.agariHai} BETWEEN 0 AND 33 AND (
+        (${table.result} = 'scored' AND ${table.han} > 0 AND ${table.fu} >= 0
+          AND ${table.scoreLevel} IN ('Normal', 'Mangan', 'Haneman', 'Baiman', 'Sanbaiman', 'Yakuman', 'DoubleYakuman')
+          AND ${table.yakumanMultiplier} >= 0 AND ${table.points} > 0
+          AND ${table.yaku} IS NOT NULL AND cardinality(${table.yaku}) > 0
+          AND array_position(${table.yaku}, NULL) IS NULL
+          AND ${table.doraHan} >= 0 AND ${table.uraDoraHan} >= 0
+          AND (${table.machi} IS NULL OR ${table.machi} IN ('Tanki', 'Shanpon', 'Ryanmen', 'Kanchan', 'Penchan'))
+          AND ${table.variesByRenfonpai} IS NOT NULL AND ${table.variesByKiriage} IS NOT NULL
+          AND ${table.variesByYakumanRules} IS NOT NULL)
+        OR (${table.result} = 'noYaku' AND ${table.isTsumo} IS FALSE
+          AND ${table.han} IS NULL AND ${table.fu} IS NULL AND ${table.scoreLevel} IS NULL
+          AND ${table.yakumanMultiplier} IS NULL AND ${table.points} IS NULL AND ${table.yaku} IS NULL
+          AND ${table.doraHan} IS NULL AND ${table.uraDoraHan} IS NULL AND ${table.machi} IS NULL
+          AND ${table.variesByRenfonpai} IS NULL AND ${table.variesByKiriage} IS NULL
+          AND ${table.variesByYakumanRules} IS NULL)
+      )) IS TRUE`,
+    ),
+  ],
+).enableRLS();
+
+/**
  * 本日の問題 — 日付（JST）ごとに全員へ出す 1 問
  * 本日の問題
  *
@@ -1701,10 +1824,18 @@ export const dailyProblems = pgTable(
       .references(() => practiceProblems.id, { onDelete: "restrict" }),
     /** 非公開の理由。NULL は公開。盤面と解答は消さず、差し替えもしない */
     withheldReason: text("withheld_reason"),
+    /** 選出時の正解と属性。旧デプロイが選出した日はNULLのまま保持する。 */
+    answerSnapshot: jsonb("answer_snapshot").$type<DailyAnswerSnapshot>(),
     /** その日の問題を選んだ日時 */
     createdAt: createdAtColumn(),
   },
-  (table) => [unique("uq_daily_problems_problem_id").on(table.problemId)],
+  (table) => [
+    unique("uq_daily_problems_problem_id").on(table.problemId),
+    check(
+      "daily_problems_chk_snapshot",
+      sql`${table.answerSnapshot} IS NULL OR (jsonb_typeof(${table.answerSnapshot}) = 'object' AND ${table.answerSnapshot}->'v' = '1'::jsonb) IS TRUE`,
+    ),
+  ],
 ).enableRLS();
 
 export type DailyProblemRow = typeof dailyProblems.$inferSelect;
@@ -1723,10 +1854,12 @@ export type DailyProblemRow = typeof dailyProblems.$inferSelect;
  * 再挑戦で上書きすると、答えを見てから正解に書き換えられる。解答済みでも同じ
  * 盤面をもう一度解けるが、記録は変わらない。「わからない」は不正解として記録する。
  *
- * @design 持つのは「解答したか」と正誤だけ
- * 「解答済み」をホームに出すのに要る最小の形。正誤まで持てば、連続日数・
- * 正解率を後から同じ表で足せる。解答の中身（翻・符・点数）は持たない —
- * 採点はクライアントが閲覧者のルール設定で行い、正誤だけが届く。
+ * @design 端末の正誤と受付時の判定は別に保持する
+ * is_correct は端末の正誤。詳細を送らない入口は詳細列がすべてNULLの旧記録になる。
+ * 詳細対応の入口は回答・モード・解答時の端末条件を検証し、受付時の適格性を
+ * 確かめてから判定する。わからないでも適格性と選出時正解との一致を確認する。
+ * 採点不能はjudge_errorを残して統計から除く。一時的なDB障害は採点不能にしない。
+ * 行は最初の1件で固定し、後日の再評価で受付時の判定を書き換えない。
  *
  * @design `user_id` → auth.users の FK は Supabase SQL で定義（CASCADE）
  * 退会の工程（`lib/users/delete-account.ts`）は auth.users をソフトデリートするので
@@ -1743,12 +1876,89 @@ export const dailyProblemAnswers = pgTable(
       .references(() => dailyProblems.day),
     /** 正解したか（クライアントが採点した結果） */
     isCorrect: boolean("is_correct").notNull(),
+    /** NULLは旧記録。以下の詳細列を既定値で埋めない。 */
+    detailVersion: smallint("detail_version"),
+    outcome: text("outcome").$type<"answered" | "gaveUp">(),
+    requireYaku: boolean("require_yaku"),
+    requireHanFu: boolean("require_han_fu"),
+    exactHan: boolean("exact_han"),
+    requireFuForMangan: boolean("require_fu_for_mangan"),
+    submitted: jsonb("submitted").$type<SubmittedDailyAnswer>(),
+    scoreResult: text("score_result").$type<"correct" | "incorrect">(),
+    hanResult: text("han_result").$type<
+      "correct" | "incorrect" | "notJudged"
+    >(),
+    fuResult: text("fu_result").$type<"correct" | "incorrect" | "notJudged">(),
+    yakuResult: text("yaku_result").$type<
+      "correct" | "incorrect" | "notJudged"
+    >(),
+    /** 統計はこの判定を使う。isCorrectは端末が表示した正誤のまま。 */
+    judgedCorrect: boolean("judged_correct"),
+    judgeError: text("judge_error").$type<
+      "ineligible" | (typeof ARCHIVE_REBUILD_ERRORS)[number]
+    >(),
+    /** 正解だけを比較する。gaveUpでも適格なら比較し、選出時情報なしはNULL。 */
+    snapshotConsistent: boolean("snapshot_consistent"),
+    scoringVersion: smallint("scoring_version"),
+    source: text("source"),
+    client: jsonb("client").$type<DailyAnswerClient>(),
+    revision: text("revision"),
     /** 最初に解答した日時 */
     answeredAt: timestamp("answered_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.day] })],
+  (table) => [
+    primaryKey({ columns: [table.userId, table.day] }),
+    // 外側のIS TRUEで、NULLを含む中途半端な状態も拒否する。
+    // スナップショット有無との整合性とJSON内部は、書き込み側の検証が担う。
+    check(
+      "daily_problem_answers_chk_detail",
+      sql`(
+      (${table.detailVersion} IS NULL AND ${table.outcome} IS NULL
+        AND ${table.requireYaku} IS NULL AND ${table.requireHanFu} IS NULL
+        AND ${table.exactHan} IS NULL AND ${table.requireFuForMangan} IS NULL
+        AND ${table.submitted} IS NULL AND ${table.scoreResult} IS NULL
+        AND ${table.hanResult} IS NULL AND ${table.fuResult} IS NULL AND ${table.yakuResult} IS NULL
+        AND ${table.judgedCorrect} IS NULL AND ${table.judgeError} IS NULL
+        AND ${table.snapshotConsistent} IS NULL AND ${table.scoringVersion} IS NULL
+        AND ${table.source} IS NULL AND ${table.client} IS NULL AND ${table.revision} IS NULL)
+      OR
+      (${table.detailVersion} = 1
+        AND ${table.requireYaku} IS NOT NULL AND ${table.requireHanFu} IS NOT NULL
+        AND ${table.exactHan} IS NOT NULL AND ${table.requireFuForMangan} IS NOT NULL
+        AND ${table.scoringVersion} > 0
+        AND ${table.source} IN (${sqlInList(PRACTICE_PROBLEM_SOURCES)})
+        AND jsonb_typeof(${table.client}) = 'object'
+        AND ((${table.outcome} = 'answered' AND jsonb_typeof(${table.submitted}) = 'object')
+          OR (${table.outcome} = 'gaveUp' AND ${table.submitted} IS NULL))
+        AND (
+          (${table.judgeError} IN ('ineligible', ${sqlInList(ARCHIVE_REBUILD_ERRORS)})
+            AND ${table.scoreResult} IS NULL AND ${table.hanResult} IS NULL
+            AND ${table.fuResult} IS NULL AND ${table.yakuResult} IS NULL
+            AND ${table.judgedCorrect} IS NULL AND ${table.snapshotConsistent} IS NULL)
+          OR
+          (${table.judgeError} IS NULL AND ${table.outcome} = 'gaveUp'
+            AND ${table.scoreResult} IS NULL AND ${table.hanResult} IS NULL
+            AND ${table.fuResult} IS NULL AND ${table.yakuResult} IS NULL
+            AND ${table.judgedCorrect} IS FALSE)
+          OR
+          (${table.judgeError} IS NULL AND ${table.outcome} = 'answered'
+            AND ${table.scoreResult} IN ('correct', 'incorrect')
+            AND ${table.hanResult} IN ('correct', 'incorrect', 'notJudged')
+            AND ${table.fuResult} IN ('correct', 'incorrect', 'notJudged')
+            AND ${table.yakuResult} IN ('correct', 'incorrect', 'notJudged')
+            AND (${table.hanResult} = 'notJudged') = (NOT ${table.requireHanFu})
+            AND (${table.yakuResult} = 'notJudged') = (NOT ${table.requireYaku})
+            AND (${table.requireHanFu} OR ${table.fuResult} = 'notJudged')
+            AND (NOT (${table.requireHanFu} AND ${table.requireFuForMangan}) OR ${table.fuResult} <> 'notJudged')
+            AND ${table.judgedCorrect} = (${table.scoreResult} = 'correct'
+              AND ${table.hanResult} <> 'incorrect' AND ${table.fuResult} <> 'incorrect'
+              AND ${table.yakuResult} <> 'incorrect'))
+        ))
+    ) IS TRUE`,
+    ),
+  ],
 ).enableRLS();
 
 export type DailyProblemAnswer = typeof dailyProblemAnswers.$inferSelect;

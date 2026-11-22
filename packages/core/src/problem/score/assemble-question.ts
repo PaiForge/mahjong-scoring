@@ -92,5 +92,6 @@ export function assembleScoreQuestion(
     answer,
     fuDetails,
     yakuDetails,
+    machiType: originalAnswer.detail?.machiType,
   };
 }

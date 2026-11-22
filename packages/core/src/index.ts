@@ -91,10 +91,29 @@ export { SCORE_FILTERABLE_YAKU } from "./problem/score/filterable-yaku";
 export {
   DEFAULT_SCORE_JUDGEMENT_MODE,
   judgeAnswer,
+  judgeAnswerFields,
   judgeYakuName,
   judgeYakuSelection,
 } from "./problem/score/judgement";
-export type { ScoreJudgementMode } from "./problem/score/judgement";
+export type {
+  AnswerFieldJudgements,
+  FieldJudgement,
+  ScoreJudgementMode,
+} from "./problem/score/judgement";
+export { extractScoreFacts } from "./problem/score/facts";
+export type {
+  ScoreAnswerFacts,
+  ScoreFacets,
+  ScoreFacts,
+} from "./problem/score/facts";
+export { SCORING_VERSION } from "./problem/score/scoring-version";
+export {
+  SCORE_YAKU_NAME_MAP,
+  isAnswerYakuId,
+  isScoreYakuId,
+  scoreYakuIdOfName,
+} from "./core/yaku-names";
+export type { ScoreYakuId } from "./core/yaku-names";
 export {
   clampHanToYakuman,
   isYakumanHan,

@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DEFAULT_RULE_SETTINGS } from "@mahjong-scoring/core";
+import type { DailyAnswerDetail } from "@mahjong-scoring/features/daily-problem/answer-detail";
+
 import { callMobileApi, jsonResponse } from "../test/api-client-mock";
 
 // api-client は React Native を読むので置き換える
@@ -79,9 +82,11 @@ describe("sendDailyProblemAnswer", () => {
       jsonResponse(200, { answer: { isCorrect: false } }),
     );
 
-    expect(await sendDailyProblemAnswer("user-a", "2026-11-17", false)).toEqual(
-      { value: { answer: { isCorrect: false } } },
-    );
+    expect(
+      await sendDailyProblemAnswer("user-a", "2026-11-17", {
+        isCorrect: false,
+      }),
+    ).toEqual({ value: { answer: { isCorrect: false } } });
     expect(callMobileApi).toHaveBeenCalledWith(
       "/api/mobile/v1/daily-problem/answer",
       {
@@ -92,10 +97,62 @@ describe("sendDailyProblemAnswer", () => {
     );
   });
 
+  it("解答した瞬間の詳細を、作り直さずそのまま本文に載せる", async () => {
+    callMobileApi.mockResolvedValue(
+      jsonResponse(200, { answer: { isCorrect: true } }),
+    );
+    const detail: DailyAnswerDetail = {
+      v: 1,
+      outcome: "gaveUp",
+      mode: {
+        requireYaku: false,
+        requireHanFu: false,
+        exactHan: false,
+        requireFuForMangan: false,
+      },
+      client: {
+        scoringVersion: 1,
+        build: "1.2.0",
+        ruleSettings: DEFAULT_RULE_SETTINGS,
+        scoreInput: "tiles",
+        koTsumoInput: "combined",
+      },
+    };
+
+    await sendDailyProblemAnswer("user-a", "2026-11-17", {
+      isCorrect: false,
+      detail,
+    });
+
+    expect(callMobileApi).toHaveBeenCalledWith(
+      "/api/mobile/v1/daily-problem/answer",
+      {
+        method: "POST",
+        body: { day: "2026-11-17", isCorrect: false, detail },
+        asUser: "user-a",
+      },
+    );
+  });
+
+  it.each(["unsupportedDetail", "invalidDetail"] as const)(
+    "詳細を保存できなかった応答（422 %s）は、その理由を返す",
+    async (error) => {
+      callMobileApi.mockResolvedValue(jsonResponse(422, { error }));
+
+      expect(
+        await sendDailyProblemAnswer("user-a", "2026-11-17", {
+          isCorrect: true,
+        }),
+      ).toEqual({ error });
+    },
+  );
+
   it("日をまたいだ解答（409 staleDay）は staleDay", async () => {
     callMobileApi.mockResolvedValue(jsonResponse(409, { error: "staleDay" }));
 
-    expect(await sendDailyProblemAnswer("user-a", "2026-11-16", true)).toEqual({
+    expect(
+      await sendDailyProblemAnswer("user-a", "2026-11-16", { isCorrect: true }),
+    ).toEqual({
       error: "staleDay",
     });
   });
@@ -103,7 +160,9 @@ describe("sendDailyProblemAnswer", () => {
   it("サーバーの一時的な失敗（500）は serverError", async () => {
     callMobileApi.mockResolvedValue(jsonResponse(500, {}));
 
-    expect(await sendDailyProblemAnswer("user-a", "2026-11-17", true)).toEqual({
+    expect(
+      await sendDailyProblemAnswer("user-a", "2026-11-17", { isCorrect: true }),
+    ).toEqual({
       error: "serverError",
     });
   });
@@ -115,18 +174,22 @@ describe("subscribeDailyProblemAnswers", () => {
     const unsubscribe = subscribeDailyProblemAnswers(listener);
     try {
       callMobileApi.mockResolvedValue(jsonResponse(500, {}));
-      await sendDailyProblemAnswer("user-a", "2026-11-17", false);
+      await sendDailyProblemAnswer("user-a", "2026-11-17", {
+        isCorrect: false,
+      });
       expect(listener).not.toHaveBeenCalled();
       callMobileApi.mockResolvedValue(
         jsonResponse(200, { answer: { isCorrect: false } }),
       );
-      await sendDailyProblemAnswer("user-a", "2026-11-17", false);
+      await sendDailyProblemAnswer("user-a", "2026-11-17", {
+        isCorrect: false,
+      });
       expect(listener).toHaveBeenCalledExactlyOnceWith("user-a");
       unsubscribe();
       callMobileApi.mockResolvedValue(
         jsonResponse(200, { answer: { isCorrect: true } }),
       );
-      await sendDailyProblemAnswer("user-b", "2026-11-17", true);
+      await sendDailyProblemAnswer("user-b", "2026-11-17", { isCorrect: true });
       expect(listener).toHaveBeenCalledTimes(1);
     } finally {
       unsubscribe();

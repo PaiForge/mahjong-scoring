@@ -22,6 +22,8 @@ vi.mock("next/cache", () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+import { DEFAULT_RULE_SETTINGS } from "@mahjong-scoring/core";
+
 import { recordDailyProblemAnswerAction } from "./record-daily-problem-answer";
 
 const USER = { id: "00000000-0000-4000-8000-000000000001" };
@@ -67,6 +69,7 @@ describe("recordDailyProblemAnswerAction", () => {
       DAY,
       true,
       expect.any(Date),
+      undefined,
     );
     expect(mockRevalidatePath).toHaveBeenCalledWith("/dashboard");
   });
@@ -105,6 +108,69 @@ describe("recordDailyProblemAnswerAction", () => {
 
     expect(result).toEqual({ error: "staleDay" });
     expect(mockRevalidatePath).not.toHaveBeenCalled();
+  });
+
+  describe("解答の詳細", () => {
+    const detail = {
+      v: 1,
+      outcome: "gaveUp",
+      mode: {
+        requireYaku: false,
+        requireHanFu: true,
+        exactHan: false,
+        requireFuForMangan: false,
+      },
+      client: {
+        scoringVersion: 1,
+        build: "dpl_answer_time",
+        ruleSettings: DEFAULT_RULE_SETTINGS,
+        scoreInput: "tiles",
+        koTsumoInput: "combined",
+      },
+    };
+
+    it("検証を通った詳細を web の由来で記録へ渡す", async () => {
+      const result = await recordDailyProblemAnswerAction({
+        day: DAY,
+        isCorrect: false,
+        detail,
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(mockRecordDailyProblemAnswer).toHaveBeenCalledWith(
+        USER.id,
+        DAY,
+        false,
+        expect.any(Date),
+        { detail, source: "web" },
+      );
+    });
+
+    it("知らない版の詳細は保存せず unsupportedDetail を返す（旧記録に落とさない）", async () => {
+      const result = await recordDailyProblemAnswerAction({
+        day: DAY,
+        isCorrect: true,
+        detail: { ...detail, v: 2 },
+      });
+
+      expect(result).toEqual({ error: "unsupportedDetail" });
+      expect(mockRecordDailyProblemAnswer).not.toHaveBeenCalled();
+      expect(mockRevalidatePath).not.toHaveBeenCalled();
+    });
+
+    it("形の違う詳細は保存せず invalidDetail を返す", async () => {
+      const result = await recordDailyProblemAnswerAction({
+        day: DAY,
+        isCorrect: true,
+        detail: {
+          ...detail,
+          client: { ...detail.client, koTsumoInput: "split" },
+        },
+      });
+
+      expect(result).toEqual({ error: "invalidDetail" });
+      expect(mockRecordDailyProblemAnswer).not.toHaveBeenCalled();
+    });
   });
 
   it("DB の失敗は recordFailed で返し、例外にしない", async () => {

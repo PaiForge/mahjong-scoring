@@ -29,6 +29,12 @@
  * - `ORDER BY random()` は全件走査だが、行数が小さい間は問題にならない（既知の
  *   トレードオフ。実測はしていない）
  *
+ * @design 選ぶときに、その時点の正解と属性を同じ行へ写す（`answer_snapshot`）
+ * 統計が「選出時の分類」で解答を数えるための値で、選んだ後は書き換えない。
+ * 問題と同じ INSERT に載せるので、並行した要求が競合しても、固定された行の問題と
+ * スナップショットは必ず同じ候補のものになる（負けた側の値は入らない）。
+ * 列を持つ前に選んだ日と、切り替え中に古いデプロイが先に選んだ日は NULL のまま。
+ *
  * @design 選んだ行が後から検証を通らなくなっても選び直さない
  * 採点ロジックの改修で、固定済みの盤面が現行の検証（保存形式の検証と適格判定）を
  * 通らなくなることがある。そのときは `undefined`（問題なし）を返してログに残す。
@@ -53,6 +59,7 @@ import { and, eq, lt, notInArray, sql } from "drizzle-orm";
 import { dailyProblems, db, practiceProblems } from "../db";
 import { logExternalError } from "../log-error";
 
+import { buildDailyAnswerSnapshot } from "@mahjong-scoring/features/daily-problem/answer-receipt";
 import { isDailyProblemEligible } from "@mahjong-scoring/features/daily-problem/eligibility";
 
 /**
@@ -161,10 +168,17 @@ async function chooseProblem(day: string): Promise<StoredProblem | undefined> {
       .limit(CANDIDATE_LIMIT);
     examined.push(...candidates.map((row) => row.id));
     for (const chosen of candidates) {
-      if (dailyProblemPayloadOf(chosen) === undefined) continue;
+      const payload = dailyProblemPayloadOf(chosen);
+      if (payload === undefined) continue;
+      // 選出時の正解と属性を同じ行に写す。写せない盤面（役 ID に直せない内訳等）は選ばない
+      const answerSnapshot = buildDailyAnswerSnapshot(
+        payload,
+        process.env.VERCEL_GIT_COMMIT_SHA || null,
+      );
+      if (answerSnapshot === undefined) continue;
       await db
         .insert(dailyProblems)
-        .values({ day, problemId: chosen.id })
+        .values({ day, problemId: chosen.id, answerSnapshot })
         .onConflictDoNothing();
       const fixed = await readFixedProblem(day);
       if (fixed) return fixed;

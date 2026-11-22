@@ -2,6 +2,7 @@ import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
 // 牌を描くので TileImageProvider で包む render を使う
 import { render } from "@/test/tile-image-render";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DEFAULT_RULE_SETTINGS, SCORING_VERSION } from "@mahjong-scoring/core";
 import { useDisplaySettingsStore } from "@/app/_hooks/use-display-settings-store";
 import { useAgariScoreSettingsStore } from "@/app/[locale]/(user)/(public)/practice/agari-score/_hooks/use-agari-score-settings-store";
 import { eligibleAgariPayload } from "@/lib/daily-problem/test-payloads";
@@ -96,6 +97,7 @@ describe("DailyProblemBoard", () => {
         day: "2026-11-18",
         isCorrect: false,
         userId: "alice",
+        detail: expect.objectContaining({ outcome: "gaveUp" }),
       }),
     );
   });
@@ -137,10 +139,28 @@ describe("DailyProblemBoard", () => {
     fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
 
     await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(1));
+    // 解答した瞬間の条件（回答モード・ルール設定・入力方式）を詳細として送る。
+    // このテストは select 入力に固定している（beforeEach）
     expect(mockRecord).toHaveBeenCalledWith({
       day: DAY,
       isCorrect: false,
       userId: "alice",
+      detail: {
+        v: 1,
+        outcome: "gaveUp",
+        mode: {
+          requireYaku: false,
+          requireHanFu: false,
+          exactHan: false,
+          requireFuForMangan: false,
+        },
+        client: {
+          scoringVersion: SCORING_VERSION,
+          ruleSettings: DEFAULT_RULE_SETTINGS,
+          scoreInput: "select",
+          koTsumoInput: "combined",
+        },
+      },
     });
     expect(screen.getByText("result.headers.correct")).toBeTruthy();
     expect(screen.getByText("more.title")).toBeTruthy();
@@ -182,6 +202,33 @@ describe("DailyProblemBoard", () => {
     await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(1));
     expect(screen.getByText("result.headers.correct")).toBeTruthy();
     expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("切り替え中のサーバーが詳細の版を知らないときは預かりを残し、同じ内容を送り直せる", async () => {
+    mockRecord.mockResolvedValue({ error: "unsupportedDetail" });
+    await show();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    await screen.findByText("save.failed");
+    mockRecord.mockResolvedValue({ success: true });
+    fireEvent.click(screen.getByRole("button", { name: "save.retry" }));
+    await waitFor(() => expect(mockRecord).toHaveBeenCalledTimes(2));
+    expect(mockRecord.mock.calls[1]).toEqual(mockRecord.mock.calls[0]);
+    await waitFor(() => expect(screen.queryByRole("status")).toBeNull());
+  });
+
+  it("詳細の形が不正と返されたら、送り直しを出さずに記録されないことを知らせる", async () => {
+    mockRecord.mockResolvedValue({ error: "invalidDetail" });
+    await show();
+
+    fireEvent.click(screen.getByRole("button", { name: "revealButton" }));
+
+    await screen.findByText("save.invalidDetail");
+    expect(screen.queryByRole("button", { name: "save.retry" })).toBeNull();
+    expect(
+      localStorage.getItem(`daily-problem-answer:alice:${DAY}`),
+    ).toBeNull();
   });
 
   it("記録の失敗は答え合わせを止めない", async () => {

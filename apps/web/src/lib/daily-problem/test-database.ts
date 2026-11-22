@@ -22,6 +22,7 @@ const testDb = createIsolatedSchemaTestDb({
     "20261115230546_create_practice_problems.sql",
     "20261117104232_create_daily_problems.sql",
     "20261117223813_add_daily_problem_visibility.sql",
+    "20261122001626_add_daily_answer_statistics.sql",
   ],
 });
 

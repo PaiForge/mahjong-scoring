@@ -1,5 +1,6 @@
 import type {
   HaiKindId,
+  MachiType,
   Tehai14,
   Kazehai,
   RuleConfig,
@@ -65,6 +66,13 @@ export interface ScoreQuestion {
   readonly fuDetails?: readonly FuDetail[];
   /** 役の内訳（ドラ・裏ドラを含む。役満の手は役満役だけ） */
   readonly yakuDetails: readonly YakuDetail[];
+  /**
+   * 採点に採用された構造解釈の待ちの形（七対子・国士無双、構造解釈の無い手は持たない）
+   *
+   * 立直・ドラの後付けで点数を再計算すると `answer.detail` は落ちるので、
+   * 分類に使う待ちの形は補正前の結果からここへ写す
+   */
+  readonly machiType?: MachiType;
 }
 
 /**

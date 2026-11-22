@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { parseDailyAnswerDetail } from "@mahjong-scoring/features/daily-problem/answer-detail";
 import { dailyProblemDaySchema } from "@mahjong-scoring/features/daily-problem/mobile-api";
 
 import { revalidateLocalizedPaths } from "@/i18n/revalidate-localized-paths";
@@ -20,13 +21,21 @@ import {
  * - `banned` / `serviceUnavailable`: 記録を書ける本人を決められなかった（{@link RecorderErrorCode}）
  * - `invalidInput`: 入力の形が違う（UI のバグ。盤面からは起きない）
  * - `staleDay`: 日付が変わった・停止中・問題がない。画面に再読込を案内する
+ * - `unsupportedDetail`: 詳細の版をこのサーバーが知らない（デプロイの切り替え中）。
+ *   保存していない。盤面は預かりを残し、同じ内容を送り直す
+ * - `invalidDetail`: 詳細の形が違う（UI のバグ）。保存していない。送り直さない
  * - `recordFailed`: DB への書き込みに失敗した（ログに残す）
  *
  * どのエラーでも盤面の答え合わせは止めない。記録は「解いた」印にすぎず、
  * 答え合わせの表示は採点（クライアント）だけで完結するため。画面は保存状態を別に表示する。
  */
 export type RecordDailyProblemAnswerErrorCode =
-  RecorderErrorCode | "invalidInput" | "recordFailed" | "staleDay";
+  | RecorderErrorCode
+  | "invalidInput"
+  | "recordFailed"
+  | "staleDay"
+  | "unsupportedDetail"
+  | "invalidDetail";
 
 /**
  * 本日の問題の解答を記録する Server Action の戻り値
@@ -50,6 +59,11 @@ const inputSchema = z.object({
   day: dailyProblemDaySchema,
   /** 閲覧者のルール設定で採点した正誤（「わからない」は false） */
   isCorrect: z.boolean(),
+  /**
+   * 解答の中身と解答時の条件。ここでは形を見ない — 版の違いと形の違いを分けて
+   * 答えるため `parseDailyAnswerDetail` に通す
+   */
+  detail: z.unknown().optional(),
 });
 
 /**
@@ -71,9 +85,10 @@ function revalidateAnswerReaders(): void {
  * 本日の問題の解答（正誤）を記録する Server Action
  * 本日の問題解答記録
  *
- * 本日の問題の盤面が、最初の回答または「わからない」で呼ぶ。通信失敗時は同じ正誤を再送する。
- * 採点はクライアントで済んでおり、ここは正誤を受け取って残すだけ（記録は本人に
- * しか見せず、ランキングも特典も無いので正誤を偽る動機が無い）。
+ * 本日の問題の盤面が、最初の回答または「わからない」で呼ぶ。通信失敗時は同じ内容を再送する。
+ * 答え合わせはクライアントで済んでおり、その正誤と解答の中身を受け取って残す
+ * （記録は本人にしか見せず、ランキングも特典も無いので正誤を偽る動機が無い）。
+ * 統計が使う判定は、記録の側が受付時の採点で付ける（`lib/daily-problem/answers.ts`）。
  *
  * 誰の解答として残すかは cookie のセッションだけで決める（{@link resolveRecorder}。
  * 書き込む Action なので BAN も確かめ、退会の受付後は未ログインと同じく書かない）。
@@ -87,7 +102,7 @@ function revalidateAnswerReaders(): void {
  * - 既に解答済みなら何も書き換えない（最初の解答が残る）
  * - DB の失敗はログに残して `recordFailed` を返す。盤面は答え合わせを続ける
  *
- * @param input - `{ day, isCorrect, userId? }`。`day` はページがサーバーから渡した問題の日付
+ * @param input - `{ day, isCorrect, userId?, detail? }`。`day` はページがサーバーから渡した問題の日付
  */
 export async function recordDailyProblemAnswerAction(
   input: unknown,
@@ -95,6 +110,19 @@ export async function recordDailyProblemAnswerAction(
   const parsed = inputSchema.safeParse(input);
   if (!parsed.success) return { error: "invalidInput" };
   const { day, isCorrect } = parsed.data;
+  // 読めない詳細を旧記録に落として保存しない（理由は features の契約
+  // `daily-problem/mobile-api.ts` の失敗の理由）
+  const detail = parseDailyAnswerDetail(parsed.data.detail);
+  if (detail.kind === "unsupportedDetail")
+    return { error: "unsupportedDetail" };
+  if (detail.kind === "invalidDetail") {
+    logExternalError(
+      "recordDailyProblemAnswer",
+      "本日の問題の解答の詳細の形が不正",
+      day,
+    );
+    return { error: "invalidDetail" };
+  }
 
   const recorder = await resolveRecorder();
   if ("skipped" in recorder) return { success: true, skipped: "anonymous" };
@@ -112,6 +140,9 @@ export async function recordDailyProblemAnswerAction(
       day,
       isCorrect,
       new Date(),
+      detail.kind === "valid"
+        ? { detail: detail.detail, source: "web" }
+        : undefined,
     );
     if (result.kind === "deleted")
       return { success: true, skipped: "anonymous" };

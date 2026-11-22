@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import {
   useAnswerRecord,
+  type DailyAnswerPending,
   type DailyAnswerStorage,
   type DailyAnswerSaveResult,
 } from "@mahjong-scoring/features/daily-problem/use-answer-record";
@@ -16,6 +17,7 @@ import type {
   RuleSettings,
   UserAnswer,
 } from "@mahjong-scoring/core";
+import { buildDailyAnswerDetail } from "@mahjong-scoring/features/daily-problem/build-answer-detail";
 import type { DailyProblemAnswerState } from "@mahjong-scoring/features/daily-problem/mobile-api";
 import {
   buildDailyProblemQuestion,
@@ -29,6 +31,11 @@ import {
 } from "@/app/[locale]/(user)/_components/locale-nav-link";
 import { SectionTitle } from "@/app/[locale]/(user)/_components/section-title";
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { APP_BUILD_ID } from "@/app/_lib/app-version";
+import {
+  useKoTsumoInput,
+  useScoreInput,
+} from "@/app/_hooks/use-display-settings-store";
 import { useIsClient } from "@/app/_hooks/use-is-client";
 import { useRuleSettingsStore } from "@/app/_hooks/use-rule-settings-store";
 import {
@@ -142,6 +149,10 @@ export function DailyProblemBoard({
     (s) => s.requireFuForMangan,
   );
 
+  // 点数の入力方式。回答フォームが読むのと同じ表示設定で、詳細に解答時の値を残す
+  const scoreInput = useScoreInput();
+  const storedKoTsumoInput = useKoTsumoInput();
+
   const built = useMemo(
     () => buildDailyProblemQuestion(payload, settings),
     [payload, settings],
@@ -157,15 +168,21 @@ export function DailyProblemBoard({
   useScrollToElement(PRACTICE_SCROLL_ANCHOR_ID);
 
   const send = useCallback(
-    async (isCorrect: boolean): Promise<DailyAnswerSaveResult> => {
+    async ({
+      isCorrect,
+      detail,
+    }: DailyAnswerPending): Promise<DailyAnswerSaveResult> => {
       if (userId === undefined) return "anonymous";
       const response = await recordDailyProblemAnswerAction({
         day,
         isCorrect,
         userId,
+        detail,
       });
       if ("error" in response) {
         if (response.error === "staleDay") return "staleDay";
+        if (response.error === "invalidDetail") return "invalidDetail";
+        // unsupportedDetail（切り替え中の古いサーバー）は、同じ内容を後で送り直せる
         return response.error === "banned" ? "blocked" : "failed";
       }
       return "skipped" in response ? "anonymous" : "saved";
@@ -182,6 +199,29 @@ export function DailyProblemBoard({
 
   const question = built.isOk() ? built.value : undefined;
 
+  // サーバーへ送る詳細は、解答した瞬間の解答と端末の条件から 1 回だけ組み立てる
+  // （再送でも作り直さない。理由は useAnswerRecord の TSDoc）
+  const detailOf = useCallback(
+    (answer: UserAnswer | undefined) =>
+      buildDailyAnswerDetail({
+        answer,
+        mode: { requireYaku, requireHanFu, exactHan, requireFuForMangan },
+        ruleSettings: settings,
+        build: APP_BUILD_ID,
+        scoreInput,
+        storedKoTsumoInput,
+      }),
+    [
+      settings,
+      requireYaku,
+      requireHanFu,
+      exactHan,
+      requireFuForMangan,
+      scoreInput,
+      storedKoTsumoInput,
+    ],
+  );
+
   // 回答・開示のボタンは縦に長い盤面の下端にあるため、表示が切り替わる
   // 操作のたびに盤面の先頭へ戻す（和了形の点数計算・体験ページと同じ）
   const handleSubmit = useCallback(
@@ -195,12 +235,13 @@ export function DailyProblemBoard({
         requireFuForMangan,
       });
       setAttempt({ userAnswer: answer, result });
-      record(result.isCorrect);
+      record(result.isCorrect, detailOf(answer));
     },
     [
       question,
       settings,
       record,
+      detailOf,
       requireYaku,
       requireHanFu,
       exactHan,
@@ -211,8 +252,8 @@ export function DailyProblemBoard({
   const handleReveal = useCallback(() => {
     scrollToPracticeAnchor();
     setAttempt({});
-    record(false);
-  }, [record]);
+    record(false, detailOf(undefined));
+  }, [record, detailOf]);
 
   if (question === undefined) {
     return (
@@ -234,7 +275,7 @@ export function DailyProblemBoard({
               {
                 t(
                   `save.${status}`,
-                ) /* save.failed / save.staleDay / save.anonymous / save.blocked */
+                ) /* save.failed / save.staleDay / save.anonymous / save.blocked / save.invalidDetail */
               }
             </p>
             {status === "failed" && (

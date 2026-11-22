@@ -143,8 +143,9 @@ describe("parseMobileDailyProblemAnswerResponse", () => {
 });
 
 describe("isMobileDailyProblemErrorCode", () => {
-  it("staleDay だけを本日の問題の失敗の理由と認める", () => {
-    expect(isMobileDailyProblemErrorCode("staleDay")).toBe(true);
+  it("日付の失敗と詳細の 2 つの失敗だけを本日の問題の失敗の理由と認める", () => {
+    for (const code of ["staleDay", "unsupportedDetail", "invalidDetail"])
+      expect(isMobileDailyProblemErrorCode(code)).toBe(true);
     expect(isMobileDailyProblemErrorCode("unauthorized")).toBe(false);
     expect(isMobileDailyProblemErrorCode(undefined)).toBe(false);
   });

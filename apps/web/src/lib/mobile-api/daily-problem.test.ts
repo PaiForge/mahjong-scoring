@@ -30,6 +30,7 @@ import {
   handleRecordDailyProblemAnswer,
 } from "./daily-problem";
 import { postJsonRequest } from "@/test/request";
+import { DEFAULT_RULE_SETTINGS } from "@mahjong-scoring/core";
 
 // 2026-11-17 01:00 JST（UTC では前日）。日付キーが JST で決まることを兼ねて確かめる
 const NOW = new Date("2026-11-16T16:00:00Z");
@@ -151,6 +152,7 @@ describe("handleRecordDailyProblemAnswer", () => {
       TODAY,
       true,
       expect.any(Date),
+      undefined,
     );
     expect(await response.json()).toEqual({ answer: { isCorrect: true } });
   });
@@ -223,7 +225,130 @@ describe("handleRecordDailyProblemAnswer", () => {
       TODAY,
       true,
       expect.any(Date),
+      undefined,
     );
+  });
+
+  describe("解答の詳細", () => {
+    const detail = {
+      v: 1,
+      outcome: "answered",
+      mode: {
+        requireYaku: false,
+        requireHanFu: false,
+        exactHan: false,
+        requireFuForMangan: false,
+      },
+      answer: { score: 8000, yaku: [] },
+      client: {
+        scoringVersion: 1,
+        build: "1.2.0",
+        ruleSettings: DEFAULT_RULE_SETTINGS,
+        scoreInput: "select",
+        koTsumoInput: "split",
+      },
+    };
+
+    function detailRequest(body: unknown, platform?: string): Request {
+      return postJsonRequest(
+        "https://example.test/api/mobile/v1/daily-problem/answer",
+        body,
+        platform === undefined ? undefined : { "X-App-Platform": platform },
+      );
+    }
+
+    it("検証を通った詳細を、ヘッダの OS を由来にして記録へ渡す", async () => {
+      const response = await handleRecordDailyProblemAnswer(
+        detailRequest({ day: TODAY, isCorrect: false, detail }, "android"),
+      );
+
+      expect(response.status).toBe(200);
+      expect(mockRecordAnswer).toHaveBeenCalledWith(
+        "user-1",
+        TODAY,
+        false,
+        expect.any(Date),
+        { detail, source: "android" },
+      );
+    });
+
+    it("解答時に固定したビルドを、再送のヘッダの版で上書きしない", async () => {
+      await handleRecordDailyProblemAnswer(
+        postJsonRequest(
+          "https://example.test/api/mobile/v1/daily-problem/answer",
+          { day: TODAY, isCorrect: false, detail },
+          { "X-App-Version": "9.9.9", "X-App-Platform": "ios" },
+        ),
+      );
+
+      expect(mockRecordAnswer.mock.calls[0]?.[4]).toEqual({
+        detail,
+        source: "ios",
+      });
+    });
+
+    it("本文で由来を申告しても使わない", async () => {
+      await handleRecordDailyProblemAnswer(
+        detailRequest({ day: TODAY, isCorrect: true, detail, source: "web" }),
+      );
+
+      expect(mockRecordAnswer.mock.calls[0]?.[4]).toMatchObject({
+        source: "ios",
+      });
+    });
+
+    it("知らない版の詳細は保存せず 422 unsupportedDetail（旧記録に落とさない）", async () => {
+      const response = await handleRecordDailyProblemAnswer(
+        detailRequest({ day: TODAY, isCorrect: true, detail: { v: 2 } }),
+      );
+
+      expect(response.status).toBe(422);
+      expect(await response.json()).toEqual({ error: "unsupportedDetail" });
+      expect(mockRecordAnswer).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["null", null],
+      ["版が無い", {}],
+      ["余分な項目", { ...detail, extra: true }],
+      ["内訳専用の役 ID", { ...detail, answer: { yaku: ["Bakaze"] } }],
+      ["わからないに解答が付く", { ...detail, outcome: "gaveUp" }],
+    ])(
+      "形の違う詳細（%s）は保存せず 422 invalidDetail",
+      async (_name, invalid) => {
+        const response = await handleRecordDailyProblemAnswer(
+          detailRequest({ day: TODAY, isCorrect: true, detail: invalid }),
+        );
+
+        expect(response.status).toBe(422);
+        expect(await response.json()).toEqual({ error: "invalidDetail" });
+        expect(mockRecordAnswer).not.toHaveBeenCalled();
+      },
+    );
+
+    it("止めている間は詳細を見る前に 409 staleDay", async () => {
+      vi.stubEnv("DAILY_PROBLEM_DISABLED", "1");
+
+      const response = await handleRecordDailyProblemAnswer(
+        detailRequest({ day: TODAY, isCorrect: true, detail }),
+      );
+
+      expect(response.status).toBe(409);
+      expect(mockRecordAnswer).not.toHaveBeenCalled();
+    });
+
+    it("上限を超える本文は 400 で、記録しない", async () => {
+      const response = await handleRecordDailyProblemAnswer(
+        detailRequest({
+          day: TODAY,
+          isCorrect: true,
+          detail: { ...detail, padding: "x".repeat(5000) },
+        }),
+      );
+
+      expect(response.status).toBe(400);
+      expect(mockRecordAnswer).not.toHaveBeenCalled();
+    });
   });
 
   it("DB の失敗は 500 serverError", async () => {

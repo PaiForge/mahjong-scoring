@@ -10,6 +10,8 @@ import {
   type MobileDailyProblemResponse,
 } from "@mahjong-scoring/features/daily-problem/mobile-api";
 
+import type { DailyAnswerPending } from "@mahjong-scoring/features/daily-problem/use-answer-record";
+
 import type { ApiFailure } from "../auth/api-client";
 import {
   domainFailureOf,
@@ -27,11 +29,12 @@ import {
  *
  * - GET `/api/mobile/v1/daily-problem` — 今日（JST）の問題の盤面と自分の解答。
  *   今日は問題が無い日も成功（`problem: null`）
- * - POST `/api/mobile/v1/daily-problem/answer` — 自分の解答の正誤を記録する
+ * - POST `/api/mobile/v1/daily-problem/answer` — 自分の解答を記録する
  *
  * どちらも返すのは自分の解答だけで、他の利用者の情報（正解率・解答者数等）は
  * 返さない — アプリには他の利用者を見せる画面を持ち込まない。正解も返らない
- * （盤面を端末のルール設定で組み立て、その場で採点して正誤だけを送る）。
+ * （盤面を端末のルール設定で組み立て、その場で採点して答え合わせを出し、正誤と
+ * 解答の詳細を送る。統計用の判定はサーバーが付けるが、応答には載らない）。
  * 応答は契約（features の `daily-problem/mobile-api.ts`）の parse を通し、
  * 形が違えば `unknown` にする。
  */
@@ -39,8 +42,9 @@ import {
 /**
  * 本日の問題の API の失敗
  *
- * `staleDay` は日をまたいだ・今日の問題が無い・停止中（409）。`serverError` は
- * サーバー側の一時的な失敗（500）。
+ * `staleDay` は日をまたいだ・今日の問題が無い・停止中（409）。`unsupportedDetail` /
+ * `invalidDetail` は詳細を保存できなかった（422。前者は同じ内容を送り直せる）。
+ * `serverError` はサーバー側の一時的な失敗（500）。
  */
 export type DailyProblemApiFailure =
   ApiFailure | MobileDailyProblemErrorCode | "serverError";
@@ -71,7 +75,7 @@ export function fetchDailyProblem(
 }
 
 /**
- * 今日の問題の解答（正誤）を記録する
+ * 今日の問題の解答を記録する
  * 本日の問題解答送信
  *
  * サーバーは最初の解答だけを残し、2 回目以降は記録を変えずに最初の解答を
@@ -80,16 +84,21 @@ export function fetchDailyProblem(
  *
  * @param userId - 送る名義。ログインが別のユーザーに替わっていれば送らない
  * @param day - 読んだ問題の日付（JST の `YYYY-MM-DD`）
- * @param isCorrect - 端末で採点した正誤
+ * @param answer - 端末で採点した正誤と、解答した瞬間に組み立てた詳細。詳細を
+ *   持たないのは、詳細を送らない版が端末に預けた旧形式の解答だけ
  */
 export async function sendDailyProblemAnswer(
   userId: string,
   day: string,
-  isCorrect: boolean,
+  answer: DailyAnswerPending,
 ): Promise<
   MobileApiResult<MobileDailyProblemAnswerResponse, DailyProblemApiFailure>
 > {
-  const body: MobileDailyProblemAnswerRequest = { day, isCorrect };
+  const body: MobileDailyProblemAnswerRequest = {
+    day,
+    isCorrect: answer.isCorrect,
+    ...(answer.detail === undefined ? {} : { detail: answer.detail }),
+  };
   const result = await requestMobileApi(
     MOBILE_DAILY_PROBLEM_ANSWER_API_PATH,
     { method: "POST", body, asUser: userId },
