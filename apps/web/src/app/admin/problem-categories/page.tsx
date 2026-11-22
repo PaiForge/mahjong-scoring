@@ -8,6 +8,7 @@ import {
 } from "nuqs/server";
 
 import { TEXT_LINK_CLASSES } from "@/app/_components/_lib/link-classes";
+import { HashAnchorScroll } from "@/app/_components/hash-anchor-scroll";
 import { AdminPageTitle } from "@/app/admin/_components/admin-page-title";
 import { AdminPaginationNav } from "@/app/admin/_components/admin-pagination-nav";
 import { requireAdminPage } from "@/app/admin/_lib/auth";
@@ -78,6 +79,13 @@ const PROBLEMS_ANCHOR = "problems";
  * 分類どうしの組み合わせ（AND / OR）は作らない。分類は名前を付けて数える単位で、
  * 自由な組み合わせは件数の表と対応しなくなる。`category` と `flag` の両方が URL に
  * あれば分類を使う。
+ *
+ * @design 分類を選んだら一覧の見出しへ着地させる（`HashAnchorScroll`）
+ * 一覧は 3 つの表の下に出るので、リンクは `#problems` 付きにしている。ただしこのページは
+ * loading.tsx を持ち、遷移した瞬間に描かれているのはスケルトンで、一覧の見出しはまだ
+ * DOM に無い。Next はその時点で一度だけ対象を探して諦めるので、本体と一緒にマウント
+ * される `HashAnchorScroll` で着地をやり直す。同じページの中で分類やページ番号だけを
+ * 切り替えたときも着地し直すよう、絞り込みとページ番号を key にする。
  *
  * @flow 網羅の表で未計算が残っていないかを見る →（残っていれば）不足分を埋める →
  * 分類ごとの問題数を見る → 分類の名前を押して該当する問題の一覧を見る → 和了ごとの
@@ -182,6 +190,10 @@ export default async function AdminProblemCategoriesPage({
 
         {problems && (
           <section id={PROBLEMS_ANCHOR} className="scroll-mt-4">
+            {/* 分類・ページを切り替えるたびにマウントし直して、一覧へ着地し直す */}
+            <HashAnchorScroll
+              key={`anchor-${filterQuery}-${String(problems.page)}`}
+            />
             <h3 className={SECTION_HEADING_CLASSES}>
               {t("problems.title", {
                 name: filterLabel,
