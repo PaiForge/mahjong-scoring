@@ -1673,9 +1673,25 @@ export type PracticeProblem = typeof practiceProblems.$inferSelect;
 export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
 
 /**
- * 問題×採点版の派生属性。行なしは未計算、failedは再構築不能。
- * okの親と全和了の子は同じトランザクションで書く。利用者の情報は持たない。
- * 過去の版は稼働・ロールバック先を確認して手動で削除する。
+ * 保存問題の属性（問題 × 採点の版で 1 行）— 計算の状態と、盤面に共通の属性
+ * 問題属性セット
+ *
+ * @description
+ * 保存問題の盤面を標準ルールで組み立て直して取り出した派生値のうち、和了に依らない
+ * もの（親か・門前か・リーチ・槓の数・風・聴牌形の待ちの数）と、計算の成否を持つ。
+ * 行が無い = 未計算、`failed` = この版では計算できない（理由は `error`）。和了ごとの
+ * 値は子の表 `practice_problem_facets`。計算は features の `problem-facets/compute.ts`、
+ * 書き込みと埋める経路は `lib/practice-problems/facets.ts`（方針の全文はそれぞれの TSDoc）。
+ *
+ * - `ok` の親と、その和了すべての子は 1 つのトランザクションで書く
+ * - 読む側は、自分のコードの採点の版（`SCORING_VERSION`）の行だけを読む。古い版の行は
+ *   自動では消さない（稼働中の版とロールバック先の版を確かめて、版を指定して手で消す）
+ * - ユーザー ID を持たない。クライアントからは読み書きさせない（作成マイグレーション内で
+ *   RLS を有効にしてポリシーを置かない）
+ * - 盤面（`practice_problems`）を消すと属性も一緒に消える（CASCADE）。盤面の側は
+ *   `daily_problems` / `problem_reports` から RESTRICT で参照されたままなので、属性の
+ *   表があっても、出題・報告に使われた盤面が消せるようにはならない
+ * - インデックスは主キーだけ。行数とクエリを測ってから足す
  */
 export const practiceProblemFacetSets = pgTable(
   "practice_problem_facet_sets",
@@ -1721,9 +1737,21 @@ export const practiceProblemFacetSets = pgTable(
 ).enableRLS();
 
 /**
- * 標準ルールで採用された和了1つの属性。聴牌形は待ち×ツモ/ロンごとに残す。
- * noYakuは役なしのロンで、未計算・失敗とは別。印はscoredの行だけが持つ。
- * 問題を数える側はEXISTSを使い、和了の数で解答数を水増ししない。
+ * 保存問題の和了 1 つの属性（問題 × 採点の版 × 和了牌 × ツモ/ロンで 1 行）
+ * 和了属性
+ *
+ * @description
+ * 標準ルールで採点に採用された解釈の、翻・符・点数の区分・和了者の収入の合計・役・
+ * ドラの翻・待ちの形。和了形は 1 行、聴牌形は待ち × ツモ/ロンの行。役・符・待ちは同じ
+ * 1 行の中でだけ組にできるので、待ちやツモ/ロンをまたいで配列にまとめた列は作らない。
+ *
+ * - `noYaku` は聴牌形のロンで役が無い和了（回答では「役なし」が正解）。未計算・失敗とは
+ *   別の状態で、採点の値と印は NULL
+ * - `yaku` は内訳に出る役 ID（`SCORE_YAKU_NAME_MAP` のキー。ドラ・裏ドラを含まない）
+ * - `varies_by_*` は、そのルール設定を切り替えるとこの和了の正解か属性が変わる印。
+ *   属性は標準ルールの値だけを持ち、ルールごとの行は持たない（比べ方は `compute.ts`）
+ * - 問題・解答を数える側は EXISTS で見て、和了の数だけ水増ししない
+ *   （`lib/practice-problems/facet-condition-sql.ts`）
  */
 export const practiceProblemFacets = pgTable(
   "practice_problem_facets",
