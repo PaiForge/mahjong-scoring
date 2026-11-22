@@ -12,7 +12,12 @@ import {
 import { computeProblemFacets, type ScoredFacetRow } from "./compute";
 import {
   agariInput,
+  daisuushiiAgariPayload,
+  fukugouYakumanAgariPayload,
+  junseiChuurenAgariPayload,
   kiriageOnlyWithRenfonpaiAgariPayload,
+  kokushiJuusanmenAgariPayload,
+  mixedKiriageTenpaiPayload,
   noYakuAgariPayload,
   noYakuRonTenpaiPayload,
   riichiTenpaiPayload,
@@ -183,6 +188,29 @@ describe("computeProblemFacets（和了形）", () => {
     });
   });
 
+  it.each([
+    ["複合の合算（大三元 + 四暗刻）", fukugouYakumanAgariPayload],
+    ["大四喜のダブル役満", daisuushiiAgariPayload],
+    ["国士無双十三面のダブル役満", kokushiJuusanmenAgariPayload],
+    ["純正九蓮宝燈のダブル役満", junseiChuurenAgariPayload],
+  ])(
+    "役満ルールのうち %s だけで変わる手にも、役満ルールの印が立つ",
+    (_name, payload) => {
+      const row = onlyScoredRow(computeProblemFacets(agariInput(payload())));
+      // 標準ルールでは役満 1 つ分
+      expect([row.scoreLevel, row.yakumanMultiplier, row.points]).toEqual([
+        "Yakuman",
+        1,
+        32000,
+      ]);
+      expect(variesOf(row)).toEqual({
+        renfonpai: false,
+        kiriage: false,
+        yakumanRules: true,
+      });
+    },
+  );
+
   it("数え役満は役満の区分で、役満の倍数は 0", () => {
     const row = onlyScoredRow(
       computeProblemFacets(agariInput(kazoeYakumanAgariPayload())),
@@ -258,6 +286,26 @@ describe("computeProblemFacets（聴牌形）", () => {
       points: 5800,
       yaku: ["Tanyao", "Pinfu", "Riichi"],
     });
+  });
+});
+
+describe("computeProblemFacets（聴牌形の印）", () => {
+  it("印は和了ごとに付ける（同じ聴牌形でも、ドラの待ちのロンだけが切り上げ満貫で変わる）", () => {
+    const facets = computeProblemFacets(
+      tenpaiInput(mixedKiriageTenpaiPayload()),
+    );
+    expect(
+      facets.rows.map((row) =>
+        row.result === "scored"
+          ? [row.agariHai, row.isTsumo, row.han, row.fu, row.variesByKiriage]
+          : row.result,
+      ),
+    ).toEqual([
+      [20, true, 4, 20, false],
+      [20, false, 3, 30, false],
+      [23, true, 5, 20, false],
+      [23, false, 4, 30, true],
+    ]);
   });
 });
 

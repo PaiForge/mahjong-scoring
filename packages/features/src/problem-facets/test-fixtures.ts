@@ -147,3 +147,68 @@ export function singleWaitTenpaiPayload(): TenpaiProblemPayload {
     riichi: null,
   };
 }
+
+/** 役満の和了形（ツモ・子）を、純手牌と和了牌から作る */
+function yakumanPayload(
+  closed: number[],
+  agariHai: number,
+  exposed: AgariProblemPayload["hand"]["exposed"] = [],
+): AgariProblemPayload {
+  return {
+    hand: { closed, exposed },
+    agariHai,
+    isTsumo: true,
+    jikaze: 28,
+    bakaze: 27,
+    doraMarkers: [4],
+    riichi: null,
+  };
+}
+
+/** 大三元 + 四暗刻（双碰のツモ）。複合を合算するルールでだけ正解が変わる */
+export function fukugouYakumanAgariPayload(): AgariProblemPayload {
+  return yakumanPayload(
+    [0, 0, 0, 8, 8, 31, 31, 31, 32, 32, 32, 33, 33, 33],
+    33,
+  );
+}
+
+/** 大四喜（東をポン。1m の単騎）。大四喜をダブル役満とするルールでだけ正解が変わる */
+export function daisuushiiAgariPayload(): AgariProblemPayload {
+  return yakumanPayload([0, 0, 28, 28, 28, 29, 29, 29, 30, 30, 30], 0, [
+    { type: "pon", hais: [27, 27, 27], from: "toimen" },
+  ]);
+}
+
+/** 国士無双の十三面待ち（1m を引く）。十三面をダブル役満とするルールでだけ正解が変わる */
+export function kokushiJuusanmenAgariPayload(): AgariProblemPayload {
+  return yakumanPayload(
+    [0, 0, 8, 9, 17, 18, 26, 27, 28, 29, 30, 31, 32, 33],
+    0,
+  );
+}
+
+/** 純正九蓮宝燈（1112345678999m に 4m）。純正をダブル役満とするルールでだけ正解が変わる */
+export function junseiChuurenAgariPayload(): AgariProblemPayload {
+  return yakumanPayload([0, 0, 0, 1, 2, 3, 3, 4, 5, 6, 7, 8, 8, 8], 3);
+}
+
+/**
+ * 待ちによって切り上げ満貫の印が違う聴牌形（リーチ・タンヤオ・平和。子）
+ *
+ * 234m 567m 345p 88p 45s の 3s・6s の両面待ちで、6s がドラ。6s のロンだけが
+ * 4 翻 30 符（切り上げ満貫で変わる）になる。3s のロンは 3 翻 30 符、ツモは平和ツモの
+ * 20 符（3s は 4 翻、6s は 5 翻で満貫）で、どれも切り上げ満貫では変わらない。
+ */
+export function mixedKiriageTenpaiPayload(): TenpaiProblemPayload {
+  return {
+    hand: {
+      closed: [1, 2, 3, 4, 5, 6, 11, 12, 13, 16, 16, 21, 22],
+      exposed: [],
+    },
+    jikaze: 28,
+    bakaze: 27,
+    doraMarkers: [22],
+    riichi: { uraDoraMarkers: [27] },
+  };
+}

@@ -15,6 +15,7 @@ import {
   PROBLEM_CATEGORIES,
   PROBLEM_CATEGORY_GROUPS,
   problemMatchesCategory,
+  SCORE_LEVELS,
   type FacetCondition,
 } from "./categories";
 import { computeProblemFacets, type ScoredFacetRow } from "./compute";
@@ -200,6 +201,15 @@ describe("problemMatchesCategory", () => {
     ).toBe(false);
   });
 
+  it("和了の行を持たない問題は、all でも入らない", () => {
+    expect(
+      problemMatchesCategory(
+        { condition: {}, tenpaiMatch: "all" },
+        { set: riichiTenpai.set, rows: [] },
+      ),
+    ).toBe(false);
+  });
+
   it("計算に失敗した問題はどの分類にも入らない", () => {
     const failed = computeProblemFacets(agariInput(noYakuAgariPayload()));
     for (const tenpaiMatch of ["any", "all"] as const) {
@@ -233,6 +243,30 @@ describe("PROBLEM_CATEGORIES", () => {
     expect(Object.keys(dictionary.groups)).toEqual([
       ...PROBLEM_CATEGORY_GROUPS,
     ]);
+  });
+
+  it("満貫以上は、満貫から上のどの区分も含み、満貫未満を含まない", () => {
+    const manganPlus = findProblemCategory("mangan-plus");
+    if (!manganPlus) throw new Error("Missing category");
+    expect(
+      SCORE_LEVELS.filter((scoreLevel) =>
+        matches(manganPlus.condition, { scoreLevel }),
+      ),
+    ).toEqual([
+      "Mangan",
+      "Haneman",
+      "Baiman",
+      "Sanbaiman",
+      "Yakuman",
+      "DoubleYakuman",
+    ]);
+  });
+
+  it("単騎待ちの分類は、単騎の和了を持つ問題を含む", () => {
+    const tanki = findProblemCategory("machi-tanki");
+    if (!tanki) throw new Error("Missing category");
+    expect(matches(tanki.condition, { machi: "Tanki" })).toBe(true);
+    expect(matches(tanki.condition, { machi: "Shanpon" })).toBe(false);
   });
 
   it("ID から分類を引け、無い ID は undefined", () => {
