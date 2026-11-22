@@ -340,3 +340,13 @@ ALTER TABLE "daily_problems" ENABLE ROW LEVEL SECURITY;
 -- practice_problems と同じく、ポリシーを置かずに RLS だけ有効にし、GRANT も足さない。
 -- 作成マイグレーションでも有効化する。
 ALTER TABLE "daily_problem_answers" ENABLE ROW LEVEL SECURITY;
+
+-- =============================================================================
+-- practice_problem_facet_sets / practice_problem_facets
+-- =============================================================================
+-- 保存問題から計算した分類用の属性。書くのも読むのもサーバー（直 DB 接続）だけで、
+-- クライアントには読み書きさせない（利用者の情報は持たないが、書ければ分類と
+-- 統計の入力を書き換えられる）。practice_problems と同じく、ポリシーを置かずに
+-- RLS だけ有効にし、GRANT も足さない。作成マイグレーションでも有効化する。
+ALTER TABLE "practice_problem_facet_sets" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "practice_problem_facets" ENABLE ROW LEVEL SECURITY;
