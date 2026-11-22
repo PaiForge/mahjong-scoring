@@ -23,6 +23,7 @@ import {
   boolean,
   check,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -1669,6 +1670,121 @@ export const practiceProblems = pgTable(
 
 export type PracticeProblem = typeof practiceProblems.$inferSelect;
 export type NewPracticeProblem = typeof practiceProblems.$inferInsert;
+
+/**
+ * 問題×採点版の派生属性。行なしは未計算、failedは再構築不能。
+ * okの親と全和了の子は同じトランザクションで書く。利用者の情報は持たない。
+ * 過去の版は稼働・ロールバック先を確認して手動で削除する。
+ */
+export const practiceProblemFacetSets = pgTable(
+  "practice_problem_facet_sets",
+  {
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => practiceProblems.id, { onDelete: "cascade" }),
+    scoringVersion: smallint("scoring_version").notNull(),
+    status: text("status").$type<"ok" | "failed">().notNull(),
+    error: text("error").$type<(typeof ARCHIVE_REBUILD_ERRORS)[number]>(),
+    isOya: boolean("is_oya"),
+    isMenzen: boolean("is_menzen"),
+    isRiichi: boolean("is_riichi"),
+    kanCount: smallint("kan_count"),
+    jikaze: smallint("jikaze"),
+    bakaze: smallint("bakaze"),
+    waitCount: smallint("wait_count"),
+    revision: text("revision"),
+    computedAt: timestamp("computed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.problemId, table.scoringVersion] }),
+    check(
+      "practice_problem_facet_sets_chk_state",
+      sql`(
+      ${table.scoringVersion} > 0 AND (
+        (${table.status} = 'ok' AND ${table.error} IS NULL
+          AND ${table.isOya} IS NOT NULL AND ${table.isMenzen} IS NOT NULL AND ${table.isRiichi} IS NOT NULL
+          AND ${table.kanCount} BETWEEN 0 AND 4
+          AND ${table.jikaze} IN (27, 28, 29, 30) AND ${table.bakaze} IN (27, 28, 29, 30)
+          AND ${table.isOya} = (${table.jikaze} = 27)
+          AND (${table.waitCount} IS NULL OR ${table.waitCount} BETWEEN 2 AND 34))
+        OR (${table.status} = 'failed' AND ${table.error} IN (${sqlInList(ARCHIVE_REBUILD_ERRORS)})
+          AND ${table.isOya} IS NULL AND ${table.isMenzen} IS NULL AND ${table.isRiichi} IS NULL
+          AND ${table.kanCount} IS NULL AND ${table.jikaze} IS NULL AND ${table.bakaze} IS NULL
+          AND ${table.waitCount} IS NULL)
+      )) IS TRUE`,
+    ),
+  ],
+).enableRLS();
+
+/**
+ * 標準ルールで採用された和了1つの属性。聴牌形は待ち×ツモ/ロンごとに残す。
+ * noYakuは役なしのロンで、未計算・失敗とは別。印はscoredの行だけが持つ。
+ * 問題を数える側はEXISTSを使い、和了の数で解答数を水増ししない。
+ */
+export const practiceProblemFacets = pgTable(
+  "practice_problem_facets",
+  {
+    problemId: uuid("problem_id").notNull(),
+    scoringVersion: smallint("scoring_version").notNull(),
+    agariHai: smallint("agari_hai").notNull(),
+    isTsumo: boolean("is_tsumo").notNull(),
+    result: text("result").$type<"scored" | "noYaku">().notNull(),
+    han: smallint("han"),
+    fu: smallint("fu"),
+    scoreLevel: text("score_level"),
+    yakumanMultiplier: smallint("yakuman_multiplier"),
+    points: integer("points"),
+    yaku: text("yaku")
+      .array()
+      .$type<DailyAnswerSnapshot["answer"]["yaku"][number]["id"][]>(),
+    doraHan: smallint("dora_han"),
+    uraDoraHan: smallint("ura_dora_han"),
+    machi: text("machi").$type<DailyAnswerSnapshot["facets"]["machi"]>(),
+    variesByRenfonpai: boolean("varies_by_renfonpai"),
+    variesByKiriage: boolean("varies_by_kiriage"),
+    variesByYakumanRules: boolean("varies_by_yakuman_rules"),
+  },
+  (table) => [
+    primaryKey({
+      columns: [
+        table.problemId,
+        table.scoringVersion,
+        table.agariHai,
+        table.isTsumo,
+      ],
+    }),
+    foreignKey({
+      columns: [table.problemId, table.scoringVersion],
+      foreignColumns: [
+        practiceProblemFacetSets.problemId,
+        practiceProblemFacetSets.scoringVersion,
+      ],
+    }).onDelete("cascade"),
+    check(
+      "practice_problem_facets_chk_state",
+      sql`(
+      ${table.scoringVersion} > 0 AND ${table.agariHai} BETWEEN 0 AND 33 AND (
+        (${table.result} = 'scored' AND ${table.han} > 0 AND ${table.fu} >= 0
+          AND ${table.scoreLevel} IN ('Normal', 'Mangan', 'Haneman', 'Baiman', 'Sanbaiman', 'Yakuman', 'DoubleYakuman')
+          AND ${table.yakumanMultiplier} >= 0 AND ${table.points} > 0
+          AND ${table.yaku} IS NOT NULL AND cardinality(${table.yaku}) > 0
+          AND array_position(${table.yaku}, NULL) IS NULL
+          AND ${table.doraHan} >= 0 AND ${table.uraDoraHan} >= 0
+          AND (${table.machi} IS NULL OR ${table.machi} IN ('Tanki', 'Shanpon', 'Ryanmen', 'Kanchan', 'Penchan'))
+          AND ${table.variesByRenfonpai} IS NOT NULL AND ${table.variesByKiriage} IS NOT NULL
+          AND ${table.variesByYakumanRules} IS NOT NULL)
+        OR (${table.result} = 'noYaku' AND ${table.isTsumo} IS FALSE
+          AND ${table.han} IS NULL AND ${table.fu} IS NULL AND ${table.scoreLevel} IS NULL
+          AND ${table.yakumanMultiplier} IS NULL AND ${table.points} IS NULL AND ${table.yaku} IS NULL
+          AND ${table.doraHan} IS NULL AND ${table.uraDoraHan} IS NULL AND ${table.machi} IS NULL
+          AND ${table.variesByRenfonpai} IS NULL AND ${table.variesByKiriage} IS NULL
+          AND ${table.variesByYakumanRules} IS NULL)
+      )) IS TRUE`,
+    ),
+  ],
+).enableRLS();
 
 /**
  * 本日の問題 — 日付（JST）ごとに全員へ出す 1 問
