@@ -143,20 +143,24 @@ export type PracticeProblemArchiveRequest =
  *   符はルールで変わるので、保存時に通った盤面でも閲覧者のルールでは起こりうる）
  * - それ以外: 聴牌形の点数計算として成り立たない（`buildTenpaiScoreQuestion`）
  */
-export type ArchiveRebuildError =
-  | "invalidPayload"
-  | "invalidHand"
-  | "agariHaiNotInHand"
-  | "riichiWithFuro"
-  | "noYaku"
-  | "unsupportedYakuman"
-  | "notTenpai"
-  | "tooFewWaits"
-  | "invalidWait"
-  | "karaWait"
-  | "noYakuTsumo"
-  | "riichiWithNoYakuRon"
-  | "fuOutOfOptions";
+export const ARCHIVE_REBUILD_ERRORS = [
+  "invalidPayload",
+  "invalidHand",
+  "agariHaiNotInHand",
+  "riichiWithFuro",
+  "noYaku",
+  "unsupportedYakuman",
+  "notTenpai",
+  "tooFewWaits",
+  "invalidWait",
+  "karaWait",
+  "noYakuTsumo",
+  "riichiWithNoYakuRon",
+  "fuOutOfOptions",
+] as const;
+
+/** 保存盤面を組み立て直せない理由。DBの許容値にも同じ集合を使う。 */
+export type ArchiveRebuildError = (typeof ARCHIVE_REBUILD_ERRORS)[number];
 
 /**
  * 保存の要求を受け付けない理由

@@ -337,6 +337,13 @@
       "when": 1795210835612,
       "tag": "20261120214035_create_problem_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1795306586359,
+      "tag": "20261122001626_add_daily_answer_statistics",
+      "breakpoints": true
     }
   ]
 }
