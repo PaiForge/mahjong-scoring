@@ -6,6 +6,8 @@ import {
 } from "@mahjong-scoring/core";
 import type { AgariProblemPayload } from "@mahjong-scoring/core";
 
+import type { DailyAnswerDetail } from "./answer-detail";
+
 /**
  * アプリ向けの本日の問題の API の契約
  * 本日の問題API契約
@@ -26,9 +28,9 @@ import type { AgariProblemPayload } from "@mahjong-scoring/core";
  * @design 盤面だけを返し、正解は返さない
  *
  * 正解は閲覧者のルール設定で決まるので、アプリが盤面を
- * `daily-problem/question.ts` の規則で組み立て直し、その場で採点する。サーバー
- * へ送るのは正誤だけ（採点をクライアントに置く理由は同ファイルの採点関数の
- * TSDoc）。
+ * `daily-problem/question.ts` の規則で組み立て直し、その場で採点して答え合わせを
+ * 出す。サーバーへは端末の正誤と、解答の中身（`detail`）を送る。統計が使う判定は
+ * サーバーが受付時に付けるが、その結果は応答に載せない（答え合わせは端末のもの）。
  */
 
 const MOBILE_API_PREFIX = "/api/mobile/v1";
@@ -73,10 +75,15 @@ export interface MobileDailyProblemResponse {
  *
  * `day` は {@link MobileDailyProblemResponse} の `day`。日をまたいでから送ると
  * サーバーは `staleDay` で弾く（昨日の問題の解答を今日の記録にしない）。
+ *
+ * `detail` は解答の中身と解答時の条件（`answer-detail.ts`）。省略できる — 詳細を
+ * 送らない版のアプリは `{ day, isCorrect }` のまま送り、サーバーは旧記録として残す。
+ * 端末は最初の解答のときに作った `detail` を預かり、再送でも作り直さない。
  */
 export interface MobileDailyProblemAnswerRequest {
   readonly day: string;
   readonly isCorrect: boolean;
+  readonly detail?: DailyAnswerDetail;
 }
 
 /**
@@ -94,8 +101,20 @@ export interface MobileDailyProblemAnswerResponse {
  *
  * - `staleDay` — 要求の `day` が今日（JST）でない、または今日の問題が無い（409）。
  *   アプリは今日の問題を取り直す
+ * - `unsupportedDetail` — `detail` の版をサーバーが知らない（422）。デプロイの切り替え中に
+ *   新しい端末が古いサーバーへ送ったときに起きる。保存していないので、端末は預かりを
+ *   残して同じ内容を送り直す
+ * - `invalidDetail` — `detail` の版は知っているが形が違う（422）。保存していない。
+ *   端末の実装の不具合でしか起きず、送り直しても結果は変わらない
+ *
+ * `detail` の 2 つは旧記録に落として保存しない — 成功を返すと端末が預かりを捨て、
+ * 直した後も最初の 1 件を入れ直せず、詳細を送らない版の行と見分けもつかなくなる。
  */
-export const MOBILE_DAILY_PROBLEM_ERROR_CODES = ["staleDay"] as const;
+export const MOBILE_DAILY_PROBLEM_ERROR_CODES = [
+  "staleDay",
+  "unsupportedDetail",
+  "invalidDetail",
+] as const;
 
 /** 本日の問題の API 固有の失敗の理由（{@link MOBILE_DAILY_PROBLEM_ERROR_CODES}） */
 export type MobileDailyProblemErrorCode =

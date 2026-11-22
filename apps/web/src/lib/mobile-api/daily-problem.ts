@@ -22,10 +22,11 @@ import "server-only";
 import type { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { parseDailyAnswerDetail } from "@mahjong-scoring/features/daily-problem/answer-detail";
 import {
   dailyProblemDaySchema,
-  type MobileDailyProblemAnswerRequest,
   type MobileDailyProblemAnswerResponse,
+  type MobileDailyProblemErrorCode,
   type MobileDailyProblemResponse,
 } from "@mahjong-scoring/features/daily-problem/mobile-api";
 import { jstDayKey } from "@mahjong-scoring/features/jst";
@@ -39,17 +40,25 @@ import {
   isDailyProblemDisabled,
 } from "../daily-problem/today";
 
+import { logExternalError } from "../log-error";
+
 import { authorizeMobileRequest } from "./auth";
+import { mobilePlatformOf } from "./platform";
 import { parseMobileBody } from "./request";
 import { mobileDeleted, mobileJson, mobileServerError } from "./response";
 
-const BODY_MAX_BYTES = 1024;
+// 詳細（解答の中身・回答モード・解答時のルール設定）を含む本文の上限。役を上限まで
+// 選んだ解答でも 2KB に届かない
+const BODY_MAX_BYTES = 4096;
 
 // 日付は JST の日付キー（`YYYY-MM-DD`）の形だけを受ける。形が違えば 400、
-// 形が合っていて今日でなければ 409 `staleDay`（記録の側で判定する）
-const answerSchema: z.ZodType<MobileDailyProblemAnswerRequest> = z.object({
+// 形が合っていて今日でなければ 409 `staleDay`（記録の側で判定する）。
+// `detail` はここでは形を見ない — 版の違いと形の違いを分けて答えるため、
+// `parseDailyAnswerDetail` に通す
+const answerSchema = z.object({
   day: dailyProblemDaySchema,
   isCorrect: z.boolean(),
+  detail: z.unknown().optional(),
 });
 
 /** 日付が今日でない・今日の問題が無いときの 409 `staleDay` */
@@ -95,14 +104,19 @@ export async function handleReadDailyProblem(
 }
 
 /**
- * 本日の問題の解答（正誤）を記録する（アプリ向け）
+ * 本日の問題の解答を記録する（アプリ向け）
  * 本日の問題解答API（アプリ向け）
  *
- * @design 採点はアプリで行い、正誤だけを受け取る
- * アプリが閲覧者のルール設定・標準の判定モードで採点し、`isCorrect` だけを送る。
- * サーバーが確かめるのは「`day` が今日（JST）で、その日の問題がある」ことだけ。
- * 記録は本人にしか見せず、ランキングも特典も無いので正誤を偽る動機が無い。
- * サーバーで採点すると、解答の形の契約と採点をアプリとサーバーで二重に持つことになる。
+ * @design アプリの正誤と、受付時の判定は別に残す
+ * アプリは閲覧者のルール設定で採点して答え合わせを出し、その正誤（`isCorrect`）と
+ * 解答の中身（`detail`）を送る。サーバーは `detail` があれば受付時の採点で判定して
+ * 残す（規則は `lib/daily-problem/answers.ts`）。記録は本人にしか見せず、ランキングも
+ * 特典も無いので正誤を偽る動機が無い。
+ *
+ * @design `detail` の無い要求は旧記録、読めない `detail` は保存しない
+ * 詳細を送らない版のアプリは `{ day, isCorrect }` のまま届き、今までどおり残す。
+ * `detail` の版を知らなければ 422 `unsupportedDetail`（アプリは同じ内容を送り直す）、
+ * 形が違えば 422 `invalidDetail`（送り直さない）。どちらも旧記録に落とさない。
  *
  * @design 解き直しは受け付けるが記録は変わらない
  * 解答済みの日に送られても 200 で、保存されている最初の解答を `answer` に返す
@@ -129,12 +143,29 @@ export async function handleRecordDailyProblemAnswer(
   // 止めている間は GET が問題を出さないので、解答も今日の問題への解答として扱わない
   if (isDailyProblemDisabled()) return mobileStaleDay();
   const { day, isCorrect } = body.data;
+  const detail = parseDailyAnswerDetail(body.data.detail);
+  if (detail.kind === "unsupportedDetail" || detail.kind === "invalidDetail") {
+    if (detail.kind === "invalidDetail")
+      logExternalError(
+        "POST /api/mobile/v1/daily-problem/answer",
+        "本日の問題の解答の詳細の形が不正",
+        day,
+      );
+    return mobileJson<{ error: MobileDailyProblemErrorCode }>(
+      { error: detail.kind },
+      { status: 422 },
+    );
+  }
   try {
     const result = await recordDailyProblemAnswer(
       auth.user.id,
       day,
       isCorrect,
       new Date(),
+      detail.kind === "valid"
+        ? // 由来は要求のヘッダから決める（本文の申告は使わない）
+          { detail: detail.detail, source: mobilePlatformOf(request) }
+        : undefined,
     );
     if (result.kind === "deleted") return mobileDeleted();
     if (result.kind === "staleDay") return mobileStaleDay();
