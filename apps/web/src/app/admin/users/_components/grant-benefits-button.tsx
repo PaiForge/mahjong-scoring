@@ -21,7 +21,7 @@ import {
 import { adminButtonClasses } from "@/app/admin/_lib/button-classes";
 
 import { grantBenefits } from "../_actions/grant-benefits";
-import { GRANT_TEMPLATES, type GrantTemplate } from "../_lib/grant-templates";
+import { GRANT_TEMPLATES } from "../_lib/grant-templates";
 import {
   GRANT_DURATION_DAYS,
   GRANT_DURATION_KEYS,
@@ -100,9 +100,9 @@ function FieldFooter({
  * すべて先頭の種別になり、後からの集計が信用できなくなる。未選択のまま送ると
  * ブラウザの必須の検証（ラジオの `required`）が止める。
  *
- * テンプレート（`grant-templates.ts`）を押すと種別・期間・通知の文面を埋める。埋めた後も
- * 各欄は手で直せる。種別の「既定を置かない」は開いた直後の状態の話で、テンプレートを
- * 押すのは種別を選ぶ操作にあたる。
+ * 選んだ種別にテンプレート（`grant-templates.ts`）があり、通知のタイトルと本文が
+ * どちらも空のときだけ、通知の欄に文面を入れるボタンを出す。片方でも書いてあれば
+ * 出さない（書きかけを上書きしない）。押すと期間もテンプレートの値にそろえる。
  *
  * 期間のタイルには、いま付与したときの期限の日付を添える。「90 日」が何日までかを
  * 暗算させないため（数え方はサーバーと同じ `addPassDuration`。日付の境目をまたぐ
@@ -121,13 +121,13 @@ export function GrantBenefitsButton({
   // モーダルを開いている間は動かさない（押すたびに日付が変わって見えないように）
   const [now] = useState(() => new Date());
 
-  const applyTemplate = (template: GrantTemplate) => {
-    setCategory(template.category);
-    setDuration(template.duration);
-    // 例: admin.benefitGrants.templates.earlyAdopter.title
-    setTitle(t(`templates.${template.key}.title`));
-    setBody(t(`templates.${template.key}.body`));
-  };
+  const template =
+    category === undefined ? undefined : GRANT_TEMPLATES[category];
+  const showTemplate =
+    category !== undefined &&
+    template !== undefined &&
+    title.trim() === "" &&
+    body.trim() === "";
 
   return (
     <AdminReasonModal
@@ -165,29 +165,6 @@ export function GrantBenefitsButton({
         setBody("");
       }}
     >
-      <FormSection
-        title={t("grant.sectionTemplate")}
-        badge={{ label: t("grant.optional"), required: false }}
-        description={t("grant.sectionTemplateDescription")}
-      >
-        <div className="flex flex-wrap gap-2">
-          {GRANT_TEMPLATES.map((template) => (
-            <button
-              key={template.key}
-              type="button"
-              onClick={() => applyTemplate(template)}
-              className={adminButtonClasses({
-                variant: "secondary",
-                size: "sm",
-              })}
-            >
-              {/* 例: admin.benefitGrants.templates.earlyAdopter.label */}
-              {t(`templates.${template.key}.label`)}
-            </button>
-          ))}
-        </div>
-      </FormSection>
-
       <FormSection
         title={t("grant.sectionGrant")}
         badge={{ label: t("grant.required"), required: true }}
@@ -239,6 +216,34 @@ export function GrantBenefitsButton({
         badge={{ label: t("grant.optional"), required: false }}
         description={t("grant.sectionNoticeDescription")}
       >
+        {showTemplate && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                setDuration(template.duration);
+                // 例: admin.benefitGrants.templates.earlyAdopter.title
+                setTitle(t(`templates.${category}.title`));
+                setBody(t(`templates.${category}.body`));
+              }}
+              className={adminButtonClasses({
+                variant: "secondary",
+                size: "sm",
+              })}
+            >
+              {t("grant.applyTemplate", {
+                // 例: admin.benefitGrants.templates.earlyAdopter.label
+                name: t(`templates.${category}.label`),
+              })}
+            </button>
+            <p className="text-xs text-surface-500">
+              {t("grant.applyTemplateHint", {
+                // 例: admin.benefitGrants.durations.permanent
+                duration: t(`durations.${template.duration}`),
+              })}
+            </p>
+          </div>
+        )}
         <div>
           <label
             htmlFor={titleId}

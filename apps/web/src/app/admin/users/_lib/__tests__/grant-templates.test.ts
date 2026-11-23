@@ -14,7 +14,7 @@ describe("GRANT_TEMPLATES", () => {
     { label?: string; title?: string; body?: string } | undefined
   > = messages.admin.benefitGrants.templates;
 
-  it.each(GRANT_TEMPLATES.map((template) => template.key))(
+  it.each(Object.keys(GRANT_TEMPLATES))(
     "%s は辞書に名前・タイトル・本文を持ち、そのまま送れる長さに収まる",
     (key) => {
       const text = templates[key];
