@@ -15,9 +15,10 @@ import {
  *
  * 表の 30符4翻・60符3翻は設定次第で満貫になる。表だけではどちらのルールで
  * 出ているか分からないため、オン・オフどちらでも表の下に今の設定を出して
- * 設定画面へ戻す。表の上のツモの注記と同じ淡い小さな文字の脚注にし、
+ * 設定画面へ戻す。表の上のツモの注記と同じ小さな文字の脚注にし、
  * リンクは同じ大きさの押せない語と 1 行に並ぶので、色だけでなく下線も持つ
- * `linkStyles.inline` で示す。
+ * `linkStyles.inline` で示す。状態の文字は本文と同じ `colors.foreground` にし、
+ * 淡い灰にしない（web と同じ。地の文を淡くすると押せる語との違いが色の系統だけになる）。
  *
  * 表をシートに載せて開いている場合は、移動する前に `onLeave` でシートを
  * 閉じる。開いたままだと設定画面の上にシートが残る（用語シートと同じ）。
@@ -39,7 +40,7 @@ export function KiriageManganNote({
 
   return (
     <View style={styles.row}>
-      <Text style={styles.text}>
+      <Text style={[styles.text, styles.status]}>
         {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
       </Text>
       <Text
@@ -68,6 +69,8 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 12,
     lineHeight: 20,
-    color: colors.surface500,
+  },
+  status: {
+    color: colors.foreground,
   },
 });
