@@ -12,8 +12,9 @@ export const MODERATION_REASON_MAX_LENGTH = 1000;
  * 管理者の操作理由を検証し、前後の空白を除いた値を返す
  * モデレーション理由の検証
  *
- * BAN / 特典の付与 / 付与の取り消しで共通の規則。空、または上限を超える
- * 理由は `undefined`。
+ * BAN / 付与の取り消し / 通報の処理で共通の規則。空、または上限を超える
+ * 理由は `undefined`。特典の付与は理由が任意なので通さない（上限だけ同じ値で見る。
+ * `grant-benefits.ts`）。
  *
  * @param reason - 入力された理由
  */

@@ -381,6 +381,13 @@
       "compensation": "補償",
       "other": "その他"
     },
+    "templates": {
+      "earlyAdopter": {
+        "label": "アーリーアダプター",
+        "title": "管理者より永久無料パスが付与されました。",
+        "body": "アプリリリース直後に登録していただいたお礼に永久無料パスを付与します。\nあなたは今後このアプリに有料の機能が追加されても、すべてを無料で無期限に利用することができます。"
+      }
+    },
     "categoryHints": {
       "earlyAdopter": "初期の登録へのお礼",
       "acquaintance": "直接の知り合い",
@@ -398,7 +405,7 @@
     "grant": {
       "button": "Pro 付与",
       "title": "Pro の特典を付与する",
-      "description": "Stripe の決済を伴わずに Pro の特典（回数制限なし・拡張機能）を付けます。理由は監査ログに残ります。",
+      "description": "Stripe の決済を伴わずに Pro の特典（回数制限なし・拡張機能）を付けます。付与の内容は監査ログに残ります。",
       "sectionGrant": "付与の内容",
       "sectionNotice": "本人への通知",
       "sectionNoticeDescription": "空のままなら既定の文面で通知します。入力した文は英語の画面でもそのまま出ます。",
@@ -408,18 +415,19 @@
       "durationLabel": "期間",
       "expiresOn": "〜{date}",
       "noExpiry": "期限なし",
+      "applyTemplate": "{name}の文面を入れる",
+      "applyTemplateHint": "期間も「{duration}」にそろえます。入れた文は送る前に直せます。",
       "noticeTitleLabel": "タイトル",
       "noticeTitlePlaceholder": "例: 永久無料パスが付与されました",
       "noticeTitleHint": "通知の一覧に 1 行で出ます。空なら「運営から Pro が付与されました。〜まで Pro の機能を使えます。」になります。",
       "noticeBodyLabel": "本文",
       "noticeBodyPlaceholder": "例: アプリ黎明期に登録していただきありがとうございます。",
       "noticeBodyHint": "通知を押すとその場で開きます。期間などの定型の文は添えないので、伝えたいことはタイトルと本文に書いてください。",
-      "reasonLabel": "理由（運営用のメモ。本人には出しません）",
+      "reasonLabel": "理由（任意。運営用のメモで、本人には出しません）",
       "reasonPlaceholder": "例: 問い合わせ #123 の補償 / モニター協力",
       "cancel": "キャンセル",
       "confirm": "付与する",
       "pending": "処理中...",
-      "errorReasonRequired": "理由を入力してください",
       "errorFailed": "付与に失敗しました"
     },
     "revoke": {

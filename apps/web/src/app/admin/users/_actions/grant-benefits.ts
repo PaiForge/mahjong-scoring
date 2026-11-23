@@ -14,7 +14,7 @@ import {
 import { NotificationType } from "@mahjong-scoring/features/notifications/types";
 
 import { requireAdminActor } from "../../_lib/auth";
-import { normalizeModerationReason } from "../_lib/moderation-reason";
+import { MODERATION_REASON_MAX_LENGTH } from "../_lib/moderation-reason";
 import {
   GRANT_DURATION_DAYS,
   isGrantDurationKey,
@@ -43,8 +43,13 @@ export type GrantBenefitsError =
  * 通知する（トランザクションの外。通知の失敗で付与は失敗しない）。
  *
  * プランは `pro` 固定（特典を個別に選ばせない）。期間は列挙した選択肢から
- * （`grant-durations.ts`）。種別（`benefit-grant-categories.ts`）と理由は必須。
+ * （`grant-durations.ts`）。種別（`benefit-grant-categories.ts`）は必須で、理由は任意。
  * 種別は運営の内部の分類で、付与行と監査ログにだけ残す（通知には載せない）。
+ *
+ * @design 付与の理由だけ任意（BAN と取り消しは必須のまま）
+ * 「なぜ付与したか」は必須の種別が持ち、理由はその補足のメモになる。定型の付与
+ * （テンプレートで種別・期間・通知を埋めるもの）では書くことが無い。BAN と取り消しは
+ * 例外の操作で、種別に当たる分類も無いので、理由を残させる。
  *
  * 通知のタイトルと本文（`notice`）は任意。タイトルは一覧の 1 行をそのまま置き換え
  * （空なら既定の「運営から Pro が付与されました…」）、本文は行を開くと出る
@@ -55,7 +60,7 @@ export type GrantBenefitsError =
  * @param targetUserId - 付与先
  * @param duration - 期間のキー。クライアントの入力なので絞る
  * @param category - 付与の種別のキー。クライアントの入力なので絞る
- * @param reason - 付与の理由
+ * @param reason - 付与の理由。空なら記録しない
  * @param notice - 通知のタイトルと本文。空なら既定の文面・本文なし
  */
 export async function grantBenefits(
@@ -79,8 +84,8 @@ export async function grantBenefits(
     return { error: "invalidCategory" };
   }
 
-  const trimmedReason = normalizeModerationReason(reason);
-  if (trimmedReason === undefined) {
+  const trimmedReason = optionalText(reason, MODERATION_REASON_MAX_LENGTH);
+  if (trimmedReason === null) {
     return { error: "invalidReason" };
   }
 

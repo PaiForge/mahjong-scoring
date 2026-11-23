@@ -365,6 +365,13 @@
       "when": 1795340970596,
       "tag": "20261122094930_create_app_usage_table",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1795409300526,
+      "tag": "20261123044820_make_benefit_grant_reason_optional",
+      "breakpoints": true
     }
   ]
 }

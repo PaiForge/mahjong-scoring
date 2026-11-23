@@ -304,7 +304,7 @@ export async function GrantsSection({
                   : t("permanent")}
               </td>
               <td className="px-3 py-2">
-                {grant.reason}
+                {grant.reason ?? "-"}
                 {grant.revokeReason && (
                   <span className="mt-1 block text-xs text-surface-500">
                     {tGrants("table.revokedReason", {

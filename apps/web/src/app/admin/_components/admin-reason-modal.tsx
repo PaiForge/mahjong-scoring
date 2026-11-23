@@ -15,8 +15,11 @@ interface AdminReasonModalLabels {
   readonly description?: string;
   readonly reasonLabel: string;
   readonly reasonPlaceholder: string;
-  /** 理由が空のまま送ったときのエラー */
-  readonly reasonRequired: string;
+  /**
+   * 理由が空のまま送ったときのエラー。渡さなければ理由は任意で、空のまま送れる
+   * （`onSubmit` には空文字が渡る）
+   */
+  readonly reasonRequired?: string;
   /** 操作が失敗したときのエラー */
   readonly failed: string;
   readonly cancel: string;
@@ -31,7 +34,7 @@ interface AdminReasonModalProps {
   /** 理由欄の id。一覧の行ごとに描画されるものは対象で分ける */
   readonly reasonId: string;
   /**
-   * 理由（前後の空白を除いたもの）を受けて操作を実行する。成功なら true。
+   * 理由（前後の空白を除いたもの。任意で未入力なら空文字）を受けて操作を実行する。成功なら true。
    * 理由の上限はサーバー側（`normalizeModerationReason`）でも検証する
    */
   readonly onSubmit: (reason: string) => Promise<boolean>;
@@ -53,7 +56,8 @@ const WIDTH_CLASSES = { narrow: "max-w-md", wide: "max-w-2xl" } as const;
  * 理由入力モーダル
  *
  * BAN / 特典の付与 / 付与の取り消しで共通。理由は監査ログ
- * （`moderation_actions.reason`）に残るため必須。
+ * （`moderation_actions.reason`）に残る。必須かどうかは `labels.reasonRequired` の
+ * 有無で決まり、付与だけが任意（種別が「なぜ」を持つため。`grant-benefits.ts`）。
  *
  * 見出し・本文・操作の 3 段に分け、本文だけをスクロールさせる。入力欄が増えて
  * 画面の高さを超えても、確定とキャンセルが常に見えるように。
@@ -89,7 +93,7 @@ export function AdminReasonModal({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmed = reason.trim();
-    if (trimmed.length === 0) {
+    if (labels.reasonRequired !== undefined && trimmed.length === 0) {
       setError(labels.reasonRequired);
       return;
     }
@@ -147,7 +151,10 @@ export function AdminReasonModal({
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder={labels.reasonPlaceholder}
-                aria-invalid={error === labels.reasonRequired}
+                aria-invalid={
+                  labels.reasonRequired !== undefined &&
+                  error === labels.reasonRequired
+                }
                 className={`w-full ${ADMIN_INPUT_CLASSES}`}
                 rows={3}
                 maxLength={MODERATION_REASON_MAX_LENGTH}

@@ -18,7 +18,10 @@ import {
   BENEFIT_GRANT_TITLE_MAX_LENGTH,
 } from "@mahjong-scoring/features/notifications/message";
 
+import { adminButtonClasses } from "@/app/admin/_lib/button-classes";
+
 import { grantBenefits } from "../_actions/grant-benefits";
+import { GRANT_TEMPLATES } from "../_lib/grant-templates";
 import {
   GRANT_DURATION_DAYS,
   GRANT_DURATION_KEYS,
@@ -97,6 +100,10 @@ function FieldFooter({
  * すべて先頭の種別になり、後からの集計が信用できなくなる。未選択のまま送ると
  * ブラウザの必須の検証（ラジオの `required`）が止める。
  *
+ * 選んだ種別にテンプレート（`grant-templates.ts`）があり、通知のタイトルと本文が
+ * どちらも空のときだけ、通知の欄に文面を入れるボタンを出す。片方でも書いてあれば
+ * 出さない（書きかけを上書きしない）。押すと期間もテンプレートの値にそろえる。
+ *
  * 期間のタイルには、いま付与したときの期限の日付を添える。「90 日」が何日までかを
  * 暗算させないため（数え方はサーバーと同じ `addPassDuration`。日付の境目をまたぐ
  * 数秒の差は出うるので、目安として出す）。
@@ -114,6 +121,14 @@ export function GrantBenefitsButton({
   // モーダルを開いている間は動かさない（押すたびに日付が変わって見えないように）
   const [now] = useState(() => new Date());
 
+  const template =
+    category === undefined ? undefined : GRANT_TEMPLATES[category];
+  const showTemplate =
+    category !== undefined &&
+    template !== undefined &&
+    title.trim() === "" &&
+    body.trim() === "";
+
   return (
     <AdminReasonModal
       tone="primary"
@@ -126,7 +141,6 @@ export function GrantBenefitsButton({
         description: t("grant.description"),
         reasonLabel: t("grant.reasonLabel"),
         reasonPlaceholder: t("grant.reasonPlaceholder"),
-        reasonRequired: t("grant.errorReasonRequired"),
         failed: t("grant.errorFailed"),
         cancel: t("grant.cancel"),
         confirm: t("grant.confirm"),
@@ -202,6 +216,34 @@ export function GrantBenefitsButton({
         badge={{ label: t("grant.optional"), required: false }}
         description={t("grant.sectionNoticeDescription")}
       >
+        {showTemplate && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                setDuration(template.duration);
+                // 例: admin.benefitGrants.templates.earlyAdopter.title
+                setTitle(t(`templates.${category}.title`));
+                setBody(t(`templates.${category}.body`));
+              }}
+              className={adminButtonClasses({
+                variant: "secondary",
+                size: "sm",
+              })}
+            >
+              {t("grant.applyTemplate", {
+                // 例: admin.benefitGrants.templates.earlyAdopter.label
+                name: t(`templates.${category}.label`),
+              })}
+            </button>
+            <p className="text-xs text-surface-500">
+              {t("grant.applyTemplateHint", {
+                // 例: admin.benefitGrants.durations.permanent
+                duration: t(`durations.${template.duration}`),
+              })}
+            </p>
+          </div>
+        )}
         <div>
           <label
             htmlFor={titleId}
