@@ -10,8 +10,11 @@
  * のような class をページ側で直接書かない。行全体がクリック対象になるもの
  * （`LinkRow` 等）は、行の中のタイトルに {@link ROW_LINK_TITLE_CLASSES} を使う。
  *
- * 下線は文字色より一段淡く置き、hover で濃くする。太さは既定（約 1px）の
- * まま、`underline-offset-4` で文字から離して見せる。
+ * 下線は文字色より一段淡い `surface-400` に置き、hover で濃くする。太さは既定
+ * （約 1px）のまま、`underline-offset-4` で文字から離して見せる。リンクの文字色は
+ * 淡い地の文（脚注の `text-surface-500` 等）と同じ灰なので、そこでは下線だけが
+ * リンクの手がかりになる。以前は `surface-300` で、12px の脚注（点数表の
+ * 「設定を変更」）では白地に溶けてどこがリンクか分からなかった。
  */
 
 /**
@@ -37,7 +40,7 @@ const LINK_BASE = `${LINK_DECORATION} ${FOCUS_RING_CLASSES}`;
  * 絞ると、どちらを使うかを毎回考えずに済む。強調したい導線が出てきたら、
  * それはリンクの色ではなくボタンで示すべきものと考える。
  */
-export const TEXT_LINK_CLASSES = `text-muted-foreground decoration-surface-300 hover:text-foreground hover:decoration-surface-500 ${LINK_BASE}`;
+export const TEXT_LINK_CLASSES = `text-muted-foreground decoration-surface-400 hover:text-foreground hover:decoration-surface-600 ${LINK_BASE}`;
 
 /**
  * 行全体がリンクになっている中のタイトル用（`LinkRow`）。
@@ -50,4 +53,4 @@ export const TEXT_LINK_CLASSES = `text-muted-foreground decoration-surface-300 h
  * 下線を常時引くのは他のテキストリンクと同じ理由。行の中で日付や説明と
  * 並ぶタイトルは、下線が無いとただの文字に見えてリンクだと分からない。
  */
-export const ROW_LINK_TITLE_CLASSES = `text-muted-foreground decoration-surface-300 group-hover:text-foreground group-hover:decoration-surface-500 ${LINK_DECORATION}`;
+export const ROW_LINK_TITLE_CLASSES = `text-muted-foreground decoration-surface-400 group-hover:text-foreground group-hover:decoration-surface-600 ${LINK_DECORATION}`;
