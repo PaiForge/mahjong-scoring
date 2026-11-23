@@ -191,9 +191,69 @@ export function offersPurchase(
   now: Date,
 ): boolean {
   return (
-    !purchases.some((purchase) => blocksNewPurchase(purchase, now)) &&
+    purchaseBlockOf(purchases, now).kind === "none" &&
     !grants.some((grant) => isGrantInEffect(grant, now))
   );
+}
+
+/**
+ * いま追加購入を売らない理由（販売可否の要約）
+ * 追加購入の停止理由
+ *
+ * - `none` — 売る（{@link blocksNewPurchase} に当たる購入が無い）
+ * - `lifetime` — 買い切りがあるので、この先も売らない
+ * - `until` — 期限付きの購入（パス）がある間だけ売らない。`until` は止めている
+ *   購入の中で最も遅い期限で、これを過ぎれば買える。`inUse` は止めている購入の
+ *   どれかが開始済みか（false は開始待ちだけ — 止まっているが、まだ使えていない）
+ *
+ * 料金ページの購入ボタンの出し分けが読む。{@link PlanStatus} とは別の問いなので
+ * 別に持つ — プラン状況は手動付与を含めた「いまの Pro の出どころ」を 1 つ選ぶため、
+ * 次のときに販売可否とずれる:
+ *
+ * - パスより後に切れる付与がある → 状況は `granted`（期限は付与のもの）だが、
+ *   止めているのはパスで、買えるようになるのはパスの期限
+ * - 開始待ちの購入だけ → 状況は `free` だが売らない
+ * - Sandbox / Test の購入だけ → 状況は `pass` / `lifetime` だが売る
+ * - 付与だけ → 状況は `granted` だが売る（付与は購入を止めない）
+ */
+export type PurchaseBlock =
+  | { readonly kind: "none" }
+  | { readonly kind: "lifetime" }
+  | {
+      readonly kind: "until";
+      readonly until: Date;
+      readonly inUse: boolean;
+    };
+
+/**
+ * いま追加購入を売らない理由を導く
+ * 追加購入の停止理由の導出
+ *
+ * 購入手続きのサーバー側の拒否（`checkout-state.ts` の `hasUnexpiredPurchase`）と
+ * 同じ規則（{@link blocksNewPurchase}）で数える。`none` 以外のとき、Checkout は
+ * `alreadyActive` で拒む。
+ */
+export function purchaseBlockOf(
+  purchases: readonly Purchase[],
+  now: Date,
+): PurchaseBlock {
+  const blocking = purchases.filter((purchase) =>
+    blocksNewPurchase(purchase, now),
+  );
+  let until: Date | undefined;
+  for (const { expiresAt } of blocking) {
+    // 期限なし（買い切り）が 1 つでもあれば、期限付きの購入に依らず売らない
+    if (expiresAt === null) return { kind: "lifetime" };
+    if (until === undefined || expiresAt > until) until = expiresAt;
+  }
+  if (until === undefined) return { kind: "none" };
+  return {
+    kind: "until",
+    until,
+    inUse: blocking.some(
+      (purchase) => purchaseStateOf(purchase, now) === "active",
+    ),
+  };
 }
 
 /** 期限付きの状態（パスか期限付きの付与） */

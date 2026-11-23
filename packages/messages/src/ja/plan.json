@@ -24,7 +24,14 @@
     "priceUnavailable": "価格は購入画面でご確認ください",
     "buy": "購入する",
     "signInToBuy": "ログインして購入",
-    "taxIncluded": "税込"
+    "taxIncluded": "税込",
+    "inUse": "利用中",
+    "inUseUntil": "利用中（{until} まで）",
+    "scheduled": "開始待ちの購入があります",
+    "notNeeded": "買い切りを利用中のため、購入は不要です",
+    "availableAfter": "{until} 以降に購入できます",
+    "grantedNotice": "運営から付与された Pro を利用中です（{until} まで）。期間中も購入できますが、30 日パスは付与の期間と重なります。",
+    "grantedNoticeIndefinite": "運営から付与された Pro を利用中です（無期限）。購入しなくても Pro の機能を使えます。"
   },
   "notes": {
     "title": "ご購入前に",
