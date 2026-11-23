@@ -11,6 +11,7 @@ import {
   formatPlanDateShort,
   offersPurchase,
   planStatusOf,
+  purchaseBlockOf,
   purchaseProviderOf,
   purchaseStateOf,
 } from "../plan-status";
@@ -217,6 +218,91 @@ describe("offersPurchase", () => {
         NOW,
       ),
     ).toBe(true);
+  });
+});
+
+describe("purchaseBlockOf", () => {
+  const PASS_UNTIL = new Date("2026-10-20T00:00:00Z");
+
+  it("購入が無ければ売る", () => {
+    expect(purchaseBlockOf([], NOW)).toEqual({ kind: "none" });
+  });
+
+  it("有効なパスがあれば、その期限まで売らない（利用中）", () => {
+    expect(
+      purchaseBlockOf([makePurchase({ expiresAt: PASS_UNTIL })], NOW),
+    ).toEqual({ kind: "until", until: PASS_UNTIL, inUse: true });
+  });
+
+  it("開始待ちの購入だけなら、売らないが利用中ではない", () => {
+    const until = new Date("2026-11-20T00:00:00Z");
+    expect(
+      purchaseBlockOf(
+        [
+          makePurchase({
+            startsAt: new Date("2026-10-21T00:00:00Z"),
+            expiresAt: until,
+          }),
+        ],
+        NOW,
+      ),
+    ).toEqual({ kind: "until", until, inUse: false });
+  });
+
+  it("有効なパスと開始待ちのパスが並ぶときは、最も遅い期限まで売らない", () => {
+    const later = new Date("2026-11-19T00:00:00Z");
+    expect(
+      purchaseBlockOf(
+        [
+          makePurchase({ expiresAt: PASS_UNTIL }),
+          makePurchase({ id: "p2", startsAt: PASS_UNTIL, expiresAt: later }),
+        ],
+        NOW,
+      ),
+    ).toEqual({ kind: "until", until: later, inUse: true });
+  });
+
+  it("買い切りがあれば、パスと並んでいても期限なしで売らない", () => {
+    expect(
+      purchaseBlockOf(
+        [
+          makePurchase({ expiresAt: PASS_UNTIL }),
+          makePurchase({ id: "p2", kind: "lifetime", expiresAt: null }),
+        ],
+        NOW,
+      ),
+    ).toEqual({ kind: "lifetime" });
+  });
+
+  it("期限切れ・返金済みの購入は売るのを止めない", () => {
+    expect(
+      purchaseBlockOf(
+        [
+          makePurchase({ expiresAt: new Date("2026-09-30T00:00:00Z") }),
+          makePurchase({ id: "p2", revokedAt: NOW, revokeReason: "refund" }),
+          makePurchase({
+            id: "p3",
+            kind: "lifetime",
+            expiresAt: null,
+            revokedAt: NOW,
+            revokeReason: "refund",
+          }),
+        ],
+        NOW,
+      ),
+    ).toEqual({ kind: "none" });
+  });
+
+  it("Sandbox / Test の購入は売るのを止めない", () => {
+    expect(
+      purchaseBlockOf(
+        [
+          applePurchase("Sandbox", { expiresAt: PASS_UNTIL }),
+          googlePurchase("Test", { id: "p2", expiresAt: PASS_UNTIL }),
+        ],
+        NOW,
+      ),
+    ).toEqual({ kind: "none" });
   });
 });
 
