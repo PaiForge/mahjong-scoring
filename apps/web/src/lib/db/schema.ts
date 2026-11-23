@@ -1245,8 +1245,14 @@ export const benefitGrants = pgTable(
     plan: varchar("plan", { length: 50 }).notNull(),
     /** 付与時点の特典（`PlanBenefit` の値）。空にしない */
     benefits: text("benefits").array().notNull(),
-    /** 付与の理由。必須 */
-    reason: text("reason").notNull(),
+    /**
+     * 付与の理由（運営の内部メモ）。任意で、空なら NULL
+     *
+     * 「なぜ付与したか」は必須の `category` が持つので、理由は補足だけになる。
+     * 定型の付与（テンプレート）では書くことが無いため必須にしない。
+     * BAN と付与の取り消しの理由は必須のまま（`normalizeModerationReason`）
+     */
+    reason: text("reason"),
     /** 付与の種別（`BenefitGrantCategory`）。列を足す前の行は NULL */
     category: varchar("category", { length: 50 }),
     /** 付与した管理者の auth.users(id)（FK は Supabase SQL で定義） */
@@ -1268,9 +1274,10 @@ export const benefitGrants = pgTable(
       "benefit_grants_chk_benefits_not_empty",
       sql`cardinality(${table.benefits}) > 0`,
     ),
+    // 空の理由は NULL で持つ（空文字と NULL の 2 通りにしない）
     check(
-      "benefit_grants_chk_reason_not_blank",
-      sql`length(trim(${table.reason})) > 0`,
+      "benefit_grants_chk_reason_null_or_not_blank",
+      sql`${table.reason} IS NULL OR length(trim(${table.reason})) > 0`,
     ),
     check(
       "benefit_grants_chk_revoke_reason_pairs_with_revoked_at",

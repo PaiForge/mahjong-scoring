@@ -31,8 +31,8 @@ import type { BenefitGrantCategory } from "./benefit-grant-categories";
 export interface BenefitGrantInput {
   readonly userId: string;
   readonly plan: PlanKey;
-  /** 付与の理由。空にしない（DB の CHECK でも弾く） */
-  readonly reason: string;
+  /** 付与の理由（任意の内部メモ）。無ければ undefined。空文字は渡さない（DB の CHECK でも弾く） */
+  readonly reason: string | undefined;
   /** 付与の種別（運営の内部の分類。利用者には出さない） */
   readonly category: BenefitGrantCategory;
   /** 付与した管理者 */
@@ -68,7 +68,7 @@ export async function insertBenefitGrant(
       userId: input.userId,
       plan: plan.key,
       benefits: [...plan.benefits],
-      reason: input.reason,
+      reason: input.reason ?? null,
       category: input.category,
       grantedBy: input.grantedBy,
       startsAt: now,

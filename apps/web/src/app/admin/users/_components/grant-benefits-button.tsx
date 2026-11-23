@@ -126,7 +126,6 @@ export function GrantBenefitsButton({
         description: t("grant.description"),
         reasonLabel: t("grant.reasonLabel"),
         reasonPlaceholder: t("grant.reasonPlaceholder"),
-        reasonRequired: t("grant.errorReasonRequired"),
         failed: t("grant.errorFailed"),
         cancel: t("grant.cancel"),
         confirm: t("grant.confirm"),

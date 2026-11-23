@@ -64,7 +64,11 @@ export async function BenefitGrantRow({
           : t("table.permanent")}
       </td>
       <td className="px-4 py-3">
-        <ExpandableText text={grant.reason} maxLength={50} />
+        {grant.reason === null ? (
+          "-"
+        ) : (
+          <ExpandableText text={grant.reason} maxLength={50} />
+        )}
         {grant.revokeReason && (
           <span className="mt-1 block text-xs text-surface-500">
             {t("table.revokedReason", { reason: grant.revokeReason })}

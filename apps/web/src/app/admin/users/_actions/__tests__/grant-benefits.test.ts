@@ -71,11 +71,26 @@ describe("grantBenefits", () => {
     expect(mockTransaction).not.toHaveBeenCalled();
   });
 
-  it("理由が空白だけなら invalidReason", async () => {
-    expect(await grantBenefits("u1", "days30", "monitor", "   ")).toEqual({
-      error: "invalidReason",
-    });
+  it("理由が上限を超えたら invalidReason で何も書かない", async () => {
+    expect(
+      await grantBenefits("u1", "days30", "monitor", "あ".repeat(1001)),
+    ).toEqual({ error: "invalidReason" });
     expect(mockTransaction).not.toHaveBeenCalled();
+  });
+
+  it("理由は任意で、空白だけなら付与行にも監査ログにも理由を残さない", async () => {
+    expect(await grantBenefits("u1", "days30", "earlyAdopter", "   ")).toEqual({
+      success: true,
+    });
+
+    expect(mockInsertBenefitGrant).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({ reason: undefined, category: "earlyAdopter" }),
+    );
+    expect(mockRecordModerationAction).toHaveBeenCalledWith(
+      TX,
+      expect.objectContaining({ reason: undefined }),
+    );
   });
 
   it("付与行と監査ログを同じトランザクションで書き、一覧を再検証する", async () => {
