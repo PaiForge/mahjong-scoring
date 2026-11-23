@@ -8,9 +8,9 @@ Supabase Auth で、記録の読み書きは web のアプリ向け API（`/api/
 ### 前提
 
 - web の開発環境が動いていること（[apps/web/README.md](../web/README.md) のクイックスタート）。
-  アプリは開発中、Metro を動かしている Mac の Supabase（`:54321`）と web（`:3000`）に繋ぐ
+  アプリは開発中、Metro を動かしている Mac の Supabase（`:56321`）と web（`:3200`）に繋ぐ
 - 実機で開くなら、iPhone と Mac が同じ Wi-Fi にいること
-- ローカルの Supabase のポート（`:54321` / `:54322`）を他のプロジェクトの Supabase が使って
+- ローカルの Supabase のポート（`:56321` / `:56322`）を他のプロジェクトの Supabase が使って
   いないこと。同じポートを使うプロジェクトが動いていると、接続先は localhost のままその DB に
   繋がり、マイグレーションやシードが別のプロジェクトの DB に向かう。`docker ps --format '{{.Names}}' |
 grep supabase_db` が `supabase_db_mahjong-scoring-web` であることを確かめ、違えば
@@ -385,7 +385,7 @@ npx expo run:ios --device   # 繋いだ iPhone を選ぶ。初回は数分かか
 
 1. 設定 > アカウント > ログイン で、メールのフォームの上に「Apple でサインイン」が出る
 2. 押すと Apple のシートが出て、Face ID などで続けるとユーザー名の設定へ進む
-3. Supabase Studio（http://127.0.0.1:54323）の Authentication > Users に、プロバイダが Apple のユーザーができている
+3. Supabase Studio（http://127.0.0.1:56323）の Authentication > Users に、プロバイダが Apple のユーザーができている
 4. `apple_refresh_tokens` に、そのユーザーの行が 1 つできている（サーバーの環境変数を入れたときだけ）
 5. 退会すると、`account_deletions` の `apple_revoked_at` が入り、`apple_refresh_tokens` の行が消える。
    iPhone の 設定 > Apple アカウント > サインインとセキュリティ > Apple でサインイン から、このアプリが消えている
@@ -483,7 +483,7 @@ Sandbox の取引は `APPLE_IAP_SANDBOX_USER_IDS` に載った user_id にだけ
   審査員の購入が 422 で止まり、「購入が完了しない」でリジェクトされる
 - 運営のテスター（自分のアカウント）も入れる
 - user_id はメールアドレスから引く。本番は Supabase の SQL Editor で、手元は
-  `psql postgresql://postgres:postgres@127.0.0.1:54322/postgres` で:
+  `psql postgresql://postgres:postgres@127.0.0.1:56322/postgres` で:
 
   ```sql
   select id from auth.users where email = '<メールアドレス>';
@@ -594,7 +594,7 @@ npx expo run:android   # 初回は prebuild と Gradle のビルドで 10 分ほ
 - 上の `EXPO_PUBLIC_IAP_STORE=fake … start --clear` の Metro を先に起動しておくと、`expo run:android` は
   同じポートの Metro をそのまま使う（ポートを変えるなら両方に同じ `--port` を付ける）
 - 開発ビルドは平文 HTTP を通し（Expo の debug のマニフェストが `usesCleartextTraffic` を持つ）、
-  手元の Supabase（`:54321`）と web（`:3000`）にシードユーザーでログインできる。接続先は
+  手元の Supabase（`:56321`）と web（`:3200`）にシードユーザーでログインできる。接続先は
   バンドルを読んだホスト（エミュレーターでは Mac を指す `10.0.2.2`）から決まる
   （`src/lib/dev-host.ts`）。2026-11 にエミュレーター（API 36）で、ログイン・購入（Buy / Fail /
   Cancel）・サーバーの記録・プランの反映・「購入を復元」まで確かめた

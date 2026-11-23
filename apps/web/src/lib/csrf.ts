@@ -58,11 +58,28 @@ export function requestOrigin(headers: Headers): string | undefined {
   return `${protocolFor(host, headers)}://${host}`;
 }
 
-/** プロキシが申告するスキーム。無ければローカルのみ http、それ以外は https */
+/**
+ * プロキシが申告するスキーム。無ければローカルのみ http、それ以外は https
+ *
+ * ローカルには `*.localhost`（手元の dev は `mahjong.localhost`）も含める。
+ * ブラウザは `*.localhost` をループバックに解決し、同じ Mac で動かす別プロダクトと
+ * cookie を分けるためにその名前で開いている。
+ */
 function protocolFor(host: string, headers: Headers): string {
   const forwarded = headers.get("x-forwarded-proto");
   if (forwarded) return forwarded.split(",")[0].trim();
-  return host.startsWith("localhost") || host.startsWith("127.0.0.1")
-    ? "http"
-    : "https";
+  return isLoopbackHost(host) ? "http" : "https";
+}
+
+/** `Host` の値（ポート付きでもよい）がこの機械自身を指すか */
+function isLoopbackHost(host: string): boolean {
+  const name = host.startsWith("[")
+    ? host.slice(0, host.indexOf("]") + 1)
+    : host.replace(/:\d+$/, "");
+  return (
+    name === "localhost" ||
+    name.endsWith(".localhost") ||
+    name === "127.0.0.1" ||
+    name === "[::1]"
+  );
 }

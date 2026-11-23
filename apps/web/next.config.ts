@@ -29,7 +29,7 @@ type RemotePattern = NonNullable<
  *
  * 自プロジェクトのホストは NEXT_PUBLIC_SUPABASE_URL から導く。プロジェクト参照を
  * ここに直書きすると環境ごとに食い違うため。ローカル開発の
- * http://127.0.0.1:54321 も同じ 1 本で賄える。
+ * http://127.0.0.1:56321 も同じ 1 本で賄える。
  *
  * パスも avatars バケットの `<userId>/avatar.webp`（/api/profile/avatar が
  * WebP に正規化して書く唯一のオブジェクト）に絞る。バケット内のそれ以外の

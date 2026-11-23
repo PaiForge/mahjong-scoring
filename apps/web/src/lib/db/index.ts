@@ -1,12 +1,14 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
+import { LOCAL_SUPABASE_DATABASE_URL } from "../local-supabase";
+
 import * as schema from "./schema";
 
 const connectionString =
   process.env.POSTGRES_URL ||
   process.env.DATABASE_URL ||
-  "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  LOCAL_SUPABASE_DATABASE_URL;
 
 /**
  * 開発時の HMR で接続が増え続けないよう、クライアントを globalThis に

@@ -1,5 +1,11 @@
-/** 手元の Supabase（`pnpm supabase start`）の API のポート */
-const LOCAL_SUPABASE_PORT = 54321;
+/**
+ * 手元の Supabase（`pnpm supabase start`）の API のポート
+ *
+ * `apps/web/supabase/config.toml` の `[api] port` の写し。食い違うと
+ * `apps/web/src/lib/local-supabase.test.ts` が落ちる（この行をテキストとして読むので、
+ * `export const LOCAL_SUPABASE_API_PORT = <数字>;` の形を保つ）。
+ */
+export const LOCAL_SUPABASE_API_PORT = 56321;
 
 /**
  * 手元の Supabase の公開キー
@@ -44,7 +50,7 @@ export function resolveSupabaseConfig({
   if (!isDev) return undefined;
   const host = hostUri?.replace(/:\d+$/, "") || "localhost";
   return {
-    url: envUrl || `http://${host}:${LOCAL_SUPABASE_PORT}`,
+    url: envUrl || `http://${host}:${LOCAL_SUPABASE_API_PORT}`,
     publishableKey: envKey || LOCAL_SUPABASE_PUBLISHABLE_KEY,
   };
 }

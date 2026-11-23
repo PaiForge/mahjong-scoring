@@ -2,7 +2,7 @@
 
 本ガイドでは、本番環境の Supabase Auth で [Resend](https://resend.com/) をカスタム SMTP プロバイダーとして設定する手順を説明します。設定後、認証関連のすべてのメール（サインアップ確認、パスワードリセット、メールアドレス変更）が Supabase 組み込みのメールサービスではなく Resend 経由で送信されます。
 
-> **Note:** このガイドは **本番環境**（Supabase Dashboard）の設定のみを対象としています。ローカル開発では Supabase が [Mailpit](http://127.0.0.1:54324) を使用してメールをキャプチャするため、SMTP の設定は不要です。
+> **Note:** このガイドは **本番環境**（Supabase Dashboard）の設定のみを対象としています。ローカル開発では Supabase が [Mailpit](http://127.0.0.1:56324) を使用してメールをキャプチャするため、SMTP の設定は不要です。
 
 ## Prerequisites
 

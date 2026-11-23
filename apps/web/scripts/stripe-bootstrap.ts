@@ -24,7 +24,7 @@
  *   # 本番の Webhook エンドポイントも登録する（署名シークレットは作成時に 1 度だけ出る）
  *   pnpm stripe:bootstrap --webhook-url https://score.mahjong.help/api/stripe/webhook
  *
- * ローカルの Webhook は `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+ * ローカルの Webhook は `stripe listen --forward-to localhost:3200/api/stripe/webhook`
  * を使うため、このスクリプトでは登録しない。
  */
 import { parseArgs } from "node:util";
@@ -300,7 +300,7 @@ async function main() {
   for (const line of envLines) console.log(`  ${line}`);
   if (!liveMode) {
     console.log(
-      "  STRIPE_WEBHOOK_SECRET は `stripe listen --forward-to localhost:3000/api/stripe/webhook` の出力から",
+      "  STRIPE_WEBHOOK_SECRET は `stripe listen --forward-to localhost:3200/api/stripe/webhook` の出力から",
     );
   }
 }

@@ -11,10 +11,6 @@
  * 読み込み方は `loadScriptEnv()`（`./load-script-env`）にそろえる。
  */
 
-/** ローカル Supabase の Postgres 接続文字列 */
-export const LOCAL_SUPABASE_DATABASE_URL =
-  "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
-
 /**
  * マイグレーション用の接続文字列を解決する（未設定なら undefined）
  * 接続文字列解決

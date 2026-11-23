@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveSupabaseConfig } from "./supabase-config";
+import {
+  LOCAL_SUPABASE_API_PORT,
+  resolveSupabaseConfig,
+} from "./supabase-config";
 
 describe("resolveSupabaseConfig", () => {
   it("環境変数が両方あればそれを使う", () => {
@@ -25,7 +28,7 @@ describe("resolveSupabaseConfig", () => {
         isDev: true,
         hostUri: "192.168.1.10:8081",
       }),
-    ).toMatchObject({ url: "http://192.168.1.10:54321" });
+    ).toMatchObject({ url: `http://192.168.1.10:${LOCAL_SUPABASE_API_PORT}` });
   });
 
   it("開発中で hostUri が無ければ localhost（Expo の web 版）", () => {
@@ -36,7 +39,7 @@ describe("resolveSupabaseConfig", () => {
         isDev: true,
         hostUri: undefined,
       }),
-    ).toMatchObject({ url: "http://localhost:54321" });
+    ).toMatchObject({ url: `http://localhost:${LOCAL_SUPABASE_API_PORT}` });
   });
 
   it("ストアのビルドで環境変数が欠けていればログインを出さない（undefined）", () => {

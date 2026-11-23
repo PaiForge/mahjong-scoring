@@ -1,7 +1,7 @@
 # 記録が残る人（bob）のマイページ: 見出し（名前・@ユーザー名・段級位）と直近 7 日の
 # アクティビティ。今日の棒を押すとその日の内訳が出る。EXP はシードに無いので、棒を
 # 見るなら先に challenge-recorded を流す（clearState で消えるのは端末だけで、
-# サーバーの EXP は残る）。手元の web（:3000）とその DB が動いていること
+# サーバーの EXP は残る）。手元の web（:3200）とその DB が動いていること
 appId: help.mahjong.score
 ---
 - clearKeychain

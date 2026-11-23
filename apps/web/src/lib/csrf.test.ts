@@ -62,6 +62,28 @@ describe("isValidOrigin", () => {
     ).toBe(true);
   });
 
+  it("*.localhost のローカル開発も http で照合する", () => {
+    expect(
+      isValidOrigin(
+        request({
+          origin: "http://mahjong.localhost:3200",
+          host: "mahjong.localhost:3200",
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("localhost で始まるだけの外部ホストは https で照合する", () => {
+    expect(
+      isValidOrigin(
+        request({
+          origin: "http://localhost.example.test",
+          host: "localhost.example.test",
+        }),
+      ),
+    ).toBe(false);
+  });
+
   it("別オリジンは弾く", () => {
     expect(
       isValidOrigin(

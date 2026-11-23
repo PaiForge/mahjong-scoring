@@ -6,7 +6,7 @@ import { normalizeSiteUrl } from "@mahjong-scoring/features/site-url";
  * サイトURL設定
  *
  * 未設定・空・不正値なら本番 URL（`normalizeSiteUrl`）。ローカル開発では
- * `.env.example` 由来の `.env.local` が `http://localhost:3000` を設定する。
+ * `.env.example` 由来の `.env.local` が `http://mahjong.localhost:3200` を設定する。
  * プレビュー環境で自分自身の URL を指したいときは環境ごとに
  * `NEXT_PUBLIC_SITE_URL` を設定すること。
  */

@@ -71,17 +71,17 @@ Checkout が失敗する）。ネイティブ広告（`scripts/dev-seed/ad-creat
 も入る。
 
 既存のアカウントを管理者にするには、通常登録してから DB に INSERT する
-（ローカル Supabase の Postgres は `127.0.0.1:54322`）:
+（ローカル Supabase の Postgres は `127.0.0.1:56322`）:
 
 ```bash
-psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "
+psql postgresql://postgres:postgres@127.0.0.1:56322/postgres -c "
 INSERT INTO user_roles (user_id, role)
 SELECT id, 'admin' FROM auth.users WHERE email = '<email>'
 ON CONFLICT ON CONSTRAINT uq_user_role DO NOTHING;
 "
 ```
 
-`psql` が無い場合は Supabase Studio（`http://127.0.0.1:54323`）か `pnpm --filter web db:studio` で
+`psql` が無い場合は Supabase Studio（`http://127.0.0.1:56323`）か `pnpm --filter web db:studio` で
 `user_roles` に行を追加してもよい。
 
 ## Supabase ローカル環境
@@ -96,8 +96,8 @@ pnpm supabase status -o json # API キーの取得
 pnpm supabase stop           # 停止
 ```
 
-- Supabase Studio: http://127.0.0.1:54323 / Mailpit: http://127.0.0.1:54324 /
-  PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+- Supabase Studio: http://127.0.0.1:56323 / Mailpit: http://127.0.0.1:56324 /
+  PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:56322/postgres`
 - `failed to parse config: 'config.config' has invalid keys: <キー名>` が出たら、同梱版が未インストールで
   古いグローバル版にフォールバックしている。`config.toml` を書き換えず `pnpm install` を実行し、
   `pnpm supabase --version` が `package.json` の devDependency と一致することを確かめる
@@ -129,7 +129,7 @@ Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチ�
 - **GitHub integration の「Supabase changes only」: OFF。** ON だと `apps/web/supabase/` に
   変更の無い PR は無視され（bot が "no changes detected" とコメント）、スキーマが
   `apps/web/drizzle/` にあるこのリポジトリではどの PR も条件を満たさない。症状は
-  `connect ECONNREFUSED 127.0.0.1:54322`（`scripts/_lib/database-url.ts` のローカル既定値へ
+  `connect ECONNREFUSED 127.0.0.1:56322`（`src/lib/local-supabase.ts` のローカル既定値へ
   フォールバック）
 - **Vercel integration の「Preview」同期トグル: OFF。** 本番の接続文字列と service role key を
   Preview 全体にコピーする設定。ブランチ限定の同期はトグル OFF のまま PR open 時に行われる
@@ -138,7 +138,7 @@ Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチ�
 
 設定を直した後に既存 PR へ再適用するには PR を close → reopen する。
 
-preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:3000"` のため Preview URL
+preview branch の既知の穴: `config.toml` の `site_url = "http://mahjong.localhost:3200"` のため Preview URL
 では認証のリダイレクトが戻らず、本番ダッシュボードだけで設定した項目（OAuth の secret 等）は
 複製されない。ビルドには影響しない。手順の正本は dotagents のスキル
 `vercel-preview-supabase-branching`。
@@ -148,8 +148,10 @@ preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:
 レイアウト・ハイドレーション・Server Action の失敗は、scratchpad に puppeteer-core を入れて
 システム Chrome で開く（汎用の手順は dotagents のスキル `browser-measurement`）。このリポジトリで踏むもの:
 
-- dev は `http://localhost:3000` で開く（`127.0.0.1` だと Next 16 の dev が `/_next/static/chunks/*.js` に
-  403 を返し、curl では 200 なのに JS が一切動かないページになる）
+- dev は `http://mahjong.localhost:3200` で開く（`site_url` と同じオリジン。Chrome は `*.localhost` を自分で
+  ループバックに解決する）。`127.0.0.1` だと Next 16 の dev が `/_next/static/chunks/*.js` に
+  403 を返し、curl では 200 なのに JS が一切動かないページになる。`localhost:3200` でも JS は動くが、
+  同じ Mac の別プロダクトの dev と cookie を共有し、OAuth やメールのリンクからは `mahjong.localhost` へ戻る
 - dev の右上の「LOCAL」リボンがアカウントメニューのボタンに重なるので `page.click()` ではなく要素の
   `click()` を呼ぶ
 - 点数系の盤面は子ツモで `select` が 2 つあり `page.select("select")` は先頭しか触らない

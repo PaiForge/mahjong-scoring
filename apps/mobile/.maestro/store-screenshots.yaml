@@ -9,7 +9,7 @@
 # 文言を待つところは「英語|日本語」の正規表現にし、MAESTRO_LOCALE=ja でも同じ 8 画面を撮れる
 # ようにしてある（要素は testID で引く）。英語の文言の確認は english-smoke の役目で、ここは撮るだけ。
 # 1〜7 はゲスト（入れたばかりの人が見る画面）、8 だけ無料の alice@（購入履歴が無く、
-# プランを選ぶ欄が出る）。手元の web（:3000）と dev seed が要る
+# プランを選ぶ欄が出る）。手元の web（:3200）と dev seed が要る
 appId: help.mahjong.score
 ---
 - clearKeychain
