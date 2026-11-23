@@ -11,15 +11,19 @@
  * 既定値（`apps/mobile/src/auth/supabase-config.ts` の `LOCAL_SUPABASE_API_PORT`）と
  * `apps/mobile/scripts/sim-release.sh` の `LOCAL_SUPABASE_URL` も検査する。
  *
+ * このプロダクトは CLI の既定（543xx）ではなく 563xx を使う。同じ Mac で別のプロダクトの
+ * Supabase も既定に近いポートで動かすため（理由・対応表・ブロックを変える手順は
+ * `apps/web/README.md`「ローカルのポート」）。
+ *
  * import を持たない。`drizzle.config.ts` と `scripts/*.ts`（tsx）が相対パスで読んでも
  * アプリのモジュールを引き込まないため。
  */
 
 /** `config.toml` の `[api] port`: Supabase の HTTP API（Auth・Storage・REST） */
-export const LOCAL_SUPABASE_API_PORT = 54321;
+export const LOCAL_SUPABASE_API_PORT = 56321;
 
 /** `config.toml` の `[db] port`: Postgres への直結（pooler を通らない） */
-export const LOCAL_SUPABASE_DB_PORT = 54322;
+export const LOCAL_SUPABASE_DB_PORT = 56322;
 
 /** 手元の Supabase の API のオリジン */
 export const LOCAL_SUPABASE_API_URL = `http://127.0.0.1:${LOCAL_SUPABASE_API_PORT}`;

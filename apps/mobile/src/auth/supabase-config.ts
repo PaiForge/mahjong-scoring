@@ -5,7 +5,7 @@
  * `apps/web/src/lib/local-supabase.test.ts` が落ちる（この行をテキストとして読むので、
  * `export const LOCAL_SUPABASE_API_PORT = <数字>;` の形を保つ）。
  */
-export const LOCAL_SUPABASE_API_PORT = 54321;
+export const LOCAL_SUPABASE_API_PORT = 56321;
 
 /**
  * 手元の Supabase の公開キー

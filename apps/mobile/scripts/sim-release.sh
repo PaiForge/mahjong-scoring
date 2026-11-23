@@ -23,7 +23,7 @@ DEVICE_NAME=$(simulator_name "$UDID")
 # 手元の Supabase の API（ポートは apps/web/supabase/config.toml の [api] port。
 # 食い違うと apps/web/src/lib/local-supabase.test.ts が落ちる）と、Supabase CLI が
 # ローカル環境に既定で振る公開キー（src/auth/supabase-config.ts と同じ値）
-LOCAL_SUPABASE_URL="http://127.0.0.1:54321"
+LOCAL_SUPABASE_URL="http://127.0.0.1:56321"
 LOCAL_SUPABASE_PUBLISHABLE_KEY="sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
 LOCAL_SITE_URL="http://localhost:3000"
 
