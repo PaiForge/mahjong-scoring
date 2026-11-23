@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 
@@ -16,16 +16,15 @@ import {
  * 表の 30符4翻・60符3翻は設定次第で満貫になる。表だけではどちらのルールで
  * 出ているか分からないため、オン・オフどちらでも表の下に今の設定を出して
  * 設定画面へ戻す。表の上のツモの注記と同じ淡い小さな文字の脚注にし、
- * リンクは文の中の語なので `linkStyles.inline` で示す。
+ * リンクは同じ大きさの押せない語と 1 行に並ぶので、色だけでなく下線も持つ
+ * `linkStyles.inline` で示す。
  *
  * 表をシートに載せて開いている場合は、移動する前に `onLeave` でシートを
  * 閉じる。開いたままだと設定画面の上にシートが残る（用語シートと同じ）。
  *
- * 状態とリンクの間の区切りは web と同じ辞書キー
- * （`scoreTable.kiriageManganStatusSeparator`。日本語は中黒「・」、英語は中点「·」）
- * から引き、直書きしない。アプリは今は日本語だけで出しているが、約物を辞書に
- * 寄せておけば言語を足したときに日本語の約物が混ざらない。日本語の中黒は前後に
- * 空きを取らないため、web のような左右の余白は付けていない。
+ * 状態は左、リンクは右端に分けて置く（web と同じ）。以前は状態とリンクを中黒で
+ * つないだ 1 行の文にしていたが、「なし・設定を変更」が同格の語の並びに見え、
+ * どこからがリンクか分からなかった。
  */
 export function KiriageManganNote({
   enabled,
@@ -39,24 +38,33 @@ export function KiriageManganNote({
   const router = useRouter();
 
   return (
-    <Text style={styles.text}>
-      {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
-      {t("kiriageManganStatusSeparator")}
+    <View style={styles.row}>
+      <Text style={styles.text}>
+        {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
+      </Text>
       <Text
         accessibilityRole="link"
         onPress={() => {
           onLeave?.();
           router.push(preferencesItemHref(PREFERENCE_ANCHORS.kiriageMangan));
         }}
-        style={linkStyles.inline}
+        style={[styles.text, linkStyles.inline]}
       >
         {t("kiriageManganStatusLink")}
       </Text>
-    </Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    columnGap: 12,
+    rowGap: 4,
+  },
   text: {
     fontSize: 12,
     lineHeight: 20,
