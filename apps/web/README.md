@@ -60,7 +60,7 @@ pnpm db:seed:dev
 pnpm dev
 ```
 
-ブラウザで [http://localhost:3000](http://localhost:3000) を開いて動作を確認してください。
+ブラウザで [http://mahjong.localhost:3200](http://mahjong.localhost:3200) を開いて動作を確認してください。
 
 ## ローカル開発
 
@@ -125,7 +125,7 @@ Pro プランの出来事（購入完了・期限切れ・運営からの付与�
 受け口は `CRON_SECRET` の Bearer トークンだけで守られます（Vercel が cron の呼び出しに自動で付ける）。未設定なら常に 401 で、通知は届きません。ローカルで試すには `.env.local` に任意の値を置いて、同じヘッダを付けて叩きます:
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/notify-plan-expiry
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3200/api/cron/notify-plan-expiry
 ```
 
 何度叩いても同じ購入・付与には 1 通しか付きません。一覧とベルの見た目は `pnpm db:seed:dev` のシードユーザー（bob: 期限切れを含む 3 件 / carol / dave）でサインインすると確認できます。
@@ -133,7 +133,7 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/noti
 退会も cron を使います。退会はその場で全工程（データの削除 → アバター画像の削除 → ログインの無効化 → Apple の連携の取り消し）を進めますが、外部サービスの一時障害で終わらなかった分を、`crons` が 1 日 1 回 `/api/cron/process-account-deletions` で再開します。進み具合は `account_deletions` テーブルに残ります。ローカルで再開を試すときも同じヘッダで叩きます:
 
 ```bash
-curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/process-account-deletions
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3200/api/cron/process-account-deletions
 ```
 
 ### ローカルサービス
@@ -184,11 +184,33 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/proc
 
 1. `supabase/config.toml` の 8 つのポートをすべて変える。1 つでも残すと、もう一方のプロダクトと同時に起動したときにそのポートで失敗する
 2. `pnpm test` を流す。`src/lib/local-supabase.test.ts` が、`[api] port` / `[db] port` と食い違った写し（`src/lib/local-supabase.ts` の `LOCAL_SUPABASE_API_PORT` / `LOCAL_SUPABASE_DB_PORT`、`apps/mobile/src/auth/supabase-config.ts` の `LOCAL_SUPABASE_API_PORT`、`apps/mobile/scripts/sim-release.sh` の `LOCAL_SUPABASE_URL`）ごとに落ちるので、通るまで直す
-3. この節の表と `.env.example` のローカルの値を直す
+3. この節の表と `.env.example` のローカルの値を直す（`.env.example` も同じテストが照合する）
 4. コピー用にポートを書いた文書・スクリプトを直す。`git grep -nE "5632[0-9]"` で見つかる（`apps/web/{README,CLAUDE}.md`・`apps/web/docs/`・`apps/mobile/{README,CLAUDE}.md`・`apps/mobile/.maestro/`・`scripts/claude-cloud/{session-start,stack-up}.sh` 等）。`src/proxy.test.ts` の URL はテストの入力の任意の例なので直さなくてよい
 5. 上の「既存のチェックアウトを 563xx に合わせる」をたどる
 
 ポートで挙動を変えているコードはありません（DB の接続数の上限などをポート番号で判定していない）。
+
+#### 開発サーバー（Next）: mahjong.localhost:3200
+
+`pnpm dev` は Next の既定の 3000 ではなく **3200** で待ち受け、ブラウザでは **http://mahjong.localhost:3200** を開きます。もう一方のプロダクトは 3100（`chess.localhost:3100`）を使います。
+
+ポートだけでなくホスト名も分けるのは cookie のためです。cookie はポートで分かれないので、`localhost:3100` と `localhost:3200` は同じ cookie を共有します。Supabase のログイン cookie の名前は Supabase の URL のホスト名の先頭から作られ（`sb-127-auth-token`）、両プロダクトで同じなので、片方でログインするともう片方のセッションを上書きします。`*.localhost` はブラウザ（Chrome・Safari・Firefox）が自分でループバックに解決するので、`/etc/hosts` も外部の DNS（`lvh.me` 等）も要りません。Next 16 の dev も `*.localhost` からの読み込みを既定で許すので、`allowedDevOrigins` も要りません。ホスト名だけではポートの奪い合いは避けられないので（同じポートで待ち受けられるのは 1 プロセスだけ）、ポートも分けています。
+
+| 置き場所                                      | 値                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------- |
+| `apps/web/package.json` の `dev`              | `next dev --turbopack -p 3200`（ポートの正）                        |
+| `supabase/config.toml` の `[auth] site_url`   | `http://mahjong.localhost:3200`（開くオリジンの正）                 |
+| `[auth] additional_redirect_urls`             | `site_url` を含める                                                 |
+| `.env.local` の `NEXT_PUBLIC_SITE_URL`        | `http://mahjong.localhost:3200`                                     |
+| モバイル（`apps/mobile/src/lib/site-url.ts`） | `LOCAL_WEB_PORT = 3200`。ホストは Metro のホストか localhost のまま |
+| `.claude/launch.json` の `web`                | `port: 3200`、`url: http://mahjong.localhost:3200`                  |
+| `scripts/claude-cloud/config.sh` の `APP_URL` | `http://localhost:3200`（VM はこのプロダクトだけなので localhost）  |
+
+`-H` は付けません。実機のアプリは Mac の LAN のアドレス（`192.168.x.x:3200`）で web に届くので、全てのインターフェースで待ち受ける必要があります。`stripe listen --forward-to` や cron を叩く `curl` は cookie を使わないので `localhost:3200` のままで構いません。
+
+既存のチェックアウトを合わせるには、`.env.local` の `NEXT_PUBLIC_SITE_URL` を上の値に直し、`pnpm supabase stop` → `pnpm supabase start`（`site_url` を読み直させる）、`next dev` を再起動して http://mahjong.localhost:3200 を開きます。前のオリジン（`localhost:3000`）のログイン状態は引き継がれないので、ログインし直します。
+
+ポートやホスト名をもう一度変えるときは、上の 2 つの正（`package.json` の `dev`・`config.toml` の `site_url`）を直して `pnpm test` を流します。`src/lib/local-web-server.test.ts` が、食い違った写し（表の残りの行と `apps/mobile/scripts/sim-release.sh` の `LOCAL_SITE_URL`）ごとに落ちます。コピー用に書いた文書は `git grep -nE "mahjong\.localhost|:3200"` で見つかります。テストの入力にある `localhost:3000` は任意の例なので直さなくて構いません。
 
 Supabase を停止するには:
 

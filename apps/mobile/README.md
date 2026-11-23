@@ -8,7 +8,7 @@ Supabase Auth で、記録の読み書きは web のアプリ向け API（`/api/
 ### 前提
 
 - web の開発環境が動いていること（[apps/web/README.md](../web/README.md) のクイックスタート）。
-  アプリは開発中、Metro を動かしている Mac の Supabase（`:56321`）と web（`:3000`）に繋ぐ
+  アプリは開発中、Metro を動かしている Mac の Supabase（`:56321`）と web（`:3200`）に繋ぐ
 - 実機で開くなら、iPhone と Mac が同じ Wi-Fi にいること
 - ローカルの Supabase のポート（`:56321` / `:56322`）を他のプロジェクトの Supabase が使って
   いないこと。同じポートを使うプロジェクトが動いていると、接続先は localhost のままその DB に
@@ -594,7 +594,7 @@ npx expo run:android   # 初回は prebuild と Gradle のビルドで 10 分ほ
 - 上の `EXPO_PUBLIC_IAP_STORE=fake … start --clear` の Metro を先に起動しておくと、`expo run:android` は
   同じポートの Metro をそのまま使う（ポートを変えるなら両方に同じ `--port` を付ける）
 - 開発ビルドは平文 HTTP を通し（Expo の debug のマニフェストが `usesCleartextTraffic` を持つ）、
-  手元の Supabase（`:56321`）と web（`:3000`）にシードユーザーでログインできる。接続先は
+  手元の Supabase（`:56321`）と web（`:3200`）にシードユーザーでログインできる。接続先は
   バンドルを読んだホスト（エミュレーターでは Mac を指す `10.0.2.2`）から決まる
   （`src/lib/dev-host.ts`）。2026-11 にエミュレーター（API 36）で、ログイン・購入（Buy / Fail /
   Cancel）・サーバーの記録・プランの反映・「購入を復元」まで確かめた

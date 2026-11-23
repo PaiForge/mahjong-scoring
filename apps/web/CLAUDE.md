@@ -138,7 +138,7 @@ Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチ�
 
 設定を直した後に既存 PR へ再適用するには PR を close → reopen する。
 
-preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:3000"` のため Preview URL
+preview branch の既知の穴: `config.toml` の `site_url = "http://mahjong.localhost:3200"` のため Preview URL
 では認証のリダイレクトが戻らず、本番ダッシュボードだけで設定した項目（OAuth の secret 等）は
 複製されない。ビルドには影響しない。手順の正本は dotagents のスキル
 `vercel-preview-supabase-branching`。
@@ -148,8 +148,10 @@ preview branch の既知の穴: `config.toml` の `site_url = "http://localhost:
 レイアウト・ハイドレーション・Server Action の失敗は、scratchpad に puppeteer-core を入れて
 システム Chrome で開く（汎用の手順は dotagents のスキル `browser-measurement`）。このリポジトリで踏むもの:
 
-- dev は `http://localhost:3000` で開く（`127.0.0.1` だと Next 16 の dev が `/_next/static/chunks/*.js` に
-  403 を返し、curl では 200 なのに JS が一切動かないページになる）
+- dev は `http://mahjong.localhost:3200` で開く（`site_url` と同じオリジン。Chrome は `*.localhost` を自分で
+  ループバックに解決する）。`127.0.0.1` だと Next 16 の dev が `/_next/static/chunks/*.js` に
+  403 を返し、curl では 200 なのに JS が一切動かないページになる。`localhost:3200` でも JS は動くが、
+  同じ Mac の別プロダクトの dev と cookie を共有し、OAuth やメールのリンクからは `mahjong.localhost` へ戻る
 - dev の右上の「LOCAL」リボンがアカウントメニューのボタンに重なるので `page.click()` ではなく要素の
   `click()` を呼ぶ
 - 点数系の盤面は子ツモで `select` が 2 つあり `page.select("select")` は先頭しか触らない

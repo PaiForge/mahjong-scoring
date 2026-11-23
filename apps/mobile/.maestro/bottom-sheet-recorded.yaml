@@ -2,7 +2,7 @@
 # 本文を引き下げて閉じた後も盤面で答えられ、中止の確認（RN の Modal）が出て押せる。
 # シートは OS 標準のもの（@expo/ui）で、中身の RN の view は自前のタッチの受け口を
 # 持つ。閉じた後にそれが残ると、次に出す Modal が押せなくなる
-# 手元の web（:3000）とその DB が動いていること
+# 手元の web（:3200）とその DB が動いていること
 appId: help.mahjong.score
 ---
 - clearKeychain

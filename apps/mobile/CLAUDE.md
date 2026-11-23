@@ -230,7 +230,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`/api/ads/<スロット>`）から読み（`src/ads/use-native-ads.ts`）、スロットは
   `MOBILE_AD_SLOTS`（features の `ads/native-ad.ts`）で web とは別に持つ（成果をトラッキング ID で
   分けるため）。web に広告の置き場所を足したら、アプリに同じ画面があればこちらにも足す。
-  開発中は Metro を動かす Mac の web（`:3000`）を読む（`src/lib/site-url.ts`）
+  開発中は Metro を動かす Mac の web（`:3200`）を読む（`src/lib/site-url.ts`）
 - **JS は Static Hermes で動き、web にある組み込みの一部が無い。** `Array.prototype.toSorted`・
   `Object.groupBy` は無く、呼ぶと画面ごと落ちる（型も web のテストも通る）。アプリと共有コード
   （`packages/features`・`core`）ではルートの `eslint.config.mjs` が弾く。新しい組み込みを使う前に
@@ -285,7 +285,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`crypto.randomUUID` の不在・`measureLayout` の引数等）を通してしまう
 - ビルドは `pnpm --filter @mahjong-scoring/mobile sim:release`（`scripts/sim-release.sh`）。
   Xcode は `xcode-select` のものでよい（起動直後に落ちたときの見方は `README.md`「使う Xcode」）。
-  手元の Supabase（`:56321`）と web（`:3000`）に向けるので、シードユーザーでログインから
+  手元の Supabase（`:56321`）と web（`:3200`）に向けるので、シードユーザーでログインから
   記録まで確かめられ、本番には触れない。手でやると落とす工程を含む: Metro の変換
   キャッシュを捨てる（`EXPO_PUBLIC_*` はキャッシュのキーに入らず、前回の接続先が
   そのまま焼き込まれる）、焼き込まれた接続先の検査、`expo run:ios` が書き換える

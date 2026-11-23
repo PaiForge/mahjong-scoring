@@ -94,7 +94,7 @@ Price を増やさず、既存の Price に **複数通貨の価格**（`currenc
 stripe login
 
 # Webhook をローカルへ転送（開発サーバーと別のターミナルで起動したままにする）
-stripe listen --forward-to localhost:3000/api/stripe/webhook
+stripe listen --forward-to localhost:3200/api/stripe/webhook
 ```
 
 起動時に表示される署名シークレット（`whsec_...`）→ `.env.local` の `STRIPE_WEBHOOK_SECRET`

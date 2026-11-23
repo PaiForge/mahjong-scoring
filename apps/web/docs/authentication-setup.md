@@ -54,10 +54,10 @@ Dashboard の両方を更新してください。
 
 ### Authentication > URL Configuration
 
-| 項目          | 値                                                               | `config.toml`                     |
-| ------------- | ---------------------------------------------------------------- | --------------------------------- |
-| Site URL      | 本番の URL（`https://your-domain.com`）                          | `[auth] site_url`                 |
-| Redirect URLs | `https://your-domain.com/**`、`http://localhost:3000/**`（開発） | `[auth] additional_redirect_urls` |
+| 項目          | 値                                                                       | `config.toml`                     |
+| ------------- | ------------------------------------------------------------------------ | --------------------------------- |
+| Site URL      | 本番の URL（`https://your-domain.com`）                                  | `[auth] site_url`                 |
+| Redirect URLs | `https://your-domain.com/**`、`http://mahjong.localhost:3200/**`（開発） | `[auth] additional_redirect_urls` |
 
 認証メールのリンクは `{{ .SiteURL }}/auth/callback?...` なので、Site URL が違うとメールの
 リンクが別のサイトへ飛びます。
@@ -104,7 +104,7 @@ IP ごとの枠（`apps/web/src/lib/rate-limit-ip.ts`）と二重に掛かりま
 
    | フィールド                    | 値                                        |
    | ----------------------------- | ----------------------------------------- |
-   | Authorized JavaScript origins | `http://localhost:3000`                   |
+   | Authorized JavaScript origins | `http://mahjong.localhost:3200`           |
    | Authorized redirect URIs      | `http://127.0.0.1:56321/auth/v1/callback` |
 
    **本番用 OAuth クライアント:**
@@ -175,7 +175,7 @@ Relay に登録していないと届きません**。登録していない間、
   これらを参照します（例: `client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"`）。
   未設定だと Google 側が `client_id` を拒み、ログインも連携の追加も Google の画面で止まります
 - **メール**は [Mailpit](http://127.0.0.1:56324) に届きます。メールアドレスの変更の 2 通も
-  ここで開けます（リンクは `site_url` の `localhost:3000` を指す）
+  ここで開けます（リンクは `site_url` の `mahjong.localhost:3200` を指す）
 
 ### Google サインインのローカルセットアップ
 
@@ -199,8 +199,8 @@ Relay に登録していないと届きません**。登録していない間、
    pnpm supabase stop && pnpm supabase start
    ```
 
-### localhost と 127.0.0.1 の違い
+### mahjong.localhost と 127.0.0.1 の違い
 
-`config.toml` の `site_url` は `http://localhost:3000` に設定されています（`http://127.0.0.1:3000` ではありません）。これは意図的な設定です。ブラウザは `localhost` と `127.0.0.1` を異なるオリジンとして扱います。Next.js 開発サーバーは `localhost:3000` で動作するため、OAuth 認証後に設定される Cookie がアプリから読み取れるように `site_url` を一致させる必要があります。
+`config.toml` の `site_url` は `http://mahjong.localhost:3200` に設定されています（`http://127.0.0.1:3200` や `http://localhost:3200` ではありません）。これは意図的な設定です。ブラウザはホスト名が違えば別のオリジンとして扱い、cookie も別に持ちます。開発サーバーは `mahjong.localhost:3200` で開くので、OAuth 認証後に設定される Cookie がアプリから読み取れるように `site_url` を一致させる必要があります。`localhost` ではなく `mahjong.localhost` にしているのは、同じ Mac で動かす別プロダクトの開発サーバーと cookie を分けるためです（[README の「ローカルのポート」](../README.md#ローカルのポート)）。
 
 Supabase API URL（`http://127.0.0.1:56321`）が `127.0.0.1` を使用しているのは、Supabase CLI がそのアドレスにバインドするためです。Google Cloud Console のリダイレクト URI もこれに合わせて `127.0.0.1` を使用する必要があります。

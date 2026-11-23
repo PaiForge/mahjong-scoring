@@ -62,7 +62,7 @@ SIMULATOR_NAME="iPhone 17 Pro Max" MAESTRO_LOCALE=en MAESTRO_OUTPUT_DIR=<置き�
   pnpm --filter @mahjong-scoring/mobile maestro store-screenshots
 ```
 
-手元の web（`:3000`）と dev seed が要る。撮る 8 画面と順、時計の固定は `.maestro/README.md`
+手元の web（`:3200`）と dev seed が要る。撮る 8 画面と順、時計の固定は `.maestro/README.md`
 「ストア用の撮影」。英語への対応のときに撮ったものは
 `~/.claude/handoffs/mahjong-scoring/2026-11-08-english-i18n-phase5/artifacts/store-screenshots/`
 （作者の手元だけにある）。ASC へは準備中のバージョンの English (U.S.) の 6.9" Display に上げる。
