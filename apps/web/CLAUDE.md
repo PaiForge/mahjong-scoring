@@ -71,17 +71,17 @@ Checkout が失敗する）。ネイティブ広告（`scripts/dev-seed/ad-creat
 も入る。
 
 既存のアカウントを管理者にするには、通常登録してから DB に INSERT する
-（ローカル Supabase の Postgres は `127.0.0.1:54322`）:
+（ローカル Supabase の Postgres は `127.0.0.1:56322`）:
 
 ```bash
-psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "
+psql postgresql://postgres:postgres@127.0.0.1:56322/postgres -c "
 INSERT INTO user_roles (user_id, role)
 SELECT id, 'admin' FROM auth.users WHERE email = '<email>'
 ON CONFLICT ON CONSTRAINT uq_user_role DO NOTHING;
 "
 ```
 
-`psql` が無い場合は Supabase Studio（`http://127.0.0.1:54323`）か `pnpm --filter web db:studio` で
+`psql` が無い場合は Supabase Studio（`http://127.0.0.1:56323`）か `pnpm --filter web db:studio` で
 `user_roles` に行を追加してもよい。
 
 ## Supabase ローカル環境
@@ -96,8 +96,8 @@ pnpm supabase status -o json # API キーの取得
 pnpm supabase stop           # 停止
 ```
 
-- Supabase Studio: http://127.0.0.1:54323 / Mailpit: http://127.0.0.1:54324 /
-  PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+- Supabase Studio: http://127.0.0.1:56323 / Mailpit: http://127.0.0.1:56324 /
+  PostgreSQL: `postgresql://postgres:postgres@127.0.0.1:56322/postgres`
 - `failed to parse config: 'config.config' has invalid keys: <キー名>` が出たら、同梱版が未インストールで
   古いグローバル版にフォールバックしている。`config.toml` を書き換えず `pnpm install` を実行し、
   `pnpm supabase --version` が `package.json` の devDependency と一致することを確かめる
@@ -129,7 +129,7 @@ Supabase の連携はブランチ名で絞れず PR ごとに必ずブランチ�
 - **GitHub integration の「Supabase changes only」: OFF。** ON だと `apps/web/supabase/` に
   変更の無い PR は無視され（bot が "no changes detected" とコメント）、スキーマが
   `apps/web/drizzle/` にあるこのリポジトリではどの PR も条件を満たさない。症状は
-  `connect ECONNREFUSED 127.0.0.1:54322`（`scripts/_lib/database-url.ts` のローカル既定値へ
+  `connect ECONNREFUSED 127.0.0.1:56322`（`src/lib/local-supabase.ts` のローカル既定値へ
   フォールバック）
 - **Vercel integration の「Preview」同期トグル: OFF。** 本番の接続文字列と service role key を
   Preview 全体にコピーする設定。ブランチ限定の同期はトグル OFF のまま PR open 時に行われる

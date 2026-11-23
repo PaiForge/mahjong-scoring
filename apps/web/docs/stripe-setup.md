@@ -284,6 +284,6 @@ Checkout 開始時に Price ID・特典・期間を DB に保存するため、�
 
 ### 並行処理の回帰テスト
 
-`BILLING_TEST_DATABASE_URL=postgresql://...@127.0.0.1:54322/postgres pnpm exec vitest run src/lib/billing/billing.integration.test.ts`
+`BILLING_TEST_DATABASE_URL=postgresql://...@127.0.0.1:56322/postgres pnpm exec vitest run src/lib/billing/billing.integration.test.ts`
 
 ローカル DB だけを受け付け、実行ごとに専用スキーマを作成・破棄します。アプリの表は変更しません。Stripe はモックで、顧客ロック・予約の一意制約・購入と返金の並行処理は複数の実 PostgreSQL 接続で検証します。

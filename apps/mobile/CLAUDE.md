@@ -285,7 +285,7 @@ packages/features / core を共有し、アプリ側は画面と RN の部品だ
   （`crypto.randomUUID` の不在・`measureLayout` の引数等）を通してしまう
 - ビルドは `pnpm --filter @mahjong-scoring/mobile sim:release`（`scripts/sim-release.sh`）。
   Xcode は `xcode-select` のものでよい（起動直後に落ちたときの見方は `README.md`「使う Xcode」）。
-  手元の Supabase（`:54321`）と web（`:3000`）に向けるので、シードユーザーでログインから
+  手元の Supabase（`:56321`）と web（`:3000`）に向けるので、シードユーザーでログインから
   記録まで確かめられ、本番には触れない。手でやると落とす工程を含む: Metro の変換
   キャッシュを捨てる（`EXPO_PUBLIC_*` はキャッシュのキーに入らず、前回の接続先が
   そのまま焼き込まれる）、焼き込まれた接続先の検査、`expo run:ios` が書き換える

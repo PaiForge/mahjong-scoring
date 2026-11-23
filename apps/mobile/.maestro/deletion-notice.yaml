@@ -5,7 +5,7 @@
 # Supabase に確認済みで作っておく（dev seed のユーザーは退会させない — ユーザー名が
 # 再利用防止で残り、seed で作り直せなくなる）:
 #   cd apps/web && KEY=$(pnpm -s supabase status -o json | jq -r .SERVICE_ROLE_KEY)
-#   curl -s http://127.0.0.1:54321/auth/v1/admin/users -H "apikey: $KEY" \
+#   curl -s http://127.0.0.1:56321/auth/v1/admin/users -H "apikey: $KEY" \
 #     -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
 #     -d '{"email":"leaver-1@example.local","password":"devpass1","email_confirm":true}'
 #   scripts/maestro.sh deletion-notice -e EMAIL=leaver-1@example.local

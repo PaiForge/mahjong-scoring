@@ -36,7 +36,7 @@ cp .env.example .env.local
 | `pnpm supabase status -o json` のフィールド | `.env.local` の変数                    | 備考                                               |
 | ------------------------------------------- | -------------------------------------- | -------------------------------------------------- |
 | `PUBLISHABLE_KEY`                           | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ブラウザクライアントで使用する公開キー             |
-| `API_URL`                                   | `NEXT_PUBLIC_SUPABASE_URL`             | デフォルト値は `http://127.0.0.1:54321`            |
+| `API_URL`                                   | `NEXT_PUBLIC_SUPABASE_URL`             | デフォルト値は `http://127.0.0.1:56321`            |
 | —                                           | `POSTGRES_URL`                         | ローカル開発ではデフォルト値が使われるため設定不要 |
 
 > **ヒント:** これらの値は `pnpm supabase start` の出力にも表示されます（"Authentication Keys" の Publishable と "APIs" の Project URL）。
@@ -138,9 +138,57 @@ curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/proc
 
 ### ローカルサービス
 
-- **Supabase Studio**: http://127.0.0.1:54323
-- **Mailpit（メールテスト用）**: http://127.0.0.1:54324
-- **PostgreSQL**: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
+- **Supabase Studio**: http://127.0.0.1:56323
+- **Mailpit（メールテスト用）**: http://127.0.0.1:56324
+- **PostgreSQL**: `postgresql://postgres:postgres@127.0.0.1:56322/postgres`
+
+### ローカルのポート
+
+このプロダクトのローカル Supabase は、Supabase CLI の既定のポート（543xx）を使わず、専用の **563xx** で待ち受けます。同じ Mac で別のプロダクトの Supabase も動かしており、どちらも既定のままだとポートがぶつかって片方しか起動できないためです（もう一方は 553xx）。既定値の下 2 桁は保つので、ポートの役割は番号から読めます（`…21` は API、`…22` は Postgres）。
+
+| 役割                   | `supabase/config.toml`          | このプロダクト | CLI の既定 |
+| ---------------------- | ------------------------------- | -------------- | ---------- |
+| API（Auth・REST 等）   | `[api] port`                    | 56321          | 54321      |
+| Postgres（直結）       | `[db] port`                     | 56322          | 54322      |
+| Shadow DB              | `[db] shadow_port`              | 56320          | 54320      |
+| Supavisor pooler       | `[db.pooler] port`              | 56329          | 54329      |
+| Studio                 | `[studio] port`                 | 56323          | 54323      |
+| Mailpit                | `[local_smtp] port`             | 56324          | 54324      |
+| Analytics              | `[analytics] port`              | 56327          | 54327      |
+| Edge runtime inspector | `[edge_runtime] inspector_port` | 8283           | 8083       |
+
+`project_id`（`mahjong-scoring-web`）もプロダクトごとに別にしてあります。同じだと Docker のコンテナ名がぶつかります。
+
+待ち受けるポートを決めるのは `config.toml` で、`.env.local` はアプリの接続先を教えるだけです。ローカルのポートを持つ環境変数は次のとおりです。未設定ならコードの既定値（`src/lib/local-supabase.ts`）が手元のスタックを指します。
+
+| 変数                                                                                                | ポート       | ローカルの値                                              |
+| --------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                                                                          | `[api] port` | `http://127.0.0.1:56321`                                  |
+| `POSTGRES_URL`（設定していれば `DATABASE_URL`・`POSTGRES_URL_NON_POOLING` も）                      | `[db] port`  | `postgresql://postgres:postgres@127.0.0.1:56322/postgres` |
+| `CHALLENGE_TEST_DATABASE_URL` / `BILLING_TEST_DATABASE_URL`（結合テストを流すときだけシェルで渡す） | `[db] port`  | `postgresql://postgres:postgres@127.0.0.1:56322/postgres` |
+
+モバイルアプリは何もしなくてよい（開発中は `apps/mobile/src/auth/supabase-config.ts` の `LOCAL_SUPABASE_API_PORT` から接続先を組む）。`EXPO_PUBLIC_SUPABASE_URL` を手で渡して Metro を起動している場合だけ、その値のポートを直します。
+
+#### 既存のチェックアウトを 563xx に合わせる
+
+ポートを移す前に作った `.env.local` は既定のポートを指したままです。`apps/web` で一度だけ:
+
+1. スタックが動いていれば `pnpm supabase stop`
+2. `.env.local` の上の表の変数を、ローカルの値に直す
+3. ローカルで Google ログインを使うなら、Google Cloud Console の OAuth クライアントの「承認済みのリダイレクト URI」に `http://127.0.0.1:56321/auth/v1/callback` を足す（[docs/authentication-setup.md](docs/authentication-setup.md)）
+4. `pnpm supabase start` の後、`pnpm supabase status` に出るポートが上の表と一致することを確かめる
+5. DB が空で立ち上がったら `pnpm db:run-migrate` → `pnpm db:seed` → `pnpm db:seed:dev`
+6. `next dev` を再起動して `.env.local` を読み直させる
+
+#### ブロックをもう一度変えるとき
+
+1. `supabase/config.toml` の 8 つのポートをすべて変える。1 つでも残すと、もう一方のプロダクトと同時に起動したときにそのポートで失敗する
+2. `pnpm test` を流す。`src/lib/local-supabase.test.ts` が、`[api] port` / `[db] port` と食い違った写し（`src/lib/local-supabase.ts` の `LOCAL_SUPABASE_API_PORT` / `LOCAL_SUPABASE_DB_PORT`、`apps/mobile/src/auth/supabase-config.ts` の `LOCAL_SUPABASE_API_PORT`、`apps/mobile/scripts/sim-release.sh` の `LOCAL_SUPABASE_URL`）ごとに落ちるので、通るまで直す
+3. この節の表と `.env.example` のローカルの値を直す
+4. コピー用にポートを書いた文書・スクリプトを直す。`git grep -nE "5632[0-9]"` で見つかる（`apps/web/{README,CLAUDE}.md`・`apps/web/docs/`・`apps/mobile/{README,CLAUDE}.md`・`apps/mobile/.maestro/`・`scripts/claude-cloud/{session-start,stack-up}.sh` 等）。`src/proxy.test.ts` の URL はテストの入力の任意の例なので直さなくてよい
+5. 上の「既存のチェックアウトを 563xx に合わせる」をたどる
+
+ポートで挙動を変えているコードはありません（DB の接続数の上限などをポート番号で判定していない）。
 
 Supabase を停止するには:
 

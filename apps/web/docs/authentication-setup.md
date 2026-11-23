@@ -105,7 +105,7 @@ IP ごとの枠（`apps/web/src/lib/rate-limit-ip.ts`）と二重に掛かりま
    | フィールド                    | 値                                        |
    | ----------------------------- | ----------------------------------------- |
    | Authorized JavaScript origins | `http://localhost:3000`                   |
-   | Authorized redirect URIs      | `http://127.0.0.1:54321/auth/v1/callback` |
+   | Authorized redirect URIs      | `http://127.0.0.1:56321/auth/v1/callback` |
 
    **本番用 OAuth クライアント:**
 
@@ -174,7 +174,7 @@ Relay に登録していないと届きません**。登録していない間、
 - **Google の認証情報**は `supabase/.env` から読み込まれます。`config.toml` は `env()` 構文で
   これらを参照します（例: `client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"`）。
   未設定だと Google 側が `client_id` を拒み、ログインも連携の追加も Google の画面で止まります
-- **メール**は [Mailpit](http://127.0.0.1:54324) に届きます。メールアドレスの変更の 2 通も
+- **メール**は [Mailpit](http://127.0.0.1:56324) に届きます。メールアドレスの変更の 2 通も
   ここで開けます（リンクは `site_url` の `localhost:3000` を指す）
 
 ### Google サインインのローカルセットアップ
@@ -203,4 +203,4 @@ Relay に登録していないと届きません**。登録していない間、
 
 `config.toml` の `site_url` は `http://localhost:3000` に設定されています（`http://127.0.0.1:3000` ではありません）。これは意図的な設定です。ブラウザは `localhost` と `127.0.0.1` を異なるオリジンとして扱います。Next.js 開発サーバーは `localhost:3000` で動作するため、OAuth 認証後に設定される Cookie がアプリから読み取れるように `site_url` を一致させる必要があります。
 
-Supabase API URL（`http://127.0.0.1:54321`）が `127.0.0.1` を使用しているのは、Supabase CLI がそのアドレスにバインドするためです。Google Cloud Console のリダイレクト URI もこれに合わせて `127.0.0.1` を使用する必要があります。
+Supabase API URL（`http://127.0.0.1:56321`）が `127.0.0.1` を使用しているのは、Supabase CLI がそのアドレスにバインドするためです。Google Cloud Console のリダイレクト URI もこれに合わせて `127.0.0.1` を使用する必要があります。
