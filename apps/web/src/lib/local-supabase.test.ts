@@ -3,8 +3,12 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
+import { readTomlInt } from "@/test/read-toml";
+
 import {
   LOCAL_SUPABASE_API_PORT,
+  LOCAL_SUPABASE_API_URL,
+  LOCAL_SUPABASE_DATABASE_URL,
   LOCAL_SUPABASE_DB_PORT,
 } from "./local-supabase";
 
@@ -13,9 +17,6 @@ import {
  * 写してある（`./local-supabase.ts` の TSDoc）。写しがずれたらここで落とすので、
  * ポートを動かす作業は「`config.toml` と、落ちたテストが名指す定数を直す」で済み、
  * リポジトリ全体を grep して回らなくてよい。
- *
- * TOML はパーサーを使わず、セクションを見分ける走査で読む。要るのは整数のキー 2 つだけで、
- * 依存に TOML パーサーが無いため。
  *
  * モバイルのファイルはこのパッケージの外にあり、turbo はそれだけが変わっても
  * このテストを回し直さない。`apps/web/turbo.json` の `test` の `inputs` に足してあるので、
@@ -29,37 +30,24 @@ const MOBILE_CONFIG = resolve(
   "../mobile/src/auth/supabase-config.ts",
 );
 const SIM_RELEASE = resolve(WEB_ROOT, "../mobile/scripts/sim-release.sh");
+const ENV_EXAMPLE = resolve(WEB_ROOT, ".env.example");
 
-/** `[section]` の直下（`[section.sub]` ではない）にある整数の `key` を読む */
-function readTomlPort(toml: string, section: string, key: string): number {
-  let current: string | undefined;
-  for (const raw of toml.split("\n")) {
-    const line = raw.replace(/#.*/, "").trim();
-    const header = /^\[([^\]]+)\]$/.exec(line);
-    if (header) {
-      current = header[1];
-      continue;
-    }
-    if (current !== section) continue;
-    const entry = new RegExp(`^${key}\\s*=\\s*(\\d+)$`).exec(line);
-    if (entry) return Number(entry[1]);
-  }
-  throw new Error(
-    `supabase/config.toml の [${section}] に整数の ${key} が無い。env() の値に変えたなら、` +
-      "このテストと src/lib/local-supabase.ts の定数を直す",
-  );
+/** `.env.example` の `KEY=value` の値（無ければ undefined） */
+function readEnvExample(key: string): string | undefined {
+  const source = readFileSync(ENV_EXAMPLE, "utf8");
+  return new RegExp(`^${key}=(.*)$`, "m").exec(source)?.[1];
 }
 
 describe("手元の Supabase のポートが supabase/config.toml と一致する", () => {
   const toml = readFileSync(CONFIG_TOML, "utf8");
-  const apiPort = readTomlPort(toml, "api", "port");
+  const apiPort = readTomlInt(toml, "api", "port");
 
   it("LOCAL_SUPABASE_API_PORT が [api] port と同じ", () => {
     expect(LOCAL_SUPABASE_API_PORT).toBe(apiPort);
   });
 
   it("LOCAL_SUPABASE_DB_PORT が [db] port と同じ", () => {
-    expect(LOCAL_SUPABASE_DB_PORT).toBe(readTomlPort(toml, "db", "port"));
+    expect(LOCAL_SUPABASE_DB_PORT).toBe(readTomlInt(toml, "db", "port"));
   });
 
   it("モバイルの LOCAL_SUPABASE_API_PORT が [api] port と同じ", () => {
@@ -83,5 +71,13 @@ describe("手元の Supabase のポートが supabase/config.toml と一致す�
       "apps/mobile/scripts/sim-release.sh が LOCAL_SUPABASE_URL を宣言していない",
     ).not.toBeNull();
     expect(Number(match?.[1])).toBe(apiPort);
+  });
+
+  it(".env.example のローカルの接続先が定数と同じ", () => {
+    // .env.example から作った .env.local が、既定値と別の場所を指さないように
+    expect(readEnvExample("NEXT_PUBLIC_SUPABASE_URL")).toBe(
+      LOCAL_SUPABASE_API_URL,
+    );
+    expect(readEnvExample("POSTGRES_URL")).toBe(LOCAL_SUPABASE_DATABASE_URL);
   });
 });
