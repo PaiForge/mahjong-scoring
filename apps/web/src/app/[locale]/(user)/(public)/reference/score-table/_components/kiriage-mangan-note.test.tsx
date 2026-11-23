@@ -60,13 +60,12 @@ describe("KiriageManganNote", () => {
     expect(screen.getByText("language.japaneseOnly")).toBeDefined();
   });
 
-  it("英語のページの脚注に日本語の文字（区切りの中黒を含む）を直書きしない", () => {
+  it("英語のページの脚注に日本語の文字を直書きしない", () => {
     const { container } = render(
       <KiriageManganNote enabled={false} pageLocale="en" />,
     );
 
     expect(container.textContent).not.toMatch(JAPANESE_CHARACTERS);
-    expect(container.textContent).toContain("kiriageManganStatusSeparator");
   });
 
   it("前提: 設定ページは英語で出している（索引させない）", () => {

@@ -30,15 +30,20 @@ interface KiriageManganNoteProps {
  * 読めてしまうため、オン・オフどちらでも表の下に今の設定を出して設定ページの
  * 該当項目へ戻す。
  *
- * 警告ではなく表の読み方の補足なので、表の上のツモの注記と同じ淡い小さな文字に
+ * 警告ではなく表の読み方の補足なので、表の上のツモの注記と同じ小さな文字に
  * する（以前は有効なときだけ `HighlightPanel` で浮かせていたが、常に出すと
  * 毎回目に付く囲みになるため脚注に改めた）。出すかどうかと周りとの余白は
  * 置き場所を知っている呼び出し側に任せる。
  *
- * 状態とリンクの間の区切りは辞書（`scoreTable.kiriageManganStatusSeparator`）から
- * 引く。日本語は中黒「・」、英語は中点「·」で、英語のページに日本語の約物を
- * 混ぜない（以前は「・」を直書きしていて、英語の点数表の本文に 1 文字だけ日本語が
- * 出ていた）。
+ * 状態は左、設定ページへのリンクは右端に分けて置く。以前は「切り上げ満貫：なし・
+ * 設定を変更」と中黒でつないで 1 行の文にしていたが、脚注の地の文とリンクが同じ灰で、
+ * 中黒の並びが「なし」と「設定を変更」を同格の語に見せ、どこからがリンクか
+ * 分からなかった。区切りの約物も要らなくなり、英語のページに日本語の約物が混ざる
+ * 心配もなくなった。狭い幅で折り返すときも、リンクは丸ごと次の行へ落ちる。
+ *
+ * 状態の文字はリンクの灰（`muted-foreground`）と同じ色にせず、表の本文と同じ
+ * `text-foreground` にする。ツモの注記と同じ淡い灰にしていたころは、押せない状態と
+ * 押せるリンクが同じ色で並び、状態までリンクのように見えた。
  *
  * 設定ページへのリンクは、ページの言語で設定ページを公開しているかで決める。
  * 公開していればその言語の設定ページ（英語なら `/en/preferences#…`）へ
@@ -64,13 +69,12 @@ export function KiriageManganNote({
   const href = crossLocale ? path : localizedHref(path, pageLocale);
 
   return (
-    <p className="text-xs text-surface-500">
-      {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
-      <span aria-hidden="true" className="mx-1.5">
-        {t("kiriageManganStatusSeparator")}
-      </span>
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-xs text-surface-500">
+      <p className="text-foreground">
+        {t("kiriageManganStatus", { state: enabled ? "on" : "off" })}
+      </p>
       {crossLocale ? (
-        <>
+        <span>
           <a
             href={href}
             hrefLang={DEFAULT_LOCALE}
@@ -79,12 +83,12 @@ export function KiriageManganNote({
             {t("kiriageManganStatusLink")}
           </a>
           <JapaneseOnlyMark label={tNav("language.japaneseOnly")} />
-        </>
+        </span>
       ) : (
         <Link href={href} className={TEXT_LINK_CLASSES}>
           {t("kiriageManganStatusLink")}
         </Link>
       )}
-    </p>
+    </div>
   );
 }

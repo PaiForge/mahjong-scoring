@@ -20,7 +20,8 @@ import { colors } from "./theme";
  *   あること
  * - {@link linkStyles.inline} — 本文の中の語に掛けるリンク。文の中では色だけ
  *   では見分けにくいので、ここだけ下線を残す。折り返す文の中では末尾の
- *   記号を添えられないため
+ *   記号を添えられないため。下線は文字と同じ色で引く（以前は淡い緑
+ *   `primary300` で、小さな文字では下線が地に溶けた）
  * - 凡例の「不正解: N」や内訳の表の役名のように、押せない語と同じ大きさで
  *   同じ行・同じ表に並ぶ語は `InlineLink`（`components/inline-link.tsx`）。
  *   隣に同じ大きさの太字の地の文（凡例の値・表の数値）があると色だけでは
@@ -49,7 +50,6 @@ export const linkStyles = StyleSheet.create({
   inline: {
     color: colors.action,
     textDecorationLine: "underline",
-    textDecorationColor: colors.primary300,
   },
   /**
    * 押すと点数表を開く答え合わせの値（正解の点数・内訳の翻数と符）。値の

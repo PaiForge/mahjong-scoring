@@ -202,6 +202,6 @@ const styles = StyleSheet.create({
   },
   note: {
     fontSize: 12,
-    color: colors.surface500,
+    color: colors.foreground,
   },
 });
