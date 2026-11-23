@@ -22,6 +22,11 @@ interface ReferenceModalProps {
  * 答え合わせやレッスンの本文から、いまの画面を離れずに早見表（点数表・
  * 役一覧）を確かめるための共通の器。見出し・閉じるボタン・スクロール枠の
  * 体裁だけを持ち、中身と開閉の制御は呼び出し側に任せる。
+ *
+ * スクロール枠は下に `pb-2` の余白を持つ。テキストリンクの下線は文字から
+ * 4px 下（`underline-offset-4`）に引かれ、行の箱の外にはみ出す。中身の最後の
+ * 行がリンクだと（点数表の脚注の「設定を変更」）、余白が無いと `overflow-y-auto`
+ * の枠が下線を切り落とし、リンクがただの文字に見えた。
  */
 export function ReferenceModal({
   isOpen,
@@ -45,7 +50,7 @@ export function ReferenceModal({
         </h3>
         <ModalCloseButton onClick={onClose} label={tCommon("close")} />
       </div>
-      <div className="max-h-[70vh] overflow-y-auto">{children}</div>
+      <div className="max-h-[70vh] overflow-y-auto pb-2">{children}</div>
     </ModalShell>
   );
 }
