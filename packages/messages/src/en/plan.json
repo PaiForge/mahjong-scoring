@@ -24,7 +24,14 @@
     "priceUnavailable": "Please check the price on the checkout page",
     "buy": "Buy",
     "signInToBuy": "Log in to buy",
-    "taxIncluded": "tax included"
+    "taxIncluded": "tax included",
+    "inUse": "Active",
+    "inUseUntil": "Active until {until}",
+    "scheduled": "You have a purchase waiting to start",
+    "notNeeded": "You have Lifetime, so no purchase is needed",
+    "availableAfter": "Available to buy from {until}",
+    "grantedNotice": "You have Pro granted by us until {until}. You can still buy, but a 30-day pass would overlap with the granted period.",
+    "grantedNoticeIndefinite": "You have Pro granted by us with no expiry. You can use the Pro features without buying."
   },
   "notes": {
     "title": "Before you buy",

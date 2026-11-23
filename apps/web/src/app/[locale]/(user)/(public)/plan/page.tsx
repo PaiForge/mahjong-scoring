@@ -18,7 +18,9 @@ import {
 import { formatAmount, getOfferPrices } from "@/lib/billing/prices";
 import { PRACTICE_QUOTA_LIMITS } from "@mahjong-scoring/features/quota/limits";
 
+import { GrantedPlanNotice } from "./_components/granted-plan-notice";
 import { OfferPurchaseButton } from "./_components/offer-purchase-button";
+import { ViewerPlanProvider } from "./_components/viewer-plan-provider";
 import { MYPAGE_PLAN_PATH } from "@mahjong-scoring/features/routes";
 import { prepareRouteLocale } from "@/i18n/route-locale";
 import { resolveNavTargetFor } from "@/app/[locale]/(user)/_components/_lib/locale-nav-target";
@@ -75,13 +77,19 @@ export const revalidate = 3600;
  * 価格は Stripe の Price から読む（1 日キャッシュ）。読めないときは価格欄を
  * 伏せて購入ボタンだけ出す（Checkout が正しい価格を出す）。
  *
- * 静的ページ（ISR、{@link revalidate} 参照）。ログインしているかは購入ボタン
- * （クライアント）が認証コンテキストで決める。
+ * 静的ページ（ISR、{@link revalidate} 参照）。ログインしているか・購入済みかは
+ * 売り方の節のクライアント部品が決める（認証コンテキストと、このページだけが読む
+ * `/api/plan/me`。`ViewerPlanProvider`）。有効な購入がある人には購入ボタンの代わりに
+ * 「利用中」などの状態を出し、押してから断らない。購入状況の詳細と使える特典の
+ * 一覧はマイページ（`/mypage/plan`、末尾のリンク）が持ち、ここでは繰り返さない —
+ * 特典の中身は冒頭の「Pro でできること」が同じ文言で示している。
  *
  * @flow
  * 1. 特典を読む → 売り方を選んで「購入する」
  * 2. 未ログインなら「ログインして購入」でサインインへ（戻り先はこのページ）
  * 3. ログイン済みなら Stripe の決済画面へ → 完了すると `/mypage/plan` に戻る
+ * 4. 購入済みならボタンの代わりに状態（利用中・期限後に購入可）を見る →
+ *    末尾のリンクから購入状況へ
  *
  * @design 英語の料金ページと英語からの購入
  * ページの言語（`prepareRouteLocale` の戻り値）を metadata・金額の書式
@@ -134,50 +142,53 @@ export default async function PlanPage({
         <section className="space-y-4">
           <SectionTitle>{t("offers.title")}</SectionTitle>
           <p className="text-sm leading-relaxed">{t("offers.shared")}</p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {OFFER_KEYS.map((offer) => {
-              const price = prices?.find((view) => view.offer === offer);
-              return (
-                <div
-                  key={offer}
-                  className="flex flex-col gap-4 rounded-panel border border-panel bg-white p-5"
-                >
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold">
-                      {t(`offers.${offer}.title`)}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-surface-600">
-                      {t(`offers.${offer}.description`)}
-                    </p>
-                  </div>
-                  <p className="text-2xl font-bold tabular-nums">
-                    {price ? (
-                      <>
-                        {formatAmount(
-                          price.amount,
-                          price.currency,
-                          amountLocale,
-                        )}
-                        <span className="ml-1 text-xs font-medium text-surface-500">
-                          {t("offers.taxIncluded")}
+          <ViewerPlanProvider>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {OFFER_KEYS.map((offer) => {
+                const price = prices?.find((view) => view.offer === offer);
+                return (
+                  <div
+                    key={offer}
+                    className="flex flex-col gap-4 rounded-panel border border-panel bg-white p-5"
+                  >
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-bold">
+                        {t(`offers.${offer}.title`)}
+                      </h3>
+                      <p className="text-sm leading-relaxed text-surface-600">
+                        {t(`offers.${offer}.description`)}
+                      </p>
+                    </div>
+                    <p className="text-2xl font-bold tabular-nums">
+                      {price ? (
+                        <>
+                          {formatAmount(
+                            price.amount,
+                            price.currency,
+                            amountLocale,
+                          )}
+                          <span className="ml-1 text-xs font-medium text-surface-500">
+                            {t("offers.taxIncluded")}
+                          </span>
+                        </>
+                      ) : (
+                        <span className="text-sm font-medium text-surface-500">
+                          {t("offers.priceUnavailable")}
                         </span>
-                      </>
-                    ) : (
-                      <span className="text-sm font-medium text-surface-500">
-                        {t("offers.priceUnavailable")}
-                      </span>
-                    )}
-                  </p>
-                  <div className="mt-auto">
-                    <OfferPurchaseButton
-                      offer={plan.offers[offer].key}
-                      locale={locale}
-                    />
+                      )}
+                    </p>
+                    <div className="mt-auto">
+                      <OfferPurchaseButton
+                        offer={plan.offers[offer].key}
+                        locale={locale}
+                      />
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+            <GrantedPlanNotice locale={locale} />
+          </ViewerPlanProvider>
           <p className="text-sm leading-relaxed text-surface-600">
             {t("offers.lifetimeScope")}
           </p>
