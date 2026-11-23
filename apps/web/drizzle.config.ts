@@ -1,10 +1,8 @@
 import { defineConfig } from "drizzle-kit";
 
-import {
-  LOCAL_SUPABASE_DATABASE_URL,
-  resolveMigrationDatabaseUrl,
-} from "./scripts/_lib/database-url";
+import { resolveMigrationDatabaseUrl } from "./scripts/_lib/database-url";
 import { loadScriptEnv } from "./scripts/_lib/load-script-env";
+import { LOCAL_SUPABASE_DATABASE_URL } from "./src/lib/local-supabase";
 
 loadScriptEnv();
 

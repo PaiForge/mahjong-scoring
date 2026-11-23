@@ -20,7 +20,9 @@ if [ -z "$UDID" ]; then
 fi
 DEVICE_NAME=$(simulator_name "$UDID")
 
-# Supabase CLI がローカル環境に既定で振る公開キー（src/auth/supabase-config.ts と同じ値）
+# 手元の Supabase の API（ポートは apps/web/supabase/config.toml の [api] port。
+# 食い違うと apps/web/src/lib/local-supabase.test.ts が落ちる）と、Supabase CLI が
+# ローカル環境に既定で振る公開キー（src/auth/supabase-config.ts と同じ値）
 LOCAL_SUPABASE_URL="http://127.0.0.1:54321"
 LOCAL_SUPABASE_PUBLISHABLE_KEY="sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
 LOCAL_SITE_URL="http://localhost:3000"
@@ -75,7 +77,7 @@ fi
 # 焼き込まれた接続先を検査する。本番の URL が残っていたら、このビルドで操作してはいけない
 APP=$(xcrun simctl get_app_container "$UDID" help.mahjong.score)
 EMBEDDED=$(strings "$APP/main.jsbundle" |
-  grep -oE 'https://[a-z0-9]+\.supabase\.co|http://127\.0\.0\.1:54321|http://localhost:3000' | sort -u)
+  grep -oE "https://[a-z0-9]+\\.supabase\\.co|${LOCAL_SUPABASE_URL//./\\.}|http://localhost:3000" | sort -u)
 echo "sim-release: バンドルの接続先:"
 echo "$EMBEDDED" | sed 's/^/  /'
 if echo "$EMBEDDED" | grep -q 'supabase\.co'; then

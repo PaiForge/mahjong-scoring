@@ -61,7 +61,7 @@
  *   行は消せない）ので、出し切った後は練習で保存した盤面が候補になる
  *
  * 必要な環境変数（`apps/web/.env.local`）:
- *   - NEXT_PUBLIC_SUPABASE_URL   未設定なら http://127.0.0.1:54321
+ *   - NEXT_PUBLIC_SUPABASE_URL   未設定なら手元の Supabase（`src/lib/local-supabase.ts`）
  *   - SUPABASE_SERVICE_ROLE_KEY  `pnpm supabase status -o json` の SERVICE_ROLE_KEY
  *   - POSTGRES_URL / DATABASE_URL 未設定ならローカル Supabase の Postgres
  */
@@ -70,9 +70,10 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import {
+  LOCAL_SUPABASE_API_URL,
   LOCAL_SUPABASE_DATABASE_URL,
-  resolveMigrationDatabaseUrl,
-} from "./_lib/database-url";
+} from "../src/lib/local-supabase";
+import { resolveMigrationDatabaseUrl } from "./_lib/database-url";
 import { loadScriptEnv } from "./_lib/load-script-env";
 import { DEV_TRACKING_IDS, reseedAdCreatives } from "./dev-seed/ad-creatives";
 import { reseedAnnouncements } from "./dev-seed/announcements";
@@ -86,9 +87,6 @@ import { reseedPurchases } from "./dev-seed/purchases";
 import { SEED_PASSWORD, SEED_USERS, ensureSeedUser } from "./dev-seed/users";
 
 loadScriptEnv();
-
-/** ローカル Supabase の API エンドポイント */
-const LOCAL_SUPABASE_API_URL = "http://127.0.0.1:54321";
 
 const databaseUrl =
   resolveMigrationDatabaseUrl() ?? LOCAL_SUPABASE_DATABASE_URL;

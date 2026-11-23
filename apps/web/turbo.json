@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/mobile/src/auth/supabase-config.ts",
+        "$TURBO_ROOT$/apps/mobile/scripts/sim-release.sh"
+      ]
+    }
+  }
+}
