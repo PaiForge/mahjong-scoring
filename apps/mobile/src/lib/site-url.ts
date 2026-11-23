@@ -3,8 +3,16 @@ import {
   PRODUCTION_SITE_URL,
 } from "@mahjong-scoring/features/site-url";
 
-/** 手元の web（`pnpm --filter web dev`）のポート */
-const DEV_WEB_PORT = 3000;
+/**
+ * 手元の web（`pnpm --filter web dev`）のポート
+ *
+ * `apps/web/package.json` の `dev`（`next dev -p <ポート>`）の写し。食い違うと
+ * `apps/web/src/lib/local-web-server.test.ts` が落ちる（この行をテキストとして読むので、
+ * `export const LOCAL_WEB_PORT = <数字>;` の形を保つ）。ホストは Metro のホストか
+ * localhost のまま（web が cookie を分けるために使う `mahjong.localhost` は、アプリには
+ * 関係しない。アプリは cookie ではなく Bearer で認証する）。
+ */
+export const LOCAL_WEB_PORT = 3200;
 
 /**
  * アプリが読む web の URL を決める
@@ -32,5 +40,5 @@ export function resolveSiteUrl({
   if (envUrl) return normalizeSiteUrl(envUrl);
   if (!isDev) return PRODUCTION_SITE_URL;
   const host = hostUri?.replace(/:\d+$/, "") || "localhost";
-  return normalizeSiteUrl(`http://${host}:${DEV_WEB_PORT}`);
+  return normalizeSiteUrl(`http://${host}:${LOCAL_WEB_PORT}`);
 }

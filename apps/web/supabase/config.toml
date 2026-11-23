@@ -127,13 +127,15 @@ max_indexes = 5
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-# NOTE: localhost を使用すること（127.0.0.1 ではない）。
-# ブラウザは localhost と 127.0.0.1 を別オリジンとして扱うため、
-# Next.js の開発サーバー（localhost:3000）と一致させないと
-# OAuth 後の Cookie が正しく読み込めずセッションが維持されない。
-site_url = "http://localhost:3000"
+# NOTE: Next.js の開発サーバーを開くオリジン（mahjong.localhost:3200）と一致させる。
+# 127.0.0.1 や localhost にすると別オリジンになり、OAuth 後の Cookie が読めず
+# セッションが維持されない。mahjong.localhost にしているのは、同じ Mac で動かす
+# 別プロダクトの dev と cookie（Supabase の sb-127-auth-token 等）を分けるため
+# （apps/web/README.md「ローカルのポート」）。値は .env.example の NEXT_PUBLIC_SITE_URL と
+# 揃える（src/lib/local-web-server.test.ts が照合する）。
+site_url = "http://mahjong.localhost:3200"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://localhost:3000"]
+additional_redirect_urls = ["http://mahjong.localhost:3200"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.

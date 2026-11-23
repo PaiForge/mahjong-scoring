@@ -5,7 +5,8 @@
       "name": "web",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "web", "dev"],
-      "port": 3000
+      "port": 3200,
+      "url": "http://mahjong.localhost:3200"
     },
     {
       "name": "mobile-web",

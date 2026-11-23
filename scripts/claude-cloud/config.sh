@@ -16,7 +16,11 @@ CLOUD_PROJECT_NAME="mahjong-scoring"
 APP_DIR="apps/web"
 PKG_FILTER="web"
 
-APP_URL="http://localhost:3000"
+# Port: `next dev -p` in apps/web/package.json (apps/web/src/lib/local-web-server.test.ts
+# checks it). On a developer's Mac the app is opened as mahjong.localhost to keep its
+# cookies apart from another product's dev server; the VM runs only this product, and
+# curl / Node on Linux are not guaranteed to resolve *.localhost, so it stays localhost.
+APP_URL="http://localhost:3200"
 # Path that must answer 200 once `next dev` is up (also the screenshot.sh
 # readiness probe).
 HEALTH_PATH="/"
