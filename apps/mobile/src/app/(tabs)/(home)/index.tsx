@@ -1,6 +1,6 @@
 import { MYPAGE_PATH } from "@mahjong-scoring/features/routes";
 import { useMemo } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useTranslations } from "use-intl";
 import { selectDashboardGuidance } from "@mahjong-scoring/features/dashboard/guidance";
@@ -14,11 +14,14 @@ import { AgariScorePracticeSection } from "../../../home/agari-score-practice-se
 import { ContinueLearningSection } from "../../../home/continue-learning-section";
 import { DailyProblemSection } from "../../../home/daily-problem-section";
 import { HomeAnnouncements } from "../../../home/home-announcements";
+import { HomeNotifications } from "../../../home/home-benefit-grant-card";
 import { NextStepCard } from "../../../home/next-step-card";
 import { RecordCtaCard } from "../../../home/record-cta-card";
 import { UNPORTED_LESSON_SLUGS } from "../../../lessons/ported-lessons";
 import { colors } from "../../../lib/theme";
 import { UserAvatar } from "../../../mypage/user-avatar";
+import { UnreadCountBadge } from "../../../notifications/unread-count-badge";
+import { useUnreadNotifications } from "../../../notifications/unread-notifications";
 import { useAccountProgress } from "../../../records/use-account-progress";
 
 /**
@@ -59,6 +62,10 @@ const ENTRY_SIZE = 28;
  *   設定した人にはアイコンの代わりにその画像を出す（スマホアプリで見慣れた
  *   形）。画像の無い人は頭文字ではなく人型のアイコンのまま — `/me` は表示名を
  *   持たず、マイページの見出しの頭文字と食い違うため
+ * - ログイン中の iOS では、未読の通知の件数をヘッダーのアバターにバッジで重ね、
+ *   未読の「運営から Pro が付与された」通知があれば先頭にそのカードを出す
+ *   （`HomeNotifications`。通知はマイページの奥にあり、付与に気づかれなかった。
+ *   web はヘッダーに通知のベルを常に出す）
  * - ゲストにも開く画面なので、記録が残らない人（ゲスト・ユーザー名を
  *   決めていない人）には「次にやること」の下に記録の案内を出す
  *   （`RecordCtaCard`）。今することを先に置き、案内はその後
@@ -75,7 +82,13 @@ const ENTRY_SIZE = 28;
  */
 export default function HomeScreen() {
   const t = useTranslations("nav");
+  const tNotifications = useTranslations("notifications");
   const router = useRouter();
+  const { status, user } = useAuth();
+  const unread = useUnreadNotifications(
+    status === "signedIn" ? user?.id : undefined,
+  );
+  const unreadCount = unread?.unreadCount ?? 0;
   const { input } = useAccountProgress();
   const { journey, nextChapter, showAgariScorePractice } = useMemo(
     () =>
@@ -93,11 +106,16 @@ export default function HomeScreen() {
         <HeaderIconButton
           testID="home-mypage"
           onPress={() => router.push(MYPAGE_PATH)}
-          label={t("mypage")}
-          element={<MypageEntryIcon />}
+          label={
+            unreadCount > 0
+              ? tNotifications("mypageEntryUnread", { count: unreadCount })
+              : t("mypage")
+          }
+          element={<MypageEntryIcon unreadCount={unreadCount} />}
         />
       }
     >
+      <HomeNotifications />
       <NextStepCard journey={journey} />
       <DailyProblemSection />
       {nextChapter !== undefined && (
@@ -113,8 +131,25 @@ export default function HomeScreen() {
   );
 }
 
-/** マイページの入口の絵柄。アバター画像があればそれ、無ければ人型のアイコン */
-function MypageEntryIcon() {
+/**
+ * マイページの入口の絵柄。アバター画像があればそれ、無ければ人型のアイコン。
+ * 未読の通知があれば右上に件数のバッジを重ねる（件数は `HomeNotifications` が
+ * 読んでストアに載せる。ナビゲーターが画面の外で描くので props で受ける）
+ */
+function MypageEntryIcon({ unreadCount }: { readonly unreadCount: number }) {
+  return (
+    <View>
+      <MypageEntryPicture />
+      {unreadCount > 0 && (
+        <View style={styles.badge} pointerEvents="none">
+          <UnreadCountBadge count={unreadCount} size="sm" />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function MypageEntryPicture() {
   const { account } = useAuth();
   const profile = account?.profile;
   if (profile?.avatarUrl !== undefined) {
@@ -139,5 +174,11 @@ function MypageEntryIcon() {
 const styles = StyleSheet.create({
   content: {
     gap: 32,
+  },
+  // アバターの右上の角に半分はみ出させる（スマホアプリで見慣れたバッジの位置）
+  badge: {
+    position: "absolute",
+    top: -6,
+    right: -8,
   },
 });

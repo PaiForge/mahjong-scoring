@@ -25,5 +25,11 @@
   },
   "detail": {
     "viewPlan": "プランを見る"
+  },
+  "mypageEntryUnread": "マイページ（未読の通知 {count} 件）",
+  "homeGrant": {
+    "heading": "Pro プランが届きました",
+    "viewPlan": "プランを見る",
+    "dismiss": "このお知らせを閉じる"
   }
 }

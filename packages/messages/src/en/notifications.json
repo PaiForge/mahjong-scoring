@@ -25,5 +25,11 @@
   },
   "detail": {
     "viewPlan": "View plan"
+  },
+  "mypageEntryUnread": "My Page ({count} unread notifications)",
+  "homeGrant": {
+    "heading": "You've received Pro",
+    "viewPlan": "View plan",
+    "dismiss": "Dismiss this notice"
   }
 }
