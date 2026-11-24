@@ -15,6 +15,11 @@ const MACHI_FU: Readonly<Record<MachiType, number>> = {
   Tanki: 2,
 };
 
+/** 待ちの形の一覧。待ち符表を正本とし、分類でも同じ値を使う。 */
+export const MACHI_TYPES: readonly MachiType[] = Object.keys(MACHI_FU).filter(
+  (value): value is MachiType => Object.hasOwn(MACHI_FU, value),
+);
+
 /**
  * 待ちの形から待ち符を返す
  * 待ち符計算

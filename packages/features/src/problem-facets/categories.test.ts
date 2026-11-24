@@ -3,16 +3,11 @@ import { messages } from "@mahjong-scoring/messages/ja";
 import { describe, expect, it } from "vitest";
 
 import {
-  eligibleAgariPayload,
-  kazoeYakumanAgariPayload,
-  kiriageBoundaryAgariPayload,
-  otherEligibleAgariPayload,
-} from "../daily-problem/test-fixtures";
-
-import {
   facetRowMatches,
   findProblemCategory,
   PROBLEM_CATEGORIES,
+  PROBLEM_VALUE_CATEGORIES,
+  NAMED_PROBLEM_CATEGORIES,
   PROBLEM_CATEGORY_GROUPS,
   problemMatchesCategory,
   SCORE_LEVELS,
@@ -21,7 +16,6 @@ import {
 import { computeProblemFacets, type ScoredFacetRow } from "./compute";
 import {
   agariInput,
-  kiriageOnlyWithRenfonpaiAgariPayload,
   noYakuAgariPayload,
   noYakuRonTenpaiPayload,
   riichiTenpaiPayload,
@@ -228,7 +222,7 @@ describe("PROBLEM_CATEGORIES", () => {
   });
 
   it("どの分類も一覧にあるまとまりに属し、まとまりの順に並ぶ", () => {
-    const order = PROBLEM_CATEGORIES.map((category) =>
+    const order = PROBLEM_VALUE_CATEGORIES.map((category) =>
       PROBLEM_CATEGORY_GROUPS.indexOf(category.group),
     );
     expect(order.every((index) => index >= 0)).toBe(true);
@@ -270,7 +264,7 @@ describe("PROBLEM_CATEGORIES", () => {
   });
 
   it("ID から分類を引け、無い ID は undefined", () => {
-    expect(findProblemCategory("pinfu")?.condition).toEqual({
+    expect(findProblemCategory("yaku-pinfu")?.condition).toEqual({
       yakuAll: ["Pinfu"],
     });
     expect(findProblemCategory("unknown")).toBeUndefined();
@@ -278,65 +272,182 @@ describe("PROBLEM_CATEGORIES", () => {
     expect(findProblemCategory(undefined)).toBeUndefined();
   });
 
-  it("テスト盤面がそれぞれ見込んだ分類に入る", () => {
-    const categoriesOf = (facets: ReturnType<typeof computeProblemFacets>) =>
-      PROBLEM_CATEGORIES.filter((category) =>
-        problemMatchesCategory(category, facets),
-      ).map((category) => category.id);
-
-    // リーチ・ツモ、2 翻 30 符、嵌張待ち
-    expect(
-      categoriesOf(computeProblemFacets(agariInput(eligibleAgariPayload()))),
-    ).toEqual(["riichi", "fu-30", "machi-kanchan-penchan"]);
-    // 白・ツモ、3 翻 30 符、両面待ち
-    expect(
-      categoriesOf(
-        computeProblemFacets(agariInput(otherEligibleAgariPayload())),
-      ),
-    ).toEqual(["yakuhai", "fu-30", "machi-ryanmen"]);
-    // リーチ・ツモ・ドラ 2、4 翻 30 符、双碰待ち
-    expect(
-      categoriesOf(
-        computeProblemFacets(agariInput(kiriageBoundaryAgariPayload())),
-      ),
-    ).toEqual(["riichi", "fu-30", "machi-shanpon"]);
-    // 白・リーチのロン、3 翻 50 符、嵌張待ち
-    expect(
-      categoriesOf(
-        computeProblemFacets(
-          agariInput(kiriageOnlyWithRenfonpaiAgariPayload()),
-        ),
-      ),
-    ).toEqual([
+  it("公開 ID は固定され、旧 ID を別の意味に読み替えない", () => {
+    expect(PROBLEM_CATEGORIES.map(({ id }) => id)).toEqual(ID_CONTRACT);
+    for (const id of [
       "riichi",
+      "pinfu",
       "yakuhai",
+      "furo",
       "fu-50-plus",
       "machi-kanchan-penchan",
-      "menzen-ron",
-    ]);
-    // 清一色・一気通貫・平和・リーチ・ツモ（数え役満）
+    ]) {
+      expect(findProblemCategory(id)).toBeUndefined();
+    }
+  });
+
+  it.each([20, 25, 30, 40, 50, 60, 70, 80, 90, 100, 110])(
+    "%i 符はその値だけに分類し、満貫以上でも分類から除かない",
+    (fu) => {
+      const selected = PROBLEM_VALUE_CATEGORIES.filter(
+        (category) =>
+          category.group === "fu" &&
+          matches(category.condition, { fu, scoreLevel: "Mangan" }),
+      );
+      expect(selected.map(({ id }) => id)).toEqual([`fu-${fu}`]);
+    },
+  );
+
+  it("混一色と清一色は別の単一値で、両方が染め手に入る", () => {
+    for (const [id, yaku] of [
+      ["yaku-honitsu", "Honitsu"],
+      ["yaku-chinitsu", "Chinitsu"],
+    ] as const) {
+      const selected = PROBLEM_CATEGORIES.filter(
+        (category) =>
+          category.group === "yaku" &&
+          matches(category.condition, { yaku: [yaku] }),
+      );
+      expect(selected.map((category) => category.id)).toEqual([id, "somete"]);
+    }
+  });
+
+  it.each([
+    "Yakuhai",
+    "Bakaze",
+    "Jikaze",
+    "Ton",
+    "Nan",
+    "Sha",
+    "Pei",
+    "Haku",
+    "Hatsu",
+    "Chun",
+  ] as const)("役牌の内訳 %s は役牌の単一値へまとめる", (yaku) => {
+    const selected = PROBLEM_VALUE_CATEGORIES.filter(
+      (category) =>
+        category.group === "yaku" &&
+        matches(category.condition, { yaku: [yaku] }),
+    );
+    expect(selected.map(({ id }) => id)).toEqual(["yaku-yakuhai"]);
+  });
+
+  it("嵌張・辺張・単騎を分け、待ち符の束だけでまとめる", () => {
+    const bundle = findProblemCategory("machi-fu-2")!;
+    for (const [machi, id] of [
+      ["Kanchan", "machi-kanchan"],
+      ["Penchan", "machi-penchan"],
+      ["Tanki", "machi-tanki"],
+    ] as const) {
+      expect(
+        PROBLEM_VALUE_CATEGORIES.filter(
+          (category) =>
+            category.group === "machi" &&
+            matches(category.condition, { machi }),
+        ).map((category) => category.id),
+      ).toEqual([id]);
+      expect(matches(bundle.condition, { machi })).toBe(true);
+    }
+    for (const machi of ["Ryanmen", "Shanpon", null] as const)
+      expect(matches(bundle.condition, { machi })).toBe(false);
+  });
+
+  it("聴牌形は同じ符軸に重複し、20 符とロンを別々の和了から組み合わせない", () => {
+    const facets = computeProblemFacets(tenpaiInput(riichiTenpaiPayload()));
     expect(
-      categoriesOf(
-        computeProblemFacets(agariInput(kazoeYakumanAgariPayload())),
+      PROBLEM_VALUE_CATEGORIES.filter(
+        (category) =>
+          category.group === "fu" && problemMatchesCategory(category, facets),
+      ).map(({ id }) => id),
+    ).toEqual(["fu-20", "fu-30"]);
+    expect(
+      problemMatchesCategory(
+        { condition: { fuEq: 20, isTsumo: false }, tenpaiMatch: "any" },
+        facets,
       ),
-    ).toEqual([
-      "riichi",
-      "pinfu",
-      "ikkitsuukan",
+    ).toBe(false);
+  });
+
+  it("名前付き条件は単一値から独立し、一覧のすべての分類は any で数える", () => {
+    expect(NAMED_PROBLEM_CATEGORIES.map(({ id }) => id)).toEqual([
       "somete",
-      "machi-ryanmen",
-      "mangan-plus",
-    ]);
-    // 聴牌形: リーチ・タンヤオ・平和の三面待ち（ツモ 20 符 / ロン 30 符）
-    expect(
-      categoriesOf(computeProblemFacets(tenpaiInput(riichiTenpaiPayload()))),
-    ).toEqual([
-      "riichi",
-      "tanyao",
-      "pinfu",
-      "fu-30",
-      "machi-ryanmen",
       "menzen-ron",
+      "mangan-plus",
+      "machi-fu-2",
     ]);
+    expect(
+      PROBLEM_CATEGORIES.every(({ tenpaiMatch }) => tenpaiMatch === "any"),
+    ).toBe(true);
+    expect(PROBLEM_VALUE_CATEGORIES.every(({ kind }) => kind === "value")).toBe(
+      true,
+    );
+    expect(NAMED_PROBLEM_CATEGORIES.every(({ kind }) => kind === "named")).toBe(
+      true,
+    );
   });
 });
+
+/** 管理画面の URL 契約。生成規則の変更で既存 ID が変わることを防ぐ。 */
+const ID_CONTRACT = [
+  "yaku-tanyao",
+  "yaku-pinfu",
+  "yaku-iipeikou",
+  "yaku-menzen-tsumo",
+  "yaku-riichi",
+  "yaku-yakuhai",
+  "yaku-sanshoku-doujun",
+  "yaku-ikkitsuukan",
+  "yaku-honchan",
+  "yaku-chiitoitsu",
+  "yaku-toitoi",
+  "yaku-sanankou",
+  "yaku-sankantsu",
+  "yaku-sanshoku-doukou",
+  "yaku-honroutou",
+  "yaku-shousangen",
+  "yaku-honitsu",
+  "yaku-junchan",
+  "yaku-ryanpeikou",
+  "yaku-chinitsu",
+  "yaku-kokushi-musou",
+  "yaku-suuankou",
+  "yaku-daisangen",
+  "yaku-shousuushii",
+  "yaku-daisuushii",
+  "yaku-tsuuiisou",
+  "yaku-chinroutou",
+  "yaku-ryuuiisou",
+  "yaku-chuuren-poutou",
+  "yaku-suukantsu",
+  "fu-20",
+  "fu-25",
+  "fu-30",
+  "fu-40",
+  "fu-50",
+  "fu-60",
+  "fu-70",
+  "fu-80",
+  "fu-90",
+  "fu-100",
+  "fu-110",
+  "machi-ryanmen",
+  "machi-shanpon",
+  "machi-kanchan",
+  "machi-penchan",
+  "machi-tanki",
+  "agari-tsumo",
+  "agari-ron",
+  "menzen-true",
+  "menzen-false",
+  "level-normal",
+  "level-mangan",
+  "level-haneman",
+  "level-baiman",
+  "level-sanbaiman",
+  "level-yakuman",
+  "level-double-yakuman",
+  "somete",
+  "menzen-ron",
+  "mangan-plus",
+  "machi-fu-2",
+];

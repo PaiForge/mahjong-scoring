@@ -123,23 +123,26 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
     // 未計算の 1 問（リーチ・30 符）と失敗の 1 問は入らない
     expect(agari?.categories).toMatchObject({
-      riichi: 3,
-      yakuhai: 2,
+      "yaku-riichi": 3,
+      "yaku-yakuhai": 2,
       "fu-30": 3,
-      "fu-50-plus": 2,
+      "fu-50": 1,
       "machi-ryanmen": 1,
-      "machi-kanchan-penchan": 2,
+      "machi-kanchan": 2,
+      "machi-penchan": 0,
+      "machi-fu-2": 3,
       "machi-shanpon": 1,
       "machi-tanki": 1,
       "menzen-ron": 1,
-      furo: 0,
+      "menzen-false": 0,
       "mangan-plus": 1,
     });
     // 和了を 6 つ・4 つ持つ聴牌形も、それぞれ 1 問
     expect(tenpai?.categories).toMatchObject({
-      riichi: 1,
-      tanyao: 1,
-      pinfu: 1,
+      "yaku-riichi": 1,
+      "yaku-tanyao": 1,
+      "yaku-pinfu": 1,
+      "fu-20": 1,
       "fu-30": 2,
       "fu-40": 1,
       "machi-ryanmen": 1,
@@ -168,7 +171,7 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
   it("分類に当てはまる問題を保存の新しい順に返し、和了ごとの属性を添える", async () => {
     const page = await fetchCategoryProblems(
-      { type: "category", category: category("riichi") },
+      { type: "category", category: category("yaku-riichi") },
       1,
     );
     expect(page).toMatchObject({ total: 4, page: 1, totalPages: 1 });
@@ -213,7 +216,7 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
   it("当てはまる問題が無ければ空の 1 ページを返し、範囲外のページは端に寄せる", async () => {
     const empty = await fetchCategoryProblems(
-      { type: "category", category: category("chiitoitsu") },
+      { type: "category", category: category("yaku-chiitoitsu") },
       3,
     );
     expect(empty).toEqual({ problems: [], total: 0, page: 1, totalPages: 1 });
