@@ -1,0 +1,44 @@
+# ログイン中（dave）のホーム: dave は運営からの付与の通知が未読（dev seed）なので、ヘッダーの
+# アバターに未読の件数のバッジが出て、先頭に付与の告知カードが出る。カードの × で既読にすると
+# カードとバッジが消え、マイページの「通知」の行も元の位置（各機能の行）に戻る。
+# 既読にした状態は dev seed（`pnpm --filter web db:seed:dev`）を流し直すと戻る。
+# iOS だけ（Android は通知を扱わない）
+appId: help.mahjong.score
+---
+- clearKeychain
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "次にやること"
+    timeout: 20000
+- runFlow:
+    file: _sign-in.yaml
+    env:
+      EMAIL: dave@example.local
+      PASSWORD: devpass1
+- extendedWaitUntil:
+    visible:
+      id: "home-benefit-grant"
+    timeout: 15000
+# バッジ自体は読み上げから外している（件数はボタンの名前が持つ）ので名前で確かめる
+- assertVisible: "マイページ（未読の通知 1 件）"
+- assertVisible: "Pro プランが届きました"
+- takeScreenshot: home-notifications-unread
+# 未読があるとマイページの見出しの直下に通知の行が出る
+- tapOn:
+    id: "home-mypage"
+- assertVisible:
+    id: "mypage-menu-notifications"
+- takeScreenshot: home-notifications-mypage-unread
+- tapOn:
+    id: "screen-close"
+- tapOn:
+    id: "home-benefit-grant-dismiss"
+- extendedWaitUntil:
+    notVisible:
+      id: "home-benefit-grant"
+    timeout: 5000
+- assertNotVisible: "マイページ（未読の通知.*"
+- assertVisible:
+    id: "home-mypage"
+- takeScreenshot: home-notifications-read
