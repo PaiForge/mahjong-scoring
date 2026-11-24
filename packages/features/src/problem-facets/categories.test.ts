@@ -80,6 +80,32 @@ describe("facetRowMatches", () => {
     expect(matches({ fuMin: 40 })).toBe(false);
   });
 
+  it("符の複数値は OR、上下限は端を含み、項目間は AND", () => {
+    expect(matches({ fuIn: [30, 50] })).toBe(true);
+    expect(matches({ fuIn: [30, 50] }, { fu: 40 })).toBe(false);
+    expect(matches({ fuIn: [] })).toBe(false);
+    expect(matches({ fuMin: 30, fuMax: 30 })).toBe(true);
+    expect(matches({ fuMax: 25 })).toBe(false);
+    expect(matches({ fuIn: [30, 50], fuMax: 40 }, { fu: 50 })).toBe(false);
+  });
+
+  it("翻の一致・上下限は端を含み、役・符の条件と同時に満たす必要がある", () => {
+    expect(matches({ hanEq: 3 })).toBe(true);
+    expect(matches({ hanEq: 2 })).toBe(false);
+    expect(matches({ hanMin: 3, hanMax: 3, fuEq: 30 })).toBe(true);
+    expect(matches({ hanMin: 4 })).toBe(false);
+    expect(matches({ hanMax: 2 })).toBe(false);
+    expect(matches({ hanEq: 3, yakuAny: ["Honitsu"] })).toBe(false);
+    expect(matches({ hanMin: 3, hanMax: 2 })).toBe(false);
+  });
+
+  it("空の OR は一致せず、空の役 AND は制約を加えない", () => {
+    expect(matches({ machiIn: [] })).toBe(false);
+    expect(matches({ scoreLevelIn: [] })).toBe(false);
+    expect(matches({ yakuAny: [] })).toBe(false);
+    expect(matches({ yakuAll: [] })).toBe(true);
+  });
+
   it("machiIn は待ちの形が挙げたどれかのとき満たし、待ちの形を持たない和了は満たさない", () => {
     expect(matches({ machiIn: ["Ryanmen"] })).toBe(true);
     expect(matches({ machiIn: ["Kanchan", "Ryanmen"] })).toBe(true);

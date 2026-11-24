@@ -26,7 +26,7 @@ import type {
   FacetCondition,
   ProblemCategory,
 } from "@mahjong-scoring/features/problem-facets/categories";
-import { and, eq, sql, type SQL } from "drizzle-orm";
+import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
 
 import { practiceProblemFacetSets, practiceProblemFacets } from "../db";
 
@@ -39,14 +39,6 @@ function textArray(values: readonly string[]): SQL {
     values.map((value) => sql`${value}`),
     sql`, `,
   )}]::text[]`;
-}
-
-/** 文字列の列を `($1, $2, ...)` にする（値はバインド変数） */
-function textList(values: readonly string[]): SQL {
-  return sql`(${sql.join(
-    values.map((value) => sql`${value}`),
-    sql`, `,
-  )})`;
 }
 
 /**
@@ -91,7 +83,17 @@ export function facetConditionSql(condition: FacetCondition): SQL {
   if (yakuAny) parts.push(sql`${facets.yaku} && ${textArray(yakuAny)}`);
   if (fuEq !== undefined) parts.push(sql`${facets.fu} = ${fuEq}`);
   if (fuMin !== undefined) parts.push(sql`${facets.fu} >= ${fuMin}`);
-  if (machiIn) parts.push(sql`${facets.machi} IN ${textList(machiIn)}`);
+  if (condition.fuIn) parts.push(inArray(facets.fu, [...condition.fuIn]));
+  if (condition.fuMax !== undefined)
+    parts.push(sql`${facets.fu} <= ${condition.fuMax}`);
+  if (condition.hanEq !== undefined)
+    parts.push(sql`${facets.han} = ${condition.hanEq}`);
+  if (condition.hanMin !== undefined)
+    parts.push(sql`${facets.han} >= ${condition.hanMin}`);
+  if (condition.hanMax !== undefined)
+    parts.push(sql`${facets.han} <= ${condition.hanMax}`);
+  // inArray は空配列を FALSE にする。IN () は PostgreSQL では構文エラーになる。
+  if (machiIn) parts.push(inArray(facets.machi, [...machiIn]));
   if (condition.isTsumo !== undefined) {
     parts.push(sql`${facets.isTsumo} = ${condition.isTsumo}`);
   }
@@ -99,7 +101,7 @@ export function facetConditionSql(condition: FacetCondition): SQL {
     parts.push(sql`${sets.isMenzen} = ${condition.isMenzen}`);
   }
   if (scoreLevelIn) {
-    parts.push(sql`${facets.scoreLevel} IN ${textList(scoreLevelIn)}`);
+    parts.push(inArray(facets.scoreLevel, [...scoreLevelIn]));
   }
   return sql.join(parts, sql` AND `);
 }

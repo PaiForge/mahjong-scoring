@@ -33,9 +33,16 @@
  * 両方に 1 問ずつ入る。all にすると両方から消えるため、集計の重複回避には使わない。
  * 役は和了形でも複数に入る。七対子・国士の待ち null を単騎へ読み替えない。
  *
- * @design 検索と出題の条件は後段で決める
- * 検索は同じ和了の中で条件を満たす必要がある。現条件には符の複数値 OR・上限や
- * 翻の条件が無いため、検索 UI の段階で判定と SQL を一緒に拡張する。
+ * @design 検索条件は同じ和了の中で満たす
+ * 符の複数値は fuIn、符・翻の範囲は上下限で表す。範囲の端は含む。項目間は AND。
+ * 配列の未指定は制約なし、空配列の OR は一致なし（空の yakuAll は制約なし）。
+ * UI の未選択は未指定へ変換するが、条件 API の空配列を未指定へ読み替えない。
+ * 役の「すべて」は通常の役を yakuAll、役牌の内訳のどれかを yakuAny に入れる。
+ * 役牌の全 ID を要求すると場風・自風・三元牌をすべて持つという別の意味になるため採らない。
+ * 検索 UI の不正値・逆転範囲はエラーとし、黙って条件を外して結果を広げない。
+ * 自由検索は any の問題数で、一覧の分類別件数は検索に連動させず全体の集計を保つ。
+ *
+ * @design ドリルの適格条件は検索と分ける
  * Normal 限定は符別の点数回答ドリルの条件で、分類や符そのものを答える練習には
  * 適用しない。記録を残す点数ドリルは切り上げ満貫等の回答が割れる境界を除く。
  * 符だけを答える練習に点数の境界を機械的に適用しない。
@@ -92,6 +99,16 @@ export interface FacetCondition {
   readonly yakuAny?: readonly ScoreYakuId[];
   /** 符がこの値 */
   readonly fuEq?: number;
+  /** 符がこのいずれか。空配列は一致なし */
+  readonly fuIn?: readonly number[];
+  /** 符がこの値以下 */
+  readonly fuMax?: number;
+  /** 翻がこの値 */
+  readonly hanEq?: number;
+  /** 翻がこの値以上 */
+  readonly hanMin?: number;
+  /** 翻がこの値以下 */
+  readonly hanMax?: number;
   /** 符がこの値以上 */
   readonly fuMin?: number;
   /** 採用された解釈の待ちの形がこのどれか（七対子・国士無双は待ちの形を持たず、満たさない） */
@@ -291,6 +308,14 @@ export function facetRowMatches(
   if (yakuAny && !yakuAny.some((id) => row.yaku.includes(id))) return false;
   if (fuEq !== undefined && row.fu !== fuEq) return false;
   if (fuMin !== undefined && row.fu < fuMin) return false;
+  if (condition.fuIn && !condition.fuIn.includes(row.fu)) return false;
+  if (condition.fuMax !== undefined && row.fu > condition.fuMax) return false;
+  if (condition.hanEq !== undefined && row.han !== condition.hanEq)
+    return false;
+  if (condition.hanMin !== undefined && row.han < condition.hanMin)
+    return false;
+  if (condition.hanMax !== undefined && row.han > condition.hanMax)
+    return false;
   if (machiIn && !machiIn.some((machi) => machi === row.machi)) return false;
   if (condition.isTsumo !== undefined && row.isTsumo !== condition.isTsumo) {
     return false;

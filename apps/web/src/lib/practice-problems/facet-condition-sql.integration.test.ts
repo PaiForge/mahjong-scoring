@@ -97,6 +97,34 @@ const INPUT_FACETS = INPUTS.map(computeProblemFacets);
 
 /** レジストリの分類に無い項目の組み合わせと、`all` の意味 */
 const EXTRA_RULES: readonly Rule[] = [
+  ...(["any", "all"] as const).flatMap(
+    (tenpaiMatch) =>
+      [
+        { condition: { fuIn: [30, 50] }, tenpaiMatch },
+        { condition: { fuIn: [] }, tenpaiMatch },
+        { condition: { fuMin: 30, fuMax: 40 }, tenpaiMatch },
+        { condition: { fuMin: 30, fuMax: 30 }, tenpaiMatch },
+        { condition: { fuMax: 25 }, tenpaiMatch },
+        { condition: { hanEq: 3 }, tenpaiMatch },
+        { condition: { hanMin: 3, hanMax: 3 }, tenpaiMatch },
+        { condition: { hanMin: 4 }, tenpaiMatch },
+        { condition: { hanMax: 2 }, tenpaiMatch },
+        { condition: { hanMin: 3, hanMax: 2 }, tenpaiMatch },
+        { condition: { fuIn: [20], hanEq: 3 }, tenpaiMatch },
+        {
+          condition: {
+            fuMin: 40,
+            yakuAll: ["Riichi"],
+            yakuAny: ["Haku", "Bakaze"],
+          },
+          tenpaiMatch,
+        },
+        { condition: { yakuAll: [] }, tenpaiMatch },
+        { condition: { yakuAny: [] }, tenpaiMatch },
+        { condition: { machiIn: [] }, tenpaiMatch },
+        { condition: { scoreLevelIn: [] }, tenpaiMatch },
+      ] satisfies readonly Rule[],
+  ),
   { condition: {}, tenpaiMatch: "any" },
   { condition: {}, tenpaiMatch: "all" },
   { condition: { isTsumo: true }, tenpaiMatch: "any" },

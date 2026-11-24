@@ -38,6 +38,8 @@ import {
   setupPracticeProblemsTestDb,
 } from "@/lib/practice-problems/test-database";
 
+import { parseProblemSearch } from "../search";
+
 import {
   CATEGORY_PROBLEMS_PAGE_SIZE,
   fetchCategoryCounts,
@@ -178,6 +180,57 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
         ),
       ).toHaveLength(1);
     }
+  });
+
+  it("自由検索の種別・符・翻・役の AND は件数と一覧で同じ問題を選ぶ", async () => {
+    const state = parseProblemSearch({
+      kind: "agari-score",
+      fuMin: "50",
+      fuMax: "50",
+      hanEq: "3",
+      yaku: ["yaku-yakuhai", "yaku-riichi"],
+      yakuMode: "all",
+      agari: "ron",
+    });
+    if (!state.query) throw new Error("Invalid fixture search");
+    const page = await fetchCategoryProblems(
+      { type: "search", search: state.query },
+      1,
+    );
+    expect(page.total).toBe(1);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.both]);
+    const tenpaiOnly = await fetchCategoryProblems(
+      { type: "search", search: { ...state.query, kind: "tenpai-score" } },
+      1,
+    );
+    expect(tenpaiOnly.total).toBe(0);
+    expect(tenpaiOnly.problems).toEqual([]);
+  });
+
+  it("自由検索でも別の和了をまたいだ条件は満たさず、和了の数で件数を増やさない", async () => {
+    const page = await fetchCategoryProblems(
+      {
+        type: "search",
+        search: {
+          kind: "tenpai-score",
+          condition: { fuIn: [20, 30], yakuAll: ["Riichi"] },
+        },
+      },
+      1,
+    );
+    expect(page.total).toBe(1);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.riichiTenpai]);
+    const impossible = await fetchCategoryProblems(
+      {
+        type: "search",
+        search: {
+          kind: "tenpai-score",
+          condition: { fuIn: [20], isTsumo: false },
+        },
+      },
+      1,
+    );
+    expect(impossible.total).toBe(0);
   });
 
   it("ルールで変わる印の立つ和了を持つ問題を、印ごとに数える", async () => {
