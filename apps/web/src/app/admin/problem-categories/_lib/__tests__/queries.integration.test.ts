@@ -126,7 +126,7 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
       "yaku-riichi": 3,
       "yaku-yakuhai": 2,
       "fu-30": 3,
-      "fu-50": 1,
+      "fu-50": 2,
       "machi-ryanmen": 1,
       "machi-kanchan": 2,
       "machi-penchan": 0,
@@ -152,6 +152,32 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
     expect(Object.keys(agari?.categories ?? {})).toEqual(
       PROBLEM_CATEGORIES.map(({ id }) => id),
     );
+  });
+
+  it("50 符の一覧は通常手と役満を含み、同じ問題を一度だけ返す", async () => {
+    const page = await fetchCategoryProblems(
+      { type: "category", category: category("fu-50") },
+      1,
+    );
+    expect(page.total).toBe(2);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.tanki, ids.both]);
+    expect(
+      page.problems.flatMap(({ rows }) => rows.map(({ fu }) => fu)),
+    ).toEqual([50, 50]);
+  });
+
+  it("20 符と30 符の一覧には同じ聴牌形がそれぞれ一度だけ入る", async () => {
+    for (const id of ["fu-20", "fu-30"]) {
+      const page = await fetchCategoryProblems(
+        { type: "category", category: category(id) },
+        1,
+      );
+      expect(
+        page.problems.filter(
+          ({ id: problemId }) => problemId === ids.riichiTenpai,
+        ),
+      ).toHaveLength(1);
+    }
   });
 
   it("ルールで変わる印の立つ和了を持つ問題を、印ごとに数える", async () => {

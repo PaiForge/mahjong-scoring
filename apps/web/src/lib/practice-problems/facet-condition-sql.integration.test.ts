@@ -92,6 +92,9 @@ const INPUTS: readonly ProblemFacetInput[] = [
   requestInput(riichiTenpaiRequest()),
 ];
 
+/** 同じ固定盤面の採点は一度だけ行い、全分類で同じ属性を照合する。 */
+const INPUT_FACETS = INPUTS.map(computeProblemFacets);
+
 /** レジストリの分類に無い項目の組み合わせと、`all` の意味 */
 const EXTRA_RULES: readonly Rule[] = [
   { condition: {}, tenpaiMatch: "any" },
@@ -158,8 +161,8 @@ describe.skipIf(!url)("分類の条件の SQL（PostgreSQL）", () => {
 
   /** 属性に対する判定で選ばれる問題の番号 */
   function selectedByPredicate(rule: Rule): number[] {
-    return INPUTS.flatMap((input, index) =>
-      problemMatchesCategory(rule, computeProblemFacets(input)) ? [index] : [],
+    return INPUT_FACETS.flatMap((facets, index) =>
+      problemMatchesCategory(rule, facets) ? [index] : [],
     );
   }
 
