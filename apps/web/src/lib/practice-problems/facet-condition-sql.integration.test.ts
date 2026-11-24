@@ -92,8 +92,39 @@ const INPUTS: readonly ProblemFacetInput[] = [
   requestInput(riichiTenpaiRequest()),
 ];
 
+/** 同じ固定盤面の採点は一度だけ行い、全分類で同じ属性を照合する。 */
+const INPUT_FACETS = INPUTS.map(computeProblemFacets);
+
 /** レジストリの分類に無い項目の組み合わせと、`all` の意味 */
 const EXTRA_RULES: readonly Rule[] = [
+  ...(["any", "all"] as const).flatMap(
+    (tenpaiMatch) =>
+      [
+        { condition: { fuIn: [30, 50] }, tenpaiMatch },
+        { condition: { fuIn: [] }, tenpaiMatch },
+        { condition: { fuMin: 30, fuMax: 40 }, tenpaiMatch },
+        { condition: { fuMin: 30, fuMax: 30 }, tenpaiMatch },
+        { condition: { fuMax: 25 }, tenpaiMatch },
+        { condition: { hanEq: 3 }, tenpaiMatch },
+        { condition: { hanMin: 3, hanMax: 3 }, tenpaiMatch },
+        { condition: { hanMin: 4 }, tenpaiMatch },
+        { condition: { hanMax: 2 }, tenpaiMatch },
+        { condition: { hanMin: 3, hanMax: 2 }, tenpaiMatch },
+        { condition: { fuIn: [20], hanEq: 3 }, tenpaiMatch },
+        {
+          condition: {
+            fuMin: 40,
+            yakuAll: ["Riichi"],
+            yakuAny: ["Haku", "Bakaze"],
+          },
+          tenpaiMatch,
+        },
+        { condition: { yakuAll: [] }, tenpaiMatch },
+        { condition: { yakuAny: [] }, tenpaiMatch },
+        { condition: { machiIn: [] }, tenpaiMatch },
+        { condition: { scoreLevelIn: [] }, tenpaiMatch },
+      ] satisfies readonly Rule[],
+  ),
   { condition: {}, tenpaiMatch: "any" },
   { condition: {}, tenpaiMatch: "all" },
   { condition: { isTsumo: true }, tenpaiMatch: "any" },
@@ -158,8 +189,8 @@ describe.skipIf(!url)("分類の条件の SQL（PostgreSQL）", () => {
 
   /** 属性に対する判定で選ばれる問題の番号 */
   function selectedByPredicate(rule: Rule): number[] {
-    return INPUTS.flatMap((input, index) =>
-      problemMatchesCategory(rule, computeProblemFacets(input)) ? [index] : [],
+    return INPUT_FACETS.flatMap((facets, index) =>
+      problemMatchesCategory(rule, facets) ? [index] : [],
     );
   }
 

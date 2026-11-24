@@ -40,6 +40,8 @@ import {
   currentOkFacetSet,
 } from "@/lib/practice-problems/facet-condition-sql";
 
+import type { ProblemSearch } from "./search";
+
 import { RULE_FLAGS, ruleFlagCondition, type RuleFlag } from "./rule-flags";
 
 /** 一覧の 1 ページの問題数（1 問が盤面と和了の表で縦に長い） */
@@ -108,10 +110,11 @@ export async function fetchCategoryCounts(): Promise<
   }));
 }
 
-/** 一覧の絞り込み（分類か、ルールで変わる印のどちらか 1 つ） */
+/** 一覧の絞り込み。分類・ルールの印・自由検索のいずれかを使う。 */
 export type CategoryProblemFilter =
   | { readonly type: "category"; readonly category: ProblemCategory }
-  | { readonly type: "flag"; readonly flag: RuleFlag };
+  | { readonly type: "flag"; readonly flag: RuleFlag }
+  | { readonly type: "search"; readonly search: ProblemSearch };
 
 /** 一覧の 1 問（盤面と、この版の属性） */
 export interface CategoryProblem {
@@ -133,13 +136,13 @@ export interface CategoryProblemsPage {
 }
 
 /**
- * 分類（または印）に当てはまる問題を、保存の新しい順に 1 ページ読む
+ * 分類・印・自由検索に当てはまる問題を、保存の新しい順に 1 ページ読む
  * 問題分類一覧取得
  *
  * 件数・親の行・子の行の 3 クエリ。子は読んだページの問題の分だけを読む。ページ番号は
  * 1 から数え、範囲外は端に寄せる。
  *
- * @param filter - 分類か、ルールで変わる印
+ * @param filter - 分類・ルールで変わる印・検証済みの自由検索
  * @param page - URL から来たページ番号
  */
 export async function fetchCategoryProblems(
@@ -150,11 +153,23 @@ export async function fetchCategoryProblems(
     currentOkFacetSet(),
     filter.type === "category"
       ? categoryCondition(filter.category)
-      : ruleFlagCondition(filter.flag),
+      : filter.type === "flag"
+        ? ruleFlagCondition(filter.flag)
+        : categoryCondition({
+            condition: filter.search.condition,
+            tenpaiMatch: "any",
+          }),
+    filter.type === "search" && filter.search.kind
+      ? eq(practiceProblems.kind, filter.search.kind)
+      : undefined,
   );
   const [counted] = await db
     .select({ total: sql<number>`count(*)::int` })
     .from(practiceProblemFacetSets)
+    .innerJoin(
+      practiceProblems,
+      eq(practiceProblems.id, practiceProblemFacetSets.problemId),
+    )
     .where(condition);
   const total = counted?.total ?? 0;
   const totalPages = Math.max(

@@ -38,6 +38,8 @@ import {
   setupPracticeProblemsTestDb,
 } from "@/lib/practice-problems/test-database";
 
+import { parseProblemSearch } from "../search";
+
 import {
   CATEGORY_PROBLEMS_PAGE_SIZE,
   fetchCategoryCounts,
@@ -123,23 +125,26 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
     // 未計算の 1 問（リーチ・30 符）と失敗の 1 問は入らない
     expect(agari?.categories).toMatchObject({
-      riichi: 3,
-      yakuhai: 2,
+      "yaku-riichi": 3,
+      "yaku-yakuhai": 2,
       "fu-30": 3,
-      "fu-50-plus": 2,
+      "fu-50": 2,
       "machi-ryanmen": 1,
-      "machi-kanchan-penchan": 2,
+      "machi-kanchan": 2,
+      "machi-penchan": 0,
+      "machi-fu-2": 3,
       "machi-shanpon": 1,
       "machi-tanki": 1,
       "menzen-ron": 1,
-      furo: 0,
+      "menzen-false": 0,
       "mangan-plus": 1,
     });
     // 和了を 6 つ・4 つ持つ聴牌形も、それぞれ 1 問
     expect(tenpai?.categories).toMatchObject({
-      riichi: 1,
-      tanyao: 1,
-      pinfu: 1,
+      "yaku-riichi": 1,
+      "yaku-tanyao": 1,
+      "yaku-pinfu": 1,
+      "fu-20": 1,
       "fu-30": 2,
       "fu-40": 1,
       "machi-ryanmen": 1,
@@ -149,6 +154,83 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
     expect(Object.keys(agari?.categories ?? {})).toEqual(
       PROBLEM_CATEGORIES.map(({ id }) => id),
     );
+  });
+
+  it("50 符の一覧は通常手と役満を含み、同じ問題を一度だけ返す", async () => {
+    const page = await fetchCategoryProblems(
+      { type: "category", category: category("fu-50") },
+      1,
+    );
+    expect(page.total).toBe(2);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.tanki, ids.both]);
+    expect(
+      page.problems.flatMap(({ rows }) => rows.map(({ fu }) => fu)),
+    ).toEqual([50, 50]);
+  });
+
+  it("20 符と30 符の一覧には同じ聴牌形がそれぞれ一度だけ入る", async () => {
+    for (const id of ["fu-20", "fu-30"]) {
+      const page = await fetchCategoryProblems(
+        { type: "category", category: category(id) },
+        1,
+      );
+      expect(
+        page.problems.filter(
+          ({ id: problemId }) => problemId === ids.riichiTenpai,
+        ),
+      ).toHaveLength(1);
+    }
+  });
+
+  it("自由検索の種別・符・翻・役の AND は件数と一覧で同じ問題を選ぶ", async () => {
+    const state = parseProblemSearch({
+      kind: "agari-score",
+      fuMin: "50",
+      fuMax: "50",
+      hanEq: "3",
+      yaku: ["yaku-yakuhai", "yaku-riichi"],
+      yakuMode: "all",
+      agari: "ron",
+    });
+    if (!state.query) throw new Error("Invalid fixture search");
+    const page = await fetchCategoryProblems(
+      { type: "search", search: state.query },
+      1,
+    );
+    expect(page.total).toBe(1);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.both]);
+    const tenpaiOnly = await fetchCategoryProblems(
+      { type: "search", search: { ...state.query, kind: "tenpai-score" } },
+      1,
+    );
+    expect(tenpaiOnly.total).toBe(0);
+    expect(tenpaiOnly.problems).toEqual([]);
+  });
+
+  it("自由検索でも別の和了をまたいだ条件は満たさず、和了の数で件数を増やさない", async () => {
+    const page = await fetchCategoryProblems(
+      {
+        type: "search",
+        search: {
+          kind: "tenpai-score",
+          condition: { fuIn: [20, 30], yakuAll: ["Riichi"] },
+        },
+      },
+      1,
+    );
+    expect(page.total).toBe(1);
+    expect(page.problems.map(({ id }) => id)).toEqual([ids.riichiTenpai]);
+    const impossible = await fetchCategoryProblems(
+      {
+        type: "search",
+        search: {
+          kind: "tenpai-score",
+          condition: { fuIn: [20], isTsumo: false },
+        },
+      },
+      1,
+    );
+    expect(impossible.total).toBe(0);
   });
 
   it("ルールで変わる印の立つ和了を持つ問題を、印ごとに数える", async () => {
@@ -168,7 +250,7 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
   it("分類に当てはまる問題を保存の新しい順に返し、和了ごとの属性を添える", async () => {
     const page = await fetchCategoryProblems(
-      { type: "category", category: category("riichi") },
+      { type: "category", category: category("yaku-riichi") },
       1,
     );
     expect(page).toMatchObject({ total: 4, page: 1, totalPages: 1 });
@@ -213,7 +295,7 @@ describe.skipIf(!url)("問題の分類の集計と一覧（PostgreSQL）", () =>
 
   it("当てはまる問題が無ければ空の 1 ページを返し、範囲外のページは端に寄せる", async () => {
     const empty = await fetchCategoryProblems(
-      { type: "category", category: category("chiitoitsu") },
+      { type: "category", category: category("yaku-chiitoitsu") },
       3,
     );
     expect(empty).toEqual({ problems: [], total: 0, page: 1, totalPages: 1 });

@@ -17,8 +17,35 @@
  * @design 分類は練習のバリアントではない
  * 分類は管理・統計・候補の絞り込みに使う内部の条件で、記録の土俵（`leaderboard_key`）にも
  * 練習の出題範囲にもならない。練習に出すときは、少数の分類に名前を付けて練習のレジストリの
- * `variants` に列挙する（自由な組み合わせの絞り込みは作らない）。ID は URL のクエリと
+ * `variants` に列挙する。自由な検索から解くものは記録なしのトレーニングに限る。ID は URL のクエリと
  * 辞書キー（`admin.problemCategories.categories.<id>`）に同じ文字列で使う。
+ *
+ * @design 属性・単一値の分類・名前付き条件の 3 層に分ける
+ * DB は事実、単一値は学習上の値、名前付き条件は OR・範囲・軸をまたぐ AND。
+ * 人の判断で付けるラベルだけが将来のタグ表の対象で、自動分類の n:n 表は作らない。
+ * 単一値の ID は <軸>-<値>。名前付き条件は固有名を使う。旧 fu-50-plus などは
+ * 管理画面だけで使われていたため互換エイリアスを設けない（未知 ID は未選択）。
+ * 符は core の FU_VALUES の全値を扱い、50 符以上のような範囲へ丸めない。
+ * 待ち・役・点数区分も正本から生成し、表示したい値だけを別に列挙しない。
+ *
+ * @design 分類の件数は排他的な分布ではない
+ * 単一値も tenpaiMatch を持ち、一覧は any で数える。20 符ツモ・30 符ロンの聴牌形は
+ * 両方に 1 問ずつ入る。all にすると両方から消えるため、集計の重複回避には使わない。
+ * 役は和了形でも複数に入る。七対子・国士の待ち null を単騎へ読み替えない。
+ *
+ * @design 検索条件は同じ和了の中で満たす
+ * 符の複数値は fuIn、符・翻の範囲は上下限で表す。範囲の端は含む。項目間は AND。
+ * 配列の未指定は制約なし、空配列の OR は一致なし（空の yakuAll は制約なし）。
+ * UI の未選択は未指定へ変換するが、条件 API の空配列を未指定へ読み替えない。
+ * 役の「すべて」は通常の役を yakuAll、役牌の内訳のどれかを yakuAny に入れる。
+ * 役牌の全 ID を要求すると場風・自風・三元牌をすべて持つという別の意味になるため採らない。
+ * 検索 UI の不正値・逆転範囲はエラーとし、黙って条件を外して結果を広げない。
+ * 自由検索は any の問題数で、一覧の分類別件数は検索に連動させず全体の集計を保つ。
+ *
+ * @design ドリルの適格条件は検索と分ける
+ * Normal 限定は符別の点数回答ドリルの条件で、分類や符そのものを答える練習には
+ * 適用しない。記録を残す点数ドリルは切り上げ満貫等の回答が割れる境界を除く。
+ * 符だけを答える練習に点数の境界を機械的に適用しない。
  *
  * @design 分類は標準ルールの値で行う
  * 属性は標準ルールの値なので、連風牌 4 符・切り上げ満貫・役満ルールを有効にした閲覧者には
@@ -32,20 +59,24 @@
  * ロンを持つ聴牌形を含まない。条件は 1 つの和了の中でだけ組にする（「三暗刻」と「50 符」を
  * 別々の和了が満たしても、「三暗刻で 50 符」の分類には入らない）。
  */
-import type { MachiType, ScoreYakuId } from "@mahjong-scoring/core";
+import {
+  FU_VALUES,
+  isScoreYakuId,
+  SCORE_YAKU_NAME_MAP,
+  type MachiType,
+  type ScoreYakuId,
+} from "@mahjong-scoring/core";
+import { ScoreLevel } from "@mahjong-scoring/core/core/constants";
+import { SITUATIONAL_YAKU_KEYS } from "@mahjong-scoring/core/core/yaku-names";
+import {
+  MACHI_TYPES,
+  calculateMachiFu,
+} from "@mahjong-scoring/core/score/machi-fu";
 
 import type { ProblemFacetRow, ProblemFacets } from "./compute";
 
 /** 点数の区分（ライブラリの `ScoreLevel` の値。属性の `scoreLevel` に入る文字列） */
-export const SCORE_LEVELS = [
-  "Normal",
-  "Mangan",
-  "Haneman",
-  "Baiman",
-  "Sanbaiman",
-  "Yakuman",
-  "DoubleYakuman",
-] as const;
+export const SCORE_LEVELS = Object.values(ScoreLevel);
 
 /**
  * 点数の区分
@@ -68,6 +99,16 @@ export interface FacetCondition {
   readonly yakuAny?: readonly ScoreYakuId[];
   /** 符がこの値 */
   readonly fuEq?: number;
+  /** 符がこのいずれか。空配列は一致なし */
+  readonly fuIn?: readonly number[];
+  /** 符がこの値以下 */
+  readonly fuMax?: number;
+  /** 翻がこの値 */
+  readonly hanEq?: number;
+  /** 翻がこの値以上 */
+  readonly hanMin?: number;
+  /** 翻がこの値以下 */
+  readonly hanMax?: number;
   /** 符がこの値以上 */
   readonly fuMin?: number;
   /** 採用された解釈の待ちの形がこのどれか（七対子・国士無双は待ちの形を持たず、満たさない） */
@@ -86,6 +127,7 @@ export const PROBLEM_CATEGORY_GROUPS = [
   "fu",
   "machi",
   "agari",
+  "menzen",
   "level",
 ] as const;
 
@@ -103,6 +145,8 @@ export interface ProblemCategory {
   /** URL のクエリと辞書キーに使う ID（変えると共有済みの URL が切れる） */
   readonly id: string;
   readonly group: ProblemCategoryGroup;
+  /** 単一値の分類か、名前付きの条件か */
+  readonly kind: "value" | "named";
   readonly condition: FacetCondition;
   /** 聴牌形に当てるときの意味（このモジュールの説明） */
   readonly tenpaiMatch: "any" | "all";
@@ -127,79 +171,102 @@ const YAKUHAI_IDS: readonly ScoreYakuId[] = [
   "Chun",
 ];
 
-function yakuCategory(id: string, condition: FacetCondition): ProblemCategory {
-  return { id, group: "yaku", condition, tenpaiMatch: "any" };
+/** PascalCase の属性値を、URL と辞書に使うケバブケースにする。ID の集合は契約テストで固定する。 */
+function valueSlug(value: string): string {
+  return value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+}
+
+function valueCategory(
+  group: ProblemCategoryGroup,
+  value: string,
+  condition: FacetCondition,
+): ProblemCategory {
+  return {
+    id: `${group}-${valueSlug(value)}`,
+    group,
+    kind: "value",
+    condition,
+    tenpaiMatch: "any",
+  };
 }
 
 /**
- * 分類の一覧（管理画面に出す順）
- * 問題分類一覧
+ * 単一値の分類。符・役・待ち・点数区分の正本は core に置く。
+ * 単一値分類
  *
- * 最初の組は、教材と練習の区分（役の翻数・符計算・待ちの符・門前加符・満貫以上）に
- * 合わせて選んだ。件数を見てから足し引きする前提で、網羅を目指していない。どれも
- * 「どれかの和了が満たす」（`any`）。
+ * @design 役牌は生の役 ID ではなく学習上の 1 値
+ * 場風・自風・三元牌の内訳は保存したまま、読む条件だけで役牌にまとめる。
+ * 書き込み時の正規化は情報を失い、採点の版と再計算も必要になるため採らない。
+ * 状況役は保存盤面に情報が無く出題しないため除く。他の役を手で選抜しない。
  */
-export const PROBLEM_CATEGORIES: readonly ProblemCategory[] = [
-  yakuCategory("riichi", { yakuAll: ["Riichi"] }),
-  yakuCategory("tanyao", { yakuAll: ["Tanyao"] }),
-  yakuCategory("pinfu", { yakuAll: ["Pinfu"] }),
-  yakuCategory("yakuhai", { yakuAny: YAKUHAI_IDS }),
-  yakuCategory("iipeikou", { yakuAll: ["Iipeikou"] }),
-  yakuCategory("sanshoku-doujun", { yakuAll: ["SanshokuDoujun"] }),
-  yakuCategory("ikkitsuukan", { yakuAll: ["Ikkitsuukan"] }),
-  yakuCategory("toitoi", { yakuAll: ["Toitoi"] }),
-  yakuCategory("chiitoitsu", { yakuAll: ["Chiitoitsu"] }),
-  yakuCategory("somete", { yakuAny: ["Honitsu", "Chinitsu"] }),
-  { id: "fu-30", group: "fu", condition: { fuEq: 30 }, tenpaiMatch: "any" },
-  { id: "fu-40", group: "fu", condition: { fuEq: 40 }, tenpaiMatch: "any" },
+export const PROBLEM_VALUE_CATEGORIES: readonly ProblemCategory[] = [
+  ...Object.keys(SCORE_YAKU_NAME_MAP)
+    .filter(isScoreYakuId)
+    .filter(
+      (id) =>
+        !SITUATIONAL_YAKU_KEYS.includes(id) &&
+        (!YAKUHAI_IDS.includes(id) || id === "Yakuhai"),
+    )
+    .map((id) =>
+      valueCategory(
+        "yaku",
+        id,
+        id === "Yakuhai" ? { yakuAny: YAKUHAI_IDS } : { yakuAll: [id] },
+      ),
+    ),
+  ...FU_VALUES.map((fu) => valueCategory("fu", String(fu), { fuEq: fu })),
+  ...MACHI_TYPES.map((machi) =>
+    valueCategory("machi", machi, { machiIn: [machi] }),
+  ),
+  ...[true, false].map((isTsumo) =>
+    valueCategory("agari", isTsumo ? "tsumo" : "ron", { isTsumo }),
+  ),
+  ...[true, false].map((isMenzen) =>
+    valueCategory("menzen", String(isMenzen), { isMenzen }),
+  ),
+  ...SCORE_LEVELS.map((level) =>
+    valueCategory("level", level, { scoreLevelIn: [level] }),
+  ),
+];
+
+/** 名前付き条件。単一値の分類とは別に、OR や軸をまたぐ AND に教材上の名前を付ける。 */
+export const NAMED_PROBLEM_CATEGORIES: readonly ProblemCategory[] = [
   {
-    id: "fu-50-plus",
-    group: "fu",
-    condition: { fuMin: 50 },
-    tenpaiMatch: "any",
-  },
-  {
-    id: "machi-ryanmen",
-    group: "machi",
-    condition: { machiIn: ["Ryanmen"] },
-    tenpaiMatch: "any",
-  },
-  {
-    id: "machi-kanchan-penchan",
-    group: "machi",
-    condition: { machiIn: ["Kanchan", "Penchan"] },
-    tenpaiMatch: "any",
-  },
-  {
-    id: "machi-shanpon",
-    group: "machi",
-    condition: { machiIn: ["Shanpon"] },
-    tenpaiMatch: "any",
-  },
-  {
-    id: "machi-tanki",
-    group: "machi",
-    condition: { machiIn: ["Tanki"] },
+    id: "somete",
+    group: "yaku",
+    kind: "named",
+    condition: { yakuAny: ["Honitsu", "Chinitsu"] },
     tenpaiMatch: "any",
   },
   {
     id: "menzen-ron",
     group: "agari",
-    condition: { isTsumo: false, isMenzen: true },
-    tenpaiMatch: "any",
-  },
-  {
-    id: "furo",
-    group: "agari",
-    condition: { isMenzen: false },
+    kind: "named",
+    condition: { isMenzen: true, isTsumo: false },
     tenpaiMatch: "any",
   },
   {
     id: "mangan-plus",
     group: "level",
+    kind: "named",
     condition: { scoreLevelIn: MANGAN_OR_ABOVE },
     tenpaiMatch: "any",
   },
+  {
+    id: "machi-fu-2",
+    group: "machi",
+    kind: "named",
+    condition: {
+      machiIn: MACHI_TYPES.filter((machi) => calculateMachiFu(machi) === 2),
+    },
+    tenpaiMatch: "any",
+  },
+];
+
+/** 全分類。件数・一覧・ID 検索は単一値と名前付き条件の同じ判定を使う。 */
+export const PROBLEM_CATEGORIES: readonly ProblemCategory[] = [
+  ...PROBLEM_VALUE_CATEGORIES,
+  ...NAMED_PROBLEM_CATEGORIES,
 ];
 
 /**
@@ -241,6 +308,14 @@ export function facetRowMatches(
   if (yakuAny && !yakuAny.some((id) => row.yaku.includes(id))) return false;
   if (fuEq !== undefined && row.fu !== fuEq) return false;
   if (fuMin !== undefined && row.fu < fuMin) return false;
+  if (condition.fuIn && !condition.fuIn.includes(row.fu)) return false;
+  if (condition.fuMax !== undefined && row.fu > condition.fuMax) return false;
+  if (condition.hanEq !== undefined && row.han !== condition.hanEq)
+    return false;
+  if (condition.hanMin !== undefined && row.han < condition.hanMin)
+    return false;
+  if (condition.hanMax !== undefined && row.han > condition.hanMax)
+    return false;
   if (machiIn && !machiIn.some((machi) => machi === row.machi)) return false;
   if (condition.isTsumo !== undefined && row.isTsumo !== condition.isTsumo) {
     return false;
