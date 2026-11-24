@@ -32,6 +32,11 @@ import {
   fetchCategoryProblems,
   type CategoryProblemFilter,
 } from "./_lib/queries";
+import {
+  ProblemSearchForm,
+  ProblemSearchSummary,
+} from "./_components/problem-search-form";
+import { parseProblemSearch, problemSearchQuery } from "./_lib/search";
 import { RULE_FLAGS } from "./_lib/rule-flags";
 
 const searchParamsCache = createSearchParamsCache({
@@ -77,10 +82,10 @@ const PROBLEMS_ANCHOR = "problems";
  * 副作用を持つ。不完全な版を許して件数を併記する方針どおり、網羅の表を出し、埋めるのは
  * ボタン（と cron）にする。
  *
- * @design 一覧の絞り込みは分類か印のどちらか 1 つ
- * 分類どうしの組み合わせ（AND / OR）は作らない。分類は名前を付けて数える単位で、
- * 自由な組み合わせは件数の表と対応しなくなる。`category` と `flag` の両方が URL に
- * あれば分類を使う。
+ * @design 件数の表と自由検索は別の操作として扱う
+ * 分類・印のリンクは従来どおり 1 つだけで絞る。検索フォームは軸を組み合わせ、
+ * GET の URL に保持する。検索中も件数の表は全体を示す。検索と分類・印の混在や
+ * 不正な条件は検索せずエラーを出す（条件を黙って外して結果を広げない）。
  *
  * @design 分類を選んだら一覧の見出しへ着地させる（`HashAnchorScroll`）
  * 一覧は属性別の表・名前付き条件・ルールの表の下に出るので、リンクは `#problems` 付きにしている。ただしこのページは
@@ -100,13 +105,21 @@ export default async function AdminProblemCategoriesPage({
 }) {
   await requireAdminPage();
 
-  const params = await searchParamsCache.parse(searchParams);
-  const category = findProblemCategory(params.category);
-  const filter: CategoryProblemFilter | undefined = category
-    ? { type: "category", category }
-    : params.flag
-      ? { type: "flag", flag: params.flag }
-      : undefined;
+  const rawParams = await searchParams;
+  const search = parseProblemSearch(rawParams);
+  const params = await searchParamsCache.parse(rawParams);
+  const category = search.active
+    ? undefined
+    : findProblemCategory(params.category);
+  const filter: CategoryProblemFilter | undefined = search.active
+    ? search.query
+      ? { type: "search", search: search.query }
+      : undefined
+    : category
+      ? { type: "category", category }
+      : params.flag
+        ? { type: "flag", flag: params.flag }
+        : undefined;
 
   const [t, coverage, counts, problems] = await Promise.all([
     getTranslations("admin.problemCategories"),
@@ -116,11 +129,13 @@ export default async function AdminProblemCategoriesPage({
   ]);
 
   const countsByKind = new Map(counts.map((row) => [row.kind, row]));
-  const filterQuery = category
-    ? `category=${category.id}`
-    : params.flag
-      ? `flag=${params.flag}`
-      : "";
+  const filterQuery = search.active
+    ? problemSearchQuery(search.fields)
+    : category
+      ? `category=${category.id}`
+      : params.flag
+        ? `flag=${params.flag}`
+        : "";
   const filterLabel = category
     ? // 例: admin.problemCategories.categories.machi-ryanmen
       t(`categories.${category.id}`)
@@ -148,7 +163,7 @@ export default async function AdminProblemCategoriesPage({
     key: flag,
     label: t(`flags.${flag}`),
     href: `${BASE_PATH}?flag=${flag}#${PROBLEMS_ANCHOR}`,
-    current: !category && params.flag === flag,
+    current: !search.active && !category && params.flag === flag,
     counts: Object.fromEntries(
       ARCHIVE_KINDS.map((kind) => [
         kind,
@@ -172,6 +187,11 @@ export default async function AdminProblemCategoriesPage({
           <div className="mt-4">
             <FillFacetsButton />
           </div>
+        </section>
+
+        <section>
+          <h3 className={SECTION_HEADING_CLASSES}>{t("search.title")}</h3>
+          <ProblemSearchForm state={search} />
         </section>
 
         <section>
@@ -221,11 +241,14 @@ export default async function AdminProblemCategoriesPage({
               key={`anchor-${filterQuery}-${String(problems.page)}`}
             />
             <h3 className={SECTION_HEADING_CLASSES}>
-              {t("problems.title", {
-                name: filterLabel,
-                count: problems.total,
-              })}
+              {search.active
+                ? t("search.results", { count: problems.total })
+                : t("problems.title", {
+                    name: filterLabel,
+                    count: problems.total,
+                  })}
             </h3>
+            {search.query && <ProblemSearchSummary fields={search.fields} />}
             <p className="mb-4 text-sm">
               <Link href={BASE_PATH} className={TEXT_LINK_CLASSES}>
                 {t("problems.clear")}

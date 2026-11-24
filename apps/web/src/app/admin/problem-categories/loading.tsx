@@ -8,13 +8,14 @@ import {
   NAMED_PROBLEM_CATEGORIES,
 } from "@mahjong-scoring/features/problem-facets/categories";
 
+import { SEARCH_CATEGORY_GROUPS } from "./_lib/search";
 import { RULE_FLAGS } from "./_lib/rule-flags";
 
 /**
  * 問題の分類のローディング状態
  * ローディング
  *
- * 実体（タイトル → 説明 → 網羅の表とボタン → 属性別の表 → 名前付き条件の表 → ルールで変わる
+ * 実体（タイトル → 説明 → 網羅の表とボタン → 検索フォーム → 属性別の表 → 名前付き条件の表 → ルールで変わる
  * 問題の表）の構造・余白に合わせて CLS を防ぐ。該当する問題の一覧は分類を選んだときだけ
  * 出るので含めない。表の行数は定数から決まる。
  */
@@ -34,6 +35,24 @@ export default function AdminProblemCategoriesLoading() {
           <SkeletonBar className="mb-4 h-5 w-2/3 max-w-xl" tone={100} />
           <TableSkeleton columns={5} rows={ARCHIVE_KINDS.length + 1} />
           <SkeletonBar className="mt-4 h-9 w-36" />
+        </section>
+
+        {/* 検索フォーム */}
+        <section>
+          <SkeletonBar className="mb-4 h-7 w-48" />
+          <div className="admin-panel space-y-5 p-4">
+            <SkeletonBar className="h-10 w-full" tone={100} />
+            <SkeletonBar className="h-44 w-full" tone={100} />
+            <SkeletonBar className="h-28 w-full" tone={100} />
+            {SEARCH_CATEGORY_GROUPS.map((group) => (
+              <SkeletonBar
+                key={group}
+                className={group === "yaku" ? "h-80 w-full" : "h-28 w-full"}
+                tone={100}
+              />
+            ))}
+            <SkeletonBar className="h-10 w-24" />
+          </div>
         </section>
 
         {/* 分類ごとの問題数 */}
