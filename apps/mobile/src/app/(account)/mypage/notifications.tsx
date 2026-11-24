@@ -22,6 +22,11 @@ import {
   markNotificationsRead,
 } from "../../../notifications/notifications-api";
 import { usePullToRefresh } from "../../../components/screen-refresh";
+import {
+  noteAllNotificationsRead,
+  noteNotificationRead,
+  publishUnreadNotifications,
+} from "../../../notifications/unread-notifications";
 
 /**
  * 通知
@@ -76,8 +81,13 @@ function uniqueById(
 
 function Notifications({ userId }: { readonly userId: string }) {
   const t = useTranslations("notifications");
+  // 1 ページ目を読むたびに、ホームのアバターのバッジと付与のカードにも載せる
   const { state, reload } = useMypageRead(
-    useCallback(() => fetchNotifications(userId, 1), [userId]),
+    useCallback(async () => {
+      const result = await fetchNotifications(userId, 1);
+      if (!("error" in result)) publishUnreadNotifications(userId, result);
+      return result;
+    }, [userId]),
   );
   usePullToRefresh(reload);
   const firstPage = state.kind === "loaded" ? state.value : undefined;
@@ -105,6 +115,7 @@ function Notifications({ userId }: { readonly userId: string }) {
 
   const markRead = (id: string) => {
     setReadHere((prev) => new Set(prev).add(id));
+    noteNotificationRead(userId, id);
     void markNotificationsRead(userId, { id });
   };
 
@@ -117,6 +128,7 @@ function Notifications({ userId }: { readonly userId: string }) {
         setMarkAllFailed(true);
         return;
       }
+      noteAllNotificationsRead(userId);
       reload();
     });
   };

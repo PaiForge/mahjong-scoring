@@ -35,6 +35,7 @@ import { MypageGate, MypageLoadFailed } from "../../../mypage/mypage-gate";
 import { LoadingIndicator } from "../../../components/load-state";
 import { useMypageRead } from "../../../mypage/use-mypage-read";
 import { UnreadCountBadge } from "../../../notifications/unread-count-badge";
+import { publishUnreadNotificationCount } from "../../../notifications/unread-notifications";
 import { SiteLinksSection } from "../../../mypage/site-links-section";
 import { LanguageSettingsRow } from "../../../mypage/language-settings-row";
 import { usePullToRefresh } from "../../../components/screen-refresh";
@@ -125,23 +126,42 @@ function SignedInMypage({ userId }: { readonly userId: string }) {
     useCallback(() => fetchMypage(userId), [userId]),
   );
   usePullToRefresh(reload);
+  // ホームのアバターのバッジも同じ件数にそろえる
+  const unreadCount =
+    state.kind === "loaded" ? state.value.unreadNotificationCount : undefined;
+  useEffect(() => {
+    if (IAP_AVAILABLE && unreadCount !== undefined)
+      publishUnreadNotificationCount(userId, unreadCount);
+  }, [userId, unreadCount]);
   if (state.kind === "loading") return <LoadingIndicator />;
   if (state.kind === "failed")
     return <MypageLoadFailed message={t("loadFailed")} onRetry={reload} />;
   return <MypageBody mypage={state.value} />;
 }
 
-/** マイページの中身（見出し・アクティビティ・各機能への行） */
+/**
+ * マイページの中身（見出し・アクティビティ・各機能への行）
+ *
+ * 未読の通知があるときは、通知の行を各機能の行から外して見出しの直下に出す。
+ * 各機能の行はアクティビティの下にあり、スクロールしないと未読に気づけない。
+ */
 function MypageBody({ mypage }: { readonly mypage: MobileMypageResponse }) {
   const t = useTranslations("mypage");
+  const unreadCount = mypage.unreadNotificationCount ?? 0;
+  const notificationsFirst = IAP_AVAILABLE && unreadCount > 0;
   return (
     <>
       <ProfileHeading mypage={mypage} />
+      {notificationsFirst && (
+        <LinkRowList>
+          <NotificationsRow unreadCount={unreadCount} />
+        </LinkRowList>
+      )}
       <View style={styles.section}>
         <SectionTitle>{t("activityTitle")}</SectionTitle>
         <ActivityChart days={mypage.recentActivity} />
       </View>
-      <MypageMenu unreadNotificationCount={mypage.unreadNotificationCount} />
+      <MypageMenu showNotifications={!notificationsFirst} />
     </>
   );
 }
@@ -191,15 +211,14 @@ function MypagePreview() {
  * マイページの各機能への行（web の `MyPageMenu` からアカウントを除き、
  * ランキングでの順位を足したもの。Pro プランと通知は iOS だけ。理由は画面の TSDoc）
  *
- * @param unreadNotificationCount - 未読の通知の件数。1 以上なら通知の行末に出す
+ * @param showNotifications - 通知の行を出すか（未読があれば見出しの直下へ移すので出さない）
  */
 function MypageMenu({
-  unreadNotificationCount = 0,
+  showNotifications,
 }: {
-  readonly unreadNotificationCount?: number;
+  readonly showNotifications: boolean;
 }) {
   const t = useTranslations("mypage");
-  const tNotifications = useTranslations("notifications");
   const router = useRouter();
   return (
     <LinkRowList>
@@ -226,28 +245,40 @@ function MypageMenu({
           onPress={() => router.push(MYPAGE_PLAN_PATH)}
         />
       )}
-      {IAP_AVAILABLE && (
-        <LinkRow
-          testID="mypage-menu-notifications"
-          title={t("cards.notifications.title")}
-          description={t("cards.notifications.summary")}
-          leading={<BellIcon size={22} color={colors.surface600} />}
-          trailing={
-            unreadNotificationCount > 0 ? (
-              <UnreadCountBadge count={unreadNotificationCount} />
-            ) : undefined
-          }
-          accessibilityLabel={
-            unreadNotificationCount > 0
-              ? tNotifications("bellUnread", {
-                  count: unreadNotificationCount,
-                })
-              : undefined
-          }
-          onPress={() => router.push(MYPAGE_NOTIFICATIONS_PATH)}
-        />
-      )}
+      {IAP_AVAILABLE && showNotifications && <NotificationsRow />}
     </LinkRowList>
+  );
+}
+
+/**
+ * 通知の行。未読があれば行末に件数を出す
+ *
+ * @param unreadCount - 未読の通知の件数
+ */
+function NotificationsRow({
+  unreadCount = 0,
+}: {
+  readonly unreadCount?: number;
+}) {
+  const t = useTranslations("mypage");
+  const tNotifications = useTranslations("notifications");
+  const router = useRouter();
+  return (
+    <LinkRow
+      testID="mypage-menu-notifications"
+      title={t("cards.notifications.title")}
+      description={t("cards.notifications.summary")}
+      leading={<BellIcon size={22} color={colors.surface600} />}
+      trailing={
+        unreadCount > 0 ? <UnreadCountBadge count={unreadCount} /> : undefined
+      }
+      accessibilityLabel={
+        unreadCount > 0
+          ? tNotifications("bellUnread", { count: unreadCount })
+          : undefined
+      }
+      onPress={() => router.push(MYPAGE_NOTIFICATIONS_PATH)}
+    />
   );
 }
 
