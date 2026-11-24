@@ -17,6 +17,7 @@ import { ARCHIVE_KINDS, SCORING_VERSION } from "@mahjong-scoring/core";
 import {
   findProblemCategory,
   PROBLEM_CATEGORIES,
+  PROBLEM_CATEGORY_GROUPS,
 } from "@mahjong-scoring/features/problem-facets/categories";
 
 import {
@@ -53,12 +54,13 @@ const PROBLEMS_ANCHOR = "problems";
  * @description
  * 保存問題（`practice_problems`）を、役・符・待ち・和了の仕方・点数の区分の分類
  * （features の `problem-facets/categories.ts`）で分けた結果を見るページ。出すのは
- * 属性の網羅の状況（計算済み成功 / 失敗 / 未計算 / 全件）、分類ごとの問題数、
+ * 属性の網羅の状況（計算済み成功 / 失敗 / 未計算 / 全件）、単一値を軸別に数えた表、名前付き条件の表、
  * ルール設定で正解か属性が変わる問題の数、選んだ分類（または印）に当てはまる問題の一覧、
  * 属性の不足分を埋める手動の実行。
  *
  * 分類は、盤面を標準ルールで組み立て直して取り出した属性（翻・符・役・待ち）に条件を
- * 当てて決める。属性は保存のたびと日次の cron で計算するが、採点の版を上げた直後などは
+ * 当てて決める。表は排他的な分布ではなく、同じ聴牌形が複数の符の行に入る。
+ * 属性は保存のたびと日次の cron で計算するが、採点の版を上げた直後などは
  * 未計算の問題が残る。未計算と計算に失敗した問題はどの分類にも数えないので、分類の数は
  * 必ず網羅の表と一緒に読む。数えているのは問題の数で、和了の数ではない（聴牌形は
  * 待ち × ツモ/ロンの和了を持つが 1 問と数え、どれかの和了が条件を満たせば入る）。
@@ -81,7 +83,7 @@ const PROBLEMS_ANCHOR = "problems";
  * あれば分類を使う。
  *
  * @design 分類を選んだら一覧の見出しへ着地させる（`HashAnchorScroll`）
- * 一覧は 3 つの表の下に出るので、リンクは `#problems` 付きにしている。ただしこのページは
+ * 一覧は属性別の表・名前付き条件・ルールの表の下に出るので、リンクは `#problems` 付きにしている。ただしこのページは
  * loading.tsx を持ち、遷移した瞬間に描かれているのはスケルトンで、一覧の見出しはまだ
  * DOM に無い。Next はその時点で一度だけ対象を探して諦めるので、本体と一緒にマウント
  * される `HashAnchorScroll` で着地をやり直す。同じページの中で分類やページ番号だけを
@@ -127,22 +129,21 @@ export default async function AdminProblemCategoriesPage({
         t(`flags.${params.flag}`)
       : "";
 
-  const categoryRows: CategoryCountTableRow[] = PROBLEM_CATEGORIES.map(
-    (item) => ({
-      key: item.id,
-      // 例: admin.problemCategories.groups.yaku
-      group: t(`groups.${item.group}`),
-      label: t(`categories.${item.id}`),
-      href: `${BASE_PATH}?category=${item.id}#${PROBLEMS_ANCHOR}`,
-      current: category?.id === item.id,
-      counts: Object.fromEntries(
-        ARCHIVE_KINDS.map((kind) => [
-          kind,
-          countsByKind.get(kind)?.categories[item.id] ?? 0,
-        ]),
-      ),
-    }),
-  );
+  const categoryRows = PROBLEM_CATEGORIES.map((item) => ({
+    key: item.id,
+    group: item.group,
+    kind: item.kind,
+    // 例: admin.problemCategories.categories.fu-60
+    label: t(`categories.${item.id}`),
+    href: `${BASE_PATH}?category=${item.id}#${PROBLEMS_ANCHOR}`,
+    current: category?.id === item.id,
+    counts: Object.fromEntries(
+      ARCHIVE_KINDS.map((kind) => [
+        kind,
+        countsByKind.get(kind)?.categories[item.id] ?? 0,
+      ]),
+    ),
+  }));
   const flagRows: CategoryCountTableRow[] = RULE_FLAGS.map((flag) => ({
     key: flag,
     label: t(`flags.${flag}`),
@@ -176,9 +177,34 @@ export default async function AdminProblemCategoriesPage({
         <section>
           <h3 className={SECTION_HEADING_CLASSES}>{t("counts.title")}</h3>
           <p className="mb-4 text-sm text-surface-600">{t("counts.note")}</p>
+          <div className="space-y-6">
+            {PROBLEM_CATEGORY_GROUPS.map((group) => (
+              <div key={group}>
+                {/* 例: admin.problemCategories.groups.fu */}
+                <h4 className="mb-3 font-semibold text-surface-900">
+                  {t(`groups.${group}`)}
+                </h4>
+                <CategoryCountTable
+                  rows={categoryRows.filter(
+                    (row) => row.kind === "value" && row.group === group,
+                  )}
+                  nameLabel={t("counts.name")}
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <h3 className={SECTION_HEADING_CLASSES}>
+            {t("namedConditions.title")}
+          </h3>
+          <p className="mb-4 text-sm text-surface-600">
+            {t("namedConditions.note")}
+          </p>
           <CategoryCountTable
-            rows={categoryRows}
-            nameLabel={t("counts.name")}
+            rows={categoryRows.filter((row) => row.kind === "named")}
+            nameLabel={t("namedConditions.name")}
           />
         </section>
 

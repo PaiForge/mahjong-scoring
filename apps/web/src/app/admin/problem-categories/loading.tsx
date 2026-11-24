@@ -2,7 +2,11 @@ import { AdminPageTitlePlaceholder } from "@/app/admin/_components/admin-page-ti
 import { TableSkeleton } from "@/app/admin/_components/table-skeleton";
 import { SkeletonBar } from "@/app/_components/skeleton-bar";
 import { ARCHIVE_KINDS } from "@mahjong-scoring/core";
-import { PROBLEM_CATEGORIES } from "@mahjong-scoring/features/problem-facets/categories";
+import {
+  PROBLEM_VALUE_CATEGORIES,
+  PROBLEM_CATEGORY_GROUPS,
+  NAMED_PROBLEM_CATEGORIES,
+} from "@mahjong-scoring/features/problem-facets/categories";
 
 import { RULE_FLAGS } from "./_lib/rule-flags";
 
@@ -10,7 +14,7 @@ import { RULE_FLAGS } from "./_lib/rule-flags";
  * 問題の分類のローディング状態
  * ローディング
  *
- * 実体（タイトル → 説明 → 網羅の表とボタン → 分類ごとの問題数の表 → ルールで変わる
+ * 実体（タイトル → 説明 → 網羅の表とボタン → 属性別の表 → 名前付き条件の表 → ルールで変わる
  * 問題の表）の構造・余白に合わせて CLS を防ぐ。該当する問題の一覧は分類を選んだときだけ
  * 出るので含めない。表の行数は定数から決まる。
  */
@@ -36,9 +40,30 @@ export default function AdminProblemCategoriesLoading() {
         <section>
           <SkeletonBar className="mb-4 h-7 w-48" />
           <SkeletonBar className="mb-4 h-5 w-2/3 max-w-xl" tone={100} />
+          <div className="space-y-6">
+            {PROBLEM_CATEGORY_GROUPS.map((group) => (
+              <div key={group}>
+                <SkeletonBar className="mb-3 h-6 w-32" />
+                <TableSkeleton
+                  columns={2 + ARCHIVE_KINDS.length}
+                  rows={
+                    PROBLEM_VALUE_CATEGORIES.filter(
+                      (category) => category.group === group,
+                    ).length
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 名前付き条件 */}
+        <section>
+          <SkeletonBar className="mb-4 h-7 w-48" />
+          <SkeletonBar className="mb-4 h-5 w-2/3 max-w-xl" tone={100} />
           <TableSkeleton
-            columns={3 + ARCHIVE_KINDS.length}
-            rows={PROBLEM_CATEGORIES.length}
+            columns={2 + ARCHIVE_KINDS.length}
+            rows={NAMED_PROBLEM_CATEGORIES.length}
           />
         </section>
 

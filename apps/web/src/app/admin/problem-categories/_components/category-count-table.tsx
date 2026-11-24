@@ -10,8 +10,6 @@ import { ARCHIVE_KINDS } from "@mahjong-scoring/core";
 export interface CategoryCountTableRow {
   readonly key: string;
   readonly label: string;
-  /** まとまりの名前（分類の表だけ。印の表は持たない） */
-  readonly group?: string;
   /** 該当する問題の一覧への URL */
   readonly href: string;
   /** いま一覧に出している行か */
@@ -24,7 +22,7 @@ export interface CategoryCountTableRow {
  * 分類（またはルールで変わる印）ごとの問題数の表
  * 問題分類件数テーブル
  *
- * 列は左から（まとまり）/ 名前 / 和了形 / 聴牌形 / 合計。名前は該当する問題の一覧への
+ * 列は左から 名前 / 和了形 / 聴牌形 / 合計。名前は該当する問題の一覧への
  * リンクで、いま一覧に出している行は `aria-current` で示す。数えているのは問題の数で、
  * 和了の数ではない（待ちを複数持つ聴牌形も 1 問）。
  */
@@ -38,14 +36,12 @@ export async function CategoryCountTable({
 }) {
   const t = await getTranslations("admin.problemCategories.counts");
   const tKinds = await getTranslations("admin.practiceProblemStats.kinds");
-  const withGroup = rows.some((row) => row.group !== undefined);
 
   return (
     <div className="admin-table">
       <table className="w-full text-left text-sm">
         <TableHead
           labels={[
-            ...(withGroup ? [t("group")] : []),
             nameLabel,
             // 例: admin.practiceProblemStats.kinds.agari-score
             ...ARCHIVE_KINDS.map((kind) => tKinds(kind)),
@@ -55,11 +51,6 @@ export async function CategoryCountTable({
         <tbody>
           {rows.map((row) => (
             <tr key={row.key} className="border-t border-surface-200">
-              {withGroup && (
-                <td className="px-4 py-3 whitespace-nowrap text-surface-600">
-                  {row.group}
-                </td>
-              )}
               <td className="px-4 py-3 whitespace-nowrap">
                 <Link
                   href={row.href}
